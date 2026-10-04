@@ -10,6 +10,7 @@ import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { useFocusTrap } from "@/lib/accessibility"
+import { formatCurrency } from "@/lib/utils-extended"
 
 interface TransferListingModalProps {
     isOpen: boolean
@@ -88,7 +89,7 @@ export function TransferListingModal({
                                 </Badge>
                             </div>
                             <div className="text-xs text-muted-foreground mt-0.5">
-                                Market Value: <span className="text-emerald-400 font-bold">${(estimatedValue / 1000).toFixed(0)}k</span>
+                                Market Value: <span className="text-emerald-400 font-bold">{formatCurrency(estimatedValue)}</span>
                             </div>
                         </div>
                         <div className="text-right">
@@ -104,7 +105,7 @@ export function TransferListingModal({
                                     <div className="text-left">
                                         <div className="text-[10px] text-muted-foreground uppercase font-normal tracking-widest mb-1">Asking Price</div>
                                         <div className="text-3xl font-normal text-white leading-none">
-                                            ${(askingPrice / 1000).toFixed(0)}k
+                                            {formatCurrency(askingPrice)}
                                         </div>
                                     </div>
                                     <Badge

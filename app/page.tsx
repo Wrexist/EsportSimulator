@@ -18,7 +18,7 @@ import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUp
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
-import { formatCurrency } from "@/lib/utils-extended"
+import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR, getTierColor, getTierBgColor } from "@/data/tournament-calendar"
 import dynamic from "next/dynamic"
@@ -655,7 +655,7 @@ export default function Page() {
                   <div className="flex items-end gap-2">
                     <AnimatedNumber
                       value={financialData.budget}
-                      format={(n) => Math.abs(n) >= 1000000 ? `$${(n / 1000000).toFixed(2)}M` : `$${Math.round(n).toLocaleString("en-US")}`}
+                      format={(n) => formatCurrency(Math.round(n), "$", Math.abs(n) >= 1_000_000)}
                       className="text-3xl font-normal text-white"
                     />
                   </div>
@@ -665,7 +665,7 @@ export default function Page() {
                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Weekly Income</p>
                   <div className="flex items-center gap-2">
                     <ArrowUpCircle size={16} className="text-emerald-400" />
-                    <span className="text-xl font-normal text-emerald-400/80">+${(financialData.income / 1000).toFixed(1)}k</span>
+                    <span className="text-xl font-normal text-emerald-400/80">{formatSignedCurrency(financialData.income)}</span>
                   </div>
                 </div>
 
@@ -677,7 +677,7 @@ export default function Page() {
                     ) : (
                       <ArrowDownCircle size={16} className="text-red-400" />
                     )}
-                    <span className={`text-xl font-normal ${financialData.net >= 0 ? "text-emerald-400/80" : "text-red-400/80"}`}>{financialData.net >= 0 ? '+' : ''}${(financialData.net / 1000).toFixed(1)}k</span>
+                    <span className={`text-xl font-normal ${financialData.net >= 0 ? "text-emerald-400/80" : "text-red-400/80"}`}>{formatSignedCurrency(financialData.net)}</span>
                   </div>
                 </div>
               </div>
@@ -686,11 +686,11 @@ export default function Page() {
               <div className="finance-breakdown mt-8 pt-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <p className="text-[11px] text-white/50 uppercase font-semibold tracking-widest mb-1">Salaries</p>
-                  <p className="text-xs text-white/60 font-medium">-${(financialData.salaries / 1000).toFixed(1)}k</p>
+                  <p className="text-xs text-white/60 font-medium">{formatCurrency(-financialData.salaries)}</p>
                 </div>
                 <div>
                   <p className="text-[11px] text-white/50 uppercase font-semibold tracking-widest mb-1">Facilities, equipment & academy</p>
-                  <p className="text-xs text-white/60 font-medium">-${(financialData.facilities / 1000).toFixed(1)}k</p>
+                  <p className="text-xs text-white/60 font-medium">{formatCurrency(-financialData.facilities)}</p>
                 </div>
                 <div className="col-span-2 flex items-center justify-end">
                   <Button asChild variant="ghost" size="sm" className="text-[11px] uppercase tracking-widest font-semibold text-primary hover:bg-primary/10 rounded-full h-8">

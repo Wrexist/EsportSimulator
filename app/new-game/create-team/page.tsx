@@ -49,6 +49,7 @@ import {
 import { RosterBuilderModal } from "@/components/onboarding/RosterBuilderModal"
 import { customClubStartingCash, describeClubChallenge } from "@/lib/club-expectations"
 import { ImageUploader } from "@/components/ui/ImageUploader"
+import { formatCurrency } from "@/lib/utils-extended"
 
 // Wizard steps
 type WizardStep = "name" | "region" | "colors" | "difficulty" | "review"
@@ -551,7 +552,7 @@ export default function CreateTeamPage() {
                                     </div>
                                     <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/5">
                                         <div className="text-center">
-                                            <p className="text-lg font-bold text-emerald-400">${(customClubStartingCash(settings.startingBudget) / 1000).toFixed(0)}K</p>
+                                            <p className="text-lg font-bold text-emerald-400">{formatCurrency(customClubStartingCash(settings.startingBudget))}</p>
                                             <p className="text-[10px] text-muted-foreground uppercase">Starting cash</p>
                                         </div>
                                         <div className="text-center">
@@ -628,7 +629,7 @@ export default function CreateTeamPage() {
                                 </div>
                                 <div className="p-4 bg-white/5 rounded-xl">
                                     <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Starting cash</p>
-                                    <p className="text-emerald-400 font-bold">${(customClubStartingCash(difficultySettings.startingBudget) / 1000).toFixed(0)}K</p>
+                                    <p className="text-emerald-400 font-bold">{formatCurrency(customClubStartingCash(difficultySettings.startingBudget))}</p>
                                 </div>
                                 <div className="p-4 bg-white/5 rounded-xl">
                                     <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Reputation</p>

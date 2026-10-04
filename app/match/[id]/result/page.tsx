@@ -16,7 +16,7 @@ import { motion } from "framer-motion"
 import { formatGameCalendarDate } from "@/lib/game-calendar"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { cn } from "@/lib/utils"
-import { formatRole } from "@/lib/utils-extended"
+import { formatRole, formatCurrency } from "@/lib/utils-extended"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { fireConfetti, preloadConfetti } from "@/lib/confetti-lazy"
 import { soundManager } from "@/lib/sound-manager"
@@ -596,7 +596,7 @@ export default function MatchResultPage() {
                                     {insights.economy.buys.map(b => (
                                         <li key={b.buy}>{b.buy.toLowerCase()} buys: {b.won}/{b.played} won ({buyWinRate(b)}%)</li>
                                     ))}
-                                    <li>Average spend per player per round: ${insights.economy.avgSpend.toLocaleString()}</li>
+                                    <li>Average spend per player per round: {formatCurrency(insights.economy.avgSpend, "$", false)}</li>
                                 </ul>
                             </div>
                             <div>
@@ -1027,7 +1027,7 @@ export default function MatchResultPage() {
                                             return (
                                                 <div key={i} className="flex-1 flex flex-col items-center group relative">
                                                     <div className="hidden group-hover:flex absolute -top-8 bg-black/90 border border-white/10 rounded-md px-2 py-1 z-10 whitespace-nowrap">
-                                                        <span className="text-[9px] text-white/80">R{i + 1}: ${Math.round(avgMoney).toLocaleString()}</span>
+                                                        <span className="text-[9px] text-white/80">R{i + 1}: {formatCurrency(Math.round(avgMoney), "$", false)}</span>
                                                     </div>
                                                     {isWinner && <div className="w-1 h-1 rounded-full bg-emerald-400 mb-1" />}
                                                     {!isWinner && <div className="w-1 h-1 mb-1" />}
@@ -1066,7 +1066,7 @@ export default function MatchResultPage() {
                                                     {isWinner && <div className="w-1 h-1 rounded-full bg-emerald-400 mt-1" />}
                                                     {!isWinner && <div className="w-1 h-1 mt-1" />}
                                                     <div className="hidden group-hover:flex absolute -bottom-8 bg-black/90 border border-white/10 rounded-md px-2 py-1 z-10 whitespace-nowrap">
-                                                        <span className="text-[9px] text-white/80">R{i + 1}: ${Math.round(avgMoney).toLocaleString()}</span>
+                                                        <span className="text-[9px] text-white/80">R{i + 1}: {formatCurrency(Math.round(avgMoney), "$", false)}</span>
                                                     </div>
                                                 </div>
                                             )

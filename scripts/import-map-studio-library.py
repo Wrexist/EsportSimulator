@@ -186,7 +186,10 @@ def main():
         bundle["maps"][layout["mapId"]] = floor_data
         report[layout["mapId"]] = {"source": page_url, "sourceRecords": len(data["allGrenades"]), "sourceTargetPairs": len(seen), "floors": {floor: {"imported": len(value["lineups"]), "unplaced": len(value["unplaced"]), "outlines": len(value["outlines"]), "kinds": dict(Counter(mark["kind"] for mark in value["lineups"]))} for floor, value in floor_data.items()}, "registration": registration}
         print(layout["mapId"], report[layout["mapId"]]["floors"], flush=True)
-    dest = ROOT / "data/map-studio-library.json"
+    # Imported lineups are excluded from the 1.0 base game (owner decision 2026-10-04); never write
+    # them into shipped data. Output goes to the non-shipped archive for review.
+    dest = ROOT / "raw-data/archived-lineups/cs2nades-reimport.json"
+    dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(json.dumps(bundle, separators=(",", ":")), encoding="utf-8")
     audit = ROOT / "docs/audit-2026-09-12/map-library"
     audit.mkdir(exist_ok=True)

@@ -35,6 +35,7 @@ import { GameDifficulty } from "@/types/team-creator"
 import { PlayerRole } from "@/types/enums"
 import { useFocusTrap } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 // Weekly salary caps based on difficulty (increased for realistic salaries)
 const WEEKLY_SALARY_CAPS: Record<GameDifficulty, number> = {
     story: 25000,     // Can afford elite players
@@ -401,7 +402,7 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
         // fees are already deducted from it). The engine re-checks this too.
         if (!player.isFreeAgent && contract.transferFee > playerTeam.budget) {
             toast.error("Transfer budget exceeded!", {
-                description: `You need $${contract.transferFee.toLocaleString()} to buy out this player's contract.`
+                description: `You need ${formatCurrency(contract.transferFee, "$", false)} to buy out this player's contract.`
             })
             return
         }
@@ -427,10 +428,10 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                 setFeesPaid(prev => ({ ...prev, [player.id]: contract.transferFee }))
             }
             const feeText = contract.transferFee > 0
-                ? ` (Buyout: $${contract.transferFee.toLocaleString()})`
+                ? ` (Buyout: ${formatCurrency(contract.transferFee, "$", false)})`
                 : " (Free Agent)"
             toast.success(`Signed ${player.nickname}!${feeText}`, {
-                description: `$${contract.salaryPerWeek.toLocaleString()}/week for 1 year`
+                description: `${formatCurrency(contract.salaryPerWeek, "$", false)}/week for 1 year`
             })
         } else {
             toast.error("Failed to sign player", {
@@ -458,7 +459,7 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                 return next
             })
             toast.success(`Released ${player.nickname}`, paid
-                ? { description: `The $${paid.toLocaleString()} buyout is not refunded.` }
+                ? { description: `The ${formatCurrency(paid, "$", false)} buyout is not refunded.` }
                 : undefined)
         }
     }
@@ -529,11 +530,11 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                                     "text-xl font-bold",
                                     transferFeesSpent > 0 ? "text-amber-400" : "text-emerald-400"
                                 )}>
-                                    ${playerTeam.budget.toLocaleString()}
+                                    {formatCurrency(playerTeam.budget, "$", false)}
                                 </p>
                                 {transferFeesSpent > 0 && (
                                     <p className="text-xs text-muted-foreground">
-                                        (${transferFeesSpent.toLocaleString()} spent on buyouts)
+                                        ({formatCurrency(transferFeesSpent, "$", false)} spent on buyouts)
                                     </p>
                                 )}
                             </div>
@@ -552,7 +553,7 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                                     weeklyCommitment >= salaryCap && "text-red-400",
                                     weeklyCommitment <= salaryCap * 0.8 && "text-emerald-400"
                                 )}>
-                                    ${weeklyCommitment.toLocaleString()} / ${salaryCap.toLocaleString()}
+                                    {formatCurrency(weeklyCommitment, "$", false)} / {formatCurrency(salaryCap, "$", false)}
                                 </span>
                             </div>
                             <Progress
@@ -566,7 +567,7 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                             <p className="text-[10px] text-muted-foreground mt-1">
                                 {weeklyCommitment >= salaryCap
                                     ? "Budget maxed! Release players or choose cheaper options."
-                                    : `$${(salaryCap - weeklyCommitment).toLocaleString()} remaining per week`
+                                    : `${formatCurrency((salaryCap - weeklyCommitment), "$", false)} remaining per week`
                                 }
                             </p>
                         </div>
@@ -828,12 +829,12 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                                                         <DollarSign size={12} />
                                                         Salary:
                                                     </span>
-                                                    <span className="font-bold">${contract.salaryPerWeek.toLocaleString()}/week</span>
+                                                    <span className="font-bold">{formatCurrency(contract.salaryPerWeek, "$", false)}/week</span>
                                                 </div>
                                                 {!player.isFreeAgent && contract.transferFee > 0 ? (
                                                     <div className="flex items-center justify-between text-amber-400">
                                                         <span>Buyout:</span>
-                                                        <span className="font-bold">${contract.transferFee.toLocaleString()}</span>
+                                                        <span className="font-bold">{formatCurrency(contract.transferFee, "$", false)}</span>
                                                     </div>
                                                 ) : (
                                                     <div className="flex items-center justify-between text-emerald-400">
@@ -867,8 +868,8 @@ export function RosterBuilderModal({ isOpen, onComplete, teamColors }: RosterBui
                                                 <UserPlus size={16} />
                                                 {affordable
                                                     ? (player.isFreeAgent
-                                                        ? `Sign — $${contract.salaryPerWeek.toLocaleString()}/wk`
-                                                        : `Pay $${contract.transferFee.toLocaleString()} & Sign`)
+                                                        ? `Sign — ${formatCurrency(contract.salaryPerWeek, "$", false)}/wk`
+                                                        : `Pay ${formatCurrency(contract.transferFee, "$", false)} & Sign`)
                                                     : "Cannot Afford"}
                                             </Button>
                                         </motion.div>

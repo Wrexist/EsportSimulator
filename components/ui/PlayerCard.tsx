@@ -8,7 +8,7 @@ import {
 import { memo, type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
-import { formatRole } from "@/lib/utils-extended"
+import { formatRole, formatCurrency } from "@/lib/utils-extended"
 
 import { Badge } from "@/components/ui/badge"
 import { PlayerPortrait } from "@/components/ui/asset-images"
@@ -275,7 +275,7 @@ function PlayerCardImpl({
             <div className={cn("flex items-center gap-2 text-[9px] font-medium text-white/40 mt-1", isReveal && "justify-center")}>
               {player.salaryPerWeek !== undefined && (
                 <span className="text-emerald-400 font-bold">
-                  ${(player.salaryPerWeek / 1000).toFixed(1)}k/wk
+                  {formatCurrency(player.salaryPerWeek)}/wk
                 </span>
               )}
               {player.salaryPerWeek !== undefined && player.contractYearsLeft !== undefined && (

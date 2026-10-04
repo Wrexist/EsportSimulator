@@ -8,6 +8,7 @@ import { DollarSign, Clock, Target, CheckCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { SponsorSaveData } from "@/engine/save-types"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const TIER_STYLES = {
   STANDARD: { border: "border-blue-500/20", bg: "bg-blue-500/5", badge: "bg-blue-500/20 text-blue-400", glow: "" },
   PREMIUM: { border: "border-purple-500/20", bg: "bg-purple-500/5", badge: "bg-purple-500/20 text-purple-400", glow: "shadow-purple-500/5" },
@@ -40,7 +41,7 @@ function ActiveSponsorCardImpl({ sponsor, index }: ActiveSponsorCardProps) {
         <div className="text-right">
           <div className="flex items-center gap-1 text-green-400 font-bold text-lg">
             <DollarSign size={16} />
-            {sponsor.weeklyPayout.toLocaleString()}
+            {formatCurrency(sponsor.weeklyPayout, "", false)}
             <span className="text-xs text-muted-foreground font-normal">/wk</span>
           </div>
         </div>
@@ -71,7 +72,7 @@ function ActiveSponsorCardImpl({ sponsor, index }: ActiveSponsorCardProps) {
               <Progress value={Math.min(100, (goal.current / goal.target) * 100)} className="h-1" />
               {goal.isCompleted && (
                 <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">
-                  Bonus Secured: ${goal.bonusPayout.toLocaleString()}
+                  Bonus Secured: {formatCurrency(goal.bonusPayout, "$", false)}
                 </p>
               )}
             </div>

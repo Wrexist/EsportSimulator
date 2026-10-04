@@ -11,6 +11,7 @@ import { STAFF_TALENT_TREES } from '@/engine/talent-trees'
 import { cn } from '@/lib/utils'
 import { useFocusTrap } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface StaffDetailsModalProps {
     staffId: string | null
     onClose: () => void
@@ -175,7 +176,7 @@ export function StaffDetailsModal({ staffId, onClose }: StaffDetailsModalProps) 
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center bg-black/20 p-3 rounded-lg border border-white/5">
                                         <span className="text-white/50 text-xs font-bold uppercase">Weekly Salary</span>
-                                        <span className="text-white font-mono font-bold text-lg">{staff.salaryPerWeek != null ? `$${staff.salaryPerWeek.toLocaleString("en-US")}` : "—"}</span>
+                                        <span className="text-white font-mono font-bold text-lg">{staff.salaryPerWeek != null ? `${formatCurrency(staff.salaryPerWeek, "$", false)}` : "—"}</span>
                                     </div>
                                     <div className="flex justify-between items-center bg-black/20 p-3 rounded-lg border border-white/5">
                                         <span className="text-white/50 text-xs font-bold uppercase">Expires In</span>

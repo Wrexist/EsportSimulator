@@ -32,7 +32,7 @@ import {
     MapPin
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { formatRole } from "@/lib/utils-extended"
+import { formatRole, formatCurrency } from "@/lib/utils-extended"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
@@ -299,7 +299,7 @@ export function AcademyApp() {
                             </div>
                             <div className="bg-black/20 px-3 py-2 rounded-lg border border-white/5 text-center">
                                 <div className="text-[9px] text-white/40 uppercase">Weekly</div>
-                                <div className="text-base font-normal text-red-400">${getWeeklyUpkeep().toLocaleString()}</div>
+                                <div className="text-base font-normal text-red-400">{formatCurrency(getWeeklyUpkeep(), "$", false)}</div>
                             </div>
                         </div>
                     )}
@@ -332,7 +332,7 @@ export function AcademyApp() {
                                     size="sm"
                                     className={cn("h-7 px-3 text-[10px] font-bold active:scale-95 transition-transform", canAffordUpgrade ? "bg-white text-black hover:bg-emerald-400" : "bg-white/5 text-white/40")}
                                 >
-                                    Upgrade ${upgradeCost.toLocaleString()}
+                                    Upgrade {formatCurrency(upgradeCost, "$", false)}
                                 </Button>
                             </div>
                         )}
@@ -468,7 +468,7 @@ export function AcademyApp() {
                             <h3 id="modal-title-release-prospect" className="text-lg font-bold text-center mb-2">Release Prospect?</h3>
                             <p className="text-xs text-white/50 text-center mb-6 leading-relaxed">
                                 Are you sure you want to release this talent?
-                                A termination fee of <span className="text-red-400 font-bold">${RELEASE_FEE.toLocaleString()}</span> will be deducted from your budget.
+                                A termination fee of <span className="text-red-400 font-bold">{formatCurrency(RELEASE_FEE, "$", false)}</span> will be deducted from your budget.
                             </p>
 
                             <div className="flex gap-3">
@@ -514,7 +514,7 @@ function BuildAcademyPanel({ budget, onBuild }: { budget: number; onBuild: () =>
             <div className="p-3 rounded-lg bg-black/30 border border-white/10 mb-4">
                 <div className="flex justify-between text-sm">
                     <span className="text-white/60">Construction Cost</span>
-                    <span className={budget >= cost ? "text-white" : "text-red-400"}>${cost.toLocaleString()}</span>
+                    <span className={budget >= cost ? "text-white" : "text-red-400"}>{formatCurrency(cost, "$", false)}</span>
                 </div>
             </div>
             <Button onClick={onBuild} disabled={budget < cost} className={cn("h-12 px-6 font-bold active:scale-95 transition-transform", budget >= cost ? "bg-emerald-500 hover:bg-emerald-400 text-black" : "bg-white/5 text-white/40")}>
@@ -1011,7 +1011,7 @@ function MatchesTab({ academyLevel, matchHistory, budget, showMatchFlow, matchRe
                     </div>
                     <div className="text-right">
                         <Button onClick={onPlayMatch} disabled={!canSchedule} className={cn("h-9 px-4 font-bold text-[10px]", canSchedule ? "bg-cyan-500 hover:bg-cyan-400 text-black" : "bg-white/5 text-white/40")}>
-                            Play ${matchCost.toLocaleString()}
+                            Play {formatCurrency(matchCost, "$", false)}
                         </Button>
                         {!canSchedule && (
                             <div className="text-[8px] text-red-400 font-bold mt-1 uppercase tracking-tighter">
@@ -1194,7 +1194,7 @@ function ScoutingTab({
                                     disabled={!canScout}
                                     className={cn("w-full h-8 text-[10px] font-normal uppercase tracking-wider", canScout ? "bg-emerald-500 hover:bg-emerald-400 text-black border-none shadow-[0_0_15px_-5px_rgba(16,185,129,0.4)]" : "bg-white/5 text-white/20 border-white/5")}
                                 >
-                                    ${tier.cost.toLocaleString()}
+                                    {formatCurrency(tier.cost, "$", false)}
                                 </Button>
                             )}
                         </div>

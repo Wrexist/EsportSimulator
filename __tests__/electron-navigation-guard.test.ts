@@ -34,10 +34,10 @@ describe('external link allowlist', () => {
     'https://store.steampowered.com/app/480/',
     'https://steamcommunity.com/sharedfiles/filedetails/?id=123',
     'https://help.steampowered.com/en/',
-    'https://cs2nades.gg/en/',
-    'https://www.cs2nades.gg/en/dust2',
   ])('allows %s', url => expect(isAllowedExternalUrl(url)).toBe(true))
   test.each([
+    'https://cs2nades.gg/en/', // imported lineups excluded from 1.0; no shipped links remain
+
     'http://store.steampowered.com/', // plain http
     'https://store.steampowered.com:8443/', // explicit port
     'https://user:pass@steamcommunity.com/', // credentials

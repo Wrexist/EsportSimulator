@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "@/lib/toast"
 import { useFocusTrap, pressable } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface BookBootcampModalProps {
     isOpen: boolean
     onClose: () => void
@@ -191,7 +192,7 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
 
                                 <div className="flex justify-between items-center py-2 border-b border-white/5">
                                     <span className="text-sm text-gray-400">Weekly Cost</span>
-                                    <span className="font-mono text-white">${selectedOption.costPerWeek.toLocaleString()}</span>
+                                    <span className="font-mono text-white">{formatCurrency(selectedOption.costPerWeek, "$", false)}</span>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-white/5">
                                     <span className="text-sm text-gray-400">Duration</span>
@@ -200,7 +201,7 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                                 <div className="flex justify-between items-center pt-2">
                                     <span className="text-sm font-bold text-white uppercase tracking-wider">Total</span>
                                     <span className={`font-mono font-bold text-lg ${budget >= totalCost ? "text-emerald-400" : "text-red-500"}`}>
-                                        ${totalCost.toLocaleString()}
+                                        {formatCurrency(totalCost, "$", false)}
                                     </span>
                                 </div>
                             </div>
@@ -208,7 +209,7 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                             {budget < totalCost && (
                                 <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-3">
                                     <Coins className="text-red-500" size={16} />
-                                    <p className="text-xs text-red-200">Insufficient funds. Need ${(totalCost - budget).toLocaleString()} more.</p>
+                                    <p className="text-xs text-red-200">Insufficient funds. Need {formatCurrency((totalCost - budget), "$", false)} more.</p>
                                 </div>
                             )}
 

@@ -15,6 +15,7 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { selectPlayableMatchId } from "@/lib/playable-match"
+import { formatCurrency } from "@/lib/utils-extended"
 
 // Hoisted: this lookup was being rebuilt as a fresh object on every TopBar
 // render (which fires on every game tick).
@@ -130,12 +131,12 @@ export function TopBar() {
                     {isMounted ? (
                         <AnimatedNumber
                             value={budget}
-                            format={(n) => `$${Math.round(n).toLocaleString("en-US")}`}
+                            format={(n) => formatCurrency(Math.round(n), "$", false)}
                             className="text-sm font-medium text-emerald-400"
                         />
                     ) : (
                         <span suppressHydrationWarning className="text-sm font-medium text-emerald-400">
-                            ${budget.toLocaleString("en-US")}
+                            {formatCurrency(budget, "$", false)}
                         </span>
                     )}
                 </div>

@@ -35,6 +35,7 @@ import {
 import { MapId } from "@/types"
 import Link from "next/link"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
+import { formatCurrency } from "@/lib/utils-extended"
 
 interface HealthCheckResult {
     category: string
@@ -163,7 +164,7 @@ export default function DevPage() {
         results.push({
             category: "Budget",
             status: (playerTeam?.budget || 0) > 0 ? "OK" : "WARN",
-            message: `Team budget: $${((playerTeam?.budget || 0) / 1000).toFixed(0)}k`,
+            message: `Team budget: ${formatCurrency(playerTeam?.budget || 0)}`,
             value: playerTeam?.budget || 0
         })
 
@@ -333,7 +334,7 @@ export default function DevPage() {
                     : t
             )
         }))
-        log(`Added $${(amount / 1000).toFixed(0)}k to budget.`)
+        log(`Added ${formatCurrency(amount)} to budget.`)
     }
 
     const getStatusColor = (status: "OK" | "WARN" | "ERROR") => {
@@ -380,7 +381,7 @@ export default function DevPage() {
                     { label: "Matches", value: stats.matches, icon: Swords },
                     { label: "Completed", value: stats.completedMatches, icon: Trophy },
                     { label: "Tournaments", value: stats.tournaments, icon: Trophy },
-                    { label: "Budget", value: `$${(stats.budget / 1000).toFixed(0)}k`, icon: DollarSign },
+                    { label: "Budget", value: formatCurrency(stats.budget), icon: DollarSign },
                     { label: "Status", value: stats.isInitialized ? "Active" : "None", icon: Activity }
                 ].map((stat, i) => (
                     <div key={i} className="bg-white/2 border border-white/5 rounded-xl p-3 text-center">

@@ -83,6 +83,7 @@ export function MapAnnotationEditor() {
     const map = MAP_OPTIONS.find(map => map.id === project.mapId)!
     const source = radarSource(project)
     const library = libraryFor(project)
+    const importedLineups = project.marks.filter(mark => mark.source?.provider === "CS2Nades").length
     const nativeDraft = nativeDrafts.find(entry => entry.project === nativeDraftSelection) || nativeDrafts.find(entry => entry.mapId === project.mapId && entry.floor === project.floor) || nativeDrafts[0]
 
     const persist = useCallback((doc: MapAnnotationProject) => {
@@ -361,13 +362,13 @@ export function MapAnnotationEditor() {
                 {group === "Utility" && <>
                     <label className={styles.check}><input type="checkbox" checked={bounces} disabled={!!draft.length} onChange={event => setBounces(event.target.checked)} />Add bounce / path points</label>
                     {library && <div className={styles.presetCard}>
-                        <b>Lineup library</b>
-                        <p>{library.lineups.length} lineups on this floor from <a href="https://cs2nades.gg/en/" target="_blank" rel="noreferrer">CS2Nades</a>.</p>
-                        <p>Click a landing dot or search a destination to reveal the throw and source guide. Several throws can share a target.</p>
-                        <label className={styles.check}><input type="checkbox" checked={showLibraryPaths} onChange={event => setShowLibraryPaths(event.target.checked)} />Show all imported paths</label>
-                        {!library.lineups.length && <p>The source has no mapped lineups for this floor yet. You can draw your own.</p>}
-                        {!!library.unplaced.length && <details><summary>{library.unplaced.length} need placement</summary>{library.unplaced.map(item => <div className={styles.unplaced} key={item.id}><a href={item.url} target="_blank" rel="noreferrer">{item.label}</a><p>{item.reason}</p></div>)}</details>}
-                        <p className={styles.effectNote}>Source target positions, aligned to this radar. Draft guides, not simulated trajectories. Red outer boundaries are locked; unlock to refine.</p>
+                        <b>Your lineups</b>
+                        <p>Draw your own throws: place the throw first, then the landing. Several throws can share a target, and search finds them by destination.</p>
+                        {importedLineups > 0 && <>
+                            <p>This draft keeps {importedLineups} lineups imported by an earlier version. They stay in your project as your data.</p>
+                            <label className={styles.check}><input type="checkbox" checked={showLibraryPaths} onChange={event => setShowLibraryPaths(event.target.checked)} />Show all imported paths</label>
+                        </>}
+                        <p className={styles.effectNote}>Draft guides, not simulated trajectories. Red outer boundaries are locked; unlock to refine.</p>
                     </div>}
                     {project.mapId === "Mirage" && <div className={styles.presetCard}><label className={styles.field}>Common Mirage utility<select aria-label="Utility template" disabled={!!draft.length} value={template} onChange={event => { const preset = MIRAGE_UTILITY_TEMPLATES.find(item => item.label === event.target.value); if (preset) chooseTool(preset.kind); setTemplate(event.target.value) }}><option value="">Custom placement</option>{MIRAGE_UTILITY_TEMPLATES.map(item => <option key={item.label} value={item.label}>{item.side} / {item.label}</option>)}</select></label><p>Pick a purpose, then place your throw and landing. No coordinates are guessed.</p><a href={MIRAGE_UTILITY_SOURCE} target="_blank" rel="noreferrer">Open lineup reference</a></div>}
                 </>}
@@ -440,7 +441,7 @@ export function MapAnnotationEditor() {
                         </>}
                     </div>}
                     {isUtility(selectedMark.kind) && <div className={styles.utilityDetail}>
-                        {selectedMark.source?.url && <a className={styles.sourceLink} href={selectedMark.source.url} target="_blank" rel="noreferrer">Open source lineup <ArrowUpRight size={14} /></a>}
+                        {selectedMark.source?.url && <p className={styles.effectNote}>Imported source: {selectedMark.source.url}</p>}
                         {selectedMark.source?.originFloor && selectedMark.source.originFloor !== project.floor && <p>Throw starts on the {selectedMark.source.originFloor} floor.</p>}
                         <div className={styles.endpointKey}><span>Hollow: throw</span><span>Filled: {selectedMark.kind === "flash" || selectedMark.kind === "he" ? "Detonation" : "Landing"}</span></div>
                         <label className={styles.field}>Throw technique<select aria-label="Throw technique" disabled={selectedMark.locked} value={selectedMark.throwMode || (selectedMark.source?.provider === "CS2Nades" ? "" : "Standing")} onChange={event => updateMark({ ...selectedMark, throwMode: (event.target.value || undefined) as MapMark["throwMode"] })}>{selectedMark.source?.provider === "CS2Nades" && <option value="">See source technique in notes</option>}{THROW_MODES.map(mode => <option key={mode}>{mode}</option>)}</select></label>

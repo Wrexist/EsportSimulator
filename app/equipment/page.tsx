@@ -35,6 +35,7 @@ import {
 } from "@/engine/equipment-manager"
 import type { EquipmentItem } from "@/engine/save-types"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const ICON_MAP: Record<string, typeof Mouse> = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
 // Derived from the display map so a future EquipmentType addition can't drift
 // — both lists stay in lock-step automatically.
@@ -87,7 +88,7 @@ export default function EquipmentPage() {
         const result = purchaseEquipment(item.id)
         if (result.success) {
             toast.success(`Purchased ${item.name}!`, {
-                description: `Installed immediately. Weekly upkeep: $${item.weeklyCost}.`,
+                description: `Installed immediately. Weekly upkeep: ${formatCurrency(item.weeklyCost, "$", false)}.`,
             })
             setSelectedItem(null)
         } else {
@@ -135,13 +136,13 @@ export default function EquipmentPage() {
                         <div className="glass-panel p-6 border-white/10 backdrop-blur-xl bg-white/3 min-w-[160px]">
                             <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground mb-1">Budget</p>
                             <p className="text-3xl font-normal font-sans text-emerald-400 tracking-tight">
-                                ${(playerTeam.budget / 1000).toFixed(1)}k
+                                {formatCurrency(playerTeam.budget)}
                             </p>
                         </div>
                         <div className="glass-panel p-6 border-white/10 backdrop-blur-xl bg-white/3 min-w-[160px]">
                             <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground mb-1">Upkeep</p>
                             <p className="text-3xl font-normal font-sans text-red-400 tracking-tight">
-                                -${weeklyCost}
+                                {formatCurrency(-weeklyCost, "$", false)}
                             </p>
                         </div>
                     </div>
@@ -308,7 +309,7 @@ export default function EquipmentPage() {
                                                 <span className="text-emerald-400 font-bold">+{item.bonus.value} {item.bonus.stat}</span>
                                             </div>
                                             <p className="font-sans font-bold text-white">
-                                                ${item.purchaseCost.toLocaleString()}
+                                                {formatCurrency(item.purchaseCost, "$", false)}
                                             </p>
                                         </div>
                                     </div>
@@ -367,7 +368,7 @@ export default function EquipmentPage() {
                                         </div>
                                         <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                                             <p className="text-[10px] font-normal uppercase text-muted-foreground mb-1">Weekly Maintenance</p>
-                                            <p className="text-2xl font-normal text-red-400">-${selectedItem.weeklyCost}</p>
+                                            <p className="text-2xl font-normal text-red-400">{formatCurrency(-selectedItem.weeklyCost, "$", false)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -378,7 +379,7 @@ export default function EquipmentPage() {
                                     <div className="flex items-center justify-between mb-6">
                                         <div>
                                             <p className="text-xs font-bold text-muted-foreground uppercase">Price</p>
-                                            <p className="text-3xl font-normal text-white font-sans">${selectedItem.purchaseCost.toLocaleString()}</p>
+                                            <p className="text-3xl font-normal text-white font-sans">{formatCurrency(selectedItem.purchaseCost, "$", false)}</p>
                                         </div>
                                         {isOwned(selectedItem) ? (
                                             <div className="flex items-center gap-2 text-emerald-400 font-bold uppercase tracking-widest text-sm">

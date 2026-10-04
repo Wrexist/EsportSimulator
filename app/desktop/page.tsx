@@ -473,7 +473,7 @@ function DesktopContent() {
       case "FINANCE": return data.description || "Weekly report ready."
       case "win_streak": return data.streak != null ? `${data.streak} match win streak! Team is hyped.` : "Win streak! Team is hyped."
       case "loss_streak": return data.streak != null ? `${data.streak} match loss streak. Morale dropping.` : "Losing streak. Morale dropping."
-      case "TRANSFER_OFFER": return data.teamName && data.offerAmount != null ? `${data.teamName} has offered $${data.offerAmount.toLocaleString()} for ${pName}.` : data.message || `Transfer offer for ${pName}.`
+      case "TRANSFER_OFFER": return data.teamName && data.offerAmount != null ? `${data.teamName} has offered ${formatCurrency(data.offerAmount, "$", false)} for ${pName}.` : data.message || `Transfer offer for ${pName}.`
       case "TRANSFER_WINDOW": return data.message || "Transfer window activities update."
       case "ROSTER_UPDATE": return data.message || (data.teamName ? `Roster changes for ${data.teamName}.` : "Roster changes announced.")
       case "AI_SIGNING": return `${data.teamName || "A team"} has signed ${data.playerName || "a player"} from the free agent pool.`
@@ -557,9 +557,9 @@ function DesktopContent() {
         <div className="relative overflow-hidden rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
           <div className="text-center relative z-10">
             <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400/80 mb-1">Weekly Salary</div>
-            <div className="text-3xl font-normal text-white">${data.salaryOffer.toLocaleString()}</div>
+            <div className="text-3xl font-normal text-white">{formatCurrency(data.salaryOffer, "$", false)}</div>
             <div className="text-[10px] uppercase tracking-wider text-emerald-400/60 mt-1 font-bold">
-              + ${(data.signingBonus || (data.salaryOffer * 4)).toLocaleString()} Bonus
+              + {formatCurrency((data.signingBonus || (data.salaryOffer * 4)), "$", false)} Bonus
             </div>
           </div>
         </div>
@@ -721,7 +721,7 @@ function DesktopContent() {
                     </div>
                     {player.fee > 0 && (
                       <div className="text-emerald-400 font-medium">
-                        ${player.fee.toLocaleString()}
+                        {formatCurrency(player.fee, "$", false)}
                       </div>
                     )}
                   </div>

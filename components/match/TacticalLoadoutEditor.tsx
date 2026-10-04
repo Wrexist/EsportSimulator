@@ -12,6 +12,7 @@ import Image from "next/image"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { useFocusTrap } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface TacticalLoadoutEditorProps {
     side: "ct" | "t"
     strategyId: keyof CustomTactics
@@ -315,10 +316,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                     </div>
                                     {playerCash[idx] != null ? (
                                         <div className={cn("font-bold text-xs px-2 py-1 rounded-lg", playerCash[idx] - cost >= 0 ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10")}>
-                                            ${(playerCash[idx] - cost).toLocaleString()}
+                                            {formatCurrency((playerCash[idx] - cost), "$", false)}
                                         </div>
                                     ) : (
-                                        <div className="text-white/40 font-bold text-xs bg-white/5 px-2 py-1 rounded-lg">-${cost}</div>
+                                        <div className="text-white/40 font-bold text-xs bg-white/5 px-2 py-1 rounded-lg">{formatCurrency(-cost, "$", false)}</div>
                                     )}
                                 </button>
 
@@ -350,15 +351,15 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                             <>
                                 <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-1">Remaining Budget</div>
                                 <div className={cn("text-2xl font-normal", teamBudget - totalCost < 0 ? "text-red-400" : "text-emerald-400")}>
-                                    ${(teamBudget - totalCost).toLocaleString()}
+                                    {formatCurrency((teamBudget - totalCost), "$", false)}
                                 </div>
-                                <div className="text-[10px] text-white/30 mt-1">Cost: ${totalCost.toLocaleString()}</div>
+                                <div className="text-[10px] text-white/30 mt-1">Cost: {formatCurrency(totalCost, "$", false)}</div>
                             </>
                         ) : (
                             <>
                                 <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-1">Total Team Cost</div>
                                 <div className="text-2xl font-normal text-white/50">
-                                    ${totalCost.toLocaleString()}
+                                    {formatCurrency(totalCost, "$", false)}
                                 </div>
                             </>
                         )}
@@ -400,7 +401,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{opt.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">${opt.price}</div>
+                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(opt.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />}
                                             </button>
@@ -444,7 +445,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">${w.price}</div>
+                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]" />}
                                             </button>
@@ -488,7 +489,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">${w.price}</div>
+                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className={cn("absolute top-3 right-3 w-2 h-2 rounded-full", side === "ct" ? "bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]" : "bg-orange-400 shadow-[0_0_10px_rgba(251,146,60,0.5)]")} />}
                                             </button>
@@ -532,7 +533,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">${w.price}</div>
+                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className={cn("absolute top-3 right-3 w-2 h-2 rounded-full", side === "ct" ? "bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]" : "bg-orange-400 shadow-[0_0_10px_rgba(251,146,60,0.5)]")} />}
                                             </button>
@@ -571,7 +572,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full mt-2">
                                                     <div className="text-[10px] font-normal uppercase tracking-wider">{id}</div>
-                                                    <div className="text-[9px] opacity-60 font-bold">${price}</div>
+                                                    <div className="text-[9px] opacity-60 font-bold">{formatCurrency(price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_10px_rgba(192,132,252,0.5)]" />}
                                             </button>
@@ -596,7 +597,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                 <div>
                     {teamBudget !== undefined && (
                         <div className="text-[10px] font-bold text-white/50">
-                            Team Budget: ${teamBudget.toLocaleString()}
+                            Team Budget: {formatCurrency(teamBudget, "$", false)}
                         </div>
                     )}
                 </div>

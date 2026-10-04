@@ -143,7 +143,7 @@ export function WeekProcessingOverlay() {
     return (
       <div
         ref={dialogRef} tabIndex={-1}
-        className="fixed inset-0 z-overlay flex items-center justify-center backdrop-blur-md"
+        className="fixed inset-0 z-overlay flex items-center justify-center bg-black/72 backdrop-blur-md"
         role="dialog"
         aria-modal="true"
         aria-label={`Week ${week} review`}

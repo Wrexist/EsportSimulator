@@ -9,6 +9,14 @@ export const MAP_STUDIO_LIBRARY = raw as unknown as MapLibrary
 export const INTERIOR_BOUNDARIES = interiorRaw as unknown as { version: string; maps: Record<string, Partial<Record<"upper" | "lower", MapMark[]>>> }
 export const libraryFor = (project: Pick<MapAnnotationProject, "mapId" | "floor">) => MAP_STUDIO_LIBRARY.maps[project.mapId]?.[project.floor]
 
+/**
+ * Earlier library versions whose outlines equal the current snapshot. 2026-09-12.1
+ * also carried imported CS2Nades lineups, which are excluded from the 1.0 base game.
+ * Drafts stamped with it only get the new receipt: lineups they already hold are the
+ * user's data and stay, and outlines the user deleted are not resurrected.
+ */
+const OUTLINE_EQUIVALENT_VERSIONS = new Set(["2026-09-12.1"])
+
 /** Add the snapshot once. Preserve user marks and never resurrect later deletions. */
 export function mergeMapLibrary(project: MapAnnotationProject): MapAnnotationProject {
     const library = libraryFor(project)
@@ -16,9 +24,10 @@ export function mergeMapLibrary(project: MapAnnotationProject): MapAnnotationPro
     const addLibrary = !!library && project.libraryVersion !== MAP_STUDIO_LIBRARY.version
     const addInteriors = !!interiors && project.interiorBoundaryVersion !== INTERIOR_BOUNDARIES.version
     if (!addLibrary && !addInteriors) return project
+    const restampOnly = addLibrary && OUTLINE_EQUIVALENT_VERSIONS.has(project.libraryVersion || "")
     const ids = new Set(project.marks.map(mark => mark.id))
-    const outlines = [...(addLibrary ? library!.outlines : []), ...(addInteriors ? interiors! : [])].filter(mark => !ids.has(mark.id))
-    const lineups = (addLibrary ? library!.lineups : []).filter(mark => !ids.has(mark.id))
+    const outlines = [...(addLibrary && !restampOnly ? library!.outlines : []), ...(addInteriors ? interiors! : [])].filter(mark => !ids.has(mark.id))
+    const lineups = (addLibrary && !restampOnly ? library!.lineups : []).filter(mark => !ids.has(mark.id))
     if (project.marks.length + outlines.length + lineups.length > MAX_MARKS) throw new Error("There is not enough room to merge the library. Your draft is preserved; export a backup and free some markings first.")
     // A separate receipt prevents this additive update resurrecting deleted
     // utility guides or overwriting user-edited boundaries in existing drafts.

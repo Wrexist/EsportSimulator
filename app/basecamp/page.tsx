@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { facilityEffect, facilityWeeklyCost } from "@/engine/organization-effects"
 
+import { formatCurrency } from "@/lib/utils-extended"
 // Hoisted to module scope — this is a static config that was being recreated
 // on every render of BasecampPage, including the per-level getStat closures.
 const FACILITY_CONFIG = {
@@ -85,7 +86,7 @@ export default function BasecampPage() {
 
     if (playerTeam.budget < cost) {
       toast.error("Insufficient Funds", {
-        description: `You need $${cost.toLocaleString()} to upgrade ${type.toLowerCase()}.`
+        description: `You need ${formatCurrency(cost, "$", false)} to upgrade ${type.toLowerCase()}.`
       })
       return
     }
@@ -118,7 +119,7 @@ export default function BasecampPage() {
           <div className="flex items-center gap-6 glass-card rounded-2xl p-6">
             <div className="text-right">
               <p className="text-[10px] uppercase font-bold text-white/55 tracking-widest mb-1">Available Budget</p>
-              <p className="text-3xl font-normal text-white tracking-tight">${playerTeam.budget.toLocaleString()}</p>
+              <p className="text-3xl font-normal text-white tracking-tight">{formatCurrency(playerTeam.budget, "$", false)}</p>
             </div>
             <div className="h-12 w-px bg-white/10" />
             <div className="text-right">
@@ -218,7 +219,7 @@ export default function BasecampPage() {
                       </div>
                       <div className="mt-2 text-[10px] text-white/45 font-medium flex justify-between">
                         <span>Maintenance</span>
-                        <span className="text-rose-400/80">${maintenance}/wk</span>
+                        <span className="text-rose-400/80">{formatCurrency(maintenance, "$", false)}/wk</span>
                       </div>
                     </div>
 
@@ -235,8 +236,8 @@ export default function BasecampPage() {
                           </span>
                         </div>
                         <div className="mt-2 text-[10px] text-white/55 font-medium flex justify-between">
-                          <span>Cost · ${Math.floor(facilityWeeklyCost(level + 1)).toLocaleString()}/wk after upgrade</span>
-                          <span className="text-white">${nextLevelCost.toLocaleString()}</span>
+                          <span>Cost · {formatCurrency(Math.floor(facilityWeeklyCost(level + 1)), "$", false)}/wk after upgrade</span>
+                          <span className="text-white">{formatCurrency(nextLevelCost, "$", false)}</span>
                         </div>
                       </div>
                     )}

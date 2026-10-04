@@ -27,10 +27,14 @@ test('a crossing wall is flagged while an intentional wall endpoint at an openin
     expect(openingIssues({ ...emptyProject(), marks: [window, wall] }).some(i => i.code === 'opening-wall-overlap')).toBe(false)
 })
 test('the v12 attachment remains exact and all owner markings survive in the separate route copy', () => {
-    const original = readFileSync('public/map-studio/drafts/mirage-user-v12-2026-09-13.json')
+    // The verbatim attachment is archived; shipped copies only drop imported CS2Nades lineups (excluded from 1.0).
+    const original = readFileSync('raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-user-v12-2026-09-13.json')
     expect(sha(original)).toBe('efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2')
-    const p = parseProject(original.toString()), copy = parseProject(readFileSync('public/map-studio/drafts/mirage-v12-with-reference-routes.json', 'utf8'))
-    expect(p.marks).toHaveLength(169)
+    expect(parseProject(original.toString()).marks).toHaveLength(169)
+    const p = parseProject(readFileSync('public/map-studio/drafts/mirage-user-v12-2026-09-13.json', 'utf8'))
+    const copy = parseProject(readFileSync('public/map-studio/drafts/mirage-v12-with-reference-routes.json', 'utf8'))
+    expect(p.marks).toEqual(parseProject(original.toString()).marks.filter(m => m.source?.provider !== 'CS2Nades'))
+    expect(p.marks).toHaveLength(53)
     expect(copy.marks.slice(0, p.marks.length)).toEqual(p.marks)
     expect(copy.marks.slice(p.marks.length)).toHaveLength(10)
     expect(copy.validation).toBeUndefined() // revalidate under the current spawn-capacity model

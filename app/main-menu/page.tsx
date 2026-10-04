@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import Image from "next/image"
 import { pressable } from "@/lib/accessibility"
+import { formatCurrency } from "@/lib/utils-extended"
 
 // Phase 2: Use real metadata
 // interface EnhancedSaveSlot removed
@@ -470,7 +471,7 @@ export default function MainMenuPage() {
                                                         <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/2">
                                                             <span className="text-[9px] font-medium text-white/30">Budget</span>
                                                             <span className="text-[10px] font-semibold text-white/60">
-                                                                ${(slot.budget / 1000).toFixed(0)}k
+                                                                {formatCurrency(slot.budget)}
                                                             </span>
                                                         </div>
                                                     )}

@@ -23,6 +23,7 @@ import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { pressable } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface NewsAppProps {
     events: GameEventSaveData[]
     onEventClick: (event: GameEventSaveData) => void
@@ -111,7 +112,7 @@ export function NewsApp({ events, onEventClick }: NewsAppProps) {
             case "win_streak": return `The team is on fire with a ${data.streak || 3} match winning streak. Morale is at an all-time high.`
             case "loss_streak": return `A difficult period for the squad as they've now lost ${data.streak || 3} consecutive matches (more than usual).`
             case "AI_SIGNING": return `${data.teamName || "A team"} has completed the signing of ${data.playerName || "a player"} from the free agent market.`
-            case "AI_TRANSFER": return `${data.toTeamName || "A team"} has acquired ${data.playerName || "a player"} from ${data.fromTeamName || "another team"} ${data.fee != null ? `for a reported fee of $${data.fee.toLocaleString("en-US")}` : "for an undisclosed fee"}.`
+            case "AI_TRANSFER": return `${data.toTeamName || "A team"} has acquired ${data.playerName || "a player"} from ${data.fromTeamName || "another team"} ${data.fee != null ? `for a reported fee of ${formatCurrency(data.fee, "$", false)}` : "for an undisclosed fee"}.`
             case "RETIREMENT": return `${data.playerName || "The player"} has announced their retirement from professional esports.`
             default: return data.message || data.description || "No additional details available."
         }

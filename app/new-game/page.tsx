@@ -42,6 +42,7 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { pressable } from "@/lib/accessibility"
 import { describeClubChallenge } from "@/lib/club-expectations"
+import { formatCurrency } from "@/lib/utils-extended"
 
 interface SnapshotTeam {
     id: string
@@ -809,7 +810,7 @@ export default function TeamSelectionPage() {
                                         <p className="text-[8px] text-muted-foreground font-bold uppercase">Overall</p>
                                     </div>
                                     <div className="text-center p-3 bg-white/5 rounded-xl relative">
-                                        <p className="text-2xl font-normal text-emerald-400">${(getCalculatedBudget(selectedTeam) / 1000000).toFixed(2)}M</p>
+                                        <p className="text-2xl font-normal text-emerald-400">{formatCurrency(getCalculatedBudget(selectedTeam))}</p>
                                         <p className="text-[8px] text-muted-foreground font-bold uppercase">Budget</p>
                                         {selectedTeam.rosterIds.length < 5 && (
                                             <Badge className="absolute -top-2 -right-2 text-[7px] px-1 py-0 bg-amber-500/80 text-black border-none">
@@ -818,7 +819,7 @@ export default function TeamSelectionPage() {
                                         )}
                                     </div>
                                     <div className="text-center p-3 bg-white/5 rounded-xl">
-                                        <p className="text-2xl font-normal text-emerald-400">${(getTeamValue(selectedTeam) / 1000000).toFixed(1)}M</p>
+                                        <p className="text-2xl font-normal text-emerald-400">{formatCurrency(getTeamValue(selectedTeam))}</p>
                                         <p className="text-[8px] text-muted-foreground font-bold uppercase">Value</p>
                                     </div>
                                 </div>

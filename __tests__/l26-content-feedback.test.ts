@@ -1,6 +1,6 @@
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { formatCurrency, formatPercentage } from '@/lib/utils-extended'
+import { formatCurrency, formatPercentage, formatSignedCurrency } from '@/lib/utils-extended'
 import { AudioFeedbackGate, toastSoundFor } from '@/lib/audio-feedback'
 import { IncomeBreakdown } from '@/components/finance/IncomeBreakdown'
 import { getEventTitle } from '@/lib/event-format'
@@ -16,6 +16,17 @@ test('exact money preserves cents and uses one negative sign before currency', (
     expect(formatCurrency(NaN)).toBe('—')
     expect(formatCurrency(Infinity, '$', false)).toBe('—')
     expect(formatCurrency(-1250000)).toBe('-$1.3M')
+})
+test('signed money shares the compact/full rules and puts the sign before the currency', () => {
+    expect(formatCurrency(1500)).toBe('$1.5k') // was "$2k" on screens with their own toFixed(0)
+    expect(formatCurrency(25000)).toBe('$25k')
+    expect(formatSignedCurrency(1500)).toBe('+$1.5k')
+    expect(formatSignedCurrency(-1500)).toBe('-$1.5k')
+    expect(formatSignedCurrency(0)).toBe('$0')
+    expect(formatSignedCurrency(0.001, '$', false)).toBe('$0')
+    expect(formatSignedCurrency(-5000, '$', false)).toBe('-$5,000')
+    expect(formatSignedCurrency(NaN)).toBe('—')
+    expect(formatCurrency(5000, '', false)).toBe('5,000')
 })
 test('percentage formatting retains fraction semantics and rejects missing numbers', () => {
     expect(formatPercentage(.4167, 1)).toBe('41.7%')

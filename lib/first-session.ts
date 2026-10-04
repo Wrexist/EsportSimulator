@@ -1,6 +1,7 @@
 import { WeeklyActivityType } from '@/types/activities'
 import type { CompletedMatchSaveData, MatchSaveData, PlayerSaveData, TeamSaveData } from '@/engine/save-types'
 
+import { formatCurrency } from "@/lib/utils-extended"
 /**
  * First-session objective chain (L22).
  *
@@ -157,7 +158,7 @@ export function firstSessionGuidance(state: FirstSessionState, ctx: FirstSession
     const { team, players, matches, activeMatchId } = ctx
     const starters = availableStarters(team, players)
     const missing = Math.max(0, 5 - starters)
-    const cash = `$${Math.round(team.budget).toLocaleString('en-US')}`
+    const cash = `${formatCurrency(Math.round(team.budget), "$", false)}`
     const base = { step, title: FIRST_SESSION_LABELS[step], alternatives: [] as FirstSessionLink[], reviewPath: '', reviewLabel: '' }
     if (step === 'squad') return {
         ...base,

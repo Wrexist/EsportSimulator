@@ -36,6 +36,7 @@ import {
     MAX_SIGNING_BONUS,
 } from "@/store/utils/helpers"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const MAX_STAFF_PER_TEAM = 5
 const MAX_PER_ROLE = 1
 const DEFAULT_CONTRACT_WEEKS = 52
@@ -112,7 +113,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             const signingFee = signingFeeValidation.value
 
             if (!Number.isFinite(team.budget) || team.budget < signingFee) {
-                result = { success: false, message: `Insufficient funds. Need $${signingFee}` }
+                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(signingFee, "$", false)}` }
                 return
             }
 

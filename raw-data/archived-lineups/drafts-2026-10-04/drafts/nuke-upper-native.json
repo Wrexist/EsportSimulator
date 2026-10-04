@@ -1,0 +1,2663 @@
+{
+  "format": "esim-map-annotations",
+  "version": 2,
+  "mapId": "Nuke",
+  "floor": "upper",
+  "marks": [
+    {
+      "id": "outline:Nuke:upper:0",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 97.461,
+          "y": 46.973
+        },
+        {
+          "x": 97.266,
+          "y": 45.898
+        },
+        {
+          "x": 96.973,
+          "y": 45.801
+        },
+        {
+          "x": 96.973,
+          "y": 44.043
+        },
+        {
+          "x": 67.773,
+          "y": 44.043
+        },
+        {
+          "x": 67.676,
+          "y": 44.336
+        },
+        {
+          "x": 66.016,
+          "y": 44.434
+        },
+        {
+          "x": 64.648,
+          "y": 44.238
+        },
+        {
+          "x": 64.648,
+          "y": 43.945
+        },
+        {
+          "x": 65.137,
+          "y": 43.945
+        },
+        {
+          "x": 65.234,
+          "y": 38.281
+        },
+        {
+          "x": 61.816,
+          "y": 38.184
+        },
+        {
+          "x": 61.816,
+          "y": 37.402
+        },
+        {
+          "x": 61.621,
+          "y": 37.305
+        },
+        {
+          "x": 61.621,
+          "y": 36.816
+        },
+        {
+          "x": 61.816,
+          "y": 36.719
+        },
+        {
+          "x": 61.816,
+          "y": 31.641
+        },
+        {
+          "x": 61.621,
+          "y": 31.543
+        },
+        {
+          "x": 61.621,
+          "y": 31.055
+        },
+        {
+          "x": 61.816,
+          "y": 30.664
+        },
+        {
+          "x": 61.621,
+          "y": 30.273
+        },
+        {
+          "x": 59.082,
+          "y": 30.469
+        },
+        {
+          "x": 59.18,
+          "y": 27.344
+        },
+        {
+          "x": 54.883,
+          "y": 27.344
+        },
+        {
+          "x": 54.98,
+          "y": 30.469
+        },
+        {
+          "x": 52.246,
+          "y": 30.273
+        },
+        {
+          "x": 52.246,
+          "y": 36.719
+        },
+        {
+          "x": 52.441,
+          "y": 36.816
+        },
+        {
+          "x": 52.246,
+          "y": 38.086
+        },
+        {
+          "x": 49.805,
+          "y": 38.184
+        },
+        {
+          "x": 49.316,
+          "y": 38.672
+        },
+        {
+          "x": 49.316,
+          "y": 43.848
+        },
+        {
+          "x": 49.121,
+          "y": 44.043
+        },
+        {
+          "x": 42.383,
+          "y": 44.043
+        },
+        {
+          "x": 42.285,
+          "y": 46.68
+        },
+        {
+          "x": 35.938,
+          "y": 53.027
+        },
+        {
+          "x": 35.547,
+          "y": 53.027
+        },
+        {
+          "x": 35.449,
+          "y": 54.004
+        },
+        {
+          "x": 35.254,
+          "y": 53.906
+        },
+        {
+          "x": 35.254,
+          "y": 52.344
+        },
+        {
+          "x": 29.297,
+          "y": 52.344
+        },
+        {
+          "x": 29.199,
+          "y": 55.176
+        },
+        {
+          "x": 24.707,
+          "y": 55.176
+        },
+        {
+          "x": 24.609,
+          "y": 52.246
+        },
+        {
+          "x": 13.086,
+          "y": 52.246
+        },
+        {
+          "x": 12.891,
+          "y": 52.051
+        },
+        {
+          "x": 12.891,
+          "y": 48.535
+        },
+        {
+          "x": 6.152,
+          "y": 48.145
+        },
+        {
+          "x": 6.25,
+          "y": 58.105
+        },
+        {
+          "x": 16.016,
+          "y": 58.105
+        },
+        {
+          "x": 16.016,
+          "y": 57.715
+        },
+        {
+          "x": 15.723,
+          "y": 57.617
+        },
+        {
+          "x": 16.016,
+          "y": 57.129
+        },
+        {
+          "x": 15.723,
+          "y": 56.934
+        },
+        {
+          "x": 16.016,
+          "y": 56.836
+        },
+        {
+          "x": 16.113,
+          "y": 56.348
+        },
+        {
+          "x": 21.875,
+          "y": 56.348
+        },
+        {
+          "x": 21.973,
+          "y": 59.473
+        },
+        {
+          "x": 24.121,
+          "y": 59.473
+        },
+        {
+          "x": 24.121,
+          "y": 58.691
+        },
+        {
+          "x": 24.316,
+          "y": 58.496
+        },
+        {
+          "x": 31.738,
+          "y": 58.496
+        },
+        {
+          "x": 31.836,
+          "y": 58.105
+        },
+        {
+          "x": 35.254,
+          "y": 58.105
+        },
+        {
+          "x": 35.254,
+          "y": 56.641
+        },
+        {
+          "x": 35.449,
+          "y": 56.543
+        },
+        {
+          "x": 35.547,
+          "y": 58.105
+        },
+        {
+          "x": 37.5,
+          "y": 58.203
+        },
+        {
+          "x": 37.5,
+          "y": 59.082
+        },
+        {
+          "x": 37.988,
+          "y": 59.082
+        },
+        {
+          "x": 45.996,
+          "y": 70.801
+        },
+        {
+          "x": 59.375,
+          "y": 75.098
+        },
+        {
+          "x": 65.234,
+          "y": 75.098
+        },
+        {
+          "x": 65.332,
+          "y": 74.512
+        },
+        {
+          "x": 65.527,
+          "y": 74.805
+        },
+        {
+          "x": 70.312,
+          "y": 74.805
+        },
+        {
+          "x": 70.312,
+          "y": 73.34
+        },
+        {
+          "x": 68.945,
+          "y": 73.242
+        },
+        {
+          "x": 68.945,
+          "y": 70.117
+        },
+        {
+          "x": 68.75,
+          "y": 69.922
+        },
+        {
+          "x": 65.723,
+          "y": 69.922
+        },
+        {
+          "x": 65.527,
+          "y": 70.117
+        },
+        {
+          "x": 65.527,
+          "y": 71.973
+        },
+        {
+          "x": 65.332,
+          "y": 72.07
+        },
+        {
+          "x": 65.234,
+          "y": 70.801
+        },
+        {
+          "x": 65.43,
+          "y": 69.629
+        },
+        {
+          "x": 66.309,
+          "y": 69.629
+        },
+        {
+          "x": 66.406,
+          "y": 68.945
+        },
+        {
+          "x": 66.504,
+          "y": 69.434
+        },
+        {
+          "x": 66.797,
+          "y": 69.629
+        },
+        {
+          "x": 68.75,
+          "y": 69.629
+        },
+        {
+          "x": 68.945,
+          "y": 68.945
+        },
+        {
+          "x": 69.336,
+          "y": 68.75
+        },
+        {
+          "x": 69.434,
+          "y": 69.043
+        },
+        {
+          "x": 69.141,
+          "y": 69.531
+        },
+        {
+          "x": 69.238,
+          "y": 73.145
+        },
+        {
+          "x": 71.973,
+          "y": 73.145
+        },
+        {
+          "x": 72.07,
+          "y": 72.949
+        },
+        {
+          "x": 72.461,
+          "y": 73.145
+        },
+        {
+          "x": 74.902,
+          "y": 73.145
+        },
+        {
+          "x": 75,
+          "y": 72.949
+        },
+        {
+          "x": 75.293,
+          "y": 73.145
+        },
+        {
+          "x": 77.539,
+          "y": 73.145
+        },
+        {
+          "x": 77.734,
+          "y": 72.852
+        },
+        {
+          "x": 77.734,
+          "y": 71.289
+        },
+        {
+          "x": 77.539,
+          "y": 71.191
+        },
+        {
+          "x": 77.734,
+          "y": 70.898
+        },
+        {
+          "x": 77.734,
+          "y": 69.141
+        },
+        {
+          "x": 77.539,
+          "y": 69.043
+        },
+        {
+          "x": 77.734,
+          "y": 68.75
+        },
+        {
+          "x": 77.734,
+          "y": 65.332
+        },
+        {
+          "x": 77.539,
+          "y": 65.234
+        },
+        {
+          "x": 77.734,
+          "y": 64.941
+        },
+        {
+          "x": 77.734,
+          "y": 62.988
+        },
+        {
+          "x": 77.539,
+          "y": 62.793
+        },
+        {
+          "x": 75.195,
+          "y": 62.793
+        },
+        {
+          "x": 75,
+          "y": 63.086
+        },
+        {
+          "x": 74.707,
+          "y": 62.891
+        },
+        {
+          "x": 74.805,
+          "y": 62.5
+        },
+        {
+          "x": 76.074,
+          "y": 62.5
+        },
+        {
+          "x": 76.074,
+          "y": 56.445
+        },
+        {
+          "x": 73.242,
+          "y": 56.348
+        },
+        {
+          "x": 73.242,
+          "y": 52.832
+        },
+        {
+          "x": 75.293,
+          "y": 52.734
+        },
+        {
+          "x": 75.391,
+          "y": 52.441
+        },
+        {
+          "x": 75,
+          "y": 52.051
+        },
+        {
+          "x": 75.195,
+          "y": 51.855
+        },
+        {
+          "x": 75.488,
+          "y": 51.953
+        },
+        {
+          "x": 76.367,
+          "y": 50.098
+        },
+        {
+          "x": 78.32,
+          "y": 48.34
+        },
+        {
+          "x": 78.32,
+          "y": 47.852
+        },
+        {
+          "x": 78.516,
+          "y": 47.754
+        },
+        {
+          "x": 78.906,
+          "y": 48.145
+        },
+        {
+          "x": 80.371,
+          "y": 47.656
+        },
+        {
+          "x": 82.031,
+          "y": 47.656
+        },
+        {
+          "x": 83.398,
+          "y": 48.145
+        },
+        {
+          "x": 83.789,
+          "y": 47.852
+        },
+        {
+          "x": 83.984,
+          "y": 48.047
+        },
+        {
+          "x": 83.887,
+          "y": 48.34
+        },
+        {
+          "x": 84.668,
+          "y": 48.828
+        },
+        {
+          "x": 85.84,
+          "y": 50.098
+        },
+        {
+          "x": 91.797,
+          "y": 50.098
+        },
+        {
+          "x": 91.895,
+          "y": 54.98
+        },
+        {
+          "x": 96.973,
+          "y": 54.98
+        },
+        {
+          "x": 96.973,
+          "y": 47.363
+        },
+        {
+          "x": 97.363,
+          "y": 47.266
+        },
+        {
+          "x": 97.461,
+          "y": 46.973
+        }
+      ],
+      "label": "",
+      "note": "Outer radar boundary. Traced from this map image; review ledges, height and openings separately.",
+      "status": "draft",
+      "locked": true,
+      "source": {
+        "provider": "radar-outline",
+        "id": "Nuke:upper:0"
+      }
+    },
+    {
+      "id": "cs2nades:101:34",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 47.382,
+          "y": 45.304
+        },
+        {
+          "x": 57.972,
+          "y": 48.285
+        }
+      ],
+      "label": "T Roof to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/flash/t-roof-to-a-site\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -29.392334 -338.031250 -50.925575;setang -23.826445 -33.284031 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "101:34",
+        "url": "https://cs2nades.gg/en/map/nuke/flash/t-roof-to-a-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:96:34",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 66.781,
+          "y": 47.594
+        },
+        {
+          "x": 57.972,
+          "y": 48.285
+        }
+      ],
+      "label": "Heaven to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/heaven-to-a-site-3\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -423.091431 -1753.281738 -351.968750;setang 7.140613 -19.566780 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "96:34",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/heaven-to-a-site-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:86:34",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 45.665,
+          "y": 49.186
+        },
+        {
+          "x": 57.972,
+          "y": 48.285
+        }
+      ],
+      "label": "T Roof to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-a-site-3\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -137.468704 -532.276123 -108.128754;setang -1.677620 -5.289442 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "86:34",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-a-site-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:87:34",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 48.13,
+          "y": 49.193
+        },
+        {
+          "x": 57.972,
+          "y": 48.285
+        }
+      ],
+      "label": "T Roof to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-a-site-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1.293061 -769.648621 -30.726929;setang 3.702358 13.680260 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "87:34",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-a-site-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:103:35",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 52.295,
+          "y": 55.854
+        },
+        {
+          "x": 53.725,
+          "y": 52.175
+        }
+      ],
+      "label": "Lobby to Hut",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/flash/lobby-to-hut\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 160.031250 -1119.968750 -351.968750;setang -3.684671 29.145472 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "103:35",
+        "url": "https://cs2nades.gg/en/map/nuke/flash/lobby-to-hut",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:102:35",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 50.038,
+          "y": 53.098
+        },
+        {
+          "x": 53.725,
+          "y": 52.175
+        }
+      ],
+      "label": "Lobby to Hut",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/flash/lobby-to-hut-2\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 85.491196 -793.829590 -351.968750;setang -2.916612 -61.275227 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "102:35",
+        "url": "https://cs2nades.gg/en/map/nuke/flash/lobby-to-hut-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:97:35",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 66.789,
+          "y": 44.844
+        },
+        {
+          "x": 53.725,
+          "y": 52.175
+        }
+      ],
+      "label": "Heaven to Hut",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/heaven-to-hut\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1259.911621 -316.030029 -63.968750;setang -3.407425 -150.253174 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "97:35",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/heaven-to-hut",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:98:36",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 72.367,
+          "y": 53.948
+        },
+        {
+          "x": 52.203,
+          "y": 69.385
+        }
+      ],
+      "label": "CT Box to Outside",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/ct-box-to-outside\nTechnique: Left Click + Shift + Space + W. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1783.280640 -1014.477600 -287.974548;setang 7.814812 -144.153473 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "98:36",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/ct-box-to-outside",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:99:37",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 70.578,
+          "y": 61.61
+        },
+        {
+          "x": 54.141,
+          "y": 62.613
+        }
+      ],
+      "label": "CT Red to Sandwich",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/ct-red-to-sandwich\nTechnique: LeftClickShiftW. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1604.459229 -1520.857178 -351.968048;setang -18.771713 -175.043808 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "99:37",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/ct-red-to-sandwich",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:88:39",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 45.665,
+          "y": 49.186
+        },
+        {
+          "x": 61.086,
+          "y": 60.442
+        }
+      ],
+      "label": "T Roof to Back Vent",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-back-vent\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -137.468704 -532.276123 -108.128754;setang -1.677620 -5.289442 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "88:39",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-back-vent",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:60:40",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 48.123,
+          "y": 61.251
+        },
+        {
+          "x": 62.531,
+          "y": 45.212
+        }
+      ],
+      "label": "Silo to Heaven",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/silo-to-heaven\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -19.661560 -1461.646362 17.167660;setang -21.658056 47.196793 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "60:40",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/silo-to-heaven",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:89:40",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 46.718,
+          "y": 52.406
+        },
+        {
+          "x": 62.531,
+          "y": 45.212
+        }
+      ],
+      "label": "T Roof to Heaven",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-heaven\nTechnique: Left Click + Ctrl + S. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1.729591 -1008.001221 17.031250;setang -17.678331 26.685207 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "89:40",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-heaven",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:91:41",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 48.339,
+          "y": 52.705
+        },
+        {
+          "x": 53.681,
+          "y": 54.328
+        }
+      ],
+      "label": "T Roof to Hut Roof",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-hut-roof\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -24.108521 -824.771667 42.031242;setang -6.599371 -42.500999 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "91:41",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-hut-roof",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:92:41",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 41.255,
+          "y": 55.659
+        },
+        {
+          "x": 53.681,
+          "y": 54.328
+        }
+      ],
+      "label": "T Roof to Hut Roof",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-hut-roof-2\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -512.176270 -1184.915161 -90.977814;setang 1.451677 3.216347 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "92:41",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-hut-roof-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:90:41",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 47.58,
+          "y": 61.254
+        },
+        {
+          "x": 53.681,
+          "y": 54.328
+        }
+      ],
+      "label": "T Roof to Hut Roof",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-hut-roof-3\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -19.397888 -1461.603760 17.179848;setang -11.131254 29.823231 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "90:41",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-hut-roof-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:93:42",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 48.339,
+          "y": 52.705
+        },
+        {
+          "x": 52.544,
+          "y": 46.996
+        }
+      ],
+      "label": "T Roof to Rafters",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-rafters\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -22.423828 -824.945984 42.040695;setang -7.407532 15.165657 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "93:42",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/t-roof-to-rafters",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:85:47",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 59.021,
+          "y": 28.148
+        },
+        {
+          "x": 50.646,
+          "y": 43.984
+        }
+      ],
+      "label": "Ramp to Trophy",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/ramp-to-trophy\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 773.938477 907.947693 -415.968750;setang 10.311867 -119.922371 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "85:47",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/ramp-to-trophy",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:55:49",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 46.158,
+          "y": 67.351
+        },
+        {
+          "x": 63.988,
+          "y": 60.468
+        }
+      ],
+      "label": "Under Silo to CT Red",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-ct-red\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -141.270569 -1962.644165 -351.968750;setang -36.348190 17.487387 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "55:49",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-ct-red",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:94:43",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 59.223,
+          "y": 62.465
+        },
+        {
+          "x": 65.564,
+          "y": 74.047
+        }
+      ],
+      "label": "Main to Secret",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/main-to-secret\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 815.968750 -1552.031250 -351.968750;setang -6.763278 -63.268078 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "94:43",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/main-to-secret",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:95:44",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 43.586,
+          "y": 66.256
+        },
+        {
+          "x": 58.038,
+          "y": 69.856
+        }
+      ],
+      "label": "Under Silo to T Red",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/under-silo-to-t-red-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -423.091431 -1753.281738 -351.968750;setang 7.140613 -19.566780 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "95:44",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/under-silo-to-t-red-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:82:38",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 75.175,
+          "y": 51.302
+        },
+        {
+          "x": 50.883,
+          "y": 62.131
+        }
+      ],
+      "label": "CT Spawn to Silo",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/ct-spawn-to-silo\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1978.005005 -788.419434 -277.632202;setang -17.616205 -155.530838 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "82:38",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/ct-spawn-to-silo",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:100:38",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 68.047,
+          "y": 63.484
+        },
+        {
+          "x": 50.883,
+          "y": 62.131
+        }
+      ],
+      "label": "CT Red to Silo",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/molotov/ct-red-to-silo\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1487.968750 -1711.968750 -351.968750;setang -12.901032 173.069443 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "100:38",
+        "url": "https://cs2nades.gg/en/map/nuke/molotov/ct-red-to-silo",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:56:50",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 30.577,
+          "y": 57.622
+        },
+        {
+          "x": 66.483,
+          "y": 66.874
+        }
+      ],
+      "label": "T Spawn to Garage",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-garage-3\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1268.031494 -1161.552368 -352.128754;setang -34.383816 -18.421768 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "56:50",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-garage-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:58:50",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 29.855,
+          "y": 54.103
+        },
+        {
+          "x": 66.483,
+          "y": 66.874
+        }
+      ],
+      "label": "T Spawn to Garage",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-garage\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1351.912842 -1049.557617 -352.128754;setang -30.587524 -22.053308 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "58:50",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-garage",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:59:50",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 46.158,
+          "y": 67.351
+        },
+        {
+          "x": 66.483,
+          "y": 66.874
+        }
+      ],
+      "label": "Under Silo to Garage",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-garage\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -308.972900 -1924.057251 -351.961548;setang -19.713923 0.360994 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "59:50",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-garage",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:57:50",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 35.561,
+          "y": 54.108
+        },
+        {
+          "x": 66.483,
+          "y": 66.874
+        }
+      ],
+      "label": "T Spawn to Garage",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-garage-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -916.570251 -992.030212 -351.462189;setang -20.379208 -20.680742 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "57:50",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-garage-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:66:53",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 36.43,
+          "y": 57.417
+        },
+        {
+          "x": 64.601,
+          "y": 68.945
+        }
+      ],
+      "label": "T Spawn to Outside",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside-4\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -732.88 -1322.14 -344.28;setang -25.09 -21.34 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "66:53",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside-4",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:69:54",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 29.855,
+          "y": 54.103
+        },
+        {
+          "x": 60.884,
+          "y": 65.769
+        }
+      ],
+      "label": "T Spawn to Outside",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside-6\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1351.868652 -1049.204346 -352.128754;setang -44.858379 -19.527067 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "69:54",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside-6",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:68:54",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 27.397,
+          "y": 55.451
+        },
+        {
+          "x": 60.884,
+          "y": 65.769
+        }
+      ],
+      "label": "T Spawn to Outside",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1568.030884 -1072.059448 -352.128754;setang -18.905231 -18.063774 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "68:54",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:67:54",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 36.43,
+          "y": 57.417
+        },
+        {
+          "x": 60.884,
+          "y": 65.769
+        }
+      ],
+      "label": "T Spawn to Outside",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside-3\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -732.876465 -1322.138550 -349.632324;setang -18.404541 -11.942361 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "67:54",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:71:56",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 30.488,
+          "y": 57.308
+        },
+        {
+          "x": 60.011,
+          "y": 69.482
+        }
+      ],
+      "label": "T Spawn to Outside",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside-5\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1268.031250 -1164.979858 -351.968750;setang -37.719254 -22.873171 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "71:56",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside-5",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:72:56",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 44.304,
+          "y": 67.239
+        },
+        {
+          "x": 60.011,
+          "y": 69.482
+        }
+      ],
+      "label": "Under Silo to Outside",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-outside\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -228.683899 -1719.738159 -351.968750;setang -6.323250 -65.395569 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "72:56",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-outside",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:70:56",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 36.43,
+          "y": 57.417
+        },
+        {
+          "x": 60.011,
+          "y": 69.482
+        }
+      ],
+      "label": "T Spawn to Outside",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -732.875427 -1322.137817 -350.108154;setang -24.398222 -21.899458 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "70:56",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-outside-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:73:57",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 51.6,
+          "y": 46.08
+        },
+        {
+          "x": 53.13,
+          "y": 36.902
+        }
+      ],
+      "label": "Trophy to Ramp",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/trophy-to-ramp-3\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 251.968475 -352.282166 -351.968750;setang -8.553168 131.843216 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "73:57",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/trophy-to-ramp-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:76:59",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 30.577,
+          "y": 57.622
+        },
+        {
+          "x": 64.377,
+          "y": 71.286
+        }
+      ],
+      "label": "T Spawn to Secret",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-secret-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1268.031250 -1164.979858 -351.968750;setang -37.719254 -22.873171 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "76:59",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-secret-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:77:59",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 33.589,
+          "y": 55.525
+        },
+        {
+          "x": 64.377,
+          "y": 71.286
+        }
+      ],
+      "label": "T Spawn to Secret",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-secret\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1066.178467 -1142.972168 -351.968750;setang -44.940491 -24.896788 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "77:59",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-secret",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:75:59",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 36.43,
+          "y": 57.417
+        },
+        {
+          "x": 64.377,
+          "y": 71.286
+        }
+      ],
+      "label": "T Spawn to Secret",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-secret-3\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -731.442749 -1322.253540 -349.639404;setang -11.181433 -22.398926 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "75:59",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-secret-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:78:59",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 43.586,
+          "y": 66.256
+        },
+        {
+          "x": 64.377,
+          "y": 71.286
+        }
+      ],
+      "label": "Under Silo to Secret",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-secret\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -423.570129 -1752.576172 -351.968750;setang -22.229683 -16.962109 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "78:59",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-secret",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:65:52",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 29.855,
+          "y": 54.103
+        },
+        {
+          "x": 59.44,
+          "y": 63.149
+        }
+      ],
+      "label": "T Spawn to Main",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-main\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1351.749146 -1048.249390 -352.128754;setang -44.909718 -18.107615 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "65:52",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-main",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:54:52",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 44.304,
+          "y": 67.239
+        },
+        {
+          "x": 59.44,
+          "y": 63.149
+        }
+      ],
+      "label": "Under Silo to Main",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-main\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -247.074219 -2016.682861 -351.968750;setang -19.508615 9.878860 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "54:52",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-main",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:64:52",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 23.409,
+          "y": 57.675
+        },
+        {
+          "x": 59.44,
+          "y": 63.149
+        }
+      ],
+      "label": "T Spawn to Main",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-main-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1754.496216 -1245.572998 -343.780884;setang -25.698639 -10.036362 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "64:52",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-main-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:397:48",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 44.917,
+          "y": 45.297
+        },
+        {
+          "x": 57.228,
+          "y": 60.849
+        }
+      ],
+      "label": "T Roof to A Main",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-roof-to-a-main-3\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -105.031250 -280.031250 -107.965271;setang -11.498542 -58.413708 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "397:48",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-roof-to-a-main-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:53:48",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 45.665,
+          "y": 49.186
+        },
+        {
+          "x": 57.228,
+          "y": 60.849
+        }
+      ],
+      "label": "T Roof to A Main",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-roof-to-a-main-2\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -137.468689 -532.276917 -108.128784;setang -7.130153 -47.250313 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "53:48",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-roof-to-a-main-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:51:48",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 47.382,
+          "y": 45.304
+        },
+        {
+          "x": 57.228,
+          "y": 60.849
+        }
+      ],
+      "label": "T Roof to A Main",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-roof-to-a-main\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -28.885254 -338.031250 -51.563637;setang -2.864153 -61.546162 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "51:48",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-roof-to-a-main",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:79:60",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 43.586,
+          "y": 66.256
+        },
+        {
+          "x": 55.011,
+          "y": 68.531
+        }
+      ],
+      "label": "Under Silo to T Red",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-t-red\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -436.859985 -1652.687622 -351.968750;setang -5.238650 -55.160313 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "79:60",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-t-red",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:84:46",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 66.607,
+          "y": 57.914
+        },
+        {
+          "x": 56.841,
+          "y": 67.55
+        }
+      ],
+      "label": "CT Red to T Red",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/ct-red-to-t-red\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1507.751831 -1152.739258 -351.972046;setang 1.686859 -134.530319 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "84:46",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/ct-red-to-t-red",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:74:58",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 51.454,
+          "y": 46.803
+        },
+        {
+          "x": 54.271,
+          "y": 39.019
+        }
+      ],
+      "label": "Trophy to Ramp",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/trophy-to-ramp\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 251.968018 -463.702759 -351.968750;setang -1.627657 107.368484 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "74:58",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/trophy-to-ramp",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:106:58",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 51.454,
+          "y": 46.803
+        },
+        {
+          "x": 54.271,
+          "y": 39.019
+        }
+      ],
+      "label": "Trophy to Ramp",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/flash/trophy-to-ramp-2\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 217.829910 -390.026489 -351.968750;setang -1.791814 106.175125 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "106:58",
+        "url": "https://cs2nades.gg/en/map/nuke/flash/trophy-to-ramp-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:63:51",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 46.343,
+          "y": 70.317
+        },
+        {
+          "x": 63.72,
+          "y": 50.789
+        }
+      ],
+      "label": "Under Silo to Lockers",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-lockers\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -137.984314 -2167.973877 -351.968750;setang -6.732337 28.163092 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "63:51",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/under-silo-to-lockers",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:61:51",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 29.855,
+          "y": 54.103
+        },
+        {
+          "x": 63.72,
+          "y": 50.789
+        }
+      ],
+      "label": "T Spawn to Lockers",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-lockers-2\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1350.725708 -931.940735 -351.968597;setang -18.496649 0.319676 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "61:51",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-lockers-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:62:51",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 34.833,
+          "y": 52.731
+        },
+        {
+          "x": 63.72,
+          "y": 50.789
+        }
+      ],
+      "label": "T Spawn to Lockers",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-lockers\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -940.031250 -864.031250 -304.968750;setang -37.187107 1.325439 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "62:51",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-lockers",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:81:61",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 36.621,
+          "y": 53.03
+        },
+        {
+          "x": 54.94,
+          "y": 58.7
+        }
+      ],
+      "label": "T Spawn to Vent",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-vent\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -891.387878 -927.031250 -351.968750;setang -15.335398 -11.156587 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "81:61",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-vent",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:80:61",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 31.976,
+          "y": 52.269
+        },
+        {
+          "x": 54.94,
+          "y": 58.7
+        }
+      ],
+      "label": "T Spawn to Vent",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-vent-2\nTechnique: LeftClickCtrlSpaceW. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1180.171143 -876.031250 -351.968750;setang -19.724064 -10.645207 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "80:61",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-vent-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:83:45",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 62.388,
+          "y": 45.382
+        },
+        {
+          "x": 51.622,
+          "y": 58.445
+        }
+      ],
+      "label": "Heaven to Squeaky",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/heaven-to-squeaky\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1008.136841 -457.968750 -63.968750;setang -1.044459 -120.541222 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "83:45",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/heaven-to-squeaky",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:110:62",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 54.393,
+          "y": 57.801
+        },
+        {
+          "x": 54.389,
+          "y": 60.359
+        }
+      ],
+      "label": "Tetris to Vent",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/flash/tetris-to-vent\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 436.781830 -1216.027344 -351.968750;setang -66.342316 -89.913345 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "110:62",
+        "url": "https://cs2nades.gg/en/map/nuke/flash/tetris-to-vent",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:107:63",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 73.517,
+          "y": 44.586
+        },
+        {
+          "x": 61.01,
+          "y": 45.724
+        }
+      ],
+      "label": "CT Spawn to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/flash/ct-spawn-to-a-site\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1846.778442 -280.046265 -287.968750;setang -27.600866 -168.265656 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "107:63",
+        "url": "https://cs2nades.gg/en/map/nuke/flash/ct-spawn-to-a-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:108:63",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 64.032,
+          "y": 47.587
+        },
+        {
+          "x": 61.01,
+          "y": 45.724
+        }
+      ],
+      "label": "Heaven to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/flash/heaven-to-a-site\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1269.968750 -459.968750 -63.960037;setang 12.714302 165.669373 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "108:63",
+        "url": "https://cs2nades.gg/en/map/nuke/flash/heaven-to-a-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:109:63",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 64.04,
+          "y": 44.552
+        },
+        {
+          "x": 61.01,
+          "y": 45.724
+        }
+      ],
+      "label": "Heaven to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/flash/heaven-to-a-site-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 1259.968750 -316.031250 -63.968750;setang 20.479820 -147.311707 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "109:63",
+        "url": "https://cs2nades.gg/en/map/nuke/flash/heaven-to-a-site-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:104:64",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 57.453,
+          "y": 63.147
+        },
+        {
+          "x": 60.338,
+          "y": 63.274
+        }
+      ],
+      "label": "Main Roof to Main",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/flash/main-roof-to-main\nTechnique: rightclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 767.926514 -1662.724243 -175.968750;setang -56.634281 3.057287 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "104:64",
+        "url": "https://cs2nades.gg/en/map/nuke/flash/main-roof-to-main",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:785:416",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 36.966,
+          "y": 53.162
+        },
+        {
+          "x": 67.213,
+          "y": 45.271
+        }
+      ],
+      "label": "T Spawn to Heaven",
+      "note": "Source: https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-heaven\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -891.94 -927.03 352.00;setang -22.57 13.66 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "785:416",
+        "url": "https://cs2nades.gg/en/map/nuke/smoke/t-spawn-to-heaven",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "native-site:Nuke:A:0",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 55.1730657742769,
+          "y": 53.39305613668295
+        },
+        {
+          "x": 60.358422163433424,
+          "y": 53.39485356937951
+        },
+        {
+          "x": 60.36054815861283,
+          "y": 47.26163772880631
+        },
+        {
+          "x": 55.17519176945631,
+          "y": 47.25984029610976
+        }
+      ],
+      "label": "A native plant zone",
+      "note": "Installed func_bomb_target 2:47639, convex piece 1. Native volume Z -416 to -320. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47456",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 80.558777673123,
+          "y": 46.028056442092264
+        }
+      ],
+      "label": "CT spawn 2:47456",
+      "note": "Installed enabled spawn; priority 1. World origin 2323, -411, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47457",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 22.97326458903361,
+          "y": 54.56672211002947
+        }
+      ],
+      "label": "T spawn 2:47457",
+      "note": "Installed enabled spawn; priority 0. World origin -1808, -1025, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47494",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 20.28312367582104,
+          "y": 53.84248785380256
+        }
+      ],
+      "label": "T spawn 2:47494",
+      "note": "Installed enabled spawn; priority 1. World origin -2001.01001, -973.109985, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47495",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 21.03587535452003,
+          "y": 53.73123573082502
+        }
+      ],
+      "label": "T spawn 2:47495",
+      "note": "Installed enabled spawn; priority 0. World origin -1947.01001, -965.109985, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47496",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 19.794940055536756,
+          "y": 54.74836219560576
+        }
+      ],
+      "label": "T spawn 2:47496",
+      "note": "Installed enabled spawn; priority 1. World origin -2036.01001, -1038.109985, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47497",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 20.28251486797221,
+          "y": 55.598818243678146
+        }
+      ],
+      "label": "T spawn 2:47497",
+      "note": "Installed enabled spawn; priority 1. World origin -2001.01001, -1099.109985, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47498",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 21.035213396779636,
+          "y": 55.640896551562776
+        }
+      ],
+      "label": "T spawn 2:47498",
+      "note": "Installed enabled spawn; priority 0. World origin -1947.01001, -1102.109985, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47499",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 18.429383596556946,
+          "y": 53.770616526048286
+        }
+      ],
+      "label": "T spawn 2:47499",
+      "note": "Installed enabled spawn; priority 1. World origin -2134, -968, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47500",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 19.293648315882958,
+          "y": 53.65940305753737
+        }
+      ],
+      "label": "T spawn 2:47500",
+      "note": "Installed enabled spawn; priority 1. World origin -2072, -960, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47501",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 18.944817341915854,
+          "y": 54.676838758050835
+        }
+      ],
+      "label": "T spawn 2:47501",
+      "note": "Installed enabled spawn; priority 1. World origin -2097, -1033, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47502",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 18.42877478870811,
+          "y": 55.52694691592389
+        }
+      ],
+      "label": "T spawn 2:47502",
+      "note": "Installed enabled spawn; priority 1. World origin -2134, -1094, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47503",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 19.29298635814256,
+          "y": 55.56906387827512
+        }
+      ],
+      "label": "T spawn 2:47503",
+      "note": "Installed enabled spawn; priority 1. World origin -2072, -1097, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47504",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 21.997742914921755,
+          "y": 53.939123029919784
+        }
+      ],
+      "label": "T spawn 2:47504",
+      "note": "Installed enabled spawn; priority 0. World origin -1878, -980, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47505",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 22.638073173028804,
+          "y": 56.44838870721068
+        }
+      ],
+      "label": "T spawn 2:47505",
+      "note": "Installed enabled spawn; priority 0. World origin -1832, -1160, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47506",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 21.286629849549907,
+          "y": 54.56613746122226
+        }
+      ],
+      "label": "T spawn 2:47506",
+      "note": "Installed enabled spawn; priority 0. World origin -1929, -1025, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47507",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 22.053035581636156,
+          "y": 55.27729884467735
+        }
+      ],
+      "label": "T spawn 2:47507",
+      "note": "Installed enabled spawn; priority 0. World origin -1874, -1076, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47508",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 22.972955353300872,
+          "y": 55.45882643504564
+        }
+      ],
+      "label": "T spawn 2:47508",
+      "note": "Installed enabled spawn; priority 0. World origin -1808, -1089, -400.634003. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47509",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 83.08208394846709,
+          "y": 45.095009284147615
+        }
+      ],
+      "label": "CT spawn 2:47509",
+      "note": "Installed enabled spawn; priority 0. World origin 2504, -344, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47510",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 82.06230951013481,
+          "y": 45.46518580752479
+        }
+      ],
+      "label": "CT spawn 2:47510",
+      "note": "Installed enabled spawn; priority 1. World origin 2430.850098, -370.582001, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47511",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 83.75077564756329,
+          "y": 46.21037161721738
+        }
+      ],
+      "label": "CT spawn 2:47511",
+      "note": "Installed enabled spawn; priority 0. World origin 2552, -424, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47512",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 83.19282389976226,
+          "y": 47.325308751154644
+        }
+      ],
+      "label": "CT spawn 2:47512",
+      "note": "Installed enabled spawn; priority 0. World origin 2512, -504, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47513",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 82.18924518858564,
+          "y": 47.21344782032829
+        }
+      ],
+      "label": "CT spawn 2:47513",
+      "note": "Installed enabled spawn; priority 1. World origin 2440, -496, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47514",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 80.94935839200869,
+          "y": 45.205783058101055
+        }
+      ],
+      "label": "CT spawn 2:47514",
+      "note": "Installed enabled spawn; priority 1. World origin 2351, -352, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47515",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 79.95975746537705,
+          "y": 44.982413918456004
+        }
+      ],
+      "label": "CT spawn 2:47515",
+      "note": "Installed enabled spawn; priority 1. World origin 2280, -336, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47516",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 81.6180114366383,
+          "y": 46.432658431797854
+        }
+      ],
+      "label": "CT spawn 2:47516",
+      "note": "Installed enabled spawn; priority 1. World origin 2399, -440, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47517",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 80.8371882254496,
+          "y": 47.10146609429383
+        }
+      ],
+      "label": "CT spawn 2:47517",
+      "note": "Installed enabled spawn; priority 1. World origin 2343, -488, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47518",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 79.9589843760452,
+          "y": 47.21267473099645
+        }
+      ],
+      "label": "CT spawn 2:47518",
+      "note": "Installed enabled spawn; priority 1. World origin 2280, -496, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47519",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 85.20075441144732,
+          "y": 45.31876980026692
+        }
+      ],
+      "label": "CT spawn 2:47519",
+      "note": "Installed enabled spawn; priority 1. World origin 2656, -360, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47520",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 84.21115348481568,
+          "y": 45.09540066062187
+        }
+      ],
+      "label": "CT spawn 2:47520",
+      "note": "Installed enabled spawn; priority 0. World origin 2585, -344, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47521",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 85.8695620739433,
+          "y": 46.09959301145563
+        }
+      ],
+      "label": "CT spawn 2:47521",
+      "note": "Installed enabled spawn; priority 1. World origin 2704, -416, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47522",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 85.31161032614226,
+          "y": 47.21453014539289
+        }
+      ],
+      "label": "CT spawn 2:47522",
+      "note": "Installed enabled spawn; priority 1. World origin 2664, -496, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Nuke:2:47523",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 84.19644126540545,
+          "y": 47.32565664135398
+        }
+      ],
+      "label": "CT spawn 2:47523",
+      "note": "Installed enabled spawn; priority 0. World origin 2584, -504, -335. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    }
+  ],
+  "libraryVersion": "2026-09-12.1",
+  "registration": {
+    "version": 1,
+    "sourceRadar": "/maps/de_nuke_radar_psd_1.png",
+    "sourceSha256": "3d0eafacd98b09ef03cf535b2b82dad7d1d70bb8549290998d0a4819f6b8f663",
+    "targetSha256": "21167d05292e80eebe7b068f0bba36a2e3f9116d154d96952a8366cdcc72e6b1",
+    "sourceVersion": "2000908",
+    "meshSha256": "e9d78f26aa0aa705e4cdd16e98fae453ba99f6e8cfcc3a09aa3e549925b54984",
+    "matrix": [
+      1.0008437472357103,
+      0.00034692876254070515,
+      -0.06236023290339273,
+      -0.00034692876254070515,
+      1.0008437472357103,
+      -0.028899687573339897
+    ],
+    "method": "image-features",
+    "confidence": "provisional",
+    "evidence": "291 SIFT/RANSAC inliers; median 0.237px, p95 1.326px. Image alignment only; floors and walls need review."
+  }
+}

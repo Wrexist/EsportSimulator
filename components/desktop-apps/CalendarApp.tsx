@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "@/lib/toast"
 import { pressable } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface CalendarAppProps {
     currentWeek: number
     events: GameEventSaveData[]
@@ -229,7 +230,7 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                                                             </div>
                                                         )}
                                                         <div className="text-[9px] text-amber-400 font-bold">
-                                                            ${(tournament.prizePool / 1000).toFixed(0)}K
+                                                            {formatCurrency(tournament.prizePool)}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -359,7 +360,7 @@ export function CalendarApp({ currentWeek, events, onEventClick }: CalendarAppPr
                                 <div className="flex items-center gap-3">
                                     <div className="text-[10px] shrink-0">
                                         <span className="text-white/40">Prize:</span>
-                                        <span className="text-amber-400 font-bold ml-1">${selectedTournamentData.prizePool.toLocaleString()}</span>
+                                        <span className="text-amber-400 font-bold ml-1">{formatCurrency(selectedTournamentData.prizePool, "$", false)}</span>
                                     </div>
                                     <div className="text-[10px] truncate">
                                         <span className="text-white/40">Region:</span>

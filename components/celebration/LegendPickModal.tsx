@@ -9,7 +9,7 @@ import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { formatRole } from "@/lib/utils-extended"
+import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import type { LegendPickData } from "@/engine/save-types"
 import { panelTransition } from "@/lib/motion"
@@ -91,7 +91,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-celebration flex items-center justify-center backdrop-blur-md"
+                className="fixed inset-0 z-celebration flex items-center justify-center bg-black/58 backdrop-blur-md"
             >
                 <div className="absolute inset-0 liquid-app-bg opacity-70 pointer-events-none" />
                 <div className="absolute inset-0 liquid-noise pointer-events-none" />
@@ -261,7 +261,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                         >
                             {quote && (
                                 <p role="status" className={cn("mb-3 text-sm", quote.affordable ? "text-white/60" : "text-amber-300")}>
-                                    Wage ${quote.salary.toLocaleString("en-US")}/week for {LEGEND_CONTRACT_WEEKS / 52} years.{" "}
+                                    Wage {formatCurrency(quote.salary, "$", false)}/week for {LEGEND_CONTRACT_WEEKS / 52} years.{" "}
                                     {quote.weeklyNet >= 0
                                         ? "Your club stays cash-positive."
                                         : `Cash lasts about ${quote.runwayWeeks} weeks at the new rate.`}

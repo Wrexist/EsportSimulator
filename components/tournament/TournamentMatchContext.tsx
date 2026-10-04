@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import { getStakes as sharedGetStakes } from "@/lib/match-stakes"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface MatchOutcome {
     won: boolean
     advanced?: boolean       // true = advanced, false = eliminated
@@ -124,7 +125,7 @@ export function TournamentMatchContext({
                     </Badge>
                     {prizePool && prizePool > 0 && (
                         <span className="text-[10px] text-emerald-400 font-mono">
-                            ${prizePool.toLocaleString()}
+                            {formatCurrency(prizePool, "$", false)}
                         </span>
                     )}
                 </div>

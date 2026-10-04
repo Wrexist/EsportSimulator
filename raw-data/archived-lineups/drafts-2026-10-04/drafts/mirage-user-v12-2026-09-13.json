@@ -1,0 +1,5477 @@
+{
+  "format": "esim-map-annotations",
+  "version": 2,
+  "mapId": "Mirage",
+  "floor": "upper",
+  "marks": [
+    {
+      "id": "outline:Mirage:upper:0",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 10.254,
+          "y": 23.047
+        },
+        {
+          "x": 10.547,
+          "y": 23.34
+        },
+        {
+          "x": 10.938,
+          "y": 31.445
+        },
+        {
+          "x": 16.113,
+          "y": 31.543
+        },
+        {
+          "x": 16.113,
+          "y": 33.984
+        },
+        {
+          "x": 15.234,
+          "y": 34.668
+        },
+        {
+          "x": 15.234,
+          "y": 38.379
+        },
+        {
+          "x": 16.406,
+          "y": 38.477
+        },
+        {
+          "x": 16.211,
+          "y": 38.672
+        },
+        {
+          "x": 16.211,
+          "y": 47.168
+        },
+        {
+          "x": 21.875,
+          "y": 47.168
+        },
+        {
+          "x": 21.973,
+          "y": 46.289
+        },
+        {
+          "x": 24.219,
+          "y": 46.289
+        },
+        {
+          "x": 24.316,
+          "y": 47.168
+        },
+        {
+          "x": 30.371,
+          "y": 47.168
+        },
+        {
+          "x": 30.664,
+          "y": 47.559
+        },
+        {
+          "x": 30.566,
+          "y": 47.852
+        },
+        {
+          "x": 29.102,
+          "y": 47.852
+        },
+        {
+          "x": 29.102,
+          "y": 66.211
+        },
+        {
+          "x": 27.832,
+          "y": 67.48
+        },
+        {
+          "x": 22.852,
+          "y": 67.578
+        },
+        {
+          "x": 22.949,
+          "y": 73.438
+        },
+        {
+          "x": 28.418,
+          "y": 73.438
+        },
+        {
+          "x": 32.227,
+          "y": 80.859
+        },
+        {
+          "x": 33.496,
+          "y": 80.859
+        },
+        {
+          "x": 33.789,
+          "y": 81.25
+        },
+        {
+          "x": 45.996,
+          "y": 85.254
+        },
+        {
+          "x": 45.703,
+          "y": 84.18
+        },
+        {
+          "x": 46.484,
+          "y": 83.789
+        },
+        {
+          "x": 47.266,
+          "y": 83.789
+        },
+        {
+          "x": 53.809,
+          "y": 80.566
+        },
+        {
+          "x": 54.199,
+          "y": 79.883
+        },
+        {
+          "x": 54.98,
+          "y": 79.492
+        },
+        {
+          "x": 55.664,
+          "y": 80.566
+        },
+        {
+          "x": 61.23,
+          "y": 80.566
+        },
+        {
+          "x": 61.23,
+          "y": 76.27
+        },
+        {
+          "x": 61.426,
+          "y": 76.074
+        },
+        {
+          "x": 62.988,
+          "y": 76.074
+        },
+        {
+          "x": 63.184,
+          "y": 76.27
+        },
+        {
+          "x": 63.184,
+          "y": 80.176
+        },
+        {
+          "x": 67.871,
+          "y": 80.176
+        },
+        {
+          "x": 67.969,
+          "y": 79.785
+        },
+        {
+          "x": 68.359,
+          "y": 79.785
+        },
+        {
+          "x": 68.457,
+          "y": 80.176
+        },
+        {
+          "x": 70.703,
+          "y": 80.176
+        },
+        {
+          "x": 70.801,
+          "y": 79.785
+        },
+        {
+          "x": 71.875,
+          "y": 79.785
+        },
+        {
+          "x": 71.973,
+          "y": 80.469
+        },
+        {
+          "x": 77.637,
+          "y": 80.469
+        },
+        {
+          "x": 77.734,
+          "y": 80.078
+        },
+        {
+          "x": 83.887,
+          "y": 80.176
+        },
+        {
+          "x": 83.984,
+          "y": 79.98
+        },
+        {
+          "x": 84.473,
+          "y": 79.98
+        },
+        {
+          "x": 84.473,
+          "y": 76.66
+        },
+        {
+          "x": 83.887,
+          "y": 76.562
+        },
+        {
+          "x": 83.887,
+          "y": 75.391
+        },
+        {
+          "x": 84.57,
+          "y": 75.293
+        },
+        {
+          "x": 84.57,
+          "y": 71.289
+        },
+        {
+          "x": 83.984,
+          "y": 71.289
+        },
+        {
+          "x": 83.887,
+          "y": 70.801
+        },
+        {
+          "x": 84.57,
+          "y": 70.703
+        },
+        {
+          "x": 84.57,
+          "y": 67.676
+        },
+        {
+          "x": 83.203,
+          "y": 67.578
+        },
+        {
+          "x": 83.203,
+          "y": 62.695
+        },
+        {
+          "x": 90.625,
+          "y": 62.598
+        },
+        {
+          "x": 90.723,
+          "y": 62.402
+        },
+        {
+          "x": 90.625,
+          "y": 58.398
+        },
+        {
+          "x": 91.016,
+          "y": 58.105
+        },
+        {
+          "x": 91.016,
+          "y": 53.711
+        },
+        {
+          "x": 90.723,
+          "y": 53.613
+        },
+        {
+          "x": 90.723,
+          "y": 49.316
+        },
+        {
+          "x": 91.016,
+          "y": 49.121
+        },
+        {
+          "x": 91.016,
+          "y": 46.875
+        },
+        {
+          "x": 90.723,
+          "y": 46.777
+        },
+        {
+          "x": 90.723,
+          "y": 42.48
+        },
+        {
+          "x": 91.016,
+          "y": 42.383
+        },
+        {
+          "x": 91.016,
+          "y": 41.602
+        },
+        {
+          "x": 91.504,
+          "y": 41.504
+        },
+        {
+          "x": 91.504,
+          "y": 37.598
+        },
+        {
+          "x": 92.09,
+          "y": 37.402
+        },
+        {
+          "x": 92.09,
+          "y": 34.863
+        },
+        {
+          "x": 91.504,
+          "y": 34.766
+        },
+        {
+          "x": 91.504,
+          "y": 31.445
+        },
+        {
+          "x": 90.43,
+          "y": 31.445
+        },
+        {
+          "x": 90.234,
+          "y": 31.25
+        },
+        {
+          "x": 90.234,
+          "y": 22.754
+        },
+        {
+          "x": 85.938,
+          "y": 22.852
+        },
+        {
+          "x": 85.84,
+          "y": 20.117
+        },
+        {
+          "x": 83.496,
+          "y": 19.434
+        },
+        {
+          "x": 75.488,
+          "y": 19.434
+        },
+        {
+          "x": 75.391,
+          "y": 18.75
+        },
+        {
+          "x": 75.586,
+          "y": 18.555
+        },
+        {
+          "x": 76.367,
+          "y": 18.555
+        },
+        {
+          "x": 76.367,
+          "y": 15.43
+        },
+        {
+          "x": 66.016,
+          "y": 15.625
+        },
+        {
+          "x": 65.918,
+          "y": 16.309
+        },
+        {
+          "x": 65.723,
+          "y": 16.406
+        },
+        {
+          "x": 65.625,
+          "y": 15.625
+        },
+        {
+          "x": 61.133,
+          "y": 15.625
+        },
+        {
+          "x": 60.547,
+          "y": 15.82
+        },
+        {
+          "x": 60.352,
+          "y": 15.332
+        },
+        {
+          "x": 53.711,
+          "y": 15.332
+        },
+        {
+          "x": 53.613,
+          "y": 19.727
+        },
+        {
+          "x": 53.223,
+          "y": 20.703
+        },
+        {
+          "x": 43.945,
+          "y": 20.703
+        },
+        {
+          "x": 43.75,
+          "y": 21.094
+        },
+        {
+          "x": 43.555,
+          "y": 16.895
+        },
+        {
+          "x": 33.887,
+          "y": 16.895
+        },
+        {
+          "x": 33.691,
+          "y": 17.773
+        },
+        {
+          "x": 33.496,
+          "y": 15.918
+        },
+        {
+          "x": 28.809,
+          "y": 15.723
+        },
+        {
+          "x": 28.418,
+          "y": 15.918
+        },
+        {
+          "x": 28.32,
+          "y": 16.309
+        },
+        {
+          "x": 25.977,
+          "y": 16.309
+        },
+        {
+          "x": 25.977,
+          "y": 17.383
+        },
+        {
+          "x": 25.195,
+          "y": 17.578
+        },
+        {
+          "x": 25,
+          "y": 17.383
+        },
+        {
+          "x": 25,
+          "y": 16.016
+        },
+        {
+          "x": 21.973,
+          "y": 16.016
+        },
+        {
+          "x": 21.875,
+          "y": 16.406
+        },
+        {
+          "x": 16.602,
+          "y": 16.895
+        },
+        {
+          "x": 16.406,
+          "y": 17.09
+        },
+        {
+          "x": 15.527,
+          "y": 22.266
+        },
+        {
+          "x": 11.523,
+          "y": 22.266
+        },
+        {
+          "x": 11.23,
+          "y": 22.07
+        },
+        {
+          "x": 10.254,
+          "y": 23.047
+        }
+      ],
+      "label": "",
+      "note": "Outer radar boundary. Traced from this map image; review ledges, height and openings separately.",
+      "status": "draft",
+      "locked": true,
+      "source": {
+        "provider": "radar-outline",
+        "id": "Mirage:upper:0"
+      }
+    },
+    {
+      "id": "9e031950-9176-465d-b858-55629a85fc52",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 29.32,
+          "y": 48.881
+        },
+        {
+          "x": 29.081,
+          "y": 66.383
+        },
+        {
+          "x": 28.002,
+          "y": 67.821
+        },
+        {
+          "x": 22.847,
+          "y": 67.821
+        },
+        {
+          "x": 22.727,
+          "y": 73.935
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "7a9570ca-72d4-49f9-98c4-8ca869ad0c98",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 22.727,
+          "y": 73.935
+        },
+        {
+          "x": 28.601,
+          "y": 73.815
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "3ab9374d-0b4a-4e35-80c1-279a00cef173",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 28.601,
+          "y": 73.815
+        },
+        {
+          "x": 32,
+          "y": 81
+        },
+        {
+          "x": 34,
+          "y": 81
+        },
+        {
+          "x": 46,
+          "y": 85
+        },
+        {
+          "x": 46,
+          "y": 84
+        },
+        {
+          "x": 55,
+          "y": 80
+        },
+        {
+          "x": 56,
+          "y": 81
+        },
+        {
+          "x": 61,
+          "y": 81
+        },
+        {
+          "x": 61,
+          "y": 76
+        },
+        {
+          "x": 63,
+          "y": 76
+        },
+        {
+          "x": 63,
+          "y": 80
+        },
+        {
+          "x": 84,
+          "y": 80
+        },
+        {
+          "x": 85,
+          "y": 80
+        },
+        {
+          "x": 85,
+          "y": 68
+        },
+        {
+          "x": 83.368,
+          "y": 67.878
+        },
+        {
+          "x": 83.368,
+          "y": 62.783
+        },
+        {
+          "x": 90.86,
+          "y": 62.633
+        },
+        {
+          "x": 91.01,
+          "y": 43.003
+        },
+        {
+          "x": 91.609,
+          "y": 41.205
+        },
+        {
+          "x": 91.459,
+          "y": 31.615
+        },
+        {
+          "x": 90.111,
+          "y": 31.615
+        },
+        {
+          "x": 90.111,
+          "y": 22.774
+        },
+        {
+          "x": 85.765,
+          "y": 22.774
+        },
+        {
+          "x": 85.615,
+          "y": 20.077
+        },
+        {
+          "x": 83.218,
+          "y": 19.478
+        },
+        {
+          "x": 75.576,
+          "y": 19.478
+        },
+        {
+          "x": 75.576,
+          "y": 18.429
+        },
+        {
+          "x": 76.625,
+          "y": 18.429
+        },
+        {
+          "x": 76.625,
+          "y": 15.432
+        },
+        {
+          "x": 53.548,
+          "y": 15.282
+        },
+        {
+          "x": 53.399,
+          "y": 20.676
+        },
+        {
+          "x": 43.808,
+          "y": 20.676
+        },
+        {
+          "x": 43.659,
+          "y": 16.93
+        },
+        {
+          "x": 33.769,
+          "y": 17.08
+        },
+        {
+          "x": 33.769,
+          "y": 15.432
+        },
+        {
+          "x": 25.827,
+          "y": 16.181
+        },
+        {
+          "x": 25.977,
+          "y": 17.53
+        },
+        {
+          "x": 25.078,
+          "y": 17.53
+        },
+        {
+          "x": 24.928,
+          "y": 16.031
+        },
+        {
+          "x": 16.537,
+          "y": 17.08
+        },
+        {
+          "x": 15.638,
+          "y": 22.175
+        },
+        {
+          "x": 11.292,
+          "y": 22.774
+        },
+        {
+          "x": 10.543,
+          "y": 23.374
+        },
+        {
+          "x": 10.693,
+          "y": 31.915
+        },
+        {
+          "x": 16.237,
+          "y": 31.615
+        },
+        {
+          "x": 16.237,
+          "y": 34.013
+        },
+        {
+          "x": 15.038,
+          "y": 35.511
+        },
+        {
+          "x": 15.188,
+          "y": 38.508
+        },
+        {
+          "x": 16.387,
+          "y": 38.508
+        },
+        {
+          "x": 16.387,
+          "y": 47.499
+        },
+        {
+          "x": 22.081,
+          "y": 47.648
+        },
+        {
+          "x": 22.081,
+          "y": 46.3
+        },
+        {
+          "x": 24.329,
+          "y": 46.3
+        },
+        {
+          "x": 24.628,
+          "y": 47.499
+        },
+        {
+          "x": 30.772,
+          "y": 47.499
+        },
+        {
+          "x": 29.32,
+          "y": 48.881
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "6e167c55-b797-4513-b72e-d65a35f84d32",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 18.485,
+          "y": 38.508
+        },
+        {
+          "x": 18.485,
+          "y": 42.104
+        },
+        {
+          "x": 21.631,
+          "y": 42.254
+        },
+        {
+          "x": 21.781,
+          "y": 38.957
+        },
+        {
+          "x": 24.778,
+          "y": 38.957
+        },
+        {
+          "x": 18.485,
+          "y": 38.508
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "bde215a4-480e-49c4-b9ea-344115a521ce",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 26.576,
+          "y": 38.508
+        },
+        {
+          "x": 33.319,
+          "y": 38.508
+        },
+        {
+          "x": 33.17,
+          "y": 31.465
+        },
+        {
+          "x": 44.857,
+          "y": 32.065
+        },
+        {
+          "x": 44.857,
+          "y": 34.162
+        },
+        {
+          "x": 39.463,
+          "y": 33.863
+        },
+        {
+          "x": 39.163,
+          "y": 41.804
+        },
+        {
+          "x": 38.114,
+          "y": 41.804
+        },
+        {
+          "x": 38.114,
+          "y": 48.697
+        },
+        {
+          "x": 39.163,
+          "y": 48.847
+        },
+        {
+          "x": 39.313,
+          "y": 49.896
+        },
+        {
+          "x": 38.114,
+          "y": 49.896
+        },
+        {
+          "x": 38.114,
+          "y": 51.395
+        },
+        {
+          "x": 36.616,
+          "y": 51.245
+        },
+        {
+          "x": 36.466,
+          "y": 49.596
+        },
+        {
+          "x": 34.818,
+          "y": 49.746
+        },
+        {
+          "x": 34.818,
+          "y": 47.948
+        },
+        {
+          "x": 32.72,
+          "y": 47.648
+        },
+        {
+          "x": 32.87,
+          "y": 43.003
+        },
+        {
+          "x": 27.775,
+          "y": 42.853
+        },
+        {
+          "x": 26.576,
+          "y": 40.756
+        },
+        {
+          "x": 26.576,
+          "y": 38.508
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "e7000224-c560-4b93-9d64-2459cf57d157",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 33.319,
+          "y": 26.221
+        },
+        {
+          "x": 33.319,
+          "y": 27.869
+        },
+        {
+          "x": 34.668,
+          "y": 27.869
+        },
+        {
+          "x": 34.818,
+          "y": 26.071
+        },
+        {
+          "x": 33.319,
+          "y": 26.221
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "bed28f21-6d3f-474a-afb6-3de54088e521",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 24.928,
+          "y": 24.422
+        },
+        {
+          "x": 26.576,
+          "y": 24.422
+        },
+        {
+          "x": 26.576,
+          "y": 26.52
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "47e5c5ae-b0a1-4379-8d68-1510dbb78871",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 26.576,
+          "y": 30.266
+        },
+        {
+          "x": 26.426,
+          "y": 32.514
+        },
+        {
+          "x": 24.778,
+          "y": 32.514
+        },
+        {
+          "x": 23.729,
+          "y": 31.465
+        },
+        {
+          "x": 24.778,
+          "y": 29.218
+        },
+        {
+          "x": 25.977,
+          "y": 29.218
+        },
+        {
+          "x": 26.576,
+          "y": 30.266
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "f0791d45-7988-4d66-ad67-80f641a525a9",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 20.732,
+          "y": 32.214
+        },
+        {
+          "x": 19.084,
+          "y": 32.214
+        },
+        {
+          "x": 19.234,
+          "y": 30.266
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "26cb7ff5-1aac-460d-8138-752576c0c9be",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 19.234,
+          "y": 25.921
+        },
+        {
+          "x": 19.234,
+          "y": 23.973
+        },
+        {
+          "x": 21.032,
+          "y": 24.273
+        },
+        {
+          "x": 21.631,
+          "y": 25.322
+        },
+        {
+          "x": 21.631,
+          "y": 26.82
+        },
+        {
+          "x": 19.833,
+          "y": 26.82
+        },
+        {
+          "x": 19.234,
+          "y": 25.921
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "2737add1-48bd-49f3-8f71-aefdf52320c9",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 34.518,
+          "y": 56.939
+        },
+        {
+          "x": 33.919,
+          "y": 58.437
+        },
+        {
+          "x": 33.769,
+          "y": 63.832
+        },
+        {
+          "x": 35.867,
+          "y": 63.682
+        },
+        {
+          "x": 36.166,
+          "y": 66.079
+        },
+        {
+          "x": 34.518,
+          "y": 65.93
+        },
+        {
+          "x": 35.117,
+          "y": 74.621
+        },
+        {
+          "x": 36.017,
+          "y": 76.718
+        },
+        {
+          "x": 44.108,
+          "y": 76.868
+        },
+        {
+          "x": 44.408,
+          "y": 77.617
+        },
+        {
+          "x": 47.405,
+          "y": 76.569
+        },
+        {
+          "x": 47.555,
+          "y": 74.321
+        },
+        {
+          "x": 47.405,
+          "y": 64.431
+        },
+        {
+          "x": 45.607,
+          "y": 63.832
+        },
+        {
+          "x": 40.812,
+          "y": 63.832
+        },
+        {
+          "x": 40.812,
+          "y": 62.183
+        },
+        {
+          "x": 39.463,
+          "y": 62.333
+        },
+        {
+          "x": 39.313,
+          "y": 63.982
+        },
+        {
+          "x": 37.515,
+          "y": 63.832
+        },
+        {
+          "x": 37.515,
+          "y": 57.538
+        },
+        {
+          "x": 38.264,
+          "y": 56.939
+        },
+        {
+          "x": 34.518,
+          "y": 56.939
+        },
+        {
+          "x": 36.916,
+          "y": 56.939
+        },
+        {
+          "x": 36.916,
+          "y": 53.792
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "ed36e494-8758-4206-b04c-8d64288dc70f",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 41.711,
+          "y": 47.499
+        },
+        {
+          "x": 41.561,
+          "y": 56.789
+        },
+        {
+          "x": 40.062,
+          "y": 56.639
+        },
+        {
+          "x": 40.362,
+          "y": 57.388
+        },
+        {
+          "x": 41.261,
+          "y": 58.587
+        },
+        {
+          "x": 44.108,
+          "y": 58.587
+        },
+        {
+          "x": 44.258,
+          "y": 59.786
+        },
+        {
+          "x": 45.756,
+          "y": 59.936
+        },
+        {
+          "x": 46.206,
+          "y": 58.737
+        },
+        {
+          "x": 49.203,
+          "y": 58.587
+        },
+        {
+          "x": 46.805,
+          "y": 57.838
+        },
+        {
+          "x": 46.955,
+          "y": 55.59
+        },
+        {
+          "x": 48.154,
+          "y": 55.59
+        },
+        {
+          "x": 48.154,
+          "y": 53.942
+        },
+        {
+          "x": 46.656,
+          "y": 54.242
+        },
+        {
+          "x": 46.805,
+          "y": 49.896
+        },
+        {
+          "x": 48.903,
+          "y": 49.896
+        },
+        {
+          "x": 48.903,
+          "y": 48.997
+        },
+        {
+          "x": 41.711,
+          "y": 49.297
+        },
+        {
+          "x": 41.711,
+          "y": 47.499
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "908e3b2c-f94e-429f-a788-7b68853a6491",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 41.561,
+          "y": 43.453
+        },
+        {
+          "x": 41.111,
+          "y": 37.909
+        },
+        {
+          "x": 44.408,
+          "y": 37.609
+        },
+        {
+          "x": 44.408,
+          "y": 36.11
+        },
+        {
+          "x": 45.457,
+          "y": 36.26
+        },
+        {
+          "x": 45.607,
+          "y": 38.058
+        },
+        {
+          "x": 45.307,
+          "y": 40.306
+        },
+        {
+          "x": 41.711,
+          "y": 40.306
+        },
+        {
+          "x": 41.561,
+          "y": 43.453
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "9c0839c2-2f6d-447c-aed2-837a36b163de",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 64.337,
+          "y": 67.578
+        },
+        {
+          "x": 64.487,
+          "y": 70.725
+        },
+        {
+          "x": 66.435,
+          "y": 70.725
+        },
+        {
+          "x": 66.585,
+          "y": 74.471
+        },
+        {
+          "x": 65.536,
+          "y": 74.471
+        },
+        {
+          "x": 65.536,
+          "y": 77.767
+        },
+        {
+          "x": 68.233,
+          "y": 77.767
+        },
+        {
+          "x": 68.383,
+          "y": 71.474
+        },
+        {
+          "x": 80.82,
+          "y": 71.773
+        },
+        {
+          "x": 80.97,
+          "y": 60.086
+        },
+        {
+          "x": 88.013,
+          "y": 60.086
+        },
+        {
+          "x": 87.863,
+          "y": 57.988
+        },
+        {
+          "x": 79.472,
+          "y": 58.287
+        },
+        {
+          "x": 79.771,
+          "y": 67.578
+        },
+        {
+          "x": 68.233,
+          "y": 67.578
+        },
+        {
+          "x": 68.233,
+          "y": 64.881
+        },
+        {
+          "x": 67.034,
+          "y": 64.881
+        },
+        {
+          "x": 67.184,
+          "y": 67.578
+        },
+        {
+          "x": 64.337,
+          "y": 67.578
+        }
+      ],
+      "label": "",
+      "note": ""
+    },
+    {
+      "id": "67a10260-f8c8-4d9e-9009-d14ee00be3f3",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 90.375,
+          "y": 32.856
+        },
+        {
+          "x": 41.504,
+          "y": 45.788
+        }
+      ],
+      "label": "",
+      "note": "",
+      "side": "both",
+      "radius": 3,
+      "throwMode": "Standing",
+      "aim": "",
+      "status": "draft"
+    },
+    {
+      "id": "95187cf4-9e88-4b86-bed2-5c473e680c7b",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 90.225,
+          "y": 38.721
+        },
+        {
+          "x": 65.112,
+          "y": 40.826
+        }
+      ],
+      "label": "",
+      "note": "",
+      "side": "both",
+      "radius": 3,
+      "throwMode": "Standing",
+      "aim": "",
+      "status": "draft"
+    },
+    {
+      "id": "4f9fc809-91dc-4a0c-a8f2-2cf5444d08e2",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 81.954,
+          "y": 56.916
+        },
+        {
+          "x": 47.068,
+          "y": 79.923
+        }
+      ],
+      "label": "",
+      "note": "",
+      "side": "both",
+      "radius": 3,
+      "throwMode": "Standing",
+      "aim": "",
+      "status": "draft"
+    },
+    {
+      "id": "6cc268ef-feb8-4846-8bf7-0c580f182a4b",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 78.496,
+          "y": 62.029
+        },
+        {
+          "x": 54.135,
+          "y": 64.134
+        }
+      ],
+      "label": "",
+      "note": "",
+      "side": "both",
+      "radius": 3,
+      "throwMode": "Standing",
+      "aim": "",
+      "status": "draft"
+    },
+    {
+      "id": "13d9bcb3-6b46-491d-941b-87d2574dce75",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 78.345,
+          "y": 63.833
+        },
+        {
+          "x": 50.677,
+          "y": 65.487
+        }
+      ],
+      "label": "",
+      "note": "",
+      "side": "both",
+      "radius": 3,
+      "throwMode": "Standing",
+      "aim": "",
+      "status": "draft"
+    },
+    {
+      "id": "a9c4827a-6078-4fe1-a5d2-5298cc91a1d1",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 78.345,
+          "y": 65.938
+        },
+        {
+          "x": 43.91,
+          "y": 61.728
+        }
+      ],
+      "label": "",
+      "note": "",
+      "side": "both",
+      "radius": 3,
+      "throwMode": "Standing",
+      "aim": "",
+      "status": "draft"
+    },
+    {
+      "id": "f02d9baa-f006-4a7f-8181-981f825ceaad",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 84.661,
+          "y": 57.066
+        },
+        {
+          "x": 47.669,
+          "y": 38.27
+        }
+      ],
+      "label": "",
+      "note": "",
+      "side": "both",
+      "radius": 3,
+      "throwMode": "Standing",
+      "aim": "",
+      "status": "draft"
+    },
+    {
+      "id": "cs2nades:590:1",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 40.759,
+          "y": 51.489
+        },
+        {
+          "x": 39.929,
+          "y": 45.024
+        }
+      ],
+      "label": "Jungle to Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/jungle-to-window\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1120.06 -967.44 -103.97;setang 24.58 86.85 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "590:1",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/jungle-to-window",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:501:1",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 91.016,
+          "y": 32.091
+        },
+        {
+          "x": 39.929,
+          "y": 45.024
+        }
+      ],
+      "label": "T Spawn to Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-window\nTechnique: LeftClickDSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1422.966553 36.468750 -103.968750;setang -30.811844 -165.153015 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "501:1",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-window",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:503:1",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 44.771,
+          "y": 41.39
+        },
+        {
+          "x": 39.929,
+          "y": 45.024
+        }
+      ],
+      "label": "Underpass to Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/underpass-to-window\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -968.031250 -313.987061 -303.968750;setang -38.298534 -111.696709 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "503:1",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/underpass-to-window",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:502:1",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 91.016,
+          "y": 32.091
+        },
+        {
+          "x": 39.929,
+          "y": 45.024
+        }
+      ],
+      "label": "T Spawn to Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-window-2\nTechnique: LeftClickCtrlSpaceW. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1422.968750 34.830574 -103.968750;setang -24.193808 -166.485611 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "502:1",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-window-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:681:1",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 91.014,
+          "y": 40.252
+        },
+        {
+          "x": 39.929,
+          "y": 45.024
+        }
+      ],
+      "label": "T Spawn to Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-window-4\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1422.940000 -367.950000 -103.970000;setang -32.270000 -174.240000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "681:1",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-window-4",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:544:1",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 70.54,
+          "y": 45.976
+        },
+        {
+          "x": 39.929,
+          "y": 45.024
+        }
+      ],
+      "label": "Mid to Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/mid-to-window-2\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 502.968750 -627.420288 -96.517395;setang -14.178807 -178.095016 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "544:1",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/mid-to-window-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:500:1",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 83.424,
+          "y": 57.145
+        },
+        {
+          "x": 39.929,
+          "y": 45.024
+        }
+      ],
+      "label": "T Roof to Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-window\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1127.970581 -1208.217041 -44.968750;setang -21.300035 166.887238 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "500:1",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-window",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:523:1",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 70.54,
+          "y": 45.976
+        },
+        {
+          "x": 39.929,
+          "y": 45.024
+        }
+      ],
+      "label": "Mid to Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/mid-to-window\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 502.968750 -629.504150 -96.517273;setang -13.770969 179.751511 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "523:1",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/mid-to-window",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:499:1",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 86.43,
+          "y": 56.859
+        },
+        {
+          "x": 39.929,
+          "y": 45.024
+        }
+      ],
+      "label": "A Ramp to Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-window\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1239.968750 -1159.968750 -191.401154;setang -27.559521 168.312531 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "499:1",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-window",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:485:12",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 59.95,
+          "y": 15.622
+        },
+        {
+          "x": 25.529,
+          "y": 38.747
+        }
+      ],
+      "label": "B Apps to Kitchen Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-kitchen-window\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -160.031250 887.968750 -71.631531;setang -48.316418 -146.480621 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "485:12",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-kitchen-window",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:594:12",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 70.54,
+          "y": 45.976
+        },
+        {
+          "x": 25.529,
+          "y": 38.747
+        }
+      ],
+      "label": "Mid to Kitchen Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/mid-to-kitchen-window\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 343.31 -621.63 -99.05;setang -28.16 155.72 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "594:12",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/mid-to-kitchen-window",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:486:12",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 24.014,
+          "y": 24.207
+        },
+        {
+          "x": 25.529,
+          "y": 38.747
+        }
+      ],
+      "label": "B Site to Kitchen Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-site-to-kitchen-window\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1969.027466 450.031250 -95.968750;setang -5.207068 -138.935638 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "486:12",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-site-to-kitchen-window",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:484:12",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 59.95,
+          "y": 15.622
+        },
+        {
+          "x": 25.529,
+          "y": 38.747
+        }
+      ],
+      "label": "B Apps to Kitchen Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-kitchen-window-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -160.031250 887.968750 -71.647980;setang -50.280293 -146.488480 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "484:12",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-kitchen-window-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:468:13",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 88.149,
+          "y": 50.273
+        },
+        {
+          "x": 45.01,
+          "y": 79.445
+        }
+      ],
+      "label": "T Spawn to CT",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-ct\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1258.119507 -871.971863 -79.968750;setang -26.995901 -144.536819 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "468:13",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-ct",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:467:13",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 84.713,
+          "y": 52.85
+        },
+        {
+          "x": 45.01,
+          "y": 79.445
+        }
+      ],
+      "label": "A Ramp to CT",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-ct\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1087.041382 -1017.001282 -196.232117;setang -29.216162 -143.676407 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "467:13",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-ct",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:725:13",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 62.377,
+          "y": 61.293
+        },
+        {
+          "x": 45.01,
+          "y": 79.445
+        }
+      ],
+      "label": "Tetris to CT",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/tetris-to-ct-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -30.44 -1418.04 -104.34;setang -26.58 -131.22 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "725:13",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/tetris-to-ct-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:466:13",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 80.418,
+          "y": 53.851
+        },
+        {
+          "x": 45.01,
+          "y": 79.445
+        }
+      ],
+      "label": "A Ramp to CT",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-ct-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 907.587769 -1036.031250 -194.619812;setang -12.091719 -142.700867 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "466:13",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-ct-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:469:13",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 62.377,
+          "y": 61.293
+        },
+        {
+          "x": 45.01,
+          "y": 79.445
+        }
+      ],
+      "label": "Tetris to CT",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/tetris-to-ct\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -31.915405 -1418.031250 -104.374969;setang -32.572208 -116.919746 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "469:13",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/tetris-to-ct",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:465:13",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 80.418,
+          "y": 53.851
+        },
+        {
+          "x": 45.01,
+          "y": 79.445
+        }
+      ],
+      "label": "A Ramp to CT",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-ct-3\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1258.119507 -871.971863 -79.968750;setang -26.995901 -144.536819 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "465:13",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-ct-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:480:14",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 62.377,
+          "y": 61.293
+        },
+        {
+          "x": 40.428,
+          "y": 60.1
+        }
+      ],
+      "label": "Tetris to Jungle",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/tetris-to-jungle\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -31.917603 -1418.031250 -104.377075;setang -70.382301 -178.995102 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "480:14",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/tetris-to-jungle",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:696:15",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 66.828,
+          "y": 78.215
+        },
+        {
+          "x": 64.212,
+          "y": 76.725
+        }
+      ],
+      "label": "Palace to Palace",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/palace-to-palace\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 208.00 -2280.03 24.03;setang 18.00 -116.55 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "696:15",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/palace-to-palace",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:512:15",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 29.594,
+          "y": 48.117
+        },
+        {
+          "x": 64.212,
+          "y": 76.725
+        }
+      ],
+      "label": "Outside Kitchen to Palace",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/outside-kitchen-to-palace\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1711.968750 -760.727539 -103.968750;setang -23.466352 -38.544701 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "512:15",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/outside-kitchen-to-palace",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:702:15",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 88.149,
+          "y": 50.273
+        },
+        {
+          "x": 64.212,
+          "y": 76.725
+        }
+      ],
+      "label": "T Spawn to Palace",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-palace\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1258.54 -871.97 -79.97;setang -59.82 -137.40 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "702:15",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-palace",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:511:15",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 23.435,
+          "y": 67.73
+        },
+        {
+          "x": 64.212,
+          "y": 76.725
+        }
+      ],
+      "label": "CT to Palace",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/ct-to-palace\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2031.972656 -1764.757935 -226.729340;setang -28.193851 -10.925070 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "511:15",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/ct-to-palace",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:678:15",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 11.778,
+          "y": 22.925
+        },
+        {
+          "x": 64.212,
+          "y": 76.725
+        }
+      ],
+      "label": "Bench to Palace",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/bench-to-palace\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2600.000000 535.940000 -100.750000;setang -23.580000 -47.720000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "678:15",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/bench-to-palace",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:584:18",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 53.136,
+          "y": 58.918
+        },
+        {
+          "x": 50.232,
+          "y": 57.722
+        }
+      ],
+      "label": "Stairs to Connector",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/stairs-to-connector\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -500.06 -1309.03 -95.97;setang 26.62 -114.69 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "584:18",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/stairs-to-connector",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:462:16",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 85.291,
+          "y": 20.064
+        },
+        {
+          "x": 50.173,
+          "y": 50.358
+        }
+      ],
+      "label": "Side Alley to Connector",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/side-alley-to-connector\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1135.966431 647.976379 -197.375793;setang -31.140182 -140.850235 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "462:16",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/side-alley-to-connector",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:463:16",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 91.016,
+          "y": 32.091
+        },
+        {
+          "x": 50.173,
+          "y": 50.358
+        }
+      ],
+      "label": "T Spawn to Connector",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-connector-7\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1383.830566 70.968750 -103.968750;setang -20.797297 -157.145142 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "463:16",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-connector-7",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:464:16",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 91.016,
+          "y": 32.091
+        },
+        {
+          "x": 50.173,
+          "y": 50.358
+        }
+      ],
+      "label": "T Spawn to Connector",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-connector-8\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1422.967896 36.468750 -104.128754;setang -19.948376 -157.932922 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "464:16",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-connector-8",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:592:16",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 91.016,
+          "y": 32.091
+        },
+        {
+          "x": 50.173,
+          "y": 50.358
+        }
+      ],
+      "label": "T Spawn to Connector",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-connector-6\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1422.97 36.44 -103.97;setang -40.10 -157.60 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "592:16",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-connector-6",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:664:19",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 78.841,
+          "y": 65.591
+        },
+        {
+          "x": 54.146,
+          "y": 64.015
+        }
+      ],
+      "label": "T Roof to Stairs",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-stairs-4\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 814.970000 -1548.970000 -44.970000;setang -1.050000 178.010000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "664:19",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-stairs-4",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:494:19",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 91.014,
+          "y": 40.252
+        },
+        {
+          "x": 54.146,
+          "y": 64.015
+        }
+      ],
+      "label": "T Spawn to Stairs",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-stairs\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1422.966797 -367.968750 -104.128754;setang -46.863644 -146.532104 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "494:19",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-stairs",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:496:19",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 78.841,
+          "y": 65.591
+        },
+        {
+          "x": 54.146,
+          "y": 64.015
+        }
+      ],
+      "label": "T Roof to Stairs",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-stairs-3\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 814.968750 -1548.988770 -44.968750;setang -4.900196 -178.500244 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "496:19",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-stairs-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:492:19",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 80.418,
+          "y": 53.851
+        },
+        {
+          "x": 54.146,
+          "y": 64.015
+        }
+      ],
+      "label": "A Ramp to Stairs",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-stairs\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 908.409485 -1036.031372 -194.624115;setang -65.011642 -159.897186 0.000000Stairs from A ramp",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "492:19",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-stairs",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:495:19",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 85.858,
+          "y": 56.716
+        },
+        {
+          "x": 54.146,
+          "y": 64.015
+        }
+      ],
+      "label": "T Roof to Stairs",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-stairs-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1148.765991 -1183.968262 -143.171799;setang -41.636101 -165.239334 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "495:19",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-stairs-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:493:19",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 56.228,
+          "y": 15.479
+        },
+        {
+          "x": 54.146,
+          "y": 64.015
+        }
+      ],
+      "label": "B Apps to Stairs",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-stairs\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -370.047974 887.968750 -19.968750;setang -39.396767 -93.030838 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "493:19",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-stairs",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:556:20",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 91.016,
+          "y": 32.091
+        },
+        {
+          "x": 53.308,
+          "y": 60.659
+        }
+      ],
+      "label": "T Spawn to Deep Stairs",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-deep-stairs\nTechnique: Left Click + Shift + Space + W. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1422.968750 34.830574 -103.968750;setang -27.190342 -151.018829 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "556:20",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-deep-stairs",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:478:21",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 78.842,
+          "y": 62.321
+        },
+        {
+          "x": 50.091,
+          "y": 64.993
+        }
+      ],
+      "label": "T Roof to Jungle",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-jungle-3\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 815.968750 -1459.039429 -44.968750;setang -26.883055 -174.567078 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "478:21",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-jungle-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:473:21",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 84.713,
+          "y": 52.85
+        },
+        {
+          "x": 50.091,
+          "y": 64.993
+        }
+      ],
+      "label": "A Ramp to Jungle",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-jungle\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1087.941895 -1016.105591 -196.113739;setang -25.810286 -164.368057 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "473:21",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-jungle",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:475:21",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 63.806,
+          "y": 79.762
+        },
+        {
+          "x": 50.091,
+          "y": 64.993
+        }
+      ],
+      "label": "Palace to Jungle",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/palace-to-jungle\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 16.085663 -2360.043701 24.031250;setang -11.649335 79.804436 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "475:21",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/palace-to-jungle",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:477:21",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 78.842,
+          "y": 62.321
+        },
+        {
+          "x": 50.091,
+          "y": 64.993
+        }
+      ],
+      "label": "T Roof to Jungle",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-jungle-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 815.969849 -1416.198242 -44.967651;setang -28.110802 -173.482635 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "477:21",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-jungle-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:472:21",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 80.418,
+          "y": 53.851
+        },
+        {
+          "x": 50.091,
+          "y": 64.993
+        }
+      ],
+      "label": "A Ramp to Jungle",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-jungle-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 907.886047 -1036.031250 -194.619080;setang -56.234268 -161.656998 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "472:21",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-jungle-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:474:21",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 54.631,
+          "y": 17.911
+        },
+        {
+          "x": 50.091,
+          "y": 64.993
+        }
+      ],
+      "label": "B Apps to Jungle",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-jungle\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -463.968750 775.296326 -7.968750;setang -46.506508 -94.999893 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "474:21",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-jungle",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:476:21",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 78.841,
+          "y": 65.591
+        },
+        {
+          "x": 50.091,
+          "y": 64.993
+        }
+      ],
+      "label": "T Roof to Jungle",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-jungle\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 814.968750 -1548.948486 -44.968750;setang -29.319262 -176.897095 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "476:21",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-roof-to-jungle",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:471:21",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 56.228,
+          "y": 15.479
+        },
+        {
+          "x": 50.091,
+          "y": 64.993
+        }
+      ],
+      "label": "B Apps to Jungle",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-jungle-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -369.283203 887.971558 -19.968750;setang -40.757442 -96.535919 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "471:21",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-jungle-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:479:21",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 91.014,
+          "y": 40.252
+        },
+        {
+          "x": 50.091,
+          "y": 64.993
+        }
+      ],
+      "label": "T Spawn to Jungle",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-jungle\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1422.968506 -367.968750 -103.968750;setang -35.549023 -148.858917 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "479:21",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-jungle",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:481:21",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 44.771,
+          "y": 41.39
+        },
+        {
+          "x": 50.091,
+          "y": 64.993
+        }
+      ],
+      "label": "Underpass to Jungle",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/underpass-to-jungle\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -968.031250 -380.012939 -289.958588;setang -58.952602 -75.989052 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "481:21",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/underpass-to-jungle",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:487:23",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 59.949,
+          "y": 25.501
+        },
+        {
+          "x": 34.016,
+          "y": 29.754
+        }
+      ],
+      "label": "B Apps to Left Arch",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-left-arch-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -148.031250 353.031250 16.439377;setang -62.085594 -173.264160 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "487:23",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-left-arch-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:488:23",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 49.928,
+          "y": 22.922
+        },
+        {
+          "x": 34.016,
+          "y": 29.754
+        }
+      ],
+      "label": "B Apps to Left Arch",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-left-arch\nTechnique: LeftClickCtrlSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -731.505981 524.029297 -16.634758;setang -34.362362 140.792618 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "488:23",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-left-arch",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:490:24",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 51.646,
+          "y": 20.918
+        },
+        {
+          "x": 34.017,
+          "y": 24.441
+        }
+      ],
+      "label": "B  Apps to Right Arch",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-right-arch\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -606.322998 615.968750 -15.999626;setang -72.600983 -171.365707 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "490:24",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-right-arch",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:489:24",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 72.692,
+          "y": 19.919
+        },
+        {
+          "x": 34.017,
+          "y": 24.441
+        }
+      ],
+      "label": "Apps Ramp to Right Arch",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/apps-ramp-to-right-arch\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 496.031250 679.968750 -71.968750;setang -51.498722 -172.092667 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "489:24",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/apps-ramp-to-right-arch",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:497:25",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 91.016,
+          "y": 32.091
+        },
+        {
+          "x": 61.561,
+          "y": 41.084
+        }
+      ],
+      "label": "T Spawn to Top Mid",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-top-mid-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -632.027527 -2066.694580 -82.968750;setang -26.628780 86.980049 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "497:25",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-top-mid-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:540:25",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 72.358,
+          "y": 21.429
+        },
+        {
+          "x": 61.561,
+          "y": 41.084
+        }
+      ],
+      "label": "Apps Ramp to Top Mid",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/apps-ramp-to-top-mid\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 494.653870 596.450989 -67.871048;setang -2.700527 -133.454697 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "540:25",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/apps-ramp-to-top-mid",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:498:26",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 80.418,
+          "y": 53.851
+        },
+        {
+          "x": 48.552,
+          "y": 74.641
+        }
+      ],
+      "label": "A Ramp to Triple",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-triple\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 935.809753 -1032.234497 -195.130371;setang -29.288382 -148.520248 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "498:26",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/a-ramp-to-triple",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:519:26",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 62.377,
+          "y": 61.293
+        },
+        {
+          "x": 48.552,
+          "y": 74.641
+        }
+      ],
+      "label": "Tetris to Triple",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/tetris-to-triple\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -31.915405 -1418.031250 -104.381577;setang -19.262127 -137.599121 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "519:26",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/tetris-to-triple",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:504:2",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 23.434,
+          "y": 72.884
+        },
+        {
+          "x": 67.486,
+          "y": 63.15
+        }
+      ],
+      "label": "CT to A Ramp",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/ct-to-a-ramp\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2026.395874 -2029.968750 -237.853271;setang -23.651775 15.195736 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "504:2",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/ct-to-a-ramp",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:505:27",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 19.146,
+          "y": 22.202
+        },
+        {
+          "x": 44.085,
+          "y": 21.925
+        }
+      ],
+      "label": "Car to B Apps",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/car-to-b-apps\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2268.780029 587.176758 -93.046051;setang -10.288829 -0.824492 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "505:27",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/car-to-b-apps",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:588:28",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 33.606,
+          "y": 56.577
+        },
+        {
+          "x": 27.166,
+          "y": 18.287
+        }
+      ],
+      "label": "CT Spawn to B Apps",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/ct-spawn-to-b-apps\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1488.03 -1173.97 -186.63;setang -54.34 95.14 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "588:28",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/ct-spawn-to-b-apps",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:506:28",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 23.434,
+          "y": 72.884
+        },
+        {
+          "x": 27.166,
+          "y": 18.287
+        }
+      ],
+      "label": "CT to B Apps",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/ct-to-b-apps\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2026.396240 -2029.967163 -238.676697;setang -20.418659 84.513687 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "506:28",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/ct-to-b-apps",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:507:28",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 24.869,
+          "y": 46.685
+        },
+        {
+          "x": 27.166,
+          "y": 18.287
+        }
+      ],
+      "label": "Kitchen to B Apps",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/kitchen-to-b-apps-2\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1951.968750 -666.263000 -103.967239;setang 9.616787 81.495911 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "507:28",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/kitchen-to-b-apps-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:508:29",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 25.014,
+          "y": 39.51
+        },
+        {
+          "x": 31.501,
+          "y": 18.288
+        }
+      ],
+      "label": "Kitchen to B Apps",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/kitchen-to-b-apps\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1953.469971 -317.511475 -103.977722;setang -21.725687 71.281723 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "508:29",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/kitchen-to-b-apps",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:509:29",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 15.995,
+          "y": 35.516
+        },
+        {
+          "x": 31.501,
+          "y": 18.288
+        }
+      ],
+      "label": "Trash to B Apps",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/trash-to-b-apps\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "509:29",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/trash-to-b-apps",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:510:30",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 42.053,
+          "y": 27.503
+        },
+        {
+          "x": 53.171,
+          "y": 41.363
+        }
+      ],
+      "label": "Short to Catwalk",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/short-to-catwalk\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1066.051514 296.522217 -100.439392;setang -7.488355 -56.923733 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "510:30",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/short-to-catwalk",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:457:31",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 53.221,
+          "y": 21.348
+        },
+        {
+          "x": 23.11,
+          "y": 24.998
+        }
+      ],
+      "label": "B Apps to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-b-site\nTechnique: Leftclickctrl. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -623.676880 615.972534 -16.016640;setang -44.826885 -171.111969 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "457:31",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-b-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:458:11",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 59.95,
+          "y": 15.622
+        },
+        {
+          "x": 14.93,
+          "y": 24.578
+        }
+      ],
+      "label": "B Apps to Bench",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-bench\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -160.029297 887.968750 -71.648178;setang -44.623444 -166.445847 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "458:11",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-bench",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:459:11",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 55.082,
+          "y": 22.923
+        },
+        {
+          "x": 14.93,
+          "y": 24.578
+        }
+      ],
+      "label": "B Apps to Bench",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-bench-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -539.522766 520.031250 -16.629082;setang -41.379429 -178.653076 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "459:11",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-bench-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:483:32",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 59.949,
+          "y": 23.424
+        },
+        {
+          "x": 17.504,
+          "y": 38.762
+        }
+      ],
+      "label": "B Apps to Kitchen Door",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-kitchen-door-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -161.031006 450.875763 -10.753876;setang -11.539766 -161.965912 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "483:32",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-kitchen-door-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:482:32",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 59.95,
+          "y": 15.622
+        },
+        {
+          "x": 17.504,
+          "y": 38.762
+        }
+      ],
+      "label": "B Apps to Kitchen Door",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-kitchen-door\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -160.031250 887.968750 -71.648178;setang -42.076122 -152.020493 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "482:32",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-kitchen-door",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:589:17",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 28.928,
+          "y": 72.806
+        },
+        {
+          "x": 69.376,
+          "y": 34.598
+        }
+      ],
+      "label": "CT Spawn to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/ct-spawn-to-mid-2\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1796.76 -2029.97 -199.97;setang -25.91 41.82 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "589:17",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/ct-spawn-to-mid-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:787:253",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 75.924,
+          "y": 21.169
+        },
+        {
+          "x": 40.468,
+          "y": 29.747
+        }
+      ],
+      "label": "Apps Ramp to Short",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/apps-ramp-to-short\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 670.96 581.63 -68.14;setang -25.65 -168.86 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "787:253",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/apps-ramp-to-short",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:491:253",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 59.95,
+          "y": 15.622
+        },
+        {
+          "x": 40.468,
+          "y": 29.747
+        }
+      ],
+      "label": "B Apps to Short",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-short\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -160.031250 887.970276 -71.648178;setang -45.790627 -134.498291 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "491:253",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-short",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:513:254",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 68.247,
+          "y": 61.581
+        },
+        {
+          "x": 58.108,
+          "y": 75.24
+        }
+      ],
+      "label": "Pit to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/pit-to-a-site\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 243.462875 -1436.028320 -111.968750;setang -16.204432 -122.121902 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "513:254",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/pit-to-a-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:524:254",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 50.781,
+          "y": 58.24
+        },
+        {
+          "x": 58.108,
+          "y": 75.24
+        }
+      ],
+      "label": "Connector to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/connector-to-a-site\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -618.030579 -1255.192017 -103.969315;setang -13.657177 -71.643417 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "524:254",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/connector-to-a-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:680:254",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 63.561,
+          "y": 77.631
+        },
+        {
+          "x": 58.108,
+          "y": 75.24
+        }
+      ],
+      "label": "Palace to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/palace-to-a-site-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 16.040000 -2223.990000 24.030000;setang -11.110000 16.660000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "680:254",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/palace-to-a-site-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:514:255",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 34.466,
+          "y": 17.48
+        },
+        {
+          "x": 19.789,
+          "y": 33.522
+        }
+      ],
+      "label": "B Apps to Back Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/b-apps-to-back-site\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1421.036499 807.970703 0.725700;setang -8.552298 -142.441376 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "514:255",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/b-apps-to-back-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:515:256",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 35.611,
+          "y": 18.482
+        },
+        {
+          "x": 12.805,
+          "y": 27.251
+        }
+      ],
+      "label": "B Apps to Bench",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/b-apps-to-bench-3\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1346.343384 756.228882 -15.968750;setang -6.773273 -161.046265 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "515:256",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/b-apps-to-bench-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:516:257",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 41.767,
+          "y": 20.774
+        },
+        {
+          "x": 20.774,
+          "y": 18.147
+        }
+      ],
+      "label": "B Apps to Car",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/b-apps-to-car\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1042.112915 641.823303 -15.939156;setang -6.914647 172.807480 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "516:257",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/b-apps-to-car",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:517:258",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 24.014,
+          "y": 24.207
+        },
+        {
+          "x": 25.552,
+          "y": 40.433
+        }
+      ],
+      "label": "B Site to Kitchen Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/b-site-to-kitchen-window-2\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1969.031250 450.031250 -95.968750;setang 6.269036 -86.703667 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "517:258",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/b-site-to-kitchen-window-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:518:259",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 55.65,
+          "y": 48.55
+        },
+        {
+          "x": 42.629,
+          "y": 35.179
+        }
+      ],
+      "label": "Under Chair to Ladder",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/under-chair-to-ladder\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -384.129272 -788.968689 -199.253906;setang 6.506230 129.446854 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "518:259",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/under-chair-to-ladder",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:555:260",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 62.377,
+          "y": 61.293
+        },
+        {
+          "x": 63.871,
+          "y": 72.463
+        }
+      ],
+      "label": "Tetris to Under Palace",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/tetris-to-under-palace\nTechnique: Leftclickctrl. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -31.915405 -1418.031250 -104.374969;setang -6.628130 -104.814873 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "555:260",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/tetris-to-under-palace",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:520:260",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 63.806,
+          "y": 79.762
+        },
+        {
+          "x": 63.871,
+          "y": 72.463
+        }
+      ],
+      "label": "Palace to Under Palace",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/palace-to-under-palace-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "520:260",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/palace-to-under-palace-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:521:260",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 74.974,
+          "y": 77.473
+        },
+        {
+          "x": 63.871,
+          "y": 72.463
+        }
+      ],
+      "label": "Palace to Under Palace",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/palace-to-under-palace\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 567.968201 -2224.028076 24.031250;setang -9.676621 -164.336639 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "521:260",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/palace-to-under-palace",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:525:261",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 23.261,
+          "y": 24.207
+        },
+        {
+          "x": 34.52,
+          "y": 18.613
+        }
+      ],
+      "label": "B Site to B Apps",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/b-site-to-b-apps\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2037.233643 439.579254 -95.968750;setang -11.591716 28.368635 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "525:261",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/b-site-to-b-apps",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:527:263",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 52.209,
+          "y": 59.247
+        },
+        {
+          "x": 58.358,
+          "y": 79.632
+        }
+      ],
+      "label": "Connector to Firebox",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/connector-to-firebox\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -543.129211 -1309.031250 -101.968735;setang -15.867978 -73.784325 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "527:263",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/connector-to-firebox",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:528:264",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 38.9,
+          "y": 46.257
+        },
+        {
+          "x": 70.731,
+          "y": 45.822
+        }
+      ],
+      "label": "Window to Mid Boxes",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/window-to-mid-boxes\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1247.968750 -924.031250 -103.964081;setang -17.391127 0.426708 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "528:264",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/window-to-mid-boxes",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:526:262",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 42.053,
+          "y": 27.503
+        },
+        {
+          "x": 56.459,
+          "y": 50.55
+        }
+      ],
+      "label": "Short to Chair",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/short-to-chair\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1042.076416 295.968750 -100.849533;setang -15.581632 -58.094555 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "526:262",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/short-to-chair",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:585:262",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 41.583,
+          "y": 62.905
+        },
+        {
+          "x": 56.459,
+          "y": 50.55
+        }
+      ],
+      "label": "Jungle to Chair",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/jungle-to-chair\nTechnique: Left Click + Shift + Space + W. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1119.97 -1527.94 -97.03;setang -1.16 28.10 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "585:262",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/jungle-to-chair",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:460:6",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 70.54,
+          "y": 45.976
+        },
+        {
+          "x": 47.322,
+          "y": 36.831
+        }
+      ],
+      "label": "Mid to Catwalk",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/mid-to-catwalk\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 360.075989 -691.968750 -100.115082;setang -23.794825 160.846069 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "460:6",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/mid-to-catwalk",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:461:6",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 91.016,
+          "y": 32.091
+        },
+        {
+          "x": 47.322,
+          "y": 36.831
+        }
+      ],
+      "label": "T Spawn to Catwalk",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-catwalk\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1422.968994 36.468761 -104.128754;setang -29.738510 -173.694839 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "461:6",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/t-spawn-to-catwalk",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:529:265",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 46.77,
+          "y": 77.899
+        },
+        {
+          "x": 69.027,
+          "y": 63.15
+        }
+      ],
+      "label": "Triple to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/triple-to-pit\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -897.986023 -2331.135498 -104.993301;setang -16.469255 43.683067 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "529:265",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/triple-to-pit",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:530:266",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 46.77,
+          "y": 77.899
+        },
+        {
+          "x": 61.679,
+          "y": 62.241
+        }
+      ],
+      "label": "Triple to Tetris",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/triple-to-tetris\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -890.261230 -2308.118652 -106.337036;setang -20.244852 46.559380 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "530:266",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/triple-to-tetris",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:531:267",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 48.638,
+          "y": 27.79
+        },
+        {
+          "x": 43.365,
+          "y": 41.827
+        }
+      ],
+      "label": "Short to Underpass",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/short-to-underpass\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -752.031250 292.968750 -101.823090;setang 0.275131 -102.943474 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "531:267",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/short-to-underpass",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:543:267",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 51.069,
+          "y": 51.27
+        },
+        {
+          "x": 43.365,
+          "y": 41.827
+        }
+      ],
+      "label": "Connector to Underpass",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/connector-to-underpass-2\nTechnique: LeftClickRightClick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -608.031616 -909.377869 -171.566467;setang -20.470129 130.592392 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "543:267",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/connector-to-underpass-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:554:267",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 51.069,
+          "y": 51.27
+        },
+        {
+          "x": 43.365,
+          "y": 41.827
+        }
+      ],
+      "label": "Connector to Underpass",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/connector-to-underpass\nTechnique: LeftClickRightClick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -608.031616 -909.377869 -171.566467;setang -20.470129 130.592392 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "554:267",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/connector-to-underpass",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:532:267",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 37.61,
+          "y": 54.131
+        },
+        {
+          "x": 43.365,
+          "y": 41.827
+        }
+      ],
+      "label": "Window to Underpass",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/window-to-underpass\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1291.968750 -1063.632324 -103.968750;setang 0.111088 63.776051 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "532:267",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/window-to-underpass",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:534:269",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 70.536,
+          "y": 75.182
+        },
+        {
+          "x": 63.652,
+          "y": 75.543
+        }
+      ],
+      "label": "Palace to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/palace-to-a-site\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 367.971466 -2143.639893 24.032524;setang -8.245065 -127.355423 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "534:269",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/palace-to-a-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:538:270",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 43.342,
+          "y": 22.635
+        },
+        {
+          "x": 31.379,
+          "y": 21.431
+        }
+      ],
+      "label": "B Apps to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/b-apps-to-b-site-5\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1016.593262 527.450928 -15.968750;setang -7.078254 143.017502 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "538:270",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/b-apps-to-b-site-5",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:536:270",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 34.895,
+          "y": 19.914
+        },
+        {
+          "x": 31.379,
+          "y": 21.431
+        }
+      ],
+      "label": "B Apps to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/b-apps-to-b-site-4\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1471.968750 664.031250 16.031250;setang -5.656129 110.627747 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "536:270",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/b-apps-to-b-site-4",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:535:268",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 90.44,
+          "y": 50.989
+        },
+        {
+          "x": 64.166,
+          "y": 64.187
+        }
+      ],
+      "label": "T Spawn to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/t-spawn-to-a-site\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1391.972656 -820.445679 -103.968750;setang 0.613719 -148.268127 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "535:268",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/t-spawn-to-a-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:533:268",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 80.418,
+          "y": 53.851
+        },
+        {
+          "x": 64.166,
+          "y": 64.187
+        }
+      ],
+      "label": "A Ramp to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/a-ramp-to-a-site-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 836.155396 -1036.029785 -194.101837;setang -39.119064 -148.335022 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "533:268",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/a-ramp-to-a-site-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:545:273",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 45.202,
+          "y": 31.369
+        },
+        {
+          "x": 48.73,
+          "y": 40.239
+        }
+      ],
+      "label": "Short to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/short-to-mid\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -934.620239 118.457977 -107.668594;setang -37.553871 -55.720207 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "545:273",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/short-to-mid",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:537:271",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 57.086,
+          "y": 22.351
+        },
+        {
+          "x": 30.828,
+          "y": 24.997
+        }
+      ],
+      "label": "B Apps to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/b-apps-to-b-site-3\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -161.027649 575.501038 -7.400757;setang -16.745499 -179.421509 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "537:271",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/b-apps-to-b-site-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:701:272",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 50.529,
+          "y": 20.958
+        },
+        {
+          "x": 47.571,
+          "y": 31.336
+        }
+      ],
+      "label": "B Apps to Short",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/b-apps-to-short-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -699.39 615.97 -16.92;setang -34.66 -96.22 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "701:272",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/b-apps-to-short-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:541:272",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 56.511,
+          "y": 39.817
+        },
+        {
+          "x": 47.571,
+          "y": 31.336
+        }
+      ],
+      "label": "Catwalk to Short",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/catwalk-to-short\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -335.266296 -332.029968 -101.733170;setang 4.215011 -165.677155 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "541:272",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/catwalk-to-short",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:547:275",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 42.906,
+          "y": 62.722
+        },
+        {
+          "x": 69.716,
+          "y": 64.35
+        }
+      ],
+      "label": "Jungle to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/jungle-to-pit\nTechnique: LeftClickShiftW. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1119.968750 -1527.042114 -96.850983;setang -10.628873 -1.781905 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "547:275",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/jungle-to-pit",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:546:274",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 47.525,
+          "y": 78.819
+        },
+        {
+          "x": 63.313,
+          "y": 50.148
+        }
+      ],
+      "label": "Triple to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/triple-to-mid\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -877.531738 -2367.062744 -105.148315;setang -13.401329 60.326988 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "546:274",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/triple-to-mid",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:549:276",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 65.812,
+          "y": 71.173
+        },
+        {
+          "x": 63.215,
+          "y": 66.874
+        }
+      ],
+      "label": "Under Palace to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/under-palace-to-pit\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos 150.969376 -1914.135864 -103.968750;setang -14.741049 -104.513802 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "549:276",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/under-palace-to-pit",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:539:278",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 70.54,
+          "y": 45.976
+        },
+        {
+          "x": 50.181,
+          "y": 48.518
+        }
+      ],
+      "label": "Mid to Connector",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/mid-to-connector\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 360.071747 -691.968750 -100.114899;setang -12.634136 -175.672806 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "539:278",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/mid-to-connector",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:542:279",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 55.511,
+          "y": 25.214
+        },
+        {
+          "x": 45.181,
+          "y": 25.074
+        }
+      ],
+      "label": "B Apps to Underpass",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/b-apps-to-underpass\nTechnique: RightClickWShift. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -416.944946 412.874969 -53.925751;setang -10.321947 173.278275 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "542:279",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/b-apps-to-underpass",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:550:277",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 39.186,
+          "y": 50.696
+        },
+        {
+          "x": 43.308,
+          "y": 46.164
+        }
+      ],
+      "label": "Window to Window",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/window-to-window\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1247.968750 -924.031250 -103.968750;setang -35.794769 58.191368 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "550:277",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/window-to-window",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:548:280",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 53.216,
+          "y": 59.389
+        },
+        {
+          "x": 53.24,
+          "y": 63.979
+        }
+      ],
+      "label": "s to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/flash/s-to-pit\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -496.035339 -1309.031250 -95.968750;setang -57.215996 90.713097 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "548:280",
+        "url": "https://cs2nades.gg/en/map/mirage/flash/s-to-pit",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:586:295",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 80.368,
+          "y": 57.409
+        },
+        {
+          "x": 55.416,
+          "y": 63.925
+        }
+      ],
+      "label": "T Roof to Stairs",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/t-roof-to-stairs\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 894.96 -1228.03 -44.97;setang 6.60 -164.20 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "586:295",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/t-roof-to-stairs",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:587:296",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 38.695,
+          "y": 56.578
+        },
+        {
+          "x": 51.361,
+          "y": 73.807
+        }
+      ],
+      "label": "Jungle to Triple",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/molotov/jungle-to-triple\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1271.99 -1175.89 -103.97;setang -29.65 -54.47 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "587:296",
+        "url": "https://cs2nades.gg/en/map/mirage/molotov/jungle-to-triple",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:596:297",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 71.554,
+          "y": 25.125
+        },
+        {
+          "x": 25.881,
+          "y": 27.555
+        }
+      ],
+      "label": "Side Alley to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/side-alley-to-b-site\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 473.950000 402.040000 -187.970000;setang -41.200000 -174.890000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "596:297",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/side-alley-to-b-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:591:297",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 50.529,
+          "y": 20.958
+        },
+        {
+          "x": 25.881,
+          "y": 27.555
+        }
+      ],
+      "label": "B Apps to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-b-site-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -736.010000 623.970000 -14.150000;setang -61.710000 -164.420000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "591:297",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/b-apps-to-b-site-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:679:336",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 23.926,
+          "y": 72.737
+        },
+        {
+          "x": 46.221,
+          "y": 41.342
+        }
+      ],
+      "label": "CT to Short",
+      "note": "Source: https://cs2nades.gg/en/map/mirage/smoke/ct-to-short\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2026.390000 -2029.970000 -238.450000;setang -18.900000 57.210000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "679:336",
+        "url": "https://cs2nades.gg/en/map/mirage/smoke/ct-to-short",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "039da054-317d-4865-909e-bf938f08281f",
+      "kind": "ctspawn",
+      "points": [
+        {
+          "x": 29.102,
+          "y": 66.211
+        },
+        {
+          "x": 31.334,
+          "y": 70.096
+        },
+        {
+          "x": 30.693,
+          "y": 73.621
+        },
+        {
+          "x": 22.949,
+          "y": 73.438
+        },
+        {
+          "x": 23.484,
+          "y": 68.654
+        },
+        {
+          "x": 28.13,
+          "y": 68.654
+        },
+        {
+          "x": 29.081,
+          "y": 66.383
+        }
+      ],
+      "label": "CT spawn area",
+      "note": "Provisional floor range from pinned navigation samples. Raised surfaces excluded. Polygon vertices preserved from the owner upload; plantability and spawn coverage still require review.",
+      "spatial": {
+        "floorId": "CT spawn sloped ground",
+        "zMin": -312,
+        "zMax": -240
+      },
+      "status": "draft"
+    },
+    {
+      "id": "d279ad51-a4b3-4d81-8860-067c3ad072c0",
+      "kind": "tspawn",
+      "points": [
+        {
+          "x": 89.494,
+          "y": 30.682
+        },
+        {
+          "x": 85.489,
+          "y": 31.483
+        },
+        {
+          "x": 85.489,
+          "y": 38.693
+        },
+        {
+          "x": 85.809,
+          "y": 40.135
+        },
+        {
+          "x": 91.014,
+          "y": 40.252
+        },
+        {
+          "x": 89.494,
+          "y": 30.682
+        }
+      ],
+      "label": "T spawn area",
+      "note": "Provisional floor range from pinned navigation samples. Raised surfaces excluded. Polygon vertices preserved from the owner upload; plantability and spawn coverage still require review.",
+      "spatial": {
+        "floorId": "T spawn ground",
+        "zMin": -180,
+        "zMax": -145
+      },
+      "status": "draft"
+    },
+    {
+      "id": "64aa2728-d3ba-4306-8287-83a0b7052483",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 51.361,
+          "y": 73.807
+        },
+        {
+          "x": 51.041,
+          "y": 78.428
+        },
+        {
+          "x": 57.29,
+          "y": 79.069
+        },
+        {
+          "x": 58.108,
+          "y": 75.24
+        },
+        {
+          "x": 56.329,
+          "y": 75.544
+        },
+        {
+          "x": 56.329,
+          "y": 73.781
+        },
+        {
+          "x": 51.361,
+          "y": 73.807
+        }
+      ],
+      "label": "A plant zone",
+      "note": "Provisional floor range from pinned navigation samples. Raised surfaces excluded. Polygon vertices preserved from the owner upload; plantability and spawn coverage still require review.",
+      "spatial": {
+        "floorId": "A site ground (exclude crates)",
+        "zMin": -190,
+        "zMax": -145,
+        "site": "A"
+      },
+      "status": "draft"
+    },
+    {
+      "id": "5bbc7ff9-1edc-41da-80d2-0dcdfd14d30d",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 24.014,
+          "y": 24.207
+        },
+        {
+          "x": 21.881,
+          "y": 24.434
+        },
+        {
+          "x": 21.631,
+          "y": 26.82
+        },
+        {
+          "x": 19.833,
+          "y": 26.82
+        },
+        {
+          "x": 19.084,
+          "y": 32.214
+        },
+        {
+          "x": 23.729,
+          "y": 31.465
+        },
+        {
+          "x": 23.163,
+          "y": 28.439
+        },
+        {
+          "x": 25.977,
+          "y": 29.218
+        },
+        {
+          "x": 26.576,
+          "y": 26.52
+        },
+        {
+          "x": 23.804,
+          "y": 26.196
+        },
+        {
+          "x": 24.014,
+          "y": 24.207
+        }
+      ],
+      "label": "B plant zone",
+      "note": "Provisional floor range from pinned navigation samples. Raised surfaces excluded. Polygon vertices preserved from the owner upload; plantability and spawn coverage still require review.",
+      "spatial": {
+        "floorId": "B site ground (exclude crates)",
+        "zMin": -174,
+        "zMax": -140,
+        "site": "B"
+      },
+      "status": "draft"
+    },
+    {
+      "id": "8c9791f2-b3d0-4c10-89a1-250c3e76fb28",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 25.127,
+          "y": 20.391
+        },
+        {
+          "x": 25.127,
+          "y": 19.5
+        },
+        {
+          "x": 26.018,
+          "y": 19.373
+        },
+        {
+          "x": 26.145,
+          "y": 20.645
+        },
+        {
+          "x": 25.127,
+          "y": 20.391
+        },
+        {
+          "x": 33.273,
+          "y": 20.391
+        },
+        {
+          "x": 33.4,
+          "y": 22.427
+        },
+        {
+          "x": 39.001,
+          "y": 22.682
+        },
+        {
+          "x": 39.255,
+          "y": 27.137
+        },
+        {
+          "x": 49.183,
+          "y": 27.264
+        },
+        {
+          "x": 48.928,
+          "y": 35.792
+        },
+        {
+          "x": 50.328,
+          "y": 39.355
+        },
+        {
+          "x": 62.802,
+          "y": 39.355
+        },
+        {
+          "x": 65.856,
+          "y": 37.955
+        },
+        {
+          "x": 65.984,
+          "y": 30.319
+        },
+        {
+          "x": 67.893,
+          "y": 30.319
+        },
+        {
+          "x": 67.638,
+          "y": 28.919
+        },
+        {
+          "x": 65.984,
+          "y": 28.919
+        },
+        {
+          "x": 66.111,
+          "y": 26.882
+        },
+        {
+          "x": 67.766,
+          "y": 27.137
+        },
+        {
+          "x": 67.129,
+          "y": 21.918
+        },
+        {
+          "x": 65.984,
+          "y": 21.791
+        },
+        {
+          "x": 66.365,
+          "y": 19.882
+        },
+        {
+          "x": 74.002,
+          "y": 19.5
+        },
+        {
+          "x": 73.875,
+          "y": 18.482
+        },
+        {
+          "x": 60.765,
+          "y": 18.609
+        },
+        {
+          "x": 60.511,
+          "y": 27.009
+        },
+        {
+          "x": 40.782,
+          "y": 26.5
+        },
+        {
+          "x": 39.637,
+          "y": 25.482
+        },
+        {
+          "x": 39.764,
+          "y": 20.518
+        },
+        {
+          "x": 34.037,
+          "y": 20.645
+        },
+        {
+          "x": 33.782,
+          "y": 19.627
+        },
+        {
+          "x": 33.273,
+          "y": 20.391
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "e4b4df85-f252-435c-934c-c11e2a97d2db",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 51.474,
+          "y": 49.029
+        },
+        {
+          "x": 51.474,
+          "y": 49.665
+        },
+        {
+          "x": 52.11,
+          "y": 49.665
+        },
+        {
+          "x": 52.238,
+          "y": 52.465
+        },
+        {
+          "x": 53.383,
+          "y": 52.592
+        },
+        {
+          "x": 53.383,
+          "y": 57.938
+        },
+        {
+          "x": 51.601,
+          "y": 57.938
+        },
+        {
+          "x": 51.601,
+          "y": 58.574
+        },
+        {
+          "x": 53.892,
+          "y": 58.702
+        },
+        {
+          "x": 53.765,
+          "y": 62.647
+        },
+        {
+          "x": 55.801,
+          "y": 62.775
+        },
+        {
+          "x": 55.674,
+          "y": 62.011
+        },
+        {
+          "x": 58.092,
+          "y": 62.393
+        },
+        {
+          "x": 59.747,
+          "y": 62.775
+        },
+        {
+          "x": 60.129,
+          "y": 60.865
+        },
+        {
+          "x": 72.857,
+          "y": 60.993
+        },
+        {
+          "x": 72.729,
+          "y": 63.156
+        },
+        {
+          "x": 74.002,
+          "y": 63.156
+        },
+        {
+          "x": 74.129,
+          "y": 54.883
+        },
+        {
+          "x": 76.802,
+          "y": 54.883
+        },
+        {
+          "x": 76.93,
+          "y": 52.847
+        },
+        {
+          "x": 84.057,
+          "y": 53.101
+        },
+        {
+          "x": 84.713,
+          "y": 52.85
+        },
+        {
+          "x": 84.566,
+          "y": 28.537
+        },
+        {
+          "x": 83.548,
+          "y": 28.537
+        },
+        {
+          "x": 83.548,
+          "y": 26.627
+        },
+        {
+          "x": 81.766,
+          "y": 25.1
+        },
+        {
+          "x": 73.111,
+          "y": 25.227
+        },
+        {
+          "x": 71.584,
+          "y": 27.009
+        },
+        {
+          "x": 71.457,
+          "y": 34.646
+        },
+        {
+          "x": 73.62,
+          "y": 35.155
+        },
+        {
+          "x": 73.748,
+          "y": 51.574
+        },
+        {
+          "x": 55.547,
+          "y": 52.083
+        },
+        {
+          "x": 55.292,
+          "y": 49.156
+        },
+        {
+          "x": 51.474,
+          "y": 49.029
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "f103aabe-6d13-4012-9ccf-54c689aefef2",
+      "kind": "window",
+      "points": [
+        {
+          "x": 41.561,
+          "y": 43.453
+        },
+        {
+          "x": 41.711,
+          "y": 47.499
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft",
+      "detail": "window"
+    },
+    {
+      "id": "0da8dd31-ef0a-4857-98a2-d11cb217069c",
+      "kind": "window",
+      "points": [
+        {
+          "x": 88.13,
+          "y": 47.501
+        },
+        {
+          "x": 87.863,
+          "y": 57.988
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft",
+      "detail": "window"
+    },
+    {
+      "id": "bf5debe6-6f5b-47d3-af0d-7ad0c6d746a8",
+      "kind": "window",
+      "points": [
+        {
+          "x": 26.576,
+          "y": 38.508
+        },
+        {
+          "x": 25.529,
+          "y": 38.747
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft",
+      "detail": "window"
+    },
+    {
+      "id": "a3bebe3e-7770-477f-9610-fef4a4b35ee8",
+      "kind": "window",
+      "points": [
+        {
+          "x": 27.164,
+          "y": 20.264
+        },
+        {
+          "x": 28.309,
+          "y": 20.391
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft",
+      "detail": "window"
+    },
+    {
+      "id": "f46362e8-cfb6-43a4-997c-abdc805b0afd",
+      "kind": "window",
+      "points": [
+        {
+          "x": 29.964,
+          "y": 20.391
+        },
+        {
+          "x": 31.618,
+          "y": 20.264
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft",
+      "detail": "window"
+    },
+    {
+      "id": "2f856572-c483-4fb4-8c95-713eb8600dcc",
+      "kind": "window",
+      "points": [
+        {
+          "x": 40.91,
+          "y": 41.646
+        },
+        {
+          "x": 39.163,
+          "y": 41.804
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft",
+      "detail": "window"
+    },
+    {
+      "id": "5fd6942b-1c61-4e07-9a64-4b1cb129b6a8",
+      "kind": "window",
+      "points": [
+        {
+          "x": 36.616,
+          "y": 51.245
+        },
+        {
+          "x": 36.916,
+          "y": 53.792
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft",
+      "detail": "window"
+    },
+    {
+      "id": "3cb0bb2a-0d74-476a-b2dc-8a06db07126e",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 36.616,
+          "y": 51.245
+        },
+        {
+          "x": 36.916,
+          "y": 53.792
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "c8e94615-8e0d-4ffa-802c-e267e8f82aee",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 16.211,
+          "y": 38.672
+        },
+        {
+          "x": 18.485,
+          "y": 38.508
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "99cb29f0-9a83-447d-852b-64614bfb83b2",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 24.778,
+          "y": 38.957
+        },
+        {
+          "x": 25.529,
+          "y": 38.747
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "0f714a84-bf2d-4212-a2c8-e60f174b1269",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 25.977,
+          "y": 17.53
+        },
+        {
+          "x": 26.018,
+          "y": 19.373
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "fbc0a38d-d702-48d9-a1d8-d34c58fded46",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 27.164,
+          "y": 20.264
+        },
+        {
+          "x": 28.309,
+          "y": 20.391
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "ddfea598-400f-45f5-bcbd-488adae30d6e",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 21.875,
+          "y": 16.406
+        },
+        {
+          "x": 21.945,
+          "y": 20.645
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "f122aa94-2dcc-4b7e-9bf3-46578d1f1a40",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 21.945,
+          "y": 20.645
+        },
+        {
+          "x": 25.127,
+          "y": 20.391
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "562b484b-f81b-4670-bae1-05d260f4e178",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 44.474,
+          "y": 34.773
+        },
+        {
+          "x": 44.408,
+          "y": 36.11
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "cf451d24-d59c-4818-b4dd-dc3a741db62b",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 51.601,
+          "y": 58.574
+        },
+        {
+          "x": 49.203,
+          "y": 58.587
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "32665513-5010-41df-bb93-dcf38f108df6",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 51.474,
+          "y": 49.029
+        },
+        {
+          "x": 48.903,
+          "y": 48.997
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "950ac9ae-8d63-422e-88fb-690687226a2d",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 68.247,
+          "y": 61.581
+        },
+        {
+          "x": 68.233,
+          "y": 64.881
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "461a3100-5da8-494c-9c8c-801be89a7118",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 84.184,
+          "y": 53.992
+        },
+        {
+          "x": 84.312,
+          "y": 56.411
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "89c7eb72-e4b9-4962-8c58-801f2b341efc",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 63.438,
+          "y": 76.903
+        },
+        {
+          "x": 65.093,
+          "y": 77.03
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "f1598fea-a05e-40e9-9a5a-97d7c2b8ef01",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 44.092,
+          "y": 78.684
+        },
+        {
+          "x": 45.237,
+          "y": 81.103
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "570d443f-73ac-4397-a7a9-b83cb21ebe28",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 74.002,
+          "y": 19.5
+        },
+        {
+          "x": 75.488,
+          "y": 19.434
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "94420399-119a-4a08-86af-d9232ff4797e",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 43.75,
+          "y": 21.094
+        },
+        {
+          "x": 43.964,
+          "y": 23.318
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "464426c3-0319-459d-bc2f-76dfbb89f51a",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 66.111,
+          "y": 34.01
+        },
+        {
+          "x": 71.075,
+          "y": 34.01
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    },
+    {
+      "id": "afe5f9f8-a07a-4660-8b8d-238b72816b4b",
+      "kind": "passage",
+      "points": [
+        {
+          "x": 88.13,
+          "y": 58.829
+        },
+        {
+          "x": 90.294,
+          "y": 58.956
+        }
+      ],
+      "label": "",
+      "note": "",
+      "status": "draft"
+    }
+  ],
+  "libraryVersion": "2026-09-12.1",
+  "registration": {
+    "version": 1,
+    "sourceRadar": "/maps/de_mirage_radar_psd.png",
+    "sourceSha256": "3c87b10a398b83fd0e84201ddce81b4f2c129a2912acd1718495adc48c209007",
+    "targetSha256": "c8032f6c83ffca63c0a20ebdcc598a0e1aa618efd746e381e2db26f33a4a964f",
+    "sourceVersion": "2000908",
+    "meshSha256": "0e320dbed9141215f7bd2c7e10cb7c616ec188ad963546fd3fcbf1c820f2290f",
+    "matrix": [
+      1.0002907878468903,
+      0.00006868695459696335,
+      -0.01590916006520233,
+      -0.00006868695459696335,
+      1.0002907878468903,
+      -0.010598675418767002
+    ],
+    "method": "image-features",
+    "confidence": "provisional",
+    "evidence": "660 SIFT/RANSAC inliers; median 0.250px, p95 1.288px. Image alignment only; floors and walls need review."
+  }
+}
