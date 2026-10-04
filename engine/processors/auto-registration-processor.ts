@@ -28,6 +28,8 @@ import { QualificationEngine } from "../tournament-qualification"
 import { logger } from "@/lib/logger"
 
 const LOOKAHEAD_WEEKS = 4
+/** Club region -> regional qualifier region (RMRs exist for EU, NA and ASIA). */
+const QUALIFIER_REGION: Record<string, string> = { CIS: "EU", MENA: "EU", BR: "NA", SA: "NA", OCE: "ASIA", OCEANIA: "ASIA" }
 
 interface AutoRegistrationContext {
     playerTeamId: string
@@ -63,11 +65,34 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
     try {
         // Earliest first (then id) so sibling open qualifiers resolve deterministically.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const upcoming = save.tournaments.filter((t: any) =>
+        const upcoming: any[] = save.tournaments.filter((t: any) =>
             t.startWeek >= save.currentWeek &&
             t.startWeek <= save.currentWeek + LOOKAHEAD_WEEKS
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ).sort((a: any, b: any) => a.startWeek - b.startWeek || String(a.id).localeCompare(String(b.id)))
+        )
+        // Open events usually have no instance yet when entry opens (the
+        // Register button works from the calendar too), so project the
+        // calendar's open definitions into the look-ahead window.
+        if (REGISTRATION_TUNING.AUTO_REGISTER_OPEN_QUALIFIERS) {
+            const known = new Set(upcoming.map(t => t.id))
+            const season = getSeasonFromWeek(save.currentWeek)
+            for (const def of FULL_TOURNAMENT_CALENDAR) {
+                if (def.entryType !== "OPEN") continue
+                for (const s of [season, season + 1]) {
+                    const startWeek = (s - 1) * 52 + def.startWeek
+                    const id = buildInstanceId(def.id, s)
+                    if (startWeek < save.currentWeek || startWeek > save.currentWeek + LOOKAHEAD_WEEKS || known.has(id)) continue
+                    upcoming.push({ id, seriesId: def.id, name: def.name, startWeek, seasonNumber: s })
+                    known.add(id)
+                }
+            }
+        }
+        // Same week: the club's own region first (EU club -> EU RMR), then id.
+        const regionRank = (t: { id: string; seriesId?: string }) => {
+            const def = FULL_TOURNAMENT_CALENDAR.find(d => d.id === (t.seriesId || getSeriesIdFromTournamentId(t.id)))
+            const home = QUALIFIER_REGION[String(myTeam.region)] ?? myTeam.region
+            return def && home && def.region === home ? 0 : 1
+        }
+        upcoming.sort((a, b) => a.startWeek - b.startWeek || regionRank(a) - regionRank(b) || String(a.id).localeCompare(String(b.id)))
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         upcoming.forEach((t: any) => {

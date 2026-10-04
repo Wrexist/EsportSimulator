@@ -214,12 +214,14 @@ describe('automatic entry to open qualifiers', () => {
         const save = withQualifiers()
         applyAutoRegistration(save, { playerTeamId: save.playerTeamId!, nextId })
         const regs = save.tournamentQualifications.filter(q => q.teamId === save.playerTeamId)
-        expect(regs.map(q => q.tournamentId)).toEqual(['copenhagen_rmr_eu_s1'])
+        expect(regs.map(q => q.tournamentId).filter(id => id.includes('rmr'))).toHaveLength(1)
+        // Open events without an instance yet are entered from the calendar (WePlay Academy, week 8).
+        expect(regs.map(q => q.tournamentId)).toContain('weplay_academy_s1')
         // Closed qualifiers still need qualification.
         expect(regs.some(q => q.tournamentId.startsWith('iem_katowice_closed'))).toBe(false)
         // Idempotent.
         applyAutoRegistration(save, { playerTeamId: save.playerTeamId!, nextId })
-        expect(save.tournamentQualifications.filter(q => q.teamId === save.playerTeamId)).toHaveLength(1)
+        expect(save.tournamentQualifications.filter(q => q.teamId === save.playerTeamId)).toHaveLength(regs.length)
     })
 
     test('no qualifier entry while already in the main event, or without a full squad', () => {
