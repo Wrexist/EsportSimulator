@@ -232,7 +232,7 @@ export interface MatchActions extends PhysicalPreviewActions {
   scheduleScrim: (opponentId: string, week: number, day?: number) => { success: boolean, message: string }
   scheduleActivity: (activity: ActivitySaveData) => { success: boolean, message: string }
   updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
-  simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<void>
+  simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
   saveMatchResult: (matchId: string, result: MatchResult) => void
   performVODReview: (matchId: string) => void
   performMentalReset: (matchId?: string) => void

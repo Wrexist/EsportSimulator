@@ -132,12 +132,14 @@ describe("trivial setters", () => {
 })
 
 describe("selectLegend", () => {
+    // Legend wages (~$97k/week) need runway since the L27 affordability guard.
+    const funded = (o: Partial<StoreState> = {}) => makeBaseState({ teams: [{ ...makeTeam("player", ["p1"]), budget: 10_000_000 }], staff: [], ...o })
     test("happy path: reactivates legend, adds to roster, writes high-salary contract, marks signed", () => {
         const legend = makePlayer("legend_1", {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             isRetired: true, retirementWeek: 200, skill: 95,
         } as Partial<PlayerSaveData>)
-        const h = makeHarness(makeBaseState({
+        const h = makeHarness(funded({
             players: [makePlayer("p1"), legend],
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             pendingLegendPick: { candidates: ["legend_1", "legend_2"] } as any,
@@ -159,7 +161,7 @@ describe("selectLegend", () => {
     })
 
     test("rejects legend id not in the modal candidates list", () => {
-        const h = makeHarness(makeBaseState({
+        const h = makeHarness(funded({
             players: [makePlayer("p1"), makePlayer("legend_1", { isRetired: true } as Partial<PlayerSaveData>)],
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             pendingLegendPick: { candidates: ["legend_OTHER"] } as any,
@@ -173,7 +175,7 @@ describe("selectLegend", () => {
     })
 
     test("no-op when there's no pendingLegendPick", () => {
-        const h = makeHarness(makeBaseState({
+        const h = makeHarness(funded({
             players: [makePlayer("p1"), makePlayer("legend_1")],
         }))
         const slice = createUISlice(h.set, h.get)
@@ -181,8 +183,31 @@ describe("selectLegend", () => {
         expect(h.state().teams[0].rosterIds).not.toContain("legend_1")
     })
 
-    test("drops stale prior contract for the same player before writing the new one", () => {
+    test("L27: refuses a legend the club can't carry, keeps the pick open, and explains (no forced bankruptcy)", () => {
+        // Packaged early-career run: two forced legend signings took wages from
+        // $45k to $236k/week and dissolved a #1-ranked club at week 98.
         const h = makeHarness(makeBaseState({
+            teams: [{ ...makeTeam("player", ["p1"]), budget: 1_124_385 }],
+            staff: [],
+            players: [makePlayer("p1"), makePlayer("legend_1", { isRetired: true, skill: 84 } as Partial<PlayerSaveData>)],
+            contracts: [{ playerId: "p1", teamId: "player", salaryPerWeek: 144_350, startWeek: 1, endWeek: 200, buyout: 0 }] as ContractSaveData[],
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            pendingLegendPick: { candidates: ["legend_1"] } as any,
+        }))
+        const slice = createUISlice(h.set, h.get)
+        h.set({ ...slice } as Partial<StoreState>) // store actions reachable via get(), as in the real store
+        slice.selectLegend("legend_1")
+        expect(h.state().teams[0].rosterIds).not.toContain("legend_1")
+        expect(h.state().contracts.some(c => c.playerId === "legend_1")).toBe(false)
+        expect(h.state().pendingLegendPick).not.toBeNull()
+        expect(h.state().toasts.some(t => /afford/i.test(t.message))).toBe(true)
+        // Declining is always possible.
+        slice.clearLegendPick()
+        expect(h.state().pendingLegendPick).toBeNull()
+    })
+
+    test("drops stale prior contract for the same player before writing the new one", () => {
+        const h = makeHarness(funded({
             players: [makePlayer("legend_1", { isRetired: true } as Partial<PlayerSaveData>)],
             // Pre-existing stale contract for legend_1
             contracts: [{

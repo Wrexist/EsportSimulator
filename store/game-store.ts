@@ -77,7 +77,7 @@ import {
   resolveTournamentIdentity
 } from "@/engine/circuit-engine"
 import { buildEntityIndexes, type EntityIndexes } from "@/store/indexes"
-import { getActivePlayersByRosterOrder } from "@/lib/live-match-builders"
+import { pendingPlayableMatch } from "@/lib/playable-match"
 import { pruneGameState } from "@/store/utils/array-pruning"
 import { perfTrace } from "@/engine/perf-trace"
 import { logger } from "@/lib/logger"
@@ -682,7 +682,7 @@ interface GameStoreActions extends PhysicalPreviewActions {
 
   // Match Management
   updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
-  simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<void>
+  simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
 
   // Generic Updates (Added for Flexibility)
   updatePlayer: (playerId: string, updates: Partial<PlayerSaveData>) => void
@@ -752,13 +752,6 @@ interface GameStoreActions extends PhysicalPreviewActions {
 }
 
 /**
- * The manager's fixture this week that must be played before the week can
- * advance. Fixtures where either side cannot field five active players are
- * excluded: simulateInstantMatch refuses them and the week tick resolves them
- * by forfeit (match-forfeit.ts), so blocking on them softlocked the career
- * (seen in the long-career campaign when an opponent dropped to four).
- */
-/**
  * Achievement-unlock toast for steamService. Built outside loadGame /
  * initializeNewGame on purpose: the service keeps this callback for the whole
  * session, and an inline closure kept those functions' scope alive, which
@@ -768,20 +761,18 @@ function achievementToast(get: () => { addToast: (toast: { message: string; type
   return (achievement: { name: string }) => get().addToast({ message: `Achievement Unlocked: ${achievement.name}`, type: "achievement" })
 }
 
-function pendingPlayableMatch(
+/**
+ * The manager's fixture this week that must be played before the week can
+ * advance (any day of the week). Shares its predicate with the TopBar's
+ * "Play match" offer (lib/playable-match.ts): fixtures where either side
+ * cannot field five are excluded, because simulateInstantMatch refuses them
+ * and the week tick resolves them by forfeit (match-forfeit.ts).
+ */
+function weekBlockingMatch(
   state: Pick<GameStoreState, "playerTeamId" | "scheduledMatches" | "completedMatches" | "currentWeek" | "teams" | "players">,
   completedIds: Set<string> = new Set(state.completedMatches.map(cm => cm.id)),
 ) {
-  if (!state.playerTeamId) return null
-  const canField = (teamId: string) => {
-    const team = state.teams.find(t => t.id === teamId)
-    return !!team && getActivePlayersByRosterOrder(team, state.players).length >= 5
-  }
-  return state.scheduledMatches.find(m =>
-    m.week === state.currentWeek &&
-    (m.homeTeamId === state.playerTeamId || m.awayTeamId === state.playerTeamId) &&
-    !completedIds.has(m.id) && canField(m.homeTeamId) && canField(m.awayTeamId)
-  ) ?? null
+  return pendingPlayableMatch(state, completedIds, { respectDay: false })
 }
 
 /** Field defaults shared by load hydration and the weekly commit. */
@@ -1924,7 +1915,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       advanceDay: async () => {
         const state = get()
-        if (state.isLoading) return
+        // A dissolved career must not move its calendar (daily mode never reached advanceWeek's guard).
+        if (state.isLoading || state.gameOverReason) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
           return
@@ -1950,14 +1942,14 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       advanceToWeekEnd: async () => {
         const state = get()
-        if (state.isLoading) return
+        if (state.isLoading || state.gameOverReason) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
           return
         }
 
         // Check if player has an unplayed match this week — stop at match day
-        const playerMatchThisWeek = pendingPlayableMatch(state)
+        const playerMatchThisWeek = weekBlockingMatch(state)
 
         if (playerMatchThisWeek) {
           const matchDay = playerMatchThisWeek.day ?? 6
@@ -1999,7 +1991,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
         // Guard: prevent advancing if the player has an unplayed match this week
         const completedIds = state._completedMatchIds || new Set(state.completedMatches.map(cm => cm.id))
-        const unplayedPlayerMatch = pendingPlayableMatch(state, completedIds)
+        const unplayedPlayerMatch = weekBlockingMatch(state, completedIds)
         if (unplayedPlayerMatch) {
           get().addToast({ message: "You have a match to play this week!", type: "warning" })
           set({ isLoading: false })

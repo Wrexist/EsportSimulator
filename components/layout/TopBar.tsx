@@ -14,6 +14,7 @@ import { motion } from "framer-motion"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { AnimatedNumber } from "@/components/ui/animated-number"
+import { selectPlayableMatchId } from "@/lib/playable-match"
 
 // Hoisted: this lookup was being rebuilt as a fresh object on every TopBar
 // render (which fires on every game tick).
@@ -35,10 +36,10 @@ export function TopBar() {
         advanceToWeekEnd,
         advanceWeek,
         isLoading,
+        gameOverReason,
         theme,
         setTheme,
         setTimeMode,
-        scheduledMatches,
     } = useGameStore(
         useShallow(s => ({
             currentWeek: s.currentWeek,
@@ -49,10 +50,10 @@ export function TopBar() {
             advanceToWeekEnd: s.advanceToWeekEnd,
             advanceWeek: s.advanceWeek,
             isLoading: s.isLoading,
+            gameOverReason: s.gameOverReason,
             theme: s.theme,
             setTheme: s.setTheme,
             setTimeMode: s.setTimeMode,
-            scheduledMatches: s.scheduledMatches,
         }))
     )
 
@@ -70,18 +71,17 @@ export function TopBar() {
 
     // Get custom team colors for styling
 
-    // Precompute the pending match instead of scanning scheduledMatches in the
-    // JSX body. Was running an O(scheduledMatches) `.find()` on every TopBar
-    // render — TopBar re-renders on every game tick (currentDay, currentWeek,
-    // isLoading, etc.), so on a long season this stacked up.
-    const pendingMatch = useMemo(() => {
-        if (!scheduledMatches || !playerTeam) return null
-        return scheduledMatches.find(m =>
-            m.week === currentWeek &&
-            (m.homeTeamId === playerTeam.id || m.awayTeamId === playerTeam.id) &&
-            (timeMode === "WEEKLY" || (m.day ?? 6) <= currentDay)
-        ) || null
-    }, [scheduledMatches, playerTeam, currentWeek, currentDay, timeMode])
+    // Only offer "Play match" for a fixture the store will actually simulate
+    // (shared predicate with the advance-week guard). A due fixture where a
+    // side can't field five is resolved by forfeit when the week advances, so
+    // CONTINUE is shown instead; offering it led to "Match Not Found" (L27).
+    // The selector returns a primitive id, so TopBar doesn't re-render on
+    // unrelated player/team updates.
+    const pendingMatchId = useGameStore(selectPlayableMatchId)
+    const pendingMatch = pendingMatchId ? { id: pendingMatchId } : null
+    // A dissolved career (game over) can't advance or play; the game-over
+    // screen offers Load Save / Main Menu instead.
+    const controlsLocked = isLoading || !!gameOverReason
 
     const [isMounted, setIsMounted] = useState(false)
 
@@ -199,7 +199,7 @@ export function TopBar() {
                             <Button
                                 variant="play"
                                 onClick={() => router.push(`/match/${pendingMatch.id}/tactics`)}
-                                disabled={isLoading}
+                                disabled={controlsLocked}
                                 className="h-10 px-3 xl:px-6 shrink-0"
                             >
                                 <span className="tracking-wide">Play match</span>
@@ -217,7 +217,7 @@ export function TopBar() {
                                         soundManager.play('weekAdvance')
                                         advanceDay()
                                     }}
-                                    disabled={isLoading}
+                                    disabled={controlsLocked}
                                     className="h-10 px-4"
                                 >
                                     {isLoading ? (
@@ -236,7 +236,7 @@ export function TopBar() {
                                 </Button>
                                 <Button
                                     onClick={() => advanceToWeekEnd()}
-                                    disabled={isLoading}
+                                    disabled={controlsLocked}
                                     variant="outline"
                                     className="h-10 px-4 rounded-lg border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-[11px] tracking-wider"
                                 >
@@ -253,7 +253,7 @@ export function TopBar() {
                                 soundManager.play('weekAdvance')
                                 advanceWeek()
                             }}
-                            disabled={isLoading}
+                            disabled={controlsLocked}
                             className="h-10 px-3 xl:px-6 shrink-0"
                         >
                             {isLoading ? (

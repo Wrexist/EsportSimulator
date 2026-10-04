@@ -1,6 +1,7 @@
 "use client"
 
 import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
+import { fixtureBlockReason } from '@/lib/playable-match'
 import { useState, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -119,11 +120,13 @@ export default function TacticalHQPage() {
             await handleAutoVeto()
         }
 
-        // 2. Simulate Match Result (Instant)
-        await useGameStore.getState().simulateInstantMatch(matchId)
+        // 2. Simulate Match Result (Instant). Open the result only when one was
+        // recorded; a refusal (e.g. a side below five players) explains itself
+        // with a toast and leaves the user here instead of on "Match Not Found".
+        const recorded = await useGameStore.getState().simulateInstantMatch(matchId)
 
         setIsQuickSimulating(false)
-        router.push(`/match/${matchId}/result`)
+        if (recorded) router.push(`/match/${matchId}/result`)
     }
 
     const handleAutoVeto = async () => {
@@ -307,6 +310,18 @@ export default function TacticalHQPage() {
     }
 
     if (!match || !myTeam || !opponent) {
+        // A loaded career without this fixture (stale link, already resolved,
+        // removed by a week tick): explain and offer a way back instead of an
+        // endless loading screen.
+        if (teams.length > 0 && !match) {
+            return (
+                <div role="alert" className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+                    <p className="text-white text-lg font-bold uppercase tracking-widest mb-2">Match Not Found</p>
+                    <p className="text-sm text-white/60 mb-6 max-w-sm">This match is no longer on your schedule. It may already have been played or resolved when the week advanced.</p>
+                    <Button variant="play" onClick={() => router.push("/schedule")}>Back to Schedule</Button>
+                </div>
+            )
+        }
         return (
             <LoadingState message="Loading Headquarters…" size="lg" fullScreen />
         )
@@ -315,6 +330,12 @@ export default function TacticalHQPage() {
     const isMatchWeek = match.week === currentWeek
     const isFuture = match.week > currentWeek
     const isPast = match.week < currentWeek
+    const isCompleted = completedMatches.some(m => m.id === match.id)
+    // Same predicate the TopBar and the store use: a side below five players
+    // can't play; advancing the week resolves the fixture by forfeit.
+    const blockReason = isMatchWeek && !isCompleted
+        ? fixtureBlockReason({ playerTeamId, scheduledMatches, currentWeek, teams, players }, match)
+        : null
 
     return (
         <div className="premium-route text-white p-0 relative overflow-hidden font-sans selection:bg-emerald-500/30">
@@ -811,7 +832,19 @@ export default function TacticalHQPage() {
                         </div>
 
                         <div className="mt-auto space-y-3">
-                            {isFuture ? (
+                            {isCompleted ? (
+                                <Button variant="play" onClick={() => router.push(`/match/${match.id}/result`)} className="w-full h-16 rounded-lg text-xs uppercase tracking-widest">
+                                    View Result
+                                </Button>
+                            ) : blockReason ? (
+                                <div role="alert" className="space-y-3">
+                                    <p className="text-sm text-amber-200">{blockReason}</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <Button variant="play" onClick={() => router.push("/transfers")} className="h-14 rounded-lg text-xs uppercase tracking-widest">Find a player</Button>
+                                        <Button variant="outline" onClick={() => router.push("/schedule")} className="h-14 rounded-lg text-xs uppercase tracking-widest border-white/10 bg-white/5">Back to Schedule</Button>
+                                    </div>
+                                </div>
+                            ) : isFuture ? (
                     <Button disabled className="w-full h-16 rounded-lg bg-white/5 text-muted-foreground font-normal text-xs uppercase tracking-widest border border-white/10">
                                     <Lock size={16} className="mr-2" /> Match is in Week {match.week}
                                 </Button>

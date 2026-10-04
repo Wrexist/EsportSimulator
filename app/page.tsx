@@ -26,6 +26,7 @@ const SeasonRecapModal = dynamic(() => import("@/components/celebration/SeasonRe
 const ProAwardsModal = dynamic(() => import("@/components/celebration/ProAwardsModal").then(m => m.ProAwardsModal), { ssr: false })
 import { EconomyEngine } from "@/engine/economy-engine"
 import { soundManager } from "@/lib/sound-manager"
+import { fixtureBlockReason } from "@/lib/playable-match"
 import type { AnnualAwards } from "@/engine/pro-awards-engine"
 
 export default function Page() {
@@ -135,6 +136,14 @@ export default function Page() {
   const isMatchLive = !!nextMatch
     && nextMatch.week === currentWeek
     && (timeMode === "WEEKLY" || (nextMatch.day ?? 6) <= currentDay)
+  // A due fixture the store would refuse to simulate (a side below five
+  // players): never offer Play / Quick-sim for it, explain instead. The week
+  // can still advance; the week tick resolves it by forfeit.
+  const matchBlockReason = useMemo(() => (
+    isMatchLive && nextMatch
+      ? fixtureBlockReason({ playerTeamId, scheduledMatches, currentWeek, teams, players }, nextMatch)
+      : null
+  ), [isMatchLive, nextMatch, playerTeamId, scheduledMatches, currentWeek, teams, players])
 
   // Upcoming tournaments where we're registered but matches haven't been drawn yet
   const upcomingTournaments = useMemo(() => {
@@ -197,8 +206,9 @@ export default function Page() {
     soundManager.play('matchStart')
     try {
       // Dashboard Quick-Sim skips the match-day prep flow → small differential (B4).
-      await simulateInstantMatch(nextMatch.id, { skippedPrep: true })
-      router.push(`/match/${nextMatch.id}/result`)
+      // Only open the result screen when a result was recorded; a refusal
+      // has already explained itself with a toast.
+      if (await simulateInstantMatch(nextMatch.id, { skippedPrep: true })) router.push(`/match/${nextMatch.id}/result`)
     } finally {
       setIsSimulating(false)
     }
@@ -417,7 +427,12 @@ export default function Page() {
                 </div>
 
                 <div className="flex justify-center items-center gap-5">
-                  {isMatchLive ? (
+                  {isMatchLive && matchBlockReason ? (
+                    <div className="flex flex-col items-center gap-2 py-2 max-w-md text-center">
+                      <p role="status" className="text-sm text-amber-200">{matchBlockReason}</p>
+                      <Button asChild variant="play"><Link href="/transfers">Find a player <ArrowRight size={16} /></Link></Button>
+                    </div>
+                  ) : isMatchLive ? (
                     <>
                       <Button asChild variant="play" className="h-14 px-10 text-xs uppercase tracking-[0.15em]">
                         <Link href={`/match/${nextMatch.id}/tactics`}>

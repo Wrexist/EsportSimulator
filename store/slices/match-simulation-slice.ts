@@ -61,7 +61,7 @@ const NEWS_FEED_CAP = 50
 export interface MatchSimulationActions {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- MatchResult shape lives in @/types but is loosely typed
     saveMatchResult: (matchId: string, result: any) => void
-    simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<void>
+    simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
 }
 
 export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = (set, get) => ({
@@ -557,26 +557,38 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
     simulateInstantMatch: async (matchId: string, opts: { skippedPrep?: boolean } = {}) => {
         const state = get()
+        // Already recorded (double click, retry): report success so callers
+        // can show the result instead of a not-found screen.
+        if (state.completedMatches.some(m => m.id === matchId)) return true
         const match = state.scheduledMatches.find(m => m.id === matchId)
-        if (!match) return
-        if (!state.playerTeamId) return
+        if (!match) {
+            get().addToast({ message: 'That match is no longer on your schedule.', type: 'warning' })
+            return false
+        }
+        if (!state.playerTeamId) return false
         if (state.activeMatchId || state.activeMatchState) {
             get().addToast({ message: 'Resume your active match to keep its recorded rounds and lineup.', type: 'warning' })
-            return
+            return false
         }
 
         const isPlayerMatch = match.homeTeamId === state.playerTeamId || match.awayTeamId === state.playerTeamId
-        if (!isPlayerMatch) return
-        if (match.week > state.currentWeek) return
+        if (!isPlayerMatch) return false
+        if (match.week > state.currentWeek) {
+            get().addToast({ message: "This match isn't due yet.", type: 'warning' })
+            return false
+        }
         // HYBRID_DAILY: refuse simulating a match from a future day.
         if (state.timeMode === "HYBRID_DAILY" && match.week === state.currentWeek) {
             const matchDay = match.day ?? 6
-            if (matchDay > state.currentDay) return
+            if (matchDay > state.currentDay) {
+                get().addToast({ message: "This match isn't due yet.", type: 'warning' })
+                return false
+            }
         }
 
         const hTeam = state.teams.find(t => t.id === match.homeTeamId)
         const aTeam = state.teams.find(t => t.id === match.awayTeamId)
-        if (!hTeam || !aTeam) return
+        if (!hTeam || !aTeam) return false
 
         const hPlayers = getActivePlayersByRosterOrder(hTeam, state.players).map(p => structuredClone(p))
         const aPlayers = getActivePlayersByRosterOrder(aTeam, state.players).map(p => structuredClone(p))
@@ -587,11 +599,11 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         // properly, so this can't softlock.
         if (state.playerTeamId === hTeam.id && hPlayers.length < 5) {
             get().addToast({ message: `You need 5 active players to play - your roster has ${hPlayers.length}.`, type: "warning" })
-            return
+            return false
         }
         if (state.playerTeamId === aTeam.id && aPlayers.length < 5) {
             get().addToast({ message: `You need 5 active players to play - your roster has ${aPlayers.length}.`, type: "warning" })
-            return
+            return false
         }
         // Either roster understrength (e.g. the opponent got gutted by injuries /
         // retirements): refuse rather than let simulateMatch crash pickWeighted
@@ -599,7 +611,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         if (hPlayers.length < 5 || aPlayers.length < 5) {
             const shorthanded = hPlayers.length < 5 ? hTeam : aTeam
             get().addToast({ message: `${shorthanded.name} can't field 5 players - advance the week to resolve this match by forfeit.`, type: "warning" })
-            return
+            return false
         }
 
         // Shared preparation + canonical series runner: identical to the live
@@ -620,6 +632,10 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         // Cross-slice RPC — works because saveMatchResult is in the same
         // slice and was spread into the StoreState alongside us.
         get().saveMatchResult(matchId, result)
+        if (!get().completedMatches.some(m => m.id === matchId)) {
+            get().addToast({ message: "The match result couldn't be recorded. Your match is still on the schedule.", type: 'error' })
+            return false
+        }
 
         // Achievement re-check after the manager stats bump.
         checkAchievements({
@@ -633,5 +649,6 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;(set as any)({ activeMatchId: null, activeMatchState: null })
         }
+        return true
     },
 })

@@ -330,12 +330,12 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
                     continue
                 }
                 const doneBefore = get().completedMatches.length
-                await step('own-match', () => get().simulateInstantMatch(m.id))
+                await step('own-match', async () => { await get().simulateInstantMatch(m.id) })
                 if (get().completedMatches.length === doneBefore) {
                     // Refused (e.g. understrength roster). Give the policy one chance to fix it.
                     await step('policy-retry', policy)
                     const again = get().completedMatches.length
-                    await step('own-match-retry', () => get().simulateInstantMatch(m.id))
+                    await step('own-match-retry', async () => { await get().simulateInstantMatch(m.id) })
                     if (get().completedMatches.length === again) { refused.add(m.id); policyStats.forfeitAdvances++ }
                 }
                 continue

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Trophy, Star, Crown, Zap } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
@@ -14,6 +14,7 @@ import { fireConfetti } from "@/lib/confetti-lazy"
 import type { LegendPickData } from "@/engine/save-types"
 import { panelTransition } from "@/lib/motion"
 import { useFocusTrap } from "@/lib/accessibility"
+import { LEGEND_CONTRACT_WEEKS, LEGEND_MIN_RUNWAY_WEEKS, quoteLegendSigning } from "@/lib/legend-signing"
 
 interface LegendPickModalProps {
     data: LegendPickData
@@ -21,13 +22,26 @@ interface LegendPickModalProps {
 }
 
 export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
-    const { players } = useGameStore(useShallow(state => ({
+    const { players, teams, contracts, staff, currentWeek, playerTeamId, academyPlayers, clearLegendPick } = useGameStore(useShallow(state => ({
         players: state.players,
+        teams: state.teams,
+        contracts: state.contracts,
+        staff: state.staff,
+        currentWeek: state.currentWeek,
+        playerTeamId: state.playerTeamId,
+        academyPlayers: state.academyPlayers,
+        clearLegendPick: state.clearLegendPick,
     })))
     const [selectedId, setSelectedId] = useState<string | null>(null)
+    // The legend's wage is the real cost of this reward; show it and refuse a
+    // signing the club can't carry (selectLegend enforces the same rule).
+    const quote = useMemo(() => selectedId
+        ? quoteLegendSigning({ players, teams, contracts, staff, currentWeek, playerTeamId, academyPlayers }, selectedId)
+        : null, [selectedId, players, teams, contracts, staff, currentWeek, playerTeamId, academyPlayers])
+    const canSign = !!selectedId && (quote?.affordable ?? true)
     const [confirmed, setConfirmed] = useState(false)
     const [mounted, setMounted] = useState(false)
-    // A legend must be chosen, so Escape is intentionally not a close path.
+    // Escape is not a close path; "Decline" is the explicit way out.
     const dialogRef = useFocusTrap(mounted)
 
     const candidates = data.candidates
@@ -52,7 +66,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
     }, [])
 
     const handleConfirm = () => {
-        if (!selectedId) return
+        if (!selectedId || !canSign) return
         setConfirmed(true)
         // Big celebration confetti
         for (let i = 0; i < 3; i++) {
@@ -245,18 +259,35 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                             transition={{ delay: 0.8 }}
                             className="text-center"
                         >
-                            <button
-                                onClick={handleConfirm}
-                                disabled={!selectedId}
-                                className={cn(
-                                    "px-12 py-4 rounded-lg text-lg font-bold uppercase tracking-wider transition-colors duration-100 ease-out select-none touch-manipulation will-change-transform active:scale-[0.97] active:duration-0",
-                                    selectedId
-                                        ? "bg-amber-300 text-black hover:bg-amber-200 shadow-glass-soft"
-                                        : "bg-white/5 text-white/40 cursor-not-allowed"
-                                )}
-                            >
-                                {selectedId ? `Sign ${candidates.find(c => c.id === selectedId)?.nickname}` : "Select a Legend"}
-                            </button>
+                            {quote && (
+                                <p role="status" className={cn("mb-3 text-sm", quote.affordable ? "text-white/60" : "text-amber-300")}>
+                                    Wage ${quote.salary.toLocaleString("en-US")}/week for {LEGEND_CONTRACT_WEEKS / 52} years.{" "}
+                                    {quote.weeklyNet >= 0
+                                        ? "Your club stays cash-positive."
+                                        : `Cash lasts about ${quote.runwayWeeks} weeks at the new rate.`}
+                                    {!quote.affordable && ` You need at least ${LEGEND_MIN_RUNWAY_WEEKS} weeks of cover to sign.`}
+                                </p>
+                            )}
+                            <div className="flex flex-wrap items-center justify-center gap-3">
+                                <button
+                                    onClick={handleConfirm}
+                                    disabled={!canSign}
+                                    className={cn(
+                                        "px-12 py-4 rounded-lg text-lg font-bold uppercase tracking-wider transition-colors duration-100 ease-out select-none touch-manipulation will-change-transform active:scale-[0.97] active:duration-0",
+                                        canSign
+                                            ? "bg-amber-300 text-black hover:bg-amber-200 shadow-glass-soft"
+                                            : "bg-white/5 text-white/40 cursor-not-allowed"
+                                    )}
+                                >
+                                    {selectedId ? `Sign ${candidates.find(c => c.id === selectedId)?.nickname}` : "Select a Legend"}
+                                </button>
+                                <button
+                                    onClick={clearLegendPick}
+                                    className="px-6 py-4 rounded-lg text-sm font-bold uppercase tracking-wider border border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
+                                >
+                                    Decline
+                                </button>
+                            </div>
                         </motion.div>
                     )}
                 </motion.div>

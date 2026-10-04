@@ -45,8 +45,9 @@ export default function MatchError({
         if (!matchId || resolving) return
         setResolving(true)
         try {
-            await simulateInstantMatch(matchId)
-            toast.success("Match resolved via instant simulation.")
+            // false = refused (the store toasted why); still leave the crashed
+            // screen. Advancing the week resolves an unplayable fixture.
+            if (await simulateInstantMatch(matchId)) toast.success("Match resolved via instant simulation.")
             router.push("/schedule")
         } catch (e) {
             // Even the headless sim failed — leave the user on this screen with

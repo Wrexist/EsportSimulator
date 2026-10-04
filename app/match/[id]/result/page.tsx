@@ -247,20 +247,25 @@ export default function MatchResultPage() {
     // Loading guard runs AFTER all hooks above so React's hook-order rule
     // holds. Non-hook derived values (homeWon, mvpPlayer, matchDate) live
     // below since they only matter after the match has loaded.
+    // A fixture that is still scheduled has simply not been played yet (e.g.
+    // the simulation was refused); say so instead of "not found".
+    const stillScheduled = !match && scheduledMatches.some(m => m.id === id)
     if (!match) return (
         <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
-            {notFound ? (
-                <div className="text-center max-w-sm px-6">
-                    <p className="text-white text-lg font-bold uppercase tracking-widest mb-2">Match Not Found</p>
+            {notFound || stillScheduled ? (
+                <div role="alert" className="text-center max-w-sm px-6">
+                    <p className="text-white text-lg font-bold uppercase tracking-widest mb-2">{stillScheduled ? "Match Not Played Yet" : "Match Not Found"}</p>
                     <p className="text-muted-foreground text-sm mb-6">
-                        This match result isn&apos;t available — it may belong to a different save or has aged out of match history.
+                        {stillScheduled
+                            ? "This match has no result yet. Return to match prep to play it; if it can't be played, advancing the week resolves it."
+                            : <>This match result isn&apos;t available — it may belong to a different save or has aged out of match history.</>}
                     </p>
-                    <button
-                        onClick={() => router.push("/schedule")}
-                        className="px-6 py-2.5 rounded-lg bg-primary text-white text-xs font-bold uppercase tracking-widest hover:bg-primary/80 transition-colors"
-                    >
-                        Back to Schedule
-                    </button>
+                    <div className="flex justify-center gap-3">
+                        {stillScheduled && (
+                            <Button variant="play" onClick={() => router.push(`/match/${id}/tactics`)}>Back to Match Prep</Button>
+                        )}
+                        <Button variant={stillScheduled ? "outline" : "play"} onClick={() => router.push("/schedule")}>Back to Schedule</Button>
+                    </div>
                 </div>
             ) : (
                 <LoadingState message="Loading Match Data…" size="lg" />
