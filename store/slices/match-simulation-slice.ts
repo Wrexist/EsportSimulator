@@ -39,6 +39,8 @@ import {
 import { ManagerProgression } from "@/engine/manager-progression"
 import { applyFormResult, applyMoraleResult } from "@/engine/player-lifecycle"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
+import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mastery"
+import type { GameSave } from "@/engine/save-types"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { runLegacySeries, finalizeLegacySeries } from "@/engine/match/legacy-series"
 import { checkAchievements } from "@/engine/steam-service"
@@ -467,6 +469,12 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             }
             updatePlayerStats(homeTeam, homeWon)
             updatePlayerStats(awayTeam, !homeWon)
+            // Canonical weapon-category mastery (RIFLE/AWP/PISTOL/SMG XP), the
+            // track the match engine reads. The weekly tick applies it to every
+            // AI match; matches committed here never did, so managed starters
+            // stayed at mastery 0 while AI starters reached +12 accuracy /
+            // +8 damage (~+10 equipment power per player). Parity fix.
+            processMatchWeaponMastery(state as unknown as GameSave, result)
 
             // Manager stats + achievements + XP, only when player team was in the match.
             if (homeTeam.id === state.playerTeamId || awayTeam.id === state.playerTeamId) {

@@ -1,3 +1,5 @@
+import { processMatchWeaponMastery } from '@/engine/processors/match-weapon-mastery'
+import { WeaponMasteryManager } from '@/engine/weapon-mastery-system'
 /**
  * L21 / L14.A1+A3 for the legacy-v2 career engine: the same seeded fixture
  * produces the same canonical result whether it is simulated instantly,
@@ -195,6 +197,24 @@ describe('store instant simulation == live preparation; rewards commit once', ()
         expect(h.read().completedMatches).toHaveLength(1)
         expect(h.read().players.find(p => p.id === liveResult.lineups![ctx.home.team.id][0])!.xp).toBe(xp)
         expect(h.read().managerDetails.careerMatches).toBe(1)
+    })
+
+    test('a committed match grants the same weapon-category mastery as the weekly tick (balance parity)', () => {
+        const h = storeHarness('BO1')
+        const match = h.read().scheduledMatches[0]
+        const ctx = ctxFor(h.read() as unknown as GameSave)
+        const result = finalizeLegacySeries(ctx, runLegacySeries(ctx).state)
+        const expected = { players: JSON.parse(JSON.stringify(h.read().players)) } as unknown as GameSave
+        processMatchWeaponMastery(expected, result)
+        h.slice.saveMatchResult(match.id, result)
+        for (const pid of ctx.home.players.map(p => p.id)) {
+            const got = WeaponMasteryManager.getPlayerMastery(h.read().players.find(p => p.id === pid) as never)
+            const want = WeaponMasteryManager.getPlayerMastery(expected.players.find(p => p.id === pid) as never)
+            expect(got.RIFLE).toBe(want.RIFLE)
+            expect(got.PISTOL).toBe(want.PISTOL)
+        }
+        const rifleXp = ctx.home.players.map(p => WeaponMasteryManager.getPlayerMastery(h.read().players.find(x => x.id === p.id) as never).RIFLE)
+        expect(rifleXp.some(x => x > 0)).toBe(true)
     })
 
     test('recorded lineups survive a roster change between simulation and commit', () => {
