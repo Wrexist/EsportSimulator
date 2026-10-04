@@ -131,8 +131,8 @@ export const AI_SQUAD_TUNING = {
     /** Pass 2: weekly chance an AI club reviews sponsor offers (was 0.05), and its slot count (was 2; human cap 3). */
     SPONSOR_LOOK_CHANCE: 0.25,
     /** Pass 2: AI academy prospects leave at this age, and an AI academy holds at most this many (season end). */
-    ACADEMY_RELEASE_AGE: 21,
-    ACADEMY_MAX_PROSPECTS: 6,
+    ACADEMY_RELEASE_AGE: 20,
+    ACADEMY_MAX_PROSPECTS: 3,
     MAX_SPONSORS: 3,
     /** Human Renew button terms (store/slices/transfer-contract-slice.ts). */
     RENEWAL_SALARY_MULTIPLIER: 1.1,
