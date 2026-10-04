@@ -146,8 +146,11 @@ async function dismiss(page) {
             return null
         }, { source: DISMISS.source, flags: DISMISS.flags })
         if (!clicked) {
-            // Legend pick (major-win reward) needs a choice: take the first legend, then sign.
+            // Legend pick (major-win reward): decline, so a scripted session never takes on
+            // a six-figure weekly wage it cannot manage. Older builds without Decline sign the first legend.
             if (!(await page.evaluate(() => /CHOOSE YOUR LEGEND/i.test(document.body.innerText)))) break
+            const declined = await page.evaluate(() => { const b = [...document.querySelectorAll('button')].find(x => /^\s*Decline\b/i.test(x.textContent || '') && !x.disabled); b?.click(); return !!b })
+            if (declined) { count++; await sleep(400); continue }
             const signButton = () => page.evaluate(() => { const b = [...document.querySelectorAll('button')].find(x => /^\s*Sign\s/i.test(x.textContent || '') && !x.disabled); b?.click(); return !!b })
             if (!(await signButton())) {
                 await page.evaluate(() => [...document.querySelectorAll('button')].find(b => /matches/i.test(b.textContent || '') && /rating/i.test(b.textContent || ''))?.click())
