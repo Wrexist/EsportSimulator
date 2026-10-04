@@ -23,7 +23,7 @@ import { StaffGenerator } from "../staff-generator"
 import { generateProspect } from "../prospect-generator"
 import { PlayerRole } from "@/types/enums"
 import { logger } from "@/lib/logger"
-import { processFreeAgentMarket } from "./free-agent-market"
+import { processFreeAgentMarket, freeAgentScoutingFactor } from "./free-agent-market"
 
 // Flavour backstory fragments so intakes read as distinct scouted talents
 // rather than a wall of identical "Youth Prospect" clones. Picked
@@ -51,8 +51,9 @@ export function processAIWorldLogic(save: GameSave, playerTeamId: string, rng: S
     AIManager.refreshWorldRankings(save)
 
     // 3. Per-team academy scouting + weekly AI decisions
+    const scoutingFactor = freeAgentScoutingFactor(save)
     save.teams.forEach(team => {
-        AIManager.processAcademyScouting(save, team, rng)
+        AIManager.processAcademyScouting(save, team, rng, scoutingFactor)
     })
 
     // Transfer windows: weeks 1-8 (pre-season) and 26-34 (mid-season).

@@ -330,14 +330,15 @@ export class AIManager {
         })
     }
 
-    static processAcademyScouting(save: GameSave, team: TeamSaveData, rng: SeededRNG) {
+    static processAcademyScouting(save: GameSave, team: TeamSaveData, rng: SeededRNG, chanceFactor = 1) {
         // Never auto-manage the player's team — the ai-world-processor loops over
         // ALL teams, and without this guard the player would silently gain an
         // un-consented (and contract-less) prospect on their roster. Mirrors the
         // player-team exclusion every other AI routine already applies.
         if (team.id === save.playerTeamId) return
         // 5% chance per week to discover a youth prospect for AI teams
-        if (rng.next() > 0.05) return
+        // chanceFactor: free-agent pool feedback (FREE_AGENT_TUNING.SCOUTING_FACTOR_MIN).
+        if (rng.next() > 0.05 * chanceFactor) return
         if (team.rosterIds.length >= 7) return // Already have enough players
 
         try {

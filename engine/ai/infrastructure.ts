@@ -20,6 +20,7 @@ import type { SeededRNG } from "../rng"
 import { StaffGenerator } from "../staff-generator"
 import { SponsorGenerator } from "../economy-manager"
 import { EconomyEngine } from "../economy-engine"
+import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { affordableInvestment } from "../recruitment"
 import { aiRoll, hashTeamId } from "./rng-helpers"
 
@@ -82,8 +83,11 @@ export function manageStaff(team: TeamSaveData, save: GameSave, rng: SeededRNG) 
  * any financial trouble.
  */
 export function manageSponsors(team: TeamSaveData, save: GameSave, rng: SeededRNG): void {
-    if (aiRoll(rng) > 0.05) return
-    const MAX_AI_SPONSORS = 2
+    // Pass 2: AI clubs fill sponsor slots like the managed club (3 slots, frequent
+    // look at offers) instead of 2 slots at 5% a week, which left indebted
+    // clubs without sponsor income for ~20 weeks at a time.
+    if (aiRoll(rng) > AI_SQUAD_TUNING.SPONSOR_LOOK_CHANCE) return
+    const MAX_AI_SPONSORS = AI_SQUAD_TUNING.MAX_SPONSORS
     if (!team.sponsors) team.sponsors = []
     if (team.sponsors.length >= MAX_AI_SPONSORS) return
 

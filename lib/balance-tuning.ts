@@ -73,7 +73,7 @@ export const FREE_AGENT_TUNING = {
     /** Asking wage falls by this share per week unsigned... */
     WAGE_DECAY_PER_WEEK: 0.02,
     /** ...down to this share of the original ask. */
-    WAGE_DECAY_FLOOR: 0.4,
+    WAGE_DECAY_FLOOR: 0.25,
     /** Buyer reputation scaling: ask x (MIN + (1 - MIN) x reputation/100). */
     BUYER_REPUTATION_MIN_FACTOR: 0.6,
     /**
@@ -92,7 +92,14 @@ export const FREE_AGENT_TUNING = {
      */
     POOL_TARGET_PER_CLUB: 2,
     POOL_FACTOR_MIN: 0.25,
-    POOL_FACTOR_MAX: 3,
+    POOL_FACTOR_MAX: 4,
+    /**
+     * AI prospect scouting chance is multiplied by (target / free agents),
+     * clamped to [SCOUTING_FACTOR_MIN, 1]: youth keeps arriving, but more
+     * slowly while the free-agent pool is over target (the hard pause tried
+     * in 2a07265d starved youth and was reverted).
+     */
+    SCOUTING_FACTOR_MIN: 0.3,
     /** Age at/above which the weekly chance doubles; below YOUTH_AGE it halves. */
     RETIRE_VETERAN_AGE: 28,
     RETIRE_YOUTH_AGE: 21,
@@ -119,6 +126,9 @@ export const AI_SQUAD_TUNING = {
     /** Opening snapshot contracts end within +/- this many weeks of their nominal length (seeded). */
     INITIAL_CONTRACT_STAGGER_WEEKS: 26,
     INITIAL_CONTRACT_MIN_WEEKS: 26,
+    /** Pass 2: weekly chance an AI club reviews sponsor offers (was 0.05), and its slot count (was 2; human cap 3). */
+    SPONSOR_LOOK_CHANCE: 0.25,
+    MAX_SPONSORS: 3,
     /** Human Renew button terms (store/slices/transfer-contract-slice.ts). */
     RENEWAL_SALARY_MULTIPLIER: 1.1,
     RENEWAL_EXTENSION_WEEKS: 52,

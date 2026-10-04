@@ -44,6 +44,24 @@ export function freeAgentRetirementChance(age: number, weeksUnsigned: number): n
     return base
 }
 
+/** Count of professional free agents (no club, academy place or active contract). */
+export function countFreeAgents(save: GameSave): number {
+    const rostered = new Set<string>()
+    for (const t of save.teams) for (const id of t.rosterIds) rostered.add(id)
+    const held = academyHeldPlayerIds(save)
+    const contracted = new Set<string>()
+    for (const c of save.contracts) if (c.endWeek > save.currentWeek && (c.startWeek ?? 0) <= save.currentWeek) contracted.add(c.playerId)
+    let n = 0
+    for (const p of save.players) if (!p.isRetired && !p.id.startsWith(FPL_NON_PRO_PREFIX) && !rostered.has(p.id) && !held.has(p.id) && !contracted.has(p.id)) n++
+    return n
+}
+
+/** AI prospect-scouting multiplier: slower discovery while the free-agent pool is over target. */
+export function freeAgentScoutingFactor(save: GameSave): number {
+    const target = Math.max(1, FREE_AGENT_TUNING.POOL_TARGET_PER_CLUB * save.teams.length)
+    return Math.max(FREE_AGENT_TUNING.SCOUTING_FACTOR_MIN, Math.min(1, target / Math.max(1, countFreeAgents(save))))
+}
+
 /** Retirement multiplier from free-agent pool size relative to its target. */
 export function freeAgentPoolFactor(freeAgents: number, clubs: number): number {
     const target = Math.max(1, FREE_AGENT_TUNING.POOL_TARGET_PER_CLUB * clubs)
