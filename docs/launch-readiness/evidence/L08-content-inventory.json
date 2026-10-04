@@ -59022,8 +59022,8 @@
     },
     {
       "path": "data/snapshot-loader.ts",
-      "sha256": "d17856f9f8432ee8959e82ef729f4f788fdd91972134fc0f2b4e432d406d443b",
-      "bytes": 23961,
+      "sha256": "6cabb37d4f97dc34bd10103dc7243c4f23149c5f68ff562f6d64e0ea4f55110f",
+      "bytes": 24451,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/L31-PROJECT-CONTENT-REVIEW.json",
@@ -59033,7 +59033,14 @@
       "allowedUse": "Include these exact reviewed project bytes in the game.",
       "releaseDisposition": "include",
       "basis": "project implementation and game-data review",
-      "reviewBasis": "project implementation and game-data review"
+      "reviewBasis": "project implementation and game-data review",
+      "reviewHistory": [
+        {
+          "date": "2026-10-05",
+          "previousSha256": "d17856f9f8432ee8959e82ef729f4f788fdd91972134fc0f2b4e432d406d443b",
+          "change": "Balance pass 2 (90b388a7): opening contract endWeek staggered by a seeded offset using AI_SQUAD_TUNING constants. Code-only; no names, ratings, media references or game text changed."
+        }
+      ]
     },
     {
       "path": "data/snapshot-types.ts",
