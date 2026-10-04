@@ -27,7 +27,8 @@ const { chromium } = require('playwright-core')
 const root = path.resolve(__dirname, '../..')
 const arg = (key, fallback) => process.argv.find(a => a.startsWith(`--${key}=`))?.slice(key.length + 3) ?? fallback
 const mode = arg('mode', 'startup')
-const exe = path.resolve(arg('exe', 'C:/Users/IsacC/EsportSimulator/dist/win-unpacked/EsportsManager.exe'))
+// Default is the LOCAL-QA-ONLY copy, never dist/win-unpacked (Steam-enabled release build).
+const exe = path.resolve(arg('exe', 'C:/Users/IsacC/EsportSimulator/tmp/l27qa/app/EsportsManager.exe'))
 const label = arg('label', 'run')
 if (!/^[a-z0-9-]+$/.test(label)) throw Error('Invalid label')
 const port = Number(arg('port', '9341'))
@@ -52,7 +53,33 @@ const INIT = `(() => {
   w.clearTimeout = function (id) { l.timeouts.delete(id); return ct.call(this, id) }
 })()`
 
+// --url=http://127.0.0.1:3100 drives a `next start` production build in Chrome instead of
+// the packaged exe (used to measure renderer changes without repackaging). The career is
+// copied from the seeded Electron profile's game storage into the page's IndexedDB.
+const appUrl = arg('url', '')
+async function launchBrowser(profileDir) {
+    const browserDir = path.join(profileDir, '..', 'chrome-profile')
+    fs.rmSync(browserDir, { recursive: true, force: true })
+    const t0 = now()
+    const context = await chromium.launchPersistentContext(browserDir, { executablePath: arg('browser', 'C:/Program Files/Google/Chrome/Application/chrome.exe'), headless: false, viewport: { width: 1280, height: 720 }, args: ['--disable-extensions', '--no-first-run'] })
+    const page = context.pages()[0] || await context.newPage()
+    await page.goto(`${appUrl}/main-menu`)
+    const { createGameStorage } = require(path.join(root, 'electron/game-storage.js'))
+    const disk = createGameStorage({ root: profileDir, isStorageKey: () => true, maxValueBytes: 64 * 1024 * 1024 })
+    const entries = disk.getAllKeys().map(k => [k, disk.getItem(k)])
+    for (const [k, v] of entries) {
+        await page.evaluate(([key, value]) => new Promise((resolve, reject) => {
+            const open = indexedDB.open('EsportsSimDB', 1)
+            open.onupgradeneeded = () => { if (!open.result.objectStoreNames.contains('keyvalue_store')) open.result.createObjectStore('keyvalue_store') }
+            open.onerror = () => reject(open.error)
+            open.onsuccess = () => { const tx = open.result.transaction('keyvalue_store', 'readwrite'); tx.objectStore('keyvalue_store').put(value, key); tx.oncomplete = () => { open.result.close(); resolve() }; tx.onerror = () => reject(tx.error) }
+        }), [k, v])
+    }
+    await page.reload()
+    return { child: null, browser: context, page, t0, tCdp: 0, version: { Browser: context.browser()?.version() ?? 'chrome' }, seededKeys: entries.map(e => e[0]) }
+}
 async function launch(profileDir) {
+    if (appUrl) return launchBrowser(profileDir)
     fs.mkdirSync(profileDir, { recursive: true })
     const env = { ...process.env }
     delete env.ELECTRON_RUN_AS_NODE
@@ -78,9 +105,10 @@ async function menuInteractive(page) {
         && /No saves yet|SELECT SAVE|CONTINUE CAREER/i.test(document.body.innerText), null, { timeout: 90000, polling: 16 })
 }
 function kill(child) {
+    if (!child) return
     try { execFileSync('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' }) } catch { /* already gone */ }
 }
-async function waitGone() { for (let i = 0; i < 100; i++) { try { await fetch(`http://127.0.0.1:${port}/json/version`); await sleep(100) } catch { return } } }
+async function waitGone() { if (appUrl) return; for (let i = 0; i < 100; i++) { try { await fetch(`http://127.0.0.1:${port}/json/version`); await sleep(100) } catch { return } } }
 
 async function startup() {
     const runs = Number(arg('runs', '6'))
@@ -178,7 +206,34 @@ const domBreakdown = page => page.evaluate(() => {
     return { total: document.getElementsByTagName('*').length, path: location.pathname, rows: rows.slice(0, 60) }
 })
 const weekOf = page => page.evaluate(() => { const m = /WEEK\s+(\d+)/.exec(document.body.innerText); return m ? Number(m[1]) : null })
-const idle = page => page.waitForFunction(() => [...document.querySelectorAll('header button')].some(b => /^\s*(CONTINUE|Play match)\s*$/i.test(b.textContent || '') && !b.disabled), null, { timeout: 120000, polling: 50 })
+const REVIEW = '[role="dialog"][aria-label$=" review"]'
+const PROCESSING = '[aria-label="Processing week advancement"]'
+const controlsReady = page => page.evaluate(([review, processing]) => [...document.querySelectorAll('header button')].some(b => /^\s*(CONTINUE|Play match)\s*$/i.test(b.textContent || '') && !b.disabled)
+    && !document.querySelector(review) && !document.querySelector(processing), [REVIEW, PROCESSING])
+// The end-of-week review ("WEEK N COMPLETE ... CONTINUE") is a modal over the
+// page. Its Continue button is not in the header, so wait-for-header alone stalls
+// forever. Dismiss it the way a player would.
+const dismissReview = page => page.evaluate(review => {
+    const d = document.querySelector(review)
+    const b = d && [...d.querySelectorAll('button')].find(x => /^\s*Continue\b/i.test(x.textContent || '') && !x.disabled)
+    b?.click()
+    return !!b
+}, REVIEW)
+// Controls are ready when the header offers CONTINUE / Play match and no week
+// overlay is up. While waiting, blocking dialogs (week review, trophy, recap,
+// legend pick) are acknowledged.
+async function idle(page, timeout = 120000) {
+    const end = now() + timeout
+    while (now() < end) {
+        if (await controlsReady(page)) return
+        if (!(await page.evaluate(processing => !!document.querySelector(processing), PROCESSING))) {
+            if (await dismissReview(page)) { await sleep(100); continue }
+            await dismiss(page)
+        }
+        await sleep(50)
+    }
+    throw Error('controls never re-enabled within timeout (idle)')
+}
 
 async function session() {
     const profileDir = path.resolve(root, arg('profile', ''))
@@ -210,7 +265,11 @@ async function session() {
         out.samples.push({ at: 'loaded', week: await weekOf(page), ...(await metrics(cdp, page)) })
         for (let c = 0; c < 3; c++) await routeCycle(page, out.routes)
         out.samples.push({ at: 'after-3-route-cycles', week: await weekOf(page), ...(await metrics(cdp, page)) })
-        if (process.argv.includes('--heap')) await heapSnapshot(cdp, path.join(root, 'tmp/l27', `heap-${label}-start.heapsnapshot`))
+        // --heap-at=0,26,52 takes forced-GC heap snapshots before week 1 (0) and after the given weeks.
+        const heapAt = new Set(String(arg('heap-at', '')).split(',').filter(Boolean).map(Number))
+        const heapFile = tag => path.join(root, 'tmp/l27', `heap-${label}-${tag}.heapsnapshot`)
+        fs.mkdirSync(path.join(root, 'tmp/l27'), { recursive: true })
+        if (process.argv.includes('--heap') || heapAt.has(0)) await heapSnapshot(cdp, heapFile('start'))
         for (let i = 0; i < weeks; i++) {
             out.dismissed = (out.dismissed || 0) + await dismiss(page)
             const week = await weekOf(page)
@@ -223,7 +282,13 @@ async function session() {
                 // Veto first when required (the tactics page's own "Quick Sim Veto"), then instant sim.
                 await page.waitForFunction(() => !!document.querySelector('button[title="Simulate Result Instantly"]') || [...document.querySelectorAll('button')].some(b => /Quick Sim Veto/i.test(b.textContent || '')), null, { timeout: 60000 })
                 await page.evaluate(() => { if (!document.querySelector('button[title="Simulate Result Instantly"]')) [...document.querySelectorAll('button')].find(b => /Quick Sim Veto/i.test(b.textContent || ''))?.click() })
-                await page.waitForSelector('button[title="Simulate Result Instantly"]', { state: 'attached', timeout: 60000 })
+                // waitForFunction, not waitForSelector: the ElementHandle that waitForSelector
+                // returns stays alive in the CDP remote-object table until disposed. Each one
+                // pinned an unmounted tactics page (fibers -> props -> a whole old game state),
+                // which was most of the 12 -> 216 MB "session growth" in earlier runs (L27.A3).
+                // --legacy-handle-leak reproduces the old behaviour for comparison.
+                if (process.argv.includes('--legacy-handle-leak')) await page.waitForSelector('button[title="Simulate Result Instantly"]', { state: 'attached', timeout: 60000 })
+                else await page.waitForFunction(() => !!document.querySelector('button[title="Simulate Result Instantly"]'), null, { timeout: 60000 })
                 await page.evaluate(() => document.querySelector('button[title="Simulate Result Instantly"]').click())
                 await page.waitForFunction(() => /\/match\/.+\/result/.test(location.pathname), null, { timeout: 120000 })
                 await page.waitForFunction(() => /Back to Dashboard|MATCH NOT FOUND/i.test(document.body.innerText), null, { timeout: 60000 })
@@ -245,8 +310,11 @@ async function session() {
             await page.evaluate(() => [...document.querySelectorAll('header button')].find(b => /^\s*CONTINUE\s*$/i.test(b.textContent || ''))?.click())
             await page.waitForFunction(w => { const m = /WEEK\s+(\d+)/.exec(document.body.innerText); return m && Number(m[1]) > w }, week, { timeout: 180000, polling: 50 })
             const tWeek = now() - s0
-            await idle(page)
+            // Same end point as earlier runs: processing finished and the header
+            // controls are enabled (the week review may still be on top).
+            await page.waitForFunction(([review, processing]) => !document.querySelector(processing) && ([...document.querySelectorAll('header button')].some(b => /^\s*(CONTINUE|Play match)\s*$/i.test(b.textContent || '') && !b.disabled) || !!document.querySelector(review)), [REVIEW, PROCESSING], { timeout: 180000, polling: 50 })
             const tIdle = now() - s0
+            await idle(page)
             const longtasks = await page.evaluate(() => window.__l27.longtasks.slice())
             out.weeks.push({ week, ownMatchFlowMs: played, toNextWeekShownMs: Math.round(tWeek), toControlsEnabledMs: Math.round(tIdle), longTaskCount: longtasks.length, longTaskTotalMs: longtasks.reduce((a, t) => a + t[1], 0), longestTaskMs: longtasks.reduce((a, t) => Math.max(a, t[1]), 0) })
             console.log(JSON.stringify(out.weeks.at(-1)))
@@ -254,6 +322,10 @@ async function session() {
                 await routeCycle(page, out.routes)
                 out.samples.push({ at: `after-week-${i + 1}`, week: await weekOf(page), ...(await metrics(cdp, page)) })
                 console.log(JSON.stringify(out.samples.at(-1)))
+            }
+            if (heapAt.has(i + 1)) {
+                if ((i + 1) % 13 !== 0) out.samples.push({ at: `after-week-${i + 1}`, week: await weekOf(page), ...(await metrics(cdp, page)) })
+                await heapSnapshot(cdp, heapFile(`w${i + 1}`))
             }
         }
         out.domBreakdown = await domBreakdown(page)
@@ -276,17 +348,20 @@ async function session() {
 }
 
 async function main() {
-    if (!fs.existsSync(exe)) throw Error(`No packaged build at ${exe}`)
-    // A release build initializes Steam with the logged-in account: saves are
-    // uploaded to that account's Steam Cloud and achievements/stats can be set.
-    // Measure only copies carrying resources/LOCAL-QA-ONLY (Steam disabled).
-    if (!fs.existsSync(path.join(path.dirname(exe), 'resources', 'LOCAL-QA-ONLY')) && !process.argv.includes('--allow-steam'))
-        throw Error('Refusing to drive a Steam-enabled build; copy it and add resources/LOCAL-QA-ONLY')
+    if (appUrl && mode !== 'session') throw Error('--url supports --mode=session only')
+    if (!appUrl) {
+        if (!fs.existsSync(exe)) throw Error(`No packaged build at ${exe}`)
+        // A release build initializes Steam with the logged-in account: saves are
+        // uploaded to that account's Steam Cloud and achievements/stats can be set.
+        // Measure only copies carrying resources/LOCAL-QA-ONLY (Steam disabled).
+        if (!fs.existsSync(path.join(path.dirname(exe), 'resources', 'LOCAL-QA-ONLY')))
+            throw Error('Refusing to drive a Steam-enabled build; copy it and add resources/LOCAL-QA-ONLY')
+    }
     const realProfiles = ['Esports Manager FPS', 'Esports Manager: FPS', 'esports-manager-sim', 'EsportsManager'].map(n => path.join(process.env.APPDATA || '', n))
     const before = Object.fromEntries(realProfiles.filter(p => fs.existsSync(p)).map(p => [p, fs.statSync(p).mtimeMs]))
     const result = mode === 'startup' ? await startup() : await session()
     const after = Object.fromEntries(realProfiles.filter(p => fs.existsSync(p)).map(p => [p, fs.statSync(p).mtimeMs]))
-    const record = { version: 1, label, mode, recordedAt: new Date().toISOString(), exe, exeMtime: fs.statSync(exe).mtime.toISOString(),
+    const record = { version: 1, label, mode, recordedAt: new Date().toISOString(), ...(appUrl ? { target: `next start production build in Chrome at ${appUrl}`, exe: null } : { exe, exeMtime: fs.statSync(exe).mtime.toISOString() }),
         host: { cpu: os.cpus()[0].model, logicalCpus: os.cpus().length, ramBytes: os.totalmem(), os: `${os.type()} ${os.release()}` },
         realProfileUntouched: JSON.stringify(before) === JSON.stringify(after), ...result }
     const file = path.join(root, 'docs/launch-readiness/evidence', `L27-packaged-${label}.json`)
