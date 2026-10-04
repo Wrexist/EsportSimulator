@@ -4,7 +4,7 @@ import React, { useMemo, memo } from "react"
 import { motion } from "framer-motion"
 import { TrendingUp, Clock, PieChart, ArrowUpRight, ArrowDownLeft, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { formatCurrency } from "@/lib/utils-extended"
+import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -79,7 +79,7 @@ function FinanceAppComponent() {
                         <Wallet size={16} />
                         <span className="text-xs font-bold uppercase tracking-wider">Current Balance</span>
                     </div>
-                    <div className="text-2xl font-normal text-white">${team.budget.toLocaleString()}</div>
+                    <div className="text-2xl font-normal text-white">{formatCurrency(team.budget, "$", false)}</div>
                 </div>
 
                 <div className="p-4 bg-linear-to-br/srgb from-blue-900/40 to-blue-950/40 rounded-xl border border-blue-500/20">
@@ -88,7 +88,7 @@ function FinanceAppComponent() {
                         <span className="text-xs font-bold uppercase tracking-wider">Weekly Net</span>
                     </div>
                     <div className={cn("text-2xl font-normal", (team.weeklyNet || 0) >= 0 ? "text-emerald-400" : "text-red-400")}>
-                        {(team.weeklyNet || 0) >= 0 ? "+" : ""}${(team.weeklyNet || 0).toLocaleString()}
+                        {formatSignedCurrency(team.weeklyNet || 0, "$", false)}
                     </div>
                 </div>
 
@@ -185,10 +185,10 @@ function FinanceAppComponent() {
                                                 "font-mono font-bold",
                                                 t.type === "INCOME" ? "text-emerald-400" : "text-white"
                                             )}>
-                                                {t.type === "INCOME" ? "+" : "-"}${t.amount.toLocaleString()}
+                                                {formatSignedCurrency(t.type === "INCOME" ? Math.abs(t.amount) : -Math.abs(t.amount), "$", false)}
                                             </div>
                                             <div className="text-[10px] text-white/30 font-mono">
-                                                Balance: {t.balance != null ? `$${t.balance.toLocaleString("en-US")}` : "—"}
+                                                Balance: {t.balance != null ? `${formatCurrency(t.balance, "$", false)}` : "—"}
                                             </div>
                                         </div>
                                     </motion.div>

@@ -111,6 +111,7 @@ import { createStaffManagementSlice } from "@/store/slices/staff-management-slic
 import { createTeamFacilitiesSlice } from "@/store/slices/team-facilities-slice"
 import { createTransferContractSlice } from "@/store/slices/transfer-contract-slice"
 import { createAcademySlice } from "@/store/slices/academy-slice"
+import { formatCurrency } from "@/lib/utils-extended"
 
 enableMapSet()
 
@@ -1562,7 +1563,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               message: `Congratulations on founding your own esports organization!\n\n` +
                 `🎮 YOUR NEW TEAM\n` +
                 `You've created ${teamData.name} [${teamData.shortName}] in the ${teamData.region} region. ` +
-                `Starting budget: $${(totalBudget / 1000).toFixed(0)}K (includes recruitment bonus!).\n\n` +
+                `Starting budget: ${formatCurrency(totalBudget)} (includes recruitment bonus!).\n\n` +
                 `📋 FIRST STEPS\n` +
                 `• Your roster is EMPTY! Visit Transfers immediately to sign free agents\n` +
                 `• You need at least 5 players to compete in tournaments\n` +

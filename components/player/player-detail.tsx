@@ -417,7 +417,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                         <div className="flex flex-col">
                             <span className="text-xs text-slate-400 font-medium mb-1.5">Salary</span>
                             <span className="text-lg font-normal text-white leading-none">
-                                ${contract?.salaryPerWeek.toLocaleString() ?? "0"}<span className="text-[10px] text-muted-foreground font-medium">/wk</span>
+                                {formatCurrency(contract?.salaryPerWeek ?? 0, "$", false)}<span className="text-[10px] text-muted-foreground font-medium">/wk</span>
                             </span>
                         </div>
                         <div className="w-px h-6 bg-primary/10" />

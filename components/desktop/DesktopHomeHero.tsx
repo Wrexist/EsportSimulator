@@ -22,12 +22,9 @@ import { useShallow } from "zustand/react/shallow"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { cn } from "@/lib/utils"
 import { Swords, Users, Calendar, TrendingUp, Trophy, DollarSign } from "lucide-react"
+import { formatCurrency } from "@/lib/utils-extended"
 
-function formatMoney(n: number): string {
-    if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`
-    if (Math.abs(n) >= 1_000) return `$${Math.round(n / 1_000)}K`
-    return `$${n}`
-}
+const formatMoney = (n: number): string => formatCurrency(n)
 
 export function DesktopHomeHero() {
     const router = useRouter()

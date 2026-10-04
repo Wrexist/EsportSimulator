@@ -40,6 +40,7 @@ import {
 } from "lucide-react"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
 
+import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 export function DevTools() {
     const devToolsEnabled = isDevToolsEnabled()
     const [isOpen, setIsOpen] = useState(false)
@@ -225,7 +226,7 @@ export function DevTools() {
                                                     const amount = parseInt(customAmount)
                                                     if (amount > 0) {
                                                         store.debugAddFunds(amount)
-                                                        store.addToast({ message: `+$${amount.toLocaleString()}`, type: "info" })
+                                                        store.addToast({ message: formatSignedCurrency(amount, "$", false), type: "info" })
                                                         setCustomAmount("")
                                                     }
                                                 }}
@@ -237,7 +238,7 @@ export function DevTools() {
 
                                         <div className="p-2.5 bg-white/5 rounded-lg border border-white/5 mt-2">
                                             <p className="text-[10px] text-muted-foreground font-mono">
-                                                Current budget: <span className="text-emerald-400 font-bold">${(myTeam?.budget || 0).toLocaleString()}</span>
+                                                Current budget: <span className="text-emerald-400 font-bold">{formatCurrency((myTeam?.budget || 0), "$", false)}</span>
                                             </p>
                                         </div>
                                     </TabsContent>
@@ -646,7 +647,7 @@ export function DevTools() {
                                     Team: <span className="text-white font-bold truncate">{myTeam?.name || "N/A"}</span>
                                 </span>
                                 <span className="text-muted-foreground">
-                                    Budget: <span className="text-emerald-400 font-bold">${(myTeam?.budget || 0).toLocaleString()}</span>
+                                    Budget: <span className="text-emerald-400 font-bold">{formatCurrency((myTeam?.budget || 0), "$", false)}</span>
                                 </span>
                                 <span className="text-muted-foreground">
                                     Legends: <span className="text-amber-400 font-bold">{(store.signedLegendIds || []).length}/18</span>

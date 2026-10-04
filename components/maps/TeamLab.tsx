@@ -16,6 +16,7 @@ import type { ThrowPlan } from '@/engine/spatial/utility'
 import mapScenarios from '@/data/physical-map-scenarios.json'
 import { replayFloor } from '@/engine/spatial/career-radar'
 import styles from './encounter-lab.module.css'
+import { formatSignedCurrency } from "@/lib/utils-extended"
 
 interface Props { project: LabProject | null; reference: SpatialReference | null; worker: RefObject<Worker | null>; disabled: boolean; edit: (project: LabProject) => void }
 const examples = [['delayed-radio', 'Delayed reports · 2v2'], ['execute', 'Entry, support and plant'], ['retake', 'Retake and defuse'], ['deadline-save', 'Impossible deadline · save'], ['support-smoke', 'Support utility budget'], ['trade-clutch', 'Reaction, trade and clutch']]
@@ -222,7 +223,7 @@ export function TeamLab({ project, reference, worker, disabled, edit }: Props) {
                 <h3>Round replay</h3><p>Recorded positions, shots, health and outcome. Career integration is still held for review.</p>
                 <div className={styles.row}><button onClick={savePosition}>Save replay position</button><button onClick={resumePosition}>Resume replay position</button><button onClick={() => download(replay, `${replay.project.mapId.toLowerCase()}-round-replay.json`)}>Export round replay</button><button onClick={exportAdapterCheck}>Export adapter check</button><button onClick={() => { setPlaying(false); setIndex(result!.frames.length - 1) }}>Skip to round result</button></div>
                 <p>{replay.engine} | {replay.sha256.slice(0,12)} | {replay.project.mapId}</p>
-                <div className={styles.stats}>{shown?.actors.map(a => <div key={a.id}><b>{a.id} | {projection.players[a.id].kills} K / {projection.players[a.id].deaths} D</b><span>{projection.players[a.id].damage} damage{projection.complete ? ` | +$${projection.players[a.id].reward} round reward` : ''}</span></div>)}</div>
+                <div className={styles.stats}>{shown?.actors.map(a => <div key={a.id}><b>{a.id} | {projection.players[a.id].kills} K / {projection.players[a.id].deaths} D</b><span>{projection.players[a.id].damage} damage{projection.complete ? ` | ${formatSignedCurrency(projection.players[a.id].reward, "$", false)} round reward` : ''}</span></div>)}</div>
                 <p>Rewards are diagnostic deltas from zero cash, using the existing round rules. Purchases, loss streaks and career payouts are not part of this lab.</p>
             </div>}
             <h3>Decision timeline</h3><ol className={styles.timeline}>{shown?.events.slice(-70).reverse().map((e,i) => <li key={`${e.tick}-${i}`}><time>{(e.tick/64).toFixed(3)}s</time><b>{e.actor || e.side || 'Round'} · {e.type}{e.target ? ` → ${e.target}` : ''}</b><span>{e.reason}</span></li>)}</ol>

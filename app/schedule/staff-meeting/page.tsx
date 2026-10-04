@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
 import { pressable } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 // Meeting type definitions
 interface MeetingType {
     id: string
@@ -480,7 +481,7 @@ export default function StaffMeetingPage() {
                                                     "text-xl font-bold",
                                                     canAfford ? "text-white" : "text-red-400"
                                                 )}>
-                                                    ${meeting.cost.toLocaleString()}
+                                                    {formatCurrency(meeting.cost, "$", false)}
                                                 </div>
                                                 {status.unlocked ? (
                                                     <Button
@@ -517,7 +518,7 @@ export default function StaffMeetingPage() {
                             <span className="text-sm text-white/60">Available Budget:</span>
                         </div>
                         <span className="text-xl font-bold text-emerald-400">
-                            ${playerTeam.budget.toLocaleString()}
+                            {formatCurrency(playerTeam.budget, "$", false)}
                         </span>
                     </div>
                 </div>

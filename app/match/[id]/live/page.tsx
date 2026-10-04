@@ -23,6 +23,7 @@ import { CustomTactics, MapId, Team } from "@/types"
 import { computeRadarPositions } from "@/lib/radar-position-engine"
 import { MAP_NAMES, getMapAssetName } from "@/data/map-pool"
 
+import { formatCurrency } from "@/lib/utils-extended"
 // Weapon-id → icon path. The mapping object is hoisted so it isn't allocated
 // on every call, and resolved paths are memoized in a module-level cache so
 // the log list doesn't recompute the same string per row per render tick.
@@ -253,7 +254,7 @@ const RosterRow = memo(function RosterRow({
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                     <div className="font-normal text-xs uppercase truncate pr-2">{name}</div>
-                    <div className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">${money}</div>
+                    <div className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">{formatCurrency(money, "$", false)}</div>
                 </div>
                 <div className="text-[10px] text-white/40 font-bold truncate mt-0.5">{weapon?.toUpperCase() || defaultWeaponLabel}</div>
             </div>
@@ -529,7 +530,7 @@ export default function LiveMatchPage() {
                                 <div>
                                     <h3 className="text-xl font-normal uppercase">Round {gameState.round} • Select Strategy</h3>
                                     <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
-                                        Team Budget: ${ownBudget.toLocaleString()}
+                                        Team Budget: {formatCurrency(ownBudget, "$", false)}
                                     </p>
                                 </div>
                             </div>
@@ -557,7 +558,7 @@ export default function LiveMatchPage() {
                                                 >
                                                     <span className="font-normal text-[11px] leading-tight text-center">{strat.fallback}</span>
                                                     <div className={cn("text-[10px] font-bold", canAfford ? "text-emerald-400" : "text-red-400")}>
-                                                        ${cost.toLocaleString()}
+                                                        {formatCurrency(cost, "$", false)}
                                                     </div>
                                                 </Button>
                                                 <button

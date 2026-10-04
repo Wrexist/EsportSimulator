@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils"
 import { getEventTitle, isPendingDecisionEvent } from "@/lib/event-format"
 import { ListChecks, ArrowRight, Mail, Dumbbell, CalendarClock, CheckCircle2 } from "lucide-react"
 import type { GameEventSaveData } from "@/engine/save-types"
+import { formatSignedCurrency } from "@/lib/utils-extended"
 
 const DEFAULT_MAX_TRAINING_SLOTS = 10
 
@@ -35,7 +36,7 @@ function ChoiceEffects({ effects }: { effects: any }) {
     if (!effects) return null
     const chips: { label: string; positive: boolean }[] = []
     if (typeof effects.money === "number" && effects.money !== 0) {
-        chips.push({ label: `${effects.money > 0 ? "+" : "-"}$${Math.abs(effects.money).toLocaleString()}`, positive: effects.money > 0 })
+        chips.push({ label: formatSignedCurrency(effects.money, "$", false), positive: effects.money > 0 })
     }
     if (typeof effects.morale === "number" && effects.morale !== 0) {
         chips.push({ label: `${effects.morale > 0 ? "+" : ""}${effects.morale} Morale`, positive: effects.morale > 0 })

@@ -18,6 +18,7 @@ import { SponsorOfferCard } from "@/components/sponsorships/SponsorOfferCard"
 import { EmptySponsorSlot } from "@/components/sponsorships/EmptySponsorSlot"
 import { EmptyState } from "@/src/components/ui/EmptyState"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const MAX_SPONSORS = 3
 
 export default function SponsorshipsPage() {
@@ -129,7 +130,7 @@ export default function SponsorshipsPage() {
 
     if (result.success) {
       toast.success("Sponsor Signed!", {
-        description: `${offer.remainingWeeks}-week deal with ${offer.name} for $${offer.weeklyPayout.toLocaleString()}/wk.`,
+        description: `${offer.remainingWeeks}-week deal with ${offer.name} for ${formatCurrency(offer.weeklyPayout, "$", false)}/wk.`,
       })
     } else {
       toast.error("Unable to Sign Sponsor", { description: result.message })
@@ -160,7 +161,7 @@ export default function SponsorshipsPage() {
             <DollarSign size={16} className="text-green-400" />
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Weekly Income</p>
-              <p className="text-lg font-bold text-green-400">${totalWeeklyIncome.toLocaleString()}</p>
+              <p className="text-lg font-bold text-green-400">{formatCurrency(totalWeeklyIncome, "$", false)}</p>
               <p className="max-w-sm text-xs text-muted-foreground">Includes the reputation income floor and difficulty settings. A small deal may add no cash while the floor is higher. Goal bonuses are separate.</p>
             </div>
           </div>

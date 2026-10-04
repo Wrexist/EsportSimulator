@@ -26,6 +26,7 @@ import {
     MAX_TRANSFER_FEE,
 } from "@/store/utils/helpers"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const NEWS_FEED_CAP = 50
 // ~7-8 in-game weeks of timeline at ~8 posts/week; bounds multi-season saves.
 const SOCIAL_FEED_CAP = 60
@@ -147,7 +148,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                     if (team.budget < salaryCost) {
                         state.toasts.push({
                             id: nextDeterministicId(state, "toast_legend_coach_funds"),
-                            message: `Insufficient funds — hiring requires $${salaryCost.toLocaleString()} up front`,
+                            message: `Insufficient funds — hiring requires ${formatCurrency(salaryCost, "$", false)} up front`,
                             type: "warning",
                         })
                         return

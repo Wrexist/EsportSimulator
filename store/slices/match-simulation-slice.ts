@@ -56,6 +56,7 @@ import {
     MAX_MATCH_RATING,
 } from "@/store/utils/helpers"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const NEWS_FEED_CAP = 50
 
 export interface MatchSimulationActions {
@@ -346,7 +347,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                                         week: state.currentWeek,
                                         data: {
                                             title: "Sponsor Goal Met",
-                                            message: `${sponsor.name} sent a bonus of $${goal.bonusPayout.toLocaleString()}.`,
+                                            message: `${sponsor.name} sent a bonus of ${formatCurrency(goal.bonusPayout, "$", false)}.`,
                                         },
                                         acknowledged: false,
                                     })

@@ -47,7 +47,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { getDynamicTournamentName } from "@/lib/utils-extended"
+import { getDynamicTournamentName, formatCurrency } from "@/lib/utils-extended"
 import { getTeamFlag } from "@/engine/region-logic"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoImage } from "@/components/ui/asset-images"
@@ -550,7 +550,7 @@ export default function TournamentDetailPage() {
                                     const dest = destId ? getTournamentById(destId) : null
                                     return dest ? `${dest.shortName} Spot` : "Qualifier Spot"
                                 }
-                                return `$${displayTournament?.prizePool?.toLocaleString()}`
+                                return formatCurrency(displayTournament?.prizePool ?? Number.NaN, "$", false)
                             })()}
                             color="amber"
                         />
@@ -814,7 +814,7 @@ export default function TournamentDetailPage() {
                                                                     <div className="font-bold text-lg leading-none mb-1">{entry.team.name}</div>
                                                                     {(displayTournament?.prizePool ?? 0) > 0 && (
                                                                         <Badge className="bg-white/10 text-white/50 border-white/5 text-[9px]">
-                                                                            ${((displayTournament?.prizePool ?? 0) * (entry.place === 1 ? 0.40 : entry.place === 2 ? 0.20 : 0.10) / 1000).toFixed(0)}k
+                                                                            {formatCurrency((displayTournament?.prizePool ?? 0) * (entry.place === 1 ? 0.40 : entry.place === 2 ? 0.20 : 0.10))}
                                                                         </Badge>
                                                                     )}
                                                                 </div>
@@ -989,14 +989,14 @@ export default function TournamentDetailPage() {
                                                                                     "font-mono text-lg font-normal mb-1",
                                                                                     s.place === 1 ? "text-emerald-400" : "text-white/80"
                                                                                 )}>
-                                                                                    ${(s.prize).toLocaleString()}
+                                                                                    {formatCurrency((s.prize), "$", false)}
                                                                                 </div>
                                                                             )
                                                                         })()}
 
                                                                         {!isQualifier && s.prize > 0 && (
                                                                             <div className="text-[10px] text-white/20 font-medium">
-                                                                                + Club Share: ${(s.prize * 0.15).toLocaleString()}
+                                                                                + Club Share: {formatCurrency((s.prize * 0.15), "$", false)}
                                                                             </div>
                                                                         )}
                                                                     </div>
@@ -1053,7 +1053,7 @@ export default function TournamentDetailPage() {
                                                             <div key={d.place} className="p-4 rounded-2xl bg-black/30 border border-white/5 text-center">
                                                                 <div className="text-lg mb-1">{d.icon || "💰"}</div>
                                                                 <div className={`text-lg font-normal ${d.color}`}>
-                                                                    ${((prizePool * d.pct) / 1000).toFixed(0)}k
+                                                                    {formatCurrency(prizePool * d.pct)}
                                                                 </div>
                                                                 <div className="text-[10px] text-white/40 font-bold uppercase tracking-wide">{d.place}</div>
                                                             </div>

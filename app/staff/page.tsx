@@ -19,6 +19,7 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { StaffNegotiationModal } from "@/components/staff/StaffNegotiationModal"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
+import { formatCurrency } from "@/lib/utils-extended"
 // Hoisted lookup tables — were being rebuilt as fresh switch closures inside
 // the page every render. These never change at runtime.
 const ROLE_ICON: Record<string, React.ReactNode> = {
@@ -120,7 +121,7 @@ export default function StaffPage() {
                 <div className="glass-panel px-6 py-3 border-primary/20 bg-primary/5 flex items-center gap-6">
                     <div>
                         <p className="text-[10px] font-normal uppercase text-muted-foreground">Weekly Payroll</p>
-                        <p className="text-lg font-normal text-rose-400">-${currentStaff.reduce((sum, s) => sum + s.salaryPerWeek, 0).toLocaleString()}</p>
+                        <p className="text-lg font-normal text-rose-400">{formatCurrency(-currentStaff.reduce((sum, s) => sum + s.salaryPerWeek, 0), "$", false)}</p>
                     </div>
                     <div className="h-8 w-px bg-white/10" />
                     <div>
@@ -224,7 +225,7 @@ export default function StaffPage() {
 
                                             <div className="mt-3 flex items-center gap-1.5">
                                                 <Badge variant="outline" className="text-[8px] h-5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                                                    ${s.salaryPerWeek.toLocaleString()}/wk
+                                                    {formatCurrency(s.salaryPerWeek, "$", false)}/wk
                                                 </Badge>
                                                 {s.contractEndWeek && (
                                                     <Badge variant="outline" className="text-[8px] h-5 bg-blue-500/10 text-blue-400 border-blue-500/20 flex items-center gap-1">
@@ -382,7 +383,7 @@ export default function StaffPage() {
                             <div className="bg-white/5 px-4 py-3 flex justify-between items-center border-t border-white/5">
                                 <div className="flex flex-col">
                                     <span className="text-[8px] font-bold uppercase text-muted-foreground">Weekly Rate</span>
-                                    <span className="text-sm font-normal text-white">${s.salaryPerWeek.toLocaleString()}</span>
+                                    <span className="text-sm font-normal text-white">{formatCurrency(s.salaryPerWeek, "$", false)}</span>
                                 </div>
                                 <Button
                                     size="sm"

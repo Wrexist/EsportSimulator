@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react"
 import { Role } from "@/types"
 import { PlayerSaveData } from "@/engine/save-types"
-import { formatRole } from "@/lib/utils-extended"
+import { formatRole, formatCurrency } from "@/lib/utils-extended"
 import { Coins, Clock, ArrowRight, Activity, TrendingUp, Users } from "lucide-react"
 
 interface RoleTrainingModalProps {
@@ -98,7 +98,7 @@ export function RoleTrainingModal({ player, isOpen, onClose, onStartTraining, cu
                                     <span className="text-white/60 flex items-center gap-2">
                                         <Coins size={14} /> Weekly Cost
                                     </span>
-                                    <span className="font-bold text-rose-400">-${COST.toLocaleString()}</span>
+                                    <span className="font-bold text-rose-400">{formatCurrency(-COST, "$", false)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-white/60 flex items-center gap-2">
@@ -109,7 +109,7 @@ export function RoleTrainingModal({ player, isOpen, onClose, onStartTraining, cu
                                 <div className="h-px bg-white/10" />
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-white/60">Total Cost</span>
-                                    <span className="font-bold text-rose-400">-${TOTAL_COST.toLocaleString()}</span>
+                                    <span className="font-bold text-rose-400">{formatCurrency(-TOTAL_COST, "$", false)}</span>
                                 </div>
                             </div>
                         )}

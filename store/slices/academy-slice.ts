@@ -72,6 +72,7 @@ import {
     MAX_CONTRACT_LENGTH_WEEKS,
 } from "@/store/utils/helpers"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const MAX_ACADEMY_LEVEL = 5
 const MAX_ROSTER_SIZE = 7
 const ACADEMY_RNG_SALT = 0xACADE
@@ -123,7 +124,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             const cost = ACADEMY_LEVELS[1].buildCost
             if (team.budget < cost) {
-                result = { success: false, message: `Insufficient funds. Need $${cost.toLocaleString()}` }
+                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(cost, "$", false)}` }
                 return
             }
 
@@ -179,7 +180,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             const cost = AcademyEngine.getUpgradeCost(currentLevel)
             if (team.budget < cost) {
-                result = { success: false, message: `Insufficient funds. Need $${cost.toLocaleString()}` }
+                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(cost, "$", false)}` }
                 return
             }
 
@@ -255,7 +256,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             const cost = Math.max(0, Math.round(baseCost * (1 + scoutCostBonus / 100)))
 
             if (team.budget < cost) {
-                result = { success: false, message: `Insufficient funds. Need $${cost.toLocaleString()}` }
+                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(cost, "$", false)}` }
                 return
             }
             // Don't take the player's money for a prospect the full desk will
@@ -288,7 +289,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
             state.academyScoutingMissions.push(mission)
 
-            const savedMsg = cost < baseCost ? ` (saved $${(baseCost - cost).toLocaleString()} via Networking)` : ""
+            const savedMsg = cost < baseCost ? ` (saved ${formatCurrency((baseCost - cost), "$", false)} via Networking)` : ""
             result = { success: true, message: `${tier} scouting mission initiated. Will take ${duration} week(s).${savedMsg}` }
         })
         return result
@@ -381,7 +382,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             }
 
             if (team && team.budget < normalizedReleaseCost) {
-                result = { success: false, message: `Insufficient funds to pay termination fee ($${normalizedReleaseCost.toLocaleString()})` }
+                result = { success: false, message: `Insufficient funds to pay termination fee (${formatCurrency(normalizedReleaseCost, "$", false)})` }
                 return
             }
 
@@ -424,7 +425,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             result = {
                 success: true,
-                message: `${player?.nickname || "Prospect"} released. Paid $${normalizedReleaseCost.toLocaleString()} termination fee.`,
+                message: `${player?.nickname || "Prospect"} released. Paid ${formatCurrency(normalizedReleaseCost, "$", false)} termination fee.`,
             }
         })
         return result
@@ -541,7 +542,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             const academyLevel = team.academyFacility.level
 
             if (team.budget < DEV_MATCH_CONFIG.matchCost) {
-                result = { success: false, message: `Insufficient budget ($${DEV_MATCH_CONFIG.matchCost.toLocaleString()} required)` }
+                result = { success: false, message: `Insufficient budget (${formatCurrency(DEV_MATCH_CONFIG.matchCost, "$", false)} required)` }
                 return
             }
 

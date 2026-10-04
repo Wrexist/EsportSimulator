@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "@/lib/toast"
 import { useFocusTrap } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface BookMarketingModalProps {
     isOpen: boolean
     onClose: () => void
@@ -149,7 +150,7 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
                                         </div>
                                     </div>
                                     <div className="flex gap-3 mt-2 text-[10px]">
-                                        <span className="text-muted-foreground"><Coins size={10} className="inline mr-1" />${opt.costPerWeek.toLocaleString()}/wk</span>
+                                        <span className="text-muted-foreground"><Coins size={10} className="inline mr-1" />{formatCurrency(opt.costPerWeek, "$", false)}/wk</span>
                                         <span className="text-emerald-400">+{opt.followersPerWeek.toLocaleString()} followers/wk</span>
                                     </div>
                                 </button>
@@ -191,7 +192,7 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Total Cost</span>
                                     <span className={totalCost > budget ? "text-red-400" : "text-amber-400"}>
-                                        ${totalCost.toLocaleString()}
+                                        {formatCurrency(totalCost, "$", false)}
                                     </span>
                                 </div>
                                 <div className="border-t border-white/5 pt-2 flex justify-between">
@@ -206,7 +207,7 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
                         </div>
 
                         {totalCost > budget && (
-                            <p className="text-xs text-red-400">Insufficient budget (${budget.toLocaleString()} available)</p>
+                            <p className="text-xs text-red-400">Insufficient budget ({formatCurrency(budget, "$", false)} available)</p>
                         )}
                     </div>
                 </div>

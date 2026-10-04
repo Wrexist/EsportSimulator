@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { PlayerSaveData } from "@/engine/save-types"
 import { ArrowRight, Calendar, DollarSign, PenTool } from "lucide-react"
+import { formatCurrency } from "@/lib/utils-extended"
 
 interface RenewContractModalProps {
     player: PlayerSaveData
@@ -62,7 +63,7 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
                         <div className="space-y-4 text-center opacity-60">
                             <div className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Current</div>
                             <div className="space-y-1">
-                                <div className="text-sm flex items-center justify-center gap-1"><DollarSign size={12} /> {currentSalary.toLocaleString()}</div>
+                                <div className="text-sm flex items-center justify-center gap-1"><DollarSign size={12} /> {formatCurrency(currentSalary, "", false)}</div>
                                 <div className="text-sm flex items-center justify-center gap-1"><Calendar size={12} /> {weeksRemaining} wks</div>
                             </div>
                         </div>
@@ -77,7 +78,7 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
                             <div className="text-xs uppercase tracking-widest font-bold text-blue-400">New Offer</div>
                             <div className="space-y-1">
                                 <div className="text-lg font-bold text-white flex items-center justify-center gap-1">
-                                    <DollarSign size={14} /> {newSalary.toLocaleString()}
+                                    <DollarSign size={14} /> {formatCurrency(newSalary, "", false)}
                                 </div>
                                 <div className="text-sm font-medium text-blue-200 flex items-center justify-center gap-1">
                                     <Calendar size={12} /> +52 wks (Total: {newWeeksRemaining})

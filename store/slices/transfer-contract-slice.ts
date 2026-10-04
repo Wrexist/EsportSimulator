@@ -43,6 +43,7 @@ import {
     MAX_CONTRACT_LENGTH_WEEKS,
 } from "@/store/utils/helpers"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const MAX_ROSTER_SIZE = 7
 const STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS = 3
 const RENEWAL_RUNWAY_WEEKS = 26
@@ -245,7 +246,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 if (normalizedFee > sanction.maxFee) {
                     result = {
                         success: false,
-                        message: `The board won't sanction a $${normalizedFee.toLocaleString()} fee — with confidence at ${state.boardState?.confidence ?? "?"}/100 they cap single signings at $${sanction.maxFee.toLocaleString()} (${Math.round(sanction.fraction * 100)}% of budget). Win their trust back.`,
+                        message: `The board won't sanction a ${formatCurrency(normalizedFee, "$", false)} fee — with confidence at ${state.boardState?.confidence ?? "?"}/100 they cap single signings at ${formatCurrency(sanction.maxFee, "$", false)} (${Math.round(sanction.fraction * 100)}% of budget). Win their trust back.`,
                     }
                     return
                 }
@@ -344,7 +345,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 state.newsFeed.unshift({
                     id: nextDeterministicId(state, "news_tr", playerId, toTeamId),
                     title: `${player?.nickname || "Player"} joins ${toTeam.name}`,
-                    content: `${player?.nickname || "Player"} has officially completed a move from ${fromName} to ${toTeam.name}. ${normalizedFee > 0 ? `The deal is estimated to be worth $${normalizedFee.toLocaleString()}.` : "The player joins as a free agent."}`,
+                    content: `${player?.nickname || "Player"} has officially completed a move from ${fromName} to ${toTeam.name}. ${normalizedFee > 0 ? `The deal is estimated to be worth ${formatCurrency(normalizedFee, "$", false)}.` : "The player joins as a free agent."}`,
                     category: "TRANSFER",
                     playerId,
                     teamId: toTeamId,

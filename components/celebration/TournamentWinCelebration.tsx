@@ -12,6 +12,7 @@ import { panelTransition } from "@/lib/motion"
 import { soundManager } from "@/lib/sound-manager"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { useFocusTrap } from "@/lib/accessibility"
+import { formatCurrency } from "@/lib/utils-extended"
 
 interface TournamentWinCelebrationProps {
     data: {
@@ -173,7 +174,7 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                                 <div className="text-left">
                                     <p className="text-[10px] font-normal text-white/30 uppercase tracking-widest mb-1">PRIZE MONEY</p>
                                     <p className="text-2xl font-normal text-white">
-                                        <AnimatedNumber value={data.prize} animateOnMount duration={1400} format={(n) => `$${Math.round(n).toLocaleString()}`} />
+                                        <AnimatedNumber value={data.prize} animateOnMount duration={1400} format={(n) => formatCurrency(Math.round(n), "$", false)} />
                                     </p>
                                 </div>
                             </motion.div>

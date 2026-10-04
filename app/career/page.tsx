@@ -34,6 +34,7 @@ import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { pressable } from "@/lib/accessibility"
 
 
+import { formatCurrency } from "@/lib/utils-extended"
 export default function CareerPage() {
     const router = useRouter()
     const {
@@ -324,7 +325,7 @@ export default function CareerPage() {
                             <div className="space-y-2">
                                 <div className="flex justify-between text-sm">
                                     <span className="flex items-center gap-2">
-                                        <Star size={14} className="text-white/70" /> Total Earnings (${totalEarnings.toLocaleString()} / $10M)
+                                        <Star size={14} className="text-white/70" /> Total Earnings ({formatCurrency(totalEarnings, "$", false)} / $10M)
                                     </span>
                                     <span className="font-bold text-muted-foreground">{Math.round(hallOfFameProgress.earnings)}%</span>
                                 </div>
@@ -571,7 +572,7 @@ export default function CareerPage() {
                                                     <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/2">
                                                         <span className="text-[9px] font-medium text-white/30">Budget</span>
                                                         <span className="text-[10px] font-semibold text-white/60">
-                                                            ${(slot.budget / 1000).toFixed(0)}k
+                                                            {formatCurrency(slot.budget)}
                                                         </span>
                                                     </div>
                                                 )}

@@ -27,6 +27,7 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { PlayerSpiderChart } from "@/components/ui/player-spider-chart"
 import { pressable } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface MarketAppProps {
     events: GameEventSaveData[]
     onEventClick: (event: GameEventSaveData) => void
@@ -140,10 +141,7 @@ function MarketAppComponent(_props: MarketAppProps) {
 
 
 
-    const formatMoney = (val: number) => {
-        if (val >= 1000000) return `$${(val / 1000000).toFixed(1)}M`
-        return `$${(val / 1000).toFixed(0)}k`
-    }
+    const formatMoney = (val: number) => formatCurrency(val)
 
     // Scrollbar styles
     const scrollbarClass = "[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20"
@@ -159,7 +157,7 @@ function MarketAppComponent(_props: MarketAppProps) {
                     <div>
                         <h2 className="text-lg font-normal uppercase tracking-tight">Transfer Market</h2>
                         <p className="text-[10px] text-emerald-400 font-bold tracking-widest uppercase">
-                            Budget: ${budget.toLocaleString()}
+                            Budget: {formatCurrency(budget, "$", false)}
                         </p>
                     </div>
                 </div>
@@ -417,7 +415,7 @@ function MarketAppComponent(_props: MarketAppProps) {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs font-bold text-emerald-400 group-hover:scale-110 transition-transform origin-right">{t.fee > 0 ? `$${t.fee.toLocaleString()}` : "Free"}</p>
+                                            <p className="text-xs font-bold text-emerald-400 group-hover:scale-110 transition-transform origin-right">{t.fee > 0 ? `${formatCurrency(t.fee, "$", false)}` : "Free"}</p>
                                             <p className="text-[9px] text-white/30 font-bold uppercase">Week {t.week}</p>
                                         </div>
                                     </div>

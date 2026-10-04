@@ -63,7 +63,7 @@ import {
     SelectTrigger
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
-import { formatRole } from "@/lib/utils-extended"
+import { formatRole, formatCurrency } from "@/lib/utils-extended"
 import { toast } from "@/lib/toast"
 import { TrainingFocus, CustomTactics } from "@/types"
 import dynamic from "next/dynamic"
@@ -289,7 +289,7 @@ export default function TrainingPage() {
               <Coins className="text-rose-400" size={20} />
               <div>
                 <p className="text-[10px] font-normal uppercase text-muted-foreground">Training Cost</p>
-                <p className="text-sm font-normal text-rose-400">-${(((playerTeam as any)?.activeRoleTraining?.length || 0) * 5000).toLocaleString()}/wk</p>
+                <p className="text-sm font-normal text-rose-400">{formatCurrency(-(((playerTeam as any)?.activeRoleTraining?.length || 0) * 5000), "$", false)}/wk</p>
               </div>
             </div>
           )}

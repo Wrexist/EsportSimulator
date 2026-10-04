@@ -29,6 +29,7 @@ import { soundManager } from "@/lib/sound-manager"
 import { useSettingsStore } from "@/lib/settings-store"
 import { LEGEND_CONTRACT_WEEKS, LEGEND_MIN_RUNWAY_WEEKS, legendSalary, quoteLegendSigning } from "@/lib/legend-signing"
 
+import { formatCurrency } from "@/lib/utils-extended"
 // Low-value toast types suppressed when the "Notifications" setting is off.
 // Meaningful types (achievement, level_up, warning, error) always show.
 const LOW_PRIORITY_TOASTS = new Set(["info", "xp_gain"])
@@ -102,7 +103,7 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         // the pick stays open so the manager can choose another or decline.
         const quote = get().pendingLegendPick ? quoteLegendSigning(get(), legendId) : null
         if (quote && !quote.affordable) {
-            get().addToast({ message: `Can't afford this legend: $${quote.salary.toLocaleString("en-US")}/week would leave ${quote.runwayWeeks} weeks of cash (need ${LEGEND_MIN_RUNWAY_WEEKS}).`, type: "warning" })
+            get().addToast({ message: `Can't afford this legend: ${formatCurrency(quote.salary, "$", false)}/week would leave ${quote.runwayWeeks} weeks of cash (need ${LEGEND_MIN_RUNWAY_WEEKS}).`, type: "warning" })
             return
         }
         set((state) => {

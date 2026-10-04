@@ -14,6 +14,7 @@ import { UI_ASSETS } from "@/lib/ui-assets"
 import { soundManager } from "@/lib/sound-manager"
 import { pressable } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 type FacilityType = "TRAINING" | "RECOVERY" | "TACTICAL" | "FANZONE"
 
 const FACILITIES: {
@@ -138,7 +139,7 @@ export function FacilitiesApp() {
                         <div className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Weekly Maintenance</div>
                         <div className="text-xl font-normal font-mono text-red-400 flex items-center justify-end gap-1">
                             <ArrowUp size={14} className="rotate-45" />
-                            ${Math.round(getTotalUpkeep() / 4).toLocaleString()}
+                            {formatCurrency(Math.round(getTotalUpkeep() / 4), "$", false)}
                         </div>
                     </div>
                 </div>
@@ -214,7 +215,7 @@ export function FacilitiesApp() {
                                                         : "bg-white/5 text-white/20"
                                                 )}
                                             >
-                                                Build ${cost.toLocaleString()}
+                                                Build {formatCurrency(cost, "$", false)}
                                             </Button>
                                         )}
                                         <div className={cn("transition-transform duration-300 text-white/20", isExpanded && "rotate-180")}>
@@ -288,7 +289,7 @@ export function FacilitiesApp() {
                                                                 </div>
                                                                 <div className="px-3 py-1 rounded-lg bg-white/5 border border-white/10">
                                                                     <span className={cn("font-mono font-bold", canAfford ? "text-white" : "text-red-400")}>
-                                                                        ${cost.toLocaleString()}
+                                                                        {formatCurrency(cost, "$", false)}
                                                                     </span>
                                                                 </div>
                                                             </div>

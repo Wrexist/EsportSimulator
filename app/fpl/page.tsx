@@ -38,6 +38,7 @@ import {
     FPL_CONSTANTS
 } from "@/types/fpl"
 
+import { formatCurrency } from "@/lib/utils-extended"
 export default function FPLPage() {
     const { players, playerTeamId, teams, currentWeek, fplData } = useGameStore(useShallow(state => ({
         players: state.players,
@@ -323,13 +324,13 @@ export default function FPLPage() {
                         <div className="flex items-center gap-4">
                             <div className="text-center">
                                 <p className="text-xl font-bold text-amber-400">FPL</p>
-                                <p className="text-lg font-bold text-white">${FPL_CONSTANTS.PRIZE_POOL_BASE.toLocaleString()}</p>
+                                <p className="text-lg font-bold text-white">{formatCurrency(FPL_CONSTANTS.PRIZE_POOL_BASE, "$", false)}</p>
                                 <p className="text-[10px] text-white/40 uppercase">Prize Pool</p>
                             </div>
                             <div className="w-px h-10 bg-white/10" />
                             <div className="text-center">
                                 <p className="text-xl font-bold text-purple-400">FPL-C</p>
-                                <p className="text-lg font-bold text-white">${FPL_CONSTANTS.PRIZE_POOL_FPL_C.toLocaleString()}</p>
+                                <p className="text-lg font-bold text-white">{formatCurrency(FPL_CONSTANTS.PRIZE_POOL_FPL_C, "$", false)}</p>
                                 <p className="text-[10px] text-white/40 uppercase">Prize Pool</p>
                             </div>
                             <div className="w-px h-10 bg-white/10" />
@@ -540,7 +541,7 @@ export default function FPLPage() {
                                             <Crown size={20} />
                                         </div>
                                         <p className="text-lg font-bold text-white mb-1">
-                                            {reward ? `$${reward.prize.toLocaleString("en-US")}` : "—"}
+                                            {reward ? `${formatCurrency(reward.prize, "$", false)}` : "—"}
                                         </p>
                                         {reward?.xpBonus != null && <p className="text-xs text-white/40">+{reward.xpBonus} XP</p>}
                                         {entry && (
@@ -688,7 +689,7 @@ export default function FPLPage() {
                                                             Season {pastSeason.seasonNumber}
                                                         </p>
                                                         <p className="text-xs text-white/40">
-                                                            Weeks {pastSeason.startWeek} – {pastSeason.endWeek} • Prize Pool ${pastSeason.prizePool.toLocaleString()}
+                                                            Weeks {pastSeason.startWeek} – {pastSeason.endWeek} • Prize Pool {formatCurrency(pastSeason.prizePool, "$", false)}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -706,7 +707,7 @@ export default function FPLPage() {
                                                             </div>
                                                             {championStats && (
                                                                 <p className="text-[10px] text-emerald-400">
-                                                                    ${(championStats.totalFPLEarnings || 0).toLocaleString()} total earned
+                                                                    {formatCurrency((championStats.totalFPLEarnings || 0), "$", false)} total earned
                                                                 </p>
                                                             )}
                                                         </div>
@@ -796,7 +797,7 @@ export default function FPLPage() {
                                                                         </GlassTableCell>
                                                                         <GlassTableCell className="text-center">
                                                                             {prize > 0 ? (
-                                                                                <span className="text-emerald-400 font-bold text-sm">${prize.toLocaleString()}</span>
+                                                                                <span className="text-emerald-400 font-bold text-sm">{formatCurrency(prize, "$", false)}</span>
                                                                             ) : (
                                                                                 <span className="text-white/20">—</span>
                                                                             )}

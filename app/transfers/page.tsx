@@ -34,6 +34,7 @@ import {
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 
+import { formatCurrency } from "@/lib/utils-extended"
 export default function TransfersPage() {
   return (
     <ErrorBoundary section="Transfers / Roster Management">
@@ -277,14 +278,14 @@ function TransfersPageInner() {
                               {terms.isFreeAgent ? (
                                 <>
                                   <span className="text-[10px] text-emerald-400 font-bold uppercase">Free</span>
-                                  <span className="text-[10px] text-muted-foreground">${terms.salary}/wk</span>
+                                  <span className="text-[10px] text-muted-foreground">{formatCurrency(terms.salary, "$", false)}/wk</span>
                                 </>
                               ) : (
                                 <>
                                   <span className="font-sans font-bold text-amber-400">
-                                    ${terms.transferFee.toLocaleString()}
+                                    {formatCurrency(terms.transferFee, "$", false)}
                                   </span>
-                                  <span className="text-[10px] text-muted-foreground">${terms.salary}/wk</span>
+                                  <span className="text-[10px] text-muted-foreground">{formatCurrency(terms.salary, "$", false)}/wk</span>
                                 </>
                               )}
                             </div>
@@ -299,12 +300,12 @@ function TransfersPageInner() {
                                 <div className="flex justify-between gap-4">
                                   <span>Transfer Fee:</span>
                                   <span className={terms.isFreeAgent ? "text-emerald-400" : "text-amber-400"}>
-                                    {terms.isFreeAgent ? "Free" : `$${terms.transferFee.toLocaleString()}`}
+                                    {terms.isFreeAgent ? "Free" : `${formatCurrency(terms.transferFee, "$", false)}`}
                                   </span>
                                 </div>
                                 <div className="flex justify-between gap-4">
                                   <span>Weekly Salary:</span>
-                                  <span className="text-white">${terms.salary.toLocaleString()}</span>
+                                  <span className="text-white">{formatCurrency(terms.salary, "$", false)}</span>
                                 </div>
                                 <div className="flex justify-between gap-4">
                                   <span>Duration:</span>
@@ -313,7 +314,7 @@ function TransfersPageInner() {
                                 <div className="flex justify-between gap-4">
                                   <span>Buyout Clause:</span>
                                   <span className="text-white">
-                                    {terms.buyout > 0 ? `$${terms.buyout.toLocaleString()}` : "None"}
+                                    {terms.buyout > 0 ? `${formatCurrency(terms.buyout, "$", false)}` : "None"}
                                   </span>
                                 </div>
                               </div>
@@ -328,7 +329,7 @@ function TransfersPageInner() {
                         onClick={() => handleBuy(player)}
                         disabled={playerTeam.budget < terms.transferFee}
                         title={playerTeam.budget < terms.transferFee
-                          ? `Insufficient budget — need $${(terms.transferFee - playerTeam.budget).toLocaleString()} more`
+                          ? `Insufficient budget — need ${formatCurrency((terms.transferFee - playerTeam.budget), "$", false)} more`
                           : undefined}
                         className={cn(
                           "rounded-lg h-8 px-4 font-normal text-[10px] uppercase tracking-widest transition-all",

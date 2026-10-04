@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { DollarSign, Clock, Target, Lock, Check, X, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { SponsorSaveData } from "@/engine/save-types"
+import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 
 /** Map a brand's weekly side-effects to color-coded chips for the offer card. */
 function brandEffectChips(fx: NonNullable<SponsorSaveData["brandEffect"]>): { label: string; positive: boolean }[] {
@@ -68,10 +69,10 @@ function SponsorOfferCardImpl({ offer, weeklyIncomeChange, index, isLocked, lock
           <div className="text-right">
             <div className="flex items-center gap-1 text-green-400 font-bold text-xl">
               <DollarSign size={16} />
-              {offer.weeklyPayout.toLocaleString()}
+              {formatCurrency(offer.weeklyPayout, "", false)}
             </div>
             <span className="text-[10px] text-muted-foreground uppercase tracking-wider">base payout / week</span>
-            {weeklyIncomeChange !== undefined && <p className="mt-1 text-xs text-white/70">Projected income change: +${weeklyIncomeChange.toLocaleString()}/wk</p>}
+            {weeklyIncomeChange !== undefined && <p className="mt-1 text-xs text-white/70">Projected income change: {formatSignedCurrency(weeklyIncomeChange, "$", false)}/wk</p>}
           </div>
         </div>
 
@@ -110,7 +111,7 @@ function SponsorOfferCardImpl({ offer, weeklyIncomeChange, index, isLocked, lock
             {offer.goals.map((goal) => (
               <div key={goal.id} className="flex justify-between text-xs">
                 <span className="text-white/70">{goal.description} ({goal.target})</span>
-                <span className="text-emerald-400 font-semibold">+${goal.bonusPayout.toLocaleString()}</span>
+                <span className="text-emerald-400 font-semibold">{formatSignedCurrency(goal.bonusPayout, "$", false)}</span>
               </div>
             ))}
           </div>
