@@ -29,7 +29,7 @@ import { dedupeQualifications } from "../circuit-engine"
  * Cap the shared finance ledger without evicting the managed club's history.
  * AI clubs write role-training rows every week (~200/week across the world),
  * so a plain tail-slice kept only the last ~9 weeks of the player's own
- * receipts — season recaps and finance screens then summed a fraction of the
+ * receipts â€” season recaps and finance screens then summed a fraction of the
  * season. Keep the managed club's newest rows first (up to 3/4 of the cap),
  * fill the rest with the newest other rows, and preserve original order.
  */
