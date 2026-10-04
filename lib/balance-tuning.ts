@@ -76,6 +76,12 @@ export const FREE_AGENT_TUNING = {
     WAGE_DECAY_FLOOR: 0.4,
     /** Buyer reputation scaling: ask x (MIN + (1 - MIN) x reputation/100). */
     BUYER_REPUTATION_MIN_FACTOR: 0.6,
+    /**
+     * A club below five senior players may sign a free agent asking up to this
+     * weekly wage even when its cash flow is negative (no fee). Indebted clubs
+     * otherwise forfeited for months while free agents sat unsigned.
+     */
+    QUORUM_WAGE_ALLOWANCE: 1_000,
     /** Weeks a free agent stays available before retirement can happen. */
     RETIRE_GRACE_WEEKS: 26,
     /** Weekly retirement chance once past the grace period (age-adjusted below). */

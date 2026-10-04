@@ -43,6 +43,8 @@ export function renewExpiringContracts(team: TeamSaveData, save: GameSave, playe
         const newSalary = Math.round(contract.salaryPerWeek * AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER)
         if (!Number.isSafeInteger(newSalary) || newSalary < 1) continue
         if (!Number.isFinite(team.budget) || team.budget < (newSalary - contract.salaryPerWeek) * AI_SQUAD_TUNING.RENEWAL_RUNWAY_WEEKS) continue
+        // AI judgement on top of the human terms: never renew into a structural deficit.
+        if (!affordableInvestment(save, team, 0, newSalary - contract.salaryPerWeek)) continue
         contract.salaryPerWeek = newSalary
         contract.endWeek += AI_SQUAD_TUNING.RENEWAL_EXTENSION_WEEKS
         renewed++

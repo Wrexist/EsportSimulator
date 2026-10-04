@@ -64,7 +64,7 @@ export function recruitmentBudget(save: Pick<GameSave, "players" | "contracts" |
     const report = EconomyEngine.processWeeklyFinances(team, save.players, save.contracts, save.staff || [], save.currentWeek + 1, academyCount)
     return (salary: number, fee = 0): boolean => Number.isSafeInteger(salary) && salary > 0 && Number.isSafeInteger(fee) && fee >= 0
         && Number.isFinite(team.budget) && (team.budget - fee >= Math.max(0, salary - report.net) * 26
-            || (!!options.quorum && fee === 0 && salary <= report.net))
+            || (!!options.quorum && fee === 0 && salary <= Math.max(report.net, FREE_AGENT_TUNING.QUORUM_WAGE_ALLOWANCE)))
 }
 
 /** Optional infrastructure must pay its ongoing costs without speculative future winnings. */

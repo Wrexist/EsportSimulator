@@ -17,6 +17,7 @@ import { EventProcessor } from '@/engine/processors/event-processor'
 import { getLossBonus } from '@/lib/constants'
 import { AI_SQUAD_TUNING, sponsorWageBase } from '@/lib/balance-tuning'
 import { renewExpiringContracts, upgradeFromFreeAgency, freeAgentsBySkill } from '@/engine/ai/squad-maintenance'
+import { manageRoster } from '@/engine/ai/roster-management'
 import type { GameSave, PlayerSaveData, TournamentSaveData } from '@/engine/save-types'
 
 const nextId = (_s: unknown, prefix: string, ...parts: Array<string | number | null | undefined>) => [prefix, ...parts].join('_')
@@ -182,6 +183,21 @@ describe('AI squad maintenance uses the human rules', () => {
         pc.endWeek = 102
         expect(renewExpiringContracts(poor.teams[1], poor, new Map(poor.players.map(p => [p.id, p])))).toBe(0)
         expect(pc.endWeek).toBe(102)
+    })
+
+    test('an indebted AI club below five can still sign a cheap free agent (quorum allowance)', () => {
+        const save = createLaunchFixture('first-week', 41011)
+        const team = save.teams[1]
+        team.budget = -500_000
+        const gone = team.rosterIds.pop()!
+        save.contracts = save.contracts.filter(c => c.playerId !== gone)
+        save.players.find(p => p.id === gone)!.isRetired = true
+        const fa = save.players.find(p => p.id === 'qa_free_agent')!
+        Object.assign(fa, { skill: 40, potential: 45, age: 30, rifle: 40, awp: 40 })
+        fa.freeAgentSinceWeek = save.currentWeek - 100 // long unsigned: ask at the decay floor
+        expect(recruitmentSalary(fa, save.currentWeek, team)).toBeLessThanOrEqual(FREE_AGENT_TUNING.QUORUM_WAGE_ALLOWANCE)
+        manageRoster(team, save)
+        expect(team.rosterIds).toContain(fa.id)
     })
 
     test('AI clubs sign a clearly better affordable free agent into the starting five', () => {
