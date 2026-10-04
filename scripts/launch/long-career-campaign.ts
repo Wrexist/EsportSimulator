@@ -177,7 +177,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     const { snapshotLoader } = await import('../../data')
     const { buildSaveSnapshot } = await import('../../store/utils/build-save-snapshot')
     const { canonicalWeekState } = await import('../../engine/worker/week-replay')
-    const { academyHeldPlayerIds, recruitmentSalary } = await import('../../engine/recruitment')
+    const { academyHeldPlayerIds, recruitmentSalary, recruitmentBudget, affordableInvestment } = await import('../../engine/recruitment')
     const { asyncStorage, debouncedStorage } = await import('../../engine/storage-adapter')
     type Store = ReturnType<typeof useGameStore.getState>
     const get = (): Store => useGameStore.getState()
@@ -281,16 +281,18 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
             }
         }
         // Monthly squad upgrade: replace the weakest starter with a clearly
-        // better free agent we can pay for two years from a quarter of cash.
+        // better free agent the club can afford (same test as AI upgrades).
         if (playerTeam().rosterIds.length === 5 && get().currentWeek % 4 === 0) {
             const st = get(), held = academyHeldPlayerIds(st as never)
             const owned = new Set(st.teams.flatMap(t => t.rosterIds))
             const starters = playerTeam().rosterIds.map(id => st.players.find(p => p.id === id)!).filter(Boolean).sort((a, b) => a.skill - b.skill || a.id.localeCompare(b.id))
             const worst = starters[0]
-            const budget = Math.max(0, playerTeam().budget)
+            const save0 = snap(), canAfford = recruitmentBudget(save0 as never, playerTeam() as never)
             const pick = worst && st.players.filter(p => !p.isRetired && !held.has(p.id) && !owned.has(p.id) && p.skill >= worst.skill + 5 && !st.contracts.some(c => c.playerId === p.id && c.endWeek > st.currentWeek))
                 .map(p => ({ p, wage: recruitmentSalary(p as PlayerSaveData, st.currentWeek, playerTeam()) }))
-                .filter(x => x.wage * 104 <= budget * 0.25)
+                // Pass 2: the same affordability test AI upgrades use (26-week reserve
+                // and non-negative weekly net), not a stricter quarter-of-cash rule.
+                .filter(x => canAfford(x.wage) && affordableInvestment(save0 as never, playerTeam() as never, 0, x.wage))
                 .sort((a, b) => b.p.skill - a.p.skill || a.p.id.localeCompare(b.p.id))[0]
             const w = st.currentWeek
             if (pick && get().transferPlayer(pick.p.id, null, teamId, 0, { salaryPerWeek: pick.wage, startWeek: w, endWeek: w + 104, buyout: 0 }).success) {
@@ -586,7 +588,7 @@ function aggregate() {
         driver: 'Real useGameStore coordinator (initializeNewGame, advanceToWeekEnd/advanceWeek with worker synchronous fallback, simulateInstantMatch, transferPlayer, renewContract, signSponsor, resolveEventChoice, declineJobOffer, saveGame/loadGame) over the full snapshot world.',
         policyName: [...new Set(results.map(r => r.policyName ?? 'competent'))].join(','),
         targets: targetMetrics(results),
-        policy: 'Deterministic: register for every eligible event starting within 4 weeks; play own matches by instant sim; decline job offers unless on board notice (then take the best-ranked offer); monthly swap of the weakest starter for a clearly better free agent payable from a quarter of cash; greedy-money branch on choice events; renew expiring starters; fill to five from free agency (best affordable for 104 weeks, else cheapest); keep up to three sponsors (best offered).',
+        policy: 'Deterministic: register for every eligible event starting within 4 weeks; play own matches by instant sim; decline job offers unless on board notice (then take the best-ranked offer); monthly swap of the weakest starter for a clearly better free agent the club can afford (same 26-week reserve and non-negative net test as AI upgrades); money-maximising branch on choice events that does not cost morale; renew expiring starters; fill to five from free agency (best affordable for 104 weeks, else cheapest); keep up to three sponsors (best offered, avoiding morale-draining brands).',
         bounds: BOUNDS,
         sampleSize: { careers: results.length, seeds: [...new Set(results.map(r => r.seed))].length, weekTicks: results.reduce((s, r) => s + r.ticks, 0), seasonSnapshots: seasonsAll.length,
             byTier: Object.fromEntries(TIERS.map(t => [t, results.filter(r => r.tier === t).length])),
