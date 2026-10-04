@@ -22,6 +22,15 @@ describe('every permitted decision has a measurable, bounded effect over 200 pai
             expect(r.variant.roundShare).toBeGreaterThan(0.05)
             return
         }
+        if (r.id === 'call-full-buy') {
+            // Balance tuning: the default buys FULL whenever rifle + helmet is
+            // affordable, so this call only changes poor rounds (armour and a
+            // pistol instead of a save). Gains there and the lost next buy now
+            // roughly cancel: a real trade-off, not the +14.5 pp it was.
+            expect(['bounded', 'decorative']).toContain(r.verdict)
+            expect(Math.abs(r.effect.matchWin.mean)).toBeLessThan(0.06)
+            return
+        }
         expect(r.verdict).toBe('bounded')
         expect(Math.abs(r.effect.matchWin.mean)).toBeLessThanOrEqual(0.30)
         expect(r.variant.matchWin).toBeGreaterThan(0.2)
@@ -31,8 +40,13 @@ describe('every permitted decision has a measurable, bounded effect over 200 pai
         const by = Object.fromEntries(reports.map(r => [r.id, r]))
         for (const up of ['playstyle-counter', 'roles-coverage', 'vod-review', 'mental-reset', 'antistrat-target', 'loadout-utility', 'timeout-on-streak']) expect(by[up].effect.roundShare.low).toBeGreaterThan(0)
         for (const down of ['playstyle-countered', 'roles-no-awper']) expect(by[down].effect.roundShare.high).toBeLessThan(0)
-        expect(by['economy-eco'].effect.cashPerRound.low).toBeGreaterThan(0)
-        expect(by['call-eco-after-pistol-loss'].effect.cashPerRound.low).toBeGreaterThan(0)
+        // Balance tuning (ROUND_ECONOMY_TUNING): the default now buys FULL at
+        // rifle + helmet money and saves after a lost pistol round, so saving
+        // $500 longer costs rounds, forcing after a lost pistol spends the next
+        // full buy, and buying every round is no longer near-dominant (+14.5 pp
+        // before tuning).
+        expect(by['economy-eco'].effect.roundShare.high).toBeLessThan(0)
+        expect(by['call-force-after-pistol-loss'].effect.cashPerRound.high).toBeLessThan(0)
         // Overbuying utility costs far more cash than a modest plan.
         expect(by['loadout-overbuy'].effect.cashPerRound.high).toBeLessThan(by['loadout-utility'].effect.cashPerRound.low)
     })

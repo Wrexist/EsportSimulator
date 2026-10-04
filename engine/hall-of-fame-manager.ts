@@ -1,4 +1,30 @@
 import { GameSave, PlayerSaveData, HallOfFameEntry } from "./save-types"
+import { HALL_OF_FAME_TUNING as HOF } from "@/lib/balance-tuning"
+
+type CareerTotals = Pick<PlayerSaveData, "majorWins" | "totalMVPs" | "totalKills" | "avgRating" | "matchesPlayed">
+
+/**
+ * Career achievements that count toward Hall of Fame induction / legendary
+ * status at retirement (HALL_OF_FAME_TUNING). Shared by the season-end
+ * retirement pass and the age-38 legend check.
+ */
+export function hallOfFameAchievements(player: CareerTotals): string[] {
+    const achievements: string[] = []
+    const matches = player.matchesPlayed || 0
+    if ((player.majorWins || 0) >= 1) achievements.push(`${player.majorWins}x Major Champion`)
+    if ((player.totalMVPs || 0) >= HOF.MVP_AWARDS) achievements.push(`${player.totalMVPs}x Tournament MVP`)
+    if ((player.totalKills || 0) >= HOF.CAREER_KILLS) achievements.push(`${player.totalKills}+ Career Kills`)
+    if ((player.avgRating || 0) >= HOF.CAREER_RATING && matches >= HOF.RATING_MIN_MATCHES) achievements.push(`${player.avgRating.toFixed(2)} Career Rating`)
+    if (matches >= HOF.CAREER_MATCHES) achievements.push(`${matches}+ Matches Veteran`)
+    return achievements
+}
+
+/** Two achievements, or a standalone multi-Major / elite-rating career. */
+export function qualifiesForHallOfFame(player: CareerTotals): boolean {
+    return hallOfFameAchievements(player).length >= HOF.ACHIEVEMENTS_REQUIRED
+        || (player.majorWins || 0) >= HOF.AUTO_MAJOR_WINS
+        || ((player.avgRating || 0) >= HOF.AUTO_RATING && (player.matchesPlayed || 0) >= HOF.RATING_MIN_MATCHES)
+}
 
 /**
  * Hall of Fame Manager

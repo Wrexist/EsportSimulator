@@ -135,7 +135,7 @@ function TransfersPageInner() {
   }
 
   // Calculate estimated weekly salary based on player value
-  const getEstimatedSalary = (player: typeof players[number]) => recruitmentSalary(player, currentWeek)
+  const getEstimatedSalary = (player: typeof players[number]) => recruitmentSalary(player, currentWeek, playerTeam)
 
   // Get contract terms for a player
   const getContractTerms = (player: any) => {

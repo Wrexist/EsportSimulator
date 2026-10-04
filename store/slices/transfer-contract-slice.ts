@@ -438,7 +438,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
         const currentWeek = snapshot.currentWeek
 
         if (!player || !buyingTeam) return
-        const newSalary = recruitmentSalary(player, currentWeek)
+        const newSalary = recruitmentSalary(player, currentWeek, buyingTeam)
         const contractLength = 52
         if (!recruitmentBudget(snapshot, buyingTeam)(newSalary, offerAmount)) {
             get().addToast({ message: "The buying club can no longer afford this fee and the player's wages. Reject the offer or wait for a new bid.", type: "warning" })

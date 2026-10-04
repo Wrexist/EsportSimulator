@@ -30,6 +30,7 @@ import {
 import { logger } from "@/lib/logger"
 import { recalculateTeamSynergy } from "./processors/team-synergy-recalc"
 import { recruitmentBudget, recruitmentSalary } from "./recruitment"
+import { freeAgentsBySkill, renewExpiringContracts, upgradeFromFreeAgency } from "./ai/squad-maintenance"
 
 /**
  * AI Manager
@@ -75,11 +76,19 @@ export class AIManager {
     static processWeeklyAI(save: GameSave, playerTeamId: string, rng?: SeededRNG, isTransferWindow: boolean = true) {
         const activeRng = rng ?? new SeededRNG(save.lastRngSeed ?? generateSeed())
         const aiTeams = save.teams.filter(t => t.id !== playerTeamId)
+        // AI_SQUAD_TUNING: renew keepers every week; upgrade from free agency in windows.
+        const playersById = new Map(save.players.map(p => [p.id, p]))
+        const freeAgentPool = isTransferWindow ? freeAgentsBySkill(save) : []
 
         aiTeams.forEach(team => {
             this.adaptTeamStrategy(team, save, activeRng)
+            renewExpiringContracts(team, save, playersById)
             if (isTransferWindow || team.rosterIds.length < 5) {
                 this.manageRoster(team, save)
+            }
+            if (isTransferWindow) {
+                const signed = upgradeFromFreeAgency(team, save, freeAgentPool, playersById)
+                if (signed) freeAgentPool.splice(freeAgentPool.indexOf(signed), 1)
             }
             this.manageFinances(team, save)
             this.considerRoleTraining(team, save, activeRng)
@@ -410,7 +419,7 @@ export class AIManager {
             // applyRosterChangePenalty would leave the player + roster id
             // committed but the team chemistry penalty unapplied, putting
             // the save in an inconsistent state.
-            const salary = recruitmentSalary(prospectPlayer, save.currentWeek)
+            const salary = recruitmentSalary(prospectPlayer, save.currentWeek, team)
             if (!recruitmentBudget(save, team)(salary)) return
             prospectPlayer.salary = salary
             save.players.push(prospectPlayer)

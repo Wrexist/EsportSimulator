@@ -103,7 +103,7 @@ function signFreeAgentWithQuotes(team: TeamSaveData, save: GameSave, emergency: 
     const affordable = freeAgents.filter(p => {
         if (team.rosterIds.length >= 5 && !missingRoles.has(recruitmentRole(p.role))) return false
         let salary = quotes.get(p)
-        if (salary === undefined) { salary = recruitmentSalary(p, save.currentWeek); quotes.set(p, salary) }
+        if (salary === undefined) { salary = recruitmentSalary(p, save.currentWeek, team); quotes.set(p, salary) }
         salaries.set(p.id, salary)
         return canAfford(salary)
     })
@@ -124,8 +124,11 @@ function signFreeAgentWithQuotes(team: TeamSaveData, save: GameSave, emergency: 
 
     if (!target) return
 
-    const salary = salaries.get(target.id)!
+    commitFreeAgentSigning(team, save, target, salaries.get(target.id)!)
+}
 
+/** Sign `target` from free agency at `salary` (no fee), with the same bookkeeping for every AI path. */
+export function commitFreeAgentSigning(team: TeamSaveData, save: GameSave, target: PlayerSaveData, salary: number): void {
     // Defensive guard against double-add — stale roster could already
     // contain this player.
     if (team.rosterIds.includes(target.id)) return

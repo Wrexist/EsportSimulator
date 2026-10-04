@@ -2,6 +2,7 @@
  * Game Constants
  * Centralized constants for game mechanics
  */
+import { ROUND_ECONOMY_TUNING } from "./balance-tuning"
 
 // ============================================
 // TIME
@@ -85,11 +86,13 @@ export const MATCH_CONSTANTS = {
     ELIMINATION_BONUS: 300, // standard kill reward
 
     // Loss bonuses (progressive)
-    LOSS_BONUS_1: 1900,
-    LOSS_BONUS_2: 2400,
-    LOSS_BONUS_3: 2900,
-    LOSS_BONUS_4: 3400,
-    LOSS_BONUS_5: 3400,
+    // ROUND_ECONOMY_TUNING ladder: $1,400 first loss, +$500 per consecutive
+    // loss, capped at $3,400 (was 1900/2400/2900/3400/3400).
+    LOSS_BONUS_1: ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER[0],
+    LOSS_BONUS_2: ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER[1],
+    LOSS_BONUS_3: ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER[2],
+    LOSS_BONUS_4: ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER[3],
+    LOSS_BONUS_5: ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER[4],
 } as const
 
 // ============================================

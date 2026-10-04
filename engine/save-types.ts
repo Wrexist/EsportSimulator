@@ -616,6 +616,8 @@ export interface PlayerSaveData {
     // Phase 23: Legendary System
     isRetired?: boolean
     retirementWeek?: number
+    /** Week this player was first seen without a club (free-agent market clock); absent while contracted. */
+    freeAgentSinceWeek?: number
     isLegendary?: boolean
     legendaryAchievements?: string[]
     careerTeams?: string[]

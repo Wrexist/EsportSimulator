@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { getVisibleStats, formatScoutedRating } from "@/engine/scouting-system"
-import { recruitmentSalary } from "@/engine/recruitment"
+import { buyerReputationFactor, freeAgentWageFactor, recruitmentSalary } from "@/engine/recruitment"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { SeededRNG } from "@/engine/rng"
@@ -123,7 +123,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
             }
 
             // Default salary suggestion
-            const suggestedSalary = recruitmentSalary(playerSave, currentWeek)
+            const suggestedSalary = recruitmentSalary(playerSave, currentWeek, myTeam)
             setSalaryOffer(suggestedSalary)
 
             setInitializedKey(sessionKey)
@@ -133,7 +133,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
             setFailureMessage(null)
             dealSubmittedRef.current = false
         }
-    }, [isOpen, initializedKey, sessionKey, playerSave, playerId, teams, contracts, currentWeek])
+    }, [isOpen, initializedKey, sessionKey, playerSave, playerId, teams, contracts, currentWeek, myTeam])
 
     const dialogRef = useFocusTrap(isOpen && !!playerSave && initializedKey === sessionKey, onClose)
     if (!isOpen || !playerSave || initializedKey !== sessionKey || typeof document === "undefined") return null
@@ -242,6 +242,9 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
 
         // Age tax (Veterans know their worth)
         if (playerSave.age > 28) minSalary *= 1.1
+
+        // Same free-agent decay and buyer-tier scaling as every AI quote.
+        minSalary *= freeAgentWageFactor(playerSave, currentWeek) * buyerReputationFactor(myTeam)
 
         // Duration fit modifier: closer to ideal = slight discount, edges of range = premium
         const distFromIdeal = Math.abs(sanitizedDuration - durationPref.idealWeeks) / Math.max(1, durationPref.maxWeeks - durationPref.minWeeks)

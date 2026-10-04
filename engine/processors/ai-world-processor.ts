@@ -23,6 +23,7 @@ import { StaffGenerator } from "../staff-generator"
 import { generateProspect } from "../prospect-generator"
 import { PlayerRole } from "@/types/enums"
 import { logger } from "@/lib/logger"
+import { processFreeAgentMarket } from "./free-agent-market"
 
 // Flavour backstory fragments so intakes read as distinct scouted talents
 // rather than a wall of identical "Youth Prospect" clones. Picked
@@ -75,6 +76,9 @@ export function processAIWorldLogic(save: GameSave, playerTeamId: string, rng: S
         AIManager.processSeasonEnd(save)
         generateYouthIntake(save, playerTeamId, rng)
     }
+
+    // 6. Free-agent market clock (wage decay) and long-unsigned retirement.
+    processFreeAgentMarket(save)
 }
 
 /**
