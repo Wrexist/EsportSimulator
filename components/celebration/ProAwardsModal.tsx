@@ -79,7 +79,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 top-16 backdrop-blur-md z-modal"
+                        className="fixed inset-0 top-16 bg-black/58 backdrop-blur-md z-modal"
                         onClick={onClose}
                     />
 
