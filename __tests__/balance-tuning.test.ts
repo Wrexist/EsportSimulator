@@ -17,7 +17,13 @@ import { EventProcessor } from '@/engine/processors/event-processor'
 import { getLossBonus } from '@/lib/constants'
 import { AI_SQUAD_TUNING, sponsorWageBase } from '@/lib/balance-tuning'
 import { renewExpiringContracts, upgradeFromFreeAgency, freeAgentsBySkill } from '@/engine/ai/squad-maintenance'
-import { manageRoster } from '@/engine/ai/roster-management'
+import { manageRoster, promoteAcademyToQuorum } from '@/engine/ai/roster-management'
+import { AtomicWeekProcessor } from '@/engine/atomic-week-processor'
+import { SaveManager } from '@/engine/save-manager'
+import { FixtureStorage } from '../scripts/launch/fixtures'
+import { TrainingFocus } from '@/types'
+import { freeAgentPoolFactor, freeAgentScoutingFactor } from '@/engine/processors/free-agent-market'
+import { SnapshotLoader as SnapshotLoaderClass } from '@/data/snapshot-loader'
 import type { GameSave, PlayerSaveData, TournamentSaveData } from '@/engine/save-types'
 
 const nextId = (_s: unknown, prefix: string, ...parts: Array<string | number | null | undefined>) => [prefix, ...parts].join('_')
@@ -296,5 +302,63 @@ describe('round economy trade-off', () => {
 
     test('loss bonus ladder rewards consecutive losses and is capped', () => {
         expect([0, 1, 2, 3, 4, 9].map(getLossBonus)).toEqual([1400, 1900, 2400, 2900, 3400, 3400])
+    })
+})
+
+describe('balance pass 2', () => {
+    test('AI clubs train every week under the managed default regimen (same processor, potential cap)', async () => {
+        const run = async (managedConfig: boolean) => {
+            const save = createLaunchFixture('first-week', 42001)
+            save.scheduledMatches = []
+            for (const p of save.players) Object.assign(p, { rifle: 40, potential: 80, productivity: 80 })
+            const processor = new AtomicWeekProcessor(new SaveManager(new FixtureStorage()))
+            const focus = new Map(managedConfig ? [[save.playerTeamId!, { focus: TrainingFocus.AIM, intensity: AI_SQUAD_TUNING.TRAINING_INTENSITY }]] : [])
+            expect((await processor.processWeek(save, { playerTeamId: save.playerTeamId!, trainingFocus: focus }, new SeededRNG(5))).success).toBe(true)
+            return save
+        }
+        const save = await run(true)
+        const managed = save.players.find(p => p.id === save.teams[0].rosterIds[1])!
+        const ai = save.players.find(p => p.id === save.teams[1].rosterIds[1])!
+        expect(ai.rifle).toBeGreaterThan(40)
+        expect(ai.rifle).toBeCloseTo(managed.rifle, 6)
+        expect(ai.rifle).toBeLessThanOrEqual(80)
+    })
+
+    test('opening contracts are staggered deterministically, never shorter than the minimum', () => {
+        const ends = (seed: number) => {
+            const loader = new (SnapshotLoaderClass as never as new () => { generateContracts: (...a: unknown[]) => Array<{ endWeek: number }> })()
+            const players = Array.from({ length: 40 }, (_, i) => ({ id: `s${i}`, age: 25, tier: 'PRO', skill: 60, defaultContractYears: 2 }))
+            return loader.generateContracts(players, [{ id: 't', rosterIds: players.map(p => p.id) }], 1, new SeededRNG(seed)).map(c => c.endWeek)
+        }
+        const a = ends(7)
+        expect(ends(7)).toEqual(a)
+        expect(new Set(a.map(w => (w - 1) % 52)).size).toBeGreaterThan(5)
+        expect(Math.min(...a)).toBeGreaterThanOrEqual(1 + AI_SQUAD_TUNING.INITIAL_CONTRACT_MIN_WEEKS)
+    })
+
+    test('free-agent retirement and AI scouting respond to pool size', () => {
+        expect(freeAgentPoolFactor(10, 100)).toBe(FREE_AGENT_TUNING.POOL_FACTOR_MIN)
+        expect(freeAgentPoolFactor(200, 100)).toBe(1)
+        expect(freeAgentPoolFactor(5000, 100)).toBe(FREE_AGENT_TUNING.POOL_FACTOR_MAX)
+        const save = createLaunchFixture('first-week', 42002)
+        expect(freeAgentScoutingFactor(save)).toBe(1)
+        save.players.push(...Array.from({ length: 300 }, (_, i) => ({ ...structuredClone(save.players[0]), id: `fa${i}` })))
+        expect(freeAgentScoutingFactor(save)).toBe(FREE_AGENT_TUNING.SCOUTING_FACTOR_MIN)
+    })
+
+    test('a short AI club promotes its own academy prospect on a normal quote', () => {
+        const save = createLaunchFixture('first-week', 42003)
+        const team = save.teams[1]
+        team.budget = 1_000_000
+        const gone = team.rosterIds.pop()!
+        save.contracts = save.contracts.filter(c => c.playerId !== gone)
+        save.players.find(p => p.id === gone)!.isRetired = true
+        const prospect = { ...structuredClone(save.players[0]), id: 'youth_1', skill: 45, potential: 70, age: 17 }
+        save.players.push(prospect)
+        team.youthAcademyIds = ['youth_1']
+        expect(promoteAcademyToQuorum(team, save)).toBe(1)
+        expect(team.rosterIds).toContain('youth_1')
+        expect(team.youthAcademyIds).toEqual([])
+        expect(save.contracts.find(c => c.playerId === 'youth_1')!.salaryPerWeek).toBe(recruitmentSalary(prospect, save.currentWeek, team))
     })
 })
