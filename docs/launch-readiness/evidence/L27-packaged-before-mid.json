@@ -1,0 +1,384 @@
+{
+  "version": 1,
+  "label": "before-mid",
+  "mode": "session",
+  "recordedAt": "2026-10-04T05:58:52.836Z",
+  "exe": "C:\\Users\\IsacC\\EsportSimulator\\.claude\\worktrees\\agent-acb33cc169983db07\\tmp\\l27\\app-before\\EsportsManager.exe",
+  "exeMtime": "2026-10-04T04:59:34.694Z",
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "logicalCpus": 16,
+    "ramBytes": 34087550976,
+    "os": "Windows_NT 10.0.26200"
+  },
+  "realProfileUntouched": true,
+  "routes": [
+    {
+      "route": "/squad",
+      "ms": 180.5
+    },
+    {
+      "route": "/training",
+      "ms": 142.4
+    },
+    {
+      "route": "/schedule",
+      "ms": 167.6
+    },
+    {
+      "route": "/transfers",
+      "ms": 97.3
+    },
+    {
+      "route": "/tournaments",
+      "ms": 130
+    },
+    {
+      "route": "/finances",
+      "ms": 88.7
+    },
+    {
+      "route": "/desktop",
+      "ms": 102.1
+    },
+    {
+      "route": "/",
+      "ms": 235
+    },
+    {
+      "route": "/squad",
+      "ms": 152.4
+    },
+    {
+      "route": "/training",
+      "ms": 170.8
+    },
+    {
+      "route": "/schedule",
+      "ms": 145.1
+    },
+    {
+      "route": "/transfers",
+      "ms": 82.5
+    },
+    {
+      "route": "/tournaments",
+      "ms": 173.4
+    },
+    {
+      "route": "/finances",
+      "ms": 86.7
+    },
+    {
+      "route": "/desktop",
+      "ms": 61.7
+    },
+    {
+      "route": "/",
+      "ms": 274.7
+    },
+    {
+      "route": "/squad",
+      "ms": 156.3
+    },
+    {
+      "route": "/training",
+      "ms": 78.3
+    },
+    {
+      "route": "/schedule",
+      "ms": 122.3
+    },
+    {
+      "route": "/transfers",
+      "ms": 80.7
+    },
+    {
+      "route": "/tournaments",
+      "ms": 86.7
+    },
+    {
+      "route": "/finances",
+      "ms": 52.1
+    },
+    {
+      "route": "/desktop",
+      "ms": 60.6
+    },
+    {
+      "route": "/",
+      "ms": 157.4
+    }
+  ],
+  "weeks": [
+    {
+      "week": 160,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1593,
+      "toControlsEnabledMs": 2901,
+      "longTaskCount": 5,
+      "longTaskTotalMs": 1382,
+      "longestTaskMs": 619
+    },
+    {
+      "week": 161,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1542,
+      "toControlsEnabledMs": 2653,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 950,
+      "longestTaskMs": 637
+    },
+    {
+      "week": 162,
+      "ownMatchFlowMs": 1569,
+      "toNextWeekShownMs": 1674,
+      "toControlsEnabledMs": 2914,
+      "longTaskCount": 12,
+      "longTaskTotalMs": 1827,
+      "longestTaskMs": 710
+    },
+    {
+      "week": 163,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1628,
+      "toControlsEnabledMs": 2928,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 1030,
+      "longestTaskMs": 707
+    },
+    {
+      "week": 164,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1741,
+      "toControlsEnabledMs": 3136,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 1185,
+      "longestTaskMs": 774
+    },
+    {
+      "week": 165,
+      "ownMatchFlowMs": 224,
+      "toNextWeekShownMs": 1668,
+      "toControlsEnabledMs": 3385,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 1192,
+      "longestTaskMs": 698
+    },
+    {
+      "week": 166,
+      "ownMatchFlowMs": 179,
+      "toNextWeekShownMs": 1603,
+      "toControlsEnabledMs": 2936,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 1074,
+      "longestTaskMs": 632
+    },
+    {
+      "week": 167,
+      "ownMatchFlowMs": 193,
+      "toNextWeekShownMs": 1627,
+      "toControlsEnabledMs": 3297,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 1055,
+      "longestTaskMs": 665
+    }
+  ],
+  "samples": [
+    {
+      "at": "loaded",
+      "week": 160,
+      "jsHeapUsedMB": 36.1,
+      "jsHeapTotalMB": 37.3,
+      "domNodes": 9093,
+      "jsEventListeners": 615,
+      "documents": 10,
+      "frames": 10,
+      "intervals": 1,
+      "pendingTimeouts": 1
+    },
+    {
+      "at": "after-3-route-cycles",
+      "week": 160,
+      "jsHeapUsedMB": 38.1,
+      "jsHeapTotalMB": 39.3,
+      "domNodes": 7108,
+      "jsEventListeners": 717,
+      "documents": 1,
+      "frames": 1,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    }
+  ],
+  "errors": [
+    {
+      "error": "locator.waitFor: Timeout 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /Back to Dashboard/i }) to be visible\u001b[22m\n\n    at session (C:\\Users\\IsacC\\EsportSimulator\\.claude\\worktrees\\agent-acb33cc169983db07\\scripts\\launch\\l27-packaged.cjs:205:28)\n    at async main (C:\\Users\\IsacC\\EsportSimulator\\.claude\\worktrees\\agent-acb33cc169983db07\\scripts\\launch\\l27-packaged.cjs:255:59)"
+    }
+  ],
+  "menuInteractiveMs": 2505,
+  "continueCareerToDashboardMs": 938,
+  "dismissed": 9,
+  "fixtureLog": [
+    {
+      "week": 162,
+      "path": "/match/iem_katowice_open_s4_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 162,
+      "path": "/match/iem_katowice_open_s4_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 162,
+      "path": "/match/iem_katowice_open_s4_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 162,
+      "path": "/match/iem_katowice_open_s4_r4_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 162,
+      "path": "/match/iem_katowice_open_s4_r5_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 165,
+      "path": "/match/iem_katowice_s4_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 166,
+      "path": "/match/iem_katowice_s4_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 167,
+      "path": "/match/iem_katowice_s4_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    }
+  ],
+  "summary": {
+    "routeMs": {
+      "n": 24,
+      "min": 52.1,
+      "median": 126.2,
+      "mean": 128.6,
+      "sd": 54.8,
+      "p90": 180.5,
+      "max": 274.7
+    },
+    "routeByPath": {
+      "/": {
+        "n": 3,
+        "min": 157.4,
+        "median": 235,
+        "mean": 222.4,
+        "sd": 48.7,
+        "p90": 274.7,
+        "max": 274.7
+      },
+      "/desktop": {
+        "n": 3,
+        "min": 60.6,
+        "median": 61.7,
+        "mean": 74.8,
+        "sd": 19.3,
+        "p90": 102.1,
+        "max": 102.1
+      },
+      "/squad": {
+        "n": 3,
+        "min": 152.4,
+        "median": 156.3,
+        "mean": 163.1,
+        "sd": 12.4,
+        "p90": 180.5,
+        "max": 180.5
+      },
+      "/training": {
+        "n": 3,
+        "min": 78.3,
+        "median": 142.4,
+        "mean": 130.5,
+        "sd": 38.7,
+        "p90": 170.8,
+        "max": 170.8
+      },
+      "/schedule": {
+        "n": 3,
+        "min": 122.3,
+        "median": 145.1,
+        "mean": 145,
+        "sd": 18.5,
+        "p90": 167.6,
+        "max": 167.6
+      },
+      "/transfers": {
+        "n": 3,
+        "min": 80.7,
+        "median": 82.5,
+        "mean": 86.8,
+        "sd": 7.4,
+        "p90": 97.3,
+        "max": 97.3
+      },
+      "/tournaments": {
+        "n": 3,
+        "min": 86.7,
+        "median": 130,
+        "mean": 130,
+        "sd": 35.4,
+        "p90": 173.4,
+        "max": 173.4
+      },
+      "/finances": {
+        "n": 3,
+        "min": 52.1,
+        "median": 86.7,
+        "mean": 75.8,
+        "sd": 16.8,
+        "p90": 88.7,
+        "max": 88.7
+      }
+    },
+    "weekToControlsEnabledMs": {
+      "n": 8,
+      "min": 2653,
+      "median": 2932,
+      "mean": 3018.8,
+      "sd": 223.3,
+      "p90": 3385,
+      "max": 3385
+    },
+    "longestTaskMs": {
+      "n": 8,
+      "min": 619,
+      "median": 681.5,
+      "mean": 680.3,
+      "sd": 48.6,
+      "p90": 774,
+      "max": 774
+    },
+    "longTaskTotalMs": {
+      "n": 8,
+      "min": 950,
+      "median": 1129.5,
+      "mean": 1211.9,
+      "sd": 263.1,
+      "p90": 1827,
+      "max": 1827
+    },
+    "ownMatchFlowMs": {
+      "n": 4,
+      "min": 179,
+      "median": 208.5,
+      "mean": 541.3,
+      "sd": 593.6,
+      "p90": 1569,
+      "max": 1569
+    }
+  }
+}

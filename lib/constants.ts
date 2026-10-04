@@ -291,6 +291,14 @@ export const ARRAY_CAPS = {
     hallOfFame: 500,
     /** Placement-history entries kept inside each per-team circuitPoints entry. */
     circuitPointResults: 60,
+    /**
+     * FPL pick-up match records (fplData.matchHistory). Write-only history:
+     * no simulation or UI code reads it (rankings live in playerStats/
+     * standings). ~28 records/week; uncapped it reached 24 MB of a 44 MB
+     * save by season 10 and pushed saves past the 32 MiB storage limit (L27).
+     * 500 keeps roughly the last 18 weeks.
+     */
+    fplMatchHistory: 500,
 } as const
 
 // ============================================

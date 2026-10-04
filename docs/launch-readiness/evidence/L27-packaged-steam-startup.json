@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "label": "before-startup",
+  "mode": "startup",
+  "recordedAt": "2026-10-04T05:38:37.834Z",
+  "exe": "C:\\Users\\IsacC\\EsportSimulator\\dist\\win-unpacked\\EsportsManager.exe",
+  "exeMtime": "2026-10-04T04:59:34.694Z",
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "logicalCpus": 16,
+    "ramBytes": 34087550976,
+    "os": "Windows_NT 10.0.26200"
+  },
+  "realProfileUntouched": true,
+  "rows": [
+    {
+      "run": 1,
+      "kind": "first launch (new profile)",
+      "spawnToCdpMs": 2177,
+      "spawnToMenuInteractiveMs": 5989,
+      "menuPageNavigation": {
+        "domContentLoaded": 2963,
+        "load": 3372
+      },
+      "electron": "Chrome/152.0.7977.78"
+    },
+    {
+      "run": 2,
+      "kind": "repeat launch",
+      "spawnToCdpMs": 904,
+      "spawnToMenuInteractiveMs": 2317,
+      "menuPageNavigation": {
+        "domContentLoaded": 966,
+        "load": 1017
+      },
+      "electron": "Chrome/152.0.7977.78"
+    },
+    {
+      "run": 3,
+      "kind": "repeat launch",
+      "spawnToCdpMs": 800,
+      "spawnToMenuInteractiveMs": 1842,
+      "menuPageNavigation": {
+        "domContentLoaded": 597,
+        "load": 608
+      },
+      "electron": "Chrome/152.0.7977.78"
+    },
+    {
+      "run": 4,
+      "kind": "repeat launch",
+      "spawnToCdpMs": 732,
+      "spawnToMenuInteractiveMs": 1792,
+      "menuPageNavigation": {
+        "domContentLoaded": 789,
+        "load": 884
+      },
+      "electron": "Chrome/152.0.7977.78"
+    },
+    {
+      "run": 5,
+      "kind": "repeat launch",
+      "spawnToCdpMs": 886,
+      "spawnToMenuInteractiveMs": 2208,
+      "menuPageNavigation": {
+        "domContentLoaded": 864,
+        "load": 866
+      },
+      "electron": "Chrome/152.0.7977.78"
+    },
+    {
+      "run": 6,
+      "kind": "repeat launch",
+      "spawnToCdpMs": 747,
+      "spawnToMenuInteractiveMs": 1819,
+      "menuPageNavigation": {
+        "domContentLoaded": 624,
+        "load": 660
+      },
+      "electron": "Chrome/152.0.7977.78"
+    },
+    {
+      "run": 7,
+      "kind": "repeat launch",
+      "spawnToCdpMs": 797,
+      "spawnToMenuInteractiveMs": 2147,
+      "menuPageNavigation": {
+        "domContentLoaded": 910,
+        "load": 914
+      },
+      "electron": "Chrome/152.0.7977.78"
+    }
+  ],
+  "summary": {
+    "first": 5989,
+    "repeat": {
+      "n": 6,
+      "min": 1792,
+      "median": 1994.5,
+      "mean": 2020.8,
+      "sd": 209.7,
+      "p90": 2317,
+      "max": 2317
+    }
+  }
+}

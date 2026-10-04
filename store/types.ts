@@ -127,12 +127,17 @@ export interface WeekRevealData {
   items: WeekRevealItem[]
 }
 
+/** Stages advanceWeek actually passes through, in order (L27.A2 truthful progress). */
+export type WeekProgressPhase = "preparing" | "simulating" | "applying" | "saving"
+
 export interface UIState {
   theme: "crystal" | "onyx"
   availableEquipment: EquipmentItem[]
   toasts: { id: string; message: string; type: "level_up" | "xp_gain" | "achievement" | "info" | "warning" | "error"; duration?: number }[]
   pendingCelebration: CelebrationData | null
   weekReveal: WeekRevealData | null
+  /** Current real stage of a week advance (transient, never saved). */
+  weekProgress: WeekProgressPhase | null
   pendingSeasonRecap: number | null
   pendingLegendPick: LegendPickData | null
   legendaryPlayers: PlayerSaveData[]

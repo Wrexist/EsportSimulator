@@ -741,7 +741,7 @@ const NON_CAREER_STORE_KEYS = [
     // new-game setup inputs and a static shop catalogue
     "selectedRegions", "availableEquipment",
     // transient UI / runtime
-    "weekReveal", "toasts", "isLoading", "error", "lastLoadError", "isInitialized", "_hasHydrated",
+    "weekReveal", "weekProgress", "toasts", "isLoading", "error", "lastLoadError", "isInitialized", "_hasHydrated",
     // indexes rebuilt on hydration
     "_teamIndex", "_playerIndex", "_contractByPlayerIndex", "_staffIndex", "_completedMatchIds",
 ]

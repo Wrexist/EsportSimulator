@@ -70,6 +70,14 @@ export function compactPersistentState(save: GameSave): void {
             .slice(0, ARRAY_CAPS.newsFeed)
     }
 
+    // FPL pick-up match records are appended (~28/week) and never read by
+    // simulation or UI code (rankings live in playerStats/standings). Uncapped
+    // they were 24 MB of a 44 MB season-10 save, beyond the 32 MiB storage
+    // limit (L27). Keep the newest tail; push order means the tail is newest.
+    if (save.fplData?.matchHistory && save.fplData.matchHistory.length > ARRAY_CAPS.fplMatchHistory) {
+        save.fplData.matchHistory = save.fplData.matchHistory.slice(-ARRAY_CAPS.fplMatchHistory)
+    }
+
     // circuitPoints is bounded by team count, but each entry's `results` log
     // appends one row per tournament placement forever — trim to the recent
     // window (the running `points` total is preserved either way).

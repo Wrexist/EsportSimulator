@@ -1,0 +1,253 @@
+{
+  "label": "physical-before",
+  "engine": "spatial-round-v14",
+  "recordedAt": "2026-10-04T05:19:13.262Z",
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "logicalCpus": 16,
+    "ramBytes": 34087550976,
+    "node": "v22.18.0",
+    "platform": "win32"
+  },
+  "method": "Node (tsx) direct runLabTeams per row, one process, sequential; elapsed excludes mesh/nav load (reported separately). Output hash must equal the v14 acceptance receipt.",
+  "rows": [
+    {
+      "mapId": "Mirage",
+      "objective": "A",
+      "seed": 4326170,
+      "guns": true,
+      "simulatedSeconds": 75.03125,
+      "outcome": "T",
+      "elapsedMs": [
+        32941
+      ],
+      "realtimeFactor": 2.278,
+      "outputSha256": "e0e9e1e07d2bbf4e1fb5e46a4910dfed45027e39036245c7fe570bb71d7f1299",
+      "receiptSha256": "e0e9e1e07d2bbf4e1fb5e46a4910dfed45027e39036245c7fe570bb71d7f1299",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 54389,
+      "mapLoadMs": 308
+    },
+    {
+      "mapId": "Mirage",
+      "objective": "B",
+      "seed": 4326171,
+      "guns": true,
+      "simulatedSeconds": 73.53125,
+      "outcome": "T",
+      "elapsedMs": [
+        47752
+      ],
+      "realtimeFactor": 1.54,
+      "outputSha256": "182a7931db75dda8f0f343061a49ea27c097115ec7dac6643d49a3118f854a4c",
+      "receiptSha256": "182a7931db75dda8f0f343061a49ea27c097115ec7dac6643d49a3118f854a4c",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 79364,
+      "mapLoadMs": 308
+    },
+    {
+      "mapId": "Inferno",
+      "objective": "A",
+      "seed": 4326170,
+      "guns": true,
+      "simulatedSeconds": 45,
+      "outcome": "T",
+      "elapsedMs": [
+        29031
+      ],
+      "realtimeFactor": 1.55,
+      "outputSha256": "8ceaa63d54110d9836c38fa5e1811fbf3cd3ca7dbd946eea74bd8332f2cce1dd",
+      "receiptSha256": "8ceaa63d54110d9836c38fa5e1811fbf3cd3ca7dbd946eea74bd8332f2cce1dd",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 48649,
+      "mapLoadMs": 2792
+    },
+    {
+      "mapId": "Inferno",
+      "objective": "B",
+      "seed": 4326171,
+      "guns": true,
+      "simulatedSeconds": 43.421875,
+      "outcome": "T",
+      "elapsedMs": [
+        33342
+      ],
+      "realtimeFactor": 1.302,
+      "outputSha256": "feb87e887c8e6a8a6cacd42c2c03914b3e419ef4d03679adfd953cdfbf60ed0c",
+      "receiptSha256": "feb87e887c8e6a8a6cacd42c2c03914b3e419ef4d03679adfd953cdfbf60ed0c",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 58702,
+      "mapLoadMs": 2792
+    },
+    {
+      "mapId": "Overpass",
+      "objective": "A",
+      "seed": 4326170,
+      "guns": true,
+      "simulatedSeconds": 64.046875,
+      "outcome": "CT",
+      "elapsedMs": [
+        20743
+      ],
+      "realtimeFactor": 3.088,
+      "outputSha256": "cfa895378d6077c1ef499392b921a76c9641fb24cf2aadea34ea21805c49c431",
+      "receiptSha256": "cfa895378d6077c1ef499392b921a76c9641fb24cf2aadea34ea21805c49c431",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 47816,
+      "mapLoadMs": 1112
+    },
+    {
+      "mapId": "Overpass",
+      "objective": "B",
+      "seed": 4326171,
+      "guns": true,
+      "simulatedSeconds": 64.625,
+      "outcome": "T",
+      "elapsedMs": [
+        105018
+      ],
+      "realtimeFactor": 0.615,
+      "outputSha256": "bb744219f8b5b242a3e59084fcebdbd9bd97c5f604e231ad529af2f3454a127d",
+      "receiptSha256": "bb744219f8b5b242a3e59084fcebdbd9bd97c5f604e231ad529af2f3454a127d",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 169925,
+      "mapLoadMs": 1112
+    },
+    {
+      "mapId": "Vertigo",
+      "objective": "A",
+      "seed": 4326170,
+      "guns": true,
+      "simulatedSeconds": 41.640625,
+      "outcome": "T",
+      "elapsedMs": [
+        10751
+      ],
+      "realtimeFactor": 3.873,
+      "outputSha256": "89738bf1218b0771552fde28d2fae58a6b07d5ec09c99d7f088476ae5ddbc920",
+      "receiptSha256": "89738bf1218b0771552fde28d2fae58a6b07d5ec09c99d7f088476ae5ddbc920",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 27742,
+      "mapLoadMs": 253
+    },
+    {
+      "mapId": "Vertigo",
+      "objective": "B",
+      "seed": 4326171,
+      "guns": true,
+      "simulatedSeconds": 77.765625,
+      "outcome": "CT",
+      "elapsedMs": [
+        20453
+      ],
+      "realtimeFactor": 3.802,
+      "outputSha256": "06c21cd147e99b7d0685ac93887632cdc5a614180acc799cd84bb3a5e826b878",
+      "receiptSha256": "06c21cd147e99b7d0685ac93887632cdc5a614180acc799cd84bb3a5e826b878",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 38575,
+      "mapLoadMs": 253
+    },
+    {
+      "mapId": "Ancient",
+      "objective": "A",
+      "seed": 4326170,
+      "guns": true,
+      "simulatedSeconds": 43.3125,
+      "outcome": "T",
+      "elapsedMs": [
+        10729
+      ],
+      "realtimeFactor": 4.037,
+      "outputSha256": "b6993a12e3d8cf1c314bf32e06263b9111932c4f5f7d1a313d4ba7941014ed7a",
+      "receiptSha256": "b6993a12e3d8cf1c314bf32e06263b9111932c4f5f7d1a313d4ba7941014ed7a",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 15502,
+      "mapLoadMs": 2062
+    },
+    {
+      "mapId": "Ancient",
+      "objective": "B",
+      "seed": 4326171,
+      "guns": true,
+      "simulatedSeconds": 40.1875,
+      "outcome": "CT",
+      "elapsedMs": [
+        7356
+      ],
+      "realtimeFactor": 5.463,
+      "outputSha256": "04e4f832fea7d7ae7a1986039e168729ab1eff56543289c1fca0bd34a6d91b76",
+      "receiptSha256": "04e4f832fea7d7ae7a1986039e168729ab1eff56543289c1fca0bd34a6d91b76",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 9918,
+      "mapLoadMs": 2062
+    },
+    {
+      "mapId": "Anubis",
+      "objective": "A",
+      "seed": 4326170,
+      "guns": true,
+      "simulatedSeconds": 62.8125,
+      "outcome": "T",
+      "elapsedMs": [
+        30209
+      ],
+      "realtimeFactor": 2.079,
+      "outputSha256": "13be1e33f0dca4ca1308577054fbb2958f16e787dc56fe5bdb0e7c45886e3545",
+      "receiptSha256": "13be1e33f0dca4ca1308577054fbb2958f16e787dc56fe5bdb0e7c45886e3545",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 70041,
+      "mapLoadMs": 1599
+    },
+    {
+      "mapId": "Anubis",
+      "objective": "B",
+      "seed": 4326171,
+      "guns": true,
+      "simulatedSeconds": 50.765625,
+      "outcome": "T",
+      "elapsedMs": [
+        43904
+      ],
+      "realtimeFactor": 1.156,
+      "outputSha256": "6069a09315093a55cdb42467714e1022c96303413453f5d0b0809363e3e5b60a",
+      "receiptSha256": "6069a09315093a55cdb42467714e1022c96303413453f5d0b0809363e3e5b60a",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 79999,
+      "mapLoadMs": 1599
+    },
+    {
+      "mapId": "Sandstone",
+      "objective": "A",
+      "seed": 4326170,
+      "guns": true,
+      "simulatedSeconds": 91.78125,
+      "outcome": "CT",
+      "elapsedMs": [
+        31977
+      ],
+      "realtimeFactor": 2.87,
+      "outputSha256": "f7cb4acad3620d073e8427e8ce4845d67dd60cdebd8a98236b9d9eee34193cb2",
+      "receiptSha256": "f7cb4acad3620d073e8427e8ce4845d67dd60cdebd8a98236b9d9eee34193cb2",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 68196,
+      "mapLoadMs": 1022
+    },
+    {
+      "mapId": "Sandstone",
+      "objective": "B",
+      "seed": 4326171,
+      "guns": true,
+      "simulatedSeconds": 60.03125,
+      "outcome": "T",
+      "elapsedMs": [
+        18049
+      ],
+      "realtimeFactor": 3.326,
+      "outputSha256": "9c59f5ef383ddb58e79b3adf6ba5eaa4004b8bd8e58d23bf34fc00290364ab8b",
+      "receiptSha256": "9c59f5ef383ddb58e79b3adf6ba5eaa4004b8bd8e58d23bf34fc00290364ab8b",
+      "matchesReceipt": true,
+      "receiptElapsedMs": 29771,
+      "mapLoadMs": 1022
+    }
+  ]
+}

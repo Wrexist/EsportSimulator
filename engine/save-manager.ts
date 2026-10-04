@@ -58,6 +58,7 @@ import { evaluatePlayer } from "./player-evaluation"
 import { generateSeed } from "./rng"
 import { AsyncStorage, asyncStorage } from "./storage-adapter"
 import { steamService } from "./steam-service"
+import { perfTrace } from "./perf-trace"
 import { debug } from "@/lib/debug-logger"
 import { createDefaultTactics } from "./default-tactics"
 
@@ -81,10 +82,6 @@ export class SaveManager {
     // Integrity hashing (compute / verify) lives in engine/save-integrity.ts.
     // Routed through `this.integrity` so SaveManager doesn't have to know
     // about WebCrypto fallbacks or v2/v3 signature formats.
-    private computeIntegrityHash(save: Record<string, unknown>): Promise<string> {
-        return this.integrity.computeIntegrityHash(save)
-    }
-
     private verifyIntegrityHash(save: Record<string, unknown>): Promise<boolean> {
         return this.integrity.verifyIntegrityHash(save)
     }
@@ -307,7 +304,9 @@ export class SaveManager {
      */
     async saveGame(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
         // Capture at invocation, before another caller mutates its working state.
+        const cloneStart = perfTrace.now()
         const snapshot = structuredClone(save)
+        perfTrace.step("save.01_clone", cloneStart)
         const operation = this.saveChain.then(() => this.commitSave(snapshot))
         this.saveChain = operation.catch(() => {})
         return operation
@@ -316,6 +315,8 @@ export class SaveManager {
     private async commitSave(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
         try {
             // saveGame captured a detached snapshot before joining the write queue.
+            let stepStart = perfTrace.now()
+            const step = (label: string) => { perfTrace.step(`save.${label}`, stepStart); stepStart = perfTrace.now() }
 
             // Auto-repair common issues before validation
             const repairs = repairSave(save)
@@ -334,7 +335,12 @@ export class SaveManager {
             const schema = validateSaveSchema(save)
             if (!schema.ok) return { success: false, error: schema.issues[0] }
             save.updatedAt = new Date().toISOString()
-            save.integrityHash = await this.computeIntegrityHash(save as unknown as Record<string, unknown>)
+            step("02_repairValidate")
+            // The signed payload is also reused for the stored text below, so
+            // a commit serializes the save once instead of twice (L27).
+            const payload = this.integrity.serializeForIntegrity(save as unknown as Record<string, unknown>)
+            save.integrityHash = await this.integrity.computeIntegrityHashFromPayload(payload)
+            step("03_integrityHash")
 
             const key = STORAGE_KEYS.SAVE_PREFIX + save.saveId
             const tmpKey = key + TMP_SUFFIX
@@ -367,11 +373,13 @@ export class SaveManager {
                 // kept aside rather than silently overwritten by this save.
                 await this.storage.setItem(backupKey + CORRUPT_SUFFIX, existing)
             }
+            step("04_rotateBackups")
 
             // 2. Atomic write: stage to <key>.tmp first. If we crash between
             //    here and step 4, the existing primary is untouched and the
             //    stale .tmp will be discarded by clearStaleTmp() on next load.
-            const serialized = JSON.stringify(save)
+            const serialized = serializeSignedSave(save, payload)
+            step("05_stringify")
             await this.storage.setItem(tmpKey, serialized)
 
             // 3. Verify staging succeeded before committing. Concurrent IDB
@@ -415,6 +423,7 @@ export class SaveManager {
             }
 
             await this.storage.removeItem(tmpKey)
+            step("06_writeVerify")
 
             // 4. Update current save ID
             this.lastVerifiedPrimary = { key, value: serialized }
@@ -426,6 +435,7 @@ export class SaveManager {
             } catch (cloudError) {
                 debug.warn("[SaveManager] Cloud sync failed (save is still local):", cloudError instanceof Error ? cloudError.message : cloudError)
             }
+            step("07_cloud")
 
             // Save size monitoring: warn if approaching storage limits
             const sizeBytes = serialized.length * 2 // UTF-16 encoding
@@ -1221,6 +1231,21 @@ export class SaveManager {
         // IndexedDB doesn't have a strict limited quota like localStorage, but we can return text
         return { used, available: "Unlimited (Disk Based)", saveCount }
     }
+}
+
+/**
+ * `JSON.stringify(save)` for a save whose `integrityHash` was just set from
+ * `payload` (= JSON.stringify of the save without that key). When
+ * `integrityHash` is the last own key, the full text is the payload with the
+ * signature appended, so the multi-MB save is not serialized a second time.
+ * Any other key order falls back to JSON.stringify. Output is identical.
+ */
+export function serializeSignedSave(save: { integrityHash?: unknown }, payload: string): string {
+    const keys = Object.keys(save)
+    if (keys[keys.length - 1] === "integrityHash" && typeof save.integrityHash === "string" && payload.length > 2 && payload.endsWith("}")) {
+        return `${payload.slice(0, -1)},"integrityHash":${JSON.stringify(save.integrityHash)}}`
+    }
+    return JSON.stringify(save)
 }
 
 export const saveManager = new SaveManager()

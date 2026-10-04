@@ -95,13 +95,18 @@ function signFreeAgentWithQuotes(team: TeamSaveData, save: GameSave, emergency: 
     }
     const missingRoles = new Set(REQUIRED_ROLES.filter(r => !currentRoles.has(r)))
 
-    const salaries = new Map(freeAgents.map(p => {
+    // Quote only candidates the role rule admits. recruitmentSalary is pure, so
+    // skipping quotes for candidates that could never be picked changes nothing
+    // but cost: by season 10 the pool holds ~3,000 free agents, and every club
+    // at 5-6 players missing an IGL/AWPer re-quoted all of them each week (L27).
+    const salaries = new Map<string, number>()
+    const affordable = freeAgents.filter(p => {
+        if (team.rosterIds.length >= 5 && !missingRoles.has(recruitmentRole(p.role))) return false
         let salary = quotes.get(p)
         if (salary === undefined) { salary = recruitmentSalary(p, save.currentWeek); quotes.set(p, salary) }
-        return [p.id, salary]
-    }))
-    const affordable = freeAgents.filter(p => canAfford(salaries.get(p.id)!)
-        && (team.rosterIds.length < 5 || missingRoles.has(recruitmentRole(p.role))))
+        salaries.set(p.id, salary)
+        return canAfford(salary)
+    })
     if (affordable.length === 0) return
 
     // Pick the highest-scoring affordable candidate.
