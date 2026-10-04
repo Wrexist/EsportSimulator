@@ -190,6 +190,31 @@ export function commitFreeAgentSigning(team: TeamSaveData, save: GameSave, targe
     }
 }
 
+/**
+ * Promote the club's own youth (team.youthAcademyIds) until it fields five,
+ * at a normal recruitment quote for the club and only when the quorum budget
+ * rule allows it — the human academy promotion takes a wage the same way.
+ */
+export function promoteAcademyToQuorum(team: TeamSaveData, save: GameSave): number {
+    let promoted = 0
+    const index = getPlayerIndex(save)
+    while (team.rosterIds.length < 5 && (team.youthAcademyIds?.length ?? 0) > 0) {
+        const prospects = team.youthAcademyIds!.map(id => index.get(id)).filter((p): p is PlayerSaveData => !!p && !p.isRetired)
+            .sort((a, b) => (b.skill ?? 0) - (a.skill ?? 0) || a.id.localeCompare(b.id))
+        const pick = prospects[0]
+        if (!pick) { team.youthAcademyIds = []; break }
+        const salary = recruitmentSalary(pick, save.currentWeek, team)
+        if (!recruitmentBudget(save, team, { quorum: true })(salary)) break
+        team.youthAcademyIds = team.youthAcademyIds!.filter(id => id !== pick.id)
+        team.rosterIds.push(pick.id)
+        save.contracts.push({ playerId: pick.id, teamId: team.id, salaryPerWeek: salary, startWeek: save.currentWeek, endWeek: save.currentWeek + 104, buyout: 0 })
+        applyRosterChangePenalty(team, save.currentWeek, 1)
+        recalculateTeamSynergy(team, save.players)
+        promoted++
+    }
+    return promoted
+}
+
 /** Release excess depth under the same fee-free release rules as the human club. */
 export function releaseWorstPlayer(team: TeamSaveData, save: GameSave): void {
     const playerIndex = getPlayerIndex(save)
@@ -262,6 +287,9 @@ export function manageRoster(team: TeamSaveData, save: GameSave): void {
             signFreeAgentWithQuotes(team, save, true, quotes)
             if (team.rosterIds.length === before) break
         }
+        // Pass 2: still short — promote the club's own academy prospects on a
+        // normal recruitment quote, under the same quorum budget rule.
+        promoteAcademyToQuorum(team, save)
         return
     }
 

@@ -86,6 +86,13 @@ export const FREE_AGENT_TUNING = {
     RETIRE_GRACE_WEEKS: 26,
     /** Weekly retirement chance once past the grace period (age-adjusted below). */
     RETIRE_WEEKLY_CHANCE: 0.015,
+    /**
+     * Pass 2: the weekly chance is multiplied by (free agents / target), with
+     * target = POOL_TARGET_PER_CLUB x clubs, clamped to [MIN, MAX].
+     */
+    POOL_TARGET_PER_CLUB: 2,
+    POOL_FACTOR_MIN: 0.25,
+    POOL_FACTOR_MAX: 3,
     /** Age at/above which the weekly chance doubles; below YOUTH_AGE it halves. */
     RETIRE_VETERAN_AGE: 28,
     RETIRE_YOUTH_AGE: 21,
@@ -96,12 +103,22 @@ export const FREE_AGENT_TUNING = {
  * do under the same rules (engine/ai/squad-maintenance.ts).
  */
 export const AI_SQUAD_TUNING = {
-    /** Renew contracts ending within this many weeks... */
-    RENEW_WINDOW_WEEKS: 4,
+    /**
+     * Pass 2: AI clubs train every week on the managed club's default
+     * regimen (store/game-store.ts: AIM at intensity 5) through the same
+     * TrainingProcessor, so development is symmetric.
+     */
+    TRAINING_FOCUS: "AIM",
+    TRAINING_INTENSITY: 5,
+    /** Renew contracts ending within this many weeks (pass 2: 4 -> 12, before the expiry wave)... */
+    RENEW_WINDOW_WEEKS: 12,
     /** ...for the club's most valuable players (by the AI release ordering)... */
     RENEW_TOP_N: 6,
     /** ...below this age (older players are left to retire or move on). */
     RENEW_MAX_AGE: 33,
+    /** Opening snapshot contracts end within +/- this many weeks of their nominal length (seeded). */
+    INITIAL_CONTRACT_STAGGER_WEEKS: 26,
+    INITIAL_CONTRACT_MIN_WEEKS: 26,
     /** Human Renew button terms (store/slices/transfer-contract-slice.ts). */
     RENEWAL_SALARY_MULTIPLIER: 1.1,
     RENEWAL_EXTENSION_WEEKS: 52,

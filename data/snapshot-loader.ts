@@ -29,6 +29,7 @@ import { LEGENDARY_PLAYERS } from "@/engine/legendary-players-data"
 import { validateModReferences } from "@/electron/mod-content"
 import { loadModSnapshot, mergeSnapshot } from "@/engine/mod-loader"
 import { SeededRNG, generateSeed } from "@/engine/rng"
+import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { PlayerRole, PlayerTier, TournamentTier, TournamentFormat, MatchFormat } from "@/types"
 
 import { reconcileTeamRoles } from "@/engine/role-reconciler"
@@ -538,7 +539,11 @@ export class SnapshotLoader {
                     teamId: team.id,
                     salaryPerWeek: contract.salary,
                     startWeek: startWeek,
-                    endWeek: startWeek + (contract.years * 52),
+                    // Pass 2 (AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS): spread
+                    // expiry across the season instead of every opening contract
+                    // ending on a season boundary in the same week.
+                    endWeek: Math.max(startWeek + AI_SQUAD_TUNING.INITIAL_CONTRACT_MIN_WEEKS,
+                        startWeek + (contract.years * 52) + rng.int(-AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS, AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS)),
                     buyout: contract.buyout, // Use calculated buyout from contract formula
                 })
             })

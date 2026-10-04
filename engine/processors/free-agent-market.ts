@@ -44,6 +44,12 @@ export function freeAgentRetirementChance(age: number, weeksUnsigned: number): n
     return base
 }
 
+/** Retirement multiplier from free-agent pool size relative to its target. */
+export function freeAgentPoolFactor(freeAgents: number, clubs: number): number {
+    const target = Math.max(1, FREE_AGENT_TUNING.POOL_TARGET_PER_CLUB * clubs)
+    return Math.max(FREE_AGENT_TUNING.POOL_FACTOR_MIN, Math.min(FREE_AGENT_TUNING.POOL_FACTOR_MAX, freeAgents / target))
+}
+
 export function processFreeAgentMarket(save: GameSave): { retired: string[] } {
     const week = save.currentWeek
     const rostered = new Set<string>()
@@ -51,6 +57,13 @@ export function processFreeAgentMarket(save: GameSave): { retired: string[] } {
     const held = academyHeldPlayerIds(save)
     const contracted = new Set<string>()
     for (const c of save.contracts) if (c.endWeek > week && (c.startWeek ?? 0) <= week) contracted.add(c.playerId)
+
+    // Pool-size feedback (pass 2): retirements slow while the free-agent pool
+    // is short of POOL_TARGET_PER_CLUB per club and speed up when it is large,
+    // so the pool neither bottoms out (seasons 3-4) nor grows without bound.
+    let freeCount = 0
+    for (const p of save.players) if (!p.isRetired && !p.id.startsWith(FPL_NON_PRO_PREFIX) && !rostered.has(p.id) && !held.has(p.id) && !contracted.has(p.id)) freeCount++
+    const poolFactor = freeAgentPoolFactor(freeCount, save.teams.length)
 
     const retired: string[] = []
     for (const p of save.players) {
@@ -63,7 +76,7 @@ export function processFreeAgentMarket(save: GameSave): { retired: string[] } {
         if (p.freeAgentSinceWeek === undefined) { p.freeAgentSinceWeek = week; continue }
         // Legends never retire; FPL non-pros are an amateur pool the FPL cycle manages.
         if (p.isLegendary || p.id.startsWith(FPL_NON_PRO_PREFIX)) continue
-        const chance = freeAgentRetirementChance(p.age ?? 22, week - p.freeAgentSinceWeek)
+        const chance = freeAgentRetirementChance(p.age ?? 22, week - p.freeAgentSinceWeek) * poolFactor
         if (chance > 0 && hashRoll(`fa_retire:${p.id}:${week}`) < chance) {
             p.isRetired = true
             p.retirementWeek = week

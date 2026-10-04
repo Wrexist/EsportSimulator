@@ -44,6 +44,7 @@ import { psychologistMoraleDampen } from "./staff-specialization"
 import { MatchAnalyzer } from "./match-analyzer"
 import { TrainingManager } from "./training-manager"
 import { TrainingProcessor } from "./processors/training-processor"
+import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { FinanceProcessor } from "./processors/finance-processor"
 import { EventProcessor } from "./processors/event-processor"
 import { compactPersistentState } from "./processors/save-compactor"
@@ -251,7 +252,16 @@ export class AtomicWeekProcessor {
             if (resumeStep <= 1) {
                 debugLog(`[Week ${save.currentWeek}] Step 1: Training...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                TrainingProcessor.processTraining(save, config.trainingFocus, idx)
+                // AI clubs follow the same default weekly regimen as the managed club
+                // (AI_SQUAD_TUNING.TRAINING_*), through the same processor: staff and
+                // facility modifiers, potential cap and training fatigue included.
+                const weeklyTraining = new Map(config.trainingFocus)
+                for (const team of save.teams) {
+                    if (team.id !== config.playerTeamId && !weeklyTraining.has(team.id)) {
+                        weeklyTraining.set(team.id, { focus: AI_SQUAD_TUNING.TRAINING_FOCUS as TrainingFocus, intensity: AI_SQUAD_TUNING.TRAINING_INTENSITY })
+                    }
+                }
+                TrainingProcessor.processTraining(save, weeklyTraining, idx)
                 TrainingManager.processWeeklyTraining(save) // Process Role Training
                 perfTrace.step("step.1_training", __s)
                 await this.saveManager.markStepComplete(transaction, "trainingComplete")

@@ -441,7 +441,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         const active = s.players.filter(p => !p.isRetired).length
         if (active < openingActive * BOUNDS.supplyMinRatio || active > openingActive * BOUNDS.supplyMaxRatio) record([{ kind: 'player-supply', week: s.currentWeek, detail: `${active} active vs ${openingActive} at start` }], () => s)
         if (structural.length === 0) lastGood = structuredClone(s)
-        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push(seasonMetrics(s, seasonOpen, income, teamId))
+        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push(seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id))
         if (ticks % 52 === 0) { Object.assign(seasonOpen, openState(s, playerTeam().budget)); income.clear() }
         if (ticks % 26 === 0) process.stdout.write(`${tag} tick ${ticks} week ${s.currentWeek} cash ${Math.round(playerTeam().budget)} failures ${failures.length} avgMs ${Math.round(tickMs.slice(-26).reduce((a, b) => a + b, 0) / 26)}\n`)
     }
@@ -473,7 +473,12 @@ function conditionMetrics(s: GameSave, teamId: string) {
     return { managed: pack(of(s.teams.find(t => t.id === teamId)?.rosterIds ?? [])), aiTop10: pack(of(aiTop.flatMap(t => t.rosterIds))) }
 }
 
-function seasonMetrics(s: GameSave, open: ReturnType<typeof openState>, income: Map<string, number>, teamId: string) {
+/**
+ * `managedAt(week)`: the club the manager ran that week. Own matches are
+ * counted for that club, so a job change at a season boundary does not
+ * report the season as empty (seeds 12/19 in final-4efd1ff9).
+ */
+function seasonMetrics(s: GameSave, open: ReturnType<typeof openState>, income: Map<string, number>, teamId: string, managedAt: (week: number) => string = () => teamId) {
     const team = s.teams.find(t => t.id === teamId)!
     const alive = s.players.filter(p => !p.isRetired)
     const rostered = new Set(s.teams.flatMap(t => t.rosterIds))
@@ -484,11 +489,11 @@ function seasonMetrics(s: GameSave, open: ReturnType<typeof openState>, income: 
     const winners: Record<string, string[]> = {}
     for (const t of done) (winners[t.tier] ??= []).push(t.winnerId!)
     const ai = s.teams.filter(t => t.id !== teamId)
-    const own = s.completedMatches.filter(m => m.week > seasonStart && (m.homeTeamId === teamId || m.awayTeamId === teamId))
+    const own = s.completedMatches.filter(m => m.week > seasonStart && (m.homeTeamId === managedAt(m.week) || m.awayTeamId === managedAt(m.week)))
     return {
         week: s.currentWeek,
         managed: { cash: Math.round(team.budget), cashDelta: Math.round(team.budget - open.cash), ranking: team.worldRanking, roster: team.rosterIds.length,
-            sponsors: team.sponsors?.length ?? 0, wins: own.filter(m => m.result?.winnerId === teamId).length, matches: own.length,
+            sponsors: team.sponsors?.length ?? 0, wins: own.filter(m => m.result?.winnerId === managedAt(m.week)).length, matches: own.length,
             trophies: (team.trophies || []).filter(tr => tr.week > seasonStart).map(tr => tr.tier), board: s.boardState?.confidence,
             ledger: Object.fromEntries([...income].map(([k, v]) => [k, Math.round(v)])) },
         aiBudgets: distribution(ai.map(t => t.budget)),
