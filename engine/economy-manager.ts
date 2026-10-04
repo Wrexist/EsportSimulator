@@ -6,7 +6,7 @@ import {
     MATCH_CONSTANTS,
     getLossBonus,
 } from "../lib/constants"
-import { ROUND_ECONOMY_TUNING, SPONSOR_TUNING } from "../lib/balance-tuning"
+import { ROUND_ECONOMY_TUNING, SPONSOR_TUNING, sponsorWageBase } from "../lib/balance-tuning"
 
 /**
  * EconomyManager handles all game-specific financial logic including
@@ -364,7 +364,7 @@ export class SponsorGenerator {
     // factor) stays within a share of the club's wage bill. Omitted wage
     // bill (legacy callers/tests) means no wage cap.
     const wageCap = weeklyWageBill === undefined ? Infinity
-      : Math.floor(SPONSOR_TUNING.MAX_SHARE_OF_WAGE_BILL * Math.max(weeklyWageBill, SPONSOR_TUNING.WAGE_BILL_FLOOR)
+      : Math.floor(SPONSOR_TUNING.MAX_SHARE_OF_WAGE_BILL * sponsorWageBase(weeklyWageBill, reputation)
         / EconomyEngine.sponsorReputationFactor(reputation))
     const teamId = team.id || team.name || "unknown_team"
 

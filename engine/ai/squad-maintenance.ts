@@ -17,7 +17,7 @@
  */
 
 import type { GameSave, PlayerSaveData, TeamSaveData } from "../save-types"
-import { academyHeldPlayerIds, recruitmentBudget, recruitmentSalary } from "../recruitment"
+import { academyHeldPlayerIds, affordableInvestment, recruitmentBudget, recruitmentSalary } from "../recruitment"
 import { commitFreeAgentSigning } from "./roster-management"
 import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 
@@ -80,7 +80,8 @@ export function upgradeFromFreeAgency(team: TeamSaveData, save: GameSave, pool: 
         if (team.rosterIds.includes(p.id) || save.teams.some(t => t.rosterIds.includes(p.id))) continue
         if (++checked > AI_SQUAD_TUNING.UPGRADE_MAX_QUOTES) break
         const salary = recruitmentSalary(p, save.currentWeek, team)
-        if (!canAfford(salary)) continue
+        // Optional depth must also be sustainable: weekly net stays >= 0 with the new wage.
+        if (!canAfford(salary) || !affordableInvestment(save, team, 0, salary)) continue
         commitFreeAgentSigning(team, save, p, salary)
         if (!team.rosterIds.includes(p.id)) return null
         // Starters are the first five roster slots: the signing takes the

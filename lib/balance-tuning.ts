@@ -52,8 +52,15 @@ export const SPONSOR_TUNING = {
      * raising wages never pays for itself through sponsors.
      */
     MAX_SHARE_OF_WAGE_BILL: 0.34,
+    /** Wage-bill floor = BASE + PER_REP x reputation: a famous club with a lean payroll still sells exposure. */
     WAGE_BILL_FLOOR: 20_000,
+    WAGE_BILL_FLOOR_PER_REP: 1_500,
 } as const
+
+/** Wage bill used for the sponsor cap: the actual bill, floored by reputation. */
+export function sponsorWageBase(weeklyWageBill: number, reputation: number): number {
+    return Math.max(weeklyWageBill, SPONSOR_TUNING.WAGE_BILL_FLOOR + SPONSOR_TUNING.WAGE_BILL_FLOOR_PER_REP * Math.max(0, Math.min(100, reputation || 0)))
+}
 
 /** Free-agent market: asking wages, buyer tier and long-unsigned retirement. */
 export const FREE_AGENT_TUNING = {
@@ -66,7 +73,7 @@ export const FREE_AGENT_TUNING = {
     /** Weeks a free agent stays available before retirement can happen. */
     RETIRE_GRACE_WEEKS: 26,
     /** Weekly retirement chance once past the grace period (age-adjusted below). */
-    RETIRE_WEEKLY_CHANCE: 0.02,
+    RETIRE_WEEKLY_CHANCE: 0.015,
     /** Age at/above which the weekly chance doubles; below YOUTH_AGE it halves. */
     RETIRE_VETERAN_AGE: 28,
     RETIRE_YOUTH_AGE: 21,

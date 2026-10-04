@@ -15,7 +15,7 @@ import { applyAutoRegistration } from '@/engine/processors/auto-registration-pro
 import { hallOfFameAchievements, qualifiesForHallOfFame } from '@/engine/hall-of-fame-manager'
 import { EventProcessor } from '@/engine/processors/event-processor'
 import { getLossBonus } from '@/lib/constants'
-import { AI_SQUAD_TUNING } from '@/lib/balance-tuning'
+import { AI_SQUAD_TUNING, sponsorWageBase } from '@/lib/balance-tuning'
 import { renewExpiringContracts, upgradeFromFreeAgency, freeAgentsBySkill } from '@/engine/ai/squad-maintenance'
 import type { GameSave, PlayerSaveData, TournamentSaveData } from '@/engine/save-types'
 
@@ -79,7 +79,7 @@ describe('sponsors scale with reputation and the wage bill', () => {
         const team = { ...save.teams[0], reputation: 100 }
         for (const wageBill of [0, 20_000, 60_000, 150_000, 1_000_000]) {
             const offers = SponsorGenerator.generateVariedOffers(team, 10, new SeededRNG(7), wageBill)
-            const cap = SPONSOR_TUNING.MAX_SHARE_OF_WAGE_BILL * Math.max(wageBill, SPONSOR_TUNING.WAGE_BILL_FLOOR)
+            const cap = SPONSOR_TUNING.MAX_SHARE_OF_WAGE_BILL * sponsorWageBase(wageBill, 100)
             for (const o of offers) expect(o.weeklyPayout * EconomyEngine.sponsorReputationFactor(100)).toBeLessThanOrEqual(cap + 1)
         }
         // Absolute ceiling: top reputation, best tier, betting premium.
@@ -90,7 +90,7 @@ describe('sponsors scale with reputation and the wage bill', () => {
     test('three capped sponsors cannot out-earn the wage bill, and offers stay deterministic', () => {
         const save = createLaunchFixture('first-week', 41004)
         const team = { ...save.teams[0], reputation: 100 }
-        const wage = 150_000
+        const wage = 250_000
         const a = SponsorGenerator.generateVariedOffers(team, 10, new SeededRNG(9), wage)
         expect(SponsorGenerator.generateVariedOffers(team, 10, new SeededRNG(9), wage)).toEqual(a)
         const best3 = [...a].sort((x, y) => y.weeklyPayout - x.weeklyPayout).slice(0, 3)
