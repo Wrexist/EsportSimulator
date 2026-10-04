@@ -92,14 +92,14 @@ export const FREE_AGENT_TUNING = {
      */
     POOL_TARGET_PER_CLUB: 2,
     POOL_FACTOR_MIN: 0.25,
-    POOL_FACTOR_MAX: 4,
+    POOL_FACTOR_MAX: 6,
     /**
      * AI prospect scouting chance is multiplied by (target / free agents),
      * clamped to [SCOUTING_FACTOR_MIN, 1]: youth keeps arriving, but more
      * slowly while the free-agent pool is over target (the hard pause tried
      * in 2a07265d starved youth and was reverted).
      */
-    SCOUTING_FACTOR_MIN: 0.3,
+    SCOUTING_FACTOR_MIN: 0.15,
     /** Age at/above which the weekly chance doubles; below YOUTH_AGE it halves. */
     RETIRE_VETERAN_AGE: 28,
     RETIRE_YOUTH_AGE: 21,

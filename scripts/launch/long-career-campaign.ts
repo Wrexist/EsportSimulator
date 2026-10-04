@@ -221,7 +221,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
 
     // ------------------------------------------------ deterministic policy
     const playerTeam = () => get().teams.find(t => t.id === teamId)!
-    const policyStats = { forfeitAdvances: 0, registrations: 0, signings: 0, upgrades: 0, renewals: 0, renewalFailures: 0, sponsorsSigned: 0, choices: 0, jobOffersDeclined: 0, jobChanges: 0, softlocks: 0 }
+    const policyStats = { forfeitAdvances: 0, registrations: 0, signings: 0, upgrades: 0, renewals: 0, renewalFailures: 0, sponsorsSigned: 0, choices: 0, jobOffersDeclined: 0, jobChanges: 0, softlocks: 0, preparations: 0 }
     // Job market: stay loyal unless the board has put the manager on notice,
     // then take the best-ranked offer (exercises real job changes).
     const jobMarket = () => {
@@ -326,6 +326,21 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
             }
         }
     }
+    // Match-day preparation a competent manager uses from the match screen:
+    // VOD review (scouts the opponent; +25 tactical prep, $2,500), then the
+    // counter playstyle; a mental reset ($5,000, +15 morale) only when squad
+    // morale is low. Kept to a cash reserve so preparation never bankrupts.
+    const COUNTER: Record<string, 'aggressive' | 'structured' | 'balanced'> = { aggressive: 'balanced', structured: 'aggressive', balanced: 'structured' }
+    const prepareMatch = (m: { id: string; homeTeamId: string; awayTeamId: string }) => {
+        if (playerTeam().budget < 250_000) return
+        get().performVODReview(m.id)
+        const opp = get().teams.find(t => t.id === (m.homeTeamId === teamId ? m.awayTeamId : m.homeTeamId))
+        const counter = opp?.playstyle ? COUNTER[opp.playstyle] : undefined
+        if (counter && playerTeam().playstyle !== counter) get().setPlaystyle(teamId, counter)
+        const roster = playerTeam().rosterIds.map(id => get().players.find(p => p.id === id)).filter(Boolean) as Array<{ morale: number }>
+        if (roster.length && roster.reduce((s, p) => s + (p.morale ?? 50), 0) / roster.length < 60) get().performMentalReset(m.id)
+        policyStats.preparations++
+    }
     const unplayedOwn = () => {
         const s = get()
         const done = new Set(s.completedMatches.map(m => m.id))
@@ -356,6 +371,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
                     continue
                 }
                 const doneBefore = get().completedMatches.length
+                if (policyName === 'competent') await step('match-prep', () => prepareMatch(m))
                 await step('own-match', async () => { await get().simulateInstantMatch(m.id) })
                 if (get().completedMatches.length === doneBefore) {
                     // Refused (e.g. understrength roster). Give the policy one chance to fix it.
@@ -588,7 +604,7 @@ function aggregate() {
         driver: 'Real useGameStore coordinator (initializeNewGame, advanceToWeekEnd/advanceWeek with worker synchronous fallback, simulateInstantMatch, transferPlayer, renewContract, signSponsor, resolveEventChoice, declineJobOffer, saveGame/loadGame) over the full snapshot world.',
         policyName: [...new Set(results.map(r => r.policyName ?? 'competent'))].join(','),
         targets: targetMetrics(results),
-        policy: 'Deterministic: register for every eligible event starting within 4 weeks; play own matches by instant sim; decline job offers unless on board notice (then take the best-ranked offer); monthly swap of the weakest starter for a clearly better free agent the club can afford (same 26-week reserve and non-negative net test as AI upgrades); money-maximising branch on choice events that does not cost morale; renew expiring starters; fill to five from free agency (best affordable for 104 weeks, else cheapest); keep up to three sponsors (best offered, avoiding morale-draining brands).',
+        policy: 'Deterministic: register for every eligible event starting within 4 weeks; play own matches by instant sim after match prep (VOD review + counter playstyle; mental reset when squad morale < 60; only above a $250k reserve); decline job offers unless on board notice (then take the best-ranked offer); monthly swap of the weakest starter for a clearly better free agent the club can afford (same 26-week reserve and non-negative net test as AI upgrades); money-maximising branch on choice events that does not cost morale; renew expiring starters; fill to five from free agency (best affordable for 104 weeks, else cheapest); keep up to three sponsors (best offered, avoiding morale-draining brands).',
         bounds: BOUNDS,
         sampleSize: { careers: results.length, seeds: [...new Set(results.map(r => r.seed))].length, weekTicks: results.reduce((s, r) => s + r.ticks, 0), seasonSnapshots: seasonsAll.length,
             byTier: Object.fromEntries(TIERS.map(t => [t, results.filter(r => r.tier === t).length])),
