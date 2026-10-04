@@ -60,7 +60,7 @@ export const SPONSOR_TUNING = {
     MAX_SHARE_OF_WAGE_BILL: 0.34,
     /** Wage-bill floor = BASE + PER_REP x reputation: a famous club with a lean payroll still sells exposure. */
     WAGE_BILL_FLOOR: 20_000,
-    WAGE_BILL_FLOOR_PER_REP: 1_500,
+    WAGE_BILL_FLOOR_PER_REP: 1_000,
 } as const
 
 /** Wage bill used for the sponsor cap: the actual bill, floored by reputation. */
