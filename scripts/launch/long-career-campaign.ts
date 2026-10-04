@@ -221,7 +221,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
 
     // ------------------------------------------------ deterministic policy
     const playerTeam = () => get().teams.find(t => t.id === teamId)!
-    const policyStats = { forfeitAdvances: 0, registrations: 0, signings: 0, upgrades: 0, renewals: 0, renewalFailures: 0, sponsorsSigned: 0, choices: 0, jobOffersDeclined: 0, jobChanges: 0, softlocks: 0, preparations: 0 }
+    const policyStats = { forfeitAdvances: 0, registrations: 0, signings: 0, upgrades: 0, renewals: 0, renewalFailures: 0, sponsorsSigned: 0, choices: 0, jobOffersDeclined: 0, jobChanges: 0, softlocks: 0, preparations: 0, benchReleases: 0 }
     // Job market: stay loyal unless the board has put the manager on notice,
     // then take the best-ranked offer (exercises real job changes).
     const jobMarket = () => {
@@ -299,6 +299,13 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
                 if (get().transferPlayer(worst.id, teamId, 'FA', 0).success) policyStats.upgrades++
             }
         }
+        // Competent: shed bench wages while the club runs a weekly deficit
+        // (job changes often land the manager at a seven-player AI roster).
+        if (policyName !== 'spendthrift' && playerTeam().rosterIds.length > 5 && (playerTeam().weeklyNet ?? 0) < 0) {
+            const st = get()
+            const bench = playerTeam().rosterIds.slice(5).map(id => st.players.find(p => p.id === id)!).filter(Boolean).sort((a, b) => a.skill - b.skill || a.id.localeCompare(b.id))[0]
+            if (bench && get().transferPlayer(bench.id, teamId, 'FA', 0).success) policyStats.benchReleases++
+        }
         // Bad policy: stack the squad to seven with the best free agents at
         // whatever they ask (no affordability check, no sponsors below).
         if (policyName === 'spendthrift' && playerTeam().rosterIds.length < 7 && get().currentWeek % 4 === 0) {
@@ -333,7 +340,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     const MENTAL_RESET_BELOW = 40
     const COUNTER: Record<string, 'aggressive' | 'structured' | 'balanced'> = { aggressive: 'balanced', structured: 'aggressive', balanced: 'structured' }
     const prepareMatch = (m: { id: string; homeTeamId: string; awayTeamId: string }) => {
-        if (playerTeam().budget < 250_000) return
+        if (playerTeam().budget < 250_000 || (playerTeam().weeklyNet ?? 0) < 0) return
         get().performVODReview(m.id)
         const opp = get().teams.find(t => t.id === (m.homeTeamId === teamId ? m.awayTeamId : m.homeTeamId))
         const counter = opp?.playstyle ? COUNTER[opp.playstyle] : undefined
@@ -605,7 +612,7 @@ function aggregate() {
         driver: 'Real useGameStore coordinator (initializeNewGame, advanceToWeekEnd/advanceWeek with worker synchronous fallback, simulateInstantMatch, transferPlayer, renewContract, signSponsor, resolveEventChoice, declineJobOffer, saveGame/loadGame) over the full snapshot world.',
         policyName: [...new Set(results.map(r => r.policyName ?? 'competent'))].join(','),
         targets: targetMetrics(results),
-        policy: 'Deterministic: register for every eligible event starting within 4 weeks; play own matches by instant sim after match prep (VOD review + counter playstyle; mental reset when squad morale < 40; only above a $250k reserve); decline job offers unless on board notice (then take the best-ranked offer); monthly swap of the weakest starter for a clearly better free agent the club can afford (same 26-week reserve and non-negative net test as AI upgrades); money-maximising branch on choice events that does not cost morale; renew expiring starters; fill to five from free agency (best affordable for 104 weeks, else cheapest); keep up to three sponsors (best offered, avoiding morale-draining brands).',
+        policy: 'Deterministic: register for every eligible event starting within 4 weeks; play own matches by instant sim after match prep (VOD review + counter playstyle; mental reset when squad morale < 40; only above a $250k reserve and with non-negative weekly net); release the weakest bench player while running a weekly deficit; decline job offers unless on board notice (then take the best-ranked offer); monthly swap of the weakest starter for a clearly better free agent the club can afford (same 26-week reserve and non-negative net test as AI upgrades); money-maximising branch on choice events that does not cost morale; renew expiring starters; fill to five from free agency (best affordable for 104 weeks, else cheapest); keep up to three sponsors (best offered, avoiding morale-draining brands).',
         bounds: BOUNDS,
         sampleSize: { careers: results.length, seeds: [...new Set(results.map(r => r.seed))].length, weekTicks: results.reduce((s, r) => s + r.ticks, 0), seasonSnapshots: seasonsAll.length,
             byTier: Object.fromEntries(TIERS.map(t => [t, results.filter(r => r.tier === t).length])),
