@@ -106,10 +106,14 @@ test('all radar floors have measured local provenance and are held from release'
     }
 })
 test('the original Mirage upload remains byte-for-byte intact and its review copy retains every vertex', () => {
-    const bytes = readFileSync('public/map-studio/drafts/mirage-user-areas-2026-09-13.json')
+    // The verbatim upload is archived; the shipped copy only drops imported CS2Nades lineups (excluded from 1.0).
+    const bytes = readFileSync('raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-user-areas-2026-09-13.json')
     expect(createHash('sha256').update(bytes).digest('hex')).toBe('46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65')
-    const original = parseProject(bytes.toString()), review = parseProject(readFileSync('public/map-studio/drafts/mirage-registered-review.json', 'utf8'))
-    expect(review.marks.map(m => [m.id, m.kind, m.points])).toEqual(original.marks.map(m => [m.id, m.kind, m.points]))
+    const original = parseProject(bytes.toString()), shipped = parseProject(readFileSync('public/map-studio/drafts/mirage-user-areas-2026-09-13.json', 'utf8'))
+    const review = parseProject(readFileSync('public/map-studio/drafts/mirage-registered-review.json', 'utf8'))
+    const owned = original.marks.filter(m => m.source?.provider !== 'CS2Nades')
+    expect(shipped.marks).toEqual(owned)
+    expect(review.marks.map(m => [m.id, m.kind, m.points])).toEqual(owned.map(m => [m.id, m.kind, m.points]))
     // Stored review predates five-body spawn checks; retain drawings, discard stale receipt.
     expect(review.validation).toBeUndefined()
 })

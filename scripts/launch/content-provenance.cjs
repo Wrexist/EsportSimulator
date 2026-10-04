@@ -15,9 +15,10 @@ function walk(base, rel) {
   return stat.isDirectory() ? fs.readdirSync(target).sort().flatMap(n => walk(base, `${rel}/${n}`)) : [rel];
 }
 function category(p) {
-  if (p.includes('/drafts/')) return ['user-draft-mixed', 'Owner annotations mixed with imported radar outlines and CS2Nades lineups; retain original backup', 'docs/MAP-STUDIO-TACTICAL.md'];
+  if (p.includes('/drafts/')) return ['user-draft-mixed', 'Owner annotations with imported radar outlines; imported CS2Nades lineups excluded from 1.0 and archived in raw-data/archived-lineups', 'docs/launch-readiness/evidence/L31-OWNER-LINEUP-EXCLUSION-DECISION.json'];
   if (p.includes('/spatial/')) return ['map-geometry', 'https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908', 'docs/audit-2026-09-13/spatial-import.json'];
-  if (/map-studio-library|map-utility-templates/.test(p)) return ['lineup-reference', 'https://cs2nades.gg ; https://getreplay.gg/en/articles/cs2-mirage-lineups', 'docs/MAP-STUDIO-TACTICAL.md'];
+  if (/map-studio-library/.test(p)) return ['map-reference', 'Radar outlines only; imported CS2Nades lineups excluded from 1.0 and archived in raw-data/archived-lineups', 'docs/launch-readiness/evidence/L31-OWNER-LINEUP-EXCLUSION-DECISION.json'];
+  if (/map-utility-templates/.test(p)) return ['lineup-reference', 'https://getreplay.gg/en/articles/cs2-mirage-lineups', 'docs/MAP-STUDIO-TACTICAL.md'];
   if (/map-layouts|radar-nav|public\/maps/.test(p)) return ['map-reference', 'Imported or derived map reference; exact upstream permission unresolved', 'docs/SPATIAL-LAB.md'];
   if (/fonts\//.test(p)) return ['font', 'Archivo Black / Google Fonts; binary origin still needs matching', 'https://github.com/google/fonts/tree/main/ofl/archivoblack'];
   if (/branding\/portraits\//.test(p)) return ['portrait', 'Retained portrait bytes relocated from legacy player folders; migration is not creation or permission evidence', 'docs/launch-readiness/evidence/L31-PORTRAIT-MIGRATION.json'];
@@ -45,17 +46,24 @@ function verify(current, recorded, ownerDecisions = []) {
     if (!row || row.sha256 !== file.sha256) return [`${file.path}: missing or changed content review`];
     // Exclusion requires artifact evidence; marking an entry excluded does not remove bundled imports.
     const decision = decisions.get(file.path);
-    const ownerDirected = decision?.sha256 === file.sha256 && decision?.decision === 'ship-with-unverified-source-permission' && decision?.authorization === 'Ship everything' && decision?.evidence;
+    const ownerDirected = decision?.sha256 === file.sha256 && !!decision?.decision && OWNER_DECISIONS[decision.decision] === decision.authorization && decision?.evidence;
     if (row.releaseDisposition !== 'include' || (!ownerDirected && (!row.permission || !row.license || row.license === 'UNVERIFIED'))) return [`${file.path}: distribution evidence unresolved`];
     return [];
   });
 }
+// Owner decisions bind exact bytes; a later record supersedes an earlier one per path.
+const OWNER_DECISIONS = {
+  'ship-with-unverified-source-permission': 'Ship everything',
+  'exclude-third-party-lineups-ship-owner-content': 'Exclude imported third-party lineups from the shipped game, keep owner-authored content.',
+};
+const OWNER_DECISION_FILES = ['docs/launch-readiness/evidence/L31-OWNER-LINEUP-RELEASE-DECISION.json', 'docs/launch-readiness/evidence/L31-OWNER-LINEUP-EXCLUSION-DECISION.json'];
 function ownerReleaseDecisions() {
-  const file = path.join(root, 'docs/launch-readiness/evidence/L31-OWNER-LINEUP-RELEASE-DECISION.json');
-  if (!fs.existsSync(file)) return [];
-  const record = JSON.parse(fs.readFileSync(file, 'utf8'));
-  return record.files.map(row => ({...row, authorization:record.statement, decision:record.decision,
-    evidence:'docs/launch-readiness/evidence/L31-OWNER-LINEUP-RELEASE-DECISION.json'}));
+  return OWNER_DECISION_FILES.flatMap(evidence => {
+    const file = path.join(root, evidence);
+    if (!fs.existsSync(file)) return [];
+    const record = JSON.parse(fs.readFileSync(file, 'utf8'));
+    return record.files.map(row => ({...row, authorization:record.statement, decision:record.decision, evidence}));
+  });
 }
 // Keep the full source inventory for audit, but gate distribution assets using
 // the same positive/negative file patterns as electron-builder. Source data and
@@ -118,4 +126,4 @@ if (require.main === module) {
     console.log(`Inventoried ${files.length} files; all pending item-specific rights review.`);
   } else { try { check(); } catch (error) { console.error(error.message); process.exitCode = 1; } }
 }
-module.exports = {inventory, releaseInventory, verify, verifyPackaged, ownerReleaseDecisions, check, checkPackaged};
+module.exports = {OWNER_DECISIONS, OWNER_DECISION_FILES, inventory, releaseInventory, verify, verifyPackaged, ownerReleaseDecisions, check, checkPackaged};

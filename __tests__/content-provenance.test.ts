@@ -10,6 +10,10 @@ describe('Content release gate', () => {
         expect(verify([file], [record], [{ ...decision, path: 'another-file' }])).toHaveLength(1)
         expect(record.license).toBe('UNVERIFIED')
         expect(record.permission).toBeNull()
+        const exclusion = { ...file, authorization: 'Exclude imported third-party lineups from the shipped game, keep owner-authored content.', decision: 'exclude-third-party-lineups-ship-owner-content', evidence: 'owner-exclusion.json' }
+        expect(verify([file], [record], [exclusion])).toEqual([])
+        expect(verify([file], [record], [{ ...exclusion, authorization: 'Ship everything' }])).toHaveLength(1)
+        expect(verify([file], [record], [{ ...exclusion, decision: 'unknown' }])).toHaveLength(1)
     })
     it('uses packaging exclusions without dropping embedded datasets and fonts', () => {
         const paths = ['public/assets/teams/test/players/original.png', 'public/branding/portraits/new.png', 'data/map-layouts/mirage.json', 'app/fonts/archivo.woff2', 'components/example.tsx']

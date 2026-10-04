@@ -1,0 +1,2892 @@
+{
+  "format": "esim-map-annotations",
+  "version": 2,
+  "mapId": "Overpass",
+  "floor": "upper",
+  "marks": [
+    {
+      "id": "outline:Overpass:upper:0",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 39.648,
+          "y": 1.953
+        },
+        {
+          "x": 39.551,
+          "y": 8.105
+        },
+        {
+          "x": 41.699,
+          "y": 9.18
+        },
+        {
+          "x": 41.797,
+          "y": 9.57
+        },
+        {
+          "x": 42.871,
+          "y": 10.059
+        },
+        {
+          "x": 42.676,
+          "y": 10.449
+        },
+        {
+          "x": 42.383,
+          "y": 10.352
+        },
+        {
+          "x": 41.602,
+          "y": 12.793
+        },
+        {
+          "x": 39.16,
+          "y": 12.598
+        },
+        {
+          "x": 32.715,
+          "y": 17.969
+        },
+        {
+          "x": 32.227,
+          "y": 20.02
+        },
+        {
+          "x": 33.105,
+          "y": 20.508
+        },
+        {
+          "x": 30.176,
+          "y": 25.977
+        },
+        {
+          "x": 29.395,
+          "y": 27.93
+        },
+        {
+          "x": 28.906,
+          "y": 28.516
+        },
+        {
+          "x": 26.758,
+          "y": 33.398
+        },
+        {
+          "x": 16.602,
+          "y": 38.477
+        },
+        {
+          "x": 15.918,
+          "y": 39.355
+        },
+        {
+          "x": 16.016,
+          "y": 46.484
+        },
+        {
+          "x": 16.309,
+          "y": 46.582
+        },
+        {
+          "x": 16.309,
+          "y": 47.461
+        },
+        {
+          "x": 16.016,
+          "y": 47.559
+        },
+        {
+          "x": 16.113,
+          "y": 55.566
+        },
+        {
+          "x": 16.309,
+          "y": 55.664
+        },
+        {
+          "x": 16.309,
+          "y": 56.641
+        },
+        {
+          "x": 16.113,
+          "y": 56.738
+        },
+        {
+          "x": 16.113,
+          "y": 64.746
+        },
+        {
+          "x": 16.406,
+          "y": 64.941
+        },
+        {
+          "x": 16.309,
+          "y": 66.016
+        },
+        {
+          "x": 23.828,
+          "y": 81.152
+        },
+        {
+          "x": 30.273,
+          "y": 77.637
+        },
+        {
+          "x": 30.762,
+          "y": 78.516
+        },
+        {
+          "x": 30.664,
+          "y": 78.809
+        },
+        {
+          "x": 36.621,
+          "y": 90.625
+        },
+        {
+          "x": 51.27,
+          "y": 82.812
+        },
+        {
+          "x": 51.367,
+          "y": 82.227
+        },
+        {
+          "x": 52.051,
+          "y": 82.227
+        },
+        {
+          "x": 52.441,
+          "y": 82.715
+        },
+        {
+          "x": 56.152,
+          "y": 82.715
+        },
+        {
+          "x": 56.25,
+          "y": 79.785
+        },
+        {
+          "x": 57.91,
+          "y": 79.785
+        },
+        {
+          "x": 58.008,
+          "y": 79.492
+        },
+        {
+          "x": 58.594,
+          "y": 79.492
+        },
+        {
+          "x": 58.691,
+          "y": 79.785
+        },
+        {
+          "x": 61.523,
+          "y": 79.785
+        },
+        {
+          "x": 61.719,
+          "y": 79.492
+        },
+        {
+          "x": 62.109,
+          "y": 79.492
+        },
+        {
+          "x": 62.207,
+          "y": 79.785
+        },
+        {
+          "x": 66.211,
+          "y": 79.785
+        },
+        {
+          "x": 66.016,
+          "y": 76.758
+        },
+        {
+          "x": 66.211,
+          "y": 76.66
+        },
+        {
+          "x": 66.211,
+          "y": 75.684
+        },
+        {
+          "x": 66.602,
+          "y": 75.195
+        },
+        {
+          "x": 70.801,
+          "y": 75.195
+        },
+        {
+          "x": 70.898,
+          "y": 74.805
+        },
+        {
+          "x": 71.387,
+          "y": 74.805
+        },
+        {
+          "x": 71.484,
+          "y": 75.195
+        },
+        {
+          "x": 74.609,
+          "y": 75.195
+        },
+        {
+          "x": 74.609,
+          "y": 75.879
+        },
+        {
+          "x": 71.387,
+          "y": 75.879
+        },
+        {
+          "x": 71.289,
+          "y": 80.859
+        },
+        {
+          "x": 66.992,
+          "y": 85.156
+        },
+        {
+          "x": 67.09,
+          "y": 85.352
+        },
+        {
+          "x": 66.504,
+          "y": 85.938
+        },
+        {
+          "x": 66.309,
+          "y": 85.84
+        },
+        {
+          "x": 63.965,
+          "y": 88.184
+        },
+        {
+          "x": 64.062,
+          "y": 88.379
+        },
+        {
+          "x": 63.477,
+          "y": 88.965
+        },
+        {
+          "x": 63.281,
+          "y": 88.867
+        },
+        {
+          "x": 60.938,
+          "y": 91.113
+        },
+        {
+          "x": 61.133,
+          "y": 91.406
+        },
+        {
+          "x": 60.547,
+          "y": 91.992
+        },
+        {
+          "x": 60.156,
+          "y": 91.895
+        },
+        {
+          "x": 57.91,
+          "y": 94.141
+        },
+        {
+          "x": 58.105,
+          "y": 94.434
+        },
+        {
+          "x": 58.008,
+          "y": 94.824
+        },
+        {
+          "x": 62.891,
+          "y": 99.902
+        },
+        {
+          "x": 63.379,
+          "y": 99.707
+        },
+        {
+          "x": 63.965,
+          "y": 99.902
+        },
+        {
+          "x": 66.113,
+          "y": 97.754
+        },
+        {
+          "x": 66.016,
+          "y": 97.559
+        },
+        {
+          "x": 66.602,
+          "y": 96.973
+        },
+        {
+          "x": 66.797,
+          "y": 97.07
+        },
+        {
+          "x": 69.141,
+          "y": 94.727
+        },
+        {
+          "x": 69.043,
+          "y": 94.434
+        },
+        {
+          "x": 69.629,
+          "y": 93.848
+        },
+        {
+          "x": 69.824,
+          "y": 94.043
+        },
+        {
+          "x": 72.168,
+          "y": 91.699
+        },
+        {
+          "x": 72.07,
+          "y": 91.406
+        },
+        {
+          "x": 72.656,
+          "y": 90.82
+        },
+        {
+          "x": 72.852,
+          "y": 91.016
+        },
+        {
+          "x": 79.395,
+          "y": 84.375
+        },
+        {
+          "x": 82.812,
+          "y": 84.375
+        },
+        {
+          "x": 82.812,
+          "y": 84.082
+        },
+        {
+          "x": 83.398,
+          "y": 83.691
+        },
+        {
+          "x": 83.398,
+          "y": 82.715
+        },
+        {
+          "x": 83.008,
+          "y": 82.617
+        },
+        {
+          "x": 83.105,
+          "y": 76.758
+        },
+        {
+          "x": 82.52,
+          "y": 76.465
+        },
+        {
+          "x": 82.52,
+          "y": 75.781
+        },
+        {
+          "x": 83.008,
+          "y": 75.195
+        },
+        {
+          "x": 83.398,
+          "y": 75.391
+        },
+        {
+          "x": 84.766,
+          "y": 73.828
+        },
+        {
+          "x": 84.57,
+          "y": 73.438
+        },
+        {
+          "x": 85.059,
+          "y": 72.949
+        },
+        {
+          "x": 86.523,
+          "y": 72.949
+        },
+        {
+          "x": 86.719,
+          "y": 73.34
+        },
+        {
+          "x": 89.16,
+          "y": 73.34
+        },
+        {
+          "x": 89.355,
+          "y": 72.949
+        },
+        {
+          "x": 90.625,
+          "y": 72.949
+        },
+        {
+          "x": 90.625,
+          "y": 71.582
+        },
+        {
+          "x": 91.211,
+          "y": 71.387
+        },
+        {
+          "x": 91.113,
+          "y": 68.652
+        },
+        {
+          "x": 90.723,
+          "y": 68.652
+        },
+        {
+          "x": 90.625,
+          "y": 68.359
+        },
+        {
+          "x": 82.715,
+          "y": 68.359
+        },
+        {
+          "x": 79.297,
+          "y": 61.621
+        },
+        {
+          "x": 79.492,
+          "y": 61.328
+        },
+        {
+          "x": 79.102,
+          "y": 60.645
+        },
+        {
+          "x": 79.199,
+          "y": 60.352
+        },
+        {
+          "x": 80.273,
+          "y": 62.5
+        },
+        {
+          "x": 80.664,
+          "y": 62.402
+        },
+        {
+          "x": 81.055,
+          "y": 63.086
+        },
+        {
+          "x": 89.551,
+          "y": 63.086
+        },
+        {
+          "x": 89.551,
+          "y": 53.613
+        },
+        {
+          "x": 85.742,
+          "y": 46.094
+        },
+        {
+          "x": 81.934,
+          "y": 45.996
+        },
+        {
+          "x": 81.934,
+          "y": 40.039
+        },
+        {
+          "x": 83.398,
+          "y": 39.941
+        },
+        {
+          "x": 88.672,
+          "y": 28.809
+        },
+        {
+          "x": 81.25,
+          "y": 25.098
+        },
+        {
+          "x": 79.883,
+          "y": 27.441
+        },
+        {
+          "x": 76.562,
+          "y": 27.441
+        },
+        {
+          "x": 76.465,
+          "y": 23.828
+        },
+        {
+          "x": 66.309,
+          "y": 23.828
+        },
+        {
+          "x": 60.938,
+          "y": 21.387
+        },
+        {
+          "x": 60.352,
+          "y": 22.559
+        },
+        {
+          "x": 59.277,
+          "y": 22.07
+        },
+        {
+          "x": 58.789,
+          "y": 22.852
+        },
+        {
+          "x": 58.301,
+          "y": 22.559
+        },
+        {
+          "x": 58.496,
+          "y": 22.168
+        },
+        {
+          "x": 57.031,
+          "y": 21.387
+        },
+        {
+          "x": 57.422,
+          "y": 20.996
+        },
+        {
+          "x": 59.18,
+          "y": 20.312
+        },
+        {
+          "x": 54.395,
+          "y": 18.066
+        },
+        {
+          "x": 56.445,
+          "y": 13.77
+        },
+        {
+          "x": 58.008,
+          "y": 14.551
+        },
+        {
+          "x": 58.105,
+          "y": 8.691
+        },
+        {
+          "x": 52.734,
+          "y": 8.594
+        },
+        {
+          "x": 52.539,
+          "y": 8.789
+        },
+        {
+          "x": 50.977,
+          "y": 8.789
+        },
+        {
+          "x": 50.781,
+          "y": 8.594
+        },
+        {
+          "x": 49.707,
+          "y": 8.594
+        },
+        {
+          "x": 49.316,
+          "y": 8.887
+        },
+        {
+          "x": 48.438,
+          "y": 7.715
+        },
+        {
+          "x": 48.438,
+          "y": 6.348
+        },
+        {
+          "x": 46.191,
+          "y": 6.25
+        },
+        {
+          "x": 46.191,
+          "y": 5.859
+        },
+        {
+          "x": 46.973,
+          "y": 5.078
+        },
+        {
+          "x": 48.047,
+          "y": 5.078
+        },
+        {
+          "x": 48.047,
+          "y": 2.734
+        },
+        {
+          "x": 41.992,
+          "y": 2.734
+        },
+        {
+          "x": 41.797,
+          "y": 2.246
+        },
+        {
+          "x": 41.016,
+          "y": 2.246
+        },
+        {
+          "x": 40.82,
+          "y": 1.953
+        },
+        {
+          "x": 39.648,
+          "y": 1.953
+        }
+      ],
+      "label": "",
+      "note": "Outer radar boundary. Traced from this map image; review ledges, height and openings separately.",
+      "status": "draft",
+      "locked": true,
+      "source": {
+        "provider": "radar-outline",
+        "id": "Overpass:upper:0"
+      }
+    },
+    {
+      "id": "outline:Overpass:upper:1",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 56.543,
+          "y": 14.258
+        },
+        {
+          "x": 55.957,
+          "y": 15.43
+        },
+        {
+          "x": 55.957,
+          "y": 16.895
+        },
+        {
+          "x": 55.273,
+          "y": 16.992
+        },
+        {
+          "x": 54.883,
+          "y": 17.969
+        },
+        {
+          "x": 58.008,
+          "y": 19.434
+        },
+        {
+          "x": 58.008,
+          "y": 14.941
+        },
+        {
+          "x": 56.543,
+          "y": 14.258
+        }
+      ],
+      "label": "",
+      "note": "Outer radar boundary. Traced from this map image; review ledges, height and openings separately.",
+      "status": "draft",
+      "locked": true,
+      "source": {
+        "provider": "radar-outline",
+        "id": "Overpass:upper:1"
+      }
+    },
+    {
+      "id": "cs2nades:183:105",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 82.589,
+          "y": 78.065
+        },
+        {
+          "x": 40.461,
+          "y": 52.071
+        }
+      ],
+      "label": "T Spawn to Bathroom",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/t-spawn-to-bathroom\nTechnique: Left Click + Shift + Space + W. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -418.031250 -2395.468750 220.031250;setang -22.432653 148.587875 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "183:105",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/t-spawn-to-bathroom",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:182:105",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 46.984,
+          "y": 74.321
+        },
+        {
+          "x": 40.461,
+          "y": 52.071
+        }
+      ],
+      "label": "Fountain to Bathroom",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/fountain-to-bathroom\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2378.964355 -2223.565918 540.044556;setang -19.109499 101.511406 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "182:105",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/fountain-to-bathroom",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:185:106",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 82.589,
+          "y": 78.065
+        },
+        {
+          "x": 67.793,
+          "y": 37.471
+        }
+      ],
+      "label": "T Spawn to Bridge",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/t-spawn-to-bridge\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -418.028564 -2395.424316 220.039032;setang -11.878168 110.241585 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "185:106",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/t-spawn-to-bridge",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:184:106",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 81.844,
+          "y": 67.52
+        },
+        {
+          "x": 67.793,
+          "y": 37.471
+        }
+      ],
+      "label": "Alley to Bridge",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/alley-to-bridge\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -434.298096 -1860.028564 212.113281;setang 2.148287 115.167747 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "184:106",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/alley-to-bridge",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:186:106",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 65.602,
+          "y": 52.898
+        },
+        {
+          "x": 67.793,
+          "y": 37.471
+        }
+      ],
+      "label": "Water to Bridge",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/water-to-bridge\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1378.298462 -1087.968750 68.310127;setang -40.376160 69.883118 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "186:106",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/water-to-bridge",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:187:107",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 83.344,
+          "y": 83.539
+        },
+        {
+          "x": 47.019,
+          "y": 57.658
+        }
+      ],
+      "label": "T Spawn to Connector",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/t-spawn-to-connector-3\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -432.031250 -2681.968506 220.031250;setang -19.816261 141.191757 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "187:107",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/t-spawn-to-connector-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:192:108",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 58.452,
+          "y": 45.416
+        },
+        {
+          "x": 58.632,
+          "y": 23.887
+        }
+      ],
+      "label": "Water to Heaven",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/water-to-heaven-5\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1731.968750 -704.031250 164.031250;setang -23.241606 88.288368 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "192:108",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/water-to-heaven-5",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:688:108",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 89.062,
+          "y": 53.602
+        },
+        {
+          "x": 58.632,
+          "y": 23.887
+        }
+      ],
+      "label": "Tracks to Heaven",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/tracks-to-heaven-2\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -111.855164 -1103.729126 103.786087;setang -2.701573 134.691803 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "688:108",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/tracks-to-heaven-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:193:108",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 61.77,
+          "y": 47.277
+        },
+        {
+          "x": 58.632,
+          "y": 23.887
+        }
+      ],
+      "label": "Water to Heaven",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/water-to-heaven-3\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1559.968750 -729.529846 109.682533;setang -31.170198 98.430206 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "193:108",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/water-to-heaven-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:188:108",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 86.463,
+          "y": 53.876
+        },
+        {
+          "x": 58.632,
+          "y": 23.887
+        }
+      ],
+      "label": "Tracks to Heaven",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/tracks-to-heaven\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -244.070679 -1128.766357 85.543167;setang -4.439518 131.460800 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "188:108",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/tracks-to-heaven",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:175:101",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 80.98,
+          "y": 71.801
+        },
+        {
+          "x": 67.777,
+          "y": 31.78
+        }
+      ],
+      "label": "Alley to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/alley-to-b-site\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -555.968750 -2053.576904 214.031967;setang -5.462389 107.299507 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "175:101",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/alley-to-b-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:217:101",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 53.146,
+          "y": 30.138
+        },
+        {
+          "x": 67.777,
+          "y": 31.78
+        }
+      ],
+      "label": "Walkaway to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/walkaway-to-b-site\nTechnique: Leftclickctrl. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2112.824951 212.264557 196.031250;setang -16.082619 -7.770576 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "217:101",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/walkaway-to-b-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:174:101",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 79.549,
+          "y": 61.817
+        },
+        {
+          "x": 67.777,
+          "y": 31.78
+        }
+      ],
+      "label": "Alley to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/alley-to-b-site-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -617.232727 -1509.604492 212.689697;setang -33.747688 110.360268 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "174:101",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/alley-to-b-site-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:177:102",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 21.837,
+          "y": 52.699
+        },
+        {
+          "x": 44.311,
+          "y": 11.532
+        }
+      ],
+      "label": "Long to Bank",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/long-to-bank\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -3707.250732 -1194.537476 553.801331;setang -26.261320 61.966763 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "177:102",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/long-to-bank",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:179:102",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 45.076,
+          "y": 59.703
+        },
+        {
+          "x": 44.311,
+          "y": 11.532
+        }
+      ],
+      "label": "Mid to Bank",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/mid-to-bank-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2533.784668 -1456.481079 502.205078;setang -19.110546 88.048630 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "179:102",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/mid-to-bank-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:176:102",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 49.815,
+          "y": 54.235
+        },
+        {
+          "x": 44.311,
+          "y": 11.532
+        }
+      ],
+      "label": "Short to Bank",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/short-to-bank\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2202.014404 -1151.970337 460.394775;setang -9.767938 96.219330 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "176:102",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/short-to-bank",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:178:102",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 45.076,
+          "y": 59.703
+        },
+        {
+          "x": 44.311,
+          "y": 11.532
+        }
+      ],
+      "label": "Mid to Bank",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/mid-to-bank\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2533.784668 -1457.284912 502.247681;setang -33.248512 87.544052 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "178:102",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/mid-to-bank",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:180:103",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 79.192,
+          "y": 55.366
+        },
+        {
+          "x": 75.516,
+          "y": 29.005
+        }
+      ],
+      "label": "Tracks to Barrels",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/tracks-to-barrels-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -613.986755 -1087.738892 104.720306;setang -29.757906 99.377480 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "180:103",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/tracks-to-barrels-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:181:103",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 61.77,
+          "y": 47.277
+        },
+        {
+          "x": 75.516,
+          "y": 29.005
+        }
+      ],
+      "label": "Water to Barrels",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/water-to-barrels-3\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1559.968750 -729.448730 109.655800;setang -31.987602 64.665970 -0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "181:103",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/water-to-barrels-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:212:104",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 82.089,
+          "y": 62.319
+        },
+        {
+          "x": 75.161,
+          "y": 24.944
+        }
+      ],
+      "label": "Tracks to Barrels",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/tracks-to-barrels\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -483.968750 -1551.968750 205.677963;setang 5.462607 100.072021 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "212:104",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/tracks-to-barrels",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:211:104",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 61.764,
+          "y": 44.89
+        },
+        {
+          "x": 75.161,
+          "y": 24.944
+        }
+      ],
+      "label": "Water to Barrels",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/water-to-barrels-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1562.972290 -640.441772 167.251892;setang -21.912512 54.542927 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "211:104",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/water-to-barrels-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:210:104",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 61.77,
+          "y": 47.277
+        },
+        {
+          "x": 75.161,
+          "y": 24.944
+        }
+      ],
+      "label": "Water to Barrels",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/water-to-barrels\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1559.968750 -729.448730 108.423172;setang 2.537219 62.713066 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "210:104",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/water-to-barrels",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:191:109",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 61.77,
+          "y": 47.277
+        },
+        {
+          "x": 70.519,
+          "y": 27.297
+        }
+      ],
+      "label": "Water to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/water-to-pit\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1559.968750 -729.448730 109.655800;setang -31.915899 67.744957 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "191:109",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/water-to-pit",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:213:109",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 68.141,
+          "y": 49.962
+        },
+        {
+          "x": 70.519,
+          "y": 27.297
+        }
+      ],
+      "label": "Water to Pit",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/water-to-pit-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1212.914673 -879.130493 74.681725;setang -25.656837 85.655617 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "213:109",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/water-to-pit-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:194:110",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 45.076,
+          "y": 59.703
+        },
+        {
+          "x": 40.556,
+          "y": 23.075
+        }
+      ],
+      "label": "Mid to Sign",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/mid-to-sign\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2424.648193 -1402.226440 500.394501;setang -12.429461 96.180923 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "194:110",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/mid-to-sign",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:199:111",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 46.571,
+          "y": 47.304
+        },
+        {
+          "x": 49.164,
+          "y": 23.568
+        }
+      ],
+      "label": "Short to Truck",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/short-to-truck-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2337.968750 -735.406067 480.031250;setang -48.183434 83.593506 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "199:111",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/short-to-truck-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:195:111",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 46.571,
+          "y": 47.304
+        },
+        {
+          "x": 49.164,
+          "y": 23.568
+        }
+      ],
+      "label": "Short to Truck",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/short-to-truck\nTechnique: Left Click + Right Click + Space + W. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2351.968750 -815.968628 457.195465;setang -28.950766 87.464325 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "195:111",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/short-to-truck",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:196:112",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 46.571,
+          "y": 47.304
+        },
+        {
+          "x": 53.961,
+          "y": 15.292
+        }
+      ],
+      "label": "Short to Trash",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/short-to-trash\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2351.972900 -735.400391 503.401276;setang -42.782616 77.091034 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "196:112",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/short-to-trash",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:215:112",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 45.581,
+          "y": 57.834
+        },
+        {
+          "x": 53.961,
+          "y": 15.292
+        }
+      ],
+      "label": "Mid to Trash",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/mid-to-trash-2\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2392.807861 -1323.460693 500.329590;setang 2.598355 79.831833 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "215:112",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/mid-to-trash-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:197:112",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 23.937,
+          "y": 34.794
+        },
+        {
+          "x": 53.961,
+          "y": 15.292
+        }
+      ],
+      "label": "Long to Trash",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/long-to-trash\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -3738.354248 -159.259338 583.936096;setang 1.566952 31.476067 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "197:112",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/long-to-trash",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:198:112",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 45.076,
+          "y": 59.703
+        },
+        {
+          "x": 53.961,
+          "y": 15.292
+        }
+      ],
+      "label": "Mid to Trash",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/mid-to-trash\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2533.784668 -1457.286133 502.240295;setang -12.942045 76.039253 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "198:112",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/mid-to-trash",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:200:113",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 62.038,
+          "y": 53.375
+        },
+        {
+          "x": 57.633,
+          "y": 36.284
+        }
+      ],
+      "label": "Water to Walkaway",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/water-to-walkaway\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1559.968750 -1087.968628 68.874878;setang -26.904604 96.107681 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "200:113",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/water-to-walkaway",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:202:114",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 42.84,
+          "y": 49.182
+        },
+        {
+          "x": 39.921,
+          "y": 64.872
+        }
+      ],
+      "label": "Bathroom to Fountain",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/bathroom-to-fountain\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2471.004395 -765.182251 500.037567;setang -0.828387 -124.797096 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "202:114",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/bathroom-to-fountain",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:201:114",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 48.782,
+          "y": 48.827
+        },
+        {
+          "x": 39.921,
+          "y": 64.872
+        }
+      ],
+      "label": "Short to Fountain",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/short-to-fountain\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2186.286865 -670.689270 454.400146;setang -9.390996 -122.921173 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "201:114",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/short-to-fountain",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:204:115",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 50.047,
+          "y": 14.695
+        },
+        {
+          "x": 81.1,
+          "y": 45.006
+        }
+      ],
+      "label": "CT Spawn to Monster",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/ct-spawn-to-monster\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2125.156738 997.276733 548.026123;setang -16.572277 -49.181396 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "204:115",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/ct-spawn-to-monster",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:203:115",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 50.047,
+          "y": 14.695
+        },
+        {
+          "x": 81.1,
+          "y": 45.006
+        }
+      ],
+      "label": "CT Spawn to Monster",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/ct-spawn-to-monster-2\nTechnique: LeftClickCtrlSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2116.467041 993.139160 548.031250;setang -16.490631 -49.478397 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "203:115",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/ct-spawn-to-monster-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:205:115",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 63.512,
+          "y": 33.505
+        },
+        {
+          "x": 81.1,
+          "y": 45.006
+        }
+      ],
+      "label": "Pit to Monster",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/pit-to-monster\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1456.782715 -15.818359 196.031250;setang -29.944223 -41.157074 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "205:115",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/pit-to-monster",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:207:116",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 45.167,
+          "y": 30.669
+        },
+        {
+          "x": 54.3,
+          "y": 77.108
+        }
+      ],
+      "label": "A Main to T Ramp",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/a-main-to-t-ramp\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2379.779297 140.791473 503.035461;setang -6.976867 -79.662834 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "207:116",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/a-main-to-t-ramp",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:206:117",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 50.047,
+          "y": 14.695
+        },
+        {
+          "x": 68.195,
+          "y": 51.153
+        }
+      ],
+      "label": "CT Spawn to Water Tunnel",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/ct-spawn-to-water-tunnel\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2116.464600 993.143127 548.031250;setang 4.593352 -64.348091 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "206:117",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/ct-spawn-to-water-tunnel",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:220:117",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 53.146,
+          "y": 30.138
+        },
+        {
+          "x": 68.195,
+          "y": 51.153
+        }
+      ],
+      "label": "Walkaway to Water Tunnel",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/walkaway-to-water-tunnel\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2018.966797 154.031265 196.031250;setang -13.381881 -53.270859 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "220:117",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/walkaway-to-water-tunnel",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:221:117",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 45.167,
+          "y": 30.669
+        },
+        {
+          "x": 68.195,
+          "y": 51.153
+        }
+      ],
+      "label": "Short to Water Tunnel",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/short-to-water-tunnel\nTechnique: run. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2365.744385 133.776764 545.079956;setang 13.084222 -42.477077 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "221:117",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/short-to-water-tunnel",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:208:118",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 48.649,
+          "y": 44.388
+        },
+        {
+          "x": 43.133,
+          "y": 21.347
+        }
+      ],
+      "label": "Short to A Default",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/short-to-a-default\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2279.468750 -607.626160 454.352509;setang 1.094527 102.009048 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "208:118",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/short-to-a-default",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:214:119",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 82.584,
+          "y": 76.174
+        },
+        {
+          "x": 72.967,
+          "y": 41.068
+        }
+      ],
+      "label": "Alley to Short",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/alley-to-short\nTechnique: Left Click + Right Click + Space + W. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -432.031311 -2253.952637 213.480286;setang 3.712509 105.106209 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "214:119",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/alley-to-short",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:216:120",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 48.65,
+          "y": 44.786
+        },
+        {
+          "x": 53.284,
+          "y": 19.598
+        }
+      ],
+      "label": "Short to Truck",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/short-to-truck-3\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2295.867920 -632.029175 455.119690;setang 0.817422 76.857788 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "216:120",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/short-to-truck-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:219:121",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 53.008,
+          "y": 42.023
+        },
+        {
+          "x": 62.294,
+          "y": 40.919
+        }
+      ],
+      "label": "Graffiti to Water",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/graffiti-to-water\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2018.993774 -416.031372 196.031250;setang 4.511725 -51.870365 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "219:121",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/graffiti-to-water",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:218:122",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 48.907,
+          "y": 32.357
+        },
+        {
+          "x": 55.682,
+          "y": 78.463
+        }
+      ],
+      "label": "Short to T Ramp",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/molotov/short-to-t-ramp-2\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2262.403320 82.164238 486.348450;setang 2.588169 -80.473335 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "218:122",
+        "url": "https://cs2nades.gg/en/map/overpass/molotov/short-to-t-ramp-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:223:124",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 42.588,
+          "y": 81.273
+        },
+        {
+          "x": 25.722,
+          "y": 72.329
+        }
+      ],
+      "label": "Playground to Long",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/playground-to-long\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2587.766357 -2591.968750 546.323608;setang 1.953928 141.987183 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "223:124",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/playground-to-long",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:225:126",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 79.192,
+          "y": 55.366
+        },
+        {
+          "x": 83.701,
+          "y": 36.631
+        }
+      ],
+      "label": "Tracks to Monster",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/tracks-to-monster\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -613.543945 -1084.305298 103.489136;setang -23.129854 68.821922 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "225:126",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/tracks-to-monster",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:228:127",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 61.77,
+          "y": 47.277
+        },
+        {
+          "x": 71.309,
+          "y": 35.352
+        }
+      ],
+      "label": "Water to Pillar",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/water-to-pillar\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1559.969849 -729.448730 110.476166;setang -26.014734 53.707317 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "228:127",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/water-to-pillar",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:222:123",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 48.649,
+          "y": 44.388
+        },
+        {
+          "x": 45.315,
+          "y": 24.892
+        }
+      ],
+      "label": "Short to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/short-to-a-site\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2294.344482 -583.469666 455.492157;setang -3.989700 86.918976 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "222:123",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/short-to-a-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:224:125",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 82.084,
+          "y": 60.525
+        },
+        {
+          "x": 80.887,
+          "y": 41.679
+        }
+      ],
+      "label": "Tracks to Monster",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/tracks-to-monster-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -468.292053 -1443.595703 204.031250;setang 10.607519 89.179138 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "224:125",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/tracks-to-monster-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:226:128",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 61.77,
+          "y": 47.277
+        },
+        {
+          "x": 75.406,
+          "y": 34.465
+        }
+      ],
+      "label": "Water to Monster",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/water-to-monster\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1559.968750 -729.446777 109.979828;setang -21.636438 39.840046 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "226:128",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/water-to-monster",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:227:129",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 79.192,
+          "y": 55.366
+        },
+        {
+          "x": 70.063,
+          "y": 31.188
+        }
+      ],
+      "label": "Tracks to Pillar",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/tracks-to-pillar\nTechnique: Left Click + Shift + Space + W. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -613.228455 -1081.331177 102.605911;setang 0.921250 111.418091 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "227:129",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/tracks-to-pillar",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:229:130",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 79.553,
+          "y": 63.109
+        },
+        {
+          "x": 66.806,
+          "y": 51.31
+        }
+      ],
+      "label": "Alley to Water",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/alley-to-water\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -593.098633 -1557.302979 212.609680;setang -26.699839 138.630264 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "229:130",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/alley-to-water",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:173:100",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 46.571,
+          "y": 47.304
+        },
+        {
+          "x": 45.9,
+          "y": 21.392
+        }
+      ],
+      "label": "Short to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/short-to-a-site-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2337.968750 -735.406067 480.031250;setang -48.183434 83.593506 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "173:100",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/short-to-a-site-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:172:100",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 45.076,
+          "y": 59.703
+        },
+        {
+          "x": 45.9,
+          "y": 21.392
+        }
+      ],
+      "label": "Mid to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/smoke/mid-to-a-site\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2424.757324 -1402.369629 500.192780;setang -5.278607 83.863144 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "172:100",
+        "url": "https://cs2nades.gg/en/map/overpass/smoke/mid-to-a-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:230:131",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 54.115,
+          "y": 11.968
+        },
+        {
+          "x": 49.346,
+          "y": 14.315
+        }
+      ],
+      "label": "Trash to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/trash-to-a-site\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2022.818359 1135.444580 420.031250;setang -19.989397 107.065392 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "230:131",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/trash-to-a-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:233:133",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 48.649,
+          "y": 44.388
+        },
+        {
+          "x": 46.259,
+          "y": 65.932
+        }
+      ],
+      "label": "Short to T Ramp",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/short-to-t-ramp\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2279.468750 -607.633301 454.350250;setang -2.148278 -76.318474 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "233:133",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/short-to-t-ramp",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:231:132",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 53.55,
+          "y": 54.077
+        },
+        {
+          "x": 58.059,
+          "y": 52.991
+        }
+      ],
+      "label": "Connector to Connector",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/connector-to-connector\nTechnique: rightclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2031.968750 -1136.968750 196.031250;setang -27.017120 19.407450 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "231:132",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/connector-to-connector",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:232:132",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 71.517,
+          "y": 42.482
+        },
+        {
+          "x": 58.059,
+          "y": 52.991
+        }
+      ],
+      "label": "Short to Connector",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/short-to-connector\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1038.087524 -502.072876 164.031250;setang -15.150475 -138.714020 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "232:132",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/short-to-connector",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:598:298",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 42.023,
+          "y": 12.173
+        },
+        {
+          "x": 38.613,
+          "y": 11.067
+        }
+      ],
+      "label": "Bank to Long",
+      "note": "Source: https://cs2nades.gg/en/map/overpass/flash/bank-to-long\nTechnique: rightclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -2603.860000 1102.110000 548.030000;setang 29.860000 167.640000 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "598:298",
+        "url": "https://cs2nades.gg/en/map/overpass/flash/bank-to-long",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "native-site:Overpass:A:0",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 41.895450511874074,
+          "y": 21.80420272564267
+        },
+        {
+          "x": 51.96357376785942,
+          "y": 26.835721927052195
+        },
+        {
+          "x": 59.32515843612246,
+          "y": 22.251447228167144
+        },
+        {
+          "x": 45.19973177847137,
+          "y": 15.192300885891095
+        }
+      ],
+      "label": "A native plant zone",
+      "note": "Installed func_bomb_target 2:59265, convex piece 1. Native volume Z 476 to 536. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-site:Overpass:B:0",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 67.29131618303612,
+          "y": 35.24692326989595
+        },
+        {
+          "x": 72.70050761994172,
+          "y": 35.24583040593185
+        },
+        {
+          "x": 72.69929332664827,
+          "y": 29.23561769825896
+        },
+        {
+          "x": 67.29010188974267,
+          "y": 29.236710562223063
+        }
+      ],
+      "label": "B native plant zone",
+      "note": "Installed func_bomb_target 2:61770, convex piece 1. Native volume Z 84 to 132. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61712",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 49.42654295119162,
+          "y": 19.548851298981987
+        }
+      ],
+      "label": "CT spawn 2:61712",
+      "note": "Installed enabled spawn; priority 0. World origin -2199, 740, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61713",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 51.19192150474119,
+          "y": 18.94747332955975
+        }
+      ],
+      "label": "CT spawn 2:61713",
+      "note": "Installed enabled spawn; priority 1. World origin -2105, 772, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61714",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 45.57658436599438,
+          "y": 21.202437700233148
+        }
+      ],
+      "label": "CT spawn 2:61714",
+      "note": "Installed enabled spawn; priority 1. World origin -2404, 652, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61715",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 47.04045049219321,
+          "y": 15.642694961645446
+        }
+      ],
+      "label": "CT spawn 2:61715",
+      "note": "Installed enabled spawn; priority 1. World origin -2326, 948, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61716",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 48.46793293026364,
+          "y": 15.92413528766042
+        }
+      ],
+      "label": "CT spawn 2:61716",
+      "note": "Installed enabled spawn; priority 1. World origin -2250, 933, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61717",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 51.58600019369344,
+          "y": 17.257021317529365
+        }
+      ],
+      "label": "CT spawn 2:61717",
+      "note": "Installed enabled spawn; priority 1. World origin -2084, 862, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61718",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 48.03656742254601,
+          "y": 18.985674662961767
+        }
+      ],
+      "label": "CT spawn 2:61718",
+      "note": "Installed enabled spawn; priority 0. World origin -2273, 770, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61719",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 46.196106746149034,
+          "y": 19.812450787587903
+        }
+      ],
+      "label": "CT spawn 2:61719",
+      "note": "Installed enabled spawn; priority 1. World origin -2371, 726, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61720",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 45.31298487738846,
+          "y": 17.972001495190558
+        }
+      ],
+      "label": "CT spawn 2:61720",
+      "note": "Installed enabled spawn; priority 1. World origin -2418, 824, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61721",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 46.721730936745935,
+          "y": 18.478828592409805
+        }
+      ],
+      "label": "CT spawn 2:61721",
+      "note": "Installed enabled spawn; priority 0. World origin -2343, 797, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61722",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 49.59528799427119,
+          "y": 18.10260971419932
+        }
+      ],
+      "label": "CT spawn 2:61722",
+      "note": "Installed enabled spawn; priority 0. World origin -2190, 817, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61723",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 47.680007027018206,
+          "y": 20.45073610912133
+        }
+      ],
+      "label": "CT spawn 2:61723",
+      "note": "Installed enabled spawn; priority 1. World origin -2292, 692, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61724",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 46.92900365455012,
+          "y": 21.803185755009412
+        }
+      ],
+      "label": "CT spawn 2:61724",
+      "note": "Installed enabled spawn; priority 1. World origin -2332, 620, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61725",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 64.6929475257361,
+          "y": 96.2135458820022
+        }
+      ],
+      "label": "T spawn 2:61725",
+      "note": "Installed enabled spawn; priority 1. World origin -1387, -3342, 292. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61726",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 60.31613148331581,
+          "y": 93.09663219720117
+        }
+      ],
+      "label": "T spawn 2:61726",
+      "note": "Installed enabled spawn; priority 1. World origin -1620, -3176, 306. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61727",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 61.98801028729452,
+          "y": 94.52371998995126
+        }
+      ],
+      "label": "T spawn 2:61727",
+      "note": "Installed enabled spawn; priority 1. World origin -1531, -3252, 298.164337. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61728",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 61.95018462588017,
+          "y": 93.22777546419235
+        }
+      ],
+      "label": "T spawn 2:61728",
+      "note": "Installed enabled spawn; priority 1. World origin -1533, -3183, 290.342194. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61729",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 65.74415796026447,
+          "y": 93.35848234453123
+        }
+      ],
+      "label": "T spawn 2:61729",
+      "note": "Installed enabled spawn; priority 0. World origin -1331, -3190, 272. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61730",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 63.546241347035796,
+          "y": 91.21778804340815
+        }
+      ],
+      "label": "T spawn 2:61730",
+      "note": "Installed enabled spawn; priority 0. World origin -1448, -3076, 272.228729. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61731",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 66.87134605894417,
+          "y": 94.7105525237651
+        }
+      ],
+      "label": "T spawn 2:61731",
+      "note": "Installed enabled spawn; priority 0. World origin -1271, -3262, 270. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61732",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 61.23625936551767,
+          "y": 92.17613243767819
+        }
+      ],
+      "label": "T spawn 2:61732",
+      "note": "Installed enabled spawn; priority 1. World origin -1571, -3127, 306. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61733",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 63.453314592112775,
+          "y": 96.08232292701364
+        }
+      ],
+      "label": "T spawn 2:61733",
+      "note": "Installed enabled spawn; priority 1. World origin -1453, -3335, 297.951538. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61734",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 62.58855343007752,
+          "y": 92.1570773069757
+        }
+      ],
+      "label": "T spawn 2:61734",
+      "note": "Installed enabled spawn; priority 0. World origin -1499, -3126, 284. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61735",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 62.37420445968974,
+          "y": 90.80260335299506
+        }
+      ],
+      "label": "T spawn 2:61735",
+      "note": "Installed enabled spawn; priority 0. World origin -1510.397949, -3053.881836, 282.146362. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61736",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 65.81955883510142,
+          "y": 94.71076502509145
+        }
+      ],
+      "label": "T spawn 2:61736",
+      "note": "Installed enabled spawn; priority 0. World origin -1327, -3262, 278. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61737",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 64.5421154187299,
+          "y": 93.3587252031899
+        }
+      ],
+      "label": "T spawn 2:61737",
+      "note": "Installed enabled spawn; priority 0. World origin -1395, -3190, 280.415527. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61738",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 64.61751629356684,
+          "y": 94.71100788375013
+        }
+      ],
+      "label": "T spawn 2:61738",
+      "note": "Installed enabled spawn; priority 0. World origin -1391, -3262, 292. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61739",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 63.34034609318635,
+          "y": 94.711265921075
+        }
+      ],
+      "label": "T spawn 2:61739",
+      "note": "Installed enabled spawn; priority 1. World origin -1459, -3262, 297.51297. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61772",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 65.14287865217233,
+          "y": 92.08143357348008
+        }
+      ],
+      "label": "T spawn 2:61772",
+      "note": "Installed enabled spawn; priority 0. World origin -1363, -3122, 268. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61773",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 64.73073524048503,
+          "y": 97.32167126064628
+        }
+      ],
+      "label": "T spawn 2:61773",
+      "note": "Installed enabled spawn; priority 1. World origin -1385, -3401, 298.958527. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61774",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 66.12034268647608,
+          "y": 96.06300216965317
+        }
+      ],
+      "label": "T spawn 2:61774",
+      "note": "Installed enabled spawn; priority 1. World origin -1311, -3334, 283.747467. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61775",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 63.26494521834941,
+          "y": 93.35898324051477
+        }
+      ],
+      "label": "T spawn 2:61775",
+      "note": "Installed enabled spawn; priority 0. World origin -1463, -3190, 288. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61776",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 50.08330281944662,
+          "y": 16.54361213181657
+        }
+      ],
+      "label": "CT spawn 2:61776",
+      "note": "Installed enabled spawn; priority 1. World origin -2164, 900, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61777",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 47.99873037713203,
+          "y": 17.633384393068443
+        }
+      ],
+      "label": "CT spawn 2:61777",
+      "note": "Installed enabled spawn; priority 0. World origin -2275, 842, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61778",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 46.420924317372005,
+          "y": 17.01389995957921
+        }
+      ],
+      "label": "CT spawn 2:61778",
+      "note": "Installed enabled spawn; priority 1. World origin -2359, 875, 496. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Overpass:2:61784",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 64.02750481665781,
+          "y": 92.22682900438441
+        }
+      ],
+      "label": "T spawn 2:61784",
+      "note": "Installed enabled spawn; priority 0. World origin -1422.387085, -3129.729248, 277.465607. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "T",
+      "status": "draft"
+    }
+  ],
+  "libraryVersion": "2026-09-12.1",
+  "registration": {
+    "version": 1,
+    "sourceRadar": "/maps/de_overpass_radar_psd.png",
+    "sourceSha256": "569535b52ccaebf371959ff36b98659f4ed6993addee2d81315cf292d38afb92",
+    "targetSha256": "2a59b62668e80037b5a88e980f56af360269f5ea581d52eb0669d78a981f0d96",
+    "sourceVersion": "2000908",
+    "meshSha256": "d832f45267117a5e20906080ed3dcef636b8318f0442940f2de27d17e83da714",
+    "matrix": [
+      0.9999005745061016,
+      -0.0002020182347599581,
+      0.011407070145532841,
+      0.0002020182347599581,
+      0.9999005745061016,
+      -0.006862659666804025
+    ],
+    "method": "image-features",
+    "confidence": "provisional",
+    "evidence": "138 SIFT/RANSAC inliers; median 0.309px, p95 1.619px. Image alignment only; floors and walls need review."
+  }
+}

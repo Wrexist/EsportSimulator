@@ -6,3 +6,4 @@ build/** -text
 licenses/** -text
 NOTICE.md -text
 docs/launch-readiness/evidence/** -text
+raw-data/archived-lineups/** -text

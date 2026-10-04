@@ -5,8 +5,8 @@ const EXTERNAL_HOSTS = [
     'store.steampowered.com',
     'help.steampowered.com',
     'steamcommunity.com',
-    // Map Studio credits/source links (see TODO owner decision on CS2Nades).
-    'cs2nades.gg',
+    // cs2nades.gg removed 2026-10-04: imported lineups are excluded from the 1.0
+    // base game, so no shipped content links there.
 ];
 const MAX_EXTERNAL_URL_LENGTH = 2048;
 

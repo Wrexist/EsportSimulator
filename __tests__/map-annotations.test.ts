@@ -89,6 +89,6 @@ describe("portable map annotations", () => {
         expect(svg).toContain("<polygon")
         expect(svg).toContain('r="6"')
         expect(svg).toContain(">F</text>")
-        expect(svg).toContain("draft guides only")
+        expect(svg).toContain("Draft guides only")
     })
 })
