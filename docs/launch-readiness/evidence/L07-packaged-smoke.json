@@ -1,0 +1,290 @@
+{
+  "version": 1,
+  "recordedAt": "2026-10-04T11:25:14.414Z",
+  "exe": "C:\\Users\\IsacC\\EsportSimulator\\tmp\\l27qa\\app\\EsportsManager.exe",
+  "exeMtime": "2026-10-04T07:18:04.025Z",
+  "qaMarker": "resources/LOCAL-QA-ONLY present (Steam disabled)",
+  "buildNote": "QA copy of dist/win-unpacked built from f9358233",
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "os": "Windows_NT 10.0.26200"
+  },
+  "profiles": "C:\\Users\\IsacC\\EsportSimulator\\.claude\\worktrees\\agent-af28db1b1743b17c0\\tmp\\l07-packaged\\run-1791113066484",
+  "realProfileUntouched": true,
+  "passed": true,
+  "checks": [
+    {
+      "name": "Fuses flipped as configured in package.json build.electronFuses",
+      "passed": true,
+      "fuses": {
+        "RunAsNode": "Disabled",
+        "EnableCookieEncryption": "Disabled",
+        "EnableNodeOptionsEnvironmentVariable": "Disabled",
+        "EnableNodeCliInspectArguments": "Disabled",
+        "EnableEmbeddedAsarIntegrityValidation": "Disabled",
+        "OnlyLoadAppFromAsar": "Enabled",
+        "LoadBrowserProcessSpecificV8Snapshot": "Disabled",
+        "GrantFileProtocolExtraPrivileges": "Disabled",
+        "undefined": "Enabled"
+      },
+      "expected": {
+        "RunAsNode": "Disabled",
+        "EnableNodeOptionsEnvironmentVariable": "Disabled",
+        "EnableNodeCliInspectArguments": "Disabled",
+        "GrantFileProtocolExtraPrivileges": "Disabled",
+        "OnlyLoadAppFromAsar": "Enabled"
+      },
+      "mismatched": [],
+      "raw": [
+        "Analyzing app: EsportsManager.exe",
+        "Fuse Version: v1",
+        "  RunAsNode is Disabled",
+        "  EnableCookieEncryption is Disabled",
+        "  EnableNodeOptionsEnvironmentVariable is Disabled",
+        "  EnableNodeCliInspectArguments is Disabled",
+        "  EnableEmbeddedAsarIntegrityValidation is Disabled",
+        "  OnlyLoadAppFromAsar is Enabled",
+        "  LoadBrowserProcessSpecificV8Snapshot is Disabled",
+        "  GrantFileProtocolExtraPrivileges is Disabled",
+        "  undefined is Enabled"
+      ]
+    },
+    {
+      "name": "ELECTRON_RUN_AS_NODE=1 does not run code or open a Node REPL",
+      "passed": true,
+      "markerWritten": false,
+      "stdout": "\r\n[2026-10-04T11:24:27.522Z] [Steam] Configured release App ID 4326170\n[2026-10-04T11:24:27.523Z] [Steam] Local QA package: Steam initialization and account writes disabled\n[2026-10-04T11:24:27.586Z] Creating BrowserWindow. Stability mode: false\n[Electron] Save storage pinned to C:\\Users\\IsacC\\EsportSimulator\\.claude\\worktrees\\agent-af28db1b1743b17c0\\tmp\\l07-packaged\\run-1791113066484\\run-as-node\n",
+      "stderr": "(node:734176) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.\n(Use `EsportsManager --trace-deprecation ...` to show where the warning was created)\n ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.\n We detected multiple lockfiles and selected the directory of C:\\Users\\IsacC\\package-lock.json as the root directory.\n To silence this warning, set `outputFil",
+      "exitedWithin12s": null,
+      "launchedAsAppInstead": true,
+      "processes": [
+        "EsportsManager.exe"
+      ]
+    },
+    {
+      "name": "Every listening socket of the packaged process tree is loopback-only (netstat -ano by PID)",
+      "passed": true,
+      "processes": {
+        "718772": "EsportsManager.exe",
+        "720000": "EsportsManager.exe",
+        "732452": "EsportsManager.exe"
+      },
+      "listeners": [
+        {
+          "proto": "TCP",
+          "local": "127.0.0.1:3000",
+          "pid": 718772
+        }
+      ],
+      "nonLoopback": []
+    },
+    {
+      "name": "NODE_OPTIONS=--inspect and --inspect/--inspect-brk args open no inspector",
+      "passed": true,
+      "inspectorListeners": []
+    },
+    {
+      "name": "Loopback server serves the app but rejects foreign Host, foreign Origin and cross-site fetches",
+      "passed": true,
+      "port": 3000,
+      "good": {
+        "status": 200,
+        "csp": null
+      },
+      "badHost": {
+        "status": 403,
+        "csp": null
+      },
+      "badOrigin": {
+        "status": 403,
+        "csp": null
+      },
+      "crossSite": {
+        "status": 403,
+        "csp": null
+      }
+    },
+    {
+      "name": "App port refuses connections on non-loopback interfaces",
+      "passed": true,
+      "attempts": [
+        {
+          "address": "192.168.1.184",
+          "connected": false,
+          "code": "TIMEOUT"
+        },
+        {
+          "address": "192.168.56.1",
+          "connected": false,
+          "code": "TIMEOUT"
+        },
+        {
+          "address": "192.168.39.2",
+          "connected": false,
+          "code": "TIMEOUT"
+        }
+      ]
+    },
+    {
+      "name": "Enforced document CSP: no unsafe-eval; frames/objects/base/forms/ancestors none; connect self",
+      "passed": true,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';",
+      "directives": {
+        "default-src": "'self'",
+        "script-src": "'self' 'unsafe-inline'",
+        "style-src": "'self' 'unsafe-inline'",
+        "img-src": "'self' data: blob:",
+        "media-src": "'self' data: blob:",
+        "connect-src": "'self'",
+        "font-src": "'self' data:",
+        "worker-src": "'self'",
+        "frame-src": "'none'",
+        "object-src": "'none'",
+        "base-uri": "'none'",
+        "form-action": "'none'",
+        "frame-ancestors": "'none'"
+      }
+    },
+    {
+      "name": "No Node globals or raw ipcRenderer in the renderer; only the fixed preload bridge",
+      "passed": true,
+      "nodeRequire": "undefined",
+      "nodeProcess": "undefined",
+      "bridgeKeys": [
+        "acknowledgeAppClose",
+        "app",
+        "cancelAppClose",
+        "confirmAppClose",
+        "gpu",
+        "log",
+        "mods",
+        "onAppClose",
+        "steam",
+        "storage",
+        "window",
+        "workshop"
+      ]
+    },
+    {
+      "name": "CSP enforced in packaged renderer: eval/Function, external iframe, remote fetch and blob worker blocked",
+      "passed": true,
+      "evalProbe": "blocked:EvalError",
+      "functionProbe": "blocked:EvalError",
+      "remoteFetch": "blocked",
+      "blobWorker": "blocked",
+      "violations": [
+        {
+          "directive": "script-src",
+          "blocked": "eval",
+          "disposition": "enforce"
+        },
+        {
+          "directive": "script-src",
+          "blocked": "eval",
+          "disposition": "enforce"
+        },
+        {
+          "directive": "connect-src",
+          "blocked": "https://example.com/",
+          "disposition": "enforce"
+        },
+        {
+          "directive": "worker-src",
+          "blocked": "blob",
+          "disposition": "enforce"
+        },
+        {
+          "directive": "frame-src",
+          "blocked": "https://example.com",
+          "disposition": "enforce"
+        },
+        {
+          "directive": "frame-src",
+          "blocked": "http://localhost:3000/main-menu",
+          "disposition": "enforce"
+        }
+      ]
+    },
+    {
+      "name": "Popups denied and foreign target=_blank link dropped (no new window, page unchanged)",
+      "passed": true,
+      "popupBlank": true,
+      "popupForeign": true,
+      "pages": [
+        "http://localhost:3000/main-menu"
+      ]
+    },
+    {
+      "name": "Notification / media / geolocation permissions denied",
+      "passed": true,
+      "notification": "denied",
+      "media": "denied:NotAllowedError",
+      "geolocation": "denied:1"
+    },
+    {
+      "name": "Trusted main frame IPC works and rejects bad keys, types, traversal and sizes",
+      "passed": true,
+      "storageWrite": true,
+      "storageRead": "packaged-smoke",
+      "storageBadKey": false,
+      "storageBadType": false,
+      "modTraversal": false,
+      "modBadName": null,
+      "windowBadSize": false
+    },
+    {
+      "name": "Renderer-initiated top-level navigation to a foreign origin is blocked",
+      "passed": true,
+      "before": "http://localhost:3000/main-menu",
+      "after": "http://localhost:3000/main-menu"
+    },
+    {
+      "name": "Renderer-initiated navigation to data: is blocked",
+      "passed": true,
+      "after": "http://localhost:3000/main-menu"
+    },
+    {
+      "name": "IPC denied after the same WebContents changes origin (data: document)",
+      "passed": true,
+      "url": "data:text/html,<title>untrusted</title><p>untrusted</p>",
+      "results": {
+        "bridge": true,
+        "read": {
+          "v": null
+        },
+        "write": {
+          "v": false
+        },
+        "keys": {
+          "v": []
+        },
+        "modPath": {
+          "v": null
+        },
+        "clear": {
+          "v": false
+        }
+      }
+    },
+    {
+      "name": "Sentinel save key intact after the foreign-origin read/write/clear attempts",
+      "passed": true,
+      "sentinelAfter": "packaged-smoke"
+    }
+  ],
+  "electron": "Chrome/152.0.7977.78",
+  "appOrigin": "http://localhost:3000",
+  "console": [
+    "error: Connecting to 'https://example.com/' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+    "error: Fetch API cannot load https://example.com/. Refused to connect because it violates the document's Content Security Policy.",
+    "error: Creating a worker from 'blob:http://localhost:3000/f278da21-be05-4bef-8f53-085a6159b868' violates the following Content Security Policy directive: \"worker-src 'self'\". The action has been blocked.",
+    "error: Framing 'https://example.com/' violates the following Content Security Policy directive: \"frame-src 'none'\". The request has been blocked.\n",
+    "error: Framing 'http://localhost:3000/main-menu' violates the following Content Security Policy directive: \"frame-src 'none'\". The request has been blocked.\n",
+    "error: Not allowed to navigate top frame to data URL: data:text/html,<p>x</p>"
+  ],
+  "limitations": [
+    "QA copy with Steam disabled: Steam handlers are registered but no live SDK/account calls are exercised.",
+    "Child-frame and second-WebContents IPC denial cannot be constructed in the packaged app (frame-src none; one window). Those stay covered by electron-security-smoke.cjs (real Electron) and the handler harness.",
+    "Allowlisted external links were not clicked, to avoid opening the OS browser; allowlist behaviour is covered by the unpackaged smoke."
+  ]
+}
