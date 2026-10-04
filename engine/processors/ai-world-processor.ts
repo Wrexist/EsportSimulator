@@ -23,7 +23,7 @@ import { StaffGenerator } from "../staff-generator"
 import { generateProspect } from "../prospect-generator"
 import { PlayerRole } from "@/types/enums"
 import { logger } from "@/lib/logger"
-import { processFreeAgentMarket, freeAgentScoutingFactor } from "./free-agent-market"
+import { processFreeAgentMarket, freeAgentScoutingFactor, hashRoll } from "./free-agent-market"
 
 // Flavour backstory fragments so intakes read as distinct scouted talents
 // rather than a wall of identical "Youth Prospect" clones. Picked
@@ -89,9 +89,14 @@ export function processAIWorldLogic(save: GameSave, playerTeamId: string, rng: S
 function generateYouthIntake(save: GameSave, playerTeamId: string, rng: SeededRNG): void {
     logger.debug("[Season End] Generating Youth Prospects...")
 
+    const intakeFactor = freeAgentScoutingFactor(save)
     save.teams.forEach(team => {
         const trainingFacility = team.facilities?.find(f => f.type === "TRAINING")
         if (!trainingFacility || trainingFacility.level < 3) return
+        // Pass 2: the same free-agent pool feedback as AI scouting, for every
+        // club: while the pool is over target, each club's intake happens with
+        // probability = factor (pure hash roll; the week RNG is untouched).
+        if (intakeFactor < 1 && hashRoll(`youth_intake:${team.id}:${save.currentWeek}`) >= intakeFactor) return
 
         const prospectsToGenerate = trainingFacility.level >= 5 ? 2 : 1
         const isPlayerTeam = team.id === playerTeamId

@@ -248,9 +248,10 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         // State-derived so a reload replays them.
         for (const e of s.eventsLog) {
             if (e.selectedChoiceId || e.data?.isWithdrawn || e.type === 'JOB_OFFER') continue
-            const choices = (e as unknown as { choices?: Array<{ id: string; effects?: { money?: number } }> }).choices
+            const choices = (e as unknown as { choices?: Array<{ id: string; effects?: { money?: number; morale?: number } }> }).choices
             if (!choices?.length || e.week < s.currentWeek - 1) continue
-            const best = [...choices].sort((a, b) => (b.effects?.money ?? 0) - (a.effects?.money ?? 0))[0]
+            // Competent: never trade squad morale for money; among the rest, take the most money.
+            const best = [...choices].sort((a, b) => Number((a.effects?.morale ?? 0) < 0) - Number((b.effects?.morale ?? 0) < 0) || (b.effects?.money ?? 0) - (a.effects?.money ?? 0))[0]
             get().resolveEventChoice(e.id, best.id)
             if (get().eventsLog.find(x => x.id === e.id)?.selectedChoiceId) policyStats.choices++
         }
@@ -315,7 +316,9 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         // Sponsors: keep slots filled with the best currently offered deal (signSponsor enforces gates).
         if (policyName !== 'spendthrift' && (playerTeam().sponsors?.length ?? 0) < 3) {
             if (!get().sponsorOffers.length) get().refreshSponsorOffers()
-            for (const o of [...get().sponsorOffers].sort((a, b) => b.weeklyPayout - a.weeklyPayout || a.id.localeCompare(b.id))) {
+            // Competent: avoid brands that drain morale (betting: -0.3/week each); best payout among the rest.
+            const drains = (o: { brandEffect?: { moralePerWeek?: number } }) => Number((o.brandEffect?.moralePerWeek ?? 0) < 0)
+            for (const o of [...get().sponsorOffers].sort((a, b) => drains(a) - drains(b) || b.weeklyPayout - a.weeklyPayout || a.id.localeCompare(b.id))) {
                 if ((playerTeam().sponsors?.length ?? 0) >= 3) break
                 if (get().signSponsor(teamId, { ...o, signedWeek: get().currentWeek }).success) policyStats.sponsorsSigned++
             }
