@@ -411,7 +411,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                         player.level = (player.level || 1) + 1
                         player.talentPoints = (player.talentPoints || 0) + 1
                         player.xpToNextLevel = Math.floor((player.xpToNextLevel || 1000) * 1.5)
-                        state.eventsLog.unshift({
+                        // Opponent level-ups are not the manager's news (and each would toast).
+                        if (team.id === state.playerTeamId) state.eventsLog.unshift({
                             id: nextDeterministicId(state, "evt_lvl", player.id),
                             type: "PLAYER_LEVEL_UP",
                             week: state.currentWeek,
@@ -430,6 +431,14 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
                     if (stats.kills > 0) {
                         const weaponXp = stats.kills * 10
+                        const existing = player.weaponMastery[primaryWeapon]
+                        if (typeof existing === "number") {
+                            // The weekly auto-sim (WeaponMasteryManager) stores AWP as
+                            // a plain XP total. Keep that canonical shape and scale
+                            // instead of writing object fields onto a number (crash).
+                            player.weaponMastery[primaryWeapon] = existing + stats.kills * 4
+                            return
+                        }
                         if (!player.weaponMastery[primaryWeapon]) {
                             player.weaponMastery[primaryWeapon] = { xp: 0, level: 1, kills: 0 }
                         }

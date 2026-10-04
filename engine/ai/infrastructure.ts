@@ -202,6 +202,14 @@ export function manageFacilities(team: TeamSaveData, save: GameSave, rng: Seeded
  * matches the player's exactly: 25k / 75k / 150k / 300k / 500k).
  */
 export function manageAcademy(team: TeamSaveData, save: GameSave, rng: SeededRNG): void {
+    // Academies are bought while sponsor income is high; when that income
+    // lapses the upkeep (up to $40k/week) left low-reputation AI clubs in a
+    // permanent deficit that also blocked every free-agent signing. Shed one
+    // level per week (no refund) while the club cannot cover its running costs.
+    if (team.academyFacility && team.academyFacility.level > 0 && !affordableInvestment(save, team, 0)) {
+        team.academyFacility = { ...team.academyFacility, level: team.academyFacility.level - 1, lastUpgradeWeek: save.currentWeek }
+        return
+    }
     if (aiRoll(rng) > 0.03) return
     if (team.financialState !== "STABLE") return
 
