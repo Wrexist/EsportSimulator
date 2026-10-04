@@ -29,6 +29,12 @@ export const CONDITION_TUNING = {
     /** Form change per match result, for both clubs in every committed match. */
     FORM_PER_WIN: 3,
     FORM_PER_LOSS: -3,
+    /**
+     * Morale gains from wins are scaled by (100 - morale) / this, capped at
+     * full value: full gain up to morale 50, half at 75, a tenth at 95.
+     * Before tuning, S-tier wins (+15, loss -3) pinned winning rosters at 100.
+     */
+    MORALE_GAIN_HEADROOM: 50,
     /** Weekly form/morale drift target is lowered by this much per point of fatigue. */
     FATIGUE_FORM_DRAG: 0.3,
     FATIGUE_MORALE_DRAG: 0.2,

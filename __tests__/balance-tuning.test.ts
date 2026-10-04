@@ -5,7 +5,7 @@
 import { createLaunchFixture } from '../scripts/launch/fixtures'
 import { CONDITION_TUNING, FREE_AGENT_TUNING, HALL_OF_FAME_TUNING, ROUND_ECONOMY_TUNING, SPONSOR_TUNING } from '@/lib/balance-tuning'
 import { TrainingProcessor } from '@/engine/processors/training-processor'
-import { PlayerLifecycleManager, applyFormResult } from '@/engine/player-lifecycle'
+import { PlayerLifecycleManager, applyFormResult, applyMoraleResult } from '@/engine/player-lifecycle'
 import { SponsorGenerator, EconomyManager } from '@/engine/economy-manager'
 import { EconomyEngine } from '@/engine/economy-engine'
 import { SeededRNG } from '@/engine/rng'
@@ -63,6 +63,11 @@ describe('condition: recovery parity and real costs', () => {
         expect(applyFormResult(50, true)).toBe(50 + CONDITION_TUNING.FORM_PER_WIN)
         expect(applyFormResult(50, false)).toBe(50 + CONDITION_TUNING.FORM_PER_LOSS)
         expect(applyFormResult(99, true)).toBe(100)
+        // Morale gains shrink near the cap; losses apply in full.
+        expect(applyMoraleResult(40, 15)).toBe(55)
+        expect(applyMoraleResult(75, 15)).toBe(83)
+        expect(applyMoraleResult(98, 15)).toBe(99)
+        expect(applyMoraleResult(98, -3)).toBe(95)
         const fresh = { age: 25, fatigue: 0, energy: 100, maxEnergy: 100, morale: 50, form: 50, reaction: 50, skill: 50, rifle: 50, clutch: 50 }
         const tired = { ...fresh, fatigue: 80 }
         PlayerLifecycleManager.processWeeklyUpdates(fresh, 2025, 10, 0, new SeededRNG(1))

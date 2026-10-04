@@ -31,6 +31,18 @@ export function applyFormResult(form: number | undefined, won: boolean): number 
 }
 
 /**
+ * Morale after a committed match result (CONDITION_TUNING). Gains shrink as
+ * morale approaches 100 so a winning streak cannot pin a roster at the
+ * maximum (+20% strength) indefinitely; losses apply in full. Same rule for
+ * every club.
+ */
+export function applyMoraleResult(morale: number | undefined, delta: number): number {
+    const current = morale ?? 50
+    const scaled = delta > 0 ? delta * Math.min(1, Math.max(0, 100 - current) / CONDITION_TUNING.MORALE_GAIN_HEADROOM) : delta
+    return Math.max(0, Math.min(100, current + Math.round(scaled)))
+}
+
+/**
  * Manages player progression, aging, and psychological state
  */
 export class PlayerLifecycleManager {

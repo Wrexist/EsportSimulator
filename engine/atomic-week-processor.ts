@@ -35,7 +35,7 @@ import {
     TrainingFocus,
     EventType,
 } from "@/types"
-import { PlayerLifecycleManager, applyFormResult } from "./player-lifecycle"
+import { PlayerLifecycleManager, applyFormResult, applyMoraleResult } from "./player-lifecycle"
 import { EconomyEngine } from "./economy-engine"
 import { LegendEventsManager } from "./legend-events-manager"
 import { EventsManager } from "./events-manager"
@@ -954,7 +954,7 @@ export class AtomicWeekProcessor {
 
                     let moraleDelta = getMoraleChange(won) * derbyStakes
                     if (moraleDelta < 0) moraleDelta *= (1 - moraleLossDampen)
-                    p.morale = Math.max(0, Math.min(100, p.morale + Math.round(moraleDelta)))
+                    p.morale = applyMoraleResult(p.morale, moraleDelta)
                     p.form = applyFormResult(p.form, won)
 
                     // Phase 6: Skill Point Progression
