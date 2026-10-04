@@ -35,9 +35,14 @@ export function hashRoll(key: string): number {
     return (h >>> 0) / 4294967296
 }
 
-/** Weekly retirement chance for a free agent unsigned for `weeksUnsigned` weeks. */
-export function freeAgentRetirementChance(age: number, weeksUnsigned: number): number {
-    if (weeksUnsigned < FREE_AGENT_TUNING.RETIRE_GRACE_WEEKS) return 0
+/**
+ * Weekly retirement chance for a free agent unsigned for `weeksUnsigned` weeks.
+ * `poolFactor` > 1 (an oversized pool) also shortens the grace period, down to
+ * RETIRE_GRACE_MIN_WEEKS (pass 2).
+ */
+export function freeAgentRetirementChance(age: number, weeksUnsigned: number, poolFactor = 1): number {
+    const grace = Math.max(FREE_AGENT_TUNING.RETIRE_GRACE_MIN_WEEKS, FREE_AGENT_TUNING.RETIRE_GRACE_WEEKS / Math.max(1, poolFactor))
+    if (weeksUnsigned < grace) return 0
     const base = FREE_AGENT_TUNING.RETIRE_WEEKLY_CHANCE
     if (age >= FREE_AGENT_TUNING.RETIRE_VETERAN_AGE) return base * 2
     if (age < FREE_AGENT_TUNING.RETIRE_YOUTH_AGE) return base / 2
@@ -94,7 +99,7 @@ export function processFreeAgentMarket(save: GameSave): { retired: string[] } {
         if (p.freeAgentSinceWeek === undefined) { p.freeAgentSinceWeek = week; continue }
         // Legends never retire; FPL non-pros are an amateur pool the FPL cycle manages.
         if (p.isLegendary || p.id.startsWith(FPL_NON_PRO_PREFIX)) continue
-        const chance = freeAgentRetirementChance(p.age ?? 22, week - p.freeAgentSinceWeek) * poolFactor
+        const chance = freeAgentRetirementChance(p.age ?? 22, week - p.freeAgentSinceWeek, poolFactor) * poolFactor
         if (chance > 0 && hashRoll(`fa_retire:${p.id}:${week}`) < chance) {
             p.isRetired = true
             p.retirementWeek = week

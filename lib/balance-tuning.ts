@@ -84,6 +84,8 @@ export const FREE_AGENT_TUNING = {
     QUORUM_WAGE_ALLOWANCE: 1_000,
     /** Weeks a free agent stays available before retirement can happen. */
     RETIRE_GRACE_WEEKS: 26,
+    /** Pass 2: an oversized pool shortens the grace period (grace / pool factor), never below this. */
+    RETIRE_GRACE_MIN_WEEKS: 8,
     /** Weekly retirement chance once past the grace period (age-adjusted below). */
     RETIRE_WEEKLY_CHANCE: 0.015,
     /**

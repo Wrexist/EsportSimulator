@@ -150,7 +150,10 @@ describe('free-agent market', () => {
         }
         const a = run(), b = run()
         expect(b.retiredByWeek).toEqual(a.retiredByWeek)
-        for (let w = 11; w < 10 + FREE_AGENT_TUNING.RETIRE_GRACE_WEEKS; w++) expect(a.retiredByWeek[w]).toBe(0)
+        for (let w = 11; w < 10 + FREE_AGENT_TUNING.RETIRE_GRACE_MIN_WEEKS; w++) expect(a.retiredByWeek[w]).toBe(0)
+        // Full grace at a normal pool size; an oversized pool shortens it.
+        expect(freeAgentRetirementChance(24, FREE_AGENT_TUNING.RETIRE_GRACE_WEEKS - 1, 1)).toBe(0)
+        expect(freeAgentRetirementChance(24, FREE_AGENT_TUNING.RETIRE_GRACE_WEEKS - 1, 4)).toBeGreaterThan(0)
         const retired = a.save.players.filter(p => p.isRetired)
         expect(retired.length).toBeGreaterThan(50)
         expect(retired.length).toBeLessThan(200)
