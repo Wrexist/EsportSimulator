@@ -90,7 +90,7 @@ export const FREE_AGENT_TUNING = {
      * Pass 2: the weekly chance is multiplied by (free agents / target), with
      * target = POOL_TARGET_PER_CLUB x clubs, clamped to [MIN, MAX].
      */
-    POOL_TARGET_PER_CLUB: 2,
+    POOL_TARGET_PER_CLUB: 1.25,
     POOL_FACTOR_MIN: 0.25,
     POOL_FACTOR_MAX: 6,
     /**
