@@ -121,3 +121,71 @@ The likely next lever is softer AI sponsor scaling for low-wage clubs, or a rene
 | `npx jest --silent` | 208/208 suites, 2,043/2,043 tests. Under campaign CPU load, `electron-navigation-guard` hit its 5 s timeout; it passes on an idle machine. |
 | `npm run build` | Pass; the production worker starts without browser globals |
 | New tests | `__tests__/balance-tuning.test.ts`: recovery parity, form/morale/fatigue, sponsor bounds, free-agent decay and retirement, AI renewal/upgrade/quorum, auto-entry, Hall of Fame, buy thresholds, loss ladder. `__tests__/l21-series-equivalence.test.ts`: store-commit mastery parity. |
+
+## Pass 2 (5 October 2026): the missed targets
+
+Branch `claude/balance-tuning-2`, merged on top of the sweep (`e802ab9f`). Engine commit `28eb71ee`.
+
+The campaign was re-run at the same size (30 seeds × 10 seasons, label `p2-final-28eb71ee`). Results are in `balance-tuning-2026-10-04-pass2-campaign.json`; the pass-2 block of [balance-tuning-2026-10-04.json](balance-tuning-2026-10-04.json) has the side-by-side metrics. The orchestrator spawned seed 20, which exited with an empty log; the resumable run then re-ran it.
+
+The L21 paired scenarios are unchanged (pass 2 did not touch match code): full-buy every round is +1.5 pp [−2.0, 5.0].
+
+### Changes
+
+All constants are in `lib/balance-tuning.ts` and apply to every club.
+
+| Area | Change | Constants |
+|---|---|---|
+| Development parity | AI clubs train every week on the managed club's default regimen (AIM, intensity 5). They go through the same `TrainingProcessor`, so the same staff and facility modifiers, potential cap and training fatigue apply. | `AI_SQUAD_TUNING.TRAINING_FOCUS/INTENSITY` |
+| Opening contract wave | Opening snapshot contracts end within ±26 weeks of their nominal length (seeded draw), with a minimum of 26 weeks. Before, every opening contract ended on a season boundary. | `INITIAL_CONTRACT_STAGGER_WEEKS`, `INITIAL_CONTRACT_MIN_WEEKS` |
+| AI renewals | The renewal window opens 12 weeks before expiry (was 4). | `RENEW_WINDOW_WEEKS` |
+| AI sponsors | AI clubs look at offers 25% of weeks (was 5%) and have 3 slots (was 2), matching the managed club's cap. | `SPONSOR_LOOK_CHANCE`, `MAX_SPONSORS` |
+| Academy promotion | A club below five promotes its own academy prospect on a normal recruitment quote, under the quorum budget rule. | `promoteAcademyToQuorum` |
+| AI academies | AI academies keep at most 3 prospects; prospects are released at age 20. Before, 685 players sat in AI academies by season 10, outside the market and its retirement. | `ACADEMY_MAX_PROSPECTS`, `ACADEMY_RELEASE_AGE` |
+| Free-agent pool feedback | Pool size is compared with a target of 1 free agent per club. Retirement chance scales ×[0.25, 6], and an oversized pool shortens the retirement grace (minimum 8 weeks). AI scouting and season-end youth intake scale ×[0.15, 1]. Youth is never paused. | `POOL_TARGET_PER_CLUB`, `POOL_FACTOR_MIN/MAX`, `RETIRE_GRACE_MIN_WEEKS`, `SCOUTING_FACTOR_MIN` |
+| Wage-decay floor | Long-unsigned asks now fall to 25% of the original ask (was 40%), so minimum-wage signings exist. | `WAGE_DECAY_FLOOR` |
+| Season-1 "dead seasons" (seeds 12, 19) | **Not an engine bug.** Both managers changed jobs at week 52, and the season snapshot counted matches only for the new club. The campaign now attributes each match to the club managed that week. | `scripts/launch/long-career-campaign.ts` |
+
+**Managed-only audit.** These remain managed-only, and all are paid or manual player decisions:
+
+- weekly activity and bootcamps
+- VOD review and mental reset
+- talents
+- scouting reports
+
+Chemistry growth, fatigue and morale drift, idle-day recovery, result morale and form, and match mastery are all symmetric. The competent campaign policy now uses the real match-screen levers: VOD review plus the counter playstyle, and a mental reset only when squad morale is below 40, only above a $250k reserve, and only with a non-negative weekly net. The policy also:
+
+- releases the weakest bench player while the club runs a weekly deficit;
+- applies the AI affordability test to its upgrades (it previously used a stricter quarter-of-cash rule);
+- avoids choices and sponsor brands that cost morale.
+
+Pass 1 measured this policy before these levers were added, so the policy definitions differ. That is intended: the target describes a "competent" manager.
+
+### Updated table (30 careers × 10 seasons)
+
+| Target | Before tuning | Pass 1 | Pass 2 | Verdict |
+|---|---|---|---|---|
+| World #1 at end of season 3 (minority) | 28/30 | 8/30 | **3/30** (10%, CI 4–26%) | Met |
+| World #1 at season 10 | 30/30 | 24/30 | **3/29** (10%, CI 4–26%) | Met |
+| Managed S-tier title share, seasons 2–10 (median ≪ 50%) | 0.67 | 0.17 | **0 [p90 0.33, max 0.50]** | Met |
+| Managed win rate, seasons 2–10 (median 0.55–0.70) | 1.00 | 0.84 | **0.634 [0.32, 0.83]** | Met |
+| AI clubs below 5 at a season end (< 1) | mean 1.53 | mean 2.15 | **mean 0.00 (max 0) every season** | Met |
+| `ai-roster-not-viable` episodes (> 6 weeks below five mid-season) | 633 | 486 | 170 | Improved, see below |
+| Player pool after 10 seasons (±25%) | 2.55× | 1.24× | **1.17× [1.14, 1.20]**; still rising about 50 players per season in seasons 6–10 | Met |
+| Finite income, failure reachable | $596M final cash | $49M | $28M [$6k, $37M]; cash Δ $2.3M per season. Competent policy: 3/30 bankrupt. Spendthrift: 1/3 bankrupt. | Met |
+| Dead seasons (competent / passive) | 0 / 0–1 matches | 2 (metric artifact) / OK | 0 / 6–49 matches per season | Met |
+| Hall of Fame (2–8 per season) | 32 at season 10 | 6 (max 12) | **season 10: median 4, max 8**; season-mean trend 1.0 → 3.4 over seasons 5–10 | Met |
+| Full-buy every round | +14.5 pp | +1.5 pp | +1.5 pp (match code unchanged) | Met |
+| Week tick (median) | 4.3 s | 1.9 s | 2.0 s | |
+
+Season-end means in pass 2: AI clubs below five were 0.00 in every season (pass 1 had 2.0–6.6 in seasons 3–6).
+
+**Remaining mid-season episodes.** The 170 `ai-roster-not-viable` episodes are clubs that fell below five during a season (a contract expiry or retirement outside a transfer window) and needed more than six weeks to refill. Every one of them was back to five by the season end. They average 5.7 per career; before tuning it was at least 21.
+
+### Pass-2 risks
+
+1. **Competent careers can now go bankrupt** (3/30). All three followed job changes into low-reputation clubs. That makes the failure state reachable, but some players may find the late-career economy harsh.
+2. **The pool still drifts upward late**, about 50 players per season in seasons 6–10. Extrapolating, it would leave the ±25% band around season 13–14.
+3. **Hall of Fame inductions rise with career length:** a season-10 mean of 3.4 and a maximum of 8. Seasons beyond 12 may exceed 8.
+4. **AI skill now rises to potential everywhere.** The AI top-ten average goes from 63 to 84 over ten seasons, so the world is stronger late.
+5. **The win-rate target is met with a policy that uses paid match prep.** Without prep, a managed club plays at about AI parity: 0.40–0.55 in pass-2 iterations 4 and 8.

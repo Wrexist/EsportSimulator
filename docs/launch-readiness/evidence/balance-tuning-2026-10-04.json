@@ -866,5 +866,636 @@
         "roundSharePp": -33.4
       }
     }
+  },
+  "pass2": {
+    "generated": "2026-10-04T22:59:45.163Z",
+    "engineCommit": "28eb71ee (branch claude/balance-tuning-2, campaign label p2-final-28eb71ee)",
+    "evidence": "balance-tuning-2026-10-04-pass2-campaign.json",
+    "command": "npm run campaign:long -- --seeds=30 --seasons=10 --parallel=7 --label=p2-final-28eb71ee --out=docs/launch-readiness/evidence/balance-tuning-2026-10-04-pass2-campaign.json (seed 20 exited at spawn with an empty log and was re-run by the resumable orchestrator)",
+    "vsBefore": {
+      "dir": "tmp/long-career/p2-final-28eb71ee",
+      "careers": 30,
+      "seasonSnapshots": 296,
+      "worldNo1BySeason": [
+        {
+          "season": 1,
+          "worldNo1": {
+            "k": 3,
+            "n": 30,
+            "rate": 0.1,
+            "low": 0.035,
+            "high": 0.256
+          }
+        },
+        {
+          "season": 2,
+          "worldNo1": {
+            "k": 1,
+            "n": 30,
+            "rate": 0.033,
+            "low": 0.006,
+            "high": 0.167
+          }
+        },
+        {
+          "season": 3,
+          "worldNo1": {
+            "k": 3,
+            "n": 30,
+            "rate": 0.1,
+            "low": 0.035,
+            "high": 0.256
+          }
+        },
+        {
+          "season": 5,
+          "worldNo1": {
+            "k": 6,
+            "n": 30,
+            "rate": 0.2,
+            "low": 0.095,
+            "high": 0.373
+          }
+        },
+        {
+          "season": 10,
+          "worldNo1": {
+            "k": 3,
+            "n": 29,
+            "rate": 0.103,
+            "low": 0.036,
+            "high": 0.264
+          }
+        }
+      ],
+      "managedSTierTitleShareSeason2Plus": {
+        "n": 266,
+        "p10": 0,
+        "median": 0,
+        "p90": 0.3333,
+        "max": 0.5
+      },
+      "managedWinRateSeason2Plus": {
+        "n": 266,
+        "p10": 0.3169,
+        "median": 0.6344,
+        "p90": 0.8325,
+        "max": 0.9099
+      },
+      "managedTrophiesPerSeason": {
+        "n": 296,
+        "p10": 0,
+        "median": 3,
+        "p90": 11,
+        "max": 16
+      },
+      "managedFinalCash": {
+        "n": 30,
+        "p10": 6375.5,
+        "median": 28297042.5,
+        "p90": 37400541,
+        "max": 43022287
+      },
+      "managedSeasonCashDelta": {
+        "n": 296,
+        "p10": -4509.5,
+        "median": 2326384,
+        "p90": 5659695,
+        "max": 8128897
+      },
+      "sponsorIncomePerSeason": {
+        "n": 296,
+        "p10": 470887.5,
+        "median": 6190189.5,
+        "p90": 7548980,
+        "max": 9672091
+      },
+      "wageBillPerSeason": {
+        "n": 296,
+        "p10": 508801.5,
+        "median": 3495888,
+        "p90": 7592491.5,
+        "max": 9960850
+      },
+      "terminal": {
+        "none": 27,
+        "BANKRUPTCY": 3
+      },
+      "deadSeasons": 0,
+      "aiShortRostersAtSeasonEnd": {
+        "n": 296,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "aiRosterNotViableEpisodes": 170,
+      "aiNegativeCashAtSeasonEnd": {
+        "n": 296,
+        "p10": 0,
+        "median": 7,
+        "p90": 13.5,
+        "max": 19
+      },
+      "playersActiveFinal": {
+        "n": 30,
+        "p10": 1840.9,
+        "median": 1901,
+        "p90": 1935.1,
+        "max": 1967
+      },
+      "poolRatioFinal": {
+        "n": 30,
+        "p10": 1.1378,
+        "median": 1.1749,
+        "p90": 1.196,
+        "max": 1.2157
+      },
+      "newPlayersPerSeason": {
+        "n": 296,
+        "p10": 51.5,
+        "median": 176,
+        "p90": 229,
+        "max": 258
+      },
+      "retiredPerSeason": {
+        "n": 296,
+        "p10": 73,
+        "median": 132.5,
+        "p90": 181,
+        "max": 208
+      },
+      "hofInductionsBySeason": [
+        {
+          "season": 1,
+          "n": 30,
+          "p10": 0,
+          "median": 0,
+          "p90": 1,
+          "max": 1
+        },
+        {
+          "season": 3,
+          "n": 30,
+          "p10": 0,
+          "median": 0,
+          "p90": 2,
+          "max": 3
+        },
+        {
+          "season": 5,
+          "n": 30,
+          "p10": 0,
+          "median": 1,
+          "p90": 2,
+          "max": 3
+        },
+        {
+          "season": 10,
+          "n": 29,
+          "p10": 1,
+          "median": 4,
+          "p90": 6,
+          "max": 8
+        }
+      ],
+      "sTierTopWinnerShare": {
+        "n": 296,
+        "p10": 0.1667,
+        "median": 0.3333,
+        "p90": 0.5,
+        "max": 0.8333
+      },
+      "tickMsMedian": {
+        "n": 30,
+        "p10": 1600.4,
+        "median": 1981.75,
+        "p90": 2603.6,
+        "max": 2688.5
+      },
+      "failureKinds": [
+        "ai-roster-not-viable",
+        "save-load-divergence"
+      ]
+    },
+    "vsPass1": {
+      "pass1": {
+        "dir": "tmp/long-career/final-4efd1ff9",
+        "careers": 30,
+        "seasonSnapshots": 300,
+        "worldNo1BySeason": [
+          {
+            "season": 1,
+            "worldNo1": {
+              "k": 4,
+              "n": 30,
+              "rate": 0.133,
+              "low": 0.053,
+              "high": 0.297
+            }
+          },
+          {
+            "season": 2,
+            "worldNo1": {
+              "k": 7,
+              "n": 30,
+              "rate": 0.233,
+              "low": 0.118,
+              "high": 0.409
+            }
+          },
+          {
+            "season": 3,
+            "worldNo1": {
+              "k": 8,
+              "n": 30,
+              "rate": 0.267,
+              "low": 0.142,
+              "high": 0.444
+            }
+          },
+          {
+            "season": 5,
+            "worldNo1": {
+              "k": 13,
+              "n": 30,
+              "rate": 0.433,
+              "low": 0.274,
+              "high": 0.608
+            }
+          },
+          {
+            "season": 10,
+            "worldNo1": {
+              "k": 24,
+              "n": 30,
+              "rate": 0.8,
+              "low": 0.627,
+              "high": 0.905
+            }
+          }
+        ],
+        "managedSTierTitleShareSeason2Plus": {
+          "n": 270,
+          "p10": 0,
+          "median": 0.1667,
+          "p90": 0.6667,
+          "max": 0.8333
+        },
+        "managedWinRateSeason2Plus": {
+          "n": 270,
+          "p10": 0.5581,
+          "median": 0.8381,
+          "p90": 0.9813,
+          "max": 1
+        },
+        "managedTrophiesPerSeason": {
+          "n": 300,
+          "p10": 1,
+          "median": 10,
+          "p90": 20,
+          "max": 22
+        },
+        "managedFinalCash": {
+          "n": 30,
+          "p10": 31773791.4,
+          "median": 48589018,
+          "p90": 59566552.8,
+          "max": 78613745
+        },
+        "managedSeasonCashDelta": {
+          "n": 300,
+          "p10": 1831620.7,
+          "median": 4754008.5,
+          "p90": 7553332,
+          "max": 9084803
+        },
+        "sponsorIncomePerSeason": {
+          "n": 300,
+          "p10": 1679465.3,
+          "median": 6319149.5,
+          "p90": 8644266.9,
+          "max": 11930228
+        },
+        "wageBillPerSeason": {
+          "n": 300,
+          "p10": 191989.7,
+          "median": 2019503,
+          "p90": 9092663.7,
+          "max": 12873880
+        },
+        "terminal": {
+          "none": 30
+        },
+        "deadSeasons": 2,
+        "aiShortRostersAtSeasonEnd": {
+          "n": 300,
+          "p10": 0,
+          "median": 0,
+          "p90": 7,
+          "max": 12
+        },
+        "aiRosterNotViableEpisodes": 486,
+        "aiNegativeCashAtSeasonEnd": {
+          "n": 300,
+          "p10": 0,
+          "median": 12,
+          "p90": 18,
+          "max": 25
+        },
+        "playersActiveFinal": {
+          "n": 30,
+          "p10": 1959,
+          "median": 2002,
+          "p90": 2054.5,
+          "max": 2074
+        },
+        "poolRatioFinal": {
+          "n": 30,
+          "p10": 1.2108,
+          "median": 1.2373,
+          "p90": 1.2698,
+          "max": 1.2818
+        },
+        "newPlayersPerSeason": {
+          "n": 300,
+          "p10": 41.7,
+          "median": 158,
+          "p90": 263.1,
+          "max": 323
+        },
+        "retiredPerSeason": {
+          "n": 300,
+          "p10": 76.9,
+          "median": 113,
+          "p90": 155,
+          "max": 172
+        },
+        "hofInductionsBySeason": [
+          {
+            "season": 1,
+            "n": 30,
+            "p10": 0,
+            "median": 0,
+            "p90": 0,
+            "max": 1
+          },
+          {
+            "season": 3,
+            "n": 30,
+            "p10": 0,
+            "median": 1,
+            "p90": 2,
+            "max": 3
+          },
+          {
+            "season": 5,
+            "n": 30,
+            "p10": 0,
+            "median": 2,
+            "p90": 3,
+            "max": 4
+          },
+          {
+            "season": 10,
+            "n": 30,
+            "p10": 3.9,
+            "median": 6,
+            "p90": 10,
+            "max": 12
+          }
+        ],
+        "sTierTopWinnerShare": {
+          "n": 300,
+          "p10": 0.3333,
+          "median": 0.5,
+          "p90": 0.6667,
+          "max": 1
+        },
+        "tickMsMedian": {
+          "n": 30,
+          "p10": 1808.3,
+          "median": 1947.5,
+          "p90": 3453.1,
+          "max": 4243.5
+        },
+        "failureKinds": [
+          "ai-roster-not-viable"
+        ]
+      }
+    },
+    "bySeason": [
+      {
+        "season": 1,
+        "aiShortMean": 0,
+        "aiNegativeMean": 0.07,
+        "playersActiveMean": 1548.27,
+        "hofMean": 0.2,
+        "managedWorldNo1": 3,
+        "managedWinRateMean": 0.58
+      },
+      {
+        "season": 2,
+        "aiShortMean": 0,
+        "aiNegativeMean": 0.13,
+        "playersActiveMean": 1509.23,
+        "hofMean": 0.2,
+        "managedWorldNo1": 1,
+        "managedWinRateMean": 0.52
+      },
+      {
+        "season": 3,
+        "aiShortMean": 0,
+        "aiNegativeMean": 1.2,
+        "playersActiveMean": 1531.5,
+        "hofMean": 0.53,
+        "managedWorldNo1": 3,
+        "managedWinRateMean": 0.52
+      },
+      {
+        "season": 4,
+        "aiShortMean": 0,
+        "aiNegativeMean": 3.53,
+        "playersActiveMean": 1580.27,
+        "hofMean": 0.9,
+        "managedWorldNo1": 5,
+        "managedWinRateMean": 0.55
+      },
+      {
+        "season": 5,
+        "aiShortMean": 0,
+        "aiNegativeMean": 7.4,
+        "playersActiveMean": 1640.17,
+        "hofMean": 0.97,
+        "managedWorldNo1": 6,
+        "managedWinRateMean": 0.59
+      },
+      {
+        "season": 6,
+        "aiShortMean": 0,
+        "aiNegativeMean": 9.5,
+        "playersActiveMean": 1705.6,
+        "hofMean": 1.03,
+        "managedWorldNo1": 9,
+        "managedWinRateMean": 0.62
+      },
+      {
+        "season": 7,
+        "aiShortMean": 0,
+        "aiNegativeMean": 11.24,
+        "playersActiveMean": 1749.14,
+        "hofMean": 1.34,
+        "managedWorldNo1": 7,
+        "managedWinRateMean": 0.62
+      },
+      {
+        "season": 8,
+        "aiShortMean": 0,
+        "aiNegativeMean": 11.62,
+        "playersActiveMean": 1803.76,
+        "hofMean": 2.45,
+        "managedWorldNo1": 4,
+        "managedWinRateMean": 0.64
+      },
+      {
+        "season": 9,
+        "aiShortMean": 0,
+        "aiNegativeMean": 12,
+        "playersActiveMean": 1852.59,
+        "hofMean": 3.1,
+        "managedWorldNo1": 6,
+        "managedWinRateMean": 0.64
+      },
+      {
+        "season": 10,
+        "aiShortMean": 0,
+        "aiNegativeMean": 10.9,
+        "playersActiveMean": 1897.17,
+        "hofMean": 3.38,
+        "managedWorldNo1": 3,
+        "managedWinRateMean": 0.65
+      }
+    ],
+    "policyRuns": {
+      "spendthrift": [
+        {
+          "seed": 1,
+          "tier": "top",
+          "policy": "spendthrift",
+          "terminal": null,
+          "finalWeek": 261,
+          "matchesPerSeason": [
+            54,
+            25,
+            25,
+            45,
+            37
+          ],
+          "cashBySeason": [
+            677569,
+            407605,
+            903088,
+            371697,
+            521291
+          ]
+        },
+        {
+          "seed": 2,
+          "tier": "mid",
+          "policy": "spendthrift",
+          "terminal": null,
+          "finalWeek": 261,
+          "matchesPerSeason": [
+            52,
+            45,
+            41,
+            56,
+            62
+          ],
+          "cashBySeason": [
+            2048106,
+            1382740,
+            1185895,
+            1519100,
+            1877687
+          ]
+        },
+        {
+          "seed": 3,
+          "tier": "low",
+          "policy": "spendthrift",
+          "terminal": "BANKRUPTCY",
+          "finalWeek": 255,
+          "matchesPerSeason": [
+            110,
+            67,
+            67,
+            66,
+            55
+          ],
+          "cashBySeason": [
+            1981574,
+            2753128,
+            2026815,
+            993215,
+            -193696
+          ]
+        }
+      ],
+      "passive": [
+        {
+          "seed": 2,
+          "tier": "mid",
+          "policy": "passive",
+          "terminal": null,
+          "finalWeek": 157,
+          "matchesPerSeason": [
+            31,
+            22,
+            28
+          ],
+          "cashBySeason": [
+            3413114,
+            1274523,
+            1953372
+          ]
+        },
+        {
+          "seed": 3,
+          "tier": "low",
+          "policy": "passive",
+          "terminal": null,
+          "finalWeek": 157,
+          "matchesPerSeason": [
+            49,
+            38,
+            25
+          ],
+          "cashBySeason": [
+            2740984,
+            8573213,
+            13385687
+          ]
+        },
+        {
+          "seed": 4,
+          "tier": "top",
+          "policy": "passive",
+          "terminal": null,
+          "finalWeek": 157,
+          "matchesPerSeason": [
+            8,
+            6,
+            28
+          ],
+          "cashBySeason": [
+            7044982,
+            1060401,
+            1543783
+          ]
+        }
+      ]
+    },
+    "l21": "unchanged from pass 1 (match code untouched in pass 2): call-full-buy +1.5 pp [-2.0, 5.0]"
   }
 }

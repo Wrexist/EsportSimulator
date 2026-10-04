@@ -13,4 +13,4 @@ decorative       call-full-buy              win 51.0->52.5  dWin 1.5 [-2.0, 5.0]
 bounded          call-force-after-pistol-loss win 51.0->47.5  dWin -3.5 [-7.0, 0.0]  dRound -1.6 [-2.8, -0.3]  dCash -235 [-356, -115]
 bounded          timeout-on-streak          win 51.0->54.0  dWin 3.0 [0.6, 5.4]  dRound 1.4 [0.7, 2.1]  dCash 53 [11, 95]
 negative-control call-save-always           win 51.0->0.0  dWin -51.0 [-58.0, -44.0]  dRound -33.4 [-36.4, -30.3]  dCash 5137 [4831, 5444]
-{"seeds":400,"lossStreak":5,"baselineWins":176,"regroupWins":205,"noStreakIdentical":400} 16.0s
+{"seeds":400,"lossStreak":5,"baselineWins":176,"regroupWins":205,"noStreakIdentical":400} 18.3s
