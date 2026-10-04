@@ -144,3 +144,14 @@ Every row above, especially:
 - Tests: `__tests__/l27-tick-performance.test.ts`, `__tests__/l27-week-progress.test.ts`.
 
 The 14 September increment (recruitment quote reuse, [budgets](L27-BUDGETS.md), compute soak, asset census) still stands. Its files are unchanged; see git history for the earlier text of this report.
+
+## Packaged re-measure after fixes (4 Oct, build f9358233, LOCAL-QA-ONLY copy, Steam disabled)
+
+| Session | Weeks | Controls re-enabled after Continue (median) | Longest main-thread task (median) | Route change (median) |
+|---|---|---|---|---|
+| Before, mid career | 160–167 | 2,936 ms | 698 ms | 126 ms |
+| After, mid career | 168–179 | 1,695 ms | 409 ms | 114 ms |
+| Before, early career | 1–52 | 1,459 ms | 322 ms | 92 ms |
+| After, early-profile copy | 87–96 | 2,011 ms | 424 ms | 122 ms |
+
+Same machine (i5-12600K, 31.7 GB, Windows 11). The "after" early profile is a later point of the same career than the "before" run, so those two rows are not like-for-like. Week 168 now advances (previously MATCH NOT FOUND); the early session no longer goes bankrupt after the legend-wage fix. The early run stopped at week 97 because the driver does not dismiss the week-review dialog's Continue button: a harness gap, not a game fault. Evidence: `L27-packaged-after-early.json`, `L27-packaged-after-mid.json`.

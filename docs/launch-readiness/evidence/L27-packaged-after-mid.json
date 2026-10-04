@@ -1,0 +1,432 @@
+{
+  "version": 1,
+  "label": "after-mid",
+  "mode": "session",
+  "recordedAt": "2026-10-04T07:21:36.408Z",
+  "exe": "C:\\Users\\IsacC\\EsportSimulator\\tmp\\l27qa\\app\\EsportsManager.exe",
+  "exeMtime": "2026-10-04T07:18:04.025Z",
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "logicalCpus": 16,
+    "ramBytes": 34087550976,
+    "os": "Windows_NT 10.0.26200"
+  },
+  "realProfileUntouched": true,
+  "routes": [
+    {
+      "route": "/squad",
+      "ms": 210.3
+    },
+    {
+      "route": "/training",
+      "ms": 118.6
+    },
+    {
+      "route": "/schedule",
+      "ms": 115
+    },
+    {
+      "route": "/transfers",
+      "ms": 92.4
+    },
+    {
+      "route": "/tournaments",
+      "ms": 135.2
+    },
+    {
+      "route": "/finances",
+      "ms": 203
+    },
+    {
+      "route": "/desktop",
+      "ms": 212.7
+    },
+    {
+      "route": "/",
+      "ms": 241.7
+    },
+    {
+      "route": "/squad",
+      "ms": 190.8
+    },
+    {
+      "route": "/training",
+      "ms": 64.6
+    },
+    {
+      "route": "/schedule",
+      "ms": 121.8
+    },
+    {
+      "route": "/transfers",
+      "ms": 68
+    },
+    {
+      "route": "/tournaments",
+      "ms": 107.9
+    },
+    {
+      "route": "/finances",
+      "ms": 52.9
+    },
+    {
+      "route": "/desktop",
+      "ms": 29.8
+    },
+    {
+      "route": "/",
+      "ms": 157.7
+    },
+    {
+      "route": "/squad",
+      "ms": 112.9
+    },
+    {
+      "route": "/training",
+      "ms": 84.2
+    },
+    {
+      "route": "/schedule",
+      "ms": 132.1
+    },
+    {
+      "route": "/transfers",
+      "ms": 67.3
+    },
+    {
+      "route": "/tournaments",
+      "ms": 86.9
+    },
+    {
+      "route": "/finances",
+      "ms": 42.5
+    },
+    {
+      "route": "/desktop",
+      "ms": 50.3
+    },
+    {
+      "route": "/",
+      "ms": 159.3
+    }
+  ],
+  "weeks": [
+    {
+      "week": 168,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1299,
+      "toControlsEnabledMs": 2607,
+      "longTaskCount": 5,
+      "longTaskTotalMs": 1204,
+      "longestTaskMs": 494
+    },
+    {
+      "week": 169,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1031,
+      "toControlsEnabledMs": 1914,
+      "longTaskCount": 2,
+      "longTaskTotalMs": 481,
+      "longestTaskMs": 402
+    },
+    {
+      "week": 170,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1176,
+      "toControlsEnabledMs": 2059,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 636,
+      "longestTaskMs": 495
+    },
+    {
+      "week": 171,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1007,
+      "toControlsEnabledMs": 1988,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 588,
+      "longestTaskMs": 398
+    },
+    {
+      "week": 172,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 950,
+      "toControlsEnabledMs": 1600,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 515,
+      "longestTaskMs": 389
+    },
+    {
+      "week": 173,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 990,
+      "toControlsEnabledMs": 1638,
+      "longTaskCount": 2,
+      "longTaskTotalMs": 492,
+      "longestTaskMs": 411
+    },
+    {
+      "week": 174,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 909,
+      "toControlsEnabledMs": 1809,
+      "longTaskCount": 2,
+      "longTaskTotalMs": 482,
+      "longestTaskMs": 409
+    },
+    {
+      "week": 175,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1021,
+      "toControlsEnabledMs": 1695,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 558,
+      "longestTaskMs": 428
+    },
+    {
+      "week": 176,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 953,
+      "toControlsEnabledMs": 1671,
+      "longTaskCount": 2,
+      "longTaskTotalMs": 486,
+      "longestTaskMs": 415
+    },
+    {
+      "week": 177,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 947,
+      "toControlsEnabledMs": 1590,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 532,
+      "longestTaskMs": 404
+    },
+    {
+      "week": 178,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 910,
+      "toControlsEnabledMs": 1546,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 531,
+      "longestTaskMs": 403
+    },
+    {
+      "week": 179,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 918,
+      "toControlsEnabledMs": 1639,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 513,
+      "longestTaskMs": 391
+    }
+  ],
+  "samples": [
+    {
+      "at": "loaded",
+      "week": 168,
+      "jsHeapUsedMB": 35.3,
+      "jsHeapTotalMB": 36.3,
+      "domNodes": 7322,
+      "jsEventListeners": 564,
+      "documents": 1,
+      "frames": 1,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    },
+    {
+      "at": "after-3-route-cycles",
+      "week": 168,
+      "jsHeapUsedMB": 39.3,
+      "jsHeapTotalMB": 40.5,
+      "domNodes": 7323,
+      "jsEventListeners": 733,
+      "documents": 1,
+      "frames": 1,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    }
+  ],
+  "errors": [],
+  "menuInteractiveMs": 3010,
+  "continueCareerToDashboardMs": 918,
+  "dismissed": 11,
+  "domBreakdown": {
+    "total": 5709,
+    "path": "/",
+    "rows": [
+      {
+        "depth": 0,
+        "n": 5685,
+        "label": "body.__variable_401541.font-sans.antialiased.bg-[#0e1217]",
+        "text": "Skip to main content Esports Manager Go to... Ctrl K OVERVIEW Home Inbox Schedul"
+      },
+      {
+        "depth": 1,
+        "n": 5656,
+        "label": "div.premium-app.relative.isolate.flex",
+        "text": "Esports Manager Go to... Ctrl K OVERVIEW Home Inbox Schedule TEAM Squad Training"
+      },
+      {
+        "depth": 2,
+        "n": 5372,
+        "label": "div.flex-1.flex.flex-col.min-h-0",
+        "text": "YOUR CLUB EU Natus Vincera $215,004,813 Sat, Mar 09, 2030 WEEK 180 WEEKLY CONTIN"
+      },
+      {
+        "depth": 3,
+        "n": 5309,
+        "label": "main#main-content.min-h-0.flex-1.overflow-x-hidden.relative",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 4,
+        "n": 5308,
+        "label": "div.game-page.px-4.py-4.lg:px-6",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 5,
+        "n": 5307,
+        "label": "div.dashboard.space-y-6",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 6,
+        "n": 5278,
+        "label": "div.dashboard-layout",
+        "text": "UPCOMING EVENTS On The Horizon NATUS VINCERA VS TBD COMPASS CUP B TIER IN 1 "
+      },
+      {
+        "depth": 7,
+        "n": 5129,
+        "label": "div.space-y-6",
+        "text": "This Week 28 to do CONTRACT EXPIRY WK 179 DISCUSS RENEWAL +5 Morale PLAN RELEASE"
+      },
+      {
+        "depth": 8,
+        "n": 4602,
+        "label": "div.max-h-[max(20rem,calc(100vh-12rem))].overflow-y-auto.pr-3.space-y-2",
+        "text": "MATCH MAR 9 Clinical Win for THONDER dOWNUNDER THONDER DOWNUNDER THONDER dOWNUN"
+      },
+      {
+        "depth": 9,
+        "n": 4601,
+        "label": "div.space-y-4",
+        "text": "MATCH MAR 9 Clinical Win for THONDER dOWNUNDER THONDER DOWNUNDER THONDER dOWNUN"
+      }
+    ]
+  },
+  "summary": {
+    "routeMs": {
+      "n": 24,
+      "min": 29.8,
+      "median": 114,
+      "mean": 119.1,
+      "sd": 58.5,
+      "p90": 210.3,
+      "max": 241.7
+    },
+    "routeByPath": {
+      "/": {
+        "n": 3,
+        "min": 157.7,
+        "median": 159.3,
+        "mean": 186.2,
+        "sd": 39.2,
+        "p90": 241.7,
+        "max": 241.7
+      },
+      "/desktop": {
+        "n": 3,
+        "min": 29.8,
+        "median": 50.3,
+        "mean": 97.6,
+        "sd": 81.8,
+        "p90": 212.7,
+        "max": 212.7
+      },
+      "/squad": {
+        "n": 3,
+        "min": 112.9,
+        "median": 190.8,
+        "mean": 171.3,
+        "sd": 42.1,
+        "p90": 210.3,
+        "max": 210.3
+      },
+      "/training": {
+        "n": 3,
+        "min": 64.6,
+        "median": 84.2,
+        "mean": 89.1,
+        "sd": 22.3,
+        "p90": 118.6,
+        "max": 118.6
+      },
+      "/schedule": {
+        "n": 3,
+        "min": 115,
+        "median": 121.8,
+        "mean": 123,
+        "sd": 7,
+        "p90": 132.1,
+        "max": 132.1
+      },
+      "/transfers": {
+        "n": 3,
+        "min": 67.3,
+        "median": 68,
+        "mean": 75.9,
+        "sd": 11.7,
+        "p90": 92.4,
+        "max": 92.4
+      },
+      "/tournaments": {
+        "n": 3,
+        "min": 86.9,
+        "median": 107.9,
+        "mean": 110,
+        "sd": 19.8,
+        "p90": 135.2,
+        "max": 135.2
+      },
+      "/finances": {
+        "n": 3,
+        "min": 42.5,
+        "median": 52.9,
+        "mean": 99.5,
+        "sd": 73.3,
+        "p90": 203,
+        "max": 203
+      }
+    },
+    "weekToControlsEnabledMs": {
+      "n": 12,
+      "min": 1546,
+      "median": 1683,
+      "mean": 1813,
+      "sd": 287.7,
+      "p90": 2059,
+      "max": 2607
+    },
+    "longestTaskMs": {
+      "n": 12,
+      "min": 389,
+      "median": 406.5,
+      "mean": 419.9,
+      "sd": 34.8,
+      "p90": 494,
+      "max": 495
+    },
+    "longTaskTotalMs": {
+      "n": 12,
+      "min": 481,
+      "median": 523,
+      "mean": 584.8,
+      "sd": 192,
+      "p90": 636,
+      "max": 1204
+    },
+    "ownMatchFlowMs": null
+  }
+}
