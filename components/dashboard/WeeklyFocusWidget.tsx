@@ -7,14 +7,12 @@ import { WEEKLY_ACTIVITIES, WeeklyActivityType } from "@/types"
 import { weeklyActivityXpBonus } from "@/types/activities"
 import { cn } from "@/lib/utils"
 import { PlayCircle, Users, BarChart, Sword, CalendarClock } from "lucide-react"
+import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 
 export function WeeklyFocusWidget() {
     const selectedActivity = useGameStore(state => state.selectedWeeklyActivity)
     const setWeeklyActivity = useGameStore(state => state.setWeeklyActivity)
     const budget = useGameStore(state => state.teams.find(t => t.id === state.playerTeamId)?.budget ?? 0)
-    const isPlaying = useGameStore(state => state.scheduledMatches.length > 0) // rough check if mid-week? actually we set it before advancing week.
-
-    const currentSelection = selectedActivity ? WEEKLY_ACTIVITIES[selectedActivity] : WEEKLY_ACTIVITIES[WeeklyActivityType.TRAINING_ONLY]
 
     const handleSelect = (type: WeeklyActivityType) => {
         setWeeklyActivity(type)
@@ -71,11 +69,11 @@ export function WeeklyFocusWidget() {
                                     {activity.name}
                                 </div>
                                 {activity.cost > 0 && (
-                                    <span className="text-xs font-mono text-red-400">-${activity.cost.toLocaleString('en-US')}</span>
+                                    <span className="text-xs font-mono text-red-400">{formatCurrency(-activity.cost, "$", false)}</span>
                                 )}
                                 {activity.effects.money && (
                                     <span className="text-xs font-mono text-green-400">
-                                        +${activity.effects.money.toLocaleString('en-US')}
+                                        {formatSignedCurrency(activity.effects.money, "$", false)}
                                         <span className="text-gray-500">/week</span>
                                     </span>
                                 )}

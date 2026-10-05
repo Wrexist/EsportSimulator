@@ -1,0 +1,176 @@
+{
+  "purpose": "Non-shipped archive. Not matched by package.json build.files and not imported by app code.",
+  "reason": "Owner decision: imported third-party (CS2Nades) lineups are excluded from the 1.0 base game; no upstream redistribution permission exists. Owner-authored content keeps shipping.",
+  "libraryArchive": "raw-data/archived-lineups/cs2nades-2026-10-04.json",
+  "draftArchive": "raw-data/archived-lineups/drafts-2026-10-04",
+  "library": {
+    "path": "data/map-studio-library.json",
+    "previousVersion": "2026-09-12.1",
+    "version": "2026-10-04.1",
+    "sha256": "8d05040f772e70ed35bae28bd0b03ab9b5c5fc39f4e35fb27be54981f5179592",
+    "excludedLineups": 628,
+    "excludedUnplaced": 16
+  },
+  "drafts": [
+    {
+      "path": "public/map-studio/drafts/ancient-upper-native.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/ancient-upper-native.json",
+      "originalSha256": "c2abe76d24259bcbf47168b0ad22ac4ad40ca2a1bcae523e91906038d88f716f",
+      "sha256": "de6bfa72963ce9aed9a4ae4aee4292d9260035e6ad1b710196c7f97df580e8e7",
+      "bytes": 21643,
+      "removedLineups": 76,
+      "remainingMarks": 28,
+      "validationReceipt": "none"
+    },
+    {
+      "path": "public/map-studio/drafts/anubis-upper-native.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/anubis-upper-native.json",
+      "originalSha256": "3bab2d788a530b13f7e0cd65673ea75aae620ecb0665195a04a0cf2e65ddf0fe",
+      "sha256": "4e458a5ad9893f2a8f400f5a015d90c434304a36422a43715c307c0ef6a7bc12",
+      "bytes": 97975,
+      "removedLineups": 63,
+      "remainingMarks": 54,
+      "validationReceipt": "none"
+    },
+    {
+      "path": "public/map-studio/drafts/inferno-upper-native.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/inferno-upper-native.json",
+      "originalSha256": "3dddb2b49d2dd48ed9393c0f4e9b49b1c53dbf04b2082fdcf13c057c3c129eb8",
+      "sha256": "3fd3d885091dc2fc535aa594da8efb8639aff7753da506ddba8b5f731d73b51d",
+      "bytes": 32302,
+      "removedLineups": 87,
+      "remainingMarks": 38,
+      "validationReceipt": "none"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-registered-review.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-registered-review.json",
+      "originalSha256": "acf4b4207e94f9f18a95f41122e1ed17f8176a07085acb7359ccbde4f8e3d9a9",
+      "sha256": "d9f5b33de56136b36306bcb47988facc05769c097f784d303fa005fb1471a190",
+      "bytes": 30902,
+      "removedLineups": 116,
+      "remainingMarks": 26,
+      "validationReceipt": "stale, unchanged"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-user-areas-2026-09-13.json",
+      "originalSha256": "46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65",
+      "sha256": "b275e73fe02f2e98de63f81008504437a038ab910b117e7d9ec4b336a0352bfa",
+      "bytes": 28733,
+      "removedLineups": 116,
+      "remainingMarks": 26,
+      "validationReceipt": "none"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-user-v12-2026-09-13.json",
+      "originalSha256": "efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2",
+      "sha256": "edaa3674551a29f8cc6f5915b36287550cf29fc8bed1bba55addc6f41fd7de0d",
+      "bytes": 43466,
+      "removedLineups": 116,
+      "remainingMarks": 53,
+      "validationReceipt": "none"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v13-2026-09-22.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-user-v13-2026-09-22.json",
+      "originalSha256": "68d5ce44e95636de7e0a8972044b840ae0a0ecfe4265f4cb9c8969fd2c7671e8",
+      "sha256": "d2184a2f6fca9cea79cb4c0a6f8567d8b3a7f78ae3dabff7434bc7e4343efef9",
+      "bytes": 31439,
+      "removedLineups": 116,
+      "remainingMarks": 26,
+      "validationReceipt": "none"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v12-with-reference-routes.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-v12-with-reference-routes.json",
+      "originalSha256": "3f71f77c982365575bce8770c6e8056f2851808da5623fd556a028b4ed0c0847",
+      "sha256": "0ea049c56a0ef2e7e354798792a2cb1f8cffda2a104ebca692e12bedfd2ae716",
+      "bytes": 117017,
+      "removedLineups": 116,
+      "remainingMarks": 63,
+      "validationReceipt": "stale, unchanged"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-native-sites.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-v13-native-sites.json",
+      "originalSha256": "ff992bb6fe423ec5067c4d9c50cfa7a32cacff4d733bdf5e561602812b9a25bf",
+      "sha256": "28ad67e0b18829a0b9cb517e0761436bbfbce456566171cfb9429010b210b5c6",
+      "bytes": 46051,
+      "removedLineups": 116,
+      "remainingMarks": 59,
+      "validationReceipt": "none"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-repaired.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-v13-repaired.json",
+      "originalSha256": "0770d50caeb309e5f2b8981fd2877581a1c70f393434e7193ec1fcb4f0809cf9",
+      "sha256": "83a24f049e2e1202228315b6120230ce1d5e644837a1b4df4b05ab03fc478930",
+      "bytes": 32774,
+      "removedLineups": 116,
+      "remainingMarks": 26,
+      "validationReceipt": "re-signed"
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-with-reference-routes.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-v13-with-reference-routes.json",
+      "originalSha256": "cc7ed437f183570e2a90634289054c82fb57b99fe5406a8d4906312423ffe559",
+      "sha256": "273ed0113920b877593caa963700976fdebba166374fbf49291261c7ff4a6542",
+      "bytes": 105469,
+      "removedLineups": 116,
+      "remainingMarks": 36,
+      "validationReceipt": "re-signed"
+    },
+    {
+      "path": "public/map-studio/drafts/nuke-upper-native.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/nuke-upper-native.json",
+      "originalSha256": "525ba9f59518df19b39d3d2779406072b5e32f86fe164c10ea9f31a68e876d5e",
+      "sha256": "ac66f4191b04899a9752e43ed95dae741c34093e6b2303f737ebe0ef229698cd",
+      "bytes": 25578,
+      "removedLineups": 60,
+      "remainingMarks": 34,
+      "validationReceipt": "none"
+    },
+    {
+      "path": "public/map-studio/drafts/overpass-upper-native.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/overpass-upper-native.json",
+      "originalSha256": "123dfa29e510b90cb57b7368299a62e0a0f0fb2cd6e50785482d6de67561dd33",
+      "sha256": "8e3f9012253612a099ec70014b2ef45482e8eccd2bfb6d9769d3f7ee65681608",
+      "bytes": 30231,
+      "removedLineups": 61,
+      "remainingMarks": 40,
+      "validationReceipt": "none"
+    },
+    {
+      "path": "public/map-studio/drafts/sandstone-upper-native.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/sandstone-upper-native.json",
+      "originalSha256": "11ea797949d60ec0db165cbe0f358d0834c9b5aece6c8a0301263dd37dd9a2b0",
+      "sha256": "05b923d0f28e9b4b66dc90f66aa702455f130145c9ce572baa1271e0f1866bfa",
+      "bytes": 25125,
+      "removedLineups": 108,
+      "remainingMarks": 34,
+      "validationReceipt": "none"
+    },
+    {
+      "path": "public/map-studio/drafts/vertigo-upper-native.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/drafts/vertigo-upper-native.json",
+      "originalSha256": "e7bed075f8854c1ca56d7ae8b3d94909f1d4f912f131f8fd96c5ca176a4b144b",
+      "sha256": "73deb8e258fdeac20fad5fb52167ea68dc9d5f384f636545043106b311c74764",
+      "bytes": 29119,
+      "removedLineups": 57,
+      "remainingMarks": 19,
+      "validationReceipt": "none"
+    },
+    {
+      "path": "public/map-studio/teams/map-pool/mirage.lab.json",
+      "archivedOriginal": "raw-data/archived-lineups/drafts-2026-10-04/teams/map-pool/mirage.lab.json",
+      "originalSha256": "f018365ae7b73e6a09f34755bd000e941a303c6ac4367507d1efda1a1772ff19",
+      "sha256": "6960e4cc9bdbd75a387e3be0327c6e4845ce0309dc648803ffc77cc790c6b19d",
+      "bytes": 54665,
+      "removedLineups": 116,
+      "remainingMarks": 53,
+      "validationReceipt": "none"
+    }
+  ]
+}

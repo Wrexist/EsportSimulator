@@ -77,7 +77,9 @@ import {
   resolveTournamentIdentity
 } from "@/engine/circuit-engine"
 import { buildEntityIndexes, type EntityIndexes } from "@/store/indexes"
+import { pendingPlayableMatch } from "@/lib/playable-match"
 import { pruneGameState } from "@/store/utils/array-pruning"
+import { perfTrace } from "@/engine/perf-trace"
 import { logger } from "@/lib/logger"
 import { createSettingsSlice } from "@/store/slices/settings-slice"
 import { createScoutingSlice } from "@/store/slices/scouting-slice"
@@ -109,6 +111,7 @@ import { createStaffManagementSlice } from "@/store/slices/staff-management-slic
 import { createTeamFacilitiesSlice } from "@/store/slices/team-facilities-slice"
 import { createTransferContractSlice } from "@/store/slices/transfer-contract-slice"
 import { createAcademySlice } from "@/store/slices/academy-slice"
+import { formatCurrency } from "@/lib/utils-extended"
 
 enableMapSet()
 
@@ -493,6 +496,7 @@ export interface GameStoreState {
   // UI Celebrations
   pendingCelebration: import("@/engine/save-types").CelebrationData | null
   weekReveal: import("@/store/types").WeekRevealData | null
+  weekProgress: import("@/store/types").WeekProgressPhase | null
   pendingSeasonRecap: number | null
   pendingLegendPick: import("@/engine/save-types").LegendPickData | null
   signedLegendIds: string[]
@@ -613,6 +617,7 @@ interface GameStoreActions extends PhysicalPreviewActions {
   // Phase 22: Professional Polish
   completeOnboarding: () => void
   reviewGuideStep: (step: import('@/lib/first-session').FirstSessionStep) => void
+  syncFirstSession: () => void
   completeTutorial: () => void
   triggerTutorial: () => void
   setShowTutorialOnNewGame: (enabled: boolean) => void
@@ -678,7 +683,7 @@ interface GameStoreActions extends PhysicalPreviewActions {
 
   // Match Management
   updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
-  simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<void>
+  simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
 
   // Generic Updates (Added for Flexibility)
   updatePlayer: (playerId: string, updates: Partial<PlayerSaveData>) => void
@@ -745,6 +750,44 @@ interface GameStoreActions extends PhysicalPreviewActions {
   setAutoSave: (enabled: boolean) => void
   setNotifications: (enabled: boolean) => void
   setShowBugReportButton: (enabled: boolean) => void
+}
+
+/**
+ * Achievement-unlock toast for steamService. Built outside loadGame /
+ * initializeNewGame on purpose: the service keeps this callback for the whole
+ * session, and an inline closure kept those functions' scope alive, which
+ * pinned an entire extra copy of the loaded save in renderer memory (L27).
+ */
+function achievementToast(get: () => { addToast: (toast: { message: string; type: "achievement" }) => void }) {
+  return (achievement: { name: string }) => get().addToast({ message: `Achievement Unlocked: ${achievement.name}`, type: "achievement" })
+}
+
+/**
+ * The manager's fixture this week that must be played before the week can
+ * advance (any day of the week). Shares its predicate with the TopBar's
+ * "Play match" offer (lib/playable-match.ts): fixtures where either side
+ * cannot field five are excluded, because simulateInstantMatch refuses them
+ * and the week tick resolves them by forfeit (match-forfeit.ts).
+ */
+function weekBlockingMatch(
+  state: Pick<GameStoreState, "playerTeamId" | "scheduledMatches" | "completedMatches" | "currentWeek" | "teams" | "players">,
+  completedIds: Set<string> = new Set(state.completedMatches.map(cm => cm.id)),
+) {
+  return pendingPlayableMatch(state, completedIds, { respectDay: false })
+}
+
+/** Field defaults shared by load hydration and the weekly commit. */
+function applyPlayerFieldDefaults(players: PlayerSaveData[]): void {
+  players.forEach(p => {
+    if (!p.perks) p.perks = []
+    if (!p.roleMastery) p.roleMastery = { [p.role]: 75 }
+    if (p.availableSkillPoints === undefined) p.availableSkillPoints = 2
+    if (p.level === undefined) p.level = 1
+    if (p.xp === undefined) p.xp = 0
+    if (p.xpToNextLevel === undefined) p.xpToNextLevel = 1000
+    if (p.talentPoints === undefined) p.talentPoints = 0
+    if (p.unlockedTalentIds === undefined) p.unlockedTalentIds = []
+  })
 }
 
 export const useGameStore = create<GameStoreState & GameStoreActions>()(
@@ -937,6 +980,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // UI Celebrations
       pendingCelebration: null,
       weekReveal: null,
+      weekProgress: null,
       pendingSeasonRecap: null,
       pendingLegendPick: null,
       signedLegendIds: [],
@@ -1014,12 +1058,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           }
 
           // Initialize Steam Achievements
-          steamAchievements.initialize((achievement) => {
-            get().addToast({
-              message: `Achievement Unlocked: ${achievement.name}`,
-              type: "achievement"
-            })
-          })
+          steamAchievements.initialize(achievementToast(get))
 
           // Create new save from snapshot
           const newSave = snapshotLoader.createCareerFromSnapshot(saveName, playerTeamId, 1)
@@ -1524,7 +1563,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               message: `Congratulations on founding your own esports organization!\n\n` +
                 `🎮 YOUR NEW TEAM\n` +
                 `You've created ${teamData.name} [${teamData.shortName}] in the ${teamData.region} region. ` +
-                `Starting budget: $${(totalBudget / 1000).toFixed(0)}K (includes recruitment bonus!).\n\n` +
+                `Starting budget: ${formatCurrency(totalBudget)} (includes recruitment bonus!).\n\n` +
                 `📋 FIRST STEPS\n` +
                 `• Your roster is EMPTY! Visit Transfers immediately to sign free agents\n` +
                 `• You need at least 5 players to compete in tournaments\n` +
@@ -1600,7 +1639,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         weekProcessorBridge.reset?.()
         set({ isLoading: true, error: null, lastLoadError: null })
         try {
-          const { save, error, errorCode, restoredFromBackup } = await saveManager.loadGame(saveId, cloudChoice)
+          const { save, error, errorCode, restoredFromBackup, recoveryMessage } = await saveManager.loadGame(saveId, cloudChoice)
 
           if (error || !save) {
             const message = error || "Save not found"
@@ -1611,18 +1650,13 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           await steamAchievements.setActiveSave(save.saveId)
 
           // Initialize Steam Achievements with UI callback
-          steamAchievements.initialize((achievement) => {
-            get().addToast({
-              message: `Achievement Unlocked: ${achievement.name}`,
-              type: "achievement"
-            })
-          })
+          steamAchievements.initialize(achievementToast(get))
 
           // Notify user if save was restored from backup
           if (restoredFromBackup) {
             setTimeout(() => {
               get().addToast({
-                message: "Your save was corrupted and has been restored from a backup.",
+                message: recoveryMessage || "Your latest save could not be used, so a backup was loaded. Recent progress may be missing.",
                 type: "warning",
                 duration: 10000
               })
@@ -1643,16 +1677,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           refreshStockIdentities(hydratedSave)
 
           // Augment with new fields if missing (backward compatibility)
-          hydratedSave.players.forEach(p => {
-            if (!p.perks) p.perks = []
-            if (!p.roleMastery) p.roleMastery = { [p.role]: 75 }
-            if (p.availableSkillPoints === undefined) p.availableSkillPoints = 2
-            if (p.level === undefined) p.level = 1
-            if (p.xp === undefined) p.xp = 0
-            if (p.xpToNextLevel === undefined) p.xpToNextLevel = 1000
-            if (p.talentPoints === undefined) p.talentPoints = 0
-            if (p.unlockedTalentIds === undefined) p.unlockedTalentIds = []
-          })
+          applyPlayerFieldDefaults(hydratedSave.players)
 
           hydratedSave.teams.forEach(t => {
             {
@@ -1685,22 +1710,27 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // FPL backward compatibility migration
           if (hydratedSave.fplData) {
             const { getFPLTier, FPL_CONSTANTS: FC } = require("@/types/fpl")
-            // Add missing fields to FPL player stats
+            // Add missing fields to FPL player stats. Only stats that predate
+            // these fields are backfilled from season history: running the
+            // backfill on every load re-added each past title and prize, so
+            // every save/reload inflated championships and earnings.
+            const legacyChampionships = new Set<unknown>()
+            const legacyEarnings = new Set<unknown>()
             Object.values(hydratedSave.fplData.playerStats).forEach((stats: any) => {
-              if (stats.totalFPLEarnings === undefined) stats.totalFPLEarnings = 0
-              if (stats.fplChampionships === undefined) stats.fplChampionships = 0
+              if (stats.totalFPLEarnings === undefined) { stats.totalFPLEarnings = 0; legacyEarnings.add(stats) }
+              if (stats.fplChampionships === undefined) { stats.fplChampionships = 0; legacyChampionships.add(stats) }
             })
             // Retroactively compute championships/earnings from season history
-            if (hydratedSave.fplData.seasonHistory) {
+            if (hydratedSave.fplData.seasonHistory && (legacyChampionships.size || legacyEarnings.size)) {
               hydratedSave.fplData.seasonHistory.forEach((season: any) => {
                 if (season.champion) {
                   const stats = hydratedSave.fplData!.playerStats[season.champion]
-                  if (stats) (stats as any).fplChampionships = ((stats as any).fplChampionships || 0) + 1
+                  if (stats && legacyChampionships.has(stats)) (stats as any).fplChampionships = ((stats as any).fplChampionships || 0) + 1
                 }
                 (season.leaderboard || []).slice(0, 3).forEach((entry: any, idx: number) => {
                   const stats = hydratedSave.fplData!.playerStats[entry.playerId]
                   const reward = (season.rewards || [])[idx]
-                  if (stats && reward) {
+                  if (stats && reward && legacyEarnings.has(stats)) {
                     (stats as any).totalFPLEarnings = ((stats as any).totalFPLEarnings || 0) + reward.prize
                   }
                 })
@@ -1783,6 +1813,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             physicalMatchPreview: hydratedSave.physicalMatchPreview ?? null,
             boardState: hydratedSave.boardState,
             socialFeed: hydratedSave.socialFeed,
+            // Optional slices must be assigned explicitly: the spread above
+            // omits absent keys, which would keep the previous career's data.
+            fplData: hydratedSave.fplData,
+            careerStats: hydratedSave.careerStats,
             activeScoutingMission: hydratedSave.activeScoutingMission,
             gameOverReason: hydratedSave.gameOverReason,
             gameOverWeek: hydratedSave.gameOverWeek,
@@ -1882,7 +1916,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       advanceDay: async () => {
         const state = get()
-        if (state.isLoading) return
+        // A dissolved career must not move its calendar (daily mode never reached advanceWeek's guard).
+        if (state.isLoading || state.gameOverReason) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
           return
@@ -1908,18 +1943,14 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       advanceToWeekEnd: async () => {
         const state = get()
-        if (state.isLoading) return
+        if (state.isLoading || state.gameOverReason) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
           return
         }
 
         // Check if player has an unplayed match this week — stop at match day
-        const playerMatchThisWeek = state.playerTeamId ? state.scheduledMatches.find(m =>
-          m.week === state.currentWeek &&
-          (m.homeTeamId === state.playerTeamId || m.awayTeamId === state.playerTeamId) &&
-          !state.completedMatches.some(cm => cm.id === m.id)
-        ) : null
+        const playerMatchThisWeek = weekBlockingMatch(state)
 
         if (playerMatchThisWeek) {
           const matchDay = playerMatchThisWeek.day ?? 6
@@ -1961,18 +1992,14 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
         // Guard: prevent advancing if the player has an unplayed match this week
         const completedIds = state._completedMatchIds || new Set(state.completedMatches.map(cm => cm.id))
-        const unplayedPlayerMatch = state.playerTeamId ? state.scheduledMatches.find(m =>
-          m.week === state.currentWeek &&
-          (m.homeTeamId === state.playerTeamId || m.awayTeamId === state.playerTeamId) &&
-          !completedIds.has(m.id)
-        ) : null
+        const unplayedPlayerMatch = weekBlockingMatch(state, completedIds)
         if (unplayedPlayerMatch) {
           get().addToast({ message: "You have a match to play this week!", type: "warning" })
           set({ isLoading: false })
           return
         }
 
-        set({ isLoading: true })
+        set({ isLoading: true, weekProgress: "preparing" })
 
         // Yield one macrotask so React can commit the isLoading=true state
         // and the browser can paint the WeekProcessingOverlay BEFORE we start
@@ -1982,19 +2009,29 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         // finishes — pressing space feels like a stall before the spinner.
         await new Promise(resolve => setTimeout(resolve, 0))
 
+        // ESM_PERF_TRACE_STEPS=1 phase timings (no-op otherwise). Yields are
+        // excluded by restarting the clock after each await.
+        let phaseStart = perfTrace.now()
+        const phase = (label: string) => {
+          if (perfTrace.stepsEnabled) perfTrace.step(`coord.${label}`, phaseStart)
+          phaseStart = perfTrace.now()
+        }
         try {
           if (generation !== careerGeneration || get().saveId !== state.saveId) return
+          phaseStart = perfTrace.now()
 
           // Build a clean GameSave snapshot detached from store state so
           // the worker thread receives a serialization-safe copy.
           const latestState = get()
           const saveState: GameSave = structuredClone(buildSaveSnapshot(latestState))
           const preTickRng = new SeededRNG(saveState.lastRngSeed ?? generateSeed())
+          phase("01_snapshotClone")
 
           // Yield so the browser can paint the overlay spinner frame after
           // the structuredClone (the most expensive synchronous step).
           await new Promise(resolve => setTimeout(resolve, 0))
           if (generation !== careerGeneration || get().saveId !== state.saveId) return
+          phaseStart = perfTrace.now()
 
           // Pre-tick mutations: scouting completion, staff-market rotation,
           // staff XP, player XP (engine/processors/pre-tick-mutations.ts).
@@ -2063,10 +2100,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Phase 20 Enhancement: Simulate Weekly AI Registrations
           TournamentManager.simulateWeeklyRegistrationsV2(saveState, state.currentWeek, rng)
+          phase("02_preTick")
 
           // Yield before the FPL update (~1 800 players) so the spinner can
           // animate at least one frame between the two heaviest sync steps.
           await new Promise(resolve => setTimeout(resolve, 0))
+          phaseStart = perfTrace.now()
 
           // Process FPL (Individual Rankings) before the week processor.
           // Surfaces tier-change events on the inbox; toasts the user on
@@ -2075,48 +2114,77 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (!fplOk) {
             get().addToast({ message: "FPL rankings update failed this week", type: "warning", duration: 5000 })
           }
+          phase("03_fpl")
 
           // Run the week off the main thread when possible. The bridge falls
           // back to a synchronous run if the worker can't load (SSR, Electron
           // packaged build with worker disabled, etc.) so the call is safe
           // everywhere. The worker structured-clones `saveState` on the way in
           // and returns a mutated copy; we use that copy below instead of the
-          // original `saveState` reference.
+          // original `saveState` reference. `saveState` is never touched after
+          // this call, so ownership passes to the bridge (no second clone).
+          set({ weekProgress: "simulating" })
           const { result, save: processedSave, rngState: postWeekRngState } =
-            await weekProcessorBridge.processWeek(saveState, config, rng)
+            await weekProcessorBridge.processWeek(saveState, config, rng, { inputOwned: true })
           if (generation !== careerGeneration || get().saveId !== state.saveId) return
           processedSave.lastRngSeed = postWeekRngState
+          phase("04_compute")
 
           if (result.success) {
-            set((draft) => {
-              Object.assign(draft, processedSave)
-              draft.currentDay = draft.timeMode === "HYBRID_DAILY" ? 0 : 6
-              draft.selectedWeeklyActivity = null // Reset selection
+            // processedSave is a private copy (worker result, or the bridge's
+            // owned input on the synchronous path), so it is finished in place
+            // and committed as one plain partial. Doing this inside an Immer
+            // producer made Immer walk and deep-freeze the entire save on every
+            // tick: ~0.1 s for a new career, ~2 s by season 10 (L27). The
+            // committed values are identical; the state is simply not frozen,
+            // exactly as it already is after loadGame.
+            const committed = processedSave as GameSave & { currentDay: number; selectedWeeklyActivity: null }
+            const live = get()
+            // Keys the old producer read from the merged draft fall back to the
+            // live value if the worker result ever omitted them.
+            for (const key of ["completedMatches", "eventsLog", "financeLedger", "playerTeamId", "transferHistory", "newsFeed", "academyMatchHistory", "academyWeeklyReports", "fplData", "timeMode"] as const) {
+              if (!(key in committed)) (committed as unknown as Record<string, unknown>)[key] = live[key as keyof typeof live]
+            }
+            committed.currentDay = committed.timeMode === "HYBRID_DAILY" ? 0 : 6
+            committed.selectedWeeklyActivity = null // Reset selection
 
-              // Prune growing arrays to prevent unbounded memory/save growth
-              pruneGameState(draft)
+            // Prune growing arrays to prevent unbounded memory/save growth
+            pruneGameState(committed)
 
-              // Recalculate synergy for all teams (AI transfers may have
-              // changed rosters). Uses the indexed O(roster) pass from
-              // engine/processors/team-synergy-recalc.ts.
-              recalculateAllSynergy(draft.teams, draft.players)
-            })
+            // Players created this tick (prospects, regens) get the same
+            // defaults loadGame applies; otherwise a reload changes them.
+            applyPlayerFieldDefaults(committed.players)
+
+            // Recalculate synergy for all teams (AI transfers may have
+            // changed rosters). Uses the indexed O(roster) pass from
+            // engine/processors/team-synergy-recalc.ts.
+            recalculateAllSynergy(committed.teams, committed.players)
+
+            // Keep roles reconciled after AI roster moves, as loadGame and
+            // new careers do. Without this a save/reload re-assigned roles
+            // and the reloaded career diverged from the uninterrupted one.
+            reconcileAllRoles(committed.teams, committed.players)
+            set({ ...(committed as unknown as Partial<GameStoreState>), weekProgress: "applying" })
+            phase("05_commit")
 
             // Keep progression locked through post-processing and the final
             // durable save. A failed post-step must not replay an advanced week.
             try {
             // Process academy weekly training, scouting missions, and prospect development
             get().processAcademyWeek()
+            phase("06_academy")
 
             // Rebuild entity indexes after state update for O(1) lookups
             const postTickState = get()
             const newIndexes = buildEntityIndexes(postTickState.teams, postTickState.players, postTickState.contracts, postTickState.staff, postTickState.completedMatches)
             set(newIndexes)
+            phase("07_indexes")
 
             // Evaluate Steam achievements + push leaderboard stats + update
             // Rich Presence from the post-tick snapshot. Self-guards on
             // playerTeam — no-ops if the player isn't on a team yet.
             evaluatePostTickAchievements(get() as unknown as GameSave)
+            phase("08_achievements")
 
             // Career milestones (firsts, round-number totals, streaks). Dedup
             // against the durable acknowledgedEventIds set — each milestone has a
@@ -2145,6 +2213,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             } catch (msErr) {
               logger.error("[advanceWeek] milestone check failed", msErr)
             }
+            phase("09_milestones")
 
             // Route transient (one-shot UI) events to in-game toasts and
             // auto-acknowledge so they don't pile up in the inbox.
@@ -2261,6 +2330,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               }
               set({ weekReveal: { week: playedWeek, headline, items: revealItems } })
             }
+            phase("10_toastsReveal")
             } catch (postErr) {
               logger.error("[advanceWeek] post-week processing failed (week already committed)", postErr)
               // The week stays committed. Rebuild entity indexes defensively
@@ -2275,7 +2345,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // application state once; failed saves retain the week in memory so
             // manual save or autosave can retry without simulating it twice.
             try {
+              set({ weekProgress: "saving" })
+              phaseStart = perfTrace.now()
               await get().saveGame()
+              phase("11_save")
               // Refresh the cross-save career profile (peak level/majors/rank)
               // so progression survives new games. Fire-and-forget — off the
               // save critical path; failures are swallowed inside the helper.
@@ -2283,7 +2356,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             } catch (saveErr) {
               logger.error("[advanceWeek] post-tick authoritative save failed (week committed in memory)", saveErr)
             } finally {
-              if (generation === careerGeneration) set({ isLoading: false })
+              if (generation === careerGeneration) set({ isLoading: false, weekProgress: null })
             }
           } else {
             throw new Error(result.error || "Week processing failed")
@@ -2292,7 +2365,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const message = err instanceof Error ? err.message : "Advance failed"
           if (generation !== careerGeneration) return
           logger.error("[advanceWeek] Failed", err)
-          set({ isLoading: false, error: message })
+          set({ isLoading: false, error: message, weekProgress: null })
           const display = message.length > 120 ? message.slice(0, 117) + "..." : message
           get().addToast({ message: `Week failed: ${display}`, type: "warning", duration: 12000 })
         }

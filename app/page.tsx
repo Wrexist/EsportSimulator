@@ -18,7 +18,7 @@ import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUp
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
-import { formatCurrency } from "@/lib/utils-extended"
+import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR, getTierColor, getTierBgColor } from "@/data/tournament-calendar"
 import dynamic from "next/dynamic"
@@ -26,6 +26,7 @@ const SeasonRecapModal = dynamic(() => import("@/components/celebration/SeasonRe
 const ProAwardsModal = dynamic(() => import("@/components/celebration/ProAwardsModal").then(m => m.ProAwardsModal), { ssr: false })
 import { EconomyEngine } from "@/engine/economy-engine"
 import { soundManager } from "@/lib/sound-manager"
+import { fixtureBlockReason } from "@/lib/playable-match"
 import type { AnnualAwards } from "@/engine/pro-awards-engine"
 
 export default function Page() {
@@ -35,7 +36,7 @@ export default function Page() {
   const {
     isInitialized, playerTeamId, teams, players, contracts,
     scheduledMatches, completedMatches, currentWeek, currentDay, academyCount,
-    timeMode, _hasHydrated, saveId, pendingSeasonRecap,
+    timeMode, _hasHydrated, pendingSeasonRecap,
     gameOverReason, gameOverWeek, tournamentQualifications,
     financeLedger, staff, storeLoading,
   } = useGameStore(useShallow(s => ({
@@ -51,7 +52,6 @@ export default function Page() {
     currentDay: s.currentDay,
     timeMode: s.timeMode,
     _hasHydrated: s._hasHydrated,
-    saveId: s.saveId,
     pendingSeasonRecap: s.pendingSeasonRecap,
     gameOverReason: s.gameOverReason,
     gameOverWeek: s.gameOverWeek,
@@ -136,6 +136,14 @@ export default function Page() {
   const isMatchLive = !!nextMatch
     && nextMatch.week === currentWeek
     && (timeMode === "WEEKLY" || (nextMatch.day ?? 6) <= currentDay)
+  // A due fixture the store would refuse to simulate (a side below five
+  // players): never offer Play / Quick-sim for it, explain instead. The week
+  // can still advance; the week tick resolves it by forfeit.
+  const matchBlockReason = useMemo(() => (
+    isMatchLive && nextMatch
+      ? fixtureBlockReason({ playerTeamId, scheduledMatches, currentWeek, teams, players }, nextMatch)
+      : null
+  ), [isMatchLive, nextMatch, playerTeamId, scheduledMatches, currentWeek, teams, players])
 
   // Upcoming tournaments where we're registered but matches haven't been drawn yet
   const upcomingTournaments = useMemo(() => {
@@ -198,8 +206,9 @@ export default function Page() {
     soundManager.play('matchStart')
     try {
       // Dashboard Quick-Sim skips the match-day prep flow → small differential (B4).
-      await simulateInstantMatch(nextMatch.id, { skippedPrep: true })
-      router.push(`/match/${nextMatch.id}/result`)
+      // Only open the result screen when a result was recorded; a refusal
+      // has already explained itself with a toast.
+      if (await simulateInstantMatch(nextMatch.id, { skippedPrep: true })) router.push(`/match/${nextMatch.id}/result`)
     } finally {
       setIsSimulating(false)
     }
@@ -237,7 +246,7 @@ export default function Page() {
                 : `After 8 consecutive weeks of insolvency, ${playerTeam?.name ?? "your team"} has been forced to disband.`}
             </p>
           </div>
-          <Card className="bg-white/[0.02] border-white/5">
+          <Card className="bg-white/2 border-white/5">
             <CardContent className="pt-6 space-y-3">
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Seasons Managed</span><span className="text-white font-mono">{seasonsPlayed}</span></div>
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Weeks Survived</span><span className="text-white font-mono">{weeksPlayed}</span></div>
@@ -353,7 +362,7 @@ export default function Page() {
           {/* Next Match Card */}
           {nextMatch ? (
             <Card className="dashboard-hero overflow-hidden relative group rounded-3xl">
-              <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent" />
+              <div className="absolute inset-x-6 top-0 h-px bg-linear-to-r/srgb from-transparent via-cyan-200/30 to-transparent" />
               <CardHeader className="pb-2 relative z-10">
                 <div className="flex justify-between items-start mb-4">
                   <div className="space-y-3">
@@ -418,7 +427,12 @@ export default function Page() {
                 </div>
 
                 <div className="flex justify-center items-center gap-5">
-                  {isMatchLive ? (
+                  {isMatchLive && matchBlockReason ? (
+                    <div className="flex flex-col items-center gap-2 py-2 max-w-md text-center">
+                      <p role="status" className="text-sm text-amber-200">{matchBlockReason}</p>
+                      <Button asChild variant="play"><Link href="/transfers">Find a player <ArrowRight size={16} /></Link></Button>
+                    </div>
+                  ) : isMatchLive ? (
                     <>
                       <Button asChild variant="play" className="h-14 px-10 text-xs uppercase tracking-[0.15em]">
                         <Link href={`/match/${nextMatch.id}/tactics`}>
@@ -477,7 +491,7 @@ export default function Page() {
               </CardHeader>
               <CardContent className="relative z-10 py-6 space-y-4">
                 {upcomingTournaments.map((t) => (
-                  <div key={t.id} className="flex items-center gap-6 p-5 rounded-lg bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
+                  <div key={t.id} className="flex items-center gap-6 p-5 rounded-lg bg-white/3 border border-white/5 hover:border-white/10 transition-colors">
                     {/* Player team */}
                     <div className="flex-1 flex items-center gap-4">
                       <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
@@ -568,7 +582,7 @@ export default function Page() {
                     <span className="text-[11px] text-muted-foreground uppercase font-semibold tracking-widest opacity-60">Week {currentWeek} / 52</span>
                   </div>
                   <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
-                    <div className="h-full bg-gradient-to-r from-cyan-300 to-blue-300 rounded-full" style={{ width: `${(currentWeek / 52 * 100)}%` }} />
+                    <div className="h-full bg-linear-to-r/srgb from-cyan-300 to-blue-300 rounded-full" style={{ width: `${(currentWeek / 52 * 100)}%` }} />
                   </div>
                 </div>
               </CardContent>
@@ -641,7 +655,7 @@ export default function Page() {
                   <div className="flex items-end gap-2">
                     <AnimatedNumber
                       value={financialData.budget}
-                      format={(n) => Math.abs(n) >= 1000000 ? `$${(n / 1000000).toFixed(2)}M` : `$${Math.round(n).toLocaleString("en-US")}`}
+                      format={(n) => formatCurrency(Math.round(n), "$", Math.abs(n) >= 1_000_000)}
                       className="text-3xl font-normal text-white"
                     />
                   </div>
@@ -651,7 +665,7 @@ export default function Page() {
                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Weekly Income</p>
                   <div className="flex items-center gap-2">
                     <ArrowUpCircle size={16} className="text-emerald-400" />
-                    <span className="text-xl font-normal text-emerald-400/80">+${(financialData.income / 1000).toFixed(1)}k</span>
+                    <span className="text-xl font-normal text-emerald-400/80">{formatSignedCurrency(financialData.income)}</span>
                   </div>
                 </div>
 
@@ -663,7 +677,7 @@ export default function Page() {
                     ) : (
                       <ArrowDownCircle size={16} className="text-red-400" />
                     )}
-                    <span className={`text-xl font-normal ${financialData.net >= 0 ? "text-emerald-400/80" : "text-red-400/80"}`}>{financialData.net >= 0 ? '+' : ''}${(financialData.net / 1000).toFixed(1)}k</span>
+                    <span className={`text-xl font-normal ${financialData.net >= 0 ? "text-emerald-400/80" : "text-red-400/80"}`}>{formatSignedCurrency(financialData.net)}</span>
                   </div>
                 </div>
               </div>
@@ -672,11 +686,11 @@ export default function Page() {
               <div className="finance-breakdown mt-8 pt-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <p className="text-[11px] text-white/50 uppercase font-semibold tracking-widest mb-1">Salaries</p>
-                  <p className="text-xs text-white/60 font-medium">-${(financialData.salaries / 1000).toFixed(1)}k</p>
+                  <p className="text-xs text-white/60 font-medium">{formatCurrency(-financialData.salaries)}</p>
                 </div>
                 <div>
                   <p className="text-[11px] text-white/50 uppercase font-semibold tracking-widest mb-1">Facilities, equipment & academy</p>
-                  <p className="text-xs text-white/60 font-medium">-${(financialData.facilities / 1000).toFixed(1)}k</p>
+                  <p className="text-xs text-white/60 font-medium">{formatCurrency(-financialData.facilities)}</p>
                 </div>
                 <div className="col-span-2 flex items-center justify-end">
                   <Button asChild variant="ghost" size="sm" className="text-[11px] uppercase tracking-widest font-semibold text-primary hover:bg-primary/10 rounded-full h-8">
@@ -716,7 +730,7 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="max-h-[max(20rem,calc(100vh-12rem))] overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent space-y-2">
+          <div className="max-h-[max(20rem,calc(100vh-12rem))] overflow-y-auto pr-3 space-y-2">
             <NewsFeed />
           </div>
         </div>

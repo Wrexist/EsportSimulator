@@ -51,7 +51,7 @@ function LoadGamePageInner() {
         clearLoadError: state.clearLoadError,
     })))
     const [slots, setSlots] = useState<SaveSlotMetadata[]>([])
-    const [isLoading, setIsLoading] = useState(true)
+    const [, setIsLoading] = useState(true)
     const [loadingSlotId, setLoadingSlotId] = useState<string | null>(null)
     const [recoveringSlotId, setRecoveringSlotId] = useState<string | null>(null)
     const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
@@ -187,7 +187,7 @@ function LoadGamePageInner() {
 
                                     <div className="p-6 flex-1 space-y-6">
                                         <div className="flex justify-between items-start">
-                                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-transparent border border-white/10 flex items-center justify-center font-normal text-2xl shadow-xl group-hover:scale-110 transition-transform">
+                                            <div className="w-14 h-14 rounded-2xl bg-linear-to-br/srgb from-white/10 to-transparent border border-white/10 flex items-center justify-center font-normal text-2xl shadow-xl group-hover:scale-110 transition-transform">
                                                 {slot.teamName?.[0] || "?"}
                                             </div>
                                             <Badge className={cn(
@@ -348,7 +348,7 @@ function LoadGamePageInner() {
                                 </div>
                                 <div className="space-y-2">
                                     <h3 className="text-2xl font-normal text-white uppercase">No legacies found</h3>
-                                    <p className="text-muted-foreground max-w-xs mx-auto text-sm">You haven't started any career paths yet. Create a new one from the dashboard.</p>
+                                    <p className="text-muted-foreground max-w-xs mx-auto text-sm">You haven&apos;t started any career paths yet. Create a new one from the dashboard.</p>
                                 </div>
                                 <button
                                     onClick={() => router.push("/")}

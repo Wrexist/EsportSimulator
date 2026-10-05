@@ -197,6 +197,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
             {!originalImage && value && (
                 <div className="relative">
                     <div className="w-32 h-32 mx-auto rounded-xl overflow-hidden border-2 border-white/20 bg-black/50">
+                        {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded logo data URL */}
                         <img
                             src={value}
                             alt="Team logo"

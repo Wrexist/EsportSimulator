@@ -47,7 +47,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { getDynamicTournamentName } from "@/lib/utils-extended"
+import { getDynamicTournamentName, formatCurrency } from "@/lib/utils-extended"
 import { getTeamFlag } from "@/engine/region-logic"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoImage } from "@/components/ui/asset-images"
@@ -241,7 +241,6 @@ export default function TournamentDetailPage() {
     // Index teams by id once — was being scanned 8+ times per render across the
     // podium / playoff / standings sections.
     const teamsById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
-    const completedMatchesById = useMemo(() => new Map(completedMatches.map(m => [m.id, m])), [completedMatches])
     // toSeriesId / isQualificationForTournament / isMatchForTournament are
     // hoisted at module scope (top of file) — pure helpers, no closure
     // capture needed, and stable refs across renders so they don't bust
@@ -364,14 +363,14 @@ export default function TournamentDetailPage() {
                         className="absolute inset-0 z-0 opacity-20 bg-cover bg-center pointer-events-none"
                         style={{ backgroundImage: `url(${definition?.logoPath})` }}
                     >
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-t/srgb from-[#050505] via-[#050505]/80 to-transparent" />
                     </div>
                 )}
 
                 {/* Background Glows */}
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[150px] rounded-full pointer-events-none" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-white/[0.01] blur-[120px] rounded-full pointer-events-none" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-white/1 blur-[120px] rounded-full pointer-events-none" />
 
                 {/* Header Section */}
                 <motion.div
@@ -433,7 +432,7 @@ export default function TournamentDetailPage() {
                             )}
 
                             <div className="flex flex-col">
-                                <h1 className="text-5xl font-normal tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/50 mb-2">
+                                <h1 className="text-5xl font-normal tracking-tight bg-clip-text text-transparent bg-linear-to-b/srgb from-white via-white to-white/50 mb-2">
                                     {getDynamicTournamentName(displayTournament.name, currentWeek)}
                                 </h1>
                                 <div className="flex items-center gap-4">
@@ -532,7 +531,7 @@ export default function TournamentDetailPage() {
                                         initial={{ width: 0 }}
                                         animate={{ width: `${progress}%` }}
                                         transition={{ duration: 1, ease: "easeOut" }}
-                                        className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+                                        className="h-full bg-linear-to-r/srgb from-blue-500 via-purple-500 to-pink-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]"
                                     />
                                 </div>
                             </div>
@@ -551,7 +550,7 @@ export default function TournamentDetailPage() {
                                     const dest = destId ? getTournamentById(destId) : null
                                     return dest ? `${dest.shortName} Spot` : "Qualifier Spot"
                                 }
-                                return `$${displayTournament?.prizePool?.toLocaleString()}`
+                                return formatCurrency(displayTournament?.prizePool ?? Number.NaN, "$", false)
                             })()}
                             color="amber"
                         />
@@ -579,7 +578,7 @@ export default function TournamentDetailPage() {
 
                 {/* Navigation Tabs */}
                 <div className="max-w-7xl mx-auto mb-10 relative z-10">
-                    <div className="flex items-center gap-2 p-2 rounded-2xl bg-white/[0.02] backdrop-blur-3xl border border-white/5 w-fit">
+                    <div className="flex items-center gap-2 p-2 rounded-2xl bg-white/2 backdrop-blur-3xl border border-white/5 w-fit">
                         {(() => {
                             const format = displayTournament?.format
                             const slots = displayTournament?.slots || 32
@@ -621,7 +620,7 @@ export default function TournamentDetailPage() {
                                     "flex items-center gap-2.5 px-6 py-3 rounded-xl text-xs font-normal uppercase tracking-widest transition-all duration-500",
                                     activeTab === tab.id
                                         ? "bg-white/10 text-white shadow-[0_8px_32px_rgba(0,0,0,0.2)] border border-white/10"
-                                        : "text-white/30 hover:text-white/60 hover:bg-white/[0.03]"
+                                        : "text-white/30 hover:text-white/60 hover:bg-white/3"
                                 )}
                             >
                                 <tab.icon className="w-4 h-4" />
@@ -642,7 +641,7 @@ export default function TournamentDetailPage() {
                                 exit={{ opacity: 0, y: -10 }}
                                 className="space-y-8"
                             >
-                                <div className="glass-panel p-10 rounded-[48px] border border-white/5 bg-white/[0.01] backdrop-blur-[100px] shadow-2xl">
+                                <div className="glass-panel p-10 rounded-[48px] border border-white/5 bg-white/1 backdrop-blur-[100px] shadow-2xl">
                                     <div className="max-w-3xl">
                                         <h2 className="text-3xl font-normal tracking-tighter mb-6">Tournament Overview</h2>
                                         <p className="text-white/60 leading-relaxed mb-8">
@@ -713,7 +712,7 @@ export default function TournamentDetailPage() {
                                                 <div className="flex items-end justify-center gap-4 md:gap-8 min-h-[280px]">
                                                     {(() => {
                                                         // Determine Winners
-                                                        let podium: { startHeight: string; endHeight: string; team: any; place: number; color: string }[] = []
+                                                        const podium: { startHeight: string; endHeight: string; team: any; place: number; color: string }[] = []
 
                                                         // 1. Bracket Logic (Most reliable for single elim)
                                                         const finalMatch = tournamentMatches.find(m => m.stage === "Grand Final")
@@ -801,7 +800,7 @@ export default function TournamentDetailPage() {
                                                                     initial={{ height: "0px" }}
                                                                     animate={{ height: entry.place === 1 ? "12rem" : entry.place === 2 ? "8rem" : "5rem" }}
                                                                     className={cn(
-                                                                        "w-24 md:w-32 rounded-t-lg bg-gradient-to-b flex flex-col items-center justify-end pb-4 shadow-2xl backdrop-blur-md relative overflow-hidden",
+                                                                        "w-24 md:w-32 rounded-t-lg bg-linear-to-b/srgb flex flex-col items-center justify-end pb-4 shadow-2xl backdrop-blur-md relative overflow-hidden",
                                                                         entry.color.replace("to-", "to-black/80 ") // Darken bottom
                                                                     )}
                                                                 >
@@ -815,7 +814,7 @@ export default function TournamentDetailPage() {
                                                                     <div className="font-bold text-lg leading-none mb-1">{entry.team.name}</div>
                                                                     {(displayTournament?.prizePool ?? 0) > 0 && (
                                                                         <Badge className="bg-white/10 text-white/50 border-white/5 text-[9px]">
-                                                                            ${((displayTournament?.prizePool ?? 0) * (entry.place === 1 ? 0.40 : entry.place === 2 ? 0.20 : 0.10) / 1000).toFixed(0)}k
+                                                                            {formatCurrency((displayTournament?.prizePool ?? 0) * (entry.place === 1 ? 0.40 : entry.place === 2 ? 0.20 : 0.10))}
                                                                         </Badge>
                                                                     )}
                                                                 </div>
@@ -858,7 +857,7 @@ export default function TournamentDetailPage() {
                                             // --------------------------------------------------------------------------------
                                             if (isCompleted) {
                                                 // Determine Standings
-                                                let standings: { team: any, place: number, prize: number, share: string }[] = []
+                                                const standings: { team: any, place: number, prize: number, share: string }[] = []
 
                                                 // A. Bracket Logic
                                                 if (displayTournament?.format !== "league") {
@@ -934,7 +933,7 @@ export default function TournamentDetailPage() {
                                                 standings.sort((a, b) => a.place - b.place)
 
                                                 return (
-                                                    <div className="mb-10 glass-panel p-8 rounded-[40px] border border-white/5 bg-white/[0.01] backdrop-blur-xl">
+                                                    <div className="mb-10 glass-panel p-8 rounded-[40px] border border-white/5 bg-white/1 backdrop-blur-xl">
                                                         <div className="flex items-center gap-4 mb-8">
                                                             <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
                                                                 <TrophyIcon className="w-6 h-6" />
@@ -947,7 +946,7 @@ export default function TournamentDetailPage() {
 
                                                         <div className="space-y-3">
                                                             {standings.slice(0, 8).map((s) => (
-                                                                <div key={s.team.id} className="flex items-center justify-between p-4 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-colors group">
+                                                                <div key={s.team.id} className="flex items-center justify-between p-4 rounded-3xl bg-white/2 border border-white/5 hover:bg-white/5 transition-colors group">
                                                                     <div className="flex items-center gap-6">
                                                                         <div className={cn(
                                                                             "w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg border relative overflow-hidden",
@@ -990,14 +989,14 @@ export default function TournamentDetailPage() {
                                                                                     "font-mono text-lg font-normal mb-1",
                                                                                     s.place === 1 ? "text-emerald-400" : "text-white/80"
                                                                                 )}>
-                                                                                    ${(s.prize).toLocaleString()}
+                                                                                    {formatCurrency((s.prize), "$", false)}
                                                                                 </div>
                                                                             )
                                                                         })()}
 
                                                                         {!isQualifier && s.prize > 0 && (
                                                                             <div className="text-[10px] text-white/20 font-medium">
-                                                                                + Club Share: ${(s.prize * 0.15).toLocaleString()}
+                                                                                + Club Share: {formatCurrency((s.prize * 0.15), "$", false)}
                                                                             </div>
                                                                         )}
                                                                     </div>
@@ -1054,7 +1053,7 @@ export default function TournamentDetailPage() {
                                                             <div key={d.place} className="p-4 rounded-2xl bg-black/30 border border-white/5 text-center">
                                                                 <div className="text-lg mb-1">{d.icon || "💰"}</div>
                                                                 <div className={`text-lg font-normal ${d.color}`}>
-                                                                    ${((prizePool * d.pct) / 1000).toFixed(0)}k
+                                                                    {formatCurrency(prizePool * d.pct)}
                                                                 </div>
                                                                 <div className="text-[10px] text-white/40 font-bold uppercase tracking-wide">{d.place}</div>
                                                             </div>
@@ -1065,7 +1064,7 @@ export default function TournamentDetailPage() {
                                         })()}
 
                                         {/* Participants / Registered Card */}
-                                        <div className="glass-panel p-8 rounded-[40px] border border-white/5 bg-white/[0.01] backdrop-blur-[100px] shadow-2xl flex flex-col justify-between group overflow-hidden">
+                                        <div className="glass-panel p-8 rounded-[40px] border border-white/5 bg-white/1 backdrop-blur-[100px] shadow-2xl flex flex-col justify-between group overflow-hidden">
                                             <div className="absolute top-0 right-0 p-8 opacity-[0.03] scale-150 group-hover:scale-[1.75] transition-transform duration-1000">
                                                 <Users className="w-full h-full" />
                                             </div>
@@ -1224,7 +1223,7 @@ export default function TournamentDetailPage() {
                                 className="min-h-[400px] w-full"
                             >
                                 {displayTournament?.format === "league" ? (
-                                    <div className="glass-panel p-10 rounded-[48px] border border-white/5 bg-white/[0.01] backdrop-blur-[100px] shadow-2xl">
+                                    <div className="glass-panel p-10 rounded-[48px] border border-white/5 bg-white/1 backdrop-blur-[100px] shadow-2xl">
                                         <div className="flex items-center gap-4 mb-8">
                                             <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400">
                                                 <LayoutGrid className="w-6 h-6" />
@@ -1271,7 +1270,7 @@ export default function TournamentDetailPage() {
                                                         </thead>
                                                         <tbody className="divide-y divide-white/5">
                                                             {leagueStandings?.map((entry: any, idx: number) => (
-                                                                <tr key={entry.team?.id || idx} className="hover:bg-white/[0.02] transition-colors">
+                                                                <tr key={entry.team?.id || idx} className="hover:bg-white/2 transition-colors">
                                                                     <td className="px-6 py-4 font-mono text-white/40">#{idx + 1}</td>
                                                                     <td className="px-6 py-4 font-bold flex items-center gap-3">
                                                                         {entry.team?.logoPath ? <Image src={entry.team.logoPath} alt={entry.team.name} width={24} height={24} className="w-6 h-6 object-contain" unoptimized /> : <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-[10px]">{entry.team?.name[0]}</div>}
@@ -1332,7 +1331,7 @@ export default function TournamentDetailPage() {
                                 ) : displayTournament?.groups ? (
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                                         {displayTournament?.groups?.map((group: any, idx: number) => (
-                                            <div key={group.id || idx} className="glass-panel p-10 rounded-[48px] border border-white/5 bg-white/[0.01] backdrop-blur-[100px] shadow-2xl relative overflow-hidden group">
+                                            <div key={group.id || idx} className="glass-panel p-10 rounded-[48px] border border-white/5 bg-white/1 backdrop-blur-[100px] shadow-2xl relative overflow-hidden group">
                                                 <div className="absolute top-0 right-0 p-10 opacity-[0.02] scale-[3] pointer-events-none group-hover:opacity-[0.05] transition-opacity duration-1000">
                                                     <Trophy className="w-full h-full" />
                                                 </div>
@@ -1402,7 +1401,7 @@ export default function TournamentDetailPage() {
                                         ))}
                                     </div>
                                 ) : displayTournament?.id ? (
-                                    <div className="glass-panel p-20 rounded-[48px] border border-white/5 bg-white/[0.01] backdrop-blur-[100px] shadow-2xl flex flex-col items-center justify-center text-center">
+                                    <div className="glass-panel p-20 rounded-[48px] border border-white/5 bg-white/1 backdrop-blur-[100px] shadow-2xl flex flex-col items-center justify-center text-center">
                                         <div className="w-20 h-20 rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center mb-6 text-white/20">
                                             <TrophyIcon className="w-10 h-10" />
                                         </div>
@@ -1419,7 +1418,7 @@ export default function TournamentDetailPage() {
                                         </Button>
                                     </div>
                                 ) : (
-                                    <div className="glass-panel p-20 rounded-[48px] border border-white/5 bg-white/[0.01] backdrop-blur-[100px] shadow-2xl flex flex-col items-center justify-center text-center">
+                                    <div className="glass-panel p-20 rounded-[48px] border border-white/5 bg-white/1 backdrop-blur-[100px] shadow-2xl flex flex-col items-center justify-center text-center">
                                         <div className="w-20 h-20 rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center mb-6 text-white/20">
                                             <LayoutGrid className="w-10 h-10" />
                                         </div>
@@ -1441,7 +1440,7 @@ export default function TournamentDetailPage() {
                                 className="min-h-[400px]"
                             >
                                 {displayTournament?.playoffBracket && displayTournament?.playoffBracket.length > 0 ? (
-                                    <div className="glass-panel p-8 rounded-[64px] border border-white/5 bg-white/[0.01] backdrop-blur-[100px] shadow-2xl overflow-x-auto relative">
+                                    <div className="glass-panel p-8 rounded-[64px] border border-white/5 bg-white/1 backdrop-blur-[100px] shadow-2xl overflow-x-auto relative">
                                         <div className="min-w-max pb-8">
                                             {(() => {
                                                 // Extract unique rounds from actual bracket data
@@ -1467,7 +1466,7 @@ export default function TournamentDetailPage() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="glass-panel p-20 rounded-[48px] border border-white/5 bg-white/[0.01] backdrop-blur-[100px] shadow-2xl flex flex-col items-center justify-center text-center">
+                                    <div className="glass-panel p-20 rounded-[48px] border border-white/5 bg-white/1 backdrop-blur-[100px] shadow-2xl flex flex-col items-center justify-center text-center">
                                         <div className="w-20 h-20 rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center mb-6 text-white/20">
                                             <Layers className="w-10 h-10" />
                                         </div>
@@ -1529,7 +1528,7 @@ export default function TournamentDetailPage() {
 
                                             if (allMatches.length === 0) {
                                                 return (
-                                                    <div className="glass-panel p-20 rounded-[48px] border border-white/5 bg-white/[0.01] backdrop-blur-[100px] shadow-2xl flex flex-col items-center justify-center text-center">
+                                                    <div className="glass-panel p-20 rounded-[48px] border border-white/5 bg-white/1 backdrop-blur-[100px] shadow-2xl flex flex-col items-center justify-center text-center">
                                                         <div className="w-20 h-20 rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center mb-6 text-white/20">
                                                             <Calendar className="w-10 h-10" />
                                                         </div>
@@ -1556,7 +1555,7 @@ export default function TournamentDetailPage() {
                                                 <>
                                                     {/* My Next Match Card */}
                                                     {playerNextMatch && opponent && (
-                                                        <div className="p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 shadow-[0_0_40px_rgba(245,158,11,0.1)]">
+                                                        <div className="p-6 rounded-3xl bg-linear-to-br/srgb from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 shadow-[0_0_40px_rgba(245,158,11,0.1)]">
                                                             <div className="flex items-center gap-3 mb-4">
                                                                 <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center">
                                                                     <Trophy className="w-4 h-4 text-amber-500" />
@@ -1594,11 +1593,11 @@ export default function TournamentDetailPage() {
                                                     {sortedWeeks.map(week => (
                                                         <div key={week} className="space-y-4">
                                                             <div className="flex items-center gap-4 px-4">
-                                                                <div className="h-[1px] flex-1 bg-white/10" />
+                                                                <div className="h-px flex-1 bg-white/10" />
                                                                 <div className="px-4 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-normal uppercase tracking-widest text-white/40">
                                                                     Week {week} {week === currentWeek ? "(Current)" : week < currentWeek ? "(Completed)" : "(Upcoming)"}
                                                                 </div>
-                                                                <div className="h-[1px] flex-1 bg-white/10" />
+                                                                <div className="h-px flex-1 bg-white/10" />
                                                                 {/* Round/Stage Name inference */}
                                                                 <div className="text-[10px] font-bold text-white/20 uppercase tracking-wider">
                                                                     {matchesByWeek[week][0].stage || "Group Stage"}
@@ -1617,7 +1616,7 @@ export default function TournamentDetailPage() {
                                         })()}
                                     </div>
                                 ) : (
-                                    <div className="glass-panel p-20 rounded-[48px] border border-white/5 bg-white/[0.01] backdrop-blur-[100px] shadow-2xl flex flex-col items-center justify-center text-center">
+                                    <div className="glass-panel p-20 rounded-[48px] border border-white/5 bg-white/1 backdrop-blur-[100px] shadow-2xl flex flex-col items-center justify-center text-center">
                                         <div className="w-20 h-20 rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center mb-6 text-white/20">
                                             <Calendar className="w-10 h-10" />
                                         </div>
@@ -1638,7 +1637,7 @@ export default function TournamentDetailPage() {
                                 exit={{ opacity: 0, y: -10 }}
                                 className="space-y-6"
                             >
-                                <div className="glass-panel p-10 rounded-[48px] border border-white/5 bg-white/[0.01] backdrop-blur-[100px] shadow-2xl">
+                                <div className="glass-panel p-10 rounded-[48px] border border-white/5 bg-white/1 backdrop-blur-[100px] shadow-2xl">
                                     <div className="flex items-center gap-4 mb-8">
                                         <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400">
                                             <History className="w-6 h-6" />
@@ -1756,7 +1755,7 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any, label: strin
     }
 
     return (
-        <div className="glass-panel p-6 rounded-[32px] border border-white/5 bg-white/[0.02] backdrop-blur-[80px] hover:bg-white/[0.04] transition-all duration-500 hover:-translate-y-1">
+        <div className="glass-panel p-6 rounded-[32px] border border-white/5 bg-white/2 backdrop-blur-[80px] hover:bg-white/4 transition-all duration-500 hover:-translate-y-1">
             <div className="flex items-center gap-4 mb-3">
                 <div className={cn("w-10 h-10 rounded-2xl flex items-center justify-center border", colors[color])}>
                     <Icon className="w-5 h-5" />
@@ -1799,7 +1798,7 @@ function MatchCardComponent({
     if (!matchData) {
         return (
             <div className={cn(
-                "relative p-5 rounded-3xl bg-white/[0.02] border border-white/[0.03]",
+                "relative p-5 rounded-3xl bg-white/2 border border-white/3",
                 vertical ? "w-64" : "w-full",
                 className
             )}>
@@ -1847,13 +1846,13 @@ function MatchCardComponent({
             <div className={cn("flex items-center gap-4", vertical ? (isRightSide ? "flex-col-reverse text-center" : "flex-col text-center") : (isRightSide ? "flex-row-reverse text-right" : "flex-row text-left"), "flex-1")}>
                 <div className={cn(
                     "w-10 h-10 rounded-2xl border flex items-center justify-center overflow-hidden shadow-lg group-hover:scale-110 transition-transform duration-500",
-                    isWinner ? "bg-emerald-500/10 border-emerald-500/50" : isLoser ? "bg-red-500/10 border-red-500/20 grayscale" : "bg-gradient-to-br from-white/10 to-transparent border-white/10"
+                    isWinner ? "bg-emerald-500/10 border-emerald-500/50" : isLoser ? "bg-red-500/10 border-red-500/20 grayscale" : "bg-linear-to-br/srgb from-white/10 to-transparent border-white/10"
                 )}>
                     <TeamLogoImage src={team.logoPath} alt={team.name} size={28} />
                 </div>
                 <div className={cn("flex flex-col", isRightSide && !vertical ? "items-end" : (vertical ? "items-center" : "items-start"))}>
                     <span className={cn(
-                        "text-xs font-normal tracking-[0.05em] uppercase transition-all duration-500",
+                        "text-xs font-normal tracking-wider uppercase transition-all duration-500",
                         isLoser ? "text-white/40" : "text-white"
                     )}>
                         {team.name}
@@ -1868,16 +1867,16 @@ function MatchCardComponent({
 
     return (
         <div className={cn(
-            "relative p-5 rounded-3xl bg-white/[0.02] border transition-all duration-700 group overflow-hidden backdrop-blur-xl",
+            "relative p-5 rounded-3xl bg-white/2 border transition-all duration-700 group overflow-hidden backdrop-blur-xl",
             "hover:border-white/20 hover:shadow-[0_0_40px_rgba(255,255,255,0.05)]",
             isPlayerMatch
-                ? "border-amber-500/40 bg-amber-500/[0.03] shadow-[0_0_30px_rgba(245,158,11,0.1)]"
-                : "border-white/[0.03] hover:bg-white/[0.06]",
+                ? "border-amber-500/40 bg-amber-500/3 shadow-[0_0_30px_rgba(245,158,11,0.1)]"
+                : "border-white/3 hover:bg-white/6",
             vertical ? "w-64" : "w-full",
             className
         )}>
             {/* Gloss Effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-br/srgb from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
             <div className={cn("flex justify-between items-center relative z-10", vertical ? "flex-col gap-6" : "flex-row")}>
                 {/* Team 1 */}

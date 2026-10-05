@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "recordedAt": "2026-10-04T11:36:56.537Z",
+  "method": "Forced-GC V8 heap snapshots over CDP (HeapProfiler.takeHeapSnapshot) from l27-packaged.cjs --heap-at; analysed with scripts/launch/l27-heap-analyze.cjs (dominator tree + shortest retaining path) and a BFS-ancestor grouping.",
+  "build": "Packaged QA copy tmp/l27qa/app (LOCAL-QA-ONLY, Steam disabled), built from f9358233; fresh week-1 career seeded by l27-seed-profile.ts --fresh",
+  "baselineWeek52": {
+    "reachableMB": 209.2,
+    "detachedDomNodes": 1293,
+    "liveStateReachableMB": 10.46,
+    "stateCopies": "1 live players array; no stale store states held by subscribers, selectors or memo caches",
+    "rootCause1": {
+      "what": "Harness artefact: Playwright page.waitForSelector() returns an ElementHandle that the CDP remote-object table keeps until disposed. One per own match (the tactics page \"Simulate Result Instantly\" button), each pinning the unmounted tactics page: fiber -> props/closures -> a whole old game state.",
+      "evidence": "~30 GC roots labelled \"N / DevTools console\" -> <button data-slot=button data-variant=outline> -> fiber tree, 5-12 MB each; reachable heap 209 MB (handles leaked) vs 80 MB (same build, no leaked handles) at week 52",
+      "fix": "driver uses waitForFunction (no handle); --legacy-handle-leak reproduces"
+    },
+    "rootCause2": {
+      "what": "App: SaveManager.lastVerifiedPrimary kept the full serialized save text between saves",
+      "evidence": [
+        {
+          "retainedMB": 24.7,
+          "path": "context→system / Context / scope @183395 . v→k . lastVerifiedPrimary→Object . value→string"
+        }
+      ],
+      "fix": "store a fingerprint (length + full head/tail 64 KiB + every 31st char) instead of the text"
+    }
+  },
+  "weekTrend": "see L27-packaged-heap-{base,harnessfix,fresh-w53,web-base,web-fix,web-fresh-w53}.json samples"
+}

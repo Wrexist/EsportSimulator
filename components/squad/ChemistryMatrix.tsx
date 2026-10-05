@@ -5,7 +5,6 @@ import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { PlayerSaveData } from "@/engine"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import Image from "next/image"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 
 interface ChemistryMatrixProps {
@@ -84,7 +83,7 @@ function ChemistryMatrix({ players, synergyMatrix = {}, className }: ChemistryMa
                                     initial={{ pathLength: 0, opacity: 0 }}
                                     animate={{ pathLength: 1, opacity: 0.15 }}
                                     transition={{ duration: 1.5, delay: 0.2 }}
-                                    className="blur-[4px]"
+                                    className="blur-xs"
                                 />
                                 {/* Actual Line */}
                                 <motion.line
@@ -97,7 +96,7 @@ function ChemistryMatrix({ players, synergyMatrix = {}, className }: ChemistryMa
                                     initial={{ pathLength: 0 }}
                                     animate={{ pathLength: 1 }}
                                     transition={{ duration: 1, ease: "easeOut" }}
-                                    className="transition-all duration-300 group-hover/link:stroke-[4]"
+                                    className="transition-all duration-300 group-hover/link:stroke-4"
                                 />
 
                                 {/* Link Tooltip Trigger Area (Invisible but clickable) */}
@@ -151,11 +150,11 @@ function ChemistryMatrix({ players, synergyMatrix = {}, className }: ChemistryMa
                                         size={48}
                                         className="w-full h-full"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60" />
+                                    <div className="absolute inset-0 bg-linear-to-b/srgb from-transparent to-black/60" />
                                 </div>
 
                                 {/* Name Label */}
-                                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-normal uppercase text-white tracking-wider whitespace-nowrap bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-normal uppercase text-white tracking-wider whitespace-nowrap bg-black/60 px-2 py-0.5 rounded backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                                     {node.nickname}
                                 </div>
                             </motion.div>
@@ -165,7 +164,7 @@ function ChemistryMatrix({ players, synergyMatrix = {}, className }: ChemistryMa
 
                 {/* Central Stats or Logo */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-b from-white/5 to-transparent blur-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                    <div className="w-20 h-20 rounded-full bg-linear-to-b/srgb from-white/5 to-transparent blur-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                     <div className="relative">
                         <span className="text-3xl font-normal text-white/90 tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
                             {Math.round(links.reduce((acc, l) => acc + l.value, 0) / (links.length || 1))}%

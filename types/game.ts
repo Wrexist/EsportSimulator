@@ -515,6 +515,17 @@ export interface SimState {
   homeStartsCT: boolean
   homeMomentumScore: number
   awayMomentumScore: number
+  /** L21 canonical stepper: transitions are applied when a round is computed. */
+  rulesVersion?: number
+  /** Scoreboard and transition of the last computed round, for playback at ROUND_END. */
+  lastRound?: {
+    mapIndex: number
+    roundNumber: number
+    homeRounds: number
+    awayRounds: number
+    winner: 'HOME' | 'AWAY'
+    transition: 'NONE' | 'HALFTIME' | 'OVERTIME' | 'OVERTIME_SWITCH' | 'MAP_END' | 'SERIES_END'
+  }
 }
 
 export interface LogEntry {

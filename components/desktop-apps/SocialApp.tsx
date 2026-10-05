@@ -7,6 +7,7 @@ import { Search, CheckCircle, ChevronLeft, Users, TrendingUp, Hash, MessageCircl
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { TeamSaveData, SocialPost } from "@/engine/save-types"
+import { pressable } from "@/lib/accessibility"
 
 interface SocialAppProps {
     posts: SocialPost[]
@@ -85,7 +86,7 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
     return (
         <div className="flex flex-col h-full bg-black/20">
             {/* Header Tabs */}
-            <div className="flex items-center border-b border-white/5 bg-white/[0.02] shrink-0">
+            <div className="flex items-center border-b border-white/5 bg-white/2 shrink-0">
                 {tabs.map(tab => (
                     <button
                         key={tab.id}
@@ -122,7 +123,7 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                             {/* Compose */}
                             <div className="p-3 border-b border-white/5">
                                 <div className="flex gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-[10px] font-bold shrink-0">
+                                    <div className="w-8 h-8 rounded-full bg-linear-to-br/srgb from-cyan-500 to-blue-600 flex items-center justify-center text-[10px] font-bold shrink-0">
                                         {playerTeam?.name?.substring(0, 2).toUpperCase() || "ME"}
                                     </div>
                                     <div className="flex-1">
@@ -135,7 +136,7 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                                             placeholder="What's happening in esports?"
                                             rows={draft ? 2 : 1}
                                             aria-label="Write a post"
-                                            className="w-full resize-none bg-white/5 rounded-xl px-3 py-2 text-[11px] text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-cyan-500/40 transition-all"
+                                            className="w-full resize-none bg-white/5 rounded-xl px-3 py-2 text-[11px] text-white placeholder:text-white/40 focus:outline-hidden focus:ring-1 focus:ring-cyan-500/40 transition-all"
                                         />
                                         {draft.trim() && (
                                             <div className="flex items-center justify-between mt-2">
@@ -160,12 +161,12 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: idx * 0.05 }}
-                                    className="p-3 border-b border-white/5 hover:bg-white/[0.02] transition-colors"
+                                    className="p-3 border-b border-white/5 hover:bg-white/2 transition-colors"
                                 >
                                     <div className="flex gap-2">
                                         <div
-                                            onClick={() => post.teamId && setSelectedTeamProfile(post.teamId)}
-                                            className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold shrink-0 cursor-pointer hover:ring-2 hover:ring-cyan-500/30 transition-shadow duration-75 ease-out overflow-hidden active:scale-95 active:duration-0"
+                                            {...(post.teamId ? pressable(() => setSelectedTeamProfile(post.teamId!), { label: `Open ${post.user.name ?? "team"} profile` }) : {})}
+                                            className="w-9 h-9 rounded-full bg-linear-to-br/srgb from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold shrink-0 cursor-pointer hover:ring-2 hover:ring-cyan-500/30 transition-shadow duration-75 ease-out overflow-hidden active:scale-95 active:duration-0"
                                         >
                                             {isImagePath(post.user.avatar) ? (
                                                 <Image src={post.user.avatar} alt="" width={36} height={36} className="w-full h-full object-cover" unoptimized />
@@ -275,11 +276,11 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                                 {teams.slice(0, 5).map(team => (
                                     <div
                                         key={team.id}
-                                        onClick={() => setSelectedTeamProfile(team.id)}
+                                        {...pressable(() => setSelectedTeamProfile(team.id), { label: `Open ${team.name} profile` })}
                                         className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors duration-75 ease-out active:scale-[0.99] active:duration-0"
                                     >
                                         <div
-                                            className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold overflow-hidden border"
+                                            className="w-9 h-9 rounded-full bg-linear-to-br/srgb from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-bold overflow-hidden border"
                                             style={{ borderColor: team.branding?.primaryColor ?? "transparent" }}
                                         >
                                             {team.logoPath ? (
@@ -331,7 +332,7 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Search organizations..."
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-8 pr-3 text-[11px] focus:outline-none focus:ring-1 focus:ring-cyan-500/50 placeholder:text-white/30"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-8 pr-3 text-[11px] focus:outline-hidden focus:ring-1 focus:ring-cyan-500/50 placeholder:text-white/30"
                                 />
                             </div>
 
@@ -344,10 +345,10 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                                     .map(team => (
                                         <div
                                             key={team.id}
-                                            onClick={() => setSelectedTeamProfile(team.id)}
+                                            {...pressable(() => setSelectedTeamProfile(team.id), { label: `Open ${team.name} profile` })}
                                             className="flex items-center gap-2.5 p-2.5 hover:bg-white/5 rounded-xl cursor-pointer transition-[background-color,transform] duration-75 ease-out group hover:translate-x-1 active:translate-x-0 active:scale-[0.99] active:duration-0"
                                         >
-                                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center shrink-0 border border-white/10 font-bold text-[10px] overflow-hidden">
+                                            <div className="w-9 h-9 rounded-full bg-linear-to-br/srgb from-neutral-700 to-neutral-800 flex items-center justify-center shrink-0 border border-white/10 font-bold text-[10px] overflow-hidden">
                                                 {team.logoPath ? (
                                                     <Image src={team.logoPath || "/team_placeholder.webp"} alt={team.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                                                 ) : (
@@ -385,8 +386,8 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                             className="h-full overflow-y-auto custom-scrollbar bg-black/40"
                         >
                             {/* Banner */}
-                            <div className="h-24 bg-gradient-to-br from-cyan-900 to-blue-900 relative">
-                                <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
+                            <div className="h-24 bg-linear-to-br/srgb from-cyan-900 to-blue-900 relative">
+                                <div className="absolute inset-0 bg-linear-to-t/srgb from-neutral-950 to-transparent" />
                             </div>
 
                             {/* Info */}
@@ -461,7 +462,7 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                             className="absolute inset-0 bg-neutral-950 flex flex-col overflow-hidden"
                         >
                             {/* Header */}
-                            <div className="px-3 py-2.5 flex items-center gap-3 bg-black/40 backdrop-blur-sm border-b border-white/5 shrink-0">
+                            <div className="px-3 py-2.5 flex items-center gap-3 bg-black/40 backdrop-blur-xs border-b border-white/5 shrink-0">
                                 <button
                                     onClick={() => setSelectedTeamProfile(null)}
                                     className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
@@ -477,8 +478,8 @@ export function SocialApp({ posts, teams, playerTeam, currentWeek, onPublish }: 
                             {/* Profile Content */}
                             <div className="flex-1 overflow-y-auto custom-scrollbar">
                                 {/* Banner */}
-                                <div className="h-20 bg-gradient-to-br from-neutral-800 to-neutral-900 relative">
-                                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent" />
+                                <div className="h-20 bg-linear-to-br/srgb from-neutral-800 to-neutral-900 relative">
+                                    <div className="absolute inset-0 bg-linear-to-t/srgb from-neutral-950 to-transparent" />
                                 </div>
 
                                 {/* Info */}

@@ -1,5 +1,7 @@
 # L22 first-session observation protocol
 
+> Superseded by [../PLAYTEST-PROTOCOL.md](../PLAYTEST-PROTOCOL.md), which follows the five-step first-session checklist (squad, finances, decision, first match, week advance). Kept for history.
+
 Status: ready to run; no participants tested. This protocol and blank worksheet are preparation, not usability evidence.
 
 ## Cohort and environment

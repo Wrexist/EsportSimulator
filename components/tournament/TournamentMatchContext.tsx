@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import { getStakes as sharedGetStakes } from "@/lib/match-stakes"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface MatchOutcome {
     won: boolean
     advanced?: boolean       // true = advanced, false = eliminated
@@ -124,7 +125,7 @@ export function TournamentMatchContext({
                     </Badge>
                     {prizePool && prizePool > 0 && (
                         <span className="text-[10px] text-emerald-400 font-mono">
-                            ${prizePool.toLocaleString()}
+                            {formatCurrency(prizePool, "$", false)}
                         </span>
                     )}
                 </div>
@@ -235,7 +236,7 @@ export function TournamentMatchContext({
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="p-3 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 border-t border-amber-500/20 flex items-center justify-center gap-2"
+                            className="p-3 bg-linear-to-r/srgb from-amber-500/10 via-amber-500/5 to-amber-500/10 border-t border-amber-500/20 flex items-center justify-center gap-2"
                         >
                             <Award className="w-4 h-4 text-amber-400" />
                             <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">

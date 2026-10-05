@@ -73,7 +73,7 @@ export class PreSeasonTransferProcessor {
                 const held = academyHeldPlayerIds(save)
                 const canAfford = recruitmentBudget(save, team)
                 const freeAgents = save.players.filter(pl =>
-                    !held.has(pl.id) && canAfford(recruitmentSalary(pl, save.currentWeek)) &&
+                    !held.has(pl.id) && canAfford(recruitmentSalary(pl, save.currentWeek, team)) &&
                     !save.contracts.some(c => c.playerId === pl.id && c.endWeek > save.currentWeek) &&
                     !rosteredIds.has(pl.id) &&
                     !pl.isRetired &&
@@ -215,7 +215,7 @@ export class PreSeasonTransferProcessor {
     ): TransferRecord {
         team.rosterIds.push(player.id)
 
-        const salary = recruitmentSalary(player, save.currentWeek)
+        const salary = recruitmentSalary(player, save.currentWeek, team)
 
         const contract: ContractSaveData = {
             playerId: player.id,

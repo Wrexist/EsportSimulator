@@ -33,6 +33,7 @@ import {
     GlassTableCell,
 } from "@/components/ui/GlassTable"
 import { motion, AnimatePresence } from "framer-motion"
+import { useFocusTrap } from "@/lib/accessibility"
 import { cn } from "@/lib/utils"
 import { calculateTeamTier, getTierStyle, getDisplayPlayerTier, TierLevel } from "@/engine/tier-system"
 import { evaluatePlayer } from "@/engine/player-evaluation"
@@ -241,7 +242,7 @@ const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
             {/* Header */}
             <div
                 className={cn(
-                    "grid items-center px-4 h-12 border-b border-white/10 bg-white/[0.03]",
+                    "grid items-center px-4 h-12 border-b border-white/10 bg-white/3",
                     "grid-cols-[80px_minmax(240px,1fr)_120px_100px_80px_120px_56px]",
                     "text-[10px] font-normal text-muted-foreground uppercase tracking-[0.2em]"
                 )}
@@ -333,9 +334,9 @@ function RankingsPageInner() {
     const viewCareerId = useGameStore(state => state.saveId)
     const [searchTerm, setSearchTerm] = useRouteViewState(viewCareerId, "rankings:search", "")
     const debouncedSearch = useDebounce(searchTerm, 300)
-    const [selectedTier, setSelectedTier] = useRouteViewState<TierLevel | "ALL">(viewCareerId, "rankings:tier", "ALL")
     const [activeTab, setActiveTab] = useRouteViewState<"WORLD" | "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "TROPHIES" | "CIRCUIT">(viewCareerId, "rankings:tab", "WORLD")
     const [selectedTeam, setSelectedTeam] = useState<any | null>(null)
+    const teamDialogRef = useFocusTrap(!!selectedTeam, () => setSelectedTeam(null))
 
     const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
 
@@ -559,9 +560,9 @@ function RankingsPageInner() {
                     <button
                         onClick={() => setActiveTab("WORLD")}
                         className={cn(
-                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-none",
+                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-hidden",
                             activeTab === "WORLD"
-                                ? "bg-slate-100 text-slate-900 shadow-sm focus:bg-white active:bg-slate-200"
+                                ? "bg-slate-100 text-slate-900 shadow-xs focus:bg-white active:bg-slate-200"
                                 : "text-muted-foreground hover:bg-white/5 focus:bg-white/5 active:bg-white/10"
                         )}
                     >
@@ -573,7 +574,7 @@ function RankingsPageInner() {
                             key={tier}
                             onClick={() => setActiveTab(tier)}
                             className={cn(
-                                "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-none",
+                                "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-hidden",
                                 activeTab === tier
                                     ? `${TIER_DISPLAY[tier].bgColor} ${TIER_DISPLAY[tier].color} shadow-lg focus:${TIER_DISPLAY[tier].bgColor} active:${TIER_DISPLAY[tier].bgColor}`
                                     : "text-muted-foreground hover:bg-white/5 focus:bg-white/5 active:bg-white/10"
@@ -589,7 +590,7 @@ function RankingsPageInner() {
                     <button
                         onClick={() => setActiveTab("TROPHIES")}
                         className={cn(
-                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-none",
+                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-hidden",
                             activeTab === "TROPHIES"
                                 ? "bg-amber-500/20 text-amber-400 shadow-lg focus:bg-amber-500/20 active:bg-amber-500/20 focus:text-amber-400 active:text-amber-400"
                                 : "text-muted-foreground hover:bg-white/5 focus:bg-white/5 active:bg-white/10"
@@ -601,7 +602,7 @@ function RankingsPageInner() {
                     <button
                         onClick={() => setActiveTab("CIRCUIT")}
                         className={cn(
-                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-none",
+                            "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-hidden",
                             activeTab === "CIRCUIT"
                                 ? "bg-purple-500/20 text-purple-400 shadow-lg focus:bg-purple-500/20 active:bg-purple-500/20 focus:text-purple-400 active:text-purple-400"
                                 : "text-muted-foreground hover:bg-white/5 focus:bg-white/5 active:bg-white/10"
@@ -862,7 +863,11 @@ function RankingsPageInner() {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="glass-panel w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl border-white/10"
+                            ref={teamDialogRef} tabIndex={-1}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="modal-title-team-detail"
+                            className="glass-panel w-full max-w-2xl max-h-[min(85vh,calc(100dvh-2rem))] flex flex-col shadow-2xl border-white/10"
                         >
                             {/* Modal Header */}
                             <div className="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
@@ -876,7 +881,7 @@ function RankingsPageInner() {
                                         />
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-normal text-white">{selectedTeam.name}</h2>
+                                        <h2 id="modal-title-team-detail" className="text-2xl font-normal text-white">{selectedTeam.name}</h2>
                                         <div className="flex items-center gap-2 mt-1">
                                             <Badge className={cn("text-[10px]", getTierStyle(selectedTeam.tier).bgColor, getTierStyle(selectedTeam.tier).borderColor, getTierStyle(selectedTeam.tier).color)}>
                                                 {getTierStyle(selectedTeam.tier).label}
@@ -887,7 +892,7 @@ function RankingsPageInner() {
                                         </div>
                                     </div>
                                 </div>
-                                <button onClick={() => setSelectedTeam(null)} className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-lg transition-all">
+                                <button onClick={() => setSelectedTeam(null)} aria-label="Close team details" className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-lg transition-all">
                                     <X size={20} className="text-white/50 hover:text-white" />
                                 </button>
                             </div>

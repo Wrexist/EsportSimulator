@@ -1,6 +1,7 @@
 "use client"
 
 import { resultLineup, matchFollowup } from '@/lib/match-followup'
+import { buildMatchInsights, buyWinRate } from '@/lib/match-insights'
 import { useEffect, useMemo, useState, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -15,7 +16,7 @@ import { motion } from "framer-motion"
 import { formatGameCalendarDate } from "@/lib/game-calendar"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { cn } from "@/lib/utils"
-import { formatRole } from "@/lib/utils-extended"
+import { formatRole, formatCurrency } from "@/lib/utils-extended"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { fireConfetti, preloadConfetti } from "@/lib/confetti-lazy"
 import { soundManager } from "@/lib/sound-manager"
@@ -246,20 +247,25 @@ export default function MatchResultPage() {
     // Loading guard runs AFTER all hooks above so React's hook-order rule
     // holds. Non-hook derived values (homeWon, mvpPlayer, matchDate) live
     // below since they only matter after the match has loaded.
+    // A fixture that is still scheduled has simply not been played yet (e.g.
+    // the simulation was refused); say so instead of "not found".
+    const stillScheduled = !match && scheduledMatches.some(m => m.id === id)
     if (!match) return (
         <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
-            {notFound ? (
-                <div className="text-center max-w-sm px-6">
-                    <p className="text-white text-lg font-bold uppercase tracking-widest mb-2">Match Not Found</p>
+            {notFound || stillScheduled ? (
+                <div role="alert" className="text-center max-w-sm px-6">
+                    <p className="text-white text-lg font-bold uppercase tracking-widest mb-2">{stillScheduled ? "Match Not Played Yet" : "Match Not Found"}</p>
                     <p className="text-muted-foreground text-sm mb-6">
-                        This match result isn&apos;t available — it may belong to a different save or has aged out of match history.
+                        {stillScheduled
+                            ? "This match has no result yet. Return to match prep to play it; if it can't be played, advancing the week resolves it."
+                            : <>This match result isn&apos;t available — it may belong to a different save or has aged out of match history.</>}
                     </p>
-                    <button
-                        onClick={() => router.push("/schedule")}
-                        className="px-6 py-2.5 rounded-lg bg-primary text-white text-xs font-bold uppercase tracking-widest hover:bg-primary/80 transition-colors"
-                    >
-                        Back to Schedule
-                    </button>
+                    <div className="flex justify-center gap-3">
+                        {stillScheduled && (
+                            <Button variant="play" onClick={() => router.push(`/match/${id}/tactics`)}>Back to Match Prep</Button>
+                        )}
+                        <Button variant={stillScheduled ? "outline" : "play"} onClick={() => router.push("/schedule")}>Back to Schedule</Button>
+                    </div>
                 </div>
             ) : (
                 <LoadingState message="Loading Match Data…" size="lg" />
@@ -424,7 +430,7 @@ export default function MatchResultPage() {
                 >
                     {/* Background Glows */}
                     <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                        <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent" />
+                        <div className="absolute top-0 left-8 right-8 h-px bg-linear-to-r/srgb from-transparent via-cyan-200/30 to-transparent" />
                     </div>
 
                     <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
@@ -553,17 +559,67 @@ export default function MatchResultPage() {
                 </motion.div>
             </div>
 
-            {playerTeamId && [match.homeTeamId, match.awayTeamId].includes(playerTeamId) && (
-                <section className="max-w-7xl mx-auto mb-5 rounded-xl border border-white/10 bg-white/[0.03] p-4" aria-label="Next match preparation">
-                    <p className="text-sm text-slate-200">{matchFollowup(playerTeamId === match.homeTeamId ? homeStats : awayStats)}</p>
-                    {!result.lineups && <p className="mt-1 text-xs text-slate-400">Older report: player grouping uses current rosters.</p>}
-                    <div className="mt-3 flex flex-wrap gap-2">
-                        {[['Training', '/training'], ['Scout recruitment', '/scouting'], ['Squad and roles', '/squad'], ['Prepare next match', '/schedule']].map(([label, href]) => (
-                            <button key={href} onClick={() => router.push(href)} className="rounded-lg border border-white/15 px-3 py-2 text-xs text-slate-200 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">{label}</button>
-                        ))}
-                    </div>
-                </section>
-            )}
+            {playerTeamId && [match.homeTeamId, match.awayTeamId].includes(playerTeamId) && (() => {
+                const isHome = playerTeamId === match.homeTeamId
+                const ownTeam = isHome ? homeTeam : awayTeam
+                const otherTeam = isHome ? awayTeam : homeTeam
+                const insights = buildMatchInsights({
+                    result,
+                    teamId: playerTeamId,
+                    isHome,
+                    ownLineup: resultLineup(result, ownTeam?.id, ownTeam?.rosterIds),
+                    opponentLineup: resultLineup(result, otherTeam?.id, otherTeam?.rosterIds),
+                    nextMatchId: nextPlayerMatch?.id,
+                })
+                const name = (pid?: string) => (pid && (playersById.get(pid)?.nickname || playersById.get(pid)?.name)) || "Former player"
+                const standout = (label: string, s?: { playerId: string; rating: number; kills: number; deaths: number }) => s && (
+                    <li>{label}: <span className="text-white">{name(s.playerId)}</span> {s.rating.toFixed(2)} rating, {s.kills}-{s.deaths}</li>
+                )
+                return (
+                    <section className="max-w-7xl mx-auto mb-5 rounded-xl border border-white/10 bg-white/3 p-4" aria-labelledby="match-decided-heading">
+                        <h2 id="match-decided-heading" className="text-xs font-bold uppercase tracking-widest text-slate-300">What decided the match</h2>
+                        <p className="mt-1 text-sm text-slate-200">{insights.headline}</p>
+                        <div className="mt-3 grid gap-4 md:grid-cols-3 text-xs text-slate-300">
+                            <div>
+                                <h3 className="mb-1 font-bold uppercase tracking-widest text-slate-400">Key rounds</h3>
+                                <ul className="space-y-1">
+                                    {insights.keyRounds.map(k => (
+                                        <li key={`${k.map}-${k.round}-${k.label}`}>
+                                            <span className={k.won ? "text-emerald-400" : "text-red-400"}>{k.won ? "Won" : "Lost"}</span> · {k.map} R{k.round}: {k.label}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 className="mb-1 font-bold uppercase tracking-widest text-slate-400">Economy</h3>
+                                <ul className="space-y-1">
+                                    {insights.economy.buys.map(b => (
+                                        <li key={b.buy}>{b.buy.toLowerCase()} buys: {b.won}/{b.played} won ({buyWinRate(b)}%)</li>
+                                    ))}
+                                    <li>Average spend per player per round: {formatCurrency(insights.economy.avgSpend, "$", false)}</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 className="mb-1 font-bold uppercase tracking-widest text-slate-400">Players and plan</h3>
+                                <ul className="space-y-1">
+                                    {standout("Your best", insights.standouts.best)}
+                                    {standout("Struggled", insights.standouts.struggled)}
+                                    {standout("Opponent top performer", insights.standouts.opponentBest)}
+                                    {insights.tactics.map(t => <li key={t}>{t}</li>)}
+                                </ul>
+                            </div>
+                        </div>
+                        <p className="mt-3 text-sm text-slate-200">{matchFollowup(isHome ? homeStats : awayStats)}</p>
+                        {!result.lineups && <p className="mt-1 text-xs text-slate-400">Older report: player grouping uses current rosters.</p>}
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {insights.actions.map(a => (
+                                <button key={a.href + a.label} title={a.reason} aria-label={`${a.label}: ${a.reason}`} onClick={() => router.push(a.href)} className="rounded-lg border border-white/15 px-3 py-2 text-xs text-slate-200 hover:bg-white/10 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-emerald-400">{a.label}</button>
+                            ))}
+                        </div>
+                        <p className="mt-2 text-[11px] text-slate-500">Built from the recorded rounds, the public scoreboard and visible buys; review prompts, not proof of cause.</p>
+                    </section>
+                )
+            })()}
 
             {/* TAB NAVIGATION */}
             <div className="max-w-7xl mx-auto mb-6">
@@ -850,13 +906,13 @@ export default function MatchResultPage() {
                                                             <div
                                                                 className={cn(
                                                                     "h-full rounded-lg",
-                                                                    diff > 0 ? "bg-gradient-to-r from-emerald-500/70 to-emerald-400/40" :
-                                                                    diff < 0 ? "bg-gradient-to-r from-red-500/50 to-red-400/30" :
-                                                                    "bg-gradient-to-r from-white/20 to-white/10"
+                                                                    diff > 0 ? "bg-linear-to-r/srgb from-emerald-500/70 to-emerald-400/40" :
+                                                                    diff < 0 ? "bg-linear-to-r/srgb from-red-500/50 to-red-400/30" :
+                                                                    "bg-linear-to-r/srgb from-white/20 to-white/10"
                                                                 )}
                                                                 style={{ width: `${Math.max(pct, 8)}%` }}
                                                             />
-                                                            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-sm">
+                                                            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-xs">
                                                                 {fk}FK / {fd}FD ({pct}%)
                                                             </span>
                                                         </div>
@@ -901,9 +957,9 @@ export default function MatchResultPage() {
                                                             <div
                                                                 className={cn(
                                                                     "h-full rounded-lg",
-                                                                    kast >= 80 ? "bg-gradient-to-r from-emerald-500/70 to-emerald-400/40" :
-                                                                    kast >= 60 ? "bg-gradient-to-r from-sky-500/60 to-sky-400/30" :
-                                                                    "bg-gradient-to-r from-white/20 to-white/10"
+                                                                    kast >= 80 ? "bg-linear-to-r/srgb from-emerald-500/70 to-emerald-400/40" :
+                                                                    kast >= 60 ? "bg-linear-to-r/srgb from-sky-500/60 to-sky-400/30" :
+                                                                    "bg-linear-to-r/srgb from-white/20 to-white/10"
                                                                 )}
                                                                 style={{ width: `${kast}%` }}
                                                             />
@@ -971,7 +1027,7 @@ export default function MatchResultPage() {
                                             return (
                                                 <div key={i} className="flex-1 flex flex-col items-center group relative">
                                                     <div className="hidden group-hover:flex absolute -top-8 bg-black/90 border border-white/10 rounded-md px-2 py-1 z-10 whitespace-nowrap">
-                                                        <span className="text-[9px] text-white/80">R{i + 1}: ${Math.round(avgMoney).toLocaleString()}</span>
+                                                        <span className="text-[9px] text-white/80">R{i + 1}: {formatCurrency(Math.round(avgMoney), "$", false)}</span>
                                                     </div>
                                                     {isWinner && <div className="w-1 h-1 rounded-full bg-emerald-400 mb-1" />}
                                                     {!isWinner && <div className="w-1 h-1 mb-1" />}
@@ -1010,7 +1066,7 @@ export default function MatchResultPage() {
                                                     {isWinner && <div className="w-1 h-1 rounded-full bg-emerald-400 mt-1" />}
                                                     {!isWinner && <div className="w-1 h-1 mt-1" />}
                                                     <div className="hidden group-hover:flex absolute -bottom-8 bg-black/90 border border-white/10 rounded-md px-2 py-1 z-10 whitespace-nowrap">
-                                                        <span className="text-[9px] text-white/80">R{i + 1}: ${Math.round(avgMoney).toLocaleString()}</span>
+                                                        <span className="text-[9px] text-white/80">R{i + 1}: {formatCurrency(Math.round(avgMoney), "$", false)}</span>
                                                     </div>
                                                 </div>
                                             )
@@ -1077,7 +1133,7 @@ function PlayerStatsTable({ stats, players, result }: { stats: PlayerMatchStats[
                         const ratingColor = stat.rating >= 1.25 ? "text-emerald-400" : stat.rating < 0.9 ? "text-red-400" : "text-white/80"
 
                         return (
-                            <tr key={stat.playerId} className="bg-white/[0.02] hover:bg-white/[0.06] transition-colors">
+                            <tr key={stat.playerId} className="bg-white/2 hover:bg-white/6 transition-colors">
                                 <td className="px-4 py-3 font-medium text-white flex items-center gap-3">
                                     <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center overflow-hidden relative">
                                         <PlayerPortrait

@@ -102,7 +102,7 @@ function PlayerPortraitFrameImpl({
           }}
           onLoad={() => setLoaded(true)}
           className={cn(
-            "portrait-realist-image relative z-10 h-full w-full object-cover transition-[opacity] duration-200",
+            "portrait-realist-image relative z-10 h-full w-full object-cover transition-opacity duration-200",
             imageObjectPosition[variant],
             loaded ? "opacity-100" : "opacity-0",
             imageClassName,
@@ -112,7 +112,7 @@ function PlayerPortraitFrameImpl({
         <div className="portrait-realist-fallback relative z-10 flex h-full w-full items-end justify-center">
           <div className="absolute top-[18%] h-[34%] w-[34%] rounded-full bg-[linear-gradient(145deg,#d8b083,#9a6841)] shadow-[inset_0_1px_8px_rgba(255,255,255,0.24)]" />
           <div className="absolute bottom-[-8%] h-[52%] w-[70%] rounded-t-[42%] bg-[linear-gradient(145deg,rgba(23,120,116,0.95),rgba(13,31,47,0.98))] shadow-[inset_0_1px_10px_rgba(255,255,255,0.14)]" />
-          <User className="relative mb-[18%] h-[28%] w-[28%] text-white/24" aria-hidden="true" />
+          <User className="relative mb-[18%] h-[28%] w-[28%]" aria-hidden="true" />
         </div>
       )}
 

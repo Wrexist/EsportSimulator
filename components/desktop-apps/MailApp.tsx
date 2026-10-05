@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, useCallback } from "react"
+import React, { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
     Mail, Inbox, CheckCheck,
@@ -35,22 +35,8 @@ export const MailApp = React.memo(function MailApp({
     onQuickAction
 }: MailAppProps) {
     const [activeFolder, setActiveFolder] = useState<FolderType>("inbox")
-    const [messageFilter, setMessageFilter] = useState<string[]>(["ALL"])
+    const [messageFilter] = useState<string[]>(["ALL"])
     const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
-
-    const toggleFilter = useCallback((filter: string) => {
-        setMessageFilter(prev => {
-            if (filter === "ALL") return ["ALL"]
-            let newFilters = prev.filter(f => f !== "ALL")
-            if (newFilters.includes(filter)) {
-                newFilters = newFilters.filter(f => f !== filter)
-            } else {
-                newFilters.push(filter)
-            }
-            if (newFilters.length === 0) return ["ALL"]
-            return newFilters
-        })
-    }, [])
 
     // Check if event requires action
     const requiresAction = (event: GameEventSaveData) => {
@@ -162,12 +148,10 @@ export const MailApp = React.memo(function MailApp({
         }
     }
 
-    const selectedEvent = events.find(e => e.id === selectedEventId)
-
     return (
         <div className="flex h-full">
             {/* Sidebar */}
-            <div className="w-40 border-r border-white/5 bg-white/[0.02] flex flex-col shrink-0">
+            <div className="w-40 border-r border-white/5 bg-white/2 flex flex-col shrink-0">
                 <div className="p-3 border-b border-white/5">
                     <h3 className="text-xs font-bold text-white/40 uppercase tracking-wider px-2">Folders</h3>
                 </div>
@@ -204,7 +188,7 @@ export const MailApp = React.memo(function MailApp({
             {/* Message List */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Toolbar */}
-                <div className="h-10 px-3 flex items-center justify-between border-b border-white/5 bg-white/[0.02] shrink-0">
+                <div className="h-10 px-3 flex items-center justify-between border-b border-white/5 bg-white/2 shrink-0">
                     {/* <DropdownMenu modal={false}>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm" className="h-6 text-[10px] text-white/60 hover:text-white gap-1.5" onClick={(e) => e.stopPropagation()}>
@@ -285,7 +269,7 @@ export const MailApp = React.memo(function MailApp({
                                             ? "bg-amber-500/5 hover:bg-amber-500/10"
                                             : !event.acknowledged
                                                 ? "bg-cyan-500/5 hover:bg-cyan-500/10"
-                                                : "hover:bg-white/[0.03]",
+                                                : "hover:bg-white/3",
                                     requiresAction(event) && "notification-shimmer"
                                 )}
                             >

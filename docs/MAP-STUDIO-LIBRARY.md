@@ -1,5 +1,7 @@
 # Map Studio researched library
 
+> **Excluded from the 1.0 base game (owner decision, 4 October 2026).** No upstream redistribution permission exists, so the imported CS2Nades lineups described below no longer ship. `data/map-studio-library.json` (version `2026-10-04.1`) carries only the radar outlines. The removed records and the original bytes of every affected bundled draft are archived in `raw-data/archived-lineups/`, outside the packaged files. Player drafts that already hold imported lineups keep them; the game no longer adds them. The rest of this page describes the historical 12 September import.
+
 Snapshot: 12 September 2026. Source: [CS2Nades](https://cs2nades.gg/en/).
 
 The editor adds 628 coordinate-bearing lineup records to the eight supported maps and traces the outer radar silhouette on all ten floors. Sandstone uses the Dust2 source map. This is the complete usable snapshot from this provider for these maps, not a claim to contain every lineup on the internet.

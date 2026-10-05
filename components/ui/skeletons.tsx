@@ -47,7 +47,7 @@ export function PageSkeleton({ title }: { title?: string }) {
 /** Match card placeholder — used by tournament lists. */
 export function MatchCardSkeleton() {
     return (
-        <div className={cn('rounded-2xl border border-white/10 bg-white/[0.02] p-4 space-y-3')}>
+        <div className={cn('rounded-2xl border border-white/10 bg-white/2 p-4 space-y-3')}>
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Skeleton className="w-8 h-8 rounded-lg" />

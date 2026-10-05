@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Lock } from "lucide-react"
+import { useFocusTrap } from "@/lib/accessibility"
 
 export function MatchNavigationGuard() {
     const { activeMatchId, setActiveMatch, completedMatches, scheduledMatches, currentWeek, isInitialized } = useGameStore(useShallow(state => ({
@@ -98,6 +99,9 @@ export function MatchNavigationGuard() {
         }
     }
 
+    // Blocking notice: trap focus on it; Escape has nowhere valid to go.
+    const dialogRef = useFocusTrap(showBlocker)
+
     return (
         <AnimatePresence>
             {showBlocker && (
@@ -110,7 +114,11 @@ export function MatchNavigationGuard() {
                     <motion.div
                         initial={{ scale: 0.9, y: 20 }}
                         animate={{ scale: 1, y: 0 }}
-                        className="bg-[#0e1217] border border-white/10 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden"
+                        ref={dialogRef} tabIndex={-1}
+                        role="alertdialog"
+                        aria-modal="true"
+                        aria-labelledby="modal-title-match-guard"
+                        className="bg-[#0e1217] border border-white/10 rounded-3xl p-8 max-w-md w-full max-h-[calc(100dvh-6rem)] overflow-y-auto text-center shadow-2xl relative"
                     >
                         {/* Ambient Background */}
                         <div className="absolute top-0 inset-x-0 h-32 bg-red-500/10 blur-3xl pointer-events-none" />
@@ -119,7 +127,7 @@ export function MatchNavigationGuard() {
                             <Lock size={32} />
                         </div>
 
-                        <h2 className="text-2xl font-normal text-white mb-2 uppercase tracking-tight">Match in Progress</h2>
+                        <h2 id="modal-title-match-guard" className="text-2xl font-normal text-white mb-2 uppercase tracking-tight">Match in Progress</h2>
                         <p className="text-muted-foreground mb-8">
                             You cannot leave the match area while a game is active. Please complete the match or simulate the result.
                         </p>

@@ -37,9 +37,9 @@ maintained with exact file hashes in the release evidence ledger.
 
 Awpy-data supplied the development spatial references (release 2000908).
 Its MIT license covers extraction scripts; extracted game assets remain subject
-to Valve's rights and terms. CS2Nades supplied imported lineup annotations.
-Source links are provenance records, not redistribution licenses. The project
-owner confirmed authorization to use the imported map assets; this statement
+to Valve's rights and terms. Third-party lineup annotations are not included
+in this release; Map Studio ships only radar outlines and project-authored
+markings. The project owner confirmed authorization to use the imported map assets; this statement
 does not assert Valve endorsement or transfer ownership of those assets.
 
 Archivo Black is used as a display font; its SIL Open Font License is retained

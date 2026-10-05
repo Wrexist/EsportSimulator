@@ -40,18 +40,16 @@ const FALLBACK_ICON = <Newspaper size={14} />
 const FALLBACK_COLOR = "text-muted-foreground bg-white/5"
 
 export function NewsFeed() {
-    const { newsFeed, getDateForWeek, teams, players } = useGameStore(useShallow(state => ({
+    const { newsFeed, getDateForWeek, teams } = useGameStore(useShallow(state => ({
         newsFeed: state.newsFeed,
         getDateForWeek: state.getDateForWeek,
         teams: state.teams,
-        players: state.players,
     })))
 
     // O(1) lookups for the render loop. Was previously doing two `teams.find`
     // and one `players.find` per news item — O(items × (2·teams + players)).
     // On a long save this dwarfed everything else on the dashboard.
     const teamsById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
-    const playersById = useMemo(() => new Map(players.map(p => [p.id, p])), [players])
     const teamByRosterPlayerId = useMemo(() => {
         const m = new Map<string, typeof teams[number]>()
         for (const t of teams) {
@@ -82,7 +80,6 @@ export function NewsFeed() {
                     : item.playerId
                         ? teamByRosterPlayerId.get(item.playerId)
                         : null
-                const player = item.playerId ? playersById.get(item.playerId) : null
 
                 // Same key for both lookups so an unknown category never picks up a
                 // MATCH icon next to a "default" colour swatch.
@@ -107,7 +104,7 @@ export function NewsFeed() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.05 }}
                         key={item.id}
-                        className="p-5 rounded-3xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] hover:border-white/10 transition-all group cursor-default relative overflow-hidden"
+                        className="p-5 rounded-3xl bg-white/3 border border-white/5 hover:bg-white/6 hover:border-white/10 transition-all group cursor-default relative overflow-hidden"
                     >
                         <div className="flex items-start gap-4 relative z-10">
                             {/* Category Icon / Team Logo */}
@@ -153,7 +150,7 @@ export function NewsFeed() {
                         </div>
 
                         {/* Subtle background glow based on category */}
-                        <div className={cn("absolute -right-4 -bottom-4 w-24 h-24 blur-[40px] opacity-10 rounded-full", categoryColor.split(' ')[1])} />
+                        <div className={cn("absolute -right-4 -bottom-4 w-24 h-24 blur-2xl opacity-10 rounded-full", categoryColor.split(' ')[1])} />
                     </motion.div>
                 )
             })}

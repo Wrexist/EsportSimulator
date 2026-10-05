@@ -61,7 +61,7 @@ export function CareerLegacyCard() {
     ]
 
     return (
-        <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+        <Card className="bg-white/5 border-white/10 backdrop-blur-xs">
             <CardContent className="p-6 space-y-5">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -90,7 +90,7 @@ export function CareerLegacyCard() {
 
                 <div className="grid grid-cols-3 gap-3">
                     {stats.map(s => (
-                        <div key={s.label} className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
+                        <div key={s.label} className="rounded-lg border border-white/5 bg-white/2 p-3">
                             <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
                                 <s.icon className="h-3.5 w-3.5" />
                                 <span className="text-[9px] uppercase font-bold tracking-widest">{s.label}</span>

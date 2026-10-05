@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface StaffNegotiationModalProps {
     staffId: string
     isOpen: boolean
@@ -156,7 +157,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
             }
 
         } else {
-            setNegotiationLog(prev => [...prev, `Offer rejected. ${staffMember.name} expects around $${Math.round(minAcceptable).toLocaleString()}/wk.`])
+            setNegotiationLog(prev => [...prev, `Offer rejected. ${staffMember.name} expects around ${formatCurrency(Math.round(minAcceptable), "$", false)}/wk.`])
         }
     }
 
@@ -178,7 +179,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                 >
                     {/* Left Panel: Staff Info */}
                     <div className="w-1/3 min-w-0 overflow-y-auto overscroll-contain border-r border-white/10 bg-black/20 p-6 flex flex-col relative">
-                        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-b/srgb from-primary/5 to-transparent" />
 
                         <div className="relative z-10 flex flex-col items-center text-center">
                             <div className="w-24 h-24 rounded-2xl bg-white/5 mb-4 overflow-hidden shadow-lg relative">
@@ -212,7 +213,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                 <Separator className="bg-white/10" />
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Current Rate</span>
-                                    <span className="font-bold text-emerald-400">${staffMember.salaryPerWeek.toLocaleString()}/wk</span>
+                                    <span className="font-bold text-emerald-400">{formatCurrency(staffMember.salaryPerWeek, "$", false)}/wk</span>
                                 </div>
                             </div>
                         </div>
@@ -260,12 +261,12 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                                         }
                                                         setSalaryOffer(Math.max(0, Math.min(MAX_STAFF_SALARY, Math.floor(val))))
                                                     }}
-                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-none w-full"
+                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-hidden w-full"
                                                 />
                                             </div>
                                             {!isRenewal && (
                                                 <p className="text-[10px] text-muted-foreground mt-2 uppercase font-bold tracking-wider">
-                                                    Sign-on Fee: <span className="text-white">${signingBonus.toLocaleString()}</span> (2 weeks)
+                                                    Sign-on Fee: <span className="text-white">{formatCurrency(signingBonus, "$", false)}</span> (2 weeks)
                                                 </p>
                                             )}
                                         </div>
@@ -297,7 +298,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                     <div className="flex justify-between items-center px-2">
                                         <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                                             Team Budget: <span className={cn(myTeam && myTeam.budget < signingBonus ? "text-rose-400" : "text-emerald-400")}>
-                                                ${myTeam?.budget?.toLocaleString() ?? "0"}
+                                                {formatCurrency(myTeam?.budget ?? 0, "$", false)}
                                             </span>
                                         </div>
                                     </div>
@@ -336,7 +337,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                     <div className="bg-white/5 p-4 rounded-xl max-w-sm mx-auto border border-white/10">
                                         <div className="flex justify-between mb-2">
                                             <span className="text-muted-foreground text-xs uppercase font-bold">Salary</span>
-                                            <span className="text-emerald-400 font-bold">${salaryOffer.toLocaleString()}/wk</span>
+                                            <span className="text-emerald-400 font-bold">{formatCurrency(salaryOffer, "$", false)}/wk</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-muted-foreground text-xs uppercase font-bold">Duration</span>

@@ -12,6 +12,7 @@ import Image from "next/image"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { useFocusTrap } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface TacticalLoadoutEditorProps {
     side: "ct" | "t"
     strategyId: keyof CustomTactics
@@ -24,8 +25,6 @@ interface TacticalLoadoutEditorProps {
     onSave: (config: TacticalStrategy) => void
     onClose: () => void
 }
-
-const ROLE_OPTIONS = ["AWPER", "RIFLER", "SUPPORT", "ENTRY", "IGL"]
 
 export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
     side,
@@ -233,7 +232,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
             `}</style>
 
             {/* Header */}
-            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-white/5 to-transparent">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-linear-to-r/srgb from-white/5 to-transparent">
                 <div className="flex items-center gap-6">
                     <div className={cn(
                         "p-4 rounded-2xl flex items-center justify-center shadow-lg",
@@ -248,7 +247,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                 value={strategyName}
                                 onChange={(e) => setStrategyName(e.target.value)}
                                 placeholder={`${strategyId} LOADOUT`}
-                                className="bg-transparent border-none text-3xl font-normal uppercase tracking-tight leading-none text-white focus:outline-none focus:ring-0 placeholder:text-white/50 w-full"
+                                className="bg-transparent border-none text-3xl font-normal uppercase tracking-tight leading-none text-white focus:outline-hidden focus:ring-0 placeholder:text-white/50 w-full"
                             />
                         </div>
                         <p className="text-muted-foreground text-[10px] font-normal uppercase tracking-widest mt-2 flex items-center gap-2">
@@ -272,7 +271,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
 
             <div className="flex flex-1 min-h-0">
                 {/* Player List (Left Sidebar) */}
-                <div className="w-80 border-r border-white/5 p-5 space-y-2.5 overflow-y-auto bg-black/20 custom-scrollbar">
+                <div className="w-64 xl:w-80 shrink-0 border-r border-white/5 p-5 space-y-2.5 overflow-y-auto bg-black/20 custom-scrollbar">
                     {loadouts.map((loadout, idx) => {
                         const cost = getLoadoutCost(loadout)
                         const isSelected = selectedPlayer === idx
@@ -288,7 +287,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                     "w-full p-4 rounded-3xl border transition-[border-color,background-color] duration-100 ease-out text-left group relative select-none touch-manipulation",
                                     isSelected
                                         ? (side === "ct" ? "bg-blue-500/20 border-blue-500/40" : "bg-orange-500/20 border-orange-500/40")
-                                        : "bg-white/[0.02] border-white/5 hover:bg-white/5"
+                                        : "bg-white/2 border-white/5 hover:bg-white/5"
                                 )}
                             >
                                 <button
@@ -317,10 +316,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                     </div>
                                     {playerCash[idx] != null ? (
                                         <div className={cn("font-bold text-xs px-2 py-1 rounded-lg", playerCash[idx] - cost >= 0 ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10")}>
-                                            ${(playerCash[idx] - cost).toLocaleString()}
+                                            {formatCurrency((playerCash[idx] - cost), "$", false)}
                                         </div>
                                     ) : (
-                                        <div className="text-white/40 font-bold text-xs bg-white/5 px-2 py-1 rounded-lg">-${cost}</div>
+                                        <div className="text-white/40 font-bold text-xs bg-white/5 px-2 py-1 rounded-lg">{formatCurrency(-cost, "$", false)}</div>
                                     )}
                                 </button>
 
@@ -352,15 +351,15 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                             <>
                                 <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-1">Remaining Budget</div>
                                 <div className={cn("text-2xl font-normal", teamBudget - totalCost < 0 ? "text-red-400" : "text-emerald-400")}>
-                                    ${(teamBudget - totalCost).toLocaleString()}
+                                    {formatCurrency((teamBudget - totalCost), "$", false)}
                                 </div>
-                                <div className="text-[10px] text-white/30 mt-1">Cost: ${totalCost.toLocaleString()}</div>
+                                <div className="text-[10px] text-white/30 mt-1">Cost: {formatCurrency(totalCost, "$", false)}</div>
                             </>
                         ) : (
                             <>
                                 <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-1">Total Team Cost</div>
                                 <div className="text-2xl font-normal text-white/50">
-                                    ${totalCost.toLocaleString()}
+                                    {formatCurrency(totalCost, "$", false)}
                                 </div>
                             </>
                         )}
@@ -370,7 +369,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                 {/* Weapon Grid (Right Content) */}
                 <ScrollArea className="flex-1 p-6 custom-scrollbar">
                     {selectedPlayer !== null && currentLoadout ? (
-                        <div className="grid grid-cols-5 gap-6">
+                        <div className="grid grid-cols-3 xl:grid-cols-5 gap-3 xl:gap-6">
                             {/* 1. Equipment */}
                             <div className="space-y-4">
                                 <h3 className="text-xs font-normal text-white/30 uppercase tracking-[0.2em] px-2 mb-4">1 Equipment</h3>
@@ -390,7 +389,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
                                                 )}
                                             >
-                                                <div className="w-16 h-16 relative flex-shrink-0 flex items-center justify-center">
+                                                <div className="w-16 h-16 relative shrink-0 flex items-center justify-center">
                                                     {opt.image && (
                                                         <Image
                                                             src={opt.image}
@@ -402,7 +401,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{opt.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">${opt.price}</div>
+                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(opt.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />}
                                             </button>
@@ -432,7 +431,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
                                                 )}
                                             >
-                                                <div className="w-24 h-12 relative flex-shrink-0 flex items-center justify-center my-1">
+                                                <div className="w-24 h-12 relative shrink-0 flex items-center justify-center my-1">
                                                     {icon ? (
                                                         <Image
                                                             src={icon}
@@ -446,7 +445,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">${w.price}</div>
+                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]" />}
                                             </button>
@@ -476,7 +475,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
                                                 )}
                                             >
-                                                <div className="w-24 h-12 relative flex-shrink-0 flex items-center justify-center my-1">
+                                                <div className="w-24 h-12 relative shrink-0 flex items-center justify-center my-1">
                                                     {icon ? (
                                                         <Image
                                                             src={icon}
@@ -490,7 +489,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">${w.price}</div>
+                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className={cn("absolute top-3 right-3 w-2 h-2 rounded-full", side === "ct" ? "bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]" : "bg-orange-400 shadow-[0_0_10px_rgba(251,146,60,0.5)]")} />}
                                             </button>
@@ -520,7 +519,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                         : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
                                                 )}
                                             >
-                                                <div className="w-24 h-12 relative flex-shrink-0 flex items-center justify-center my-1">
+                                                <div className="w-24 h-12 relative shrink-0 flex items-center justify-center my-1">
                                                     {icon ? (
                                                         <Image
                                                             src={icon}
@@ -534,7 +533,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">${w.price}</div>
+                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className={cn("absolute top-3 right-3 w-2 h-2 rounded-full", side === "ct" ? "bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]" : "bg-orange-400 shadow-[0_0_10px_rgba(251,146,60,0.5)]")} />}
                                             </button>
@@ -573,7 +572,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full mt-2">
                                                     <div className="text-[10px] font-normal uppercase tracking-wider">{id}</div>
-                                                    <div className="text-[9px] opacity-60 font-bold">${price}</div>
+                                                    <div className="text-[9px] opacity-60 font-bold">{formatCurrency(price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_10px_rgba(192,132,252,0.5)]" />}
                                             </button>
@@ -598,7 +597,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                 <div>
                     {teamBudget !== undefined && (
                         <div className="text-[10px] font-bold text-white/50">
-                            Team Budget: ${teamBudget.toLocaleString()}
+                            Team Budget: {formatCurrency(teamBudget, "$", false)}
                         </div>
                     )}
                 </div>

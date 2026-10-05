@@ -6,10 +6,11 @@ import { X, AlertCircle, TrendingUp, TrendingDown, Info, ShoppingCart } from "lu
 import { Button } from "@/components/ui/button"
 import { PlayerSaveData } from "@/engine/save-types"
 import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 import { PlayerPortrait } from "@/components/ui/asset-images"
+import { useFocusTrap } from "@/lib/accessibility"
+import { formatCurrency } from "@/lib/utils-extended"
 
 interface TransferListingModalProps {
     isOpen: boolean
@@ -31,6 +32,8 @@ export function TransferListingModal({
     const [priceMultiplier, setPriceMultiplier] = React.useState(1.0)
     const askingPrice = Math.round(estimatedValue * priceMultiplier)
 
+    const dialogRef = useFocusTrap(isOpen, onClose)
+
     if (!isOpen) return null
 
     return (
@@ -39,20 +42,21 @@ export function TransferListingModal({
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                ref={dialogRef} tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title-transfer-listing"
-                className="glass-panel w-full max-w-lg overflow-hidden border-white/10 shadow-2xl relative"
+                className="glass-panel w-full max-w-lg max-h-[calc(100dvh-6rem)] overflow-y-auto border-white/10 shadow-2xl relative"
             >
                 {/* Header Pattern */}
-                <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
+                <div className="absolute top-0 left-0 right-0 h-32 bg-linear-to-b/srgb from-primary/10 to-transparent pointer-events-none" />
                 <div className="absolute top-0 right-0 p-4 z-10">
                     <button onClick={onClose} aria-label="Close dialog" className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-full transition-all group">
                         <X size={20} className="text-white/40 group-hover:text-white" />
                     </button>
                 </div>
 
-                <div className="relative z-10 p-8 flex flex-col items-center text-center">
+                <div className="relative z-10 p-6 flex flex-col items-center text-center">
                     {/* Icon Circle */}
                     <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-2xl ${isListed ? 'bg-red-500/20 border border-red-500/30' : 'bg-emerald-500/20 border border-emerald-500/30'}`}>
                         {isListed ? (
@@ -85,7 +89,7 @@ export function TransferListingModal({
                                 </Badge>
                             </div>
                             <div className="text-xs text-muted-foreground mt-0.5">
-                                Market Value: <span className="text-emerald-400 font-bold">${(estimatedValue / 1000).toFixed(0)}k</span>
+                                Market Value: <span className="text-emerald-400 font-bold">{formatCurrency(estimatedValue)}</span>
                             </div>
                         </div>
                         <div className="text-right">
@@ -101,7 +105,7 @@ export function TransferListingModal({
                                     <div className="text-left">
                                         <div className="text-[10px] text-muted-foreground uppercase font-normal tracking-widest mb-1">Asking Price</div>
                                         <div className="text-3xl font-normal text-white leading-none">
-                                            ${(askingPrice / 1000).toFixed(0)}k
+                                            {formatCurrency(askingPrice)}
                                         </div>
                                     </div>
                                     <Badge

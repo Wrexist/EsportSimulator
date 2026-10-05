@@ -60,19 +60,18 @@ interface BulkActionsBarProps<T> {
  * />
  */
 export function BulkActionsBar<T>({
-    items,
+    items: _items,
     selectedItems,
-    onSelectItem,
-    onSelectAll,
+    onSelectItem: _onSelectItem,
+    onSelectAll: _onSelectAll,
     onDeselectAll,
-    getItemId,
+    getItemId: _getItemId,
     actions,
     className
 }: BulkActionsBarProps<T>) {
     const [loading, setLoading] = useState(false)
 
     const selectedCount = selectedItems.size
-    const allSelected = items.length > 0 && selectedCount === items.length
 
     const handleAction = useCallback(async (action: typeof actions[0]) => {
         const selectedIds = Array.from(selectedItems)

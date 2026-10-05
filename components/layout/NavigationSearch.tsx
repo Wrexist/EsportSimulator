@@ -44,7 +44,7 @@ export function NavigationSearch({ collapsed, disabled }: { collapsed: boolean; 
                 <DialogTitle className="sr-only">Go to a game screen</DialogTitle>
                 <DialogDescription className="sr-only">Search destinations. Use arrow keys to select and Enter to navigate.</DialogDescription>
                 <Command className="bg-transparent">
-                    <CommandInput aria-label="Search game screens" placeholder="Where would you like to go?" className="h-14 rounded-xl focus-visible:!outline-2 focus-visible:!-outline-offset-4 focus-visible:!shadow-none" />
+                    <CommandInput aria-label="Search game screens" placeholder="Where would you like to go?" className="h-14 rounded-xl focus-visible:outline-2! focus-visible:-outline-offset-4! focus-visible:shadow-none!" />
                     <CommandList className="max-h-[min(55vh,420px)] p-2" aria-busy={isPending}>
                         <CommandEmpty>No screens found. Try squad, finances or training.</CommandEmpty>
                         {[...menuGroups, { label: "Preferences", items: [settingsItem] }].map(group =>

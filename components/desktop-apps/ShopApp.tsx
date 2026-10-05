@@ -14,6 +14,7 @@ import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { toast } from "@/lib/toast"
 import { EQUIPMENT_CATALOG, EQUIPMENT_TYPE_DISPLAY, EquipmentType } from "@/engine/equipment-manager"
 
+import { formatCurrency } from "@/lib/utils-extended"
 export function ShopApp() {
     const { purchaseEquipment } = useGameStore(useShallow(state => ({
         purchaseEquipment: state.purchaseEquipment,
@@ -122,7 +123,7 @@ export function ShopApp() {
                 <div className="p-4 bg-black/60 border-t border-white/5">
                     <div className="flex justify-between items-center text-[10px] text-white/50">
                         <span>Weekly Cost</span>
-                        <span className="text-white font-mono">${((team.equipment?.reduce((acc, curr) => acc + curr.weeklyCost, 0)) || 0).toLocaleString()}</span>
+                        <span className="text-white font-mono">{formatCurrency(((team.equipment?.reduce((acc, curr) => acc + curr.weeklyCost, 0)) || 0), "$", false)}</span>
                     </div>
                 </div>
             </div>
@@ -151,7 +152,7 @@ export function ShopApp() {
                                         "group flex flex-col sm:flex-row rounded-xl border transition-all duration-300 overflow-hidden relative",
                                         isOwned
                                             ? "bg-emerald-950/20 border-emerald-500/30 ring-1 ring-emerald-500/20"
-                                            : "bg-white/[0.03] border-white/5 hover:border-white/20 hover:bg-white/[0.05]"
+                                            : "bg-white/3 border-white/5 hover:border-white/20 hover:bg-white/5"
                                     )}
                                 >
                                     {/* Left: Image */}
@@ -163,6 +164,7 @@ export function ShopApp() {
                                                     item.tier === 2 ? "bg-blue-500 text-white" : "bg-neutral-700 text-white"
                                             )}>TIER {item.tier}</Badge>
                                         </div>
+                                        {/* eslint-disable-next-line @next/next/no-img-element -- percentage max-size artwork with unknown intrinsic size; images.unoptimized */}
                                         <img
                                             src={equipmentArtwork(item.type, item.tier, item.imagePath || "/team_placeholder.webp")}
                                             alt={item.name}
@@ -203,7 +205,7 @@ export function ShopApp() {
 
                                             <div>
                                                 <div className="text-[10px] uppercase tracking-wider text-white/40 font-bold mb-1">Upkeep</div>
-                                                <div className="text-lg font-mono text-white/80">${item.weeklyCost}<span className="text-[10px] text-white/40 ml-1">/wk</span></div>
+                                                <div className="text-lg font-mono text-white/80">{formatCurrency(item.weeklyCost, "$", false)}<span className="text-[10px] text-white/40 ml-1">/wk</span></div>
                                             </div>
                                         </div>
 
@@ -218,7 +220,7 @@ export function ShopApp() {
                                                     <div className="flex flex-col">
                                                         <span className="text-[10px] text-white/40 uppercase tracking-wider">Price</span>
                                                         <span className={cn("text-xl font-normal font-mono leading-none", canAfford ? "text-white" : "text-red-400")}>
-                                                            ${(item.purchaseCost / 1000).toFixed(item.purchaseCost % 1000 === 0 ? 0 : 1)}k
+                                                            {formatCurrency(item.purchaseCost)}
                                                         </span>
                                                     </div>
                                                     <Button

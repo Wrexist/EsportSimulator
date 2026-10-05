@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { PlayerCard } from "@/components/ui/PlayerCard"
 import { StatTile } from "@/src/components/ui/StatTile"
 import { panelTransition } from "@/lib/motion"
+import { useFocusTrap } from "@/lib/accessibility"
+import { formatCurrency } from "@/lib/utils-extended"
 
 interface SeasonRecapModalProps {
     isOpen: boolean
@@ -28,6 +30,7 @@ interface SeasonRecapModalProps {
 }
 
 export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapModalProps) {
+    const dialogRef = useFocusTrap(isOpen, onClose)
     if (!isOpen) return null
 
     const winRate = stats.wins + stats.losses > 0
@@ -50,10 +53,11 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                     initial="initial"
                     animate="animate"
                     exit="exit"
+                    ref={dialogRef} tabIndex={-1}
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title-season-recap"
-                    className="relative w-full max-w-4xl max-h-[calc(100dvh-2rem)] liquid-panel rounded-xl overflow-y-auto overscroll-contain"
+                    className="relative w-full max-w-4xl max-h-[calc(100dvh-8rem)] liquid-panel rounded-xl overflow-y-auto overscroll-contain"
                 >
                     {/* Background Effects */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -82,7 +86,7 @@ export function SeasonRecapModal({ isOpen, onClose, year, stats }: SeasonRecapMo
                             <div className="md:col-span-2 grid grid-cols-2 gap-4">
                                 <StatTile size="lg" label="Trophies Won" tone="warning" icon={Trophy} value={stats.trophies} />
                                 <StatTile size="lg" label={`Win Rate (${stats.wins}-${stats.losses})`} tone="success" icon={TrendingUp} value={`${winRate}%`} />
-                                <StatTile size="lg" label="Budget Growth" tone="brand" icon={DollarSign} value={`$${(stats.budgetGrowth / 1000).toFixed(0)}k`} />
+                                <StatTile size="lg" label="Budget Growth" tone="brand" icon={DollarSign} value={formatCurrency(stats.budgetGrowth)} />
                                 <StatTile size="lg" label="Weeks Active" icon={Users} value={stats.weeksActive ?? 52} />
                             </div>
 

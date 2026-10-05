@@ -1,0 +1,119 @@
+{
+  "recordedAt": "2026-10-04T11:27:07.194Z",
+  "statement": "Exclude imported third-party lineups from the shipped game, keep owner-authored content.",
+  "decision": "exclude-third-party-lineups-ship-owner-content",
+  "supersedes": "docs/launch-readiness/evidence/L31-OWNER-LINEUP-RELEASE-DECISION.json",
+  "context": "Owner reversed the 2026-09-16 \"Ship everything\" lineup decision: no upstream redistribution permission exists for the imported CS2Nades lineups (audit A15). Removed records were archived, not deleted; source URLs were not stripped from retained content.",
+  "excluded": {
+    "disposition": "excluded-from-1.0-base-game",
+    "provider": "CS2Nades",
+    "archive": "raw-data/archived-lineups/cs2nades-2026-10-04.json",
+    "draftArchive": "raw-data/archived-lineups/drafts-2026-10-04",
+    "libraryLineups": 628,
+    "libraryUnplaced": 16,
+    "draftLineups": 1556,
+    "draftFiles": 16,
+    "archiveShipped": false,
+    "archiveNote": "raw-data/ is outside package.json build.files and is not imported by app code."
+  },
+  "limitations": [
+    "Remaining radar outlines and map derivatives keep their prior map-use basis; this is not a new license.",
+    "Existing player saves that already hold imported lineups keep them as user data; the game no longer adds them.",
+    "Applies only to listed exact bytes."
+  ],
+  "files": [
+    {
+      "path": "data/map-studio-library.json",
+      "sha256": "8d05040f772e70ed35bae28bd0b03ab9b5c5fc39f4e35fb27be54981f5179592",
+      "bytes": 42534
+    },
+    {
+      "path": "public/map-studio/drafts/ancient-upper-native.json",
+      "sha256": "de6bfa72963ce9aed9a4ae4aee4292d9260035e6ad1b710196c7f97df580e8e7",
+      "bytes": 21643
+    },
+    {
+      "path": "public/map-studio/drafts/anubis-upper-native.json",
+      "sha256": "4e458a5ad9893f2a8f400f5a015d90c434304a36422a43715c307c0ef6a7bc12",
+      "bytes": 97975
+    },
+    {
+      "path": "public/map-studio/drafts/inferno-upper-native.json",
+      "sha256": "3fd3d885091dc2fc535aa594da8efb8639aff7753da506ddba8b5f731d73b51d",
+      "bytes": 32302
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-registered-review.json",
+      "sha256": "d9f5b33de56136b36306bcb47988facc05769c097f784d303fa005fb1471a190",
+      "bytes": 30902
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-areas-2026-09-13.json",
+      "sha256": "b275e73fe02f2e98de63f81008504437a038ab910b117e7d9ec4b336a0352bfa",
+      "bytes": 28733
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v12-2026-09-13.json",
+      "sha256": "edaa3674551a29f8cc6f5915b36287550cf29fc8bed1bba55addc6f41fd7de0d",
+      "bytes": 43466
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-user-v13-2026-09-22.json",
+      "sha256": "d2184a2f6fca9cea79cb4c0a6f8567d8b3a7f78ae3dabff7434bc7e4343efef9",
+      "bytes": 31439
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v12-with-reference-routes.json",
+      "sha256": "0ea049c56a0ef2e7e354798792a2cb1f8cffda2a104ebca692e12bedfd2ae716",
+      "bytes": 117017
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-native-sites.json",
+      "sha256": "28ad67e0b18829a0b9cb517e0761436bbfbce456566171cfb9429010b210b5c6",
+      "bytes": 46051
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-repaired.json",
+      "sha256": "83a24f049e2e1202228315b6120230ce1d5e644837a1b4df4b05ab03fc478930",
+      "bytes": 32774
+    },
+    {
+      "path": "public/map-studio/drafts/mirage-v13-with-reference-routes.json",
+      "sha256": "273ed0113920b877593caa963700976fdebba166374fbf49291261c7ff4a6542",
+      "bytes": 105469
+    },
+    {
+      "path": "public/map-studio/drafts/nuke-upper-native.json",
+      "sha256": "ac66f4191b04899a9752e43ed95dae741c34093e6b2303f737ebe0ef229698cd",
+      "bytes": 25578
+    },
+    {
+      "path": "public/map-studio/drafts/overpass-upper-native.json",
+      "sha256": "8e3f9012253612a099ec70014b2ef45482e8eccd2bfb6d9769d3f7ee65681608",
+      "bytes": 30231
+    },
+    {
+      "path": "public/map-studio/drafts/sandstone-upper-native.json",
+      "sha256": "05b923d0f28e9b4b66dc90f66aa702455f130145c9ce572baa1271e0f1866bfa",
+      "bytes": 25125
+    },
+    {
+      "path": "public/map-studio/drafts/vertigo-upper-native.json",
+      "sha256": "73deb8e258fdeac20fad5fb52167ea68dc9d5f384f636545043106b311c74764",
+      "bytes": 29119
+    },
+    {
+      "path": "public/map-studio/teams/map-pool/mirage.lab.json",
+      "sha256": "6960e4cc9bdbd75a387e3be0327c6e4845ce0309dc648803ffc77cc790c6b19d",
+      "bytes": 54665
+    }
+  ],
+  "alsoUpdated": [
+    {
+      "path": "NOTICE.md",
+      "sha256": "e69172caf06b10d5fd3bae8f41e0a09cae490f0fa509c398faee1d381ee5e61f",
+      "bytes": 3037,
+      "note": "Project-authored notice; release basis unchanged (L31-PROJECT-CONTENT-REVIEW), not covered by this decision."
+    }
+  ]
+}

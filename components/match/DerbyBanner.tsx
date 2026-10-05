@@ -25,7 +25,7 @@ export function DerbyBanner({ homeTeam, awayTeam }: { homeTeam?: TeamSaveData; a
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="mx-auto mb-3 flex w-fit items-center gap-2.5 rounded-full border px-4 py-1.5 backdrop-blur-sm"
+            className="mx-auto mb-3 flex w-fit items-center gap-2.5 rounded-full border px-4 py-1.5 backdrop-blur-xs"
             style={{
                 color: accent,
                 borderColor: `${accent}55`,

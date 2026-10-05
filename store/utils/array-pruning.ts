@@ -5,6 +5,7 @@
  */
 
 import { ARRAY_CAPS } from "@/engine/constants"
+import { compactFinanceLedger } from "@/engine/processors/save-compactor"
 export { ARRAY_CAPS }
 
 /**
@@ -25,6 +26,7 @@ export function pruneGameState(state: {
   completedMatches: any[]
   eventsLog: any[]
   financeLedger: any[]
+  playerTeamId?: string | null
   transferHistory: any[]
   newsFeed: any[]
   academyMatchHistory?: any[]
@@ -37,7 +39,7 @@ export function pruneGameState(state: {
     state.eventsLog = state.eventsLog.slice(-ARRAY_CAPS.eventsLog)
   }
   if (state.financeLedger.length > ARRAY_CAPS.financeLedger) {
-    state.financeLedger = state.financeLedger.slice(-ARRAY_CAPS.financeLedger)
+    state.financeLedger = compactFinanceLedger(state.financeLedger, state.playerTeamId, ARRAY_CAPS.financeLedger)
   }
   if (state.transferHistory.length > ARRAY_CAPS.transferHistory) {
     state.transferHistory = state.transferHistory.slice(-ARRAY_CAPS.transferHistory)

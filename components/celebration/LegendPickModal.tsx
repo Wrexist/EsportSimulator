@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Trophy, Star, Crown, Zap } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
@@ -9,10 +9,12 @@ import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { formatRole } from "@/lib/utils-extended"
+import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import type { LegendPickData } from "@/engine/save-types"
 import { panelTransition } from "@/lib/motion"
+import { useFocusTrap } from "@/lib/accessibility"
+import { LEGEND_CONTRACT_WEEKS, LEGEND_MIN_RUNWAY_WEEKS, quoteLegendSigning } from "@/lib/legend-signing"
 
 interface LegendPickModalProps {
     data: LegendPickData
@@ -20,12 +22,27 @@ interface LegendPickModalProps {
 }
 
 export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
-    const { players } = useGameStore(useShallow(state => ({
+    const { players, teams, contracts, staff, currentWeek, playerTeamId, academyPlayers, clearLegendPick } = useGameStore(useShallow(state => ({
         players: state.players,
+        teams: state.teams,
+        contracts: state.contracts,
+        staff: state.staff,
+        currentWeek: state.currentWeek,
+        playerTeamId: state.playerTeamId,
+        academyPlayers: state.academyPlayers,
+        clearLegendPick: state.clearLegendPick,
     })))
     const [selectedId, setSelectedId] = useState<string | null>(null)
+    // The legend's wage is the real cost of this reward; show it and refuse a
+    // signing the club can't carry (selectLegend enforces the same rule).
+    const quote = useMemo(() => selectedId
+        ? quoteLegendSigning({ players, teams, contracts, staff, currentWeek, playerTeamId, academyPlayers }, selectedId)
+        : null, [selectedId, players, teams, contracts, staff, currentWeek, playerTeamId, academyPlayers])
+    const canSign = !!selectedId && (quote?.affordable ?? true)
     const [confirmed, setConfirmed] = useState(false)
     const [mounted, setMounted] = useState(false)
+    // Escape is not a close path; "Decline" is the explicit way out.
+    const dialogRef = useFocusTrap(mounted)
 
     const candidates = data.candidates
         .map(id => players.find(p => p.id === id))
@@ -49,7 +66,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
     }, [])
 
     const handleConfirm = () => {
-        if (!selectedId) return
+        if (!selectedId || !canSign) return
         setConfirmed(true)
         // Big celebration confetti
         for (let i = 0; i < 3; i++) {
@@ -84,17 +101,18 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                     initial="initial"
                     animate="animate"
                     exit="exit"
+                    ref={dialogRef} tabIndex={-1}
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title-legend-pick"
-                    className="relative z-10 w-full max-w-5xl mx-4"
+                    className="relative z-10 w-full max-w-5xl mx-4 py-4 max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain"
                 >
                     {/* Header */}
                     <motion.div
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="text-center mb-8"
+                        className="text-center mb-4 [@media(min-height:800px)]:mb-8"
                     >
                         <div className="flex items-center justify-center gap-3 mb-3">
                             <Trophy className="text-amber-400" size={28} />
@@ -113,7 +131,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
 
                     {/* Legend Cards */}
                     {!confirmed && (
-                        <div className="grid grid-cols-3 gap-6 mb-8">
+                        <div className="grid grid-cols-3 gap-6 mb-4 [@media(min-height:800px)]:mb-8">
                             {candidates.map((legend, i) => (
                                 <motion.div
                                     key={legend.id}
@@ -123,6 +141,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                 >
                                     <button
                                         onClick={() => setSelectedId(legend.id)}
+                                        aria-pressed={selectedId === legend.id}
                                         className={cn(
                                             "w-full text-left rounded-xl transition-[border-color,box-shadow] duration-100 ease-out overflow-hidden group relative glass-card active:scale-[0.99] active:duration-0",
                                             selectedId === legend.id
@@ -132,11 +151,11 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                     >
                                         {/* Card background glow on select */}
                                         {selectedId === legend.id && (
-                                            <div className="absolute inset-0 bg-gradient-to-b from-amber-300/[0.08] to-transparent pointer-events-none" />
+                                            <div className="absolute inset-0 bg-linear-to-b/srgb from-amber-300/8 to-transparent pointer-events-none" />
                                         )}
 
                                         {/* Portrait area */}
-                                        <div className="relative h-48 bg-gradient-to-b from-white/[0.03] to-transparent flex items-center justify-center">
+                                        <div className="relative h-36 [@media(min-height:800px)]:h-48 bg-linear-to-b/srgb from-white/3 to-transparent flex items-center justify-center">
                                             <div className="w-28 h-28 rounded-xl bg-white/5 overflow-hidden shadow-2xl">
                                                 <PlayerPortrait src={legend.portraitPath} seed={legend.id} alt={legend.nickname} size={112} variant="hero" />
                                             </div>
@@ -206,7 +225,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                             <motion.div
                                                 initial={{ scaleX: 0 }}
                                                 animate={{ scaleX: 1 }}
-                                                className="h-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500"
+                                                className="h-1 bg-linear-to-r/srgb from-amber-500 via-yellow-400 to-amber-500"
                                             />
                                         )}
                                     </button>
@@ -240,18 +259,35 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                             transition={{ delay: 0.8 }}
                             className="text-center"
                         >
-                            <button
-                                onClick={handleConfirm}
-                                disabled={!selectedId}
-                                className={cn(
-                                    "px-12 py-4 rounded-lg text-lg font-bold uppercase tracking-wider transition-colors duration-100 ease-out select-none touch-manipulation will-change-transform active:scale-[0.97] active:duration-0",
-                                    selectedId
-                                        ? "bg-amber-300 text-black hover:bg-amber-200 shadow-glass-soft"
-                                        : "bg-white/5 text-white/40 cursor-not-allowed"
-                                )}
-                            >
-                                {selectedId ? `Sign ${candidates.find(c => c.id === selectedId)?.nickname}` : "Select a Legend"}
-                            </button>
+                            {quote && (
+                                <p role="status" className={cn("mb-3 text-sm", quote.affordable ? "text-white/60" : "text-amber-300")}>
+                                    Wage {formatCurrency(quote.salary, "$", false)}/week for {LEGEND_CONTRACT_WEEKS / 52} years.{" "}
+                                    {quote.weeklyNet >= 0
+                                        ? "Your club stays cash-positive."
+                                        : `Cash lasts about ${quote.runwayWeeks} weeks at the new rate.`}
+                                    {!quote.affordable && ` You need at least ${LEGEND_MIN_RUNWAY_WEEKS} weeks of cover to sign.`}
+                                </p>
+                            )}
+                            <div className="flex flex-wrap items-center justify-center gap-3">
+                                <button
+                                    onClick={handleConfirm}
+                                    disabled={!canSign}
+                                    className={cn(
+                                        "px-12 py-4 rounded-lg text-lg font-bold uppercase tracking-wider transition-colors duration-100 ease-out select-none touch-manipulation will-change-transform active:scale-[0.97] active:duration-0",
+                                        canSign
+                                            ? "bg-amber-300 text-black hover:bg-amber-200 shadow-glass-soft"
+                                            : "bg-white/5 text-white/40 cursor-not-allowed"
+                                    )}
+                                >
+                                    {selectedId ? `Sign ${candidates.find(c => c.id === selectedId)?.nickname}` : "Select a Legend"}
+                                </button>
+                                <button
+                                    onClick={clearLegendPick}
+                                    className="px-6 py-4 rounded-lg text-sm font-bold uppercase tracking-wider border border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
+                                >
+                                    Decline
+                                </button>
+                            </div>
                         </motion.div>
                     )}
                 </motion.div>

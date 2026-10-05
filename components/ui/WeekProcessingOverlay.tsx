@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react"
 import { useGameStore } from "@/store/game-store"
 import { Trophy, Frown, Newspaper, ArrowRight, Sparkles } from "lucide-react"
+import { useFocusTrap } from "@/lib/accessibility"
+import type { WeekProgressPhase } from "@/store/types"
 
 /**
  * Full-screen overlay for week advancement. Two phases:
@@ -15,21 +17,27 @@ import { Trophy, Frown, Newspaper, ArrowRight, Sparkles } from "lucide-react"
  * CSS-driven too for consistency.
  */
 
-const PROCESSING_STAGES = [
-  "Simulating matches",
-  "Resolving standings",
-  "Processing transfers",
-  "Updating finances",
-  "Tallying rankings",
+// The real stages of advanceWeek, in order. The list marks the stage the
+// store reports (weekProgress); it never animates through stages that have not
+// happened (L27.A2). Long careers spend seconds in "simulating" and "saving".
+const PROCESSING_STAGES: { phase: WeekProgressPhase; label: string }[] = [
+  { phase: "preparing", label: "Preparing the week" },
+  { phase: "simulating", label: "Simulating matches and the world" },
+  { phase: "applying", label: "Applying results" },
+  { phase: "saving", label: "Saving your career" },
 ]
 
 export function WeekProcessingOverlay() {
   const isLoading = useGameStore(s => s.isLoading)
+  const weekProgress = useGameStore(s => s.weekProgress)
   const weekReveal = useGameStore(s => s.weekReveal)
   const dismissWeekReveal = useGameStore(s => s.dismissWeekReveal)
   const continueRef = useRef<HTMLButtonElement>(null)
 
   const showReveal = !isLoading && !!weekReveal
+  // Trap Tab inside the review and return focus to the trigger (usually the
+  // Advance button) on dismiss. Enter/Space/Escape are handled below.
+  const dialogRef = useFocusTrap(showReveal, dismissWeekReveal)
 
   useEffect(() => {
     if (!showReveal) return
@@ -70,23 +78,25 @@ export function WeekProcessingOverlay() {
             Advancing week
           </p>
 
-          {/* Stage pipeline */}
-          <div className="flex w-full flex-col gap-2.5">
-            {PROCESSING_STAGES.map((stage, i) => (
-              <div
-                key={stage}
-                className="esm-stage flex items-center gap-3"
-                style={{ animationDelay: `${i * 0.55}s` }}
-              >
-                <span className="esm-stage-dot h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-                <span className="text-xs font-medium text-white/70">{stage}</span>
-              </div>
-            ))}
-          </div>
+          {/* Stage list: done / current / pending, driven by the store's real stage */}
+          <ol className="flex w-full flex-col gap-2.5" aria-label="Week advancement stages">
+            {PROCESSING_STAGES.map((stage, i) => {
+              const current = Math.max(0, PROCESSING_STAGES.findIndex(s => s.phase === weekProgress))
+              const state = i < current ? "done" : i === current ? "current" : "pending"
+              return (
+                <li key={stage.phase} className="flex items-center gap-3" aria-current={state === "current" ? "step" : undefined}>
+                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${state === "pending" ? "bg-white/20" : "bg-cyan-300"} ${state === "current" ? "esm-stage-dot" : ""}`} />
+                  <span className={`text-xs font-medium ${state === "current" ? "text-white" : state === "done" ? "text-white/60" : "text-white/35"}`}>
+                    {stage.label}{state === "done" ? " (done)" : ""}
+                  </span>
+                </li>
+              )
+            })}
+          </ol>
 
           {/* Indeterminate bar */}
-          <div className="relative h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
-            <div className="esm-bar absolute inset-y-0 w-1/3 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500" />
+          <div className="relative h-1 w-full overflow-hidden rounded-full bg-white/6">
+            <div className="esm-bar absolute inset-y-0 w-1/3 rounded-full bg-linear-to-r/srgb from-cyan-400 to-blue-500" />
           </div>
         </div>
 
@@ -100,12 +110,8 @@ export function WeekProcessingOverlay() {
             mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
             animation: esmSpin 1.1s linear infinite;
           }
-          .esm-stage {
-            animation: esmStage 2.75s ease-in-out infinite;
-          }
           .esm-stage-dot {
-            animation: esmDot 2.75s ease-in-out infinite;
-            animation-delay: inherit;
+            animation: esmDot 1.4s ease-in-out infinite;
           }
           .esm-bar {
             animation: esmBar 1.5s ease-in-out infinite;
@@ -116,10 +122,6 @@ export function WeekProcessingOverlay() {
           }
           @keyframes esmSpin {
             to { transform: rotate(360deg); }
-          }
-          @keyframes esmStage {
-            0%, 100% { opacity: 0.35; }
-            12%, 26% { opacity: 1; }
           }
           @keyframes esmDot {
             0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
@@ -140,12 +142,13 @@ export function WeekProcessingOverlay() {
 
     return (
       <div
+        ref={dialogRef} tabIndex={-1}
         className="fixed inset-0 z-overlay flex items-center justify-center bg-black/72 backdrop-blur-md"
         role="dialog"
         aria-modal="true"
         aria-label={`Week ${week} review`}
       >
-        <div className="esm-pop flex max-h-[80vh] w-[420px] flex-col rounded-2xl liquid-panel p-7">
+        <div className="esm-pop flex max-h-[80vh] w-[min(420px,calc(100vw-2rem))] flex-col rounded-2xl liquid-panel p-7">
           {/* Header */}
           <div className="esm-head mb-5 flex flex-col gap-1">
             <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-300/80">
@@ -168,7 +171,7 @@ export function WeekProcessingOverlay() {
                   ? "border-emerald-400/25 bg-emerald-400/[0.07]"
                   : item.tone === "loss"
                     ? "border-rose-400/25 bg-rose-400/[0.07]"
-                    : "border-white/[0.08] bg-white/[0.03]"
+                    : "border-white/8 bg-white/3"
               const iconColor =
                 item.tone === "win"
                   ? "text-emerald-300"
@@ -199,7 +202,7 @@ export function WeekProcessingOverlay() {
           <button
             ref={continueRef}
             onClick={dismissWeekReveal}
-            className="esm-continue mt-5 flex items-center justify-center gap-2 rounded-lg premium-white-action py-2.5 text-sm font-semibold uppercase tracking-wide text-white transition-transform hover:scale-[1.015] focus:outline-none focus:ring-2 focus:ring-cyan-300/60"
+            className="esm-continue mt-5 flex items-center justify-center gap-2 rounded-lg premium-white-action py-2.5 text-sm font-semibold uppercase tracking-wide text-white transition-transform hover:scale-[1.015] focus:outline-hidden focus:ring-2 focus:ring-cyan-300/60"
             style={{ animationDelay: `${continueDelay}s` }}
           >
             Continue

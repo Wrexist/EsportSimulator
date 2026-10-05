@@ -127,12 +127,17 @@ export interface WeekRevealData {
   items: WeekRevealItem[]
 }
 
+/** Stages advanceWeek actually passes through, in order (L27.A2 truthful progress). */
+export type WeekProgressPhase = "preparing" | "simulating" | "applying" | "saving"
+
 export interface UIState {
   theme: "crystal" | "onyx"
   availableEquipment: EquipmentItem[]
   toasts: { id: string; message: string; type: "level_up" | "xp_gain" | "achievement" | "info" | "warning" | "error"; duration?: number }[]
   pendingCelebration: CelebrationData | null
   weekReveal: WeekRevealData | null
+  /** Current real stage of a week advance (transient, never saved). */
+  weekProgress: WeekProgressPhase | null
   pendingSeasonRecap: number | null
   pendingLegendPick: LegendPickData | null
   legendaryPlayers: PlayerSaveData[]
@@ -227,7 +232,7 @@ export interface MatchActions extends PhysicalPreviewActions {
   scheduleScrim: (opponentId: string, week: number, day?: number) => { success: boolean, message: string }
   scheduleActivity: (activity: ActivitySaveData) => { success: boolean, message: string }
   updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
-  simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<void>
+  simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
   saveMatchResult: (matchId: string, result: MatchResult) => void
   performVODReview: (matchId: string) => void
   performMentalReset: (matchId?: string) => void
@@ -304,6 +309,8 @@ export interface UIActions {
 
 export interface SettingsActions {
   reviewGuideStep: (step: import('@/lib/first-session').FirstSessionStep) => void
+  /** Record guide steps proven by career state (roster change, played result, week advance). */
+  syncFirstSession: () => void
   completeOnboarding: () => void
   completeTutorial: () => void
   triggerTutorial: () => void

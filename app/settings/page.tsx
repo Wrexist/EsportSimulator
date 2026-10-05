@@ -69,6 +69,7 @@ type SettingsTab = "SETTINGS" | "DEV_TOOLS" | "ACHIEVEMENTS"
 
 export default function SettingsPage() {
   const hasCareer = useGameStore(state => !!state.saveId)
+  const careerLoaded = useGameStore(state => state.isInitialized && !!state.playerTeamId)
   const devToolsEnabled = isDevToolsEnabled()
   const {
     saveGame, deleteAllSaves, soundEnabled, setSoundEnabled, showTutorialOnNewGame, setShowTutorialOnNewGame,
@@ -267,10 +268,11 @@ export default function SettingsPage() {
 
   const handleReplayTutorial = () => {
     // Replay guidance without resetting the career or changing new-game preferences.
+    if (!careerLoaded) return
     useGameStore.getState().triggerTutorial()
     toast({
-      title: "Tutorial Ready",
-      description: "The first-session guide is available again. Your squad, cash and results are unchanged.",
+      title: "Guide restarted",
+      description: "The first-session checklist is back on Home. Your squad, cash and results are unchanged.",
     })
   }
 
@@ -321,7 +323,7 @@ export default function SettingsPage() {
   // Three filters in series, recomputed on every tab click / settings
   // change / dialog open. Achievements is bounded but the page re-renders
   // a lot — coalesce into one pass via useMemo.
-  const { visibleAchievements, unlockedAchievements, lockedAchievements } = useMemo(() => {
+  const { unlockedAchievements, lockedAchievements } = useMemo(() => {
     const visible = showHidden
       ? achievements
       : achievements.filter(a => !a.hidden || a.unlocked)
@@ -419,7 +421,7 @@ export default function SettingsPage() {
                 <CardDescription>Window, resolution, UI scale, and motion</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Window Mode</p>
                     <p className="text-xs text-muted-foreground">Fullscreen, Windowed, or Borderless</p>
@@ -435,14 +437,14 @@ export default function SettingsPage() {
                       ;(window as any).electron?.window?.setFullscreen?.(fs)
                       toast({ title: "Display Mode Changed", description: `Window mode set to ${mode}` })
                     }}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-primary/50"
                   >
                     <option value="windowed" className="bg-[#1a1f2e]">Windowed</option>
                     <option value="borderless" className="bg-[#1a1f2e]">Borderless</option>
                     <option value="fullscreen" className="bg-[#1a1f2e]">Fullscreen</option>
                   </select>
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Resolution</p>
                     <p className="text-xs text-muted-foreground">Applied when not in fullscreen/borderless</p>
@@ -450,14 +452,14 @@ export default function SettingsPage() {
                   <select
                     value={resolution}
                     onChange={(e) => { setResolution(e.target.value as any); applyWindowSettings() }}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-primary/50"
                   >
                     <option value="1920x1080" className="bg-[#1a1f2e]">1920 × 1080</option>
                     <option value="1600x900" className="bg-[#1a1f2e]">1600 × 900</option>
                     <option value="1280x720" className="bg-[#1a1f2e]">1280 × 720</option>
                   </select>
                 </div>
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-sm font-bold text-white">UI Scale</p>
@@ -473,7 +475,7 @@ export default function SettingsPage() {
                     className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
                   />
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Reduced Motion</p>
                     <p className="text-xs text-muted-foreground">Disables transitions and decorative animations</p>
@@ -495,7 +497,7 @@ export default function SettingsPage() {
                 <CardDescription>Master, music, and SFX levels</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div className="flex items-center gap-3">
                     {soundEnabled ? (
                       <Volume2 className="h-5 w-5 text-primary" />
@@ -509,7 +511,7 @@ export default function SettingsPage() {
                   </div>
                   <Switch checked={soundEnabled} onCheckedChange={setSoundEnabled} />
                 </div>
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-bold text-white">Master Volume</p>
                     <span className="text-xs text-muted-foreground">{masterVolumeS}%</span>
@@ -522,7 +524,7 @@ export default function SettingsPage() {
                     className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
                   />
                 </div>
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-bold text-white">Music Volume</p>
                     <span className="text-xs text-muted-foreground">{musicVolumeS}%</span>
@@ -535,7 +537,7 @@ export default function SettingsPage() {
                     className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
                   />
                 </div>
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-bold text-white">SFX Volume</p>
                     <span className="text-xs text-muted-foreground">{sfxVolumeS}%</span>
@@ -563,7 +565,7 @@ export default function SettingsPage() {
                 <CardDescription>Simulation speed, difficulty, auto-save</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Game Speed</p>
                     <p className="text-xs text-muted-foreground">Simulation tick rate</p>
@@ -571,14 +573,14 @@ export default function SettingsPage() {
                   <select
                     value={gameSpeed}
                     onChange={(e) => setGameSpeed(e.target.value as any)}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-primary/50"
                   >
                     <option value="normal" className="bg-[#1a1f2e]">Normal</option>
                     <option value="fast" className="bg-[#1a1f2e]">Fast</option>
                     <option value="very-fast" className="bg-[#1a1f2e]">Very Fast</option>
                   </select>
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Difficulty</p>
                     <p className="text-xs text-muted-foreground">{hasCareer ? "Saved with this career" : "Start or load a career to change difficulty"}</p>
@@ -587,7 +589,7 @@ export default function SettingsPage() {
                     value={difficulty || "normal"}
                     disabled={!hasCareer}
                     onChange={(e) => setDifficulty(e.target.value as any)}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-primary/50"
                   >
                     <option value="easy" className="bg-[#1a1f2e]">Easy</option>
                     <option value="normal" className="bg-[#1a1f2e]">Normal</option>
@@ -595,14 +597,14 @@ export default function SettingsPage() {
                     <option value="legendary" className="bg-[#1a1f2e]">Legendary</option>
                   </select>
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Auto-Save</p>
                     <p className="text-xs text-muted-foreground">Automatically save game progress</p>
                   </div>
                   <Switch checked={autoSave} onCheckedChange={setAutoSave} />
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Auto-Save Interval</p>
                     <p className="text-xs text-muted-foreground">How often the game writes a background save</p>
@@ -611,7 +613,7 @@ export default function SettingsPage() {
                     value={autoSaveInterval}
                     onChange={(e) => setAutoSaveInterval(parseInt(e.target.value))}
                     disabled={!autoSave}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
                   >
                     <option value={2} className="bg-[#1a1f2e]">Every 2 min</option>
                     <option value={5} className="bg-[#1a1f2e]">Every 5 min</option>
@@ -620,21 +622,21 @@ export default function SettingsPage() {
                     <option value={30} className="bg-[#1a1f2e]">Every 30 min</option>
                   </select>
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Notifications</p>
                     <p className="text-xs text-muted-foreground">Show in-game event notifications</p>
                   </div>
                   <Switch checked={notifications} onCheckedChange={setNotifications} />
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Show Tutorial on New Game</p>
-                    <p className="text-xs text-muted-foreground">Display the tutorial guide when starting a new career</p>
+                    <p className="text-xs text-muted-foreground">Show the first-session checklist on Home when starting a new career</p>
                   </div>
                   <Switch checked={showTutorialOnNewGame} onCheckedChange={setShowTutorialOnNewGame} />
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Bug Report Button</p>
                     <p className="text-xs text-muted-foreground">Show floating bug report button on screen</p>
@@ -656,7 +658,7 @@ export default function SettingsPage() {
                 <CardDescription>Colorblind palettes and high-contrast mode</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div>
                     <p className="text-sm font-bold text-white">Colorblind / Contrast Mode</p>
                     <p className="text-xs text-muted-foreground">Adjust colors for color vision deficiency, or switch to high contrast</p>
@@ -667,7 +669,7 @@ export default function SettingsPage() {
                       const val = e.target.value
                       setColorblindMode(val)
                     }}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-primary/50"
                   >
                     <option value="off" className="bg-[#1a1f2e]">Off</option>
                     <option value="colorblind-deuteranopia" className="bg-[#1a1f2e]">Deuteranopia (Red-Green)</option>
@@ -701,7 +703,7 @@ export default function SettingsPage() {
                     <h3 className="text-xs uppercase tracking-widest text-white/40 font-medium">{group.label}</h3>
                     <div className="space-y-1.5">
                       {group.shortcuts.map((shortcut) => (
-                        <div key={shortcut.description + shortcut.keys.join("+")} className="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/[0.03] border border-white/5">
+                        <div key={shortcut.description + shortcut.keys.join("+")} className="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/3 border border-white/5">
                           <span className="text-sm text-white/70">{shortcut.description}</span>
                           <div className="flex items-center gap-1 shrink-0">
                             {shortcut.keys.map((key, i) => (
@@ -736,7 +738,7 @@ export default function SettingsPage() {
                 <CardDescription>Save files, import/export, clear data</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="p-4 rounded-2xl bg-white/3 border border-white/5">
                   <p className="text-sm font-bold text-white mb-1">Save Location</p>
                   <p className="text-xs text-muted-foreground break-all font-mono">
                     {saveLocation ?? "Browser storage (IndexedDB)"}
@@ -909,7 +911,7 @@ export default function SettingsPage() {
                 <CardDescription>Audio and tutorial settings</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/3 border border-white/5">
                   <div className="flex items-center gap-3">
                     {soundEnabled ? (
                       <Volume2 className="h-5 w-5 text-primary" />
@@ -929,12 +931,15 @@ export default function SettingsPage() {
 
                 <Button
                   onClick={handleReplayTutorial}
+                  disabled={!careerLoaded}
+                  aria-describedby="replay-guide-hint"
                   variant="outline"
                   className="w-full h-12 bg-white/5 border-white/10 hover:bg-white/10 rounded-xl"
                 >
                   <Info className="mr-2 h-4 w-4" />
                   Replay Tutorial Guide
                 </Button>
+                <p id="replay-guide-hint" className="text-xs text-muted-foreground">{careerLoaded ? "Restarts the five-step first-session checklist for this career. Steps need new actions; nothing in the career is reset." : "Load a career to replay its first-session guide."}</p>
               </CardContent>
             </Card>
 
@@ -1018,13 +1023,13 @@ export default function SettingsPage() {
                 {/* Achievements Summary Card */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Progress Card — Liquid Glass */}
-                  <div className="md:col-span-2 rounded-[24px] p-[1px] bg-gradient-to-br from-amber-400/20 via-white/[0.06] to-amber-400/5">
+                  <div className="md:col-span-2 rounded-[24px] p-px bg-linear-to-br/srgb from-amber-400/20 via-white/6 to-amber-400/5">
                     <div className="relative rounded-[23px] bg-[#0e1217]/80 backdrop-blur-2xl p-8 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] via-transparent to-transparent pointer-events-none" />
-                      <div className="absolute -top-16 -right-16 w-48 h-48 bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
+                      <div className="absolute inset-0 bg-linear-to-br/srgb from-white/4 via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl pointer-events-none" />
                       <div className="relative z-10 space-y-5">
                         <div className="flex items-center gap-3">
-                          <div className="p-2.5 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 text-amber-400 border border-amber-500/10">
+                          <div className="p-2.5 rounded-2xl bg-linear-to-br/srgb from-amber-500/20 to-orange-500/10 text-amber-400 border border-amber-500/10">
                             <Trophy className="h-5 w-5" />
                           </div>
                           <div>
@@ -1037,9 +1042,9 @@ export default function SettingsPage() {
                             <p className="text-3xl font-light text-white tracking-tight">{achievementsProgress.percentage}<span className="text-lg text-white/30">%</span></p>
                             <p className="text-[11px] font-medium text-white/30 uppercase tracking-wider">{achievementsProgress.unlocked} / {achievementsProgress.total}</p>
                           </div>
-                          <div className="h-2 bg-white/[0.04] rounded-full overflow-hidden border border-white/[0.04]">
+                          <div className="h-2 bg-white/4 rounded-full overflow-hidden border border-white/4">
                             <motion.div
-                              className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-orange-400 rounded-full shadow-lg shadow-amber-500/20"
+                              className="h-full bg-linear-to-r/srgb from-amber-500 via-amber-400 to-orange-400 rounded-full shadow-lg shadow-amber-500/20"
                               initial={{ width: 0 }}
                               animate={{ width: `${achievementsProgress.percentage}%` }}
                               transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
@@ -1051,9 +1056,9 @@ export default function SettingsPage() {
                   </div>
 
                   {/* Milestones Card — Liquid Glass */}
-                  <div className="rounded-[24px] p-[1px] bg-gradient-to-br from-white/[0.08] to-white/[0.02]">
+                  <div className="rounded-[24px] p-px bg-linear-to-br/srgb from-white/8 to-white/2">
                     <div className="relative rounded-[23px] bg-[#0e1217]/80 backdrop-blur-2xl p-6 overflow-hidden flex flex-col justify-center items-center text-center h-full">
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 bg-linear-to-br/srgb from-white/3 via-transparent to-transparent pointer-events-none" />
                       <div className="relative z-10 flex justify-end w-full mb-4">
                         <Button
                           variant="ghost"
@@ -1065,7 +1070,7 @@ export default function SettingsPage() {
                           {showHidden ? "Hide Secret" : "Show Secret"}
                         </Button>
                       </div>
-                      <div className="relative z-10 p-4 rounded-full bg-gradient-to-br from-primary/20 to-cyan-500/10 text-primary mb-3 border border-primary/10">
+                      <div className="relative z-10 p-4 rounded-full bg-linear-to-br/srgb from-primary/20 to-cyan-500/10 text-primary mb-3 border border-primary/10">
                         <Award className="h-8 w-8" />
                       </div>
                       <h3 className="relative z-10 font-semibold text-white uppercase tracking-tight text-lg">Milestones</h3>
@@ -1108,13 +1113,13 @@ export default function SettingsPage() {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             transition={{ delay: i * 0.04, type: "spring", stiffness: 300, damping: 30 }}
                           >
-                            <div className="relative group rounded-[20px] p-[1px] bg-gradient-to-br from-emerald-400/30 via-cyan-400/20 to-emerald-400/10 hover:from-emerald-400/50 hover:via-cyan-400/30 hover:to-emerald-400/20 transition-all duration-500">
+                            <div className="relative group rounded-xl p-px bg-linear-to-br/srgb from-emerald-400/30 via-cyan-400/20 to-emerald-400/10 hover:from-emerald-400/50 hover:via-cyan-400/30 hover:to-emerald-400/20 transition-all duration-500">
                               <div className="relative rounded-[19px] bg-[#0e1217]/80 backdrop-blur-2xl p-5 flex items-start gap-4 overflow-hidden">
                                 {/* Glass highlight */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.06] via-transparent to-transparent pointer-events-none" />
+                                <div className="absolute inset-0 bg-linear-to-br/srgb from-white/6 via-transparent to-transparent pointer-events-none" />
                                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/20 transition-colors duration-700" />
                                 {/* Icon */}
-                                <div className="relative z-10 p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 text-emerald-400 border border-emerald-500/10 shadow-lg shadow-emerald-500/5 group-hover:scale-110 group-hover:shadow-emerald-500/20 transition-all duration-300">
+                                <div className="relative z-10 p-3 rounded-2xl bg-linear-to-br/srgb from-emerald-500/20 to-cyan-500/10 text-emerald-400 border border-emerald-500/10 shadow-lg shadow-emerald-500/5 group-hover:scale-110 group-hover:shadow-emerald-500/20 transition-all duration-300">
                                   {getAchievementIcon(achievement.id)}
                                 </div>
                                 {/* Content */}
@@ -1146,14 +1151,14 @@ export default function SettingsPage() {
                             transition={{ delay: i * 0.03, type: "spring", stiffness: 300, damping: 30 }}
                           >
                             <div className={cn(
-                              "relative group rounded-[20px] p-[1px] bg-gradient-to-br from-white/[0.08] to-white/[0.02] hover:from-white/[0.12] hover:to-white/[0.04] transition-all duration-500",
+                              "relative group rounded-xl p-px bg-linear-to-br/srgb from-white/8 to-white/2 hover:from-white/12 hover:to-white/4 transition-all duration-500",
                               achievement.hidden && "opacity-50"
                             )}>
                               <div className="relative rounded-[19px] bg-[#0e1217]/90 backdrop-blur-2xl p-5 flex items-start gap-4 overflow-hidden">
                                 {/* Glass highlight */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-transparent pointer-events-none" />
+                                <div className="absolute inset-0 bg-linear-to-br/srgb from-white/3 via-transparent to-transparent pointer-events-none" />
                                 {/* Icon */}
-                                <div className="relative z-10 p-3 rounded-2xl bg-white/[0.04] border border-white/[0.06] text-white/20 group-hover:text-white/30 transition-colors duration-300">
+                                <div className="relative z-10 p-3 rounded-2xl bg-white/4 border border-white/6 text-white/20 group-hover:text-white/30 transition-colors duration-300">
                                   {achievement.hidden ? <Lock className="h-6 w-6" /> : getAchievementIcon(achievement.id)}
                                 </div>
                                 {/* Content */}

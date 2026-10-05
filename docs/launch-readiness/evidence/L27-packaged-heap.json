@@ -1,0 +1,473 @@
+{
+  "version": 1,
+  "label": "heap",
+  "mode": "session",
+  "recordedAt": "2026-10-04T06:04:38.831Z",
+  "exe": "C:\\Users\\IsacC\\EsportSimulator\\.claude\\worktrees\\agent-acb33cc169983db07\\tmp\\l27\\app-before\\EsportsManager.exe",
+  "exeMtime": "2026-10-04T04:59:34.694Z",
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "logicalCpus": 16,
+    "ramBytes": 34087550976,
+    "os": "Windows_NT 10.0.26200"
+  },
+  "realProfileUntouched": true,
+  "routes": [
+    {
+      "route": "/squad",
+      "ms": 141.9
+    },
+    {
+      "route": "/training",
+      "ms": 121.4
+    },
+    {
+      "route": "/schedule",
+      "ms": 115.4
+    },
+    {
+      "route": "/transfers",
+      "ms": 74.9
+    },
+    {
+      "route": "/tournaments",
+      "ms": 107.2
+    },
+    {
+      "route": "/finances",
+      "ms": 222.2
+    },
+    {
+      "route": "/desktop",
+      "ms": 144.8
+    },
+    {
+      "route": "/",
+      "ms": 242
+    },
+    {
+      "route": "/squad",
+      "ms": 124.7
+    },
+    {
+      "route": "/training",
+      "ms": 104.6
+    },
+    {
+      "route": "/schedule",
+      "ms": 125.2
+    },
+    {
+      "route": "/transfers",
+      "ms": 91.4
+    },
+    {
+      "route": "/tournaments",
+      "ms": 135.4
+    },
+    {
+      "route": "/finances",
+      "ms": 64.9
+    },
+    {
+      "route": "/desktop",
+      "ms": 55
+    },
+    {
+      "route": "/",
+      "ms": 181.2
+    },
+    {
+      "route": "/squad",
+      "ms": 105.2
+    },
+    {
+      "route": "/training",
+      "ms": 71.1
+    },
+    {
+      "route": "/schedule",
+      "ms": 111.9
+    },
+    {
+      "route": "/transfers",
+      "ms": 77.2
+    },
+    {
+      "route": "/tournaments",
+      "ms": 169.1
+    },
+    {
+      "route": "/finances",
+      "ms": 56.1
+    },
+    {
+      "route": "/desktop",
+      "ms": 54.5
+    },
+    {
+      "route": "/",
+      "ms": 209.5
+    }
+  ],
+  "weeks": [
+    {
+      "week": 79,
+      "ownMatchFlowMs": 935,
+      "toNextWeekShownMs": 2581,
+      "toControlsEnabledMs": 4280,
+      "longTaskCount": 10,
+      "longTaskTotalMs": 2783,
+      "longestTaskMs": 1367
+    },
+    {
+      "week": 80,
+      "ownMatchFlowMs": 257,
+      "toNextWeekShownMs": 2812,
+      "toControlsEnabledMs": 3850,
+      "longTaskCount": 6,
+      "longTaskTotalMs": 2522,
+      "longestTaskMs": 1368
+    },
+    {
+      "week": 81,
+      "ownMatchFlowMs": 185,
+      "toNextWeekShownMs": 2424,
+      "toControlsEnabledMs": 3519,
+      "longTaskCount": 6,
+      "longTaskTotalMs": 2194,
+      "longestTaskMs": 1213
+    },
+    {
+      "week": 82,
+      "ownMatchFlowMs": 170,
+      "toNextWeekShownMs": 2494,
+      "toControlsEnabledMs": 3592,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 1999,
+      "longestTaskMs": 1188
+    },
+    {
+      "week": 83,
+      "ownMatchFlowMs": 207,
+      "toNextWeekShownMs": 2132,
+      "toControlsEnabledMs": 3453,
+      "longTaskCount": 5,
+      "longTaskTotalMs": 1798,
+      "longestTaskMs": 973
+    },
+    {
+      "week": 84,
+      "ownMatchFlowMs": 272,
+      "toNextWeekShownMs": 2289,
+      "toControlsEnabledMs": 3462,
+      "longTaskCount": 5,
+      "longTaskTotalMs": 1969,
+      "longestTaskMs": 1161
+    },
+    {
+      "week": 85,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 2376,
+      "toControlsEnabledMs": 3574,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 1847,
+      "longestTaskMs": 1165
+    },
+    {
+      "week": 86,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 2501,
+      "toControlsEnabledMs": 3676,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 2007,
+      "longestTaskMs": 1275
+    }
+  ],
+  "samples": [
+    {
+      "at": "loaded",
+      "week": 79,
+      "jsHeapUsedMB": 30.9,
+      "jsHeapTotalMB": 32.3,
+      "domNodes": 8382,
+      "jsEventListeners": 651,
+      "documents": 1,
+      "frames": 1,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    },
+    {
+      "at": "after-3-route-cycles",
+      "week": 79,
+      "jsHeapUsedMB": 34.9,
+      "jsHeapTotalMB": 35.8,
+      "domNodes": 8383,
+      "jsEventListeners": 820,
+      "documents": 1,
+      "frames": 1,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    }
+  ],
+  "errors": [],
+  "menuInteractiveMs": 2734,
+  "console": [
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\".",
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\".",
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\".",
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\".",
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\".",
+    "error: Creating a worker from 'blob:http://localhost:3000/f7d4bd0d-27db-4be9-901a-cd0665a5bf46' violates the following Content Security Policy directive: \"worker-src 'self'\". The action has been blocked.",
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\".",
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\".",
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\".",
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\".",
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\".",
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\".",
+    "error: Error: <path> attribute d: Expected number, \"…0 30 33 12 57 13Z\"."
+  ],
+  "continueCareerToDashboardMs": 793,
+  "dismissed": 10,
+  "fixtureLog": [
+    {
+      "week": 79,
+      "path": "/match/iem_dallas_s2_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 79,
+      "path": "/match/blast_spring_s2_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 79,
+      "path": "/match/blast_spring_s2_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 80,
+      "path": "/match/blast_spring_s2_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 81,
+      "path": "/match/iem_cologne_s2_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 82,
+      "path": "/match/iem_cologne_s2_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 83,
+      "path": "/match/iem_cologne_s2_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 84,
+      "path": "/match/iem_cologne_s2_r4_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    }
+  ],
+  "domBreakdown": {
+    "total": 6197,
+    "path": "/",
+    "rows": [
+      {
+        "depth": 0,
+        "n": 6157,
+        "label": "body.__variable_401541.font-sans.antialiased.bg-[#0e1217]",
+        "text": "Skip to main content Esports Manager Go to... Ctrl K OVERVIEW Home Inbox Schedul"
+      },
+      {
+        "depth": 1,
+        "n": 6127,
+        "label": "div.premium-app.relative.isolate.flex",
+        "text": "Esports Manager Go to... Ctrl K OVERVIEW Home Inbox Schedule TEAM Squad Training"
+      },
+      {
+        "depth": 2,
+        "n": 5853,
+        "label": "div.flex-1.flex.flex-col.min-h-0",
+        "text": "YOUR CLUB EU Natus Vincera $714,821 Thu, Aug 26, 2027 WEEK 87 WEEKLY Play match "
+      },
+      {
+        "depth": 3,
+        "n": 5784,
+        "label": "main#main-content.min-h-0.flex-1.overflow-x-hidden.relative",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 4,
+        "n": 5783,
+        "label": "div.game-page.px-4.py-4.lg:px-6",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 5,
+        "n": 5782,
+        "label": "div.dashboard.space-y-6",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 6,
+        "n": 5753,
+        "label": "div.dashboard-layout",
+        "text": "LIVE MATCH Next Match CHENGDU MASTERS 2025 A TIER WEEK 87 • DAY 7 NATUS VINC"
+      },
+      {
+        "depth": 7,
+        "n": 5610,
+        "label": "div.space-y-6",
+        "text": "This Week 53 to do NOTIFICATION WK 2 HOST FAN MEETUP (MONEY -2K, REP +5, HYPE +1"
+      },
+      {
+        "depth": 8,
+        "n": 807,
+        "label": "div.glass-card.text-card-foreground.flex.flex-col",
+        "text": "This Week 53 to do NOTIFICATION WK 2 HOST FAN MEETUP (MONEY -2K, REP +5, HYPE +1"
+      },
+      {
+        "depth": 9,
+        "n": 795,
+        "label": "div.px-5.pt-2.space-y-2",
+        "text": "NOTIFICATION WK 2 HOST FAN MEETUP (MONEY -2K, REP +5, HYPE +10) -$2,000 +5 Rep S"
+      },
+      {
+        "depth": 8,
+        "n": 4661,
+        "label": "div.max-h-[max(20rem,calc(100vh-12rem))].overflow-y-auto.pr-3.space-y-2",
+        "text": "MATCH AUG 26 Paravision Dominates Noclear TigeRES PARAVISION Paravision defeats"
+      },
+      {
+        "depth": 9,
+        "n": 4660,
+        "label": "div.space-y-4",
+        "text": "MATCH AUG 26 Paravision Dominates Noclear TigeRES PARAVISION Paravision defeats"
+      }
+    ]
+  },
+  "summary": {
+    "routeMs": {
+      "n": 24,
+      "min": 54.5,
+      "median": 113.7,
+      "mean": 121.1,
+      "sd": 51.7,
+      "p90": 209.5,
+      "max": 242
+    },
+    "routeByPath": {
+      "/": {
+        "n": 3,
+        "min": 181.2,
+        "median": 209.5,
+        "mean": 210.9,
+        "sd": 24.8,
+        "p90": 242,
+        "max": 242
+      },
+      "/desktop": {
+        "n": 3,
+        "min": 54.5,
+        "median": 55,
+        "mean": 84.8,
+        "sd": 42.5,
+        "p90": 144.8,
+        "max": 144.8
+      },
+      "/squad": {
+        "n": 3,
+        "min": 105.2,
+        "median": 124.7,
+        "mean": 123.9,
+        "sd": 15,
+        "p90": 141.9,
+        "max": 141.9
+      },
+      "/training": {
+        "n": 3,
+        "min": 71.1,
+        "median": 104.6,
+        "mean": 99,
+        "sd": 20.9,
+        "p90": 121.4,
+        "max": 121.4
+      },
+      "/schedule": {
+        "n": 3,
+        "min": 111.9,
+        "median": 115.4,
+        "mean": 117.5,
+        "sd": 5.6,
+        "p90": 125.2,
+        "max": 125.2
+      },
+      "/transfers": {
+        "n": 3,
+        "min": 74.9,
+        "median": 77.2,
+        "mean": 81.2,
+        "sd": 7.3,
+        "p90": 91.4,
+        "max": 91.4
+      },
+      "/tournaments": {
+        "n": 3,
+        "min": 107.2,
+        "median": 135.4,
+        "mean": 137.2,
+        "sd": 25.3,
+        "p90": 169.1,
+        "max": 169.1
+      },
+      "/finances": {
+        "n": 3,
+        "min": 56.1,
+        "median": 64.9,
+        "mean": 114.4,
+        "sd": 76.3,
+        "p90": 222.2,
+        "max": 222.2
+      }
+    },
+    "weekToControlsEnabledMs": {
+      "n": 8,
+      "min": 3453,
+      "median": 3583,
+      "mean": 3675.8,
+      "sd": 258.1,
+      "p90": 4280,
+      "max": 4280
+    },
+    "longestTaskMs": {
+      "n": 8,
+      "min": 973,
+      "median": 1200.5,
+      "mean": 1213.8,
+      "sd": 119.8,
+      "p90": 1368,
+      "max": 1368
+    },
+    "longTaskTotalMs": {
+      "n": 8,
+      "min": 1798,
+      "median": 2003,
+      "mean": 2139.9,
+      "sd": 322.5,
+      "p90": 2783,
+      "max": 2783
+    },
+    "ownMatchFlowMs": {
+      "n": 6,
+      "min": 170,
+      "median": 232,
+      "mean": 337.7,
+      "sd": 269.6,
+      "p90": 935,
+      "max": 935
+    }
+  }
+}

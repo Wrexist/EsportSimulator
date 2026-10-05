@@ -23,6 +23,8 @@ import { StaffGenerator } from "../staff-generator"
 import { generateProspect } from "../prospect-generator"
 import { PlayerRole } from "@/types/enums"
 import { logger } from "@/lib/logger"
+import { processFreeAgentMarket, freeAgentScoutingFactor, hashRoll } from "./free-agent-market"
+import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 
 // Flavour backstory fragments so intakes read as distinct scouted talents
 // rather than a wall of identical "Youth Prospect" clones. Picked
@@ -50,8 +52,9 @@ export function processAIWorldLogic(save: GameSave, playerTeamId: string, rng: S
     AIManager.refreshWorldRankings(save)
 
     // 3. Per-team academy scouting + weekly AI decisions
+    const scoutingFactor = freeAgentScoutingFactor(save)
     save.teams.forEach(team => {
-        AIManager.processAcademyScouting(save, team, rng)
+        AIManager.processAcademyScouting(save, team, rng, scoutingFactor)
     })
 
     // Transfer windows: weeks 1-8 (pre-season) and 26-34 (mid-season).
@@ -75,6 +78,9 @@ export function processAIWorldLogic(save: GameSave, playerTeamId: string, rng: S
         AIManager.processSeasonEnd(save)
         generateYouthIntake(save, playerTeamId, rng)
     }
+
+    // 6. Free-agent market clock (wage decay) and long-unsigned retirement.
+    processFreeAgentMarket(save)
 }
 
 /**
@@ -84,9 +90,26 @@ export function processAIWorldLogic(save: GameSave, playerTeamId: string, rng: S
 function generateYouthIntake(save: GameSave, playerTeamId: string, rng: SeededRNG): void {
     logger.debug("[Season End] Generating Youth Prospects...")
 
+    // Pass 2: AI academies used to hold every intake forever (685 active
+    // academy players after ten seasons, outside the free-agent market and
+    // its retirement). Prospects who reach AI_SQUAD_TUNING.ACADEMY_RELEASE_AGE,
+    // or exceed ACADEMY_MAX_PROSPECTS (oldest first), leave as free agents.
+    const byId = new Map(save.players.map(p => [p.id, p]))
+    for (const team of save.teams) {
+        if (team.id === playerTeamId || !team.youthAcademyIds?.length) continue
+        const kept = team.youthAcademyIds.filter(id => { const p = byId.get(id); return !!p && !p.isRetired && (p.age ?? 0) < AI_SQUAD_TUNING.ACADEMY_RELEASE_AGE })
+            .sort((a, b) => (byId.get(a)!.age ?? 0) - (byId.get(b)!.age ?? 0) || a.localeCompare(b))
+        team.youthAcademyIds = kept.slice(0, AI_SQUAD_TUNING.ACADEMY_MAX_PROSPECTS)
+    }
+
+    const intakeFactor = freeAgentScoutingFactor(save)
     save.teams.forEach(team => {
         const trainingFacility = team.facilities?.find(f => f.type === "TRAINING")
         if (!trainingFacility || trainingFacility.level < 3) return
+        // Pass 2: the same free-agent pool feedback as AI scouting, for every
+        // club: while the pool is over target, each club's intake happens with
+        // probability = factor (pure hash roll; the week RNG is untouched).
+        if (intakeFactor < 1 && hashRoll(`youth_intake:${team.id}:${save.currentWeek}`) >= intakeFactor) return
 
         const prospectsToGenerate = trainingFacility.level >= 5 ? 2 : 1
         const isPlayerTeam = team.id === playerTeamId

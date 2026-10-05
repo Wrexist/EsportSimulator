@@ -30,6 +30,7 @@ import {
 import { logger } from "@/lib/logger"
 import { recalculateTeamSynergy } from "./processors/team-synergy-recalc"
 import { recruitmentBudget, recruitmentSalary } from "./recruitment"
+import { freeAgentsBySkill, renewExpiringContracts, upgradeFromFreeAgency } from "./ai/squad-maintenance"
 
 /**
  * AI Manager
@@ -75,11 +76,19 @@ export class AIManager {
     static processWeeklyAI(save: GameSave, playerTeamId: string, rng?: SeededRNG, isTransferWindow: boolean = true) {
         const activeRng = rng ?? new SeededRNG(save.lastRngSeed ?? generateSeed())
         const aiTeams = save.teams.filter(t => t.id !== playerTeamId)
+        // AI_SQUAD_TUNING: renew keepers every week; upgrade from free agency in windows.
+        const playersById = new Map(save.players.map(p => [p.id, p]))
+        const freeAgentPool = isTransferWindow ? freeAgentsBySkill(save) : []
 
         aiTeams.forEach(team => {
             this.adaptTeamStrategy(team, save, activeRng)
+            renewExpiringContracts(team, save, playersById)
             if (isTransferWindow || team.rosterIds.length < 5) {
                 this.manageRoster(team, save)
+            }
+            if (isTransferWindow) {
+                const signed = upgradeFromFreeAgency(team, save, freeAgentPool, playersById)
+                if (signed) freeAgentPool.splice(freeAgentPool.indexOf(signed), 1)
             }
             this.manageFinances(team, save)
             this.considerRoleTraining(team, save, activeRng)
@@ -321,14 +330,15 @@ export class AIManager {
         })
     }
 
-    static processAcademyScouting(save: GameSave, team: TeamSaveData, rng: SeededRNG) {
+    static processAcademyScouting(save: GameSave, team: TeamSaveData, rng: SeededRNG, chanceFactor = 1) {
         // Never auto-manage the player's team — the ai-world-processor loops over
         // ALL teams, and without this guard the player would silently gain an
         // un-consented (and contract-less) prospect on their roster. Mirrors the
         // player-team exclusion every other AI routine already applies.
         if (team.id === save.playerTeamId) return
         // 5% chance per week to discover a youth prospect for AI teams
-        if (rng.next() > 0.05) return
+        // chanceFactor: free-agent pool feedback (FREE_AGENT_TUNING.SCOUTING_FACTOR_MIN).
+        if (rng.next() > 0.05 * chanceFactor) return
         if (team.rosterIds.length >= 7) return // Already have enough players
 
         try {
@@ -410,7 +420,7 @@ export class AIManager {
             // applyRosterChangePenalty would leave the player + roster id
             // committed but the team chemistry penalty unapplied, putting
             // the save in an inconsistent state.
-            const salary = recruitmentSalary(prospectPlayer, save.currentWeek)
+            const salary = recruitmentSalary(prospectPlayer, save.currentWeek, team)
             if (!recruitmentBudget(save, team)(salary)) return
             prospectPlayer.salary = salary
             save.players.push(prospectPlayer)

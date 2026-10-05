@@ -2,6 +2,7 @@
  * Game Constants
  * Centralized constants for game mechanics
  */
+import { ROUND_ECONOMY_TUNING } from "./balance-tuning"
 
 // ============================================
 // TIME
@@ -85,11 +86,13 @@ export const MATCH_CONSTANTS = {
     ELIMINATION_BONUS: 300, // standard kill reward
 
     // Loss bonuses (progressive)
-    LOSS_BONUS_1: 1900,
-    LOSS_BONUS_2: 2400,
-    LOSS_BONUS_3: 2900,
-    LOSS_BONUS_4: 3400,
-    LOSS_BONUS_5: 3400,
+    // ROUND_ECONOMY_TUNING ladder: $1,400 first loss, +$500 per consecutive
+    // loss, capped at $3,400 (was 1900/2400/2900/3400/3400).
+    LOSS_BONUS_1: ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER[0],
+    LOSS_BONUS_2: ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER[1],
+    LOSS_BONUS_3: ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER[2],
+    LOSS_BONUS_4: ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER[3],
+    LOSS_BONUS_5: ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER[4],
 } as const
 
 // ============================================
@@ -291,6 +294,14 @@ export const ARRAY_CAPS = {
     hallOfFame: 500,
     /** Placement-history entries kept inside each per-team circuitPoints entry. */
     circuitPointResults: 60,
+    /**
+     * FPL pick-up match records (fplData.matchHistory). Write-only history:
+     * no simulation or UI code reads it (rankings live in playerStats/
+     * standings). ~28 records/week; uncapped it reached 24 MB of a 44 MB
+     * save by season 10 and pushed saves past the 32 MiB storage limit (L27).
+     * 500 keeps roughly the last 18 weeks.
+     */
+    fplMatchHistory: 500,
 } as const
 
 // ============================================
@@ -326,6 +337,14 @@ export const UTIL_POWER: Record<string, number> = {
     he: 4,
 }
 export const UTIL_POWER_DEFAULT = 1
+/**
+ * L21: a player's grenades saturate toward this equipment-power ceiling
+ * (cap x (1 - e^(-raw/cap))). Raw sums let a full four-grenade plan add ~23
+ * power (≈ +29 pp per round) and win 92% of even BO1s in the paired run.
+ * Saturating: flash+smoke ≈ 6.7, four grenades ≈ 9.0 (a vest is 10), so a
+ * modest plan helps and overbuying mostly costs money.
+ */
+export const UTIL_POWER_CAP = 10
 
 // ============================================
 // PRESTIGE

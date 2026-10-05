@@ -303,7 +303,7 @@ export function HelpSystem() {
                 title="Help & Game Guide"
                 // Stacked above the (conditional) bug-report button at bottom-6
                 // so the two never overlap.
-                className="fixed bottom-24 right-6 rounded-full w-11 h-11 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur shadow-lg z-50"
+                className="fixed bottom-24 right-6 rounded-full w-11 h-11 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-sm shadow-lg z-50"
             >
                 {showPulse && (
                     <span className="absolute inset-0 rounded-full bg-amber-400/40 animate-ping pointer-events-none" aria-hidden="true" />
@@ -374,8 +374,8 @@ export function HelpSystem() {
                                     <h4 className="font-bold mb-2">Quick Tips</h4>
                                     <ul className="text-sm space-y-1 text-muted-foreground">
                                         <li>• Press <kbd className="px-1 rounded bg-white/10">?</kbd> anytime for keyboard shortcuts</li>
-                                        <li>• Replay the full tutorial from <span className="text-white/80 font-medium">Settings → Replay Tutorial</span></li>
-                                        <li>• Auto-save runs every minute</li>
+                                        <li>• Replay the first-session guide from <span className="text-white/80 font-medium">Settings → Replay Tutorial Guide</span></li>
+                                        <li>• Auto-save runs on the interval set in Settings (10 minutes by default); the career also saves after each week</li>
                                     </ul>
                                 </div>
                             </div>

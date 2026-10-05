@@ -22,7 +22,8 @@ interface LiveMatchScoreboardProps {
     bombTime?: number
 }
 
-import { motion, useReducedMotion } from "framer-motion"
+import { motion } from "framer-motion"
+import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { scorePulse } from "@/lib/motion"
 
 // Memoized: live page renders this on every tick (~30-60Hz). Most ticks
@@ -33,7 +34,7 @@ function LiveMatchScoreboardImpl({
     homeTeam,
     awayTeam,
     matchFormat,
-    currentMapId,
+    currentMapId: _currentMapId,
     mapName,
     homeSeriesScore,
     awaySeriesScore,
@@ -55,7 +56,7 @@ function LiveMatchScoreboardImpl({
     const isUrgent = isBombPlanted
         ? displaySeconds <= 10
         : displaySeconds <= 10 && displaySeconds > 0
-    const reduceMotion = useReducedMotion()
+    const reduceMotion = useAppReducedMotion()
 
     /** CT side — cool blue; T side — amber (readability over heavy glow) */
     const homeBorderClass = "border-l-4 border-l-sky-400/45"
@@ -67,7 +68,7 @@ function LiveMatchScoreboardImpl({
             <div className={cn("score-team flex items-center pl-3", homeBorderClass)}>
                 <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center font-normal text-2xl overflow-hidden relative group">
                     <TeamLogoDisplay team={homeTeam} size={40} />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-linear-to-tr/srgb from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <div>
                     <div className="score-team-name uppercase">{homeTeam.name}</div>
@@ -86,7 +87,7 @@ function LiveMatchScoreboardImpl({
             {/* SCORE */}
             <div className="flex flex-col items-center">
                 <div className="score-core flex items-center rounded-xl relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+                    <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r/srgb from-transparent via-white/15 to-transparent" />
 
                     {/* Animated Home Score */}
                     <div className="w-20 text-center relative h-[60px] flex items-center justify-center">

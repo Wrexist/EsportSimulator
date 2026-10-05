@@ -1,5 +1,100 @@
 # L07 — Electron, IPC and local boundaries
 
+## 4 October 2026 packaged smoke (A3 / E10, branch `claude/heap-and-packaged-smoke`)
+
+**16/16 checks pass on a packaged Windows build.** Evidence: [L07-packaged-smoke.json](L07-packaged-smoke.json). Script: `scripts/launch/electron-packaged-smoke.cjs`.
+
+**What was tested.** The LOCAL-QA-ONLY copy of `dist/win-unpacked` (`tmp/l27qa/app`) was used, built from `f9358233` (Electron 44.3.0, Chrome 152).
+- Steam is disabled by `resources/LOCAL-QA-ONLY` (`electron/steam.js`). The script refuses any exe without that marker, and anything under `dist/win-unpacked`.
+- Every launch used a fresh `--user-data-dir` under `tmp/l07-packaged/`.
+- The real %APPDATA% profiles were unchanged (mtime check).
+
+| Check | Result |
+|---|---|
+| Fuses (`@electron/fuses read`) | RunAsNode, EnableNodeOptionsEnvironmentVariable, EnableNodeCliInspectArguments and GrantFileProtocolExtraPrivileges are **Disabled**; OnlyLoadAppFromAsar is **Enabled**. EnableEmbeddedAsarIntegrityValidation stays Disabled (item 6 below). |
+| `ELECTRON_RUN_AS_NODE=1 EsportsManager.exe -e …` | The `-e` code did not run (marker file not written), and nothing answered on stdin. The exe started the normal app instead. Next started in-process, with no `fork`. |
+| `NODE_OPTIONS=--inspect`, `--inspect`, `--inspect-brk` | No inspector port opened. |
+| Listening sockets of the whole process tree (`netstat -ano` by PID, launched without `--remote-debugging-port`) | Only `127.0.0.1:3000` TCP. Connections to the three LAN IPv4 addresses on that port failed. |
+| Loopback server gate | 200 for the app. 403 for a foreign Host, a foreign Origin, and `Sec-Fetch-Site: cross-site`. |
+| Enforced CSP (read from the document's `securitypolicyviolation.originalPolicy`) | The packaged policy from `electron/content-policy.js`: no `unsafe-eval`; frame, object, base, form and ancestors are `'none'`; `connect-src 'self'`. |
+| CSP enforcement in the page | `eval` and `new Function` throw EvalError from page script. A remote `fetch`, an external iframe, a same-origin iframe and a blob worker are all blocked. |
+| Renderer globals | No `require`/`process`/`ipcRenderer`. Only the fixed `window.electron` bridge is exposed. |
+| Popups and links | `window.open` returns null (about:blank and a foreign URL). A foreign `target=_blank` link opens no window. |
+| Navigation | Renderer navigation to `https://untrusted.invalid/` and to `data:` is cancelled; the page stays on `/main-menu`. |
+| Permissions | Notification `denied`, getUserMedia `NotAllowedError`, geolocation denied. |
+| Trusted IPC | A save-namespace write/read round-trips. Rejected: a bad key (`window.fullscreen`), a non-string value, mod path traversal, a `..\..` mod read, and `Infinity` window size. |
+| Same WebContents after an origin change (driver navigates it to a `data:` document; the bridge is still injected) | read → null, write → false, keys → [], mod path → null, clear → false. The sentinel save key survives. |
+
+**Not covered here** (limitations are also listed in the JSON):
+- Same-origin child-frame IPC and a second WebContents cannot be built in the packaged app (`frame-src 'none'`, one window). The unpackaged real-Electron smoke and the handler harness still cover them.
+- Allowlisted external links were not clicked, so the OS browser was not opened.
+- No live Steam SDK or account calls (QA copy).
+- This is the f9358233 build, not a signed release candidate. Rerun it on the final `npm run dist` output, using a LOCAL-QA-ONLY copy.
+
+Probe notes:
+- CDP's `Runtime.evaluate` temporarily allows eval (`allowUnsafeEvalBlockedByCSP`), so the eval probe runs from a page script in a later task.
+- Electron injects the CSP in `onHeadersReceived`, so it does not appear in CDP response headers.
+- `@electron/fuses` 1.8.0 prints an unnamed newer fuse as "undefined is Enabled".
+- The app's own blob-URL worker is refused by `worker-src 'self'` in normal sessions (one console error). It falls back without visible effect; its source has not been traced.
+
+Items 2–5 of "Still required" below are now covered for this build. Items 1 (signed release artifact), 6 and 7 remain.
+
+## 3 October 2026 re-audit (branch `claude/electron-security-hardening`)
+
+**Still partial.** Re-verified the 13 September hardening against current `electron/`, preload, Steam adapter, local server and `app/api/**`. Nothing regressed. The gaps found below are fixed. A1/A2 now have real-Electron evidence (not packaged) that includes a real same-origin child frame. A3 still needs the packaged artifact.
+
+### Findings by severity
+
+| Sev | Finding | Fix |
+|---|---|---|
+| Medium | Packaged exe kept Electron's default fuses. With `ELECTRON_RUN_AS_NODE`, `NODE_OPTIONS` or `--inspect`, the signed Steam executable can run as a generic Node runtime. | `build.electronFuses` in `package.json`: `runAsNode`, `enableNodeOptionsEnvironmentVariable`, `enableNodeCliInspectArguments` and `grantFileProtocolExtraPrivileges` are off; `onlyLoadAppFromAsar` is on. This needs a packaged check (see below). |
+| Medium | The main window called `setWindowOpenHandler` / `will-navigate` a second time after `web-contents-created` had already applied the guard. Electron keeps only the last open handler, so policy depended on handler order. External links (`target=_blank` in Map Studio) were silently dropped. | One source of truth: `renderer-security.js#secureWebContents`, applied to every WebContents. Popups are always denied. A URL that is not the app origin is handed to `external-links.js`, which opens only `https:` URLs to an exact host allowlist (Steam store/community/help and `cs2nades.gg`). It rejects credentials, ports, URLs over 2 KB and suffix spoofs, and throttles to 1 per second. |
+| Low | Any download URL was accepted. Downloads would show a save dialog, including for `data:` or remote URLs. | `secureSession` cancels downloads unless they come from the app origin or one of its `blob:` URLs (Map Studio/lab JSON exports keep working). |
+| Low | Session hardening was main-window-only and missed `setDevicePermissionHandler` (HID/serial/USB). | `secureSession` now also denies device permissions. The permission request/check handlers moved there unchanged. |
+| Low | Renderers created outside `createWindow` relied on their own `sandbox` flag. | `app.enableSandbox()` before ready. |
+| Low | The dev server (`electron:dev`, `dev:all`) bound `next dev` to all interfaces (LAN-reachable in development only). | `-H 127.0.0.1`. |
+| Low | The dev-only `app/api/console-log` printed the renderer-supplied `type` field without filtering control characters, so a crafted value could inject ANSI escapes into the terminal. The route already returns 404 in production and never writes files. | `type` is limited to known labels. |
+| Info | `isAllowedAppNavigation` was called with an unused third argument. | Removed. |
+
+### Re-verified and unchanged
+
+- `webPreferences`: `nodeIntegration:false`, `contextIsolation:true`, `sandbox:true`, `webSecurity:true`, `allowRunningInsecureContent:false`, no webview/subframe Node. Now asserted by a static test.
+- All 41 `ipcMain.handle` channels go through `registerTrustedHandler`. Each one checks the exact WebContents object, that the sender is its main frame, and the app origin on both frame and contents. It also checks arg count/type/size, and fails closed on any exception. There are no `ipcMain.on` listeners.
+- Preload exposes fixed-channel wrappers only; there is no raw `ipcRenderer`, `send` or `sendSync`. Types live in `types/electron-window.d.ts`.
+- Loopback server: `127.0.0.1` only, port 3000–3010 chosen at bind time. The Host/Origin/`Sec-Fetch-Site` gate blocks DNS rebinding and cross-site browser requests.
+- Per-launch token: **not added**. The production HTTP surface has no privileged route. `console-log` returns 404 in production, `/mod-assets` is read-only, GET/HEAD-only and image types only, there are no server actions, and images are unoptimised (no remote fetch). A token would only defend against same-user local processes, which can already read the user-data directory.
+- CSP: unchanged and still applied through `onHeadersReceived`. The packaged CSP has no `unsafe-eval`, plus `frame-src 'none'`, `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'` and `connect-src 'self'`. `unsafe-inline` remains for Next bootstrap and React styles.
+- Save handlers: only the sender/argument wrapper was reviewed. No save internals were changed, because the concurrent save-layout work owns those.
+
+### New evidence
+
+- `__tests__/electron-navigation-guard.test.ts` (40 tests). It covers the external allowlist (positive/negative/throttle/rejecting handler), the navigation guard (popup, main frame, child frame, redirect, webview), and the session guard (permissions, devices, downloads). It also checks the actual `main.js` `web-contents-created` wiring through the handler harness with a mocked `shell`. Further tests run a hostile-argument fuzz across **every** registered channel (it never throws, always returns the fallback, writes no files, mutates no store and causes no prototype pollution), check disposed/destroyed/throwing sender frames, and assert the static webPreferences/preload/CSP/fuses/loopback config.
+- `L07-native-security.json` was regenerated with Electron 44.3.0 from `scripts/launch/electron-security-smoke.cjs`, which now has 9 checks. New checks:
+  - Allowlisted HTTPS links reach the opener; `http:`, foreign hosts and every popup are dropped; `Notification.requestPermission()` returns `denied`.
+  - The app `blob:` export downloads; a `data:` download is cancelled.
+  - Child-frame navigation is cancelled by the guard.
+  - With the navigation layer deliberately removed, a **real same-origin child frame** (`http://localhost:<port>/frame-child`) of the trusted WebContents is denied by every probed handler. These are storage read/write/clear and mod write/install/restore, and the owner sentinel is untouched.
+- Verification (3 Oct):
+  - `npx tsc --noEmit` passes.
+  - `npm run lint` reports 0 warnings and 0 errors.
+  - `npm run build` passes, including the worker check.
+  - Full `npx jest --silent`: 195 suites and 1,886 tests; 1,885 passed.
+  - The one failure was `save-fault-injection.test.ts` › "IndexedDB boundary … quota abort": it hit the default 5 s timeout under full-suite load. It passes in isolation (22/22). That file belongs to the concurrent save work, and this branch does not touch it.
+
+### Still required for acceptance (A3 / E10)
+
+1. Build the real Windows artifact (`npm run dist`, needs the Steam App ID file).
+2. Confirm the fuses were flipped: `npx @electron/fuses read --app dist/win-unpacked/EsportsManager.exe`.
+3. Confirm `ELECTRON_RUN_AS_NODE=1 EsportsManager.exe -e "1"` launches the game rather than a Node REPL.
+4. Confirm Next starts with no `child_process.fork`. `runAsNode:false` breaks `fork` in the main process; none was found in `electron/` or the Next production server path, but only the packaged run proves it.
+5. Rerun the navigation, IPC, local-port (LAN `netstat`: listener on `127.0.0.1` only), CSP and external-link checks on that exact candidate.
+6. `enableEmbeddedAsarIntegrityValidation` stays off until it is validated with `asarUnpack` on Windows.
+7. `cs2nades.gg` in the external allowlist follows owner decision 1. Remove it if the CS2Nades URLs are stripped.
+
+---
+
+## 13 September 2026 baseline
+
 13 September 2026. **Partial; release acceptance remains open.** The implementation and source integration checks are complete. All 41 IPC channels now use a shared sender gate and explicit payload contracts. A real Electron 44 probe verifies trusted and untrusted window behavior; the Windows package itself is still absent because the real Steam App ID file is missing. L06 is also partial, so L07 is not accepted as a release gate.
 
 ## Verified findings and fixes

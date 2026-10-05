@@ -23,7 +23,7 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
 /** Full-width card placeholder — portrait + title + 3-stat row. */
 export function CardSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("rounded-2xl border border-white/10 bg-white/[0.02] p-4 space-y-3", className)}>
+    <div className={cn("rounded-2xl border border-white/10 bg-white/2 p-4 space-y-3", className)}>
       <div className="flex items-center gap-3">
         <Skeleton className="w-12 h-12 rounded-xl" />
         <div className="flex-1 space-y-2">
@@ -60,7 +60,7 @@ export function PlayerCardSkeleton({ className }: { className?: string }) {
 /** StatTile placeholder. */
 export function StatTileSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("rounded-2xl border border-white/5 bg-white/[0.02] p-3 space-y-2", className)}>
+    <div className={cn("rounded-2xl border border-white/5 bg-white/2 p-3 space-y-2", className)}>
       <Skeleton className="h-2 w-16" />
       <Skeleton className="h-7 w-12" />
     </div>

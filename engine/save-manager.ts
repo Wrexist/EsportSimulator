@@ -48,6 +48,9 @@ export type SaveErrorCode =
     | "UNKNOWN"
 
 const TMP_SUFFIX = ".tmp"
+// Unreadable primary bytes are moved here before any recovery replaces them.
+// Shares the backup prefix so explicit career deletion still removes it.
+const CORRUPT_SUFFIX = "_corrupt"
 import { runMigrationLadder } from "./save-migrations"
 import { SaveIntegrityManager } from "./save-integrity"
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
@@ -55,6 +58,7 @@ import { evaluatePlayer } from "./player-evaluation"
 import { generateSeed } from "./rng"
 import { AsyncStorage, asyncStorage } from "./storage-adapter"
 import { steamService } from "./steam-service"
+import { perfTrace } from "./perf-trace"
 import { debug } from "@/lib/debug-logger"
 import { createDefaultTactics } from "./default-tactics"
 
@@ -64,7 +68,10 @@ export class SaveManager {
     private storage: AsyncStorage
     private integrity: SaveIntegrityManager
     private saveChain: Promise<unknown> = Promise.resolve()
-    private lastVerifiedPrimary: { key: string; value: string } | null = null
+    // Length + full-content hash (not the text) of the primary this manager
+    // last wrote and read back. Holding the full serialized save kept a second
+    // copy of the career (about 25 MB by week 52) alive all session (L27.A3).
+    private lastVerifiedPrimary: { key: string; length: number; fingerprint: string } | null = null
 
     constructor(storage: AsyncStorage = asyncStorage) {
         this.storage = storage
@@ -78,10 +85,6 @@ export class SaveManager {
     // Integrity hashing (compute / verify) lives in engine/save-integrity.ts.
     // Routed through `this.integrity` so SaveManager doesn't have to know
     // about WebCrypto fallbacks or v2/v3 signature formats.
-    private computeIntegrityHash(save: Record<string, unknown>): Promise<string> {
-        return this.integrity.computeIntegrityHash(save)
-    }
-
     private verifyIntegrityHash(save: Record<string, unknown>): Promise<boolean> {
         return this.integrity.verifyIntegrityHash(save)
     }
@@ -141,10 +144,11 @@ export class SaveManager {
         try {
             migrated = this.migrateSave(parsed)
         } catch (err) {
+            const fromVersion = typeof parsed.saveVersion === "number" ? parsed.saveVersion : 0
             return {
                 ok: false,
                 error: "CORRUPTED",
-                message: err instanceof Error ? err.message : "Migration failed",
+                message: `Save version ${fromVersion} could not be upgraded to version ${CURRENT_SAVE_VERSION}: ${err instanceof Error ? err.message : "migration failed"}`,
             }
         }
 
@@ -180,6 +184,24 @@ export class SaveManager {
         const tmp = await this.storage.getItem(tmpKey)
         if (tmp !== null) {
             await this.storage.removeItem(tmpKey)
+        }
+    }
+
+    /**
+     * Replace the primary during recovery without destroying what it held.
+     * Differing bytes are copied to <backup>_corrupt first; if that copy
+     * fails, the primary is left untouched, so the old bytes survive either way.
+     */
+    private async replacePrimaryPreserving(key: string, saveId: string, replacement: string): Promise<void> {
+        try {
+            const current = await this.storage.getItem(key)
+            if (current !== null && current !== replacement) {
+                await this.storage.setItem(STORAGE_KEYS.BACKUP_PREFIX + saveId + CORRUPT_SUFFIX, current)
+            }
+            await this.storage.setItem(key, replacement)
+        } catch (error) {
+            // Primary stays as-is; the next verified save retries the replacement.
+            debug.warn("[SaveManager] Could not promote recovered save:", error instanceof Error ? error.message : error)
         }
     }
 
@@ -285,7 +307,9 @@ export class SaveManager {
      */
     async saveGame(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
         // Capture at invocation, before another caller mutates its working state.
+        const cloneStart = perfTrace.now()
         const snapshot = structuredClone(save)
+        perfTrace.step("save.01_clone", cloneStart)
         const operation = this.saveChain.then(() => this.commitSave(snapshot))
         this.saveChain = operation.catch(() => {})
         return operation
@@ -294,6 +318,8 @@ export class SaveManager {
     private async commitSave(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
         try {
             // saveGame captured a detached snapshot before joining the write queue.
+            let stepStart = perfTrace.now()
+            const step = (label: string) => { perfTrace.step(`save.${label}`, stepStart); stepStart = perfTrace.now() }
 
             // Auto-repair common issues before validation
             const repairs = repairSave(save)
@@ -312,7 +338,12 @@ export class SaveManager {
             const schema = validateSaveSchema(save)
             if (!schema.ok) return { success: false, error: schema.issues[0] }
             save.updatedAt = new Date().toISOString()
-            save.integrityHash = await this.computeIntegrityHash(save as unknown as Record<string, unknown>)
+            step("02_repairValidate")
+            // The signed payload is also reused for the stored text below, so
+            // a commit serializes the save once instead of twice (L27).
+            const payload = this.integrity.serializeForIntegrity(save as unknown as Record<string, unknown>)
+            save.integrityHash = await this.integrity.computeIntegrityHashFromPayload(payload)
+            step("03_integrityHash")
 
             const key = STORAGE_KEYS.SAVE_PREFIX + save.saveId
             const tmpKey = key + TMP_SUFFIX
@@ -331,7 +362,10 @@ export class SaveManager {
                 this.storage.getItem(backupKey + "_1"),
                 this.storage.getItem(backupKey + "_2"),
             ])
-            const knownPrimary = this.lastVerifiedPrimary?.key === key && this.lastVerifiedPrimary.value === existing
+            // Length first (free); the full-content hash only when it could match.
+            const known = this.lastVerifiedPrimary
+            const knownPrimary = !!existing && known?.key === key && known.length === existing.length
+                && known.fingerprint === await saveTextFingerprint(existing)
             const previous = existing && !knownPrimary ? await this.parseAndValidateSaveCandidate(existing, save.saveId) : null
             if (previous && !previous.ok && previous.error === "NEWER_VERSION") return { success: false, error: previous.message }
             if (existing && (knownPrimary || previous?.ok)) {
@@ -340,12 +374,21 @@ export class SaveManager {
                 if (backup2Old) await this.storage.setItem(backupKey + "_3", backup2Old)
                 if (backup1Old) await this.storage.setItem(backupKey + "_2", backup1Old)
                 await this.storage.setItem(backupKey + "_1", existing)
+            } else if (existing) {
+                // An unreadable primary (corrupt, or a failed migration) is
+                // kept aside rather than silently overwritten by this save.
+                await this.storage.setItem(backupKey + CORRUPT_SUFFIX, existing)
             }
+            step("04_rotateBackups")
 
             // 2. Atomic write: stage to <key>.tmp first. If we crash between
             //    here and step 4, the existing primary is untouched and the
             //    stale .tmp will be discarded by clearStaleTmp() on next load.
-            const serialized = JSON.stringify(save)
+            const serialized = serializeSignedSave(save, payload)
+            step("05_stringify")
+            // Hash the new primary while the staging/commit writes are in flight
+            // (chunked, so it interleaves with storage I/O). Never rejects.
+            const serializedFingerprint = saveTextFingerprint(serialized)
             await this.storage.setItem(tmpKey, serialized)
 
             // 3. Verify staging succeeded before committing. Concurrent IDB
@@ -389,9 +432,10 @@ export class SaveManager {
             }
 
             await this.storage.removeItem(tmpKey)
+            step("06_writeVerify")
 
             // 4. Update current save ID
-            this.lastVerifiedPrimary = { key, value: serialized }
+            this.lastVerifiedPrimary = { key, length: serialized.length, fingerprint: await serializedFingerprint }
             await this.storage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, save.saveId)
 
             // 5. Upload to Steam Cloud (non-blocking, don't fail save on cloud error)
@@ -400,6 +444,7 @@ export class SaveManager {
             } catch (cloudError) {
                 debug.warn("[SaveManager] Cloud sync failed (save is still local):", cloudError instanceof Error ? cloudError.message : cloudError)
             }
+            step("07_cloud")
 
             // Save size monitoring: warn if approaching storage limits
             const sizeBytes = serialized.length * 2 // UTF-16 encoding
@@ -465,11 +510,14 @@ export class SaveManager {
         error?: string
         errorCode?: SaveErrorCode
         restoredFromBackup?: boolean
+        /** Player-facing account of a backup recovery; set with restoredFromBackup. */
+        recoveryMessage?: string
     }> {
         try {
             const key = STORAGE_KEYS.SAVE_PREFIX + saveId
             const backupKey = STORAGE_KEYS.BACKUP_PREFIX + saveId
             let restoredFromBackup = false
+            let recoveryMessage: string | undefined
 
             // Discard any stale staging file from an interrupted previous write.
             await this.saveChain
@@ -496,6 +544,7 @@ export class SaveManager {
                     if (candidate && (await this.parseAndValidateSaveCandidate(candidate, saveId)).ok) {
                         localData = candidate
                         restoredFromBackup = true
+                        recoveryMessage = "The latest save file was missing, so the most recent valid backup was loaded. Progress since that backup is not included."
                         debug.warn(`Loaded from backup${suffix || " (legacy)"} - primary save was missing`)
                         break
                     }
@@ -598,8 +647,9 @@ export class SaveManager {
                         selected = backupCandidate
                         selectedSource = "local"
                         restoredFromBackup = true
+                        recoveryMessage = `The latest save could not be read (${bestErrorMessage || "unreadable"}), so the most recent valid backup was loaded. Progress since that backup is not included. The unreadable copy was kept.`
                         debug.warn(`Restored from backup${suffix || " (legacy)"} - primary save was corrupted`)
-                        await this.storage.setItem(key, backupData)
+                        await this.replacePrimaryPreserving(key, saveId, backupData)
                         break
                     } else {
                         recordError(backupCandidate)
@@ -619,13 +669,15 @@ export class SaveManager {
                 // Preserve local candidate in backup and promote cloud save as source-of-truth.
                 if (localData && localCandidate.ok) {
                     await this.storage.setItem(backupKey, localData)
+                    await this.storage.setItem(key, cloudData)
+                } else {
+                    await this.replacePrimaryPreserving(key, saveId, cloudData)
                 }
-                await this.storage.setItem(key, cloudData)
             } else if (restoredFromBackup && localCandidate.ok && localData) {
                 await this.storage.setItem(key, localData)
             }
 
-            return { save: selected.migrated, restoredFromBackup: restoredFromBackup || undefined }
+            return { save: selected.migrated, restoredFromBackup: restoredFromBackup || undefined, recoveryMessage: restoredFromBackup ? recoveryMessage : undefined }
         } catch (error) {
             return {
                 save: null,
@@ -687,7 +739,7 @@ export class SaveManager {
                 if (!data) continue
                 const candidate = await this.parseAndValidateSaveCandidate(data, saveId)
                 if (candidate.ok) {
-                    await this.storage.setItem(key, data)
+                    await this.replacePrimaryPreserving(key, saveId, data)
                     debug.warn(`[SaveManager] Recovered save ${saveId} from backup${suffix || " (legacy)"}`)
                     return { save: candidate.migrated }
                 }
@@ -706,7 +758,7 @@ export class SaveManager {
                 if (cloud) {
                     const candidate = await this.parseAndValidateSaveCandidate(cloud, saveId)
                     if (candidate.ok) {
-                        await this.storage.setItem(key, cloud)
+                        await this.replacePrimaryPreserving(key, saveId, cloud)
                         debug.warn(`[SaveManager] Recovered save ${saveId} from Steam Cloud`)
                         return { save: candidate.migrated }
                     }
@@ -761,6 +813,7 @@ export class SaveManager {
             await this.storage.removeItem(backupKey + "_3")
             await this.storage.removeItem(backupKey + "_local")
             await this.storage.removeItem(backupKey + "_cloud")
+            await this.storage.removeItem(backupKey + CORRUPT_SUFFIX)
 
             // Clear current if this was it
             const current = await this.storage.getItem(STORAGE_KEYS.CURRENT_SAVE_ID)
@@ -1187,6 +1240,83 @@ export class SaveManager {
         // IndexedDB doesn't have a strict limited quota like localStorage, but we can return text
         return { used, available: "Unlimited (Disk Based)", saveCount }
     }
+}
+
+/**
+ * Full-content identity of a stored save text, used only to recognise the
+ * primary this manager itself wrote and verified, so the next save can rotate
+ * it into the backups without re-parsing it (L27), without keeping the whole
+ * string alive between saves (L27.A3). Every character is hashed; nothing is
+ * sampled, so any change, including a single character, forces validation.
+ *
+ * SHA-256 (WebCrypto: browser, worker, Node 22/jest) over the raw UTF-16 code
+ * units, in 1 Mi-unit chunks whose digests are then hashed together with the
+ * length. Code units (not UTF-8) make every string, including lone
+ * surrogates, hash exactly, and skip a slow UTF-8 transcode of two-byte save
+ * text. Chunking keeps each main-thread slice to a few ms (the digest itself
+ * runs off-thread in browsers). The value never leaves this process, so the
+ * platform byte order of Uint16Array does not matter.
+ * Runtimes without WebCrypto use a full-length 64-bit FNV-1a over every code
+ * unit. The exact length is part of the result; callers compare it first.
+ */
+export async function saveTextFingerprint(text: string): Promise<string> {
+    const subtle = typeof globalThis.crypto !== "undefined" ? globalThis.crypto.subtle : undefined
+    if (subtle) {
+        try {
+            const CHUNK = 1 << 20
+            const n = text.length
+            const chunkCount = Math.max(1, Math.ceil(n / CHUNK))
+            const digests = new Uint8Array(32 * chunkCount)
+            for (let c = 0; c < chunkCount; c++) {
+                const start = c * CHUNK
+                const end = Math.min(n, start + CHUNK)
+                const units = new Uint16Array(end - start)
+                for (let i = start; i < end; i++) units[i - start] = text.charCodeAt(i)
+                digests.set(new Uint8Array(await subtle.digest("SHA-256", units)), 32 * c)
+            }
+            const root = new Uint8Array(await subtle.digest("SHA-256", digests))
+            let hex = ""
+            for (const byte of root) hex += byte.toString(16).padStart(2, "0")
+            return `${n}:sha256u16:${hex}`
+        } catch {
+            // Full-length fallback below.
+        }
+    }
+    return `${text.length}:fnv64:${fnv1a64Utf16(text)}`
+}
+
+/** FNV-1a (64-bit, as two 32-bit halves) over every UTF-16 code unit. */
+export function fnv1a64Utf16(text: string): string {
+    // 64-bit offset basis 0xcbf29ce484222325, prime 0x100000001b3 (= 2^40 + 0x1b3).
+    // Each code unit is fed as two bytes (low, high). (hi:lo) * prime mod 2^64 is
+    // hi' = hi*0x1b3 + carry(lo*0x1b3) + (lo << 8), lo' = low 32 bits of lo*0x1b3.
+    let hi = 0xcbf29ce4 | 0
+    let lo = 0x84222325 | 0
+    const n = text.length
+    for (let i = 0; i < 2 * n; i++) {
+        const c = text.charCodeAt(i >> 1)
+        lo ^= (i & 1) === 0 ? c & 0xff : c >>> 8
+        const loLo = (lo & 0xffff) * 0x1b3
+        const loHi = (lo >>> 16) * 0x1b3 + (loLo >>> 16)
+        hi = (Math.imul(hi, 0x1b3) + Math.floor(loHi / 0x10000) + (lo << 8)) | 0
+        lo = ((loHi & 0xffff) << 16) | (loLo & 0xffff)
+    }
+    return (hi >>> 0).toString(16).padStart(8, "0") + (lo >>> 0).toString(16).padStart(8, "0")
+}
+
+/**
+ * `JSON.stringify(save)` for a save whose `integrityHash` was just set from
+ * `payload` (= JSON.stringify of the save without that key). When
+ * `integrityHash` is the last own key, the full text is the payload with the
+ * signature appended, so the multi-MB save is not serialized a second time.
+ * Any other key order falls back to JSON.stringify. Output is identical.
+ */
+export function serializeSignedSave(save: { integrityHash?: unknown }, payload: string): string {
+    const keys = Object.keys(save)
+    if (keys[keys.length - 1] === "integrityHash" && typeof save.integrityHash === "string" && payload.length > 2 && payload.endsWith("}")) {
+        return `${payload.slice(0, -1)},"integrityHash":${JSON.stringify(save.integrityHash)}}`
+    }
+    return JSON.stringify(save)
 }
 
 export const saveManager = new SaveManager()

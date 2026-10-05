@@ -11,6 +11,7 @@ import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { AnnualAwards, Top20Player } from "@/engine/pro-awards-engine"
 import { panelTransition } from "@/lib/motion"
+import { useFocusTrap, pressable } from "@/lib/accessibility"
 
 interface ProAwardsModalProps {
     isOpen: boolean
@@ -22,6 +23,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
     const [revealedCount, setRevealedCount] = useState(0)
     const [isRevealing, setIsRevealing] = useState(false)
     const [selectedPlayer, setSelectedPlayer] = useState<Top20Player | null>(null)
+    const dialogRef = useFocusTrap(isOpen && !!awards, onClose)
 
     // Reset reveal state when modal opens
     useEffect(() => {
@@ -89,16 +91,16 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                         exit="exit"
                         className="fixed inset-4 md:inset-8 lg:inset-12 top-20 z-modal flex items-center justify-center"
                     >
-                        <div role="dialog" aria-modal="true" aria-labelledby="modal-title-pro-awards" className="w-full max-w-5xl max-h-full liquid-panel rounded-xl overflow-hidden flex flex-col">
+                        <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="modal-title-pro-awards" className="w-full max-w-5xl max-h-full liquid-panel rounded-xl overflow-hidden flex flex-col">
 
                             {/* Header */}
                             <div className="p-6 bg-white/[0.035] border-b border-white/10 relative overflow-hidden shrink-0">
                                 {/* Sparkle Effects */}
-                                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-200/40 to-transparent pointer-events-none" />
+                                <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r/srgb from-transparent via-amber-200/40 to-transparent pointer-events-none" />
 
                                 <div className="flex items-center justify-between relative z-10">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-lg bg-amber-300/14 border border-amber-200/25 flex items-center justify-center shadow-glass-soft">
+                                        <div className="w-16 h-16 rounded-lg border border-amber-200/25 flex items-center justify-center shadow-glass-soft">
                                             <Trophy size={32} className="text-amber-200" />
                                         </div>
                                         <div>
@@ -144,14 +146,14 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: index * 0.03 }}
-                                                onClick={() => setSelectedPlayer(player)}
+                                                {...pressable(() => setSelectedPlayer(player), { pressed: selectedPlayer?.playerId === player.playerId })}
                                                 className={cn(
                                                     "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-[background-color,box-shadow] duration-100 ease-out select-none touch-manipulation will-change-transform active:scale-[0.99] active:duration-0",
                                                     selectedPlayer?.playerId === player.playerId
-                                                        ? "bg-gradient-to-r " + getTierColor(player.rank) + " ring-1 ring-amber-500/50"
+                                                        ? "bg-linear-to-r/srgb " + getTierColor(player.rank) + " ring-1 ring-amber-500/50"
                                                         : player.rank <= 3
-                                                            ? "bg-gradient-to-r " + getTierColor(player.rank) + " hover:ring-1 hover:ring-white/20"
-                                                            : "bg-white/[0.03] hover:bg-white/[0.06] border border-white/5",
+                                                            ? "bg-linear-to-r/srgb " + getTierColor(player.rank) + " hover:ring-1 hover:ring-white/20"
+                                                            : "bg-white/3 hover:bg-white/6 border border-white/5",
                                                     player.isPlayerTeam && "ring-2 ring-primary/50"
                                                 )}
                                             >
@@ -159,11 +161,11 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                 <div className={cn(
                                                     "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg shrink-0",
                                                     player.rank === 1
-                                                        ? "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg"
+                                                        ? "bg-linear-to-br/srgb from-amber-500 to-orange-600 text-white shadow-lg"
                                                         : player.rank === 2
-                                                            ? "bg-gradient-to-br from-gray-300 to-gray-500 text-gray-900"
+                                                            ? "bg-linear-to-br/srgb from-gray-300 to-gray-500 text-gray-900"
                                                             : player.rank === 3
-                                                                ? "bg-gradient-to-br from-amber-700 to-amber-900 text-amber-200"
+                                                                ? "bg-linear-to-br/srgb from-amber-700 to-amber-900 text-amber-200"
                                                                 : "bg-white/10 text-white/60"
                                                 )}>
                                                     {player.rank === 1 ? <Crown size={20} /> : `#${player.rank}`}
@@ -294,7 +296,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                     </div>
                                                 </div>
                                                 {selectedPlayer.majorWins > 0 && (
-                                                    <div className="p-3 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/10 border border-amber-500/30 flex items-center gap-3">
+                                                    <div className="p-3 rounded-lg bg-linear-to-r/srgb from-amber-500/20 to-orange-500/10 border border-amber-500/30 flex items-center gap-3">
                                                         <Crown size={24} className="text-amber-400" />
                                                         <div>
                                                             <p className="font-bold text-amber-300">{selectedPlayer.majorWins}x Major Champion</p>

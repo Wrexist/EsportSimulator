@@ -68,6 +68,7 @@ import {
 import { getVisibleStats, formatScoutedRating, scoutedRatingSortValue } from "@/engine/scouting-system"
 import { ReportCoverage } from "@/components/scouting/ReportCoverage"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface SnapshotPlayer {
     id: string
     name: string
@@ -363,10 +364,7 @@ export default function ScoutingPage() {
 
     const roles = ["ALL", "AWPER", "IGL", "ENTRY", "SUPPORT", "RIFLER", "LURKER"]
 
-    const formatPrice = (value: number) => {
-        if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
-        return `$${(value / 1000).toFixed(0)}k`
-    }
+    const formatPrice = (value: number) => formatCurrency(value)
 
     const toggleRegion = (region: string) => {
         setSelectedRegions(prev =>
@@ -1208,7 +1206,7 @@ export default function ScoutingPage() {
                                                         </div>
                                                         <div className="text-right">
                                                             <p className="text-[10px] font-bold text-primary">Week {t.week}</p>
-                                                            {t.fee > 0 && <p className="text-[10px] text-white/50">${t.fee.toLocaleString()}</p>}
+                                                            {t.fee > 0 && <p className="text-[10px] text-white/50">{formatCurrency(t.fee, "$", false)}</p>}
                                                         </div>
                                                     </div>
                                                 ))
@@ -1398,7 +1396,7 @@ export default function ScoutingPage() {
                                                                 </div>
                                                                 <div className="text-right">
                                                                     <p className="text-[10px] font-bold text-emerald-400">
-                                                                        {t.fee > 0 ? `$${t.fee.toLocaleString()}` : "FREE"}
+                                                                        {t.fee > 0 ? `${formatCurrency(t.fee, "$", false)}` : "FREE"}
                                                                     </p>
                                                                     <p className="text-[10px] text-white/30">Week {t.week}</p>
                                                                 </div>

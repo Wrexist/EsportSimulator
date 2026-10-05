@@ -1,0 +1,93 @@
+{
+  "before": "before",
+  "after": "nocap",
+  "columns": "[before, after, %change]",
+  "rows": [
+    {
+      "scenario": "early",
+      "weeksCompared": 32,
+      "identical": {
+        "rng": true,
+        "fullState": true,
+        "stateExceptFplHistory": true,
+        "fplHistoryNewest200": true
+      },
+      "firstFullStateDifference": null,
+      "timing": {
+        "weekWallMedian": [
+          1146.5,
+          493.6,
+          -56.9
+        ],
+        "mainThreadMedian": [
+          784.6,
+          279.8,
+          -64.3
+        ],
+        "computeMedian": [
+          302.4,
+          187.5
+        ],
+        "commitMedian": [
+          351.4,
+          6.1
+        ],
+        "saveMedian": [
+          324.1,
+          190.7
+        ],
+        "primaryChars": [
+          13803849,
+          10734997
+        ],
+        "loadGameMedian": [
+          714.5,
+          540.3
+        ]
+      }
+    },
+    {
+      "scenario": "late",
+      "weeksCompared": 8,
+      "identical": {
+        "rng": true,
+        "fullState": true,
+        "stateExceptFplHistory": true,
+        "fplHistoryNewest200": true
+      },
+      "firstFullStateDifference": null,
+      "timing": {
+        "weekWallMedian": [
+          4066.9,
+          2130.2,
+          -47.6
+        ],
+        "mainThreadMedian": [
+          3107.1,
+          1609.3,
+          -48.2
+        ],
+        "computeMedian": [
+          940.9,
+          475.5
+        ],
+        "commitMedian": [
+          1490.3,
+          11.5
+        ],
+        "saveMedian": [
+          1115.5,
+          754.9
+        ],
+        "primaryChars": [
+          44746185,
+          44380360
+        ],
+        "loadGameMedian": [
+          "Save payload exceeds 32 MiB (got 42.7 MiB) — refusing to parse",
+          "Save payload exceeds 32 MiB (got 42.3 MiB) — refusing to parse"
+        ]
+      }
+    }
+  ]
+}

@@ -236,7 +236,7 @@ export function BugReportButton() {
       setShowDebug(false)
       setErrors({})
       setOpen(false)
-    } catch (err) {
+    } catch {
       toast({
         title: "Copy Failed",
         description: "Could not copy to clipboard. Please try again.",
@@ -269,7 +269,7 @@ export function BugReportButton() {
         </div>
 
         {/* Hover tooltip */}
-        <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg bg-black/80 backdrop-blur-sm border border-white/10 text-xs text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+        <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg bg-black/80 backdrop-blur-xs border border-white/10 text-xs text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
           Report a Bug
         </div>
       </button>
@@ -281,7 +281,7 @@ export function BugReportButton() {
           onPaste={handleScreenshotPaste}
         >
           {/* Header */}
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/5 flex-shrink-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/5 shrink-0">
             <DialogTitle className="flex items-center gap-3 text-lg font-normal">
               <div className="p-2 rounded-xl bg-red-500/10 text-red-400">
                 <Bug className="h-5 w-5" />
@@ -294,7 +294,7 @@ export function BugReportButton() {
           </DialogHeader>
 
           {/* Scrollable Form */}
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
             {/* Category */}
             <div>
               <label className="block text-sm font-bold text-white mb-1.5">
@@ -303,7 +303,7 @@ export function BugReportButton() {
               <select
                 value={form.category}
                 onChange={e => updateField("category", e.target.value as Category)}
-                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out ${
+                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out ${
                   errors.category ? "border-red-500/50" : "border-white/10"
                 }`}
               >
@@ -328,7 +328,7 @@ export function BugReportButton() {
                 onChange={e => updateField("title", e.target.value)}
                 placeholder="Brief summary of the issue..."
                 maxLength={120}
-                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out ${
+                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-hidden focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out ${
                   errors.title ? "border-red-500/50" : "border-white/10"
                 }`}
               />
@@ -345,7 +345,7 @@ export function BugReportButton() {
                 onChange={e => updateField("description", e.target.value)}
                 placeholder="What happened? What did you expect to happen?"
                 rows={4}
-                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none ${
+                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-hidden focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none ${
                   errors.description ? "border-red-500/50" : "border-white/10"
                 }`}
               />
@@ -362,7 +362,7 @@ export function BugReportButton() {
                 onChange={e => updateField("steps", e.target.value)}
                 placeholder={"1. Go to...\n2. Click on...\n3. Notice that..."}
                 rows={3}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-hidden focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none"
               />
             </div>
 
@@ -373,6 +373,7 @@ export function BugReportButton() {
               </label>
               {form.screenshot ? (
                 <div className="relative group rounded-lg overflow-hidden border border-white/10 bg-white/5">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- user-captured screenshot data URL */}
                   <img
                     src={form.screenshot}
                     alt="Bug screenshot"
@@ -380,7 +381,7 @@ export function BugReportButton() {
                   />
                   <button
                     onClick={() => updateField("screenshot", null)}
-                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white/60 hover:text-white hover:bg-red-500/30 transition-colors duration-100 ease-out active:scale-95 active:duration-0"
+                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 backdrop-blur-xs border border-white/10 text-white/60 hover:text-white hover:bg-red-500/30 transition-colors duration-100 ease-out active:scale-95 active:duration-0"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -388,7 +389,7 @@ export function BugReportButton() {
               ) : (
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex flex-col items-center gap-2 p-6 rounded-lg border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04] transition-colors duration-100 ease-out cursor-pointer active:scale-[0.99] active:duration-0"
+                  className="w-full flex flex-col items-center gap-2 p-6 rounded-lg border-2 border-dashed border-white/10 bg-white/2 hover:border-white/20 hover:bg-white/4 transition-colors duration-100 ease-out cursor-pointer active:scale-[0.99] active:duration-0"
                 >
                   <ImagePlus className="w-6 h-6 text-white/30" />
                   <div className="text-center">
@@ -411,7 +412,7 @@ export function BugReportButton() {
               <div className="rounded-lg border border-white/5 overflow-hidden">
                 <button
                   onClick={() => setShowDebug(prev => !prev)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white/2 hover:bg-white/4 transition-colors"
                 >
                   <span className="text-xs font-bold text-white/50 uppercase tracking-wider">
                     Debug Info (auto-captured)
@@ -460,7 +461,7 @@ export function BugReportButton() {
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-white/5 flex-shrink-0">
+          <div className="px-6 py-4 border-t border-white/5 shrink-0">
             <button
               onClick={handleSubmit}
               disabled={submitting}

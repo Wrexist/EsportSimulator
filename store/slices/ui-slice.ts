@@ -27,7 +27,9 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { toastSoundFor } from "@/lib/audio-feedback"
 import { soundManager } from "@/lib/sound-manager"
 import { useSettingsStore } from "@/lib/settings-store"
+import { LEGEND_CONTRACT_WEEKS, LEGEND_MIN_RUNWAY_WEEKS, legendSalary, quoteLegendSigning } from "@/lib/legend-signing"
 
+import { formatCurrency } from "@/lib/utils-extended"
 // Low-value toast types suppressed when the "Notifications" setting is off.
 // Meaningful types (achievement, level_up, warning, error) always show.
 const LOW_PRIORITY_TOASTS = new Set(["info", "xp_gain"])
@@ -93,10 +95,18 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         const team = state.teams.find(t => t.id === state.playerTeamId)
         if (!activity || !team || (activity.cost > 0 && activity.cost > team.budget) || state.gameOverReason) return
         state.selectedWeeklyActivity = type
-        if (state.firstSession?.status === "active") state.firstSession = reviewFirstSession(restoreFirstSession(state.firstSession), "plan")
+        if (state.firstSession?.status === "active") { state.firstSession = reviewFirstSession(restoreFirstSession(state.firstSession), "decision"); if (state.firstSession.status === "complete") { state.onboardingCompleted = true; state.tutorialCompleted = true } }
     }); if (get().isInitialized && get().selectedWeeklyActivity === type) void get().saveGame?.() },
 
-    selectLegend: (legendId: string) => set((state) => {
+    selectLegend: (legendId: string) => {
+        // Refuse a signing the club can't carry (the modal disables it too);
+        // the pick stays open so the manager can choose another or decline.
+        const quote = get().pendingLegendPick ? quoteLegendSigning(get(), legendId) : null
+        if (quote && !quote.affordable) {
+            get().addToast({ message: `Can't afford this legend: ${formatCurrency(quote.salary, "$", false)}/week would leave ${quote.runwayWeeks} weeks of cash (need ${LEGEND_MIN_RUNWAY_WEEKS}).`, type: "warning" })
+            return
+        }
+        set((state) => {
         if (!state.pendingLegendPick) return
         const candidates = state.pendingLegendPick.candidates
         if (!candidates.includes(legendId)) return
@@ -123,15 +133,14 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         state.contracts = state.contracts.filter(c => c.playerId !== legendId)
 
         // High salary baseline for legends: $50k floor + $500/skill.
-        // Maxes out around $99.5k/week for a 99-skill legend.
-        const legendSalary = Math.round(50000 + legend.skill * 500)
+        const salary = legendSalary(legend.skill)
         state.contracts.push({
             playerId: legendId,
             teamId: myTeam.id,
-            salaryPerWeek: legendSalary,
+            salaryPerWeek: salary,
             startWeek: state.currentWeek,
-            endWeek: state.currentWeek + 104, // 2-year contract
-            buyout: legendSalary * 52,
+            endWeek: state.currentWeek + LEGEND_CONTRACT_WEEKS, // 2-year contract
+            buyout: salary * 52,
         })
 
         if (!state.signedLegendIds) state.signedLegendIds = []
@@ -139,7 +148,8 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
 
         // Clear the pick modal trigger.
         state.pendingLegendPick = null
-    }),
+        })
+    },
 
     // === Getters ===
 

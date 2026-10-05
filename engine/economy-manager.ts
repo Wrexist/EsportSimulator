@@ -6,6 +6,7 @@ import {
     MATCH_CONSTANTS,
     getLossBonus,
 } from "../lib/constants"
+import { ROUND_ECONOMY_TUNING, SPONSOR_TUNING, sponsorWageBase } from "../lib/balance-tuning"
 
 /**
  * EconomyManager handles all game-specific financial logic including
@@ -69,6 +70,14 @@ export const WEAPONS: Record<string, Weapon> = {
   MAG7: { id: "mag7", name: "MAG-7", type: WeaponType.SHOTGUN, price: 1300, killReward: 900, power: 45 },
 }
 
+/** Pistol < SMG/shotgun < rifle < sniper; used to tell a planned primary from its sidearm. */
+function weaponTier(weapon: Weapon): number {
+  if (weapon.type === WeaponType.PISTOL) return 1
+  if (weapon.type === WeaponType.SNIPER) return 4
+  if (weapon.type === WeaponType.RIFLE) return 3
+  return 2
+}
+
 export class EconomyManager {
   static MAX_CASH = MATCH_CONSTANTS.MAX_MONEY
   static ROUND_START_CASH = MATCH_CONSTANTS.START_MONEY
@@ -116,10 +125,14 @@ export class EconomyManager {
     // Eco: +500 to thresholds (save longer)
     const modifier = economyStyle === "force" ? -500 : economyStyle === "eco" ? 500 : 0
 
+    // ROUND_ECONOMY_TUNING: FULL as soon as a rifle + helmet is affordable
+    // (was $4,500, so the default bought a Galil with full-buy money and the
+    // manager's "FULL" call looked dominant).
+    const T = ROUND_ECONOMY_TUNING
     if (aveCash <= 800) return "PISTOL"
-    if (aveCash < 2000 + modifier) return "ECO"
-    if (aveCash < 3200 + modifier) return "FORCE"
-    if (aveCash < 4500 + modifier) return "SEMIBUY"
+    if (aveCash < T.FORCE_MIN_AVG_CASH + modifier) return "ECO"
+    if (aveCash < T.SEMIBUY_MIN_AVG_CASH + modifier) return "FORCE"
+    if (aveCash < T.FULL_MIN_AVG_CASH + modifier) return "SEMIBUY"
     return "FULL"
   }
 
@@ -143,6 +156,15 @@ export class EconomyManager {
       let currentCost = 0
       const primary = WEAPONS[(customTactic.primaryWeaponId || "").toUpperCase()] || weapon
       const secondary = WEAPONS[(customTactic.secondaryWeaponId || "").toUpperCase()] || weapon
+
+      // L21: a planned primary the player cannot afford falls back to the
+      // standard role buy for this call (an AWP slot short of $4,750 takes a
+      // rifle), exactly as uncontrolled teams do. Previously the slot dropped
+      // to its pistol, so the default loadouts quietly handicapped the
+      // managed team on marginal FULL buys (-4 pp round share, L21 paired run).
+      if (cash < primary.price && weaponTier(primary) > weaponTier(secondary)) {
+        return EconomyManager.getPlayerBuyV2(cash, strategy, role === "AWPER" && cash < WEAPONS.AWP.price ? "RIFLER" : role, isCT, rng)
+      }
 
       // Try Primary
       if (cash >= primary.price) {
@@ -336,8 +358,14 @@ export class SponsorGenerator {
    * Generate 3-5 varied sponsor offers using SeededRNG.
    * Offer count and tier distribution scale with team reputation.
    */
-  static generateVariedOffers(team: TeamSaveData, currentWeek: number, rng: SeededRNG): SponsorSaveData[] {
+  static generateVariedOffers(team: TeamSaveData, currentWeek: number, rng: SeededRNG, weeklyWageBill?: number): SponsorSaveData[] {
     const reputation = team.reputation || 10
+    // SPONSOR_TUNING: one deal's effective income (payout x reputation
+    // factor) stays within a share of the club's wage bill. Omitted wage
+    // bill (legacy callers/tests) means no wage cap.
+    const wageCap = weeklyWageBill === undefined ? Infinity
+      : Math.floor(SPONSOR_TUNING.MAX_SHARE_OF_WAGE_BILL * sponsorWageBase(weeklyWageBill, reputation)
+        / EconomyEngine.sponsorReputationFactor(reputation))
     const teamId = team.id || team.name || "unknown_team"
 
     // Determine offer count and tier distribution based on reputation
@@ -374,23 +402,16 @@ export class SponsorGenerator {
       }
       usedNames.add(name)
 
-      // Value scaling based on reputation
-      let baseWeekly: number
-      if (reputation > 80) {
-        // S-tier: $50k-200k range
-        baseWeekly = offerRng.range(50000, 200000)
-      } else if (reputation > 60) {
-        baseWeekly = offerRng.range(20000, 80000)
-      } else if (reputation > 40) {
-        baseWeekly = offerRng.range(8000, 30000)
-      } else {
-        // C-tier: $2k-10k range
-        baseWeekly = offerRng.range(2000, 10000)
-      }
+      // Value scaling based on reputation band (SPONSOR_TUNING)
+      const [low, high] = reputation > 80 ? SPONSOR_TUNING.BASE_RANGE_REP_80
+        : reputation > 60 ? SPONSOR_TUNING.BASE_RANGE_REP_60
+        : reputation > 40 ? SPONSOR_TUNING.BASE_RANGE_REP_40
+        : SPONSOR_TUNING.BASE_RANGE_LOW
+      let baseWeekly = offerRng.range(low, high)
 
       // Tier multiplier
-      if (tier === "PREMIUM") baseWeekly *= 1.8
-      if (tier === "ELITE") baseWeekly *= 3.5
+      if (tier === "PREMIUM") baseWeekly *= SPONSOR_TUNING.PREMIUM_MULTIPLIER
+      if (tier === "ELITE") baseWeekly *= SPONSOR_TUNING.ELITE_MULTIPLIER
       baseWeekly = Math.floor(baseWeekly)
 
       // B7: category brand profile — a non-cash weekly trade-off so the choice
@@ -405,6 +426,7 @@ export class SponsorGenerator {
       } else if (category === "LIFESTYLE") {
         brandEffect = { followerGrowthPerWeek: 500, reputationPerWeek: 0.2, moralePerWeek: 0.2 }
       } // TECH stays neutral
+      baseWeekly = Math.min(baseWeekly, wageCap)
 
       // Contract duration: 12-52 weeks
       let duration: number

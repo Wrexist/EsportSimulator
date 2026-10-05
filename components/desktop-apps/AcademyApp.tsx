@@ -32,7 +32,7 @@ import {
     MapPin
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { formatRole } from "@/lib/utils-extended"
+import { formatRole, formatCurrency } from "@/lib/utils-extended"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
@@ -42,6 +42,7 @@ import { toast } from "@/lib/toast"
 import { ACADEMY_LEVELS, ACADEMY_DRILLS, ACADEMY_WEEKLY_COSTS, PENDING_POOL_MAX_SIZE } from "@/engine/academy-constants"
 import { AcademyTrainingFocus, AcademyRole } from "@/types/academy"
 import type { PlayerSaveData } from "@/engine/save-types"
+import { useFocusTrap } from "@/lib/accessibility"
 
 // ===== TYPES & CONSTANTS =====
 
@@ -119,6 +120,7 @@ export function AcademyApp() {
 
     // Release Confirmation State
     const [confirmingReleaseId, setConfirmingReleaseId] = useState<string | null>(null)
+    const releaseDialogRef = useFocusTrap(!!confirmingReleaseId, () => setConfirmingReleaseId(null))
     const RELEASE_FEE = 1000
 
     const prospectsWithData = useMemo(() =>
@@ -269,8 +271,8 @@ export function AcademyApp() {
     return (
         <div className="flex flex-col h-full bg-[#09090b] text-white font-sans selection:bg-emerald-500/30">
             {/* Header */}
-            <div className="p-5 border-b border-white/5 bg-gradient-to-r from-emerald-950/30 to-cyan-950/30 backdrop-blur-md relative overflow-hidden">
-                <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
+            <div className="p-5 border-b border-white/5 bg-linear-to-r/srgb from-emerald-950/30 to-cyan-950/30 backdrop-blur-md relative overflow-hidden">
+                <div className="absolute inset-0 bg-grid-white/[0.02] bg-size-[20px_20px]" />
                 <div className="flex justify-between items-start relative z-10">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
@@ -297,7 +299,7 @@ export function AcademyApp() {
                             </div>
                             <div className="bg-black/20 px-3 py-2 rounded-lg border border-white/5 text-center">
                                 <div className="text-[9px] text-white/40 uppercase">Weekly</div>
-                                <div className="text-base font-normal text-red-400">${getWeeklyUpkeep().toLocaleString()}</div>
+                                <div className="text-base font-normal text-red-400">{formatCurrency(getWeeklyUpkeep(), "$", false)}</div>
                             </div>
                         </div>
                     )}
@@ -330,7 +332,7 @@ export function AcademyApp() {
                                     size="sm"
                                     className={cn("h-7 px-3 text-[10px] font-bold active:scale-95 transition-transform", canAffordUpgrade ? "bg-white text-black hover:bg-emerald-400" : "bg-white/5 text-white/40")}
                                 >
-                                    Upgrade ${upgradeCost.toLocaleString()}
+                                    Upgrade {formatCurrency(upgradeCost, "$", false)}
                                 </Button>
                             </div>
                         )}
@@ -451,18 +453,22 @@ export function AcademyApp() {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-[#0d0d10] border border-red-500/20 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative overflow-hidden"
+                            ref={releaseDialogRef} tabIndex={-1}
+                            role="alertdialog"
+                            aria-modal="true"
+                            aria-labelledby="modal-title-release-prospect"
+                            className="bg-[#0d0d10] border border-red-500/20 rounded-2xl p-6 max-w-sm w-full max-h-[calc(100dvh-6rem)] overflow-y-auto shadow-2xl relative"
                         >
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500/0 via-red-500/50 to-red-500/0" />
+                            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r/srgb from-red-500/0 via-red-500/50 to-red-500/0" />
 
                             <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
                                 <X size={28} className="text-red-400" />
                             </div>
 
-                            <h3 className="text-lg font-bold text-center mb-2">Release Prospect?</h3>
+                            <h3 id="modal-title-release-prospect" className="text-lg font-bold text-center mb-2">Release Prospect?</h3>
                             <p className="text-xs text-white/50 text-center mb-6 leading-relaxed">
                                 Are you sure you want to release this talent?
-                                A termination fee of <span className="text-red-400 font-bold">${RELEASE_FEE.toLocaleString()}</span> will be deducted from your budget.
+                                A termination fee of <span className="text-red-400 font-bold">{formatCurrency(RELEASE_FEE, "$", false)}</span> will be deducted from your budget.
                             </p>
 
                             <div className="flex gap-3">
@@ -501,14 +507,14 @@ export function AcademyApp() {
 function BuildAcademyPanel({ budget, onBuild }: { budget: number; onBuild: () => void }) {
     const cost = 25000
     return (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-lg mx-auto text-center p-8 rounded-2xl bg-gradient-to-br from-emerald-950/20 to-cyan-950/20 border border-emerald-500/20">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-lg mx-auto text-center p-8 rounded-2xl bg-linear-to-br/srgb from-emerald-950/20 to-cyan-950/20 border border-emerald-500/20">
             <GraduationCap size={48} className="mx-auto mb-4 text-emerald-400" />
             <h2 className="text-xl font-bold mb-2">Build Your Youth Academy</h2>
             <p className="text-sm text-white/50 mb-6">Scout, train, and develop the next generation of talent.</p>
             <div className="p-3 rounded-lg bg-black/30 border border-white/10 mb-4">
                 <div className="flex justify-between text-sm">
                     <span className="text-white/60">Construction Cost</span>
-                    <span className={budget >= cost ? "text-white" : "text-red-400"}>${cost.toLocaleString()}</span>
+                    <span className={budget >= cost ? "text-white" : "text-red-400"}>{formatCurrency(cost, "$", false)}</span>
                 </div>
             </div>
             <Button onClick={onBuild} disabled={budget < cost} className={cn("h-12 px-6 font-bold active:scale-95 transition-transform", budget >= cost ? "bg-emerald-500 hover:bg-emerald-400 text-black" : "bg-white/5 text-white/40")}>
@@ -572,7 +578,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                                 onDragLeave={() => { }}
                                 onDrop={() => onRoleDrop(role)}
                                 className={cn(
-                                    "relative aspect-[3/4] rounded-xl border-2 border-dashed transition-[border-color,background-color,transform] duration-100 ease-out flex flex-col items-center justify-center p-2",
+                                    "relative aspect-3/4 rounded-xl border-2 border-dashed transition-[border-color,background-color,transform] duration-100 ease-out flex flex-col items-center justify-center p-2",
                                     prospectData ? "border-emerald-500/40 bg-emerald-500/5" : "border-white/10 hover:border-white/20",
                                     isOver && !prospectData && "border-emerald-400 bg-emerald-500/10 scale-105",
                                     draggedProspect && !prospectData && "animate-pulse"
@@ -704,7 +710,7 @@ function RosterTab({ prospects, academyRoster, draggedProspect, dragOverRole, on
                                     </div>
                                     <label className="mt-2 block text-[10px] text-white/60">
                                         Individual focus
-                                        <select aria-label={`${player.nickname} development focus`} value={prospect.trainingFocus || 'BALANCED'} onChange={event => onSetTraining(prospect.id, event.target.value)} onPointerDown={event => event.stopPropagation()} className="mt-1 w-full rounded border border-white/15 bg-[#151c25] px-2 py-1.5 text-xs text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400">
+                                        <select aria-label={`${player.nickname} development focus`} value={prospect.trainingFocus || 'BALANCED'} onChange={event => onSetTraining(prospect.id, event.target.value)} onPointerDown={event => event.stopPropagation()} className="mt-1 w-full rounded border border-white/15 bg-[#151c25] px-2 py-1.5 text-xs text-white focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-cyan-400">
                                             {TRAINING_FOCUS_CONFIG.map(focus => <option key={focus.id} value={focus.id}>{focus.name}</option>)}
                                         </select>
                                     </label>
@@ -787,12 +793,12 @@ function GraduatesTab({ players }: { players: PlayerSaveData[] }) {
             </div>
 
             {graduates.length === 0 ? (
-                <div className="p-12 rounded-2xl bg-white/[0.02] border border-dashed border-white/10 flex flex-col items-center justify-center text-center" role="status" aria-live="polite">
+                <div className="p-12 rounded-2xl bg-white/2 border border-dashed border-white/10 flex flex-col items-center justify-center text-center" role="status" aria-live="polite">
                     <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-4">
                         <GraduationCap size={32} className="text-white/15" aria-hidden="true" />
                     </div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">Class of nobody</p>
-                    <p className="text-xs text-white/55 max-w-sm leading-relaxed">Promote a prospect to the senior squad and they'll show up here, immortalised as the first of your academy line.</p>
+                    <p className="text-xs text-white/55 max-w-sm leading-relaxed">Promote a prospect to the senior squad and they&apos;ll show up here, immortalised as the first of your academy line.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -870,7 +876,7 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
                                 className="text-center"
                             >
                                 <div className="text-[9px] text-white/40 uppercase font-bold mb-1.5">{day}</div>
-                                <select aria-label={`${day} academy drill`} value={drill?.id || ''} onChange={event => onSetDay(i, event.target.value || null)} className="w-full mb-2 rounded border border-white/15 bg-[#151c25] px-1 py-1.5 text-[10px] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400">
+                                <select aria-label={`${day} academy drill`} value={drill?.id || ''} onChange={event => onSetDay(i, event.target.value || null)} className="w-full mb-2 rounded border border-white/15 bg-[#151c25] px-1 py-1.5 text-[10px] text-white focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-cyan-400">
                                     <option value="">No drill</option>
                                     {ACADEMY_DRILLS.filter(item => item.minLevel <= academyLevel).map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
                                 </select>
@@ -905,7 +911,6 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
                 <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">Training Drills — Drag to schedule</div>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
                     {ACADEMY_DRILLS.map(drill => {
-                        const Icon = (drill as any).icon || Activity
                         const isDragging = draggedDrill === drill.id
                         const isLocked = academyLevel < drill.minLevel
 
@@ -944,7 +949,7 @@ function TrainingTab({ academyLevel, trainingSchedule, draggedDrill, dragOverDay
 
 // ===== MATCHES TAB =====
 
-function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatchFlow, matchResult, onPlayMatch, onGoToRoster, academyRoster, academyPlayers, players }: any) {
+function MatchesTab({ academyLevel, matchHistory, budget, showMatchFlow, matchResult, onPlayMatch, academyRoster, academyPlayers, players }: any) {
     const minLevel = 2, matchCost = 2500
     const starterIds = Object.values(academyRoster).filter(Boolean) as string[]
     const activeStarters = academyPlayers.filter((p: any) => starterIds.includes(p.id))
@@ -957,7 +962,7 @@ function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatc
             {/* ... overlay remains same ... */}
             <AnimatePresence>
                 {showMatchFlow && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 top-16 bg-black/85 z-modal flex items-center justify-center">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 top-16 bg-black/85 z-modal flex items-center justify-center" role="status" aria-live="polite">
                         <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="text-center">
                             {!matchResult ? (
                                 <><Gamepad2 size={56} className="mx-auto mb-3 text-cyan-400 animate-pulse" /><div className="text-xl font-bold">Match in Progress...</div></>
@@ -1006,7 +1011,7 @@ function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatc
                     </div>
                     <div className="text-right">
                         <Button onClick={onPlayMatch} disabled={!canSchedule} className={cn("h-9 px-4 font-bold text-[10px]", canSchedule ? "bg-cyan-500 hover:bg-cyan-400 text-black" : "bg-white/5 text-white/40")}>
-                            Play ${matchCost.toLocaleString()}
+                            Play {formatCurrency(matchCost, "$", false)}
                         </Button>
                         {!canSchedule && (
                             <div className="text-[8px] text-red-400 font-bold mt-1 uppercase tracking-tighter">
@@ -1045,13 +1050,13 @@ function MatchesTab({ academyLevel, canPlayMatch, matchHistory, budget, showMatc
 
 // ===== REPORTS TAB =====
 
-function ReportsTab({ reports, players }: { reports: any[], players: any[] }) {
+function ReportsTab({ reports }: { reports: any[], players: any[] }) {
     if (!reports || reports.length === 0) {
         return (
             <div className="p-16 text-center bg-white/5 rounded-3xl border border-dashed border-white/10 mt-4">
                 <BarChart3 className="mx-auto mb-4 text-white/10" size={48} />
                 <h3 className="text-xl font-bold text-white/60 mb-1">No Academic Reports</h3>
-                <p className="text-sm text-white/30 max-w-[200px] mx-auto leading-relaxed">Play through weeks to see detailed breakdowns of your prospects' progress.</p>
+                <p className="text-sm text-white/30 max-w-[200px] mx-auto leading-relaxed">Play through weeks to see detailed breakdowns of your prospects&apos; progress.</p>
             </div>
         )
     }
@@ -1062,7 +1067,7 @@ function ReportsTab({ reports, players }: { reports: any[], players: any[] }) {
                 // Key by week, not array index — the list is reversed + prepended,
                 // so index-keying reused DOM/animation state across different reports.
                 <div key={report.week} className="bg-[#0b0b0d] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-                    <div className="px-4 py-3 border-b border-white/5 bg-white/[0.03] flex justify-between items-center">
+                    <div className="px-4 py-3 border-b border-white/5 bg-white/3 flex justify-between items-center">
                         <div className="flex items-center gap-3">
                             <Activity className="text-emerald-400" size={14} />
                             <span className="text-xs font-normal tracking-widest uppercase text-white/80">Week {report.week} Report</span>
@@ -1073,7 +1078,7 @@ function ReportsTab({ reports, players }: { reports: any[], players: any[] }) {
                     </div>
                     <div className="divide-y divide-white/5">
                         {report.prospectReports.map((pr: any, pIdx: number) => (
-                            <div key={pr.nickname ?? pIdx} className="p-4 flex items-center justify-between hover:bg-white/[0.01] transition-colors group">
+                            <div key={pr.nickname ?? pIdx} className="p-4 flex items-center justify-between hover:bg-white/1 transition-colors group">
                                 <div className="flex items-center gap-4 min-w-0 flex-1">
                                     <div className={cn("w-1 h-8 rounded-full", pr.isStarter ? "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]" : "bg-white/10")} />
                                     <div className="min-w-0 flex-1">
@@ -1178,7 +1183,7 @@ function ScoutingTab({
                                             initial={{ x: "-100%" }}
                                             animate={{ x: "100%" }}
                                             transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-                                            className="h-full w-1/2 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"
+                                            className="h-full w-1/2 bg-linear-to-r/srgb from-transparent via-cyan-500 to-transparent"
                                         />
                                     </div>
                                     <div className="text-[8px] text-cyan-400 font-normal text-center uppercase tracking-widest">In Transit</div>
@@ -1189,7 +1194,7 @@ function ScoutingTab({
                                     disabled={!canScout}
                                     className={cn("w-full h-8 text-[10px] font-normal uppercase tracking-wider", canScout ? "bg-emerald-500 hover:bg-emerald-400 text-black border-none shadow-[0_0_15px_-5px_rgba(16,185,129,0.4)]" : "bg-white/5 text-white/20 border-white/5")}
                                 >
-                                    ${tier.cost.toLocaleString()}
+                                    {formatCurrency(tier.cost, "$", false)}
                                 </Button>
                             )}
                         </div>
@@ -1199,7 +1204,7 @@ function ScoutingTab({
 
             {/* Pending Results (Review Talent) */}
             {pendingPlayers.length === 0 && (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-6 text-center">
+                <div className="rounded-2xl border border-dashed border-white/10 bg-white/1 p-6 text-center">
                     <div className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1.5">
                         No Prospects In Review
                     </div>
@@ -1212,7 +1217,7 @@ function ScoutingTab({
                 <div className="space-y-3">
                     <div className="flex items-center justify-between px-1">
                         <div className="flex items-center gap-2">
-                            <div className="h-px w-8 bg-gradient-to-r from-transparent to-cyan-500/30" />
+                            <div className="h-px w-8 bg-linear-to-r/srgb from-transparent to-cyan-500/30" />
                             <span className="text-[10px] font-normal uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20">Review New Talent</span>
                         </div>
                         <div className="text-[10px] font-normal text-white/30 uppercase tracking-tighter">
@@ -1234,7 +1239,7 @@ function ScoutingTab({
                                 <div className="flex items-center gap-4 relative z-10">
                                     <div className="relative w-12 h-12 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
                                         <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={48} className="w-full h-full object-cover" />
-                                        <div className="absolute bottom-0 right-0 p-0.5 bg-black/60 backdrop-blur-sm rounded-tl-md">
+                                        <div className="absolute bottom-0 right-0 p-0.5 bg-black/60 backdrop-blur-xs rounded-tl-md">
                                             <div className={cn("w-2.5 h-1.5 rounded-sm", player.nationality === "Sweden" ? "bg-blue-600" : "bg-zinc-600")} />
                                         </div>
                                     </div>

@@ -123,7 +123,7 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                                 fill="none"
                                 stroke="rgba(var(--primary), 0.5)"
                                 strokeWidth="4"
-                                className="blur-[4px]"
+                                className="blur-xs"
                                 initial={{ pathLength: 0 }}
                                 animate={{ pathLength: 1 }}
                                 transition={{ duration: 1 }}
@@ -183,7 +183,7 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                                                 isUnlocked
                                                     ? "bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)] backdrop-blur-md"
                                                     : canUnlock
-                                                        ? "bg-white/10 border-white/40 text-white hover:scale-105 hover:bg-white/20 hover:border-primary hover:text-white cursor-pointer hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] backdrop-blur-sm"
+                                                        ? "bg-white/10 border-white/40 text-white hover:scale-105 hover:bg-white/20 hover:border-primary hover:text-white cursor-pointer hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] backdrop-blur-xs"
                                                         : "bg-black/60 border-white/5 text-white/20 grayscale"
                                             )}
                                         >

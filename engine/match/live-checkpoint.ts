@@ -36,3 +36,8 @@ export function pendingLiveEvents(events: MatchEvent[], from: number, to: number
     if (!Number.isFinite(from) || !Number.isFinite(to) || to <= from) return []
     return events.filter(e => Math.floor(e.time) > from && Math.floor(e.time) <= to).sort((a,b) => a.time - b.time)
 }
+
+/** A round is "in flight" while its ROUND_END event has not been played back yet. */
+export function roundEndPending(events: MatchEvent[], processedTime: number): boolean {
+    return events.some(e => e.type === 'ROUND_END' && Math.floor(e.time) > processedTime)
+}

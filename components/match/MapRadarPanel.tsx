@@ -8,8 +8,7 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import type { RadarPlayerDot, RadarBombState, RadarKillLine, RadarSmoke } from "@/lib/radar-position-engine"
 import type { Point } from "@/lib/map-radar-data"
-import { useSettingsStore } from "@/lib/settings-store"
-import { useReducedMotion } from "framer-motion"
+import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { resolveAutoRadarLevel } from "@/lib/radar-level-selector"
 import { layoutRadarLabels, type RadarLabel } from "@/lib/radar-label-layout"
 
@@ -103,14 +102,14 @@ interface MapRadarPanelProps {
 }
 
 function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated' }: MapRadarPanelProps) {
-    const radarDots = useInterpolatedDots(tickDots, nextRadarDots, tickDurationMs, isAnimating)
     const panelId = useId().replace(/:/g, "")
     const [isExpanded, setIsExpanded] = useState(true)
     const [showNames, setShowNames] = useState(true)
     const [zoom, setZoom] = useState(1)
-    const reducedMotion = useSettingsStore(s => s.reducedMotion)
-    const systemReducedMotion = useReducedMotion()
-    const staticEffects = reducedMotion || systemReducedMotion
+    const staticEffects = useAppReducedMotion()
+    // Reduced motion: dots step once per game tick instead of gliding between
+    // ticks (positions stay exact; only the in-between tween is removed).
+    const radarDots = useInterpolatedDots(tickDots, nextRadarDots, tickDurationMs, isAnimating && !staticEffects)
     const [radarLevelMode, setRadarLevelMode] = useState<"auto" | "manual">("auto")
     const [manualRadarLevel, setManualRadarLevel] = useState<"upper" | "lower">("upper")
     const radarImageData = referenceImages || MAP_RADAR_IMAGES[currentMapId]
@@ -323,7 +322,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                 </button>
                 {isExpanded && roundPhase && <span className="rounded-full px-2 py-1 text-[10px] font-semibold tracking-wide" style={{backgroundColor: `${roundPhase.color}20`, color: roundPhase.color}}>{roundPhase.label}</span>}
             </div>
-            {isExpanded && <div className="flex flex-wrap items-center justify-between gap-2 border-y border-white/10 bg-white/[0.025] px-4 py-2 mb-3">
+            {isExpanded && <div className="flex flex-wrap items-center justify-between gap-2 border-y border-white/10 bg-white/2.5 px-4 py-2 mb-3">
                 {isDualLevel && <div role="group" aria-label="Radar floor" className="flex items-center gap-1">
                     {(["auto", "upper", "lower"] as const).map(level => <button key={level} type="button"
                         onClick={() => { setRadarLevelMode(level === "auto" ? "auto" : "manual"); if (level !== "auto") setManualRadarLevel(level) }}
@@ -650,11 +649,22 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                                     fill={color}
                                                     opacity={0.12}
                                                 />
-                                                        <circle
-                                                            cx={dot.x} cy={dot.y} r={1.5}
-                                                            fill={color}
-                                                            stroke={ecoStroke} strokeWidth={ecoStrokeWidth}
-                                                        />
+                                                        {/* Shape reinforces side colour: CT = circle, T = diamond. */}
+                                                        {dot.side === "ct" ? (
+                                                            <circle
+                                                                cx={dot.x} cy={dot.y} r={1.5}
+                                                                fill={color}
+                                                                stroke={ecoStroke} strokeWidth={ecoStrokeWidth}
+                                                                data-side-shape="ct-circle"
+                                                            />
+                                                        ) : (
+                                                            <path
+                                                                d={`M ${dot.x} ${dot.y - 1.8} L ${dot.x + 1.8} ${dot.y} L ${dot.x} ${dot.y + 1.8} L ${dot.x - 1.8} ${dot.y} Z`}
+                                                                fill={color}
+                                                                stroke={ecoStroke} strokeWidth={ecoStrokeWidth}
+                                                                data-side-shape="t-diamond"
+                                                            />
+                                                        )}
                                                         {showNames && label && <g>
                                                         <line x1={dot.x} y1={dot.y} x2={label.x + label.width / 2} y2={label.y + label.height / 2} stroke={color} strokeWidth=".2" opacity=".4" />
                                                         <rect x={label.x} y={label.y} width={label.width} height={label.height} rx=".8" fill="#0d1a2d" opacity=".9" />
@@ -680,7 +690,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                             </div>
                         </div>
                         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 px-4 py-3 text-xs text-slate-400">
-                            <span className="flex items-center gap-3"><span className="text-sky-300">CT {ctAlive}</span><span className="text-amber-300">T {tAlive}</span><span>alive</span></span>
+                            <span className="flex items-center gap-3"><span className="text-sky-300"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="text-amber-300"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>alive</span></span>
                             <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : 'Career match positions are estimated from recorded round events.'}>{positionSource === 'physical-replay' ? 'Recorded positions' : 'Estimated positions'} · {isDualLevel ? `${resolvedRadarLevel === "upper" ? "Upper" : "Lower"} floor` : "Single level"}</span>
                         </div>
                     </motion.div>

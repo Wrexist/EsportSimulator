@@ -16,6 +16,7 @@ import { AlertCircle, Zap, ArrowUpRight, Users, ArrowRightLeft, Activity, Plus, 
 import dynamic from "next/dynamic"
 const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix"), { ssr: false })
 import { motion, AnimatePresence } from "framer-motion"
+import { useFocusTrap } from "@/lib/accessibility"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, TierLevel } from "@/engine/tier-system"
 import { useState, useMemo, useCallback, memo } from "react"
@@ -91,14 +92,14 @@ const RosterCard = memo(function RosterCard({
       {player.injury && (
         <div className="absolute top-2 right-12 z-20">
           <Badge variant="destructive" className="animate-pulse shadow-lg shadow-red-500/20 px-2 py-1 flex items-center gap-1.5">
-            <Activity size={10} className="stroke-[3]" />
+            <Activity size={10} className="stroke-3" />
             <span className="text-[9px] font-normal uppercase tracking-widest">{player.injury.weeksRemaining}W</span>
           </Badge>
         </div>
       )}
 
       {player.injury && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-4 text-center animate-in fade-in duration-300 pointer-events-none [&>*]:pointer-events-auto">
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-xs z-30 flex flex-col items-center justify-center p-4 text-center animate-in fade-in duration-300 pointer-events-none *:pointer-events-auto">
           <Activity className="text-red-400 w-10 h-10 mb-2 animate-pulse" />
           <h3 className="text-lg font-normal text-white uppercase tracking-tighter">{player.injury.name}</h3>
           <Badge variant="destructive" className="mt-1 mb-2 text-[10px] font-bold uppercase tracking-widest">
@@ -186,6 +187,7 @@ function SquadPageInner() {
   const [selectedSwapIndex, setSelectedSwapIndex] = useState<number | null>(null)
   const [trainingPlayer, setTrainingPlayer] = useState<any>(null)
   const [promotingProspectId, setPromotingProspectId] = useState<string | null>(null)
+  const promoteDialogRef = useFocusTrap(!!promotingProspectId, () => setPromotingProspectId(null))
 
   // O(1) player-id → player map. Replaces the `players.find(p => p.id === id)`
   // scan the roster loop below was doing — O(roster × players) per render.
@@ -406,14 +408,14 @@ function SquadPageInner() {
           {/* Only show synergy for active roster */}
           <ChemistryMatrix players={activeRoster as any} synergyMatrix={teamData.synergyMatrix} />
 
-            <div className="glass-panel p-6 border-white/5 bg-white/[0.02] rounded-lg">
+            <div className="glass-panel p-6 border-white/5 bg-white/2 rounded-lg">
             <SynergyChart players={activeRoster as any} />
           </div>
 
 
 
           {/* Youth Academy */}
-            <div className="glass-panel p-6 border-white/5 bg-white/[0.02] rounded-lg">
+            <div className="glass-panel p-6 border-white/5 bg-white/2 rounded-lg">
             <SectionHeader
               className="mb-6"
               icon={Users}
@@ -457,7 +459,7 @@ function SquadPageInner() {
                           <Button
                             onClick={(e) => { e.stopPropagation(); setPromotingProspectId(ap.id) }}
                             size="sm"
-                            className="h-8 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-[10px] font-normal uppercase px-2 shadow-sm"
+                            className="h-8 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-[10px] font-normal uppercase px-2 shadow-xs"
                           >
                             <ArrowUpRight size={12} className="mr-1" /> Promote
                           </Button>
@@ -495,7 +497,11 @@ function SquadPageInner() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                className="glass-panel max-w-md w-full p-8 border-white/10 bg-white/5 relative overflow-hidden rounded-xl"
+              ref={promoteDialogRef} tabIndex={-1}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-title-promote-prospect"
+              className="glass-panel max-w-md w-full max-h-[calc(100dvh-6rem)] overflow-y-auto p-6 border-white/10 bg-white/5 relative rounded-xl"
             >
               <div className="absolute top-0 right-0 p-8 opacity-5">
                 <Users size={120} />
@@ -507,7 +513,7 @@ function SquadPageInner() {
                     <CheckCircle2 size={32} className="text-emerald-400" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-normal uppercase tracking-tight text-white">Promote to Main Roster</h2>
+                    <h2 id="modal-title-promote-prospect" className="text-xl font-normal uppercase tracking-tight text-white">Promote to Main Roster</h2>
                     <p className="text-xs text-white/40 font-medium uppercase tracking-widest mt-1">Graduate Confirmation</p>
                   </div>
                 </div>

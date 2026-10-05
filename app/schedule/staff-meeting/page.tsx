@@ -25,7 +25,9 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
+import { pressable } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 // Meeting type definitions
 interface MeetingType {
     id: string
@@ -140,7 +142,6 @@ export default function StaffMeetingPage() {
         currentWeek,
         completedMatches,
         managerDetails,
-        scheduledActivities
     } = useGameStore(useShallow(state => ({
         playerTeamId: state.playerTeamId,
         players: state.players,
@@ -149,7 +150,6 @@ export default function StaffMeetingPage() {
         currentWeek: state.currentWeek,
         completedMatches: state.completedMatches,
         managerDetails: state.managerDetails,
-        scheduledActivities: state.scheduledActivities,
     })))
 
     const [schedulingId, setSchedulingId] = useState<string | null>(null)
@@ -321,7 +321,7 @@ export default function StaffMeetingPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Status Column */}
                 <div className="space-y-6">
-                    <div className="glass-panel p-6 border-white/5 bg-gradient-to-br from-blue-500/5 to-transparent relative overflow-hidden">
+                    <div className="glass-panel p-6 border-white/5 bg-linear-to-br/srgb from-blue-500/5 to-transparent relative overflow-hidden">
                         <div className="relative z-10">
                             <h3 className="text-sm font-bold uppercase tracking-widest text-blue-200 mb-4 flex items-center gap-2">
                                 <Users size={14} /> Team Morale
@@ -357,7 +357,7 @@ export default function StaffMeetingPage() {
                             {formPercentage.toFixed(0)}% <span className="text-sm font-normal text-white/40">Win Rate</span>
                         </div>
                         <div className="flex gap-1 mt-2">
-                            {recentMatches.map((m, i) => {
+                            {recentMatches.map((m) => {
                                 const isWin = m.result.winnerId === playerTeamId
                                 return (
                                     <div
@@ -424,7 +424,7 @@ export default function StaffMeetingPage() {
                                                 ? "border-white/10 bg-white/5 hover:bg-white/10 cursor-pointer"
                                                 : "border-white/5 bg-black/40 opacity-50 grayscale"
                                         )}
-                                        onClick={() => status.unlocked && canAfford && handleScheduleMeeting(meeting)}
+                                        {...pressable(() => handleScheduleMeeting(meeting), { disabled: !status.unlocked || !canAfford })}
                                     >
                                         <div className="flex items-start justify-between relative z-10">
                                             <div className="space-y-2">
@@ -481,7 +481,7 @@ export default function StaffMeetingPage() {
                                                     "text-xl font-bold",
                                                     canAfford ? "text-white" : "text-red-400"
                                                 )}>
-                                                    ${meeting.cost.toLocaleString()}
+                                                    {formatCurrency(meeting.cost, "$", false)}
                                                 </div>
                                                 {status.unlocked ? (
                                                     <Button
@@ -518,7 +518,7 @@ export default function StaffMeetingPage() {
                             <span className="text-sm text-white/60">Available Budget:</span>
                         </div>
                         <span className="text-xl font-bold text-emerald-400">
-                            ${playerTeam.budget.toLocaleString()}
+                            {formatCurrency(playerTeam.budget, "$", false)}
                         </span>
                     </div>
                 </div>

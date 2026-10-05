@@ -23,6 +23,7 @@ import { CustomTactics, MapId, Team } from "@/types"
 import { computeRadarPositions } from "@/lib/radar-position-engine"
 import { MAP_NAMES, getMapAssetName } from "@/data/map-pool"
 
+import { formatCurrency } from "@/lib/utils-extended"
 // Weapon-id → icon path. The mapping object is hoisted so it isn't allocated
 // on every call, and resolved paths are memoized in a module-level cache so
 // the log list doesn't recompute the same string per row per render tick.
@@ -154,7 +155,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "ROUND_END") {
                     return (
-                        <div key={i} className="p-2.5 rounded-xl text-[11px] border-l-2 border border-white/10 bg-white/[0.08] border-l-white/30 flex items-center gap-2">
+                        <div key={i} className="p-2.5 rounded-xl text-[11px] border-l-2 border border-white/10 bg-white/8 border-l-white/30 flex items-center gap-2">
                             <Trophy className="w-3.5 h-3.5 text-white/50 shrink-0" />
                             <span className="text-white/70 font-bold uppercase tracking-wide">{l.message}</span>
                         </div>
@@ -173,7 +174,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "SAVE") {
                     return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-white/3 border-l-white/10 flex items-center gap-2">
+                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 border-l-white/10 flex items-center gap-2">
                             <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
                             <EyeOff className="w-3 h-3 text-white/30 shrink-0" />
                             <span className="text-white/40">{l.message}</span>
@@ -183,7 +184,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "BUY") {
                     return (
-                        <div key={i} className="p-1.5 rounded-lg text-[10px] border border-white/3 bg-white/[0.02] flex items-center gap-2">
+                        <div key={i} className="p-1.5 rounded-lg text-[10px] border bg-white/2 flex items-center gap-2">
                             <Coins className="w-3 h-3 text-emerald-400/40 shrink-0" />
                             <span className="text-white/30 font-medium">{l.message}</span>
                         </div>
@@ -253,7 +254,7 @@ const RosterRow = memo(function RosterRow({
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                     <div className="font-normal text-xs uppercase truncate pr-2">{name}</div>
-                    <div className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">${money}</div>
+                    <div className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">{formatCurrency(money, "$", false)}</div>
                 </div>
                 <div className="text-[10px] text-white/40 font-bold truncate mt-0.5">{weapon?.toUpperCase() || defaultWeaponLabel}</div>
             </div>
@@ -287,7 +288,6 @@ export default function LiveMatchPage() {
         handleFinish,
         customTactics,
         updateCustomTactic,
-        playerTeam,
         originalHomePlayers,
         originalAwayPlayers,
         currentRoundEvents,
@@ -297,6 +297,10 @@ export default function LiveMatchPage() {
         timeoutsRemaining,
         timeoutActive,
         callTimeout,
+        roundHomeIsCT,
+        isPlayerHome,
+        ownEconomy,
+        ownIsCT,
     } = useLiveMatch(params.id)
 
     // Local UI State for Loadout Editor (UI Concern)
@@ -338,14 +342,14 @@ export default function LiveMatchPage() {
             currentRoundEvents.current,
             homeRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
             awayRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            simState.homeStartsCT,
+            roundHomeIsCT,
             gameState.round,
             matchData.current.match.seed ?? 0
         )
         // Intentionally depend on rosterFingerprint instead of the array
         // refs so an unchanged roster (most ticks) skips the recompute.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gameState.time, gameState.round, currentMapId, simState, matchData, currentRoundEvents, rosterFingerprint])
+    }, [gameState.time, gameState.round, currentMapId, simState, roundHomeIsCT, matchData, currentRoundEvents, rosterFingerprint])
 
     // Positions one game-second ahead. The playback clock ticks once per
     // game-second, so the radar glides from `radarData` toward this snapshot
@@ -358,12 +362,12 @@ export default function LiveMatchPage() {
             currentRoundEvents.current,
             homeRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
             awayRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            simState.homeStartsCT,
+            roundHomeIsCT,
             gameState.round,
             matchData.current.match.seed ?? 0
         )
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gameState.time, gameState.round, currentMapId, simState, matchData, currentRoundEvents, rosterFingerprint])
+    }, [gameState.time, gameState.round, currentMapId, simState, roundHomeIsCT, matchData, currentRoundEvents, rosterFingerprint])
 
     // Build O(1) lookup maps for original players (used in roster rendering)
     const originalHomeMap = useMemo(() => new Map((originalHomePlayers || []).map(p => [p.id, p])), [originalHomePlayers])
@@ -397,7 +401,11 @@ export default function LiveMatchPage() {
     const mapName = MAP_NAMES[currentMapId] || currentMapId || "Unknown Map"
 
     // Dynamic Colors based on Side
-    const homeIsCT = simState.homeStartsCT
+    const homeIsCT = roundHomeIsCT
+    // Strategy panel and loadout editor always describe the managed team.
+    const ownRoster = isPlayerHome ? homeRoster : awayRoster
+    const ownOriginal = isPlayerHome ? originalHomeMap : originalAwayMap
+    const ownBudget = Math.floor(Object.values(ownEconomy).reduce((s, p) => s + (p?.cash || 0), 0))
     const homeBorderClass = homeIsCT ? "border-l-blue-500/30" : "border-l-orange-500/30"
     const awayBorderClass = !homeIsCT ? "border-r-blue-500/30" : "border-r-orange-500/30"
 
@@ -429,8 +437,8 @@ export default function LiveMatchPage() {
                     matchFormat={matchData.current.match.format}
                     currentMapId={currentMapId}
                     mapName={mapName}
-                    homeSeriesScore={simState.homeSeriesScore}
-                    awaySeriesScore={simState.awaySeriesScore}
+                    homeSeriesScore={gameState.homeSeriesScore}
+                    awaySeriesScore={gameState.awaySeriesScore}
                     homeScore={gameState.homeScore}
                     awayScore={gameState.awayScore}
                     roundTime={roundTime}
@@ -522,14 +530,14 @@ export default function LiveMatchPage() {
                                 <div>
                                     <h3 className="text-xl font-normal uppercase">Round {gameState.round} • Select Strategy</h3>
                                     <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
-                                        Team Budget: ${Math.floor(Object.values(simState.homeEconomy).reduce((s, p) => s + p.cash, 0)).toLocaleString()}
+                                        Team Budget: {formatCurrency(ownBudget, "$", false)}
                                     </p>
                                 </div>
                             </div>
                             <div className="grid grid-cols-5 gap-2">
                                 {(() => {
-                                    const avgCash = Math.floor(Object.values(simState.homeEconomy).reduce((s: number, p: any) => s + p.cash, 0) / 5)
-                                    const side = simState.homeStartsCT ? "ct" : "t"
+                                    const avgCash = Math.floor(ownBudget / 5)
+                                    const side = ownIsCT ? "ct" : "t"
 
                                     return STRATEGY_OPTIONS.map((strat) => {
                                         const cost = strat.cost
@@ -550,7 +558,7 @@ export default function LiveMatchPage() {
                                                 >
                                                     <span className="font-normal text-[11px] leading-tight text-center">{strat.fallback}</span>
                                                     <div className={cn("text-[10px] font-bold", canAfford ? "text-emerald-400" : "text-red-400")}>
-                                                        ${cost.toLocaleString()}
+                                                        {formatCurrency(cost, "$", false)}
                                                     </div>
                                                 </Button>
                                                 <button
@@ -619,11 +627,11 @@ export default function LiveMatchPage() {
                             side={editingSide}
                             strategyId={editingStrategy}
                             config={customTactics[editingStrategy][editingSide]}
-                            teamBudget={Math.floor(Object.values(simState?.homeEconomy || {}).reduce((s: any, p: any) => s + p.cash, 0))}
-                            playerCash={homeRoster.map(p => simState?.homeEconomy?.[p.id]?.cash ?? p.money ?? 0)}
-                            playerIds={homeRoster.map(p => p.id)}
-                            playerNames={homeRoster.map(p => p.name)}
-                            playerImages={homeRoster.map(p => originalHomeMap.get(p.id)?.portraitPath || "")}
+                            teamBudget={ownBudget}
+                            playerCash={ownRoster.map(p => ownEconomy[p.id]?.cash ?? p.money ?? 0)}
+                            playerIds={ownRoster.map(p => p.id)}
+                            playerNames={ownRoster.map(p => p.name)}
+                            playerImages={ownRoster.map(p => ownOriginal.get(p.id)?.portraitPath || "")}
                             onSave={(newConfig) => {
                                 updateCustomTactic(editingStrategy, editingSide, newConfig)
                                 setIsEditingLoadout(false)
@@ -638,7 +646,7 @@ export default function LiveMatchPage() {
                 <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md z-50 px-4">
                     <Button
                         onClick={handleFinish}
-                        className="w-full h-16 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-normal uppercase tracking-[0.2em] rounded-3xl shadow-lg hover:shadow-emerald-500/20 transition-all transform hover:scale-[1.02]"
+                        className="w-full h-16 bg-linear-to-r/srgb from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-normal uppercase tracking-[0.2em] rounded-3xl shadow-lg hover:shadow-emerald-500/20 transition-all transform hover:scale-[1.02]"
                     >
                         CONTINUE TO RESULTS
                     </Button>

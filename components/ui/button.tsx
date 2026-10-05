@@ -5,7 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium select-none touch-manipulation transition-[background-color,border-color,color] duration-75 ease-out active:scale-[0.97] active:duration-0 disabled:pointer-events-none disabled:opacity-50 disabled:hover:translate-y-0 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-cyan-300 focus-visible:ring-cyan-300/25 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium select-none touch-manipulation transition-[background-color,border-color,color] duration-75 ease-out active:scale-[0.97] active:duration-0 disabled:pointer-events-none disabled:opacity-50 disabled:hover:translate-y-0 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-hidden focus-visible:border-cyan-300 focus-visible:ring-cyan-300/25 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
@@ -26,11 +26,11 @@ const buttonVariants = cva(
         destructive:
           'border border-red-400/25 bg-red-500/80 text-white shadow-glass-soft hover:bg-red-500 focus-visible:ring-destructive/20 dark:aria-invalid:ring-destructive/40 dark:bg-destructive/60 active:bg-red-600 active:text-white',
         outline:
-          'liquid-button text-white/90 hover:text-white hover:border-white/20 hover:bg-white/10 dark:bg-white/[0.055] dark:border-white/10 dark:hover:bg-white/[0.085] active:bg-white/[0.12]',
+          'liquid-button text-white/90 hover:text-white hover:border-white/20 hover:bg-white/10 dark:bg-white/5.5 dark:border-white/10 dark:hover:bg-white/8.5 active:bg-white/12',
         secondary:
-          'border border-white/10 bg-white/[0.075] text-white/90 shadow-glass-soft hover:bg-white/[0.11] active:bg-white/[0.08]',
+          'border border-white/10 bg-white/7.5 text-white/90 shadow-glass-soft hover:bg-white/11 active:bg-white/8',
         ghost:
-          'text-white/70 hover:bg-white/[0.075] hover:text-white active:bg-white/[0.1]',
+          'text-white/70 hover:bg-white/7.5 hover:text-white active:bg-white/10',
         link: 'text-cyan-300 underline-offset-4 hover:text-white hover:underline active:opacity-70',
       },
       size: {

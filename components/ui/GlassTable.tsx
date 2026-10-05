@@ -27,7 +27,7 @@ export function GlassTable({
 export function GlassTableHeader({ className, ...props }: React.ComponentProps<typeof TableHeader>) {
     return (
         <TableHeader
-            className={cn("bg-white/[0.03] [&_tr]:border-b-white/10", className)}
+            className={cn("bg-white/3 [&_tr]:border-b-white/10", className)}
             {...props}
         />
     )
@@ -50,7 +50,7 @@ export function GlassTableRow({ className, ...props }: React.ComponentProps<type
         <tr
             data-slot="table-row"
             className={cn(
-                "border-b-white/5 group transition-colors duration-75 ease-out hover:bg-white/[0.045]",
+                "border-b-white/5 group transition-colors duration-75 ease-out hover:bg-white/4.5",
                 (props as any).onClick ? "cursor-pointer" : "cursor-default",
                 className
             )}
@@ -75,7 +75,7 @@ export function GlassTableCell({ className, isHeader, ...props }: React.Componen
 
 export function GlassStatCell({
     value,
-    max = 100,
+    max: _max = 100,
     className
 }: {
     value: number,

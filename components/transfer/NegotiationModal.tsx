@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { getVisibleStats, formatScoutedRating } from "@/engine/scouting-system"
-import { recruitmentSalary } from "@/engine/recruitment"
+import { buyerReputationFactor, freeAgentWageFactor, recruitmentSalary } from "@/engine/recruitment"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
 import { SeededRNG } from "@/engine/rng"
@@ -123,7 +123,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
             }
 
             // Default salary suggestion
-            const suggestedSalary = recruitmentSalary(playerSave, currentWeek)
+            const suggestedSalary = recruitmentSalary(playerSave, currentWeek, myTeam)
             setSalaryOffer(suggestedSalary)
 
             setInitializedKey(sessionKey)
@@ -133,7 +133,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
             setFailureMessage(null)
             dealSubmittedRef.current = false
         }
-    }, [isOpen, initializedKey, sessionKey, playerSave, playerId, teams, contracts, currentWeek])
+    }, [isOpen, initializedKey, sessionKey, playerSave, playerId, teams, contracts, currentWeek, myTeam])
 
     const dialogRef = useFocusTrap(isOpen && !!playerSave && initializedKey === sessionKey, onClose)
     if (!isOpen || !playerSave || initializedKey !== sessionKey || typeof document === "undefined") return null
@@ -243,6 +243,9 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
         // Age tax (Veterans know their worth)
         if (playerSave.age > 28) minSalary *= 1.1
 
+        // Same free-agent decay and buyer-tier scaling as every AI quote.
+        minSalary *= freeAgentWageFactor(playerSave, currentWeek) * buyerReputationFactor(myTeam)
+
         // Duration fit modifier: closer to ideal = slight discount, edges of range = premium
         const distFromIdeal = Math.abs(sanitizedDuration - durationPref.idealWeeks) / Math.max(1, durationPref.maxWeeks - durationPref.minWeeks)
         const durationFitMultiplier = 0.95 + distFromIdeal * 0.10 // 0.95 at ideal, up to 1.05 at edge
@@ -321,7 +324,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                 >
                     {/* Left Panel: Player Info */}
                     <div className="w-1/3 shrink-0 min-h-0 overflow-y-auto border-r border-white/10 bg-black/20 p-5 flex flex-col relative">
-                        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-b/srgb from-primary/5 to-transparent" />
 
                         <div className="relative z-10 flex flex-col items-center text-center">
                             <div className="w-24 h-24 rounded-2xl bg-white/5 mb-4 overflow-hidden shadow-lg">
@@ -392,7 +395,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                     {stage === "BUYOUT" ? "Transfer Negotiation" : !currentTeam ? "Sign Free Agent" : "Contract Offer"}
                                 </h3>
                                 <p className="text-xs text-muted-foreground uppercase tracking-widest mt-1">
-                                    {stage === "BUYOUT" ? `Negotiating with ${currentTeam?.name}` : "Negotiating with Player Agent"}
+                                    {stage === "BUYOUT" ? `Negotiating with ${currentTeam?.name ?? "the current club"}` : "Negotiating with Player Agent"}
                                 </p>
                             </div>
                             <button onClick={onClose} className="p-2 hover:bg-white/5 active:bg-white/10 active:scale-90 rounded-lg transition-all" aria-label="Close dialog">
@@ -424,7 +427,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                                         const budgetCap = Math.max(0, Math.floor(myTeam?.budget || 0))
                                                         setBuyoutOffer(Math.max(0, Math.min(Math.floor(val), budgetCap)))
                                                     }}
-                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-none w-full"
+                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-hidden w-full"
                                                 />
                                             </div>
                                         </div>
@@ -491,7 +494,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                                                         }
                                                         setSalaryOffer(Math.max(0, Math.min(MAX_NEGOTIATION_SALARY, Math.floor(val))))
                                                     }}
-                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-none w-full"
+                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-hidden w-full"
                                                 />
                                             </div>
                                         </div>

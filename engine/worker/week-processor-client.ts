@@ -4,6 +4,7 @@ import type { SeededRNG } from "../rng"
 import type { ComputedWeek } from "./compute-week"
 import type { ProcessWeekMessage, WorkerResponse } from "./week-processor-protocol"
 import { logger } from "@/lib/logger"
+import { perfTrace } from "../perf-trace"
 
 export class WeekProcessorBridge {
   private worker: Worker | null = null
@@ -62,15 +63,24 @@ export class WeekProcessorBridge {
     }
   }
 
-  async processWeek(save: GameSave, config: WeekProcessorConfig, rng: SeededRNG): Promise<ComputedWeek> {
+  /**
+   * `options.inputOwned`: the caller hands over a private `save` it will not
+   * read or mutate again (the coordinator passes its own detached snapshot).
+   * The bridge then skips its defensive capture clone, which cost ~0.5 s per
+   * tick on a season-10 career (L27). The worker path still copies through
+   * postMessage, so a worker failure recomputes from the unmodified input.
+   */
+  async processWeek(save: GameSave, config: WeekProcessorConfig, rng: SeededRNG, options: { inputOwned?: boolean } = {}): Promise<ComputedWeek> {
     if (this.busy) throw new Error("A week is already being processed")
     this.busy = true
     const generation = this.generation
     try {
       // Capture once before initialization or timeout yields to another action.
       // The worker and fallback start with the same input and RNG state.
-      const input = structuredClone(save)
+      const cloneStart = perfTrace.now()
+      const input = options.inputOwned ? save : structuredClone(save)
       const inputConfig = structuredClone(config)
+      perfTrace.step("bridge.inputClone", cloneStart)
       const rngSeed = rng.getState()
       const canUseWorker = await this.ensureWorker()
       if (generation !== this.generation) throw new Error("Week processing cancelled")

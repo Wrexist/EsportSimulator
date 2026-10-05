@@ -17,7 +17,6 @@ import {
     RenderingMode
 } from "@/lib/settings-store"
 import { soundManager } from "@/lib/sound-manager"
-import { cn } from "@/lib/utils"
 import { useGameStore } from "@/store/game-store"
 
 interface SettingsModalProps {
@@ -129,7 +128,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         transition={{ duration: 0.2 }}
                         className="fixed inset-0 top-16 flex items-center justify-center z-modal p-4"
                     >
-                        <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="modal-title-settings" className="w-full max-w-2xl max-h-full flex flex-col bg-gradient-to-br from-[#0f1318] to-[#0a0d10] border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
+                        <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="modal-title-settings" className="w-full max-w-2xl max-h-full flex flex-col bg-linear-to-br/srgb from-[#0f1318] to-[#0a0d10] border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
                             {/* Header */}
                             <div className="flex shrink-0 items-center justify-between px-6 py-4 border-b border-white/5">
                                 <h2 id="modal-title-settings" className="text-xl font-bold text-white">Settings</h2>
@@ -154,7 +153,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-all
                                         ${activeTab === tab.id
                                                 ? 'text-white bg-white/5 border-b-2 border-emerald-500 shadow-[0_4px_12px_-4px_rgba(16,185,129,0.3)]'
-                                                : 'text-white/40 hover:text-white/60 hover:bg-white/[0.02]'
+                                                : 'text-white/40 hover:text-white/60 hover:bg-white/2'
                                             }
                     `}
                                     >
@@ -181,7 +180,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             </div>
 
                             {/* Footer */}
-                            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/5 bg-white/[0.02]">
+                            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/5 bg-white/2">
                                 <Button
                                     variant="ghost"
                                     onClick={onClose}
@@ -214,7 +213,7 @@ function DisplaySettings({ settings }: { settings: ReturnType<typeof useSettings
                 <select
                     aria-label="Window mode" value={settings.windowMode}
                     onChange={(e) => settings.setWindowMode(e.target.value as WindowMode)}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500/50 w-48"
                 >
                     {WINDOW_MODES.map((mode) => (
                         <option key={mode.value} value={mode.value} className="bg-[#1a1f2e]">
@@ -229,7 +228,7 @@ function DisplaySettings({ settings }: { settings: ReturnType<typeof useSettings
                     aria-label="Resolution" value={settings.resolution}
                     onChange={(e) => settings.setResolution(e.target.value as Resolution)}
                     disabled={settings.windowMode === 'fullscreen'}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 w-48 disabled:opacity-50"
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-primary/50 w-48 disabled:opacity-50"
                 >
                     {RESOLUTIONS.map((res) => (
                         <option key={res.value} value={res.value} className="bg-[#1a1f2e]">
@@ -244,7 +243,7 @@ function DisplaySettings({ settings }: { settings: ReturnType<typeof useSettings
                     <select
                         aria-label="Rendering mode" value={settings.renderingMode}
                         onChange={(e) => settings.setRenderingMode(e.target.value as RenderingMode)}
-                        className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
+                        className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500/50 w-48"
                     >
                         {RENDERING_MODES.map((mode) => (
                             <option key={mode.value} value={mode.value} className="bg-[#1a1f2e]">
@@ -264,7 +263,7 @@ function DisplaySettings({ settings }: { settings: ReturnType<typeof useSettings
                         min={80}
                         max={120}
                         step={5}
-                        className="flex-1 [&_[data-slot=slider-range]]:bg-emerald-500 [&_[data-slot=slider-thumb]]:border-emerald-500 [&_[data-slot=slider-thumb]]:bg-emerald-400"
+                        className="flex-1 **:data-[slot=slider-range]:bg-emerald-500 **:data-[slot=slider-thumb]:border-emerald-500 **:data-[slot=slider-thumb]:bg-emerald-400"
                     />
                     <span className="text-sm text-white/50 tabular-nums w-10 text-right">{settings.uiScale}%</span>
                 </div>
@@ -325,7 +324,7 @@ function GameSettingsTab({ settings }: { settings: ReturnType<typeof useSettings
                         aria-label="Career difficulty" disabled={!hasCareer}
                         value={difficulty ?? 'normal'}
                         onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-                        className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
+                        className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500/50 w-48"
                     >
                         {DIFFICULTIES.map((diff) => (
                             <option key={diff.value} value={diff.value} className="bg-[#1a1f2e]">
@@ -343,7 +342,7 @@ function GameSettingsTab({ settings }: { settings: ReturnType<typeof useSettings
                 <select
                     aria-label="Game speed" value={settings.gameSpeed}
                     onChange={(e) => settings.setGameSpeed(e.target.value as GameSpeed)}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500/50 w-48"
                 >
                     {GAME_SPEEDS.map((speed) => (
                         <option key={speed.value} value={speed.value} className="bg-[#1a1f2e]">
@@ -365,7 +364,7 @@ function GameSettingsTab({ settings }: { settings: ReturnType<typeof useSettings
                     aria-label="Auto-save interval" value={settings.autoSaveInterval}
                     onChange={(e) => settings.setAutoSaveInterval(Number(e.target.value))}
                     disabled={!settings.autoSave}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 w-48 disabled:opacity-50"
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-primary/50 w-48 disabled:opacity-50"
                 >
                     <option value={5} className="bg-[#1a1f2e]">Every 5 minutes</option>
                     <option value={10} className="bg-[#1a1f2e]">Every 10 minutes</option>
@@ -384,7 +383,7 @@ function GameSettingsTab({ settings }: { settings: ReturnType<typeof useSettings
                 <select
                     aria-label="Language" value={settings.language}
                     onChange={(e) => settings.setLanguage(e.target.value)}
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-48"
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500/50 w-48"
                 >
                     <option value="en" className="bg-[#1a1f2e]">English</option>
                 </select>
@@ -451,7 +450,7 @@ function VolumeSlider({ label, value, onChange }: { label: string; value: number
                 min={0}
                 max={100}
                 step={1}
-                className="w-full [&_[data-slot=slider-range]]:bg-emerald-500 [&_[data-slot=slider-thumb]]:border-emerald-500 [&_[data-slot=slider-thumb]]:bg-emerald-400"
+                className="w-full **:data-[slot=slider-range]:bg-emerald-500 **:data-[slot=slider-thumb]:border-emerald-500 **:data-[slot=slider-thumb]:bg-emerald-400"
             />
         </div>
     )

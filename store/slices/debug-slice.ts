@@ -19,6 +19,7 @@ import { LEGENDARY_PLAYERS } from "@/engine/legendary-players-data"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
 import { nextDeterministicId, nextRandom } from "@/store/utils/helpers"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const debugToolsEnabled = () => isDevToolsEnabled()
 
 export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
@@ -281,7 +282,7 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
                 teamName: aiTeam.name,
                 playerName: bestPlayer.nickname,
                 title: `${aiTeam.name} wants to sign ${bestPlayer.nickname}`,
-                message: `${aiTeam.name} has offered $${offerAmount.toLocaleString()} for ${bestPlayer.nickname} (skill ${bestPlayer.skill}).`,
+                message: `${aiTeam.name} has offered ${formatCurrency(offerAmount, "$", false)} for ${bestPlayer.nickname} (skill ${bestPlayer.skill}).`,
                 offerAmount,
                 severity: "info",
             },

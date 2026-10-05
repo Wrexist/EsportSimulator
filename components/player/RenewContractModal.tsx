@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { PlayerSaveData } from "@/engine/save-types"
 import { ArrowRight, Calendar, DollarSign, PenTool } from "lucide-react"
+import { formatCurrency } from "@/lib/utils-extended"
 
 interface RenewContractModalProps {
     player: PlayerSaveData
@@ -62,7 +63,7 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
                         <div className="space-y-4 text-center opacity-60">
                             <div className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Current</div>
                             <div className="space-y-1">
-                                <div className="text-sm flex items-center justify-center gap-1"><DollarSign size={12} /> {currentSalary.toLocaleString()}</div>
+                                <div className="text-sm flex items-center justify-center gap-1"><DollarSign size={12} /> {formatCurrency(currentSalary, "", false)}</div>
                                 <div className="text-sm flex items-center justify-center gap-1"><Calendar size={12} /> {weeksRemaining} wks</div>
                             </div>
                         </div>
@@ -77,7 +78,7 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
                             <div className="text-xs uppercase tracking-widest font-bold text-blue-400">New Offer</div>
                             <div className="space-y-1">
                                 <div className="text-lg font-bold text-white flex items-center justify-center gap-1">
-                                    <DollarSign size={14} /> {newSalary.toLocaleString()}
+                                    <DollarSign size={14} /> {formatCurrency(newSalary, "", false)}
                                 </div>
                                 <div className="text-sm font-medium text-blue-200 flex items-center justify-center gap-1">
                                     <Calendar size={12} /> +52 wks (Total: {newWeeksRemaining})
@@ -88,7 +89,7 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
 
                     <div className="bg-white/5 p-4 rounded-lg text-sm text-muted-foreground border border-white/5">
                         <p>
-                            Renewing for <strong>1 Year</strong> will secure <strong>{player.nickname}</strong>'s services until Week {currentEndWeek + 52}.
+                            Renewing for <strong>1 Year</strong> will secure <strong>{player.nickname}</strong>&apos;s services until Week {currentEndWeek + 52}.
                             The salary will increase by <span className="text-emerald-400 font-bold">10%</span>.
                         </p>
                     </div>
@@ -100,7 +101,7 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
                     </Button>
                     <Button
                         onClick={handleConfirm}
-                        className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold border-0 shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all hover:scale-105"
+                        className="bg-linear-to-r/srgb from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold border-0 shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all hover:scale-105"
                     >
                         Sign Renewal
                     </Button>

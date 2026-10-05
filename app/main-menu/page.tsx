@@ -22,7 +22,8 @@ import {
     AlertDialogAction,
 } from "@/components/ui/alert-dialog"
 import Image from "next/image"
-import Link from "next/link"
+import { pressable } from "@/lib/accessibility"
+import { formatCurrency } from "@/lib/utils-extended"
 
 // Phase 2: Use real metadata
 // interface EnhancedSaveSlot removed
@@ -85,19 +86,6 @@ export default function MainMenuPage() {
         }
     }
 
-    const timeAgo = (dateStr: string | null) => {
-        if (!dateStr) return "Never"
-        const date = new Date(dateStr)
-        const now = new Date()
-        const diffMs = now.getTime() - date.getTime()
-        const diffMins = Math.floor(diffMs / 60000)
-        if (diffMins < 60) return `${diffMins}m ago`
-        const diffHours = Math.floor(diffMins / 60)
-        if (diffHours < 24) return `${diffHours}h ago`
-        const diffDays = Math.floor(diffHours / 24)
-        return `${diffDays}d ago`
-    }
-
     const getWinRate = (wins: number, losses: number) => {
         const total = wins + losses
         if (total === 0) return 0
@@ -109,7 +97,7 @@ export default function MainMenuPage() {
             {/* Sophisticated Background */}
             <div className="absolute inset-0 liquid-noise" />
             <div className="absolute inset-x-0 top-0 h-56 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),transparent)]" />
-            <div className="absolute left-1/2 top-20 h-px w-[min(80vw,960px)] -translate-x-1/2 bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+            <div className="absolute left-1/2 top-20 h-px w-[min(80vw,960px)] -translate-x-1/2 bg-linear-to-r/srgb from-transparent via-white/12 to-transparent" />
 
             {/* Subtle Grid Pattern */}
             <div className="absolute inset-0 opacity-[0.015]" style={{
@@ -160,7 +148,7 @@ export default function MainMenuPage() {
                     >
                     </motion.div>
                     <h1 className="text-5xl font-normal tracking-tighter uppercase mb-4">
-                        <span className="bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
+                        <span className="bg-linear-to-r/srgb from-white via-white to-white/60 bg-clip-text text-transparent">
                             Esport Manager
                         </span>
                     </h1>
@@ -180,13 +168,13 @@ export default function MainMenuPage() {
                     >
                         <button
                             onClick={handleNewGame}
-                            className="group liquid-panel relative overflow-hidden rounded-xl border-white/[0.1] transition-[transform,border-color,box-shadow] duration-300 ease-glass hover:-translate-y-0.5 hover:border-white/[0.14] hover:shadow-glass-float"
+                            className="group liquid-panel relative overflow-hidden rounded-xl border-white/10 transition-[transform,border-color,box-shadow] duration-300 ease-glass hover:-translate-y-0.5 hover:border-white/[0.14] hover:shadow-glass-float"
                         >
                             {/* Content */}
                             <div className="relative p-10 flex items-center gap-8">
                                 {/* Icon */}
                                 <div className="relative shrink-0">
-                                    <div className="w-28 h-28 rounded-xl bg-white/[0.06] flex items-center justify-center border border-white/[0.12] shadow-glass-soft ring-1 ring-inset ring-cyan-300/10">
+                                    <div className="w-28 h-28 rounded-xl bg-white/6 flex items-center justify-center border border-white/12 shadow-glass-soft ring-1 ring-inset ring-cyan-300/10">
                                         <Plus className="w-14 h-14 text-white" />
                                     </div>
                                 </div>
@@ -202,7 +190,7 @@ export default function MainMenuPage() {
                                 </div>
 
                                 {/* Arrow */}
-                                <div className="w-14 h-14 rounded-lg liquid-button flex items-center justify-center group-hover:bg-white/[0.08] transition-all duration-300">
+                                <div className="w-14 h-14 rounded-lg liquid-button flex items-center justify-center group-hover:bg-white/8 transition-all duration-300">
                                     <ChevronRight className="w-6 h-6 text-white/50 group-hover:text-white transition-colors" />
                                 </div>
                             </div>
@@ -219,7 +207,7 @@ export default function MainMenuPage() {
                             {/* Content */}
                             <div className="relative p-6 flex items-center gap-6">
                                 {/* Icon */}
-                                <div className="w-16 h-16 rounded-lg bg-violet-300/10 flex items-center justify-center border border-violet-200/[0.16] shrink-0 transition-all">
+                                <div className="w-16 h-16 rounded-lg bg-violet-300/10 flex items-center justify-center border border-violet-200/16 shrink-0 transition-all">
                                     <Users className="w-8 h-8 text-purple-300" />
                                 </div>
 
@@ -234,7 +222,7 @@ export default function MainMenuPage() {
                                 </div>
 
                                 {/* Arrow */}
-                                <div className="w-10 h-10 rounded-lg liquid-button flex items-center justify-center group-hover:bg-violet-300/[0.12] transition-all duration-300">
+                                <div className="w-10 h-10 rounded-lg liquid-button flex items-center justify-center group-hover:bg-violet-300/12 transition-all duration-300">
                                     <ChevronRight className="w-5 h-5 text-white/30 group-hover:text-purple-300 transition-colors" />
                                 </div>
                             </div>
@@ -322,12 +310,12 @@ export default function MainMenuPage() {
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, x: 10 }}
                                                 transition={{ delay: idx * 0.03 }}
-                                                onClick={() => setSelectedSlot(slot.saveId || null)}
+                                                {...pressable(() => setSelectedSlot(slot.saveId || null), { pressed: selectedSlot === slot.saveId })}
                                                 className={`
-                                                    group relative w-full p-5 rounded-md cursor-pointer transition-[background,border-color,box-shadow] duration-300 border mb-3 backdrop-blur-sm
+                                                    group relative w-full p-5 rounded-md cursor-pointer transition-[background,border-color,box-shadow] duration-300 border mb-3 backdrop-blur-xs
                                                     ${selectedSlot === slot.saveId
-                                                        ? "bg-white/[0.06] border-cyan-300/25 shadow-glass-soft ring-1 ring-inset ring-cyan-300/15"
-                                                        : "bg-gradient-to-br from-white/[0.03] via-white/[0.01] to-transparent border-white/[0.06] hover:bg-white/[0.04] hover:border-white/[0.08]"
+                                                        ? "bg-white/6 border-cyan-300/25 shadow-glass-soft ring-1 ring-inset ring-cyan-300/15"
+                                                        : "bg-linear-to-br/srgb from-white/3 via-white/1 to-transparent border-white/6 hover:bg-white/4 hover:border-white/8"
                                                     }
                                                 `}
                                             >
@@ -337,7 +325,7 @@ export default function MainMenuPage() {
                                                         {/* Large Team Logo */}
                                                         <div className={`
                                                             w-14 h-14 rounded-lg flex items-center justify-center shrink-0 border overflow-hidden relative
-                                                            ${selectedSlot === slot.saveId ? "bg-black/30 border-primary/20 shadow-lg shadow-primary/5" : "bg-white/[0.03] border-white/[0.06]"}
+                                                            ${selectedSlot === slot.saveId ? "bg-black/30 border-primary/20 shadow-lg shadow-primary/5" : "bg-white/3 border-white/6"}
                                                         `}>
                                                             <TeamLogoImage
                                                                 src={slot.teamLogo} team={slot.teamPreview}
@@ -361,7 +349,7 @@ export default function MainMenuPage() {
                                                             </h3>
                                                             <div className="flex items-center gap-2 flex-wrap">
                                                                 {/* Year/Date Display */}
-                                                                <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/[0.04] border border-white/[0.06]">
+                                                                <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/4 border border-white/6">
                                                                     <Calendar className="w-3 h-3 text-white/30" />
                                                                     <span className="text-[10px] font-medium text-white/50">
                                                                         {(() => {
@@ -372,7 +360,7 @@ export default function MainMenuPage() {
 
                                                                                 const currentDate = new Date(baseDate.getTime() + ((slot.currentWeek || 1) - 1) * 7 * 24 * 60 * 60 * 1000)
                                                                                 return currentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                                                                            } catch (e) {
+                                                                            } catch {
                                                                                 return `Week ${slot.currentWeek || 1}`
                                                                             }
                                                                         })()}
@@ -406,7 +394,7 @@ export default function MainMenuPage() {
                                                         slot.topPlayerPreviews.map((p) => (
                                                             <div key={p.id} className="flex flex-col items-center gap-1 shrink-0">
                                                                 <div className="relative">
-                                                                    <div className="w-10 h-10 rounded-xl bg-white/[0.03] overflow-hidden">
+                                                                    <div className="w-10 h-10 rounded-xl bg-white/3 overflow-hidden">
                                                                         <PlayerPortrait
                                                                             src={p.portraitPath} seed={p.id}
                                                                             alt={p.nickname}
@@ -431,7 +419,7 @@ export default function MainMenuPage() {
                                                     ) : slot.topPlayerPortraits && slot.topPlayerPortraits.length > 0 ? (
                                                         // Fallback for legacy saves - Use PlayerPortrait for fallback
                                                         slot.topPlayerPortraits.map((src, i) => (
-                                                            <div key={i} className="w-10 h-10 rounded-xl bg-white/[0.03] overflow-hidden shrink-0">
+                                                            <div key={i} className="w-10 h-10 rounded-xl bg-white/3 overflow-hidden shrink-0">
                                                                 <PlayerPortrait src={src} alt="Player" size={40} />
                                                             </div>
                                                         ))
@@ -441,7 +429,7 @@ export default function MainMenuPage() {
                                                 </div>
 
                                                 {/* Bottom Row: Trophies & Financials */}
-                                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/[0.04]">
+                                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/4">
                                                     {/* Trophies on the left */}
                                                     <div className="flex items-center gap-2.5">
                                                         {/* Majors */}
@@ -480,10 +468,10 @@ export default function MainMenuPage() {
 
                                                     {/* Budget on the right */}
                                                     {slot.budget !== undefined && (
-                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/[0.02]">
+                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/2">
                                                             <span className="text-[9px] font-medium text-white/30">Budget</span>
                                                             <span className="text-[10px] font-semibold text-white/60">
-                                                                ${(slot.budget / 1000).toFixed(0)}k
+                                                                {formatCurrency(slot.budget)}
                                                             </span>
                                                         </div>
                                                     )}

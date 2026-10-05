@@ -24,7 +24,6 @@ import {
     MousePointer2,
     Keyboard,
     Monitor,
-    Award,
     Target,
     Heart,
     DollarSign,
@@ -59,6 +58,7 @@ import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 import { RecruitmentProfile } from "./RecruitmentProfile"
+import { pressable } from "@/lib/accessibility"
 
 interface PlayerDetailProps {
     player: PlayerSaveData
@@ -88,7 +88,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const [trainingModalOpen, setTrainingModalOpen] = useState(false)
     const [transferModalOpen, setTransferModalOpen] = useState(false)
     const [weaponModalOpen, setWeaponModalOpen] = useState(false)
-    const [selectedWeaponForModal, setSelectedWeaponForModal] = useState<WeaponType>("RIFLE")
+    const [, setSelectedWeaponForModal] = useState<WeaponType>("RIFLE")
     const [activeTab, setActiveTab] = useState("technical")
     const [negotiationOpen, setNegotiationOpen] = useState(false)
 
@@ -164,7 +164,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
             >
                 <div className="flex flex-col md:flex-row gap-6 items-start relative z-10">
                     {/* Stable portrait shared with the squad and market. */}
-                    <div className="flex-shrink-0 group">
+                    <div className="shrink-0 group">
                         <div className="w-28 h-28 rounded-lg overflow-hidden bg-slate-950/30 relative">
                             <PlayerPortrait key={player.id} src={player.portraitPath} seed={player.id}
                                 alt={player.nickname} size={112} variant="hero" />
@@ -184,7 +184,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                 <Trophy size={10} className="mr-1.5" />
                                 {getPrestigeLabel(player.prestigeScore || 0) === 'Unknown' ? 'Career profile' : getPrestigeLabel(player.prestigeScore || 0)}
                             </Badge>
-                            <Badge className={cn("text-[10px] uppercase font-normal px-2 py-0.5 shadow-sm", tierStyle.bgColor, tierStyle.borderColor, tierStyle.color)}>
+                            <Badge className={cn("text-[10px] uppercase font-normal px-2 py-0.5 shadow-xs", tierStyle.bgColor, tierStyle.borderColor, tierStyle.color)}>
                                 {tierStyle.label}
                             </Badge>
 
@@ -417,7 +417,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                         <div className="flex flex-col">
                             <span className="text-xs text-slate-400 font-medium mb-1.5">Salary</span>
                             <span className="text-lg font-normal text-white leading-none">
-                                ${contract?.salaryPerWeek.toLocaleString() ?? "0"}<span className="text-[10px] text-muted-foreground font-medium">/wk</span>
+                                {formatCurrency(contract?.salaryPerWeek ?? 0, "$", false)}<span className="text-[10px] text-muted-foreground font-medium">/wk</span>
                             </span>
                         </div>
                         <div className="w-px h-6 bg-primary/10" />
@@ -556,7 +556,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         { label: "Grenades", value: player.grenades, icon: <Zap size={16} /> },
                                         { label: "Creativity", value: player.creativity, icon: <Brain size={16} /> },
                                     ].map(stat => (
-                                        <div key={stat.label} className="text-center py-4 px-2 bg-white/[0.025] rounded-lg">
+                                        <div key={stat.label} className="text-center py-4 px-2 bg-white/2.5 rounded-lg">
                                             <div className="flex items-center justify-center gap-2 text-muted-foreground text-xs mb-2">
                                                 {stat.icon} {stat.label}
                                             </div>
@@ -620,7 +620,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         { label: "Stress Res.", value: player.stressResistance, icon: <Activity size={16} /> },
                                         { label: "Loyalty", value: player.loyalty, icon: <Heart size={16} /> },
                                     ].map(stat => (
-                                        <div key={stat.label} className="text-center py-4 px-2 bg-white/[0.025] rounded-lg">
+                                        <div key={stat.label} className="text-center py-4 px-2 bg-white/2.5 rounded-lg">
                                             <div className="flex items-center justify-center gap-2 text-muted-foreground text-xs mb-2">
                                                 {stat.icon} {stat.label}
                                             </div>
@@ -674,16 +674,15 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                             const xp = typeof data === 'number' ? data : data?.xp || 0
                                             const masteryInfo = getMasteryInfo(xp)
                                             const isMaster = masteryInfo.isMaster
-                                            const levelNum = ["NOVICE", "COMPETENT", "SKILLED", "EXPERT", "MASTER"].indexOf(masteryInfo.level) + 1
 
                                             return (
                                                 <div
                                                     key={weapon}
                                                     className="bg-black/20 p-4 rounded-xl border border-white/5 relative overflow-hidden group cursor-pointer hover:bg-white/5 transition-colors"
-                                                    onClick={() => {
+                                                    {...pressable(() => {
                                                         setSelectedWeaponForModal(weapon as WeaponType)
                                                         setWeaponModalOpen(true)
-                                                    }}
+                                                    })}
                                                 >
                                                     {/* Signature Glow */}
                                                     {isMaster && (
@@ -702,7 +701,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
 
                                                     <div className="h-2 w-full bg-black/40 rounded-full overflow-hidden mb-2">
                                                         <div
-                                                            className={cn("h-full transition-all duration-500", isMaster ? "bg-gradient-to-r from-yellow-500 to-amber-300" : "bg-primary")}
+                                                            className={cn("h-full transition-all duration-500", isMaster ? "bg-linear-to-r/srgb from-yellow-500 to-amber-300" : "bg-primary")}
                                                             style={{ width: `${masteryInfo.progress}%` }}
                                                         />
                                                     </div>
@@ -730,7 +729,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         <h3 className="text-xl font-normal text-white flex items-center gap-2">
                                             <Brain className="text-purple-400" /> Player Talents
                                         </h3>
-                                        <p className="text-xs text-white/40 uppercase tracking-widest font-bold mt-1">Customize {player.nickname}'s playstyle</p>
+                                        <p className="text-xs text-white/40 uppercase tracking-widest font-bold mt-1">Customize {player.nickname}&apos;s playstyle</p>
                                     </div>
                                     <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/10">
                                         <Star className="text-amber-400 fill-amber-400" size={16} />
@@ -759,19 +758,19 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                             >
                                 <h4 className="text-sm font-semibold text-white mb-6">Career Statistics</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                                    <div className="text-center py-4 px-2 bg-white/[0.025] rounded-lg">
+                                    <div className="text-center py-4 px-2 bg-white/2.5 rounded-lg">
                                         <div className="text-xs text-muted-foreground mb-1">Matches</div>
                                         <div className="text-3xl font-normal text-white">{player.matchesPlayed || 0}</div>
                                     </div>
-                                    <div className="text-center py-4 px-2 bg-white/[0.025] rounded-lg">
+                                    <div className="text-center py-4 px-2 bg-white/2.5 rounded-lg">
                                         <div className="text-xs text-muted-foreground mb-1">Rounds</div>
                                         <div className="text-3xl font-normal text-white">{player.roundsPlayed || 0}</div>
                                     </div>
-                                    <div className="text-center py-4 px-2 bg-white/[0.025] rounded-lg">
+                                    <div className="text-center py-4 px-2 bg-white/2.5 rounded-lg">
                                         <div className="text-xs text-muted-foreground mb-1">Avg Rating</div>
                                         <div className="text-3xl font-normal text-primary">{player.avgRating?.toFixed(2) || "0.00"}</div>
                                     </div>
-                                    <div className="text-center py-4 px-2 bg-white/[0.025] rounded-lg">
+                                    <div className="text-center py-4 px-2 bg-white/2.5 rounded-lg">
                                         <div className="text-xs text-muted-foreground mb-1">Clutch Rate</div>
                                         <div className="text-3xl font-normal text-amber-400">
                                             {(clutchRateFraction(player.clutchSuccessRate) * 100).toFixed(1)}%
@@ -798,15 +797,15 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                     </div>
 
                                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                        <div className="text-center p-4 bg-gradient-to-b from-amber-500/10 to-transparent rounded-xl border border-amber-500/20">
+                                        <div className="text-center p-4 bg-linear-to-b/srgb from-amber-500/10 to-transparent rounded-xl border border-amber-500/20">
                                             <div className="text-xs text-amber-400/80 mb-1">Global Rank</div>
                                             <div className="text-3xl font-normal text-amber-400">#{fplStats.fplRank || '-'}</div>
                                         </div>
-                                        <div className="text-center py-4 px-2 bg-white/[0.025] rounded-lg">
+                                        <div className="text-center py-4 px-2 bg-white/2.5 rounded-lg">
                                             <div className="text-xs text-muted-foreground mb-1">ELO</div>
                                             <div className="text-2xl font-normal text-white">{Math.round(fplStats.fplElo)}</div>
                                         </div>
-                                        <div className="text-center py-4 px-2 bg-white/[0.025] rounded-lg">
+                                        <div className="text-center py-4 px-2 bg-white/2.5 rounded-lg">
                                             <div className="text-xs text-muted-foreground mb-1">W / L</div>
                                             <div className="text-2xl font-normal">
                                                 <span className="text-emerald-400">{fplStats.wins}</span>
@@ -814,11 +813,11 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                                 <span className="text-red-400">{fplStats.losses}</span>
                                             </div>
                                         </div>
-                                        <div className="text-center py-4 px-2 bg-white/[0.025] rounded-lg">
+                                        <div className="text-center py-4 px-2 bg-white/2.5 rounded-lg">
                                             <div className="text-xs text-muted-foreground mb-1">FPL Rating</div>
                                             <div className="text-2xl font-normal text-primary">{fplStats.avgRating?.toFixed(2) || "1.00"}</div>
                                         </div>
-                                        <div className="text-center py-4 px-2 bg-white/[0.025] rounded-lg relative">
+                                        <div className="text-center py-4 px-2 bg-white/2.5 rounded-lg relative">
                                             <div className="text-xs text-muted-foreground mb-1">MVPs</div>
                                             <div className="text-2xl font-normal text-purple-400">{fplStats.mvpCount}</div>
                                         </div>
@@ -826,7 +825,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
 
                                     {/* FPL Championships */}
                                     {fplChampionships > 0 && (
-                                        <div className="mt-4 p-4 bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 rounded-xl border border-amber-500/30 flex items-center gap-4">
+                                        <div className="mt-4 p-4 bg-linear-to-r/srgb from-amber-500/10 via-yellow-500/10 to-amber-500/10 rounded-xl border border-amber-500/30 flex items-center gap-4">
                                             <div className="flex items-center gap-2">
                                                 <Trophy size={24} className="text-amber-400 fill-amber-400/20" />
                                                 <div>

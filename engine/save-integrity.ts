@@ -27,7 +27,7 @@ export class SaveIntegrityManager {
      * Canonical serialization for hashing — strips integrityHash so the
      * hash is reproducible whether or not it's already present.
      */
-    private serializeForIntegrity(save: Record<string, unknown>): string {
+    serializeForIntegrity(save: Record<string, unknown>): string {
         const { integrityHash: _omit, ...rest } = save
         void _omit
         return JSON.stringify(rest)
@@ -120,7 +120,11 @@ export class SaveIntegrityManager {
      * do not treat a passing v3 check as an anti-cheat guarantee.
      */
     async computeIntegrityHash(save: Record<string, unknown>): Promise<string> {
-        const payload = this.serializeForIntegrity(save)
+        return this.computeIntegrityHashFromPayload(this.serializeForIntegrity(save))
+    }
+
+    /** v3 signature of a payload produced by {@link serializeForIntegrity}. */
+    async computeIntegrityHashFromPayload(payload: string): Promise<string> {
         const digest = await this.computeSha256Hex(payload)
         return `v3:${digest}`
     }

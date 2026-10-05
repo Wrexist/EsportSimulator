@@ -207,7 +207,7 @@ export default function TrophyRoomPage() {
                     animate={{ opacity: 1 }}
                     className="py-24 text-center"
                 >
-                    <div className="w-24 h-24 mx-auto mb-8 rounded-[2rem] bg-white/[0.03] border border-white/10 flex items-center justify-center">
+                    <div className="w-24 h-24 mx-auto mb-8 rounded-4xl bg-white/3 border border-white/10 flex items-center justify-center">
                         <Trophy size={40} className="text-white/10" />
                     </div>
                     <h2 className="text-2xl font-normal text-white/70 uppercase tracking-wider mb-3">No Trophies Yet</h2>

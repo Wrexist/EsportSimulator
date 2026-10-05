@@ -31,16 +31,18 @@ import type {
     CompletedMatchSaveData,
     TeamSaveData,
 } from "@/engine/save-types"
-import type { Player, Team } from "@/types"
 import {
-    simulationEngineV2,
     TournamentManager,
     LeagueEngine,
     SeededRNG,
 } from "@/engine"
 import { ManagerProgression } from "@/engine/manager-progression"
+import { applyFormResult, applyMoraleResult } from "@/engine/player-lifecycle"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
-import { applyPreMatchTalents } from "@/engine/match/apply-talents"
+import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mastery"
+import type { GameSave } from "@/engine/save-types"
+import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
+import { runLegacySeries, finalizeLegacySeries } from "@/engine/match/legacy-series"
 import { checkAchievements } from "@/engine/steam-service"
 import {
     ensureDeterministicSeed,
@@ -57,12 +59,13 @@ import {
     MAX_MATCH_RATING,
 } from "@/store/utils/helpers"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const NEWS_FEED_CAP = 50
 
 export interface MatchSimulationActions {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- MatchResult shape lives in @/types but is loosely typed
     saveMatchResult: (matchId: string, result: any) => void
-    simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<void>
+    simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
 }
 
 export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = (set, get) => ({
@@ -213,7 +216,17 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 playerStats: sanitizedPlayerStats,
             }
             result.engineVersion = 'legacy-v2'
-            result.lineups = { [homeTeam.id]: getActivePlayersByRosterOrder(homeTeam, state.players).map(p => p.id), [awayTeam.id]: getActivePlayersByRosterOrder(awayTeam, state.players).map(p => p.id) }
+            // Keep the match-time lineup the engine recorded (L21.A2); only derive
+            // from the current roster when a result arrives without a valid one.
+            const knownPlayers = new Set(state.players.map(p => p.id))
+            const recorded = (teamId: string) => {
+                const ids = result.lineups?.[teamId]
+                return Array.isArray(ids) && ids.length > 0 && ids.length <= 5 && new Set(ids).size === ids.length && ids.every((id: unknown) => typeof id === "string" && knownPlayers.has(id)) ? ids as string[] : undefined
+            }
+            result.lineups = {
+                [homeTeam.id]: recorded(homeTeam.id) ?? getActivePlayersByRosterOrder(homeTeam, state.players).map(p => p.id),
+                [awayTeam.id]: recorded(awayTeam.id) ?? getActivePlayersByRosterOrder(awayTeam, state.players).map(p => p.id),
+            }
             const completedMatch: CompletedMatchSaveData = { ...match, engineVersion: 'legacy-v2', result }
 
             // Remove from scheduled list — match is committed below.
@@ -337,7 +350,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                                         week: state.currentWeek,
                                         data: {
                                             title: "Sponsor Goal Met",
-                                            message: `${sponsor.name} sent a bonus of $${goal.bonusPayout.toLocaleString()}.`,
+                                            message: `${sponsor.name} sent a bonus of ${formatCurrency(goal.bonusPayout, "$", false)}.`,
                                         },
                                         acknowledged: false,
                                     })
@@ -375,7 +388,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                             default: return won ? 5 : -5
                         }
                     })()
-                    player.morale = Math.max(0, Math.min(100, (player.morale || 50) + moraleChange))
+                    player.morale = applyMoraleResult(player.morale || 50, moraleChange)
+                    player.form = applyFormResult(player.form, won)
 
                     const stats = result.playerStats[pid]
                     if (!stats) return
@@ -402,7 +416,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                         player.level = (player.level || 1) + 1
                         player.talentPoints = (player.talentPoints || 0) + 1
                         player.xpToNextLevel = Math.floor((player.xpToNextLevel || 1000) * 1.5)
-                        state.eventsLog.unshift({
+                        // Opponent level-ups are not the manager's news (and each would toast).
+                        if (team.id === state.playerTeamId) state.eventsLog.unshift({
                             id: nextDeterministicId(state, "evt_lvl", player.id),
                             type: "PLAYER_LEVEL_UP",
                             week: state.currentWeek,
@@ -421,6 +436,14 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
                     if (stats.kills > 0) {
                         const weaponXp = stats.kills * 10
+                        const existing = player.weaponMastery[primaryWeapon]
+                        if (typeof existing === "number") {
+                            // The weekly auto-sim (WeaponMasteryManager) stores AWP as
+                            // a plain XP total. Keep that canonical shape and scale
+                            // instead of writing object fields onto a number (crash).
+                            player.weaponMastery[primaryWeapon] = existing + stats.kills * 4
+                            return
+                        }
                         if (!player.weaponMastery[primaryWeapon]) {
                             player.weaponMastery[primaryWeapon] = { xp: 0, level: 1, kills: 0 }
                         }
@@ -447,6 +470,12 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             }
             updatePlayerStats(homeTeam, homeWon)
             updatePlayerStats(awayTeam, !homeWon)
+            // Canonical weapon-category mastery (RIFLE/AWP/PISTOL/SMG XP), the
+            // track the match engine reads. The weekly tick applies it to every
+            // AI match; matches committed here never did, so managed starters
+            // stayed at mastery 0 while AI starters reached +12 accuracy /
+            // +8 damage (~+10 equipment power per player). Parity fix.
+            processMatchWeaponMastery(state as unknown as GameSave, result)
 
             // Manager stats + achievements + XP, only when player team was in the match.
             if (homeTeam.id === state.playerTeamId || awayTeam.id === state.playerTeamId) {
@@ -539,26 +568,38 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
     simulateInstantMatch: async (matchId: string, opts: { skippedPrep?: boolean } = {}) => {
         const state = get()
+        // Already recorded (double click, retry): report success so callers
+        // can show the result instead of a not-found screen.
+        if (state.completedMatches.some(m => m.id === matchId)) return true
         const match = state.scheduledMatches.find(m => m.id === matchId)
-        if (!match) return
-        if (!state.playerTeamId) return
+        if (!match) {
+            get().addToast({ message: 'That match is no longer on your schedule.', type: 'warning' })
+            return false
+        }
+        if (!state.playerTeamId) return false
         if (state.activeMatchId || state.activeMatchState) {
             get().addToast({ message: 'Resume your active match to keep its recorded rounds and lineup.', type: 'warning' })
-            return
+            return false
         }
 
         const isPlayerMatch = match.homeTeamId === state.playerTeamId || match.awayTeamId === state.playerTeamId
-        if (!isPlayerMatch) return
-        if (match.week > state.currentWeek) return
+        if (!isPlayerMatch) return false
+        if (match.week > state.currentWeek) {
+            get().addToast({ message: "This match isn't due yet.", type: 'warning' })
+            return false
+        }
         // HYBRID_DAILY: refuse simulating a match from a future day.
         if (state.timeMode === "HYBRID_DAILY" && match.week === state.currentWeek) {
             const matchDay = match.day ?? 6
-            if (matchDay > state.currentDay) return
+            if (matchDay > state.currentDay) {
+                get().addToast({ message: "This match isn't due yet.", type: 'warning' })
+                return false
+            }
         }
 
         const hTeam = state.teams.find(t => t.id === match.homeTeamId)
         const aTeam = state.teams.find(t => t.id === match.awayTeamId)
-        if (!hTeam || !aTeam) return
+        if (!hTeam || !aTeam) return false
 
         const hPlayers = getActivePlayersByRosterOrder(hTeam, state.players).map(p => structuredClone(p))
         const aPlayers = getActivePlayersByRosterOrder(aTeam, state.players).map(p => structuredClone(p))
@@ -569,11 +610,11 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         // properly, so this can't softlock.
         if (state.playerTeamId === hTeam.id && hPlayers.length < 5) {
             get().addToast({ message: `You need 5 active players to play - your roster has ${hPlayers.length}.`, type: "warning" })
-            return
+            return false
         }
         if (state.playerTeamId === aTeam.id && aPlayers.length < 5) {
             get().addToast({ message: `You need 5 active players to play - your roster has ${aPlayers.length}.`, type: "warning" })
-            return
+            return false
         }
         // Either roster understrength (e.g. the opponent got gutted by injuries /
         // retirements): refuse rather than let simulateMatch crash pickWeighted
@@ -581,70 +622,31 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         if (hPlayers.length < 5 || aPlayers.length < 5) {
             const shorthanded = hPlayers.length < 5 ? hTeam : aTeam
             get().addToast({ message: `${shorthanded.name} can't field 5 players - advance the week to resolve this match by forfeit.`, type: "warning" })
-            return
+            return false
         }
 
-        const hStaffData = state.staff.filter(s => hTeam.staffIds.includes(s.id)).map(s => structuredClone(s))
-        const aStaffData = state.staff.filter(s => aTeam.staffIds.includes(s.id)).map(s => structuredClone(s))
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const mapStaff = (sData: any[]) => ({
-            coach: sData.find(s => s.role === "coach"),
-            analyst: sData.find(s => s.role === "analyst"),
-            psychologist: sData.find(s => s.role === "psychologist"),
+        // Shared preparation + canonical series runner: identical to the live
+        // screen's path for the same seed, maps, lineup and decisions (L21/L14).
+        const ctx = prepareLegacySeries({
+            match,
+            homeTeam: hTeam,
+            awayTeam: aTeam,
+            homePlayers: hPlayers,
+            awayPlayers: aPlayers,
+            staff: state.staff,
+            customTactics: state.customTactics,
+            managedTeamId: state.playerTeamId ?? undefined,
         })
-
-        // Pre-match staff-talent application — morale_floor + timeout_morale
-        // + anti_strat in one call. Centralized in engine/match/apply-talents.ts
-        // so the slice + match-engine + live-match paths stay in lockstep.
-        const { homeAntiStrat, awayAntiStrat } = applyPreMatchTalents(
-            hPlayers, aPlayers, hStaffData, aStaffData,
-        )
-
-        const hStaff = mapStaff(hStaffData)
-        const aStaff = mapStaff(aStaffData)
-
-        // anti_strat applied to opponent coach tactic bonus. mapStaff returns
-        // raw StaffSaveData without a tacticBonus field — derive from level.
-        if (homeAntiStrat > 0 && aStaff.coach) {
-            const baseTactic = aStaff.coach.tacticBonus || (aStaff.coach.level || 1) * 2
-            aStaff.coach.tacticBonus = Math.round(baseTactic * (1 - homeAntiStrat))
-        }
-        if (awayAntiStrat > 0 && hStaff.coach) {
-            const baseTactic = hStaff.coach.tacticBonus || (hStaff.coach.level || 1) * 2
-            hStaff.coach.tacticBonus = Math.round(baseTactic * (1 - awayAntiStrat))
-        }
-
-        const bestOf = match.format === "BO3" ? 3 : match.format === "BO5" ? 5 : 1
-        const fallbackSeed = Math.max(
-            1,
-            Array.from(match.id).reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) >>> 0, 0),
-        )
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const runtimeMatch: any = {
-            ...match,
-            seed: (typeof match.seed === "number" && Number.isFinite(match.seed) && match.seed >= 0) ? match.seed : fallbackSeed,
-            bestOf,
-        }
-
-        const result = simulationEngineV2.simulateMatch(
-            runtimeMatch,
-            hTeam as unknown as Team,
-            aTeam as unknown as Team,
-            hPlayers,
-            aPlayers,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            hStaff as any,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            aStaff as any,
-            undefined,
-            state.customTactics,
-            state.playerTeamId ?? undefined,
-        )
+        const run = runLegacySeries(ctx)
+        const result = finalizeLegacySeries(ctx, run.state, buildManagementRecord({ ctx, match, mode: 'instant', timeoutsUsed: 0, maps: run.state.maps }))
 
         // Cross-slice RPC — works because saveMatchResult is in the same
         // slice and was spread into the StoreState alongside us.
         get().saveMatchResult(matchId, result)
+        if (!get().completedMatches.some(m => m.id === matchId)) {
+            get().addToast({ message: "The match result couldn't be recorded. Your match is still on the schedule.", type: 'error' })
+            return false
+        }
 
         // Achievement re-check after the manager stats bump.
         checkAchievements({
@@ -658,5 +660,6 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;(set as any)({ activeMatchId: null, activeMatchState: null })
         }
+        return true
     },
 })

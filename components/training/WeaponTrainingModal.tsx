@@ -37,6 +37,7 @@ import {
     WeaponMasteryManager
 } from "@/engine/weapon-mastery-system"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface WeaponTrainingModalProps {
     isOpen: boolean
     onClose: () => void
@@ -80,7 +81,7 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
         // Check budget
         if (budget < drill.cost) {
             toast.error("Insufficient budget", {
-                description: `Need $${drill.cost.toLocaleString()} for this drill`
+                description: `Need ${formatCurrency(drill.cost, "$", false)} for this drill`
             })
             return
         }
@@ -144,7 +145,7 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
             <DialogContent className="max-w-2xl p-0 overflow-hidden bg-zinc-950 border-zinc-800">
                 {/* Header with gradient accent */}
                 <div className="relative px-6 pt-6 pb-4">
-                    <div className="absolute inset-0 bg-gradient-to-b from-zinc-800/50 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-b/srgb from-zinc-800/50 to-transparent" />
                     <DialogHeader className="relative">
                         <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
                             <div className="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center">
@@ -265,7 +266,7 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
                             <h4 className="text-xs font-medium text-zinc-500 uppercase tracking-wide">Training Drills</h4>
                             <div className="flex items-center gap-1 text-xs text-zinc-600">
                                 <DollarSign size={12} />
-                                <span>${budget.toLocaleString()}</span>
+                                <span>{formatCurrency(budget, "$", false)}</span>
                             </div>
                         </div>
 
@@ -310,7 +311,7 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
                                             <div className="text-right">
                                                 <div className="text-sm font-semibold text-emerald-500">+{drill.xpGain} XP</div>
                                                 <div className={cn("text-[11px]", !canAfford ? "text-red-500" : !hasEnergy ? "text-orange-500" : "text-zinc-500")}>
-                                                    ${drill.cost.toLocaleString()} {!hasEnergy && canAfford && "• Low Energy"}
+                                                    {formatCurrency(drill.cost, "$", false)} {!hasEnergy && canAfford && "• Low Energy"}
                                                 </div>
                                             </div>
                                             <Button
@@ -348,7 +349,7 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
                 <div className="px-6 py-4 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between">
                     <div className="flex gap-6 text-xs text-zinc-500">
                         <div>
-                            Budget: <span className="text-emerald-500 font-medium">${budget.toLocaleString()}</span>
+                            Budget: <span className="text-emerald-500 font-medium">{formatCurrency(budget, "$", false)}</span>
                         </div>
                         <div>
                             Energy: <span className={cn(

@@ -85,7 +85,9 @@ export const EMBLEM_DRAWINGS: Record<EmblemMotif, { body: string; facet: string;
     },
     wave: {
         body: 'M11 57C20 30 33 12 57 13 79 14 91 34 87 50 77 38 65 35 54 43 45 50 45 64 59 69 72 74 82 68 90 61 86 85 63 93 40 84 24 79 15 71 11 57Z',
-        facet: 'M57 13C34 27 31 43 30 57 30 72 49 83 63 86 40 84 24 79 15 71 11 57 20 30 33 12 57 13Z',
+        // Cubic segments need 6 numbers each; this used to end on a 2-number
+        // fragment, which browsers reject ("attribute d: Expected number").
+        facet: 'M57 13C34 27 31 43 30 57 30 72 49 83 63 86L40 84C24 79 15 71 11 57 20 30 33 12 57 13Z',
         detail: 'M62 24C75 23 82 33 82 38 72 31 60 32 51 39 55 30 57 26 62 24Z M22 63C32 78 60 85 74 77 63 89 35 86 22 63Z',
     },
     fox: {

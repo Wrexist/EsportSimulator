@@ -7,6 +7,7 @@ import { Trophy, ChevronRight, Sparkles, Medal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { soundManager } from "@/lib/sound-manager"
+import { useFocusTrap } from "@/lib/accessibility"
 
 interface AdvancementAnimationProps {
     show: boolean
@@ -30,6 +31,8 @@ export function AdvancementAnimation({
     onComplete
 }: AdvancementAnimationProps) {
     const [phase, setPhase] = useState<"idle" | "intro" | "transition" | "reveal" | "celebrate">("idle")
+    // Keyboard parity with click-to-dismiss: Escape (via the trap) and Enter/Space skip.
+    const dialogRef = useFocusTrap(!!show, onComplete)
 
     // Keep the latest onComplete in a ref so it doesn't have to be an effect
     // dependency. The caller passes an inline arrow (fresh identity each render),
@@ -107,9 +110,18 @@ export function AdvancementAnimation({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/60 backdrop-blur-sm cursor-pointer"
+                    className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/60 backdrop-blur-xs cursor-pointer"
                     onClick={onComplete}
+                    ref={dialogRef} tabIndex={-1}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={isChampionship ? `${teamName} are champions` : `${teamName} advance${toStage ? ` to ${toStage}` : ""}`}
+                    aria-describedby="advancement-skip-hint"
+                    onKeyDown={event => {
+                        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onComplete?.() }
+                    }}
                 >
+                    <span id="advancement-skip-hint" className="sr-only">Press Enter or Escape to continue.</span>
                     {/* Animated Background */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                         {/* Primary glow */}
@@ -146,7 +158,7 @@ export function AdvancementAnimation({
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
                                 className={cn(
-                                    "px-6 py-2 rounded-full border backdrop-blur-sm",
+                                    "px-6 py-2 rounded-full border backdrop-blur-xs",
                                     isAdvancingToFinals || isChampionship
                                         ? "bg-amber-500/10 border-amber-500/30"
                                         : "bg-emerald-500/10 border-emerald-500/30"
@@ -172,8 +184,8 @@ export function AdvancementAnimation({
                             className={cn(
                                 "relative w-24 h-24 rounded-2xl flex items-center justify-center shadow-2xl",
                                 isAdvancingToFinals || isChampionship
-                                    ? "bg-gradient-to-br from-amber-500/20 to-amber-600/20 border-2 border-amber-500/40"
-                                    : "bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border-2 border-emerald-500/40"
+                                    ? "bg-linear-to-br/srgb from-amber-500/20 to-amber-600/20 border-2 border-amber-500/40"
+                                    : "bg-linear-to-br/srgb from-emerald-500/20 to-cyan-500/20 border-2 border-emerald-500/40"
                             )}
                         >
                             {teamLogo ? (
@@ -231,8 +243,8 @@ export function AdvancementAnimation({
                                     className={cn(
                                         "absolute left-0 h-0.5 rounded-full",
                                         isAdvancingToFinals || isChampionship
-                                            ? "bg-gradient-to-r from-amber-500 to-yellow-400"
-                                            : "bg-gradient-to-r from-emerald-500 to-cyan-400"
+                                            ? "bg-linear-to-r/srgb from-amber-500 to-yellow-400"
+                                            : "bg-linear-to-r/srgb from-emerald-500 to-cyan-400"
                                     )}
                                     initial={{ width: "0%" }}
                                     animate={{
@@ -299,8 +311,8 @@ export function AdvancementAnimation({
                                 <h2 className={cn(
                                     "text-4xl font-black uppercase tracking-tight",
                                     isAdvancingToFinals || isChampionship
-                                        ? "bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent"
-                                        : "bg-gradient-to-r from-emerald-300 via-cyan-200 to-emerald-300 bg-clip-text text-transparent"
+                                        ? "bg-linear-to-r/srgb from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent"
+                                        : "bg-linear-to-r/srgb from-emerald-300 via-cyan-200 to-emerald-300 bg-clip-text text-transparent"
                                 )}>
                                     {isAdvancingToFinals || isChampionship ? "FINALS BOUND!" : "ADVANCING!"}
                                 </h2>

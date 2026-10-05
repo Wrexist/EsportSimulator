@@ -22,7 +22,6 @@ import {
   GlassTableHead,
   GlassTableRow,
   GlassTableCell,
-  GlassStatCell
 } from "@/components/ui/GlassTable"
 import { motion } from "framer-motion"
 import { LoadingState } from "@/components/ui/loading"
@@ -35,6 +34,7 @@ import {
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 
+import { formatCurrency } from "@/lib/utils-extended"
 export default function TransfersPage() {
   return (
     <ErrorBoundary section="Transfers / Roster Management">
@@ -44,14 +44,13 @@ export default function TransfersPage() {
 }
 
 function TransfersPageInner() {
-  const { players, teams, getPlayerTeam, transferPlayer, currentWeek, scoutedPlayers, academyPlayers, academyPendingProspects } = useGameStore(useShallow(state => ({
+  const { players, teams, getPlayerTeam, currentWeek, scoutedPlayers, academyPlayers, academyPendingProspects } = useGameStore(useShallow(state => ({
     players: state.players,
     scoutedPlayers: state.scoutedPlayers,
     academyPlayers: state.academyPlayers,
     academyPendingProspects: state.academyPendingProspects,
     teams: state.teams,
     getPlayerTeam: state.getPlayerTeam,
-    transferPlayer: state.transferPlayer,
     currentWeek: state.currentWeek,
   })))
   const playerTeam = getPlayerTeam()
@@ -136,7 +135,7 @@ function TransfersPageInner() {
   }
 
   // Calculate estimated weekly salary based on player value
-  const getEstimatedSalary = (player: typeof players[number]) => recruitmentSalary(player, currentWeek)
+  const getEstimatedSalary = (player: typeof players[number]) => recruitmentSalary(player, currentWeek, playerTeam)
 
   // Get contract terms for a player
   const getContractTerms = (player: any) => {
@@ -181,12 +180,12 @@ function TransfersPageInner() {
             <Input
               placeholder="Search by nickname..."
               aria-label="Search by nickname"
-              className="pl-10 h-11 bg-white/[0.03] border-white/10 rounded-xl focus:ring-primary/40 transition-all font-medium text-sm text-white"
+              className="pl-10 h-11 bg-white/3 border-white/10 rounded-xl focus:ring-primary/40 transition-all font-medium text-sm text-white"
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setPage(0) }}
             />
           </div>
-          <div className="flex bg-white/[0.03] border border-white/10 rounded-xl p-1">
+          <div className="flex bg-white/3 border border-white/10 rounded-xl p-1">
             {[
               { value: "AWPER", label: "AWPER" },
               { value: "RIFLER", label: "RIFLER" },
@@ -225,11 +224,11 @@ function TransfersPageInner() {
               <GlassTableHead>Role</GlassTableHead>
               <GlassTableHead className="text-center">Age</GlassTableHead>
               <GlassTableHead className="text-center">Skill</GlassTableHead>
-              <GlassTableHead className="text-center">Tactic</GlassTableHead>
-              <GlassTableHead className="text-center">Teamwork</GlassTableHead>
+              <GlassTableHead className="text-center hidden xl:table-cell">Tactic</GlassTableHead>
+              <GlassTableHead className="text-center hidden xl:table-cell">Teamwork</GlassTableHead>
               <GlassTableHead className="text-center font-bold text-white">OVR</GlassTableHead>
               <GlassTableHead className="text-right">Contract Terms</GlassTableHead>
-              <GlassTableHead className="text-right"></GlassTableHead>
+              <GlassTableHead className="text-right"><span className="sr-only">Actions</span></GlassTableHead>
             </GlassTableRow>
           </GlassTableHeader>
           <TableBody>
@@ -268,8 +267,8 @@ function TransfersPageInner() {
                     </GlassTableCell>
                     <GlassTableCell className="text-center font-sans text-xs opacity-60 text-white">{player.age}</GlassTableCell>
                     <GlassTableCell className="text-center">{visible.exactStats?.skill ?? "—"}</GlassTableCell>
-                    <GlassTableCell className="text-center">{visible.exactStats?.tactic ?? "—"}</GlassTableCell>
-                    <GlassTableCell className="text-center">{visible.exactStats?.teamwork ?? "—"}</GlassTableCell>
+                    <GlassTableCell className="text-center hidden xl:table-cell">{visible.exactStats?.tactic ?? "—"}</GlassTableCell>
+                    <GlassTableCell className="text-center hidden xl:table-cell">{visible.exactStats?.teamwork ?? "—"}</GlassTableCell>
                     <GlassTableCell className="text-center" title={`${visible.scoutingLevel.toLowerCase()} report`}>{formatScoutedRating(visible.ovrRange)}</GlassTableCell>
                     <GlassTableCell className="text-right">
                       <TooltipProvider>
@@ -279,14 +278,14 @@ function TransfersPageInner() {
                               {terms.isFreeAgent ? (
                                 <>
                                   <span className="text-[10px] text-emerald-400 font-bold uppercase">Free</span>
-                                  <span className="text-[10px] text-muted-foreground">${terms.salary}/wk</span>
+                                  <span className="text-[10px] text-muted-foreground">{formatCurrency(terms.salary, "$", false)}/wk</span>
                                 </>
                               ) : (
                                 <>
                                   <span className="font-sans font-bold text-amber-400">
-                                    ${terms.transferFee.toLocaleString()}
+                                    {formatCurrency(terms.transferFee, "$", false)}
                                   </span>
-                                  <span className="text-[10px] text-muted-foreground">${terms.salary}/wk</span>
+                                  <span className="text-[10px] text-muted-foreground">{formatCurrency(terms.salary, "$", false)}/wk</span>
                                 </>
                               )}
                             </div>
@@ -301,12 +300,12 @@ function TransfersPageInner() {
                                 <div className="flex justify-between gap-4">
                                   <span>Transfer Fee:</span>
                                   <span className={terms.isFreeAgent ? "text-emerald-400" : "text-amber-400"}>
-                                    {terms.isFreeAgent ? "Free" : `$${terms.transferFee.toLocaleString()}`}
+                                    {terms.isFreeAgent ? "Free" : `${formatCurrency(terms.transferFee, "$", false)}`}
                                   </span>
                                 </div>
                                 <div className="flex justify-between gap-4">
                                   <span>Weekly Salary:</span>
-                                  <span className="text-white">${terms.salary.toLocaleString()}</span>
+                                  <span className="text-white">{formatCurrency(terms.salary, "$", false)}</span>
                                 </div>
                                 <div className="flex justify-between gap-4">
                                   <span>Duration:</span>
@@ -315,7 +314,7 @@ function TransfersPageInner() {
                                 <div className="flex justify-between gap-4">
                                   <span>Buyout Clause:</span>
                                   <span className="text-white">
-                                    {terms.buyout > 0 ? `$${terms.buyout.toLocaleString()}` : "None"}
+                                    {terms.buyout > 0 ? `${formatCurrency(terms.buyout, "$", false)}` : "None"}
                                   </span>
                                 </div>
                               </div>
@@ -330,7 +329,7 @@ function TransfersPageInner() {
                         onClick={() => handleBuy(player)}
                         disabled={playerTeam.budget < terms.transferFee}
                         title={playerTeam.budget < terms.transferFee
-                          ? `Insufficient budget — need $${(terms.transferFee - playerTeam.budget).toLocaleString()} more`
+                          ? `Insufficient budget — need ${formatCurrency((terms.transferFee - playerTeam.budget), "$", false)} more`
                           : undefined}
                         className={cn(
                           "rounded-lg h-8 px-4 font-normal text-[10px] uppercase tracking-widest transition-all",

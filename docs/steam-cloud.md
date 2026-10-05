@@ -29,9 +29,13 @@ This is the manual path, not Auto-Cloud. Consequences:
   `updatedAtMs`, and picks whichever is newer. Handles the "saved on PC A,
   came home to PC B" case automatically.
 
-Local saves still live in `app.getPath('userData')` (via `electron-store`
-at `<userData>/config.json`) and are the source of truth when Steam isn't
-running.
+Local saves live in `app.getPath('userData')`, one file per career copy
+(`<userData>/saves/<careerId>/primary.json`, `backup-1..3.json`,
+`backup-corrupt.json`; see `electron/game-storage.js`), and are the source of
+truth when Steam isn't running. Builds before October 2026 kept every career
+in the single electron-store file `<userData>/config.json`; on first launch the
+new build copies those saves into the per-file layout, verifies each copy, and
+then leaves `config.json` untouched as a read-only fallback.
 
 ## Partner portal configuration
 
@@ -46,9 +50,15 @@ On <https://partner.steamgames.com>, go to **Your App → Cloud**. Set:
 | Dynamic Cloud Sync for Steam Deck | ✅ Enabled (lets Deck ↔ desktop sync mid-session) |
 
 Leave the "Root Paths" / "Path Overrides" table **empty**. Those drive
-Auto-Cloud, which we don't use. Populating them would cause the
-`<userData>/config.json` electron-store file to be synced in parallel
-with the manual per-save uploads, producing overwrites.
+Auto-Cloud, which we don't use. Populating them would cause the local
+`<userData>/saves/` tree (or the legacy `config.json`) to be synced in
+parallel with the manual per-save uploads, producing overwrites.
+
+**The October 2026 move to per-career save files needs no Steamworks
+change.** The cloud file names (`save_<saveId>.json`) and the manual
+ISteamRemoteStorage path are unchanged; only the local layout moved. If the
+partner portal ever had Auto-Cloud Root Paths set (for example to
+`config.json`), remove them rather than pointing them at `saves/`.
 
 Save the settings, then **publish** to SteamPipe. Cloud config changes
 only take effect on clients after a build is pushed live.
@@ -59,9 +69,15 @@ Electron's `app.getPath('userData')`:
 
 | OS | Path |
 |---|---|
-| Windows | `%APPDATA%\<appName>\config.json` |
-| macOS | `~/Library/Application Support/<appName>/config.json` |
-| Linux | `~/.config/<appName>/config.json` |
+| Windows | `%APPDATA%\<appName>\saves\<careerId>\` |
+| macOS | `~/Library/Application Support/<appName>/saves/<careerId>/` |
+| Linux | `~/.config/<appName>/saves/<careerId>/` |
+
+Alongside `saves/`: `game-storage/` (current career pointer, preferences,
+manager profile), `settings.json` (window placement), `storage-migration.json`
+(marker for the one-time legacy import) and, from older builds, the legacy
+`config.json`. A damaged file only affects that one copy of that one career;
+the game falls back to that career's next backup.
 
 `<appName>` resolves to `productName` from `package.json` when set, so
 currently `Esports Manager: FPS`. The colon renders fine on macOS and

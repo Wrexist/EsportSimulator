@@ -39,7 +39,7 @@ for (const [file, hash] of [
     ['tmp/mirage-local/maps/de_mirage.nav', mirageAudit.sourceHashes.nav],
     ['tmp/mirage-local/maps/de_mirage/world_physics.vmdl_c', mirageAudit.sourceHashes.physics],
     ['tmp/mirage-local/maps/de_mirage/entities/default_ents.vents_c', mirageAudit.sourceHashes.entities],
-    ['public/map-studio/drafts/mirage-user-v13-2026-09-22.json', '68d5ce44e95636de7e0a8972044b840ae0a0ecfe4265f4cb9c8969fd2c7671e8'],
+    ['raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-user-v13-2026-09-22.json', '68d5ce44e95636de7e0a8972044b840ae0a0ecfe4265f4cb9c8969fd2c7671e8'],
 ]) check(file, hash);
 const files = [];
 for (const issue of read('docs/launch-readiness/evidence/2026-09-25-content-recheck.json').issues) {

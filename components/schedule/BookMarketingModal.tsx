@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/lib/toast"
+import { useFocusTrap } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface BookMarketingModalProps {
     isOpen: boolean
     onClose: () => void
@@ -93,18 +95,21 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
         }
     }
 
+    const dialogRef = useFocusTrap(isOpen, onClose)
+
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 z-dropdown flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-dropdown flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
             <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                ref={dialogRef} tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title-book-marketing"
-                className="glass-panel w-full max-w-2xl p-6 shadow-2xl border-white/10"
+                className="glass-panel w-full max-w-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto p-6 shadow-2xl border-white/10"
             >
                 <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center gap-3">
@@ -145,7 +150,7 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
                                         </div>
                                     </div>
                                     <div className="flex gap-3 mt-2 text-[10px]">
-                                        <span className="text-muted-foreground"><Coins size={10} className="inline mr-1" />${opt.costPerWeek.toLocaleString()}/wk</span>
+                                        <span className="text-muted-foreground"><Coins size={10} className="inline mr-1" />{formatCurrency(opt.costPerWeek, "$", false)}/wk</span>
                                         <span className="text-emerald-400">+{opt.followersPerWeek.toLocaleString()} followers/wk</span>
                                     </div>
                                 </button>
@@ -187,7 +192,7 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Total Cost</span>
                                     <span className={totalCost > budget ? "text-red-400" : "text-amber-400"}>
-                                        ${totalCost.toLocaleString()}
+                                        {formatCurrency(totalCost, "$", false)}
                                     </span>
                                 </div>
                                 <div className="border-t border-white/5 pt-2 flex justify-between">
@@ -202,7 +207,7 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
                         </div>
 
                         {totalCost > budget && (
-                            <p className="text-xs text-red-400">Insufficient budget (${budget.toLocaleString()} available)</p>
+                            <p className="text-xs text-red-400">Insufficient budget ({formatCurrency(budget, "$", false)} available)</p>
                         )}
                     </div>
                 </div>

@@ -53,6 +53,7 @@ import {
 import { getSeasonFromWeek, buildInstanceId } from "@/engine/circuit-engine"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { pressable } from "@/lib/accessibility"
 
 // Tab types
 type ViewTab = "ALL" | "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "QUALIFIERS" | "MY_TOURNAMENTS"
@@ -93,7 +94,7 @@ export default function TournamentsPage() {
 
     const viewCareerId = useGameStore(state => state.saveId)
     const [activeTab, setActiveTab] = useRouteViewState<ViewTab>(viewCareerId, "tournaments:tab", "ALL")
-    const [selectedTournament, setSelectedTournament] = useState<TournamentDefinition | null>(null)
+    const [selectedTournament] = useState<TournamentDefinition | null>(null)
     const [searchTerm, setSearchTerm] = useRouteViewState(viewCareerId, "tournaments:search", "")
     const [view, setView] = useRouteViewState<"cards" | "bracket" | "standings">(viewCareerId, "tournaments:view", "cards")
 
@@ -152,9 +153,6 @@ export default function TournamentsPage() {
     const filteredTournaments = useMemo(() => {
         let filtered = getDiscoveredTournaments(currentWeek)
 
-        // Sync with mock logic for qualification/points if no store data
-        const masterList = [...FULL_TOURNAMENT_CALENDAR]
-
         // Apply tab filter
         switch (activeTab) {
             case "S_TIER":
@@ -188,16 +186,6 @@ export default function TournamentsPage() {
 
         return filtered
     }, [activeTab, searchTerm, playerTeam, qualificationStatuses, currentWeek])
-
-    // Group by week for timeline view
-    const tournamentsByWeek = useMemo(() => {
-        const grouped: Record<number, TournamentDefinition[]> = {}
-        filteredTournaments.forEach(t => {
-            if (!grouped[t.startWeek]) grouped[t.startWeek] = []
-            grouped[t.startWeek].push(t)
-        })
-        return grouped
-    }, [filteredTournaments])
 
     // Get eligibility for a tournament
     const getEligibility = (tournament: TournamentDefinition) => {
@@ -325,11 +313,11 @@ export default function TournamentsPage() {
                     isQualified && "border-emerald-500/30",
                     selectedTournament?.id === tournament.id && "ring-2 ring-primary"
                 )}
-                onClick={() => router.push(`/tournaments/${displayId}`)}
+                {...pressable(() => router.push(`/tournaments/${displayId}`), { label: `Open ${tournament.name}` })}
             >
                 {/* Premium Glow for S-Tier */}
                 {tournament.tier === "S_TIER" && (
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-linear-to-br/srgb from-amber-500/10 via-transparent to-transparent pointer-events-none" />
                 )}
 
                 {/* Lock Overlay */}
@@ -391,7 +379,7 @@ export default function TournamentsPage() {
                                 fill
                                 className="object-cover opacity-60 group-hover/card:scale-110 transition-transform duration-700"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                            <div className="absolute inset-0 bg-linear-to-t/srgb from-black via-black/40 to-transparent" />
                         </div>
                     ) : (
                         <div className={cn("absolute inset-0 opacity-20", getTierBgColor(tournament.tier))} />
@@ -539,7 +527,7 @@ export default function TournamentsPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
                     <h1 className="page-title mb-2 flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-2 shadow-2xl backdrop-blur-sm">
+                        <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-2 shadow-2xl backdrop-blur-xs">
                             <Image
                                 src="/assets/tournaments/s_tier_trophy_1.png"
                                 alt="Tournament Hub"
@@ -582,7 +570,7 @@ export default function TournamentsPage() {
 
             {/* Tab Navigation */}
             <div className="flex flex-wrap gap-3">
-                <div className="glass-panel p-1.5 flex gap-1 border-white/5 overflow-x-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                <div className="glass-panel p-1.5 flex gap-1 border-white/5 overflow-x-auto">
                     {[
                         { id: "ALL", label: "All", count: counts.all },
                         { id: "S_TIER", label: "S-Tier", count: counts.s_tier, color: "text-amber-400" },
@@ -596,7 +584,7 @@ export default function TournamentsPage() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as ViewTab)}
                             className={cn(
-                                "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-none whitespace-nowrap",
+                                "px-4 py-2 rounded-xl text-[10px] font-normal uppercase tracking-widest transition-all flex items-center gap-2 outline-hidden whitespace-nowrap",
                                 activeTab === tab.id
                                     ? "bg-blue-500 text-white shadow-lg"
                                     : "text-muted-foreground hover:bg-white/5"
@@ -659,7 +647,7 @@ export default function TournamentsPage() {
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 className="glass-panel p-0 border-white/5 bg-black/40 overflow-hidden"
                             >
-                                <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                                <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/2">
                                     <div className="flex items-center gap-4">
                                         <Button
                                             variant="ghost"
@@ -850,10 +838,6 @@ export default function TournamentsPage() {
                                     )
                                     const sidebarDisplayId = sidebarLiveTournament ? sidebarLiveTournament.id : selectedTournament.id
 
-                                    const isOnSchedule = scheduledMatches.some(
-                                        m => (m.tournamentId || "").replace(/_s\d+$/, "") === selectedTournament.id &&
-                                            (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-                                    )
                                     const sidebarEffectiveStart = sidebarLiveTournament?.startWeek ??
                                         (Math.floor((currentWeek - 1) / 52) * 52 + selectedTournament.startWeek)
                                     const isPast = currentWeek >= sidebarEffectiveStart + selectedTournament.duration ||

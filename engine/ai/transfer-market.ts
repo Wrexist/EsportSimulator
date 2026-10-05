@@ -41,6 +41,9 @@ import { applyRosterChangePenalty } from "../chemistry-engine"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
 
 const MAX_TRANSFER_OFFERS_PER_TEAM_PER_WEEK = 2
+/** Open bids per listed player. Without it every AI club could bid on the same
+ *  listing (~75 inbox items a week for one player in the campaign). */
+const MAX_OPEN_OFFERS_PER_PLAYER = 3
 const MAX_AI_TRANSFERS_PER_WEEK = 3
 const POACHER_MIN_BUDGET = 50_000
 const BUYER_MIN_BUDGET = 100_000
@@ -152,9 +155,12 @@ export function processAITransferMarket(
         }
     }
     const existingOfferKeys = new Set<string>()
+    const openOffersPerPlayer = new Map<string, number>()
     for (const e of save.eventsLog) {
         if (e.type === "TRANSFER_OFFER" && !e.selectedChoiceId && e.data?.teamId && e.data?.playerId) {
             existingOfferKeys.add(`${e.data.teamId}_${e.data.playerId}`)
+            const pid = String(e.data.playerId)
+            openOffersPerPlayer.set(pid, (openOffersPerPlayer.get(pid) ?? 0) + 1)
         }
     }
 
@@ -175,6 +181,7 @@ export function processAITransferMarket(
 
             const existingOffer = existingOfferKeys.has(`${aiTeam.id}_${player.id}`)
             if (existingOffer) return
+            if ((openOffersPerPlayer.get(player.id) ?? 0) >= MAX_OPEN_OFFERS_PER_PLAYER) return
 
             // Market value + potential-based multipliers (0-100 scale; see aiMarketValuation).
             const { potentialMultiplier, overpayBuffer } = aiMarketValuation(
@@ -204,7 +211,7 @@ export function processAITransferMarket(
 
             const offerAmount = Math.round(anchoredValue * (0.85 + aiRoll(rng) * 0.3))
 
-            if (!canAfford(recruitmentSalary(player, save.currentWeek), offerAmount)) return
+            if (!canAfford(recruitmentSalary(player, save.currentWeek, aiTeam), offerAmount)) return
 
             const eventId = `offer_${save.currentWeek}_${aiTeam.id}_${player.id}_${offerAmount}`
 
@@ -219,7 +226,7 @@ export function processAITransferMarket(
                     playerName: player.nickname,
                     offerAmount: offerAmount,
                     expiresWeek: save.currentWeek + 2,
-                    salaryPerWeek: recruitmentSalary(player, save.currentWeek),
+                    salaryPerWeek: recruitmentSalary(player, save.currentWeek, aiTeam),
                     message: `${aiTeam.name} has submitted a transfer offer for ${player.nickname}.`,
                 },
                 acknowledged: false,
@@ -228,6 +235,7 @@ export function processAITransferMarket(
                     { id: "reject", text: "Reject", effects: {} },
                 ],
             })
+            openOffersPerPlayer.set(player.id, (openOffersPerPlayer.get(player.id) ?? 0) + 1)
             offersMade++
         })
     })
@@ -293,7 +301,7 @@ export function processAIToAITransfers(
             .map(ap => {
                 const contract = save.contracts.find(c => c.playerId === ap.player.id && c.teamId === ap.team.id && c.endWeek > save.currentWeek)
                 const fee = Math.round(contract?.buyout || evaluatePlayer(ap.player, undefined, undefined, save.currentWeek).transferValue)
-                return { ap, fee, salary: recruitmentSalary(ap.player, save.currentWeek) }
+                return { ap, fee, salary: recruitmentSalary(ap.player, save.currentWeek, buyer) }
             }).filter(c => canAfford(c.salary, c.fee))
             .sort((a, b) => (b.ap.player.skill ?? 0) - (a.ap.player.skill ?? 0) || a.ap.player.id.localeCompare(b.ap.player.id))
         if (!candidates.length) continue

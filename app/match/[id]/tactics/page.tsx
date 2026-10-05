@@ -1,6 +1,7 @@
 "use client"
 
 import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
+import { fixtureBlockReason } from '@/lib/playable-match'
 import { useState, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -119,11 +120,13 @@ export default function TacticalHQPage() {
             await handleAutoVeto()
         }
 
-        // 2. Simulate Match Result (Instant)
-        await useGameStore.getState().simulateInstantMatch(matchId)
+        // 2. Simulate Match Result (Instant). Open the result only when one was
+        // recorded; a refusal (e.g. a side below five players) explains itself
+        // with a toast and leaves the user here instead of on "Match Not Found".
+        const recorded = await useGameStore.getState().simulateInstantMatch(matchId)
 
         setIsQuickSimulating(false)
-        router.push(`/match/${matchId}/result`)
+        if (recorded) router.push(`/match/${matchId}/result`)
     }
 
     const handleAutoVeto = async () => {
@@ -307,6 +310,18 @@ export default function TacticalHQPage() {
     }
 
     if (!match || !myTeam || !opponent) {
+        // A loaded career without this fixture (stale link, already resolved,
+        // removed by a week tick): explain and offer a way back instead of an
+        // endless loading screen.
+        if (teams.length > 0 && !match) {
+            return (
+                <div role="alert" className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+                    <p className="text-white text-lg font-bold uppercase tracking-widest mb-2">Match Not Found</p>
+                    <p className="text-sm text-white/60 mb-6 max-w-sm">This match is no longer on your schedule. It may already have been played or resolved when the week advanced.</p>
+                    <Button variant="play" onClick={() => router.push("/schedule")}>Back to Schedule</Button>
+                </div>
+            )
+        }
         return (
             <LoadingState message="Loading Headquarters…" size="lg" fullScreen />
         )
@@ -315,11 +330,17 @@ export default function TacticalHQPage() {
     const isMatchWeek = match.week === currentWeek
     const isFuture = match.week > currentWeek
     const isPast = match.week < currentWeek
+    const isCompleted = completedMatches.some(m => m.id === match.id)
+    // Same predicate the TopBar and the store use: a side below five players
+    // can't play; advancing the week resolves the fixture by forfeit.
+    const blockReason = isMatchWeek && !isCompleted
+        ? fixtureBlockReason({ playerTeamId, scheduledMatches, currentWeek, teams, players }, match)
+        : null
 
     return (
         <div className="premium-route text-white p-0 relative overflow-hidden font-sans selection:bg-emerald-500/30">
             {/* Background Ambience */}
-            <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-[500px] bg-linear-to-b/srgb from-blue-900/10 to-transparent pointer-events-none" />
             <div className="absolute -top-20 -right-20 w-[600px] h-[600px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none" />
 
@@ -343,9 +364,9 @@ export default function TacticalHQPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                className="glass-panel p-10 rounded-xl border border-white/5 bg-white/[0.01] backdrop-blur-2xl relative overflow-hidden"
+                className="glass-panel p-10 rounded-xl border border-white/5 bg-white/1 backdrop-blur-2xl relative overflow-hidden"
                 >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-red-500/5 pointer-events-none" />
+                    <div className="absolute inset-0 bg-linear-to-r/srgb from-blue-500/5 via-transparent to-red-500/5 pointer-events-none" />
 
                     <div className="flex flex-col md:flex-row items-center justify-between gap-10 relative z-10">
                         {/* Player Team */}
@@ -398,7 +419,6 @@ export default function TacticalHQPage() {
                     // Determine next stage from bracket
                     let nextStage: string | undefined
                     if (liveTournament?.playoffBracket) {
-                        const currentMatch = liveTournament.playoffBracket.find(m => m.id === match.id)
                         const nextMatch = liveTournament.playoffBracket.find(m =>
                             m.sourceMatchIds?.includes(match.id)
                         )
@@ -427,8 +447,8 @@ export default function TacticalHQPage() {
                     transition={{ delay: 0.15 }}
                     className="flex items-center justify-center gap-4"
                 >
-                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                    <div className="flex items-center gap-3 px-6 py-2 rounded-full bg-white/[0.02] border border-white/5 backdrop-blur-sm">
+                    <div className="h-px flex-1 bg-linear-to-r/srgb from-transparent via-white/10 to-transparent" />
+                    <div className="flex items-center gap-3 px-6 py-2 rounded-full bg-white/2 border border-white/5 backdrop-blur-xs">
                         <motion.div
                             animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
                             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -443,7 +463,7 @@ export default function TacticalHQPage() {
                             className="w-2 h-2 rounded-full bg-emerald-500"
                         />
                     </div>
-                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                    <div className="h-px flex-1 bg-linear-to-r/srgb from-transparent via-white/10 to-transparent" />
                 </motion.div>
 
                 {/* Content Grid */}
@@ -457,14 +477,14 @@ export default function TacticalHQPage() {
                     >
                         {/* Animated border glow */}
                         <motion.div
-                    className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className="absolute -inset-px rounded-xl bg-linear-to-r/srgb from-blue-500/20 via-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             animate={{
                                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
                             }}
                             transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                             style={{ backgroundSize: "200% 200%" }}
                         />
-                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
+                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/2 backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
                             {/* Subtle animated background */}
                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[80px] pointer-events-none" />
 
@@ -482,7 +502,7 @@ export default function TacticalHQPage() {
                                     <Video size={24} />
                                 </motion.div>
                                 <div>
-                                    <h3 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">VOD Review</h3>
+                                    <h3 className="text-xl font-semibold tracking-tight bg-linear-to-r/srgb from-white to-white/70 bg-clip-text text-transparent">VOD Review</h3>
                                     <p className="text-sm text-white/40">Analyze opponent playstyle</p>
                                 </div>
                                 {!isVodUnlocked ? (
@@ -513,7 +533,7 @@ export default function TacticalHQPage() {
 
                         <div className="relative overflow-hidden rounded-lg group border border-white/5 bg-[#0a0a0a]">
                             {!isVodUnlocked && (
-                                <div className="absolute inset-0 z-dropdown flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+                                <div className="absolute inset-0 z-dropdown flex flex-col items-center justify-center bg-black/60 backdrop-blur-xs">
                         <div className="bg-black/70 px-8 py-6 rounded-xl border border-white/10 text-center shadow-glass-soft transform scale-100">
                             <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center mx-auto mb-4 border border-white/10">
                                             <Lock size={24} className="text-white/40" />
@@ -538,7 +558,7 @@ export default function TacticalHQPage() {
                                             <Play size={24} className="ml-1 text-white fill-white" />
                                         </div>
                                     </div>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-black/20 to-transparent z-10" />
+                                    <div className="absolute inset-0 bg-linear-to-t/srgb from-[#0a0a0a] via-black/20 to-transparent z-10" />
                                     {/* Placeholder visuals for VOD */}
                                     <div className="absolute top-4 right-4 z-20 px-3 py-1 rounded-lg bg-red-500 text-white text-[10px] font-normal uppercase tracking-widest shadow-lg shadow-red-500/20">
                                         LIVE DEMO
@@ -581,7 +601,7 @@ export default function TacticalHQPage() {
                                                 "relative w-full h-12 rounded-xl font-bold uppercase tracking-wider text-xs transition-all",
                                                 vodReviewed
                                                     ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/20"
-                                                    : "bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-400 hover:to-blue-500 text-white shadow-lg shadow-blue-600/30"
+                                                    : "bg-linear-to-r/srgb from-blue-600 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-400 hover:to-blue-500 text-white shadow-lg shadow-blue-600/30"
                                             )}
                                         >
                                             {vodReviewed ? (
@@ -618,14 +638,14 @@ export default function TacticalHQPage() {
                     >
                         {/* Animated border glow */}
                         <motion.div
-                    className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-emerald-500/20 via-cyan-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className="absolute -inset-px rounded-xl bg-linear-to-r/srgb from-emerald-500/20 via-cyan-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             animate={{
                                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
                             }}
                             transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                             style={{ backgroundSize: "200% 200%" }}
                         />
-                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
+                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/2 backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
                             {/* Subtle animated background */}
                             <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] pointer-events-none" />
                             <div className="absolute bottom-0 right-0 w-48 h-48 bg-cyan-500/5 rounded-full blur-[60px] pointer-events-none" />
@@ -644,7 +664,7 @@ export default function TacticalHQPage() {
                                     <Layout size={24} />
                                 </motion.div>
                                 <div>
-                                    <h3 className="text-xl font-semibold tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Tactical HQ</h3>
+                                    <h3 className="text-xl font-semibold tracking-tight bg-linear-to-r/srgb from-white to-white/70 bg-clip-text text-transparent">Tactical HQ</h3>
                                     <p className="text-sm text-white/40">Optimize team configuration</p>
                                 </div>
                                 <motion.div
@@ -812,7 +832,19 @@ export default function TacticalHQPage() {
                         </div>
 
                         <div className="mt-auto space-y-3">
-                            {isFuture ? (
+                            {isCompleted ? (
+                                <Button variant="play" onClick={() => router.push(`/match/${match.id}/result`)} className="w-full h-16 rounded-lg text-xs uppercase tracking-widest">
+                                    View Result
+                                </Button>
+                            ) : blockReason ? (
+                                <div role="alert" className="space-y-3">
+                                    <p className="text-sm text-amber-200">{blockReason}</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <Button variant="play" onClick={() => router.push("/transfers")} className="h-14 rounded-lg text-xs uppercase tracking-widest">Find a player</Button>
+                                        <Button variant="outline" onClick={() => router.push("/schedule")} className="h-14 rounded-lg text-xs uppercase tracking-widest border-white/10 bg-white/5">Back to Schedule</Button>
+                                    </div>
+                                </div>
+                            ) : isFuture ? (
                     <Button disabled className="w-full h-16 rounded-lg bg-white/5 text-muted-foreground font-normal text-xs uppercase tracking-widest border border-white/10">
                                     <Lock size={16} className="mr-2" /> Match is in Week {match.week}
                                 </Button>
@@ -841,7 +873,7 @@ export default function TacticalHQPage() {
                                                             {mapLabel}
                                                         </Badge>
                                                     </div>
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex items-end justify-center pb-2">
+                                                    <div className="absolute inset-0 bg-linear-to-t/srgb from-black/90 to-transparent flex items-end justify-center pb-2">
                                                         <span className="font-normal uppercase text-sm tracking-widest text-white shadow-black drop-shadow-lg">{map}</span>
                                                     </div>
                                                 </div>

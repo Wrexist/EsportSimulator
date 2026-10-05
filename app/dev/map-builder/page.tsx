@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Download, Copy, Trash2, RotateCcw, Check } from "lucide-react"
+import { ArrowLeft, Download, Copy, RotateCcw, Check } from "lucide-react"
 import { MAP_LAYOUTS_ORDERED } from "@/data/map-layouts"
 import type { MapLayoutJson } from "@/data/map-layouts/types"
 import { MapBuilderCanvas } from "@/components/dev/MapBuilderCanvas"
@@ -241,7 +241,7 @@ export default function MapBuilderPage() {
                 />
 
                 {/* Footer help */}
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-xs text-white/60 leading-relaxed">
+                <div className="rounded-xl border border-white/10 bg-white/3 p-4 text-xs text-white/60 leading-relaxed">
                     <p className="font-bold text-white/90 mb-1 uppercase tracking-wider text-[10px]">How to use</p>
                     <ul className="space-y-1 list-disc list-inside marker:text-white/30">
                         <li>Pick a tool on the left, then click on the radar to place points.</li>

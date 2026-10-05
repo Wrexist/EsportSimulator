@@ -165,16 +165,16 @@ export default function FinancesPage() {
       {/* ===== GROUNDBREAKING HERO DASHBOARD ===== */}
       <div className="relative overflow-hidden">
         {/* Ambient Glow Background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-emerald-500/5 rounded-[3rem] blur-3xl opacity-50 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-r/srgb from-primary/5 via-transparent to-emerald-500/5 rounded-[3rem] blur-3xl opacity-50 pointer-events-none" />
 
-        <div className="relative glass-panel border border-white/10 rounded-[2.5rem] p-8 backdrop-blur-2xl bg-white/[0.02] overflow-hidden">
+        <div className="relative glass-panel border border-white/10 rounded-[2.5rem] p-8 backdrop-blur-2xl bg-white/2 overflow-hidden">
           {/* Decorative Elements */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
 
-          <div className="relative z-10 grid grid-cols-1 xl:grid-cols-12 gap-8">
+          <div className="relative z-10 grid grid-cols-1 2xl:grid-cols-12 gap-8">
             {/* Left: Title & Health Ring */}
-            <div className="xl:col-span-4 flex items-center gap-6">
+            <div className="2xl:col-span-4 flex items-center gap-6">
               {/* Animated Health Ring */}
               <div className="relative">
                 <svg className="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
@@ -219,7 +219,7 @@ export default function FinancesPage() {
             </div>
 
             {/* Center: Key Metrics */}
-            <div className="xl:col-span-5 grid grid-cols-3 gap-4">
+            <div className="2xl:col-span-5 grid grid-cols-3 gap-4">
               {/* Net Worth */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/10 transition-all group">
                 <p className="text-[8px] uppercase font-bold text-white/40 tracking-widest mb-1">Cash balance</p>
@@ -272,7 +272,7 @@ export default function FinancesPage() {
             </div>
 
             {/* Right: Financial Grade */}
-            <div className="xl:col-span-3 flex items-center justify-end gap-4">
+            <div className="2xl:col-span-3 flex items-center justify-start 2xl:justify-end gap-4">
               <div className="text-right">
                 <p className="text-[8px] uppercase font-bold text-white/40 tracking-widest mb-1">Credit Rating</p>
                 <p className="text-[10px] text-white/60 max-w-[120px]">
@@ -314,7 +314,7 @@ export default function FinancesPage() {
         </TabsList>
 
         <TabsContent value="payroll" className="space-y-6">
-          <Card className="bg-white/[0.02] border-white/10">
+          <Card className="bg-white/2 border-white/10">
             <CardHeader>
               <CardTitle>Roster Payroll</CardTitle>
               <CardDescription>Breakdown of weekly wages and performance incentives.</CardDescription>
@@ -377,7 +377,7 @@ export default function FinancesPage() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Income Breakdown */}
-            <Card className="bg-white/[0.02] border-white/10 overflow-hidden relative group">
+            <Card className="bg-white/2 border-white/10 overflow-hidden relative group">
               <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
                 <TrendingUp className="h-24 w-24" />
               </div>
@@ -397,7 +397,7 @@ export default function FinancesPage() {
             </Card>
 
             {/* Expense Breakdown */}
-            <Card className="bg-white/[0.02] border-white/10 overflow-hidden relative group">
+            <Card className="bg-white/2 border-white/10 overflow-hidden relative group">
               <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
                 <TrendingDown className="h-24 w-24" />
               </div>
@@ -435,7 +435,7 @@ export default function FinancesPage() {
         {/* ===== NEW ANALYTICS TAB ===== */}
         <TabsContent value="analytics" className="space-y-6">
           {/* 12-Week Budget Projection */}
-          <Card className="bg-white/[0.02] border-white/10 overflow-hidden">
+          <Card className="bg-white/2 border-white/10 overflow-hidden">
             <CardHeader>
               <div className="flex justify-between items-center">
                 <div>
@@ -484,7 +484,7 @@ export default function FinancesPage() {
                       >
                         {/* Tooltip on hover */}
                         <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 border border-white/10 rounded-lg px-3 py-2 text-xs whitespace-nowrap z-10">
-                          <p className="font-bold">${(data.budget / 1000).toFixed(0)}k</p>
+                          <p className="font-bold">{formatCurrency(data.budget)}</p>
                           <p className="text-white/50">Week {data.week}</p>
                         </div>
                       </div>
@@ -500,19 +500,19 @@ export default function FinancesPage() {
                 <div className="text-center p-3 bg-white/5 rounded-xl">
                   <p className="text-[9px] uppercase text-white/40 tracking-widest">4-Week Forecast</p>
                   <p className={cn("text-lg font-bold", projectedBudget[3]?.isNegative ? "text-red-400" : "text-white")}>
-                    ${(projectedBudget[3]?.budget / 1000).toFixed(0)}k
+                    {formatCurrency(projectedBudget[3]?.budget ?? Number.NaN)}{projectedBudget[3]?.isNegative && <span className="sr-only"> (deficit)</span>}
                   </p>
                 </div>
                 <div className="text-center p-3 bg-white/5 rounded-xl">
                   <p className="text-[9px] uppercase text-white/40 tracking-widest">8-Week Forecast</p>
                   <p className={cn("text-lg font-bold", projectedBudget[7]?.isNegative ? "text-red-400" : "text-white")}>
-                    ${(projectedBudget[7]?.budget / 1000).toFixed(0)}k
+                    {formatCurrency(projectedBudget[7]?.budget ?? Number.NaN)}{projectedBudget[7]?.isNegative && <span className="sr-only"> (deficit)</span>}
                   </p>
                 </div>
                 <div className="text-center p-3 bg-white/5 rounded-xl">
                   <p className="text-[9px] uppercase text-white/40 tracking-widest">12-Week Forecast</p>
                   <p className={cn("text-lg font-bold", projectedBudget[11]?.isNegative ? "text-red-400" : "text-white")}>
-                    ${(projectedBudget[11]?.budget / 1000).toFixed(0)}k
+                    {formatCurrency(projectedBudget[11]?.budget ?? Number.NaN)}{projectedBudget[11]?.isNegative && <span className="sr-only"> (deficit)</span>}
                   </p>
                 </div>
               </div>
@@ -521,7 +521,7 @@ export default function FinancesPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Cash Flow Waterfall */}
-            <Card className="bg-white/[0.02] border-white/10">
+            <Card className="bg-white/2 border-white/10">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Activity className="h-5 w-5 text-primary" />
@@ -563,7 +563,7 @@ export default function FinancesPage() {
             </Card>
 
             {/* Financial Insights */}
-            <Card className="bg-white/[0.02] border-white/10">
+            <Card className="bg-white/2 border-white/10">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Shield className="h-5 w-5 text-primary" />
@@ -620,7 +620,7 @@ export default function FinancesPage() {
         </TabsContent>
 
         <TabsContent value="sponsors" className="space-y-6">
-          <Card className="bg-white/[0.02] border-white/10">
+          <Card className="bg-white/2 border-white/10">
             <CardHeader>
               <div className="flex justify-between items-center">
                 <div>
@@ -669,7 +669,7 @@ export default function FinancesPage() {
 
         <TabsContent value="merch" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="bg-white/[0.02] border-white/10">
+            <Card className="bg-white/2 border-white/10">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm text-muted-foreground font-medium uppercase tracking-widest flex items-center gap-2">
                   <Zap className="h-4 w-4 text-primary" />
@@ -685,8 +685,8 @@ export default function FinancesPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/[0.02] border-white/10 relative group overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Card className="bg-white/2 border-white/10 relative group overflow-hidden">
+              <div className="absolute inset-0 bg-linear-to-br/srgb from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm text-muted-foreground font-medium uppercase tracking-widest flex items-center gap-2">
                   <Users className="h-4 w-4 text-primary" />
@@ -712,7 +712,7 @@ export default function FinancesPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/[0.02] border-white/10">
+            <Card className="bg-white/2 border-white/10">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm text-muted-foreground font-medium uppercase tracking-widest flex items-center gap-2">
                   <Globe className="h-4 w-4 text-primary" />
@@ -733,8 +733,8 @@ export default function FinancesPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="bg-white/[0.02] border-white/10 overflow-hidden relative group p-8">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-50 group-hover:opacity-70 transition-opacity" />
+            <Card className="bg-white/2 border-white/10 overflow-hidden relative group p-8">
+              <div className="absolute inset-0 bg-linear-to-br/srgb from-primary/5 to-transparent opacity-50 group-hover:opacity-70 transition-opacity" />
               <div className="relative z-10 space-y-6">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-primary/20 rounded-2xl">
@@ -776,7 +776,7 @@ export default function FinancesPage() {
               </div>
             </Card>
 
-            <Card className="bg-white/[0.02] border-white/10 p-8 space-y-6">
+            <Card className="bg-white/2 border-white/10 p-8 space-y-6">
               <div className="flex items-center gap-3">
                 <Briefcase className="h-6 w-6 text-primary" />
                 <h3 className="text-xl font-bold">Inventory Catalog</h3>

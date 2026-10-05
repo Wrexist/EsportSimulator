@@ -147,7 +147,7 @@ export function ScoutingReport({ opponent, opponentRoster }: ScoutingReportProps
 
     if (tendencies.length === 0) {
         return (
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+            <div className="rounded-xl border border-white/10 bg-white/3 p-4">
                 <div className="flex items-center gap-2 mb-1">
                     <Search size={14} className="text-white/40" aria-hidden="true" />
                     <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">
@@ -162,7 +162,7 @@ export function ScoutingReport({ opponent, opponentRoster }: ScoutingReportProps
     }
 
     return (
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
+        <div className="rounded-xl border border-white/10 bg-white/3 p-4 space-y-3">
             <div className="flex items-center gap-2">
                 <Search size={14} className="text-white/60" aria-hidden="true" />
                 <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/60">

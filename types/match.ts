@@ -147,6 +147,26 @@ export interface RoundResult {
         hasKit: boolean
     }[]
     events?: MatchEvent[]
+    /** Buy each team ran (public: visible from equipment). */
+    buys?: { home: string; away: string }
+    /** Managed team's call for this round, if any. */
+    managerCall?: { strategy?: string; regroup?: boolean }
+}
+
+/** Manager decisions recorded with a result (own team only; no hidden opponent data). */
+export interface MatchManagementRecord {
+    teamId: string
+    playstyle?: string
+    economyStyle?: string
+    tacticalPrep?: number
+    mentalPrep?: boolean
+    targetPlayerId?: string
+    /** Opponent style was scouted via VOD review, so the counter matchup may be shown. */
+    opponentScouted?: boolean
+    counter?: 'advantage' | 'disadvantage' | 'neutral'
+    timeoutsUsed: number
+    strategyCalls: number
+    mode: 'live' | 'instant'
 }
 
 /**
@@ -171,6 +191,9 @@ export interface MatchResult {
 
     // XP Gains for players (Phase 60: Talent Trees)
     xpGains?: Record<string, number>
+
+    /** L21: managed team's own pre-match and live decisions. */
+    management?: MatchManagementRecord
 }
 
 export interface Tournament {

@@ -68,6 +68,15 @@ export function formatCurrency(amount: number, prefix = '$', abbreviate = true):
 }
 
 /**
+ * Signed money for deltas and income/expense rows: "+$1.5k", "-$1.5k", "$0".
+ * Same precision and compact/full rules as formatCurrency.
+ */
+export function formatSignedCurrency(amount: number, prefix = '$', abbreviate = true): string {
+    const text = formatCurrency(amount, prefix, abbreviate)
+    return amount > 0 && text !== `${prefix}0` ? `+${text}` : text
+}
+
+/**
  * Format percentage
  */
 export function formatPercentage(value: number, decimals = 0): string {

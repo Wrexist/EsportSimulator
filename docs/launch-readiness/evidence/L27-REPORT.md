@@ -1,60 +1,235 @@
-# L27 — measured performance increment
+# L27 — performance measurement and long-career fixes (TODO E8)
 
-14 September 2026. **Partial; release NO-GO.** Measured recruitment work was reduced without changing the four frozen scenarios' simulation state or RNG output. Real UI, target-hardware and packaged acceptance remain open.
+4 October 2026, branch `claude/performance-l27` (base `0adb090b`). **Partial; release still NO-GO.** One development machine measured. Long careers had a save-breaking size problem and multi-second main-thread stalls. Both are fixed here without changing simulation results. Minimum-spec hardware, live-match frame pacing and a packaged rerun of the fixed build are still open.
 
-## Changes and measured results
+## Machine (the only machine measured)
 
-The CPU profile identified repeated player valuations during AI recruitment as the main expired-contract stress bottleneck. `engine/ai/roster-management.ts` now reuses candidate wage quotes within one synchronous team vacancy-fill operation. It still rebuilds ownership, role needs and affordability for each hire, retains candidate ordering and discards quotes before another team/week. The selected candidate reuses its existing quote. `engine/player-evaluation.ts` reuses static, ordered role-weight entries instead of allocating them for every evaluation. No global or persisted cache was added.
+| | |
+|---|---|
+| CPU | Intel Core i5-12600K (10 cores / 16 threads, 3.7 GHz base) |
+| RAM | 31.7 GB |
+| GPU / display | NVIDIA GeForce RTX 3060, 1920×1080 at 143 Hz |
+| Storage | Measured paths on C: (NVMe SSD) |
+| OS | Windows 11 Pro 10.0.26200 |
+| Runtime | Node 22.18.0 (harness); packaged app Electron 44.3.0 / Chrome 152 |
 
-Same development host, fixed inputs, lockfile and sampling method for each paired comparison. Direct compute: one warmup and eight samples; milliseconds below are medians. These are local compute timings, not total click-to-ready latency.
+This is a mid/high-end desktop. No number below is a minimum-spec result.
 
-| Direct compute scenario | Before ms | After ms | Change |
-|---|---:|---:|---:|
-| small | 1.03 | 1.17 | +13.8% |
-| full-world | 144.52 | 111.22 | -23.0% |
-| late-history | 1658.30 | 654.20 | -60.5% |
-| late-active | 114.51 | 98.59 | -13.9% |
+## Method
 
-The production worker bundle was also executed in Node vm, with one warmup and six samples. This runs compiled production code but excludes actual browser worker scheduling, transport, rendering and Electron. Compare within this table only, not against direct-source timings.
+- **Career harness:** `scripts/launch/l27-career-performance.ts`. It drives the real `useGameStore.advanceWeek` path: snapshot, pre-tick, FPL, bridge, `computeWeek`, commit, post-week work and `saveGame`. Own fixtures are played first with `simulateInstantMatch`. It records per-phase timings (`ESM_PERF_TRACE_STEPS`), forced-GC heap, and per-week state/RNG hashes. Node has no Web Worker, so the bridge runs its synchronous fallback. `coord.04_compute` is the work the app does in its worker thread. Every other `coord.*`/`save.*` phase runs on the renderer main thread ("main thread" below). Storage is in memory. Disk cost is measured separately with the packaged writer, `electron/game-storage.js` (temp file + fsync + rename).
+- **Inputs:**
+  - early: a new career (frozen once in `tmp/l27/early-w1.json.gz`), 2 warm-up weeks, then 52 measured weeks.
+  - mid: long-career seed 1 at week 160.
+  - late: seeds 1 and 2 at week 521 (season 10, about 4,200 players), from the 30-seed campaign (`final-3258d16a`).
+  - Late inputs exceed the 32 MiB load guard, so they are injected with `setState`. This is identical in both runs.
+  - Mid/late: 2 warm-up weeks, then 12 measured weeks (late2: 8).
+  - Save and load: 4 samples each. Harness reproducibility was checked by two baseline runs: RNG and full state matched byte for byte.
+- **Before/after:** identical inputs, machine, flags and sequential runs. "Before" is the original code plus the timing hooks only.
+- **Packaged app:** `scripts/launch/l27-packaged.cjs` drives a **copy** of `dist/win-unpacked` (built from `0adb090b`) over CDP. It uses an isolated `--user-data-dir` under `tmp/`, and the copy has `resources/LOCAL-QA-ONLY`, which disables Steam. Profiles are seeded by `scripts/launch/l27-seed-profile.ts` with the app's own disk layout and signing.
+  - Startup: 1 first launch on a new profile plus 6 repeat launches, timed to "New Career" rendered and the save list loaded. OS file-cache state is not controlled.
+  - Route latency: number-key shortcut, then `data-route` changes, then 2 animation frames.
+  - Weeks: CONTINUE clicked, then controls re-enabled, with Long Tasks API entries.
+  - Memory: forced-GC CDP metrics every 13 weeks.
+- **Physical rounds:** `scripts/launch/l27-physical-timing.ts`. Each run is one process with rows in sequence. Every output hash must equal its v14 acceptance receipt. The first two Mirage rows overlapped short harness runs.
 
-| Bundled worker in Node vm | Before ms | After ms | Change |
-|---|---:|---:|---:|
-| small | 0.98 | 1.10 | +12.7% |
-| full-world | 211.95 | 195.86 | -7.6% |
-| late-history | 6048.44 | 2088.33 | -65.5% |
-| late-active | 231.28 | 208.75 | -9.7% |
+## Before / after (career harness, medians, ± = standard deviation)
 
-**All eight paired state/RNG hashes match.** The mass roster-rebuilding case improved substantially in both harnesses. It still takes 2.09 seconds in the bundled VM, above the proposed one-second stress target. Small-case deltas are sub-millisecond noise; the full-world initial baseline was 117.15 ms versus 144.52 ms on its repeat, showing run variability. Do not interpret these samples as a universal game speedup or reliable population p95.
+| Scenario (n weeks) | Week wall ms | Main-thread ms | Save ms (n=4) | Load ms (n=4) | Save size MiB (gzip) | Heap after GC MB |
+|---|---:|---:|---:|---:|---:|---:|
+| early, season 1 (52) | 1,147 ± 334 → **594 ± 129** | 785 ± 281 → **369 ± 117** | 324 ± 17 → **263 ± 27** | 715 → **595 ± 10** | 13.2 (1.7) → **11.6 (1.5)** | 190 → 169 |
+| mid, week 160 (12) | 2,232 ± 122 → **954 ± 74** | 1,641 ± 122 → **614 ± 69** | 562 ± 40 → **295 ± 17** | 1,252 → **797 ± 98** | 22.7 (2.9) → **15.7 (2.0)** | 351 → 241 |
+| late, week 521, seed 1 (12) | 4,067 ± 158 → **1,148 ± 94** | 3,107 ± 98 → **698 ± 43** | 1,116 ± 77 → **345 ± 34** | **refused** (42.7 MiB > 32 MiB) → **1,060 ± 72** | 42.7 (5.5) → **19.5 (2.4)** | 575 → 309 |
+| late, week 521, seed 2 (8) | 4,358 ± 213 → **1,181 ± 85** | 3,263 ± 176 → **701 ± 48** | 1,172 ± 57 → **369 ± 17** | **refused** (43.1 MiB) → **1,090 ± 118** | 43.1 (5.5) → **19.9 (2.4)** | 583 → 312 |
 
-`full-world` is 198 teams / 1,368 initial players with 98 AI matches and one deferred player match. `late-history` has week 521, 5,000 synthetic events and expired original contracts, intentionally provoking mass recruitment. `late-active` shifts contract dates too. Neither proves ten seasons of balanced play. Career creation metadata was frozen once; measured simulation seed is 27001. No owner's career was used.
+Worker-thread compute (`coord.04_compute`, which included the removed bridge clone before): early 302 → 179, mid 570 → 299, late 941 → 416 ms. Late main-thread phases before → after:
 
-## Evidence and verification
+| Phase | Before | After |
+|---|---:|---:|
+| Commit | 1,490 | 12 |
+| Bridge input clone | 500 | 0 |
+| Snapshot clone | 508 | 194 |
+| Save clone | 476 | 198 |
+| Integrity hash | 287 | 153 |
+| Second stringify | 222 | 0 |
 
-- [Comparison](L27-comparison.json), [direct baseline](L27-baseline-2.json), [direct candidate](L27-candidate.json), [worker baseline](L27-worker-baseline-2.json), [worker candidate](L27-worker-candidate.json). Each retains raw samples and fixture/output hashes. The initial worker baseline overlapped tests and is excluded from claims; baseline-2 was isolated.
-- [CPU profile summary](L27-profile-summary.json) identifies recruitment/evaluation work; profile-inclusive timing is diagnostic only. TSX profile line numbers refer to transpiled source.
-- [Frozen fixtures](L27-fixtures.zip), [raw profile](L27-cpu-profile.zip), [baseline worker bundle](L27-worker-baseline-bundle.zip) preserve review inputs and the superseded compiled artifact. Source/lock hashes are in direct measurement records. The final harness additionally prepares the fourth fixture on fresh setup; recorded runs already used those same four frozen inputs and measurement loops. Medians were corrected from retained raw samples to average the two middle observations; original logs/source hashes retain the original upper-middle summary. No timing sample changed. [Artifact manifest](L27-artifact-manifest.json) records final tooling and archive hashes.
-- **1,610 tests / 167 suites pass**, including two new recruitment cache lifetime/state-equivalence regressions. [Test log](L27-tests.log), [structured results](L27-tests.json), [type-check log](L27-types.log) and [build log](L27-build.log). TypeScript exits 0. Production build and compiled-worker startup verifier pass, retaining its no-durable-open assertion.
-- Baseline build `2GX-oYzTzbaGEiXjb0G1r`; candidate `cAVrB5l32x2qQWbl99c0j`, worker `3816.4d88bc92ad6a093e.js`. Exact worker SHA-256 is in its measurement JSON. Preview restarted on port 3210, PID 322816. [HTTP smoke](L27-http-smoke.json) establishes route availability only. Next's reported server-ready time is not usable-menu startup.
-- [Preserved data hashes](L27-preserved-data.json) verify the user's Mirage drawings, spawn/bombsite areas and team snapshot. No owner career was loaded or advanced.
+Instant match (store `simulateInstantMatch`): early median 54 → 52 ms (n=40), mid 93 → 70 ms (n=8). Disk (packaged writer, one fsync'd write): late 62 → 38 ms, read 63 → 35 ms. A full commit does up to 5 writes and 5 reads (3 backups, staging, primary, 2 verifications), plus IPC.
 
-## Memory, storage and assets
+**Determinism:** [comparison](L27-career-comparison.json) covers 92 compared weeks over 4 scenarios, warm-up weeks included.
+- RNG state is identical every week.
+- All save state except `fplData.matchHistory` is byte-identical.
+- The newest 200 FPL records are identical.
+- With the FPL cap temporarily disabled, the full canonical state is byte-identical to the baseline for 32 early and 8 late weeks ([no-cap comparison](L27-career-comparison-nocap.json)). The other optimizations therefore change nothing.
 
-The [52-tick compute soak](L27-compute-soak.json) completed using the actual compute core. Forced-GC JS heap grew from 30.3 MB at week 2 to 40.4 MB at week 53 while players grew from 1,403 to 1,665 and completed matches from 98 to 1,645. Events stabilized at their 500 cap and finance ledger at 2,000. This is growing career data, not evidence of leak-free renderer/native operation. It excludes the application post-week coordinator and durable storage.
+Physical v14 receipt hashes also match (14/14).
 
-Direct benchmark clone timings and fresh memory-backed SaveManager timings are retained separately. They do not measure IndexedDB, disk, backup rotation or the complete application save path, and no save-performance improvement is claimed.
+## Findings and fixes
 
-[Asset census](L27-asset-cost.json): 4,451 public files, 298,587,618 bytes (284.8 MiB); all built JS chunks total 7,056,434 bytes raw / 1,788,233 bytes individually gzipped. PNG accounts for 194,272,463 bytes; spatial mesh files total 37,849,424 bytes. These are on-disk totals, not per-route transfer, decoded memory or final package inclusion. No asset was deleted or recompressed based solely on this census.
+1. **Long careers outgrew storage (correctness).** `fplData.matchHistory` gained about 28 records a week and nothing reads it. By week 521 it was 24.5 MB of a 44.6 MB save. Crossing 32 MiB (around week 340, season 7 on seed 1) has two effects:
+   - The Electron IPC rejects the write, so every post-week save fails ("Disk save failed").
+   - `SaveManager` refuses to load anything that large.
 
-## Reproduction, scope and rollback
+   **Fix:** `compactPersistentState` keeps the newest 500 records (`ARRAY_CAPS.fplMatchHistory`). Season-10 saves go from 42.7 to 19.5 MiB. Projected growth is about 0.6 MiB a season, so the limit is reached around season 30.
+2. **Commit froze the UI.** `Object.assign(draft, processedSave)` inside an Immer producer made Immer walk and deep-freeze the whole save every tick: 0.35 s in season 1 and 1.5 s at season 10. The worker result is now finished in place and committed as a plain partial. Values are identical. The state is unfrozen, as it already is after `loadGame`.
+3. **Double clone.** The coordinator's private snapshot was structured-cloned again by the bridge. `processWeek(..., { inputOwned: true })` skips that clone. The default still captures a copy.
+4. **Double serialization on save.** The integrity payload is reused for the stored text (`serializeSignedSave`). Output equals `JSON.stringify(save)`, checked by test, and the code falls back when key order differs.
+5. **AI recruitment scan.** Clubs at 5–6 players missing an IGL/AWPer re-quoted every free agent (about 3,000 by season 10) every week. Only role-eligible candidates are quoted now. The pick and state are unchanged, checked by test and the hash comparison.
+6. **Renderer memory.** Steam's achievement callback was created inside `loadGame`, which kept a full copy of the loaded save alive all session. It is now built outside that scope.
+7. **Truthful progress (L27.A2).** The week overlay used to loop five decorative stages. It now shows the real stage from the store: preparing → simulating → applying → saving. Long careers sit in "simulating" and "saving" for seconds.
 
-Use the commands and fixture descriptions in [L27 budgets](L27-BUDGETS.md). New tooling: `scripts/launch/measure-performance.ts`, `measure-built-worker.cjs`, `measure-sustained-compute.ts`, `measure-asset-cost.cjs`, `compare-performance.cjs`; the existing worker verifier now exports its harness while retaining its CLI checks. Regression file: `__tests__/l27-recruitment-performance.test.ts`.
+## Packaged app (`0adb090b` copy, Steam disabled, before fixes only)
 
-The two production optimizations need no schema migration or replay-version bump: order, state and RNG outputs are preserved in measured cases. Roll back only this increment's quote reuse and precomputed weight entries if needed; preserve earlier recruitment fixes and unrelated workspace changes. Historical `scripts/perf-baseline.ts` includes different work and cannot serve as a comparable baseline for these figures.
+| Measure | Result |
+|---|---|
+| Startup to interactive menu | First launch on a new profile: 1,885 ms. Repeat launches: median 1,861 ms, sd 118, max 1,922 (n=6). With Steam running and enabled: first launch 5,989 ms, repeat median 1,995 ms (n=6). |
+| Continue career to dashboard | Season 1: 259 ms. Week 160 (22.6 MB save): 938 ms. |
+| Route change (8 main routes) | Season 1: median 92 ms, p90 159, max 212 (n=56). Week 160: median 126 ms, max 275 (n=24). Dashboard `/` is slowest (median 235 ms at week 160). |
+| Week advance to controls re-enabled | Season 1: median 1,455 ms, p90 1,893 (n=52). Week 160: median 2,932 ms, max 3,385 (n=8). |
+| Longest renderer long task per week | Season 1: median 322 ms, max 552. Week 160: median 682 ms, max 774. |
+| Own-fixture flow (tactics → instant sim → result → dashboard) | Median 340 ms (n=23) |
+| 52-week session, after forced GC | JS heap 12 → 216 MB. DOM nodes 888 → 23,676. Listeners 363 → 2,521. Intervals stay at 0 and pending timeouts at 1, so no timer leak. |
 
-## Open acceptance and next step
+**Memory:** a fresh load of the same week-53 career uses about 29 MB of heap, so roughly 185 MB is session retention. Heap snapshots over 8 weeks ([summary](L27-packaged-heap.json)) show three sources:
+- One retained serialized save string (`SaveManager.lastVerifiedPrimary`, about 2× the save size).
+- The Steam-callback scope, fixed in item 6.
+- Up to about 20 holders pinning older state copies: React fiber memoized selectors and V8 allocation-site feedback. Every tick replaces every object, so each stale holder pins a whole state.
 
-All **12 [real performance cases](L27-acceptance-cases.csv) remain NOT_RUN**. Browser inventory/selection returned no available browser, so no UI frame, input, navigation or actual Chromium-worker trace was captured. Minimum/recommended hardware, GPU, supported display load and accepted budgets are unconfirmed. Cold/warm usable-menu startup, long-task responsiveness, 60 Hz playback, real durable saves, 60-minute play and 50 map/route switches still need measurement. L14/L23 dependencies also prevent acceptance. Local fixes satisfy L27.3; L27.1/.2/.4 and all acceptance boxes stay open.
+The DOM growth is bounded by the dashboard rendering the full capped news feed (200 items) and to-do list. This is not certified leak-free.
 
-Steam App ID 4326170 is configured and its check passes. Content clearance remains held at 4,988 unresolved/changed inventory items. Earlier player/UI testing, remaining team identities, full 5v5 integration/calibration and packaged Windows testing remain open.
+Live-match frame pacing: **NOT RUN.**
 
-**Next: L28 — management and simulation balance campaign**, alongside the outstanding L27 real-environment measurements. Begin with seeded distributions and invariants; do not mark balance accepted without the extended campaign and human playtests.
+## Physical rounds (v14, combat, A 4326170 / B 4326171; ms; ×real time)
+
+Mirage 32,941 (2.28×) / 47,752 (1.54×); Inferno 29,031 (1.55×) / 33,342 (1.30×); Overpass 20,743 (3.09×) / **105,018 (0.62×)**; Vertigo 10,751 / 20,453; Ancient 10,729 / 7,356; Anubis 30,209 (2.08×) / 43,904 (1.16×); **Sandstone 31,977 (2.87×) / 18,049 (3.33×)**, against the recorded 51 s / 31 s. Mesh/nav load: 0.25–2.8 s per map.
+
+Profile (Sandstone A): `CollisionScene.raycast` is 76% of self time, mostly via `bodyHit` sweeps and route checks. The BVH is already iterative. Faster traversal (flattened nodes, nearest-child-first) risks changing triangle tie-breaking, so it was not attempted under the byte-identical rule. Physical play stays rehearsal-only.
+
+## Proposed budgets (PROPOSED, not accepted)
+
+| Metric | Proposed budget | Now on this machine |
+|---|---|---|
+| Startup to interactive menu | ≤ 3 s repeat, ≤ 6 s first launch | 1.9 s / 1.9–6.0 s |
+| Route change | ≤ 250 ms p90 | 159–275 ms (before fixes) |
+| Main-thread work per week | ≤ 400 ms season 1, ≤ 1 s season 10; no single task > 250 ms | 369 / 698 ms total. The largest single block is now the snapshot clone (about 194 ms late). |
+| Week advance end to end | ≤ 2 s season 1, ≤ 4 s season 10, with truthful stage display | Harness 0.6 / 1.2 s; packaged before: 1.5 / 2.9 s (week 160) |
+| Save | ≤ 500 ms p95 including disk; size ≤ 24 MiB at season 10 | 345 ms + disk; 19.5 MiB |
+| Load | ≤ 1.5 s at season 10 | 1.06 s (harness) |
+| Session memory | No growth beyond 2× fresh-load heap after 52 weeks | About 7× (before fixes) |
+| Physical round compute | ≥ 1× real time on minimum spec before any live adoption | 0.62–5.5× here |
+
+## Needs minimum-spec hardware
+
+Every row above, especially:
+- Packaged week advance and long tasks (single-thread speed).
+- Save with fsync on HDD/SATA SSD (5+ full-size writes per week).
+- Startup and first launch on cold storage.
+- Physical rounds (Overpass B already runs below real time here).
+- Session memory on 8 GB machines.
+- 60 Hz live-match playback (not yet measured at all).
+
+## Remaining risks
+
+- The fixed build was **not** re-measured as a packaged app. The electron-builder package from this worktree (node_modules is a junction) dropped transitive modules. A hybrid repack hung at startup, so both were discarded. The Node harness is the evidence for the fixes.
+- Renderer retention (serialized primary string, stale state copies) and the dashboard's full-list DOM are unfixed.
+- Packaged week 168 on the mid career: "Play match" was offered, but quick sim led to "MATCH NOT FOUND" ([mid run](L27-packaged-before-mid.json); the session stopped at week 168). Needs triage as a possible gameplay defect.
+- **Account side effect during measurement:** early smoke runs of the unmodified release exe initialized Steam as the logged-in user. They wrote two test careers to Steam Cloud for app 4326170 (`save_save_l27_early.json`, `save_save_1791065661079_vakrwi_82ecrz.json` in `Steam/userdata/66795290/4326170/remote`). They may also have set achievements, stats or Rich Presence. The owner should delete these files and reset test achievements. The packaged driver now refuses builds without `LOCAL-QA-ONLY`.
+- Save over 32 MiB is still possible after about 30 seasons. Browser/IndexedDB saves already over 32 MiB still cannot load.
+
+## Evidence
+
+- Career runs: `L27-career-{before,after}-{early,mid,late,late2}.json`, [comparison](L27-career-comparison.json), [no-cap comparison](L27-career-comparison-nocap.json), `L27-career-nocap-*.json`.
+- Packaged runs: `L27-packaged-before-{startup,early,mid}.json`, `L27-packaged-steam-startup.json`, `L27-packaged-heap.json`.
+- Physical: `L27-physical-before.json`.
+- Tools: `scripts/launch/l27-*.{ts,cjs}`.
+- Tests: `__tests__/l27-tick-performance.test.ts`, `__tests__/l27-week-progress.test.ts`.
+
+The 14 September increment (recruitment quote reuse, [budgets](L27-BUDGETS.md), compute soak, asset census) still stands. Its files are unchanged; see git history for the earlier text of this report.
+
+## Packaged re-measure after fixes (4 Oct, build f9358233, LOCAL-QA-ONLY copy, Steam disabled)
+
+| Session | Weeks | Controls re-enabled after Continue (median) | Longest main-thread task (median) | Route change (median) |
+|---|---|---|---|---|
+| Before, mid career | 160–167 | 2,936 ms | 698 ms | 126 ms |
+| After, mid career | 168–179 | 1,695 ms | 409 ms | 114 ms |
+| Before, early career | 1–52 | 1,459 ms | 322 ms | 92 ms |
+| After, early-profile copy | 87–96 | 2,011 ms | 424 ms | 122 ms |
+
+Same machine (i5-12600K, 31.7 GB, Windows 11). The "after" early profile is a later point of the same career than the "before" run, so those two rows are not like-for-like. Week 168 now advances (previously MATCH NOT FOUND); the early session no longer goes bankrupt after the legend-wage fix. The early run stopped at week 97 because the driver does not dismiss the week-review dialog's Continue button: a harness gap, not a game fault. Evidence: `L27-packaged-after-early.json`, `L27-packaged-after-mid.json`.
+
+## Session heap (L27.A3) and 52-week packaged harness (4 Oct, branch `claude/heap-and-packaged-smoke`)
+
+**Result: the session heap is bounded.** After 52 weeks it is 1.2–1.3× a fresh load of the same career (target ≤ 2×). Most of the earlier "12 → 216 MB" was the measurement harness, not the game.
+
+### Root causes (heap snapshots at weeks 0/13/26/52, [summary](L27-heap-retainers.json))
+
+1. **Harness artefact (about 130 MB at week 52).** `page.waitForSelector()` returns an ElementHandle, and CDP keeps it alive until it is disposed. The driver created one per own match (the tactics page's "Simulate Result Instantly" button). Each one pinned the unmounted tactics page: fiber → props/closures → a whole old game state. The snapshot shows about 30 GC roots labelled "DevTools console" of 5–12 MB each. The game itself held only **one** live state: one live `players` array, and no stale states in subscribers, selectors, memo caches, logs or toasts. A normal player session has no CDP handles. **Fix:** the driver now waits with `waitForFunction`. `--legacy-handle-leak` reproduces the old behaviour.
+2. **App: `SaveManager.lastVerifiedPrimary` kept the full serialized save** between saves (24.7 MB at week 52, about 1× the save size). It is used only to skip re-validating the primary this manager wrote itself. **Fix:** it now stores the exact length plus a **full-content hash** (`saveTextFingerprint`). Nothing is sampled.
+- **How the hash works:** SHA-256 (WebCrypto) runs over every UTF-16 code unit, in 1 Mi-unit chunks. A final SHA-256 of the chunk digests gives one value. Code units are used, not UTF-8, so lone surrogates are hashed exactly and the slow UTF-8 transcode is skipped. Without WebCrypto it falls back to a full-length 64-bit FNV-1a over every code unit.
+- **Check order:** the length is compared first. The stored primary is hashed only when the length matches. Any differing character forces the normal parse + integrity validation, and a failing file is quarantined as `_corrupt` instead of rotated into `backup_1`.
+- **Overlap:** the new text is hashed while the staging/commit writes are in flight.
+- **Earlier version:** an intermediate commit on this branch (`59433e86`) sampled every 31st character. It was replaced because a missed one-character change could rotate an unvalidated file into `backup_1`.
+- **Tests** in `__tests__/l27-tick-performance.test.ts`:
+  - A one-character change at every position of a 1,500-character text gives a distinct hash.
+  - A change at positions the old sampler skipped, and at 1 Mi-unit chunk boundaries, is detected.
+  - The FNV fallback matches a BigInt reference, at every position, and lone surrogates ≠ U+FFFD.
+  - The manager's own primary rotates without a parse; a foreign primary is parsed and quarantined.
+  - A same-length one-digit change at an old-sampler-skipped position is re-validated, quarantined and not rotated.
+- Game state and results are untouched.
+
+**Added cost per save** ([evidence](L27-fingerprint-cost.json), `scripts/launch/l27-fingerprint-cost.cjs`):
+- A save makes 2 hashes: the new text once and, at the next save, the stored primary once.
+- Inputs are real save texts from the 52-week session: week 1 is 2.65 M chars (5 MB in memory); week 53 is 12.9 M chars (24.7 MB in memory, two-byte string).
+
+| Save | Chrome 154: per hash | Chrome: per save | Longest synchronous slice | Node 22: per save | FNV fallback per save (Chrome) |
+|---|---:|---:|---:|---:|---:|
+| Early (week 1, 5 MB) | 13–15 ms | **26–29 ms** | 6 ms | 32–51 ms | 36–39 ms |
+| Late (week 53, 24.7 MB) | 47–60 ms | **93–120 ms** | 4–5 ms | 116–196 ms | 137–162 ms |
+
+- Ranges come from two runs. The first ran on an idle machine (12:28Z). The second ran with the CPU at 93–99% from other worktrees' processes.
+- In Chrome almost all of the time is the synchronous copy of code units into 1 Mi-unit buffers; the digests add little. The copy is split into ≤ 6 ms slices with the event loop running between them, so it creates no long task.
+- An earlier variant using SHA-256 over TextEncoder UTF-8 cost 110–128 ms **per hash** at 24.7 MB (98 ms of it in the encoder). That is why the code hashes code units instead.
+- A 52-week Chrome session with this build ([evidence](L27-packaged-heap-web-sha256.json)) completed 52/52 weeks, and the heap at week 53 was **32.0 MB** (fresh load 25.9–27.9). Its week timings are **not usable**: the CPU was at 93–99% from other processes during the run, and route changes were also about 30% slower than in the earlier runs.
+
+DOM nodes (about 7k at week 52) and listeners stay below a fresh load of the same career (8.9k / 664 on load). They track the capped news feed and to-do list, not a leak.
+
+### Before / after (fresh week-1 career, 52 weeks, forced-GC JS heap MB at weeks 1 / 14 / 27 / 40 / 53)
+
+| Run | Build | Driver | Heap | Week 53 vs fresh load |
+|---|---|---|---|---|
+| [packaged base](L27-packaged-heap-base.json) | QA copy (f9358233) | old (leaks handles) | 14.9 / 39.5 / 66.3 / 133.9 / **187.1** | 6.5× |
+| [packaged](L27-packaged-heap-harnessfix.json) | QA copy (f9358233) | fixed | 14.9 / 34.5 / 47.0 / 55.5 / **58.4** | 2.0× |
+| [browser base](L27-packaged-heap-web-base.json) | `next start` of this branch without the SaveManager fix, Chrome | fixed | 14.5 / 33.9 / 46.5 / 55.0 / **57.9** | 2.1× |
+| [browser fix](L27-packaged-heap-web-fix.json) | `next start` with the sampled fingerprint (`59433e86`), Chrome | fixed | 14.4 / 22.5 / 27.8 / 31.5 / **33.3** | **1.2×** |
+| [browser fix, full hash](L27-packaged-heap-web-sha256.json) | `next start` of this branch (full-content SHA-256), Chrome | fixed | 14.4 / 22.6 / 27.9 / 31.6 / **32.0** | **1.2×** |
+
+- Fresh load of the resulting week-53 career: packaged 26.4 MB on load / 28.6 MB after route cycles ([evidence](L27-packaged-heap-fresh-w53.json)); browser 25.9 / 27.9 ([evidence](L27-packaged-heap-web-fresh-w53.json)).
+- The packaged rows come from the existing LOCAL-QA-ONLY copy (Steam disabled). **The SaveManager fix was not repackaged.** This worktree's `node_modules` is a junction, which breaks electron-builder. The fix is measured with the production build in Chrome; that browser baseline matches the packaged run (57.9 vs 58.4 MB).
+
+### Week timings (52 weeks; ms; controls enabled = processing done and header CONTINUE/Play enabled)
+
+| Run | Week advance median / p90 | Longest task median / max | Route median | Own-match flow median |
+|---|---|---|---|---|
+| Packaged, old driver | 2,373 / 3,112 | 732 / 1,395 | 93 | 251 |
+| Packaged, fixed driver | 1,757 / 2,694 | 504 / 1,082 | 102 | 302 |
+| Browser base (Chrome, `next start`) | 2,133 / 2,595 | 554 / 775 | 194 | 489 |
+| Browser fix | 2,076 / 2,962 | 532 / 912 | 177 | 482 |
+
+- The heap snapshots at weeks 0/13/26 inflate the old-driver row. Without leaked handles, the packaged week median falls from 2.37 to 1.76 s: less GC pressure in the harness itself.
+- Browser rows are not comparable with packaged rows: visible Chrome window, different career path because the browser session plays its own fixtures from week 1. Base and fix browser rows are within run-to-run noise. All numbers are from this one machine (i5-12600K).
+
+### Harness fix (`scripts/launch/l27-packaged.cjs`)
+
+The end-of-week review ("WEEK N COMPLETE … CONTINUE", `role=dialog`, `aria-label="Week N review"`) is not in the header. When the page under it had no enabled header button, the old `idle()` waited forever (the week 97 stall).
+- `idle()` now treats the review and the processing overlay as "not ready". While waiting, it presses the review's Continue, or acknowledges other blocking dialogs the way a player would.
+- Timing keeps the old end point: processing done and header enabled or review shown.
+- All three 52-week sessions above completed: 52/52 weeks, no errors.
+- New options: `--heap-at=0,26,52` (snapshots) and `--url=` (drive a `next start` build in Chrome, seeded from the profile's game storage into IndexedDB).
+- The default exe is now the QA copy, and the `--allow-steam` escape hatch is removed.
+
+Analyzer: `node --max-old-space-size=16000 scripts/launch/l27-heap-analyze.cjs a.heapsnapshot [b.heapsnapshot]`.
+
+### Residual
+
+- No packaged rebuild with the SaveManager fix yet (needs a real `npm run dist` / `qa:package` from a normal checkout).
+- Late-career (season 10) session growth was not measured in-session; the save string fix scales with save size (about 20 MB saved there).
+- The app's own blob-URL worker is still refused by `worker-src 'self'` (one console error per session). It falls back without visible effect, but the source has not been traced.

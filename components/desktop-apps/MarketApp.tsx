@@ -25,7 +25,9 @@ import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { PlayerSpiderChart } from "@/components/ui/player-spider-chart"
+import { pressable } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface MarketAppProps {
     events: GameEventSaveData[]
     onEventClick: (event: GameEventSaveData) => void
@@ -139,10 +141,7 @@ function MarketAppComponent(_props: MarketAppProps) {
 
 
 
-    const formatMoney = (val: number) => {
-        if (val >= 1000000) return `$${(val / 1000000).toFixed(1)}M`
-        return `$${(val / 1000).toFixed(0)}k`
-    }
+    const formatMoney = (val: number) => formatCurrency(val)
 
     // Scrollbar styles
     const scrollbarClass = "[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20"
@@ -152,13 +151,13 @@ function MarketAppComponent(_props: MarketAppProps) {
             {/* Header */}
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-black/20 shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 flex items-center justify-center border border-white/10 shadow-lg shadow-emerald-900/10">
+                    <div className="w-10 h-10 rounded-xl bg-linear-to-br/srgb from-emerald-500/20 to-cyan-500/20 flex items-center justify-center border border-white/10 shadow-lg shadow-emerald-900/10">
                         <ShoppingBag size={20} className="text-emerald-400" />
                     </div>
                     <div>
                         <h2 className="text-lg font-normal uppercase tracking-tight">Transfer Market</h2>
                         <p className="text-[10px] text-emerald-400 font-bold tracking-widest uppercase">
-                            Budget: ${budget.toLocaleString()}
+                            Budget: {formatCurrency(budget, "$", false)}
                         </p>
                     </div>
                 </div>
@@ -173,7 +172,7 @@ function MarketAppComponent(_props: MarketAppProps) {
                             onClick={() => setActiveTab(tab.id as any)}
                             className={cn(
                                 "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase transition-all",
-                                activeTab === tab.id ? "bg-white/10 text-white shadow-sm ring-1 ring-white/5" : "text-white/40 hover:text-white hover:bg-white/5"
+                                activeTab === tab.id ? "bg-white/10 text-white shadow-xs ring-1 ring-white/5" : "text-white/40 hover:text-white hover:bg-white/5"
                             )}
                         >
                             <tab.icon size={12} />
@@ -218,7 +217,7 @@ function MarketAppComponent(_props: MarketAppProps) {
                                     value={searchQuery}
                                     onChange={e => setSearchQuery(e.target.value)}
                                     placeholder="Search players, teams..."
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 text-xs focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all focus:bg-black/30 placeholder:text-white/20"
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 text-xs focus:ring-1 focus:ring-emerald-500/50 outline-hidden transition-all focus:bg-black/30 placeholder:text-white/20"
                                 />
                             </div>
                             <div className={cn("flex items-center gap-2 overflow-x-auto pb-1 min-h-[26px]", scrollbarClass)}>
@@ -255,13 +254,11 @@ function MarketAppComponent(_props: MarketAppProps) {
                                 filteredPlayers.map(p => (
                                     <div
                                         key={p.id}
-                                        onClick={() => {
-                                            setSelectedPlayerId(p.id)
-                                        }}
+                                        {...pressable(() => setSelectedPlayerId(p.id), { pressed: selectedPlayer?.id === p.id })}
                                         className={cn(
                                             "flex items-center gap-3 p-2 rounded-xl transition-all border border-transparent cursor-pointer group",
                                             selectedPlayer?.id === p.id
-                                                ? "bg-gradient-to-r from-emerald-500/10 to-transparent border-emerald-500/20 shadow-lg"
+                                                ? "bg-linear-to-r/srgb from-emerald-500/10 to-transparent border-emerald-500/20 shadow-lg"
                                                 : "hover:bg-white/5 hover:border-white/5"
                                         )}
                                     >
@@ -311,7 +308,7 @@ function MarketAppComponent(_props: MarketAppProps) {
                 {/* Selected Player Pane - Side by Side (Not Absolute) */}
                 {activeTab === "market" && selectedPlayer && (
                     <div className="w-[320px] shrink-0 border-l border-white/10 flex flex-col bg-[#050505]/95 backdrop-blur-xl shadow-2xl z-20">
-                        <div className="p-4 border-b border-white/10 flex items-start justify-between bg-gradient-to-br from-white/5 to-transparent">
+                        <div className="p-4 border-b border-white/10 flex items-start justify-between bg-linear-to-br/srgb from-white/5 to-transparent">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-xl bg-black/40 overflow-hidden border border-white/10 shadow-lg">
                                     <PlayerPortrait src={selectedPlayer.portraitPath} seed={selectedPlayer.id} alt={selectedPlayer.nickname} size={48} variant="card" />
@@ -418,7 +415,7 @@ function MarketAppComponent(_props: MarketAppProps) {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs font-bold text-emerald-400 group-hover:scale-110 transition-transform origin-right">{t.fee > 0 ? `$${t.fee.toLocaleString()}` : "Free"}</p>
+                                            <p className="text-xs font-bold text-emerald-400 group-hover:scale-110 transition-transform origin-right">{t.fee > 0 ? `${formatCurrency(t.fee, "$", false)}` : "Free"}</p>
                                             <p className="text-[9px] text-white/30 font-bold uppercase">Week {t.week}</p>
                                         </div>
                                     </div>

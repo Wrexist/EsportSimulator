@@ -1,4 +1,4 @@
-// Real Chromium storage and real electron-store over actual registered IPC. Isolated profile only.
+// Real Chromium storage and real per-career save files over actual registered IPC. Isolated profile only.
 const {app,BrowserWindow,ipcMain}=require('electron');
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const {loadHandlers}=require('./electron-handler-harness.cjs');
@@ -24,7 +24,9 @@ app.whenReady().then(async()=>{
   const {default:Store}=await import('electron-store');
   const actual=new Store({cwd:path.join(directory,'disk')});
   let fault=false;
-  const diskStore={get:key=>actual.get(key),get store(){return actual.store},set store(value){if(fault) throw new Error('Synthetic EACCES');actual.store=value;}};
+  // Settings stay in electron-store; saves are per-career files, so the fault goes below those writes.
+  const diskStore=actual;
+  const saveFs=new Proxy(fs,{get(target,name){const real=target[name];if(typeof real!=='function')return real;if(!['openSync','writeFileSync','renameSync','unlinkSync'].includes(name))return real.bind(target);return (...args)=>{if(fault&&(name!=='openSync'||/[wa]/.test(String(args[1]))))throw Object.assign(new Error('Synthetic EIO'),{code:'EIO'});return real.apply(target,args);};}});
   const preload=path.join(directory,'preload.cjs');
   fs.writeFileSync(preload,`const {contextBridge,ipcRenderer}=require('electron');contextBridge.exposeInMainWorld('electron',{storage:{getItem:k=>ipcRenderer.invoke('storage-get-item',k),setItem:(k,v)=>ipcRenderer.invoke('storage-set-item',k,v),removeItem:k=>ipcRenderer.invoke('storage-remove-item',k),clear:()=>ipcRenderer.invoke('storage-clear'),getAllKeys:()=>ipcRenderer.invoke('storage-get-all-keys')}});contextBridge.exposeInMainWorld('recoveryQA',{fault:on=>ipcRenderer.invoke('l03-fault',on)});`);
   const bundle=fs.readFileSync(path.join(directory,'browser.js'));
@@ -38,7 +40,7 @@ app.whenReady().then(async()=>{
   const port=33570;
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'127.0.0.1',resolve)});
   win=new BrowserWindow({show:false,webPreferences:{preload,sandbox:true,contextIsolation:true,nodeIntegration:false}});
-  loadHandlers({directory:path.join(directory,'disk'),ipcMain,contents:win.webContents,nativeWindow:win,diskStore,port});
+  loadHandlers({directory:path.join(directory,'disk'),ipcMain,contents:win.webContents,nativeWindow:win,diskStore,saveFs,port});
   ipcMain.handle('l03-fault',(event,on)=>{if(event.sender!==win.webContents||event.senderFrame!==win.webContents.mainFrame)throw new Error('Foreign QA sender');fault=on===true});
   for(const mode of ['local','idb','disk']) {
     const result=new Promise(resolve=>received=resolve);

@@ -1,0 +1,445 @@
+{
+  "version": 1,
+  "label": "after-early",
+  "mode": "session",
+  "recordedAt": "2026-10-04T07:20:58.124Z",
+  "exe": "C:\\Users\\IsacC\\EsportSimulator\\tmp\\l27qa\\app\\EsportsManager.exe",
+  "exeMtime": "2026-10-04T07:18:04.025Z",
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "logicalCpus": 16,
+    "ramBytes": 34087550976,
+    "os": "Windows_NT 10.0.26200"
+  },
+  "realProfileUntouched": true,
+  "routes": [
+    {
+      "route": "/squad",
+      "ms": 146.2
+    },
+    {
+      "route": "/training",
+      "ms": 121.8
+    },
+    {
+      "route": "/schedule",
+      "ms": 132.7
+    },
+    {
+      "route": "/transfers",
+      "ms": 71.2
+    },
+    {
+      "route": "/tournaments",
+      "ms": 131.8
+    },
+    {
+      "route": "/finances",
+      "ms": 263.1
+    },
+    {
+      "route": "/desktop",
+      "ms": 96.6
+    },
+    {
+      "route": "/",
+      "ms": 275.3
+    },
+    {
+      "route": "/squad",
+      "ms": 129.7
+    },
+    {
+      "route": "/training",
+      "ms": 123
+    },
+    {
+      "route": "/schedule",
+      "ms": 136.7
+    },
+    {
+      "route": "/transfers",
+      "ms": 69.6
+    },
+    {
+      "route": "/tournaments",
+      "ms": 209.3
+    },
+    {
+      "route": "/finances",
+      "ms": 74.2
+    },
+    {
+      "route": "/desktop",
+      "ms": 35.5
+    },
+    {
+      "route": "/",
+      "ms": 178.1
+    },
+    {
+      "route": "/squad",
+      "ms": 101.8
+    },
+    {
+      "route": "/training",
+      "ms": 82.2
+    },
+    {
+      "route": "/schedule",
+      "ms": 109.8
+    },
+    {
+      "route": "/transfers",
+      "ms": 53.6
+    },
+    {
+      "route": "/tournaments",
+      "ms": 140.2
+    },
+    {
+      "route": "/finances",
+      "ms": 51.3
+    },
+    {
+      "route": "/desktop",
+      "ms": 52.1
+    },
+    {
+      "route": "/",
+      "ms": 235.6
+    }
+  ],
+  "weeks": [
+    {
+      "week": 87,
+      "ownMatchFlowMs": 547,
+      "toNextWeekShownMs": 1229,
+      "toControlsEnabledMs": 2608,
+      "longTaskCount": 5,
+      "longTaskTotalMs": 1036,
+      "longestTaskMs": 424
+    },
+    {
+      "week": 88,
+      "ownMatchFlowMs": 186,
+      "toNextWeekShownMs": 1014,
+      "toControlsEnabledMs": 2068,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 658,
+      "longestTaskMs": 398
+    },
+    {
+      "week": 89,
+      "ownMatchFlowMs": 451,
+      "toNextWeekShownMs": 1101,
+      "toControlsEnabledMs": 2177,
+      "longTaskCount": 8,
+      "longTaskTotalMs": 977,
+      "longestTaskMs": 441
+    },
+    {
+      "week": 90,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 910,
+      "toControlsEnabledMs": 1793,
+      "longTaskCount": 2,
+      "longTaskTotalMs": 477,
+      "longestTaskMs": 398
+    },
+    {
+      "week": 91,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 975,
+      "toControlsEnabledMs": 2011,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 542,
+      "longestTaskMs": 418
+    },
+    {
+      "week": 92,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1026,
+      "toControlsEnabledMs": 2092,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 541,
+      "longestTaskMs": 414
+    },
+    {
+      "week": 93,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 998,
+      "toControlsEnabledMs": 1784,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 624,
+      "longestTaskMs": 490
+    },
+    {
+      "week": 94,
+      "ownMatchFlowMs": 557,
+      "toNextWeekShownMs": 928,
+      "toControlsEnabledMs": 1691,
+      "longTaskCount": 8,
+      "longTaskTotalMs": 895,
+      "longestTaskMs": 414
+    },
+    {
+      "week": 95,
+      "ownMatchFlowMs": 589,
+      "toNextWeekShownMs": 967,
+      "toControlsEnabledMs": 1745,
+      "longTaskCount": 6,
+      "longTaskTotalMs": 830,
+      "longestTaskMs": 449
+    },
+    {
+      "week": 96,
+      "ownMatchFlowMs": 604,
+      "toNextWeekShownMs": 991,
+      "toControlsEnabledMs": 1984,
+      "longTaskCount": 7,
+      "longTaskTotalMs": 917,
+      "longestTaskMs": 460
+    }
+  ],
+  "samples": [
+    {
+      "at": "loaded",
+      "week": 87,
+      "jsHeapUsedMB": 30.6,
+      "jsHeapTotalMB": 31.5,
+      "domNodes": 8482,
+      "jsEventListeners": 663,
+      "documents": 1,
+      "frames": 1,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    },
+    {
+      "at": "after-3-route-cycles",
+      "week": 87,
+      "jsHeapUsedMB": 34.6,
+      "jsHeapTotalMB": 35.8,
+      "domNodes": 8492,
+      "jsEventListeners": 830,
+      "documents": 2,
+      "frames": 2,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    }
+  ],
+  "errors": [
+    {
+      "error": "page.waitForFunction: Timeout 120000ms exceeded.\n    at idle (C:\\Users\\IsacC\\EsportSimulator\\scripts\\launch\\l27-packaged.cjs:181:27)\n    at session (C:\\Users\\IsacC\\EsportSimulator\\scripts\\launch\\l27-packaged.cjs:248:19)\n    at async main (C:\\Users\\IsacC\\EsportSimulator\\scripts\\launch\\l27-packaged.cjs:287:59)"
+    }
+  ],
+  "menuInteractiveMs": 2408,
+  "continueCareerToDashboardMs": 827,
+  "dismissed": 14,
+  "console": [
+    "error: Creating a worker from 'blob:http://localhost:3000/72fac9dc-c09a-4eb0-9438-a3ca616ca80e' violates the following Content Security Policy directive: \"worker-src 'self'\". The action has been blocked."
+  ],
+  "fixtureLog": [
+    {
+      "week": 87,
+      "path": "/match/iem_chengdu_s2_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 88,
+      "path": "/match/iem_chengdu_s2_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 89,
+      "path": "/match/iem_chengdu_s2_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 89,
+      "path": "/match/iem_chengdu_s2_r4_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 94,
+      "path": "/match/gamers8_riyadh_s2_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 94,
+      "path": "/match/gamers8_riyadh_s2_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 94,
+      "path": "/match/gamers8_riyadh_s2_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 95,
+      "path": "/match/blast_fall_s2_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 95,
+      "path": "/match/blast_fall_s2_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 95,
+      "path": "/match/blast_fall_s2_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 96,
+      "path": "/match/elisa_masters_espoo_s2_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 96,
+      "path": "/match/elisa_masters_espoo_s2_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 96,
+      "path": "/match/elisa_masters_espoo_s2_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 97,
+      "path": "/match/roobet_cup_s2_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 97,
+      "path": "/match/roobet_cup_s2_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 97,
+      "path": "/match/roobet_cup_s2_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    }
+  ],
+  "summary": {
+    "routeMs": {
+      "n": 24,
+      "min": 35.5,
+      "median": 122.4,
+      "mean": 125.9,
+      "sd": 64.7,
+      "p90": 235.6,
+      "max": 275.3
+    },
+    "routeByPath": {
+      "/": {
+        "n": 3,
+        "min": 178.1,
+        "median": 235.6,
+        "mean": 229.7,
+        "sd": 39.9,
+        "p90": 275.3,
+        "max": 275.3
+      },
+      "/desktop": {
+        "n": 3,
+        "min": 35.5,
+        "median": 52.1,
+        "mean": 61.4,
+        "sd": 25.8,
+        "p90": 96.6,
+        "max": 96.6
+      },
+      "/squad": {
+        "n": 3,
+        "min": 101.8,
+        "median": 129.7,
+        "mean": 125.9,
+        "sd": 18.3,
+        "p90": 146.2,
+        "max": 146.2
+      },
+      "/training": {
+        "n": 3,
+        "min": 82.2,
+        "median": 121.8,
+        "mean": 109,
+        "sd": 19,
+        "p90": 123,
+        "max": 123
+      },
+      "/schedule": {
+        "n": 3,
+        "min": 109.8,
+        "median": 132.7,
+        "mean": 126.4,
+        "sd": 11.9,
+        "p90": 136.7,
+        "max": 136.7
+      },
+      "/transfers": {
+        "n": 3,
+        "min": 53.6,
+        "median": 69.6,
+        "mean": 64.8,
+        "sd": 7.9,
+        "p90": 71.2,
+        "max": 71.2
+      },
+      "/tournaments": {
+        "n": 3,
+        "min": 131.8,
+        "median": 140.2,
+        "mean": 160.4,
+        "sd": 34.7,
+        "p90": 209.3,
+        "max": 209.3
+      },
+      "/finances": {
+        "n": 3,
+        "min": 51.3,
+        "median": 74.2,
+        "mean": 129.5,
+        "sd": 94.9,
+        "p90": 263.1,
+        "max": 263.1
+      }
+    },
+    "weekToControlsEnabledMs": {
+      "n": 10,
+      "min": 1691,
+      "median": 1997.5,
+      "mean": 1995.3,
+      "sd": 257.7,
+      "p90": 2177,
+      "max": 2608
+    },
+    "longestTaskMs": {
+      "n": 10,
+      "min": 398,
+      "median": 421,
+      "mean": 430.6,
+      "sd": 27.8,
+      "p90": 460,
+      "max": 490
+    },
+    "longTaskTotalMs": {
+      "n": 10,
+      "min": 477,
+      "median": 744,
+      "mean": 749.7,
+      "sd": 193.5,
+      "p90": 977,
+      "max": 1036
+    },
+    "ownMatchFlowMs": {
+      "n": 6,
+      "min": 186,
+      "median": 552,
+      "mean": 489,
+      "sd": 144,
+      "p90": 604,
+      "max": 604
+    }
+  }
+}

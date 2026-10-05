@@ -39,7 +39,7 @@ export function parseTeamSetup(value: unknown, nav: NavigationMesh): TeamSetup {
 }
 export interface Contact { enemy: string; point: Vec3; seen: number; received: number; source: string; visible: boolean; confidence: number; uncertainty: number }
 export interface TeamPlan { mode: 'default' | 'execute' | 'rotate' | 'retake' | 'save'; site: 'A' | 'B'; since: number; reason: string }
-export interface DecisionEvidence { side: Side; tick: number; alive: number; contactsAtSite: number; credibleEnemies: number; planted: boolean; bombSite: 'A' | 'B'; bombRemaining: number; travelSeconds: number; roundRemaining: number; openingSeconds: number; defuseSeconds: number; economy: TeamSetup['economy']; plan: TeamPlan }
+export interface DecisionEvidence { side: Side; tick: number; alive: number; contactsAtSite: number; credibleEnemies: number; planted: boolean; bombSite: 'A' | 'B'; bombRemaining: number; travelSeconds: number; roundRemaining: number; openingSeconds: number; defuseSeconds: number; economy: TeamSetup['economy']; plan: TeamPlan; carrierOnSite?: boolean }
 /** Tactical policy accepts evidence and friendly resources only; there is no world/enemy-position parameter. */
 export function chooseTeamPlan(v: DecisionEvidence): TeamPlan {
     const set = (mode: TeamPlan['mode'], site: 'A' | 'B', reason: string) => ({ mode, site, since: v.tick, reason })
@@ -52,6 +52,9 @@ export function chooseTeamPlan(v: DecisionEvidence): TeamPlan {
     if (v.economy === 'protect' && v.alive === 1 && v.credibleEnemies >= 2) return set('save', v.plan.site, 'One teammate remains against multiple recent reports; protect equipment.')
     if (v.side === 'T') {
         if (v.tick < v.openingSeconds * 64) return v.plan
+        // A friendly carrier already inside the planned plant zone is committed: rotating would
+        // abandon a reachable plant (and reset any plant in progress) for a cross-map walk.
+        if (v.carrierOnSite) return v.plan.mode === 'default' ? set('execute', v.plan.site, 'Bomb carrier is already on the planned site; commit to the plant.') : v.plan
         if (v.plan.mode !== 'rotate' && v.contactsAtSite >= 2 && v.roundRemaining > 12 && v.tick - v.plan.since >= 128) return set('rotate', v.plan.site === 'A' ? 'B' : 'A', 'Two recent communicated defenders at the planned site; use the alternate objective.')
         if (v.plan.mode === 'default') return set('execute', v.plan.site, 'Opening interval complete; entry advances with support and bomb carrier.')
     } else if (v.credibleEnemies > 0 && v.plan.mode === 'default') return set('rotate', v.plan.site, 'A delivered enemy report permits a support rotation; anchors retain their assigned angle.')

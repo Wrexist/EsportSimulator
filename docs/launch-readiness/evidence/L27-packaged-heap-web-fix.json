@@ -1,0 +1,1188 @@
+{
+  "version": 1,
+  "label": "heap-web-fix",
+  "mode": "session",
+  "recordedAt": "2026-10-04T11:35:59.313Z",
+  "target": "next start production build in Chrome at http://127.0.0.1:3100",
+  "exe": null,
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12600K",
+    "logicalCpus": 16,
+    "ramBytes": 34087550976,
+    "os": "Windows_NT 10.0.26200"
+  },
+  "realProfileUntouched": true,
+  "routes": [
+    {
+      "route": "/squad",
+      "ms": 240.1
+    },
+    {
+      "route": "/training",
+      "ms": 266.2
+    },
+    {
+      "route": "/schedule",
+      "ms": 226.2
+    },
+    {
+      "route": "/transfers",
+      "ms": 211.6
+    },
+    {
+      "route": "/tournaments",
+      "ms": 283.4
+    },
+    {
+      "route": "/finances",
+      "ms": 906.9
+    },
+    {
+      "route": "/desktop",
+      "ms": 65
+    },
+    {
+      "route": "/",
+      "ms": 325.6
+    },
+    {
+      "route": "/squad",
+      "ms": 243.8
+    },
+    {
+      "route": "/training",
+      "ms": 201.7
+    },
+    {
+      "route": "/schedule",
+      "ms": 139.1
+    },
+    {
+      "route": "/transfers",
+      "ms": 160.1
+    },
+    {
+      "route": "/tournaments",
+      "ms": 203.5
+    },
+    {
+      "route": "/finances",
+      "ms": 83.8
+    },
+    {
+      "route": "/desktop",
+      "ms": 65.6
+    },
+    {
+      "route": "/",
+      "ms": 118.4
+    },
+    {
+      "route": "/squad",
+      "ms": 158.4
+    },
+    {
+      "route": "/training",
+      "ms": 182.7
+    },
+    {
+      "route": "/schedule",
+      "ms": 137.5
+    },
+    {
+      "route": "/transfers",
+      "ms": 132.9
+    },
+    {
+      "route": "/tournaments",
+      "ms": 175
+    },
+    {
+      "route": "/finances",
+      "ms": 93.4
+    },
+    {
+      "route": "/desktop",
+      "ms": 73.9
+    },
+    {
+      "route": "/",
+      "ms": 119.8
+    },
+    {
+      "route": "/squad",
+      "ms": 272.4
+    },
+    {
+      "route": "/training",
+      "ms": 169.5
+    },
+    {
+      "route": "/schedule",
+      "ms": 234.3
+    },
+    {
+      "route": "/transfers",
+      "ms": 150.3
+    },
+    {
+      "route": "/tournaments",
+      "ms": 318.7
+    },
+    {
+      "route": "/finances",
+      "ms": 146.5
+    },
+    {
+      "route": "/desktop",
+      "ms": 103.5
+    },
+    {
+      "route": "/",
+      "ms": 185.9
+    },
+    {
+      "route": "/squad",
+      "ms": 178.6
+    },
+    {
+      "route": "/training",
+      "ms": 174
+    },
+    {
+      "route": "/schedule",
+      "ms": 233.8
+    },
+    {
+      "route": "/transfers",
+      "ms": 144.4
+    },
+    {
+      "route": "/tournaments",
+      "ms": 348.7
+    },
+    {
+      "route": "/finances",
+      "ms": 150.8
+    },
+    {
+      "route": "/desktop",
+      "ms": 103.5
+    },
+    {
+      "route": "/",
+      "ms": 276
+    },
+    {
+      "route": "/squad",
+      "ms": 229
+    },
+    {
+      "route": "/training",
+      "ms": 244
+    },
+    {
+      "route": "/schedule",
+      "ms": 261.7
+    },
+    {
+      "route": "/transfers",
+      "ms": 229.8
+    },
+    {
+      "route": "/tournaments",
+      "ms": 544
+    },
+    {
+      "route": "/finances",
+      "ms": 259.7
+    },
+    {
+      "route": "/desktop",
+      "ms": 212.2
+    },
+    {
+      "route": "/",
+      "ms": 372.4
+    },
+    {
+      "route": "/squad",
+      "ms": 155.6
+    },
+    {
+      "route": "/training",
+      "ms": 116.6
+    },
+    {
+      "route": "/schedule",
+      "ms": 173.5
+    },
+    {
+      "route": "/transfers",
+      "ms": 118.6
+    },
+    {
+      "route": "/tournaments",
+      "ms": 168.9
+    },
+    {
+      "route": "/finances",
+      "ms": 89.3
+    },
+    {
+      "route": "/desktop",
+      "ms": 66.1
+    },
+    {
+      "route": "/",
+      "ms": 284.7
+    }
+  ],
+  "weeks": [
+    {
+      "week": 1,
+      "ownMatchFlowMs": 885,
+      "toNextWeekShownMs": 658,
+      "toControlsEnabledMs": 966,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 430,
+      "longestTaskMs": 202
+    },
+    {
+      "week": 2,
+      "ownMatchFlowMs": 309,
+      "toNextWeekShownMs": 408,
+      "toControlsEnabledMs": 721,
+      "longTaskCount": 1,
+      "longTaskTotalMs": 184,
+      "longestTaskMs": 184
+    },
+    {
+      "week": 3,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 507,
+      "toControlsEnabledMs": 897,
+      "longTaskCount": 1,
+      "longTaskTotalMs": 189,
+      "longestTaskMs": 189
+    },
+    {
+      "week": 4,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 449,
+      "toControlsEnabledMs": 793,
+      "longTaskCount": 2,
+      "longTaskTotalMs": 245,
+      "longestTaskMs": 192
+    },
+    {
+      "week": 5,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 801,
+      "toControlsEnabledMs": 1209,
+      "longTaskCount": 1,
+      "longTaskTotalMs": 224,
+      "longestTaskMs": 224
+    },
+    {
+      "week": 6,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 626,
+      "toControlsEnabledMs": 1083,
+      "longTaskCount": 1,
+      "longTaskTotalMs": 186,
+      "longestTaskMs": 186
+    },
+    {
+      "week": 7,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 863,
+      "toControlsEnabledMs": 1247,
+      "longTaskCount": 2,
+      "longTaskTotalMs": 352,
+      "longestTaskMs": 262
+    },
+    {
+      "week": 8,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 865,
+      "toControlsEnabledMs": 1392,
+      "longTaskCount": 2,
+      "longTaskTotalMs": 318,
+      "longestTaskMs": 266
+    },
+    {
+      "week": 9,
+      "ownMatchFlowMs": 374,
+      "toNextWeekShownMs": 748,
+      "toControlsEnabledMs": 1141,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 486,
+      "longestTaskMs": 263
+    },
+    {
+      "week": 10,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 737,
+      "toControlsEnabledMs": 1230,
+      "longTaskCount": 2,
+      "longTaskTotalMs": 310,
+      "longestTaskMs": 245
+    },
+    {
+      "week": 11,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 917,
+      "toControlsEnabledMs": 1296,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 407,
+      "longestTaskMs": 297
+    },
+    {
+      "week": 12,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 842,
+      "toControlsEnabledMs": 1315,
+      "longTaskCount": 1,
+      "longTaskTotalMs": 289,
+      "longestTaskMs": 289
+    },
+    {
+      "week": 13,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1036,
+      "toControlsEnabledMs": 1462,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 509,
+      "longestTaskMs": 318
+    },
+    {
+      "week": 14,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 915,
+      "toControlsEnabledMs": 1354,
+      "longTaskCount": 2,
+      "longTaskTotalMs": 391,
+      "longestTaskMs": 296
+    },
+    {
+      "week": 15,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 913,
+      "toControlsEnabledMs": 1389,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 520,
+      "longestTaskMs": 349
+    },
+    {
+      "week": 16,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 915,
+      "toControlsEnabledMs": 1349,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 445,
+      "longestTaskMs": 338
+    },
+    {
+      "week": 17,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1025,
+      "toControlsEnabledMs": 1478,
+      "longTaskCount": 3,
+      "longTaskTotalMs": 438,
+      "longestTaskMs": 317
+    },
+    {
+      "week": 18,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 917,
+      "toControlsEnabledMs": 1409,
+      "longTaskCount": 4,
+      "longTaskTotalMs": 589,
+      "longestTaskMs": 414
+    },
+    {
+      "week": 19,
+      "ownMatchFlowMs": 1124,
+      "toNextWeekShownMs": 1116,
+      "toControlsEnabledMs": 1808,
+      "longTaskCount": 10,
+      "longTaskTotalMs": 1132,
+      "longestTaskMs": 430
+    },
+    {
+      "week": 20,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 970,
+      "toControlsEnabledMs": 1568,
+      "longTaskCount": 6,
+      "longTaskTotalMs": 720,
+      "longestTaskMs": 412
+    },
+    {
+      "week": 21,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1238,
+      "toControlsEnabledMs": 1908,
+      "longTaskCount": 5,
+      "longTaskTotalMs": 755,
+      "longestTaskMs": 499
+    },
+    {
+      "week": 22,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 904,
+      "toControlsEnabledMs": 1418,
+      "longTaskCount": 5,
+      "longTaskTotalMs": 679,
+      "longestTaskMs": 404
+    },
+    {
+      "week": 23,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1178,
+      "toControlsEnabledMs": 1782,
+      "longTaskCount": 7,
+      "longTaskTotalMs": 817,
+      "longestTaskMs": 410
+    },
+    {
+      "week": 24,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 994,
+      "toControlsEnabledMs": 1647,
+      "longTaskCount": 6,
+      "longTaskTotalMs": 789,
+      "longestTaskMs": 417
+    },
+    {
+      "week": 25,
+      "ownMatchFlowMs": 1284,
+      "toNextWeekShownMs": 1583,
+      "toControlsEnabledMs": 2327,
+      "longTaskCount": 13,
+      "longTaskTotalMs": 1420,
+      "longestTaskMs": 488
+    },
+    {
+      "week": 26,
+      "ownMatchFlowMs": 339,
+      "toNextWeekShownMs": 1423,
+      "toControlsEnabledMs": 2157,
+      "longTaskCount": 10,
+      "longTaskTotalMs": 1291,
+      "longestTaskMs": 527
+    },
+    {
+      "week": 27,
+      "ownMatchFlowMs": 1539,
+      "toNextWeekShownMs": 1371,
+      "toControlsEnabledMs": 2065,
+      "longTaskCount": 15,
+      "longTaskTotalMs": 1826,
+      "longestTaskMs": 602
+    },
+    {
+      "week": 28,
+      "ownMatchFlowMs": 724,
+      "toNextWeekShownMs": 1493,
+      "toControlsEnabledMs": 2251,
+      "longTaskCount": 11,
+      "longTaskTotalMs": 1506,
+      "longestTaskMs": 572
+    },
+    {
+      "week": 29,
+      "ownMatchFlowMs": 419,
+      "toNextWeekShownMs": 1352,
+      "toControlsEnabledMs": 2086,
+      "longTaskCount": 9,
+      "longTaskTotalMs": 1171,
+      "longestTaskMs": 537
+    },
+    {
+      "week": 30,
+      "ownMatchFlowMs": 302,
+      "toNextWeekShownMs": 1299,
+      "toControlsEnabledMs": 1997,
+      "longTaskCount": 8,
+      "longTaskTotalMs": 1103,
+      "longestTaskMs": 545
+    },
+    {
+      "week": 31,
+      "ownMatchFlowMs": 308,
+      "toNextWeekShownMs": 1323,
+      "toControlsEnabledMs": 2199,
+      "longTaskCount": 9,
+      "longTaskTotalMs": 1167,
+      "longestTaskMs": 545
+    },
+    {
+      "week": 32,
+      "ownMatchFlowMs": 482,
+      "toNextWeekShownMs": 1477,
+      "toControlsEnabledMs": 2441,
+      "longTaskCount": 9,
+      "longTaskTotalMs": 1385,
+      "longestTaskMs": 552
+    },
+    {
+      "week": 33,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1976,
+      "toControlsEnabledMs": 2853,
+      "longTaskCount": 9,
+      "longTaskTotalMs": 1237,
+      "longestTaskMs": 623
+    },
+    {
+      "week": 34,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1695,
+      "toControlsEnabledMs": 2493,
+      "longTaskCount": 7,
+      "longTaskTotalMs": 1032,
+      "longestTaskMs": 546
+    },
+    {
+      "week": 35,
+      "ownMatchFlowMs": 365,
+      "toNextWeekShownMs": 1371,
+      "toControlsEnabledMs": 2361,
+      "longTaskCount": 10,
+      "longTaskTotalMs": 1276,
+      "longestTaskMs": 558
+    },
+    {
+      "week": 36,
+      "ownMatchFlowMs": 376,
+      "toNextWeekShownMs": 1439,
+      "toControlsEnabledMs": 2326,
+      "longTaskCount": 10,
+      "longTaskTotalMs": 1219,
+      "longestTaskMs": 541
+    },
+    {
+      "week": 37,
+      "ownMatchFlowMs": 721,
+      "toNextWeekShownMs": 2798,
+      "toControlsEnabledMs": 3942,
+      "longTaskCount": 14,
+      "longTaskTotalMs": 1935,
+      "longestTaskMs": 678
+    },
+    {
+      "week": 38,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 2093,
+      "toControlsEnabledMs": 3239,
+      "longTaskCount": 8,
+      "longTaskTotalMs": 1279,
+      "longestTaskMs": 573
+    },
+    {
+      "week": 39,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 2062,
+      "toControlsEnabledMs": 2903,
+      "longTaskCount": 8,
+      "longTaskTotalMs": 1327,
+      "longestTaskMs": 689
+    },
+    {
+      "week": 40,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1676,
+      "toControlsEnabledMs": 2543,
+      "longTaskCount": 7,
+      "longTaskTotalMs": 1148,
+      "longestTaskMs": 614
+    },
+    {
+      "week": 41,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 2157,
+      "toControlsEnabledMs": 3098,
+      "longTaskCount": 9,
+      "longTaskTotalMs": 1406,
+      "longestTaskMs": 686
+    },
+    {
+      "week": 42,
+      "ownMatchFlowMs": 1100,
+      "toNextWeekShownMs": 1657,
+      "toControlsEnabledMs": 2754,
+      "longTaskCount": 15,
+      "longTaskTotalMs": 2043,
+      "longestTaskMs": 789
+    },
+    {
+      "week": 43,
+      "ownMatchFlowMs": 1405,
+      "toNextWeekShownMs": 2326,
+      "toControlsEnabledMs": 3927,
+      "longTaskCount": 20,
+      "longTaskTotalMs": 2732,
+      "longestTaskMs": 771
+    },
+    {
+      "week": 44,
+      "ownMatchFlowMs": 3447,
+      "toNextWeekShownMs": 1711,
+      "toControlsEnabledMs": 2962,
+      "longTaskCount": 18,
+      "longTaskTotalMs": 2440,
+      "longestTaskMs": 776
+    },
+    {
+      "week": 45,
+      "ownMatchFlowMs": 1686,
+      "toNextWeekShownMs": 2001,
+      "toControlsEnabledMs": 3985,
+      "longTaskCount": 19,
+      "longTaskTotalMs": 2660,
+      "longestTaskMs": 912
+    },
+    {
+      "week": 46,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1826,
+      "toControlsEnabledMs": 2933,
+      "longTaskCount": 9,
+      "longTaskTotalMs": 1501,
+      "longestTaskMs": 705
+    },
+    {
+      "week": 47,
+      "ownMatchFlowMs": 308,
+      "toNextWeekShownMs": 1763,
+      "toControlsEnabledMs": 2782,
+      "longTaskCount": 13,
+      "longTaskTotalMs": 1782,
+      "longestTaskMs": 702
+    },
+    {
+      "week": 48,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1542,
+      "toControlsEnabledMs": 2849,
+      "longTaskCount": 11,
+      "longTaskTotalMs": 1617,
+      "longestTaskMs": 717
+    },
+    {
+      "week": 49,
+      "ownMatchFlowMs": 423,
+      "toNextWeekShownMs": 1369,
+      "toControlsEnabledMs": 2645,
+      "longTaskCount": 12,
+      "longTaskTotalMs": 1574,
+      "longestTaskMs": 572
+    },
+    {
+      "week": 50,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1415,
+      "toControlsEnabledMs": 2364,
+      "longTaskCount": 7,
+      "longTaskTotalMs": 1293,
+      "longestTaskMs": 673
+    },
+    {
+      "week": 51,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1297,
+      "toControlsEnabledMs": 2211,
+      "longTaskCount": 9,
+      "longTaskTotalMs": 1282,
+      "longestTaskMs": 659
+    },
+    {
+      "week": 52,
+      "ownMatchFlowMs": null,
+      "toNextWeekShownMs": 1534,
+      "toControlsEnabledMs": 2661,
+      "longTaskCount": 8,
+      "longTaskTotalMs": 1483,
+      "longestTaskMs": 677
+    }
+  ],
+  "samples": [
+    {
+      "at": "loaded",
+      "week": 1,
+      "jsHeapUsedMB": 11.4,
+      "jsHeapTotalMB": 11.8,
+      "domNodes": 917,
+      "jsEventListeners": 369,
+      "documents": 2,
+      "frames": 2,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    },
+    {
+      "at": "after-3-route-cycles",
+      "week": 1,
+      "jsHeapUsedMB": 14.4,
+      "jsHeapTotalMB": 15.5,
+      "domNodes": 918,
+      "jsEventListeners": 508,
+      "documents": 2,
+      "frames": 2,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    },
+    {
+      "at": "after-week-13",
+      "week": 14,
+      "jsHeapUsedMB": 22.5,
+      "jsHeapTotalMB": 23.8,
+      "domNodes": 3179,
+      "jsEventListeners": 602,
+      "documents": 1,
+      "frames": 1,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    },
+    {
+      "at": "after-week-26",
+      "week": 27,
+      "jsHeapUsedMB": 27.8,
+      "jsHeapTotalMB": 29.1,
+      "domNodes": 4540,
+      "jsEventListeners": 660,
+      "documents": 2,
+      "frames": 2,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    },
+    {
+      "at": "after-week-39",
+      "week": 40,
+      "jsHeapUsedMB": 31.5,
+      "jsHeapTotalMB": 32.8,
+      "domNodes": 5757,
+      "jsEventListeners": 709,
+      "documents": 2,
+      "frames": 2,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    },
+    {
+      "at": "after-week-52",
+      "week": 53,
+      "jsHeapUsedMB": 33.3,
+      "jsHeapTotalMB": 34.8,
+      "domNodes": 6950,
+      "jsEventListeners": 764,
+      "documents": 1,
+      "frames": 1,
+      "intervals": 0,
+      "pendingTimeouts": 1
+    }
+  ],
+  "errors": [],
+  "menuInteractiveMs": 2349,
+  "continueCareerToDashboardMs": 362,
+  "dismissed": 9,
+  "fixtureLog": [
+    {
+      "week": 1,
+      "path": "/match/scrim_preseason_0_save_1791112195934_5wdcwv_bw29wf/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 1,
+      "path": "/match/scrim_preseason_1_save_1791112195934_5wdcwv_bw29wf/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 2,
+      "path": "/match/scrim_preseason_2_save_1791112195934_5wdcwv_bw29wf/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 9,
+      "path": "/match/iem_katowice_s1_r1_m7/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 19,
+      "path": "/match/betboom_dacha_s1_r1_m3/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 19,
+      "path": "/match/betboom_dacha_s1_r2_m2/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 19,
+      "path": "/match/betboom_dacha_s1_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 25,
+      "path": "/match/yalla_compass_s1_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 25,
+      "path": "/match/yalla_compass_s1_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 25,
+      "path": "/match/yalla_compass_s1_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 26,
+      "path": "/match/iem_dallas_s1_r1_m3/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 27,
+      "path": "/match/iem_dallas_s1_r2_m2/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 27,
+      "path": "/match/blast_spring_s1_r1_m4/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 27,
+      "path": "/match/blast_spring_s1_r2_m2/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 27,
+      "path": "/match/blast_spring_s1_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 28,
+      "path": "/match/iem_dallas_s1_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 28,
+      "path": "/match/iem_dallas_s1_r4_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 29,
+      "path": "/match/iem_cologne_s1_r1_m5/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 30,
+      "path": "/match/iem_cologne_s1_r2_m3/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 31,
+      "path": "/match/iem_cologne_s1_r3_m2/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 32,
+      "path": "/match/iem_cologne_s1_r4_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 35,
+      "path": "/match/iem_chengdu_s1_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 36,
+      "path": "/match/iem_chengdu_s1_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 37,
+      "path": "/match/iem_chengdu_s1_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 37,
+      "path": "/match/iem_chengdu_s1_r4_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 42,
+      "path": "/match/gamers8_riyadh_s1_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 42,
+      "path": "/match/gamers8_riyadh_s1_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 42,
+      "path": "/match/gamers8_riyadh_s1_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 43,
+      "path": "/match/blast_fall_s1_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 43,
+      "path": "/match/blast_fall_s1_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 43,
+      "path": "/match/blast_fall_s1_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 44,
+      "path": "/match/elisa_masters_espoo_s1_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 44,
+      "path": "/match/elisa_masters_espoo_s1_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 44,
+      "path": "/match/elisa_masters_espoo_s1_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 45,
+      "path": "/match/roobet_cup_s1_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 45,
+      "path": "/match/roobet_cup_s1_r2_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 45,
+      "path": "/match/roobet_cup_s1_r3_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 47,
+      "path": "/match/blast_world_final_s1_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    },
+    {
+      "week": 49,
+      "path": "/match/iem_rio_s1_r1_m1/result",
+      "text": "Skip to main content\nEsports Manager\nGo to...\nCtrl K\nOVERVIEW\nHome\nInbox\nSchedule\nTEAM\nSquad\nTraining\nStaff\nEquipment\nRECRUITMENT\nTransfers\nScouting\nFacilities\nAcademy\nCOMPETITION\nTournaments\nRankings"
+    }
+  ],
+  "console": [
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "domBreakdown": {
+    "total": 5073,
+    "path": "/",
+    "rows": [
+      {
+        "depth": 0,
+        "n": 5025,
+        "label": "body.__variable_401541.font-sans.antialiased.bg-[#0e1217]",
+        "text": "Skip to main content Esports Manager Go to... Ctrl K OVERVIEW Home Inbox Schedul"
+      },
+      {
+        "depth": 1,
+        "n": 4996,
+        "label": "div.premium-app.relative.isolate.flex",
+        "text": "Esports Manager Go to... Ctrl K OVERVIEW Home Inbox Schedule TEAM Squad Training"
+      },
+      {
+        "depth": 2,
+        "n": 4772,
+        "label": "div.flex-1.flex.flex-col.min-h-0",
+        "text": "YOUR CLUB EU Natus Vincera $2,331,858 #2 World Sun, Oct 03, 2027 WEEK 53 WEEKLY "
+      },
+      {
+        "depth": 3,
+        "n": 4709,
+        "label": "main#main-content.min-h-0.flex-1.overflow-x-hidden.relative",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 4,
+        "n": 4708,
+        "label": "div.game-page.px-4.py-4.lg:px-6",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 5,
+        "n": 4707,
+        "label": "div.dashboard.space-y-6",
+        "text": "YOUR CLUB. YOUR NEXT MOVE. Club overview The big picture, with your next decisi"
+      },
+      {
+        "depth": 6,
+        "n": 4678,
+        "label": "div.dashboard-layout",
+        "text": "UPCOMING EVENTS On The Horizon NATUS VINCERA VS TBD ELITE SPRING A TIER IN 2"
+      },
+      {
+        "depth": 7,
+        "n": 4529,
+        "label": "div.space-y-6",
+        "text": "This Week 30 to do NOTIFICATION WK 4 HOST FAN MEETUP (MONEY -2K, REP +5, HYPE +1"
+      },
+      {
+        "depth": 8,
+        "n": 446,
+        "label": "div.glass-card.text-card-foreground.flex.flex-col",
+        "text": "This Week 30 to do NOTIFICATION WK 4 HOST FAN MEETUP (MONEY -2K, REP +5, HYPE +1"
+      },
+      {
+        "depth": 9,
+        "n": 434,
+        "label": "div.px-5.pt-2.space-y-2",
+        "text": "NOTIFICATION WK 4 HOST FAN MEETUP (MONEY -2K, REP +5, HYPE +10) -$2,000 +5 Rep S"
+      },
+      {
+        "depth": 8,
+        "n": 3941,
+        "label": "div.max-h-[max(20rem,calc(100vh-12rem))].overflow-y-auto.pr-3.space-y-2",
+        "text": "ACHIEVEMENT OCT 3 Pro Power Rankings: SpurtsBetExpert Top! SPURTSBETEXPERT In t"
+      },
+      {
+        "depth": 9,
+        "n": 3940,
+        "label": "div.space-y-4",
+        "text": "ACHIEVEMENT OCT 3 Pro Power Rankings: SpurtsBetExpert Top! SPURTSBETEXPERT In t"
+      }
+    ]
+  },
+  "summary": {
+    "routeMs": {
+      "n": 56,
+      "min": 65,
+      "median": 176.8,
+      "mean": 205.9,
+      "sd": 128.9,
+      "p90": 318.7,
+      "max": 906.9
+    },
+    "routeByPath": {
+      "/": {
+        "n": 7,
+        "min": 118.4,
+        "median": 276,
+        "mean": 240.4,
+        "sd": 92.8,
+        "p90": 372.4,
+        "max": 372.4
+      },
+      "/desktop": {
+        "n": 7,
+        "min": 65,
+        "median": 73.9,
+        "mean": 98.5,
+        "sd": 49,
+        "p90": 212.2,
+        "max": 212.2
+      },
+      "/squad": {
+        "n": 7,
+        "min": 155.6,
+        "median": 229,
+        "mean": 211.1,
+        "sd": 42.9,
+        "p90": 272.4,
+        "max": 272.4
+      },
+      "/training": {
+        "n": 7,
+        "min": 116.6,
+        "median": 182.7,
+        "mean": 193.5,
+        "sd": 46.1,
+        "p90": 266.2,
+        "max": 266.2
+      },
+      "/schedule": {
+        "n": 7,
+        "min": 137.5,
+        "median": 226.2,
+        "mean": 200.9,
+        "sd": 46.5,
+        "p90": 261.7,
+        "max": 261.7
+      },
+      "/transfers": {
+        "n": 7,
+        "min": 118.6,
+        "median": 150.3,
+        "mean": 164,
+        "sd": 38.2,
+        "p90": 229.8,
+        "max": 229.8
+      },
+      "/tournaments": {
+        "n": 7,
+        "min": 168.9,
+        "median": 283.4,
+        "mean": 291.7,
+        "sd": 122,
+        "p90": 544,
+        "max": 544
+      },
+      "/finances": {
+        "n": 7,
+        "min": 83.8,
+        "median": 146.5,
+        "mean": 247.2,
+        "sd": 275.2,
+        "p90": 906.9,
+        "max": 906.9
+      }
+    },
+    "weekToControlsEnabledMs": {
+      "n": 52,
+      "min": 721,
+      "median": 2075.5,
+      "mean": 2061.8,
+      "sd": 813.3,
+      "p90": 2962,
+      "max": 3985
+    },
+    "longestTaskMs": {
+      "n": 52,
+      "min": 184,
+      "median": 532,
+      "mean": 485.2,
+      "sd": 188.9,
+      "p90": 705,
+      "max": 912
+    },
+    "longTaskTotalMs": {
+      "n": 52,
+      "min": 184,
+      "median": 1140,
+      "mean": 1048.8,
+      "sd": 643.7,
+      "p90": 1826,
+      "max": 2732
+    },
+    "ownMatchFlowMs": {
+      "n": 21,
+      "min": 302,
+      "median": 482,
+      "mean": 853.3,
+      "sd": 730.9,
+      "p90": 1539,
+      "max": 3447
+    }
+  }
+}

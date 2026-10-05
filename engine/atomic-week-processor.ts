@@ -35,7 +35,7 @@ import {
     TrainingFocus,
     EventType,
 } from "@/types"
-import { PlayerLifecycleManager } from "./player-lifecycle"
+import { PlayerLifecycleManager, applyFormResult, applyMoraleResult } from "./player-lifecycle"
 import { EconomyEngine } from "./economy-engine"
 import { LegendEventsManager } from "./legend-events-manager"
 import { EventsManager } from "./events-manager"
@@ -44,6 +44,7 @@ import { psychologistMoraleDampen } from "./staff-specialization"
 import { MatchAnalyzer } from "./match-analyzer"
 import { TrainingManager } from "./training-manager"
 import { TrainingProcessor } from "./processors/training-processor"
+import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { FinanceProcessor } from "./processors/finance-processor"
 import { EventProcessor } from "./processors/event-processor"
 import { compactPersistentState } from "./processors/save-compactor"
@@ -251,7 +252,16 @@ export class AtomicWeekProcessor {
             if (resumeStep <= 1) {
                 debugLog(`[Week ${save.currentWeek}] Step 1: Training...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                TrainingProcessor.processTraining(save, config.trainingFocus, idx)
+                // AI clubs follow the same default weekly regimen as the managed club
+                // (AI_SQUAD_TUNING.TRAINING_*), through the same processor: staff and
+                // facility modifiers, potential cap and training fatigue included.
+                const weeklyTraining = new Map(config.trainingFocus)
+                for (const team of save.teams) {
+                    if (team.id !== config.playerTeamId && !weeklyTraining.has(team.id)) {
+                        weeklyTraining.set(team.id, { focus: AI_SQUAD_TUNING.TRAINING_FOCUS as TrainingFocus, intensity: AI_SQUAD_TUNING.TRAINING_INTENSITY })
+                    }
+                }
+                TrainingProcessor.processTraining(save, weeklyTraining, idx)
                 TrainingManager.processWeeklyTraining(save) // Process Role Training
                 perfTrace.step("step.1_training", __s)
                 await this.saveManager.markStepComplete(transaction, "trainingComplete")
@@ -879,7 +889,10 @@ export class AtomicWeekProcessor {
                 }
                 const baseXp = tierXpBonus[matchTournamentTier] ?? 50
                 const winBonus = 100
-                const applyTournamentXP = (players: typeof save.players, won: boolean) => {
+                // Level-ups apply world-wide, but only the managed club's
+                // reach the inbox: AI rosters produced ~60 PLAYER_LEVEL_UP
+                // items (each also a toast) in busy tournament weeks.
+                const applyTournamentXP = (players: typeof save.players, won: boolean, teamId: string) => {
                     players.forEach(p => {
                         const xpGain = baseXp + (won ? winBonus : 0)
                         p.xp = (p.xp ?? 0) + xpGain
@@ -891,7 +904,7 @@ export class AtomicWeekProcessor {
                             p.level = (p.level || 1) + 1
                             p.talentPoints = (p.talentPoints || 0) + 1
                             p.xpToNextLevel = Math.floor(threshold * 1.5)
-                            save.eventsLog.unshift({
+                            if (teamId === playerTeamId) save.eventsLog.unshift({
                                 id: `evt_lvl_${save.currentWeek}_${p.id}_t`,
                                 type: "PLAYER_LEVEL_UP",
                                 week: save.currentWeek,
@@ -901,8 +914,8 @@ export class AtomicWeekProcessor {
                         }
                     })
                 }
-                applyTournamentXP(homePlayers, homeWon)
-                applyTournamentXP(awayPlayers, !homeWon)
+                applyTournamentXP(homePlayers, homeWon, match.homeTeamId)
+                applyTournamentXP(awayPlayers, !homeWon, match.awayTeamId)
             }
 
             // Fatigue scaled by match format (BO1=10, BO3=15, BO5=25)
@@ -951,7 +964,8 @@ export class AtomicWeekProcessor {
 
                     let moraleDelta = getMoraleChange(won) * derbyStakes
                     if (moraleDelta < 0) moraleDelta *= (1 - moraleLossDampen)
-                    p.morale = Math.max(0, Math.min(100, p.morale + Math.round(moraleDelta)))
+                    p.morale = applyMoraleResult(p.morale, moraleDelta)
+                    p.form = applyFormResult(p.form, won)
 
                     // Phase 6: Skill Point Progression
                     // 5% chance on win, 1% on loss to simulate learning
@@ -1175,7 +1189,8 @@ export class AtomicWeekProcessor {
         const team = save.teams.find(t => t.id === playerTeamId)
         if (!team) return
         const offerRng = new SeededRNG(rng.int(1, 2147483646))
-        save.sponsorOffers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, offerRng)
+        save.sponsorOffers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, offerRng,
+            EconomyEngine.weeklyWageBill(team, save.contracts, save.staff || [], save.currentWeek + 1))
         save.declinedSponsorOfferIds = []
     }
 

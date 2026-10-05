@@ -1,0 +1,2966 @@
+{
+  "format": "esim-map-annotations",
+  "version": 2,
+  "mapId": "Vertigo",
+  "floor": "upper",
+  "marks": [
+    {
+      "id": "outline:Vertigo:upper:0",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 13.77,
+          "y": 15.723
+        },
+        {
+          "x": 12.5,
+          "y": 17.09
+        },
+        {
+          "x": 12.5,
+          "y": 39.355
+        },
+        {
+          "x": 14.844,
+          "y": 39.355
+        },
+        {
+          "x": 15.039,
+          "y": 39.551
+        },
+        {
+          "x": 15.039,
+          "y": 43.262
+        },
+        {
+          "x": 16.016,
+          "y": 43.359
+        },
+        {
+          "x": 15.918,
+          "y": 44.336
+        },
+        {
+          "x": 15.039,
+          "y": 44.434
+        },
+        {
+          "x": 14.941,
+          "y": 44.824
+        },
+        {
+          "x": 15.039,
+          "y": 47.461
+        },
+        {
+          "x": 15.234,
+          "y": 46.777
+        },
+        {
+          "x": 15.527,
+          "y": 47.07
+        },
+        {
+          "x": 15.43,
+          "y": 47.266
+        },
+        {
+          "x": 15.625,
+          "y": 46.973
+        },
+        {
+          "x": 15.918,
+          "y": 47.266
+        },
+        {
+          "x": 16.016,
+          "y": 46.875
+        },
+        {
+          "x": 16.211,
+          "y": 47.461
+        },
+        {
+          "x": 16.016,
+          "y": 47.559
+        },
+        {
+          "x": 16.309,
+          "y": 47.461
+        },
+        {
+          "x": 16.113,
+          "y": 47.266
+        },
+        {
+          "x": 16.309,
+          "y": 46.68
+        },
+        {
+          "x": 16.406,
+          "y": 46.973
+        },
+        {
+          "x": 16.895,
+          "y": 46.875
+        },
+        {
+          "x": 16.895,
+          "y": 47.07
+        },
+        {
+          "x": 17.09,
+          "y": 46.875
+        },
+        {
+          "x": 17.48,
+          "y": 47.07
+        },
+        {
+          "x": 17.676,
+          "y": 46.875
+        },
+        {
+          "x": 17.871,
+          "y": 47.07
+        },
+        {
+          "x": 17.871,
+          "y": 46.875
+        },
+        {
+          "x": 18.164,
+          "y": 47.07
+        },
+        {
+          "x": 18.359,
+          "y": 46.875
+        },
+        {
+          "x": 18.457,
+          "y": 47.07
+        },
+        {
+          "x": 18.555,
+          "y": 46.875
+        },
+        {
+          "x": 18.652,
+          "y": 47.07
+        },
+        {
+          "x": 19.336,
+          "y": 46.875
+        },
+        {
+          "x": 19.336,
+          "y": 47.07
+        },
+        {
+          "x": 19.727,
+          "y": 47.168
+        },
+        {
+          "x": 19.824,
+          "y": 47.559
+        },
+        {
+          "x": 21.387,
+          "y": 47.559
+        },
+        {
+          "x": 21.484,
+          "y": 47.754
+        },
+        {
+          "x": 21.777,
+          "y": 47.754
+        },
+        {
+          "x": 21.875,
+          "y": 47.363
+        },
+        {
+          "x": 22.461,
+          "y": 46.973
+        },
+        {
+          "x": 22.559,
+          "y": 47.168
+        },
+        {
+          "x": 22.754,
+          "y": 46.973
+        },
+        {
+          "x": 23.145,
+          "y": 47.168
+        },
+        {
+          "x": 23.535,
+          "y": 46.777
+        },
+        {
+          "x": 23.633,
+          "y": 47.07
+        },
+        {
+          "x": 23.633,
+          "y": 38.477
+        },
+        {
+          "x": 24.805,
+          "y": 38.379
+        },
+        {
+          "x": 24.805,
+          "y": 31.738
+        },
+        {
+          "x": 22.461,
+          "y": 31.738
+        },
+        {
+          "x": 22.461,
+          "y": 29.688
+        },
+        {
+          "x": 27.051,
+          "y": 29.688
+        },
+        {
+          "x": 27.148,
+          "y": 30.566
+        },
+        {
+          "x": 37.695,
+          "y": 30.566
+        },
+        {
+          "x": 37.695,
+          "y": 27.246
+        },
+        {
+          "x": 39.16,
+          "y": 27.246
+        },
+        {
+          "x": 39.258,
+          "y": 31.641
+        },
+        {
+          "x": 38.281,
+          "y": 31.738
+        },
+        {
+          "x": 38.379,
+          "y": 32.129
+        },
+        {
+          "x": 38.184,
+          "y": 32.324
+        },
+        {
+          "x": 37.695,
+          "y": 32.129
+        },
+        {
+          "x": 37.793,
+          "y": 31.738
+        },
+        {
+          "x": 27.148,
+          "y": 31.738
+        },
+        {
+          "x": 27.051,
+          "y": 43.262
+        },
+        {
+          "x": 27.148,
+          "y": 44.141
+        },
+        {
+          "x": 28.809,
+          "y": 44.238
+        },
+        {
+          "x": 28.711,
+          "y": 50.195
+        },
+        {
+          "x": 36.719,
+          "y": 50.195
+        },
+        {
+          "x": 36.816,
+          "y": 49.609
+        },
+        {
+          "x": 37.402,
+          "y": 49.609
+        },
+        {
+          "x": 37.5,
+          "y": 50.195
+        },
+        {
+          "x": 38.379,
+          "y": 50.293
+        },
+        {
+          "x": 38.379,
+          "y": 51.172
+        },
+        {
+          "x": 37.305,
+          "y": 51.27
+        },
+        {
+          "x": 37.207,
+          "y": 51.953
+        },
+        {
+          "x": 36.719,
+          "y": 51.953
+        },
+        {
+          "x": 36.621,
+          "y": 51.465
+        },
+        {
+          "x": 26.953,
+          "y": 51.465
+        },
+        {
+          "x": 26.855,
+          "y": 53.516
+        },
+        {
+          "x": 26.758,
+          "y": 53.125
+        },
+        {
+          "x": 25.879,
+          "y": 53.125
+        },
+        {
+          "x": 25.781,
+          "y": 53.32
+        },
+        {
+          "x": 25.684,
+          "y": 53.125
+        },
+        {
+          "x": 25.586,
+          "y": 53.32
+        },
+        {
+          "x": 25.488,
+          "y": 53.125
+        },
+        {
+          "x": 25.293,
+          "y": 53.32
+        },
+        {
+          "x": 23.438,
+          "y": 53.223
+        },
+        {
+          "x": 23.242,
+          "y": 53.418
+        },
+        {
+          "x": 23.145,
+          "y": 53.223
+        },
+        {
+          "x": 23.047,
+          "y": 53.906
+        },
+        {
+          "x": 22.754,
+          "y": 53.809
+        },
+        {
+          "x": 22.949,
+          "y": 53.32
+        },
+        {
+          "x": 22.656,
+          "y": 53.613
+        },
+        {
+          "x": 22.363,
+          "y": 53.32
+        },
+        {
+          "x": 22.07,
+          "y": 53.809
+        },
+        {
+          "x": 22.07,
+          "y": 53.418
+        },
+        {
+          "x": 21.875,
+          "y": 53.906
+        },
+        {
+          "x": 21.68,
+          "y": 53.613
+        },
+        {
+          "x": 21.875,
+          "y": 53.418
+        },
+        {
+          "x": 21.68,
+          "y": 53.418
+        },
+        {
+          "x": 21.68,
+          "y": 53.809
+        },
+        {
+          "x": 21.387,
+          "y": 53.613
+        },
+        {
+          "x": 21.484,
+          "y": 53.418
+        },
+        {
+          "x": 21.387,
+          "y": 53.809
+        },
+        {
+          "x": 21.094,
+          "y": 53.613
+        },
+        {
+          "x": 21.289,
+          "y": 53.418
+        },
+        {
+          "x": 21.094,
+          "y": 53.418
+        },
+        {
+          "x": 21.094,
+          "y": 53.809
+        },
+        {
+          "x": 20.801,
+          "y": 53.809
+        },
+        {
+          "x": 20.703,
+          "y": 53.418
+        },
+        {
+          "x": 20.41,
+          "y": 53.809
+        },
+        {
+          "x": 20.117,
+          "y": 53.809
+        },
+        {
+          "x": 20.215,
+          "y": 56.836
+        },
+        {
+          "x": 26.855,
+          "y": 56.836
+        },
+        {
+          "x": 26.855,
+          "y": 57.031
+        },
+        {
+          "x": 15.918,
+          "y": 57.031
+        },
+        {
+          "x": 15.82,
+          "y": 57.52
+        },
+        {
+          "x": 14.941,
+          "y": 57.52
+        },
+        {
+          "x": 14.844,
+          "y": 60.742
+        },
+        {
+          "x": 15.918,
+          "y": 60.84
+        },
+        {
+          "x": 15.82,
+          "y": 61.914
+        },
+        {
+          "x": 14.844,
+          "y": 61.816
+        },
+        {
+          "x": 14.844,
+          "y": 66.992
+        },
+        {
+          "x": 15.918,
+          "y": 67.09
+        },
+        {
+          "x": 15.82,
+          "y": 68.066
+        },
+        {
+          "x": 14.844,
+          "y": 68.066
+        },
+        {
+          "x": 14.844,
+          "y": 73.242
+        },
+        {
+          "x": 15.918,
+          "y": 73.34
+        },
+        {
+          "x": 15.918,
+          "y": 74.316
+        },
+        {
+          "x": 14.844,
+          "y": 74.414
+        },
+        {
+          "x": 14.844,
+          "y": 79.492
+        },
+        {
+          "x": 15.723,
+          "y": 79.59
+        },
+        {
+          "x": 15.723,
+          "y": 80.566
+        },
+        {
+          "x": 15.918,
+          "y": 80.566
+        },
+        {
+          "x": 16.016,
+          "y": 79.492
+        },
+        {
+          "x": 16.992,
+          "y": 79.492
+        },
+        {
+          "x": 17.09,
+          "y": 80.566
+        },
+        {
+          "x": 22.168,
+          "y": 80.566
+        },
+        {
+          "x": 22.266,
+          "y": 79.492
+        },
+        {
+          "x": 23.242,
+          "y": 79.492
+        },
+        {
+          "x": 23.34,
+          "y": 80.566
+        },
+        {
+          "x": 28.516,
+          "y": 80.566
+        },
+        {
+          "x": 28.613,
+          "y": 79.492
+        },
+        {
+          "x": 29.59,
+          "y": 79.492
+        },
+        {
+          "x": 29.688,
+          "y": 80.566
+        },
+        {
+          "x": 34.668,
+          "y": 80.566
+        },
+        {
+          "x": 34.766,
+          "y": 79.492
+        },
+        {
+          "x": 35.84,
+          "y": 79.492
+        },
+        {
+          "x": 35.938,
+          "y": 80.469
+        },
+        {
+          "x": 40.918,
+          "y": 80.469
+        },
+        {
+          "x": 41.016,
+          "y": 79.492
+        },
+        {
+          "x": 42.09,
+          "y": 79.492
+        },
+        {
+          "x": 42.285,
+          "y": 82.227
+        },
+        {
+          "x": 43.066,
+          "y": 82.129
+        },
+        {
+          "x": 43.262,
+          "y": 82.324
+        },
+        {
+          "x": 43.262,
+          "y": 84.473
+        },
+        {
+          "x": 45.703,
+          "y": 84.473
+        },
+        {
+          "x": 45.703,
+          "y": 79.004
+        },
+        {
+          "x": 46.094,
+          "y": 78.809
+        },
+        {
+          "x": 47.754,
+          "y": 78.809
+        },
+        {
+          "x": 47.852,
+          "y": 67.969
+        },
+        {
+          "x": 35.938,
+          "y": 67.871
+        },
+        {
+          "x": 35.742,
+          "y": 66.992
+        },
+        {
+          "x": 34.766,
+          "y": 66.895
+        },
+        {
+          "x": 34.766,
+          "y": 66.016
+        },
+        {
+          "x": 35.742,
+          "y": 65.918
+        },
+        {
+          "x": 35.938,
+          "y": 65.137
+        },
+        {
+          "x": 36.914,
+          "y": 65.234
+        },
+        {
+          "x": 37.012,
+          "y": 66.895
+        },
+        {
+          "x": 41.113,
+          "y": 66.895
+        },
+        {
+          "x": 41.211,
+          "y": 60.254
+        },
+        {
+          "x": 39.844,
+          "y": 59.668
+        },
+        {
+          "x": 39.844,
+          "y": 59.863
+        },
+        {
+          "x": 39.355,
+          "y": 59.766
+        },
+        {
+          "x": 37.891,
+          "y": 60.938
+        },
+        {
+          "x": 37.012,
+          "y": 61.328
+        },
+        {
+          "x": 36.816,
+          "y": 61.719
+        },
+        {
+          "x": 35.938,
+          "y": 61.914
+        },
+        {
+          "x": 35.84,
+          "y": 60.938
+        },
+        {
+          "x": 34.766,
+          "y": 60.84
+        },
+        {
+          "x": 34.766,
+          "y": 59.863
+        },
+        {
+          "x": 35.742,
+          "y": 59.766
+        },
+        {
+          "x": 35.742,
+          "y": 59.082
+        },
+        {
+          "x": 32.129,
+          "y": 59.082
+        },
+        {
+          "x": 32.031,
+          "y": 57.031
+        },
+        {
+          "x": 31.543,
+          "y": 57.031
+        },
+        {
+          "x": 31.445,
+          "y": 56.543
+        },
+        {
+          "x": 39.648,
+          "y": 56.348
+        },
+        {
+          "x": 39.746,
+          "y": 56.934
+        },
+        {
+          "x": 39.062,
+          "y": 57.129
+        },
+        {
+          "x": 39.062,
+          "y": 59.473
+        },
+        {
+          "x": 41.309,
+          "y": 59.473
+        },
+        {
+          "x": 41.992,
+          "y": 59.766
+        },
+        {
+          "x": 41.992,
+          "y": 63.477
+        },
+        {
+          "x": 48.242,
+          "y": 63.477
+        },
+        {
+          "x": 48.242,
+          "y": 57.129
+        },
+        {
+          "x": 41.016,
+          "y": 56.934
+        },
+        {
+          "x": 41.211,
+          "y": 56.348
+        },
+        {
+          "x": 43.457,
+          "y": 56.348
+        },
+        {
+          "x": 44.434,
+          "y": 55.469
+        },
+        {
+          "x": 45.605,
+          "y": 55.469
+        },
+        {
+          "x": 45.605,
+          "y": 54.98
+        },
+        {
+          "x": 45.801,
+          "y": 54.883
+        },
+        {
+          "x": 45.801,
+          "y": 42.383
+        },
+        {
+          "x": 38.77,
+          "y": 42.383
+        },
+        {
+          "x": 38.672,
+          "y": 43.457
+        },
+        {
+          "x": 37.598,
+          "y": 43.457
+        },
+        {
+          "x": 37.402,
+          "y": 43.848
+        },
+        {
+          "x": 36.816,
+          "y": 43.848
+        },
+        {
+          "x": 36.621,
+          "y": 42.285
+        },
+        {
+          "x": 36.816,
+          "y": 41.211
+        },
+        {
+          "x": 50.684,
+          "y": 41.113
+        },
+        {
+          "x": 51.074,
+          "y": 41.309
+        },
+        {
+          "x": 51.074,
+          "y": 41.699
+        },
+        {
+          "x": 50.781,
+          "y": 41.797
+        },
+        {
+          "x": 50.781,
+          "y": 53.613
+        },
+        {
+          "x": 52.637,
+          "y": 54.688
+        },
+        {
+          "x": 53.906,
+          "y": 54.688
+        },
+        {
+          "x": 54.004,
+          "y": 55.273
+        },
+        {
+          "x": 50.781,
+          "y": 55.371
+        },
+        {
+          "x": 50.781,
+          "y": 56.934
+        },
+        {
+          "x": 49.512,
+          "y": 57.129
+        },
+        {
+          "x": 49.512,
+          "y": 62.012
+        },
+        {
+          "x": 48.828,
+          "y": 62.207
+        },
+        {
+          "x": 48.828,
+          "y": 68.945
+        },
+        {
+          "x": 49.512,
+          "y": 69.141
+        },
+        {
+          "x": 49.512,
+          "y": 73.047
+        },
+        {
+          "x": 52.441,
+          "y": 73.145
+        },
+        {
+          "x": 52.441,
+          "y": 74.121
+        },
+        {
+          "x": 51.66,
+          "y": 74.219
+        },
+        {
+          "x": 51.66,
+          "y": 75.098
+        },
+        {
+          "x": 51.465,
+          "y": 75.195
+        },
+        {
+          "x": 51.66,
+          "y": 79.492
+        },
+        {
+          "x": 52.441,
+          "y": 79.59
+        },
+        {
+          "x": 52.441,
+          "y": 80.469
+        },
+        {
+          "x": 56.836,
+          "y": 80.469
+        },
+        {
+          "x": 56.934,
+          "y": 79.492
+        },
+        {
+          "x": 57.812,
+          "y": 79.492
+        },
+        {
+          "x": 57.91,
+          "y": 80.469
+        },
+        {
+          "x": 63.086,
+          "y": 80.469
+        },
+        {
+          "x": 63.184,
+          "y": 79.492
+        },
+        {
+          "x": 64.16,
+          "y": 79.492
+        },
+        {
+          "x": 64.258,
+          "y": 80.469
+        },
+        {
+          "x": 76.172,
+          "y": 80.469
+        },
+        {
+          "x": 76.27,
+          "y": 79.492
+        },
+        {
+          "x": 77.539,
+          "y": 79.492
+        },
+        {
+          "x": 77.539,
+          "y": 76.66
+        },
+        {
+          "x": 79.785,
+          "y": 76.562
+        },
+        {
+          "x": 79.785,
+          "y": 41.797
+        },
+        {
+          "x": 75.781,
+          "y": 41.699
+        },
+        {
+          "x": 75.781,
+          "y": 36.816
+        },
+        {
+          "x": 65.039,
+          "y": 36.816
+        },
+        {
+          "x": 64.746,
+          "y": 37.109
+        }
+      ],
+      "label": "",
+      "note": "Outer radar boundary. Traced from this map image; review ledges, height and openings separately.",
+      "status": "draft",
+      "locked": true,
+      "source": {
+        "provider": "radar-outline",
+        "id": "Vertigo:upper:0"
+      }
+    },
+    {
+      "id": "outline:Vertigo:upper:1",
+      "kind": "wall",
+      "points": [
+        {
+          "x": 64.746,
+          "y": 37.109
+        },
+        {
+          "x": 64.16,
+          "y": 36.816
+        },
+        {
+          "x": 61.816,
+          "y": 36.719
+        },
+        {
+          "x": 61.816,
+          "y": 31.348
+        },
+        {
+          "x": 61.133,
+          "y": 31.25
+        },
+        {
+          "x": 61.133,
+          "y": 30.469
+        },
+        {
+          "x": 60.938,
+          "y": 30.371
+        },
+        {
+          "x": 61.035,
+          "y": 30.078
+        },
+        {
+          "x": 61.426,
+          "y": 30.078
+        },
+        {
+          "x": 61.426,
+          "y": 19.434
+        },
+        {
+          "x": 58.691,
+          "y": 19.434
+        },
+        {
+          "x": 58.594,
+          "y": 17.871
+        },
+        {
+          "x": 57.91,
+          "y": 17.871
+        },
+        {
+          "x": 57.812,
+          "y": 18.652
+        },
+        {
+          "x": 56.836,
+          "y": 18.652
+        },
+        {
+          "x": 56.641,
+          "y": 17.871
+        },
+        {
+          "x": 51.367,
+          "y": 17.871
+        },
+        {
+          "x": 51.27,
+          "y": 18.652
+        },
+        {
+          "x": 50.293,
+          "y": 18.652
+        },
+        {
+          "x": 50.195,
+          "y": 17.871
+        },
+        {
+          "x": 45.605,
+          "y": 17.871
+        },
+        {
+          "x": 45.508,
+          "y": 18.848
+        },
+        {
+          "x": 44.531,
+          "y": 18.848
+        },
+        {
+          "x": 44.336,
+          "y": 15.82
+        },
+        {
+          "x": 43.164,
+          "y": 15.723
+        },
+        {
+          "x": 43.164,
+          "y": 14.16
+        },
+        {
+          "x": 40.723,
+          "y": 14.16
+        },
+        {
+          "x": 40.723,
+          "y": 17.773
+        },
+        {
+          "x": 38.672,
+          "y": 17.871
+        },
+        {
+          "x": 38.672,
+          "y": 22.363
+        },
+        {
+          "x": 36.914,
+          "y": 22.461
+        },
+        {
+          "x": 36.816,
+          "y": 17.871
+        },
+        {
+          "x": 36.133,
+          "y": 17.773
+        },
+        {
+          "x": 36.133,
+          "y": 15.723
+        },
+        {
+          "x": 13.77,
+          "y": 15.723
+        }
+      ],
+      "label": "",
+      "note": "Outer radar boundary. Traced from this map image; review ledges, height and openings separately.",
+      "status": "draft",
+      "locked": true,
+      "source": {
+        "provider": "radar-outline",
+        "id": "Vertigo:upper:1"
+      }
+    },
+    {
+      "id": "cs2nades:781:380",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 50.969,
+          "y": 71.948
+        },
+        {
+          "x": 65.744,
+          "y": 48.435
+        }
+      ],
+      "label": "Sidewalk to Elevator",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/sidewalk-to-elevator\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1135.97 -1221.96 11840.00;setang 0.23 47.08 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "781:380",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/sidewalk-to-elevator",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:739:380",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 62.465,
+          "y": 75.263
+        },
+        {
+          "x": 65.744,
+          "y": 48.435
+        }
+      ],
+      "label": "Ramp to Elevator",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-elevator\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -638.225769 -1358.971558 11713.523438;setang -3.479188 45.762978 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "739:380",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-elevator",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:734:384",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 19.618,
+          "y": 59.742
+        },
+        {
+          "x": 22.469,
+          "y": 28.496
+        }
+      ],
+      "label": "T Spawn to B Cross",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/t-spawn-to-b-cross\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2352.464600 -570.858276 11552.031250;setang -58.873356 88.900612 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "734:384",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/t-spawn-to-b-cross",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:733:384",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 22.235,
+          "y": 50.162
+        },
+        {
+          "x": 22.469,
+          "y": 28.496
+        }
+      ],
+      "label": "Stairs to B Cross",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-b-cross\nTechnique: standing. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "2264.025879 -295.970703 11682.075195;setang -24.807795 92.129868 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "733:384",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-b-cross",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:735:385",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 16.662,
+          "y": 46.153
+        },
+        {
+          "x": 26.363,
+          "y": 22.938
+        }
+      ],
+      "label": "Stairs to B Headshot",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-b-headshot\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2528.970947 -186.353577 11616.031250;setang -53.615582 54.582458 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "735:385",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-b-headshot",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:736:386",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 28.857,
+          "y": 44.242
+        },
+        {
+          "x": 50.61,
+          "y": 33.648
+        }
+      ],
+      "label": "Mid to CT Mid",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/mid-to-ct-mid\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1969.969360 -72.347839 11840.031250;setang -11.702839 26.312632 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "736:386",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/mid-to-ct-mid",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:737:387",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 17.183,
+          "y": 50.295
+        },
+        {
+          "x": 37.758,
+          "y": 24.678
+        }
+      ],
+      "label": "Stairs to CT Spawn",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-ct-spawn\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2470.969727 -295.968750 11728.031250;setang -43.149559 52.993752 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "737:387",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-ct-spawn",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:782:388",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 28.932,
+          "y": 75.014
+        },
+        {
+          "x": 31.949,
+          "y": 28.289
+        }
+      ],
+      "label": "T Spawn to Ebox",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/t-spawn-to-ebox\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1887.990112 -1328.034302 11552.031250;setang -32.633286 88.379173 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "782:388",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/t-spawn-to-ebox",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:738:388",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 18.927,
+          "y": 45.806
+        },
+        {
+          "x": 31.949,
+          "y": 28.289
+        }
+      ],
+      "label": "Stairs to Ebox",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-ebox\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2374.28 -112.97 11616.00;setang -62.87 57.47 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "738:388",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-ebox",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:740:389",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 60.552,
+          "y": 67.075
+        },
+        {
+          "x": 56.279,
+          "y": 54.97
+        }
+      ],
+      "label": "Ramp to Front Elevator",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-front-elevator\nTechnique: Left ClickRight ClickSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -656.03 -1016.97 11710.58;setang -12.94 138.40 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "740:389",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-front-elevator",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:741:389",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 56.194,
+          "y": 75.88
+        },
+        {
+          "x": 56.279,
+          "y": 54.97
+        }
+      ],
+      "label": "Ramp to Front Elevator",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-front-elevator-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -842.161621 -1358.968384 11711.871094;setang -1.023266 94.056641 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "741:389",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-front-elevator-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:745:390",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 30.239,
+          "y": 72.211
+        },
+        {
+          "x": 34.043,
+          "y": 21.501
+        }
+      ],
+      "label": "T Spawn to Generator Left",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/t-spawn-to-generator-left\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1919.968750 -1196.031250 11605.019531;setang -52.213741 85.261841 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "745:390",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/t-spawn-to-generator-left",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:743:390",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 17.01,
+          "y": 46.424
+        },
+        {
+          "x": 34.043,
+          "y": 21.501
+        }
+      ],
+      "label": "Stairs to Generator Left",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-generator-left\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2528.968750 -186.352417 11616.031250;setang -67.313583 54.722179 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "743:390",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-generator-left",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:744:390",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 22.759,
+          "y": 46.678
+        },
+        {
+          "x": 34.043,
+          "y": 21.501
+        }
+      ],
+      "label": "Stairs to Generator Left",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-generator-left-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2240.215820 -151.719055 11649.394531;setang -72.663162 63.368538 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "744:390",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/stairs-to-generator-left-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:742:390",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 37.043,
+          "y": 47.903
+        },
+        {
+          "x": 34.043,
+          "y": 21.501
+        }
+      ],
+      "label": "Mid to Generator Left",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/mid-to-generator-left\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1676.03 -251.94 11840.00;setang -66.77 95.43 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "742:390",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/mid-to-generator-left",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:761:391",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 62.117,
+          "y": 75.437
+        },
+        {
+          "x": 73.353,
+          "y": 52.956
+        }
+      ],
+      "label": "Ramp to Headshot",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/ramp-to-headshot-4\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -640.143555 -1358.965942 11713.366211;setang -28.745995 55.518734 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "761:391",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/ramp-to-headshot-4",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:760:391",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 59.676,
+          "y": 79.412
+        },
+        {
+          "x": 73.353,
+          "y": 52.956
+        }
+      ],
+      "label": "Ramp to Headshot",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/ramp-to-headshot-3\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -787.968750 -1510.968750 11840.031250;setang 3.979327 56.363598 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "760:391",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/ramp-to-headshot-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:759:391",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 53.753,
+          "y": 79.789
+        },
+        {
+          "x": 73.353,
+          "y": 52.956
+        }
+      ],
+      "label": "Ramp to Headshot",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/ramp-to-headshot-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1047.968750 -1479.968750 11840.031250;setang 2.710959 50.179512 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "759:391",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/ramp-to-headshot-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:746:391",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 55.675,
+          "y": 65.427
+        },
+        {
+          "x": 73.353,
+          "y": 52.956
+        }
+      ],
+      "label": "Ramp to Headshot",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-headshot\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -787.968750 -1510.968750 11840.031250;setang -10.281286 72.875710 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "746:391",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-headshot",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:762:391",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 50.969,
+          "y": 71.948
+        },
+        {
+          "x": 73.353,
+          "y": 52.956
+        }
+      ],
+      "label": "Sidewalk to Headshot",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/sidewalk-to-headshot\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1135.94 -1221.97 11840.00;setang 6.71 38.84 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "762:391",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/sidewalk-to-headshot",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:750:392",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 50.969,
+          "y": 71.948
+        },
+        {
+          "x": 74.121,
+          "y": 43.827
+        }
+      ],
+      "label": "Tarp to Heaven",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/tarp-to-heaven\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1135.968750 -1221.968750 11840.031250;setang -4.020288 45.122112 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "750:392",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/tarp-to-heaven",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:749:392",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 56.194,
+          "y": 75.88
+        },
+        {
+          "x": 74.121,
+          "y": 43.827
+        }
+      ],
+      "label": "Ramp to Heaven",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-heaven-3\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -842.164368 -1358.968750 11712.031250;setang -33.206562 60.303345 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "749:392",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-heaven-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:747:392",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 56.194,
+          "y": 75.88
+        },
+        {
+          "x": 74.121,
+          "y": 43.827
+        }
+      ],
+      "label": "Ramp to Heaven",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-heaven\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -842.161621 -1358.968506 11711.871094;setang -13.021789 68.583916 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "747:392",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-heaven",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:748:392",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 59.154,
+          "y": 79.094
+        },
+        {
+          "x": 74.121,
+          "y": 43.827
+        }
+      ],
+      "label": "Ramp to Heaven",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-heaven-2\nTechnique: standing. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -787.968750 -1510.968750 11840.031250;setang -10.281286 72.875710 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "748:392",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-heaven-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:751:393",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 51.328,
+          "y": 44.425
+        },
+        {
+          "x": 59.657,
+          "y": 68.086
+        }
+      ],
+      "label": "Bridge to Ramp",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/bridge-to-ramp\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1082.989136 -163.968750 11552.031250;setang -14.455073 -58.074509 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "751:393",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/bridge-to-ramp",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:752:394",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 42.952,
+          "y": 82.049
+        },
+        {
+          "x": 50.965,
+          "y": 71.696
+        }
+      ],
+      "label": "T Spawn to Sidewalk",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/t-spawn-to-sidewalk\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1418.031250 -1599.968750 11553.031250;setang -80.693802 54.650837 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "752:394",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/t-spawn-to-sidewalk",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:764:394",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 48.36,
+          "y": 61.766
+        },
+        {
+          "x": 50.965,
+          "y": 71.696
+        }
+      ],
+      "label": "Ladder to Sidewalk",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/ladder-to-sidewalk\nTechnique: LeftClickCtrlSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1216.027832 -719.207520 11882.031250;setang -9.924118 -132.683197 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "764:394",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/ladder-to-sidewalk",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:753:395",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 37.044,
+          "y": 44.593
+        },
+        {
+          "x": 48.274,
+          "y": 37.579
+        }
+      ],
+      "label": "Mid to Top Mid",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/mid-to-top-mid\nTechnique: LeftClickWSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1680.030518 -55.781738 11840.031250;setang 0.430068 166.593002 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "753:395",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/mid-to-top-mid",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:728:383",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 29.552,
+          "y": 47.413
+        },
+        {
+          "x": 53.56,
+          "y": 41.412
+        }
+      ],
+      "label": "Mid to A Connector",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/mid-to-a-connector\nTechnique: LeftClickShiftW. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos 1969.968750 -150.861450 11840.031250;setang -17.677414 37.249435 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "728:383",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/mid-to-a-connector",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:732:379",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 29.552,
+          "y": 49.042
+        },
+        {
+          "x": 42.784,
+          "y": 31.264
+        }
+      ],
+      "label": "Mid to B Connector",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/mid-to-b-connector\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1969.971069 -273.530884 11852.465820;setang -16.541542 51.867107 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "732:379",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/mid-to-b-connector",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:783:379",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 29.61,
+          "y": 49.768
+        },
+        {
+          "x": 42.784,
+          "y": 31.264
+        }
+      ],
+      "label": "Mid to B Connector",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/mid-to-b-connector-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1947.530884 -295.968750 11863.031250;setang -13.922842 53.318878 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "783:379",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/mid-to-b-connector-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:729:396",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 26.057,
+          "y": 75.248
+        },
+        {
+          "x": 70.223,
+          "y": 54.529
+        }
+      ],
+      "label": "T Spawn to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/t-spawn-to-a-site-2\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2092.66 -1329.03 11552.00;setang -53.75 25.83 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "729:396",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/t-spawn-to-a-site-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:776:396",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 72.061,
+          "y": 37.988
+        },
+        {
+          "x": 70.223,
+          "y": 54.529
+        }
+      ],
+      "label": "Heaven to A Site",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/flash/heaven-to-a-site-4\nTechnique: LeftClickCtrlSpace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -187.031250 238.968750 11847.031250;setang -31.539190 -113.053619 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "776:396",
+        "url": "https://cs2nades.gg/en/map/vertigo/flash/heaven-to-a-site-4",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:758:397",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 65.957,
+          "y": 55.928
+        },
+        {
+          "x": 53.703,
+          "y": 65.735
+        }
+      ],
+      "label": "A Site to Tarp",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/a-site-to-tarp\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -503.968750 -509.122986 11840.031250;setang -8.858819 -147.825195 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "758:397",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/a-site-to-tarp",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:756:398",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 75.019,
+          "y": 45.131
+        },
+        {
+          "x": 67.568,
+          "y": 69.219
+        }
+      ],
+      "label": "Heaven to Crane",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/heaven-to-crane\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "756:398",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/heaven-to-crane",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:757:399",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 72.061,
+          "y": 37.988
+        },
+        {
+          "x": 68.788,
+          "y": 71.852
+        }
+      ],
+      "label": "Heaven to Ramp",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/heaven-to-ramp\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -187.031250 238.968750 11847.031250;setang -69.625656 -94.636169 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "757:399",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/heaven-to-ramp",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:754:401",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 46.984,
+          "y": 18.467
+        },
+        {
+          "x": 19.391,
+          "y": 31.613
+        }
+      ],
+      "label": "CT Spawn to B Main",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/ct-spawn-to-b-main-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1295.968750 980.365906 11840.031250;setang -19.948698 -158.663406 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "754:401",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/ct-spawn-to-b-main-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:755:401",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 50.99,
+          "y": 18.546
+        },
+        {
+          "x": 19.391,
+          "y": 31.613
+        }
+      ],
+      "label": "CT Spawn to B Main",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/ct-spawn-to-b-main-3\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1021.503540 993.968689 11840.031250;setang -28.480221 -159.623383 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "755:401",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/ct-spawn-to-b-main-3",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:763:402",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 23.281,
+          "y": 46.678
+        },
+        {
+          "x": 14.133,
+          "y": 16.852
+        }
+      ],
+      "label": "Stairs to Pillar",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/stairs-to-pillar\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2240.194336 -151.447815 11667.258789;setang 5.136031 101.362907 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "763:402",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/stairs-to-pillar",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:767:403",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 42.973,
+          "y": 28.918
+        },
+        {
+          "x": 22.31,
+          "y": 21.555
+        }
+      ],
+      "label": "Connector to Default B",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/connector-to-default-b\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1435.284912 540.973938 11938.031250;setang -4.808038 145.736740 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "767:403",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/connector-to-default-b",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:784:404",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 50.99,
+          "y": 18.546
+        },
+        {
+          "x": 26.446,
+          "y": 20.805
+        }
+      ],
+      "label": "CT Spawn to Triple",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/ct-spawn-to-triple\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1042.968750 975.466980 11840.031250;setang -14.372972 -175.724609 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "784:404",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/ct-spawn-to-triple",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:765:404",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 19.101,
+          "y": 46.154
+        },
+        {
+          "x": 26.446,
+          "y": 20.805
+        }
+      ],
+      "label": "Stairs to Triple",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/stairs-to-triple\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2374.270996 -112.968750 11616.031250;setang -33.472359 79.245087 -0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "765:404",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/stairs-to-triple",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:766:405",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 22.585,
+          "y": 45.603
+        },
+        {
+          "x": 22.116,
+          "y": 37.161
+        }
+      ],
+      "label": "Stairs to Wood",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/stairs-to-wood\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2268.714355 -65.940430 11624.504883;setang -24.224585 113.969772 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "766:405",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/stairs-to-wood",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:779:406",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 33.562,
+          "y": 40.489
+        },
+        {
+          "x": 31,
+          "y": 54.157
+        }
+      ],
+      "label": "Mid Box to T Mid",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/flash/mid-box-to-t-mid\nTechnique: Right Click + W + Space. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1780.031250 119.000908 11840.031250;setang 6.250300 -88.298416 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "779:406",
+        "url": "https://cs2nades.gg/en/map/vertigo/flash/mid-box-to-t-mid",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:769:406",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 39.313,
+          "y": 33.097
+        },
+        {
+          "x": 31,
+          "y": 54.157
+        }
+      ],
+      "label": "Sandbags to T Mid",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/sandbags-to-t-mid\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -1585.653809 438.968750 11840.031250;setang -19.825136 -115.104263 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "769:406",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/sandbags-to-t-mid",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:768:407",
+      "kind": "fire",
+      "points": [
+        {
+          "x": 67.347,
+          "y": 64.813
+        },
+        {
+          "x": 58.341,
+          "y": 65.06
+        }
+      ],
+      "label": "Crane to Ramp",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/molotov/crane-to-ramp\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -417.968750 -865.716248 11869.031250;setang -60.193523 179.642685 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "768:407",
+        "url": "https://cs2nades.gg/en/map/vertigo/molotov/crane-to-ramp",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:770:408",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 22.759,
+          "y": 46.33
+        },
+        {
+          "x": 14.202,
+          "y": 27.005
+        }
+      ],
+      "label": "Stairs to Whitebox",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/flash/stairs-to-whitebox\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2240.121582 -150.595337 11666.833008;setang -29.656677 110.859238 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "770:408",
+        "url": "https://cs2nades.gg/en/map/vertigo/flash/stairs-to-whitebox",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:778:409",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 75.539,
+          "y": 52.796
+        },
+        {
+          "x": 51.005,
+          "y": 58.678
+        }
+      ],
+      "label": "Headshot to Sidewalk",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/flash/headshot-to-sidewalk\nTechnique: standing. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -63.031250 -431.968750 11894.031250;setang -12.531642 -165.643005 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "778:409",
+        "url": "https://cs2nades.gg/en/map/vertigo/flash/headshot-to-sidewalk",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:780:409",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 49.634,
+          "y": 68.417
+        },
+        {
+          "x": 51.005,
+          "y": 58.678
+        }
+      ],
+      "label": "Sidewalk to Sidewalk",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/flash/sidewalk-to-sidewalk\nTechnique: Right Click + Ctrl + Space. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1135.968750 -1055.732910 11840.031250;setang 5.350014 88.558907 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "780:409",
+        "url": "https://cs2nades.gg/en/map/vertigo/flash/sidewalk-to-sidewalk",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:771:410",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 50.969,
+          "y": 71.948
+        },
+        {
+          "x": 57.794,
+          "y": 60.641
+        }
+      ],
+      "label": "Sidewalk to Short",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/flash/sidewalk-to-short\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "771:410",
+        "url": "https://cs2nades.gg/en/map/vertigo/flash/sidewalk-to-short",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:772:411",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 31.813,
+          "y": 56.069
+        },
+        {
+          "x": 31.592,
+          "y": 49.068
+        }
+      ],
+      "label": "T Mid to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/flash/t-mid-to-mid\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1924.027466 -574.490967 11840.031250;setang -37.738121 91.515709 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "772:411",
+        "url": "https://cs2nades.gg/en/map/vertigo/flash/t-mid-to-mid",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:777:412",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 56.558,
+          "y": 34.846
+        },
+        {
+          "x": 31.503,
+          "y": 38.926
+        }
+      ],
+      "label": "CT Mid to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/flash/ct-mid-to-mid-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "CT",
+      "radius": 3,
+      "aim": "setpos -897.031250 343.968750 11840.031250;setang -13.943545 -172.741791 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "777:412",
+        "url": "https://cs2nades.gg/en/map/vertigo/flash/ct-mid-to-mid-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:773:413",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 29.726,
+          "y": 49.468
+        },
+        {
+          "x": 37.801,
+          "y": 38.165
+        }
+      ],
+      "label": "Mid to Mid",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/flash/mid-to-mid\nTechnique: LeftClickRightClick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -1969.971436 -273.530884 11852.511719;setang -34.249706 51.796398 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "773:413",
+        "url": "https://cs2nades.gg/en/map/vertigo/flash/mid-to-mid",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:774:414",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 30.594,
+          "y": 56.436
+        },
+        {
+          "x": 13.517,
+          "y": 45.463
+        }
+      ],
+      "label": "T Spawn to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/flash/t-spawn-to-b-site-2\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -2192.039062 -598.780701 11552.031250;setang -50.188419 130.427582 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "774:414",
+        "url": "https://cs2nades.gg/en/map/vertigo/flash/t-spawn-to-b-site-2",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:731:381",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 60.726,
+          "y": 67.075
+        },
+        {
+          "x": 67.357,
+          "y": 54.659
+        }
+      ],
+      "label": "Ramp to A Site Left",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-a-site-left\nTechnique: Leftclickspace. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -656.031250 -1016.968750 11709.726562;setang -6.598165 142.804428 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "731:381",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-a-site-left",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:730:382",
+      "kind": "smoke",
+      "points": [
+        {
+          "x": 61.073,
+          "y": 70.036
+        },
+        {
+          "x": 73.27,
+          "y": 59.033
+        }
+      ],
+      "label": "Ramp to A Site Right",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-a-site-right\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -656.031250 -1108.031250 11712.031250;setang -77.697685 48.765598 0.000000",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "730:382",
+        "url": "https://cs2nades.gg/en/map/vertigo/smoke/ramp-to-a-site-right",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "cs2nades:775:415",
+      "kind": "flash",
+      "points": [
+        {
+          "x": 22.759,
+          "y": 46.156
+        },
+        {
+          "x": 22.482,
+          "y": 26.185
+        }
+      ],
+      "label": "Stairs to B Site",
+      "note": "Source: https://cs2nades.gg/en/map/vertigo/flash/stairs-to-b-site\nTechnique: leftclick. Throw from upper floor; landing on upper. Target marker is a source-authored spot, not a simulated trajectory. Check the source guide before use.",
+      "side": "T",
+      "radius": 3,
+      "aim": "setpos -22240.20 -151.48 11669.29;setang -32.21 83.74 0.00",
+      "status": "draft",
+      "source": {
+        "provider": "CS2Nades",
+        "id": "775:415",
+        "url": "https://cs2nades.gg/en/map/vertigo/flash/stairs-to-b-site",
+        "originFloor": "upper"
+      }
+    },
+    {
+      "id": "native-site:Vertigo:A:0",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 65.35599334267108,
+          "y": 60.59246764472254
+        },
+        {
+          "x": 75.77938528661295,
+          "y": 60.591402000434655
+        },
+        {
+          "x": 75.77889114707239,
+          "y": 55.758072375375214
+        },
+        {
+          "x": 65.3554992031305,
+          "y": 55.7591380196631
+        }
+      ],
+      "label": "A native plant zone",
+      "note": "Installed func_bomb_target 2:31106, convex piece 1. Native volume Z 11776 to 11807. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-site:Vertigo:B:0",
+      "kind": "bombsite",
+      "points": [
+        {
+          "x": 19.6555902345596,
+          "y": 26.66618911127528
+        },
+        {
+          "x": 19.97296250193233,
+          "y": 26.983496491637624
+        },
+        {
+          "x": 25.270096118790683,
+          "y": 26.98295493470383
+        },
+        {
+          "x": 25.26939483994775,
+          "y": 20.123532588028567
+        },
+        {
+          "x": 19.65492139922186,
+          "y": 20.12410658846755
+        }
+      ],
+      "label": "B native plant zone",
+      "note": "Installed func_bomb_target 2:31107, convex piece 1. Native volume Z 11744 to 11772. Pieces form a union; do not fill the gaps. This is a projected trigger, not a validated standing-floor binding or Source player-overlap implementation.",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29673",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 52.16250507572928,
+          "y": 21.976803664447623
+        }
+      ],
+      "label": "CT spawn 2:29673",
+      "note": "Installed enabled spawn; priority 1. World origin -1031.316772, 861.967102, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29674",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 50.827918018835454,
+          "y": 23.149526489057003
+        }
+      ],
+      "label": "CT spawn 2:29674",
+      "note": "Installed enabled spawn; priority 1. World origin -1085.993774, 813.931458, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29675",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 54.27313826326233,
+          "y": 22.06172605670584
+        }
+      ],
+      "label": "CT spawn 2:29675",
+      "note": "Installed enabled spawn; priority 1. World origin -944.853882, 858.47937, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29676",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 55.279302666631814,
+          "y": 23.999434044011075
+        }
+      ],
+      "label": "CT spawn 2:29676",
+      "note": "Installed enabled spawn; priority 1. World origin -903.643921, 779.095886, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29677",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 54.61995254159941,
+          "y": 25.904009737528778
+        }
+      ],
+      "label": "CT spawn 2:29677",
+      "note": "Installed enabled spawn; priority 1. World origin -930.662537, 701.07666, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29679",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 56.34077571916744,
+          "y": 20.06464958442365
+        }
+      ],
+      "label": "CT spawn 2:29679",
+      "note": "Installed enabled spawn; priority 0. World origin -860.143616, 940.282043, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29680",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 54.64458019633448,
+          "y": 20.593159999772084
+        }
+      ],
+      "label": "CT spawn 2:29680",
+      "note": "Installed enabled spawn; priority 0. World origin -929.631409, 918.638428, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29681",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 58.2343945684491,
+          "y": 21.000701727981376
+        }
+      ],
+      "label": "CT spawn 2:29681",
+      "note": "Installed enabled spawn; priority 1. World origin -782.574402, 901.928223, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29682",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 58.36543484495851,
+          "y": 23.18013051663196
+        }
+      ],
+      "label": "CT spawn 2:29682",
+      "note": "Installed enabled spawn; priority 1. World origin -777.215393, 812.646179, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29683",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 56.98842771135942,
+          "y": 24.651864124371315
+        }
+      ],
+      "label": "CT spawn 2:29683",
+      "note": "Installed enabled spawn; priority 1. World origin -833.631409, 752.361572, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29685",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 48.8765009133375,
+          "y": 24.005853117822394
+        }
+      ],
+      "label": "CT spawn 2:29685",
+      "note": "Installed enabled spawn; priority 1. World origin -1165.938232, 778.859741, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29686",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 50.40423552980872,
+          "y": 24.91272992566178
+        }
+      ],
+      "label": "CT spawn 2:29686",
+      "note": "Installed enabled spawn; priority 1. World origin -1103.357544, 741.702637, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29687",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 48.30504494814251,
+          "y": 21.97227834021498
+        }
+      ],
+      "label": "CT spawn 2:29687",
+      "note": "Installed enabled spawn; priority 0. World origin -1189.339722, 862.16864, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29688",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 49.836991600322996,
+          "y": 20.416575200586703
+        }
+      ],
+      "label": "CT spawn 2:29688",
+      "note": "Installed enabled spawn; priority 0. World origin -1126.576172, 925.892456, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    },
+    {
+      "id": "native-spawn:Vertigo:2:29689",
+      "kind": "callout",
+      "points": [
+        {
+          "x": 51.852101660437604,
+          "y": 20.455108443509573
+        }
+      ],
+      "label": "CT spawn 2:29689",
+      "note": "Installed enabled spawn; priority 0. World origin -1044.026245, 924.305481, 11789. Review pin only: entity origin requires grounding before runtime use.",
+      "side": "CT",
+      "status": "draft"
+    }
+  ],
+  "libraryVersion": "2026-09-12.1",
+  "registration": {
+    "version": 1,
+    "sourceRadar": "/maps/de_vertigo_radar_psd_1.png",
+    "sourceSha256": "b148d3a26f3846ce42c80fed1fb5f20c0b24f217e98300449fe49cf7a8afc18c",
+    "targetSha256": "d2e2e18668f951f7d3b7c6a4fe4580632d5de253d0991f4b9639f9eca73264bf",
+    "sourceVersion": "2000908",
+    "meshSha256": "a752897b9f0d903f52eeabca4e79b2295f7b8243924aef6f91e0b1b32c2a1c31",
+    "matrix": [
+      1.0001354551552928,
+      -0.00010224969382500926,
+      -0.00220576341508637,
+      0.00010224969382500926,
+      1.0001354551552928,
+      -0.011654712145843772
+    ],
+    "method": "image-features",
+    "confidence": "provisional",
+    "evidence": "497 SIFT/RANSAC inliers; median 0.212px, p95 1.133px. Image alignment only; floors and walls need review."
+  }
+}

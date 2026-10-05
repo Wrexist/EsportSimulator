@@ -7,8 +7,8 @@ import { CollisionScene } from '../../engine/spatial/geometry'
 const packageId = process.argv[2] === 'l14' ? 'L14' : process.argv[2] === 'l13' ? 'L13' : 'L12'
 const sha = (b: Buffer) => createHash('sha256').update(b).digest('hex')
 const originals = [
-    ['public/map-studio/drafts/mirage-user-v12-2026-09-13.json', 'efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2'],
-    ['public/map-studio/drafts/mirage-user-areas-2026-09-13.json', '46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65'],
+    ['raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-user-v12-2026-09-13.json', 'efc599edc2dcfd27d450e734d476ff94426c98bb2ef631e96ca09f63d91a8fe2'],
+    ['raw-data/archived-lineups/drafts-2026-10-04/drafts/mirage-user-areas-2026-09-13.json', '46e2c94658a547f6d8bf7d4af8643e3b690e946b14060daece37fc8315c11e65'],
 ].map(([file, expected]) => { const bytes = readFileSync(file), hash = sha(bytes); if (hash !== expected) throw Error(`Owner draft changed: ${file}`); return { file, sha256: hash, bytes: bytes.length } })
 const project = parseProject(readFileSync(originals[0].file, 'utf8')), ref = JSON.parse(readFileSync('public/map-studio/spatial/Mirage.json', 'utf8')), mesh = readFileSync('public/map-studio/spatial/Mirage.mesh')
 if (sha(mesh) !== ref.meshSha256) throw Error('Reference mesh changed')

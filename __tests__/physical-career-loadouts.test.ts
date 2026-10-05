@@ -1,3 +1,4 @@
+import { getLossBonus } from '@/lib/constants'
 import { webcrypto } from 'node:crypto'
 import { CollisionScene } from '@/engine/spatial/geometry'
 import { NavigationMesh } from '@/engine/spatial/navigation'
@@ -181,7 +182,8 @@ test('settlement is sequential and idempotent through JSON resume; stale loadout
     const p=bound(), replay=await sealRoundReplay(p,ref,runLabTeams(p,nav,floor,true).result), s=state(), before=JSON.stringify(s)
     const next=await settlePhysicalRoundPreview(s,replay,binding)
     expect(next.awayScore).toBe(1);expect(next.homeScore).toBe(0);expect(next.nextRound).toBe(2)
-    expect(next.homeEconomy.p1.cash).toBe(3900);expect(next.awayEconomy.p2.cash).toBe(5250)
+    // Losing side: 2000 + first loss bonus (ROUND_ECONOMY_TUNING ladder, was 1900).
+    expect(next.homeEconomy.p1.cash).toBe(2000 + getLossBonus(0));expect(next.awayEconomy.p2.cash).toBe(5250)
     expect(await settlePhysicalRoundPreview(JSON.parse(JSON.stringify(next)),replay,binding)).toEqual(next)
     expect(JSON.stringify(s)).toBe(before)
     await expect(settlePhysicalRoundPreview(s,replay,{...binding,roundNumber:2})).rejects.toThrow('sequence')
@@ -196,7 +198,7 @@ test('version-one replays and saved cursors remain readable after introducing ve
     const legacyBody={...body,engine:'spatial-round-v1' as const}
     const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(legacyBody)))),n=>n.toString(16).padStart(2,'0')).join('')
     const legacy:SpatialRoundReplay={...legacyBody,sha256:hash}
-    expect(current.engine).toBe('spatial-round-v12');expect(await verifyRoundReplay(legacy)).toBe(true)
+    expect(current.engine).toBe('spatial-round-v14');expect(await verifyRoundReplay(legacy)).toBe(true)
     const saved=captureRoundPosition(legacy,10);expect(saved.engine).toBe('spatial-round-v1');expect(restoreRoundPosition(legacy,saved).tick).toBe(10)
     expect(()=>restoreRoundPosition(current,saved)).toThrow()
 })
@@ -237,7 +239,7 @@ async function reserved() {
     return {request,journal,result,ticket:journal.pending!.ticket}
 }
 
-test.each(['spatial-round-v3','spatial-round-v4','spatial-round-v5','spatial-round-v6','spatial-round-v7','spatial-round-v8','spatial-round-v9','spatial-round-v10','spatial-round-v11'] as const)('%s recordings remain readable but pending rounds cannot silently change engine rules',async(engine)=>{
+test.each(['spatial-round-v3','spatial-round-v4','spatial-round-v5','spatial-round-v6','spatial-round-v7','spatial-round-v8','spatial-round-v9','spatial-round-v10','spatial-round-v11','spatial-round-v12','spatial-round-v13'] as const)('%s recordings remain readable but pending rounds cannot silently change engine rules',async(engine)=>{
     const {journal,result,ticket,request}=await reserved()
     const {sha256:_hash,...body}=result.replay
     const legacyBody={...body,engine}

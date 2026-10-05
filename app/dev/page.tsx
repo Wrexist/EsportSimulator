@@ -35,6 +35,7 @@ import {
 import { MapId } from "@/types"
 import Link from "next/link"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
+import { formatCurrency } from "@/lib/utils-extended"
 
 interface HealthCheckResult {
     category: string
@@ -65,13 +66,13 @@ export default function DevPage() {
     })))
     const router = useRouter()
     const [issues, setIssues] = useState<IntegrityIssue[]>([])
-    const [status, setStatus] = useState("")
+    const [, setStatus] = useState("")
     const [statusLog, setStatusLog] = useState<string[]>([])
     const [isProcessing, setIsProcessing] = useState(false)
     const [determinismResult, setDeterminismResult] = useState<string | null>(null)
     const [confirmNuke, setConfirmNuke] = useState(false)
     const [healthResults, setHealthResults] = useState<HealthCheckResult[]>([])
-    const [showHealthDetails, setShowHealthDetails] = useState(false)
+    const [, setShowHealthDetails] = useState(false)
 
     useEffect(() => {
         if (!devToolsEnabled) {
@@ -163,7 +164,7 @@ export default function DevPage() {
         results.push({
             category: "Budget",
             status: (playerTeam?.budget || 0) > 0 ? "OK" : "WARN",
-            message: `Team budget: $${((playerTeam?.budget || 0) / 1000).toFixed(0)}k`,
+            message: `Team budget: ${formatCurrency(playerTeam?.budget || 0)}`,
             value: playerTeam?.budget || 0
         })
 
@@ -333,7 +334,7 @@ export default function DevPage() {
                     : t
             )
         }))
-        log(`Added $${(amount / 1000).toFixed(0)}k to budget.`)
+        log(`Added ${formatCurrency(amount)} to budget.`)
     }
 
     const getStatusColor = (status: "OK" | "WARN" | "ERROR") => {
@@ -349,7 +350,7 @@ export default function DevPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center border border-yellow-500/30">
+                    <div className="w-12 h-12 rounded-2xl bg-linear-to-br/srgb from-yellow-500/20 to-orange-500/20 flex items-center justify-center border border-yellow-500/30">
                         <Zap className="h-6 w-6 text-yellow-500" />
                     </div>
                     <div>
@@ -380,10 +381,10 @@ export default function DevPage() {
                     { label: "Matches", value: stats.matches, icon: Swords },
                     { label: "Completed", value: stats.completedMatches, icon: Trophy },
                     { label: "Tournaments", value: stats.tournaments, icon: Trophy },
-                    { label: "Budget", value: `$${(stats.budget / 1000).toFixed(0)}k`, icon: DollarSign },
+                    { label: "Budget", value: formatCurrency(stats.budget), icon: DollarSign },
                     { label: "Status", value: stats.isInitialized ? "Active" : "None", icon: Activity }
                 ].map((stat, i) => (
-                    <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-3 text-center">
+                    <div key={i} className="bg-white/2 border border-white/5 rounded-xl p-3 text-center">
                         <stat.icon className="w-4 h-4 text-white/30 mx-auto mb-1" />
                         <p className="text-lg font-normal text-white">{stat.value}</p>
                         <p className="text-[9px] text-white/30 uppercase tracking-wider">{stat.label}</p>

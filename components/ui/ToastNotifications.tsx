@@ -99,7 +99,7 @@ const ToastItem = memo(function ToastItem({
             transition={toast.duration ? quickEase : liquidSpring}
             className={`pointer-events-auto liquid-panel flex items-center gap-3 px-4 py-3 rounded-lg border ${getToastStyle(toast)}`}
         >
-            <div className="w-8 h-8 rounded-lg bg-white/[0.08] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center shrink-0">
                 {getToastIcon(toast)}
             </div>
             <p className="text-sm font-semibold text-white/90">{toast.message}</p>

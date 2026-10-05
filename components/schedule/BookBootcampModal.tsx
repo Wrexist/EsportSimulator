@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/lib/toast"
+import { useFocusTrap, pressable } from "@/lib/accessibility"
 
+import { formatCurrency } from "@/lib/utils-extended"
 interface BookBootcampModalProps {
     isOpen: boolean
     onClose: () => void
@@ -88,6 +90,8 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
         }
     }
 
+    const dialogRef = useFocusTrap(isOpen, onClose)
+
     if (!isOpen) return null
 
     return (
@@ -96,10 +100,11 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
+                ref={dialogRef} tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title-book-bootcamp"
-                className="glass-panel w-full max-w-4xl flex flex-col max-h-[90vh] shadow-2xl border-white/10"
+                className="glass-panel w-full max-w-4xl flex flex-col max-h-[calc(100dvh-6rem)] shadow-2xl border-white/10"
             >
                 {/* Header */}
                 <div className="p-6 border-b border-white/5 flex items-center justify-between">
@@ -123,7 +128,7 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                         {(Object.entries(BOOTCAMP_OPTIONS) as [BootcampType, typeof BOOTCAMP_OPTIONS[BootcampType]][]).map(([key, option]) => (
                             <div
                                 key={key}
-                                onClick={() => setSelectedType(key)}
+                                {...pressable(() => setSelectedType(key), { pressed: selectedType === key })}
                                 className={`
                                     p-4 rounded-xl border cursor-pointer transition-all group relative overflow-hidden
                                     ${selectedType === key
@@ -187,7 +192,7 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
 
                                 <div className="flex justify-between items-center py-2 border-b border-white/5">
                                     <span className="text-sm text-gray-400">Weekly Cost</span>
-                                    <span className="font-mono text-white">${selectedOption.costPerWeek.toLocaleString()}</span>
+                                    <span className="font-mono text-white">{formatCurrency(selectedOption.costPerWeek, "$", false)}</span>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-white/5">
                                     <span className="text-sm text-gray-400">Duration</span>
@@ -196,7 +201,7 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                                 <div className="flex justify-between items-center pt-2">
                                     <span className="text-sm font-bold text-white uppercase tracking-wider">Total</span>
                                     <span className={`font-mono font-bold text-lg ${budget >= totalCost ? "text-emerald-400" : "text-red-500"}`}>
-                                        ${totalCost.toLocaleString()}
+                                        {formatCurrency(totalCost, "$", false)}
                                     </span>
                                 </div>
                             </div>
@@ -204,7 +209,7 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                             {budget < totalCost && (
                                 <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-3">
                                     <Coins className="text-red-500" size={16} />
-                                    <p className="text-xs text-red-200">Insufficient funds. Need ${(totalCost - budget).toLocaleString()} more.</p>
+                                    <p className="text-xs text-red-200">Insufficient funds. Need {formatCurrency((totalCost - budget), "$", false)} more.</p>
                                 </div>
                             )}
 

@@ -35,6 +35,7 @@ import {
 } from "@/engine/equipment-manager"
 import type { EquipmentItem } from "@/engine/save-types"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const ICON_MAP: Record<string, typeof Mouse> = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
 // Derived from the display map so a future EquipmentType addition can't drift
 // — both lists stay in lock-step automatically.
@@ -87,7 +88,7 @@ export default function EquipmentPage() {
         const result = purchaseEquipment(item.id)
         if (result.success) {
             toast.success(`Purchased ${item.name}!`, {
-                description: `Installed immediately. Weekly upkeep: $${item.weeklyCost}.`,
+                description: `Installed immediately. Weekly upkeep: ${formatCurrency(item.weeklyCost, "$", false)}.`,
             })
             setSelectedItem(null)
         } else {
@@ -106,7 +107,7 @@ export default function EquipmentPage() {
             <nav aria-label="Club campus sections" className="mb-5 flex gap-2"><Button asChild variant="outline"><Link href="/basecamp">Club campus</Link></Button><Button asChild variant="secondary"><Link href="/equipment" aria-current="page">Equipment</Link></Button></nav>
             {/* Header / Hero Section */}
             <div className="relative pt-2 pb-6 px-0 overflow-hidden">
-                <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:32px]" />
+                <div className="absolute inset-0 bg-grid-white/[0.02] bg-size-[32px]" />
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-primary/20 blur-[120px] rounded-full opacity-20 pointer-events-none" />
 
                 <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row justify-between items-end gap-8">
@@ -119,7 +120,7 @@ export default function EquipmentPage() {
                             <Badge className="bg-white/10 text-white hover:bg-white/20 border-white/10 backdrop-blur-md">
                                 LOGISTICS CENTER
                             </Badge>
-                            <div className="h-px w-20 bg-gradient-to-r from-white/20 to-transparent" />
+                            <div className="h-px w-20 bg-linear-to-r/srgb from-white/20 to-transparent" />
                         </motion.div>
                         <h1 className="page-title mb-4">
                             Equipment
@@ -132,16 +133,16 @@ export default function EquipmentPage() {
 
                     {/* Stats HUD */}
                     <div className="flex gap-4">
-                        <div className="glass-panel p-6 border-white/10 backdrop-blur-xl bg-white/[0.03] min-w-[160px]">
+                        <div className="glass-panel p-6 border-white/10 backdrop-blur-xl bg-white/3 min-w-[160px]">
                             <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground mb-1">Budget</p>
                             <p className="text-3xl font-normal font-sans text-emerald-400 tracking-tight">
-                                ${(playerTeam.budget / 1000).toFixed(1)}k
+                                {formatCurrency(playerTeam.budget)}
                             </p>
                         </div>
-                        <div className="glass-panel p-6 border-white/10 backdrop-blur-xl bg-white/[0.03] min-w-[160px]">
+                        <div className="glass-panel p-6 border-white/10 backdrop-blur-xl bg-white/3 min-w-[160px]">
                             <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground mb-1">Upkeep</p>
                             <p className="text-3xl font-normal font-sans text-red-400 tracking-tight">
-                                -${weeklyCost}
+                                {formatCurrency(-weeklyCost, "$", false)}
                             </p>
                         </div>
                     </div>
@@ -155,7 +156,7 @@ export default function EquipmentPage() {
                     computed but never rendered before — completed in audit.) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Loadout completeness */}
-                    <div className="glass-panel p-5 border-white/10 bg-white/[0.03]">
+                    <div className="glass-panel p-5 border-white/10 bg-white/3">
                         <div className="flex items-center justify-between mb-3">
                             <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
                                 <Gauge size={12} /> Loadout Completeness
@@ -164,7 +165,7 @@ export default function EquipmentPage() {
                         </div>
                         <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
                             <div
-                                className="h-full rounded-full bg-gradient-to-r from-primary/60 to-primary transition-all"
+                                className="h-full rounded-full bg-linear-to-r/srgb from-primary/60 to-primary transition-all"
                                 style={{ width: `${completeness}%` }}
                             />
                         </div>
@@ -174,7 +175,7 @@ export default function EquipmentPage() {
                     </div>
 
                     {/* Average tier */}
-                    <div className="glass-panel p-5 border-white/10 bg-white/[0.03] flex flex-col justify-between">
+                    <div className="glass-panel p-5 border-white/10 bg-white/3 flex flex-col justify-between">
                         <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
                             <TrendingUp size={12} /> Average Tier
                         </p>
@@ -185,7 +186,7 @@ export default function EquipmentPage() {
                     </div>
 
                     {/* Active stat bonuses */}
-                    <div className="glass-panel p-5 border-white/10 bg-white/[0.03]">
+                    <div className="glass-panel p-5 border-white/10 bg-white/3">
                         <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 mb-3">
                             <Sparkles size={12} /> Installed gear ratings
                         </p>
@@ -224,7 +225,7 @@ export default function EquipmentPage() {
                                 className={cn(
                                     "rounded-xl h-10 gap-2 font-bold tracking-wide transition-all",
                                     selectedType === type
-                                        ? "bg-white text-black hover:bg-white/90 shadow-sm"
+                                        ? "bg-white text-black hover:bg-white/90 shadow-xs"
                                         : "text-muted-foreground hover:text-white hover:bg-white/5"
                                 )}
                             >
@@ -260,11 +261,11 @@ export default function EquipmentPage() {
                                     className={cn(
                                         "equipment-tile glass-card group relative h-[330px] rounded-2xl overflow-hidden cursor-pointer transition-[transform,border-color,box-shadow] duration-200 ease-out",
                                         "border border-white/5 hover:border-white/20 hover:shadow-2xl hover:-translate-y-1",
-                                        owned ? "bg-emerald-950/20" : "bg-white/[0.02]"
+                                        owned ? "bg-emerald-950/20" : "bg-white/2"
                                     )}
                                 >
                                     {/* Background Image / Glow */}
-                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent" />
+                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-radial-[circle_at_center_in_srgb] from-white/5 to-transparent" />
 
                                     {/* Use the new realistic image */}
                                     <div className="absolute inset-x-0 top-0 h-[190px] flex items-center justify-center p-4 transition-transform duration-200 ease-out group-hover:scale-[1.02]">
@@ -280,10 +281,10 @@ export default function EquipmentPage() {
                                     </div>
 
                                     {/* Content Overlay */}
-                                    <div className="absolute inset-x-0 bottom-0 min-h-[140px] p-5 bg-gradient-to-t from-[#112139] via-[#112139]/95 to-transparent flex flex-col justify-end">
+                                    <div className="absolute inset-x-0 bottom-0 min-h-[140px] p-5 bg-linear-to-t/srgb from-[#112139] via-[#112139]/95 to-transparent flex flex-col justify-end">
                                         <div className="flex items-start justify-between mb-2">
                                             <div>
-                                                <Badge variant="outline" className={cn("mb-2 border-none bg-white/5 backdrop-blur-sm", tierDisplay.color)}>
+                                                <Badge variant="outline" className={cn("mb-2 border-none bg-white/5 backdrop-blur-xs", tierDisplay.color)}>
                                                     TIER {item.tier} • {tierDisplay.label}
                                                 </Badge>
                                                 <h3 className="text-xl font-normal text-white leading-tight uppercase tracking-tight group-hover:text-primary transition-colors">
@@ -308,7 +309,7 @@ export default function EquipmentPage() {
                                                 <span className="text-emerald-400 font-bold">+{item.bonus.value} {item.bonus.stat}</span>
                                             </div>
                                             <p className="font-sans font-bold text-white">
-                                                ${item.purchaseCost.toLocaleString()}
+                                                {formatCurrency(item.purchaseCost, "$", false)}
                                             </p>
                                         </div>
                                     </div>
@@ -325,7 +326,7 @@ export default function EquipmentPage() {
                     <DialogContent className="equipment-comparison sm:max-w-4xl p-0 gap-0 flex flex-col md:flex-row" onCloseAutoFocus={(event) => { event.preventDefault(); comparisonTriggerRef.current?.focus() }}>
 
                             {/* Left: Visual */}
-                            <div className="w-full md:w-1/2 bg-gradient-to-br from-white/[0.03] to-transparent relative min-h-[240px] flex items-center justify-center p-8">
+                            <div className="w-full md:w-1/2 bg-linear-to-br/srgb from-white/3 to-transparent relative min-h-[240px] flex items-center justify-center p-8">
                                 <motion.div
                                     className="relative w-full aspect-square"
                                     initial={{ y: 20, opacity: 0 }}
@@ -367,7 +368,7 @@ export default function EquipmentPage() {
                                         </div>
                                         <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                                             <p className="text-[10px] font-normal uppercase text-muted-foreground mb-1">Weekly Maintenance</p>
-                                            <p className="text-2xl font-normal text-red-400">-${selectedItem.weeklyCost}</p>
+                                            <p className="text-2xl font-normal text-red-400">{formatCurrency(-selectedItem.weeklyCost, "$", false)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -378,7 +379,7 @@ export default function EquipmentPage() {
                                     <div className="flex items-center justify-between mb-6">
                                         <div>
                                             <p className="text-xs font-bold text-muted-foreground uppercase">Price</p>
-                                            <p className="text-3xl font-normal text-white font-sans">${selectedItem.purchaseCost.toLocaleString()}</p>
+                                            <p className="text-3xl font-normal text-white font-sans">{formatCurrency(selectedItem.purchaseCost, "$", false)}</p>
                                         </div>
                                         {isOwned(selectedItem) ? (
                                             <div className="flex items-center gap-2 text-emerald-400 font-bold uppercase tracking-widest text-sm">

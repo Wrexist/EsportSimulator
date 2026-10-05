@@ -6,6 +6,7 @@ import { SeededRNG } from "../rng"
 import { getPlayerPassiveBonuses } from "../talent-trees"
 import { facilityLevel, staffDevelopmentEffects } from "../organization-effects"
 import type { SaveIndexes } from "@/store/indexes"
+import { CONDITION_TUNING } from "@/lib/balance-tuning"
 
 export class TrainingProcessor {
     static processTraining(
@@ -131,39 +132,53 @@ export class TrainingProcessor {
         })
     }
 
+    /**
+     * Idle-day recovery for the week that just ended. Every club's roster
+     * recovers on each day without a match (and, for the managed club, without
+     * a booked activity) under the same rule (CONDITION_TUNING). Only the
+     * managed club gets calendar "Rest Day" rows; that row is also the
+     * exactly-once guard for its recovery. AI recovery runs once per tick.
+     */
     static processRestDays(save: GameSave, playerTeamId: string): void {
-        const team = save.teams.find(t => t.id === playerTeamId)
-        if (!team) return
-
-        const playerRoster = save.players.filter(p => team.rosterIds.includes(p.id))
         const targetWeek = save.currentWeek - 1
 
-        // Pre-fetch all matches for the target week
-        const weekMatches = [
-            ...save.scheduledMatches.filter(m => m.week === targetWeek && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)),
-            ...save.completedMatches.filter(m => m.week === targetWeek && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId))
-        ].sort((a, b) => a.id.localeCompare(b.id))
-
-        for (let day = 0; day <= 6; day++) {
-            const hasMatch = weekMatches.some((m, idx) => {
-                if (m.day !== undefined) return m.day === day
-                if (m.isScrim) {
-                    const scrimDay = idx % 2 === 0 ? 3 : 4
-                    return day === scrimDay
-                }
-                const matchDayOffset = idx % 2 === 0 ? 5 : 6
-                return day === matchDayOffset
+        // Each club's fixtures for the target week, in the order the original
+        // day fallback used (sorted by id; idx picks day 5/6, scrims 3/4).
+        const matchesByTeam = new Map<string, Array<{ id: string; day?: number; isScrim?: boolean }>>()
+        for (const m of [...save.scheduledMatches, ...save.completedMatches]) {
+            if (m.week !== targetWeek) continue
+            for (const id of [m.homeTeamId, m.awayTeamId]) {
+                const list = matchesByTeam.get(id)
+                if (list) list.push(m)
+                else matchesByTeam.set(id, [m])
+            }
+        }
+        const matchDays = (teamId: string): Set<number> => {
+            const days = new Set<number>()
+            const list = [...(matchesByTeam.get(teamId) || [])].sort((a, b) => a.id.localeCompare(b.id))
+            list.forEach((m, idx) => {
+                if (m.day !== undefined) days.add(m.day)
+                else if (m.isScrim) days.add(idx % 2 === 0 ? 3 : 4)
+                else days.add(idx % 2 === 0 ? 5 : 6)
             })
+            return days
+        }
 
-            const hasActivity = save.scheduledActivities?.some(a =>
-                a.week === targetWeek &&
-                (a.day === day || (a.duration || 0) > 0)
-            )
-
-            if (!hasMatch && !hasActivity) {
-                const restDayId = `rest_w${targetWeek}_d${day}_${playerTeamId}`
-                const alreadyExists = save.scheduledActivities.some(a => a.id === restDayId)
-                if (!alreadyExists) {
+        const playersById = new Map(save.players.map(p => [p.id, p]))
+        for (const team of save.teams) {
+            const busy = matchDays(team.id)
+            const roster = team.rosterIds.map(id => playersById.get(id)).filter((p): p is PlayerSaveData => !!p && !p.isRetired)
+            const isManaged = team.id === playerTeamId
+            for (let day = 0; day <= 6; day++) {
+                if (busy.has(day)) continue
+                if (isManaged) {
+                    const hasActivity = save.scheduledActivities?.some(a =>
+                        a.week === targetWeek &&
+                        (a.day === day || (a.duration || 0) > 0)
+                    )
+                    if (hasActivity) continue
+                    const restDayId = `rest_w${targetWeek}_d${day}_${playerTeamId}`
+                    if (save.scheduledActivities.some(a => a.id === restDayId)) continue
                     save.scheduledActivities.push({
                         id: restDayId,
                         type: "REST",
@@ -171,18 +186,20 @@ export class TrainingProcessor {
                         day: day,
                         duration: 0,
                         name: "Rest Day",
-                        description: "Recovery (+15)",
+                        description: `Recovery (+${CONDITION_TUNING.IDLE_DAY_ENERGY} energy)`,
                         cost: 0
                     })
-
-                    playerRoster.forEach(player => {
-                        player.energy = Math.min(player.maxEnergy || 100, (player.energy || 0) + 15)
-                        player.morale = Math.min(100, (player.morale || 0) + 2)
-                        player.form = Math.min(100, (player.form || 0) + 1)
-                        player.fatigue = Math.max(0, (player.fatigue || 0) - 12)
-                    })
                 }
+                roster.forEach(player => TrainingProcessor.applyIdleDayRecovery(player))
             }
         }
+    }
+
+    /** One idle day of recovery (CONDITION_TUNING); identical for every club. */
+    static applyIdleDayRecovery(player: PlayerSaveData): void {
+        player.energy = Math.min(player.maxEnergy || 100, (player.energy || 0) + CONDITION_TUNING.IDLE_DAY_ENERGY)
+        player.fatigue = Math.max(0, (player.fatigue || 0) * (1 - CONDITION_TUNING.IDLE_DAY_FATIGUE_RECOVERY_RATE))
+        if (CONDITION_TUNING.IDLE_DAY_MORALE) player.morale = Math.min(100, (player.morale || 0) + CONDITION_TUNING.IDLE_DAY_MORALE)
+        if (CONDITION_TUNING.IDLE_DAY_FORM) player.form = Math.min(100, (player.form || 0) + CONDITION_TUNING.IDLE_DAY_FORM)
     }
 }

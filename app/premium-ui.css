@@ -1,4 +1,14 @@
 /* Premium desktop presentation. State and simulation stay with their existing owners. */
+
+/* Tailwind v4 uses native cascade layers. Unlayered CSS would beat every
+   Tailwind utility regardless of specificity, whereas under v3 these rules
+   competed with utilities by specificity and source order (this file loads
+   after globals.css). Keeping them in the `utilities` layer, after the
+   generated utilities, preserves exactly that v3 behaviour. The layer-order
+   statement repeats the one Tailwind emits in globals.css so the order stays
+   correct even if this stylesheet were ever loaded first. */
+@layer properties, theme, base, components, utilities;
+@layer utilities {
 :root {
   --bg-950: #08111f; --bg-900: #0d1a2d;
   --surface-900: rgba(17,33,57,.88); --surface-800: rgba(28,48,78,.84);
@@ -37,13 +47,13 @@
 .premium-app :is(.page-title,.dashboard-title) { font-size:clamp(28px,2.25vw,40px); font-weight:750; letter-spacing:-.035em; line-height:1.15; color:var(--text-strong); text-shadow:none; }
 .premium-app[data-premium-ui=true] :is(.glass-panel,.glass-card,.glass-panel-dark,.liquid-panel),
 [data-slot=card] { background:var(--glass-corner-light),var(--surface-900); border:1px solid var(--border-subtle); border-radius:18px; box-shadow:var(--panel-shadow); }
-.premium-app[data-premium-ui=true] :is(.glass-panel,.glass-card,.glass-panel-dark) { backdrop-filter:none; -webkit-backdrop-filter:none; }
+.premium-app[data-premium-ui=true] :is(.glass-panel,.glass-card,.glass-panel-dark) { backdrop-filter:none; }
 .premium-app[data-premium-ui=true] :is(.glass-panel,.glass-panel-dark,.liquid-panel),
 .premium-app .dashboard-layout > div > [data-slot=card],
-.premium-app .profile-dossier { backdrop-filter:blur(10px) saturate(110%); -webkit-backdrop-filter:blur(10px) saturate(110%); }
-.premium-app[data-premium-ui=true] :is(.glass-panel,.glass-panel-dark) :is(.glass-panel,.glass-panel-dark,.glass-card) { backdrop-filter:none; -webkit-backdrop-filter:none; }
+.premium-app .profile-dossier { backdrop-filter:blur(10px) saturate(110%); }
+.premium-app[data-premium-ui=true] :is(.glass-panel,.glass-panel-dark) :is(.glass-panel,.glass-panel-dark,.glass-card) { backdrop-filter:none; }
 .premium-app[data-premium-ui=true] :is(.glass-panel,.glass-card):hover { border-color:var(--border-subtle); }
-.premium-app[data-premium-ui=true] :is(.glass-panel,.glass-card).cursor-pointer:hover { border-color:var(--border-strong); background:var(--surface-800); transform:translateY(-1px); }
+.premium-app[data-premium-ui=true] :is(.glass-panel,.glass-card).cursor-pointer:hover { border-color:var(--border-strong); background:var(--surface-800); transform:translateY(-1px); translate:var(--tw-v3-transform-reset, none); scale:var(--tw-v3-transform-reset, none); rotate:var(--tw-v3-transform-reset, none); }
 [data-slot=card-title] { font-weight:650; color:var(--text-strong); }
 [data-slot=card-description],.premium-app .text-muted-foreground { color:var(--text-muted); }
 .premium-app[data-premium-ui=true] :is(.text-white\/20,.text-white\/30,.text-white\/40,.text-white\/50,.text-white\/55) { color:var(--text-muted); }
@@ -58,8 +68,8 @@
 [data-slot=button]:is([data-variant=default],[data-variant=play]):not(:disabled):hover { filter:none; background:linear-gradient(180deg,#fff,#e9eef5); border-color:#fff; box-shadow:inset 0 1px 0 #fff,0 3px 6px #03101f44,0 9px 18px -9px #020813aa; }
 .premium-white-action { color:#182536!important; background:linear-gradient(180deg,#f7f9fc,#dce3ed)!important; border:1px solid #ffffffb8; box-shadow:inset 0 1px 0 #fff,0 2px 4px #03101f33,0 7px 14px -8px #02081399; }
 .premium-white-action:hover { background:#fff!important; }
-[data-slot=button]:not(:disabled):active { transform:scale(.98); }
-[data-slot=button]:disabled,[data-slot=button][aria-disabled=true] { opacity:.45; filter:none; transform:none; cursor:not-allowed; }
+[data-slot=button]:not(:disabled):active { transform:scale(.98); translate:var(--tw-v3-transform-reset, none); scale:var(--tw-v3-transform-reset, none); rotate:var(--tw-v3-transform-reset, none); }
+[data-slot=button]:disabled,[data-slot=button][aria-disabled=true] { opacity:.45; filter:none; transform:none; translate:var(--tw-v3-transform-reset, none); scale:var(--tw-v3-transform-reset, none); rotate:var(--tw-v3-transform-reset, none); cursor:not-allowed; }
 [data-slot=button][aria-busy=true] { cursor:progress; }
 [data-slot=button]::before,[data-slot=button]::after { animation:none; }
 [data-slot=tabs-list] { background:rgba(10,25,44,.9); border:1px solid var(--border-subtle); border-radius:12px; padding:4px; gap:4px; min-height:40px; backdrop-filter:none; }
@@ -157,7 +167,7 @@
 }
 @media(prefers-reduced-motion:reduce) { .premium-app .game-page { animation:none; } }
 html.reduce-motion .premium-app .game-page { animation:none; }
-@media(prefers-reduced-transparency:reduce) { .premium-atmosphere{display:none}.premium-app :is(.game-sidebar,.game-topbar,.glass-panel,.glass-card,.glass-panel-dark,.liquid-panel,[data-slot=card]) { background:#112139!important; backdrop-filter:none!important; -webkit-backdrop-filter:none!important; } }
+@media(prefers-reduced-transparency:reduce) { .premium-atmosphere{display:none}.premium-app :is(.game-sidebar,.game-topbar,.glass-panel,.glass-card,.glass-panel-dark,.liquid-panel,[data-slot=card]) { background:#112139!important; backdrop-filter:none!important; } }
 @supports not (backdrop-filter:blur(1px)) { .premium-app :is(.glass-panel,.glass-card,.glass-panel-dark,.liquid-panel,[data-slot=card]) { background:#112139; } }
 html.onyx { --bg-950:#0a1320; --surface-900:rgba(15,25,41,.92); --surface-800:rgba(26,40,60,.9); }
 html.high-contrast { --surface-900:#0d1a2d; --surface-800:#19314d; --text-muted:#d0dcf0; --border-subtle:#7296bb; }
@@ -203,4 +213,5 @@ html.high-contrast .premium-atmosphere { display:none; }
   .premium-app .dashboard-hero .match-identity > div > .w-24 { width:72px; height:72px; }
   .premium-app .dashboard-hero .match-identity p { font-size:16px; }
   .premium-app .tactical-decisions .grid-cols-5 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
 }

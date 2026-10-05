@@ -63,7 +63,7 @@ import {
     SelectTrigger
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
-import { formatRole } from "@/lib/utils-extended"
+import { formatRole, formatCurrency } from "@/lib/utils-extended"
 import { toast } from "@/lib/toast"
 import { TrainingFocus, CustomTactics } from "@/types"
 import dynamic from "next/dynamic"
@@ -73,6 +73,7 @@ const TacticalLoadoutEditor = dynamic(() => import("@/components/match/TacticalL
 import { motion, AnimatePresence } from "framer-motion"
 import { DrillManager, ActiveDrill } from "@/engine/drill-manager"
 import { useMemo, useRef, useEffect, useCallback } from "react"
+import { pressable } from "@/lib/accessibility"
 
 // Helper for Focus Icons
 const getFocusIcon = (focus: string | undefined): LucideIcon => {
@@ -288,7 +289,7 @@ export default function TrainingPage() {
               <Coins className="text-rose-400" size={20} />
               <div>
                 <p className="text-[10px] font-normal uppercase text-muted-foreground">Training Cost</p>
-                <p className="text-sm font-normal text-rose-400">-${(((playerTeam as any)?.activeRoleTraining?.length || 0) * 5000).toLocaleString()}/wk</p>
+                <p className="text-sm font-normal text-rose-400">{formatCurrency(-(((playerTeam as any)?.activeRoleTraining?.length || 0) * 5000), "$", false)}/wk</p>
               </div>
             </div>
           )}
@@ -309,7 +310,7 @@ export default function TrainingPage() {
               {DrillManager.getDrills().map((drill) => (
                 <div
                   key={drill.id}
-                  onClick={() => setSelectedDrill(drill.id)}
+                  {...pressable(() => setSelectedDrill(drill.id), { pressed: selectedDrill === drill.id })}
                   className={cn(
                     "glass-panel p-6 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 group",
                     selectedDrill === drill.id
@@ -360,7 +361,7 @@ export default function TrainingPage() {
           ) : (
             <div className="glass-panel p-6 border-primary/20 bg-black/40 relative overflow-hidden">
               {/* Scanlines Effect */}
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 pointer-events-none bg-[length:100%_2px,3px_100%]" />
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 pointer-events-none bg-size-[100%_2px,3px_100%]" />
 
               <div className="relative z-10 space-y-6">
                 <div className="flex justify-between items-center">
@@ -441,7 +442,7 @@ export default function TrainingPage() {
                   <div className="flex items-center gap-4">
                     {/* Portrait */}
                     <div className="relative">
-                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-white/10 to-transparent border border-white/10 overflow-hidden">
+                      <div className="w-14 h-14 rounded-xl bg-linear-to-br/srgb from-white/10 to-transparent border border-white/10 overflow-hidden">
                         <PlayerPortrait
                           src={player.portraitPath} seed={player.id}
                           alt={player.nickname}
@@ -473,9 +474,9 @@ export default function TrainingPage() {
                             <div
                               className={cn(
                                 "h-full rounded-full transition-all duration-500",
-                                condition > 70 ? "bg-gradient-to-r from-emerald-500 to-emerald-400" :
-                                  condition > 40 ? "bg-gradient-to-r from-amber-500 to-amber-400" :
-                                    "bg-gradient-to-r from-rose-500 to-rose-400"
+                                condition > 70 ? "bg-linear-to-r/srgb from-emerald-500 to-emerald-400" :
+                                  condition > 40 ? "bg-linear-to-r/srgb from-amber-500 to-amber-400" :
+                                    "bg-linear-to-r/srgb from-rose-500 to-rose-400"
                               )}
                               style={{ width: `${condition}%` }}
                             />
@@ -489,7 +490,7 @@ export default function TrainingPage() {
                         <div className="flex-1 max-w-[120px]">
                           <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-amber-500/60 to-amber-400/60 rounded-full transition-all duration-500"
+                              className="h-full bg-linear-to-r/srgb from-amber-500/60 to-amber-400/60 rounded-full transition-all duration-500"
                               style={{ width: `${Math.min(100, ((player.xp || 0) / (player.xpToNextLevel || 1000)) * 100)}%` }}
                             />
                           </div>
@@ -575,7 +576,7 @@ export default function TrainingPage() {
           <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
             <Shield size={16} className="text-primary" /> Loadout Manager
           </h3>
-          <p className="text-xs text-white/40 mt-1">Customize your team's buy strategy and weapon loadouts for each economy situation</p>
+          <p className="text-xs text-white/40 mt-1">Customize your team&apos;s buy strategy and weapon loadouts for each economy situation</p>
         </div>
         <div className="glass-panel p-6">
           <p className="text-xs text-white/60 mb-4 flex items-center gap-2">

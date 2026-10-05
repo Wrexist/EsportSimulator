@@ -35,6 +35,7 @@ import { nextDeterministicId, nextRandomInt, parseBoundedInt, MAX_CONTRACT_LENGT
 
 import { FACILITY_TYPES } from "@/engine/organization-effects"
 
+import { formatCurrency } from "@/lib/utils-extended"
 const MAX_FACILITY_LEVEL = 5
 const FACILITY_BUILD_COST = 10_000
 const FACILITY_UPGRADE_BASE_COST = 25_000
@@ -137,7 +138,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
                 }
                 const cost = facility.level * FACILITY_UPGRADE_BASE_COST
                 if (team.budget < cost) {
-                    result = { success: false, message: `Insufficient funds. Need $${cost.toLocaleString()}.` }
+                    result = { success: false, message: `Insufficient funds. Need ${formatCurrency(cost, "$", false)}.` }
                     return
                 }
 
@@ -181,7 +182,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
 
             // Build path: brand-new facility starts at level 1.
             if (team.budget < FACILITY_BUILD_COST) {
-                result = { success: false, message: `Insufficient funds. Need $${FACILITY_BUILD_COST.toLocaleString()}.` }
+                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(FACILITY_BUILD_COST, "$", false)}.` }
                 return
             }
             team.budget -= FACILITY_BUILD_COST
@@ -375,7 +376,7 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
             // Cost doubles per level: 50k → 100k → 200k → 400k → 800k.
             const cost = MERCH_BASE_UPGRADE_COST * Math.pow(2, currentLevel - 1)
             if (team.budget < cost) {
-                result = { success: false, message: `Insufficient funds. Need $${cost.toLocaleString()}` }
+                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(cost, "$", false)}` }
                 return
             }
 

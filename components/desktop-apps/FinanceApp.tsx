@@ -4,7 +4,7 @@ import React, { useMemo, memo } from "react"
 import { motion } from "framer-motion"
 import { TrendingUp, Clock, PieChart, ArrowUpRight, ArrowDownLeft, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { formatCurrency } from "@/lib/utils-extended"
+import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -73,26 +73,26 @@ function FinanceAppComponent() {
     return (
         <div className="flex flex-col h-full bg-black/40 text-white">
             {/* Overview Cards */}
-            <div className="p-6 grid grid-cols-3 gap-4 border-b border-white/5 bg-white/[0.02]">
-                <div className="p-4 bg-gradient-to-br from-emerald-900/40 to-emerald-950/40 rounded-xl border border-emerald-500/20">
+            <div className="p-6 grid grid-cols-3 gap-4 border-b border-white/5 bg-white/2">
+                <div className="p-4 bg-linear-to-br/srgb from-emerald-900/40 to-emerald-950/40 rounded-xl border border-emerald-500/20">
                     <div className="flex items-center gap-2 text-emerald-400 mb-1">
                         <Wallet size={16} />
                         <span className="text-xs font-bold uppercase tracking-wider">Current Balance</span>
                     </div>
-                    <div className="text-2xl font-normal text-white">${team.budget.toLocaleString()}</div>
+                    <div className="text-2xl font-normal text-white">{formatCurrency(team.budget, "$", false)}</div>
                 </div>
 
-                <div className="p-4 bg-gradient-to-br from-blue-900/40 to-blue-950/40 rounded-xl border border-blue-500/20">
+                <div className="p-4 bg-linear-to-br/srgb from-blue-900/40 to-blue-950/40 rounded-xl border border-blue-500/20">
                     <div className="flex items-center gap-2 text-blue-400 mb-1">
                         <TrendingUp size={16} />
                         <span className="text-xs font-bold uppercase tracking-wider">Weekly Net</span>
                     </div>
                     <div className={cn("text-2xl font-normal", (team.weeklyNet || 0) >= 0 ? "text-emerald-400" : "text-red-400")}>
-                        {(team.weeklyNet || 0) >= 0 ? "+" : ""}${(team.weeklyNet || 0).toLocaleString()}
+                        {formatSignedCurrency(team.weeklyNet || 0, "$", false)}
                     </div>
                 </div>
 
-                <div className="p-4 bg-gradient-to-br from-purple-900/40 to-purple-950/40 rounded-xl border border-purple-500/20">
+                <div className="p-4 bg-linear-to-br/srgb from-purple-900/40 to-purple-950/40 rounded-xl border border-purple-500/20">
                     <div className="flex items-center gap-2 text-purple-400 mb-1">
                         <Clock size={16} />
                         <span className="text-xs font-bold uppercase tracking-wider">Runway</span>
@@ -105,7 +105,7 @@ function FinanceAppComponent() {
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Breakdowns */}
-                <div className="w-64 border-r border-white/5 bg-white/[0.01] p-4 overflow-y-auto custom-scrollbar">
+                <div className="w-64 border-r border-white/5 bg-white/1 p-4 overflow-y-auto custom-scrollbar">
                     <div className="mb-6">
                         <h3 className="text-xs font-bold text-white/40 uppercase tracking-wider mb-4 flex items-center gap-2">
                             <PieChart size={14} /> Expenses (All Time)
@@ -142,7 +142,7 @@ function FinanceAppComponent() {
 
                 {/* Transaction List */}
                 <div className="flex-1 flex flex-col overflow-hidden">
-                    <div className="px-6 py-3 border-b border-white/5 flex items-center justify-between text-[10px] text-white/40 uppercase tracking-wider bg-white/[0.01]">
+                    <div className="px-6 py-3 border-b border-white/5 flex items-center justify-between text-[10px] text-white/40 uppercase tracking-wider bg-white/1">
                         <span>Transaction History</span>
                         <span>Recent Activity</span>
                     </div>
@@ -161,7 +161,7 @@ function FinanceAppComponent() {
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.05 }}
-                                        className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors"
+                                        className="flex items-center justify-between p-4 hover:bg-white/2 transition-colors"
                                     >
                                         <div className="flex items-center gap-4">
                                             <div className={cn(
@@ -185,10 +185,10 @@ function FinanceAppComponent() {
                                                 "font-mono font-bold",
                                                 t.type === "INCOME" ? "text-emerald-400" : "text-white"
                                             )}>
-                                                {t.type === "INCOME" ? "+" : "-"}${t.amount.toLocaleString()}
+                                                {formatSignedCurrency(t.type === "INCOME" ? Math.abs(t.amount) : -Math.abs(t.amount), "$", false)}
                                             </div>
                                             <div className="text-[10px] text-white/30 font-mono">
-                                                Balance: ${t.balance?.toLocaleString()}
+                                                Balance: {t.balance != null ? `${formatCurrency(t.balance, "$", false)}` : "—"}
                                             </div>
                                         </div>
                                     </motion.div>

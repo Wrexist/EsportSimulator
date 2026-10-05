@@ -84,7 +84,7 @@ function signFreeAgentWithQuotes(team: TeamSaveData, save: GameSave, emergency: 
 
     if (freeAgents.length === 0) return
 
-    const canAfford = recruitmentBudget(save, team)
+    const canAfford = recruitmentBudget(save, team, { quorum: team.rosterIds.length < 5 })
 
     // Build the missing-roles set so the scorer can prefer role-fit hires.
     const playerIndex = getPlayerIndex(save)
@@ -95,13 +95,18 @@ function signFreeAgentWithQuotes(team: TeamSaveData, save: GameSave, emergency: 
     }
     const missingRoles = new Set(REQUIRED_ROLES.filter(r => !currentRoles.has(r)))
 
-    const salaries = new Map(freeAgents.map(p => {
+    // Quote only candidates the role rule admits. recruitmentSalary is pure, so
+    // skipping quotes for candidates that could never be picked changes nothing
+    // but cost: by season 10 the pool holds ~3,000 free agents, and every club
+    // at 5-6 players missing an IGL/AWPer re-quoted all of them each week (L27).
+    const salaries = new Map<string, number>()
+    const affordable = freeAgents.filter(p => {
+        if (team.rosterIds.length >= 5 && !missingRoles.has(recruitmentRole(p.role))) return false
         let salary = quotes.get(p)
-        if (salary === undefined) { salary = recruitmentSalary(p, save.currentWeek); quotes.set(p, salary) }
-        return [p.id, salary]
-    }))
-    const affordable = freeAgents.filter(p => canAfford(salaries.get(p.id)!)
-        && (team.rosterIds.length < 5 || missingRoles.has(recruitmentRole(p.role))))
+        if (salary === undefined) { salary = recruitmentSalary(p, save.currentWeek, team); quotes.set(p, salary) }
+        salaries.set(p.id, salary)
+        return canAfford(salary)
+    })
     if (affordable.length === 0) return
 
     // Pick the highest-scoring affordable candidate.
@@ -119,8 +124,11 @@ function signFreeAgentWithQuotes(team: TeamSaveData, save: GameSave, emergency: 
 
     if (!target) return
 
-    const salary = salaries.get(target.id)!
+    commitFreeAgentSigning(team, save, target, salaries.get(target.id)!)
+}
 
+/** Sign `target` from free agency at `salary` (no fee), with the same bookkeeping for every AI path. */
+export function commitFreeAgentSigning(team: TeamSaveData, save: GameSave, target: PlayerSaveData, salary: number): void {
     // Defensive guard against double-add — stale roster could already
     // contain this player.
     if (team.rosterIds.includes(target.id)) return
@@ -180,6 +188,31 @@ function signFreeAgentWithQuotes(team: TeamSaveData, save: GameSave, emergency: 
             if (save.newsFeed.length > 50) save.newsFeed.pop()
         }
     }
+}
+
+/**
+ * Promote the club's own youth (team.youthAcademyIds) until it fields five,
+ * at a normal recruitment quote for the club and only when the quorum budget
+ * rule allows it — the human academy promotion takes a wage the same way.
+ */
+export function promoteAcademyToQuorum(team: TeamSaveData, save: GameSave): number {
+    let promoted = 0
+    const index = getPlayerIndex(save)
+    while (team.rosterIds.length < 5 && (team.youthAcademyIds?.length ?? 0) > 0) {
+        const prospects = team.youthAcademyIds!.map(id => index.get(id)).filter((p): p is PlayerSaveData => !!p && !p.isRetired)
+            .sort((a, b) => (b.skill ?? 0) - (a.skill ?? 0) || a.id.localeCompare(b.id))
+        const pick = prospects[0]
+        if (!pick) { team.youthAcademyIds = []; break }
+        const salary = recruitmentSalary(pick, save.currentWeek, team)
+        if (!recruitmentBudget(save, team, { quorum: true })(salary)) break
+        team.youthAcademyIds = team.youthAcademyIds!.filter(id => id !== pick.id)
+        team.rosterIds.push(pick.id)
+        save.contracts.push({ playerId: pick.id, teamId: team.id, salaryPerWeek: salary, startWeek: save.currentWeek, endWeek: save.currentWeek + 104, buyout: 0 })
+        applyRosterChangePenalty(team, save.currentWeek, 1)
+        recalculateTeamSynergy(team, save.players)
+        promoted++
+    }
+    return promoted
 }
 
 /** Release excess depth under the same fee-free release rules as the human club. */
@@ -254,6 +287,9 @@ export function manageRoster(team: TeamSaveData, save: GameSave): void {
             signFreeAgentWithQuotes(team, save, true, quotes)
             if (team.rosterIds.length === before) break
         }
+        // Pass 2: still short — promote the club's own academy prospects on a
+        // normal recruitment quote, under the same quorum budget rule.
+        promoteAcademyToQuorum(team, save)
         return
     }
 
