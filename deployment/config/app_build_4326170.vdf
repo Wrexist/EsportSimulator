@@ -1,7 +1,7 @@
 "appbuild"
 {
 	"appid" "4326170"
-	"desc" "Esports Manager: FPS 2026-09-26 - current portraits and UI - eebb2f39"
+	"desc" "Esports Manager: FPS 2026-10-06 - white screen fix - 3573a49a"
 	"buildoutput" "..\build_output"
 	// THE canonical build. contentroot MUST be the electron-builder output
 	// dist\win-unpacked (it contains EsportsManager.exe). Never point this at
