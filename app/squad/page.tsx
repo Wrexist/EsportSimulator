@@ -3,163 +3,159 @@
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
-import { PlayerCard } from "@/components/ui/PlayerCard"
-import { StatTile } from "@/src/components/ui/StatTile"
-import { SectionHeader } from "@/src/components/ui/SectionHeader"
+import { PlayerPortrait } from "@/components/ui/asset-images"
+import { CountryFlag } from "@/components/ui/CountryFlag"
 import { EmptyState } from "@/src/components/ui/EmptyState"
+import { Panel } from "@/src/components/ui/Panel"
+import { RatingChip } from "@/src/components/ui/RatingChip"
+import { Meter } from "@/src/components/ui/Meter"
+import { RoleTag } from "@/src/components/ui/RoleTag"
+import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
-import { AlertCircle, Zap, ArrowUpRight, Users, ArrowRightLeft, Activity, Plus, Star, CheckCircle2 } from "lucide-react"
+import { AlertCircle, ArrowRightLeft, ArrowUpRight, Users, Plus, Star, CheckCircle2, Activity } from "lucide-react"
 import dynamic from "next/dynamic"
 const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix"), { ssr: false })
 import { motion, AnimatePresence } from "framer-motion"
 import { useFocusTrap } from "@/lib/accessibility"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { getDisplayPlayerTier, TierLevel } from "@/engine/tier-system"
-import { useState, useMemo, useCallback, memo } from "react"
-const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
+import { playerEnergyPercent } from "@/lib/player-energy"
+import { formatCurrency } from "@/lib/utils-extended"
+import { cn } from "@/lib/utils"
+import { useState, useMemo, useCallback, memo, type KeyboardEvent, type ReactNode } from "react"
 const SynergyChart = dynamic(() => import("@/components/squad/SynergyChart").then(m => m.SynergyChart), { ssr: false })
 const SystemBonuses = dynamic(() => import("@/components/squad/SystemBonuses").then(m => m.SystemBonuses), { ssr: false })
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 
-// Module-level + memoized so each card only re-renders when its own props
-// change. Was previously inline inside SquadPageInner which gave it a fresh
-// component identity every render — React would re-mount the whole subtree
-// (PlayerCard animations restarting, 3D portraits reloading) on every store
-// mutation, not just swap toggles.
-type RosterCardProps = {
+/** Contract weeks left → tone: red inside a month, amber inside a quarter. */
+function contractTone(weeksLeft: number): string {
+  if (weeksLeft <= 4) return "text-negative"
+  if (weeksLeft <= 13) return "text-caution"
+  return "text-ink-2"
+}
+
+type RosterRowProps = {
   player: any
   index: number
-  isBench?: boolean
+  slot: number
+  isBench: boolean
   isSelected: boolean
   isSwapTarget: boolean
   weeksLeft: number
-  yearsLeft: number
   salary: number
-  selectedSwapIsNull: boolean
+  swapIdle: boolean
+  onOpen: (playerId: string) => void
   onSwapInitiate: (index: number) => void
   onSwapExecute: (targetIndex: number) => void
   onSwapCancel: () => void
   onTreatInjury: (playerId: string) => void
 }
-const RosterCard = memo(function RosterCard({
-  player,
-  index,
-  isBench = false,
-  isSelected,
-  isSwapTarget,
-  weeksLeft: _weeksLeft,
-  yearsLeft,
-  salary,
-  selectedSwapIsNull,
-  onSwapInitiate,
-  onSwapExecute,
-  onSwapCancel,
-  onTreatInjury,
-}: RosterCardProps) {
-  return (
-    <PlayerCard
-      key={player.id}
-      player={{
-        id: player.id,
-        nickname: player.nickname,
-        portraitPath: player.portraitPath,
-        role: player.role,
-        secondaryRole: player.secondaryRole,
-        nationality: player.nationality,
-        tier: player.playerTier,
-        overallRating: player.evaluation.overallRating,
-        morale: player.morale,
-        form: player.form,
-        fatigue: player.fatigue,
-        energy: player.energy,
-        salaryPerWeek: salary,
-        contractYearsLeft: yearsLeft,
-      }}
-      size="lg"
-      variant="default"
-      overlays={{ stats: true, contract: true, form: !isBench }}
-      href={!isSwapTarget && selectedSwapIsNull ? `/player/${player.id}` : null}
-      onClick={isSwapTarget ? () => onSwapExecute(index) : undefined}
-      selected={isSelected}
-      accent={player.injury ? "danger" : "default"}
-      layoutId={`player-${player.id}`}
-    >
-      {player.injury && (
-        <div className="absolute top-2 right-12 z-20">
-          <Badge variant="destructive" className="animate-pulse shadow-lg shadow-red-500/20 px-2 py-1 flex items-center gap-1.5">
-            <Activity size={10} className="stroke-3" />
-            <span className="text-[9px] font-normal uppercase tracking-widest">{player.injury.weeksRemaining}W</span>
-          </Badge>
-        </div>
-      )}
 
-      {player.injury && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-xs z-30 flex flex-col items-center justify-center p-4 text-center animate-in fade-in duration-300 pointer-events-none *:pointer-events-auto">
-          <Activity className="text-red-400 w-10 h-10 mb-2 animate-pulse" />
-          <h3 className="text-lg font-normal text-white uppercase tracking-tighter">{player.injury.name}</h3>
-          <Badge variant="destructive" className="mt-1 mb-2 text-[10px] font-bold uppercase tracking-widest">
-            Out for {player.injury.weeksRemaining} Weeks
-          </Badge>
-          <p className="text-[10px] text-white/60 mb-3 font-medium max-w-[200px]">{player.injury.description}</p>
-          <div className="flex flex-col gap-2 w-full max-w-[180px]">
-            <Button asChild variant="outline" size="sm" className="h-8 text-[10px] font-bold uppercase tracking-widest">
-              <Link href={`/player/${player.id}`} onClick={(e) => e.stopPropagation()}>
-                View Profile
-              </Link>
-            </Button>
+// Module-level + memoized so a row only re-renders when its own props change.
+const RosterRow = memo(function RosterRow({
+  player, index, slot, isBench, isSelected, isSwapTarget, weeksLeft, salary, swapIdle,
+  onOpen, onSwapInitiate, onSwapExecute, onSwapCancel, onTreatInjury,
+}: RosterRowProps) {
+  const activate = () => {
+    if (isSwapTarget) onSwapExecute(index)
+    else if (swapIdle) onOpen(player.id)
+  }
+  const onKeyDown = (e: KeyboardEvent<HTMLTableRowElement>) => {
+    if (e.target !== e.currentTarget) return
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate() }
+  }
+  return (
+    <tr
+      data-slot="table-row"
+      data-state={isSelected ? "selected" : undefined}
+      tabIndex={0}
+      aria-label={isSwapTarget ? `Swap into slot ${slot}: replace ${player.nickname}` : `${player.nickname}, open profile`}
+      onClick={activate}
+      onKeyDown={onKeyDown}
+      className={cn(
+        "group h-14 cursor-pointer border-b border-line outline-none transition-colors focus-visible:bg-hover",
+        isSwapTarget && "bg-gold/5 hover:bg-gold/10",
+        player.injury && "bg-negative/5",
+      )}
+    >
+      <td className="w-10 pl-4 text-xs font-semibold tabular-nums text-ink-3">{isSwapTarget ? <ArrowRightLeft size={14} className="text-gold" /> : slot}</td>
+      <td className="py-2 pr-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="h-10 w-10 shrink-0 overflow-hidden rounded bg-raised">
+            <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={40} />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{player.nickname}</span>
+              {player.injury && (
+                <span className="inline-flex items-center gap-1 rounded-sm bg-negative/15 px-1.5 py-0.5 text-[11px] font-semibold text-negative">
+                  <Activity size={11} /> Injured · {player.injury.weeksRemaining}w
+                </span>
+              )}
+            </div>
+            <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
+              <CountryFlag country={player.nationality} size={14} />
+              {/* Many generated players carry the nickname as their name; don't repeat it. */}
+              <span className="truncate">{player.name && player.name !== player.nickname ? player.name : String(player.nationality || "").toUpperCase()}</span>
+            </div>
+          </div>
+        </div>
+      </td>
+      <td className="px-3"><RoleTag role={player.role} /></td>
+      <td className="px-3 text-center"><RatingChip value={player.evaluation.overallRating} /></td>
+      <td className="px-3 text-center text-sm tabular-nums text-ink-2">{player.age}</td>
+      <td className="px-3"><Meter value={player.morale} label="Morale" /></td>
+      <td className="px-3"><Meter value={player.form} label="Form" /></td>
+      <td className="px-3"><Meter value={playerEnergyPercent(player)} label="Energy" /></td>
+      <td className={cn("px-3 text-right text-sm tabular-nums", contractTone(weeksLeft))}>
+        {weeksLeft >= 52 ? `${(weeksLeft / 52).toFixed(1)}y` : `${weeksLeft}w`}
+      </td>
+      <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(salary, "$", false)}</td>
+      <td className="w-36 pr-4 text-right" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-end gap-2">
+          {player.injury && (
             <ConfirmDialog
-              title="Hire Medical Specialist?"
-              description="This will cost $5,000 and reduce recovery time by 2 weeks."
+              title="Hire medical specialist?"
+              description="Costs $5,000 and cuts recovery time by 2 weeks."
               onConfirm={() => onTreatInjury(player.id)}
-              confirmText="Hire Specialist"
+              confirmText="Hire specialist"
               icon="info"
             >
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-red-500/30 text-red-400 hover:bg-red-500/20 hover:text-red-300 w-full text-[10px] font-bold uppercase tracking-widest"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Plus size={12} className="mr-2" />
-                Specialist ($5k)
+              <Button size="sm" variant="outline" className="h-8 gap-1 px-2 text-xs">
+                <Plus size={12} /> Treat $5k
               </Button>
             </ConfirmDialog>
-          </div>
-          <p className="mt-2 text-[9px] text-white/30 italic">Reduces recovery time by 2 weeks</p>
+          )}
+          {isSelected ? (
+            <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={onSwapCancel}>Cancel</Button>
+          ) : isBench && swapIdle ? (
+            <Button size="sm" variant="outline" className="h-8 gap-1.5 px-3 text-xs" onClick={() => onSwapInitiate(index)}>
+              <ArrowRightLeft size={13} /> Swap in
+            </Button>
+          ) : null}
         </div>
-      )}
-
-      {isSelected && (
-        <div className="absolute top-3 right-3 text-primary animate-pulse z-30">
-          <ArrowRightLeft size={20} />
-        </div>
-      )}
-
-      {((isBench && selectedSwapIsNull) || isSelected) && (
-        <div className="absolute top-3 right-3 z-30">
-          <Button
-            size="sm"
-            variant={isSelected ? "destructive" : "secondary"}
-            className="h-7 text-[9px] font-normal uppercase tracking-widest shadow-lg"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              if (isSelected) onSwapCancel()
-              else onSwapInitiate(index)
-            }}
-          >
-            {isSelected ? "Cancel" : "Swap"}
-          </Button>
-        </div>
-      )}
-    </PlayerCard>
+      </td>
+    </tr>
   )
 })
+
+function SectionRow({ label, hint }: { label: string; hint?: ReactNode }) {
+  return (
+    <tr className="border-b border-line bg-shell">
+      <td colSpan={11} className="px-4 py-2">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{label}</span>
+          {hint}
+        </div>
+      </td>
+    </tr>
+  )
+}
 
 export default function SquadPage() {
   return (
@@ -170,12 +166,11 @@ export default function SquadPage() {
 }
 
 function SquadPageInner() {
-  const { players, playerTeamId, academyPlayers, swapRosterPositions, startRoleTraining, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore(useShallow(state => ({
+  const { players, playerTeamId, academyPlayers, swapRosterPositions, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore(useShallow(state => ({
     players: state.players,
     playerTeamId: state.playerTeamId,
     academyPlayers: state.academyPlayers,
     swapRosterPositions: state.swapRosterPositions,
-    startRoleTraining: state.startRoleTraining,
     contracts: state.contracts,
     currentWeek: state.currentWeek,
     treatInjury: state.treatInjury,
@@ -183,39 +178,40 @@ function SquadPageInner() {
     addToast: state.addToast,
   })))
   const teamData = useCurrentTeam()
+  const router = useRouter()
 
   const [selectedSwapIndex, setSelectedSwapIndex] = useState<number | null>(null)
-  const [trainingPlayer, setTrainingPlayer] = useState<any>(null)
   const [promotingProspectId, setPromotingProspectId] = useState<string | null>(null)
   const promoteDialogRef = useFocusTrap(!!promotingProspectId, () => setPromotingProspectId(null))
 
-  // O(1) player-id → player map. Replaces the `players.find(p => p.id === id)`
-  // scan the roster loop below was doing — O(roster × players) per render.
+  // O(1) player-id → player map (was an O(roster × players) scan per render).
   const playerById = useMemo(() => {
     const map = new Map<string, typeof players[number]>()
     for (const p of players) map.set(p.id, p)
     return map
   }, [players])
 
-  // Hydrate Roster with evaluations - DO NOT SORT to preserve user order
+  // Roster with evaluations, in the manager's order (slot order matters).
   const roster = useMemo(() => {
     if (!teamData) return []
-
     return (teamData.rosterIds || [])
       .map((id, index) => {
         const player = playerById.get(id)
         if (!player) return null
-        const evaluation = evaluatePlayer(player)
-        const playerTier = getDisplayPlayerTier(evaluation.overallRating, teamData?.tier as TierLevel)
-        return { ...player, evaluation, playerTier, originalIndex: index }
+        return { ...player, evaluation: evaluatePlayer(player), originalIndex: index }
       })
       .filter(Boolean) as any[]
   }, [playerById, teamData])
 
-  const handleSwapInitiate = useCallback((index: number) => {
-    setSelectedSwapIndex(index)
-  }, [])
+  const contractByPlayerId = useMemo(() => {
+    const m = new Map<string, typeof contracts[number]>()
+    for (const c of contracts) m.set(c.playerId, c)
+    return m
+  }, [contracts])
 
+  const openPlayer = useCallback((playerId: string) => router.push(`/player/${playerId}`), [router])
+  const handleSwapInitiate = useCallback((index: number) => setSelectedSwapIndex(index), [])
+  const handleCancelSwap = useCallback(() => setSelectedSwapIndex(null), [])
   const handleSwapExecute = useCallback((targetIndex: number) => {
     if (selectedSwapIndex === null) return
     swapRosterPositions(playerTeamId!, selectedSwapIndex, targetIndex)
@@ -223,321 +219,201 @@ function SquadPageInner() {
     addToast({ message: "Lineup updated", type: "info" })
   }, [selectedSwapIndex, swapRosterPositions, playerTeamId, addToast])
 
-  const handleCancelSwap = useCallback(() => {
-    setSelectedSwapIndex(null)
-  }, [])
-
-  // O(1) contract lookup — was O(roster × contracts) per render before.
-  const contractByPlayerId = useMemo(() => {
-    const m = new Map<string, typeof contracts[number]>()
-    for (const c of contracts) m.set(c.playerId, c)
-    return m
-  }, [contracts])
-
   if (!teamData) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
-        <AlertCircle className="w-12 h-12 text-muted-foreground opacity-20" />
-        <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs">Team data not found</p>
+      <div className="flex min-h-[50vh] flex-col items-center justify-center space-y-4">
+        <AlertCircle className="h-12 w-12 text-ink-3 opacity-40" />
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-3">Team data not found</p>
       </div>
     )
   }
 
-  // Split into Active and Bench
   const activeRoster = roster.slice(0, 5)
   const benchRoster = roster.slice(5)
+  const teamOvr = activeRoster.length > 0 ? Math.round(activeRoster.reduce((sum, p) => sum + p.evaluation.overallRating, 0) / activeRoster.length) : 0
+  const avgAge = activeRoster.length > 0 ? (activeRoster.reduce((sum, p) => sum + (p.age || 0), 0) / activeRoster.length).toFixed(1) : "—"
+  const wageBill = roster.reduce((sum, p) => sum + (contractByPlayerId.get(p.id)?.salaryPerWeek ?? 0), 0)
+  const season = Math.ceil(currentWeek / 52)
+
+  const renderRow = (player: any, slot: number, isBench: boolean) => {
+    const idx = player.originalIndex
+    const isSelected = selectedSwapIndex === idx
+    // Only starters are swap targets for a selected bench player.
+    const isSwapTarget = !isBench && selectedSwapIndex !== null && !isSelected
+    const contract = contractByPlayerId.get(player.id)
+    return (
+      <RosterRow
+        key={player.id}
+        player={player}
+        index={idx}
+        slot={slot}
+        isBench={isBench}
+        isSelected={isSelected}
+        isSwapTarget={isSwapTarget}
+        weeksLeft={contract ? Math.max(0, contract.endWeek - currentWeek) : 0}
+        salary={contract?.salaryPerWeek ?? 0}
+        swapIdle={selectedSwapIndex === null}
+        onOpen={openPlayer}
+        onSwapInitiate={handleSwapInitiate}
+        onSwapExecute={handleSwapExecute}
+        onSwapCancel={handleCancelSwap}
+        onTreatInjury={treatInjury}
+      />
+    )
+  }
 
   return (
-    <div className="space-y-10 max-w-7xl mx-auto pb-20">
-      {/* Role Training Modal */}
-      {trainingPlayer && (
-        <RoleTrainingModal
-          player={trainingPlayer}
-          isOpen={!!trainingPlayer}
-          onClose={() => setTrainingPlayer(null)}
-          onStartTraining={(role) => {
-            const result = startRoleTraining(trainingPlayer.id, role)
-            if (result.success) {
-              setTrainingPlayer(null)
-              addToast({ message: `Role training started for ${trainingPlayer.nickname}`, type: "info" })
-            } else {
-              addToast({ message: result.message, type: "error" })
-            }
-          }}
-          currentBudget={teamData?.budget || 0}
-        />
-      )}
-
-      {/* Header Area */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="space-y-2"
-        >
-          <div className="flex items-center gap-4">
-            {/* Team Logo */}
-            <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center overflow-hidden">
-              <TeamLogoDisplay team={teamData} size={56} />
-            </div>
-            <div>
-              <h1 className="page-title flex items-center gap-3">
-                {teamData.name}
-              </h1>
-              <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
-                Active Roster <span className="w-1 h-1 rounded-full bg-emerald-500" /> Season {Math.ceil(currentWeek / 52)}
-              </p>
-            </div>
+    <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
+      <ScreenHeader
+        eyebrow={`Season ${season} · Roster`}
+        title={teamData.name}
+        subtitle="Your starting five plays every match. Click a player for their profile; swap the bench in from the right."
+        leading={
+          <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-line bg-panel">
+            <TeamLogoDisplay team={teamData} size={52} />
           </div>
-        </motion.div>
+        }
+        aside={
+          <KpiStrip>
+            <Kpi label="Team OVR" value={<RatingChip value={teamOvr} size="lg" bare />} />
+            <Kpi label="Avg age" value={avgAge} />
+            <Kpi label="Chemistry" value={`${Math.round(teamData.chemistry ?? 0)}%`} />
+            <Kpi label="Wages / wk" value={formatCurrency(wageBill, "$", false)} />
+          </KpiStrip>
+        }
+      />
 
-        <div className="flex items-center gap-4">
-          <StatTile label="Active" value={`${activeRoster.length} / 5`} />
-          <StatTile label="Bench" value={benchRoster.length} />
-          <StatTile
-            label="Rating"
-            tone="success"
-            value={activeRoster.length > 0 ? Math.round(activeRoster.reduce((sum, p) => sum + p.evaluation.overallRating, 0) / activeRoster.length) : 0}
-          />
-        </div>
-      </div>
-
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Side: Player Cards (Active + Bench) */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Active Roster */}
-          <div className="space-y-4">
-            <SectionHeader
-              icon={Zap}
-              title="Starting Lineup"
-              actions={<span className="text-[10px] font-bold text-muted-foreground uppercase">Top 5 Players</span>}
-            />
-
-            <div className="space-y-3">
-              {activeRoster.length > 0 ? (
-                activeRoster.map((player) => {
-                  const idx = player.originalIndex
-                  const isSelected = selectedSwapIndex === idx
-                  const isSwapTarget = selectedSwapIndex !== null && !isSelected
-                  const contract = contractByPlayerId.get(player.id)
-                  const weeksLeft = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
-                  return (
-                    <RosterCard
-                      key={player.id}
-                      player={player}
-                      index={idx}
-                      isSelected={isSelected}
-                      isSwapTarget={isSwapTarget}
-                      weeksLeft={weeksLeft}
-                      yearsLeft={weeksLeft > 0 ? weeksLeft / 52 : 0}
-                      salary={contract?.salaryPerWeek ?? 0}
-                      selectedSwapIsNull={selectedSwapIndex === null}
-                      onSwapInitiate={handleSwapInitiate}
-                      onSwapExecute={handleSwapExecute}
-                      onSwapCancel={handleCancelSwap}
-                      onTreatInjury={treatInjury}
-                    />
-                  )
-                })
-              ) : (
-                <EmptyState
-                  icon={Users}
-                  title="No active players"
-                  description="Sign free agents to build your starting lineup"
-                  action={{ label: "Browse Transfers", href: "/transfers" }}
-                />
-              )}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="min-w-0 space-y-4">
+          <Panel padded={false} className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <table data-slot="table" className="w-full min-w-[980px] border-collapse text-left">
+                <thead data-slot="table-header">
+                  <tr className="border-b border-line">
+                    <th data-slot="table-head" className="pl-4">#</th>
+                    <th data-slot="table-head">Player</th>
+                    <th data-slot="table-head" className="px-3">Role</th>
+                    <th data-slot="table-head" className="px-3 text-center">OVR</th>
+                    <th data-slot="table-head" className="px-3 text-center">Age</th>
+                    <th data-slot="table-head" className="px-3">Morale</th>
+                    <th data-slot="table-head" className="px-3">Form</th>
+                    <th data-slot="table-head" className="px-3">Energy</th>
+                    <th data-slot="table-head" className="px-3 text-right">Contract</th>
+                    <th data-slot="table-head" className="px-3 text-right">Wage / wk</th>
+                    <th data-slot="table-head" className="pr-4"><span className="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <SectionRow
+                    label="Starting five"
+                    hint={selectedSwapIndex !== null
+                      ? <span className="text-xs font-semibold text-gold">Choose the starter to replace</span>
+                      : <span className="text-xs text-ink-3">{activeRoster.length} / 5</span>}
+                  />
+                  {activeRoster.length > 0
+                    ? activeRoster.map((p, i) => renderRow(p, i + 1, false))
+                    : (
+                      <tr><td colSpan={11} className="p-6">
+                        <EmptyState icon={Users} title="No active players" description="Sign free agents to build your starting lineup" action={{ label: "Browse transfers", href: "/transfers" }} />
+                      </td></tr>
+                    )}
+                  <SectionRow label="Bench" hint={<span className="text-xs text-ink-3">{benchRoster.length}</span>} />
+                  {benchRoster.length > 0
+                    ? benchRoster.map((p, i) => renderRow(p, i + 6, true))
+                    : <tr><td colSpan={11} className="px-4 py-5 text-sm text-ink-3">Bench is empty. Sign a sixth player to cover injuries.</td></tr>}
+                </tbody>
+              </table>
             </div>
-          </div>
+          </Panel>
 
-          {/* Bench Roster */}
-          <div className="space-y-4 pt-4 border-t border-white/5">
-            <SectionHeader
-              icon={Users}
-              iconClassName="text-white/60"
-              tone="muted"
-              title="Bench & Reserve"
-              actions={selectedSwapIndex !== null ? (
-                <span className="text-xs font-bold text-primary animate-pulse">Select a starting player to swap with</span>
-              ) : undefined}
-            />
-
-            <div className="space-y-3">
-              {benchRoster.length > 0 ? (
-                benchRoster.map((player) => {
-                  const idx = player.originalIndex
-                  const isSelected = selectedSwapIndex === idx
-                  // Bench cards are never swap-targets (only starters are).
-                  const contract = contractByPlayerId.get(player.id)
-                  const weeksLeft = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
-                  return (
-                    <RosterCard
-                      key={player.id}
-                      player={player}
-                      index={idx}
-                      isBench
-                      isSelected={isSelected}
-                      isSwapTarget={false}
-                      weeksLeft={weeksLeft}
-                      yearsLeft={weeksLeft > 0 ? weeksLeft / 52 : 0}
-                      salary={contract?.salaryPerWeek ?? 0}
-                      selectedSwapIsNull={selectedSwapIndex === null}
-                      onSwapInitiate={handleSwapInitiate}
-                      onSwapExecute={handleSwapExecute}
-                      onSwapCancel={handleCancelSwap}
-                      onTreatInjury={treatInjury}
-                    />
-                  )
-                })
-              ) : (
-                <EmptyState title="Bench is empty" framed />
-              )}
-            </div>
-          </div>
-
-          {/* System Bonuses - Moved here so it has more space */}
-          <div className="pt-8 border-t border-white/5">
-            <SystemBonuses players={activeRoster as any} />
-          </div>
+          <SystemBonuses players={activeRoster as any} />
         </div>
 
-        {/* Right Side: Chemistry & Tactics */}
-        <div className="space-y-6">
-          <SectionHeader icon={Users} title="Synergy Analysis (Active)" />
-          {/* Only show synergy for active roster */}
-          <ChemistryMatrix players={activeRoster as any} synergyMatrix={teamData.synergyMatrix} />
+        <aside className="min-w-0 space-y-4">
+          <Panel title="Chemistry" padded={false} bodyClassName="p-2">
+            <ChemistryMatrix players={activeRoster as any} synergyMatrix={teamData.synergyMatrix} teamChemistry={teamData.chemistry} />
+          </Panel>
 
-            <div className="glass-panel p-6 border-white/5 bg-white/2 rounded-lg">
+          <Panel title="Team profile">
             <SynergyChart players={activeRoster as any} />
-          </div>
+          </Panel>
 
-
-
-          {/* Youth Academy */}
-            <div className="glass-panel p-6 border-white/5 bg-white/2 rounded-lg">
-            <SectionHeader
-              className="mb-6"
-              icon={Users}
-              title="Youth Academy"
-              subtitle="Developing the next generation"
-              actions={<Link href="/academy">
-                <Button variant="ghost" size="sm" className="h-8 text-[10px] font-normal uppercase text-primary hover:bg-primary/10 border border-primary/20">
-                  <ArrowUpRight size={12} className="mr-1" /> Manage
-                </Button>
-              </Link>}
-            />
-
-            <div className="space-y-3">
-              {academyPlayers && academyPlayers.length > 0 ? (
-                academyPlayers.map((ap: any) => {
-                  const prospect = players.find(p => p.id === ap.playerId)
+          <Panel
+            title="Academy"
+            actions={<Link href="/academy" className="inline-flex items-center gap-1 text-xs font-semibold text-ink-3 hover:text-gold">Manage <ArrowUpRight size={12} /></Link>}
+            padded={false}
+          >
+            {academyPlayers && academyPlayers.length > 0 ? (
+              <ul className="divide-y divide-line">
+                {academyPlayers.map((ap: any) => {
+                  const prospect = playerById.get(ap.playerId)
                   if (!prospect) return null
                   const rating = Math.round((prospect.skill + prospect.rifle + prospect.tactic + prospect.teamwork) / 4)
                   return (
-                    <PlayerCard
-                      key={ap.id}
-                      player={{
-                        id: prospect.id,
-                        nickname: prospect.nickname,
-                        portraitPath: prospect.portraitPath,
-                        role: prospect.role,
-                        nationality: prospect.nationality,
-                        overallRating: rating,
-                      }}
-                      size="sm"
-                      variant="compact"
-                      overlays={{ stats: true }}
-                      href={null}
-                    >
-                      <div className="absolute top-1/2 right-3 -translate-y-1/2 flex items-center gap-3 z-20">
-                        <div className="flex items-center gap-1 text-[8px] font-normal text-amber-400">
-                          <Star size={8} className="fill-amber-400" />
-                          <span>{prospect.potential || 80}+</span>
-                        </div>
-                        {ap.readyForPromotion && (
-                          <Button
-                            onClick={(e) => { e.stopPropagation(); setPromotingProspectId(ap.id) }}
-                            size="sm"
-                            className="h-8 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-[10px] font-normal uppercase px-2 shadow-xs"
-                          >
-                            <ArrowUpRight size={12} className="mr-1" /> Promote
-                          </Button>
-                        )}
+                    <li key={ap.id} className="flex items-center gap-3 px-4 py-2.5">
+                      <div className="h-8 w-8 shrink-0 overflow-hidden rounded bg-raised">
+                        <PlayerPortrait src={prospect.portraitPath} seed={prospect.id} alt={prospect.nickname} size={32} />
                       </div>
-                    </PlayerCard>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-ink-1">{prospect.nickname}</p>
+                        <p className="flex items-center gap-1 text-xs text-ink-3"><Star size={10} className="text-gold" /> Potential {prospect.potential || 80}+</p>
+                      </div>
+                      <RatingChip value={rating} size="sm" />
+                      {ap.readyForPromotion && (
+                        <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setPromotingProspectId(ap.id)}>Promote</Button>
+                      )}
+                    </li>
                   )
-                })
-              ) : (
-                <EmptyState
-                  title="No prospects in training"
-                  action={{ label: "Start Scouting", href: "/academy" }}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      </div >
+                })}
+              </ul>
+            ) : (
+              <div className="p-4"><EmptyState title="No prospects in training" action={{ label: "Open academy", href: "/academy" }} /></div>
+            )}
+          </Panel>
+        </aside>
+      </div>
 
-      {/* Trophy Cabinet (Moved to bottom) */}
-      < div className="pt-10 border-t border-white/5" >
-        <TrophyCabinet trophies={(teamData.trophies || []) as any} className="mb-8" />
-      </div >
+      <TrophyCabinet trophies={(teamData.trophies || []) as any} />
 
-      {/* Promotion Confirmation Modal */}
+      {/* Promotion confirmation */}
       <AnimatePresence>
         {promotingProspectId && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 top-16 bg-black/85 backdrop-blur-md z-modal flex items-center justify-center p-4"
+            className="fixed inset-0 z-modal flex items-center justify-center bg-[#040609]/80 p-4"
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.97, opacity: 0, y: 8 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              exit={{ scale: 0.97, opacity: 0, y: 8 }}
               ref={promoteDialogRef} tabIndex={-1}
               role="dialog"
               aria-modal="true"
               aria-labelledby="modal-title-promote-prospect"
-              className="glass-panel max-w-md w-full max-h-[calc(100dvh-6rem)] overflow-y-auto p-6 border-white/10 bg-white/5 relative rounded-xl"
+              className="max-h-[calc(100dvh-6rem)] w-full max-w-md overflow-y-auto rounded-[10px] border border-line-strong bg-panel p-6"
             >
-              <div className="absolute top-0 right-0 p-8 opacity-5">
-                <Users size={120} />
-              </div>
-
-              <div className="relative z-10 space-y-6">
+              <div className="space-y-5">
                 <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                    <CheckCircle2 size={32} className="text-emerald-400" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-positive/10">
+                    <CheckCircle2 size={26} className="text-positive" />
                   </div>
                   <div>
-                    <h2 id="modal-title-promote-prospect" className="text-xl font-normal uppercase tracking-tight text-white">Promote to Main Roster</h2>
-                    <p className="text-xs text-white/40 font-medium uppercase tracking-widest mt-1">Graduate Confirmation</p>
+                    <h2 id="modal-title-promote-prospect" className="font-display text-2xl font-bold uppercase text-ink-1">Promote to main roster</h2>
+                    <p className="text-xs text-ink-3">Graduate from the academy</p>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-white/40 uppercase font-bold tracking-widest">Base Salary</span>
-                    <span className="text-white font-normal">$2,000 / week</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-white/40 uppercase font-bold tracking-widest">Contract Length</span>
-                    <span className="text-white font-normal">104 Weeks (2 Years)</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-white/40 uppercase font-bold tracking-widest">Roster Slot</span>
-                    <span className="text-white font-normal">Bench / Reserve</span>
-                  </div>
-                </div>
+                <dl className="divide-y divide-line rounded-lg border border-line text-sm">
+                  <div className="flex justify-between px-4 py-2.5"><dt className="text-ink-3">Salary</dt><dd className="font-semibold text-ink-1">$2,000 / week</dd></div>
+                  <div className="flex justify-between px-4 py-2.5"><dt className="text-ink-3">Contract</dt><dd className="font-semibold text-ink-1">104 weeks (2 years)</dd></div>
+                  <div className="flex justify-between px-4 py-2.5"><dt className="text-ink-3">Roster slot</dt><dd className="font-semibold text-ink-1">Bench</dd></div>
+                </dl>
 
-                <div className="bg-emerald-500/5 border border-emerald-500/10 p-4 rounded-xl">
-                  <p className="text-[10px] text-emerald-400/70 font-medium leading-relaxed uppercase tracking-wider text-center">
-                    This player will be moved from the Youth Academy to your professional squad. Choose their place in your starting five after promotion. Tournament eligibility is checked separately.
-                  </p>
-                </div>
+                <p className="text-sm text-ink-2">
+                  The player moves from the academy to your professional squad. Choose their place in the starting five after promotion. Tournament eligibility is checked separately.
+                </p>
 
                 <div className="flex gap-3">
                   <Button
@@ -548,15 +424,11 @@ function SquadPageInner() {
                         setPromotingProspectId(null)
                       }
                     }}
-                    className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black font-normal uppercase tracking-widest text-xs h-11"
+                    className="h-11 flex-1"
                   >
-                    Confirm Promotion
+                    Confirm promotion
                   </Button>
-                  <Button
-                    onClick={() => setPromotingProspectId(null)}
-                    variant="ghost"
-                    className="flex-1 text-white/40 hover:text-white hover:bg-white/5 font-normal uppercase tracking-widest text-xs h-11 border border-white/5"
-                  >
+                  <Button onClick={() => setPromotingProspectId(null)} variant="outline" className="h-11 flex-1">
                     Cancel
                   </Button>
                 </div>
@@ -565,6 +437,6 @@ function SquadPageInner() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div >
+    </div>
   )
 }
