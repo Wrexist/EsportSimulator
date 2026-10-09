@@ -226,6 +226,9 @@ export class SimulationEngineV2 {
         const homeMentalPrep = !!match.mentalPrep && (!match.mentalPrepTeamId || match.mentalPrepTeamId === homeTeam.id)
         const awayMentalPrep = !!match.mentalPrep && match.mentalPrepTeamId === awayTeam.id
         const stress = (players: Player[]) => players.length > 0 ? players.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / players.length : 50
+        // Every team but the player's (managedTeamId as passed; none = both)
+        // gets implicit gear when it owns none: AI clubs never buy any.
+        const implicitGear = (team: Team) => team.id !== managedTeamId
 
         return {
             engine: this,
@@ -236,11 +239,11 @@ export class SimulationEngineV2 {
             mapStartingSides: match.mapStartingSides,
             home: {
                 team: homeTeam, players: activeHomePlayers, staff: hStaff, mapStrengths: homeMapStrengths, stressRes: stress(activeHomePlayers),
-                strength: this.calculateTeamStrength(homeTeam, activeHomePlayers, hStaff, homeMentalPrep, calculatePlaystyleCounterMod(homeTeam.playstyle, awayTeam.playstyle)),
+                strength: this.calculateTeamStrength(homeTeam, activeHomePlayers, hStaff, homeMentalPrep, calculatePlaystyleCounterMod(homeTeam.playstyle, awayTeam.playstyle), implicitGear(homeTeam)),
             },
             away: {
                 team: awayTeam, players: activeAwayPlayers, staff: aStaff, mapStrengths: awayMapStrengths, stressRes: stress(activeAwayPlayers),
-                strength: this.calculateTeamStrength(awayTeam, activeAwayPlayers, aStaff, awayMentalPrep, calculatePlaystyleCounterMod(awayTeam.playstyle, homeTeam.playstyle)),
+                strength: this.calculateTeamStrength(awayTeam, activeAwayPlayers, aStaff, awayMentalPrep, calculatePlaystyleCounterMod(awayTeam.playstyle, homeTeam.playstyle), implicitGear(awayTeam)),
             },
             isHighPressure: !!match.isHighPressure,
             matchStage: match.stage,
@@ -304,8 +307,9 @@ export class SimulationEngineV2 {
         staff: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
         mentalPrep?: boolean,
         counterMod?: number,
+        implicitGear?: boolean,
     ): number {
-        return calculateTeamStrengthFn(team, players, staff, mentalPrep, counterMod)
+        return calculateTeamStrengthFn(team, players, staff, mentalPrep, counterMod, implicitGear)
     }
 
     /**

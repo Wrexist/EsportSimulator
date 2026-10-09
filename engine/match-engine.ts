@@ -145,7 +145,9 @@ export class MatchEngine {
         homeTacticalBonus: number = 0,
         awayTacticalBonus: number = 0,
         homeTeamStaff?: StaffSaveData[],
-        awayTeamStaff?: StaffSaveData[]
+        awayTeamStaff?: StaffSaveData[],
+        /** The human player's team: it alone plays with only the gear it bought (AI clubs get implicit gear). */
+        playerTeamId?: string,
     ): MatchResult {
       try {
         // Delegate to SimulationEngineV2 for rich simulation (weapon tracking, economy, momentum)
@@ -206,7 +208,10 @@ export class MatchEngine {
             adaptedHomePlayers,
             adaptedAwayPlayers,
             homeStaff,
-            awayStaff
+            awayStaff,
+            undefined,
+            undefined,
+            playerTeamId,
         )
       } catch (error) {
         logger.error('[MatchEngine] simulateMatch failed', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })

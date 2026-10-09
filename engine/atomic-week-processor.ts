@@ -803,7 +803,8 @@ export class AtomicWeekProcessor {
                 0,
                 0,
                 homeTeamStaff,
-                awayTeamStaff
+                awayTeamStaff,
+                playerTeamId,
             )
 
             // Weapon-mastery XP aggregation + application extracted to

@@ -11,6 +11,7 @@
  */
 
 import { simulationEngineV2 } from "@/engine/match-simulation"
+import { EquipmentManager } from "@/engine/equipment-manager"
 import { SeededRNG } from "@/engine/rng"
 import type { Player, Team, Coach, Analyst, Psychologist } from "@/types"
 import { PlayerRole, StaffType } from "@/types/enums"
@@ -135,6 +136,26 @@ describe("calculateTeamStrength", () => {
         const equipped = simulationEngineV2.calculateTeamStrength(equippedTeam, players, {})
 
         expect(equipped).toBeGreaterThan(base)
+    })
+
+    test("gear is capped at +8% and AI clubs without gear get implicit, reputation-scaled gear", () => {
+        const slot = (type: string, value: number) => ({ id: type, type, tier: 3, name: type, bonus: { stat: "x", value }, weeklyCost: 0, purchasedWeek: 1 } as any)
+        const eliteSet = ["MOUSE", "KEYBOARD", "MONITOR", "HEADSET", "CHAIR"].map(t => slot(t, 8)).concat(slot("PC", 5))
+        expect(EquipmentManager.strengthBonus({ equipment: eliteSet })).toBeCloseTo(0.08, 6)
+        expect(EquipmentManager.strengthBonus({ equipment: eliteSet.map(e => ({ ...e, bonus: { stat: "x", value: 1e9 } })) })).toBeCloseTo(0.08, 6)
+        expect(EquipmentManager.implicitStrengthBonus({ reputation: 20 })).toBe(0)
+        expect(EquipmentManager.implicitStrengthBonus({ reputation: 98 })).toBeGreaterThan(EquipmentManager.implicitStrengthBonus({ reputation: 59 }))
+        expect(EquipmentManager.implicitStrengthBonus({ reputation: 100 })).toBeLessThan(EquipmentManager.STRENGTH_CAP)
+
+        const players = Array.from({ length: 5 }, (_, i) => makePlayer(`p${i}`))
+        const bare = makeTeam({ reputation: 90, equipment: [] } as any)
+        const player = simulationEngineV2.calculateTeamStrength(bare, players, {}, false, 1, false)
+        const aiClub = simulationEngineV2.calculateTeamStrength(bare, players, {}, false, 1, true)
+        const equipped = simulationEngineV2.calculateTeamStrength(makeTeam({ reputation: 90, equipment: eliteSet } as any), players, {}, false, 1, false)
+        expect(aiClub).toBeGreaterThan(player)        // AI parity
+        expect(equipped).toBeGreaterThan(aiClub)      // a full set still beats implicit gear
+        // Explicit gear always wins over the implicit estimate, even for an AI club.
+        expect(simulationEngineV2.calculateTeamStrength(makeTeam({ reputation: 90, equipment: eliteSet } as any), players, {}, false, 1, true)).toBeCloseTo(equipped, 6)
     })
 
     test("tacticalPrep boosts strength (up to +25% at 100% prep)", () => {

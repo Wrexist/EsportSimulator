@@ -55,6 +55,8 @@ export function calculateTeamStrength(
     mentalPrep?: boolean,
     /** Playstyle counter multiplier vs this opponent (calculatePlaystyleCounterMod); shares the non-player cap. */
     counterMod: number = 1,
+    /** AI club: with no gear on file, use reputation-scaled implicit gear (never for the player's team). */
+    implicitGear: boolean = false,
 ): number {
     if (players.length === 0) return 0
 
@@ -107,8 +109,12 @@ export function calculateTeamStrength(
     // Staff + playstyle counter, capped together (see NON_PLAYER_BONUS_CAP).
     const nonPlayerBonus = Math.min(NON_PLAYER_BONUS_CAP, staffStrengthBonus(staff) + (counterMod - 1))
 
-    // Each gear point contributes 1/80 strength; one bounded item per slot.
-    const equipMod = 1 + EquipmentManager.strengthBonus(team)
+    // Gear: one bounded item per slot, +8% for a full elite set. AI clubs own
+    // none in saves, so they get implicit reputation-scaled gear instead.
+    const ownsGear = EquipmentManager.activeEquipment(team).length > 0
+    const equipMod = 1 + (ownsGear || !implicitGear
+        ? EquipmentManager.strengthBonus(team)
+        : EquipmentManager.implicitStrengthBonus(team))
 
     // +2% per average facility level, capped at +10% (reached when every
     // facility hits the level-5 cap). The old /100 capped at +5% — half the
