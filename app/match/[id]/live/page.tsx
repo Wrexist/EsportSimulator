@@ -498,80 +498,96 @@ export default function LiveMatchPage() {
         </div>
     )
 
-    // Between-round decisions sit under the managed team's own roster, so the
-    // buy call is on screen (no scrolling) and never covers the radar.
+    // Between rounds the buy picker floats over the bottom of the radar (the
+    // widest column, always on screen; the finished round's positions matter
+    // less than the next call). Budget and the tactical timeout stay in a
+    // small card under the managed team's own roster.
     const choosingStrategy = isWaitingForStrategy && !isAutoTactics && gameState.status === "IN_PROGRESS"
+    const strategyPicker = (
+        <AnimatePresence>
+            {choosingStrategy && (
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    className="tactical-decisions absolute inset-x-3 bottom-12 z-20 rounded-xl border border-emerald-400/40 bg-[#0b1626]/95 p-3 shadow-2xl backdrop-blur-md"
+                >
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-2">
+                        {/* The round about to be played; gameState.round is the last one played (0 before the first). */}
+                        <h3 className="text-xl font-normal uppercase">Round {simState.currentRound} • Select Strategy</h3>
+                        <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
+                            Team Budget: {formatCurrency(ownBudget, "$", false)}
+                        </p>
+                    </div>
+                    {/* Arbitrary grid class: the premium skin folds `.grid-cols-5` to 3 columns on narrow screens. */}
+                    <div className="grid grid-cols-[repeat(5,minmax(0,1fr))] gap-2">
+                        {(() => {
+                            const avgCash = Math.floor(ownBudget / 5)
+                            const side = ownIsCT ? "ct" : "t"
+
+                            return STRATEGY_OPTIONS.map((strat) => {
+                                const cost = strat.cost
+                                const canAfford = avgCash >= cost
+
+                                return (
+                                    <div key={strat.id} className="relative group">
+                                        <Button
+                                            variant="secondary"
+                                            onClick={() => canAfford && startNextRound(strat.id as any)}
+                                            disabled={!canAfford}
+                                            className={cn(
+                                                "w-full h-16 rounded-2xl flex flex-col gap-1 border transition-all",
+                                                canAfford
+                                                    ? strat.baseColor + " hover:ring-2 hover:ring-emerald-500 hover:bg-emerald-500/10 hover:border-emerald-500/50"
+                                                    : "bg-white/5 text-white/20 border-white/5 cursor-not-allowed opacity-40"
+                                            )}
+                                        >
+                                            <span className="font-normal text-[11px] leading-tight text-center">{strat.fallback}</span>
+                                            <div className={cn("text-[10px] font-bold", canAfford ? "text-emerald-400" : "text-red-400")}>
+                                                {formatCurrency(cost, "$", false)}
+                                            </div>
+                                        </Button>
+                                        <button
+                                            aria-label={`Edit ${strat.fallback} loadout`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditingStrategy(strat.id as any);
+                                                setEditingSide(side as "ct" | "t");
+                                                setIsEditingLoadout(true);
+                                            }}
+                                            className="absolute top-2 right-2 p-1 rounded-lg bg-white/5 hover:bg-white/20 text-white/30 hover:text-white transition-colors"
+                                        >
+                                            <Settings2 className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                )
+                            })
+                        })()}
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    )
     const decisionsPanel = (
         <div className={cn(
-            "tactical-decisions glass-panel-dark rounded-xl p-4 flex flex-col gap-3 shrink-0 border transition-colors",
-            choosingStrategy ? "border-emerald-400/40 shadow-[0_0_0_1px_rgba(52,211,153,0.15)]" : "border-white/5"
+            "glass-panel-dark rounded-xl p-4 flex flex-col gap-3 shrink-0 border transition-colors",
+            choosingStrategy ? "border-emerald-400/40" : "border-white/5"
         )}>
-            <div className="flex items-start justify-between gap-3">
-                <div>
-                    {/* The round about to be played; gameState.round is the last one played (0 before the first). */}
-                    <h3 className="text-xl font-normal uppercase">
-                        {choosingStrategy ? `Round ${simState.currentRound} • Select Strategy` : "Your calls"}
-                    </h3>
-                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
-                        Team Budget: {formatCurrency(ownBudget, "$", false)}
-                    </p>
-                </div>
-            </div>
-            {/* STRATEGY PANEL */}
-            {choosingStrategy ? (
-                <div className="grid grid-cols-5 gap-2">
-                    {(() => {
-                        const avgCash = Math.floor(ownBudget / 5)
-                        const side = ownIsCT ? "ct" : "t"
-
-                        return STRATEGY_OPTIONS.map((strat) => {
-                            const cost = strat.cost
-                            const canAfford = avgCash >= cost
-
-                            return (
-                                <div key={strat.id} className="relative group">
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => canAfford && startNextRound(strat.id as any)}
-                                        disabled={!canAfford}
-                                        className={cn(
-                                            "w-full h-20 rounded-2xl flex flex-col gap-1 border transition-all",
-                                            canAfford
-                                                ? strat.baseColor + " hover:ring-2 hover:ring-emerald-500 hover:bg-emerald-500/10 hover:border-emerald-500/50"
-                                                : "bg-white/5 text-white/20 border-white/5 cursor-not-allowed opacity-40"
-                                        )}
-                                    >
-                                        <span className="font-normal text-[11px] leading-tight text-center">{strat.fallback}</span>
-                                        <div className={cn("text-[10px] font-bold", canAfford ? "text-emerald-400" : "text-red-400")}>
-                                            {formatCurrency(cost, "$", false)}
-                                        </div>
-                                    </Button>
-                                    <button
-                                        aria-label={`Edit ${strat.fallback} loadout`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setEditingStrategy(strat.id as any);
-                                            setEditingSide(side as "ct" | "t");
-                                            setIsEditingLoadout(true);
-                                        }}
-                                        className="absolute top-2 right-2 p-1 rounded-lg bg-white/5 hover:bg-white/20 text-white/30 hover:text-white transition-colors"
-                                    >
-                                        <Settings2 className="w-3 h-3" />
-                                    </button>
-                                </div>
-                            )
-                        })
-                    })()}
-                </div>
-            ) : (
-                <p className="text-xs text-slate-400">
-                    {gameState.status === "FINISHED"
-                        ? "The match is over."
-                        : isAutoTactics
-                            ? "Auto tactics is on: buys follow your economy plan."
-                            : "Your next buy call opens when this round ends."}
+            <div>
+                <h3 className="text-base font-semibold">Your calls</h3>
+                <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
+                    Team Budget: {formatCurrency(ownBudget, "$", false)}
                 </p>
-            )}
+            </div>
+            <p className="text-xs text-slate-400">
+                {gameState.status === "FINISHED"
+                    ? "The match is over."
+                    : isAutoTactics
+                        ? "Auto tactics is on: buys follow your economy plan."
+                        : choosingStrategy
+                            ? `Pick the buy for round ${simState.currentRound} on the radar panel.`
+                            : "Your next buy call opens when this round ends."}
+            </p>
 
             {/* Tactical Timeout (B5) — the live-only lever that gives
                 playing the match a real edge over quick-sim. */}
@@ -653,7 +669,7 @@ export default function LiveMatchPage() {
 
                     {/* CONSOLE / CENTER */}
                     <div className="match-command-center min-w-0 min-h-0 flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-stretch gap-2">
                             {gameState.status !== "FINISHED" && (
                                 <ConfirmDialog
                                     title="Leave the live match?"
@@ -664,10 +680,12 @@ export default function LiveMatchPage() {
                                 >
                                     <Button
                                         variant="ghost"
-                                        className="glass-panel-dark h-[52px] shrink-0 rounded-xl border border-white/10 px-3 text-xs font-bold uppercase tracking-wider text-white/80 hover:text-white hover:bg-white/10"
+                                        className="glass-panel-dark h-auto min-h-[52px] shrink-0 rounded-xl border border-white/10 px-3 text-xs font-bold uppercase tracking-wider text-white/80 hover:text-white hover:bg-white/10"
                                         title="Pause and go back to the match hub"
+                                        aria-label="Leave to the match hub"
                                     >
-                                        <ArrowLeft className="w-4 h-4 mr-1.5" aria-hidden="true" /> Match hub
+                                        {/* Text only where the centre column is wide enough. */}
+                                        <ArrowLeft className="w-4 h-4 2xl:mr-1.5" aria-hidden="true" /> <span className="hidden 2xl:inline">Match hub</span>
                                     </Button>
                                 </ConfirmDialog>
                             )}
@@ -703,6 +721,7 @@ export default function LiveMatchPage() {
                                 roundOver={roundOver}
                                 fillHeight
                             />
+                            {strategyPicker}
                         </div>
                     </div>
 

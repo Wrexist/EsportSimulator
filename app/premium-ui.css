@@ -112,8 +112,9 @@
 .scouting-table tr[data-selected=true] { background:rgba(81,124,164,.23); box-shadow:none; }
 .premium-app .live-command { background:transparent; padding:0; min-height:0; }
 .live-command > .live-command-inner { max-width:none; }
-/* Full-screen live match: the centre column is the radar (sized by height), side columns hold the rosters. */
-.live-match-grid { display:grid; grid-template-columns:minmax(220px,1fr) minmax(420px,940px) minmax(220px,1fr); gap:16px; align-items:stretch; }
+/* Full-screen live match: the centre column is the radar (a square sized by the
+   window height, so the column never grows wider than it), side columns hold the rosters. */
+.live-match-grid { display:grid; grid-template-columns:minmax(220px,1fr) minmax(420px,min(940px,calc(100dvh - 250px))) minmax(220px,1fr); gap:16px; align-items:stretch; }
 .live-match-grid > * { grid-column:auto; min-width:0; }
 .live-radar-stage { min-height:360px; }
 .match-roster { padding:12px; }
@@ -154,7 +155,7 @@
   .match-scoreboard .score-team-name { font-size:15px; }
   .match-scoreboard .score-team { gap:8px; }
   .match-scoreboard .score-core .text-6xl { font-size:42px; }
-  .live-match-grid { grid-template-columns:minmax(170px,.8fr) minmax(360px,1.8fr) minmax(170px,.8fr); gap:12px; }
+  .live-match-grid { grid-template-columns:minmax(170px,1fr) minmax(360px,min(940px,calc(100dvh - 230px))) minmax(170px,1fr); gap:12px; }
   .match-roster-row { flex-wrap:wrap; }
   .campus-scene { height:260px; }
   .campus-hotspot { padding:8px; font-size:12px; }
@@ -188,7 +189,8 @@ html.high-contrast .premium-atmosphere { display:none; }
 .premium-app .tactical-decisions [data-slot=button] { padding:8px 4px; min-width:0; }
 .premium-app .tactical-decisions [data-slot=button]:hover { box-shadow:none; }
 .live-command > [aria-hidden=true] { display:none; }
-.match-playback > div:last-child { flex-wrap:nowrap; }
+/* Controls wrap onto a second row when the radar column is narrow (small windows). */
+.match-playback > div:last-child { flex-wrap:wrap; justify-content:flex-end; row-gap:6px; }
 .match-playback [data-slot=button] { padding-left:6px; padding-right:6px; }
 @media(max-width:1350px) {
   .match-playback > div:first-child { display:none; }
