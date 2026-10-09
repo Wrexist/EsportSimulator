@@ -417,8 +417,10 @@ const nukeProjected = projectLayoutPoints(MapId.NUKE, nukeBase)
 const nuke: MapLayoutData = { ...nukeProjected, bounds: computeBounds(nukeProjected) }
 
 // ─── VERTIGO ───
-// T spawn: bottom area, CT spawn: upper area
-// A site: upper-left (orange), B site: center-right (orange, lower)
+// T spawn: bottom-left box (its room is drawn on both radar floors), CT spawn: top.
+// A site: upper-left (orange), B site: center-right (orange). Both bomb sites
+// are on the UPPER radar image (de_vertigo_radar_psd_1); the lower image only
+// holds the T-spawn floor, so Vertigo is not a lower-B map like Nuke.
 const vertigoBase = {
     tSpawn: stagger({ x: 35, y: 82 }, 3, 5),
     ctSpawn: stagger({ x: 50, y: 12 }, 3, 5),
@@ -430,7 +432,7 @@ const vertigoBase = {
         { x: 72, y: 55 },  // B site hold
     ],
     aSite: { x: 17, y: 20 },
-    bSite: { x: 72, y: 55 },  // lower level
+    bSite: { x: 72, y: 55 },  // upper radar image, same floor as A
     tToA: [
         { x: 35, y: 82 },
         { x: 30, y: 68 },
@@ -452,7 +454,6 @@ const vertigoBase = {
     engageA: { x: 25, y: 38 },
     engageB: { x: 58, y: 55 },
     mid: { x: 40, y: 42 },
-    bSiteLevel: "lower" as const,
 }
 const vertigoProjected = projectLayoutPoints(MapId.VERTIGO, vertigoBase)
 const vertigo: MapLayoutData = { ...vertigoProjected, bounds: computeBounds(vertigoProjected) }
@@ -461,8 +462,22 @@ const vertigo: MapLayoutData = { ...vertigoProjected, bounds: computeBounds(vert
 // data/map-layouts/*.json takes precedence — that's where /dev/map-builder
 // writes back to. The hard-coded blocks stay as a safety net so a deleted
 // JSON doesn't blank the radar.
-function fromJson(mapId: MapId, json: MapLayoutJson | undefined, fallback: MapLayoutData): MapLayoutData {
-    if (!json) return fallback
+/**
+ * Corrections to authored layout JSON that cannot be edited in place: those
+ * bytes are pinned by the owner's map-content confirmation
+ * (`npm run content:verify`). Vertigo's JSON marks B site as "lower", but both
+ * bomb sites are drawn on the UPPER overview (de_vertigo_radar_psd_1, orange
+ * boxes); the lower image only holds the T-spawn floor (see LEARNINGS.md,
+ * native map import). Treating B as lower hid every B-site round on the wrong
+ * floor.
+ */
+const LAYOUT_JSON_OVERRIDES: Partial<Record<MapId, Partial<MapLayoutJson>>> = {
+    [MapId.VERTIGO]: { bSiteLevel: undefined },
+}
+
+function fromJson(mapId: MapId, authored: MapLayoutJson | undefined, fallback: MapLayoutData): MapLayoutData {
+    if (!authored) return fallback
+    const json: MapLayoutJson = { ...authored, ...LAYOUT_JSON_OVERRIDES[mapId] }
     const base: Omit<MapLayoutData, "bounds" | "walls" | "namedRegions"> = {
         tSpawn: json.tSpawn,
         ctSpawn: json.ctSpawn,

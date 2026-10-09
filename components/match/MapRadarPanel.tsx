@@ -10,7 +10,7 @@ import type { RadarPlayerDot, RadarBombState, RadarKillLine, RadarSmoke } from "
 import type { Point } from "@/lib/map-radar-data"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { resolveAutoRadarLevel } from "@/lib/radar-level-selector"
-import { layoutRadarLabels, type RadarLabel } from "@/lib/radar-label-layout"
+import { layoutRadarLabels, RADAR_LABEL_BASELINE, RADAR_LABEL_FONT_SIZE, type RadarLabel } from "@/lib/radar-label-layout"
 
 function isFiniteCoord(value: unknown): value is number {
     return typeof value === "number" && Number.isFinite(value)
@@ -290,7 +290,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
     // Round phase label
     const roundPhase = (() => {
         if (bombState?.defused) return { label: "DEFUSED", color: "#5b9bd5" }
-        if (bombState?.exploded) return { label: "ELIMINATED", color: "#ef4444" }
+        if (bombState?.exploded) return { label: "BOMB EXPLODED", color: "#f97316" }
         if (bombState?.planted) return { label: "BOMB PLANTED", color: "#ef4444", pulse: true }
         if (positionSource === 'physical-replay') return { label: "REPLAY", color: "#c4d0e2" }
         if (currentTime != null && currentTime <= 3) return { label: "FREEZE TIME", color: "#60a5fa" }
@@ -358,11 +358,10 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                     <motion.div
                                         key={`${currentMapId}-${resolvedRadarLevel}`}
                                         initial={{ opacity: 0 }}
-                                        animate={{ opacity: 0.9 }}
+                                        animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.3 }}
                                         className="absolute inset-0 rounded-lg overflow-hidden ring-1 ring-white/10"
-                                        style={{ filter: "brightness(1.18) contrast(1.08) saturate(0.65)" }}
                                     >
                                         <Image
                                             src={radarSrc}
@@ -393,37 +392,27 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                         </filter>
                                     </defs>
 
-                                    {/* Site Labels (A / B) — subtle background markers */}
-                                    {safeSitePositions && (
-                                        <>
-                                            <text
-                                                x={safeSitePositions.a.x}
-                                                y={safeSitePositions.a.y}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                                fontSize="5"
-                                                fill="white"
-                                                opacity="0.12"
-                                                fontWeight="bold"
-                                                fontFamily="sans-serif"
-                                            >
-                                                A
-                                            </text>
-                                            <text
-                                                x={safeSitePositions.b.x}
-                                                y={safeSitePositions.b.y}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                                fontSize="5"
-                                                fill="white"
-                                                opacity="0.12"
-                                                fontWeight="bold"
-                                                fontFamily="sans-serif"
-                                            >
-                                                B
-                                            </text>
-                                        </>
-                                    )}
+                                    {/* Site Labels (A / B) — readable, outlined so they sit on any radar art */}
+                                    {safeSitePositions && (["a", "b"] as const).map(site => (
+                                        <text
+                                            key={site}
+                                            x={safeSitePositions[site].x}
+                                            y={safeSitePositions[site].y}
+                                            textAnchor="middle"
+                                            dominantBaseline="middle"
+                                            fontSize="5"
+                                            fill="#f8fafc"
+                                            stroke="#0b1220"
+                                            strokeWidth="0.8"
+                                            paintOrder="stroke"
+                                            opacity="0.7"
+                                            fontWeight="bold"
+                                            fontFamily="sans-serif"
+                                            data-site-label={site}
+                                        >
+                                            {site.toUpperCase()}
+                                        </text>
+                                    ))}
 
                                     {/* Smoke clouds — opacity precomputed in smokeRenderState. */}
                                     {smokeRenderState.map(({ smoke, opacity }, idx) => (
@@ -592,33 +581,26 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
 
                                     {/* Player dots */}
                                     {visibleDots.map(dot => {
-                                        const isDeadRecently = !dot.isAlive
-                                            && dot.deathTime !== undefined
-                                            && currentTime !== undefined
-                                            && (currentTime - dot.deathTime) < 4
-
-                                        if (!dot.isAlive && !isDeadRecently) return null
-
                                         const ctColor = "#5b9bd5"
                                         const tColor = "#e8a838"
                                         const color = dot.side === "ct" ? ctColor : tColor
                                         const label = labels.get(dot.playerId)
 
-                                        // Dead player X marker
-                                        if (!dot.isAlive && isDeadRecently) {
-                                            const elapsed = (currentTime ?? 0) - (dot.deathTime ?? 0)
-                                            const fadeOpacity = Math.max(0, 1 - elapsed / 4)
+                                        // Dead player X marker in the victim's side colour. It stays
+                                        // for the rest of the round (fresh deaths flash, then settle).
+                                        if (!dot.isAlive) {
+                                            if (dot.deathTime === undefined || currentTime === undefined || currentTime < dot.deathTime) return null
+                                            const elapsed = currentTime - dot.deathTime
+                                            const markerOpacity = elapsed < 2 ? 1 - elapsed * 0.15 : 0.7
                                             return (
-                                                <g key={dot.playerId} opacity={fadeOpacity}>
-                                                    <line
-                                                        x1={dot.x - 1.5} y1={dot.y - 1.5}
-                                                        x2={dot.x + 1.5} y2={dot.y + 1.5}
-                                                        stroke="#ff3333" strokeWidth="0.7"
+                                                <g key={dot.playerId} opacity={markerOpacity} data-death-marker={dot.playerId}>
+                                                    <path
+                                                        d={`M ${dot.x - 1.3} ${dot.y - 1.3} L ${dot.x + 1.3} ${dot.y + 1.3} M ${dot.x + 1.3} ${dot.y - 1.3} L ${dot.x - 1.3} ${dot.y + 1.3}`}
+                                                        stroke="#0b1220" strokeWidth="1.1" strokeLinecap="round"
                                                     />
-                                                    <line
-                                                        x1={dot.x + 1.5} y1={dot.y - 1.5}
-                                                        x2={dot.x - 1.5} y2={dot.y + 1.5}
-                                                        stroke="#ff3333" strokeWidth="0.7"
+                                                    <path
+                                                        d={`M ${dot.x - 1.3} ${dot.y - 1.3} L ${dot.x + 1.3} ${dot.y + 1.3} M ${dot.x + 1.3} ${dot.y - 1.3} L ${dot.x - 1.3} ${dot.y + 1.3}`}
+                                                        stroke={color} strokeWidth="0.55" strokeLinecap="round"
                                                     />
                                                 </g>
                                             )
@@ -666,12 +648,15 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                                             />
                                                         )}
                                                         {showNames && label && <g>
-                                                        <line x1={dot.x} y1={dot.y} x2={label.x + label.width / 2} y2={label.y + label.height / 2} stroke={color} strokeWidth=".2" opacity=".4" />
-                                                        <rect x={label.x} y={label.y} width={label.width} height={label.height} rx=".8" fill="#0d1a2d" opacity=".9" />
+                                                        {/* Leader line only when collision avoidance pushed the name away. */}
+                                                        {Math.hypot(label.x + label.width / 2 - dot.x, label.y + label.height / 2 - dot.y) > label.width / 2 + 4 && (
+                                                            <line x1={dot.x} y1={dot.y} x2={label.x + label.width / 2} y2={label.y + label.height / 2} stroke={color} strokeWidth=".2" opacity=".5" />
+                                                        )}
+                                                        <rect x={label.x} y={label.y} width={label.width} height={label.height} rx=".7" fill="#0d1a2d" opacity=".85" />
                                                         <text
-                                                            x={label.x + .8}
-                                                            y={label.y + 3}
-                                                            fontSize="2.6"
+                                                            x={label.x + .7}
+                                                            y={label.y + RADAR_LABEL_BASELINE}
+                                                            fontSize={RADAR_LABEL_FONT_SIZE}
                                                             fill="white"
                                                             stroke="#0b1220" strokeWidth="0.7" paintOrder="stroke"
                                                             opacity={0.95}

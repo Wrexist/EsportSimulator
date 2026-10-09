@@ -619,6 +619,19 @@ function simulatePlayersAtTime(
     return allStates
 }
 
+export interface RadarComputeOptions {
+    /**
+     * Per-round snapshot cache keyed by game time. Every snapshot re-simulates
+     * the round from t=0, so live playback shares one cache across ticks: the
+     * look-ahead frame computed this tick is next tick's current frame, and a
+     * kill-line snapshot is simulated once per kill. The caller must use a
+     * fresh map whenever the map, round, events, sides, seed or player list
+     * (ids / dead-without-kill) change. Cached dots keep the `money` they were
+     * first computed with.
+     */
+    dotCache?: Map<number, RadarPlayerDot[]>
+}
+
 export function computeRadarPositions(
     mapId: MapId,
     currentTime: number,
@@ -627,7 +640,8 @@ export function computeRadarPositions(
     awayPlayers: PlayerInput[],
     homeStartsCT: boolean,
     roundNumber: number,
-    matchSeed: number
+    matchSeed: number,
+    options: RadarComputeOptions = {},
 ): { dots: RadarPlayerDot[]; bomb: RadarBombState; killLines: RadarKillLine[]; smokes: RadarSmoke[]; aSite: Point; bSite: Point } {
     const layout = MAP_LAYOUTS[mapId]
     if (!layout) {
@@ -681,7 +695,7 @@ export function computeRadarPositions(
         isDualLevel,
     }
 
-    const dotCache = new Map<number, RadarPlayerDot[]>()
+    const dotCache = options.dotCache ?? new Map<number, RadarPlayerDot[]>()
     const buildDotsAtTime = (targetTime: number): RadarPlayerDot[] => {
         const safeTime = Math.max(0, finiteNumber(targetTime, 0))
         const cacheKey = Math.round(safeTime * 100) / 100
@@ -695,8 +709,9 @@ export function computeRadarPositions(
         const dots: RadarPlayerDot[] = []
         for (const state of finalStates) {
             const aliveByEvents = state.deathTime === undefined || safeTime < state.deathTime
+            // Dead players stay in the list for the rest of the round so the
+            // radar can keep their death marker (it used to vanish after 4 s).
             const isAlive = state.staticDead ? false : aliveByEvents
-            if (!isAlive && state.deathTime !== undefined && safeTime - state.deathTime > 4) continue
 
             const level = state.level || "upper"
             const projectedPos = projectPoint(mapId, level, state.pos)

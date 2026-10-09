@@ -19,8 +19,8 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { CustomTactics, MapId, Team } from "@/types"
-import { computeRadarPositions } from "@/lib/radar-position-engine"
+import { CustomTactics, LivePlayerState, MapId, MatchEvent, Team } from "@/types"
+import { computeRadarPositions, type RadarPlayerDot } from "@/lib/radar-position-engine"
 import { MAP_NAMES, getMapAssetName } from "@/data/map-pool"
 
 import { formatCurrency } from "@/lib/utils-extended"
@@ -357,40 +357,38 @@ export default function LiveMatchPage() {
             + "#" + awayRoster.map(p => `${p.id}:${p.isDead ? 1 : 0}:${p.money}`).join("|")
     }, [homeRoster, awayRoster])
 
-    const radarData = useMemo(() => {
+    // Every radar snapshot re-simulates the round from t=0, so the snapshots
+    // are cached per round: the look-ahead frame computed on this tick is the
+    // current frame on the next one, and each kill-line snapshot is simulated
+    // once. Net cost is about one simulation per tick instead of two plus two
+    // per recent kill. A new round, map, side or player list starts a new cache.
+    const radarCacheRef = useRef<{ key: string; events: MatchEvent[] | null; dots: Map<number, RadarPlayerDot[]> }>({ key: "", events: null, dots: new Map() })
+    const radarFrames = useMemo(() => {
         if (!simState || !matchData.current || gameState.time < 0) return null
-        return computeRadarPositions(
-            currentMapId as MapId,
-            gameState.time,
-            currentRoundEvents.current,
-            homeRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            awayRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            roundHomeIsCT,
-            gameState.round,
-            matchData.current.match.seed ?? 0
-        )
+        const events = currentRoundEvents.current
+        const victims = new Set(events.filter(e => e.type === "KILL").map(e => e.victimId))
+        // Only "dead without a kill event" changes positions; a kill's victim is
+        // already timed from the event, so a death mid-round keeps the cache.
+        const toInput = (p: LivePlayerState) => ({ id: p.id, isDead: p.isDead && !victims.has(p.id), nickname: p.name, money: p.money })
+        const home = homeRoster.map(toInput), away = awayRoster.map(toInput)
+        const seed = matchData.current.match.seed ?? 0
+        const key = [currentMapId, gameState.round, seed, roundHomeIsCT, ...home.map(p => `${p.id}${p.isDead ? "!" : ""}`), "|", ...away.map(p => `${p.id}${p.isDead ? "!" : ""}`)].join(",")
+        if (radarCacheRef.current.key !== key || radarCacheRef.current.events !== events) {
+            radarCacheRef.current = { key, events, dots: new Map() }
+        }
+        const options = { dotCache: radarCacheRef.current.dots }
+        const now = computeRadarPositions(currentMapId as MapId, gameState.time, events, home, away, roundHomeIsCT, gameState.round, seed, options)
+        // Positions one game-second ahead: the radar glides toward them over the tick.
+        const next = computeRadarPositions(currentMapId as MapId, gameState.time + 1, events, home, away, roundHomeIsCT, gameState.round, seed, options)
+        // Cached dots keep the money they were first computed with; refresh the eco ring.
+        const money = new Map([...home, ...away].map(p => [p.id, p.money]))
+        return { now: { ...now, dots: now.dots.map(dot => ({ ...dot, money: money.get(dot.playerId) ?? dot.money })) }, next }
         // Intentionally depend on rosterFingerprint instead of the array
         // refs so an unchanged roster (most ticks) skips the recompute.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameState.time, gameState.round, currentMapId, simState, roundHomeIsCT, matchData, currentRoundEvents, rosterFingerprint])
-
-    // Positions one game-second ahead. The playback clock ticks once per
-    // game-second, so the radar glides from `radarData` toward this snapshot
-    // over the tick instead of jumping on each tick.
-    const nextRadarData = useMemo(() => {
-        if (!simState || !matchData.current || gameState.time < 0) return null
-        return computeRadarPositions(
-            currentMapId as MapId,
-            gameState.time + 1,
-            currentRoundEvents.current,
-            homeRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            awayRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            roundHomeIsCT,
-            gameState.round,
-            matchData.current.match.seed ?? 0
-        )
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gameState.time, gameState.round, currentMapId, simState, roundHomeIsCT, matchData, currentRoundEvents, rosterFingerprint])
+    const radarData = radarFrames?.now ?? null
+    const nextRadarData = radarFrames?.next ?? null
 
     // Build O(1) lookup maps for original players (used in roster rendering)
     const originalHomeMap = useMemo(() => new Map((originalHomePlayers || []).map(p => [p.id, p])), [originalHomePlayers])
@@ -398,13 +396,12 @@ export default function LiveMatchPage() {
 
     // Stabilize sitePositions identity: `{ a, b }` was being re-created inline in
     // the MapRadarPanel JSX on every parent render, which busts MapRadarPanel's
-    // React.memo. Now it only gets a new object when a/b actually change.
-    // Deps are deliberately narrowed to the two fields we read rather than
-    // the whole radarData object (which mutates more frequently).
+    // React.memo. Keyed on the coordinates (the engine returns fresh point
+    // objects every tick) so it only changes when a site actually moves.
+    const aX = radarData?.aSite.x, aY = radarData?.aSite.y, bX = radarData?.bSite.x, bY = radarData?.bSite.y
     const sitePositions = useMemo(
-        () => (radarData ? { a: radarData.aSite, b: radarData.bSite } : undefined),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [radarData?.aSite, radarData?.bSite]
+        () => (aX != null && aY != null && bX != null && bY != null ? { a: { x: aX, y: aY }, b: { x: bX, y: bY } } : undefined),
+        [aX, aY, bX, bY]
     )
 
     // Background lives in a fixed-position layer so it stays viewport-sized.
