@@ -181,6 +181,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     const isMainMenu = pathname === "/main-menu"
     const isDesktop = pathname === "/desktop"
     const hideChrome = isNewGame || isMainMenu || pathname === "/map-editor" || pathname?.startsWith("/map-editor/")
+    // Match screens (veto, tactics, live, result) own the whole view: the
+    // onboarding checklist would sit on top of the result headline.
+    const isMatchRoute = pathname?.startsWith("/match/") ?? false
 
     const viewCareerId = useGameStore(state => state.saveId)
     const mainScrollRef = useRouteScroll(viewCareerId, pathname, !hideChrome && !isDesktop)
@@ -336,7 +339,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                         className={hideChrome || isDesktop ? "" : "game-page px-4 py-4 lg:px-6 lg:py-5 pb-8 max-w-[1600px] mx-auto w-full"}
                     >
                         <ErrorBoundary>
-                            {!hideChrome && <TutorialOverlay />}
+                            {!hideChrome && !isMatchRoute && <TutorialOverlay />}
                             {children}
                         </ErrorBoundary>
                     </div>
