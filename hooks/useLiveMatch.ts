@@ -673,11 +673,23 @@ export function useLiveMatch(id: string) {
     }, [simState, originalHomePlayers, originalAwayPlayers, queueRoundStart, playerTeam])
 
     // --- GAME LOOP ---
+    // Ticks are scheduled against a fixed clock rather than "1000/speed after
+    // the last render", so render time does not stretch every tick: at 8x
+    // the old loop only managed ~6 game seconds per second.
+    const nextTickAtRef = useRef(0)
     useEffect(() => {
-        if (gameState.status !== "IN_PROGRESS" || gameState.isPaused || !isPlaying || isWaitingForStrategy) return
+        if (gameState.status !== "IN_PROGRESS" || gameState.isPaused || !isPlaying || isWaitingForStrategy) {
+            nextTickAtRef.current = 0
+            return
+        }
 
-        const delay = 1000 / speed
+        const interval = 1000 / speed
+        const now = performance.now()
+        // Fresh start, resume, or a long stall: restart the clock instead of bursting.
+        if (!nextTickAtRef.current || nextTickAtRef.current < now - interval || nextTickAtRef.current > now + interval) nextTickAtRef.current = now + interval
+        const delay = Math.max(0, nextTickAtRef.current - now)
         const timer = window.setTimeout(() => {
+            nextTickAtRef.current += interval
             const nextTime = gameState.time + 1
             if (isBombPlanted) setBombTime(prev => Math.max(0, prev - 1))
             else setRoundTime(prev => Math.max(0, prev - 1))
