@@ -20,18 +20,18 @@ const hue = {
   slate100: '222 20% 94%',
   white: '0 0% 100%',
 
-  brand: '190 95% 55%',      // cyan / electric teal
-  brandDeep: '200 100% 45%',
-  accent: '280 85% 65%',     // magenta / purple
-  warning: '38 95% 58%',
-  danger: '356 78% 58%',
-  success: '150 70% 48%',
-  info: '210 90% 60%',
+  brand: '40 88% 59%',       // trophy gold (#F2B53A)
+  brandDeep: '40 100% 68%',  // gold hover (#FFC85C)
+  accent: '213 100% 68%',    // CT / info blue (#5AA9FF)
+  warning: '23 100% 62%',    // caution / T side (#FF8A3D)
+  danger: '352 100% 66%',    // negative (#FF5468)
+  success: '151 65% 54%',    // positive (#3DD68C)
+  info: '213 100% 68%',
 
   // Esports-specific
-  win: '150 70% 48%',
-  loss: '356 78% 58%',
-  draw: '38 85% 55%',
+  win: '151 65% 54%',
+  loss: '352 100% 66%',
+  draw: '216 10% 55%',
 
   // Tier hues (ascending prestige)
   tierRookie: '210 15% 60%',
@@ -96,6 +96,27 @@ export const colors = {
 
   // Game-type palette (single-game today: CS2; keyed for future expansion)
   'game-cs2': `hsl(${hue.warning})`,
+
+  // ── Design system v2: "Broadcast Graphite + Trophy Gold" ──────────────
+  // Solid surfaces, 1px lines, gold for the one thing that matters on screen
+  // (primary action, selection, trophies, 90+ ratings) — keep it under ~5%.
+  ink: '#07090C',
+  shell: '#0D1015',
+  panel: '#12161C',
+  raised: '#181D25',
+  hover: '#212833',
+  line: 'rgb(255 255 255 / 0.07)',
+  'line-strong': 'rgb(255 255 255 / 0.14)',
+  'ink-1': '#F2F4F7',
+  'ink-2': '#AEB6C2',
+  'ink-3': '#808A99',
+  gold: { DEFAULT: '#F2B53A', hover: '#FFC85C', on: '#15100A' },
+  positive: '#3DD68C',
+  negative: '#FF5468',
+  caution: '#FF8A3D',
+  ct: '#5AA9FF',
+  t: '#FF8A3D',
+  rating: { low: '#808A99', mid: '#D5DAE1', good: '#8FE3B5', high: '#3DD68C', elite: '#F2B53A' },
 } as const
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -117,11 +138,15 @@ export const spacing = {
 // Radius
 // ────────────────────────────────────────────────────────────────────────────
 
+// v2: crisp, broadcast-style corners. Tags 2-3px, controls 4px, panels 6-8px,
+// heroes and modals 10px — nothing pill-soft except avatars (full).
 export const radius = {
-  sm: '4px',
-  md: '8px',
-  lg: '12px',
-  xl: '20px',
+  sm: '3px',
+  md: '4px',
+  lg: '6px',
+  xl: '8px',
+  '2xl': '10px',
+  '3xl': '12px',
   full: '9999px',
 } as const
 
@@ -152,8 +177,9 @@ export const fontWeight = {
 } as const
 
 export const fontFamily: Record<string, string[]> = {
-  sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-  display: ['var(--font-archivo)', 'ui-sans-serif', 'sans-serif'],
+  // Families are declared in app/fonts.css (self-hosted, SIL OFL).
+  sans: ['"Inter Variable"', '"Segoe UI"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  display: ['"Barlow Condensed"', '"Arial Narrow"', '"Segoe UI"', 'sans-serif'],
   mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
 }
 

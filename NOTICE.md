@@ -42,10 +42,15 @@ in this release; Map Studio ships only radar outlines and project-authored
 markings. The project owner confirmed authorization to use the imported map assets; this statement
 does not assert Valve endorsement or transfer ownership of those assets.
 
-Archivo Black is used as a display font; its SIL Open Font License is retained
-in `licenses/Archivo-Black-OFL.txt`. The bundled font binary was matched to
-@fontsource/archivo-black 5.3.0. Barlow Condensed is used in the approved branding
-exports; its license is retained in `licenses/Barlow-OFL.txt`.
+Inter is the UI font; its SIL Open Font License is retained in
+`licenses/Inter-OFL.txt`. The bundled variable woff2 files (latin, latin-ext)
+were matched to @fontsource-variable/inter 5.3.0. Barlow Condensed is the display
+font in the game UI and in the approved branding exports; its license is retained
+in `licenses/Barlow-OFL.txt`. The bundled woff2 files (600/700/800, latin and
+latin-ext, 700 italic latin) were matched to @fontsource/barlow-condensed 5.3.0.
+Archivo Black was the previous display font; its SIL Open Font License is
+retained in `licenses/Archivo-Black-OFL.txt` (matched to @fontsource/archivo-black
+5.3.0).
 
 Country flag SVGs are supplied by Flagpedia.net / Flagcdn.com. The supplier
 declares these flag images public domain and permits commercial use:
