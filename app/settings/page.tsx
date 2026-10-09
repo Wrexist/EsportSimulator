@@ -355,9 +355,11 @@ export default function SettingsPage() {
           <p className="text-sm text-muted-foreground font-medium">Manage preferences and track achievements</p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <Link href="/map-editor" className="inline-flex h-10 items-center rounded-xl border border-white/10 bg-white/5 px-4 text-sm hover:bg-white/10">
-            <Crosshair className="mr-2 h-4 w-4" /> Map Studio
-          </Link>
+          {devToolsEnabled && (
+            <Link href="/map-editor" className="inline-flex h-10 items-center rounded-xl border border-white/10 bg-white/5 px-4 text-sm hover:bg-white/10">
+              <Crosshair className="mr-2 h-4 w-4" /> Map Studio
+            </Link>
+          )}
           <Link href="/main-menu">
             <Button variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10">
               <Home className="mr-2 h-4 w-4" /> Main Menu
