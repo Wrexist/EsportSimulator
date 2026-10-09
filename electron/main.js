@@ -26,7 +26,11 @@ if (!gotTheLock) {
 const gpuCrashFlagPath = path.join(app.getPath('userData'), 'gpu-crash-flag');
 const hadGpuCrash = (() => { try { return fs.existsSync(containedPath(app.getPath('userData'), 'gpu-crash-flag', true)); } catch (_) { return false; } })();
 const forceStabilityMode = process.env.ESM_STABILITY_MODE === '1';
-const STABILITY_MODE = forceStabilityMode || hadGpuCrash;
+// GPU rendering is opt-in (Settings > Performance writes 'gpu-mode'). Launched
+// from Steam with GPU compositing, the window stayed blank while the page
+// loaded fine (Steam review of build 25538898, reproduced on 25760136).
+const gpuOptIn = (() => { try { return fs.readFileSync(containedPath(app.getPath('userData'), 'gpu-mode', true), 'utf8').trim() === 'performance'; } catch (_) { return false; } })();
+const STABILITY_MODE = forceStabilityMode || hadGpuCrash || !gpuOptIn;
 // Sandbox every renderer, including any created outside createWindow().
 app.enableSandbox();
 if (STABILITY_MODE) {
@@ -434,9 +438,11 @@ handleApp('gpu-get-mode', () => {
 
 handleApp('gpu-set-mode', (_event, mode) => {
     try {
+        const gpuModePath = containedPath(app.getPath('userData'), 'gpu-mode', true);
         if (mode === 'compatibility') {
-            writeAtomic(app.getPath('userData'), 'gpu-crash-flag', 'user-requested');
+            if (fs.existsSync(gpuModePath)) fs.unlinkSync(gpuModePath);
         } else if (mode === 'performance') {
+            writeAtomic(app.getPath('userData'), 'gpu-mode', 'performance');
             containedPath(app.getPath('userData'), 'gpu-crash-flag', true);
             if (fs.existsSync(gpuCrashFlagPath)) fs.unlinkSync(gpuCrashFlagPath);
         }

@@ -62,7 +62,7 @@ export const useSettingsStore = create<GameSettings>()(
             // Default values
             windowMode: 'windowed',
             resolution: '1280x720',
-            renderingMode: 'performance',
+            renderingMode: 'compatibility',
             colorVisionMode: 'off',
             colorVisionPreferenceSet: false,
             setColorVisionMode: mode => set({ colorVisionMode: normalizeColorVision(mode), colorVisionPreferenceSet: true }),
@@ -190,7 +190,7 @@ export const useSettingsStore = create<GameSettings>()(
                     ...current,
                     windowMode: ['windowed', 'fullscreen', 'borderless'].includes(stored?.windowMode ?? '') ? stored!.windowMode! : current.windowMode,
                     resolution: ['1920x1080', '1600x900', '1280x720', '1024x768'].includes(stored?.resolution ?? '') ? stored!.resolution! : current.resolution,
-                    renderingMode: stored?.renderingMode === 'compatibility' ? 'compatibility' : 'performance',
+                    renderingMode: stored?.renderingMode === 'performance' ? 'performance' : 'compatibility',
                     reducedMotion: typeof stored?.reducedMotion === 'boolean' ? stored.reducedMotion : current.reducedMotion,
                     autoSave: typeof stored?.autoSave === 'boolean' ? stored.autoSave : current.autoSave,
                     autoSaveInterval: typeof stored?.autoSaveInterval === 'number' && Number.isFinite(stored.autoSaveInterval) ? Math.max(1, Math.min(30, stored.autoSaveInterval)) : 10,

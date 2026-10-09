@@ -2,7 +2,7 @@
 
 import { useFocusTrap } from "@/lib/accessibility"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Monitor, Volume2, Gamepad2, Keyboard, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -60,8 +60,8 @@ const DIFFICULTIES: { value: Difficulty; label: string; desc: string }[] = [
 ]
 
 const RENDERING_MODES: { value: RenderingMode; label: string; desc: string }[] = [
-    { value: 'performance', label: 'Performance', desc: 'GPU-accelerated rendering' },
-    { value: 'compatibility', label: 'Compatibility', desc: 'Software rendering (use if experiencing crashes)' },
+    { value: 'performance', label: 'Performance', desc: 'GPU-accelerated rendering. Restart to apply; switch back if the window stays blank' },
+    { value: 'compatibility', label: 'Compatibility', desc: 'Software rendering (default). Restart to apply' },
 ]
 
 const SHORTCUT_GROUPS = [
@@ -207,6 +207,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
 // Display Settings Tab
 function DisplaySettings({ settings }: { settings: ReturnType<typeof useSettingsStore.getState> }) {
+    // Show the mode the desktop app is actually running in, not a stale stored choice.
+    useEffect(() => {
+        const gpu = (window as any).electron?.gpu
+        gpu?.getMode?.().then((mode: RenderingMode) => useSettingsStore.setState({ renderingMode: mode })).catch(() => {})
+    }, [])
     return (
         <div className="space-y-6">
             <SettingRow label="Window Mode">
