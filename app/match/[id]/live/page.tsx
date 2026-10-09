@@ -295,6 +295,7 @@ export default function LiveMatchPage() {
         setIsAutoTactics,
         isPlaying,
         togglePlayback,
+        setIsPlaying,
         speed,
         setSpeed,
         isWaitingForStrategy,
@@ -683,6 +684,8 @@ export default function LiveMatchPage() {
                                         className="glass-panel-dark h-auto min-h-[52px] shrink-0 rounded-xl border border-white/10 px-3 text-xs font-bold uppercase tracking-wider text-white/80 hover:text-white hover:bg-white/10"
                                         title="Pause and go back to the match hub"
                                         aria-label="Leave to the match hub"
+                                        // Pause while deciding: the round would otherwise play on (or end) behind the dialog.
+                                        onClick={() => setIsPlaying(false)}
                                     >
                                         {/* Text only where the centre column is wide enough. */}
                                         <ArrowLeft className="w-4 h-4 2xl:mr-1.5" aria-hidden="true" /> <span className="hidden 2xl:inline">Match hub</span>
