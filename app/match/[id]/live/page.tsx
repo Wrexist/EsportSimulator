@@ -25,6 +25,7 @@ import { computeRadarPositions, type RadarPlayerDot } from "@/lib/radar-position
 import { MAP_NAMES, getMapAssetName } from "@/data/map-pool"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { REGROUP_EDGE, REGROUP_MIN_LOSS_STREAK } from "@/engine/match/manager-controls"
 // Weapon-id → icon path. The mapping object is hoisted so it isn't allocated
 // on every call, and resolved paths are memoized in a module-level cache so
 // the log list doesn't recompute the same string per row per render tick.
@@ -596,7 +597,7 @@ export default function LiveMatchPage() {
                 <button
                     onClick={callTimeout}
                     disabled={timeoutsRemaining <= 0 || timeoutActive || !isWaitingForStrategy || gameState.status !== "IN_PROGRESS"}
-                    title="Between rounds only: regroup — reduces your losing-streak pressure for 2 rounds. Two per series; no benefit without a losing streak."
+                    title={`Between rounds only: regroup — +${REGROUP_EDGE * 100}% round-win chance for 2 rounds while you have lost ${REGROUP_MIN_LOSS_STREAK}+ in a row. Two per series; no benefit without a losing streak.`}
                     className="px-4 py-2 rounded-lg border border-amber-400/30 bg-amber-500/10 text-amber-300 text-[11px] font-bold uppercase tracking-wider hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                     Tactical Timeout ({timeoutsRemaining})
@@ -606,7 +607,7 @@ export default function LiveMatchPage() {
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> Regrouping — pressure relief active
                     </span>
                 ) : (
-                    <p className="text-xs text-slate-400 max-w-[240px]">Between rounds. Relieves losing-streak pressure for two rounds.</p>
+                    <p className="text-xs text-slate-400 max-w-[240px]">Between rounds. +{REGROUP_EDGE * 100}% round-win chance for two rounds after {REGROUP_MIN_LOSS_STREAK}+ losses in a row.</p>
                 )}
             </div>
         </div>
