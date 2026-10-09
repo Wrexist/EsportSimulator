@@ -1039,11 +1039,25 @@ body{background:#080a0e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFo
                 scheduleRetry('did-fail-load');
             }
         });
+        // A server error page still fires did-finish-load, which would count as a
+        // successful boot and leave a blank window. Retry 5xx until the boot
+        // deadline, then show the error page.
+        let lastHttpStatus = 0;
+        mainWindow.webContents.on('did-navigate', (_event, url, httpResponseCode) => {
+            if (!isSuccessfulRendererUrl(url)) return;
+            lastHttpStatus = httpResponseCode;
+            if (httpResponseCode >= 500 && !bootCompleted && !bootFailed) {
+                lastBootError = `HTTP ${httpResponseCode} at ${url}`;
+                debugLog(`[Renderer] Server error: ${lastBootError}`);
+                flushDebugLog();
+                scheduleRetry(`HTTP ${httpResponseCode}`);
+            }
+        });
         mainWindow.webContents.on('did-finish-load', () => {
             const url = mainWindow.webContents.getURL();
             debugLog('[Renderer] Page finished loading: ' + url);
             flushDebugLog();
-            if (isSuccessfulRendererUrl(url)) {
+            if (isSuccessfulRendererUrl(url) && lastHttpStatus < 500) {
                 markBootCompleted(url);
             }
         });
