@@ -36,6 +36,11 @@ import {
 import type { EquipmentItem } from "@/engine/save-types"
 
 import { formatCurrency } from "@/lib/utils-extended"
+
+// Team-strength share of one item, as the match engine applies it.
+const gearStrengthPct = (item: { type: string; bonus?: { value: number } }) =>
+    (EquipmentManager.itemStrengthBonus(item) * 100).toFixed(1)
+
 const ICON_MAP: Record<string, typeof Mouse> = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
 // Derived from the display map so a future EquipmentType addition can't drift
 // — both lists stay in lock-step automatically.
@@ -306,7 +311,7 @@ export default function EquipmentPage() {
 
                                         <div className="flex items-center justify-between mt-2">
                                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                                <span className="text-emerald-400 font-bold">+{item.bonus.value} {item.bonus.stat}</span>
+                                                <span className="text-emerald-400 font-bold">+{gearStrengthPct(item)}% team strength</span>
                                             </div>
                                             <p className="font-sans font-bold text-white">
                                                 {formatCurrency(item.purchaseCost, "$", false)}
@@ -363,8 +368,8 @@ export default function EquipmentPage() {
 
                                     <div className="grid grid-cols-2 gap-3 mb-5">
                                         <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                            <p className="text-[10px] font-normal uppercase text-muted-foreground mb-1">Gear rating</p>
-                                            <p className="text-2xl font-normal text-emerald-400">+{selectedItem.bonus.value} {selectedItem.bonus.stat} rating</p>
+                                            <p className="text-[10px] font-normal uppercase text-muted-foreground mb-1">Team strength</p>
+                                            <p className="text-2xl font-normal text-emerald-400">+{gearStrengthPct(selectedItem)}%</p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                                             <p className="text-[10px] font-normal uppercase text-muted-foreground mb-1">Weekly Maintenance</p>
@@ -375,7 +380,7 @@ export default function EquipmentPage() {
 
                                 <div className="pt-5 border-t border-white/10">
                                     <p className="mb-4 text-sm text-muted-foreground">Replaces the current item in this slot immediately, with no trade-in refund. Upkeep replaces the old item’s cost at the next settlement. A cheaper replacement lowers ongoing costs.</p>
-                                    <p className="mb-4 text-sm text-muted-foreground">Team gear strength: +{(selectedItem.bonus.value / 80 * 100).toFixed(2)}% from this slot. Weekly upkeep change: ${selectedItem.weeklyCost - (equippedByType.get(selectedItem.type)?.weeklyCost || 0)}.</p>
+                                    <p className="mb-4 text-sm text-muted-foreground">All gear together adds at most +{(EquipmentManager.STRENGTH_CAP * 100).toFixed(0)}% team strength. Weekly upkeep change: ${selectedItem.weeklyCost - (equippedByType.get(selectedItem.type)?.weeklyCost || 0)}.</p>
                                     <div className="flex items-center justify-between mb-6">
                                         <div>
                                             <p className="text-xs font-bold text-muted-foreground uppercase">Price</p>
