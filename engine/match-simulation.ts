@@ -580,7 +580,7 @@ export class SimulationEngineV2 {
         const winType = determineWinTypeFn(rng, homeWins === homeIsCT)
 
         // Generate events for this round
-        const { kills, deaths, events, winType: validatedWinType } = generateRoundStatsFn(rng, homePlayers, awayPlayers, homeWins, homeEconomy, awayEconomy, winType, homePlayerIdSet, playerMap)
+        const { kills, deaths, events, winType: validatedWinType } = generateRoundStatsFn(rng, homePlayers, awayPlayers, homeWins, homeEconomy, awayEconomy, winType, homePlayerIdSet, playerMap, homeWins === homeIsCT)
 
         // Momentum shift
         const momentumShift = homeWins ? 0.1 : -0.1
