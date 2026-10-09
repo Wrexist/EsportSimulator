@@ -13,7 +13,7 @@ import { runLegacySeries, finalizeLegacySeries, type LegacySeriesContext, type L
 
 import { resolveCanonicalSeriesMaps } from '@/lib/live-match-utils'
 import { LEGACY_MATCH_ENGINE } from './match/live-checkpoint'
-import { SeededRNG, createMatchRNG } from "./rng"
+import { SeededRNG, createMatchRNG, deriveSeed } from "./rng"
 import { WEAPONS } from "./economy-manager"
 import {
     Player,
@@ -222,7 +222,7 @@ export class SimulationEngineV2 {
             if (match.maps.some(m => !Object.values(MapId).includes(m))) throw Error('Saved veto contains an invalid map')
             maps = resolveCanonicalSeriesMaps({ format: match.format, seed: matchSeed, savedMaps: match.maps })
         } else {
-            maps = this.simulateMapVeto(createMatchRNG(matchSeed), homeTeam.id, awayTeam.id, activeHomePlayers, activeAwayPlayers,
+            maps = this.simulateMapVeto(createMatchRNG(deriveSeed(matchSeed, match.id ?? '', 'veto')), homeTeam.id, awayTeam.id, activeHomePlayers, activeAwayPlayers,
                 hStaff.analyst, aStaff.analyst, homeMapStrengths, awayMapStrengths, match.format).maps
         }
 
@@ -234,6 +234,7 @@ export class SimulationEngineV2 {
         return {
             engine: this,
             seed: matchSeed,
+            matchId: match.id,
             format: match.format,
             maps,
             mapStartingSides: match.mapStartingSides,

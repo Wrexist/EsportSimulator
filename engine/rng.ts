@@ -112,6 +112,33 @@ export function createMatchRNG(matchSeed: number): SeededRNG {
 }
 
 /**
+ * Derive an independent seed in [1, 2147483646] from a base seed plus labels
+ * (match id, map index, round, ...). FNV-1a over the parts followed by the
+ * murmur3 finalizer, so neighbouring inputs give unrelated streams: additive
+ * derivations like `seed + map * 1000 + round` made seed N's round 2 the same
+ * stream as seed N+1's round 1. Pure and deterministic.
+ */
+export function deriveSeed(...parts: (string | number)[]): number {
+    let h = 0x811c9dc5
+    for (const part of parts) {
+        const s = String(part)
+        for (let i = 0; i < s.length; i++) {
+            h ^= s.charCodeAt(i)
+            h = Math.imul(h, 0x01000193)
+        }
+        // Part separator so ("1", "23") and ("12", "3") differ.
+        h ^= 0xff
+        h = Math.imul(h, 0x01000193)
+    }
+    h ^= h >>> 16
+    h = Math.imul(h, 0x85ebca6b)
+    h ^= h >>> 13
+    h = Math.imul(h, 0xc2b2ae35)
+    h ^= h >>> 16
+    return ((h >>> 0) % 2147483646) + 1
+}
+
+/**
  * Generate a new random seed
  */
 export function generateSeed(): number {

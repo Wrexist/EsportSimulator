@@ -12,7 +12,9 @@
  * Every path now drives `playLegacyRound`, a pure step over a serializable
  * state (`SimState` + recorded map results). Rules applied by the step:
  *
- *   - Round RNG = createMatchRNG(seed + mapIndex * 1000 + round).
+ *   - Round RNG = createMatchRNG(legacyRoundSeed(seed, matchId, mapIndex, round)),
+ *     a hash, so adjacent seeds (or two matches saved with the same seed)
+ *     never share a round stream.
  *   - Starting sides come from `resolveHomeStartsCT` (forced veto side or a
  *     seed/map hash), never from a shared stream.
  *   - Pistol rounds (1 and 13) are PISTOL for both teams; overtime rounds are
@@ -45,7 +47,7 @@ import type {
     Team,
 } from '@/types'
 import { EconomyManager } from '../economy-manager'
-import { createMatchRNG, type SeededRNG } from '../rng'
+import { createMatchRNG, deriveSeed, type SeededRNG } from '../rng'
 import { applyRoundEconomy, getMapsToWinForFormat, resolveHomeStartsCT } from '@/lib/live-match-utils'
 import { managedLoadout, regroupLossStreak, restoreTimeoutState, spendTimeout, type TimeoutState } from './manager-controls'
 import { determineMapMVP, determineMVP, generateMatchStats } from './match-stats'
@@ -56,8 +58,20 @@ import { LEGACY_MATCH_ENGINE } from './live-checkpoint'
 export type ManagerStrategy = 'ECO' | 'FORCE' | 'SEMIBUY' | 'FULL' | 'DOUBLE AWP'
 export const MANAGER_STRATEGIES: readonly ManagerStrategy[] = ['ECO', 'FORCE', 'SEMIBUY', 'FULL', 'DOUBLE AWP']
 export const LEGACY_SERIES_RULES = 2 as const
+/**
+ * Per-round stream: hashed from the match seed, match id, map index and
+ * round. The old `seed + mapIndex * 1000 + round` overlapped (seed N round 2
+ * == seed N+1 round 1; double-elim children used parent seed + 1) and every
+ * scrim (seed 0) replayed the same rounds.
+ */
+export function legacyRoundSeed(seed: number, matchId: string, mapIndex: number, round: number): number {
+    return deriveSeed(seed, matchId, 'round', mapIndex, round)
+}
+
 /** Dedicated stream for post-series statistics so they never depend on how many rounds were stepped. */
-export const LEGACY_STATS_SEED_OFFSET = 7_777_777
+export function legacyStatsSeed(seed: number, matchId: string): number {
+    return deriveSeed(seed, matchId, 'stats')
+}
 
 type StaffBundle = { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist }
 
@@ -89,6 +103,8 @@ export interface LegacySeriesSide {
 export interface LegacySeriesContext {
     engine: LegacyRoundEngine
     seed: number
+    /** Match id; mixed into every round seed. */
+    matchId?: string
     format: string
     maps: MapId[]
     mapStartingSides?: Record<string, string>
@@ -310,7 +326,7 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     if (!mapId) throw Error('Round requested for a map outside the series')
     const roundNum = sim.currentRound
     const homeIsCT = sim.homeStartsCT
-    const rng = createMatchRNG(ctx.seed + mapIndex * 1000 + roundNum)
+    const rng = createMatchRNG(legacyRoundSeed(ctx.seed, ctx.matchId ?? '', mapIndex, roundNum))
 
     const hEcon = cloneEconomy(home.players, sim.homeEconomy, homeIsCT)
     const aEcon = cloneEconomy(away.players, sim.awayEconomy, !homeIsCT)
@@ -456,7 +472,7 @@ export function finalizeLegacySeries(ctx: LegacySeriesContext, state: LegacySeri
     const homeScore = state.sim.homeSeriesScore
     const awayScore = state.sim.awaySeriesScore
     const homeWon = homeScore > awayScore
-    const playerStats: Record<string, PlayerMatchStats> = generateMatchStats(createMatchRNG(ctx.seed + LEGACY_STATS_SEED_OFFSET), ctx.home.players, ctx.away.players, played, homeWon)
+    const playerStats: Record<string, PlayerMatchStats> = generateMatchStats(createMatchRNG(legacyStatsSeed(ctx.seed, ctx.matchId ?? '')), ctx.home.players, ctx.away.players, played, homeWon)
     return {
         engineVersion: LEGACY_MATCH_ENGINE,
         lineups: { [ctx.home.team.id]: ctx.home.players.map(p => p.id), [ctx.away.team.id]: ctx.away.players.map(p => p.id) },

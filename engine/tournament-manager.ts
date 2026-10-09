@@ -19,6 +19,7 @@ import { buildSaveIndexes, buildBracketIndex, type SaveIndexes } from "@/store/i
 import type { TournamentDefinition } from "@/data/tournament-calendar"
 import {
     stableTeamIdNumber,
+    bracketMatchSeed,
     resolveCompletedWinner as resolveCompletedWinnerFn,
     normalizeStage as normalizeStageFn,
     getBracketRoundNumber as getBracketRoundNumberFn,
@@ -1129,22 +1130,25 @@ export class TournamentManager {
         // matches regardless of how long the group stage took (the old
         // endWeek-1 offset could land in the past).
         const startWeek = save.currentWeek + 1
+        // Hashed per career/week/match so the same pairing in a later season
+        // gets a fresh stream (fixed 101/102/201/... repeated the winner).
+        const seedFor = (matchId: string) => bracketMatchSeed(save, matchId)
 
-        const qf1: BracketMatchSaveData = { id: `${tournament.id}_qf_1`, tournamentId: tournament.id, stage: "Quarter-final 1", homeTeamId: pA.second, awayTeamId: pB.third, isCompleted: false, week: startWeek, format: "BO3", seed: 101, sourceMatchIds: [] }
-        const qf2: BracketMatchSaveData = { id: `${tournament.id}_qf_2`, tournamentId: tournament.id, stage: "Quarter-final 2", homeTeamId: pB.second, awayTeamId: pA.third, isCompleted: false, week: startWeek, format: "BO3", seed: 102, sourceMatchIds: [] }
+        const qf1: BracketMatchSaveData = { id: `${tournament.id}_qf_1`, tournamentId: tournament.id, stage: "Quarter-final 1", homeTeamId: pA.second, awayTeamId: pB.third, isCompleted: false, week: startWeek, format: "BO3", seed: seedFor(`${tournament.id}_qf_1`), sourceMatchIds: [] }
+        const qf2: BracketMatchSaveData = { id: `${tournament.id}_qf_2`, tournamentId: tournament.id, stage: "Quarter-final 2", homeTeamId: pB.second, awayTeamId: pA.third, isCompleted: false, week: startWeek, format: "BO3", seed: seedFor(`${tournament.id}_qf_2`), sourceMatchIds: [] }
 
         this.addBracketMatch(tournament, qf1)
         this.addBracketMatch(tournament, qf2)
         this.scheduleBracketMatch(save, qf1)
         this.scheduleBracketMatch(save, qf2)
 
-        const sf1: BracketMatchSaveData = { id: `${tournament.id}_sf_1`, tournamentId: tournament.id, stage: "Semi-final 1", awayTeamId: pB.first, isCompleted: false, week: startWeek + 1, format: "BO3", seed: 201, sourceMatchIds: [qf1.id] }
-        const sf2: BracketMatchSaveData = { id: `${tournament.id}_sf_2`, tournamentId: tournament.id, stage: "Semi-final 2", awayTeamId: pA.first, isCompleted: false, week: startWeek + 1, format: "BO3", seed: 202, sourceMatchIds: [qf2.id] }
+        const sf1: BracketMatchSaveData = { id: `${tournament.id}_sf_1`, tournamentId: tournament.id, stage: "Semi-final 1", awayTeamId: pB.first, isCompleted: false, week: startWeek + 1, format: "BO3", seed: seedFor(`${tournament.id}_sf_1`), sourceMatchIds: [qf1.id] }
+        const sf2: BracketMatchSaveData = { id: `${tournament.id}_sf_2`, tournamentId: tournament.id, stage: "Semi-final 2", awayTeamId: pA.first, isCompleted: false, week: startWeek + 1, format: "BO3", seed: seedFor(`${tournament.id}_sf_2`), sourceMatchIds: [qf2.id] }
         this.addBracketMatch(tournament, sf1)
         this.addBracketMatch(tournament, sf2)
 
-        this.addBracketMatch(tournament, { id: `${tournament.id}_grand_final`, tournamentId: tournament.id, stage: "Grand Final", isCompleted: false, week: startWeek + 2, format: "BO5", seed: 301, sourceMatchIds: [sf1.id, sf2.id] })
-        this.addBracketMatch(tournament, { id: `${tournament.id}_3rd_place_decider`, tournamentId: tournament.id, stage: "3rd Place Decider", isCompleted: false, week: startWeek + 2, format: "BO3", seed: 302, sourceMatchIds: [sf1.id, sf2.id] })
+        this.addBracketMatch(tournament, { id: `${tournament.id}_grand_final`, tournamentId: tournament.id, stage: "Grand Final", isCompleted: false, week: startWeek + 2, format: "BO5", seed: seedFor(`${tournament.id}_grand_final`), sourceMatchIds: [sf1.id, sf2.id] })
+        this.addBracketMatch(tournament, { id: `${tournament.id}_3rd_place_decider`, tournamentId: tournament.id, stage: "3rd Place Decider", isCompleted: false, week: startWeek + 2, format: "BO3", seed: seedFor(`${tournament.id}_3rd_place_decider`), sourceMatchIds: [sf1.id, sf2.id] })
     }
 
     private static setupGenericBracket(
