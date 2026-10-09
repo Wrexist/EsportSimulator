@@ -26,6 +26,7 @@ import {
     ROUND_SECONDS,
     BOMB_SECONDS,
     ROUND_START_DELAY_MS,
+    LIVE_SPEED_PRESETS,
     getNormalizedSeed,
     getActivePlayersByRosterOrder,
     buildCanonicalResultMaps,
@@ -37,6 +38,7 @@ type RoundStrategy = ManagerStrategy | "PISTOL"
 
 /** Max kill/event-feed rows kept in state + DOM during a live match. */
 const MAX_LIVE_LOG_ENTRIES = 200
+const MAX_LIVE_SPEED = LIVE_SPEED_PRESETS[LIVE_SPEED_PRESETS.length - 1]
 
 interface LiveMatchRuntimeData {
     ownerSaveId: string | null
@@ -107,8 +109,9 @@ export function useLiveMatch(id: string) {
     }, [logs])
     // Seed live-match playback speed from the user's Game Speed setting.
     const gameSpeedSetting = useSettingsStore(s => s.gameSpeed)
-    const [speed, setSpeed] = useState(() =>
-        gameSpeedSetting === "very-fast" ? 3 : gameSpeedSetting === "fast" ? 2 : 1
+    // Always one of LIVE_SPEED_PRESETS so the control bar label is exact.
+    const [speed, setSpeed] = useState<number>(() =>
+        gameSpeedSetting === "very-fast" ? 4 : gameSpeedSetting === "fast" ? 2 : 1
     )
     const [isPlaying, setIsPlaying] = useState(false)
     const [isAutoTactics, setIsAutoTactics] = useState(false)
@@ -630,7 +633,7 @@ export function useLiveMatch(id: string) {
                 const playerIsHomeSide = runtime.homeTeam.id === playerTeam?.id
                 const playerIsAwaySide = runtime.awayTeam.id === playerTeam?.id
                 // Only cue on normal playback (instant simulate runs at speed 100).
-                if (!mapClinched && (playerIsHomeSide || playerIsAwaySide) && speed <= 5) {
+                if (!mapClinched && (playerIsHomeSide || playerIsAwaySide) && speed <= MAX_LIVE_SPEED) {
                     soundManager.play((playerIsHomeSide ? isHomeWinner : !isHomeWinner) ? "roundWin" : "roundLose")
                 }
 
@@ -725,20 +728,25 @@ export function useLiveMatch(id: string) {
         if (isSimulatingRef.current) return
         isSimulatingRef.current = true
         if (isWaitingForStrategy) startNextRound()
-        // Fast-forward: process all remaining events by jumping time to the end of the round
+        // Reveal the rest of the round at once: its outcome was fixed when the
+        // round was computed. ROUND_END settles timers and queues the next
+        // decision, so playback speed is left untouched (it used to be forced
+        // to 100x and never restored).
         const events = currentRoundEvents.current
-        if (events.length > 0) {
+        if (roundInFlightRef.current && events.length > 0) {
             const maxTime = Math.max(...events.map(e => Math.ceil(e.time))) + 1
             processNextEvent(maxTime)
-            setRoundTime(0)
-            setBombTime(0)
             setGameState(prev => ({ ...prev, time: maxTime }))
             lastProcessedTime.current = maxTime
         }
-        setSpeed(100)
-        setIsPlaying(true)
         isSimulatingRef.current = false
     }, [isWaitingForStrategy, startNextRound, processNextEvent])
+
+    // Space / play button. Only meaningful while the match is running.
+    const togglePlayback = useCallback(() => {
+        if (latestGameStateRef.current.status !== "IN_PROGRESS") return
+        setIsPlaying(playing => !playing)
+    }, [])
 
     const simulateMatchInstant = useCallback(() => {
         setSpeed(100)
@@ -804,6 +812,7 @@ export function useLiveMatch(id: string) {
         setSpeed,
         setIsPlaying,
         setIsAutoTactics,
+        togglePlayback,
         startNextRound,
         simulateRoundInstant,
         simulateMatchInstant,

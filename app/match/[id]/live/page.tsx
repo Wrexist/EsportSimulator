@@ -278,7 +278,7 @@ export default function LiveMatchPage() {
         isAutoTactics,
         setIsAutoTactics,
         isPlaying,
-        setIsPlaying,
+        togglePlayback,
         speed,
         setSpeed,
         isWaitingForStrategy,
@@ -326,6 +326,25 @@ export default function LiveMatchPage() {
         }
         prevRoundRef.current = gameState.round
     }, [gameState.round])
+
+    // Space = pause / resume (advertised on the play button). Text fields and
+    // open dialogs keep their own Space handling.
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key !== " " || e.repeat || e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return
+            const target = e.target as HTMLElement | null
+            const tag = target?.tagName
+            if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target?.isContentEditable) return
+            if (target?.closest('[role="switch"], [role="slider"], [role="combobox"], [role="textbox"]')) return
+            if (document.querySelector('[role="dialog"], [role="alertdialog"]')) return
+            e.preventDefault()
+            // A focused button would also be clicked by Space on keyup.
+            if (target && target !== document.body) target.blur()
+            togglePlayback()
+        }
+        window.addEventListener("keydown", onKeyDown)
+        return () => window.removeEventListener("keydown", onKeyDown)
+    }, [togglePlayback])
 
     // Compute live radar positions from round events (must be before early return for hooks rules)
     const currentMapId = matchData.current?.result.maps[gameState.currentMapIndex]?.map || MapId.SANDSTONE
@@ -488,7 +507,7 @@ export default function LiveMatchPage() {
                             isAutoTactics={isAutoTactics}
                             setIsAutoTactics={setIsAutoTactics}
                             isPlaying={isPlaying}
-                            setIsPlaying={setIsPlaying}
+                            onTogglePlayback={togglePlayback}
                             isWaitingForStrategy={isWaitingForStrategy}
                             speed={speed}
                             setSpeed={setSpeed}

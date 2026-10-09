@@ -13,6 +13,8 @@ export const ACTIVE_PLAYERS_PER_TEAM = 5
 export const ROUND_SECONDS = 115
 export const BOMB_SECONDS = 40
 export const ROUND_START_DELAY_MS = 1500
+/** Live playback speeds offered by the control bar (game seconds per real second). */
+export const LIVE_SPEED_PRESETS = [1, 2, 4, 8] as const
 
 /**
  * Normalize a possibly-undefined seed value to a positive integer.
