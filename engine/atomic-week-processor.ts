@@ -58,7 +58,6 @@ import { processScoutingMissions as processScoutingMissionsFn } from "./processo
 import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./processors/sponsor-goals-processor"
 import { applyMatchSponsorGoalProgress as applyMatchSponsorGoalProgressFn } from "./processors/match-sponsor-goals"
 import { resetStaleTournamentState } from "./processors/tournament-state-cleanup"
-import { getTacticalBonus as getTacticalBonusFn } from "./processors/match-tactical-bonus"
 import { detectAchievementFlags } from "./processors/match-achievement-flags"
 import { processForfeitMatch } from "./processors/match-forfeit"
 import { processMatchWeaponMastery } from "./processors/match-weapon-mastery"
@@ -785,13 +784,11 @@ export class AtomicWeekProcessor {
             }
 
             try {
-            // Tactical bonus extracted to processors/match-tactical-bonus.ts
-            // (Phase M5). Takes pre-indexed staff for the team + both
-            // playstyles; returns analyst-stat-sum bonus + RPS counter bonus.
-            const homeBonus = getTacticalBonusFn(staffByTeamId.get(homeTeam.id), homeTeam.playstyle, awayTeam.playstyle)
-            const awayBonus = getTacticalBonusFn(staffByTeamId.get(awayTeam.id), awayTeam.playstyle, homeTeam.playstyle)
-
-            // Collect team staff for talent bonus application in match sim
+            // Team staff drive the match exactly as on the managed path
+            // (coach/analyst/psychologist levels + talents); the playstyle
+            // counter is applied inside the engine. No extra tactical bonus:
+            // the old analyst-stat + RPS bonus here was scaled x10 by the
+            // engine and double-counted the counter.
             const homeTeamStaff = staffByTeamId.get(homeTeam.id) ?? []
             const awayTeamStaff = staffByTeamId.get(awayTeam.id) ?? []
 
@@ -803,8 +800,8 @@ export class AtomicWeekProcessor {
                 homePlayers,
                 awayPlayers,
                 rng,
-                homeBonus,
-                awayBonus,
+                0,
+                0,
                 homeTeamStaff,
                 awayTeamStaff
             )

@@ -239,11 +239,11 @@ export class SimulationEngineV2 {
             mapStartingSides: match.mapStartingSides,
             home: {
                 team: homeTeam, players: activeHomePlayers, staff: hStaff, mapStrengths: homeMapStrengths, stressRes: stress(activeHomePlayers),
-                strength: this.calculateTeamStrength(homeTeam, activeHomePlayers, hStaff, homeMentalPrep) * calculatePlaystyleCounterMod(homeTeam.playstyle, awayTeam.playstyle),
+                strength: this.calculateTeamStrength(homeTeam, activeHomePlayers, hStaff, homeMentalPrep, calculatePlaystyleCounterMod(homeTeam.playstyle, awayTeam.playstyle)),
             },
             away: {
                 team: awayTeam, players: activeAwayPlayers, staff: aStaff, mapStrengths: awayMapStrengths, stressRes: stress(activeAwayPlayers),
-                strength: this.calculateTeamStrength(awayTeam, activeAwayPlayers, aStaff, awayMentalPrep) * calculatePlaystyleCounterMod(awayTeam.playstyle, homeTeam.playstyle),
+                strength: this.calculateTeamStrength(awayTeam, activeAwayPlayers, aStaff, awayMentalPrep, calculatePlaystyleCounterMod(awayTeam.playstyle, homeTeam.playstyle)),
             },
             isHighPressure: !!match.isHighPressure,
             matchStage: match.stage,
@@ -305,9 +305,10 @@ export class SimulationEngineV2 {
         team: Team,
         players: Player[],
         staff: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
-        mentalPrep?: boolean
+        mentalPrep?: boolean,
+        counterMod?: number,
     ): number {
-        return calculateTeamStrengthFn(team, players, staff, mentalPrep)
+        return calculateTeamStrengthFn(team, players, staff, mentalPrep, counterMod)
     }
 
     /**

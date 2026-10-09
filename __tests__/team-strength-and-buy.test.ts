@@ -100,6 +100,27 @@ describe("calculateTeamStrength", () => {
         expect(withCoach).toBeGreaterThan(baseline)
     })
 
+    test("staff + playstyle counter share a +10% non-player cap", () => {
+        const team = makeTeam()
+        const players = Array.from({ length: 5 }, (_, i) => makePlayer(`p${i}`))
+        const base = simulationEngineV2.calculateTeamStrength(team, players, {})
+        const fullStaff = {
+            coach: makeCoach(5, 10),
+            analyst: { id: "a", name: "A", type: StaffType.ANALYST, level: 5 } as unknown as Analyst,
+            psychologist: { id: "p", name: "P", type: StaffType.PSYCHOLOGIST, level: 5 } as unknown as Psychologist,
+        }
+        const capped = simulationEngineV2.calculateTeamStrength(team, players, fullStaff, false, 1.04)
+        const coachOnly = simulationEngineV2.calculateTeamStrength(team, players, { coach: makeCoach(5, 10) })
+        // Three level-5 staff (+27.5%) and a counter (+4%) stop at +0.10, the
+        // same as a lone level-5 coach (tacticBonus 10).
+        expect(capped).toBeCloseTo(coachOnly, 6)
+        expect(capped).toBeGreaterThan(base)
+        // A fully anti-stratted coach (tacticBonus 0) is worth nothing, not level x 2.
+        expect(simulationEngineV2.calculateTeamStrength(team, players, { coach: makeCoach(5, 0) })).toBeCloseTo(base, 6)
+        // Being countered still costs strength below the cap.
+        expect(simulationEngineV2.calculateTeamStrength(team, players, {}, false, 0.97)).toBeLessThan(base)
+    })
+
     test("equipment bonuses lift strength additively", () => {
         const baseTeam = makeTeam()
         const equippedTeam = makeTeam({

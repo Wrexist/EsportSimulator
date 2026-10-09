@@ -158,6 +158,19 @@ describe("MatchEngine.simulateMatch", () => {
         expect(r.homeScore + r.awayScore).toBeGreaterThan(0)
     })
 
+    test("AI path counts staff once, at the managed-path scale (no x10 synthetic coach)", () => {
+        const match = makeMatch({ seed: 4242 })
+        const coach = { id: "c5", teamId: "home", name: "Coach", role: "coach", level: 5, salaryPerWeek: 0, unlockedTalentIds: [] } as unknown as StaffSaveData
+        const run = (homeBonus: number, staff: StaffSaveData[]) =>
+            matchEngine.simulateMatch(match, makeTeam("home"), makeTeam("away"), makeRoster("home"), makeRoster("away"), new SeededRNG(1), homeBonus, 0, staff, [])
+        const realCoach = run(0, [coach])
+        // A legacy bonus is in Coach.tacticBonus units: 10 == a level-5 coach.
+        expect(run(10, [])).toEqual(realCoach)
+        // A real coach is never stacked with the caller's bonus.
+        expect(run(10, [coach])).toEqual(realCoach)
+        expect(run(0, [])).not.toEqual(realCoach)
+    })
+
     test("morale_floor talent doesn't crash on rosters with low morale", () => {
         const match = makeMatch()
         const home = makeTeam("home")

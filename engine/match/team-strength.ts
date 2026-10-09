@@ -1,8 +1,9 @@
 import { EquipmentManager } from "../equipment-manager"
 /**
  * Team-strength calculation: avgSkill × (energy × form × fatigue) +
- * additive bonuses (role coverage, chemistry, morale, staff, equipment,
- * facilities, tactical/mental prep, playstyle, targetPlayer tunneling).
+ * additive bonuses (role coverage, chemistry, morale, staff + playstyle
+ * counter (capped), equipment, facilities, tactical/mental prep,
+ * playstyle, targetPlayer tunneling).
  *
  * Extracted from match-simulation.ts (Phase J3). Hybrid multiplicative
  * core × additive secondary scheme prevents small individual debuffs
@@ -29,11 +30,31 @@ interface StaffBundle {
     psychologist?: Psychologist
 }
 
+/**
+ * Ceiling on everything that isn't the players themselves: coach + analyst +
+ * psychologist + the playstyle counter. Three level-5 staff used to add
+ * +27.5% (and the AI path up to +100%), more than a 20-point skill gap.
+ */
+export const NON_PLAYER_BONUS_CAP = 0.10
+
+/** Staff contribution in strength fraction (coach 2%/level, analyst 2%/level, psychologist 1.5%/level), uncapped. */
+export function staffStrengthBonus(staff: StaffBundle): number {
+    let bonus = 0
+    // Coach uses tacticBonus (2 x level, reduced by the opponent's anti_strat
+    // talent upstream). `??` so a coach fully anti-stratted to 0 stays at 0.
+    if (staff.coach) bonus += (staff.coach.tacticBonus ?? (staff.coach.level * 2)) / 100
+    if (staff.analyst) bonus += (staff.analyst.level * 2.0) / 100
+    if (staff.psychologist) bonus += (staff.psychologist.level * 1.5) / 100
+    return bonus
+}
+
 export function calculateTeamStrength(
     team: Team,
     players: Player[],
     staff: StaffBundle,
     mentalPrep?: boolean,
+    /** Playstyle counter multiplier vs this opponent (calculatePlaystyleCounterMod); shares the non-player cap. */
+    counterMod: number = 1,
 ): number {
     if (players.length === 0) return 0
 
@@ -83,18 +104,8 @@ export function calculateTeamStrength(
     const avgFatigue = players.reduce((sum, p) => sum + (p.fatigue ?? 0), 0) / players.length
     const fatigueMod = 1.0 - (avgFatigue / 100) * 0.3
 
-    // Staff bonuses. Coach uses tacticBonus if present (set by anti_strat
-    // adjustment upstream), else falls back to level × 2.
-    let staffMod = 1.0
-    if (staff.coach) {
-        staffMod += (staff.coach.tacticBonus || (staff.coach.level * 2)) / 100
-    }
-    if (staff.analyst) {
-        staffMod += (staff.analyst.level * 2.0) / 100
-    }
-    if (staff.psychologist) {
-        staffMod += (staff.psychologist.level * 1.5) / 100
-    }
+    // Staff + playstyle counter, capped together (see NON_PLAYER_BONUS_CAP).
+    const nonPlayerBonus = Math.min(NON_PLAYER_BONUS_CAP, staffStrengthBonus(staff) + (counterMod - 1))
 
     // Each gear point contributes 1/80 strength; one bounded item per slot.
     const equipMod = 1 + EquipmentManager.strengthBonus(team)
@@ -138,6 +149,6 @@ export function calculateTeamStrength(
     // stack from cascading into negative territory under pathological
     // inputs.
     const coreMod = energyMod * formMod * fatigueMod
-    const additiveBonus = (roleCoverage - 1) + (chemistryMod - 1) + (moraleMod - 1) + (staffMod - 1) + (equipMod - 1) + (facilitiesMod - 1) + (tacticalMod - 1)
+    const additiveBonus = (roleCoverage - 1) + (chemistryMod - 1) + (moraleMod - 1) + nonPlayerBonus + (equipMod - 1) + (facilitiesMod - 1) + (tacticalMod - 1)
     return avgSkill * coreMod * Math.max(0.7, 1 + additiveBonus)
 }
