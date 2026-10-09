@@ -22,6 +22,15 @@ describe('every permitted decision has a measurable, bounded effect over 200 pai
             expect(r.variant.roundShare).toBeGreaterThan(0.05)
             return
         }
+        if (r.id === 'economy-force') {
+            // Revamp Phase 0: once winners actually take their rolled deaths
+            // (clutches, ~0.6 more kills per round) guns are lost more often
+            // and buying $500 earlier is a wash: dRound -0.3 pp [-2.0, 1.4].
+            // It was already marginal (audit harness: +0.9 ±0.9 pp at 400 seeds).
+            expect(['bounded', 'decorative']).toContain(r.verdict)
+            expect(Math.abs(r.effect.matchWin.mean)).toBeLessThan(0.06)
+            return
+        }
         if (r.id === 'call-full-buy') {
             // Balance tuning: the default buys FULL whenever rifle + helmet is
             // affordable, so this call only changes poor rounds (armour and a

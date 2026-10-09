@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { createHash } from 'node:crypto'
 import { createLaunchFixture, FixtureStorage } from './fixtures'
 import { simulationEngineV2 as engine } from '../../engine/match-simulation'
-import { managedLoadout, regroupLossStreak } from '../../engine/match/manager-controls'
+import { managedLoadout, regroupEdge } from '../../engine/match/manager-controls'
 import { getActivePlayersByRosterOrder } from '../../lib/live-match-builders'
 import { SeededRNG } from '../../engine/rng'
 import { createDefaultTactics } from '../../engine/default-tactics'
@@ -27,7 +27,9 @@ export async function auditMatchManagement() {
     const pairs = { noStreakChanges: 0, baselineWins: 0, regroupWins: 0, awayBaselineWins: 0, awayRegroupWins: 0, seeds: 400 }
     for (let seed = 1; seed <= pairs.seeds; seed++) {
         const run = (loss: number, active: boolean, isHome = true) => engine.simulateRound(new SeededRNG(seed), hp, ap, 50, 50, 50, 50, true, 0, 0,
-            isHome ? regroupLossStreak(loss, active) : 0, isHome ? 0 : regroupLossStreak(loss, active), 5, economy(hp), economy(ap, false))
+            isHome ? loss : 0, isHome ? 0 : loss, 5, economy(hp), economy(ap, false),
+            'FULL', 'FULL', false, undefined, undefined, undefined, undefined, undefined, 0, 0, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+            isHome ? regroupEdge(loss, active) : 0, isHome ? 0 : regroupEdge(loss, active))
         pairs.noStreakChanges += Number(JSON.stringify(run(0, false)) !== JSON.stringify(run(0, true)))
         pairs.baselineWins += Number(run(5, false).winner === 'HOME')
         pairs.regroupWins += Number(run(5, true).winner === 'HOME')

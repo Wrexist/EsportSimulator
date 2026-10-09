@@ -34,6 +34,19 @@ export interface PlayerSimulationState {
 
 type RoundWinType = "ELIMINATION" | "BOMB_EXPLODED" | "BOMB_DEFUSE" | "TIME"
 
+/** Round clock (1:55) and bomb timer (40 s). */
+const ROUND_SECONDS = 115
+const BOMB_SECONDS = 40
+/** Pre-plant fighting stops here when the round still has to be planted. */
+const LATEST_PLANT = 105
+/** Longest defuse (no kit); post-plant fighting in a CT win leaves room for it. */
+const DEFUSE_SECONDS_MAX = 10
+
+/** A kill on the player who killed a teammate within this window is a trade. */
+const TRADE_WINDOW_SECONDS = 5
+/** Chance a fast follow-up kill is aimed at that player (tunes trades to ~20% of kills). */
+const TRADE_REFRAG_CHANCE = 0.6
+
 /**
  * Pick a round win-condition flavor weighted by who won. CT wins lean
  * toward DEFUSE, T wins lean toward EXPLODED. ELIMINATION is the
@@ -186,8 +199,17 @@ export function addKillEvent(
  * save logic when one team is heavily outnumbered.
  *
  * The function mutates winnersAlive/losersAlive locally as kills land,
- * exits when both kill quotas are met (or after a save break), and
- * appends ROUND_END as the final event.
+ * exits when both kill quotas are met (or after a save break, or when the
+ * clock runs out), then settles the win type from who is actually alive and
+ * whether the bomb went down, and appends ROUND_END as the final event.
+ *
+ * Timeline guarantees (pinned by __tests__/round-timeline-consistency):
+ * the clock never runs backwards; a plant is at or before LATEST_PLANT + 2;
+ * no kill after the explosion; EXPLODE is exactly plant + 40 s; a defuse
+ * finishes before plant + 40 s; ELIMINATION only when every loser is dead
+ * (all CTs dying after a plant ends the round there, as a T elimination);
+ * TIME only for CT with a T alive and no plant; a planted bomb in a CT win
+ * is always defused.
  */
 export function generateRoundStats(
     rng: SeededRNG,
@@ -199,6 +221,8 @@ export function generateRoundStats(
     winType: RoundWinType,
     homePlayerIdSet: Set<string>,
     playerMap: Map<string, Player>,
+    /** Whether the round winner is on CT. Inferred from winType when omitted (ELIMINATION → T). */
+    winnerIsCT?: boolean,
 ): {
     kills: { playerId: string; kills: number; weapon: string }[]
     deaths: { playerId: string; deaths: number }[]
@@ -210,6 +234,9 @@ export function generateRoundStats(
     const events: MatchEvent[] = []
     const winningPlayers = homeWins ? [...homePlayers] : [...awayPlayers]
     const losingPlayers = homeWins ? [...awayPlayers] : [...homePlayers]
+    const ctWins = winnerIsCT ?? (winType === "BOMB_DEFUSE" || winType === "TIME")
+    // Rounds that may still need a plant stop pre-plant fighting early enough to plant.
+    const preplantDeadline = ctWins && winType !== "BOMB_DEFUSE" ? ROUND_SECONDS - 1 : LATEST_PLANT
 
     let isClutchScenario = false
     let clutchStartEnemies = 0
@@ -236,14 +263,23 @@ export function generateRoundStats(
         }
     }
 
-    // Winner deaths: 0-3 weighted toward 1-2.
+    // Winner deaths: 0-4 weighted toward 1-2. Four leaves a lone survivor who
+    // wins a 1vX clutch; the old 0-3 cap made clutches impossible.
     let winnerDeathCount: number
     const winnerRoll = rng.next()
-    if (winnerRoll < 0.15) winnerDeathCount = 0
-    else if (winnerRoll < 0.50) winnerDeathCount = 1
-    else if (winnerRoll < 0.85) winnerDeathCount = 2
-    else winnerDeathCount = 3
+    if (winnerRoll < 0.14) winnerDeathCount = 0
+    else if (winnerRoll < 0.44) winnerDeathCount = 1
+    else if (winnerRoll < 0.74) winnerDeathCount = 2
+    else if (winnerRoll < 0.88) winnerDeathCount = 3
+    else winnerDeathCount = 4
     winnerDeathCount = Math.min(winnerDeathCount, Math.max(0, loserDeathCount - 1))
+
+    // Clutch size for a lone-survivor round: 1v1 most often, 1v5 rare.
+    let clutchTarget = 0
+    if (winnerDeathCount === 4) {
+        const c = rng.next()
+        clutchTarget = c < 0.50 ? 1 : c < 0.80 ? 2 : c < 0.93 ? 3 : c < 0.98 ? 4 : 5
+    }
 
     const winnersAlive = [...winningPlayers]
     const losersAlive = [...losingPlayers]
@@ -258,15 +294,6 @@ export function generateRoundStats(
     let lastDeath: { time: number; victimId: string; killerId: string } | null = null
 
     while (winnerDeathsRemaining > 0 || loserDeathsRemaining > 0) {
-        const winnersAliveCount = winnersAlive.length
-        const losersAliveCount = losersAlive.length
-
-        if (winnersAliveCount === 1 && losersAliveCount >= 2 && !isClutchScenario) {
-            isClutchScenario = true
-            clutchStartEnemies = losersAliveCount
-        }
-        if (currentTime > 110) break
-
         // PANIC: increase trade probability late in round.
         const isLateRound = currentTime > 90
         const isTradeOpportunity = events.length > 0 && (events[events.length - 1].time + (isLateRound ? 5 : 3) >= currentTime)
@@ -311,7 +338,15 @@ export function generateRoundStats(
             }
         }
 
-        if (rng.bool(winnerDeathWeight) && winnerDeathsRemaining > 0 && losersAlive.length > 0) {
+        let winnerDies = rng.bool(winnerDeathWeight)
+        // Rolled winner deaths are owed: losers who are all going to die take
+        // them down with them. The man-advantage bias used to wipe the losers
+        // first, so most rolled winner deaths (and every 4th) never happened.
+        if (loserDeathsRemaining >= losersAlive.length && winnerDeathsRemaining >= losersAlive.length) winnerDies = true
+        // The 4th winner death lands when exactly clutchTarget enemies remain.
+        if (winnerDeathsRemaining === 1 && winnersAlive.length === 2 && clutchTarget > 0) winnerDies = losersAlive.length <= clutchTarget
+
+        if (winnerDies && winnerDeathsRemaining > 0 && losersAlive.length > 0) {
             killer = pickWeighted(rng, losersAlive, "KILL", roundKills)
             victim = pickWeighted(rng, winnersAlive, "DEATH")
             isWinnerKill = false
@@ -319,6 +354,14 @@ export function generateRoundStats(
             killer = pickWeighted(rng, winnersAlive, "KILL", roundKills)
             victim = pickWeighted(rng, losersAlive, "DEATH")
             isWinnerKill = true
+        }
+
+        // Refrag: a fast follow-up kill usually lands on the player who just
+        // got the previous kill (the trade).
+        const prevDeath = lastDeath as { time: number; victimId: string; killerId: string } | null
+        if (victim && isTrade && prevDeath && victim.id !== prevDeath.killerId && rng.bool(TRADE_REFRAG_CHANCE)) {
+            const target: Player | undefined = (isWinnerKill ? losersAlive : winnersAlive).find(p => p.id === prevDeath.killerId)
+            if (target) victim = target
         }
 
         if (killer && victim) {
@@ -332,9 +375,8 @@ export function generateRoundStats(
             }
 
             if (!hasPlanted && plantTime > 0 && currentTime + timeStep > plantTime) {
-                const isTWinning = winType === "BOMB_EXPLODED"
-                const activeTs = isTWinning ? winnersAlive : losersAlive
-                const activeCTs = isTWinning ? losersAlive : winnersAlive
+                const activeTs = ctWins ? losersAlive : winnersAlive
+                const activeCTs = ctWins ? winnersAlive : losersAlive
 
                 const tDisadvantage = activeCTs.length - activeTs.length
 
@@ -346,14 +388,24 @@ export function generateRoundStats(
                 }
 
                 if (canPlant) {
+                    // A deferred plant happens now; the clock never runs backwards.
+                    plantTime = Math.max(currentTime, plantTime)
                     currentTime = plantTime
                     events.push({ type: "PLANT", time: plantTime, side: "t", details: "Bomb has been planted" })
                     hasPlanted = true
                     timeStep = rng.int(2, 5)
                 } else {
-                    plantTime += rng.int(10, 20)
+                    plantTime = Math.min(plantTime + rng.int(10, 20), LATEST_PLANT)
                 }
             }
+
+            // Fighting stops at the clock: before the explosion (T win), with
+            // time left to defuse (CT win), or before the round timer / the
+            // latest plant.
+            const deadline = hasPlanted
+                ? plantTime + BOMB_SECONDS - 1 - (ctWins ? DEFUSE_SECONDS_MAX : 0)
+                : preplantDeadline
+            if (currentTime + timeStep > deadline) break
 
             currentTime += timeStep
 
@@ -369,19 +421,25 @@ export function generateRoundStats(
                 winnerDeathsRemaining--
                 roundKills.set(killer!.id, (roundKills.get(killer!.id) || 0) + 1)
                 lastDeath = { time: currentTime, victimId: victim!.id, killerId: killer!.id }
+                // Last winner standing against 1+ enemies: a 1vX clutch.
+                if (winnersAlive.length === 1 && losersAlive.length >= 1 && !isClutchScenario) {
+                    isClutchScenario = true
+                    clutchStartEnemies = losersAlive.length
+                }
             }
 
             // Assist logic: trade-kill window is a guaranteed assist;
             // otherwise damage/flash assist roll.
             let assister: Player | undefined
 
-            const isTradeKill = lastDeath &&
-                (currentTime - lastDeath.time <= 4) &&
-                (victim!.id === lastDeath.killerId) &&
-                (killer!.id !== lastDeath.victimId)
+            // Checked against the PREVIOUS death: lastDeath was already
+            // overwritten with this kill, so no kill was ever a trade.
+            const isTradeKill = !!prevDeath &&
+                (currentTime - prevDeath.time <= TRADE_WINDOW_SECONDS) &&
+                (victim!.id === prevDeath.killerId)
 
-            if (isTradeKill && lastDeath) {
-                const fallenTeammate = playerMap.get(lastDeath!.victimId)
+            if (isTradeKill && prevDeath) {
+                const fallenTeammate = playerMap.get(prevDeath.victimId)
                 if (fallenTeammate) assister = fallenTeammate
             }
 
@@ -433,56 +491,51 @@ export function generateRoundStats(
         }
     }
 
-    // Post-loop: emit CLUTCH event if applicable.
+    // Settle the win type from the survivors and the bomb.
+    const tAlive = ctWins ? losersAlive : winnersAlive
+    const ctAlive = ctWins ? winnersAlive : losersAlive
+    const plantNow = () => {
+        // Catch-up plant: never before the clock, never after LATEST_PLANT + 2.
+        plantTime = Math.max(currentTime + 2, Math.min(plantTime > 0 ? plantTime : 55, LATEST_PLANT))
+        events.push({ type: "PLANT", time: plantTime, side: "t", details: "Bomb has been planted" })
+        currentTime = plantTime
+        hasPlanted = true
+    }
+    if (ctWins) {
+        if (!hasPlanted && winType === "BOMB_DEFUSE" && tAlive.length > 0) plantNow()
+        if (hasPlanted) {
+            // A planted bomb has to be defused for CT to win, before it blows.
+            const defuseTime = Math.min(currentTime + rng.int(5, 10), plantTime + BOMB_SECONDS - 1)
+            events.push({ type: "DEFUSE", time: defuseTime, side: "ct", details: "Bomb has been defused" })
+            currentTime = defuseTime
+            winType = "BOMB_DEFUSE"
+        } else if (tAlive.length === 0) {
+            winType = "ELIMINATION"
+        } else {
+            // Ts still alive and no bomb down: CT holds until the round timer.
+            currentTime = ROUND_SECONDS
+            winType = "TIME"
+        }
+    } else if (ctAlive.length === 0) {
+        // Every CT dead (before or after a plant): T elimination, right now.
+        winType = "ELIMINATION"
+    } else {
+        // CTs alive: T can only win by the bomb, which explodes 40 s after the plant.
+        if (!hasPlanted) plantNow()
+        const explodeTime = plantTime + BOMB_SECONDS
+        events.push({ type: "EXPLODE", time: explodeTime, side: "t", details: "Bomb has exploded" })
+        currentTime = explodeTime
+        winType = "BOMB_EXPLODED"
+    }
+
+    // The lone survivor won a 1vX clutch.
     if (isClutchScenario && winnersAlive.length === 1) {
-        const clutcher = winnersAlive[0]
         events.push({
             type: "CLUTCH",
-            time: currentTime + 1,
-            playerId: clutcher.id,
+            time: currentTime,
+            playerId: winnersAlive[0].id,
             details: `1v${clutchStartEnemies}`,
         })
-    }
-
-    // Catch-up plant emission if the inner loop didn't reach it.
-    if (!hasPlanted && (winType === "BOMB_EXPLODED" || winType === "BOMB_DEFUSE")) {
-        const isTWinning = winType === "BOMB_EXPLODED"
-        const activeTs = isTWinning ? winnersAlive : losersAlive
-
-        if (activeTs.length > 0) {
-            const time = Math.max(currentTime + 2, plantTime > 0 ? plantTime : 55)
-            events.push({ type: "PLANT", time, side: "t", details: "Bomb has been planted" })
-            currentTime = time
-            hasPlanted = true
-        } else {
-            // No T alive to plant — collapse to elimination outcome.
-            winType = "ELIMINATION"
-        }
-    }
-
-    if (hasPlanted && winType === "BOMB_DEFUSE") {
-        const defuseTime = currentTime + rng.int(5, 10)
-        events.push({ type: "DEFUSE", time: defuseTime, side: "ct", details: "Bomb has been defused" })
-        currentTime = defuseTime
-    }
-
-    if (hasPlanted && winType === "BOMB_EXPLODED") {
-        // Optimization: all CTs dead → skip the full 40s explode wait.
-        const allCTsDead = losersAlive.length === 0
-        const waitTime = allCTsDead ? 3 : 40
-
-        const explodeTime = currentTime + waitTime
-        events.push({
-            type: "EXPLODE",
-            time: explodeTime,
-            side: "t",
-            details: allCTsDead ? "Bomb exploded (All CTs eliminated)" : "Bomb has exploded",
-        })
-        currentTime = explodeTime
-    }
-
-    if (winType === "TIME") {
-        currentTime = 115
     }
 
     events.sort((a, b) => a.time - b.time)

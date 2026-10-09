@@ -26,6 +26,7 @@ import {
     addBracketMatch,
     scheduleBracketMatch,
 } from "./bracket-scheduling"
+import { childBracketSeed } from "./seeding-helpers"
 
 export interface BracketHandlerDeps {
     /** Called when lower-bracket final completes — TournamentManager.checkAndStartPlayoffs */
@@ -68,7 +69,7 @@ export function handleOpeningResult(
             isCompleted: false,
             week: match.week + 1,
             format: "BO3",
-            seed: match.seed + 1,
+            seed: childBracketSeed(match.seed, lowerR1Id),
             sourceMatchIds: [],
         }
         addBracketMatch(tournament, lowerR1)
@@ -111,7 +112,7 @@ export function handleUpperSemiResult(
             isCompleted: false,
             week: match.week + 1,
             format: "BO3",
-            seed: match.seed + 1,
+            seed: childBracketSeed(match.seed, lowerSemiId),
             sourceMatchIds: [],
         }
         addBracketMatch(tournament, lowerSemi)
@@ -147,7 +148,7 @@ export function handleUpperFinalResult(
             isCompleted: false,
             week: match.week + 2,
             format: "BO3",
-            seed: match.seed + 1,
+            seed: childBracketSeed(match.seed, lowerFinalId),
             sourceMatchIds: [],
         }
         addBracketMatch(tournament, lowerFinal)
@@ -200,7 +201,7 @@ export function handleLowerResult(
                 isCompleted: false,
                 week: match.week + 1,
                 format: "BO3",
-                seed: match.seed + 1,
+                seed: childBracketSeed(match.seed, r2Id),
                 sourceMatchIds: [],
             }
             addBracketMatch(tournament, r2)

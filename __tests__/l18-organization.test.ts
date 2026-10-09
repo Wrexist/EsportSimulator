@@ -72,7 +72,8 @@ test('equipment re-clicks do not charge; cheaper replacement reduces upkeep with
     expect(h.org.purchaseEquipment('mouse_t1').success).toBe(true)
     expect(h.get().teams[0].equipment.filter(e => e.type === 'MOUSE')).toHaveLength(1)
     expect(forecast(h.get()).expenses.equipment).toBeLessThan(expensive)
-    expect(EquipmentManager.strengthBonus(h.get().teams[0])).toBeCloseTo(2 / 80)
+    // Revamp Phase 0: gear is scaled so a full elite set (45 points) is +8%, not 1/80 per point (+56%).
+    expect(EquipmentManager.strengthBonus(h.get().teams[0])).toBeCloseTo(2 * 0.08 / 45)
     expect(h.get().financeLedger.filter(e => e.description.startsWith('Equipment purchase')).map(e => e.amount))
         .toEqual([EquipmentManager.getCatalogItem('mouse_t3')!.purchaseCost, EquipmentManager.getCatalogItem('mouse_t1')!.purchaseCost])
 })
@@ -81,7 +82,7 @@ test('legacy duplicate gear slots and corrupt ratings cannot stack unbounded str
     const h = harness(); h.org.purchaseEquipment('mouse_t3')
     const team = structuredClone(h.get().teams[0])
     team.equipment = Array.from({ length: 20 }, () => ({ ...team.equipment[0], bonus: { stat: 'reaction', value: 1e9 } }))
-    expect(EquipmentManager.strengthBonus(team)).toBeCloseTo(0.1)
+    expect(EquipmentManager.strengthBonus(team)).toBeCloseTo(8 * 0.08 / 45)
     expect(EquipmentManager.calculateWeeklyCost(team)).toBe(EquipmentManager.getCatalogItem('mouse_t3')!.weeklyCost)
 })
 

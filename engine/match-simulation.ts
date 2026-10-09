@@ -7,13 +7,14 @@ import { runLegacySeries, finalizeLegacySeries, type LegacySeriesContext, type L
  * - Seeded RNG passed explicitly (no global randomness)
  * - Team factors: average skill, role coverage, chemistry, morale, fatigue
  * - Map factors: map-specific strength, tactical rating
- * - Dynamic modifiers: momentum, tilt, clutch probability
+ * - Dynamic modifiers: economy, side, stage pressure, upset variance (no
+ *   streak/momentum/tilt bonuses: they snowballed maps)
  * - Full round history with clutch events and momentum shifts
  */
 
 import { resolveCanonicalSeriesMaps } from '@/lib/live-match-utils'
 import { LEGACY_MATCH_ENGINE } from './match/live-checkpoint'
-import { SeededRNG, createMatchRNG } from "./rng"
+import { SeededRNG, createMatchRNG, deriveSeed } from "./rng"
 import { WEAPONS } from "./economy-manager"
 import {
     Player,
@@ -82,11 +83,6 @@ export interface MatchStats {
 const T_SIDE_ADVANTAGE_MAPS: MapId[] = [MapId.ANUBIS, MapId.ANCIENT]
 const T_SIDE_ADVANTAGE = MATCH_BALANCE.T_SIDE_ADVANTAGE
 const CT_SIDE_ADVANTAGE = MATCH_BALANCE.CT_SIDE_ADVANTAGE
-const MOMENTUM_WEIGHT = MATCH_BALANCE.MOMENTUM_WEIGHT
-const MOMENTUM_MAX_ROUNDS = MATCH_BALANCE.MOMENTUM_MAX_ROUNDS
-const TILT_THRESHOLD = MATCH_BALANCE.TILT_THRESHOLD
-const TILT_PENALTY = MATCH_BALANCE.TILT_PENALTY
-const CLUTCH_BASE_CHANCE = MATCH_BALANCE.CLUTCH_BASE_CHANCE
 
 // ===== PLAYSTYLE COUNTER SYSTEM =====
 // Rock-Paper-Scissors tactical counters:
@@ -222,7 +218,7 @@ export class SimulationEngineV2 {
             if (match.maps.some(m => !Object.values(MapId).includes(m))) throw Error('Saved veto contains an invalid map')
             maps = resolveCanonicalSeriesMaps({ format: match.format, seed: matchSeed, savedMaps: match.maps })
         } else {
-            maps = this.simulateMapVeto(createMatchRNG(matchSeed), homeTeam.id, awayTeam.id, activeHomePlayers, activeAwayPlayers,
+            maps = this.simulateMapVeto(createMatchRNG(deriveSeed(matchSeed, match.id ?? '', 'veto')), homeTeam.id, awayTeam.id, activeHomePlayers, activeAwayPlayers,
                 hStaff.analyst, aStaff.analyst, homeMapStrengths, awayMapStrengths, match.format).maps
         }
 
@@ -230,20 +226,24 @@ export class SimulationEngineV2 {
         const homeMentalPrep = !!match.mentalPrep && (!match.mentalPrepTeamId || match.mentalPrepTeamId === homeTeam.id)
         const awayMentalPrep = !!match.mentalPrep && match.mentalPrepTeamId === awayTeam.id
         const stress = (players: Player[]) => players.length > 0 ? players.reduce((sum, p) => sum + (p.stressResistance || 50), 0) / players.length : 50
+        // Every team but the player's (managedTeamId as passed; none = both)
+        // gets implicit gear when it owns none: AI clubs never buy any.
+        const implicitGear = (team: Team) => team.id !== managedTeamId
 
         return {
             engine: this,
             seed: matchSeed,
+            matchId: match.id,
             format: match.format,
             maps,
             mapStartingSides: match.mapStartingSides,
             home: {
                 team: homeTeam, players: activeHomePlayers, staff: hStaff, mapStrengths: homeMapStrengths, stressRes: stress(activeHomePlayers),
-                strength: this.calculateTeamStrength(homeTeam, activeHomePlayers, hStaff, homeMentalPrep) * calculatePlaystyleCounterMod(homeTeam.playstyle, awayTeam.playstyle),
+                strength: this.calculateTeamStrength(homeTeam, activeHomePlayers, hStaff, homeMentalPrep, calculatePlaystyleCounterMod(homeTeam.playstyle, awayTeam.playstyle), implicitGear(homeTeam)),
             },
             away: {
                 team: awayTeam, players: activeAwayPlayers, staff: aStaff, mapStrengths: awayMapStrengths, stressRes: stress(activeAwayPlayers),
-                strength: this.calculateTeamStrength(awayTeam, activeAwayPlayers, aStaff, awayMentalPrep) * calculatePlaystyleCounterMod(awayTeam.playstyle, homeTeam.playstyle),
+                strength: this.calculateTeamStrength(awayTeam, activeAwayPlayers, aStaff, awayMentalPrep, calculatePlaystyleCounterMod(awayTeam.playstyle, homeTeam.playstyle), implicitGear(awayTeam)),
             },
             isHighPressure: !!match.isHighPressure,
             matchStage: match.stage,
@@ -305,9 +305,11 @@ export class SimulationEngineV2 {
         team: Team,
         players: Player[],
         staff: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
-        mentalPrep?: boolean
+        mentalPrep?: boolean,
+        counterMod?: number,
+        implicitGear?: boolean,
     ): number {
-        return calculateTeamStrengthFn(team, players, staff, mentalPrep)
+        return calculateTeamStrengthFn(team, players, staff, mentalPrep, counterMod, implicitGear)
     }
 
     /**
@@ -365,7 +367,9 @@ export class SimulationEngineV2 {
         cachedHomeStressRes?: number,
         cachedAwayStressRes?: number,
         cachedPlayerMap?: Map<string, Player>,
-
+        /** Manager regroup edge (tactical timeout on a losing streak), win probability. */
+        homeRegroupEdge: number = 0,
+        awayRegroupEdge: number = 0,
     ): RoundSimulationResult {
         // Pre-built lookup set for O(1) home-player checks
         const homePlayerIdSet = new Set(homePlayers.map(p => p.id))
@@ -388,13 +392,6 @@ export class SimulationEngineV2 {
         } else if (homeWinProb < 0.30 && rng.bool(0.08)) {
             // Weak teams can show grit
             homeWinProb += 0.07
-        }
-
-        // Underdog Bonus (Kick in if score difference is high)
-        const roundDiff = homeWinStreak - awayWinStreak
-        if (Math.abs(roundDiff) > 7) {
-            // Rubber banding: slight help to the losing team
-            homeWinProb += roundDiff < 0 ? 0.02 : -0.02
         }
 
         // Hero Round Potential (0.5% base chance)
@@ -496,32 +493,15 @@ export class SimulationEngineV2 {
         const mapDiff = (homeMapStrength - awayMapStrength) / 200
         homeWinProb += mapDiff
 
-        // Momentum bonus (win streak)
-        // Momentum bonus (win streak)
-        const homeStreakMomentum = Math.min(homeWinStreak, MOMENTUM_MAX_ROUNDS) * MOMENTUM_WEIGHT
-        const awayStreakMomentum = Math.min(awayWinStreak, MOMENTUM_MAX_ROUNDS) * MOMENTUM_WEIGHT
-
-        // New Momentum Score Bonus (Max 5%)
-        // Score 0-10 -> 0.00 - 0.05
-        const homeScoreMomentum = homeMomentumScore * 0.005
-        const awayScoreMomentum = awayMomentumScore * 0.005
-
-        homeWinProb += (homeStreakMomentum + homeScoreMomentum) - (awayStreakMomentum + awayScoreMomentum)
-
-        // Tilt penalty (loss streak)
-        // Psychologist impact on tilt
-        const homeStressReduction = homeStaff?.psychologist ? (homeStaff.psychologist.stressReduction || (homeStaff.psychologist.level * 0.1)) : 0
-        const awayStressReduction = awayStaff?.psychologist ? (awayStaff.psychologist.stressReduction || (awayStaff.psychologist.level * 0.1)) : 0
-
-        const homeTiltMitigation = homeStressReduction // stressReduction is 0.1 to 0.5
-        const awayTiltMitigation = awayStressReduction
-
-        if (homeLossStreak >= TILT_THRESHOLD) {
-            homeWinProb -= (homeLossStreak - TILT_THRESHOLD + 1) * TILT_PENALTY * (1 - homeTiltMitigation)
-        }
-        if (awayLossStreak >= TILT_THRESHOLD) {
-            homeWinProb += (awayLossStreak - TILT_THRESHOLD + 1) * TILT_PENALTY * (1 - awayTiltMitigation)
-        }
+        // No win-streak, momentum-score, tilt or rubber-band bonuses. Those
+        // flat round-win swings (+2%/round won up to +10%, +0.5%/momentum
+        // point, +3%/opponent loss beyond two) made a won round 76% likely to
+        // be followed by another (pro CS ~62%) and 28% of maps 13-3 or worse.
+        // Streaks still matter through the economy (equipDiff above). The
+        // streak/momentum arguments stay for API compatibility.
+        // A manager's regroup (tactical timeout on a losing streak) is the
+        // one explicit, bounded edge.
+        homeWinProb += homeRegroupEdge - awayRegroupEdge
 
         // T Side Advantage on specific maps
         if (mapId && T_SIDE_ADVANTAGE_MAPS.includes(mapId)) {
@@ -578,7 +558,7 @@ export class SimulationEngineV2 {
         const winType = determineWinTypeFn(rng, homeWins === homeIsCT)
 
         // Generate events for this round
-        const { kills, deaths, events, winType: validatedWinType } = generateRoundStatsFn(rng, homePlayers, awayPlayers, homeWins, homeEconomy, awayEconomy, winType, homePlayerIdSet, playerMap)
+        const { kills, deaths, events, winType: validatedWinType } = generateRoundStatsFn(rng, homePlayers, awayPlayers, homeWins, homeEconomy, awayEconomy, winType, homePlayerIdSet, playerMap, homeWins === homeIsCT)
 
         // Momentum shift
         const momentumShift = homeWins ? 0.1 : -0.1

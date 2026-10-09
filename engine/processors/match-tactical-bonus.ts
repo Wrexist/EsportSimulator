@@ -16,6 +16,11 @@
  *        STRUCTURED beats BALANCED  → +5
  *        BALANCED beats AGGRESSIVE  → +5
  *      "default" normalizes to "balanced".
+ *
+ * NOTE (revamp Phase 0): the week tick no longer feeds this into
+ * MatchEngine.simulateMatch. The engine scaled it x10 into a synthetic coach
+ * (a playstyle counter alone was +50% strength) and the counter was already
+ * applied by the engine. AI matches now use real staff (buildMatchStaff).
  */
 
 import type { StaffSaveData } from "../save-types"
