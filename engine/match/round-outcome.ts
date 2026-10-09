@@ -236,14 +236,23 @@ export function generateRoundStats(
         }
     }
 
-    // Winner deaths: 0-3 weighted toward 1-2.
+    // Winner deaths: 0-4 weighted toward 1-2. Four leaves a lone survivor who
+    // wins a 1vX clutch; the old 0-3 cap made clutches impossible.
     let winnerDeathCount: number
     const winnerRoll = rng.next()
-    if (winnerRoll < 0.15) winnerDeathCount = 0
-    else if (winnerRoll < 0.50) winnerDeathCount = 1
-    else if (winnerRoll < 0.85) winnerDeathCount = 2
-    else winnerDeathCount = 3
+    if (winnerRoll < 0.14) winnerDeathCount = 0
+    else if (winnerRoll < 0.44) winnerDeathCount = 1
+    else if (winnerRoll < 0.74) winnerDeathCount = 2
+    else if (winnerRoll < 0.88) winnerDeathCount = 3
+    else winnerDeathCount = 4
     winnerDeathCount = Math.min(winnerDeathCount, Math.max(0, loserDeathCount - 1))
+
+    // Clutch size for a lone-survivor round: 1v1 most often, 1v5 rare.
+    let clutchTarget = 0
+    if (winnerDeathCount === 4) {
+        const c = rng.next()
+        clutchTarget = c < 0.50 ? 1 : c < 0.80 ? 2 : c < 0.93 ? 3 : c < 0.98 ? 4 : 5
+    }
 
     const winnersAlive = [...winningPlayers]
     const losersAlive = [...losingPlayers]
@@ -258,13 +267,6 @@ export function generateRoundStats(
     let lastDeath: { time: number; victimId: string; killerId: string } | null = null
 
     while (winnerDeathsRemaining > 0 || loserDeathsRemaining > 0) {
-        const winnersAliveCount = winnersAlive.length
-        const losersAliveCount = losersAlive.length
-
-        if (winnersAliveCount === 1 && losersAliveCount >= 2 && !isClutchScenario) {
-            isClutchScenario = true
-            clutchStartEnemies = losersAliveCount
-        }
         if (currentTime > 110) break
 
         // PANIC: increase trade probability late in round.
@@ -311,7 +313,15 @@ export function generateRoundStats(
             }
         }
 
-        if (rng.bool(winnerDeathWeight) && winnerDeathsRemaining > 0 && losersAlive.length > 0) {
+        let winnerDies = rng.bool(winnerDeathWeight)
+        // Rolled winner deaths are owed: losers who are all going to die take
+        // them down with them. The man-advantage bias used to wipe the losers
+        // first, so most rolled winner deaths (and every 4th) never happened.
+        if (loserDeathsRemaining >= losersAlive.length && winnerDeathsRemaining >= losersAlive.length) winnerDies = true
+        // The 4th winner death lands when exactly clutchTarget enemies remain.
+        if (winnerDeathsRemaining === 1 && winnersAlive.length === 2 && clutchTarget > 0) winnerDies = losersAlive.length <= clutchTarget
+
+        if (winnerDies && winnerDeathsRemaining > 0 && losersAlive.length > 0) {
             killer = pickWeighted(rng, losersAlive, "KILL", roundKills)
             victim = pickWeighted(rng, winnersAlive, "DEATH")
             isWinnerKill = false
@@ -369,6 +379,11 @@ export function generateRoundStats(
                 winnerDeathsRemaining--
                 roundKills.set(killer!.id, (roundKills.get(killer!.id) || 0) + 1)
                 lastDeath = { time: currentTime, victimId: victim!.id, killerId: killer!.id }
+                // Last winner standing against 1+ enemies: a 1vX clutch.
+                if (winnersAlive.length === 1 && losersAlive.length >= 1 && !isClutchScenario) {
+                    isClutchScenario = true
+                    clutchStartEnemies = losersAlive.length
+                }
             }
 
             // Assist logic: trade-kill window is a guaranteed assist;
