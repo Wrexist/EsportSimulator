@@ -112,7 +112,7 @@
     "startWeek": 20,
     "duration": 6,
     "entryType": "LEAGUE",
-    "description": "The premier global league competition. 24 S-Tier teams compete over 6 weeks in a round-robin format with ConferANCE groups. Top teams from each group advance to the playoff bracket. All league matches are best-of-1; playoffs are best-of-3. Qualification requires S-Tier league standing.",
+    "description": "The premier global league competition. 24 S-Tier teams compete over 6 weeks in a round-robin format with Conference groups. Top teams from each group advance to the playoff bracket. All league matches are best-of-1; playoffs are best-of-3. Qualification requires S-Tier league standing.",
     "requiredLeagueTier": "S_TIER",
     "color": "#8b5cf6",
     "icon": "shield",
@@ -327,7 +327,7 @@
     "startWeek": 32,
     "duration": 3,
     "entryType": "QUALIFIER",
-    "description": "Asia's premier league competition, operated by Perfect Realm. 12 teams compete over 3 weeks in round-robin groups. Top teams advance to playoffs. Features dedicated slots for Chinese, Korean, and SEA teams. A critical pathway for Asian teams to gain international experiANCE.",
+    "description": "Asia's premier league competition, operated by Perfect Realm. 12 teams compete over 3 weeks in round-robin groups. Top teams advance to playoffs. Features dedicated slots for Chinese, Korean, and SEA teams. A critical pathway for Asian teams to gain international experience.",
     "regionalSlots": {
       "ASIA": 10,
       "OCEANIA": 2
@@ -714,8 +714,8 @@
   },
   {
     "id": "esl_pro_league_conference",
-    "name": "Global Pro League ConferANCE",
-    "shortName": "EPL ConferANCE",
+    "name": "Global Pro League Conference",
+    "shortName": "EPL Conference",
     "tier": "B_TIER",
     "region": "INTERNATIONAL",
     "format": "league",
@@ -724,7 +724,7 @@
     "startWeek": 4,
     "duration": 4,
     "entryType": "LEAGUE",
-    "description": "ConferANCE stage of Global Pro League. 16 teams compete for playoff spots.",
+    "description": "Conference stage of Global Pro League. 16 teams compete for playoff spots.",
     "requiredLeagueTier": "A_TIER",
     "color": "#8b5cf6",
     "icon": "shield",

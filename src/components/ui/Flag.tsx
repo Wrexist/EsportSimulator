@@ -21,6 +21,9 @@ const NAME_TO_ISO2: Record<string, string> = {
   Switzerland: "ch", Austria: "at", Israel: "il", Jordan: "jo", Mongolia: "mn",
   "South Africa": "za", "New Zealand": "nz", Kosovo: "xk", Europe: "eu",
   NA: "us", "North America": "us",
+  // Tournament / club regions (rendered as labelled glyphs below)
+  ASIA: "asia", INTERNATIONAL: "int", WORLD: "int", MENA: "mena", CIS: "cis",
+  OCE: "oce", OCEANIA: "oce",
 }
 
 /**
@@ -36,6 +39,8 @@ const REGION_LABEL: Record<string, string> = {
   sa: "SA",
   asia: "AS",
   oce: "OC",
+  mena: "ME",
+  cis: "CIS",
 }
 
 export interface FlagProps {

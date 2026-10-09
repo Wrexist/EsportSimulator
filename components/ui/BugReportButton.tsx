@@ -103,7 +103,7 @@ function collectDebugInfo(pathname: string | null) {
 function formatReport(form: BugReportForm, debug: ReturnType<typeof collectDebugInfo>): string {
   const lines: string[] = [
     "========================================",
-    "BUG REPORT - Esports Manager Simulator",
+    "BUG REPORT - Esports Manager: FPS",
     "========================================",
     "",
     `Category: ${CATEGORIES.find(c => c.value === form.category)?.label || form.category}`,
