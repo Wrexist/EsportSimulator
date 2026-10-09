@@ -22,7 +22,10 @@
  *     its economy style thresholds.
  *   - Manager decisions only touch the managed team: a buy call
  *     (ECO/FORCE/SEMIBUY/FULL/DOUBLE AWP) and a regroup (tactical timeout)
- *     that subtracts at most two losses from that team's tilt calculation.
+ *     worth a small round-win edge while that team is on a losing streak.
+ *   - No streak/momentum/tilt bonuses: streaks act through the economy only.
+ *     The momentum score is still tracked (winner +1, eco win +3, clutch +2)
+ *     for display, but no longer moves round odds.
  *   - Halftime (after round 12), overtime entry (12-12) and every overtime
  *     half swap sides, reset economies and clear streaks/momentum. Overtime
  *     sets are MR3 to 16/19/22; after a third tied set the next decided
@@ -49,7 +52,7 @@ import type {
 import { EconomyManager } from '../economy-manager'
 import { createMatchRNG, deriveSeed, type SeededRNG } from '../rng'
 import { applyRoundEconomy, getMapsToWinForFormat, resolveHomeStartsCT } from '@/lib/live-match-utils'
-import { managedLoadout, regroupLossStreak, restoreTimeoutState, spendTimeout, type TimeoutState } from './manager-controls'
+import { managedLoadout, regroupEdge, restoreTimeoutState, spendTimeout, type TimeoutState } from './manager-controls'
 import { determineMapMVP, determineMVP, generateMatchStats } from './match-stats'
 import type { BuyStrategy } from './buy-phase'
 import type { PlayerSimulationState } from './round-outcome'
@@ -87,6 +90,7 @@ export interface LegacyRoundEngine {
         currentCTTeamId?: string, currentTTeamId?: string, customTactics?: CustomTactics,
         homeMomentumScore?: number, awayMomentumScore?: number, homeStaff?: StaffBundle, awayStaff?: StaffBundle,
         mapId?: MapId, matchStage?: string, cachedHomeStressRes?: number, cachedAwayStressRes?: number, cachedPlayerMap?: Map<string, Player>,
+        homeRegroupEdge?: number, awayRegroupEdge?: number,
     ): { winner: 'HOME' | 'AWAY'; winType: RoundResult['winType']; kills: RoundResult['kills']; deaths: NonNullable<RoundResult['deaths']>; events: NonNullable<RoundResult['events']> }
 }
 
@@ -354,10 +358,10 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     const r = ctx.engine.simulateRound(
         rng, home.players, away.players, home.strength, away.strength,
         home.mapStrengths.get(mapId) || 50, away.mapStrengths.get(mapId) || 50, homeIsCT,
-        sim.homeWinStreak, sim.awayWinStreak,
-        regroupLossStreak(sim.homeLossStreak, regroupHome), regroupLossStreak(sim.awayLossStreak, regroupAway),
+        sim.homeWinStreak, sim.awayWinStreak, sim.homeLossStreak, sim.awayLossStreak,
         roundNum, hEcon, aEcon, homeStrategy, awayStrategy, ctx.isHighPressure, home.team, away.team, ctId, tId, tactics,
         sim.homeMomentumScore, sim.awayMomentumScore, home.staff, away.staff, mapId, ctx.matchStage, home.stressRes, away.stressRes, ctx.playerMap,
+        regroupEdge(sim.homeLossStreak, regroupHome), regroupEdge(sim.awayLossStreak, regroupAway),
     )
     const homeWon = r.winner === 'HOME'
 
@@ -392,7 +396,8 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     sim.homeEconomy = cloneEconomy(home.players, applied.homeEconomy as Record<string, PlayerSimulationState>, homeIsCT)
     sim.awayEconomy = cloneEconomy(away.players, applied.awayEconomy as Record<string, PlayerSimulationState>, !homeIsCT)
 
-    // Momentum: winner +1, eco win +3, clutch +2 (cap 10); loser resets.
+    // Momentum score (display only, no effect on round odds): winner +1,
+    // eco win +3, clutch +2 (cap 10); loser resets.
     const clutch = r.events.some(e => e.type === 'CLUTCH') ? 2 : 0
     const winnerStrategy = homeWon ? homeStrategy : awayStrategy
     const gain = 1 + (winnerStrategy === 'ECO' ? 3 : 0) + clutch

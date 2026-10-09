@@ -1,4 +1,4 @@
-import { regroupLossStreak, restoreTimeoutState, spendTimeout } from '@/engine/match/manager-controls'
+import { regroupEdge, restoreTimeoutState, spendTimeout } from '@/engine/match/manager-controls'
 import { simulationEngineV2 } from "@/engine/match-simulation"
 import { SeededRNG } from "@/engine/rng"
 import type { Player } from "@/types"
@@ -20,7 +20,7 @@ function runRound(seed: number, active: boolean, lossStreak = 5) {
         50, 50,            // base strengths (equal)
         50, 50,            // map strengths
         true,              // homeIsCT
-        0, 0, regroupLossStreak(lossStreak, active), 0, // own tilt only
+        0, 0, lossStreak, 0, // own loss streak only
         5,                 // roundNum
         {}, {},            // economies
         "FULL", "FULL",    // strategies
@@ -33,6 +33,7 @@ function runRound(seed: number, active: boolean, lossStreak = 5) {
         undefined,                        // mapId
         undefined,                        // matchStage
         undefined, undefined, undefined,  // cached stress ×2 + player map
+        regroupEdge(lossStreak, active), 0, // home regroup edge only
     )
 }
 
@@ -41,7 +42,16 @@ test('timeout has no effect without losing-streak pressure, including the comple
     for (const seed of [1, 42, 777, 9001]) expect(runRound(seed, false, 0)).toEqual(runRound(seed, true, 0))
 })
 
-test('regroup relieves tilt in paired actual round simulations without guaranteeing a win', () => {
+test('streaks alone do not move a round (no tilt/momentum bonus)', () => {
+    for (const seed of [1, 42, 777, 9001]) {
+        const calm = simulationEngineV2.simulateRound(new SeededRNG(seed), mk("h"), mk("a"), 50, 50, 50, 50, true, 0, 0, 0, 0, 5, {}, {})
+        const streaky = simulationEngineV2.simulateRound(new SeededRNG(seed), mk("h"), mk("a"), 50, 50, 50, 50, true, 5, 0, 0, 6, 5, {}, {},
+            "FULL", "FULL", false, undefined, undefined, undefined, undefined, undefined, 10, 0)
+        expect(streaky).toEqual(calm)
+    }
+})
+
+test('regroup on a losing streak helps in paired actual round simulations without guaranteeing a win', () => {
     let baseline = 0, regroup = 0
     for (let seed = 1; seed <= 400; seed++) {
         baseline += Number(runRound(seed, false).winner === 'HOME')
