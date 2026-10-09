@@ -835,8 +835,9 @@ export function useLiveMatch(id: string) {
                 .map(m => `${MAP_NAMES[m.map] || m.map} ${m.homeScore ?? 0}-${m.awayScore ?? 0}`)
                 .join(", ")
             const winnerName = homeWon ? homeTeam.name : awayTeam.name
+            const seriesScore = homeWon ? `${sim.homeSeriesScore}-${sim.awaySeriesScore}` : `${sim.awaySeriesScore}-${sim.homeSeriesScore}`
             setLogs(prev => [
-                { type: "SYSTEM", message: `--- FINAL: ${winnerName} win ${sim.homeSeriesScore}-${sim.awaySeriesScore} (${mapScores}) ---` },
+                { type: "SYSTEM", message: `--- FINAL: ${winnerName} win ${seriesScore} (${mapScores}) ---` },
                 { type: "SYSTEM", message: `Skipped to the end: ${done.roundsPlayed} remaining round${done.roundsPlayed === 1 ? "" : "s"} simulated` },
                 ...prev,
             ])
