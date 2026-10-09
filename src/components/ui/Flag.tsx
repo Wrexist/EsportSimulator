@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { getCountryCode, ISO2_ALIASES, FLAGS_WITHOUT_SVG } from "@/lib/asset-utils"
 
 /**
  * Maps common English country names to ISO-2 codes. Used when the caller
@@ -56,8 +57,11 @@ export interface FlagProps {
 function resolveCode(raw: string): string | null {
   if (!raw) return null
   const trimmed = raw.trim()
-  if (trimmed.length === 2 && /^[a-zA-Z]{2}$/.test(trimmed)) return trimmed.toLowerCase()
-  return NAME_TO_ISO2[trimmed] ?? NAME_TO_ISO2[trimmed.split(" ")[0]] ?? null
+  if (trimmed.length === 2 && /^[a-zA-Z]{2}$/.test(trimmed)) {
+    const code = trimmed.toLowerCase()
+    return ISO2_ALIASES[code] ?? code
+  }
+  return NAME_TO_ISO2[trimmed] ?? getCountryCode(trimmed) ?? NAME_TO_ISO2[trimmed.split(" ")[0]] ?? null
 }
 
 function RegionGlyph({ label, size, className }: { label: string; size: number; className?: string }) {
@@ -99,7 +103,7 @@ export function Flag({ code, size = 20, showName = false, className }: FlagProps
 
   // Regional aggregate codes — render as labelled glyph (no SVG exists)
   const regionLabel = REGION_LABEL[iso2]
-  if (regionLabel || imgError) {
+  if (regionLabel || imgError || FLAGS_WITHOUT_SVG.has(iso2)) {
     return (
       <div className={cn("flex items-center gap-2", className)} title={code}>
         <RegionGlyph label={regionLabel ?? iso2.toUpperCase()} size={safeSize} />
