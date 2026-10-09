@@ -38,6 +38,8 @@ export function TopBar() {
         advanceWeek,
         isLoading,
         gameOverReason,
+        saveId,
+        playerTeamId,
         theme,
         setTheme,
         setTimeMode,
@@ -52,6 +54,8 @@ export function TopBar() {
             advanceWeek: s.advanceWeek,
             isLoading: s.isLoading,
             gameOverReason: s.gameOverReason,
+            saveId: s.saveId,
+            playerTeamId: s.playerTeamId,
             theme: s.theme,
             setTheme: s.setTheme,
             setTimeMode: s.setTimeMode,
@@ -80,9 +84,12 @@ export function TopBar() {
     // unrelated player/team updates.
     const pendingMatchId = useGameStore(selectPlayableMatchId)
     const pendingMatch = pendingMatchId ? { id: pendingMatchId } : null
+    // No career loaded (fresh launch, deleted save): advancing would build a
+    // phantom save for team "unknown", so there is nothing to advance.
+    const hasCareer = !!saveId && !!playerTeamId
     // A dissolved career (game over) can't advance or play; the game-over
     // screen offers Load Save / Main Menu instead.
-    const controlsLocked = isLoading || !!gameOverReason
+    const controlsLocked = isLoading || !!gameOverReason || !hasCareer
 
     const [isMounted, setIsMounted] = useState(false)
 
@@ -90,9 +97,14 @@ export function TopBar() {
         setIsMounted(true)
     }, [])
 
+    // Hide the club chip and advance controls once mounted with no career
+    // (gated on mount so the server render matches the first client render).
+    const hideCareerControls = isMounted && !hasCareer
+
     return (
         <header className="game-topbar min-h-16 shrink-0 px-3 py-2 xl:px-6 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 sticky top-0 z-40">
             <div className="flex min-w-0 items-center gap-3 xl:gap-5">
+                {!hideCareerControls && (<>
                 {/* Team Identity */}
                 <div className="flex items-center gap-3 topbar-club min-w-[150px]">
                     {/* Team Logo */}
@@ -154,6 +166,7 @@ export function TopBar() {
                             : "Loading..."}
                     </span>
                 </div>
+                </>)}
             </div>
 
             <div className="flex max-w-full flex-wrap items-center gap-2 xl:gap-3">
@@ -194,7 +207,7 @@ export function TopBar() {
                 </Button>
 
                 {/* Continue / Play Match Button */}
-                {(() => {
+                {!hideCareerControls && (() => {
                     if (pendingMatch) {
                         return (
                             <Button
