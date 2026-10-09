@@ -34,6 +34,7 @@ Press **F1** or **?** at any time in-game to open this list. On macOS, use **⌘
 | Shortcut | Action                        |
 | -------- | ----------------------------- |
 | `Space`  | Advance time (day or week)    |
+| `Space`  | Pause / resume a live match   |
 
 ## Modals & dialogs
 
@@ -46,5 +47,6 @@ Press **F1** or **?** at any time in-game to open this list. On macOS, use **⌘
 
 - Shortcuts are disabled while typing in text fields so you won't accidentally save while renaming something. `Esc` out of the field first if you need to trigger a shortcut.
 - When a dialog is open, global shortcuts are paused and the dialog's own keys take over (`Esc` to cancel, `Ctrl+Enter` to confirm).
-- `Space` advances time on gameplay screens only — it's ignored on Settings, Credits, the Load-game screen, and during a live match.
+- `Space` advances time on gameplay screens only — it's ignored on Settings, Credits, the Load-game screen, and during a live match, where it pauses / resumes playback instead.
+- During a live match the screen is full-screen and navigation keys (`1`–`9`, `Esc`, `F3` / `Ctrl+L`, `F10`) do nothing; use **Match hub** to step out. Saving (`Ctrl+S` / `F2`) still works.
 - `F12` is left alone so the developer console stays accessible in dev builds.

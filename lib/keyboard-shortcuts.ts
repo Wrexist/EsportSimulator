@@ -45,6 +45,7 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
         label: "Gameplay",
         shortcuts: [
             { keys: ["Space"], description: "Advance time (day or week)" },
+            { keys: ["Space"], description: "Pause / resume a live match" },
         ],
     },
     {
