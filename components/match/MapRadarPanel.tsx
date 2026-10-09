@@ -662,10 +662,14 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                                             />
                                                         )}
                                                         {showNames && label && <g>
-                                                        {/* Leader line only when collision avoidance pushed the name away. */}
-                                                        {Math.hypot(label.x + label.width / 2 - dot.x, label.y + label.height / 2 - dot.y) > label.width / 2 + 4 && (
-                                                            <line x1={dot.x} y1={dot.y} x2={label.x + label.width / 2} y2={label.y + label.height / 2} stroke={color} strokeWidth=".2" opacity=".5" />
-                                                        )}
+                                                        {/* Leader line only when collision avoidance pushed the name away from its dot. */}
+                                                        {(() => {
+                                                            const nearX = Math.max(label.x, Math.min(dot.x, label.x + label.width))
+                                                            const nearY = Math.max(label.y, Math.min(dot.y, label.y + label.height))
+                                                            return Math.hypot(nearX - dot.x, nearY - dot.y) > 3.2
+                                                                ? <line x1={dot.x} y1={dot.y} x2={nearX} y2={nearY} stroke={color} strokeWidth=".25" opacity=".7" />
+                                                                : null
+                                                        })()}
                                                         <rect x={label.x} y={label.y} width={label.width} height={label.height} rx=".7" fill="#0d1a2d" opacity=".85" />
                                                         <text
                                                             x={label.x + .7}
