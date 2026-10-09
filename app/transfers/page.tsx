@@ -61,6 +61,11 @@ function TransfersPageInner() {
   const [negotiationPlayerId, setNegotiationPlayerId] = useState<string | null>(null)
   const [page, setPage] = useRouteViewState(viewCareerId, "transfers:page", 0)
   const [loadTimeout, setLoadTimeout] = useState(false)
+  // The server always renders the loading state (no career in memory); keep
+  // the first client render identical so hydration doesn't mismatch when the
+  // store is already populated.
+  const [isMounted, setIsMounted] = useState(false)
+  useEffect(() => { setIsMounted(true) }, [])
   const PAGE_SIZE = 25
 
   useEffect(() => {
@@ -110,8 +115,8 @@ function TransfersPageInner() {
     [allFiltered, safePage],
   )
 
-  if (!playerTeam) {
-    if (loadTimeout) {
+  if (!isMounted || !playerTeam) {
+    if (isMounted && loadTimeout) {
       return (
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center space-y-4">
