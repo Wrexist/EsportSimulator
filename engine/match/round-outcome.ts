@@ -34,6 +34,11 @@ export interface PlayerSimulationState {
 
 type RoundWinType = "ELIMINATION" | "BOMB_EXPLODED" | "BOMB_DEFUSE" | "TIME"
 
+/** A kill on the player who killed a teammate within this window is a trade. */
+const TRADE_WINDOW_SECONDS = 5
+/** Chance a fast follow-up kill is aimed at that player (tunes trades to ~20% of kills). */
+const TRADE_REFRAG_CHANCE = 0.6
+
 /**
  * Pick a round win-condition flavor weighted by who won. CT wins lean
  * toward DEFUSE, T wins lean toward EXPLODED. ELIMINATION is the
@@ -331,6 +336,14 @@ export function generateRoundStats(
             isWinnerKill = true
         }
 
+        // Refrag: a fast follow-up kill usually lands on the player who just
+        // got the previous kill (the trade).
+        const prevDeath = lastDeath as { time: number; victimId: string; killerId: string } | null
+        if (victim && isTrade && prevDeath && victim.id !== prevDeath.killerId && rng.bool(TRADE_REFRAG_CHANCE)) {
+            const target: Player | undefined = (isWinnerKill ? losersAlive : winnersAlive).find(p => p.id === prevDeath.killerId)
+            if (target) victim = target
+        }
+
         if (killer && victim) {
             const weapon = homePlayers.includes(killer) ? homeEconomy[killer.id]?.weapon || "glock" : awayEconomy[killer.id]?.weapon || "usp"
 
@@ -390,13 +403,14 @@ export function generateRoundStats(
             // otherwise damage/flash assist roll.
             let assister: Player | undefined
 
-            const isTradeKill = lastDeath &&
-                (currentTime - lastDeath.time <= 4) &&
-                (victim!.id === lastDeath.killerId) &&
-                (killer!.id !== lastDeath.victimId)
+            // Checked against the PREVIOUS death: lastDeath was already
+            // overwritten with this kill, so no kill was ever a trade.
+            const isTradeKill = !!prevDeath &&
+                (currentTime - prevDeath.time <= TRADE_WINDOW_SECONDS) &&
+                (victim!.id === prevDeath.killerId)
 
-            if (isTradeKill && lastDeath) {
-                const fallenTeammate = playerMap.get(lastDeath!.victimId)
+            if (isTradeKill && prevDeath) {
+                const fallenTeammate = playerMap.get(prevDeath.victimId)
                 if (fallenTeammate) assister = fallenTeammate
             }
 
