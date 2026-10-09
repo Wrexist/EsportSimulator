@@ -1,6 +1,7 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { useGameStore } from "@/store/game-store"
 
 import { useEffect, useMemo, memo, useRef, useState } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
@@ -301,6 +302,10 @@ export default function LiveMatchPage() {
         ownEconomy,
         ownIsCT,
     } = useLiveMatch(params.id)
+    const router = useRouter()
+    // A loaded career without this fixture (stale link, already resolved):
+    // the hook never initialises, so explain instead of spinning forever.
+    const matchMissing = useGameStore(state => state.teams.length > 0 && !state.scheduledMatches.some(m => m.id === params.id))
 
     // Local UI State for Loadout Editor (UI Concern)
     const [isEditingLoadout, setIsEditingLoadout] = useState(false)
@@ -392,9 +397,18 @@ export default function LiveMatchPage() {
         backgroundPosition: "center, center",
     }), [currentMapId])
 
-    if (!matchData.current || !simState) return (
-        <LoadingState message="Warming up servers…" size="lg" fullScreen />
-    )
+    if (!matchData.current || !simState) {
+        if (matchMissing) {
+            return (
+                <div role="alert" className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+                    <p className="text-white text-lg font-bold uppercase tracking-widest mb-2">Match Not Found</p>
+                    <p className="text-sm text-white/60 mb-6 max-w-sm">This match is no longer on your schedule. It may already have been played or resolved when the week advanced.</p>
+                    <Button variant="play" onClick={() => router.push("/schedule")}>Back to Schedule</Button>
+                </div>
+            )
+        }
+        return <LoadingState message="Warming up servers…" size="lg" fullScreen />
+    }
 
     const { homeTeam, awayTeam } = matchData.current
     const mapName = MAP_NAMES[currentMapId] || currentMapId || "Unknown Map"
