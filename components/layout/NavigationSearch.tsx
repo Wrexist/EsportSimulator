@@ -7,7 +7,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } 
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command"
 import { menuGroups, settingsItem } from "@/lib/navigation"
 
-export function NavigationSearch({ collapsed, disabled }: { collapsed: boolean; disabled: boolean }) {
+export function NavigationSearch({ compact = false, disabled }: { compact?: boolean; disabled: boolean }) {
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
     const router = useRouter()
@@ -34,17 +34,20 @@ export function NavigationSearch({ collapsed, disabled }: { collapsed: boolean; 
             aria-keyshortcuts="Control+k Meta+k"
             title="Search navigation (Ctrl / Command + K)"
             disabled={disabled}
-            className="mx-2 mb-2 flex h-9 shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-black/10 px-3 text-slate-400 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-40"
+            className={compact
+                ? "flex h-9 shrink-0 items-center gap-2 rounded border border-line bg-shell px-2.5 text-ink-3 transition-colors hover:border-line-strong hover:text-ink-1 disabled:opacity-40"
+                : "mx-2 mb-2 flex h-9 shrink-0 items-center gap-2 rounded border border-line bg-shell px-3 text-ink-3 transition-colors hover:border-line-strong hover:text-ink-1 disabled:opacity-40"}
         >
             <Search size={15} className="shrink-0" />
-            {!collapsed && <><span className="flex-1 text-left text-xs">Go to...</span><span className="text-[10px] text-slate-500">Ctrl K</span></>}
+            <span className={compact ? "hidden text-xs 2xl:inline" : "flex-1 text-left text-xs"}>Go to…</span>
+            <kbd className="rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3">Ctrl K</kbd>
         </button>
         </DialogTrigger>
-            <DialogContent className="liquid-panel overflow-hidden rounded-3xl p-0 sm:max-w-lg" showCloseButton={false}>
+            <DialogContent className="overflow-hidden p-0 sm:max-w-lg" showCloseButton={false}>
                 <DialogTitle className="sr-only">Go to a game screen</DialogTitle>
                 <DialogDescription className="sr-only">Search destinations. Use arrow keys to select and Enter to navigate.</DialogDescription>
                 <Command className="bg-transparent">
-                    <CommandInput aria-label="Search game screens" placeholder="Where would you like to go?" className="h-14 rounded-xl focus-visible:outline-2! focus-visible:-outline-offset-4! focus-visible:shadow-none!" />
+                    <CommandInput aria-label="Search game screens" placeholder="Where would you like to go?" className="h-14 focus-visible:outline-2! focus-visible:-outline-offset-4! focus-visible:shadow-none!" />
                     <CommandList className="max-h-[min(55vh,420px)] p-2" aria-busy={isPending}>
                         <CommandEmpty>No screens found. Try squad, finances or training.</CommandEmpty>
                         {[...menuGroups, { label: "Preferences", items: [settingsItem] }].map(group =>
@@ -57,12 +60,12 @@ export function NavigationSearch({ collapsed, disabled }: { collapsed: boolean; 
                                         startTransition(() => router.push(item.href))
                                         setOpen(false)
                                     }}
-                                    className="gap-3 rounded-xl px-3 py-3 text-slate-200 data-[selected=true]:bg-white/10"
-                                ><item.icon size={17} /><span className="flex-1">{item.label}</span><ArrowUpRight size={14} className="text-slate-500" /></CommandItem>)}
+                                    className="gap-3 rounded px-3 py-2.5 text-ink-2 data-[selected=true]:bg-hover data-[selected=true]:text-ink-1"
+                                ><item.icon size={16} /><span className="flex-1">{item.label}</span><ArrowUpRight size={14} className="text-ink-3" /></CommandItem>)}
                             </CommandGroup>
                         )}
                     </CommandList>
-                    <div className="border-t border-white/10 px-5 py-3 text-xs text-slate-400">Type to find a screen · Enter to open · Esc to close</div>
+                    <div className="border-t border-line px-5 py-3 text-xs text-ink-3">Type to find a screen · Enter to open · Esc to close</div>
                 </Command>
             </DialogContent>
     </Dialog>

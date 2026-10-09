@@ -19,6 +19,7 @@ import {
     Swords,
     Handshake,
     GraduationCap,
+    UserRound,
     type LucideIcon
 } from "lucide-react"
 
@@ -33,57 +34,107 @@ export interface MenuGroup {
     items: MenuItem[]
 }
 
-export const menuGroups: MenuGroup[] = [
+/**
+ * Top-level navigation: six hubs in the top bar, each with a row of
+ * sub-tabs (Football Manager style). `prefixes` claim detail routes
+ * (a player profile belongs to Squad, a tournament page to Competition).
+ */
+export interface NavHub {
+    id: string
+    label: string
+    icon: LucideIcon
+    items: MenuItem[]
+    prefixes?: string[]
+}
+
+export const navHubs: NavHub[] = [
     {
-        label: "Overview",
+        id: "home",
+        label: "Home",
+        icon: Home,
         items: [
-            { icon: Home, label: "Home", href: "/" },
+            { icon: Home, label: "Overview", href: "/" },
             { icon: Inbox, label: "Inbox", href: "/desktop?app=mail" },
             { icon: Calendar, label: "Schedule", href: "/schedule" },
-        ]
+        ],
+        prefixes: ["/schedule/", "/desktop"],
     },
     {
-        label: "Team",
+        id: "squad",
+        label: "Squad",
+        icon: Users,
         items: [
-            { icon: Users, label: "Squad", href: "/squad" },
+            { icon: Users, label: "Roster", href: "/squad" },
             { icon: Dumbbell, label: "Training", href: "/training" },
             { icon: ClipboardList, label: "Staff", href: "/staff" },
-            { icon: Package, label: "Equipment", href: "/equipment" },
-        ]
+            { icon: GraduationCap, label: "Academy", href: "/academy" },
+            { icon: BarChart3, label: "Statistics", href: "/stats" },
+        ],
+        prefixes: ["/player/"],
     },
     {
+        id: "recruitment",
         label: "Recruitment",
+        icon: UserPlus,
         items: [
             { icon: UserPlus, label: "Transfers", href: "/transfers" },
             { icon: Search, label: "Scouting", href: "/scouting" },
-            { icon: Building2, label: "Facilities", href: "/basecamp" },
-            { icon: GraduationCap, label: "Academy", href: "/academy" },
-        ]
+        ],
     },
     {
+        id: "competition",
         label: "Competition",
+        icon: Trophy,
         items: [
             { icon: Trophy, label: "Tournaments", href: "/tournaments" },
             { icon: Globe, label: "Rankings", href: "/rankings" },
             { icon: Swords, label: "FPL", href: "/fpl" },
-            { icon: BarChart3, label: "Statistics", href: "/stats" },
-        ]
+        ],
+        prefixes: ["/tournaments/", "/match/"],
     },
     {
-        label: "Business",
+        id: "club",
+        label: "Club",
+        icon: Building2,
         items: [
             { icon: DollarSign, label: "Finances", href: "/finances" },
             { icon: Handshake, label: "Sponsors", href: "/sponsorships" },
-        ]
+            { icon: Building2, label: "Facilities", href: "/basecamp" },
+            { icon: Package, label: "Equipment", href: "/equipment" },
+            { icon: UserRound, label: "Manager", href: "/career" },
+        ],
     },
     {
+        id: "legacy",
         label: "Legacy",
+        icon: Crown,
         items: [
             { icon: Award, label: "Trophies", href: "/trophies" },
             { icon: Crown, label: "Hall of Fame", href: "/hall-of-fame" },
-        ]
+        ],
     },
 ]
 
+/** Hub-grouped destinations (search palette). */
+export const menuGroups: MenuGroup[] = navHubs.map(hub => ({ label: hub.label, items: hub.items }))
+
 export const settingsItem: MenuItem = { icon: Settings, label: "Settings & Tools", href: "/settings" }
 
+const pathOf = (href: string) => href.split("?")[0]
+
+/** True when `pathname` is the item's own page. */
+export function isNavItemActive(item: MenuItem, pathname: string | null | undefined): boolean {
+    return !!pathname && pathname === pathOf(item.href)
+}
+
+/** The hub that owns `pathname`, or null (settings, menus, unknown routes). */
+export function hubForPath(pathname: string | null | undefined): NavHub | null {
+    if (!pathname) return null
+    for (const hub of navHubs) {
+        if (hub.items.some(item => isNavItemActive(item, pathname))) return hub
+    }
+    for (const hub of navHubs) {
+        if (hub.prefixes?.some(prefix => pathname.startsWith(prefix))) return hub
+    }
+    return null
+}

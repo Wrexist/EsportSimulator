@@ -1,33 +1,34 @@
 "use client"
 
+import Link from "next/link"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import React, { useState, useEffect, useMemo } from "react"
 import { formatGameCalendarDate } from "@/lib/game-calendar"
-import { DollarSign, Clock, Play, Trophy, Moon, Sun, Swords } from "lucide-react"
+import { Clock, Play, Swords, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { spinTransition } from "@/lib/motion"
 import { soundManager } from "@/lib/sound-manager"
 import { motion } from "framer-motion"
-import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { selectPlayableMatchId } from "@/lib/playable-match"
 import { formatCurrency } from "@/lib/utils-extended"
+import { cn } from "@/lib/utils"
+import { navHubs, hubForPath, isNavItemActive, settingsItem } from "@/lib/navigation"
+import { NavigationSearch } from "./NavigationSearch"
 
-// Hoisted: this lookup was being rebuilt as a fresh object on every TopBar
-// render (which fires on every game tick).
-const REGION_TO_FLAG: Record<string, string> = {
-    EU: "eu", NA: "us", SA: "br", CIS: "ru",
-    ASIA: "cn", OCEANIA: "au", MENA: "sa", INTERNATIONAL: "un",
-}
-
+/**
+ * Two-row game header (design system v2).
+ * Row 1: club identity · six hubs · search · funds · date · advance.
+ * Row 2: the active hub's sub-tabs.
+ */
 export function TopBar() {
-    // Single shallow-equality selector instead of 14 individual subscriptions.
-    // Without this, every store mutation (every match tick, transfer, ledger
-    // entry) re-renders the TopBar and cascades through child components.
+    // Single shallow-equality selector instead of many individual subscriptions:
+    // every store mutation (match tick, transfer, ledger entry) would otherwise
+    // re-render the header and cascade through its children.
     const {
         currentWeek,
         currentDay,
@@ -40,9 +41,8 @@ export function TopBar() {
         gameOverReason,
         saveId,
         playerTeamId,
-        theme,
-        setTheme,
         setTimeMode,
+        managerName,
     } = useGameStore(
         useShallow(s => ({
             currentWeek: s.currentWeek,
@@ -56,13 +56,14 @@ export function TopBar() {
             gameOverReason: s.gameOverReason,
             saveId: s.saveId,
             playerTeamId: s.playerTeamId,
-            theme: s.theme,
-            setTheme: s.setTheme,
             setTimeMode: s.setTimeMode,
+            managerName: s.managerDetails?.name,
         }))
     )
 
     const router = useRouter()
+    const pathname = usePathname()
+    const activeHub = hubForPath(pathname)
 
     const currentDate = useMemo(() => {
         const weekStart = getDateForWeek(currentWeek)
@@ -74,16 +75,21 @@ export function TopBar() {
     const playerTeam = useCurrentTeam()
     const budget = playerTeam?.budget || 0
 
-    // Get custom team colors for styling
+    const managerInitials = useMemo(() => {
+        // Trim + collapse whitespace so a trailing space ("Neo ") doesn't
+        // yield an empty second part.
+        const parts = (managerName || "Manager").trim().split(/\s+/).filter(Boolean)
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
+        return (parts[0] || "M").slice(0, 2).toUpperCase()
+    }, [managerName])
 
     // Only offer "Play match" for a fixture the store will actually simulate
     // (shared predicate with the advance-week guard). A due fixture where a
     // side can't field five is resolved by forfeit when the week advances, so
     // CONTINUE is shown instead; offering it led to "Match Not Found" (L27).
-    // The selector returns a primitive id, so TopBar doesn't re-render on
+    // The selector returns a primitive id, so the header doesn't re-render on
     // unrelated player/team updates.
     const pendingMatchId = useGameStore(selectPlayableMatchId)
-    const pendingMatch = pendingMatchId ? { id: pendingMatchId } : null
     // No career loaded (fresh launch, deleted save): advancing would build a
     // phantom save for team "unknown", so there is nothing to advance.
     const hasCareer = !!saveId && !!playerTeamId
@@ -92,201 +98,202 @@ export function TopBar() {
     const controlsLocked = isLoading || !!gameOverReason || !hasCareer
 
     const [isMounted, setIsMounted] = useState(false)
+    useEffect(() => { setIsMounted(true) }, [])
 
-    useEffect(() => {
-        setIsMounted(true)
-    }, [])
-
-    // Hide the club chip and advance controls once mounted with no career
-    // (gated on mount so the server render matches the first client render).
+    // Hide career chrome once mounted with no career (gated on mount so the
+    // server render matches the first client render).
     const hideCareerControls = isMounted && !hasCareer
 
-    return (
-        <header className="game-topbar min-h-16 shrink-0 px-3 py-2 xl:px-6 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 sticky top-0 z-40">
-            <div className="flex min-w-0 items-center gap-3 xl:gap-5">
-                {!hideCareerControls && (<>
-                {/* Team Identity */}
-                <div className="flex items-center gap-3 topbar-club min-w-[150px]">
-                    {/* Team Logo */}
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
-                        {isMounted ? (
-                            <TeamLogoDisplay team={playerTeam} size={36} />
-                        ) : (
-                            <div className="w-9 h-9 bg-white/5 rounded-lg animate-pulse" />
-                        )}
-                    </div>
+    const advanceSpinner = (
+        <motion.div animate={{ rotate: 360 }} transition={spinTransition}>
+            <Clock size={18} />
+        </motion.div>
+    )
 
-                    <div className="flex flex-col">
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold whitespace-nowrap leading-none mb-1">Your club</span>
-                        <div className="flex items-center gap-1.5">
-                            {/* Region Flag */}
+    const advanceControl = (() => {
+        if (pendingMatchId) {
+            return (
+                <Button
+                    variant="play"
+                    onClick={() => router.push(`/match/${pendingMatchId}/tactics`)}
+                    disabled={controlsLocked}
+                    className="h-10 px-5 shrink-0"
+                >
+                    <span className="tracking-wide">Play match</span>
+                    <Swords size={16} />
+                </Button>
+            )
+        }
+        if (timeMode === "HYBRID_DAILY") {
+            return (
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => advanceToWeekEnd()}
+                        disabled={controlsLocked}
+                        className="h-10 px-3 text-xs font-semibold"
+                    >
+                        Skip week
+                    </Button>
+                    <Button
+                        variant="continue"
+                        onClick={() => {
+                            soundManager.play('weekAdvance')
+                            advanceDay()
+                        }}
+                        disabled={controlsLocked}
+                        className="h-10 px-5"
+                    >
+                        {isLoading ? advanceSpinner : (
+                            <span className="flex items-center gap-2">
+                                <span className="tracking-wide">Next day</span>
+                                <Play size={15} fill="currentColor" />
+                            </span>
+                        )}
+                    </Button>
+                </div>
+            )
+        }
+        return (
+            <Button
+                variant="continue"
+                onClick={() => {
+                    soundManager.play('weekAdvance')
+                    advanceWeek()
+                }}
+                disabled={controlsLocked}
+                className="h-10 px-5 shrink-0"
+            >
+                {isLoading ? advanceSpinner : (
+                    <span className="flex items-center gap-2">
+                        <span className="tracking-wide">CONTINUE</span>
+                        <Play size={15} fill="currentColor" />
+                    </span>
+                )}
+            </Button>
+        )
+    })()
+
+    return (
+        <header className="game-topbar shrink-0 sticky top-0 z-40 flex flex-col">
+            {/* Row 1 — identity, hubs, status, advance */}
+            <div className="flex h-14 items-center gap-4 px-5">
+                {!hideCareerControls && (
+                    <Link href="/" className="topbar-club flex min-w-0 shrink-0 items-center gap-2.5 pr-2" aria-label="Club overview">
+                        <span className="flex h-9 w-9 items-center justify-center">
+                            {isMounted ? <TeamLogoDisplay team={playerTeam} size={32} /> : <span className="h-8 w-8 rounded bg-white/5" />}
+                        </span>
+                        <span className="topbar-club-name max-w-[160px] truncate font-display text-[19px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1" title={playerTeam?.name}>
+                            {isMounted ? (playerTeam?.name || "No Team") : "Loading..."}
+                        </span>
+                    </Link>
+                )}
+
+                {!hideCareerControls && (
+                    <nav aria-label="Main navigation" className="flex h-full min-w-0 items-stretch gap-1">
+                        {navHubs.map(hub => {
+                            const active = activeHub?.id === hub.id
+                            return (
+                                <Link
+                                    key={hub.id}
+                                    href={hub.items[0].href}
+                                    aria-current={active ? "page" : undefined}
+                                    className={cn(
+                                        "nav-hub relative flex items-center px-3 font-display text-[17px] font-semibold uppercase tracking-[0.03em] transition-colors",
+                                        active ? "text-ink-1" : "text-ink-3 hover:text-ink-1"
+                                    )}
+                                >
+                                    {hub.label}
+                                    {active && <span aria-hidden="true" className="absolute inset-x-3 bottom-0 h-0.5 bg-gold" />}
+                                </Link>
+                            )
+                        })}
+                    </nav>
+                )}
+
+                <div className="ml-auto flex shrink-0 items-center gap-3">
+                    <NavigationSearch compact disabled={false} />
+
+                    {!hideCareerControls && (
+                        <div className="flex flex-col items-end leading-none" title="Club funds">
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Funds</span>
                             {isMounted ? (
-                                <CountryFlag
-                                    country={REGION_TO_FLAG[playerTeam?.region || ""] || "un"}
-                                    size={14}
+                                <AnimatedNumber
+                                    value={budget}
+                                    format={(n) => formatCurrency(Math.round(n), "$", false)}
+                                    className="mt-1 text-sm font-semibold tabular-nums text-ink-1"
                                 />
                             ) : (
-                                <div className="w-[14px] h-[11px] bg-white/10 rounded-sm animate-pulse" />
+                                <span suppressHydrationWarning className="mt-1 text-sm font-semibold tabular-nums text-ink-1">
+                                    {formatCurrency(budget, "$", false)}
+                                </span>
                             )}
-                            <span className="topbar-club-name text-sm font-semibold text-white truncate max-w-[180px]" title={playerTeam?.name}>
-                                {isMounted ? (playerTeam?.name || "No Team") : "Loading..."}
-                            </span>
                         </div>
-                    </div>
-                </div>
-
-                {/* Finances */}
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg liquid-button">
-                    <div className="p-1 rounded-md bg-emerald-400/[0.14] text-emerald-300">
-                        <DollarSign size={14} />
-                    </div>
-                    {isMounted ? (
-                        <AnimatedNumber
-                            value={budget}
-                            format={(n) => formatCurrency(Math.round(n), "$", false)}
-                            className="text-sm font-medium text-emerald-400"
-                        />
-                    ) : (
-                        <span suppressHydrationWarning className="text-sm font-medium text-emerald-400">
-                            {formatCurrency(budget, "$", false)}
-                        </span>
                     )}
-                </div>
 
-                {/* World Ranking */}
-                <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-lg liquid-button">
-                    <div className="p-1 rounded-md bg-cyan-400/[0.14] text-cyan-300">
-                        <Trophy size={14} />
-                    </div>
-                        <span suppressHydrationWarning className="text-sm font-medium text-cyan-200">
-                        {isMounted
-                            ? (playerTeam?.worldRanking
-                                ? `#${playerTeam.worldRanking} World`
-                                : "Unranked")
-                            : "Loading..."}
-                    </span>
-                </div>
-                </>)}
-            </div>
+                    <div className="h-8 w-px bg-line" aria-hidden="true" />
 
-            <div className="flex max-w-full flex-wrap items-center gap-2 xl:gap-3">
-                {/* Date / Time */}
-                <div className="flex items-center gap-2 text-right">
-                    <div className="flex flex-col">
-                        <span suppressHydrationWarning className="topbar-date text-sm font-medium text-white tracking-tight whitespace-nowrap">
+                    <div className="flex flex-col items-end leading-none">
+                        <span suppressHydrationWarning className="topbar-date whitespace-nowrap text-sm font-semibold text-ink-1">
                             {formatGameCalendarDate(currentDate, { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}
                         </span>
-                        <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap">
-                            WEEK {currentWeek} {timeMode === "HYBRID_DAILY" ? `• DAY ${currentDay + 1}` : ""}
-                        </span>
-                    </div>
-                    <div className="hidden 2xl:block p-2 rounded-lg liquid-button text-white/60">
-                        <Clock size={16} />
-                    </div>
-                </div>
-
-                {/* Glass theme variant toggle — crystal (cooler frost) ↔ onyx (deep black) */}
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={theme === "crystal" ? "Switch to Onyx theme" : "Switch to Crystal theme"}
-                    title={theme === "crystal" ? "Switch to Onyx theme" : "Switch to Crystal theme"}
-                    onClick={() => setTheme(theme === "crystal" ? "onyx" : "crystal")}
-                    className="rounded-lg border border-white/10 hover:bg-white/8"
-                >
-                    {theme === "crystal" ? <Sun size={18} /> : <Moon size={18} />}
-                </Button>
-
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setTimeMode(timeMode === "HYBRID_DAILY" ? "WEEKLY" : "HYBRID_DAILY")}
-                    className="rounded-lg border-white/10 bg-white/5 hover:bg-white/10 text-[10px] font-bold tracking-wider"
-                >
-                    {timeMode === "HYBRID_DAILY" ? "DAILY" : "WEEKLY"}
-                </Button>
-
-                {/* Continue / Play Match Button */}
-                {!hideCareerControls && (() => {
-                    if (pendingMatch) {
-                        return (
-                            <Button
-                                variant="play"
-                                onClick={() => router.push(`/match/${pendingMatch.id}/tactics`)}
-                                disabled={controlsLocked}
-                                className="h-10 px-3 xl:px-6 shrink-0"
-                            >
-                                <span className="tracking-wide">Play match</span>
-                                <Swords size={16} />
-                            </Button>
-                        )
-                    }
-
-                    if (timeMode === "HYBRID_DAILY") {
-                        return (
-                            <div className="flex items-center gap-2">
-                                <Button
-                                    variant="continue"
-                                    onClick={() => {
-                                        soundManager.play('weekAdvance')
-                                        advanceDay()
-                                    }}
-                                    disabled={controlsLocked}
-                                    className="h-10 px-4"
-                                >
-                                    {isLoading ? (
-                                        <motion.div
-                                            animate={{ rotate: 360 }}
-                                            transition={spinTransition}
-                                        >
-                                            <Clock size={18} />
-                                        </motion.div>
-                                    ) : (
-                                        <div className="flex items-center gap-2">
-                                            <span className="tracking-wide">Next day</span>
-                                            <Play size={16} fill="currentColor" />
-                                        </div>
-                                    )}
-                                </Button>
-                                <Button
-                                    onClick={() => advanceToWeekEnd()}
-                                    disabled={controlsLocked}
-                                    variant="outline"
-                                    className="h-10 px-4 rounded-lg border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-[11px] tracking-wider"
-                                >
-                                    SKIP WEEK
-                                </Button>
-                            </div>
-                        )
-                    }
-
-                    return (
-                        <Button
-                            variant="continue"
-                            onClick={() => {
-                                soundManager.play('weekAdvance')
-                                advanceWeek()
-                            }}
-                            disabled={controlsLocked}
-                            className="h-10 px-3 xl:px-6 shrink-0"
+                        <button
+                            type="button"
+                            onClick={() => setTimeMode(timeMode === "HYBRID_DAILY" ? "WEEKLY" : "HYBRID_DAILY")}
+                            title="Switch between day-by-day and week-by-week time"
+                            className="mt-1 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3 hover:text-ink-1"
                         >
-                            {isLoading ? (
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={spinTransition}
-                                >
-                                    <Clock size={18} />
-                                </motion.div>
-                            ) : (
-                                <div className="flex items-center gap-2">
-                                    <span className="tracking-wide">CONTINUE</span>
-                                    <Play size={16} fill="currentColor" />
-                                </div>
-                            )}
-                        </Button>
-                    )
-                })()}
+                            Week {currentWeek}{timeMode === "HYBRID_DAILY" ? ` · Day ${currentDay + 1}` : ""} · {timeMode === "HYBRID_DAILY" ? "Daily" : "Weekly"}
+                        </button>
+                    </div>
+
+                    <Link
+                        href={settingsItem.href}
+                        aria-label="Settings"
+                        title="Settings"
+                        className="flex h-9 w-9 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1"
+                    >
+                        <Settings size={18} />
+                    </Link>
+
+                    {!hideCareerControls && (
+                        <Link
+                            href="/career"
+                            aria-label="Manager profile"
+                            title={managerName ? `${managerName} — manager profile` : "Manager profile"}
+                            className="flex h-8 w-8 items-center justify-center rounded-full border border-line-strong bg-raised text-[11px] font-bold text-ink-1 hover:border-gold"
+                        >
+                            {isMounted ? managerInitials : ""}
+                        </Link>
+                    )}
+
+                    {!hideCareerControls && advanceControl}
+                </div>
             </div>
+
+            {/* Row 2 — sub-tabs of the active hub */}
+            {!hideCareerControls && activeHub && (
+                <nav aria-label={`${activeHub.label} sections`} className="flex h-10 items-stretch gap-1 border-t border-line px-5">
+                    {activeHub.items.map(item => {
+                        const active = isNavItemActive(item, pathname)
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                aria-current={active ? "page" : undefined}
+                                className={cn(
+                                    "nav-route relative flex items-center gap-2 px-3 text-[13px] font-medium transition-colors",
+                                    active ? "text-ink-1" : "text-ink-3 hover:text-ink-1"
+                                )}
+                            >
+                                <item.icon size={15} className={active ? "text-gold" : undefined} />
+                                {item.label}
+                                {active && <span aria-hidden="true" className="absolute inset-x-3 bottom-0 h-0.5 bg-gold" />}
+                            </Link>
+                        )
+                    })}
+                </nav>
+            )}
         </header>
     )
 }

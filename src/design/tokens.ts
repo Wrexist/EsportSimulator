@@ -114,8 +114,9 @@ export const colors = {
   positive: '#3DD68C',
   negative: '#FF5468',
   caution: '#FF8A3D',
-  ct: '#5AA9FF',
-  t: '#FF8A3D',
+  // Not `t`/`ct`: a color named `t` turns `border-t` into a border color.
+  'side-ct': '#5AA9FF',
+  'side-t': '#FF8A3D',
   rating: { low: '#808A99', mid: '#D5DAE1', good: '#8FE3B5', high: '#3DD68C', elite: '#F2B53A' },
 } as const
 

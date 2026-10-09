@@ -75,7 +75,7 @@
 .premium-app[data-premium-ui=true] :is(.text-white\/60,.text-white\/70,.text-white\/80) { color:var(--text); }
 /* Minimum readable size: 8–10px utility text renders at 11px. */
 .premium-app[data-premium-ui=true] :is(.text-\[7px\],.text-\[8px\],.text-\[9px\],.text-\[10px\]) { font-size:11px; }
-.premium-app[data-premium-ui=true] :is(button,input,select,textarea) { font-size:max(12px,1em); }
+.premium-app[data-premium-ui=true] :is(input,select,textarea) { font-size:max(12px,1em); }
 
 /* Buttons: gold primary, graphite secondary, crisp 4px corners. */
 [data-slot=button] { min-height:34px; transition:background-color 120ms ease-out,border-color 120ms ease-out,color 120ms ease-out,transform 120ms ease-out; border-radius:4px; font-weight:600; letter-spacing:.01em; box-shadow:none; }

@@ -4,7 +4,6 @@ import { useRouteScroll } from "@/hooks/use-route-scroll"
 import { routeAtmosphere } from "@/lib/ui-assets"
 import { COLOR_VISION_MODES } from "@/lib/accessibility-preferences"
 import { stopConfetti } from "@/lib/confetti-lazy"
-import { Sidebar } from "./Sidebar"
 import { TopBar } from "./TopBar"
 import { ErrorBoundary } from "./ErrorBoundary"
 
@@ -334,12 +333,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             <div className="liquid-aurora" />
             {!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev') && <div aria-hidden="true" className="premium-atmosphere" style={{ backgroundImage: `url("${routeAtmosphere(pathname || '/')}")` }} />}
 
-            {/* Fixed Sidebar - Hidden on New Game/Main Menu and the full-screen live match */}
-            {!hideChrome && !isLiveMatch && <Sidebar />}
-
             {/* Main Layout Area */}
             <div className="flex-1 flex flex-col min-h-0 min-w-0 relative z-10">
-                {/* Top Status Bar - Hidden on New Game/Main Menu and the full-screen live match */}
+                {/* Two-row header (hubs + sub-tabs) - hidden on New Game/Main Menu and the full-screen live match */}
                 {!hideChrome && !isLiveMatch && <TopBar />}
 
                 {/* Scrollable Content Area */}
