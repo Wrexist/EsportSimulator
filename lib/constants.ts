@@ -313,16 +313,6 @@ export const MATCH_BALANCE = {
     T_SIDE_ADVANTAGE: 0.02,
     /** Per-side win-probability modifier for CT side on standard maps. */
     CT_SIDE_ADVANTAGE: 0.03,
-    /** Weight applied to recent round momentum in win probability. */
-    MOMENTUM_WEIGHT: 0.02,
-    /** Window of rounds considered for momentum. */
-    MOMENTUM_MAX_ROUNDS: 5,
-    /** Number of consecutive lost rounds before tilt penalty triggers. */
-    TILT_THRESHOLD: 3,
-    /** Per-side win-probability penalty when a team is tilting. */
-    TILT_PENALTY: 0.03,
-    /** Baseline probability for a clutch event to occur in 1vX rounds. */
-    CLUTCH_BASE_CHANCE: 0.05,
     /** Win-probability bonus when the team's playstyle counters opponent's. */
     PLAYSTYLE_COUNTER_BONUS: 0.04,
     /** Win-probability penalty when the team's playstyle is countered. */
