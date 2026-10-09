@@ -80,6 +80,9 @@ describe('result explanation', () => {
 
     test('explains key rounds, economy, players and own decisions from recorded data', () => {
         expect(insights.headline).toMatch(/rounds; pistol rounds \d\/\d/)
+        // The round count is the rounds this team WON, never mislabelled as lost.
+        const ownRounds = result.maps.reduce((s, m) => s + m.rounds.filter(r => r.winningTeamId === ctx.home.team.id).length, 0)
+        expect(insights.headline.startsWith(`Match ${insights.won ? 'won' : 'lost'}: you took ${ownRounds} of `)).toBe(true)
         expect(insights.keyRounds.some(k => /pistol round/.test(k.label))).toBe(true)
         expect(insights.keyRounds.some(k => k.label === 'Map-deciding round')).toBe(true)
         expect(insights.economy.buys.reduce((s, b) => s + b.played, 0)).toBe(result.maps.reduce((s, m) => s + m.rounds.length, 0))

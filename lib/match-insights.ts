@@ -106,7 +106,9 @@ export function buildMatchInsights(args: { result: MatchResult; teamId: string; 
 
     const ownRounds = result.maps.reduce((s, mp) => s + (mp.rounds ?? []).filter(r => r.winningTeamId === teamId).length, 0)
     const pistols = keyRounds.filter(k => k.label.includes('pistol'))
-    const headline = `${won ? 'Won' : 'Lost'} ${ownRounds} of ${rounds} rounds; pistol rounds ${pistols.filter(k => k.won).length}/${pistols.length}; ${underdogWins} rounds won with the weaker buy, ${favouredLosses} lost with the stronger one.`
+    // Match outcome and the rounds you took are separate facts: "Lost 10 of
+    // 23 rounds" read as ten rounds lost when the team had won ten.
+    const headline = `Match ${won ? 'won' : 'lost'}: you took ${ownRounds} of ${rounds} rounds; pistol rounds ${pistols.filter(k => k.won).length}/${pistols.length}; ${underdogWins} rounds won with the weaker buy, ${favouredLosses} lost with the stronger one.`
 
     return {
         won, headline, keyRounds: keyRounds.slice(0, 12),
