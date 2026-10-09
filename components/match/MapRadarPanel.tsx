@@ -104,9 +104,11 @@ interface MapRadarPanelProps {
      * the panel a definite height). Otherwise the radar is as wide as the panel.
      */
     fillHeight?: boolean
+    /** The shown round is decided: no clutch banner, phase reads "ROUND OVER". */
+    roundOver?: boolean
 }
 
-function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated', fillHeight = false }: MapRadarPanelProps) {
+function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated', fillHeight = false, roundOver = false }: MapRadarPanelProps) {
     const panelId = useId().replace(/:/g, "")
     const [isExpanded, setIsExpanded] = useState(true)
     const [showNames, setShowNames] = useState(true)
@@ -284,8 +286,10 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
     const ctAlive = safeDots.filter(d => d.side === "ct" && d.isAlive).length
     const tAlive = safeDots.filter(d => d.side === "t" && d.isAlive).length
 
-    // Clutch detection
+    // Clutch detection (live rounds only: after the round ends it would
+    // label the end-of-round survivors, e.g. "1v4" after a bomb win).
     const clutchText = (() => {
+        if (roundOver) return null
         if (ctAlive === 1 && tAlive >= 2) return `1v${tAlive} CLUTCH`
         if (tAlive === 1 && ctAlive >= 2) return `1v${ctAlive} CLUTCH`
         return null
@@ -296,6 +300,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
     const roundPhase = (() => {
         if (bombState?.defused) return { label: "DEFUSED", color: "#5b9bd5" }
         if (bombState?.exploded) return { label: "BOMB EXPLODED", color: "#f97316" }
+        if (roundOver) return { label: "ROUND OVER", color: "#cbd5e1" }
         if (bombState?.planted) return { label: "BOMB PLANTED", color: "#ef4444", pulse: true }
         if (positionSource === 'physical-replay') return { label: "REPLAY", color: "#c4d0e2" }
         if (currentTime != null && currentTime <= 3) return { label: "FREEZE TIME", color: "#60a5fa" }

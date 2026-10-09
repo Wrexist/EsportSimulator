@@ -31,6 +31,22 @@ describe("radar controls", () => {
         expect(markup).not.toContain('x1="20" y1="20"')
     })
 
+    it("shows a clutch banner only while the round is live, and keeps death markers", () => {
+        const dots = [
+            { playerId: 'c1', nickname: 'Last', side: 'ct' as const, isAlive: true, x: 30, y: 30, angle: 0 },
+            { playerId: 'c2', nickname: 'Gone', side: 'ct' as const, isAlive: false, deathTime: 5, x: 40, y: 40, angle: 0 },
+            ...[1, 2, 3].map(i => ({ playerId: `t${i}`, nickname: `T${i}`, side: 't' as const, isAlive: true, x: 60 + i * 5, y: 60, angle: 0 })),
+        ]
+        const render = (roundOver: boolean) => renderToStaticMarkup(React.createElement(MapRadarPanel, { currentMapId: MapId.MIRAGE, mapName: 'Mirage', currentTime: 40, radarDots: dots, roundOver }))
+        const live = render(false)
+        expect(live).toContain('1v3 CLUTCH')
+        expect(live).toContain('data-death-marker="c2"')
+        const over = render(true)
+        expect(over).not.toContain('CLUTCH')
+        expect(over).toContain('ROUND OVER')
+        expect(over).toContain('data-death-marker="c2"')
+    })
+
     it("omits floor switching on a single-level map", () => {
         const markup = renderToStaticMarkup(React.createElement(MapRadarPanel, { currentMapId: MapId.MIRAGE, mapName: "Mirage" }))
         expect(markup).not.toContain('aria-label="Radar floor"')

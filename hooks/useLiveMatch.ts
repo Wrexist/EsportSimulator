@@ -63,7 +63,7 @@ interface LiveMatchRuntimeData {
 
 export function useLiveMatch(id: string) {
     const router = useRouter()
-    const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, activeMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
+    const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
         teams: state.teams,
         players: state.players,
@@ -72,7 +72,6 @@ export function useLiveMatch(id: string) {
         customTactics: state.customTactics,
         setActiveMatch: state.setActiveMatch,
         updateActiveMatchState: state.updateActiveMatchState,
-        activeMatchState: state.activeMatchState,
         saveMatchResult: state.saveMatchResult,
         clearActiveMatchState: state.clearActiveMatchState,
         updateCustomTactic: state.updateCustomTactic,
@@ -212,6 +211,10 @@ export function useLiveMatch(id: string) {
 
         let playback: ReturnType<typeof restoreLivePlayback> | null = null
         let ctx: LegacySeriesContext
+        // Read, not subscribed: the 500 ms checkpoint flush below rewrites
+        // activeMatchState, and subscribing re-rendered the whole live page
+        // twice a second. It is only needed once, to restore.
+        const activeMatchState = useGameStore.getState().activeMatchState
         const restoring = activeMatchState?.matchId === id
         try {
             if (foundMatch.engineVersion && foundMatch.engineVersion !== LEGACY_MATCH_ENGINE) throw Error("Unsupported match engine")
@@ -350,7 +353,7 @@ export function useLiveMatch(id: string) {
         setGameState(prev => ({ ...prev, status: "IN_PROGRESS", time: -1, isPaused: false }))
         setIsPlaying(false)
         setIsWaitingForStrategy(true)
-    }, [scheduledMatches, teams, players, id, setActiveMatch, activeMatchState, staff, router, currentWeek, currentDay, timeMode, customTactics])
+    }, [scheduledMatches, teams, players, id, setActiveMatch, staff, router, currentWeek, currentDay, timeMode, customTactics])
 
     // Persistence
     useEffect(() => {

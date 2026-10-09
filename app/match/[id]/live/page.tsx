@@ -69,6 +69,20 @@ const getWeaponIcon = (weaponName: string | undefined): string => {
 }
 
 
+// Stable React keys for feed rows. Entries are prepended (newest first) and
+// the tail is trimmed, so array indices shift on every new line and made React
+// rebuild the whole list; each entry object keeps its identity across updates.
+const logRowKeys = new WeakMap<object, number>()
+let nextLogRowKey = 0
+function logRowKey(entry: object): number {
+    let key = logRowKeys.get(entry)
+    if (key === undefined) {
+        key = ++nextLogRowKey
+        logRowKeys.set(entry, key)
+    }
+    return key
+}
+
 // Memoized log list. Without memo this re-evaluates every per-tick parent
 // render (~30-60Hz from useLiveMatch), iterating the full logs array and
 // recreating ~100+ log-row elements each frame even when nothing changed.
@@ -77,12 +91,13 @@ const getWeaponIcon = (weaponName: string | undefined): string => {
 const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
     return (
         <div className="space-y-1.5 pb-4">
-            {logs.map((l, i) => {
+            {logs.map(l => {
+                const rowKey = logRowKey(l)
                 const timeStr = l.time != null ? `[${Math.floor(l.time / 60)}:${(l.time % 60).toString().padStart(2, '0')}]` : ""
 
                 if (l.type === "KILL") {
                     return (
-                        <div key={i} className={cn(
+                        <div key={rowKey} className={cn(
                             "p-2 rounded-xl text-[11px] border-l-2 border border-white/5 flex items-center gap-1.5",
                             l.killerSide === "CT"
                                 ? "bg-blue-500/10 border-l-blue-400/50"
@@ -126,7 +141,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "PLANT") {
                     return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-red-500/10 border-l-red-400/50 flex items-center gap-2">
+                        <div key={rowKey} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-red-500/10 border-l-red-400/50 flex items-center gap-2">
                             <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
                             <Bomb className="w-3 h-3 text-red-400 shrink-0" />
                             <span className="text-red-300/80 font-semibold">{l.message}</span>
@@ -136,7 +151,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "DEFUSE") {
                     return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-blue-500/10 border-l-blue-400/50 flex items-center gap-2">
+                        <div key={rowKey} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-blue-500/10 border-l-blue-400/50 flex items-center gap-2">
                             <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
                             <Shield className="w-3 h-3 text-blue-400 shrink-0" />
                             <span className="text-blue-300/80 font-semibold">{l.message}</span>
@@ -146,7 +161,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "EXPLODE") {
                     return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-orange-600/15 border-l-orange-500/60 flex items-center gap-2">
+                        <div key={rowKey} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-orange-600/15 border-l-orange-500/60 flex items-center gap-2">
                             <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
                             <ZapIcon className="w-3 h-3 text-orange-400 shrink-0" />
                             <span className="text-orange-300/80 font-semibold">{l.message}</span>
@@ -156,7 +171,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "ROUND_END") {
                     return (
-                        <div key={i} className="p-2.5 rounded-xl text-[11px] border-l-2 border border-white/10 bg-white/8 border-l-white/30 flex items-center gap-2">
+                        <div key={rowKey} className="p-2.5 rounded-xl text-[11px] border-l-2 border border-white/10 bg-white/8 border-l-white/30 flex items-center gap-2">
                             <Trophy className="w-3.5 h-3.5 text-white/50 shrink-0" />
                             <span className="text-white/70 font-bold uppercase tracking-wide">{l.message}</span>
                         </div>
@@ -165,7 +180,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "CLUTCH") {
                     return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-yellow-500/10 border-l-yellow-400/50 flex items-center gap-2">
+                        <div key={rowKey} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-yellow-500/10 border-l-yellow-400/50 flex items-center gap-2">
                             <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
                             <Sparkles className="w-3 h-3 text-yellow-400 shrink-0" />
                             <span className="text-yellow-300/80 font-semibold">{l.message}</span>
@@ -175,7 +190,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "SAVE") {
                     return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 border-l-white/10 flex items-center gap-2">
+                        <div key={rowKey} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 border-l-white/10 flex items-center gap-2">
                             <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
                             <EyeOff className="w-3 h-3 text-white/30 shrink-0" />
                             <span className="text-white/40">{l.message}</span>
@@ -185,7 +200,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
 
                 if (l.type === "BUY") {
                     return (
-                        <div key={i} className="p-1.5 rounded-lg text-[10px] border bg-white/2 flex items-center gap-2">
+                        <div key={rowKey} className="p-1.5 rounded-lg text-[10px] border bg-white/2 flex items-center gap-2">
                             <Coins className="w-3 h-3 text-emerald-400/40 shrink-0" />
                             <span className="text-white/30 font-medium">{l.message}</span>
                         </div>
@@ -193,7 +208,7 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
                 }
 
                 return (
-                    <div key={i} className="p-2 rounded-xl text-[11px] border border-white/5 bg-black/20 flex items-center gap-2">
+                    <div key={rowKey} className="p-2 rounded-xl text-[11px] border border-white/5 bg-black/20 flex items-center gap-2">
                         <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
                         <span className="text-white/50">{l.message}</span>
                     </div>
@@ -389,6 +404,11 @@ export default function LiveMatchPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameState.time, gameState.round, currentMapId, simState, roundHomeIsCT, matchData, currentRoundEvents, rosterFingerprint])
     const radarData = radarFrames?.now ?? null
+    // The round shown on the radar has been decided (its ROUND_END was played
+    // back): no live clutch banner over the end-of-round positions.
+    const roundEndEvent = currentRoundEvents.current.find(e => e.type === "ROUND_END")
+    const roundOver = gameState.status === "FINISHED" || isWaitingForStrategy
+        || (roundEndEvent != null && gameState.time >= Math.floor(roundEndEvent.time))
     const nextRadarData = radarFrames?.next ?? null
 
     // Build O(1) lookup maps for original players (used in roster rendering)
@@ -488,8 +508,9 @@ export default function LiveMatchPage() {
         )}>
             <div className="flex items-start justify-between gap-3">
                 <div>
+                    {/* The round about to be played; gameState.round is the last one played (0 before the first). */}
                     <h3 className="text-xl font-normal uppercase">
-                        {choosingStrategy ? `Round ${gameState.round} • Select Strategy` : "Your calls"}
+                        {choosingStrategy ? `Round ${simState.currentRound} • Select Strategy` : "Your calls"}
                     </h3>
                     <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
                         Team Budget: {formatCurrency(ownBudget, "$", false)}
@@ -679,6 +700,7 @@ export default function LiveMatchPage() {
                                 smokes={radarData?.smokes}
                                 sitePositions={sitePositions}
                                 currentTime={gameState.time}
+                                roundOver={roundOver}
                                 fillHeight
                             />
                         </div>
