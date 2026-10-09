@@ -99,9 +99,14 @@ interface MapRadarPanelProps {
     smokes?: RadarSmoke[]
     referenceImages?: { primary: string; secondary?: string }
     positionSource?: 'estimated' | 'physical-replay'
+    /**
+     * Grow the radar to the panel's available height (the parent must give
+     * the panel a definite height). Otherwise the radar is as wide as the panel.
+     */
+    fillHeight?: boolean
 }
 
-function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated' }: MapRadarPanelProps) {
+function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated', fillHeight = false }: MapRadarPanelProps) {
     const panelId = useId().replace(/:/g, "")
     const [isExpanded, setIsExpanded] = useState(true)
     const [showNames, setShowNames] = useState(true)
@@ -312,8 +317,9 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
     if (!radarImageData || !radarSrc) return null
 
     return (
-        <div className="map-radar-panel glass-panel-dark rounded-xl border border-white/5 overflow-hidden">
-            <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 pb-3">
+        <div className={cn("map-radar-panel glass-panel-dark rounded-xl border border-white/5 overflow-hidden", fillHeight && "flex h-full min-h-0 flex-col")}>
+            {/* One compact header row: title, round phase, then view controls. */}
+            <div className="radar-panel-header flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-white/10 px-3 py-1.5">
                 <button type="button" onClick={() => setIsExpanded(!isExpanded)} aria-label={`${mapName} radar`} aria-expanded={isExpanded} aria-controls={panelId}
                     className="flex min-h-8 items-center gap-2 text-left text-sm font-medium text-slate-100">
                     <Map size={16} className="text-sky-200" />
@@ -321,8 +327,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                     <ChevronUp size={14} className={cn("text-slate-400 transition-transform", !isExpanded && "rotate-180")} />
                 </button>
                 {isExpanded && roundPhase && <span className="rounded-full px-2 py-1 text-[10px] font-semibold tracking-wide" style={{backgroundColor: `${roundPhase.color}20`, color: roundPhase.color}}>{roundPhase.label}</span>}
-            </div>
-            {isExpanded && <div className="flex flex-wrap items-center justify-between gap-2 border-y border-white/10 bg-white/2.5 px-4 py-2 mb-3">
+                {isExpanded && <div className="ml-auto flex flex-wrap items-center gap-2">
                 {isDualLevel && <div role="group" aria-label="Radar floor" className="flex items-center gap-1">
                     {(["auto", "upper", "lower"] as const).map(level => <button key={level} type="button"
                         onClick={() => { setRadarLevelMode(level === "auto" ? "auto" : "manual"); if (level !== "auto") setManualRadarLevel(level) }}
@@ -337,7 +342,8 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                     <span className="w-9 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
                     <button type="button" aria-label="Zoom radar in" disabled={zoom >= 2} onClick={() => setZoom(value => Math.min(2, value + .5))} className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-40"><Plus size={14} /></button>
                 </div>
-            </div>}
+                </div>}
+            </div>
 
             {/* Collapsible radar image + overlay */}
             <AnimatePresence initial={false}>
@@ -348,10 +354,13 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="overflow-hidden"
+                        className={cn("overflow-hidden", fillHeight && "flex min-h-0 flex-1 flex-col")}
                     >
-                        <div className="px-4 pb-3 flex justify-center">
-                            <div className="radar-canvas-frame relative aspect-square w-full max-w-[520px] mx-auto overflow-auto rounded-lg" role="region" aria-label={`${mapName} radar viewport; scroll to pan when zoomed`} tabIndex={0}>
+                        {/* fillHeight: the frame is the largest square that fits (container query units). */}
+                        <div className={cn("flex justify-center px-3 py-2", fillHeight && "min-h-0 flex-1 items-center")} style={fillHeight ? { containerType: "size" } : undefined}>
+                            <div className={cn("radar-canvas-frame relative aspect-square mx-auto overflow-auto rounded-lg", !fillHeight && "w-full")}
+                                style={fillHeight ? { width: "min(100cqw, 100cqh)", height: "min(100cqw, 100cqh)" } : undefined}
+                                role="region" aria-label={`${mapName} radar viewport; scroll to pan when zoomed`} tabIndex={0}>
                                 <div className="relative" style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%` }}>
                                 {/* Radar background image */}
                                 <AnimatePresence mode="sync">
@@ -368,7 +377,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                             alt={`${mapName} radar`}
                                             fill
                                             className="object-contain"
-                                            sizes="(max-height: 800px) 270px, 520px"
+                                            sizes="(max-width: 1200px) 70vw, 960px"
                                             priority
                                             unoptimized
                                         />
@@ -674,7 +683,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                 </div>
                             </div>
                         </div>
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 px-4 py-3 text-xs text-slate-400">
+                        <div className="flex flex-wrap items-center justify-between gap-2 shrink-0 border-t border-white/10 px-3 py-2 text-xs text-slate-400">
                             <span className="flex items-center gap-3"><span className="text-sky-300"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="text-amber-300"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>alive</span></span>
                             <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : 'Career match positions are estimated from recorded round events.'}>{positionSource === 'physical-replay' ? 'Recorded positions' : 'Estimated positions'} · {isDualLevel ? `${resolvedRadarLevel === "upper" ? "Upper" : "Lower"} floor` : "Single level"}</span>
                         </div>

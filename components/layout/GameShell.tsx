@@ -39,6 +39,10 @@ const HelpSystem = dynamic(() => import("../ui/help-system").then(mod => mod.Hel
 // regardless of which page the player lands on after a new game.
 const TutorialOverlay = dynamic(() => import("../ui/TutorialOverlay").then(mod => mod.TutorialOverlay), { ssr: false })
 
+const LIVE_MATCH_PATH = /^\/match\/[^/]+\/live\/?$/
+function isLiveMatchPath(path: string | null | undefined): boolean {
+    return !!path && LIVE_MATCH_PATH.test(path)
+}
 
 export function GameShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
@@ -184,6 +188,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     // Match screens (veto, tactics, live, result) own the whole view: the
     // onboarding checklist would sit on top of the result headline.
     const isMatchRoute = pathname?.startsWith("/match/") ?? false
+    // The live match is full-screen: no sidebar (all locked mid-match) and no
+    // top bar (its "Play match" CTA is wrong while the match is running).
+    const isLiveMatch = isLiveMatchPath(pathname)
 
     const viewCareerId = useGameStore(state => state.saveId)
     const mainScrollRef = useRouteScroll(viewCareerId, pathname, !hideChrome && !isDesktop)
@@ -229,6 +236,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             if (document.querySelector('[role="dialog"]')) return
 
             const mod = e.ctrlKey || e.metaKey
+            // Mid-match the sidebar is locked; navigation hotkeys must not
+            // bypass it (they used to route away and trip the match guard).
+            const onLiveMatch = isLiveMatchPath(window.location.pathname)
 
             // Ctrl/Cmd+S — save
             if (mod && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "s") {
@@ -236,6 +246,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 void quickSave()
                 return
             }
+            if (onLiveMatch && (e.key === "Escape" || e.key === "F3" || e.key === "F10" || (mod && e.key.toLowerCase() === "l") || (!mod && !e.altKey && /^[1-9]$/.test(e.key)))) return
             // Ctrl/Cmd+L — load screen
             if (mod && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "l") {
                 e.preventDefault()
@@ -323,20 +334,20 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             <div className="liquid-aurora" />
             {!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev') && <div aria-hidden="true" className="premium-atmosphere" style={{ backgroundImage: `url("${routeAtmosphere(pathname || '/')}")` }} />}
 
-            {/* Fixed Sidebar - Hidden on New Game/Main Menu */}
-            {!hideChrome && <Sidebar />}
+            {/* Fixed Sidebar - Hidden on New Game/Main Menu and the full-screen live match */}
+            {!hideChrome && !isLiveMatch && <Sidebar />}
 
             {/* Main Layout Area */}
             <div className="flex-1 flex flex-col min-h-0 min-w-0 relative z-10">
-                {/* Top Status Bar - Hidden on New Game/Main Menu */}
-                {!hideChrome && <TopBar />}
+                {/* Top Status Bar - Hidden on New Game/Main Menu and the full-screen live match */}
+                {!hideChrome && !isLiveMatch && <TopBar />}
 
                 {/* Scrollable Content Area */}
                 <main ref={mainScrollRef} id="main-content" tabIndex={-1} className="min-h-0 flex-1 overflow-x-hidden relative overflow-y-auto">
                     {/* Short opacity reveal; routing never waits for an exit animation. */}
                     <div
                         key={pathname}
-                        className={hideChrome || isDesktop ? "" : "game-page px-4 py-4 lg:px-6 lg:py-5 pb-8 max-w-[1600px] mx-auto w-full"}
+                        className={hideChrome || isDesktop ? "" : isLiveMatch ? "live-match-page h-full w-full px-4 py-3" : "game-page px-4 py-4 lg:px-6 lg:py-5 pb-8 max-w-[1600px] mx-auto w-full"}
                     >
                         <ErrorBoundary>
                             {!hideChrome && !isMatchRoute && <TutorialOverlay />}
@@ -373,7 +384,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 )
             }
             {showBugReportButton && !hideChrome && <BugReportButton />}
-            {!hideChrome && <HelpSystem />}
+            {!hideChrome && !isLiveMatch && <HelpSystem />}
             {!pathname?.startsWith("/map-editor") && <DevTools />}
             <WeekProcessingOverlay />
             <KeyboardShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />

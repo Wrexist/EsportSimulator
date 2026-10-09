@@ -14,11 +14,12 @@ import { DerbyBanner } from "@/components/match/DerbyBanner"
 import { HalfTimeOverlay } from "@/components/match/HalfTimeOverlay"
 import { TacticalLoadoutEditor } from "@/components/match/TacticalLoadoutEditor"
 import { PlayerPortrait } from "@/components/ui/asset-images"
-import { Skull, Swords, Zap as ZapIcon, EyeOff, Settings2, Coins, Search, Shield, Crosshair, Sparkles, Bomb, Trophy } from "lucide-react"
+import { ArrowLeft, Skull, Swords, Zap as ZapIcon, EyeOff, Settings2, Coins, Search, Shield, Crosshair, Sparkles, Bomb, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { CustomTactics, LivePlayerState, MapId, MatchEvent, Team } from "@/types"
 import { computeRadarPositions, type RadarPlayerDot } from "@/lib/radar-position-engine"
 import { MAP_NAMES, getMapAssetName } from "@/data/map-pool"
@@ -438,9 +439,155 @@ export default function LiveMatchPage() {
     const homeBorderClass = homeIsCT ? "border-l-blue-500/30" : "border-l-orange-500/30"
     const awayBorderClass = !homeIsCT ? "border-r-blue-500/30" : "border-r-orange-500/30"
 
+    const homeRosterPanel = (
+        <div className={cn("match-roster glass-panel-dark rounded-xl border-l-4 p-4 overflow-y-auto space-y-2 shrink-0", homeBorderClass)}>
+            {homeRoster.slice(0, 5).map(p => (
+                <RosterRow
+                    key={p.id}
+                    id={p.id}
+                    name={p.name}
+                    money={p.money}
+                    weapon={p.weapon}
+                    isDead={p.isDead}
+                    kills={p.kills || 0}
+                    deaths={p.deaths || 0}
+                    assists={p.assists || 0}
+                    portraitPath={originalHomeMap.get(p.id)?.portraitPath}
+                    defaultWeaponLabel="USP"
+                />
+            ))}
+        </div>
+    )
+    const awayRosterPanel = (
+        <div className={cn("match-roster glass-panel-dark rounded-xl border-r-4 p-4 overflow-y-auto space-y-2 shrink-0", awayBorderClass)}>
+            {awayRoster.slice(0, 5).map(p => (
+                <RosterRow
+                    key={p.id}
+                    id={p.id}
+                    name={p.name}
+                    money={p.money}
+                    weapon={p.weapon}
+                    isDead={p.isDead}
+                    kills={p.kills || 0}
+                    deaths={p.deaths || 0}
+                    assists={p.assists || 0}
+                    portraitPath={originalAwayMap.get(p.id)?.portraitPath}
+                    defaultWeaponLabel="GLOCK"
+                />
+            ))}
+        </div>
+    )
+
+    // Between-round decisions sit under the managed team's own roster, so the
+    // buy call is on screen (no scrolling) and never covers the radar.
+    const choosingStrategy = isWaitingForStrategy && !isAutoTactics && gameState.status === "IN_PROGRESS"
+    const decisionsPanel = (
+        <div className={cn(
+            "tactical-decisions glass-panel-dark rounded-xl p-4 flex flex-col gap-3 shrink-0 border transition-colors",
+            choosingStrategy ? "border-emerald-400/40 shadow-[0_0_0_1px_rgba(52,211,153,0.15)]" : "border-white/5"
+        )}>
+            <div className="flex items-start justify-between gap-3">
+                <div>
+                    <h3 className="text-xl font-normal uppercase">
+                        {choosingStrategy ? `Round ${gameState.round} • Select Strategy` : "Your calls"}
+                    </h3>
+                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
+                        Team Budget: {formatCurrency(ownBudget, "$", false)}
+                    </p>
+                </div>
+            </div>
+            {/* STRATEGY PANEL */}
+            {choosingStrategy ? (
+                <div className="grid grid-cols-5 gap-2">
+                    {(() => {
+                        const avgCash = Math.floor(ownBudget / 5)
+                        const side = ownIsCT ? "ct" : "t"
+
+                        return STRATEGY_OPTIONS.map((strat) => {
+                            const cost = strat.cost
+                            const canAfford = avgCash >= cost
+
+                            return (
+                                <div key={strat.id} className="relative group">
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => canAfford && startNextRound(strat.id as any)}
+                                        disabled={!canAfford}
+                                        className={cn(
+                                            "w-full h-20 rounded-2xl flex flex-col gap-1 border transition-all",
+                                            canAfford
+                                                ? strat.baseColor + " hover:ring-2 hover:ring-emerald-500 hover:bg-emerald-500/10 hover:border-emerald-500/50"
+                                                : "bg-white/5 text-white/20 border-white/5 cursor-not-allowed opacity-40"
+                                        )}
+                                    >
+                                        <span className="font-normal text-[11px] leading-tight text-center">{strat.fallback}</span>
+                                        <div className={cn("text-[10px] font-bold", canAfford ? "text-emerald-400" : "text-red-400")}>
+                                            {formatCurrency(cost, "$", false)}
+                                        </div>
+                                    </Button>
+                                    <button
+                                        aria-label={`Edit ${strat.fallback} loadout`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setEditingStrategy(strat.id as any);
+                                            setEditingSide(side as "ct" | "t");
+                                            setIsEditingLoadout(true);
+                                        }}
+                                        className="absolute top-2 right-2 p-1 rounded-lg bg-white/5 hover:bg-white/20 text-white/30 hover:text-white transition-colors"
+                                    >
+                                        <Settings2 className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            )
+                        })
+                    })()}
+                </div>
+            ) : (
+                <p className="text-xs text-slate-400">
+                    {gameState.status === "FINISHED"
+                        ? "The match is over."
+                        : isAutoTactics
+                            ? "Auto tactics is on: buys follow your economy plan."
+                            : "Your next buy call opens when this round ends."}
+                </p>
+            )}
+
+            {/* Tactical Timeout (B5) — the live-only lever that gives
+                playing the match a real edge over quick-sim. */}
+            <div className="match-timeout flex flex-wrap items-center gap-3 border-t border-white/10 pt-3">
+                <button
+                    onClick={callTimeout}
+                    disabled={timeoutsRemaining <= 0 || timeoutActive || !isWaitingForStrategy || gameState.status !== "IN_PROGRESS"}
+                    title="Between rounds only: regroup — reduces your losing-streak pressure for 2 rounds. Two per series; no benefit without a losing streak."
+                    className="px-4 py-2 rounded-lg border border-amber-400/30 bg-amber-500/10 text-amber-300 text-[11px] font-bold uppercase tracking-wider hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                    Tactical Timeout ({timeoutsRemaining})
+                </button>
+                {timeoutActive ? (
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5 animate-pulse">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> Regrouping — pressure relief active
+                    </span>
+                ) : (
+                    <p className="text-xs text-slate-400 max-w-[240px]">Between rounds. Relieves losing-streak pressure for two rounds.</p>
+                )}
+            </div>
+        </div>
+    )
+
+    const feedPanel = (
+        <div className="live-feed-panel glass-panel-dark flex-1 min-h-0 rounded-xl overflow-hidden flex flex-col border border-white/5">
+            <div className="flex items-center gap-2 mb-4 text-xs font-normal opacity-40 uppercase tracking-widest">
+                <Swords className="w-4 h-4" /> SERVER LOGS
+            </div>
+            <div className="flex-1 pr-2 overflow-y-auto custom-scrollbar h-full min-h-0 relative">
+                <LiveLogList logs={logs} />
+            </div>
+        </div>
+    )
+
     return (
         <ErrorBoundary section="Live Match">
-        <div className="live-command text-white flex flex-col font-sans select-none relative"
+        <div className="live-command h-full text-white flex flex-col font-sans select-none relative"
             role="main"
             aria-label={`Live match: ${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}`}
         >
@@ -475,169 +622,72 @@ export default function LiveMatchPage() {
                     bombTime={bombTime}
                 />
 
-                {/* GAME AREA */}
+                {/* GAME AREA — full screen: rosters left/right, radar is the hero. */}
                 <div className="live-match-grid flex-1 min-h-0">
-                    {/* HOME TEAM ROSTER */}
-                    <div className={cn("match-roster glass-panel-dark rounded-xl border-l-4 p-4 overflow-y-auto space-y-2", homeBorderClass)}>
-                        {homeRoster.slice(0, 5).map(p => (
-                            <RosterRow
-                                key={p.id}
-                                id={p.id}
-                                name={p.name}
-                                money={p.money}
-                                weapon={p.weapon}
-                                isDead={p.isDead}
-                                kills={p.kills || 0}
-                                deaths={p.deaths || 0}
-                                assists={p.assists || 0}
-                                portraitPath={originalHomeMap.get(p.id)?.portraitPath}
-                                defaultWeaponLabel="USP"
-                            />
-                        ))}
+                    {/* HOME TEAM */}
+                    <div className="live-side-column flex min-h-0 min-w-0 flex-col gap-3">
+                        {homeRosterPanel}
+                        {isPlayerHome ? decisionsPanel : feedPanel}
                     </div>
 
                     {/* CONSOLE / CENTER */}
-                    <div className="match-command-center min-w-0 flex flex-col gap-3">
-
-                        <LiveMatchControlBar
-                            gameState={gameState}
-                            isAutoTactics={isAutoTactics}
-                            setIsAutoTactics={setIsAutoTactics}
-                            isPlaying={isPlaying}
-                            onTogglePlayback={togglePlayback}
-                            isWaitingForStrategy={isWaitingForStrategy}
-                            speed={speed}
-                            setSpeed={setSpeed}
-                            onSimulateRound={simulateRoundInstant}
-                            onSimulateMatch={simulateMatchInstant}
-                        />
-
-                        {/* Tactical Timeout (B5) — the live-only lever that gives
-                            playing the match a real edge over quick-sim. */}
-                        <div className="match-timeout flex flex-wrap items-center justify-center gap-3 -mt-1">
-                            <button
-                                onClick={callTimeout}
-                                disabled={timeoutsRemaining <= 0 || timeoutActive || !isWaitingForStrategy || gameState.status !== "IN_PROGRESS"}
-                                title="Between rounds only: regroup — reduces your losing-streak pressure for 2 rounds. Two per series; no benefit without a losing streak."
-                                className="px-4 py-2 rounded-lg border border-amber-400/30 bg-amber-500/10 text-amber-300 text-[11px] font-bold uppercase tracking-wider hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                            >
-                                Tactical Timeout ({timeoutsRemaining})
-                            </button>
-                            {timeoutActive && (
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5 animate-pulse">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> Regrouping — pressure relief active
-                                </span>
+                    <div className="match-command-center min-w-0 min-h-0 flex flex-col gap-3">
+                        <div className="flex items-center gap-2">
+                            {gameState.status !== "FINISHED" && (
+                                <ConfirmDialog
+                                    title="Leave the live match?"
+                                    description="The match pauses and is saved exactly where it is. Resume it from the match hub; other fixtures stay locked until it is finished."
+                                    confirmText="Go to match hub"
+                                    cancelText="Stay"
+                                    onConfirm={() => router.push(`/match/${params.id}/tactics`)}
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        className="glass-panel-dark h-[52px] shrink-0 rounded-xl border border-white/10 px-3 text-xs font-bold uppercase tracking-wider text-white/80 hover:text-white hover:bg-white/10"
+                                        title="Pause and go back to the match hub"
+                                    >
+                                        <ArrowLeft className="w-4 h-4 mr-1.5" aria-hidden="true" /> Match hub
+                                    </Button>
+                                </ConfirmDialog>
                             )}
-                            <p className="text-xs text-slate-400 max-w-[240px]">Between rounds. Relieves losing-streak pressure for two rounds.</p>
+                            <div className="min-w-0 flex-1">
+                                <LiveMatchControlBar
+                                    gameState={gameState}
+                                    isAutoTactics={isAutoTactics}
+                                    setIsAutoTactics={setIsAutoTactics}
+                                    isPlaying={isPlaying}
+                                    onTogglePlayback={togglePlayback}
+                                    isWaitingForStrategy={isWaitingForStrategy}
+                                    speed={speed}
+                                    setSpeed={setSpeed}
+                                    onSimulateRound={simulateRoundInstant}
+                                    onSimulateMatch={simulateMatchInstant}
+                                />
+                            </div>
                         </div>
 
-                        <MapRadarPanel
-                            currentMapId={currentMapId}
-                            mapName={mapName}
-                            radarDots={radarData?.dots}
-                            nextRadarDots={nextRadarData?.dots}
-                            tickDurationMs={1000 / Math.max(0.1, speed)}
-                            isAnimating={isPlaying}
-                            bombState={radarData?.bomb}
-                            killLines={radarData?.killLines}
-                            smokes={radarData?.smokes}
-                            sitePositions={sitePositions}
-                            currentTime={gameState.time}
-                        />
-
-                {/* STRATEGY PANEL */}
-                <AnimatePresence>
-                    {isWaitingForStrategy && !isAutoTactics && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 6 }}
-                            className="tactical-decisions glass-panel-dark rounded-xl p-4"
-                        >
-                            <div className="flex items-center justify-between mb-4">
-                                <div>
-                                    <h3 className="text-xl font-normal uppercase">Round {gameState.round} • Select Strategy</h3>
-                                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
-                                        Team Budget: {formatCurrency(ownBudget, "$", false)}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-5 gap-2">
-                                {(() => {
-                                    const avgCash = Math.floor(ownBudget / 5)
-                                    const side = ownIsCT ? "ct" : "t"
-
-                                    return STRATEGY_OPTIONS.map((strat) => {
-                                        const cost = strat.cost
-                                        const canAfford = avgCash >= cost
-
-                                        return (
-                                            <div key={strat.id} className="relative group">
-                                                <Button
-                                                    variant="secondary"
-                                                    onClick={() => canAfford && startNextRound(strat.id as any)}
-                                                    disabled={!canAfford}
-                                                    className={cn(
-                                                        "w-full h-20 rounded-2xl flex flex-col gap-1 border transition-all",
-                                                        canAfford
-                                                            ? strat.baseColor + " hover:ring-2 hover:ring-emerald-500 hover:bg-emerald-500/10 hover:border-emerald-500/50"
-                                                            : "bg-white/5 text-white/20 border-white/5 cursor-not-allowed opacity-40"
-                                                    )}
-                                                >
-                                                    <span className="font-normal text-[11px] leading-tight text-center">{strat.fallback}</span>
-                                                    <div className={cn("text-[10px] font-bold", canAfford ? "text-emerald-400" : "text-red-400")}>
-                                                        {formatCurrency(cost, "$", false)}
-                                                    </div>
-                                                </Button>
-                                                <button
-                                                    aria-label={`Edit ${strat.fallback} loadout`}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setEditingStrategy(strat.id as any);
-                                                        setEditingSide(side as "ct" | "t");
-                                                        setIsEditingLoadout(true);
-                                                    }}
-                                                    className="absolute top-2 right-2 p-1 rounded-lg bg-white/5 hover:bg-white/20 text-white/30 hover:text-white transition-colors"
-                                                >
-                                                    <Settings2 className="w-3 h-3" />
-                                                </button>
-                                            </div>
-                                        )
-                                    })
-                                })()}
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                        {/* LOGS */}
-                        <div className="live-feed-panel glass-panel-dark flex-1 rounded-xl overflow-hidden flex flex-col border border-white/5">
-                            <div className="flex items-center gap-2 mb-4 text-xs font-normal opacity-40 uppercase tracking-widest">
-                                <Swords className="w-4 h-4" /> SERVER LOGS
-                            </div>
-                            <div className="flex-1 pr-2 overflow-y-auto custom-scrollbar h-full min-h-0 relative">
-                                <LiveLogList logs={logs} />
-                            </div>
+                        <div className="live-radar-stage relative min-h-0 flex-1">
+                            <MapRadarPanel
+                                currentMapId={currentMapId}
+                                mapName={mapName}
+                                radarDots={radarData?.dots}
+                                nextRadarDots={nextRadarData?.dots}
+                                tickDurationMs={1000 / Math.max(0.1, speed)}
+                                isAnimating={isPlaying}
+                                bombState={radarData?.bomb}
+                                killLines={radarData?.killLines}
+                                smokes={radarData?.smokes}
+                                sitePositions={sitePositions}
+                                currentTime={gameState.time}
+                                fillHeight
+                            />
                         </div>
                     </div>
 
-                    {/* AWAY TEAM ROSTER */}
-                    <div className={cn("match-roster glass-panel-dark rounded-xl border-r-4 p-4 overflow-y-auto space-y-2", awayBorderClass)}>
-                        {awayRoster.slice(0, 5).map(p => (
-                            <RosterRow
-                                key={p.id}
-                                id={p.id}
-                                name={p.name}
-                                money={p.money}
-                                weapon={p.weapon}
-                                isDead={p.isDead}
-                                kills={p.kills || 0}
-                                deaths={p.deaths || 0}
-                                assists={p.assists || 0}
-                                portraitPath={originalAwayMap.get(p.id)?.portraitPath}
-                                defaultWeaponLabel="GLOCK"
-                            />
-                        ))}
+                    {/* AWAY TEAM */}
+                    <div className="live-side-column flex min-h-0 min-w-0 flex-col gap-3">
+                        {awayRosterPanel}
+                        {isPlayerHome ? feedPanel : decisionsPanel}
                     </div>
                 </div>
             </div>
@@ -649,7 +699,7 @@ export default function LiveMatchPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
+                        className="fixed inset-0 z-modal flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
                     >
                         <TacticalLoadoutEditor
                             side={editingSide}
