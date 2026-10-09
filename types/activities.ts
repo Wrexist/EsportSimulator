@@ -45,7 +45,7 @@ export const WEEKLY_ACTIVITIES: Record<WeeklyActivityType, WeeklyActivity> = {
     [WeeklyActivityType.TEAM_BONDING]: {
         type: WeeklyActivityType.TEAM_BONDING,
         name: "Team Bonding",
-        description: "Dinner and fun activities to boost morale and synergy.",
+        description: "Dinner and fun activities to boost morale and team chemistry.",
         cost: 1500,
         effects: {
             morale: 15,

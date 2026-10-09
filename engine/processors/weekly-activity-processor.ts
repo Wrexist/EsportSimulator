@@ -88,6 +88,11 @@ export function applyWeeklyActivity(save: GameSave, ctx: WeeklyActivityContext):
         myTeam.reputation = Math.min(100, (myTeam.reputation || 0) + activity.effects.reputation)
     }
 
+    // "Synergy" (Team Bonding) is team chemistry; it was advertised but never applied.
+    if (activity.effects.synergy) {
+        myTeam.chemistry = Math.max(0, Math.min(100, (myTeam.chemistry ?? 50) + activity.effects.synergy))
+    }
+
     // Activity income (e.g. STREAMING). The UI advertises this amount but the
     // processor previously never granted it — a broken promise. Bounded and
     // non-farmable: the player picks exactly one weekly focus, so it's at most

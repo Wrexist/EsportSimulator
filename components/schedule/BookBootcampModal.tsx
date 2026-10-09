@@ -12,6 +12,7 @@ import { toast } from "@/lib/toast"
 import { useFocusTrap, pressable } from "@/lib/accessibility"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { BOOTCAMP_CHEMISTRY_BONUS } from "@/engine/chemistry-engine"
 interface BookBootcampModalProps {
     isOpen: boolean
     onClose: () => void
@@ -20,6 +21,9 @@ interface BookBootcampModalProps {
 
 type BootcampType = "LOCAL" | "INTERNATIONAL" | "RETREAT"
 
+// `activity` is the scheduled type; `perWeek` is applied to every roster
+// player each week the block runs (scheduled-activities-processor), and the
+// start week adds BOOTCAMP_CHEMISTRY_BONUS[activity] team chemistry.
 const BOOTCAMP_OPTIONS = {
     LOCAL: {
         name: "Local Bootcamp",
@@ -29,7 +33,8 @@ const BOOTCAMP_OPTIONS = {
         color: "text-blue-400",
         bg: "bg-blue-500/10",
         border: "border-blue-500/20",
-        stats: { training: "++", morale: "-", fatigue: "+", chemistry: "" }
+        activity: "BOOTCAMP",
+        perWeek: { xp: 15, morale: -5, fatigue: 10 },
     },
     INTERNATIONAL: {
         name: "International Bootcamp",
@@ -39,7 +44,8 @@ const BOOTCAMP_OPTIONS = {
         color: "text-orange-400",
         bg: "bg-orange-500/10",
         border: "border-orange-500/20",
-        stats: { training: "+++", morale: "+", fatigue: "++", chemistry: "+" }
+        activity: "TRAVEL",
+        perWeek: { xp: 30, morale: 5, fatigue: 10 },
     },
     RETREAT: {
         name: "Team Building Retreat",
@@ -49,9 +55,12 @@ const BOOTCAMP_OPTIONS = {
         color: "text-purple-400",
         bg: "bg-purple-500/10",
         border: "border-purple-500/20",
-        stats: { training: "-", morale: "+++", fatigue: "---", chemistry: "++" }
+        activity: "REST",
+        perWeek: { xp: 0, morale: 20, fatigue: -30 },
     }
-}
+} as const
+
+const signed = (n: number) => (n > 0 ? `+${n}` : `${n}`)
 
 export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalProps) {
     const scheduleActivity = useGameStore(state => state.scheduleActivity)
@@ -69,16 +78,16 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
 
         const result = scheduleActivity({
             id: `bootcamp_${week}_${selectedType}_${duration}`,
-            type: selectedType === "RETREAT" ? "REST" : selectedType === "INTERNATIONAL" ? "TRAVEL" : "BOOTCAMP",
+            type: selectedOption.activity,
             week: week,
             duration: duration,
             cost: totalCost,
             name: selectedOption.name,
             description: selectedOption.description,
-            fatigue: selectedType === "RETREAT" ? -30 : 10,
+            fatigue: selectedOption.perWeek.fatigue,
             effect: {
-                trainingBonus: selectedType === "INTERNATIONAL" ? 30 : selectedType === "LOCAL" ? 15 : 0,
-                morale: selectedType === "RETREAT" ? 20 : selectedType === "INTERNATIONAL" ? 5 : -5,
+                trainingBonus: selectedOption.perWeek.xp,
+                morale: selectedOption.perWeek.morale,
             }
         }) as unknown as { success: boolean, message: string }
 
@@ -148,11 +157,11 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                                             {option.description}
                                         </p>
-                                        <div className="flex gap-2 mt-3">
-                                            {option.stats.training !== "-" && <Badge variant="outline" className="text-[9px] border-blue-500/30 text-blue-400">Training {option.stats.training}</Badge>}
-                                            {option.stats.morale !== "-" && <Badge variant="outline" className="text-[9px] border-purple-500/30 text-purple-400">Morale {option.stats.morale}</Badge>}
-                                            {option.stats.fatigue.includes("-") && <Badge variant="outline" className="text-[9px] border-green-500/30 text-green-400">Fatigue {option.stats.fatigue}</Badge>}
-                                            {option.stats.chemistry && <Badge variant="outline" className="text-[9px] border-yellow-500/30 text-yellow-400">Chemistry {option.stats.chemistry}</Badge>}
+                                        <div className="flex flex-wrap gap-2 mt-3">
+                                            {option.perWeek.xp > 0 && <Badge variant="outline" className="text-[9px] border-blue-500/30 text-blue-400">XP {signed(option.perWeek.xp)}/wk</Badge>}
+                                            <Badge variant="outline" className={`text-[9px] ${option.perWeek.morale > 0 ? "border-purple-500/30 text-purple-400" : "border-red-500/30 text-red-400"}`}>Morale {signed(option.perWeek.morale)}/wk</Badge>
+                                            <Badge variant="outline" className={`text-[9px] ${option.perWeek.fatigue < 0 ? "border-green-500/30 text-green-400" : "border-red-500/30 text-red-400"}`}>Fatigue {signed(option.perWeek.fatigue)}/wk</Badge>
+                                            {(BOOTCAMP_CHEMISTRY_BONUS[option.activity] ?? 0) > 0 && <Badge variant="outline" className="text-[9px] border-yellow-500/30 text-yellow-400">Chemistry +{BOOTCAMP_CHEMISTRY_BONUS[option.activity]}</Badge>}
                                         </div>
                                     </div>
                                 </div>

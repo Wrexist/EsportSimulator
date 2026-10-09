@@ -184,6 +184,44 @@ describe("applyScheduledActivities — BOOTCAMP / REST / TRAVEL", () => {
     })
 })
 
+describe("applyScheduledActivities — booked bootcamp weekly effects", () => {
+    const booked = (week: number) => ({
+        id: "bc", type: "BOOTCAMP", week, duration: 2, name: "Local Bootcamp",
+        fatigue: 10, effect: { trainingBonus: 15, morale: -5 },
+    })
+
+    test("start week: chemistry bonus plus the booked fatigue / morale / XP on every roster player", () => {
+        const save = makeSave([booked(5)], 2, 5)
+        applyScheduledActivities(save, { playerTeamId: "player", nextId })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const p of save.players as any[]) {
+            expect(p.fatigue).toBe(50)
+            expect(p.morale).toBe(45)
+            expect(p.xp).toBe(15)
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((save.teams[0] as any).chemistry).toBeGreaterThan(50)
+        expect(save.eventsLog).toHaveLength(2)
+    })
+
+    test("later weeks of the block repeat the roster effects but not the chemistry bonus", () => {
+        const save = makeSave([booked(4)], 1, 5)
+        applyScheduledActivities(save, { playerTeamId: "player", nextId })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const p = (save.players as any[])[0]
+        expect(p.xp).toBe(15)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((save.teams[0] as any).chemistry).toBe(50)
+        expect(save.eventsLog).toHaveLength(1)
+    })
+
+    test("the block ends after its duration", () => {
+        const save = makeSave([booked(3)], 1, 5)
+        applyScheduledActivities(save, { playerTeamId: "player", nextId })
+        expect(save.eventsLog).toHaveLength(0)
+    })
+})
+
 describe("applyScheduledActivities — filtering + edge cases", () => {
     test("activities for OTHER weeks are skipped", () => {
         const save = makeSave([
