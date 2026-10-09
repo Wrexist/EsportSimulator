@@ -9,7 +9,6 @@ import { useLiveMatch } from "@/hooks/useLiveMatch"
 import { LiveMatchScoreboard } from "@/components/match/LiveMatchScoreboard"
 import { LiveMatchControlBar } from "@/components/match/LiveMatchControlBar"
 import { MapRadarPanel } from "@/components/match/MapRadarPanel"
-import { CareerPhysicalReplay } from "@/components/match/CareerPhysicalReplay"
 import { DerbyBanner } from "@/components/match/DerbyBanner"
 import { HalfTimeOverlay } from "@/components/match/HalfTimeOverlay"
 import { TacticalLoadoutEditor } from "@/components/match/TacticalLoadoutEditor"
@@ -502,7 +501,6 @@ export default function LiveMatchPage() {
                             <p className="text-xs text-slate-400 max-w-[240px]">Between rounds. Relieves losing-streak pressure for two rounds.</p>
                         </div>
 
-                        <CareerPhysicalReplay matchId={params.id} onOpen={()=>setIsPlaying(false)} />
                         <MapRadarPanel
                             currentMapId={currentMapId}
                             mapName={mapName}
