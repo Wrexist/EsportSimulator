@@ -76,7 +76,7 @@ export class EventProcessor {
                             },
                             acknowledged: false,
                             choices: [
-                                { id: "talk", text: "Team Meeting (Morale +10)", effects: { morale: 10 } },
+                                { id: "talk", text: "One-on-One Talk (Morale +10)", effects: { morale: 10 } },
                                 { id: "bonus", text: "Performance Bonus (Money -5k, Loyalty +5)", effects: { money: -5000, loyalty: 5 } },
                                 { id: "ignore", text: "Ignore", effects: { loyalty: -5, morale: -5 } }
                             ]
@@ -98,7 +98,7 @@ export class EventProcessor {
                             acknowledged: false,
                             choices: [
                                 { id: "rest", text: "Light Training (Morale +5)", effects: { morale: 5 } },
-                                { id: "push", text: "Push Harder (Loyalty -5)", effects: { loyalty: -5, morale: -5 } }
+                                { id: "push", text: "Push Harder (Loyalty -5, Morale -5)", effects: { loyalty: -5, morale: -5 } }
                             ]
                         })
                         await saveManager.recordEventGenerated(transaction, eventId)
@@ -142,7 +142,7 @@ export class EventProcessor {
                         acknowledged: false,
                         choices: [
                             { id: "celebrate", text: "Team Dinner (Money -1k, Rep +2)", effects: { money: -1000, reputation: 2 } },
-                            { id: "focus", text: "Stay Focused (Tactics Bonus)", effects: { reputation: 1 } }
+                            { id: "focus", text: "Stay Focused (Rep +1)", effects: { reputation: 1 } }
                         ]
                     })
                     await saveManager.recordEventGenerated(transaction, eventId)
@@ -161,7 +161,7 @@ export class EventProcessor {
                         acknowledged: false,
                         choices: [
                             { id: "crisis", text: "Crisis Meeting (Morale +5, Money -500)", effects: { money: -500, morale: 5 } },
-                            { id: "shakeup", text: "Roster Shakeup Warning (Morale -2, Hunger +10)", effects: { morale: -2 } }
+                            { id: "shakeup", text: "Roster Shakeup Warning (Morale -2)", effects: { morale: -2 } }
                         ]
                     })
                     await saveManager.recordEventGenerated(transaction, eventId)
@@ -181,9 +181,9 @@ export class EventProcessor {
                     data: { hype: playerTeam.merchHype || 10 },
                     acknowledged: false,
                     choices: [
-                        { id: "fan_meet", text: "Host Fan Meetup (Money -2k, Rep +5, Hype +10)", effects: { money: -2000, reputation: 5 } },
-                        { id: "social_post", text: "Social Media Campaign (Hype +5)", effects: { reputation: 1 } },
-                        { id: "ignore_fans", text: "Focus purely on practice", effects: { morale: 2 } }
+                        { id: "fan_meet", text: "Host Fan Meetup (Money -2k, Rep +5)", effects: { money: -2000, reputation: 5 } },
+                        { id: "social_post", text: "Social Media Campaign (Rep +1)", effects: { reputation: 1 } },
+                        { id: "ignore_fans", text: "Focus purely on practice (Morale +2)", effects: { morale: 2 } }
                     ]
                 })
                 await saveManager.recordEventGenerated(transaction, eventId)
@@ -202,8 +202,8 @@ export class EventProcessor {
                     data: { currentSponsors: playerTeam.sponsors?.length || 0 },
                     acknowledged: false,
                     choices: [
-                        { id: "negotiate", text: "Negotiate Performance Bonus (Rep -5, Bonus Chance)", effects: { reputation: -5 } },
-                        { id: "status_quo", text: "Standard Progress Report", effects: { reputation: 2 } }
+                        { id: "negotiate", text: "Negotiate Performance Bonus (Rep -5)", effects: { reputation: -5 } },
+                        { id: "status_quo", text: "Standard Progress Report (Rep +2)", effects: { reputation: 2 } }
                     ]
                 })
                 await saveManager.recordEventGenerated(transaction, eventId)

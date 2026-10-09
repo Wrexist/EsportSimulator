@@ -36,8 +36,20 @@ export const COUNTRY_CODES: Record<string, string> = {
     'hong kong': 'hk', 'malta': 'mt', 'cyprus': 'cy', 'luxembourg': 'lu',
     'belarus': 'by', 'georgia': 'ge', 'armenia': 'am', 'azerbaijan': 'az',
     'moldova': 'md', 'uruguay': 'uy', 'paraguay': 'py', 'bolivia': 'bo',
-    'ecuador': 'ec', 'venezuela': 've', 'puerto rico': 'pr', 'cuba': 'cu'
+    'ecuador': 'ec', 'venezuela': 've', 'puerto rico': 'pr', 'cuba': 'cu',
+    'uk': 'gb', 'bosnia': 'ba', 'macedonia': 'mk', 'iran': 'ir', 'iraq': 'iq',
+    'kyrgyzstan': 'kg', 'palestine': 'ps', 'guatemala': 'gt'
 };
+
+/** ISO-2 codes used in game data that differ from the flag file name. */
+export const ISO2_ALIASES: Record<string, string> = { uk: 'gb' };
+
+/**
+ * Codes the game can produce that deliberately have no flag file under
+ * /public/assets/flags; callers render a text glyph instead of requesting
+ * a file that would 404.
+ */
+export const FLAGS_WITHOUT_SVG = new Set<string>(['tw']);
 
 /**
  * Sanitize a name for use in file paths
@@ -99,8 +111,8 @@ export function getPlayerImageUrlWithFallback(playerName: string, teamName: stri
  * Get country flag URL
  */
 export function getFlagUrl(country: string): string | null {
-    const code = COUNTRY_CODES[country?.toLowerCase()];
-    if (!code) return null;
+    const code = getCountryCode(country);
+    if (!code || FLAGS_WITHOUT_SVG.has(code)) return null;
     return `${FLAGS_PATH}/${code}.svg`;
 }
 
@@ -108,7 +120,7 @@ export function getFlagUrl(country: string): string | null {
  * Get country code from country name
  */
 export function getCountryCode(country: string): string | null {
-    return COUNTRY_CODES[country?.toLowerCase()] || null;
+    return COUNTRY_CODES[country?.trim().toLowerCase()] || null;
 }
 
 /**

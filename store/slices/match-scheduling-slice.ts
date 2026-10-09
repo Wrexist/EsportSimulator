@@ -7,7 +7,8 @@
  *   - scheduleScrim — book a BO1 practice match vs another team for a
  *     specific week/day (slot capacity rules apply).
  *   - scheduleActivity — book a multi-week activity block (bootcamp,
- *     marketing, etc.) with capacity + bootcamp-fatigue gating.
+ *     marketing, etc.) with capacity + bootcamp-fatigue gating. The
+ *     booking's cost is charged once, at booking (ledgered).
  *
  * Both validate bounds via parseBoundedInt, check capacity (max 10
  * slots/week, max 2 events/day in HYBRID_DAILY mode), and refuse to
@@ -24,6 +25,7 @@ import {
     nextDeterministicId,
     MAX_TRANSFER_FEE,
 } from "@/store/utils/helpers"
+import { formatCurrency } from "@/lib/utils-extended"
 
 const MAX_WEEKLY_SLOTS = 10
 const MAX_DAILY_EVENTS = 2
@@ -118,7 +120,10 @@ export const createMatchSchedulingSlice: SliceCreator<MatchSchedulingActions> = 
         if (!weekValidation.ok) {
             return { success: false, message: weekValidation.message }
         }
-        const durationValidation = parseBoundedInt(activity.duration, "Activity duration", 1, MAX_ACTIVITY_DURATION_WEEKS)
+        // Staff meetings are single-day events (duration 0, like rest days);
+        // everything else books whole weeks.
+        const minDuration = activity.type === "STAFF_MEETING" ? 0 : 1
+        const durationValidation = parseBoundedInt(activity.duration, "Activity duration", minDuration, MAX_ACTIVITY_DURATION_WEEKS)
         if (!durationValidation.ok) {
             return { success: false, message: durationValidation.message }
         }
@@ -154,6 +159,16 @@ export const createMatchSchedulingSlice: SliceCreator<MatchSchedulingActions> = 
             return { success: false, message: "Cannot schedule events in past days of the current week." }
         }
 
+        if (state.scheduledActivities.some(a => a.id === normalizedActivity.id)) {
+            return { success: false, message: "This activity is already booked." }
+        }
+
+        // The booking is paid once, up front; the booking screens show the total.
+        const payingTeam = state.teams.find(t => t.id === state.playerTeamId)
+        if (normalizedActivity.cost > 0 && (!payingTeam || payingTeam.budget < normalizedActivity.cost)) {
+            return { success: false, message: `Insufficient funds: this costs ${formatCurrency(normalizedActivity.cost, "$", false)}.` }
+        }
+
         const week = normalizedActivity.week
         const weekActivities = state.scheduledActivities.filter(a => week >= a.week && week < a.week + a.duration)
         const weekMatches = state.scheduledMatches.filter(m => m.week === week)
@@ -178,6 +193,20 @@ export const createMatchSchedulingSlice: SliceCreator<MatchSchedulingActions> = 
 
         set((state) => {
             state.scheduledActivities.push(normalizedActivity as ActivitySaveData)
+            const team = state.teams.find(t => t.id === state.playerTeamId)
+            if (team && normalizedActivity.cost > 0) {
+                team.budget -= normalizedActivity.cost
+                state.financeLedger.push({
+                    id: nextDeterministicId(state, "fin_activity_booking", normalizedActivity.id),
+                    week: state.currentWeek,
+                    teamId: team.id,
+                    type: "EXPENSE",
+                    category: normalizedActivity.type === "MARKETING" ? "OTHER" : "TRAINING",
+                    amount: normalizedActivity.cost,
+                    description: `Booked: ${normalizedActivity.name || normalizedActivity.type}`,
+                    balance: team.budget,
+                })
+            }
         })
         return { success: true, message: "Activity scheduled" }
     },

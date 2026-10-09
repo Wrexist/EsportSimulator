@@ -103,9 +103,16 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                     }
                 }
 
-                if (playerId && (morale || loyalty || fatigue)) {
-                    const player = state.players.find(p => p.id === playerId)
-                    if (player) {
+                if (morale || loyalty || fatigue) {
+                    // A player event targets that player; a team event (no
+                    // playerId) applies to the whole roster — those choices
+                    // were previously no-ops.
+                    const rosterIds = playerId
+                        ? [String(playerId)]
+                        : state.teams.find(t => t.id === state.playerTeamId)?.rosterIds ?? []
+                    for (const pid of rosterIds) {
+                        const player = state.players.find(p => p.id === pid)
+                        if (!player) continue
                         if (morale) player.morale = Math.max(0, Math.min(100, player.morale + morale))
                         if (fatigue) player.fatigue = Math.max(0, Math.min(100, player.fatigue + Math.max(-10, Math.min(10, fatigue))))
                         if (loyalty) player.loyalty = Math.max(0, Math.min(100, player.loyalty + loyalty))
@@ -175,10 +182,15 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                         unlockedTalentIds: [],
                     }
                     if (existingCoachIdx >= 0) {
+                        const replacedId = state.staff[existingCoachIdx].id
+                        team.staffIds = team.staffIds.filter(id => id !== replacedId)
                         state.staff[existingCoachIdx] = legendCoach
                     } else {
                         state.staff.push(legendCoach)
                     }
+                    // Weekly wages are paid from team.staffIds (EconomyEngine);
+                    // without this the legend's salary was never charged.
+                    if (!team.staffIds.includes(legendCoach.id)) team.staffIds.push(legendCoach.id)
                     // Deduct first week's salary up-front and boost team buffs.
                     team.budget -= salaryCost
                     state.financeLedger.push({

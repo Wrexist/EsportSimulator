@@ -769,6 +769,15 @@ function achievementToast(get: () => { addToast: (toast: { message: string; type
  * cannot field five are excluded, because simulateInstantMatch refuses them
  * and the week tick resolves them by forfeit (match-forfeit.ts).
  */
+/**
+ * True once a career is actually loaded. Without one, an advance builds a
+ * snapshot for team "unknown" under a recovery saveId (build-save-snapshot.ts)
+ * and persists a phantom career, so every advance action is a no-op.
+ */
+function hasLoadedCareer(state: Pick<GameStoreState, "saveId" | "playerTeamId">): boolean {
+  return !!state.saveId && !!state.playerTeamId
+}
+
 function weekBlockingMatch(
   state: Pick<GameStoreState, "playerTeamId" | "scheduledMatches" | "completedMatches" | "currentWeek" | "teams" | "players">,
   completedIds: Set<string> = new Set(state.completedMatches.map(cm => cm.id)),
@@ -1917,7 +1926,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       advanceDay: async () => {
         const state = get()
         // A dissolved career must not move its calendar (daily mode never reached advanceWeek's guard).
-        if (state.isLoading || state.gameOverReason) return
+        if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state)) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
           return
@@ -1943,7 +1952,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       advanceToWeekEnd: async () => {
         const state = get()
-        if (state.isLoading || state.gameOverReason) return
+        if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state)) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
           return
@@ -1982,6 +1991,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
         // Guard: prevent concurrent week processing (race condition from rapid key presses)
         if (state.isLoading) return
+
+        // Guard: no career loaded — nothing to advance (would persist a phantom save)
+        if (!hasLoadedCareer(state)) return
 
         // Guard: prevent advancing if game is over (bankruptcy)
         if (state.gameOverReason) {

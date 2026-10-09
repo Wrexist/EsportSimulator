@@ -57,22 +57,22 @@ const FACILITIES: {
 const FACILITY_LEVELS: Record<FacilityType, Record<number, { desc: string; perks: string[] }>> = {
     TRAINING: {
         1: { desc: "Basic gaming booths for daily practice.", perks: ["+5% XP Gain from Scrims", "Unlock: Basic Scrims"] },
-        2: { desc: "Upgraded setup with a dedicated analysts corner.", perks: ["+10% XP Gain", "Unlock: VOD Review (Tactics)"] },
+        2: { desc: "Upgraded setup with a dedicated analysts corner.", perks: ["+10% XP Gain"] },
         3: { desc: "Professional academy with private practice rooms.", perks: ["+20% XP Gain", "Unlock: Advanced Drills"] },
         4: { desc: "State-of-the-art lab with bio-metric feedback.", perks: ["+35% XP Gain", "Reduce Fatigue Gain by 10%"] },
         5: { desc: "The Empire Training Center: Apex of esports.", perks: ["+50% XP Gain", "Max Potential Unlock"] }
     },
     RECOVERY: {
         1: { desc: "Basic rest area with snacks and drinks.", perks: ["+5% Stamina Recovery", "Unlock: Short Break"] },
-        2: { desc: "Chill zone with gaming chairs and lounges.", perks: ["+10% Stamina Recovery", "Unlock: Mental Reset"] },
+        2: { desc: "Chill zone with gaming chairs and lounges.", perks: ["+10% Stamina Recovery"] },
         3: { desc: "Health suite with physical therapy equipment.", perks: ["+20% Stamina Recovery", "Reduce Injury Chance"] },
         4: { desc: "Performance kitchen and dedicated sleep pods.", perks: ["+35% Stamina Recovery", "Boost Morale Recovery"] },
         5: { desc: "Empire Wellness Retreat: Infinite stamina.", perks: ["+50% Stamina Recovery", "Near-Zero Injury Risk"] }
     },
     TACTICAL: {
-        1: { desc: "Whiteboard and projector setup.", perks: ["Unlock: Match Analysis", "+5% Tactical Read"] },
-        2: { desc: "VOD review station with basic software.", perks: ["Unlock: Playstyle Adjustments", "+10% Tactical Read"] },
-        3: { desc: "War room with multi-screen data analysis.", perks: ["Unlock: Antistrat Feature", "+20% Tactical Read"] },
+        1: { desc: "Whiteboard and projector setup.", perks: ["+5% Tactical Read"] },
+        2: { desc: "VOD review station with basic software.", perks: ["+10% Tactical Read"] },
+        3: { desc: "War room with multi-screen data analysis.", perks: ["+20% Tactical Read"] },
         4: { desc: "AI-assisted strategic simulator.", perks: ["Predict Opponent Vetos", "+35% Tactical Read"] },
         5: { desc: "Empire Command Hub: Tactical perfection.", perks: ["Perfect Strategy Counter", "+50% Tactical Read"] }
     },

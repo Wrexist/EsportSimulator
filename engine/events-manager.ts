@@ -237,7 +237,7 @@ export class EventsManager {
           acknowledged: false,
           data: {
             title: `${brand} Equipment Deal`,
-            message: `${brand} is offering your team a ${discount}% discount on new peripherals. This could give your players a slight edge and boost team morale.`,
+            message: `${brand} is offering your team a ${discount}% discount on new peripherals. Accepting boosts team morale.`,
             severity: "info",
             brand,
             discount,

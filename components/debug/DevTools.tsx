@@ -41,7 +41,16 @@ import {
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
 
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
+/**
+ * Mounts the dev panel only when dev tools are enabled. The panel subscribes
+ * to the whole store, so in production it must not mount at all (it used to
+ * subscribe and re-render on every store change, then return null).
+ */
 export function DevTools() {
+    return isDevToolsEnabled() ? <DevToolsPanel /> : null
+}
+
+function DevToolsPanel() {
     const devToolsEnabled = isDevToolsEnabled()
     const [isOpen, setIsOpen] = useState(false)
     const [activeTab, setActiveTab] = useState("economy")

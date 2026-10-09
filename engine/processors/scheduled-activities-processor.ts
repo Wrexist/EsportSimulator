@@ -10,8 +10,10 @@
  *     a TEAM_UPDATE event summarizing the applied effects.
  *
  *   - BOOTCAMP / REST / TRAVEL: applies a chemistry bonus via
- *     applyBootcampChemistryBonus and surfaces a TEAM_UPDATE event when
- *     the bonus is non-zero.
+ *     applyBootcampChemistryBonus in the start week and surfaces a
+ *     TEAM_UPDATE event when the bonus is non-zero. Every week the block
+ *     runs, the booked fatigue / morale / XP effects hit the roster.
+ *     (Booking costs are charged up front by scheduleActivity.)
  *
  * Extracted from store/game-store.ts. Mutates `save` in place.
  */
@@ -34,18 +36,65 @@ interface ScheduledActivitiesContext {
 }
 
 export function applyScheduledActivities(save: GameSave, ctx: ScheduledActivitiesContext): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const activeScheduled = save.scheduledActivities?.filter((a: any) => a.week === save.currentWeek) || []
+    const week = save.currentWeek
+    // Starts this week, or a multi-week block (bootcamp) still running.
+    const activeScheduled = save.scheduledActivities?.filter(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (a: any) => a.week === week || (week > a.week && week < a.week + (a.duration || 0))
+    ) || []
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     activeScheduled.forEach((act: any) => {
-        if (act.type === "STAFF_MEETING") {
+        if (act.type === "STAFF_MEETING" && act.week === week) {
             applyStaffMeeting(save, act, ctx)
         }
 
         if (act.type === "BOOTCAMP" || act.type === "REST" || act.type === "TRAVEL") {
-            applyBootcampChemistry(save, act, ctx)
+            if (act.week === week) applyBootcampChemistry(save, act, ctx)
+            applyBootcampWeek(save, act, ctx)
         }
+    })
+}
+
+/**
+ * Per-week roster effects a booked bootcamp carries (BookBootcampModal):
+ * `fatigue`, `effect.morale` and `effect.trainingBonus` (flat XP), applied
+ * every week the block runs. Auto-generated rest days carry none of these.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyBootcampWeek(save: GameSave, act: any, ctx: ScheduledActivitiesContext): void {
+    const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : 0)
+    const fatigue = num(act.fatigue)
+    const morale = num(act.effect?.morale)
+    const xp = Math.max(0, num(act.effect?.trainingBonus))
+    if (!fatigue && !morale && !xp) return
+
+    const team = save.teams.find(t => t.id === ctx.playerTeamId)
+    if (!team) return
+    const roster = save.players.filter(p => team.rosterIds.includes(p.id))
+    roster.forEach(p => {
+        if (fatigue) p.fatigue = Math.min(100, Math.max(0, (p.fatigue || 0) + fatigue))
+        if (morale) p.morale = Math.min(100, Math.max(0, (p.morale ?? 50) + morale))
+        if (xp) p.xp = (p.xp || 0) + xp
+    })
+
+    const sign = (n: number) => (n > 0 ? `+${n}` : `${n}`)
+    const parts = [
+        xp ? `XP ${sign(xp)}` : "",
+        morale ? `Morale ${sign(morale)}` : "",
+        fatigue ? `Fatigue ${sign(fatigue)}` : "",
+    ].filter(Boolean)
+    save.eventsLog.unshift({
+        id: ctx.nextId(save, "evt_bootcamp_week", act.type),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        type: "TEAM_UPDATE" as any,
+        week: save.currentWeek,
+        acknowledged: false,
+        data: {
+            title: act.name || "Bootcamp",
+            message: `Bootcamp week for the roster: ${parts.join(", ")}.`,
+            severity: "info",
+        },
     })
 }
 

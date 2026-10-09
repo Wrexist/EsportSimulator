@@ -140,6 +140,8 @@ export default function StaffMeetingPage() {
         staff,
         scheduleActivity,
         currentWeek,
+        currentDay,
+        timeMode,
         completedMatches,
         managerDetails,
     } = useGameStore(useShallow(state => ({
@@ -148,6 +150,8 @@ export default function StaffMeetingPage() {
         staff: state.staff,
         scheduleActivity: state.scheduleActivity,
         currentWeek: state.currentWeek,
+        currentDay: state.currentDay,
+        timeMode: state.timeMode,
         completedMatches: state.completedMatches,
         managerDetails: state.managerDetails,
     })))
@@ -276,7 +280,8 @@ export default function StaffMeetingPage() {
             id: `act_meet_${meeting.id}_w${currentWeek}`,
             type: "STAFF_MEETING",
             week: currentWeek,
-            day: 0,
+            // Today in daily mode (earlier days are closed); otherwise day 0.
+            day: timeMode === "HYBRID_DAILY" ? currentDay : 0,
             duration: 0,
             cost: meeting.cost,
             name: meeting.name,

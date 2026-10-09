@@ -98,6 +98,11 @@ export function WeeklyFocusWidget() {
                                         +{weeklyActivityXpBonus(activity)} XP per player
                                     </span>
                                 )}
+                                {activity.effects.synergy !== undefined && (
+                                    <span className="text-[10px] px-1 rounded bg-white/5 text-green-400">
+                                        +{activity.effects.synergy} Chemistry
+                                    </span>
+                                )}
                             </div>
 
                             {isSelected && (

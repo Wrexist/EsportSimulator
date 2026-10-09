@@ -436,8 +436,11 @@ export default function TournamentDetailPage() {
                                     {getDynamicTournamentName(displayTournament.name, currentWeek)}
                                 </h1>
                                 <div className="flex items-center gap-4">
-                                    <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 px-3 py-1 text-[10px] font-normal tracking-[0.2em] uppercase">
-                                        {displayTournament.tier} TIER
+                                    <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 px-3 py-1 text-[10px] font-normal tracking-[0.2em]">
+                                        {/* "B_TIER" → "B-Tier", "QUALIFIER" → "Qualifier" */}
+                                        {/^[A-Z]_TIER$/.test(displayTournament.tier || "")
+                                            ? `${displayTournament.tier[0]}-Tier`
+                                            : (displayTournament.tier || "").charAt(0) + (displayTournament.tier || "").slice(1).toLowerCase()}
                                     </Badge>
                                     <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
                                         <CountryFlag country={displayTournament?.region} size={16} />

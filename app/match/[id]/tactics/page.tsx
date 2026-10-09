@@ -24,7 +24,14 @@ import { simulationEngineV2, SeededRNG } from "@/engine"
 import { MapId } from "@/types/enums"
 import { Player } from "@/types"
 import { getMapAssetName, ACTIVE_MAP_POOL } from "@/data/map-pool"
+import { MATCH_BALANCE } from "@/lib/constants"
 // If MAP_WALLPAPERS is missing, I'll fallback gracefully or use string paths
+
+// Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
+// each key beats its value; "default" is neutral against everything.
+const PLAYSTYLE_BEATS: Record<string, string> = { aggressive: "structured", structured: "balanced", balanced: "aggressive" }
+const PLAYSTYLE_LABELS: Record<string, string> = { aggressive: "Aggressive", structured: "Structured", balanced: "Balanced", default: "Default" }
+const pct = (n: number) => `${Math.round(n * 100)}%`
 
 
 export default function TacticalHQPage() {
@@ -102,14 +109,18 @@ export default function TacticalHQPage() {
         return ids.map((pid: string) => playersById.get(pid)).filter(Boolean) as any[]
     }, [opponent?.rosterIds, playersById])
 
-    // Facility Levels for Locking
-    const tacticalLevel = myTeam?.facilities?.find((f: any) => f.type === "TACTICAL")?.level || 0
-    const recoveryLevel = myTeam?.facilities?.find((f: any) => f.type === "RECOVERY")?.level || 0
+    // Every match-prep lever (VOD review, playstyle, economy, anti-strat,
+    // mental reset) is available from the first match. Facilities keep their
+    // own bonuses (strength, training, recovery) and no longer gate these.
 
-    const isVodUnlocked = tacticalLevel >= 1
-    const isPlaystyleUnlocked = tacticalLevel >= 2
-    const isAntistratUnlocked = tacticalLevel >= 3
-    const isMentalResetUnlocked = recoveryLevel >= 2
+    // Opponent's current playstyle vs ours (the counter triangle).
+    const myStyle = myTeam?.playstyle || "default"
+    const opponentStyle = opponent?.playstyle || "default"
+    const counterPick = Object.keys(PLAYSTYLE_BEATS).find(style => PLAYSTYLE_BEATS[style] === opponentStyle)
+    const playstyleMatchup = myStyle === "default" || opponentStyle === "default" || myStyle === opponentStyle
+        ? "neutral"
+        : PLAYSTYLE_BEATS[myStyle] === opponentStyle ? "advantage"
+        : PLAYSTYLE_BEATS[opponentStyle] === myStyle ? "disadvantage" : "neutral"
 
     const handleQuickSim = async () => {
         if (!match || !myTeam || !opponent) return
@@ -505,12 +516,7 @@ export default function TacticalHQPage() {
                                     <h3 className="text-xl font-semibold tracking-tight bg-linear-to-r/srgb from-white to-white/70 bg-clip-text text-transparent">VOD Review</h3>
                                     <p className="text-sm text-white/40">Analyze opponent playstyle</p>
                                 </div>
-                                {!isVodUnlocked ? (
-                                    <div className="ml-auto px-3 py-1 bg-white/5 rounded-lg border border-white/10 flex items-center gap-2">
-                                        <Lock size={12} className="text-muted-foreground" />
-                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Lvl 1 Tac Center Req.</span>
-                                    </div>
-                                ) : vodReviewed ? (
+                                {vodReviewed ? (
                                     <motion.div
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
@@ -532,25 +538,7 @@ export default function TacticalHQPage() {
                             </div>
 
                         <div className="relative overflow-hidden rounded-lg group border border-white/5 bg-[#0a0a0a]">
-                            {!isVodUnlocked && (
-                                <div className="absolute inset-0 z-dropdown flex flex-col items-center justify-center bg-black/60 backdrop-blur-xs">
-                        <div className="bg-black/70 px-8 py-6 rounded-xl border border-white/10 text-center shadow-glass-soft transform scale-100">
-                            <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center mx-auto mb-4 border border-white/10">
-                                            <Lock size={24} className="text-white/40" />
-                                        </div>
-                                        <h3 className="text-white font-normal uppercase tracking-wider mb-1">Feature Locked</h3>
-                                        <p className="text-xs text-white/40 mb-4 max-w-[200px] leading-relaxed">
-                                            Upgrade your Tactical Center to Level 1 to unlock VOD Reviews.
-                                        </p>
-                                        <Link href="/basecamp">
-                                            <Button size="sm" variant="default" className="w-full font-bold">Upgrade Basecamp</Button>
-                                        </Link>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Content Wrapper - Blured when locked */}
-                            <div className={cn("relative transition-all duration-500", !isVodUnlocked && "blur-md opacity-30 pointer-events-none grayscale")}>
+                            <div className="relative">
                                 {/* Visual Header */}
                                 <div className="relative h-48 w-full group overflow-hidden">
                                     <div className="absolute inset-0 flex items-center justify-center z-20">
@@ -559,10 +547,6 @@ export default function TacticalHQPage() {
                                         </div>
                                     </div>
                                     <div className="absolute inset-0 bg-linear-to-t/srgb from-[#0a0a0a] via-black/20 to-transparent z-10" />
-                                    {/* Placeholder visuals for VOD */}
-                                    <div className="absolute top-4 right-4 z-20 px-3 py-1 rounded-lg bg-red-500 text-white text-[10px] font-normal uppercase tracking-widest shadow-lg shadow-red-500/20">
-                                        LIVE DEMO
-                                    </div>
                                     <div
                                         className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-700"
                                         style={{
@@ -596,7 +580,7 @@ export default function TacticalHQPage() {
                                         )}
                                         <Button
                                             onClick={handleVODReview}
-                                            disabled={vodReviewed || !isMatchWeek || !isVodUnlocked}
+                                            disabled={vodReviewed || !isMatchWeek}
                                             className={cn(
                                                 "relative w-full h-12 rounded-xl font-bold uppercase tracking-wider text-xs transition-all",
                                                 vodReviewed
@@ -619,7 +603,7 @@ export default function TacticalHQPage() {
                                             className="text-center text-[10px] text-emerald-500/80 mt-3 font-bold uppercase tracking-widest flex items-center justify-center gap-2"
                                         >
                                             <Zap size={12} className="fill-emerald-500" />
-                                            +5% Tactical Read Gained
+                                            +25 Tactical Prep Gained
                                             <Zap size={12} className="fill-emerald-500" />
                                         </motion.p>
                                     )}
@@ -679,19 +663,35 @@ export default function TacticalHQPage() {
 
                         <div className="space-y-6 mb-8 relative">
                             {/* Playstyle Section */}
-                            <div className={cn("space-y-3", !isPlaystyleUnlocked && "opacity-40 pointer-events-none")}>
+                            <div className="space-y-3">
                                 <div className="flex justify-between items-center">
                                     <label className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                         Team Playstyle
                                     </label>
-                                    {!isPlaystyleUnlocked && <span className="text-[9px] font-bold text-red-400 uppercase">Locked (Lvl 2 Tac)</span>}
+                                </div>
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 p-2 rounded-lg bg-white/5 border border-white/10 text-[10px]">
+                                    <span className="text-muted-foreground">{opponent.name} plays</span>
+                                    <span className="font-bold text-white uppercase">{PLAYSTYLE_LABELS[opponentStyle] ?? opponentStyle}</span>
+                                    {counterPick && (
+                                        <span className="text-muted-foreground">· counter with <span className="font-bold text-white uppercase">{PLAYSTYLE_LABELS[counterPick]}</span></span>
+                                    )}
+                                    <span className={cn(
+                                        "ml-auto font-bold uppercase",
+                                        playstyleMatchup === "advantage" ? "text-emerald-400" : playstyleMatchup === "disadvantage" ? "text-red-400" : "text-muted-foreground"
+                                    )}>
+                                        {playstyleMatchup === "advantage"
+                                            ? `You counter them +${pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS)}`
+                                            : playstyleMatchup === "disadvantage"
+                                                ? `They counter you -${pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY)}`
+                                                : "No counter"}
+                                    </span>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                     {[
-                                        { id: "balanced", label: "Balanced", desc: "No bonuses, no risks" },
-                                        { id: "aggressive", label: "Aggressive", desc: "+5% if high morale" },
-                                        { id: "structured", label: "Structured", desc: "+5% if high chemistry" },
-                                        { id: "default", label: "Default", desc: "Standard play" }
+                                        { id: "balanced", label: "Balanced", desc: "Beats Aggressive" },
+                                        { id: "aggressive", label: "Aggressive", desc: "Beats Structured; +5% at 80+ morale" },
+                                        { id: "structured", label: "Structured", desc: "Beats Balanced; +5% at 80+ chemistry" },
+                                        { id: "default", label: "Default", desc: "Neutral vs every style" }
                                     ].map((style) => (
                                         <Button
                                             key={style.id}
@@ -714,12 +714,11 @@ export default function TacticalHQPage() {
 
                             {/* Economy Style (B12) — read by the sim (getTeamStrategy)
                                 but previously had no UI, so the lever was unreachable. */}
-                            <div className={cn("space-y-3", !isPlaystyleUnlocked && "opacity-40 pointer-events-none")}>
+                            <div className="space-y-3">
                                 <div className="flex justify-between items-center">
                                     <label className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                         Economy Style
                                     </label>
-                                    {!isPlaystyleUnlocked && <span className="text-[9px] font-bold text-red-400 uppercase">Locked (Lvl 2 Tac)</span>}
                                 </div>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
@@ -745,16 +744,15 @@ export default function TacticalHQPage() {
                             </div>
 
                             {/* Antistrat Section */}
-                            <div className={cn("space-y-3", !isAntistratUnlocked && "opacity-40 pointer-events-none")}>
+                            <div className="space-y-3">
                                 <div className="flex justify-between items-center">
                                     <label className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                         Antistrat vs {opponent.name}
                                     </label>
-                                    {!isAntistratUnlocked && <span className="text-[9px] font-bold text-red-400 uppercase">Locked (Lvl 3 Tac)</span>}
                                 </div>
                                 <div className="flex items-center gap-2 p-2 rounded-lg bg-red-500/5 border border-red-500/10">
-                                    <span className="text-[8px] text-red-400 font-bold">⚠️ -15% target rating</span>
-                                    <span className="text-[8px] text-amber-400/80">• -5% map awareness</span>
+                                    <span className="text-[8px] text-red-400 font-bold">⚠️ Target -15% equipment power</span>
+                                    <span className="text-[8px] text-amber-400/80">• your tactics -5%</span>
                                 </div>
                                 <div className="grid grid-cols-5 gap-2">
                                     {opponentPlayers.slice(0, 5).map((player: any) => (
@@ -791,24 +789,15 @@ export default function TacticalHQPage() {
                         </div>
 
                         {/* Mental Prep (Retained but moved down) */}
-                        <div className={cn("mt-auto space-y-3 pt-6 border-t border-white/5 mb-6 relative", !isMentalResetUnlocked && "opacity-50 pointer-events-none")}>
-                            {!isMentalResetUnlocked && (
-                                <div className="absolute inset-0 z-50 flex items-center justify-center">
-                                    <div className="bg-black/80 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 text-center">
-                                        <p className="text-[10px] font-bold text-white">Unlock at Recovery Lvl 2</p>
-                                    </div>
-                                </div>
-                            )}
+                        <div className="mt-auto space-y-3 pt-6 border-t border-white/5 mb-6 relative">
                             <div
                                 role="button"
-                                tabIndex={isMentalResetUnlocked ? 0 : -1}
-                                aria-disabled={!isMentalResetUnlocked}
+                                tabIndex={0}
                                 aria-label="Apply Mental Reset ($5,000) to boost morale"
                                 aria-pressed={mentalBoosted}
                     className="p-4 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-colors"
-                                onClick={() => { if (isMentalResetUnlocked) handleMentalPrep() }}
+                                onClick={handleMentalPrep}
                                 onKeyDown={(e) => {
-                                    if (!isMentalResetUnlocked) return
                                     if (e.key === "Enter" || e.key === " ") {
                                         e.preventDefault()
                                         handleMentalPrep()

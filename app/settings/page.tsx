@@ -355,9 +355,11 @@ export default function SettingsPage() {
           <p className="text-sm text-muted-foreground font-medium">Manage preferences and track achievements</p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <Link href="/map-editor" className="inline-flex h-10 items-center rounded-xl border border-white/10 bg-white/5 px-4 text-sm hover:bg-white/10">
-            <Crosshair className="mr-2 h-4 w-4" /> Map Studio
-          </Link>
+          {devToolsEnabled && (
+            <Link href="/map-editor" className="inline-flex h-10 items-center rounded-xl border border-white/10 bg-white/5 px-4 text-sm hover:bg-white/10">
+              <Crosshair className="mr-2 h-4 w-4" /> Map Studio
+            </Link>
+          )}
           <Link href="/main-menu">
             <Button variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10">
               <Home className="mr-2 h-4 w-4" /> Main Menu
@@ -807,7 +809,7 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
                 <p>
-                  <strong className="text-white">Esports Manager Simulator</strong>
+                  <strong className="text-white">Esports Manager: FPS</strong>
                   <span className="text-white/40"> · v{process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}</span>
                 </p>
                 <div className="grid grid-cols-2 gap-3 pt-2">
@@ -978,7 +980,7 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
                 <p>
-                  <strong className="text-white">Esports Manager Simulator v{process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}</strong>
+                  <strong className="text-white">Esports Manager: FPS v{process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}</strong>
                 </p>
                 <p>Manage your esports team to glory with realistic simulation and player development.</p>
                 <div className="pt-4 border-t border-white/5 mt-4">

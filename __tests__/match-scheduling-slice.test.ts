@@ -78,6 +78,7 @@ function makeBaseState(overrides: Partial<StoreState> = {}): Partial<StoreState>
         contracts: [],
         scheduledMatches: [] as MatchSaveData[],
         scheduledActivities: [] as ActivitySaveData[],
+        financeLedger: [],
         currentWeek: 10,
         currentDay: 3,
         timeMode: "WEEKLY",
@@ -242,6 +243,45 @@ describe("scheduleActivity", () => {
         }))
         expect(res.success).toBe(false)
         expect(res.message).toContain("exhausted")
+    })
+
+    test("a staff meeting is a single-day event (duration 0) and can be booked", () => {
+        const h = makeHarness(makeBaseState())
+        const slice = createMatchSchedulingSlice(h.set, h.get)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const res = slice.scheduleActivity(makeActivity({ id: "act_meet_general_w12", type: "STAFF_MEETING" as any, duration: 0, day: 0 }))
+        expect(res.success).toBe(true)
+        expect(h.state().scheduledActivities[0].duration).toBe(0)
+    })
+
+    test("charges the booking cost once, up front, with a ledger entry", () => {
+        const h = makeHarness(makeBaseState())
+        const slice = createMatchSchedulingSlice(h.set, h.get)
+        const res = slice.scheduleActivity(makeActivity({ cost: 6_000 }))
+        expect(res.success).toBe(true)
+        const team = h.state().teams.find(t => t.id === "player")!
+        expect(team.budget).toBe(94_000)
+        expect(h.state().financeLedger).toEqual([
+            expect.objectContaining({ type: "EXPENSE", amount: 6_000, teamId: "player", balance: 94_000 }),
+        ])
+    })
+
+    test("refuses a booking the team can't afford, without charging", () => {
+        const h = makeHarness(makeBaseState())
+        const slice = createMatchSchedulingSlice(h.set, h.get)
+        const res = slice.scheduleActivity(makeActivity({ cost: 150_000 }))
+        expect(res.success).toBe(false)
+        expect(res.message).toContain("Insufficient funds")
+        expect(h.state().teams.find(t => t.id === "player")!.budget).toBe(100_000)
+        expect(h.state().scheduledActivities).toHaveLength(0)
+    })
+
+    test("refuses booking the same activity id twice (no double charge)", () => {
+        const h = makeHarness(makeBaseState())
+        const slice = createMatchSchedulingSlice(h.set, h.get)
+        expect(slice.scheduleActivity(makeActivity({ cost: 1_000 })).success).toBe(true)
+        expect(slice.scheduleActivity(makeActivity({ cost: 1_000 })).success).toBe(false)
+        expect(h.state().teams.find(t => t.id === "player")!.budget).toBe(99_000)
     })
 
     test("BOOTCAMP allowed when avg roster fatigue ≤ 80", () => {

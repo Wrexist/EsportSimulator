@@ -116,7 +116,7 @@ export default function MainMenuPage() {
                     <div className="w-10 h-10 rounded-xl overflow-hidden">
                         <Image src="/logo.png" alt="Logo" width={40} height={40} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/team_placeholder.webp' }} />
                     </div>
-                    <span className="text-white/60 text-sm font-medium tracking-wide">ESPORT MANAGER</span>
+                    <span className="text-white/60 text-sm font-medium tracking-wide">ESPORTS MANAGER</span>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button
@@ -149,7 +149,7 @@ export default function MainMenuPage() {
                     </motion.div>
                     <h1 className="text-5xl font-normal tracking-tighter uppercase mb-4">
                         <span className="bg-linear-to-r/srgb from-white via-white to-white/60 bg-clip-text text-transparent">
-                            Esport Manager
+                            Esports Manager
                         </span>
                     </h1>
                     <p className="text-white/50 text-sm uppercase tracking-[0.4em] font-medium">
