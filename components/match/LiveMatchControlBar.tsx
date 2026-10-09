@@ -2,6 +2,7 @@ import { memo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Play, Pause, SkipForward as SkipForwardIcon, FastForward as FastForwardIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { LIVE_SPEED_PRESETS } from "@/lib/live-match-builders"
@@ -125,16 +126,24 @@ function LiveMatchControlBarComponent({
                         SKIP RND
                     </Button>
 
-                    {/* SIMULATE MATCH BUTTON */}
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 rounded-lg px-3 text-[10px] font-bold text-amber-500/50 hover:text-amber-400 hover:bg-amber-500/10 gap-2 transition-all"
-                        onClick={onSimulateMatch}
+                    {/* SIMULATE MATCH BUTTON — finishes the series at once, so confirm first. */}
+                    <ConfirmDialog
+                        title="Skip to the final result?"
+                        description="Every remaining round is simulated now with automatic buys, exactly as if you let it play on Auto tactics. You will not be able to make further calls in this match."
+                        confirmText="Skip match"
+                        cancelText="Keep watching"
+                        onConfirm={onSimulateMatch}
                     >
-                        <FastForwardIcon size={12} />
-                        SKIP MATCH
-                    </Button>
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={!inProgress}
+                            className="h-8 rounded-lg px-3 text-[10px] font-bold text-amber-500/70 hover:text-amber-400 hover:bg-amber-500/10 gap-2 transition-all"
+                        >
+                            <FastForwardIcon size={12} />
+                            SKIP MATCH
+                        </Button>
+                    </ConfirmDialog>
                 </div>
 
                 {/* SPEED PRESETS */}

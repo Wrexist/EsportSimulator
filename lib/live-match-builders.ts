@@ -5,8 +5,9 @@
  * functions stay easy to unit-test and reason about in isolation.
  */
 
-import { MapId, MapResult, Player, LivePlayerState } from "@/types"
+import { MapId, MapResult, Player, LivePlayerState, CustomTactics, MatchEvent } from "@/types"
 import { EconomyManager } from "@/engine"
+import { playLegacyRound, type LegacyRoundStep, type LegacySeriesContext, type LegacySeriesState } from "@/engine/match/legacy-series"
 import { createRoundStartEconomy, resolveHomeStartsCT, selectActiveRosterIds } from "@/lib/live-match-utils"
 
 export const ACTIVE_PLAYERS_PER_TEAM = 5
@@ -170,4 +171,50 @@ export function sanitizeEconomyForActivePlayers(
         }
         return acc
     }, {})
+}
+
+/**
+ * "Skip match": play every remaining round at once with the live screen's
+ * per-round step and no manager call (exactly what auto tactics does), so the
+ * series ends with the same rounds as letting it play out on auto — and the
+ * same result as instant simulation from this state (L14.A1).
+ */
+export function finishLegacySeriesFromState(
+    ctx: LegacySeriesContext,
+    start: LegacySeriesState,
+    options: { regroupRounds: number; customTactics?: CustomTactics },
+): { state: LegacySeriesState; lastStep?: LegacyRoundStep; roundsPlayed: number; regroupRounds: number } {
+    let state = start
+    let lastStep: LegacyRoundStep | undefined
+    let regroupRounds = Math.max(0, options.regroupRounds)
+    let roundsPlayed = 0
+    while (!state.finished) {
+        if (roundsPlayed >= 500) throw Error("Series did not finish")
+        lastStep = playLegacyRound(ctx, state, { regroup: regroupRounds > 0, customTactics: options.customTactics })
+        if (regroupRounds > 0) regroupRounds -= 1
+        state = lastStep.state
+        roundsPlayed += 1
+    }
+    return { state, lastStep, roundsPlayed, regroupRounds }
+}
+
+export type LivePlayerTally = Record<string, { kills: number; deaths: number; assists: number; headshots: number }>
+
+/** Cumulative K/D/A/HS per player from recorded rounds, optionally skipping one round. */
+export function tallyLivePlayerStats(maps: MapResult[], skip?: { mapIndex: number; roundNumber: number }): LivePlayerTally {
+    const stats: LivePlayerTally = {}
+    const bump = (pid: string) => (stats[pid] ??= { kills: 0, deaths: 0, assists: 0, headshots: 0 })
+    maps.forEach((mapData, mapIndex) => {
+        mapData.rounds.forEach(roundData => {
+            if (skip && mapIndex === skip.mapIndex && roundData.roundNumber === skip.roundNumber) return
+            roundData.kills.forEach(kill => { bump(kill.playerId).kills += kill.kills })
+            roundData.deaths?.forEach(death => { bump(death.playerId).deaths += death.deaths })
+            roundData.events?.forEach((event: MatchEvent) => {
+                if (event.type !== "KILL") return
+                if (event.assisterId) bump(event.assisterId).assists += 1
+                if (event.isHeadshot && event.playerId) bump(event.playerId).headshots += 1
+            })
+        })
+    })
+    return stats
 }
