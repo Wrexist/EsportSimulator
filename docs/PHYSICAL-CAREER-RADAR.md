@@ -1,6 +1,8 @@
 # Physical career radar integration — 2026-09-23
 
-The live match page now offers **Review physical rehearsal** when the loaded career owns a saved, settled physical round for that match. Opening it pauses normal match playback. It uses the existing MapRadarPanel in a separate, labelled dialog; it does not substitute an unrelated physical round for the legacy career result.
+The live match page offered **Review physical rehearsal** when the loaded career owned a saved, settled physical round for that match. Opening it paused normal match playback. It used the existing MapRadarPanel in a separate, labelled dialog; it did not substitute an unrelated physical round for the legacy career result.
+
+**2026-10-09:** the button and `CareerPhysicalReplay.tsx` were removed from the live match screen (lab-only feature leaking into the career). Rehearsals stay reviewable in the map-editor lab (`TeamLab`) and `/dev/physical-replay`.
 
 ## Delivered
 

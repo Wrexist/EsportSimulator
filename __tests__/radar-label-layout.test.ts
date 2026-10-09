@@ -23,3 +23,15 @@ test('edge labels stay on the radar and dead markers have no nameplate', () => {
         expect(label.y).toBeGreaterThanOrEqual(0); expect(label.y + label.height).toBeLessThanOrEqual(100)
     }
 })
+
+test('shows full nicknames up to 12 characters and keeps an uncrowded label next to its dot', () => {
+    const lone: RadarPlayerDot = { playerId: 'solo', nickname: 'Puse1donn', side: 'ct', isAlive: true, angle: 0, x: 40, y: 40 }
+    const label = layoutRadarLabels([lone]).get('solo')!
+    expect(label.text).toBe('PUSE1DONN')
+    // Right of the dot, a small gap from its 2-unit marker box.
+    expect(label.x - lone.x).toBeLessThanOrEqual(3)
+    expect(Math.abs(label.y + label.height / 2 - lone.y)).toBeLessThan(0.01)
+    const long = layoutRadarLabels([{ ...lone, nickname: 'averyveryverylongname' }]).get('solo')!
+    expect(long.text).toHaveLength(12)
+    expect(long.text.endsWith('…')).toBe(true)
+})

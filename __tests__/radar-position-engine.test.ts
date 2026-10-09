@@ -1,6 +1,7 @@
 import { MapId, MatchEvent } from "@/types"
 import { computeRadarPositions } from "@/lib/radar-position-engine"
 import { isWalkable, isRadarSegmentWalkable } from "@/lib/radar-nav"
+import { MAP_LAYOUTS } from "@/lib/map-radar-data"
 
 function buildPlayers(prefix: string, count: number) {
   return Array.from({ length: count }, (_, idx) => ({
@@ -23,6 +24,38 @@ describe("radar-position-engine", () => {
     for (const event of events) {
       const result = computeRadarPositions(MapId.ANUBIS, event.time + 0.1, events, buildPlayers('h', 5), buildPlayers('a', 5), true, 1, 42)
       for (const line of result.killLines) expect(isRadarSegmentWalkable(MapId.ANUBIS, line.level || 'upper', { x: line.fromX, y: line.fromY }, { x: line.toX, y: line.toY })).toBe(true)
+    }
+  })
+  it("puts Vertigo's B site on the upper radar floor (only Nuke has a lower B)", () => {
+    expect(MAP_LAYOUTS[MapId.VERTIGO].bSiteLevel).toBeUndefined()
+    expect(MAP_LAYOUTS[MapId.NUKE].bSiteLevel).toBe("lower")
+    const result = computeRadarPositions(MapId.VERTIGO, 40, [{ type: 'PLANT', time: 30, details: 'Bomb planted on B site' }], buildPlayers('h', 5), buildPlayers('a', 5), true, 3, 42)
+    expect(result.bomb.planted).toBe(true)
+    expect(result.bomb.level ?? "upper").toBe("upper")
+    expect(result.dots.every(d => (d.level ?? "upper") === "upper")).toBe(true)
+  })
+  it("keeps a dead player's marker for the rest of the round", () => {
+    const events: MatchEvent[] = [{ type: 'KILL', time: 12, killerId: 'h1', playerId: 'h1', victimId: 'a1', weapon: 'ak47' }, { type: 'ROUND_END', time: 60 }]
+    for (const t of [12.5, 20, 45]) {
+      const victim = computeRadarPositions(MapId.MIRAGE, t, events, buildPlayers('h', 5), buildPlayers('a', 5), true, 3, 42).dots.find(d => d.playerId === 'a1')
+      expect(victim).toBeDefined()
+      expect(victim!.isAlive).toBe(false)
+      expect(victim!.deathTime).toBe(12)
+    }
+  })
+  it("a shared per-round snapshot cache gives the same frames as computing each tick from scratch", () => {
+    const events: MatchEvent[] = [
+      { type: 'KILL', time: 14, killerId: 'h1', playerId: 'h1', victimId: 'a1', weapon: 'ak47' },
+      { type: 'KILL', time: 15, killerId: 'a2', playerId: 'a2', victimId: 'h2', weapon: 'awp' },
+      { type: 'PLANT', time: 30 }, { type: 'ROUND_END', time: 70 },
+    ]
+    const dotCache = new Map()
+    for (let t = 10; t <= 34; t++) {
+      for (const time of [t, t + 1]) {
+        const cached = computeRadarPositions(MapId.INFERNO, time, events, buildPlayers('h', 5), buildPlayers('a', 5), false, 7, 99, { dotCache })
+        const fresh = computeRadarPositions(MapId.INFERNO, time, events, buildPlayers('h', 5), buildPlayers('a', 5), false, 7, 99)
+        expect(cached).toEqual(fresh)
+      }
     }
   })
   it("does not invent utility or reveal a successful defuse before its event", () => {

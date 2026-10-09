@@ -2,8 +2,10 @@ import { memo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { PlayCircle, PauseCircle, SkipForward as SkipForwardIcon, FastForward as FastForwardIcon, Plus, Minus } from "lucide-react"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Play, Pause, SkipForward as SkipForwardIcon, FastForward as FastForwardIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { LIVE_SPEED_PRESETS } from "@/lib/live-match-builders"
 import { LiveGameState } from "@/types"
 
 interface LiveMatchControlBarProps {
@@ -11,10 +13,10 @@ interface LiveMatchControlBarProps {
     isAutoTactics: boolean
     setIsAutoTactics: (v: boolean) => void
     isPlaying: boolean
-    setIsPlaying: (v: boolean) => void
+    onTogglePlayback: () => void
     isWaitingForStrategy: boolean
     speed: number
-    setSpeed: (updater: (s: number) => number) => void
+    setSpeed: (speed: number) => void
     onSimulateRound: () => void
     onSimulateMatch: () => void
 }
@@ -24,17 +26,21 @@ function LiveMatchControlBarComponent({
     isAutoTactics,
     setIsAutoTactics,
     isPlaying,
-    setIsPlaying,
+    onTogglePlayback,
     isWaitingForStrategy,
     speed,
     setSpeed,
     onSimulateRound,
     onSimulateMatch
 }: LiveMatchControlBarProps) {
+    const inProgress = gameState.status === "IN_PROGRESS"
+    // Paused mid-round is the state the player must notice; between rounds
+    // the strategy panel is the call to action instead.
+    const pausedMidRound = inProgress && !isPlaying && !isWaitingForStrategy
     return (
         <div className="match-playback glass-panel-dark rounded-xl p-2 flex flex-wrap items-center justify-between gap-2 border-white/5">
             <AnimatePresence mode="wait">
-                {gameState.status === "IN_PROGRESS" && (
+                {inProgress && (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -45,7 +51,7 @@ function LiveMatchControlBarComponent({
                         <span className="text-[10px] font-normal tracking-wider leading-none">LIVE</span>
                     </motion.div>
                 )}
-                {gameState.status !== "IN_PROGRESS" && (
+                {!inProgress && (
                     <Badge className="bg-white/10 text-white/50 border-white/5" variant="outline">
                         {gameState.status.replace("_", " ")}
                     </Badge>
@@ -86,19 +92,25 @@ function LiveMatchControlBarComponent({
                 <div className="w-px h-8 bg-white/5" />
 
                 <div className="flex items-center gap-2">
-                    {/* Play/Pause */}
+                    {/* Play/Pause — solid glyph on a filled disc so it reads at a glance. */}
                     <Button
                         size="icon"
                         variant="ghost"
                         aria-label={isPlaying ? "Pause match" : "Resume match"}
                         title={isPlaying ? "Pause (Space)" : "Resume (Space)"}
-                        className="rounded-full w-8 h-8 text-white/70 hover:text-white hover:bg-white/10"
-                        onClick={() => setIsPlaying(!isPlaying)}
+                        disabled={!inProgress}
+                        className={cn(
+                            "rounded-full w-9 h-9 transition-colors",
+                            pausedMidRound
+                                ? "bg-emerald-400 text-slate-950 hover:bg-emerald-300 hover:text-slate-950"
+                                : "bg-white/15 text-white hover:bg-white/25 hover:text-white"
+                        )}
+                        onClick={onTogglePlayback}
                     >
                         {isPlaying ? (
-                            <PauseCircle size={18} fill="currentColor" className="text-white/20" aria-hidden="true" />
+                            <Pause size={16} fill="currentColor" strokeWidth={0} aria-hidden="true" />
                         ) : (
-                            <PlayCircle size={18} fill="currentColor" className="text-white/20" aria-hidden="true" />
+                            <Play size={16} fill="currentColor" strokeWidth={0} className="translate-x-px" aria-hidden="true" />
                         )}
                     </Button>
 
@@ -114,43 +126,44 @@ function LiveMatchControlBarComponent({
                         SKIP RND
                     </Button>
 
-                    {/* SIMULATE MATCH BUTTON */}
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 rounded-lg px-3 text-[10px] font-bold text-amber-500/50 hover:text-amber-400 hover:bg-amber-500/10 gap-2 transition-all"
-                        onClick={onSimulateMatch}
+                    {/* SIMULATE MATCH BUTTON — finishes the series at once, so confirm first. */}
+                    <ConfirmDialog
+                        title="Skip to the final result?"
+                        description="Every remaining round is simulated now with automatic buys, exactly as if you let it play on Auto tactics. You will not be able to make further calls in this match."
+                        confirmText="Skip match"
+                        cancelText="Keep watching"
+                        onConfirm={onSimulateMatch}
                     >
-                        <FastForwardIcon size={12} />
-                        SKIP MATCH
-                    </Button>
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={!inProgress}
+                            className="h-8 rounded-lg px-3 text-[10px] font-bold text-amber-500/70 hover:text-amber-400 hover:bg-amber-500/10 gap-2 transition-all"
+                        >
+                            <FastForwardIcon size={12} />
+                            SKIP MATCH
+                        </Button>
+                    </ConfirmDialog>
                 </div>
 
-                {/* SPEED CONTROL */}
-                <div className="flex items-center gap-2 bg-white/5 rounded-full px-2 py-1 border border-white/5">
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        aria-label="Decrease playback speed"
-                        title="Decrease speed"
-                        disabled={speed <= 1}
-                        className="w-4 h-4 rounded-full p-0 hover:bg-white/10 disabled:opacity-30"
-                        onClick={() => setSpeed(s => Math.max(s - 0.5, 1))}
-                    >
-                        <Minus size={10} className="text-white/50" aria-hidden="true" />
-                    </Button>
-                    <span className="text-[10px] font-bold text-white/40 w-4 text-center">{speed.toFixed(0)}x</span>
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        aria-label="Increase playback speed"
-                        title="Increase speed"
-                        disabled={speed >= 5}
-                        className="w-4 h-4 rounded-full p-0 hover:bg-white/10 disabled:opacity-30"
-                        onClick={() => setSpeed(s => Math.min(s + 0.5, 5))}
-                    >
-                        <Plus size={10} className="text-white/50" aria-hidden="true" />
-                    </Button>
+                {/* SPEED PRESETS */}
+                <div role="group" aria-label="Playback speed" className="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/10">
+                    {LIVE_SPEED_PRESETS.map(preset => (
+                        <button
+                            key={preset}
+                            type="button"
+                            aria-pressed={speed === preset}
+                            aria-label={`Playback speed ${preset}x`}
+                            title={`${preset}x speed`}
+                            onClick={() => setSpeed(preset)}
+                            className={cn(
+                                "h-7 min-w-8 px-2 rounded-full text-[11px] font-bold tabular-nums transition-colors",
+                                speed === preset ? "bg-white text-slate-950" : "text-white/60 hover:text-white hover:bg-white/10"
+                            )}
+                        >
+                            {preset}x
+                        </button>
+                    ))}
                 </div>
             </div>
         </div>

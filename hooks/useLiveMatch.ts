@@ -31,6 +31,8 @@ import {
     buildCanonicalResultMaps,
     sanitizeRosterFromEconomy,
     sanitizeEconomyForActivePlayers,
+    finishLegacySeriesFromState,
+    tallyLivePlayerStats,
 } from "@/lib/live-match-builders"
 
 type RoundStrategy = ManagerStrategy | "PISTOL"
@@ -61,7 +63,7 @@ interface LiveMatchRuntimeData {
 
 export function useLiveMatch(id: string) {
     const router = useRouter()
-    const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, activeMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
+    const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
         teams: state.teams,
         players: state.players,
@@ -70,7 +72,6 @@ export function useLiveMatch(id: string) {
         customTactics: state.customTactics,
         setActiveMatch: state.setActiveMatch,
         updateActiveMatchState: state.updateActiveMatchState,
-        activeMatchState: state.activeMatchState,
         saveMatchResult: state.saveMatchResult,
         clearActiveMatchState: state.clearActiveMatchState,
         updateCustomTactic: state.updateCustomTactic,
@@ -107,8 +108,9 @@ export function useLiveMatch(id: string) {
     }, [logs])
     // Seed live-match playback speed from the user's Game Speed setting.
     const gameSpeedSetting = useSettingsStore(s => s.gameSpeed)
-    const [speed, setSpeed] = useState(() =>
-        gameSpeedSetting === "very-fast" ? 3 : gameSpeedSetting === "fast" ? 2 : 1
+    // Always one of LIVE_SPEED_PRESETS so the control bar label is exact.
+    const [speed, setSpeed] = useState<number>(() =>
+        gameSpeedSetting === "very-fast" ? 4 : gameSpeedSetting === "fast" ? 2 : 1
     )
     const [isPlaying, setIsPlaying] = useState(false)
     const [isAutoTactics, setIsAutoTactics] = useState(false)
@@ -141,6 +143,8 @@ export function useLiveMatch(id: string) {
 
     const currentRoundEvents = useRef<MatchEvent[]>([])
     const isSimulatingRef = useRef(false)
+    // Set while "Skip match" reveals a round: no per-round win/lose cue.
+    const silentPlaybackRef = useRef(false)
     const roundInFlightRef = useRef(false)
     const hasInitialized = useRef(false)
     const isMountedRef = useRef(true)
@@ -207,6 +211,10 @@ export function useLiveMatch(id: string) {
 
         let playback: ReturnType<typeof restoreLivePlayback> | null = null
         let ctx: LegacySeriesContext
+        // Read, not subscribed: the 500 ms checkpoint flush below rewrites
+        // activeMatchState, and subscribing re-rendered the whole live page
+        // twice a second. It is only needed once, to restore.
+        const activeMatchState = useGameStore.getState().activeMatchState
         const restoring = activeMatchState?.matchId === id
         try {
             if (foundMatch.engineVersion && foundMatch.engineVersion !== LEGACY_MATCH_ENGINE) throw Error("Unsupported match engine")
@@ -345,7 +353,7 @@ export function useLiveMatch(id: string) {
         setGameState(prev => ({ ...prev, status: "IN_PROGRESS", time: -1, isPaused: false }))
         setIsPlaying(false)
         setIsWaitingForStrategy(true)
-    }, [scheduledMatches, teams, players, id, setActiveMatch, activeMatchState, staff, router, currentWeek, currentDay, timeMode, customTactics])
+    }, [scheduledMatches, teams, players, id, setActiveMatch, staff, router, currentWeek, currentDay, timeMode, customTactics])
 
     // Persistence
     useEffect(() => {
@@ -443,20 +451,7 @@ export function useLiveMatch(id: string) {
         const roundStartMsg = commentaryManager.generate("ROUND_START", { round: currentRoundNumber })
         setLogs(prev => [...buyLogEntries.reverse(), { type: "SYSTEM", message: roundStartMsg }, ...prev])
 
-        const historyStats: Record<string, { kills: number, deaths: number, assists: number, headshots: number }> = {}
-        const bump = (pid: string) => (historyStats[pid] ??= { kills: 0, deaths: 0, assists: 0, headshots: 0 })
-        runtime.result.maps.forEach((mapData, iterMapIdx) => {
-            mapData.rounds.forEach(roundData => {
-                if (iterMapIdx === mapIndex && roundData.roundNumber === currentRoundNumber) return
-                roundData.kills.forEach(kill => { bump(kill.playerId).kills += kill.kills })
-                roundData.deaths?.forEach(death => { bump(death.playerId).deaths += death.deaths })
-                roundData.events?.forEach((event: MatchEvent) => {
-                    if (event.type !== "KILL") return
-                    if (event.assisterId) bump(event.assisterId).assists += 1
-                    if (event.isHeadshot && event.playerId) bump(event.playerId).headshots += 1
-                })
-            })
-        })
+        const historyStats = tallyLivePlayerStats(runtime.result.maps, { mapIndex, roundNumber: currentRoundNumber })
 
         const roster = (econ: typeof step.preRound.home, isCT: boolean) => (prev: LivePlayerState[]) => prev.map(player => ({
             ...player,
@@ -629,8 +624,8 @@ export function useLiveMatch(id: string) {
                 const mapClinched = transition === "MAP_END" || transition === "SERIES_END"
                 const playerIsHomeSide = runtime.homeTeam.id === playerTeam?.id
                 const playerIsAwaySide = runtime.awayTeam.id === playerTeam?.id
-                // Only cue on normal playback (instant simulate runs at speed 100).
-                if (!mapClinched && (playerIsHomeSide || playerIsAwaySide) && speed <= 5) {
+                // Only cue on normal playback, not while "Skip match" resolves.
+                if (!mapClinched && (playerIsHomeSide || playerIsAwaySide) && !silentPlaybackRef.current) {
                     soundManager.play((playerIsHomeSide ? isHomeWinner : !isHomeWinner) ? "roundWin" : "roundLose")
                 }
 
@@ -678,14 +673,26 @@ export function useLiveMatch(id: string) {
         })
 
         lastProcessedTime.current = currentTime
-    }, [simState, originalHomePlayers, originalAwayPlayers, queueRoundStart, playerTeam, speed])
+    }, [simState, originalHomePlayers, originalAwayPlayers, queueRoundStart, playerTeam])
 
     // --- GAME LOOP ---
+    // Ticks are scheduled against a fixed clock rather than "1000/speed after
+    // the last render", so render time does not stretch every tick: at 8x
+    // the old loop only managed ~6 game seconds per second.
+    const nextTickAtRef = useRef(0)
     useEffect(() => {
-        if (gameState.status !== "IN_PROGRESS" || gameState.isPaused || !isPlaying || isWaitingForStrategy) return
+        if (gameState.status !== "IN_PROGRESS" || gameState.isPaused || !isPlaying || isWaitingForStrategy) {
+            nextTickAtRef.current = 0
+            return
+        }
 
-        const delay = 1000 / speed
+        const interval = 1000 / speed
+        const now = performance.now()
+        // Fresh start, resume, or a long stall: restart the clock instead of bursting.
+        if (!nextTickAtRef.current || nextTickAtRef.current < now - interval || nextTickAtRef.current > now + interval) nextTickAtRef.current = now + interval
+        const delay = Math.max(0, nextTickAtRef.current - now)
         const timer = window.setTimeout(() => {
+            nextTickAtRef.current += interval
             const nextTime = gameState.time + 1
             if (isBombPlanted) setBombTime(prev => Math.max(0, prev - 1))
             else setRoundTime(prev => Math.max(0, prev - 1))
@@ -725,26 +732,129 @@ export function useLiveMatch(id: string) {
         if (isSimulatingRef.current) return
         isSimulatingRef.current = true
         if (isWaitingForStrategy) startNextRound()
-        // Fast-forward: process all remaining events by jumping time to the end of the round
+        // Reveal the rest of the round at once: its outcome was fixed when the
+        // round was computed. ROUND_END settles timers and queues the next
+        // decision, so playback speed is left untouched (it used to be forced
+        // to 100x and never restored).
         const events = currentRoundEvents.current
-        if (events.length > 0) {
+        if (roundInFlightRef.current && events.length > 0) {
             const maxTime = Math.max(...events.map(e => Math.ceil(e.time))) + 1
             processNextEvent(maxTime)
-            setRoundTime(0)
-            setBombTime(0)
             setGameState(prev => ({ ...prev, time: maxTime }))
             lastProcessedTime.current = maxTime
         }
-        setSpeed(100)
-        setIsPlaying(true)
         isSimulatingRef.current = false
     }, [isWaitingForStrategy, startNextRound, processNextEvent])
 
-    const simulateMatchInstant = useCallback(() => {
-        setSpeed(100)
-        setIsAutoTactics(true)
-        setIsPlaying(true)
+    // Space / play button. Only meaningful while the match is running.
+    const togglePlayback = useCallback(() => {
+        if (latestGameStateRef.current.status !== "IN_PROGRESS") return
+        setIsPlaying(playing => !playing)
     }, [])
+
+    // "Skip match": finish every remaining round now. Same per-round step as
+    // the live loop with no manager call (what auto tactics does), so the
+    // result is the one letting the match play out on auto would give.
+    const simulateMatchInstant = useCallback(() => {
+        const runtime = matchData.current
+        if (!runtime || !latestSimStateRef.current || latestGameStateRef.current.status !== "IN_PROGRESS") return
+        if (isSimulatingRef.current) return
+        isSimulatingRef.current = true
+        silentPlaybackRef.current = true
+        try {
+            // 1. The round in flight is already decided; reveal it (scores, feed).
+            if (roundInFlightRef.current) {
+                const events = currentRoundEvents.current
+                const endTime = events.length ? Math.max(...events.map(e => Math.ceil(e.time))) + 1 : 0
+                processNextEvent(endTime)
+                lastProcessedTime.current = endTime
+            }
+            // A queued pistol-round start is played by the loop below instead.
+            pendingTimers.current.forEach(timer => clearTimeout(timer))
+            pendingTimers.current.clear()
+
+            const startSim = latestSimStateRef.current
+            const start = { sim: startSim, maps: runtime.result.maps, finished: startSim.lastRound?.transition === "SERIES_END" }
+            // The revealed round ended the series: its ROUND_END already finished up.
+            if (start.finished) return
+            const done = finishLegacySeriesFromState(runtime.ctx, start, { regroupRounds: timeoutBoostRoundsRef.current, customTactics })
+            const finalRound = done.lastStep?.round
+            const last = done.state.sim.lastRound
+            if (!finalRound || !last) return
+
+            const sim = done.state.sim
+            const { homeTeam, awayTeam } = runtime
+            const homeWon = sim.homeSeriesScore > sim.awaySeriesScore
+            runtime.result.maps = done.state.maps
+            runtime.result.homeScore = sim.homeSeriesScore
+            runtime.result.awayScore = sim.awaySeriesScore
+            runtime.result.winnerId = homeWon ? homeTeam.id : awayTeam.id
+            latestSimStateRef.current = sim
+            setSimState(sim)
+            timeoutBoostRoundsRef.current = done.regroupRounds
+            setTimeoutBoostRounds(done.regroupRounds)
+
+            // Leave the radar and feed on the end of the deciding round.
+            const finalEvents = finalRound.events || []
+            const endTime = finalEvents.length ? Math.max(...finalEvents.map(e => Math.ceil(e.time))) + 1 : 0
+            currentRoundEvents.current = finalEvents
+            lastProcessedTime.current = endTime
+            roundInFlightRef.current = false
+            setRoundHomeIsCT(finalRound.ctTeam === homeTeam.id)
+            const finished: Partial<LiveGameState> = {
+                status: "FINISHED", round: last.roundNumber, time: endTime, currentMapIndex: last.mapIndex,
+                homeScore: last.homeRounds, awayScore: last.awayRounds,
+                homeSeriesScore: sim.homeSeriesScore, awaySeriesScore: sim.awaySeriesScore,
+            }
+            // Synchronously too: handleFinish / startNextRound read the ref.
+            latestGameStateRef.current = { ...latestGameStateRef.current, ...finished }
+            setGameState(prev => ({ ...prev, ...finished }))
+
+            const stats = tallyLivePlayerStats(done.state.maps)
+            const finalRoster = (econ: SimState["homeEconomy"], isCT: boolean) => (prev: LivePlayerState[]) => prev.map(player => {
+                const e = (econ as Record<string, { cash?: number; weapon?: string; hasArmor?: boolean; hasHelmet?: boolean; hasKit?: boolean }>)[player.id]
+                return {
+                    ...player,
+                    money: e?.cash ?? player.money,
+                    weapon: e?.weapon ?? (isCT ? "usp" : "glock"),
+                    hasArmor: e?.hasArmor ?? false,
+                    hasHelmet: e?.hasHelmet ?? false,
+                    hasKit: e?.hasKit ?? false,
+                    isDead: false,
+                    kills: stats[player.id]?.kills || 0,
+                    deaths: stats[player.id]?.deaths || 0,
+                    assists: stats[player.id]?.assists || 0,
+                    headshots: stats[player.id]?.headshots || 0,
+                }
+            })
+            setHomeRoster(finalRoster(sim.homeEconomy, sim.homeStartsCT))
+            setAwayRoster(finalRoster(sim.awayEconomy, !sim.homeStartsCT))
+
+            const mapScores = done.state.maps
+                .filter(m => m.rounds.length > 0)
+                .map(m => `${MAP_NAMES[m.map] || m.map} ${m.homeScore ?? 0}-${m.awayScore ?? 0}`)
+                .join(", ")
+            const winnerName = homeWon ? homeTeam.name : awayTeam.name
+            const seriesScore = homeWon ? `${sim.homeSeriesScore}-${sim.awaySeriesScore}` : `${sim.awaySeriesScore}-${sim.homeSeriesScore}`
+            setLogs(prev => [
+                { type: "SYSTEM", message: `--- FINAL: ${winnerName} win ${seriesScore} (${mapScores}) ---` },
+                { type: "SYSTEM", message: `Skipped to the end: ${done.roundsPlayed} remaining round${done.roundsPlayed === 1 ? "" : "s"} simulated` },
+                ...prev,
+            ])
+            setIsPlaying(false)
+            setIsWaitingForStrategy(false)
+            setRoundTime(ROUND_SECONDS)
+            setIsBombPlanted(false)
+            setBombTime(BOMB_SECONDS)
+
+            const playerIsHome = homeTeam.id === playerTeam?.id
+            const playerIsAway = awayTeam.id === playerTeam?.id
+            if (playerIsHome || playerIsAway) soundManager.play(playerIsHome === homeWon ? "victory" : "defeat")
+        } finally {
+            silentPlaybackRef.current = false
+            isSimulatingRef.current = false
+        }
+    }, [processNextEvent, customTactics, playerTeam])
 
     const callTimeout = useCallback(() => {
         const next = spendTimeout({ remaining: timeoutsRemainingRef.current, rounds: timeoutBoostRoundsRef.current }, isWaitingForStrategy, latestGameStateRef.current?.status || '')
@@ -804,6 +914,7 @@ export function useLiveMatch(id: string) {
         setSpeed,
         setIsPlaying,
         setIsAutoTactics,
+        togglePlayback,
         startNextRound,
         simulateRoundInstant,
         simulateMatchInstant,

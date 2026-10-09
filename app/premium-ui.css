@@ -112,8 +112,11 @@
 .scouting-table tr[data-selected=true] { background:rgba(81,124,164,.23); box-shadow:none; }
 .premium-app .live-command { background:transparent; padding:0; min-height:0; }
 .live-command > .live-command-inner { max-width:none; }
-.live-match-grid { display:grid; grid-template-columns:minmax(180px,.8fr) minmax(360px,1.8fr) minmax(180px,.8fr); gap:16px; align-items:start; }
+/* Full-screen live match: the centre column is the radar (a square sized by the
+   window height, so the column never grows wider than it), side columns hold the rosters. */
+.live-match-grid { display:grid; grid-template-columns:minmax(220px,1fr) minmax(420px,min(940px,calc(100dvh - 250px))) minmax(220px,1fr); gap:16px; align-items:stretch; }
 .live-match-grid > * { grid-column:auto; min-width:0; }
+.live-radar-stage { min-height:360px; }
 .match-roster { padding:12px; }
 .match-roster-row { min-height:64px; padding:8px; }
 .match-scoreboard { align-items:center; padding:14px 18px; margin-bottom:16px; border:1px solid var(--border-subtle); border-radius:18px; background:var(--surface-900); gap:16px; }
@@ -121,8 +124,8 @@
 .match-scoreboard .score-core { padding:8px 16px; gap:16px; background:transparent; border:0; box-shadow:none; }
 .match-scoreboard .score-team { gap:14px; width:30%; }
 .match-scoreboard .score-team-name { font-size:18px; font-weight:700; overflow-wrap:anywhere; }
-.live-feed-panel { max-height:220px; min-height:130px; padding:16px; }
-.live-feed-panel > div:last-child { max-height:160px; overflow:auto; }
+.live-feed-panel { min-height:130px; padding:16px; }
+.live-feed-panel > div:last-child { overflow:auto; }
 .live-command .map-radar-panel { border-color:var(--border-strong); }
 .premium-app .equipment-page { background:transparent; min-height:0; padding-bottom:24px; }
 .equipment-page .equipment-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
@@ -152,7 +155,7 @@
   .match-scoreboard .score-team-name { font-size:15px; }
   .match-scoreboard .score-team { gap:8px; }
   .match-scoreboard .score-core .text-6xl { font-size:42px; }
-  .live-match-grid { grid-template-columns:minmax(150px,.8fr) minmax(330px,1.8fr) minmax(150px,.8fr); gap:12px; }
+  .live-match-grid { grid-template-columns:minmax(170px,1fr) minmax(360px,min(940px,calc(100dvh - 230px))) minmax(170px,1fr); gap:12px; }
   .match-roster-row { flex-wrap:wrap; }
   .campus-scene { height:260px; }
   .campus-hotspot { padding:8px; font-size:12px; }
@@ -161,7 +164,8 @@
   .dashboard-layout,.scouting-layout,.player-profile .profile-body { grid-template-columns:minmax(0,1fr); }
   .scouting-intelligence { position:static; }
   .live-match-grid { grid-template-columns:minmax(0,1fr); }
-  .live-match-grid > .match-roster { display:grid; grid-template-columns:repeat(5,minmax(100px,1fr)); overflow-x:auto; }
+  .live-match-grid .match-roster { display:grid; grid-template-columns:repeat(5,minmax(100px,1fr)); overflow-x:auto; }
+  .live-radar-stage { min-height:min(92vw,680px); }
   .campus-facilities { grid-template-columns:1fr; }
   .premium-page-header { align-items:start; flex-wrap:wrap; }
 }
@@ -185,7 +189,8 @@ html.high-contrast .premium-atmosphere { display:none; }
 .premium-app .tactical-decisions [data-slot=button] { padding:8px 4px; min-width:0; }
 .premium-app .tactical-decisions [data-slot=button]:hover { box-shadow:none; }
 .live-command > [aria-hidden=true] { display:none; }
-.match-playback > div:last-child { flex-wrap:nowrap; }
+/* Controls wrap onto a second row when the radar column is narrow (small windows). */
+.match-playback > div:last-child { flex-wrap:wrap; justify-content:flex-end; row-gap:6px; }
 .match-playback [data-slot=button] { padding-left:6px; padding-right:6px; }
 @media(max-width:1350px) {
   .match-playback > div:first-child { display:none; }
@@ -198,9 +203,7 @@ html.high-contrast .premium-atmosphere { display:none; }
   .match-command-center { gap:8px; }
   .match-timeout { gap:8px; }
   .match-timeout > p { font-size:11px; }
-  .map-radar-panel > div:first-child { padding-top:8px; padding-bottom:8px; }
-  .map-radar-panel > div:nth-child(2) { margin-bottom:4px; padding-top:2px; padding-bottom:2px; }
-  .radar-canvas-frame { max-width:min(520px,calc(100dvh - 450px)); }
+  .map-radar-panel > .radar-panel-header { padding-top:2px; padding-bottom:2px; }
 }
 .premium-app .dashboard-hero { min-height:380px; }
 .premium-app .dashboard-hero > [data-slot=card-header] { gap:4px; }

@@ -10,7 +10,7 @@ import type { RadarPlayerDot, RadarBombState, RadarKillLine, RadarSmoke } from "
 import type { Point } from "@/lib/map-radar-data"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { resolveAutoRadarLevel } from "@/lib/radar-level-selector"
-import { layoutRadarLabels, type RadarLabel } from "@/lib/radar-label-layout"
+import { layoutRadarLabels, RADAR_LABEL_BASELINE, RADAR_LABEL_FONT_SIZE, type RadarLabel } from "@/lib/radar-label-layout"
 
 function isFiniteCoord(value: unknown): value is number {
     return typeof value === "number" && Number.isFinite(value)
@@ -99,9 +99,16 @@ interface MapRadarPanelProps {
     smokes?: RadarSmoke[]
     referenceImages?: { primary: string; secondary?: string }
     positionSource?: 'estimated' | 'physical-replay'
+    /**
+     * Grow the radar to the panel's available height (the parent must give
+     * the panel a definite height). Otherwise the radar is as wide as the panel.
+     */
+    fillHeight?: boolean
+    /** The shown round is decided: no clutch banner, phase reads "ROUND OVER". */
+    roundOver?: boolean
 }
 
-function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated' }: MapRadarPanelProps) {
+function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated', fillHeight = false, roundOver = false }: MapRadarPanelProps) {
     const panelId = useId().replace(/:/g, "")
     const [isExpanded, setIsExpanded] = useState(true)
     const [showNames, setShowNames] = useState(true)
@@ -279,8 +286,10 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
     const ctAlive = safeDots.filter(d => d.side === "ct" && d.isAlive).length
     const tAlive = safeDots.filter(d => d.side === "t" && d.isAlive).length
 
-    // Clutch detection
+    // Clutch detection (live rounds only: after the round ends it would
+    // label the end-of-round survivors, e.g. "1v4" after a bomb win).
     const clutchText = (() => {
+        if (roundOver) return null
         if (ctAlive === 1 && tAlive >= 2) return `1v${tAlive} CLUTCH`
         if (tAlive === 1 && ctAlive >= 2) return `1v${ctAlive} CLUTCH`
         return null
@@ -290,7 +299,8 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
     // Round phase label
     const roundPhase = (() => {
         if (bombState?.defused) return { label: "DEFUSED", color: "#5b9bd5" }
-        if (bombState?.exploded) return { label: "ELIMINATED", color: "#ef4444" }
+        if (bombState?.exploded) return { label: "BOMB EXPLODED", color: "#f97316" }
+        if (roundOver) return { label: "ROUND OVER", color: "#cbd5e1" }
         if (bombState?.planted) return { label: "BOMB PLANTED", color: "#ef4444", pulse: true }
         if (positionSource === 'physical-replay') return { label: "REPLAY", color: "#c4d0e2" }
         if (currentTime != null && currentTime <= 3) return { label: "FREEZE TIME", color: "#60a5fa" }
@@ -312,8 +322,9 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
     if (!radarImageData || !radarSrc) return null
 
     return (
-        <div className="map-radar-panel glass-panel-dark rounded-xl border border-white/5 overflow-hidden">
-            <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 pb-3">
+        <div className={cn("map-radar-panel glass-panel-dark rounded-xl border border-white/5 overflow-hidden", fillHeight && "flex h-full min-h-0 flex-col")}>
+            {/* One compact header row: title, round phase, then view controls. */}
+            <div className="radar-panel-header flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-white/10 px-3 py-1.5">
                 <button type="button" onClick={() => setIsExpanded(!isExpanded)} aria-label={`${mapName} radar`} aria-expanded={isExpanded} aria-controls={panelId}
                     className="flex min-h-8 items-center gap-2 text-left text-sm font-medium text-slate-100">
                     <Map size={16} className="text-sky-200" />
@@ -321,8 +332,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                     <ChevronUp size={14} className={cn("text-slate-400 transition-transform", !isExpanded && "rotate-180")} />
                 </button>
                 {isExpanded && roundPhase && <span className="rounded-full px-2 py-1 text-[10px] font-semibold tracking-wide" style={{backgroundColor: `${roundPhase.color}20`, color: roundPhase.color}}>{roundPhase.label}</span>}
-            </div>
-            {isExpanded && <div className="flex flex-wrap items-center justify-between gap-2 border-y border-white/10 bg-white/2.5 px-4 py-2 mb-3">
+                {isExpanded && <div className="ml-auto flex flex-wrap items-center gap-2">
                 {isDualLevel && <div role="group" aria-label="Radar floor" className="flex items-center gap-1">
                     {(["auto", "upper", "lower"] as const).map(level => <button key={level} type="button"
                         onClick={() => { setRadarLevelMode(level === "auto" ? "auto" : "manual"); if (level !== "auto") setManualRadarLevel(level) }}
@@ -337,7 +347,8 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                     <span className="w-9 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
                     <button type="button" aria-label="Zoom radar in" disabled={zoom >= 2} onClick={() => setZoom(value => Math.min(2, value + .5))} className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-40"><Plus size={14} /></button>
                 </div>
-            </div>}
+                </div>}
+            </div>
 
             {/* Collapsible radar image + overlay */}
             <AnimatePresence initial={false}>
@@ -348,28 +359,30 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="overflow-hidden"
+                        className={cn("overflow-hidden", fillHeight && "flex min-h-0 flex-1 flex-col")}
                     >
-                        <div className="px-4 pb-3 flex justify-center">
-                            <div className="radar-canvas-frame relative aspect-square w-full max-w-[520px] mx-auto overflow-auto rounded-lg" role="region" aria-label={`${mapName} radar viewport; scroll to pan when zoomed`} tabIndex={0}>
+                        {/* fillHeight: the frame is the largest square that fits (container query units). */}
+                        <div className={cn("flex justify-center px-3 py-2", fillHeight && "min-h-0 flex-1 items-center")} style={fillHeight ? { containerType: "size" } : undefined}>
+                            <div className={cn("radar-canvas-frame relative aspect-square mx-auto overflow-auto rounded-lg", !fillHeight && "w-full")}
+                                style={fillHeight ? { width: "min(100cqw, 100cqh)", height: "min(100cqw, 100cqh)" } : undefined}
+                                role="region" aria-label={`${mapName} radar viewport; scroll to pan when zoomed`} tabIndex={0}>
                                 <div className="relative" style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%` }}>
                                 {/* Radar background image */}
                                 <AnimatePresence mode="sync">
                                     <motion.div
                                         key={`${currentMapId}-${resolvedRadarLevel}`}
                                         initial={{ opacity: 0 }}
-                                        animate={{ opacity: 0.9 }}
+                                        animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.3 }}
                                         className="absolute inset-0 rounded-lg overflow-hidden ring-1 ring-white/10"
-                                        style={{ filter: "brightness(1.18) contrast(1.08) saturate(0.65)" }}
                                     >
                                         <Image
                                             src={radarSrc}
                                             alt={`${mapName} radar`}
                                             fill
                                             className="object-contain"
-                                            sizes="(max-height: 800px) 270px, 520px"
+                                            sizes="(max-width: 1200px) 70vw, 960px"
                                             priority
                                             unoptimized
                                         />
@@ -393,37 +406,27 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                         </filter>
                                     </defs>
 
-                                    {/* Site Labels (A / B) — subtle background markers */}
-                                    {safeSitePositions && (
-                                        <>
-                                            <text
-                                                x={safeSitePositions.a.x}
-                                                y={safeSitePositions.a.y}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                                fontSize="5"
-                                                fill="white"
-                                                opacity="0.12"
-                                                fontWeight="bold"
-                                                fontFamily="sans-serif"
-                                            >
-                                                A
-                                            </text>
-                                            <text
-                                                x={safeSitePositions.b.x}
-                                                y={safeSitePositions.b.y}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                                fontSize="5"
-                                                fill="white"
-                                                opacity="0.12"
-                                                fontWeight="bold"
-                                                fontFamily="sans-serif"
-                                            >
-                                                B
-                                            </text>
-                                        </>
-                                    )}
+                                    {/* Site Labels (A / B) — readable, outlined so they sit on any radar art */}
+                                    {safeSitePositions && (["a", "b"] as const).map(site => (
+                                        <text
+                                            key={site}
+                                            x={safeSitePositions[site].x}
+                                            y={safeSitePositions[site].y}
+                                            textAnchor="middle"
+                                            dominantBaseline="middle"
+                                            fontSize="5"
+                                            fill="#f8fafc"
+                                            stroke="#0b1220"
+                                            strokeWidth="0.8"
+                                            paintOrder="stroke"
+                                            opacity="0.7"
+                                            fontWeight="bold"
+                                            fontFamily="sans-serif"
+                                            data-site-label={site}
+                                        >
+                                            {site.toUpperCase()}
+                                        </text>
+                                    ))}
 
                                     {/* Smoke clouds — opacity precomputed in smokeRenderState. */}
                                     {smokeRenderState.map(({ smoke, opacity }, idx) => (
@@ -592,33 +595,26 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
 
                                     {/* Player dots */}
                                     {visibleDots.map(dot => {
-                                        const isDeadRecently = !dot.isAlive
-                                            && dot.deathTime !== undefined
-                                            && currentTime !== undefined
-                                            && (currentTime - dot.deathTime) < 4
-
-                                        if (!dot.isAlive && !isDeadRecently) return null
-
                                         const ctColor = "#5b9bd5"
                                         const tColor = "#e8a838"
                                         const color = dot.side === "ct" ? ctColor : tColor
                                         const label = labels.get(dot.playerId)
 
-                                        // Dead player X marker
-                                        if (!dot.isAlive && isDeadRecently) {
-                                            const elapsed = (currentTime ?? 0) - (dot.deathTime ?? 0)
-                                            const fadeOpacity = Math.max(0, 1 - elapsed / 4)
+                                        // Dead player X marker in the victim's side colour. It stays
+                                        // for the rest of the round (fresh deaths flash, then settle).
+                                        if (!dot.isAlive) {
+                                            if (dot.deathTime === undefined || currentTime === undefined || currentTime < dot.deathTime) return null
+                                            const elapsed = currentTime - dot.deathTime
+                                            const markerOpacity = elapsed < 2 ? 1 - elapsed * 0.15 : 0.7
                                             return (
-                                                <g key={dot.playerId} opacity={fadeOpacity}>
-                                                    <line
-                                                        x1={dot.x - 1.5} y1={dot.y - 1.5}
-                                                        x2={dot.x + 1.5} y2={dot.y + 1.5}
-                                                        stroke="#ff3333" strokeWidth="0.7"
+                                                <g key={dot.playerId} opacity={markerOpacity} data-death-marker={dot.playerId}>
+                                                    <path
+                                                        d={`M ${dot.x - 1.3} ${dot.y - 1.3} L ${dot.x + 1.3} ${dot.y + 1.3} M ${dot.x + 1.3} ${dot.y - 1.3} L ${dot.x - 1.3} ${dot.y + 1.3}`}
+                                                        stroke="#0b1220" strokeWidth="1.1" strokeLinecap="round"
                                                     />
-                                                    <line
-                                                        x1={dot.x + 1.5} y1={dot.y - 1.5}
-                                                        x2={dot.x - 1.5} y2={dot.y + 1.5}
-                                                        stroke="#ff3333" strokeWidth="0.7"
+                                                    <path
+                                                        d={`M ${dot.x - 1.3} ${dot.y - 1.3} L ${dot.x + 1.3} ${dot.y + 1.3} M ${dot.x + 1.3} ${dot.y - 1.3} L ${dot.x - 1.3} ${dot.y + 1.3}`}
+                                                        stroke={color} strokeWidth="0.55" strokeLinecap="round"
                                                     />
                                                 </g>
                                             )
@@ -666,12 +662,19 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                                             />
                                                         )}
                                                         {showNames && label && <g>
-                                                        <line x1={dot.x} y1={dot.y} x2={label.x + label.width / 2} y2={label.y + label.height / 2} stroke={color} strokeWidth=".2" opacity=".4" />
-                                                        <rect x={label.x} y={label.y} width={label.width} height={label.height} rx=".8" fill="#0d1a2d" opacity=".9" />
+                                                        {/* Leader line only when collision avoidance pushed the name away from its dot. */}
+                                                        {(() => {
+                                                            const nearX = Math.max(label.x, Math.min(dot.x, label.x + label.width))
+                                                            const nearY = Math.max(label.y, Math.min(dot.y, label.y + label.height))
+                                                            return Math.hypot(nearX - dot.x, nearY - dot.y) > 3.2
+                                                                ? <line x1={dot.x} y1={dot.y} x2={nearX} y2={nearY} stroke={color} strokeWidth=".25" opacity=".7" />
+                                                                : null
+                                                        })()}
+                                                        <rect x={label.x} y={label.y} width={label.width} height={label.height} rx=".7" fill="#0d1a2d" opacity=".85" />
                                                         <text
-                                                            x={label.x + .8}
-                                                            y={label.y + 3}
-                                                            fontSize="2.6"
+                                                            x={label.x + .7}
+                                                            y={label.y + RADAR_LABEL_BASELINE}
+                                                            fontSize={RADAR_LABEL_FONT_SIZE}
                                                             fill="white"
                                                             stroke="#0b1220" strokeWidth="0.7" paintOrder="stroke"
                                                             opacity={0.95}
@@ -689,7 +692,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                 </div>
                             </div>
                         </div>
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 px-4 py-3 text-xs text-slate-400">
+                        <div className="flex flex-wrap items-center justify-between gap-2 shrink-0 border-t border-white/10 px-3 py-2 text-xs text-slate-400">
                             <span className="flex items-center gap-3"><span className="text-sky-300"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="text-amber-300"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>alive</span></span>
                             <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : 'Career match positions are estimated from recorded round events.'}>{positionSource === 'physical-replay' ? 'Recorded positions' : 'Estimated positions'} · {isDualLevel ? `${resolvedRadarLevel === "upper" ? "Upper" : "Lower"} floor` : "Single level"}</span>
                         </div>
