@@ -152,24 +152,11 @@
 .scouting-table tr[data-selected=true] { background:rgba(242,181,58,.08); box-shadow:inset 2px 0 0 var(--gold); }
 
 /* Live match */
-.premium-app .live-command { background:transparent; padding:0; min-height:0; }
-.live-command > .live-command-inner { max-width:none; }
 /* Full-screen live match: the centre column is the radar (a square sized by the
    window height, so the column never grows wider than it), side columns hold the rosters. */
 .live-match-grid { display:grid; grid-template-columns:minmax(220px,1fr) minmax(420px,min(940px,calc(100dvh - 250px))) minmax(220px,1fr); gap:16px; align-items:stretch; }
 .live-match-grid > * { grid-column:auto; min-width:0; }
 .live-radar-stage { min-height:360px; }
-.match-roster { padding:12px; }
-.match-roster-row { min-height:64px; padding:8px; }
-.match-scoreboard { align-items:center; padding:14px 18px; margin-bottom:16px; border:1px solid var(--border-subtle); border-radius:8px; background:var(--surface-900); gap:16px; }
-.match-scoreboard > div { min-width:0; }
-.match-scoreboard .score-core { padding:8px 16px; gap:16px; background:transparent; border:0; box-shadow:none; }
-.match-scoreboard .score-core .text-6xl { font-family:var(--font-display); font-weight:800; }
-.match-scoreboard .score-team { gap:14px; width:30%; }
-.match-scoreboard .score-team-name { font-family:var(--font-display); font-size:24px; font-weight:700; text-transform:uppercase; overflow-wrap:anywhere; }
-.live-feed-panel { min-height:130px; padding:16px; }
-.live-feed-panel > div:last-child { overflow:auto; }
-.live-command .map-radar-panel { border-color:var(--border-strong); }
 
 /* Equipment */
 .premium-app .equipment-page { background:transparent; min-height:0; padding-bottom:24px; }
@@ -197,19 +184,13 @@
   .premium-app .game-topbar .topbar-club-name { max-width:120px; }
   .premium-app .game-topbar .topbar-date { font-size:12px; }
   .dashboard-layout { grid-template-columns:minmax(0,1.4fr) minmax(290px,1fr); gap:16px; }
-  .match-scoreboard .score-core { gap:4px; padding:4px; }
-  .match-scoreboard .score-team-name { font-size:18px; }
-  .match-scoreboard .score-team { gap:8px; }
-  .match-scoreboard .score-core .text-6xl { font-size:42px; }
   .live-match-grid { grid-template-columns:minmax(170px,1fr) minmax(360px,min(940px,calc(100dvh - 230px))) minmax(170px,1fr); gap:12px; }
-  .match-roster-row { flex-wrap:wrap; }
   .campus-hotspot { padding:8px; font-size:12px; }
 }
 @media(max-width:1050px) {
   .dashboard-layout,.scouting-layout,.player-profile .profile-body { grid-template-columns:minmax(0,1fr); }
   .scouting-intelligence { position:static; }
   .live-match-grid { grid-template-columns:minmax(0,1fr); }
-  .live-match-grid .match-roster { display:grid; grid-template-columns:repeat(5,minmax(100px,1fr)); overflow-x:auto; }
   .live-radar-stage { min-height:min(92vw,680px); }
   .campus-facilities { grid-template-columns:1fr; }
   .premium-page-header { align-items:start; flex-wrap:wrap; }
@@ -225,26 +206,8 @@ html.high-contrast { --surface-900:#0d1015; --surface-800:#1b212b; --text-muted:
 .premium-app .premium-metric > div { gap:8px; }
 .report-coverage { background:var(--bg-900); border:1px solid var(--border-subtle); }
 .premium-app .scouting-intelligence > .space-y-3 > div { padding-top:6px; padding-bottom:6px; }
-.premium-app .match-playback { min-height:52px; }
-.premium-app .match-playback [data-slot=button] { min-width:28px; min-height:28px; }
-.premium-app .tactical-decisions h3 { font-size:16px; font-weight:600; text-transform:none; }
-.premium-app .tactical-decisions [data-slot=button] { padding:8px 4px; min-width:0; }
-.premium-app .tactical-decisions [data-slot=button]:hover { box-shadow:none; }
-.live-command > [aria-hidden=true] { display:none; }
-/* Controls wrap onto a second row when the radar column is narrow (small windows). */
-.match-playback > div:last-child { flex-wrap:wrap; justify-content:flex-end; row-gap:6px; }
-.match-playback [data-slot=button] { padding-left:6px; padding-right:6px; }
-@media(max-width:1350px) {
-  .match-playback > div:first-child { display:none; }
-  .match-playback { justify-content:center; }
-  .match-playback > div:last-child { gap:4px; }
-  .match-playback > div:last-child > div { gap:4px; }
-}
 @media(max-height:800px) {
-  .match-scoreboard { padding:8px 16px; margin-bottom:12px; }
   .match-command-center { gap:8px; }
-  .match-timeout { gap:8px; }
-  .match-timeout > p { font-size:11px; }
   .map-radar-panel > .radar-panel-header { padding-top:2px; padding-bottom:2px; }
 }
 .premium-app .dashboard-hero { min-height:380px; }
@@ -257,6 +220,5 @@ html.high-contrast { --surface-900:#0d1015; --surface-800:#1b212b; --text-muted:
   .premium-app .dashboard-hero { min-height:340px; }
   .premium-app .dashboard-hero .match-identity > div > .w-24 { width:72px; height:72px; }
   .premium-app .dashboard-hero .match-identity p { font-size:16px; }
-  .premium-app .tactical-decisions .grid-cols-5 { grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
 }

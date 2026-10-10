@@ -7,7 +7,7 @@ import { ArrowLeftRight } from "lucide-react"
 
 /**
  * Half-time card. Renders for ~2.4s when the match crosses the 12th
- * round and the engine swaps sides. Mirrors the DefeatOverlay shape but
+ * round and the engine swaps sides. Mirrors the old defeat overlay shape but
  * with a neutral broadcast palette so it reads as a "broadcast cue"
  * rather than an emotional moment. Honors prefers-reduced-motion.
  */

@@ -416,7 +416,7 @@ async function run() {
 
             // Manual veto steering toward Sandstone; the veto screen shows
             // licensed-looking map art, so it isn't recorded.
-            await page.getByRole("button", { name: "Start Manual Veto", exact: true }).click()
+            await page.getByRole("button", { name: "Start veto", exact: true }).click()
             await page.waitForURL(/\/veto/, { timeout: 60_000 })
             for (let i = 0; i < 120; i++) {
                 if (/\/tactics/.test(page.url())) break
@@ -440,7 +440,7 @@ async function run() {
             }
             await page.waitForURL(/\/tactics/, { timeout: 60_000 })
             await settle(page, 3000)
-            await page.getByRole("button", { name: "START GAME", exact: true }).click()
+            await page.getByRole("button", { name: "Start match", exact: true }).click()
             await page.waitForURL(/\/live/, { timeout: 120_000 })
             await page.getByText(/RND \d+/).first().waitFor({ timeout: 120_000 })
             await settle(page, 1500)

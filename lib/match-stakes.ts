@@ -3,7 +3,7 @@
  * match mean" in the pre-match popup, the tactical context panel, and
  * the result screen.
  *
- * Extracted from components/tournament/TournamentMatchContext so the
+ * Extracted from the former TournamentMatchContext component so the
  * lighter pre-match popup can share the same vocabulary instead of
  * re-deriving stage semantics from a different code path.
  */
