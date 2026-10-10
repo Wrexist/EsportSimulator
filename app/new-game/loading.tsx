@@ -1,5 +1,4 @@
-import { PageSkeleton } from "@/components/ui/skeletons"
-
+// Plain ink while the career setup chunk loads.
 export default function Loading() {
-    return <PageSkeleton title="New Career" />
+    return <div className="min-h-dvh bg-ink" aria-busy="true" />
 }
