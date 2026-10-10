@@ -16,29 +16,20 @@ export function DerbyBanner({ homeTeam, awayTeam }: { homeTeam?: TeamSaveData; a
     if (!rivalry || !isDerby(rivalry.intensity)) return null
 
     const fierce = rivalry.intensity === "FIERCE"
-    const accent = fierce ? "#ef4444" : "#f59e0b"
-    const label = fierce ? "FIERCE RIVALRY" : "HEATED RIVALRY"
-    const flameStyle = { animation: fierce ? "pulse 1.5s ease-in-out infinite" : undefined } as const
+    const label = fierce ? "Fierce rivalry" : "Heated rivalry"
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="mx-auto mb-3 flex w-fit items-center gap-2.5 rounded-full border px-4 py-1.5 backdrop-blur-xs"
-            style={{
-                color: accent,
-                borderColor: `${accent}55`,
-                background: `${accent}14`,
-                boxShadow: fierce ? `0 0 16px ${accent}33` : undefined,
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+            className="mx-auto mb-2 flex w-fit items-center gap-2 rounded-sm border border-line-strong bg-panel px-3 py-1"
         >
-            <Flame className="w-3.5 h-3.5" style={flameStyle} />
-            <span className="text-[11px] font-extrabold tracking-[0.15em]">{label}</span>
-            <span className="text-[10px] font-semibold tracking-wider opacity-70">
-                H2H {rivalry.wins}–{rivalry.losses}
+            <Flame className={fierce ? "h-3.5 w-3.5 text-negative" : "h-3.5 w-3.5 text-caution"} aria-hidden="true" />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-1">{label}</span>
+            <span className="text-xs tabular-nums text-ink-3">
+                Head to head {rivalry.wins}–{rivalry.losses}
             </span>
-            <Flame className="w-3.5 h-3.5" style={flameStyle} />
         </motion.div>
     )
 }

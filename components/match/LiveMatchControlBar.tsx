@@ -1,7 +1,5 @@
 import { memo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Play, Pause, SkipForward as SkipForwardIcon, FastForward as FastForwardIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -38,116 +36,96 @@ function LiveMatchControlBarComponent({
     // the strategy panel is the call to action instead.
     const pausedMidRound = inProgress && !isPlaying && !isWaitingForStrategy
     return (
-        <div className="match-playback glass-panel-dark rounded-xl p-2 flex flex-wrap items-center justify-between gap-2 border-white/5">
-            <AnimatePresence mode="wait">
-                {inProgress && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        className="bg-red-500/10 border border-red-500/20 text-red-500 px-2 py-1 rounded-md flex items-center gap-1.5"
-                    >
-                        <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_0_1px_rgba(248,113,113,0.5)]" />
-                        <span className="text-[10px] font-normal tracking-wider leading-none">LIVE</span>
-                    </motion.div>
-                )}
-                {!inProgress && (
-                    <Badge className="bg-white/10 text-white/50 border-white/5" variant="outline">
-                        {gameState.status.replace("_", " ")}
-                    </Badge>
-                )}
-            </AnimatePresence>
-
-            <div className="flex flex-wrap items-center gap-2">
-                {/* AUTO TACTICS TOGGLE (Clean Switch) */}
-                <div className="flex items-center gap-3">
-                    <span className={cn("text-[10px] font-bold tracking-wider transition-colors", isAutoTactics ? "text-amber-400" : "text-white/20")}>
-                        AUTO TACTICS
+        <div className="flex h-full min-h-11 flex-wrap items-center justify-between gap-x-3 gap-y-1.5 rounded-lg border border-line bg-panel px-2 py-1.5">
+            <div className="flex items-center gap-3">
+                {inProgress ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-sm bg-negative/15 px-1.5 py-1 text-[11px] font-bold leading-none tracking-[0.06em] text-negative">
+                        <span className="h-1.5 w-1.5 rounded-full bg-negative" aria-hidden="true" />
+                        LIVE
                     </span>
+                ) : (
+                    <span className="rounded-sm border border-line-strong px-1.5 py-1 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">
+                        {gameState.status === "FINISHED" ? "Final" : gameState.status.replace("_", " ").toLowerCase()}
+                    </span>
+                )}
+
+                {/* Auto tactics switch */}
+                <label className="flex cursor-pointer items-center gap-2">
+                    <span className={cn("text-xs font-semibold", isAutoTactics ? "text-ink-1" : "text-ink-3")}>Auto tactics</span>
                     <button
                         onClick={() => setIsAutoTactics(!isAutoTactics)}
                         role="switch"
                         aria-checked={isAutoTactics}
                         aria-label="Auto tactics — let the engine pick the strategy"
                         className={cn(
-                            "w-10 h-5 rounded-full relative transition-all border",
-                            isAutoTactics
-                                ? "bg-amber-500/20 border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-                                : "bg-white/5 border-white/10 hover:border-white/20"
+                            "relative h-5 w-9 rounded-full border transition-colors duration-150",
+                            isAutoTactics ? "border-gold bg-gold/25" : "border-line-strong bg-raised hover:border-ink-3",
                         )}
                     >
-                        <motion.div
-                            animate={{
-                                x: isAutoTactics ? 20 : 2,
-                                scale: isAutoTactics ? 1.1 : 1
-                            }}
-                            className={cn(
-                                "absolute top-0.5 w-3.5 h-3.5 rounded-full shadow-xs",
-                                isAutoTactics ? "bg-amber-400" : "bg-white/30"
-                            )}
-                        />
+                        <span className={cn(
+                            "absolute top-0.5 h-3.5 w-3.5 rounded-full transition-[left,background-color] duration-150",
+                            isAutoTactics ? "left-[18px] bg-gold" : "left-0.5 bg-ink-3",
+                        )} />
                     </button>
-                </div>
+                </label>
+            </div>
 
-                <div className="w-px h-8 bg-white/5" />
+            <div className="flex items-center gap-1.5">
+                {/* Play/Pause */}
+                <Button
+                    size="icon"
+                    variant="ghost"
+                    aria-label={isPlaying ? "Pause match" : "Resume match"}
+                    title={isPlaying ? "Pause (Space)" : "Resume (Space)"}
+                    disabled={!inProgress}
+                    className={cn(
+                        "h-8 w-8 min-h-8 rounded",
+                        pausedMidRound ? "bg-gold text-gold-on hover:bg-gold-hover hover:text-gold-on" : "bg-raised text-ink-1 hover:bg-hover",
+                    )}
+                    onClick={onTogglePlayback}
+                >
+                    {isPlaying ? (
+                        <Pause size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+                    ) : (
+                        <Play size={14} fill="currentColor" strokeWidth={0} className="translate-x-px" aria-hidden="true" />
+                    )}
+                </Button>
 
-                <div className="flex items-center gap-2">
-                    {/* Play/Pause — solid glyph on a filled disc so it reads at a glance. */}
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        aria-label={isPlaying ? "Pause match" : "Resume match"}
-                        title={isPlaying ? "Pause (Space)" : "Resume (Space)"}
-                        disabled={!inProgress}
-                        className={cn(
-                            "rounded-full w-9 h-9 transition-colors",
-                            pausedMidRound
-                                ? "bg-emerald-400 text-slate-950 hover:bg-emerald-300 hover:text-slate-950"
-                                : "bg-white/15 text-white hover:bg-white/25 hover:text-white"
-                        )}
-                        onClick={onTogglePlayback}
-                    >
-                        {isPlaying ? (
-                            <Pause size={16} fill="currentColor" strokeWidth={0} aria-hidden="true" />
-                        ) : (
-                            <Play size={16} fill="currentColor" strokeWidth={0} className="translate-x-px" aria-hidden="true" />
-                        )}
-                    </Button>
+                <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 min-h-8 gap-1.5 rounded px-2.5 text-xs font-semibold tracking-[0.04em] text-ink-2 hover:text-ink-1"
+                    onClick={onSimulateRound}
+                    disabled={!isPlaying && !isWaitingForStrategy}
+                    title="Finish this round now"
+                >
+                    <SkipForwardIcon size={13} aria-hidden="true" />
+                    SKIP RND
+                </Button>
 
-                    {/* SIMULATE ROUND BUTTON */}
+                {/* Finishes the series at once, so confirm first. */}
+                <ConfirmDialog
+                    title="Skip to the final result?"
+                    description="Every remaining round is simulated now with automatic buys, exactly as if you let it play on Auto tactics. You will not be able to make further calls in this match."
+                    confirmText="Skip match"
+                    cancelText="Keep watching"
+                    onConfirm={onSimulateMatch}
+                >
                     <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 rounded-lg px-3 text-[10px] font-bold text-white/40 hover:text-white hover:bg-white/5 gap-2 transition-all"
-                        onClick={onSimulateRound}
-                        disabled={!isPlaying && !isWaitingForStrategy}
+                        disabled={!inProgress}
+                        className="h-8 min-h-8 gap-1.5 rounded px-2.5 text-xs font-semibold tracking-[0.04em] text-ink-2 hover:text-ink-1"
                     >
-                        <SkipForwardIcon size={12} />
-                        SKIP RND
+                        <FastForwardIcon size={13} aria-hidden="true" />
+                        SKIP MATCH
                     </Button>
+                </ConfirmDialog>
 
-                    {/* SIMULATE MATCH BUTTON — finishes the series at once, so confirm first. */}
-                    <ConfirmDialog
-                        title="Skip to the final result?"
-                        description="Every remaining round is simulated now with automatic buys, exactly as if you let it play on Auto tactics. You will not be able to make further calls in this match."
-                        confirmText="Skip match"
-                        cancelText="Keep watching"
-                        onConfirm={onSimulateMatch}
-                    >
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            disabled={!inProgress}
-                            className="h-8 rounded-lg px-3 text-[10px] font-bold text-amber-500/70 hover:text-amber-400 hover:bg-amber-500/10 gap-2 transition-all"
-                        >
-                            <FastForwardIcon size={12} />
-                            SKIP MATCH
-                        </Button>
-                    </ConfirmDialog>
-                </div>
+                <span className="mx-1 h-5 w-px bg-line-strong" aria-hidden="true" />
 
-                {/* SPEED PRESETS */}
-                <div role="group" aria-label="Playback speed" className="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5 border border-white/10">
+                {/* Speed presets */}
+                <div role="group" aria-label="Playback speed" className="flex items-center rounded border border-line bg-shell p-0.5">
                     {LIVE_SPEED_PRESETS.map(preset => (
                         <button
                             key={preset}
@@ -157,8 +135,8 @@ function LiveMatchControlBarComponent({
                             title={`${preset}x speed`}
                             onClick={() => setSpeed(preset)}
                             className={cn(
-                                "h-7 min-w-8 px-2 rounded-full text-[11px] font-bold tabular-nums transition-colors",
-                                speed === preset ? "bg-white text-slate-950" : "text-white/60 hover:text-white hover:bg-white/10"
+                                "h-7 min-w-8 rounded-[3px] px-1.5 text-xs font-semibold tabular-nums transition-colors duration-150",
+                                speed === preset ? "bg-hover text-ink-1 shadow-[inset_0_-2px_0_var(--gold)]" : "text-ink-3 hover:text-ink-1",
                             )}
                         >
                             {preset}x
