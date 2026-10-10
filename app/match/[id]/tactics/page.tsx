@@ -2,36 +2,171 @@
 
 import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
 import { fixtureBlockReason } from '@/lib/playable-match'
-import { useState, useMemo } from "react"
+import { useState, useMemo, type ReactNode } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { LoadingState } from "@/components/ui/loading"
-import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Play, Layout, Brain, Video, ChevronRight, Zap, Lock, Check } from "lucide-react"
-import { motion } from "framer-motion"
+import { ArrowLeft, Brain, Check, ChevronRight, Crosshair, Lock, Video, Zap } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { CountryFlag } from "@/components/ui/CountryFlag"
+import { Panel } from "@/src/components/ui/Panel"
+import { RatingChip } from "@/src/components/ui/RatingChip"
+import { Meter } from "@/src/components/ui/Meter"
+import { RoleTag } from "@/src/components/ui/RoleTag"
+import { TierTag } from "@/src/components/ui/TierTag"
 import { cn, deterministicSeed } from "@/lib/utils"
-import { formatRole } from "@/lib/utils-extended"
-import { TournamentMatchContext } from "@/components/tournament/TournamentMatchContext"
+import { formatCurrency } from "@/lib/utils-extended"
+import { formatGameCalendarDate } from "@/lib/game-calendar"
+import { getStakes } from "@/lib/match-stakes"
+import { evaluatePlayer } from "@/engine/player-evaluation"
+import { playerEnergyPercent } from "@/lib/player-energy"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 // Engine Imports for Auto-Veto
 import { simulationEngineV2, SeededRNG } from "@/engine"
 import { MapId } from "@/types/enums"
 import { Player } from "@/types"
-import { getMapAssetName, ACTIVE_MAP_POOL } from "@/data/map-pool"
-import { MATCH_BALANCE } from "@/lib/constants"
-// If MAP_WALLPAPERS is missing, I'll fallback gracefully or use string paths
+import { getMapAssetName, ACTIVE_MAP_POOL, MAP_NAMES } from "@/data/map-pool"
+import { MATCH_BALANCE, COST_CONSTANTS } from "@/lib/constants"
+import { ROUND_ECONOMY_TUNING } from "@/lib/balance-tuning"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
 const PLAYSTYLE_BEATS: Record<string, string> = { aggressive: "structured", structured: "balanced", balanced: "aggressive" }
 const PLAYSTYLE_LABELS: Record<string, string> = { aggressive: "Aggressive", structured: "Structured", balanced: "Balanced", default: "Default" }
 const pct = (n: number) => `${Math.round(n * 100)}%`
+
+// Real effects, read from the engine constants the sim uses:
+// - VOD review adds 25 tactical prep; team-strength.ts turns prep into
+//   strength at prep / 400 (so +6.25%) for this week's match.
+// - Mental reset: +15 roster morale (store) and +3% match strength (team-strength.ts).
+// - Anti-strat: the target's equipment power ×0.85 (match-simulation.ts) and
+//   your own tactical modifier ×0.95 (team-strength.ts).
+// - Economy style shifts the automatic buy thresholds by $500 (economy-manager.ts).
+const VOD_STRENGTH_PCT = Math.round((25 / 400) * 100)
+const MENTAL_RESET_STRENGTH_PCT = 3
+const MENTAL_RESET_MORALE = 15
+const STYLE_SPECIALISATION_PCT = 5
+const FULL_BUY_FROM = ROUND_ECONOMY_TUNING.FULL_MIN_AVG_CASH
+
+const overline = "text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3"
+
+type LineupPlayer = { id: string; nickname: string; nationality?: string; role?: string; morale?: number; energy?: number | null; portraitPath?: string; ovr: number }
+
+function LineupTable({ title, team, players }: { title: string; team: { name: string }; players: LineupPlayer[] }) {
+    return (
+        <div className="min-w-0">
+            <div className="flex items-center justify-between gap-2 px-4 pb-2 pt-3">
+                <p className={overline}>{title}</p>
+                <p className="truncate text-xs text-ink-3">{team.name}</p>
+            </div>
+            <table data-slot="table" className="w-full border-collapse text-left">
+                <thead data-slot="table-header">
+                    <tr className="border-y border-line">
+                        <th data-slot="table-head" className="pl-4">Player</th>
+                        <th data-slot="table-head" className="px-2">Role</th>
+                        <th data-slot="table-head" className="px-2 text-center">OVR</th>
+                        <th data-slot="table-head" className="px-2">Morale</th>
+                        <th data-slot="table-head" className="pr-4">Energy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {players.map(p => (
+                        <tr key={p.id} data-slot="table-row" className="h-11 border-b border-line last:border-b-0">
+                            <td className="py-1.5 pl-4 pr-2">
+                                <div className="flex min-w-0 items-center gap-2.5">
+                                    <div className="h-8 w-8 shrink-0 overflow-hidden rounded bg-raised">
+                                        <PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} size={32} />
+                                    </div>
+                                    <CountryFlag country={p.nationality || ""} size={14} />
+                                    <p className="min-w-0 truncate text-sm font-semibold text-ink-1">{p.nickname}</p>
+                                </div>
+                            </td>
+                            <td className="px-2"><RoleTag role={p.role} /></td>
+                            <td className="px-2 text-center"><RatingChip value={p.ovr} size="sm" /></td>
+                            <td className="px-2"><Meter value={p.morale ?? 50} label="Morale" trackClassName="w-10" /></td>
+                            <td className="pr-4"><Meter value={playerEnergyPercent(p)} label="Energy" trackClassName="w-10" /></td>
+                        </tr>
+                    ))}
+                    {players.length === 0 && (
+                        <tr><td colSpan={5} className="px-4 py-4 text-sm text-ink-3">No eligible players.</td></tr>
+                    )}
+                </tbody>
+            </table>
+        </div>
+    )
+}
+
+/** A selectable plan option: the label and the effect the engine actually applies. */
+function OptionCard({ selected, onClick, label, effect, note, disabled, className }: {
+    selected: boolean; onClick: () => void; label: string; effect: ReactNode; note?: ReactNode; disabled?: boolean; className?: string
+}) {
+    return (
+        <button
+            type="button"
+            aria-pressed={selected}
+            disabled={disabled}
+            onClick={onClick}
+            className={cn(
+                "flex min-h-16 flex-col items-start justify-start gap-1 rounded-[4px] border px-3 py-2.5 text-left transition-colors duration-150",
+                selected ? "border-gold bg-gold/[0.06]" : "border-line bg-raised hover:border-line-strong hover:bg-hover",
+                disabled && "cursor-not-allowed opacity-40 hover:border-line hover:bg-raised",
+                className,
+            )}
+        >
+            <span className="flex w-full items-center justify-between gap-2">
+                <span className={cn("text-sm font-semibold", selected ? "text-ink-1" : "text-ink-2")}>{label}</span>
+                {selected && <Check size={14} className="shrink-0 text-gold" aria-hidden="true" />}
+            </span>
+            <span className="text-xs leading-snug text-ink-3">{effect}</span>
+            {note != null && <span className="text-[11px] leading-snug text-ink-3">{note}</span>}
+        </button>
+    )
+}
+
+/** A one-off paid action (VOD review, mental reset). */
+function ActionCard({ icon, title, cost, effect, done, doneLabel, disabled, onClick, ariaLabel }: {
+    icon: ReactNode; title: string; cost: number; effect: ReactNode; done: boolean; doneLabel: string; disabled?: boolean; onClick: () => void; ariaLabel: string
+}) {
+    return (
+        <div className={cn("flex items-center gap-3 rounded-[4px] border p-3", done ? "border-positive/30 bg-positive/[0.04]" : "border-line bg-raised")}>
+            <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded bg-hover", done ? "text-positive" : "text-ink-2")}>{icon}</div>
+            <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-ink-1">{title}</p>
+                <p className="mt-0.5 text-xs leading-snug text-ink-3">{effect}</p>
+            </div>
+            {done ? (
+                <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-positive"><Check size={14} aria-hidden="true" /> {doneLabel}</span>
+            ) : (
+                <Button variant="outline" size="sm" className="h-8 shrink-0 px-3 text-xs tabular-nums" disabled={disabled} onClick={onClick} aria-label={ariaLabel}>
+                    {formatCurrency(cost, "$", false)}
+                </Button>
+            )}
+        </div>
+    )
+}
+
+function TeamBlock({ team, ovr, rank, align }: { team: any; ovr: number; rank?: number; align: "left" | "right" }) {
+    return (
+        <div className={cn("flex min-w-0 flex-1 items-center gap-5", align === "right" && "flex-row-reverse text-right")}>
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border border-line bg-raised">
+                <TeamLogoDisplay team={team} size={60} />
+            </div>
+            <div className="min-w-0">
+                <h2 className="truncate font-display text-[40px] font-bold uppercase leading-none text-ink-1">{team.name}</h2>
+                <div className={cn("mt-2 flex items-center gap-3 text-sm text-ink-3", align === "right" && "justify-end")}>
+                    <span>World <span className="font-semibold tabular-nums text-ink-2">#{rank || "—"}</span></span>
+                    <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
+                    <span className="flex items-center gap-1.5">Team OVR <RatingChip value={ovr} size="sm" bare /></span>
+                </div>
+            </div>
+        </div>
+    )
+}
 
 
 export default function TacticalHQPage() {
@@ -54,7 +189,8 @@ export default function TacticalHQPage() {
         setPlaystyle,
         setEconomyStyle,
         setTargetPlayer,
-        addToast
+        addToast,
+        getDateForWeek,
     } = useGameStore(useShallow(state => ({
         getUpcomingMatches: state.getUpcomingMatches,
         teams: state.teams,
@@ -73,6 +209,7 @@ export default function TacticalHQPage() {
         setEconomyStyle: state.setEconomyStyle,
         setTargetPlayer: state.setTargetPlayer,
         addToast: state.addToast,
+        getDateForWeek: state.getDateForWeek,
     })))
 
     const [isSimulatingVeto, setIsSimulatingVeto] = useState(false)
@@ -326,15 +463,15 @@ export default function TacticalHQPage() {
         // endless loading screen.
         if (teams.length > 0 && !match) {
             return (
-                <div role="alert" className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-                    <p className="text-white text-lg font-bold uppercase tracking-widest mb-2">Match Not Found</p>
-                    <p className="text-sm text-white/60 mb-6 max-w-sm">This match is no longer on your schedule. It may already have been played or resolved when the week advanced.</p>
-                    <Button variant="play" onClick={() => router.push("/schedule")}>Back to Schedule</Button>
+                <div role="alert" className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
+                    <p className="font-display text-3xl font-bold uppercase text-ink-1">Match not found</p>
+                    <p className="mb-6 mt-2 max-w-sm text-sm text-ink-3">This match is no longer on your schedule. It may already have been played or resolved when the week advanced.</p>
+                    <Button onClick={() => router.push("/schedule")}>Back to schedule</Button>
                 </div>
             )
         }
         return (
-            <LoadingState message="Loading Headquarters…" size="lg" fullScreen />
+            <LoadingState message="Loading match day…" size="lg" fullScreen />
         )
     }
 
@@ -348,591 +485,368 @@ export default function TacticalHQPage() {
         ? fixtureBlockReason({ playerTeamId, scheduledMatches, currentWeek, teams, players }, match)
         : null
 
+    // ── Presentation data ────────────────────────────────────────────────
+    const toLineup = (team: typeof myTeam): LineupPlayer[] =>
+        getActivePlayersByRosterOrder(team, players, playersById).map((p: any) => ({
+            id: p.id, nickname: p.nickname, nationality: p.nationality, role: p.role,
+            morale: p.morale, energy: p.energy, portraitPath: p.portraitPath,
+            ovr: evaluatePlayer(p).overallRating,
+        }))
+    const myLineup = toLineup(myTeam)
+    const theirLineup = toLineup(opponent)
+    const avgOvr = (l: LineupPlayer[]) => l.length ? Math.round(l.reduce((s, p) => s + p.ovr, 0) / l.length) : 0
+    const threat = theirLineup.reduce<LineupPlayer | null>((best, p) => (!best || p.ovr > best.ovr ? p : best), null)
+    const myAvgMorale = myLineup.length ? myLineup.reduce((s, p) => s + (p.morale ?? 50), 0) / myLineup.length : 0
+    const myChemistry = Math.round(myTeam.chemistry ?? 0)
+
+    // Opponent's last five results, newest first.
+    const opponentForm = completedMatches
+        .filter(m => m.homeTeamId === opponent.id || m.awayTeamId === opponent.id)
+        .sort((a, b) => (b.week - a.week) || ((b.day ?? 0) - (a.day ?? 0)))
+        .slice(0, 5)
+        .map(m => {
+            const isHome = m.homeTeamId === opponent.id
+            const homeWon = m.result.homeScore > m.result.awayScore
+            const other = teamsById.get(isHome ? m.awayTeamId : m.homeTeamId)
+            const single = m.result.maps.length === 1 ? m.result.maps[0]?.finalScore : undefined
+            const [us, them] = single ? (isHome ? [single.team1, single.team2] : [single.team2, single.team1])
+                : (isHome ? [m.result.homeScore, m.result.awayScore] : [m.result.awayScore, m.result.homeScore])
+            return { id: m.id, won: isHome === homeWon, label: `${isHome === homeWon ? "Won" : "Lost"} ${us}–${them} vs ${other?.name ?? "unknown"}` }
+        })
+    const formWins = opponentForm.filter(f => f.won).length
+
+    // Competition framing.
+    const isTournament = !!match.tournamentId && match.tournamentId !== "SCRIM"
+    const liveTournament = isTournament ? tournaments?.find(t => t.id === match.tournamentId) : undefined
+    const tournamentDef = isTournament
+        ? FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId!.replace(/_s\d+$/, '') || t.id === match.tournamentId)
+        : undefined
+    const competitionName = isTournament ? (tournamentDef?.name || liveTournament?.name || "Tournament") : match.tournamentId === "SCRIM" ? "Scrim" : "Friendly"
+    const nextStage = liveTournament?.playoffBracket?.find(m => m.sourceMatchIds?.includes(match.id))?.stage
+    const stakes = isTournament ? getStakes(match.stage || "", tournamentDef?.format === "bracket", nextStage || undefined) : null
+    const matchDate = getDateForWeek(match.week)
+    matchDate.setUTCDate(matchDate.getUTCDate() + (match.day ?? 0))
+    const dateLabel = formatGameCalendarDate(matchDate, { weekday: "short", month: "short", day: "numeric" })
+
+    const matchupNote = playstyleMatchup === "advantage"
+        ? <span className="font-semibold text-positive">You counter them · +{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS)} team strength</span>
+        : playstyleMatchup === "disadvantage"
+            ? <span className="font-semibold text-negative">They counter you · −{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY)} team strength</span>
+            : <span className="text-ink-2">No counter either way</span>
+
+    const PLAYSTYLE_OPTIONS = [
+        { id: "balanced", label: "Balanced", effect: "Beats Aggressive" },
+        {
+            id: "aggressive", label: "Aggressive", effect: "Beats Structured",
+            note: <>+{STYLE_SPECIALISATION_PCT}% at 80+ avg morale · now <span className={myAvgMorale > 80 ? "text-positive" : "text-ink-2"}>{Math.round(myAvgMorale)}</span></>,
+        },
+        {
+            id: "structured", label: "Structured", effect: "Beats Balanced",
+            note: <>+{STYLE_SPECIALISATION_PCT}% at 80+ chemistry · now <span className={myChemistry > 80 ? "text-positive" : "text-ink-2"}>{myChemistry}</span></>,
+        },
+        { id: "default", label: "Default", effect: "Neutral against every style" },
+    ]
+    const ECONOMY_OPTIONS = [
+        { id: "standard", label: "Standard", effect: <>Full buy from <span className="tabular-nums text-ink-2">{formatCurrency(FULL_BUY_FROM, "$", false)}</span> avg cash</> },
+        { id: "force", label: "Force", effect: <>Buys $500 earlier · full buy from <span className="tabular-nums text-ink-2">{formatCurrency(FULL_BUY_FROM - 500, "$", false)}</span></> },
+        { id: "eco", label: "Eco", effect: <>Saves $500 longer · full buy from <span className="tabular-nums text-ink-2">{formatCurrency(FULL_BUY_FROM + 500, "$", false)}</span></> },
+    ]
+
+    const mapsLocked = match.vetoComplete && (match.maps?.length ?? 0) > 0
+    const sides = (match as { mapStartingSides?: Record<string, string> }).mapStartingSides || {}
+
+    const statusLine = isSimulatingVeto
+        ? "Running the veto…"
+        : mapsLocked ? "Maps locked in · ready to play" : "Map veto comes first"
+
     return (
-        <div className="premium-route text-white p-0 relative overflow-hidden font-sans selection:bg-emerald-500/30">
-            {/* Background Ambience */}
-            <div className="absolute top-0 left-0 w-full h-[500px] bg-linear-to-b/srgb from-blue-900/10 to-transparent pointer-events-none" />
-            <div className="absolute -top-20 -right-20 w-[600px] h-[600px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none" />
+        <div className="mx-auto max-w-[1600px] space-y-4 pb-16">
+            {/* Back + status */}
+            <div className="flex items-center justify-between">
+                <Link href="/schedule" className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-3 transition-colors hover:text-ink-1">
+                    <ArrowLeft size={15} aria-hidden="true" /> Schedule
+                </Link>
+                <p className={overline}>
+                    {isCompleted ? "Played" : isMatchWeek ? "Match day" : isFuture ? `Scheduled · week ${match.week}` : "Expired"}
+                </p>
+            </div>
 
-            <div className="max-w-7xl mx-auto relative z-10 space-y-8">
-                {/* Header */}
-                <header className="flex items-center justify-between">
-                    <Link href="/">
-                        <Button variant="ghost" className="text-white/40 hover:text-white hover:bg-white/5 uppercase tracking-widest text-xs font-bold gap-2">
-                            <ArrowLeft size={16} /> Dashboard
-                        </Button>
-                    </Link>
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-                        <div className={cn("w-2 h-2 rounded-full animate-pulse", isMatchWeek ? "bg-emerald-500" : "bg-amber-500")} />
-                        <span className={cn("text-[10px] font-normal uppercase tracking-widest", isMatchWeek ? "text-emerald-400" : "text-amber-400")}>
-                            {isMatchWeek ? "TACTICAL HQ ACTIVE" : `PREPARING FOR WEEK ${match.week}`}
-                        </span>
+            {/* Broadcast header */}
+            <section className="overflow-hidden rounded-[10px] border border-line bg-panel" aria-label={`${myTeam.name} versus ${opponent.name}`}>
+                <div className="flex items-center gap-8 px-8 py-6">
+                    <TeamBlock team={myTeam} ovr={avgOvr(myLineup)} rank={myTeam.worldRanking} align="left" />
+                    <div className="flex w-[300px] shrink-0 flex-col items-center text-center">
+                        <div className="flex items-center gap-2">
+                            {isTournament && <TierTag tier={tournamentDef?.tier || liveTournament?.tier} />}
+                            <p className="truncate text-sm font-semibold text-ink-1">{competitionName}</p>
+                        </div>
+                        <p className="mt-1 text-xs text-ink-3">{match.stage || (isTournament ? "Tournament match" : "Week " + match.week)}</p>
+                        <p className="mt-2 font-display text-[56px] font-bold leading-none tabular-nums text-ink-1">{(match.format || "BO3").toUpperCase()}</p>
+                        <p className="mt-2 text-xs text-ink-3">{dateLabel} · week {match.week}</p>
                     </div>
-                </header>
+                    <TeamBlock team={opponent} ovr={avgOvr(theirLineup)} rank={opponent.worldRanking} align="right" />
+                </div>
+                {stakes && (
+                    <div className="grid grid-cols-2 divide-x divide-line border-t border-line bg-shell text-sm">
+                        <p className="px-8 py-2.5 text-ink-2"><span className={cn(overline, "mr-2")}>If you win</span>{stakes.win}</p>
+                        <p className="px-8 py-2.5 text-right text-ink-2"><span className={cn(overline, "mr-2")}>If you lose</span>{stakes.loss}</p>
+                    </div>
+                )}
+            </section>
 
-                {/* Matchup Banner */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                className="glass-panel p-10 rounded-xl border border-white/5 bg-white/1 backdrop-blur-2xl relative overflow-hidden"
-                >
-                    <div className="absolute inset-0 bg-linear-to-r/srgb from-blue-500/5 via-transparent to-red-500/5 pointer-events-none" />
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+                <div className="min-w-0 space-y-4">
+                    {/* Lineups */}
+                    <Panel padded={false} className="overflow-hidden">
+                        <div className="grid grid-cols-1 divide-line lg:grid-cols-2 lg:divide-x">
+                            <LineupTable title="Your five" team={myTeam} players={myLineup} />
+                            <LineupTable title="Their five" team={opponent} players={theirLineup} />
+                        </div>
+                    </Panel>
 
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-10 relative z-10">
-                        {/* Player Team */}
-                        <div className="flex flex-col items-center text-center gap-4">
-                        <div className="w-24 h-24 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center p-4 shadow-glass-soft">
-                                <TeamLogoDisplay team={myTeam} size={64} />
-                            </div>
+                    {/* Game plan */}
+                    <Panel title="Game plan" actions={<span className="text-xs text-ink-3">Every number below is what the match engine applies.</span>}>
+                        <div className="space-y-5">
                             <div>
-                                <h2 className="text-2xl font-normal tracking-tight">{myTeam.name}</h2>
-                                <Badge className="bg-blue-500/10 text-blue-400 border-none mt-1">
-                                    RANK #{myTeam.worldRanking || "-"}
-                                </Badge>
-                            </div>
-                        </div>
-
-                        {/* VS */}
-                        <div className="flex flex-col items-center gap-2">
-                            <span className="text-[10px] font-normal uppercase tracking-[0.5em] text-white/20">VS</span>
-                            <div className="text-4xl font-normal text-white/10">{match.format || "BO3"}</div>
-                            <span className={cn("text-[10px] font-bold uppercase tracking-widest", isMatchWeek ? "text-emerald-500" : "text-white/40")}>
-                                {isMatchWeek ? "MATCH WEEK" : `SCHEDULED WEEK ${match.week}`}
-                            </span>
-                        </div>
-
-                        {/* Opponent Team */}
-                        <div className="flex flex-col items-center text-center gap-4">
-                        <div className="w-24 h-24 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center p-4 shadow-glass-soft relative group">
-                                <TeamLogoDisplay team={opponent} size={64} />
-                                <div className="absolute -bottom-3 px-3 py-1 bg-red-500 text-white text-[8px] font-normal uppercase tracking-widest rounded-full shadow-lg">
-                                    ENEMY
+                                <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                                    <p className={overline}>Playstyle</p>
+                                    <p className="text-xs text-ink-3">
+                                        {opponent.name} plays <span className="font-semibold text-ink-2">{PLAYSTYLE_LABELS[opponentStyle] ?? opponentStyle}</span>
+                                        {counterPick && <> · counter with <span className="font-semibold text-ink-2">{PLAYSTYLE_LABELS[counterPick]}</span></>}
+                                        <span className="mx-2 text-ink-3">·</span>{matchupNote}
+                                    </p>
                                 </div>
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-normal tracking-tight">{opponent.name}</h2>
-                                <Badge className="bg-amber-500/10 text-amber-500 border-none mt-1">
-                                    RANK #{opponent.worldRanking || "-"}
-                                </Badge>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Tournament Context - Only show for tournament matches */}
-                {match.tournamentId && match.tournamentId !== "SCRIM" && (() => {
-                    // Find tournament definition and live data
-                    const liveTournament = tournaments?.find(t => t.id === match.tournamentId)
-                    const baseId = match.tournamentId.replace(/_s\d+$/, '')
-                    const tournamentDef = FULL_TOURNAMENT_CALENDAR.find(t => t.id === baseId || t.id === match.tournamentId)
-
-                    // Determine next stage from bracket
-                    let nextStage: string | undefined
-                    if (liveTournament?.playoffBracket) {
-                        const nextMatch = liveTournament.playoffBracket.find(m =>
-                            m.sourceMatchIds?.includes(match.id)
-                        )
-                        nextStage = nextMatch?.stage
-                    }
-
-                    return (
-                        <TournamentMatchContext
-                            tournamentName={tournamentDef?.name || liveTournament?.name || "Tournament"}
-                            tournamentLogo={tournamentDef?.logoPath}
-                            tournamentTier={tournamentDef?.tier || liveTournament?.tier}
-                            currentStage={match.stage || undefined}
-                            matchFormat={match.format}
-                            prizePool={tournamentDef?.prizePool}
-                            isElimination={tournamentDef?.format === "bracket"}
-                            nextStage={nextStage}
-                        className="rounded-xl"
-                        />
-                    )
-                })()}
-
-                {/* Section Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                    className="flex items-center justify-center gap-4"
-                >
-                    <div className="h-px flex-1 bg-linear-to-r/srgb from-transparent via-white/10 to-transparent" />
-                    <div className="flex items-center gap-3 px-6 py-2 rounded-full bg-white/2 border border-white/5 backdrop-blur-xs">
-                        <motion.div
-                            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                            className="w-2 h-2 rounded-full bg-emerald-500"
-                        />
-                        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/60">
-                            Preparing for Battle
-                        </span>
-                        <motion.div
-                            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                            className="w-2 h-2 rounded-full bg-emerald-500"
-                        />
-                    </div>
-                    <div className="h-px flex-1 bg-linear-to-r/srgb from-transparent via-white/10 to-transparent" />
-                </motion.div>
-
-                {/* Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* VOD Review Section */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="relative group"
-                    >
-                        {/* Animated border glow */}
-                        <motion.div
-                    className="absolute -inset-px rounded-xl bg-linear-to-r/srgb from-blue-500/20 via-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                            animate={{
-                                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-                            }}
-                            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-                            style={{ backgroundSize: "200% 200%" }}
-                        />
-                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/2 backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
-                            {/* Subtle animated background */}
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[80px] pointer-events-none" />
-
-                            <div className="flex items-center gap-4 mb-8 relative z-10">
-                                <motion.div
-                        className="relative w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500"
-                                    whileHover={{ scale: 1.05 }}
-                                >
-                                    {/* Pulse ring */}
-                                    <motion.div
-                                className="absolute inset-0 rounded-lg border border-blue-500/30"
-                                        animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                    />
-                                    <Video size={24} />
-                                </motion.div>
-                                <div>
-                                    <h3 className="text-xl font-semibold tracking-tight bg-linear-to-r/srgb from-white to-white/70 bg-clip-text text-transparent">VOD Review</h3>
-                                    <p className="text-sm text-white/40">Analyze opponent playstyle</p>
-                                </div>
-                                {vodReviewed ? (
-                                    <motion.div
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        className="ml-auto px-3 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20 flex items-center gap-2"
-                                    >
-                                        <Check size={12} className="text-emerald-500" />
-                                        <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Complete</span>
-                                    </motion.div>
-                                ) : (
-                                    <motion.div
-                                        animate={{ opacity: [0.5, 1, 0.5] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                        className="ml-auto px-3 py-1 bg-blue-500/10 rounded-lg border border-blue-500/20 flex items-center gap-2"
-                                    >
-                                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                                        <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Ready</span>
-                                    </motion.div>
-                                )}
-                            </div>
-
-                        <div className="relative overflow-hidden rounded-lg group border border-white/5 bg-[#0a0a0a]">
-                            <div className="relative">
-                                {/* Visual Header */}
-                                <div className="relative h-48 w-full group overflow-hidden">
-                                    <div className="absolute inset-0 flex items-center justify-center z-20">
-                        <div className="w-16 h-16 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center transition-transform duration-300 border border-white/20 shadow-glass-soft">
-                                            <Play size={24} className="ml-1 text-white fill-white" />
-                                        </div>
-                                    </div>
-                                    <div className="absolute inset-0 bg-linear-to-t/srgb from-[#0a0a0a] via-black/20 to-transparent z-10" />
-                                    <div
-                                        className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-700"
-                                        style={{
-                                            backgroundImage: `url('/maps/${getMapAssetName(match.maps?.[0])}.png')`
-                                        }}
-                                    />
-
-                                    <div className="absolute bottom-4 left-6 z-20 w-[90%]">
-                                        <h4 className="font-normal text-xl mb-1 text-white tracking-tight">{opponent.name}</h4>
-                                        <p className="text-xs text-white/60 font-medium tracking-wide uppercase">Recent VOD Analysis</p>
-                                    </div>
-                                </div>
-
-                                <div className="p-6 pt-2">
-                                    <div className="flex justify-between items-end mb-6">
-                                        <p className="text-xs text-white/40 max-w-[80%] leading-relaxed">
-                                            Study their defaults, execution patterns, and economic tendencies to gain a strategic advantage.
-                                        </p>
-                                        {!vodReviewed && (
-                                            <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[9px] px-2 py-0.5 rounded-md">AVAILABLE</Badge>
-                                        )}
-                                    </div>
-
-                                    <motion.div className="relative" whileHover={{ scale: vodReviewed ? 1 : 1.02 }} whileTap={{ scale: vodReviewed ? 1 : 0.98 }}>
-                                        {!vodReviewed && (
-                                            <motion.div
-                                                className="absolute inset-0 rounded-xl bg-blue-500/30 blur-lg"
-                                                animate={{ opacity: [0.2, 0.5, 0.2] }}
-                                                transition={{ duration: 2, repeat: Infinity }}
-                                            />
-                                        )}
-                                        <Button
-                                            onClick={handleVODReview}
-                                            disabled={vodReviewed || !isMatchWeek}
-                                            className={cn(
-                                                "relative w-full h-12 rounded-xl font-bold uppercase tracking-wider text-xs transition-all",
-                                                vodReviewed
-                                                    ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/20"
-                                                    : "bg-linear-to-r/srgb from-blue-600 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-400 hover:to-blue-500 text-white shadow-lg shadow-blue-600/30"
-                                            )}
-                                        >
-                                            {vodReviewed ? (
-                                                <span className="flex items-center gap-2"><Check size={14} strokeWidth={3} /> Analysis Complete</span>
-                                            ) : (
-                                                <span className="flex items-center gap-2"><Play size={14} strokeWidth={3} fill="currentColor" /> Review VOD (Cost: $2,500)</span>
-                                            )}
-                                        </Button>
-                                    </motion.div>
-
-                                    {vodReviewed && (
-                                        <motion.p
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            className="text-center text-[10px] text-emerald-500/80 mt-3 font-bold uppercase tracking-widest flex items-center justify-center gap-2"
-                                        >
-                                            <Zap size={12} className="fill-emerald-500" />
-                                            +25 Tactical Prep Gained
-                                            <Zap size={12} className="fill-emerald-500" />
-                                        </motion.p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Tactics HQ Section */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="relative group"
-                    >
-                        {/* Animated border glow */}
-                        <motion.div
-                    className="absolute -inset-px rounded-xl bg-linear-to-r/srgb from-emerald-500/20 via-cyan-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                            animate={{
-                                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-                            }}
-                            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-                            style={{ backgroundSize: "200% 200%" }}
-                        />
-                <div className="glass-panel p-8 rounded-xl border border-white/5 bg-white/2 backdrop-blur-3xl min-h-[400px] flex flex-col relative overflow-hidden">
-                            {/* Subtle animated background */}
-                            <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] pointer-events-none" />
-                            <div className="absolute bottom-0 right-0 w-48 h-48 bg-cyan-500/5 rounded-full blur-[60px] pointer-events-none" />
-
-                            <div className="flex items-center gap-4 mb-8 relative z-10">
-                                <motion.div
-                        className="relative w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500"
-                                    whileHover={{ scale: 1.05 }}
-                                >
-                                    {/* Pulse ring */}
-                                    <motion.div
-                                className="absolute inset-0 rounded-lg border border-emerald-500/30"
-                                        animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                    />
-                                    <Layout size={24} />
-                                </motion.div>
-                                <div>
-                                    <h3 className="text-xl font-semibold tracking-tight bg-linear-to-r/srgb from-white to-white/70 bg-clip-text text-transparent">Tactical HQ</h3>
-                                    <p className="text-sm text-white/40">Optimize team configuration</p>
-                                </div>
-                                <motion.div
-                                    animate={{ opacity: [0.5, 1, 0.5] }}
-                                    transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                                    className="ml-auto px-3 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20 flex items-center gap-2"
-                                >
-                                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Online</span>
-                                </motion.div>
-                            </div>
-
-                        <div className="space-y-6 mb-8 relative">
-                            {/* Playstyle Section */}
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <label className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                                        Team Playstyle
-                                    </label>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 p-2 rounded-lg bg-white/5 border border-white/10 text-[10px]">
-                                    <span className="text-muted-foreground">{opponent.name} plays</span>
-                                    <span className="font-bold text-white uppercase">{PLAYSTYLE_LABELS[opponentStyle] ?? opponentStyle}</span>
-                                    {counterPick && (
-                                        <span className="text-muted-foreground">· counter with <span className="font-bold text-white uppercase">{PLAYSTYLE_LABELS[counterPick]}</span></span>
-                                    )}
-                                    <span className={cn(
-                                        "ml-auto font-bold uppercase",
-                                        playstyleMatchup === "advantage" ? "text-emerald-400" : playstyleMatchup === "disadvantage" ? "text-red-400" : "text-muted-foreground"
-                                    )}>
-                                        {playstyleMatchup === "advantage"
-                                            ? `You counter them +${pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS)}`
-                                            : playstyleMatchup === "disadvantage"
-                                                ? `They counter you -${pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY)}`
-                                                : "No counter"}
-                                    </span>
-                                </div>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {[
-                                        { id: "balanced", label: "Balanced", desc: "Beats Aggressive" },
-                                        { id: "aggressive", label: "Aggressive", desc: "Beats Structured; +5% at 80+ morale" },
-                                        { id: "structured", label: "Structured", desc: "Beats Balanced; +5% at 80+ chemistry" },
-                                        { id: "default", label: "Default", desc: "Neutral vs every style" }
-                                    ].map((style) => (
-                                        <Button
+                                <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                                    {PLAYSTYLE_OPTIONS.map(style => (
+                                        <OptionCard
                                             key={style.id}
-                                            variant="ghost"
-                                            size="sm"
+                                            selected={(myTeam.playstyle || "default") === style.id}
                                             onClick={() => setPlaystyle(playerTeamId!, style.id as any)}
-                                            className={cn(
-                                                "h-12 rounded-xl text-[10px] font-normal uppercase border border-white/5 flex flex-col gap-0",
-                                                myTeam.playstyle === style.id ? "bg-primary/20 border-primary/40 text-primary" : "text-muted-foreground hover:bg-white/5"
-                                            )}
-                                        >
-                                            <span>{style.label}</span>
-                                            <span className="text-[8px] opacity-60 font-medium normal-case">{style.desc}</span>
-                                        </Button>
+                                            label={style.label}
+                                            effect={style.effect}
+                                            note={style.note}
+                                        />
                                     ))}
                                 </div>
+                                <p className="mt-1.5 text-[11px] text-ink-3">
+                                    Countering their style is worth +{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS)} team strength; being countered costs {pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY)}. The counter shares a +10% cap with staff bonuses.
+                                </p>
                             </div>
 
-
-
-                            {/* Economy Style (B12) — read by the sim (getTeamStrategy)
-                                but previously had no UI, so the lever was unreachable. */}
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <label className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                                        Economy Style
-                                    </label>
+                            {/* Economy Style (B12) — read by the sim (getTeamStrategy). */}
+                            <div>
+                                <div className="mb-2 flex items-baseline justify-between gap-4">
+                                    <p className={overline}>Economy</p>
+                                    <p className="text-xs text-ink-3">Used for automatic buys. Your buy calls in the live match override it.</p>
                                 </div>
                                 <div className="grid grid-cols-3 gap-2">
-                                    {[
-                                        { id: "standard", label: "Standard", desc: "Balanced buys" },
-                                        { id: "force", label: "Force", desc: "Buy aggressively" },
-                                        { id: "eco", label: "Eco", desc: "Save more often" }
-                                    ].map((style) => (
-                                        <Button
+                                    {ECONOMY_OPTIONS.map(style => (
+                                        <OptionCard
                                             key={style.id}
-                                            variant="ghost"
-                                            size="sm"
+                                            selected={(myTeam.economyStyle || "standard") === style.id}
                                             onClick={() => setEconomyStyle(playerTeamId!, style.id as any)}
-                                            className={cn(
-                                                "h-12 rounded-xl text-[10px] font-normal uppercase border border-white/5 flex flex-col gap-0",
-                                                (myTeam.economyStyle || "standard") === style.id ? "bg-primary/20 border-primary/40 text-primary" : "text-muted-foreground hover:bg-white/5"
-                                            )}
-                                        >
-                                            <span>{style.label}</span>
-                                            <span className="text-[8px] opacity-60 font-medium normal-case">{style.desc}</span>
-                                        </Button>
+                                            label={style.label}
+                                            effect={style.effect}
+                                        />
                                     ))}
                                 </div>
                             </div>
 
-                            {/* Antistrat Section */}
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <label className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                                        Antistrat vs {opponent.name}
-                                    </label>
-                                </div>
-                                <div className="flex items-center gap-2 p-2 rounded-lg bg-red-500/5 border border-red-500/10">
-                                    <span className="text-[8px] text-red-400 font-bold">⚠️ Target -15% equipment power</span>
-                                    <span className="text-[8px] text-amber-400/80">• your tactics -5%</span>
+                            {/* Antistrat */}
+                            <div>
+                                <div className="mb-2 flex items-baseline justify-between gap-4">
+                                    <p className={overline}>Anti-strat</p>
+                                    <p className="text-xs text-ink-3">Pick one of their players. Target: −15% equipment power · your tactics −5%</p>
                                 </div>
                                 <div className="grid grid-cols-5 gap-2">
-                                    {opponentPlayers.slice(0, 5).map((player: any) => (
-                                        <Button
-                                            key={player.id}
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => setTargetPlayer(
-                                                playerTeamId!,
-                                                myTeam.targetPlayerId === player.id ? undefined : player.id
-                                            )}
-                                            className={cn(
-                                                "h-auto py-2 rounded-xl border border-white/5 flex flex-col gap-1 items-center justify-center p-1 overflow-hidden transition-all",
-                                                myTeam.targetPlayerId === player.id
-                                                    ? "bg-red-500/20 border-red-500/40 text-red-400 ring-1 ring-red-500/20"
-                                                    : "text-muted-foreground hover:bg-white/5"
-                                            )}
-                                        >
-                                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-black/40 border border-white/5 shrink-0 relative">
-                                                <PlayerPortrait
-                                                    src={player.portraitPath} seed={player.id}
-                                                    alt={player.nickname}
-                                                    className="w-full h-full object-cover object-top scale-110 translate-y-1"
-                                                />
-                                            </div>
-                                            <div className="flex flex-col items-center w-full">
-                                                <span className="truncate w-full text-center text-[9px] font-bold leading-tight">{player.nickname}</span>
-                                                <span className="text-[7px] opacity-60 truncate w-full text-center">{formatRole(player.role)}</span>
-                                            </div>
-                                        </Button>
-                                    ))}
+                                    {opponentPlayers.slice(0, 5).map((player: any) => {
+                                        const targeted = myTeam.targetPlayerId === player.id
+                                        return (
+                                            <button
+                                                key={player.id}
+                                                type="button"
+                                                aria-pressed={targeted}
+                                                onClick={() => setTargetPlayer(playerTeamId!, targeted ? undefined : player.id)}
+                                                className={cn(
+                                                    "flex min-w-0 items-center gap-2.5 rounded-[4px] border p-2 text-left transition-colors duration-150",
+                                                    targeted ? "border-gold bg-gold/[0.06]" : "border-line bg-raised hover:border-line-strong hover:bg-hover",
+                                                )}
+                                            >
+                                                <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded bg-hover">
+                                                    <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={36} />
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className={cn("truncate text-sm font-semibold", targeted ? "text-ink-1" : "text-ink-2")}>{player.nickname}</p>
+                                                    <RoleTag role={player.role} className="mt-0.5 px-1 py-0" />
+                                                </div>
+                                                {targeted && <Crosshair size={16} className="shrink-0 text-gold" aria-label="Targeted" />}
+                                            </button>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         </div>
+                    </Panel>
+                </div>
 
-                        {/* Mental Prep (Retained but moved down) */}
-                        <div className="mt-auto space-y-3 pt-6 border-t border-white/5 mb-6 relative">
-                            <div
-                                role="button"
-                                tabIndex={0}
-                                aria-label="Apply Mental Reset ($5,000) to boost morale"
-                                aria-pressed={mentalBoosted}
-                    className="p-4 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-colors"
-                                onClick={handleMentalPrep}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter" || e.key === " ") {
-                                        e.preventDefault()
-                                        handleMentalPrep()
-                                    }
-                                }}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <Brain size={18} className={cn("transition-colors", mentalBoosted ? "text-pink-400" : "text-white/60")} />
-                                    <div>
-                                        <span className="font-bold text-sm block">Mental Reset ($5,000)</span>
-                                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Boost Morale</span>
-                                    </div>
-                                </div>
-                                <div className={cn(
-                                    "w-8 h-8 rounded-full flex items-center justify-center border transition-all",
-                                    mentalBoosted ? "bg-pink-500 border-pink-500 text-white" : "border-white/20 text-white/20"
-                                )}>
-                                    <Zap size={14} fill={mentalBoosted ? "currentColor" : "none"} />
-                                </div>
-                            </div>
-                        </div>
+                <aside className="min-w-0 space-y-4">
+                    {/* Primary action */}
+                    <Panel title={mapsLocked ? "Ready" : "Next step"} actions={<span className="text-xs text-ink-3">{statusLine}</span>}>
+                        <div className="space-y-3">
+                            {mapsLocked && (
+                                <ul className="space-y-2">
+                                    {(match.maps || []).map((map: string, i: number) => {
+                                        const isDecider = (match.maps?.length || 0) > 1 && i === (match.maps?.length || 0) - 1
+                                        const ctTeam = sides[map]
+                                        const startSide = ctTeam ? (ctTeam === myTeam.id ? "CT" : "T") : null
+                                        return (
+                                            <li key={map + i} className="relative flex h-14 items-center overflow-hidden rounded-[4px] border border-line">
+                                                <Image src={`/maps/${getMapAssetName(map)}.png`} alt="" fill sizes="340px" className="object-cover opacity-30" />
+                                                <div className="relative flex w-full items-center justify-between px-3">
+                                                    <div>
+                                                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{isDecider ? "Decider" : `Map ${i + 1}`}</p>
+                                                        <p className="font-display text-xl font-bold uppercase leading-none text-ink-1">{MAP_NAMES[map] ?? map}</p>
+                                                    </div>
+                                                    {startSide && (
+                                                        <span className={cn("text-xs font-semibold", startSide === "CT" ? "text-side-ct" : "text-side-t")}>You start {startSide}</span>
+                                                    )}
+                                                </div>
+                                            </li>
+                                        )
+                                    })}
+                                </ul>
+                            )}
 
-                        <div className="mt-auto space-y-3">
                             {isCompleted ? (
-                                <Button variant="play" onClick={() => router.push(`/match/${match.id}/result`)} className="w-full h-16 rounded-lg text-xs uppercase tracking-widest">
-                                    View Result
+                                <Button onClick={() => router.push(`/match/${match.id}/result`)} className="h-12 w-full text-base">
+                                    View result
                                 </Button>
                             ) : blockReason ? (
                                 <div role="alert" className="space-y-3">
-                                    <p className="text-sm text-amber-200">{blockReason}</p>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <Button variant="play" onClick={() => router.push("/transfers")} className="h-14 rounded-lg text-xs uppercase tracking-widest">Find a player</Button>
-                                        <Button variant="outline" onClick={() => router.push("/schedule")} className="h-14 rounded-lg text-xs uppercase tracking-widest border-white/10 bg-white/5">Back to Schedule</Button>
+                                    <p className="text-sm text-caution">{blockReason}</p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Button onClick={() => router.push("/transfers")} className="h-10">Find a player</Button>
+                                        <Button variant="outline" onClick={() => router.push("/schedule")} className="h-10">Back to schedule</Button>
                                     </div>
                                 </div>
                             ) : isFuture ? (
-                    <Button disabled className="w-full h-16 rounded-lg bg-white/5 text-muted-foreground font-normal text-xs uppercase tracking-widest border border-white/10">
-                                    <Lock size={16} className="mr-2" /> Match is in Week {match.week}
+                                <Button disabled variant="outline" className="h-12 w-full">
+                                    <Lock size={16} aria-hidden="true" /> Match is in week {match.week}
                                 </Button>
                             ) : isPast ? (
-                    <Button disabled className="w-full h-16 rounded-lg bg-white/5 text-muted-foreground font-normal text-xs uppercase tracking-widest border border-white/10">
-                                    Match Expired
-                                </Button>
-                            ) : match.vetoComplete ? (
-                                <div className="space-y-4">
-                                    {/* Map Display */}
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                        {(match.maps || []).map((map: string, i: number) => {
-                                            const isDecider = (match.maps?.length || 0) > 1 && i === (match.maps?.length || 0) - 1
-                                            const mapLabel = isDecider ? "DECIDER" : `MAP ${i + 1}`
-
-                                            return (
-                                                <div key={i} className="aspect-video relative rounded-xl border border-white/10 overflow-hidden group">
-                                                    <Image
-                                                        src={`/maps/${getMapAssetName(map)}.png`}
-                                                        alt={map}
-                                                        fill
-                                                        className="object-cover opacity-60 group-hover:opacity-100 transition-opacity"
-                                                    />
-                                                    <div className="absolute top-2 left-2 z-10">
-                                                        <Badge className={cn("text-[9px] font-normal border-none px-1.5 py-0.5", isDecider ? "bg-amber-500 text-black" : "bg-white/20 text-white backdrop-blur-md")}>
-                                                            {mapLabel}
-                                                        </Badge>
-                                                    </div>
-                                                    <div className="absolute inset-0 bg-linear-to-t/srgb from-black/90 to-transparent flex items-end justify-center pb-2">
-                                                        <span className="font-normal uppercase text-sm tracking-widest text-white shadow-black drop-shadow-lg">{map}</span>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                    <div className="mt-4 flex gap-2">
-                                        <motion.div className="flex-1 relative" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                            {/* Animated glow behind button */}
-                                            <motion.div
-                    className="absolute inset-0 rounded-lg bg-emerald-500/25 blur-xl"
-                                                animate={{ opacity: [0.3, 0.6, 0.3] }}
-                                                transition={{ duration: 2, repeat: Infinity }}
-                                            />
-                                            <Button
-                                                onClick={handleStartMatch}
-                    className="relative w-full h-16 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-black font-bold text-lg uppercase tracking-widest transition-all"
-                                            >
-                                                <span className="flex items-center gap-3">
-                                                    <motion.span
-                                                        animate={{ x: [0, 3, 0] }}
-                                                        transition={{ duration: 1.5, repeat: Infinity }}
-                                                    >
-                                                        START GAME
-                                                    </motion.span>
-                                                    <ChevronRight size={24} strokeWidth={3} />
-                                                </span>
-                                            </Button>
-                                        </motion.div>
-                                        <Button
-                                            onClick={handleQuickSim}
-                                            disabled={isQuickSimulating}
-                                            variant="outline"
-                    className="h-14 w-14 rounded-lg border-white/10 bg-white/5 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all font-normal flex items-center justify-center shadow-glass-soft"
-                                            title="Simulate Result Instantly"
-                                        >
-                                            {isQuickSimulating ? <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/20 border-t-white" /> : <Zap size={24} className="fill-current" />}
-                                        </Button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-2 gap-3">
-                                    <Button
-                                        onClick={handleManualVeto}
-                                        disabled={isSimulatingVeto}
-                    className="h-16 rounded-lg bg-white/10 hover:bg-white/20 text-white font-normal text-xs uppercase tracking-widest border border-white/10"
-                                    >
-                                        Start Manual Veto
+                                <Button disabled variant="outline" className="h-12 w-full">Match expired</Button>
+                            ) : mapsLocked ? (
+                                <div className="flex gap-2">
+                                    <Button onClick={handleStartMatch} className="h-12 flex-1 text-base">
+                                        Start match <ChevronRight size={18} aria-hidden="true" />
                                     </Button>
                                     <Button
-                                        onClick={handleAutoVeto}
-                                        disabled={isSimulatingVeto}
-                    className="h-16 rounded-lg bg-white/10 hover:bg-white/20 text-white font-normal text-xs uppercase tracking-widest border border-white/10"
+                                        onClick={handleQuickSim}
+                                        disabled={isQuickSimulating}
+                                        variant="outline"
+                                        className="h-12 gap-1.5 px-4"
+                                        title="Simulate Result Instantly"
+                                        aria-label="Quick sim: simulate the result instantly"
                                     >
-                                        {isSimulatingVeto ? (
-                                            <span className="animate-pulse">Simulating...</span>
-                                        ) : (
-                                            <span>Quick Sim Veto</span>
-                                        )}
+                                        <Zap size={16} aria-hidden="true" /> {isQuickSimulating ? "Simulating…" : "Quick sim"}
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <Button onClick={handleManualVeto} disabled={isSimulatingVeto} className="h-12 w-full text-base">
+                                        Start veto <ChevronRight size={18} aria-hidden="true" />
+                                    </Button>
+                                    <Button onClick={handleAutoVeto} disabled={isSimulatingVeto} variant="outline" className="h-10 w-full">
+                                        {isSimulatingVeto ? "Simulating…" : "Quick sim veto"}
                                     </Button>
                                 </div>
                             )}
-                            <p className="text-[10px] text-center text-white/30 uppercase tracking-widest font-bold">
-                                {isSimulatingVeto ? "Selecting Maps & Servers..." : match.vetoComplete ? "Maps Selected • Ready to Play" : "Veto required to start match"}
-                            </p>
                         </div>
+                    </Panel>
+
+                    {/* Opponent intel */}
+                    <Panel title="Opponent intel" actions={<span className="text-xs text-ink-3">{opponent.name}</span>} padded={false}>
+                        <dl className="divide-y divide-line text-sm">
+                            <div className="flex items-center justify-between px-4 py-2.5">
+                                <dt className="text-ink-3">World ranking</dt>
+                                <dd className="font-display text-xl font-bold tabular-nums text-ink-1">#{opponent.worldRanking || "—"}</dd>
+                            </div>
+                            <div className="flex items-center justify-between gap-3 px-4 py-2.5">
+                                <dt className="text-ink-3">Form</dt>
+                                <dd className="flex items-center gap-2">
+                                    {opponentForm.length > 0 ? (
+                                        <>
+                                            <span className="flex gap-1">
+                                                {opponentForm.map(f => (
+                                                    <span
+                                                        key={f.id}
+                                                        title={f.label}
+                                                        aria-label={f.label}
+                                                        className={cn("flex h-6 w-6 items-center justify-center rounded-sm text-[11px] font-bold", f.won ? "bg-positive/15 text-positive" : "bg-negative/15 text-negative")}
+                                                    >
+                                                        {f.won ? "W" : "L"}
+                                                    </span>
+                                                ))}
+                                            </span>
+                                            <span className="text-xs tabular-nums text-ink-3">{formWins}–{opponentForm.length - formWins}</span>
+                                        </>
+                                    ) : <span className="text-ink-3">No matches yet</span>}
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between px-4 py-2.5">
+                                <dt className="text-ink-3">Playstyle</dt>
+                                <dd className="font-semibold text-ink-1">{PLAYSTYLE_LABELS[opponentStyle] ?? opponentStyle}</dd>
+                            </div>
+                            <div className="flex items-center justify-between px-4 py-2.5">
+                                <dt className="text-ink-3">Avg OVR</dt>
+                                <dd><RatingChip value={avgOvr(theirLineup)} size="sm" /></dd>
+                            </div>
+                            {threat && (
+                                <div className="px-4 py-3">
+                                    <dt className={cn(overline, "mb-2")}>Threat player</dt>
+                                    <dd className="flex items-center gap-3">
+                                        <div className="h-11 w-11 shrink-0 overflow-hidden rounded bg-raised">
+                                            <PlayerPortrait src={threat.portraitPath} seed={threat.id} alt={threat.nickname} size={44} />
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate font-semibold text-ink-1">{threat.nickname}</p>
+                                            <div className="mt-0.5 flex items-center gap-2"><RoleTag role={threat.role} /><CountryFlag country={threat.nationality || ""} size={12} /></div>
+                                        </div>
+                                        <RatingChip value={threat.ovr} />
+                                    </dd>
+                                </div>
+                            )}
+                        </dl>
+                    </Panel>
+
+                    {/* Preparation: one-off paid sessions for this match */}
+                    <Panel title="Preparation" actions={<span className="text-xs text-ink-3">Paid once, this match only</span>}>
+                        <div className="space-y-2">
+                            <ActionCard
+                                icon={<Video size={16} />}
+                                title="VOD review"
+                                cost={COST_CONSTANTS.VOD_REVIEW_COST}
+                                effect={<>+25 tactical prep: <span className="text-ink-2">+{VOD_STRENGTH_PCT}% team strength</span> for this match.</>}
+                                done={vodReviewed}
+                                doneLabel="Done"
+                                disabled={!isMatchWeek}
+                                onClick={handleVODReview}
+                                ariaLabel={`Review VOD for ${formatCurrency(COST_CONSTANTS.VOD_REVIEW_COST, "$", false)}`}
+                            />
+                            <ActionCard
+                                icon={<Brain size={16} />}
+                                title="Mental reset"
+                                cost={COST_CONSTANTS.MENTAL_RESET_COST}
+                                effect={<>+{MENTAL_RESET_MORALE} squad morale and <span className="text-ink-2">+{MENTAL_RESET_STRENGTH_PCT}% team strength</span> for this match.</>}
+                                done={mentalBoosted}
+                                doneLabel="Done"
+                                onClick={handleMentalPrep}
+                                ariaLabel={`Apply Mental Reset (${formatCurrency(COST_CONSTANTS.MENTAL_RESET_COST, "$", false)}) to boost morale`}
+                            />
                         </div>
-                    </motion.div>
-                </div>
-            </div >
-        </div >
+                    </Panel>
+                </aside>
+            </div>
+        </div>
     )
 }
