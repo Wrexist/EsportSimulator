@@ -92,3 +92,17 @@ Calibration: `docs/revamp/calibration/script-v1.{md,json}` (600 samples) against
 Performance: ~0.13 ms per round (≈ 2.8 ms per BO1 map); 26-week season 6.99 s → 8.64 s, weekly tick 107 → 110 ms (`scripts/perf-baseline.ts`).
 
 Known gaps: kills/round 6.6 (target 7.1); clutch wins ≈ 3 per map (≈ 2) from rounds that trade down to 1v1 too often; 4k / aces above the harness estimates (at KPR 0.7 a Poisson spread alone gives ~1.1 4k and ~0.15 aces per map, so those estimates look low); ~1/3 of kills land > 8 map-% from the resolver's zone in the radar script (route / mid zones the 2A movement plan does not visit); rare builder bursts up to 1.25 × run speed (< 0.1% of segments).
+
+---
+
+## Status — 2B done (2026-10-11)
+
+Branch `claude/revamp-phase-2b` (on top of 0 + 1 + 2A). **script-v1 is the default engine for every new match, managed and AI.** Live checkpoints keep the engine they started on (all existing checkpoints are legacy-v2).
+
+- Resolver: `engine/match/round-sim/` behind the `LegacyRoundEngine` seam — plan (T strategy, CT setup, CT read from IGL/leadership/map/counter), early picks at baked contact points, execute with utility, trades/crossfires, rotations on baked timings, plant/retake/save on CS2 timers. Duels: logistic over weapon-relevant aim + holder/peeker, utility, opening/trade/clutch/lurk, HP, numbers, capped team edge. Damage-based ADR/KAST, HLTV-2.0-style rating (mean 1.00). CS2 economy (stepped loss bonus, plant/defuse/kill rewards, OT $12,500). All teams buy and use grenades.
+- Selection: `engine/match/engine-registry.ts` (`DEFAULT_MATCH_ENGINE = 'script-v1'`).
+- Calibration harness: `scripts/calibrate-engine.ts`, gate `__tests__/calibration-gate.test.ts`. Reports: `docs/revamp/calibration/{legacy-v2,script-v1}.md` — **legacy 24 pass / 16 warn / 9 fail → script-v1 40 / 6 / 3**.
+- Performance: ~0.13 ms per round; 26-week season 7.0 → 8.6 s.
+- Live check (real app): 7 rounds incl. mid-match reload — 0 page errors, positions identical after reload.
+
+**Open (2B tuning):** clutch situations 23/map (too many rounds trade down to 1v1), kills/round 6.59 (target ~7.1), 4k/ace above the harness estimates (estimates may be low), ~1/3 of kills placed > 8 map-% from the resolver's named zone on the radar.
