@@ -1,5 +1,4 @@
-import { PageSkeleton } from "@/components/ui/skeletons"
-
+// Plain ink while the menu chunk loads: no placeholder title to flash.
 export default function Loading() {
-    return <PageSkeleton title="Main Menu" />
+    return <div className="min-h-dvh bg-ink" aria-busy="true" />
 }
