@@ -178,6 +178,82 @@ export function generateMatchStats(
 }
 
 /**
+ * Rating from real per-round numbers (HLTV 2.0-style regression):
+ *   0.0073·KAST + 0.3591·KPR − 0.5329·DPR + 0.2372·Impact + 0.0032·ADR + c,
+ *   Impact = 2.13·KPR + 0.42·APR − 0.41
+ * with the constant c set so pro-average numbers (KPR ≈ DPR ≈ 0.68,
+ * APR ≈ 0.13, ADR ≈ 76, KAST ≈ 71%) rate 1.00.
+ */
+export const SCRIPT_RATING_INTERCEPT = 0.095
+
+export function scriptRating(s: { kpr: number; dpr: number; apr: number; adr: number; kast: number }): number {
+    const impact = 2.13 * s.kpr + 0.42 * s.apr - 0.41
+    const r = 0.0073 * s.kast + 0.3591 * s.kpr - 0.5329 * s.dpr + 0.2372 * impact + 0.0032 * s.adr + SCRIPT_RATING_INTERCEPT
+    return Math.max(0, Math.min(3, Math.round(r * 100) / 100))
+}
+
+/** A death is traded when the killer dies to the victim's team within this many seconds. */
+const KAST_TRADE_SECONDS = 5
+
+/**
+ * script-v1 stats: everything from the recorded rounds — ADR from the
+ * round's damage table (kills, chip and grenades), KAST with real trades,
+ * assists (≥ 41 damage or a flash) and openings from the events, rating
+ * from those numbers (scriptRating). No random jitter.
+ */
+export function generateScriptMatchStats(
+    homePlayers: Player[],
+    awayPlayers: Player[],
+    mapResults: MapResult[],
+): Record<string, PlayerMatchStats> {
+    const all = [...homePlayers, ...awayPlayers]
+    const acc = new Map(all.map(p => [p.id, { kills: 0, deaths: 0, assists: 0, headshots: 0, damage: 0, kast: 0, clutches: 0, fk: 0, fd: 0 }]))
+    let rounds = 0
+    for (const map of mapResults) {
+        for (const round of map.rounds) {
+            rounds++
+            const events = round.events ?? []
+            const kills = events.filter(e => e.type === "KILL")
+            const inRound = new Map<string, { k: boolean; a: boolean; died: boolean; traded: boolean }>()
+            for (const p of all) inRound.set(p.id, { k: false, a: false, died: false, traded: false })
+            kills.forEach((e, idx) => {
+                const killer = e.playerId ? acc.get(e.playerId) : undefined
+                const victim = e.victimId ? acc.get(e.victimId) : undefined
+                if (killer) { killer.kills++; if (e.isHeadshot) killer.headshots++; if (e.isOpening || idx === 0) killer.fk++ }
+                if (victim) { victim.deaths++; if (e.isOpening || idx === 0) victim.fd++ }
+                if (e.assisterId) { const a = acc.get(e.assisterId); if (a) a.assists++; const r = inRound.get(e.assisterId); if (r) r.a = true }
+                const rk = e.playerId ? inRound.get(e.playerId) : undefined
+                if (rk) rk.k = true
+                const rv = e.victimId ? inRound.get(e.victimId) : undefined
+                if (rv) {
+                    rv.died = true
+                    rv.traded = kills.some(x => x !== e && x.victimId === e.playerId && x.time >= e.time && x.time - e.time <= KAST_TRADE_SECONDS)
+                }
+            })
+            for (const e of events) if (e.type === "CLUTCH" && e.playerId) { const c = acc.get(e.playerId); if (c) c.clutches++ }
+            for (const [id, dmg] of Object.entries(round.damage ?? {})) { const a = acc.get(id); if (a && Number.isFinite(dmg)) a.damage += dmg }
+            for (const [id, r] of inRound) if (r.k || r.a || !r.died || r.traded) acc.get(id)!.kast++
+        }
+    }
+    const stats: Record<string, PlayerMatchStats> = {}
+    for (const p of all) {
+        const a = acc.get(p.id)!
+        const n = Math.max(1, rounds)
+        const adr = Math.round(a.damage / n * 10) / 10
+        const kast = Math.round(a.kast / n * 1000) / 10
+        stats[p.id] = {
+            playerId: p.id, matchId: "",
+            kills: a.kills, deaths: a.deaths, assists: a.assists, headshots: a.headshots,
+            adr: rounds ? adr : 0,
+            kast: rounds ? kast : 0,
+            rating: rounds ? scriptRating({ kpr: a.kills / n, dpr: a.deaths / n, apr: a.assists / n, adr, kast }) : 0,
+            clutches: a.clutches, firstKills: a.fk, firstDeaths: a.fd, mapsPlayed: mapResults.length,
+        }
+    }
+    return stats
+}
+
+/**
  * Pick the match MVP — highest-rating player on the winning side.
  * Falls back to the first winning player if no stats are present.
  */
