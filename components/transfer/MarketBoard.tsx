@@ -357,7 +357,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                                     aria-label="Region"
                                     value={region}
                                     onChange={e => { setRegion(e.target.value); resetPage() }}
-                                    className="h-8 rounded border border-line bg-shell px-2 text-xs font-semibold text-ink-2"
+                                    className="h-8 rounded border border-line bg-shell px-2 text-[12px]! font-semibold text-ink-2"
                                 >
                                     <option value="ALL">Any region</option>
                                     {ALL_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}

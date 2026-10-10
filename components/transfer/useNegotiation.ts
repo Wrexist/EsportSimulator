@@ -190,6 +190,12 @@ export function useNegotiation(playerId: string | null, active = true) {
     const wageChance = !durationOk ? 0 : centre > 0 ? bandChance(salaryOffer / centre, WAGE_BAND) : 1
     /** Lowest wage with a sure yes at the current length. */
     const sureWage = Math.ceil(centre * WAGE_BAND[1] * ACCEPT_WITHIN)
+    /** Where the player's hidden minimum can sit (effective, after the 3% grace). */
+    const wageRange: [number, number] = [Math.ceil(centre * WAGE_BAND[0] * ACCEPT_WITHIN), sureWage]
+    /** Where the club's hidden price can sit (effective, after the 3% grace). */
+    const feeRange: [number, number] = evaluation
+        ? [Math.ceil(evaluation.transferValue * FEE_BAND[0] * ACCEPT_WITHIN), Math.ceil(evaluation.transferValue * FEE_BAND[1] * ACCEPT_WITHIN)]
+        : [0, 0]
 
     const celebrateSigning = (nickname: string, salary: number, skill: number) => {
         if ((skill ?? 0) >= 85) {
@@ -210,7 +216,7 @@ export function useNegotiation(playerId: string | null, active = true) {
             setNegotiationLog(prev => [...prev, `${currentTeam?.name ?? "The club"} accepted ${money(sanitizedBuyoutOffer)}.`])
             setStage("CONTRACT")
         } else {
-            setNegotiationLog(prev => [...prev, `${money(sanitizedBuyoutOffer)} rejected. ${currentTeam?.name ?? "The club"} wants ${money(minPrice)}.`])
+            setNegotiationLog(prev => [...prev, `${money(sanitizedBuyoutOffer)} rejected. ${currentTeam?.name ?? "The club"} accepts ${money(Math.ceil(minPrice * 0.97))} or more.`])
         }
     }
 
@@ -275,7 +281,7 @@ export function useNegotiation(playerId: string | null, active = true) {
                 celebrateSigning(playerSave.nickname, sanitizedSalary, playerSave.skill)
             }
         } else {
-            setNegotiationLog(prev => [...prev, `${money(sanitizedSalary)}/wk rejected. Minimum: ${money(minimumSalary)}/wk.`])
+            setNegotiationLog(prev => [...prev, `${money(sanitizedSalary)}/wk rejected. Accepts ${money(Math.ceil(minimumSalary * 0.97))}/wk or more at this length.`])
         }
     }
 
@@ -306,6 +312,8 @@ export function useNegotiation(playerId: string | null, active = true) {
         feeChance,
         wageChance,
         sureWage,
+        wageRange,
+        feeRange,
         submitBuyout,
         submitContract,
         retry,

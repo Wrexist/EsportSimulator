@@ -132,7 +132,7 @@ export function DealTerms({ n, onDone }: { n: NegotiationState; onDone?: () => v
                 <Chance
                     label="Club accepts"
                     value={n.feeChance}
-                    hint={`Clubs hold a hidden price within ±10% of market value. A sure yes is ${money(Math.ceil(value * 1.1 * 0.97))}.`}
+                    hint={`The club's hidden price is between ${money(n.feeRange[0])} and ${money(n.feeRange[1])}.`}
                 />
                 <Log lines={n.negotiationLog} />
                 {blocked ? (
@@ -182,7 +182,7 @@ export function DealTerms({ n, onDone }: { n: NegotiationState; onDone?: () => v
             <Chance
                 label="Player accepts"
                 value={n.wageChance}
-                hint={n.durationOk ? `Hidden minimum varies ±15%. A sure yes at this length is ${money(n.sureWage)}/wk.` : "Pick a length inside their range first."}
+                hint={n.durationOk ? `Their hidden minimum at this length is between ${money(n.wageRange[0])} and ${money(n.wageRange[1])}/wk.` : "Pick a length inside their range first."}
             />
             <dl className="divide-y divide-line">
                 {n.currentTeam && <Row label="Fee due on signing" value={money(n.buyoutOffer)} />}
