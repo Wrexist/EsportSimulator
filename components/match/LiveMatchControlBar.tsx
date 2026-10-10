@@ -1,24 +1,42 @@
 import { memo } from "react"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { Play, Pause, SkipForward as SkipForwardIcon, FastForward as FastForwardIcon } from "lucide-react"
+import { ArrowLeft, Play, Pause, SkipForward as SkipForwardIcon, FastForward as FastForwardIcon, ChevronsRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { LIVE_SPEED_PRESETS } from "@/lib/live-match-builders"
+import { PACING, PACING_MODES, PACING_MODE_LABEL, type PacingMode } from "@/lib/live-match-pacing"
 import { LiveGameState } from "@/types"
 
 interface LiveMatchControlBarProps {
     gameState: LiveGameState
     isAutoTactics: boolean
     setIsAutoTactics: (v: boolean) => void
+    /** Playback is advancing (mid-round: playing; between rounds: auto call counting down). */
     isPlaying: boolean
     onTogglePlayback: () => void
     isWaitingForStrategy: boolean
     speed: number
     setSpeed: (speed: number) => void
+    pacingMode: PacingMode
+    setPacingMode: (mode: PacingMode) => void
+    /** Key moments: the quiet stretch is being fast-forwarded right now. */
+    fastForward: boolean
     onSimulateRound: () => void
     onSimulateMatch: () => void
+    /** Pause and go to the match hub (unset once the match is over). */
+    onLeave?: () => void
+    onBeforeLeave?: () => void
 }
 
+const segment = (active: boolean) => cn(
+    "h-7 rounded-[3px] px-2 text-xs font-semibold transition-colors duration-150",
+    active ? "bg-hover text-ink-1 shadow-[inset_0_-2px_0_var(--gold)]" : "text-ink-3 hover:text-ink-1",
+)
+
+/**
+ * Command dock: one row under the scorebug with every playback control —
+ * match hub, auto tactics, pause, speed, pacing mode, skip round / match.
+ */
 function LiveMatchControlBarComponent({
     gameState,
     isAutoTactics,
@@ -28,16 +46,43 @@ function LiveMatchControlBarComponent({
     isWaitingForStrategy,
     speed,
     setSpeed,
+    pacingMode,
+    setPacingMode,
+    fastForward,
     onSimulateRound,
-    onSimulateMatch
+    onSimulateMatch,
+    onLeave,
+    onBeforeLeave,
 }: LiveMatchControlBarProps) {
     const inProgress = gameState.status === "IN_PROGRESS"
     // Paused mid-round is the state the player must notice; between rounds
-    // the strategy panel is the call to action instead.
+    // the decision card is the call to action instead.
     const pausedMidRound = inProgress && !isPlaying && !isWaitingForStrategy
+    const momentSpeed = speed * PACING.MOMENT_SPEED
     return (
-        <div className="flex h-full min-h-11 flex-wrap items-center justify-between gap-x-3 gap-y-1.5 rounded-lg border border-line bg-panel px-2 py-1.5">
+        <div className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border border-line bg-panel px-2 py-1.5" role="toolbar" aria-label="Match controls">
+            {/* Left: leave, status, auto tactics */}
             <div className="flex items-center gap-3">
+                {onLeave && (
+                    <ConfirmDialog
+                        title="Leave the live match?"
+                        description="The match pauses and is saved exactly where it is. Resume it from the match hub; other fixtures stay locked until it is finished."
+                        confirmText="Go to match hub"
+                        cancelText="Stay"
+                        onConfirm={onLeave}
+                    >
+                        <Button
+                            variant="outline"
+                            className="h-8 min-h-8 shrink-0 gap-1.5 rounded px-2.5 text-xs font-semibold"
+                            title="Pause and go back to the match hub"
+                            aria-label="Leave to the match hub"
+                            // Pause while deciding: the round would otherwise play on (or end) behind the dialog.
+                            onClick={onBeforeLeave}
+                        >
+                            <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Match hub
+                        </Button>
+                    </ConfirmDialog>
+                )}
                 {inProgress ? (
                     <span className="inline-flex items-center gap-1.5 rounded-sm bg-negative/15 px-1.5 py-1 text-[11px] font-bold leading-none tracking-[0.06em] text-negative">
                         <span className="h-1.5 w-1.5 rounded-full bg-negative" aria-hidden="true" />
@@ -70,13 +115,13 @@ function LiveMatchControlBarComponent({
                 </label>
             </div>
 
-            <div className="flex items-center gap-1.5">
-                {/* Play/Pause */}
+            {/* Centre: transport — play/pause, speed, pacing mode */}
+            <div className="mx-auto flex items-center gap-2">
                 <Button
                     size="icon"
                     variant="ghost"
                     aria-label={isPlaying ? "Pause match" : "Resume match"}
-                    title={isPlaying ? "Pause (Space)" : "Resume (Space)"}
+                    title={isWaitingForStrategy ? (isPlaying ? "Hold the auto call (Space)" : "Resume (Space)") : isPlaying ? "Pause (Space)" : "Resume (Space)"}
                     disabled={!inProgress}
                     className={cn(
                         "h-8 w-8 min-h-8 rounded",
@@ -91,12 +136,63 @@ function LiveMatchControlBarComponent({
                     )}
                 </Button>
 
+                {/* Speed presets */}
+                <div role="group" aria-label="Playback speed" className="flex items-center rounded border border-line bg-shell p-0.5">
+                    {LIVE_SPEED_PRESETS.map(preset => (
+                        <button
+                            key={preset}
+                            type="button"
+                            aria-pressed={speed === preset}
+                            aria-label={`Playback speed ${preset}x`}
+                            title={pacingMode === "moments" ? `${preset}x: key moments at ${preset * PACING.MOMENT_SPEED}× real time, quiet stretches faster` : `${preset}x real time`}
+                            onClick={() => setSpeed(preset)}
+                            className={cn(segment(speed === preset), "min-w-8 px-1.5 tabular-nums")}
+                        >
+                            {preset}x
+                        </button>
+                    ))}
+                </div>
+
+                {/* Pacing mode */}
+                <div role="radiogroup" aria-label="Playback pacing" className="flex items-center rounded border border-line bg-shell p-0.5">
+                    {PACING_MODES.map(mode => (
+                        <button
+                            key={mode}
+                            type="button"
+                            role="radio"
+                            aria-checked={pacingMode === mode}
+                            onClick={() => setPacingMode(mode)}
+                            title={mode === "moments" ? "Play kills, the plant, defuses and executes at speed; fast-forward the quiet stretches" : "Play every second of the round at speed"}
+                            className={segment(pacingMode === mode)}
+                        >
+                            {PACING_MODE_LABEL[mode]}
+                        </button>
+                    ))}
+                </div>
+
+                {/* What the clock is doing right now */}
+                <span
+                    className={cn(
+                        "inline-flex w-[118px] items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.06em]",
+                        pacingMode === "moments" && fastForward && isPlaying && !isWaitingForStrategy ? "text-ink-2" : "text-ink-3",
+                    )}
+                    aria-live="off"
+                    data-pacing-state={pacingMode === "moments" ? (fastForward ? "fast-forward" : "moment") : "full"}
+                >
+                    {pacingMode === "moments" && isPlaying && !isWaitingForStrategy
+                        ? fastForward ? <><ChevronsRight size={13} aria-hidden="true" /> Fast-forward</> : <><span className="h-1.5 w-1.5 rounded-full bg-gold" aria-hidden="true" /> Key moment</>
+                        : pacingMode === "moments" ? `Moments ${momentSpeed}×` : `Real time ${speed}×`}
+                </span>
+            </div>
+
+            {/* Right: skip round / match */}
+            <div className="flex items-center gap-1.5">
                 <Button
                     size="sm"
                     variant="ghost"
                     className="h-8 min-h-8 gap-1.5 rounded px-2.5 text-xs font-semibold tracking-[0.04em] text-ink-2 hover:text-ink-1"
                     onClick={onSimulateRound}
-                    disabled={!isPlaying && !isWaitingForStrategy}
+                    disabled={!inProgress}
                     title="Finish this round now"
                 >
                     <SkipForwardIcon size={13} aria-hidden="true" />
@@ -121,28 +217,6 @@ function LiveMatchControlBarComponent({
                         SKIP MATCH
                     </Button>
                 </ConfirmDialog>
-
-                <span className="mx-1 h-5 w-px bg-line-strong" aria-hidden="true" />
-
-                {/* Speed presets */}
-                <div role="group" aria-label="Playback speed" className="flex items-center rounded border border-line bg-shell p-0.5">
-                    {LIVE_SPEED_PRESETS.map(preset => (
-                        <button
-                            key={preset}
-                            type="button"
-                            aria-pressed={speed === preset}
-                            aria-label={`Playback speed ${preset}x`}
-                            title={`${preset}x speed`}
-                            onClick={() => setSpeed(preset)}
-                            className={cn(
-                                "h-7 min-w-8 rounded-[3px] px-1.5 text-xs font-semibold tabular-nums transition-colors duration-150",
-                                speed === preset ? "bg-hover text-ink-1 shadow-[inset_0_-2px_0_var(--gold)]" : "text-ink-3 hover:text-ink-1",
-                            )}
-                        >
-                            {preset}x
-                        </button>
-                    ))}
-                </div>
             </div>
         </div>
     )
