@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { PlayerSaveData } from "@/engine/save-types"
-import { ArrowRight, Calendar, DollarSign, PenTool } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { formatCurrency } from "@/lib/utils-extended"
 
 interface RenewContractModalProps {
@@ -24,6 +24,7 @@ interface RenewContractModalProps {
     trigger?: React.ReactNode
 }
 
+/** Renewal terms mirror the store: +10% wage, +52 weeks (renewContract). */
 export function RenewContractModal({ player, currentSalary, currentEndWeek, currentWeek, onConfirm, trigger }: RenewContractModalProps) {
     const [open, setOpen] = React.useState(false)
 
@@ -41,70 +42,35 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
             <DialogTrigger asChild>
                 {trigger}
             </DialogTrigger>
-            <DialogContent className="bg-black/80 backdrop-blur-xl border-white/10 text-white max-w-md">
+            <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-3 rounded-full bg-blue-500/20 text-blue-400">
-                            <PenTool size={24} />
-                        </div>
-                        <div>
-                            <DialogTitle className="text-xl font-bold">Contract Renewal Proposal</DialogTitle>
-                            <DialogDescription className="text-blue-200/60">
-                                Negotiating terms with {player.nickname}
-                            </DialogDescription>
-                        </div>
-                    </div>
+                    <DialogTitle>Renew contract</DialogTitle>
+                    <DialogDescription className="text-ink-3">
+                        One more year for {player.nickname}, at a 10% raise.
+                    </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-6 py-4">
-                    {/* Visual Comparison Card */}
-                    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-                        {/* Current */}
-                        <div className="space-y-4 text-center opacity-60">
-                            <div className="text-xs uppercase tracking-widest font-bold text-muted-foreground">Current</div>
-                            <div className="space-y-1">
-                                <div className="text-sm flex items-center justify-center gap-1"><DollarSign size={12} /> {formatCurrency(currentSalary, "", false)}</div>
-                                <div className="text-sm flex items-center justify-center gap-1"><Calendar size={12} /> {weeksRemaining} wks</div>
-                            </div>
-                        </div>
-
-                        {/* Arrow */}
-                        <div className="text-blue-500 flex justify-center">
-                            <ArrowRight size={24} />
-                        </div>
-
-                        {/* New */}
-                        <div className="space-y-4 text-center p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
-                            <div className="text-xs uppercase tracking-widest font-bold text-blue-400">New Offer</div>
-                            <div className="space-y-1">
-                                <div className="text-lg font-bold text-white flex items-center justify-center gap-1">
-                                    <DollarSign size={14} /> {formatCurrency(newSalary, "", false)}
-                                </div>
-                                <div className="text-sm font-medium text-blue-200 flex items-center justify-center gap-1">
-                                    <Calendar size={12} /> +52 wks (Total: {newWeeksRemaining})
-                                </div>
-                            </div>
-                        </div>
+                <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-3 py-2">
+                    <div className="rounded-lg border border-line bg-raised p-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Now</p>
+                        <p className="mt-2 font-display text-2xl font-bold tabular-nums text-ink-2">{formatCurrency(currentSalary, "$", false)}</p>
+                        <p className="text-xs text-ink-3">per week · {weeksRemaining} wks left</p>
                     </div>
-
-                    <div className="bg-white/5 p-4 rounded-lg text-sm text-muted-foreground border border-white/5">
-                        <p>
-                            Renewing for <strong>1 Year</strong> will secure <strong>{player.nickname}</strong>&apos;s services until Week {currentEndWeek + 52}.
-                            The salary will increase by <span className="text-emerald-400 font-bold">10%</span>.
-                        </p>
+                    <div className="flex items-center text-ink-3"><ArrowRight size={18} /></div>
+                    <div className="rounded-lg border border-line-strong bg-raised p-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">After renewal</p>
+                        <p className="mt-2 font-display text-2xl font-bold tabular-nums text-ink-1">{formatCurrency(newSalary, "$", false)}</p>
+                        <p className="text-xs text-ink-3">per week · {newWeeksRemaining} wks left</p>
                     </div>
                 </div>
 
-                <DialogFooter className="gap-2 sm:gap-0">
-                    <Button variant="ghost" onClick={() => setOpen(false)} className="hover:bg-white/10 hover:text-white">
-                        Cancel Negotiation
-                    </Button>
-                    <Button
-                        onClick={handleConfirm}
-                        className="bg-linear-to-r/srgb from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold border-0 shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all hover:scale-105"
-                    >
-                        Sign Renewal
-                    </Button>
+                <p className="text-sm text-ink-2">
+                    Runs until week {currentEndWeek + 52}. You need 26 weeks of the raise ({formatCurrency((newSalary - currentSalary) * 26, "$", false)}) in the bank; nothing is charged up front.
+                </p>
+
+                <DialogFooter className="gap-2 sm:gap-2">
+                    <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                    <Button onClick={handleConfirm}>Sign renewal</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
