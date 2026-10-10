@@ -325,7 +325,11 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                             <KpiStrip className="w-fit max-w-full flex-wrap">
                                 <Kpi label="Career matches" value={player.matchesPlayed || 0} />
                                 <Kpi label="Rounds" value={player.roundsPlayed ? player.roundsPlayed : "—"} />
-                                <Kpi label="Avg rating" value={player.avgRating ? player.avgRating.toFixed(2) : "—"} />
+                                <Kpi
+                                    label="Avg rating"
+                                    value={player.avgRating ? player.avgRating.toFixed(2) : performances.length ? (performances.reduce((s, r) => s + r.rating, 0) / performances.length).toFixed(2) : "—"}
+                                    hint={!player.avgRating && performances.length ? `${performances.length} recorded` : undefined}
+                                />
                                 <Kpi label="K/D" value={kd != null ? kd.toFixed(2) : "—"} />
                                 <Kpi label="Clutch rate" value={player.clutchSuccessRate ? `${(clutchRateFraction(player.clutchSuccessRate) * 100).toFixed(0)}%` : "—"} />
                             </KpiStrip>
