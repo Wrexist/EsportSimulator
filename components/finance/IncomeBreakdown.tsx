@@ -1,19 +1,47 @@
-import { Progress } from '@/components/ui/progress'
+import { Meter } from '@/src/components/ui/Meter'
 import { formatCurrency } from '@/lib/utils-extended'
+import { cn } from '@/lib/utils'
+
+export interface BreakdownRow {
+    label: string
+    amount: number
+    /** One quiet line on where the number comes from. */
+    note?: string
+}
+
+/** Rows of money with their share of the group total — the settlement breakdown. */
+export function MoneyBreakdown({ rows, total, tone }: { rows: BreakdownRow[]; total: number; tone: 'income' | 'expense' }) {
+    return (
+        <dl className="divide-y divide-line">
+            {rows.map(({ label, amount, note }) => {
+                const share = total > 0 ? Math.max(0, Math.min(100, amount / total * 100)) : 0
+                return (
+                    <div key={label} className="grid grid-cols-[minmax(0,1fr)_64px_92px] items-center gap-3 py-2">
+                        <dt className="min-w-0">
+                            <span className="block truncate text-sm text-ink-1">{label}</span>
+                            {note && <span className="block truncate text-xs text-ink-3">{note}</span>}
+                        </dt>
+                        <Meter value={share} label={`${label} as a share of projected ${tone}`} tone="neutral" showValue={false} trackClassName="w-16" />
+                        <dd className={cn('text-right text-sm tabular-nums', tone === 'income' && amount > 0 ? 'text-positive' : 'text-ink-1')}>
+                            {formatCurrency(amount, '$', false)}
+                        </dd>
+                    </div>
+                )
+            })}
+        </dl>
+    )
+}
 
 export function IncomeBreakdown({ income }: { income: { sponsors: number; fanbaseBonus: number; leagueShare?: number; total: number } }) {
-    const rows = [
-        ['Sponsorship payments', income.sponsors],
-        ['Fan income', income.fanbaseBonus],
-        ['League revenue share', income.leagueShare ?? 0],
-    ] as const
-    return <div className="space-y-4">
-        {rows.map(([label, amount]) => <div key={label} className="space-y-2">
-            <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">{label}</span>
-                <span className="font-bold text-green-400">{formatCurrency(amount, '$', false)}</span>
-            </div>
-            <Progress aria-label={`${label} as a share of projected income`} value={income.total > 0 ? Math.max(0, Math.min(100, amount / income.total * 100)) : 0} className="h-1 bg-green-500/10" />
-        </div>)}
-    </div>
+    return (
+        <MoneyBreakdown
+            tone="income"
+            total={income.total}
+            rows={[
+                { label: 'Sponsorship payments', amount: income.sponsors },
+                { label: 'Fan income', amount: income.fanbaseBonus },
+                { label: 'League revenue share', amount: income.leagueShare ?? 0 },
+            ]}
+        />
+    )
 }
