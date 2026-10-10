@@ -59,18 +59,18 @@ export default function MatchError({
     }
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-white p-8">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-ink-1 p-8">
             <div className="max-w-md text-center">
-                <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-5">
-                    <AlertTriangle className="text-red-500" size={32} />
+                <div className="w-16 h-16 rounded-full bg-negative/10 flex items-center justify-center mx-auto mb-5">
+                    <AlertTriangle className="text-negative" size={32} />
                 </div>
                 <h1 className="text-xl font-bold mb-2">Match crashed</h1>
-                <p className="text-sm text-white/50 mb-5">
+                <p className="text-sm text-ink-3 mb-5">
                     Something went wrong during the match. Your save is safe — simulate the
                     result instantly, or head back to the schedule and try again.
                 </p>
                 {process.env.NODE_ENV !== "production" && (
-                    <pre className="bg-white/5 border border-white/10 rounded-lg p-3 text-left text-[11px] text-red-400 mb-5 max-h-28 overflow-y-auto whitespace-pre-wrap">
+                    <pre className="bg-raised border border-line rounded-lg p-3 text-left text-[11px] text-negative mb-5 max-h-28 overflow-y-auto whitespace-pre-wrap">
                         {error.message}
                     </pre>
                 )}
@@ -79,7 +79,7 @@ export default function MatchError({
                         <button
                             onClick={handleSimulate}
                             disabled={resolving}
-                            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 rounded-lg text-sm font-medium transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-gold text-gold-on hover:bg-gold-hover disabled:opacity-60 rounded-lg text-sm font-medium transition-colors"
                         >
                             <FastForward size={14} />
                             {resolving ? "Simulating…" : "Simulate instead"}
@@ -95,7 +95,7 @@ export default function MatchError({
                     </button>
                     <Link
                         href="/schedule"
-                        className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg text-sm font-medium transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 bg-hover hover:bg-hover rounded-lg text-sm font-medium transition-colors"
                     >
                         <Calendar size={14} />
                         Schedule

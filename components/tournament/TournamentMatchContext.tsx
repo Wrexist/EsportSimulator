@@ -37,17 +37,17 @@ const getStakes = sharedGetStakes
 function getTierStyle(tier?: string) {
     switch (tier?.toUpperCase()) {
         case "S_TIER":
-            return { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-400", label: "S-TIER" }
+            return { bg: "bg-gold/[0.06]", border: "border-gold/40", text: "text-gold", label: "S-TIER" }
         case "A_TIER":
-            return { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-400", label: "A-TIER" }
+            return { bg: "bg-hover", border: "border-line-strong", text: "text-ink-1", label: "A-TIER" }
         case "B_TIER":
-            return { bg: "bg-purple-500/10", border: "border-purple-500/30", text: "text-purple-400", label: "B-TIER" }
+            return { bg: "bg-hover", border: "border-line-strong", text: "text-ink-1", label: "B-TIER" }
         case "C_TIER":
-            return { bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400", label: "C-TIER" }
+            return { bg: "bg-positive/10", border: "border-positive/40", text: "text-positive", label: "C-TIER" }
         case "QUALIFIER":
             return { bg: "bg-slate-500/10", border: "border-slate-500/30", text: "text-slate-400", label: "QUALIFIER" }
         default:
-            return { bg: "bg-white/5", border: "border-white/10", text: "text-white/60", label: tier || "TOURNAMENT" }
+            return { bg: "bg-raised", border: "border-line", text: "text-ink-2", label: tier || "TOURNAMENT" }
     }
 }
 
@@ -79,8 +79,8 @@ export function TournamentMatchContext({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className={cn(
-                "glass-panel border-white/5 overflow-hidden",
-                isGrandFinal && "ring-1 ring-amber-500/30",
+                "bg-panel border-line overflow-hidden",
+                isGrandFinal && "border-gold/40",
                 className
             )}
         >
@@ -101,30 +101,30 @@ export function TournamentMatchContext({
                 {/* Tournament Name & Stage */}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                        <Badge className={cn("text-[9px] font-bold px-2", tierStyle.bg, tierStyle.text, "border-none")}>
+                        <Badge className={cn("text-[11px] font-bold px-2", tierStyle.bg, tierStyle.text, "border-none")}>
                             {tierStyle.label}
                         </Badge>
                         {isGrandFinal && (
-                            <Badge className="text-[9px] font-bold px-2 bg-amber-500/20 text-amber-400 border-none animate-pulse">
+                            <Badge className="text-[11px] font-bold px-2 bg-gold/15 text-gold border-none animate-pulse">
                                 GRAND FINAL
                             </Badge>
                         )}
                     </div>
-                    <h3 className="text-lg font-bold text-white uppercase tracking-tight truncate">
+                    <h3 className="text-lg font-bold text-ink-1 uppercase tracking-tight truncate">
                         {tournamentName}
                     </h3>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">
+                    <p className="text-[11px] text-ink-3 uppercase tracking-widest mt-0.5">
                         {currentStage || "Tournament Match"}
                     </p>
                 </div>
 
                 {/* Format Badge */}
                 <div className="flex flex-col items-end gap-1">
-                    <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-wider bg-white/5 border-white/10">
+                    <Badge variant="secondary" className="text-[11px] font-bold uppercase tracking-wider bg-raised border-line">
                         {matchFormat || "BO1"}
                     </Badge>
                     {prizePool && prizePool > 0 && (
-                        <span className="text-[10px] text-emerald-400 font-mono">
+                        <span className="text-[11px] text-positive tabular-nums">
                             {formatCurrency(prizePool, "$", false)}
                         </span>
                     )}
@@ -135,10 +135,10 @@ export function TournamentMatchContext({
             {outcome ? (
                 <motion.div
                     className={cn(
-                        "p-5 border-t border-white/5 flex items-center gap-4",
+                        "p-5 border-t border-line flex items-center gap-4",
                         outcome.won
-                            ? outcome.isChampion ? "bg-amber-500/10" : "bg-emerald-500/5"
-                            : "bg-red-500/5"
+                            ? outcome.isChampion ? "bg-gold/[0.06]" : "bg-positive/10"
+                            : "bg-negative/10"
                     )}
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -148,30 +148,30 @@ export function TournamentMatchContext({
                         "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
                         outcome.won
                             ? outcome.isChampion
-                                ? "bg-amber-500/20 border-amber-500/30"
-                                : "bg-emerald-500/20 border-emerald-500/30"
-                            : "bg-red-500/20 border-red-500/30"
+                                ? "bg-gold/15 border-gold/40"
+                                : "bg-positive/10 border-positive/40"
+                            : "bg-negative/10 border-negative/40"
                     )}>
                         {outcome.won
                             ? outcome.isChampion
-                                ? <Trophy className="w-5 h-5 text-amber-400" />
-                                : <ChevronRight className="w-5 h-5 text-emerald-400" />
-                            : <AlertTriangle className="w-5 h-5 text-red-400" />
+                                ? <Trophy className="w-5 h-5 text-gold" />
+                                : <ChevronRight className="w-5 h-5 text-positive" />
+                            : <AlertTriangle className="w-5 h-5 text-negative" />
                         }
                     </div>
                     <div>
                         <p className={cn(
-                            "text-[9px] font-bold uppercase tracking-widest mb-1",
+                            "text-[11px] font-bold uppercase tracking-widest mb-1",
                             outcome.won
-                                ? outcome.isChampion ? "text-amber-400" : "text-emerald-400"
-                                : "text-red-400"
+                                ? outcome.isChampion ? "text-gold" : "text-positive"
+                                : "text-negative"
                         )}>
                             {outcome.won
                                 ? outcome.isChampion ? "TOURNAMENT CHAMPION" : "VICTORY"
                                 : "DEFEATED"
                             }
                         </p>
-                        <p className="text-sm text-white font-medium">
+                        <p className="text-sm text-ink-1 font-medium">
                             {outcome.won
                                 ? outcome.isChampion
                                     ? "Congratulations! You won the tournament!"
@@ -188,22 +188,22 @@ export function TournamentMatchContext({
             ) : (
                 <>
                     {/* Stakes Section */}
-                    <div className="grid grid-cols-2 gap-0 border-t border-white/5">
+                    <div className="grid grid-cols-2 gap-0 border-t border-line">
                         {/* Win Outcome */}
                         <motion.div
-                            className="p-4 flex items-start gap-3 border-r border-white/5 bg-emerald-500/5"
+                            className="p-4 flex items-start gap-3 border-r border-line bg-positive/10"
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.1 }}
                         >
-                            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                                <ChevronRight className="w-5 h-5 text-emerald-400" />
+                            <div className="w-8 h-8 rounded-lg bg-positive/10 border border-positive/40 flex items-center justify-center shrink-0">
+                                <ChevronRight className="w-5 h-5 text-positive" />
                             </div>
                             <div>
-                                <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest mb-1">
+                                <p className="text-[11px] text-positive font-bold uppercase tracking-widest mb-1">
                                     IF YOU WIN
                                 </p>
-                                <p className="text-sm text-white font-medium">
+                                <p className="text-sm text-ink-1 font-medium">
                                     {stakes.win}
                                 </p>
                             </div>
@@ -211,19 +211,19 @@ export function TournamentMatchContext({
 
                         {/* Loss Outcome */}
                         <motion.div
-                            className="p-4 flex items-start gap-3 bg-red-500/5"
+                            className="p-4 flex items-start gap-3 bg-negative/10"
                             initial={{ opacity: 0, x: 10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.15 }}
                         >
-                            <div className="w-8 h-8 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0">
-                                <AlertTriangle className="w-4 h-4 text-red-400" />
+                            <div className="w-8 h-8 rounded-lg bg-negative/10 border border-negative/40 flex items-center justify-center shrink-0">
+                                <AlertTriangle className="w-4 h-4 text-negative" />
                             </div>
                             <div>
-                                <p className="text-[9px] text-red-400 font-bold uppercase tracking-widest mb-1">
+                                <p className="text-[11px] text-negative font-bold uppercase tracking-widest mb-1">
                                     IF YOU LOSE
                                 </p>
-                                <p className="text-sm text-white/70 font-medium">
+                                <p className="text-sm text-ink-2 font-medium">
                                     {stakes.loss}
                                 </p>
                             </div>
@@ -236,13 +236,13 @@ export function TournamentMatchContext({
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="p-3 bg-linear-to-r/srgb from-amber-500/10 via-amber-500/5 to-amber-500/10 border-t border-amber-500/20 flex items-center justify-center gap-2"
+                            className="p-3 bg-raised border-t border-gold/40 flex items-center justify-center gap-2"
                         >
-                            <Award className="w-4 h-4 text-amber-400" />
-                            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">
+                            <Award className="w-4 h-4 text-gold" />
+                            <span className="text-[11px] font-bold text-gold uppercase tracking-widest">
                                 Championship Match - History Awaits
                             </span>
-                            <Award className="w-4 h-4 text-amber-400" />
+                            <Award className="w-4 h-4 text-gold" />
                         </motion.div>
                     )}
                 </>
