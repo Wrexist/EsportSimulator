@@ -3,21 +3,24 @@
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
-import { Trophy, Star, TrendingUp, DollarSign, X, Users } from "lucide-react"
+import { Trophy, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { fireConfetti } from "@/lib/confetti-lazy"
-import { panelTransition } from "@/lib/motion"
 import { soundManager } from "@/lib/sound-manager"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { useFocusTrap } from "@/lib/accessibility"
 import { formatCurrency } from "@/lib/utils-extended"
+import { useGameStore } from "@/store/game-store"
+import { useShallow } from "zustand/react/shallow"
+import { TierTag } from "@/src/components/ui/TierTag"
 
 interface TournamentWinCelebrationProps {
     data: {
+        tournamentId?: string
         tournamentName: string
         tier: string
+        /** The event's prize pool (the winner is paid a share of it). */
         prize: number
         repGain: number
         fanGain: number
@@ -27,10 +30,22 @@ interface TournamentWinCelebrationProps {
     onClose: () => void
 }
 
+// Trophy gold, white and win green — the v2 celebration palette.
+const CONFETTI_COLORS = ["#F2B53A", "#FFC85C", "#F2F4F7", "#3DD68C"]
+
+/**
+ * The title moment: a full-screen card over the whole app. The prize line
+ * shows what the club was actually paid (its PRIZE ledger entry for this
+ * event); the payload only carries the event's whole prize pool.
+ */
 export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebrationProps) {
     const [mounted, setMounted] = useState(false)
     const reduceMotion = useAppReducedMotion()
     const dialogRef = useFocusTrap(mounted, onClose)
+    const { financeLedger, playerTeamId } = useGameStore(useShallow(state => ({
+        financeLedger: state.financeLedger,
+        playerTeamId: state.playerTeamId,
+    })))
 
     useEffect(() => {
         setMounted(true)
@@ -39,26 +54,18 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
         // on the user's sound setting, and sound is independent of reduced-motion.
         soundManager.play("victory")
 
-        // Skip the 5s confetti barrage entirely for users who set
-        // prefers-reduced-motion — the celebration card itself still
-        // renders with its scale-up so the moment is preserved.
+        // No confetti barrage for reduced motion; the card still appears.
         if (reduceMotion) return
 
-        // Trigger initial confetti
-        const duration = 5 * 1000
+        const duration = 4 * 1000
         const animationEnd = Date.now() + duration
-        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 }
-
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0, colors: CONFETTI_COLORS }
         const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min
 
         const interval: ReturnType<typeof setInterval> = setInterval(function () {
             const timeLeft = animationEnd - Date.now()
-
-            if (timeLeft <= 0) {
-                return clearInterval(interval)
-            }
-
-            const particleCount = 50 * (timeLeft / duration)
+            if (timeLeft <= 0) return clearInterval(interval)
+            const particleCount = 40 * (timeLeft / duration)
             fireConfetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } })
             fireConfetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })
         }, 250)
@@ -68,7 +75,17 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
 
     if (!mounted) return null
 
-    const tierColor = data.tier === "S_TIER" ? "text-amber-400" : data.tier === "A_TIER" ? "text-purple-400" : "text-blue-400"
+    // Prize actually credited to the club for this title, if booked yet.
+    const prizeEntry = data.tournamentId
+        ? financeLedger.find(e => e.teamId === playerTeamId && e.type === "INCOME" && e.category === "PRIZE" && e.id.startsWith(`prize_${data.tournamentId}_`))
+        : undefined
+
+    const reveal = (delay: number) => ({
+        initial: reduceMotion ? false : { opacity: 0, y: 10 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.3, delay: reduceMotion ? 0 : delay, ease: "easeOut" as const },
+    })
+
     return (
         <AnimatePresence>
             <motion.div
@@ -79,157 +96,65 @@ export function TournamentWinCelebration({ data, onClose }: TournamentWinCelebra
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-overlay flex items-center justify-center p-4 md:p-8"
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 z-overlay flex items-center justify-center bg-ink p-6"
             >
-                {/* Blurred Backdrop */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="absolute inset-0 liquid-app-bg opacity-95 backdrop-blur-xl"
+                <button
                     onClick={onClose}
-                />
-
-                <div className="absolute inset-0 liquid-noise pointer-events-none" />
-
-                {/* Celebration Card */}
-                <motion.div
-                    variants={panelTransition}
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
-                    className="relative w-full max-w-4xl max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain liquid-panel rounded-xl border-white/10"
+                    aria-label="Close celebration"
+                    title="Close"
+                    className="absolute right-6 top-6 rounded p-2 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1"
                 >
-                    <div className="absolute top-6 right-6 z-20">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={onClose}
-                            aria-label="Close celebration"
-                            title="Close"
-                            className="rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white"
-                        >
-                            <X className="w-5 h-5" aria-hidden="true" />
-                        </Button>
-                    </div>
+                    <X className="h-5 w-5" aria-hidden="true" />
+                </button>
 
-                    <div className="relative z-10 p-6 md:p-8 text-center">
-                        {/* Trophy Animation */}
-                        <div className="relative mb-6">
-                            <motion.div
-                                initial={{ scale: 0, rotate: -20 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                transition={{ delay: 0.3, type: "spring", damping: 12 }}
-                                className="relative z-10 w-32 h-32 [@media(min-height:800px)]:w-48 [@media(min-height:800px)]:h-48 mx-auto"
-                            >
-                                <div className="absolute inset-0 bg-cyan-200/8 blur-[56px] rounded-full" />
-                                {data.trophyPath ? (
-                                    <Image
-                                        src={data.trophyPath}
-                                        alt="Trophy"
-                                        width={192}
-                                        height={192}
-                                        className="relative z-10 object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full rounded-full bg-linear-to-b/srgb from-amber-400 to-amber-600 flex items-center justify-center p-10 shadow-2xl">
-                                        <Trophy className="w-full h-full text-[#1a1a1a]" />
-                                    </div>
-                                )}
-                            </motion.div>
-
-                            <Star className="absolute left-1/2 top-0 -translate-x-1/2 text-amber-300/50 w-5 h-5" />
-                        </div>
-
-                        {/* Text Content */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6 }}
-                            className="space-y-4"
-                        >
-                            <h4 className={cn("text-xs font-normal uppercase tracking-[0.5em] mb-2", tierColor)}>
-                                CHAMPIONS OF THE WORLD
-                            </h4>
-                            <h2 id="modal-title-tournament-win" className="text-4xl md:text-6xl font-normal text-white tracking-tighter liquid-text mb-4">
-                                {data.tournamentName}
-                            </h2>
-                            <div className="flex items-center justify-center gap-4 mb-10">
-                                <div className="h-px w-12 bg-white/10" />
-                                <span className="text-[10px] font-normal text-white/40 uppercase tracking-widest">{data.tier.replace('_', ' ')} VICTOR</span>
-                                <div className="h-px w-12 bg-white/10" />
+                <div className="flex w-full max-w-3xl flex-col items-center text-center">
+                    <motion.div
+                        initial={reduceMotion ? false : { opacity: 0, scale: 0.85 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        className="relative h-40 w-40 [@media(min-height:800px)]:h-56 [@media(min-height:800px)]:w-56"
+                    >
+                        {data.trophyPath ? (
+                            <Image src={data.trophyPath} alt="" fill sizes="224px" className="object-contain" />
+                        ) : (
+                            <div className="flex h-full w-full items-center justify-center rounded-full border border-gold/50 bg-gold/10">
+                                <Trophy className="h-1/2 w-1/2 text-gold" aria-hidden="true" />
                             </div>
-                        </motion.div>
+                        )}
+                    </motion.div>
 
-                        {/* Rewards Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-                            <motion.div
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.8 }}
-                                className="glass-card p-6 rounded-lg border-white/5 bg-white/2 flex items-center gap-6"
-                            >
-                                <div className="w-14 h-14 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                                    <DollarSign className="w-8 h-8" />
-                                </div>
-                                <div className="text-left">
-                                    <p className="text-[10px] font-normal text-white/30 uppercase tracking-widest mb-1">PRIZE MONEY</p>
-                                    <p className="text-2xl font-normal text-white">
-                                        <AnimatedNumber value={data.prize} animateOnMount duration={1400} format={(n) => formatCurrency(Math.round(n), "$", false)} />
-                                    </p>
-                                </div>
-                            </motion.div>
+                    <motion.div {...reveal(0.25)} className="mt-6 flex items-center gap-2">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">Champions</span>
+                        <TierTag tier={data.tier} />
+                    </motion.div>
+                    <motion.h2 {...reveal(0.3)} id="modal-title-tournament-win" className="mt-2 font-display text-[64px] font-extrabold uppercase leading-[0.9] text-ink-1">
+                        {data.tournamentName}
+                    </motion.h2>
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.9 }}
-                                className="glass-card p-6 rounded-lg border-white/5 bg-white/2 flex items-center gap-6"
-                            >
-                                <div className="w-14 h-14 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
-                                    <Users className="w-8 h-8" />
-                                </div>
-                                <div className="text-left">
-                                    <p className="text-[10px] font-normal text-white/30 uppercase tracking-widest mb-1">NEW FOLLOWERS</p>
-                                    <p className="text-2xl font-normal text-white">+{data.fanGain.toLocaleString()}</p>
-                                </div>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 1 }}
-                                className="glass-card p-6 rounded-lg border-white/5 bg-white/2 flex items-center gap-6"
-                            >
-                                <div className="w-14 h-14 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
-                                    <TrendingUp className="w-8 h-8" />
-                                </div>
-                                <div className="text-left">
-                                    <p className="text-[10px] font-normal text-white/30 uppercase tracking-widest mb-1">REPUTATION</p>
-                                    <p className="text-2xl font-normal text-white">+{data.repGain}</p>
-                                </div>
-                            </motion.div>
+                    <motion.dl {...reveal(0.45)} className="mt-8 grid w-full max-w-2xl grid-cols-3 divide-x divide-line rounded-lg border border-line bg-panel">
+                        <div className="px-5 py-4">
+                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{prizeEntry ? "Prize money" : "Prize pool"}</dt>
+                            <dd className="mt-1 font-display text-[32px] font-bold leading-none tabular-nums text-ink-1">
+                                <AnimatedNumber value={prizeEntry ? prizeEntry.amount : data.prize} animateOnMount duration={1200} format={(n) => formatCurrency(Math.round(n), "$", false)} />
+                            </dd>
                         </div>
+                        <div className="px-5 py-4">
+                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">New followers</dt>
+                            <dd className="mt-1 font-display text-[32px] font-bold leading-none tabular-nums text-ink-1">+{data.fanGain.toLocaleString("en-US")}</dd>
+                        </div>
+                        <div className="px-5 py-4">
+                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Reputation</dt>
+                            <dd className="mt-1 font-display text-[32px] font-bold leading-none tabular-nums text-ink-1">+{data.repGain}</dd>
+                        </div>
+                    </motion.dl>
 
-                        {/* Action Buttons */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 1.2 }}
-                            className="mt-6"
-                        >
-                            <Button
-                                size="lg"
-                                onClick={onClose}
-                                className="h-16 px-12 rounded-lg bg-white text-black font-normal uppercase tracking-widest hover:bg-white/90"
-                            >
-                                CLAIM VICTORY
-                            </Button>
-                        </motion.div>
-                    </div>
-
-                    {/* Decorative Bottom Pattern */}
-                    <div className="absolute inset-x-0 bottom-0 h-1 bg-linear-to-r/srgb from-transparent via-white/20 to-transparent" />
-                </motion.div>
+                    <motion.div {...reveal(0.55)} className="mt-8">
+                        <Button onClick={onClose} className="h-12 px-10 text-base">
+                            Continue
+                        </Button>
+                    </motion.div>
+                </div>
             </motion.div>
         </AnimatePresence>
     )
