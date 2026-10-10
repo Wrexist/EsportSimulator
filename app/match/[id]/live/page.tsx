@@ -43,7 +43,12 @@ function logRowKey(entry: object): number {
 
 const sideText = (side: "CT" | "T" | undefined) => side === "CT" ? "text-side-ct" : "text-side-t"
 const otherSide = (side: "CT" | "T" | undefined): "CT" | "T" => side === "CT" ? "T" : "CT"
-const clock = (t: number | undefined) => t != null ? `${Math.floor(t / 60)}:${(t % 60).toString().padStart(2, '0')}` : ""
+// Round-clock label (m:ss). script-v1 events carry fractional seconds; show whole seconds.
+const clock = (t: number | undefined) => {
+    if (t == null) return ""
+    const s = Math.max(0, Math.floor(t))
+    return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`
+}
 
 // Memoized log list. Without memo this re-evaluates every per-tick parent
 // render (~30-60Hz from useLiveMatch), iterating the full logs array and

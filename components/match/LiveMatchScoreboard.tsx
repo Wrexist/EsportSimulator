@@ -112,11 +112,11 @@ function LiveMatchScoreboardImpl({
     // Display the actual round countdown (1:55 → 0:00). Falls back to the raw
     // game-time tick when no roundTime is provided so existing callers keep
     // working.
-    const displaySeconds = isBombPlanted && typeof bombTime === "number"
+    const displaySeconds = Math.floor(isBombPlanted && typeof bombTime === "number"
         ? Math.max(0, bombTime)
         : typeof roundTime === "number"
             ? Math.max(0, roundTime)
-            : Math.max(0, gameState.time)
+            : Math.max(0, gameState.time))
     const showTimer = gameState.time >= 0
     const isUrgent = !isBombPlanted && displaySeconds <= 10 && displaySeconds > 0
     const reduceMotion = useAppReducedMotion()
