@@ -522,8 +522,8 @@ export default function LiveMatchPage() {
                 <h3 className="text-sm font-semibold text-ink-1">Rounds</h3>
                 <span className="text-xs text-ink-3">{mapName} · {revealed} played</span>
             </header>
-            <div className="grid grid-cols-[28px_minmax(0,1fr)_76px_92px] gap-x-2 border-b border-line bg-shell px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">
-                <span>#</span><span>Winner</span><span>Ended by</span><span className="text-right">Buys you / them</span>
+            <div className="grid grid-cols-[28px_minmax(0,1fr)_76px_104px] gap-x-2 border-b border-line bg-shell px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">
+                <span>#</span><span>Winner</span><span>Ended by</span><span className="text-right" title="Buy each team ran: yours / theirs">Buys</span>
             </div>
             <ol className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:thin]">
                 {roundHistory.length === 0 && <li className="px-3 py-3 text-xs text-ink-3">No rounds finished on this map yet.</li>}
@@ -534,7 +534,7 @@ export default function LiveMatchPage() {
                     const winnerTeam = r.winner === "home" ? homeTeam : awayTeam
                     const ownWin = r.winner === ownKey
                     return (
-                        <li key={r.round} className="grid h-8 grid-cols-[28px_minmax(0,1fr)_76px_92px] items-center gap-x-2 border-b border-line px-3 text-xs last:border-b-0">
+                        <li key={r.round} className="grid h-8 grid-cols-[28px_minmax(0,1fr)_76px_104px] items-center gap-x-2 border-b border-line px-3 text-xs last:border-b-0">
                             <span className="tabular-nums text-ink-3">{r.round}</span>
                             <span className="flex min-w-0 items-center gap-1.5">
                                 <span className={cn("h-2 w-2 shrink-0 rounded-[1px]", r.side === "ct" ? "bg-side-ct" : "bg-side-t")} aria-hidden="true" />
