@@ -941,7 +941,8 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
     R.events.push({ type: "PLANT", time: r1(R.t), side: "t", playerId: planter.id, site: S.id, location: S.callout, zone: S.id, details: "Bomb has been planted" })
 
     // ── 6. Post-plant / retake ──
-    return retake(R, plan, lurker, hit.defQ, anchorStays)
+    // The far anchor who stayed joins the retake with everyone else still alive.
+    return retake(R, plan, lurker, hit.defQ)
 }
 
 function earlyFights(R: Round, plan: PlanState, aggressor: Actor | null): void {
@@ -1076,7 +1077,7 @@ function lateRound(R: Round, _lurker: Actor | null): RoundEnd {
     return { winnerCT: true, winType: "TIME", t: ROUND_TIME }
 }
 
-function retake(R: Round, plan: PlanState, lurker: Actor | null, pending: [Actor, number][], anchor: Actor | null): RoundEnd {
+function retake(R: Round, plan: PlanState, lurker: Actor | null, pending: [Actor, number][]): RoundEnd {
     const plantT = R.bomb.plantT
     const holders = living(R.T).filter(a => a !== lurker)
     // Everyone not yet at the site comes: pending rotators, the stayed anchor, survivors elsewhere.

@@ -11,6 +11,9 @@ import { Player } from "@/types"
 import { MatchSaveData, TeamSaveData } from "@/engine/save-types"
 import { MAP_NAMES, ACTIVE_MAP_POOL } from "@/data/map-pool"
 import { simulationEngineV2, SeededRNG } from "@/engine"
+import { buildProfile, callQuality } from "@/engine/match/round-sim/profile"
+import { tacticalWeight } from "@/engine/match/round-sim"
+import { TUNING } from "@/engine/match/round-sim/tuning"
 import Image from "next/image"
 import { SideEmblem } from "@/components/match/SideEmblem"
 import { motion, AnimatePresence } from "framer-motion"
@@ -393,14 +396,16 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         return (teamPlayers.reduce((sum, p) => sum + p.skill, 0) / teamPlayers.length) / 10
     }
 
-    // What a map is actually worth: the sim adds (own − opponent map
-    // strength) / 200 to every round's win chance (match-simulation.ts).
+    // What a map is actually worth in the match engine (script-v1): the
+    // better IGL (tactics 60% + leadership 40%) reads the other team's plan
+    // more often, and tactical maps (Nuke, Overpass) weigh that read more than
+    // aim maps (Mirage, Sandstone) — round-sim/simulate.ts choosePlan.
     const userIsHome = homeTeam.id === playerTeamId
-    const homeStrengths = simulationEngineV2.calculateMapStrengths(homePlayersList)
-    const awayStrengths = simulationEngineV2.calculateMapStrengths(awayPlayersList)
+    const homeCall = callQuality(homePlayersList.slice(0, 5).map(buildProfile))
+    const awayCall = callQuality(awayPlayersList.slice(0, 5).map(buildProfile))
     const roundEdge = (mapId: MapId) => {
-        const diff = ((homeStrengths.get(mapId) ?? 50) - (awayStrengths.get(mapId) ?? 50)) / 200
-        return (userIsHome ? diff : -diff) * 100
+        const diff = TUNING.READ_IGL * ((homeCall - awayCall) / 50) * tacticalWeight(mapId)
+        return Math.max(-20, Math.min(20, (userIsHome ? diff : -diff) * 100))
     }
     const teamName = (side: string) => side === "home" ? homeTeam.name : side === "away" ? awayTeam.name : "Decider"
     const actionLabel = (action: string) => action === "SIDE_PICK" ? "Side" : action === "DECIDER" ? "Decider" : action === "BAN" ? "Ban" : action === "PICK" ? "Pick" : action
@@ -547,8 +552,8 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                 </h4>
                                 {!isBanned && (
                                     <dl className="space-y-0.5 text-[11px] text-ink-3">
-                                        <div className="flex justify-between gap-2" title="Your round-win edge from map strength on this map, as the match engine applies it.">
-                                            <dt>Your edge / round</dt>
+                                        <div className="flex justify-between gap-2" title="How much more often (percentage points) your IGL reads their plan on this map than theirs reads yours: tactics and leadership, weighted by how tactical the map is.">
+                                            <dt>Your read edge</dt>
                                             <dd className="tabular-nums text-ink-2">{edge >= 0 ? "+" : "−"}{Math.abs(edge).toFixed(1)}%</dd>
                                         </div>
                                         <div className="flex justify-between gap-2" title="Past results on this map. History only; it does not change the odds.">

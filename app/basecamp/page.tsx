@@ -14,6 +14,7 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { UI_ASSETS } from "@/lib/ui-assets"
 import { EconomyEngine } from "@/engine/economy-engine"
 import { facilityEffect, facilityWeeklyCost } from "@/engine/organization-effects"
+import { FACILITY_EDGE_PER_LEVEL } from "@/engine/match/round-sim/team-edge"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
@@ -189,8 +190,8 @@ export default function BasecampPage() {
           <ul className="space-y-3 text-sm text-ink-2">
             <li>Each facility&apos;s effect is listed in its row and applies every week from the moment it&apos;s built.</li>
             <li>
-              Built facilities also add <span className="text-ink-1">+2% match strength per average level</span>, up to +10% when every built facility is level 5.
-              Building a new level-1 facility lowers that average.
+              Built facilities also add <span className="text-ink-1">+{Math.round(FACILITY_EDGE_PER_LEVEL * 100)}% team strength per average level above 1</span>, up to +{Math.round(FACILITY_EDGE_PER_LEVEL * 400)}% when every built facility is level 5
+              (counted with staff, prep and gear; all non-player factors together are capped at ±10%). Building a new level-1 facility lowers that average.
             </li>
             <li>Build cost {money(BUILD_COST)}; each upgrade costs {money(UPGRADE_COST_PER_LEVEL)} × the current level.</li>
             <li>Upkeep grows with level (level<sup>1.25</sup> × {money(500)} per week) and shows on the Finances settlement.</li>

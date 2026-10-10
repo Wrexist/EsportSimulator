@@ -544,7 +544,8 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
 
                             {/* 5. Grenades */}
                             <div className="space-y-4">
-                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">5 Grenades</h3>
+                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-1">5 Grenades</h3>
+                                <p className="px-2 mb-4 text-[11px] text-ink-3">None picked: the player buys a grenade set for his role with the money left. Picked: exactly these.</p>
                                 <div className="grid grid-cols-2 gap-3">
                                     {Object.entries(GRENADES).map(([id, icon]) => {
                                         const isSelected = currentLoadout.utility?.includes(id)

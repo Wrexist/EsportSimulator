@@ -279,7 +279,7 @@ export default function StaffMeetingPage() {
                             <span className="text-sm text-ink-3">Average morale</span>
                             <Meter value={avgMorale} label="Average morale" trackClassName="w-24" />
                         </div>
-                        <p className="mt-3 text-xs leading-relaxed text-ink-3">Morale adds or removes up to 20% of team strength in matches.</p>
+                        <p className="mt-3 text-xs leading-relaxed text-ink-3">Morale is part of each player&apos;s match condition: high morale adds up to +1.5 duel rating, low morale costs up to −2.3 (about ±2% of every duel).</p>
                     </Panel>
 
                     <Panel title="Recent form">

@@ -239,7 +239,7 @@ export default function TrainingPage() {
                     </table>
                 </div>
                 <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
-                    Gains include your coach and facilities. Aim is the attribute that moves match strength; rest lowers fatigue, which also feeds match strength.
+                    Gains include your coach and facilities. Aim is the base of every duel; rifle, AWP and pistol adjust it by weapon. Rest lowers fatigue, which costs duel rating in matches.
                 </p>
             </Panel>
 

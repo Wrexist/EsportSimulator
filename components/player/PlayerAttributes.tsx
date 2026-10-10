@@ -18,36 +18,36 @@ interface AttrDef {
 
 /**
  * Attribute groups as the save model stores them. The `use` notes are the
- * honest reach of each number (engine/match/team-strength.ts avg skill,
- * map-veto.ts calculateMapStrengths, match-simulation.ts simulateRound
- * high-pressure check, types/events.ts training formulas). Everything else
- * only shapes who gets the kills.
+ * honest reach of each number in the script-v1 match engine
+ * (engine/match/round-sim: profile.ts aim and weapon attributes, simulate.ts
+ * situations, tuning.ts weights), the map veto (map-veto.ts) and training
+ * (types/events.ts). Loyalty and health do not reach matches.
  */
 const GROUPS: { title: string; attrs: AttrDef[] }[] = [
     {
         title: "Firepower",
         attrs: [
-            { key: "skill", label: "Aim", use: { tag: "Results", detail: "Aim is the player number in team strength and map strength." } },
-            { key: "rifle", label: "Rifle" },
-            { key: "awp", label: "AWP" },
-            { key: "pistol", label: "Pistol" },
+            { key: "skill", label: "Aim", use: { tag: "Duels", detail: "The base of every duel this player takes; better players also take more of them." } },
+            { key: "rifle", label: "Rifle", use: { tag: "Duels", detail: "Adjusts aim with rifles and SMGs (up to ±3 duel rating)." } },
+            { key: "awp", label: "AWP", use: { tag: "Duels", detail: "Adjusts aim with the AWP (a low AWP rating costs up to 9 duel rating)." } },
+            { key: "pistol", label: "Pistol", use: { tag: "Duels", detail: "Adjusts aim on pistol rounds, ecos and Deagles (up to ±3)." } },
         ],
     },
     {
         title: "Tactical",
         attrs: [
-            { key: "tactic", label: "Tactics", use: { tag: "Results", detail: "Team tactics feed map strength (round odds) and steer the map veto." } },
-            { key: "grenades", label: "Utility" },
-            { key: "teamwork", label: "Teamwork" },
-            { key: "leader", label: "Leadership" },
-            { key: "creativity", label: "Creativity" },
+            { key: "tactic", label: "Tactics", use: { tag: "Reads", detail: "The IGL's tactics (60%) and leadership (40%) decide how often the team reads the opponent's plan; team tactics also steer the map veto." } },
+            { key: "grenades", label: "Utility", use: { tag: "Utility", detail: "How often this player's flashes blind and smokes take an angle away." } },
+            { key: "teamwork", label: "Teamwork", use: { tag: "Trades", detail: "How often this player is in position to trade a teammate." } },
+            { key: "leader", label: "Leadership", use: { tag: "Reads", detail: "With tactics, the IGL's read of the opponent's plan." } },
+            { key: "creativity", label: "Creativity", use: { tag: "Lurks", detail: "Lurk picks on rotating CTs and aggressive CT pushes." } },
         ],
     },
     {
         title: "Mental",
         attrs: [
-            { key: "clutch", label: "Clutch" },
-            { key: "stressResistance", label: "Composure", use: { tag: "Pressure", detail: "In high-pressure matches a team averaging under 40 loses 3–8% round-win chance." } },
+            { key: "clutch", label: "Clutch", use: { tag: "Clutch", detail: "Last alive: +0.08 duel rating per point above 60." } },
+            { key: "stressResistance", label: "Composure", use: { tag: "Pressure", detail: "In high-pressure matches each point below 60 costs duel rating (most in a final); also helps when last alive." } },
             { key: "productivity", label: "Work rate", use: { tag: "Training", detail: "Scales weekly training gains." } },
             { key: "loyalty", label: "Loyalty" },
         ],
@@ -55,8 +55,8 @@ const GROUPS: { title: string; attrs: AttrDef[] }[] = [
     {
         title: "Physical",
         attrs: [
-            { key: "reaction", label: "Reaction" },
-            { key: "eyesight", label: "Vision" },
+            { key: "reaction", label: "Reaction", use: { tag: "Openings", detail: "The round's first duel, peeking or holding." } },
+            { key: "eyesight", label: "Vision", use: { tag: "Holds", detail: "Holding an angle, more with the AWP." } },
             { key: "endurance", label: "Endurance", use: { tag: "Training", detail: "Cuts fatigue from weekly training by up to half." } },
             { key: "health", label: "Health" },
         ],
