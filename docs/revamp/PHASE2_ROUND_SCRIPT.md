@@ -48,3 +48,27 @@ Goal: every round is described by one deterministic **round script** (plan, play
 
 ## 2B (after 2A)
 Fight model, utility effects, CS2 economy rules, stats computed from the script, calibration harness (`tmp/audit-2026-10-09/sim/` targets), save/version migration, worker offload.
+
+---
+
+## Status — 2A done (2026-10-10)
+
+Branch `claude/revamp-phase-2` (on top of Phase 0 + 1).
+
+- **W1** `data/round-maps/<Map>.json` for all 8 maps, baked from the nav meshes by `scripts/bake-round-maps.ts` (10–11 routes, 9–12 holds, 17–20 utility spots, 6+6 plant spots per map; 30–46 KB each). Site labels follow the game's bombsite entities (the old `data/map-layouts` had A/B swapped on Anubis, Inferno, Mirage, Sandstone, Vertigo).
+- **W2** `engine/match/round-script*.ts`: plan → assignment → timeline → duels → utility → bomb; `buildRoundScript`, `samplePositions`, `scriptInputFromResolverRound`, `prepareRoundMap`. ~1.1–1.5 ms per round.
+- **W3** live radar samples the script every frame (`lib/live-round-script.ts`, `components/match/RadarScriptLayer.tsx`, `lib/radar-script-frame.ts`): view cones, persistent death markers, shot tracers, smokes/molotovs/flash/HE, bomb carrier/drop/plant/defuse, baked site letters, "Bomb planted at B by …" and kill locations in the feed. Old position engine deleted (incl. the 5 MB `data/radar-nav-data.json`).
+
+| Metric | Before | After | Target |
+|---|---|---|---|
+| Killer is victim's nearest enemy | 29–34% | 87% | ≥ 80% |
+| Kills with a visible shooter line | 50% | 100% | 100% |
+| Teammates < 2% apart | 12.7% | 1.2% | < 10% |
+| Site from the plan | 0% | 100% | 100% |
+| On nav mesh | — | 99.0% | ≥ 99% |
+| Max speed | — | 1.08 × run speed | ≤ 1.1 |
+| Radar cost | ~9.5 ms per tick | 1.5 ms per round + 2.5 µs per frame | — |
+
+Verification: type-check 0 · lint 0 · jest 214 suites / 2,217 tests. Screenshots: `tmp/phase2/radar/`.
+
+**Carried into 2B:** early kills (< ~15 s) are sometimes out of reach because the resolver times kills without positions; AI teams buy no grenades; teammates occasionally within 2–3.6% (4.3% of pairs); Nuke "nearest enemy" counts players on the other floor.
