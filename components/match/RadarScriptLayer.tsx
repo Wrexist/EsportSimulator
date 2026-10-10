@@ -156,8 +156,9 @@ function RadarScriptLayerComponent({ script, currentTime, tickDurationMs, animat
                 if (u.kind === "smoke") {
                     return (
                         <g key={`util-${i}`} data-utility="smoke" opacity={o}>
-                            <circle cx={u.at.x} cy={u.at.y} r={u.radius} fill="#C7CCD4" opacity={0.62} filter={`url(#${filterId}-smoke)`} />
-                            <circle cx={u.at.x} cy={u.at.y} r={u.radius} fill="none" stroke="#E6E9EE" strokeWidth={0.22} opacity={0.55} />
+                            <circle cx={u.at.x} cy={u.at.y} r={u.radius} fill="#8E97A3" opacity={0.7} />
+                            <circle cx={u.at.x} cy={u.at.y} r={u.radius * 0.78} fill="#DDE2E8" opacity={0.75} filter={`url(#${filterId}-smoke)`} />
+                            <circle cx={u.at.x} cy={u.at.y} r={u.radius} fill="none" stroke="#EEF1F4" strokeWidth={0.25} opacity={0.8} />
                         </g>
                     )
                 }

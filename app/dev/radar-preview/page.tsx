@@ -152,6 +152,7 @@ export default function RadarPreviewPage() {
             </div>
             <p className="text-xs text-white/50" data-testid="radar-preview-plan">
                 {plan ? `${plan.tStrategy} → ${plan.site} vs ${plan.ctSetup}` : "no script"} · {step?.round.winner.toUpperCase()} win ({step?.round.winType}) · {events.filter(e => e.type !== "ROUND_END").map(e => `${e.type}@${e.time}`).join(" ")}
+                {live?.script.utility.length ? ` · utility ${live.script.utility.map(u => `${u.kind}@${u.t}`).join(" ")}` : ""}
             </p>
 
             <div className="mx-auto h-[760px] max-w-[900px]">
