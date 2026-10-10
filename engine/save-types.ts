@@ -790,7 +790,7 @@ export interface TournamentStandingSaveData {
  * Match data for save (scheduled)
  */
 export interface MatchSaveData {
-    engineVersion?: 'legacy-v2'
+    engineVersion?: 'legacy-v2' | 'script-v1'
     id: string
     homeTeamId: string
     awayTeamId: string
