@@ -83,7 +83,9 @@ export default function RadarPreviewPage() {
     const [speed, setSpeed] = useState(1)
     const map = MAPS[mapIdx]
 
-    // ?map=Nuke&round=4&t=40 (capture scripts jump straight to a moment).
+    // ?map=Nuke&round=4&t=40 (capture scripts jump straight to a moment);
+    // &play=1&speed=2 starts playback; &flush=1 makes the radar's frame timer
+    // (window.__radarPerf) include the raster.
     useEffect(() => {
         const q = new URLSearchParams(window.location.search)
         const m = MAPS.findIndex(x => x.id.toLowerCase() === (q.get("map") || "").toLowerCase())
@@ -92,6 +94,10 @@ export default function RadarPreviewPage() {
         if (Number.isFinite(r) && r >= 1) setRoundIdx(r - 1)
         const t = Number(q.get("t"))
         if (Number.isFinite(t) && t > 0) setTime(t)
+        const s = Number(q.get("speed"))
+        if ([1, 2, 4, 8].includes(s)) setSpeed(s)
+        if (q.get("play") === "1") setPlaying(true)
+        if (q.get("flush") === "1") window.__radarPerf = { n: 0, sum: 0, max: 0, samples: [], drawn: 0, skipped: 0, flush: true }
     }, [])
 
     const series = useMemo(() => playSeries(map.id, 1337), [map.id])
@@ -101,6 +107,8 @@ export default function RadarPreviewPage() {
         ? buildLiveRoundScript({ ctx: series.ctx, mapId: map.id, mapIndex: 0, round: step.round, loadouts: { ...step.preRound.home, ...step.preRound.away } })
         : null, [series, step, map.id])
     const roundMap = useMemo(() => liveRoundMap(map.id) ?? null, [map.id])
+    // Rounds played so far on the map: HP / weapons for the shown round and the scrubber's earlier rounds.
+    const review = useMemo(() => ({ ctx: series.ctx, mapIndex: 0, rounds: steps.slice(0, roundIdx + 1).map(s => s.round) }), [series, steps, roundIdx])
     const end = Math.ceil(live?.script.endTime ?? 75)
 
     // Whole-second ticks like the live match; the radar glides between them.
@@ -140,7 +148,7 @@ export default function RadarPreviewPage() {
                 <button className="rounded-lg border border-white/20 px-3 py-2 text-sm" aria-pressed={playing} onClick={() => { if (time >= end) setTime(0); setPlaying(p => !p) }}>{playing ? "Pause preview" : "Play preview"}</button>
                 <button className="rounded-lg border border-white/20 px-3 py-2 text-sm" onClick={() => { setPlaying(false); setTime(0) }}>Restart</button>
                 <select aria-label="Preview playback speed" value={speed} onChange={e => setSpeed(Number(e.target.value))} className="rounded-lg bg-slate-900 p-2">
-                    {[1, 2, 4].map(s => <option key={s} value={s}>{s}x</option>)}
+                    {[1, 2, 4, 8].map(s => <option key={s} value={s}>{s}x</option>)}
                 </select>
                 <span className="text-xs text-white/40 w-14 tabular-nums">t = {time.toFixed(1)}s</span>
                 <input
@@ -166,6 +174,7 @@ export default function RadarPreviewPage() {
                     tickDurationMs={1000 / speed}
                     isAnimating={playing}
                     roundOver={time >= end}
+                    review={review}
                     fillHeight
                 />
             </div>
