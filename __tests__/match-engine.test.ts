@@ -14,6 +14,7 @@
 import { matchEngine } from "@/engine/match-engine"
 import { SeededRNG } from "@/engine/rng"
 import type { MatchSaveData, TeamSaveData, PlayerSaveData, StaffSaveData } from "@/engine/save-types"
+import { DEFAULT_ENGINE_VERSION } from "@/engine/match/engine-version"
 
 function makeMatch(overrides: Partial<MatchSaveData> = {}): MatchSaveData {
     return {
@@ -220,7 +221,7 @@ test('saved Nuke/Sandstone map and starting side survive the weekly adapter inde
         const run = (seed: number) => matchEngine.simulateMatch(match, makeTeam('home'), makeTeam('away'), makeRoster('home'), makeRoster('away'), new SeededRNG(seed))
         const a = run(1), b = run(9000)
         expect(a).toEqual(b)
-        expect(a.engineVersion).toBe('legacy-v2')
+        expect(a.engineVersion).toBe(DEFAULT_ENGINE_VERSION)
         expect(a.maps[0].map).toBe(map)
         expect(a.maps[0].rounds[0].ctTeam).toBe('away')
     }

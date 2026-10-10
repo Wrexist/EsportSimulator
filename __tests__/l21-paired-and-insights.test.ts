@@ -1,6 +1,12 @@
 /**
  * L21.A1 paired-scenario proof (200 identical seeds per comparison) and
  * L21.A3 result explanation built from recorded, non-omniscient data.
+ *
+ * Runs on the default engine (script-v1 since Phase 2B). Where script-v1
+ * changes what a decision is, the expectation says so: grenades are bought
+ * automatically by role, so a flash + smoke loadout is a reshuffle; a team
+ * without an AWPer still buys the AWP (only role coverage changes); a
+ * timeout is +4% per regroup round (see the regroup probe), small over a map.
  */
 import { SCENARIOS, runScenario, regroupRoundProbe, contextFor } from '@/scripts/launch/l21-paired-scenarios'
 import { runLegacySeries, finalizeLegacySeries } from '@/engine/match/legacy-series'
@@ -31,6 +37,19 @@ describe('every permitted decision has a measurable, bounded effect over 200 pai
             expect(Math.abs(r.effect.matchWin.mean)).toBeLessThan(0.06)
             return
         }
+        if (r.id === 'loadout-utility') {
+            // script-v1: empty loadouts buy a role-based grenade set, so the
+            // flash + smoke plan replaces one set with another (it costs more).
+            expect(['bounded', 'decorative']).toContain(r.verdict)
+            expect(Math.abs(r.effect.matchWin.mean)).toBeLessThan(0.1)
+            return
+        }
+        if (r.id === 'roles-no-awper' || r.id === 'call-force-after-pistol-loss' || r.id === 'timeout-on-streak') {
+            // Small by design in script-v1 (directions checked below).
+            expect(['bounded', 'decorative']).toContain(r.verdict)
+            expect(Math.abs(r.effect.matchWin.mean)).toBeLessThan(0.1)
+            return
+        }
         if (r.id === 'call-full-buy') {
             // Balance tuning: the default buys FULL whenever rifle + helmet is
             // affordable, so this call only changes poor rounds (armour and a
@@ -47,15 +66,17 @@ describe('every permitted decision has a measurable, bounded effect over 200 pai
     })
     test('expected directions', () => {
         const by = Object.fromEntries(reports.map(r => [r.id, r]))
-        for (const up of ['playstyle-counter', 'roles-coverage', 'vod-review', 'mental-reset', 'antistrat-target', 'loadout-utility', 'timeout-on-streak']) expect(by[up].effect.roundShare.low).toBeGreaterThan(0)
-        for (const down of ['playstyle-countered', 'roles-no-awper']) expect(by[down].effect.roundShare.high).toBeLessThan(0)
+        for (const up of ['playstyle-counter', 'roles-coverage', 'vod-review', 'mental-reset', 'antistrat-target']) expect(by[up].effect.roundShare.low).toBeGreaterThan(0)
+        expect(by['playstyle-countered'].effect.roundShare.high).toBeLessThan(0)
+        expect(by['timeout-on-streak'].effect.roundShare.mean).toBeGreaterThan(0)
+        expect(by['roles-no-awper'].effect.roundShare.mean).toBeLessThan(0)
         // Balance tuning (ROUND_ECONOMY_TUNING): the default now buys FULL at
         // rifle + helmet money and saves after a lost pistol round, so saving
         // $500 longer costs rounds, forcing after a lost pistol spends the next
         // full buy, and buying every round is no longer near-dominant (+14.5 pp
         // before tuning).
         expect(by['economy-eco'].effect.roundShare.high).toBeLessThan(0)
-        expect(by['call-force-after-pistol-loss'].effect.cashPerRound.high).toBeLessThan(0)
+        expect(by['call-force-after-pistol-loss'].effect.cashPerRound.mean).toBeLessThan(0)
         // Overbuying utility costs far more cash than a modest plan.
         expect(by['loadout-overbuy'].effect.cashPerRound.high).toBeLessThan(by['loadout-utility'].effect.cashPerRound.low)
     })

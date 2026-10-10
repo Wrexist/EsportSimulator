@@ -137,6 +137,10 @@ interface Bomb {
 
 interface Round {
     rng: SeededRNG
+    /** Base of the keyed duel rolls (see duelRoll). */
+    rollKey: number
+    /** Duels fought so far per pair of players this round. */
+    meetings: Map<number, number>
     z: MapZones
     t: number
     all: Actor[]
@@ -250,7 +254,7 @@ function duel(R: Round, a: Actor, b: Actor, sa: number, sb: number, zone: string
     const ra = a.base + weaponPts(a, b) - (100 - a.hp) * T.HP_PENALTY - min(3, a.roundKills) * T.MULTI_KILL + sa
     const rb = b.base + weaponPts(b, a) - (100 - b.hp) * T.HP_PENALTY - min(3, b.roundKills) * T.MULTI_KILL + sb
     const pa = 1 / (1 + exp((rb - ra) / T.DUEL_SCALE))
-    const aWins = R.rng.next() < pa
+    const aWins = duelRoll(R, a, b) < pa
     const w = aWins ? a : b
     const l = aWins ? b : a
     const pw = aWins ? pa : 1 - pa
@@ -264,6 +268,29 @@ function duel(R: Round, a: Actor, b: Actor, sa: number, sb: number, zone: string
 }
 
 /** Non-lethal damage (chip, grenades): never below 1 HP. */
+/**
+ * The uniform roll that decides a duel, keyed by the round, the two players
+ * and how many times they have met this round (common random numbers): a
+ * small change elsewhere (a manager decision, one extra point) moves the
+ * duel's odds without reshuffling every later roll, so paired comparisons
+ * measure the decision, not the noise. Murmur3-style integer hash.
+ */
+function duelRoll(R: Round, a: Actor, b: Actor): number {
+    const lo = a.i < b.i ? a.i : b.i, hi = a.i < b.i ? b.i : a.i
+    const pair = lo * 16 + hi
+    const n = R.meetings.get(pair) ?? 0
+    R.meetings.set(pair, n + 1)
+    let h = (R.rollKey ^ Math.imul(pair + 1, 0x9e3779b1) ^ Math.imul(n + 1, 0x85ebca77)) >>> 0
+    h ^= h >>> 16
+    h = Math.imul(h, 0x85ebca6b)
+    h ^= h >>> 13
+    h = Math.imul(h, 0xc2b2ae35)
+    h ^= h >>> 16
+    const u = (h >>> 0) / 4294967296
+    // The roll is from the lower-indexed player's side.
+    return a.i === lo ? u : 1 - u
+}
+
 function hurt(from: Actor, to: Actor, amount: number): void {
     const dmg = min(amount, to.hp - 1)
     if (dmg <= 0) return
@@ -584,6 +611,16 @@ interface PlanState {
     ecoRush: boolean
 }
 
+const BEATS: Record<string, string> = { aggressive: "structured", structured: "balanced", balanced: "aggressive" }
+
+/** +1 when style `a` counters style `b`, -1 when `b` counters `a`, else 0 (same triangle as the strength counter). */
+export function counterSign(a: string | undefined, b: string | undefined): number {
+    if (!a || !b) return 0
+    if (BEATS[a] === b) return 1
+    if (BEATS[b] === a) return -1
+    return 0
+}
+
 function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: SimSide): PlanState {
     const rng = R.rng
     const tBuy = BUY_OF[tSide.strategy] ?? "full"
@@ -612,8 +649,11 @@ function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: SimSide):
     if (ctStyle === "structured") cw["2-1-2"] += 2
     if (ctBuy === "eco" || ctBuy === "force") { cw["stack-A"] += 1.5; cw["stack-B"] += 1.5; cw.aggressive += 1.5 }
     let setup = weighted(rng, cw)
-    // The read: a better caller (and a tactical map) anticipates the T plan.
-    const edge = max(-0.15, min(0.15, T.READ_IGL * ((ctSide.call - tSide.call) / 50) * input.tacticalWeight))
+
+    // The read: a better caller (and a tactical map) anticipates the T plan, and a
+    // playstyle that counters the other one reads it better (the counter triangle).
+    const counter = counterSign(ctStyle, tStyle)
+    const edge = max(-0.2, min(0.2, T.READ_IGL * ((ctSide.call - tSide.call) / 50) * input.tacticalWeight + T.READ_COUNTER * counter))
     let read: PlanState["read"] = "none"
     if (setup === "stack-A" || setup === "stack-B") {
         const onSite = rng.bool(max(0.3, min(0.7, 0.5 + edge)))
@@ -724,7 +764,7 @@ export function simulateScriptRound(input: SimInput): SimOutput {
     const T_ = all.filter(a => !a.ct)
     const CT_ = all.filter(a => a.ct)
     const R: Round = {
-        rng: input.rng, z: input.zones, t: 0, all, T: T_, CT: CT_, events: [], firstKill: false, pressure: input.pressure,
+        rng: input.rng, rollKey: input.rng.int(1, 0x7ffffffe), meetings: new Map(), z: input.zones, t: 0, all, T: T_, CT: CT_, events: [], firstKill: false, pressure: input.pressure,
         bomb: { carrier: null, lost: false, planted: false, plantT: 0, planter: null },
         clutch: [null, 0, null, 0], utility: [], S: input.zones.sites.A, O: input.zones.sites.B,
     }
@@ -816,6 +856,8 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
         zone: S.id, entryZone: split && R.rng.bool(0.5) ? S.split.id : S.main.id,
         tEnd: LATEST_PLANT_START - 2, step: plan.strategy === "rush" || plan.ecoRush ? T.RUSH_STEP : T.HIT_STEP,
         attTrade: T.TRADE_HIT, defTrade: T.TRADE_HOLD, holdCut: split ? T.SPLIT_HOLD_CUT : 0, maxDuels: 99, fallback: true, tag: "hit",
+        // A rush hits before the defence is set (no utility, fast swings).
+        attPts: plan.strategy === "rush" || plan.ecoRush ? () => T.RUSH_SPEED : undefined,
     }
     const res = fight(R, hit)
     for (const d of defenders) { d.smoked = false; d.flushed = false }
@@ -925,7 +967,8 @@ function earlyFights(R: Round, plan: PlanState, aggressor: Actor | null): void {
                 aggressor.zone = into.main.id
                 // The pusher peeks with surprise; the first T is walking (no hold).
                 first.fresh = true
-                pick(R, [aggressor], [first, ...back], into.main.id, 0.15, T.TRADE_PICK + 0.1, T.PUSH_SURPRISE + (aggressor.p.creativity - 50) * 0.05)
+                // The pusher picks off the first T and falls back: a trade is unlikely.
+                pick(R, [aggressor], [first, ...back], into.main.id, 0.15, T.TRADE_PICK * 0.5, T.PUSH_SURPRISE + (aggressor.p.creativity - 50) * 0.05)
             },
         })
     }

@@ -29,11 +29,11 @@ export const MENTAL_PREP_EDGE = 0.03
 /** Aggressive with avg morale > 80, or structured with chemistry > 80. */
 export const STYLE_SPECIALISATION_EDGE = 0.05
 /** Setting an anti-strat target costs your own tactics this much (tunnel vision). */
-export const ANTI_STRAT_SELF_PENALTY = 0.05
+export const ANTI_STRAT_SELF_PENALTY = 0.02
 /** Chemistry 0 → -5%, 50 → 0, 100 → +5%. */
 export const CHEMISTRY_EDGE_RANGE = 0.05
 /** Each of the five roles missing from the starting five. */
-export const ROLE_MISSING_EDGE = 0.02
+export const ROLE_MISSING_EDGE = 0.04
 /** Facilities: +1% per average level above 1 (level 5 = +4%). */
 export const FACILITY_EDGE_PER_LEVEL = 0.01
 

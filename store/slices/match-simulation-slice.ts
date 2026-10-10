@@ -42,6 +42,7 @@ import { settlePlayerContractBonuses } from "@/engine/processors/player-contract
 import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mastery"
 import type { GameSave } from "@/engine/save-types"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
+import { isEngineVersion, LEGACY_ENGINE_VERSION, type EngineVersion } from "@/engine/match/engine-version"
 import { runLegacySeries, finalizeLegacySeries } from "@/engine/match/legacy-series"
 import { checkAchievements } from "@/engine/steam-service"
 import {
@@ -72,7 +73,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
     saveMatchResult: (matchId, result) => {
         set((state) => {
             if (state.completedMatches.some(m => m.id === matchId)) return
-            if (!result || result.engineVersion && result.engineVersion !== 'legacy-v2') return
+            if (!result || result.engineVersion && !isEngineVersion(result.engineVersion)) return
             const matchIndex = state.scheduledMatches.findIndex(m => m.id === matchId)
             if (matchIndex === -1) return
 
@@ -215,7 +216,9 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 mvpPlayerId: fallbackMvp,
                 playerStats: sanitizedPlayerStats,
             }
-            result.engineVersion = 'legacy-v2'
+            // Results without a stamp predate script-v1.
+            const engineVersion: EngineVersion = isEngineVersion(result.engineVersion) ? result.engineVersion : LEGACY_ENGINE_VERSION
+            result.engineVersion = engineVersion
             // Keep the match-time lineup the engine recorded (L21.A2); only derive
             // from the current roster when a result arrives without a valid one.
             const knownPlayers = new Set(state.players.map(p => p.id))
@@ -227,7 +230,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 [homeTeam.id]: recorded(homeTeam.id) ?? getActivePlayersByRosterOrder(homeTeam, state.players).map(p => p.id),
                 [awayTeam.id]: recorded(awayTeam.id) ?? getActivePlayersByRosterOrder(awayTeam, state.players).map(p => p.id),
             }
-            const completedMatch: CompletedMatchSaveData = { ...match, engineVersion: 'legacy-v2', result }
+            const completedMatch: CompletedMatchSaveData = { ...match, engineVersion, result }
 
             // Remove from scheduled list — match is committed below.
             state.scheduledMatches.splice(matchIndex, 1)
@@ -627,8 +630,11 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
         // Shared preparation + canonical series runner: identical to the live
         // screen's path for the same seed, maps, lineup and decisions (L21/L14).
+        // A match with a live checkpoint keeps the engine it was started on.
+        const checkpoint = get().activeMatchState as { matchId?: string; playback?: { engine?: EngineVersion } } | null
+        const active = checkpoint?.matchId === matchId ? checkpoint.playback?.engine : undefined
         const ctx = prepareLegacySeries({
-            match,
+            match: active ? { ...match, engineVersion: active } : match,
             homeTeam: hTeam,
             awayTeam: aTeam,
             homePlayers: hPlayers,

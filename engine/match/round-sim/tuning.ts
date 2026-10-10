@@ -16,7 +16,7 @@ export const TUNING = {
     DAY_FORM_SD: 2.5,
     TEAM_DAY_FORM_SD: 2,
     /** Duel points per 1.0 of capped team-edge difference (split half to each side). */
-    EDGE_DUEL_POINTS: 20,
+    EDGE_DUEL_POINTS: 11,
 
     // ── angles ──
     /** Holding a pre-aimed angle against a peeker. */
@@ -60,13 +60,15 @@ export const TUNING = {
     LURK: 6,
     LURK_CREATIVITY: 0.08,
     /** An aggressive CT push surprises the first T on the route. */
-    PUSH_SURPRISE: 3,
+    PUSH_SURPRISE: 6,
+    /** Attackers on a rush (or an eco rush) hit before the defence is set. */
+    RUSH_SPEED: 2,
     /** Retakers swinging late with the bomb ticking. */
     RUSHED: 3,
     /** High-pressure stage: per point of stress resistance below 60, scaled by stage. */
     PRESSURE: 0.06,
     /** Anti-strat: the opponent knows this player's spots. */
-    TARGETED: 3,
+    TARGETED: 6,
 
     // ── health ──
     /** Per kill this player already made this round (max 3). */
@@ -100,6 +102,8 @@ export const TUNING = {
     // ── reads ──
     /** CT read edge per 50 points of IGL call-quality difference. */
     READ_IGL: 0.12,
+    /** Read edge when your playstyle counters theirs (negative when countered). */
+    READ_COUNTER: 0.1,
     READ_RIGHT_BASE: 0.18,
     READ_WRONG_BASE: 0.08,
 

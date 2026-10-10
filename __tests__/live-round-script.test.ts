@@ -46,7 +46,7 @@ function tactics(): CustomTactics {
 
 function playSeries(map: MapId, seed: number): { ctx: LegacySeriesContext; steps: LegacyRoundStep[] } {
     const hp = ROLES.map((r, i) => player(`H${i}`, r)), ap = ROLES.map((r, i) => player(`A${i}`, r))
-    const match = { id: `live_rs_${seed}_${map}`, homeTeamId: 'HOME', awayTeamId: 'AWAY', format: 'BO1', seed, date: new Date(0), mapVeto: [], vetoComplete: true, maps: [map], mapResults: [], roundHistory: [] } as unknown as Match
+    const match = { id: `live_rs_${seed}_${map}`, engineVersion: 'legacy-v2', homeTeamId: 'HOME', awayTeamId: 'AWAY', format: 'BO1', seed, date: new Date(0), mapVeto: [], vetoComplete: true, maps: [map], mapResults: [], roundHistory: [] } as unknown as Match
     const ctx = simulationEngineV2.createSeriesContext(match, team('HOME', hp, 'aggressive'), team('AWAY', ap, 'structured'), hp, ap, {}, {}, [map], tactics(), 'HOME')
     let state = createLegacySeriesState(ctx)
     const steps: LegacyRoundStep[] = []
