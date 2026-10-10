@@ -2,25 +2,17 @@
 
 import { useFocusTrap } from "@/lib/accessibility"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { SeededRNG } from "@/engine/rng"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { CountryFlag } from "@/components/ui/CountryFlag"
-import {
-    DollarSign,
-    CheckCircle2,
-    XCircle,
-    Handshake
-} from "lucide-react"
+import { CheckCircle2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import { formatCurrency } from "@/lib/utils-extended"
@@ -63,10 +55,15 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
         saveId: state.saveId,
     })))
 
-    // Find staff member in Market OR Active Staff (for renewals)
-    const staffMember = isRenewal
+    // Find staff member in Market OR Active Staff (for renewals). A hire
+    // removes them from the market, so keep the last match around for the
+    // confirmation screen (it used to vanish the moment the hire landed).
+    const liveMember = isRenewal
         ? activeStaff.find(s => s.id === staffId)
-        : marketStaff.find(s => s.id === staffId)
+        : marketStaff.find(s => s.id === staffId) ?? activeStaff.find(s => s.id === staffId)
+    const lastMember = useRef(liveMember)
+    if (liveMember) lastMember.current = liveMember
+    const staffMember = liveMember ?? lastMember.current
 
     const myTeam = useCurrentTeam()
 
@@ -93,16 +90,6 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
 
     const dialogRef = useFocusTrap(isOpen && !!staffMember, onClose)
     if (!isOpen || !staffMember) return null
-
-    // Determine Rarity Colors
-    const getRarityColor = (rarity?: string) => {
-        switch (rarity) {
-            case "Legendary": return "bg-amber-500/20 text-amber-500 border-amber-500/50"
-            case "Epic": return "bg-purple-500/20 text-purple-400 border-purple-500/50"
-            case "Rare": return "bg-blue-500/20 text-blue-400 border-blue-500/50"
-            default: return "bg-slate-500/20 text-slate-400 border-slate-500/50"
-        }
-    }
 
     const handleOfferSubmit = () => {
         // AI Logic for Staff Negotiation
@@ -166,194 +153,127 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
     if (typeof window === "undefined") return null
 
     return createPortal(
-        <AnimatePresence>
-            <div className="fixed inset-0 z-modal flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-                <motion.div
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.95, opacity: 0 }}
-                    ref={dialogRef} tabIndex={-1} role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="modal-title-staff-negotiation"
-                    className="glass-panel w-full max-w-4xl h-[min(600px,calc(100dvh-2rem))] flex overflow-hidden shadow-2xl border-white/10"
-                >
-                    {/* Left Panel: Staff Info */}
-                    <div className="w-1/3 min-w-0 overflow-y-auto overscroll-contain border-r border-white/10 bg-black/20 p-6 flex flex-col relative">
-                        <div className="absolute inset-0 bg-linear-to-b/srgb from-primary/5 to-transparent" />
+        <div className="fixed inset-0 z-modal flex items-center justify-center bg-ink/80 p-4">
+            <div
+                ref={dialogRef} tabIndex={-1} role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title-staff-negotiation"
+                className="flex h-[min(560px,calc(100dvh-2rem))] w-full max-w-3xl overflow-hidden rounded-[10px] border border-line-strong bg-panel"
+            >
+                {/* Left: who you're negotiating with */}
+                <div className="flex w-[260px] shrink-0 flex-col overflow-y-auto border-r border-line bg-raised p-5">
+                    <div className="relative mb-4 h-20 w-20 overflow-hidden rounded-lg bg-hover">
+                        <Image src={staffMember.portraitPath || "/staff_placeholder.webp"} alt={staffMember.name} fill className="object-cover" />
+                    </div>
+                    <h2 id="modal-title-staff-negotiation" className="font-display text-2xl font-bold uppercase leading-tight text-ink-1">{staffMember.name}</h2>
+                    <div className="mt-1 flex items-center gap-2 text-sm text-ink-2">
+                        {staffMember.nationality && <CountryFlag country={staffMember.nationality} size={14} />}
+                        <span className="capitalize">{staffMember.role}</span>
+                        {staffMember.rarity && <span className="text-ink-3">· {staffMember.rarity}</span>}
+                    </div>
+                    <dl className="mt-5 divide-y divide-line rounded-lg border border-line bg-panel text-sm">
+                        <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Level</dt><dd className="font-semibold text-ink-1">{staffMember.level}</dd></div>
+                        <div className="flex justify-between gap-3 px-3 py-2"><dt className="text-ink-3">Specialty</dt><dd className="truncate font-semibold text-ink-1">{staffMember.specialization}</dd></div>
+                        <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{isRenewal ? "Current wage" : "Asking"}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(staffMember.salaryPerWeek, "$", false)}/wk</dd></div>
+                    </dl>
+                </div>
 
-                        <div className="relative z-10 flex flex-col items-center text-center">
-                            <div className="w-24 h-24 rounded-2xl bg-white/5 mb-4 overflow-hidden shadow-lg relative">
-                                {staffMember.portraitPath ? (
-                                    <Image src={staffMember.portraitPath} alt={staffMember.name} fill className="object-cover" />
-                                ) : (
-                                    <Image src="/staff_placeholder.webp" alt={staffMember.name} fill className="object-cover opacity-80" />
+                {/* Right: the offer */}
+                <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                    <div className="flex items-start justify-between border-b border-line px-6 py-4">
+                        <div>
+                            <h3 className="text-base font-semibold text-ink-1">{isRenewal ? "Contract renewal" : "Make an offer"}</h3>
+                            <p className="text-sm text-ink-3">{isRenewal ? "Expect to pay around 15% more to keep them." : "Epic staff want about 5% over the asking wage, Legendary about 10%."}</p>
+                        </div>
+                        <button onClick={onClose} className="rounded p-1.5 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1" aria-label="Close dialog">
+                            <X size={18} />
+                        </button>
+                    </div>
+
+                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5">
+                        {stage === "OFFER" && (
+                            <div className="space-y-6">
+                                <label className="block">
+                                    <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Weekly wage</span>
+                                    <span className="flex items-center gap-2 rounded border border-line bg-shell px-3 focus-within:border-gold">
+                                        <span className="text-xl text-ink-3">$</span>
+                                        <input
+                                            type="number"
+                                            aria-label="Weekly salary offer" value={salaryOffer}
+                                            onChange={(e) => {
+                                                const val = Number(e.target.value)
+                                                if (!Number.isFinite(val)) {
+                                                    setSalaryOffer(0)
+                                                    return
+                                                }
+                                                setSalaryOffer(Math.max(0, Math.min(MAX_STAFF_SALARY, Math.floor(val))))
+                                            }}
+                                            className="h-12 w-full border-none bg-transparent font-display text-3xl font-bold tabular-nums text-ink-1 focus:outline-hidden"
+                                        />
+                                    </span>
+                                    {!isRenewal && (
+                                        <span className="mt-2 block text-xs text-ink-3">
+                                            Sign-on fee <span className="font-semibold tabular-nums text-ink-1">{formatCurrency(signingBonus, "$", false)}</span> (two weeks), paid on signing
+                                        </span>
+                                    )}
+                                </label>
+
+                                <div>
+                                    <div className="mb-3 flex items-baseline justify-between">
+                                        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Length</span>
+                                        <span className="text-sm text-ink-2"><span className="font-display text-xl font-bold tabular-nums text-ink-1">{durationOffer}</span> weeks · ends week {currentWeek + durationOffer}</span>
+                                    </div>
+                                    <Slider
+                                        aria-label="Contract duration" aria-valuetext={`${durationOffer} weeks`} value={[durationOffer]}
+                                        onValueChange={(v) => setDurationOffer(Math.max(MIN_CONTRACT_WEEKS, Math.min(MAX_CONTRACT_WEEKS, Math.floor(v[0] || 52))))}
+                                        min={MIN_CONTRACT_WEEKS}
+                                        max={MAX_CONTRACT_WEEKS}
+                                        step={4}
+                                    />
+                                    <p className="mt-2 text-xs text-ink-3">Two years or more lowers their expected wage by about 5%.</p>
+                                </div>
+
+                                <div className="flex items-center justify-between text-sm">
+                                    <span className="text-ink-3">Club budget</span>
+                                    <span className={cn("font-semibold tabular-nums", myTeam && myTeam.budget < signingBonus ? "text-negative" : "text-ink-1")}>
+                                        {formatCurrency(myTeam?.budget ?? 0, "$", false)}
+                                    </span>
+                                </div>
+
+                                <Button
+                                    onClick={handleOfferSubmit}
+                                    disabled={!isRenewal && (myTeam?.budget || 0) < signingBonus}
+                                    className="h-11 w-full"
+                                >
+                                    {isRenewal ? "Offer renewal" : "Send offer"}
+                                </Button>
+
+                                {negotiationLog.length > 0 && (
+                                    <ul className="space-y-1 rounded-lg border border-line bg-raised px-3 py-2.5 text-sm text-ink-2">
+                                        {negotiationLog.map((log, i) => <li key={i}>{log}</li>)}
+                                    </ul>
                                 )}
                             </div>
-                            <h2 id="modal-title-staff-negotiation" className="text-2xl font-normal text-white">{staffMember.name}</h2>
-                            <div className="text-sm text-muted-foreground mb-2 flex items-center gap-2 justify-center">
-                                {staffMember.nationality && <CountryFlag country={staffMember.nationality} size={14} />}
-                                {staffMember.role.toUpperCase()}
-                            </div>
+                        )}
 
-                            {staffMember.rarity && (
-                                <Badge variant="outline" className={cn("mb-4", getRarityColor(staffMember.rarity))}>
-                                    {staffMember.rarity}
-                                </Badge>
-                            )}
-
-                            <div className="w-full space-y-4 text-left bg-white/5 p-4 rounded-xl border border-white/5">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Level</span>
-                                    <span className="font-bold text-white">Lvl {staffMember.level}</span>
+                        {stage === "SUCCESS" && (
+                            <div className="space-y-5 py-4 text-center">
+                                <CheckCircle2 size={40} className="mx-auto text-positive" />
+                                <div>
+                                    <h2 className="font-display text-3xl font-bold uppercase text-ink-1">{isRenewal ? "Contract renewed" : "Welcome aboard"}</h2>
+                                    <p className="mt-1 text-sm text-ink-3">{staffMember.name} agreed to the terms.</p>
                                 </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Specialization</span>
-                                    <span className="font-bold text-white truncate max-w-[120px]">{staffMember.specialization}</span>
-                                </div>
-                                <Separator className="bg-white/10" />
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Current Rate</span>
-                                    <span className="font-bold text-emerald-400">{formatCurrency(staffMember.salaryPerWeek, "$", false)}/wk</span>
-                                </div>
+                                <dl className="mx-auto max-w-xs divide-y divide-line rounded-lg border border-line text-sm">
+                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Wage</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(salaryOffer, "$", false)}/wk</dd></div>
+                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Length</dt><dd className="font-semibold tabular-nums text-ink-1">{durationOffer} weeks</dd></div>
+                                </dl>
+                                <Button onClick={onClose} className="h-11 w-full">Done</Button>
                             </div>
-                        </div>
+                        )}
                     </div>
-
-                    {/* Right Panel: Negotiation Interface */}
-                    <div className="flex-1 min-w-0 min-h-0 flex flex-col bg-[#0e1217]">
-                        {/* Header */}
-                        <div className="p-6 border-b border-white/5 flex justify-between items-center">
-                            <div>
-                                <h3 className="text-xl font-normal uppercase tracking-tight text-white flex items-center gap-2">
-                                    <Handshake className="text-primary" />
-                                    {isRenewal ? "Contract Renewal" : "Staff Offer"}
-                                </h3>
-                                <p className="text-xs text-muted-foreground uppercase tracking-widest mt-1">
-                                    {isRenewal ? "Retaining Talent" : "Hiring New Staff"}
-                                </p>
-                            </div>
-                            <button onClick={onClose} className="p-2 hover:bg-white/5 active:bg-white/10 active:scale-90 rounded-lg transition-all" aria-label="Close dialog">
-                                <XCircle className="text-muted-foreground" />
-                            </button>
-                        </div>
-
-                        {/* Content Area */}
-                        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 flex flex-col relative">
-                            {/* Background Texture - Removed missing grid.svg */}
-                            <div className="absolute inset-0 bg-white/5 opacity-[0.02]" />
-
-                            {stage === "OFFER" && (
-                                <div className="space-y-6 relative z-10">
-                                    <div className="glass-panel p-6 border-white/5 bg-white/5 space-y-6">
-                                        {/* Salary Input */}
-                                        <div>
-                                            <label className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-2 block">Weekly Salary Offer</label>
-                                            <div className="bg-black/30 p-4 rounded-xl flex items-center gap-2 border border-white/10">
-                                                <DollarSign className="text-emerald-400" />
-                                                <input
-                                                    type="number"
-                                                    aria-label="Weekly salary offer" value={salaryOffer}
-                                                    onChange={(e) => {
-                                                        const val = Number(e.target.value)
-                                                        if (!Number.isFinite(val)) {
-                                                            setSalaryOffer(0)
-                                                            return
-                                                        }
-                                                        setSalaryOffer(Math.max(0, Math.min(MAX_STAFF_SALARY, Math.floor(val))))
-                                                    }}
-                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-hidden w-full"
-                                                />
-                                            </div>
-                                            {!isRenewal && (
-                                                <p className="text-[10px] text-muted-foreground mt-2 uppercase font-bold tracking-wider">
-                                                    Sign-on Fee: <span className="text-white">{formatCurrency(signingBonus, "$", false)}</span> (2 weeks)
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        {/* Duration Slider */}
-                                        <div>
-                                            <label className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-4 block">Contract Duration</label>
-                                            <div className="flex items-center gap-4">
-                                                <Slider
-                                                    aria-label="Contract duration" aria-valuetext={`${durationOffer} weeks`} value={[durationOffer]}
-                                                    onValueChange={(v) => setDurationOffer(Math.max(MIN_CONTRACT_WEEKS, Math.min(MAX_CONTRACT_WEEKS, Math.floor(v[0] || 52))))}
-                                                    min={MIN_CONTRACT_WEEKS}
-                                                    max={MAX_CONTRACT_WEEKS}
-                                                    step={4}
-                                                    className="flex-1"
-                                                />
-                                                <div className="w-24 text-right">
-                                                    <span className="font-bold text-white text-xl">{durationOffer}</span>
-                                                    <span className="text-xs text-muted-foreground ml-1">WEEKS</span>
-                                                </div>
-                                            </div>
-                                            <p className="text-[10px] text-muted-foreground mt-2 uppercase font-bold tracking-wider">
-                                                Ends: Week {currentWeek + durationOffer}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Budget Check */}
-                                    <div className="flex justify-between items-center px-2">
-                                        <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                                            Team Budget: <span className={cn(myTeam && myTeam.budget < signingBonus ? "text-rose-400" : "text-emerald-400")}>
-                                                {formatCurrency(myTeam?.budget ?? 0, "$", false)}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <Button
-                                        onClick={handleOfferSubmit}
-                                        disabled={!isRenewal && (myTeam?.budget || 0) < signingBonus}
-                                        className="w-full h-14 text-lg font-normal bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
-                                    >
-                                        {isRenewal ? "OFFER RENEWAL" : "SEND OFFER"}
-                                    </Button>
-
-                                    {negotiationLog.length > 0 && (
-                                        <div className="bg-black/40 p-4 rounded-xl text-sm space-y-1 animate-in slide-in-from-bottom-2">
-                                            {negotiationLog.map((log, i) => (
-                                                <p key={i} className="text-white/70">→ {log}</p>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {stage === "SUCCESS" && (
-                                <div className="text-center space-y-6 relative z-10 animate-in fade-in zoom-in">
-                                    <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto border border-emerald-500/50">
-                                        <CheckCircle2 size={48} className="text-emerald-500" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-3xl font-normal text-white uppercase transform skew-x-[-10deg]">
-                                            {isRenewal ? "Contract Renewed!" : "Welcome Aboard!"}
-                                        </h2>
-                                        <p className="text-muted-foreground mt-2">
-                                            {staffMember.name} has agreed to the terms.
-                                        </p>
-                                    </div>
-                                    <div className="bg-white/5 p-4 rounded-xl max-w-sm mx-auto border border-white/10">
-                                        <div className="flex justify-between mb-2">
-                                            <span className="text-muted-foreground text-xs uppercase font-bold">Salary</span>
-                                            <span className="text-emerald-400 font-bold">{formatCurrency(salaryOffer, "$", false)}/wk</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground text-xs uppercase font-bold">Duration</span>
-                                            <span className="text-white font-bold">{durationOffer} Weeks</span>
-                                        </div>
-                                    </div>
-                                    <Button onClick={onClose} className="w-full h-14 text-lg font-normal bg-emerald-500 hover:bg-emerald-600 text-black">
-                                        CLOSE
-                                    </Button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </motion.div>
-            </div >
-        </AnimatePresence >,
+                </div>
+            </div>
+        </div>,
         document.body
     )
 }

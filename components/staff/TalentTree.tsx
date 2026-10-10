@@ -77,9 +77,11 @@ interface TalentTreeProps {
     availablePoints: number
     onUnlock: (talentId: string) => void
     readonly?: boolean
+    /** Horizontal distance between grid columns; narrower for side panels. */
+    spacingX?: number
 }
 
-const SPACING_X = 112
+const DEFAULT_SPACING_X = 112
 const SPACING_Y = 104
 const NODE = 52
 
@@ -87,7 +89,7 @@ const NODE = 52
  * TalentTree — talent nodes on a quiet grid. Owned nodes read solid, nodes you
  * can buy now get a gold outline (the one call to action), the rest stay dim.
  */
-export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock, readonly = false }: TalentTreeProps) {
+export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock, readonly = false, spacingX: SPACING_X = DEFAULT_SPACING_X }: TalentTreeProps) {
     const bounds = useMemo(() => {
         let maxX = 0, maxY = 0
         nodes.forEach(n => {
@@ -95,7 +97,7 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
             if (n.position.y > maxY) maxY = n.position.y
         })
         return { width: maxX * SPACING_X + NODE + 56, height: maxY * SPACING_Y + NODE + 40 }
-    }, [nodes])
+    }, [nodes, SPACING_X])
 
     const center = (n: TalentNode) => ({ x: n.position.x * SPACING_X + 28 + NODE / 2, y: n.position.y * SPACING_Y + NODE / 2 })
 
