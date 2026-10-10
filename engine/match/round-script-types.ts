@@ -104,6 +104,8 @@ export interface RoundScriptPlayer {
     /** Primary weapon id for the round (e.g. "ak47", "awp", "usp_s"). */
     weapon: string
     utility: Partial<Record<UtilityKind, number>>
+    /** CT defuse kit, if known (sets the defuse start: 5 s with a kit, 10 s without). */
+    hasKit?: boolean
 }
 
 export interface RoundScriptInput {
@@ -155,7 +157,7 @@ export interface ScriptUtility {
 }
 
 export interface ScriptBomb {
-    /** Who holds the bomb over time (null = dropped at `at`). */
+    /** Who holds the bomb over time (null = nobody: dropped, or planted, at `at`). */
     carrier: { t: number; carrierId: string | null; at?: RPoint }[]
     plant?: { t: number; site: SiteId; at: RPoint; planterId: string }
     defuse?: { tStart: number; tEnd: number; defuserId: string; success: boolean }
@@ -167,6 +169,8 @@ export interface RoundScript {
     mapId: string
     round: number
     plan: { tStrategy: TStrategy; site: SiteId; ctSetup: CtSetup }
+    /** Side of every player in `tracks`. */
+    sides: Record<string, Side>
     /** Per player: keyframes from t=0 to death or round end, ≤ ~0.5 s apart while moving. */
     tracks: Record<string, TrackKey[]>
     deaths: ScriptDeath[]
