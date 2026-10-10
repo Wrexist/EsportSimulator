@@ -10,13 +10,15 @@
 export const TUNING = {
     /** Logistic scale: a gap of this many points is a 73/27 duel. */
     DUEL_SCALE: 30,
+    /** Skill points above the group average that double a player's share of the duels (see impactWeight). */
+    STAR_SPREAD: 20,
     /** Rating points per skill point. */
-    AIM_PER_SKILL: 0.45,
+    AIM_PER_SKILL: 0.28,
     /** Per-map spread of a player's day, and of a whole team's day (points, normal). */
-    DAY_FORM_SD: 2.5,
+    DAY_FORM_SD: 3,
     TEAM_DAY_FORM_SD: 2,
     /** Duel points per 1.0 of capped team-edge difference (split half to each side). */
-    EDGE_DUEL_POINTS: 11,
+    EDGE_DUEL_POINTS: 8.5,
 
     // ── angles ──
     /** Holding a pre-aimed angle against a peeker. */
@@ -33,7 +35,9 @@ export const TUNING = {
     /** Per player the attackers outnumber (or are outnumbered by) the holders in a fight (max 3). */
     NUMBERS: 0,
     /** Per player one team has alive over the other in the round (max 3), every duel. */
-    NUMBERS_ROUND: 4,
+    NUMBERS_ROUND: 7,
+    /** Scales every save decision (outnumbered post-plant CTs, hopeless Ts). */
+    SAVE: 0.65,
     /** Chance a lone site defender facing 3+ attackers falls back to retake. */
     FALLBACK: 0.5,
     /** A blinded player. */
@@ -103,7 +107,7 @@ export const TUNING = {
     /** CT read edge per 50 points of IGL call-quality difference. */
     READ_IGL: 0.12,
     /** Read edge when your playstyle counters theirs (negative when countered). */
-    READ_COUNTER: 0.1,
+    READ_COUNTER: 0.15,
     READ_RIGHT_BASE: 0.18,
     READ_WRONG_BASE: 0.08,
 

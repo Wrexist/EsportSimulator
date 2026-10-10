@@ -30,9 +30,9 @@ export interface WeaponClassSpec {
 export const WEAPON_CLASSES: Record<WeaponClass, WeaponClassSpec> = {
     awp: { power: 21, vsKevlar: 0, vsHelmet: 0, chip: [35, 80], hs: 0.12, skill: "awp" },
     scout: { power: 10, vsKevlar: 2, vsHelmet: 1, chip: [30, 70], hs: 0.45, skill: "awp" },
-    rifle: { power: 18, vsKevlar: 2, vsHelmet: 1, chip: [22, 80], hs: 0.5, skill: "rifle" },
-    rifleB: { power: 13, vsKevlar: 3, vsHelmet: 2, chip: [20, 70], hs: 0.48, skill: "rifle" },
-    smg: { power: 12, vsKevlar: 5, vsHelmet: 2, chip: [15, 60], hs: 0.38, skill: "mixed" },
+    rifle: { power: 18, vsKevlar: 2, vsHelmet: 1, chip: [22, 80], hs: 0.54, skill: "rifle" },
+    rifleB: { power: 13, vsKevlar: 3, vsHelmet: 2, chip: [20, 70], hs: 0.5, skill: "rifle" },
+    smg: { power: 12, vsKevlar: 5, vsHelmet: 2, chip: [15, 60], hs: 0.4, skill: "mixed" },
     heavy: { power: 6, vsKevlar: 4, vsHelmet: 0, chip: [20, 75], hs: 0.22, skill: "mixed" },
     deagle: { power: 6, vsKevlar: 2, vsHelmet: 2, chip: [25, 70], hs: 0.66, skill: "pistol" },
     pistolB: { power: 2, vsKevlar: 5, vsHelmet: 3, chip: [12, 50], hs: 0.58, skill: "pistol" },

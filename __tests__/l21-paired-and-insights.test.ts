@@ -20,8 +20,10 @@ import { createDefaultTactics } from '@/engine/default-tactics'
 
 jest.setTimeout(240_000)
 
-describe('every permitted decision has a measurable, bounded effect over 200 paired seeds', () => {
-    const reports = SCENARIOS.map(s => runScenario(s, 200))
+// script-v1 rounds are decided by many duels, so paired arms diverge more
+// than under the legacy coin flip: 400 seeds resolve the smaller effects.
+describe('every permitted decision has a measurable, bounded effect over 400 paired seeds', () => {
+    const reports = SCENARIOS.map(s => runScenario(s, 400))
     test.each(reports.map(r => [r.id, r] as const))('%s', (_id, r) => {
         if (r.id === 'call-save-always') {
             expect(r.verdict).toBe('negative-control')
@@ -44,12 +46,6 @@ describe('every permitted decision has a measurable, bounded effect over 200 pai
             expect(Math.abs(r.effect.matchWin.mean)).toBeLessThan(0.1)
             return
         }
-        if (r.id === 'roles-no-awper' || r.id === 'call-force-after-pistol-loss' || r.id === 'timeout-on-streak') {
-            // Small by design in script-v1 (directions checked below).
-            expect(['bounded', 'decorative']).toContain(r.verdict)
-            expect(Math.abs(r.effect.matchWin.mean)).toBeLessThan(0.1)
-            return
-        }
         if (r.id === 'call-full-buy') {
             // Balance tuning: the default buys FULL whenever rifle + helmet is
             // affordable, so this call only changes poor rounds (armour and a
@@ -68,14 +64,16 @@ describe('every permitted decision has a measurable, bounded effect over 200 pai
         const by = Object.fromEntries(reports.map(r => [r.id, r]))
         for (const up of ['playstyle-counter', 'roles-coverage', 'vod-review', 'mental-reset', 'antistrat-target']) expect(by[up].effect.roundShare.low).toBeGreaterThan(0)
         expect(by['playstyle-countered'].effect.roundShare.high).toBeLessThan(0)
-        expect(by['timeout-on-streak'].effect.roundShare.mean).toBeGreaterThan(0)
-        expect(by['roles-no-awper'].effect.roundShare.mean).toBeLessThan(0)
+        expect(by['timeout-on-streak'].effect.roundShare.low).toBeGreaterThan(0)
+        expect(by['roles-no-awper'].effect.roundShare.high).toBeLessThan(0)
         // Balance tuning (ROUND_ECONOMY_TUNING): the default now buys FULL at
         // rifle + helmet money and saves after a lost pistol round, so saving
         // $500 longer costs rounds, forcing after a lost pistol spends the next
         // full buy, and buying every round is no longer near-dominant (+14.5 pp
         // before tuning).
-        expect(by['economy-eco'].effect.roundShare.high).toBeLessThan(0)
+        // script-v1 (CS2 loss levels): saving $500 longer banks cash without
+        // costing rounds; legacy-v2 it cost -5.5 pp.
+        expect(by['economy-eco'].effect.cashPerRound.low).toBeGreaterThan(0)
         expect(by['call-force-after-pistol-loss'].effect.cashPerRound.mean).toBeLessThan(0)
         // Overbuying utility costs far more cash than a modest plan.
         expect(by['loadout-overbuy'].effect.cashPerRound.high).toBeLessThan(by['loadout-utility'].effect.cashPerRound.low)

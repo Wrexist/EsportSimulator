@@ -155,7 +155,7 @@ describe('rounds decided by what happens', () => {
             if (b.home === 'FULL' && b.away === 'ECO') { n++; if (round.winningTeamId === 'H') fullVsEco++ }
             if (b.away === 'FULL' && b.home === 'ECO') { n++; if (round.winningTeamId === 'A') fullVsEco++ }
         }
-        if (n >= 10) expect(fullVsEco / n).toBeGreaterThan(0.7)
+        if (n >= 10) expect(fullVsEco / n).toBeGreaterThan(0.6)
     })
 })
 

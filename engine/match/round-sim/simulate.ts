@@ -258,9 +258,10 @@ function duel(R: Round, a: Actor, b: Actor, sa: number, sb: number, zone: string
     const w = aWins ? a : b
     const l = aWins ? b : a
     const pw = aWins ? pa : 1 - pa
-    if (w.hp > 1 && R.rng.next() < T.CHIP_BASE + T.CHIP_CLOSE * (1 - pw)) {
+    const pairKey = l.i * 16 + w.i
+    if (w.hp > 1 && keyedRoll(R, 1, pairKey) < T.CHIP_BASE + T.CHIP_CLOSE * (1 - pw)) {
         const [lo, hi] = l.spec.chip
-        const dmg = min(w.hp - 1, round(R.rng.range(lo, hi) * (w.kevlar ? 0.82 : 1)))
+        const dmg = min(w.hp - 1, round((lo + keyedRoll(R, 2, pairKey) * (hi - lo)) * (w.kevlar ? 0.82 : 1)))
         hurt(l, w, dmg)
     }
     kill(R, w, l, zone)
@@ -277,18 +278,26 @@ function duel(R: Round, a: Actor, b: Actor, sa: number, sb: number, zone: string
  */
 function duelRoll(R: Round, a: Actor, b: Actor): number {
     const lo = a.i < b.i ? a.i : b.i, hi = a.i < b.i ? b.i : a.i
-    const pair = lo * 16 + hi
-    const n = R.meetings.get(pair) ?? 0
-    R.meetings.set(pair, n + 1)
-    let h = (R.rollKey ^ Math.imul(pair + 1, 0x9e3779b1) ^ Math.imul(n + 1, 0x85ebca77)) >>> 0
+    const u = keyedRoll(R, 0, lo * 16 + hi)
+    // The roll is from the lower-indexed player's side.
+    return a.i === lo ? u : 1 - u
+}
+
+/**
+ * A uniform roll keyed by purpose and subject (and how often that pair has
+ * been rolled this round), not by its position in one shared stream.
+ */
+function keyedRoll(R: Round, purpose: number, subject: number): number {
+    const key = purpose * 4096 + subject
+    const n = R.meetings.get(key) ?? 0
+    R.meetings.set(key, n + 1)
+    let h = (R.rollKey ^ Math.imul(key + 1, 0x9e3779b1) ^ Math.imul(n + 1, 0x85ebca77)) >>> 0
     h ^= h >>> 16
     h = Math.imul(h, 0x85ebca6b)
     h ^= h >>> 13
     h = Math.imul(h, 0xc2b2ae35)
     h ^= h >>> 16
-    const u = (h >>> 0) / 4294967296
-    // The roll is from the lower-indexed player's side.
-    return a.i === lo ? u : 1 - u
+    return (h >>> 0) / 4294967296
 }
 
 function hurt(from: Actor, to: Actor, amount: number): void {
@@ -316,7 +325,7 @@ function kill(R: Round, k: Actor, v: Actor, zone: string, util?: "he" | "molotov
         const f = R.all[v.blindBy]
         if (f.home === k.home && f !== k) { assister = f; flashAssist = true }
     }
-    const hs = !util && R.rng.next() < k.spec.hs * (0.85 + 0.3 * min(1, max(0, (k.p.skill - 40) / 60)))
+    const hs = !util && keyedRoll(R, 3, k.i * 16 + v.i) < k.spec.hs * (0.85 + 0.3 * min(1, max(0, (k.p.skill - 40) / 60)))
     k.lastKillT = t
     k.roundKills++
     const ev: MatchEvent = {
@@ -381,14 +390,33 @@ function nextArrival(q: [Actor, number][]): number {
     return t
 }
 
+/**
+ * Better players take more of the duels (the star gets the impactful
+ * positions and swings): weight 1 + (skill - group average) / STAR_SPREAD,
+ * clamped to [0.5, 2.5].
+ */
+function impactWeight(a: Actor, group: readonly Actor[]): number {
+    let sum = 0
+    for (const x of group) sum += x.p.skill
+    return max(0.5, min(2.5, 1 + (a.p.skill - sum / group.length) / T.STAR_SPREAD))
+}
+
+function pickByImpact(R: Round, A: Actor[]): Actor {
+    let total = 0
+    const w = A.map(a => { const x = impactWeight(a, A); total += x; return x })
+    let r = R.rng.next() * total
+    for (let k = 0; k < A.length; k++) { r -= w[k]; if (r < 0) return A[k] }
+    return A[A.length - 1]
+}
+
 function pickHolder(R: Round, D: Actor[]): Actor {
     if (D.length === 1) return D[0]
     let total = 0
     const w = D.map(d => {
-        let x = 1
-        if (isSniperClass(d.wc) && !d.smoked) x = 1.8
-        if (d.blindUntil > R.t) x = 1.5
-        else if (d.smoked) x = 0.4
+        let x = impactWeight(d, D)
+        if (isSniperClass(d.wc) && !d.smoked) x *= 1.8
+        if (d.blindUntil > R.t) x *= 1.5
+        else if (d.smoked) x *= 0.4
         total += x
         return x
     })
@@ -417,7 +445,7 @@ function fight(R: Round, F: Fight): FightEnd {
         if (R.t >= F.tEnd) return "time"
         if (F.stop?.()) return "stop"
         // The front player opens; after that whoever is in position peeks next.
-        const a = duels === 0 || A.length === 1 ? A[0] : A[R.rng.int(0, A.length - 1)]
+        const a = duels === 0 || A.length === 1 ? A[0] : pickByImpact(R, A)
         const d = pickHolder(R, D)
         let cross = 0
         for (const x of D) if (x !== d && !x.smoked && x.blindUntil <= R.t && !x.fresh) cross++
@@ -454,7 +482,7 @@ function tradeChain(R: Round, F: Fight, killer: Actor, side: "att" | "def", zone
         if (!pool.length) return
         const trader = s === "att" ? pool[0] : pool[R.rng.int(0, pool.length - 1)]
         const pt = p * (0.75 + 0.5 * trader.p.teamwork / 100)
-        if (R.rng.next() >= pt) return
+        if (keyedRoll(R, 4, trader.i * 16 + k.i) >= pt) return
         R.t += R.rng.range(0.4, 1.8)
         const st = tradePts(trader) + commonPts(R, trader) + (s === "def" ? 2 : 0) + (s === "att" ? (F.attPts?.() ?? 0) : 0)
         const sk = -T.EXPOSED + commonPts(R, k)
@@ -726,7 +754,7 @@ function assignJobs(R: Round, plan: PlanState): { lurker: Actor | null; fakers: 
     order.forEach((a, k) => {
         let post = posts[k] ?? "A"
         // The AWPer takes mid or a long anchor.
-        if (a === awper && R.rng.bool(0.45)) post = R.rng.bool(0.5) ? "A" : "B"
+        if (a === awper && R.rng.bool(0.3)) post = R.rng.bool(0.5) ? "A" : "B"
         a.post = post
         const holds = post === "mid" ? R.z.midHolds : R.z.sites[post as SiteId].holds
         a.zone = holds.length ? holds[k % holds.length] : post
@@ -798,7 +826,7 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
 
     // ── 2. A side that lost the early fights badly may save ──
     const tLeft = countAlive(tAll), ctLeft = countAlive(ctAll)
-    if (tLeft <= 2 && ctLeft >= tLeft + 2 && living(tAll).some(a => isSaveWorthy(a.wc)) && R.rng.bool(0.3)) {
+    if (tLeft <= 2 && ctLeft >= tLeft + 2 && living(tAll).some(a => isSaveWorthy(a.wc)) && R.rng.bool(0.3 * T.SAVE)) {
         R.t = max(R.t + 2, plan.execAt - 10)
         save(R, living(tAll))
         return { winnerCT: true, winType: "TIME", t: ROUND_TIME }
@@ -929,7 +957,7 @@ function earlyFights(R: Round, plan: PlanState, aggressor: Actor | null): void {
         fights.push({
             t, run: () => {
                 const pool = living(ts).filter(a => a.job !== "lurk" && a.job !== "fake")
-                const taker = (R.rng.bool(0.5) ? pool.find(a => a.job === "entry") : undefined) ?? pool[R.rng.int(0, max(0, pool.length - 1))]
+                const taker = (R.rng.bool(0.35) ? pool.find(a => a.job === "entry") : undefined) ?? pool[R.rng.int(0, max(0, pool.length - 1))]
                 const mate = living(ts).find(a => a !== taker && (a.job === "support" || a.job === "pack" || a.job === "igl"))
                 if (!taker || !midCT.alive) return
                 const awpTake = taker.job === "awp"
@@ -939,7 +967,7 @@ function earlyFights(R: Round, plan: PlanState, aggressor: Actor | null): void {
     }
     // The T AWPer holds a long angle for an opening pick.
     const tAwp = ts.find(a => isSniperClass(a.wc))
-    const pAwp = st === "default" ? 0.45 : st === "split" || st === "fake" ? 0.3 : st === "execute" ? 0.15 : 0
+    const pAwp = st === "default" ? 0.55 : st === "split" || st === "fake" ? 0.4 : st === "execute" ? 0.2 : 0
     if (tAwp && R.rng.bool(pAwp)) {
         fights.push({
             t: R.rng.range(14, 34), run: () => {
@@ -1029,7 +1057,7 @@ function lateRound(R: Round, _lurker: Actor | null): RoundEnd {
     if (!cts.length) return { winnerCT: false, winType: "ELIMINATION", t: R.t }
     const timeLeft = LATEST_PLANT_START - R.t
     const hopeless = cts.length >= ts.length + 2 || timeLeft < 8
-    if (hopeless && (ts.some(a => isSaveWorthy(a.wc)) || timeLeft < 8) && R.rng.bool(0.6)) {
+    if (hopeless && (ts.some(a => isSaveWorthy(a.wc)) || timeLeft < 8) && R.rng.bool(0.6 * T.SAVE)) {
         save(R, ts)
         return { winnerCT: true, winType: "TIME", t: ROUND_TIME }
     }
@@ -1075,8 +1103,8 @@ function retake(R: Round, plan: PlanState, lurker: Actor | null, pending: [Actor
         if (!c) return false
         if (!t) return false
         const adv = c - t
-        if (adv <= -2) return R.rng.bool(valuable() ? 0.6 : 0.3)
-        if (adv === -1 && c === 1) return R.rng.bool(valuable() ? 0.35 : 0.15)
+        if (adv <= -2) return R.rng.bool((valuable() ? 0.6 : 0.3) * T.SAVE)
+        if (adv === -1 && c === 1) return R.rng.bool((valuable() ? 0.35 : 0.15) * T.SAVE)
         return false
     }
     if (!countAlive(R.CT)) return { winnerCT: false, winType: "ELIMINATION", t: R.t }
