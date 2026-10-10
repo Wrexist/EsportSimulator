@@ -181,9 +181,9 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                 <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full p-8 border-2 border-dashed border-white/20 rounded-xl hover:border-white/40 hover:bg-white/5 transition-all flex flex-col items-center gap-3 group"
+                    className="group flex w-full flex-col items-center gap-3 rounded-lg border border-dashed border-line-strong p-8 transition-colors hover:border-gold hover:bg-raised"
                 >
-                    <div className="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-md bg-raised transition-colors group-hover:bg-hover">
                         <Upload className="text-muted-foreground group-hover:text-white transition-colors" size={28} />
                     </div>
                     <div className="text-center">
@@ -196,7 +196,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
             {/* Show saved logo */}
             {!originalImage && value && (
                 <div className="relative">
-                    <div className="w-32 h-32 mx-auto rounded-xl overflow-hidden border-2 border-white/20 bg-black/50">
+                    <div className="mx-auto h-32 w-32 overflow-hidden rounded-lg border border-line-strong bg-shell">
                         {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded logo data URL */}
                         <img
                             src={value}
@@ -235,7 +235,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                     {/* Canvas preview */}
                     <div
                         ref={containerRef}
-                        className="relative mx-auto rounded-xl overflow-hidden border-2 border-white/20 cursor-move select-none"
+                        className="relative mx-auto cursor-move select-none overflow-hidden rounded-lg border border-line-strong"
                         style={{ width: maxSize, height: maxSize }}
                         onMouseDown={handleMouseDown}
                         onMouseMove={handleMouseMove}
@@ -249,7 +249,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                             className="block"
                         />
                         {/* Drag hint */}
-                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-1 bg-black/70 rounded-full text-[10px] text-white/70">
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-1 rounded-sm bg-ink/80 text-[11px] text-ink-2">
                             <Move size={10} />
                             Drag to reposition
                         </div>

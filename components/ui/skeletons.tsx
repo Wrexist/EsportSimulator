@@ -21,11 +21,11 @@ export const StatBoxSkeleton = StatTileSkeleton
 /** Full-page placeholder — used by Suspense boundaries on feature screens. */
 export function PageSkeleton({ title }: { title?: string }) {
     return (
-        <div className="space-y-6 max-w-7xl mx-auto">
+        <div className="mx-auto max-w-[1600px] space-y-6">
             <div className="flex justify-between items-center">
                 <div className="space-y-2">
                     {title ? (
-                        <h1 className="text-3xl font-semibold tracking-tight text-white/70">
+                        <h1 className="page-title text-ink-2">
                             {title}
                         </h1>
                     ) : (
@@ -47,7 +47,7 @@ export function PageSkeleton({ title }: { title?: string }) {
 /** Match card placeholder — used by tournament lists. */
 export function MatchCardSkeleton() {
     return (
-        <div className={cn('rounded-2xl border border-white/10 bg-white/2 p-4 space-y-3')}>
+        <div className={cn('rounded-lg border border-line bg-panel p-4 space-y-3')}>
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Skeleton className="w-8 h-8 rounded-lg" />
