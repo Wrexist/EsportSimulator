@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -9,19 +8,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import {
-    Crosshair,
-    Target,
-    Zap,
-    Shield,
-    Crown,
-    DollarSign,
-    Eye,
-    Circle,
-    ChevronRight,
-    Sparkles,
-    Lock
-} from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PlayerSaveData } from "@/engine/save-types"
 import { useGameStore } from "@/store/game-store"
@@ -42,10 +28,6 @@ interface WeaponTrainingModalProps {
     isOpen: boolean
     onClose: () => void
     player: PlayerSaveData
-}
-
-const iconMap: Record<string, any> = {
-    Crosshair, Target, Zap, Shield, Crown, DollarSign, Eye, Circle
 }
 
 export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingModalProps) {
@@ -70,6 +52,7 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
     const [selectedWeapon, setSelectedWeapon] = useState<WeaponType>("RIFLE")
     const [isTraining, setIsTraining] = useState(false)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mastery = WeaponMasteryManager.getPlayerMastery(livePlayer as any)
 
     // Energy cost per drill
@@ -96,6 +79,7 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
 
         setIsTraining(true)
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = WeaponMasteryManager.processTrainingDrill(livePlayer as any, drillKey, budget)
 
         if (result.success) {
@@ -119,11 +103,11 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
                 return
             }
 
-            toast.success("Training Complete!", {
-                description: `${result.message} (-${ENERGY_COST} energy)`
+            toast.success("Training complete", {
+                description: `${result.message} (−${ENERGY_COST} energy)`
             })
         } else {
-            toast.error("Training Failed", {
+            toast.error("Training failed", {
                 description: result.message
             })
         }
@@ -132,236 +116,110 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
     }
 
     const availableDrills = Object.entries(WEAPON_DRILLS)
-        .filter(([_, drill]) => drill.weapon === selectedWeapon)
+        .filter(([, drill]) => drill.weapon === selectedWeapon)
         .map(([key, drill]) => ({ ...drill, drillKey: key as WeaponDrillId }))
 
     const currentInfo = WEAPON_DISPLAY[selectedWeapon]
     const currentXp = mastery[selectedWeapon]
     const currentMastery = getMasteryInfo(currentXp)
-    const CurrentIcon = iconMap[currentInfo.icon] || Circle
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl p-0 overflow-hidden bg-zinc-950 border-zinc-800">
-                {/* Header with gradient accent */}
-                <div className="relative px-6 pt-6 pb-4">
-                    <div className="absolute inset-0 bg-linear-to-b/srgb from-zinc-800/50 to-transparent" />
-                    <DialogHeader className="relative">
-                        <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
-                            <div className="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center">
-                                <Crosshair size={16} className="text-zinc-400" />
-                            </div>
-                            Weapon Training
-                            <span className="text-zinc-500 font-normal text-sm ml-2">— {player.nickname}</span>
-                        </DialogTitle>
-                    </DialogHeader>
-                </div>
+            <DialogContent className="max-w-2xl p-0">
+                <DialogHeader className="border-b border-line px-6 pb-4 pt-6">
+                    <DialogTitle>Weapon drills</DialogTitle>
+                    <p className="text-sm text-ink-3">{player.nickname} · paid one-off sessions that add mastery XP</p>
+                </DialogHeader>
 
-                <div className="px-6 pb-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                    {/* Weapon selector - horizontal pills */}
-                    <div className="flex gap-2">
+                <div className="max-h-[70vh] space-y-5 overflow-y-auto px-6 py-5">
+                    <div role="tablist" aria-label="Weapon class" className="grid grid-cols-4 gap-2">
                         {(Object.keys(WEAPON_TYPES) as WeaponType[]).map(weapon => {
                             const info = WEAPON_DISPLAY[weapon]
-                            const xp = mastery[weapon]
-                            const mInfo = getMasteryInfo(xp)
-                            const Icon = iconMap[info.icon] || Circle
+                            const mInfo = getMasteryInfo(mastery[weapon])
                             const isActive = selectedWeapon === weapon
-
                             return (
                                 <button
                                     key={weapon}
+                                    role="tab"
+                                    aria-selected={isActive}
                                     onClick={() => setSelectedWeapon(weapon)}
                                     className={cn(
-                                        "flex-1 py-3 px-2 rounded-lg transition-all relative overflow-hidden",
-                                        isActive
-                                            ? "bg-zinc-800 ring-1 ring-zinc-600"
-                                            : "bg-zinc-900 hover:bg-zinc-800/70"
+                                        "rounded-md border px-2 py-2.5 text-center transition-colors duration-150",
+                                        isActive ? "border-gold bg-hover" : "border-line bg-raised hover:border-line-strong",
                                     )}
                                 >
-                                    <div className="flex flex-col items-center gap-1.5">
-                                        <Icon size={18} className={isActive ? info.color : "text-zinc-500"} />
-                                        <span className={cn(
-                                            "text-[11px] font-semibold uppercase tracking-wide",
-                                            isActive ? "text-white" : "text-zinc-500"
-                                        )}>
-                                            {info.name}
-                                        </span>
-                                        <span className={cn(
-                                            "text-[9px] px-1.5 py-0.5 rounded",
-                                            isActive ? "bg-zinc-700 text-zinc-300" : "text-zinc-600"
-                                        )}>
-                                            {mInfo.name}
-                                        </span>
-                                    </div>
-                                    {mInfo.isMaster && (
-                                        <Crown size={10} className="absolute top-1 right-1 text-amber-400" />
-                                    )}
+                                    <span className={cn("block text-sm font-semibold", isActive ? "text-ink-1" : "text-ink-2")}>{info.name}</span>
+                                    <span className={cn("mt-0.5 block text-xs", mInfo.isMaster ? "text-gold" : "text-ink-3")}>{mInfo.name}</span>
                                 </button>
                             )
                         })}
                     </div>
 
-                    {/* Current mastery stats */}
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={selectedWeapon}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 10 }}
-                            transition={{ duration: 0.15 }}
-                        >
-                            <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className={cn("w-10 h-10 rounded flex items-center justify-center", currentInfo.bgColor)}>
-                                            <CurrentIcon size={20} className={currentInfo.color} />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-white">{currentInfo.name}</h3>
-                                            <p className="text-xs text-zinc-500">{currentInfo.description}</p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-lg font-bold text-white">{currentXp}<span className="text-zinc-500 text-sm ml-1">XP</span></div>
-                                        <div className={cn("text-[10px] font-medium uppercase", currentInfo.color)}>{currentMastery.name}</div>
-                                    </div>
-                                </div>
-
-                                {/* Progress bar */}
-                                <div className="space-y-1.5">
-                                    <div className="flex justify-between text-[10px] text-zinc-500">
-                                        <span>Next: {currentMastery.nextLevel || "MAX"}</span>
-                                        <span>{currentMastery.nextLevel ? `${currentMastery.xpToNext} XP left` : "Mastered"}</span>
-                                    </div>
-                                    <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                                        <motion.div
-                                            className={cn("h-full rounded-full", currentInfo.color.replace('text-', 'bg-'))}
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${currentMastery.progress}%` }}
-                                            transition={{ duration: 0.5 }}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Bonuses inline */}
-                                <div className="flex gap-4 mt-3 pt-3 border-t border-zinc-800">
-                                    <div className="flex items-center gap-1.5 text-xs">
-                                        <Target size={12} className="text-emerald-500" />
-                                        <span className="text-zinc-400">Accuracy</span>
-                                        <span className="text-emerald-500 font-medium">+{currentMastery.accuracyBonus}%</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 text-xs">
-                                        <Zap size={12} className="text-orange-500" />
-                                        <span className="text-zinc-400">Damage</span>
-                                        <span className="text-orange-500 font-medium">+{currentMastery.damageBonus}%</span>
-                                    </div>
-                                </div>
+                    <div className="rounded-lg border border-line bg-raised p-4">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0">
+                                <p className="text-sm font-semibold text-ink-1">{currentInfo.name}</p>
+                                <p className="text-xs text-ink-3">{currentInfo.description}</p>
                             </div>
-                        </motion.div>
-                    </AnimatePresence>
-
-                    {/* Training drills */}
-                    <div>
-                        <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-xs font-medium text-zinc-500 uppercase tracking-wide">Training Drills</h4>
-                            <div className="flex items-center gap-1 text-xs text-zinc-600">
-                                <DollarSign size={12} />
-                                <span>{formatCurrency(budget, "$", false)}</span>
+                            <div className="shrink-0 text-right">
+                                <p className="font-display text-2xl font-bold tabular-nums text-ink-1">{currentXp}<span className="ml-1 font-sans text-xs font-normal text-ink-3">XP</span></p>
+                                <p className={cn("text-xs", currentMastery.isMaster ? "text-gold" : "text-ink-2")}>{currentMastery.name}</p>
                             </div>
                         </div>
-
-                        <div className="space-y-2">
-                            {availableDrills.map(drill => {
-                                const DrillIcon = iconMap[drill.icon] || Target
-                                const canAfford = budget >= drill.cost
-                                const hasEnergy = playerEnergy >= ENERGY_COST
-                                const canTrain = canAfford && hasEnergy
-                                const diffColors: Record<string, string> = {
-                                    easy: "text-emerald-500 bg-emerald-500/10",
-                                    medium: "text-amber-500 bg-amber-500/10",
-                                    hard: "text-red-500 bg-red-500/10"
-                                }
-
-                                return (
-                                    <div
-                                        key={drill.drillKey}
-                                        className={cn(
-                                            "flex items-center justify-between p-3 rounded-lg transition-all",
-                                            canTrain
-                                                ? "bg-zinc-900 hover:bg-zinc-800 border border-zinc-800"
-                                                : "bg-zinc-900/50 border border-zinc-900 opacity-60"
-                                        )}
-                                    >
-                                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                                            <div className="w-9 h-9 rounded bg-zinc-800 flex items-center justify-center shrink-0">
-                                                <DrillIcon size={16} className="text-zinc-400" />
-                                            </div>
-                                            <div className="min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-medium text-sm text-white truncate">{drill.name}</span>
-                                                    <span className={cn("text-[9px] px-1.5 py-0.5 rounded uppercase font-medium", diffColors[drill.difficulty])}>
-                                                        {drill.difficulty}
-                                                    </span>
-                                                </div>
-                                                <p className="text-[11px] text-zinc-500 truncate">{drill.description}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-3 shrink-0 ml-3">
-                                            <div className="text-right">
-                                                <div className="text-sm font-semibold text-emerald-500">+{drill.xpGain} XP</div>
-                                                <div className={cn("text-[11px]", !canAfford ? "text-red-500" : !hasEnergy ? "text-orange-500" : "text-zinc-500")}>
-                                                    {formatCurrency(drill.cost, "$", false)} {!hasEnergy && canAfford && "• Low Energy"}
-                                                </div>
-                                            </div>
-                                            <Button
-                                                size="sm"
-                                                variant={canTrain ? "default" : "ghost"}
-                                                disabled={!canTrain || isTraining}
-                                                onClick={() => handleStartDrill(drill.drillKey)}
-                                                className="h-8 px-3"
-                                            >
-                                                {isTraining ? (
-                                                    <motion.div
-                                                        animate={{ rotate: 360 }}
-                                                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                                    >
-                                                        <Sparkles size={14} />
-                                                    </motion.div>
-                                                ) : canTrain ? (
-                                                    <>
-                                                        <span className="text-xs">Train</span>
-                                                        <ChevronRight size={14} />
-                                                    </>
-                                                ) : (
-                                                    <Lock size={14} />
-                                                )}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                )
-                            })}
+                        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-hover">
+                            <div className="h-full rounded-full bg-ink-2" style={{ width: `${currentMastery.progress}%` }} />
                         </div>
+                        <div className="mt-2 flex justify-between text-xs text-ink-3">
+                            <span>{currentMastery.nextLevel ? `Next: ${currentMastery.nextLevel}` : "Mastered"}</span>
+                            <span className="tabular-nums">{currentMastery.nextLevel ? `${currentMastery.xpToNext} XP to go` : ""}</span>
+                        </div>
+                        <p className="mt-3 border-t border-line pt-3 text-xs text-ink-3">
+                            Current edge with this class: <span className="font-semibold text-ink-1">+{currentMastery.accuracyBonus}% accuracy</span>, <span className="font-semibold text-ink-1">+{currentMastery.damageBonus}% damage</span> in round equipment strength.
+                        </p>
                     </div>
+
+                    <ul className="divide-y divide-line rounded-lg border border-line">
+                        {availableDrills.map(drill => {
+                            const canAfford = budget >= drill.cost
+                            const hasEnergy = playerEnergy >= ENERGY_COST
+                            const canTrain = canAfford && hasEnergy
+                            return (
+                                <li key={drill.drillKey} className="flex items-center gap-4 px-4 py-3">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-sm font-semibold text-ink-1">
+                                            {drill.name} <span className="ml-1 text-xs font-normal capitalize text-ink-3">{drill.difficulty}</span>
+                                        </p>
+                                        <p className="truncate text-xs text-ink-3">{drill.description}</p>
+                                    </div>
+                                    <div className="shrink-0 text-right">
+                                        <p className="text-sm font-semibold tabular-nums text-ink-1">+{drill.xpGain} XP</p>
+                                        <p className={cn("text-xs tabular-nums", canAfford ? "text-ink-3" : "text-negative")}>{formatCurrency(drill.cost, "$", false)}</p>
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        disabled={!canTrain || isTraining}
+                                        onClick={() => handleStartDrill(drill.drillKey)}
+                                        className="h-8 w-20 shrink-0 px-3 text-xs"
+                                        title={!canAfford ? "Not enough budget" : !hasEnergy ? `Needs ${ENERGY_COST} energy` : undefined}
+                                    >
+                                        {isTraining ? "…" : "Train"}
+                                    </Button>
+                                </li>
+                            )
+                        })}
+                    </ul>
                 </div>
 
-                {/* Footer */}
-                <div className="px-6 py-4 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between">
-                    <div className="flex gap-6 text-xs text-zinc-500">
-                        <div>
-                            Budget: <span className="text-emerald-500 font-medium">{formatCurrency(budget, "$", false)}</span>
-                        </div>
-                        <div>
-                            Energy: <span className={cn(
-                                "font-medium",
-                                playerEnergy >= ENERGY_COST ? "text-amber-400" : "text-red-500"
-                            )}>{playerEnergy}/{livePlayer.maxEnergy ?? 100}</span>
-                            <span className="text-zinc-600 ml-1">(-{ENERGY_COST}/drill)</span>
-                        </div>
+                <div className="flex items-center justify-between border-t border-line px-6 py-4">
+                    <div className="flex gap-6 text-xs text-ink-3">
+                        <span>Budget <span className="font-semibold tabular-nums text-ink-1">{formatCurrency(budget, "$", false)}</span></span>
+                        <span>
+                            Energy <span className={cn("font-semibold tabular-nums", playerEnergy >= ENERGY_COST ? "text-ink-1" : "text-caution")}>{playerEnergy}/{livePlayer.maxEnergy ?? 100}</span>
+                            <span className="ml-1">(−{ENERGY_COST} per drill)</span>
+                        </span>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={onClose}>
-                        Close
-                    </Button>
+                    <Button variant="ghost" size="sm" onClick={onClose}>Close</Button>
                 </div>
             </DialogContent>
         </Dialog>
