@@ -2,9 +2,8 @@
 
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import React, { memo, useMemo, useEffect, useRef, useState, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { Trophy, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react"
+import { Trophy, ChevronLeft, ChevronRight } from "lucide-react"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { pressable } from "@/lib/accessibility"
 
@@ -265,100 +264,87 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
         )
     }, [matches, playerTeamId])
 
-    // Check for Grand Final completion and trigger confetti
+    // A completed Grand Final the player's team won: celebrate once (gold
+    // palette). Other teams' finals no longer fire confetti on every visit.
     const grandFinal = matches.find(m => m.round === "Grand Final" && m.status === "completed")
-
-    useEffect(() => {
-        if (grandFinal && confettiTriggeredForId.current !== grandFinal.id) {
-            confettiTriggeredForId.current = grandFinal.id
-            // Fire confetti from both sides
-            const colors = ["#10b981", "#3b82f6", "#f59e0b", "#ec4899"]
-            fireConfetti({
-                particleCount: 150,
-                spread: 100,
-                origin: { x: 0.3, y: 0.5 },
-                colors
-            })
-            setTimeout(() => {
-                fireConfetti({
-                    particleCount: 150,
-                    spread: 100,
-                    origin: { x: 0.7, y: 0.5 },
-                    colors
-                })
-            }, 200)
-        }
-    }, [grandFinal])
-
-    // Check if player won the tournament
-    const playerWonTournament = grandFinal && (
+    const playerWonTournament = !!grandFinal && !!playerTeamId && (
         (grandFinal.team1?.id === playerTeamId && grandFinal.team1?.isWinner) ||
         (grandFinal.team2?.id === playerTeamId && grandFinal.team2?.isWinner)
     )
 
-    const renderForm = (form?: ("W" | "L" | "D")[]) => {
-        if (!form || form.length === 0) return null
-        return (
-            <div className="flex gap-0.5 mt-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                {form.map((res, i) => (
-                    <motion.div
-                        key={i}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.1 * i }}
-                        className={cn(
-                            "w-1.5 h-1.5 rounded-full",
-                            res === "W" ? "bg-emerald-500 shadow-[0_0_4px_rgba(16,185,129,0.5)]" :
-                                res === "L" ? "bg-rose-500 shadow-[0_0_4px_rgba(244,63,94,0.5)]" :
-                                    "bg-zinc-500"
-                        )}
-                    />
-                ))}
-            </div>
-        )
-    }
+    useEffect(() => {
+        if (!grandFinal || !playerWonTournament || confettiTriggeredForId.current === grandFinal.id) return
+        confettiTriggeredForId.current = grandFinal.id
+        const colors = ["#F2B53A", "#F2F4F7", "#3DD68C"]
+        fireConfetti({ particleCount: 120, spread: 90, origin: { x: 0.3, y: 0.5 }, colors })
+        const t = setTimeout(() => fireConfetti({ particleCount: 120, spread: 90, origin: { x: 0.7, y: 0.5 }, colors }), 200)
+        return () => clearTimeout(t)
+    }, [grandFinal, playerWonTournament])
 
     // Check if a match involves the player's team
     const isPlayerMatch = (match: BracketMatch) => {
         return playerTeamId && (match.team1?.id === playerTeamId || match.team2?.id === playerTeamId)
     }
 
+    const teamRow = (team: BracketTeam | undefined, other: BracketTeam | undefined, completed: boolean) => {
+        const name = team?.name || "TBD"
+        const tbd = !team || name === "TBD"
+        const own = !!team && team.id === playerTeamId
+        const lost = completed && !team?.isWinner && !!other?.isWinner
+        return (
+            <div className={cn("flex h-9 items-center gap-2.5 px-2.5", own && "shadow-[inset_2px_0_0_var(--gold)]")}>
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-hover">
+                    {team?.logo ? <TeamLogoImage src={team.logo} alt="" size={18} /> : <span className="text-[11px] font-semibold text-ink-3">{tbd ? "?" : name[0]}</span>}
+                </div>
+                <span className={cn(
+                    "min-w-0 flex-1 truncate text-sm",
+                    tbd || lost ? "text-ink-3" : team?.isWinner ? "font-semibold text-ink-1" : "font-semibold text-ink-2",
+                )}>
+                    {name}
+                </span>
+                <span className={cn("w-5 text-right font-display text-base font-bold tabular-nums", team?.isWinner ? "text-ink-1" : "text-ink-3")}>
+                    {team?.score ?? ""}
+                </span>
+            </div>
+        )
+    }
+
     return (
         <div className="relative">
-            {/* Gradient edge fades */}
-            {canScrollLeft && (
-                <div className="absolute left-0 top-0 bottom-0 w-16 bg-linear-to-r/srgb from-[#0a0a0a] to-transparent pointer-events-none z-30" />
-            )}
-            {canScrollRight && (
-                <div className="absolute right-0 top-0 bottom-0 w-16 bg-linear-to-l/srgb from-[#0a0a0a] to-transparent pointer-events-none z-30" />
-            )}
-
-            {/* Left arrow button */}
+            {/* Scroll buttons */}
             {canScrollLeft && (
                 <button
                     onClick={() => scrollBy("left")}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/25 backdrop-blur-md flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 shadow-lg"
+                    className="absolute left-2 top-1/2 z-40 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded border border-line-strong bg-raised text-ink-2 transition-colors hover:bg-hover hover:text-ink-1"
                     aria-label="Scroll left"
                 >
-                    <ChevronLeft size={20} className="text-white/80" />
+                    <ChevronLeft size={18} />
                 </button>
             )}
-
-            {/* Right arrow button */}
             {canScrollRight && (
                 <button
                     onClick={() => scrollBy("right")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 z-40 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/25 backdrop-blur-md flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 shadow-lg"
+                    className="absolute right-2 top-1/2 z-40 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded border border-line-strong bg-raised text-ink-2 transition-colors hover:bg-hover hover:text-ink-1"
                     aria-label="Scroll right"
                 >
-                    <ChevronRight size={20} className="text-white/80" />
+                    <ChevronRight size={18} />
                 </button>
+            )}
+
+            {playerWonTournament && (
+                <div className="mx-4 mt-4 flex items-center gap-3 rounded-lg border border-gold/50 bg-gold/[0.06] px-4 py-3">
+                    <Trophy className="h-6 w-6 text-gold" aria-hidden="true" />
+                    <div>
+                        <p className="font-display text-xl font-bold uppercase leading-none text-gold">Tournament champions</p>
+                        <p className="mt-0.5 text-xs text-ink-2">Your team won the Grand Final.</p>
+                    </div>
+                </div>
             )}
 
             <div
                 ref={containerRef}
                 className={cn(
-                    "flex gap-6 p-4 overflow-x-auto modern-scrollbar pb-8 relative",
+                    "relative flex gap-8 overflow-x-auto p-4 pb-6 [scrollbar-width:thin]",
                     isDragging ? "cursor-grabbing select-none" : "cursor-grab"
                 )}
                 style={{ userSelect: isDragging ? 'none' : 'auto' }}
@@ -367,341 +353,45 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseLeave}
             >
-                <style jsx global>{`
-                    .modern-scrollbar::-webkit-scrollbar {
-                        height: 8px;
-                    }
-                    .modern-scrollbar::-webkit-scrollbar-track {
-                        background: rgba(255, 255, 255, 0.02);
-                        border-radius: 10px;
-                        margin: 0 40px;
-                    }
-                    .modern-scrollbar::-webkit-scrollbar-thumb {
-                        background: rgba(255, 255, 255, 0.1);
-                        border-radius: 10px;
-                        transition: background 0.2s;
-                    }
-                    .modern-scrollbar::-webkit-scrollbar-thumb:hover {
-                        background: rgba(255, 255, 255, 0.2);
-                    }
-                    @keyframes flowingDash {
-                        from { stroke-dashoffset: 24; }
-                        to { stroke-dashoffset: 0; }
-                    }
-                    @keyframes pulseGlow {
-                        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
-                        50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.4); }
-                    }
-                    @keyframes spotlight {
-                        0%, 100% { opacity: 0.3; }
-                        50% { opacity: 0.6; }
-                    }
-                    .animate-flowing-dash {
-                        animation: flowingDash 1s linear infinite;
-                    }
-                    .animate-pulse-glow {
-                        animation: pulseGlow 2s ease-in-out infinite;
-                    }
-                    .animate-spotlight {
-                        animation: spotlight 3s ease-in-out infinite;
-                    }
-                `}</style>
-
-                {/* Background Atmosphere */}
-                <div className="fixed inset-0 pointer-events-none overflow-hidden isolate -z-10">
-                    <motion.div
-                        className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/5 rounded-full blur-[120px]"
-                        animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.7, 0.5] }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    <motion.div
-                        className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 rounded-full blur-[120px]"
-                        animate={{ scale: [1.1, 1, 1.1], opacity: [0.5, 0.7, 0.5] }}
-                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    {playerWonTournament && (
-                        <motion.div
-                            className="absolute top-[20%] right-[30%] w-[30%] h-[30%] bg-amber-500/10 rounded-full blur-[100px]"
-                            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        />
-                    )}
-                </div>
-
-                {/* Champion Banner */}
-                <AnimatePresence>
-                    {playerWonTournament && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -50 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -50 }}
-                            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-8 py-4 rounded-2xl bg-linear-to-r/srgb from-amber-500/20 via-amber-400/30 to-amber-500/20 border border-amber-500/50 backdrop-blur-xl shadow-[0_0_50px_rgba(251,191,36,0.3)]"
-                        >
-                            <div className="flex items-center gap-4">
-                                <Trophy className="w-8 h-8 text-amber-400 animate-bounce" />
-                                <div className="text-center">
-                                    <p className="text-amber-400 font-bold uppercase tracking-widest text-sm">Tournament Champion!</p>
-                                    <p className="text-amber-400/70 text-xs">Your legacy is written</p>
-                                </div>
-                                <Trophy className="w-8 h-8 text-amber-400 animate-bounce" />
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
                 {sortedRounds.map((round, roundIdx) => (
-                    <div key={round} className="flex flex-col justify-around gap-4 min-w-[220px] shrink-0 relative z-0">
-                        {/* Round Header */}
-                        <motion.div
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: roundIdx * 0.1, duration: 0.5 }}
-                            className={cn(
-                                "mb-2 text-center sticky top-0 py-1.5 z-20 border-b border-white/5",
-                                round === "Grand Final" ? "bg-linear-to-b/srgb from-amber-900/20 to-[#0a0a0a]/80" : "bg-[#0a0a0a]/80",
-                                "backdrop-blur-xs"
-                            )}
-                        >
-                            <h3 className={cn(
-                                "text-[10px] font-bold uppercase tracking-[0.4em] flex items-center justify-center gap-2",
-                                round === "Grand Final" ? "text-amber-400" : "text-white/40"
-                            )}>
-                                {round === "Grand Final" && (
-                                    <motion.div
-                                        animate={{ rotate: [0, 10, -10, 0] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                    >
-                                        <Trophy size={12} className="text-amber-400" />
-                                    </motion.div>
-                                )}
-                                {round}
-                                {round === "Grand Final" && (
-                                    <motion.div
-                                        animate={{ rotate: [0, -10, 10, 0] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                    >
-                                        <Trophy size={12} className="text-amber-400" />
-                                    </motion.div>
-                                )}
-                            </h3>
-                        </motion.div>
+                    <div key={round} className="relative z-0 flex min-w-[220px] shrink-0 flex-col gap-3">
+                        {/* Round header */}
+                        <h3 className={cn(
+                            "flex items-center gap-1.5 border-b border-line pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em]",
+                            round === "Grand Final" ? "text-gold" : "text-ink-3",
+                        )}>
+                            {round === "Grand Final" && <Trophy size={12} aria-hidden="true" />}
+                            {round}
+                        </h3>
 
-                        <div className="flex-1 flex flex-col justify-around gap-6 relative">
-                            {organizedMatches[round]?.map((match, matchIdx) => {
+                        <div className="relative flex flex-1 flex-col justify-around gap-4">
+                            {organizedMatches[round]?.map((match) => {
                                 const isUpcomingPlayerMatch = isPlayerMatch(match) && match.status === "scheduled"
-                                const isOnPlayerPath = playerPath.has(match.id)
-                                const isGrandFinalMatch = round === "Grand Final"
-
+                                const completed = match.status === "completed"
                                 return (
-                                    <div key={match.id} data-match-id={match.id} className="relative group perspective-1000">
-                                        {/* YOUR MATCH Badge */}
-                                        {isUpcomingPlayerMatch && (
-                                            <motion.div
-                                                initial={{ opacity: 0, scale: 0.8, y: -10 }}
-                                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                className="absolute -top-8 left-1/2 -translate-x-1/2 z-30"
-                                            >
-                                                <div className="px-3 py-1 rounded-full bg-linear-to-r/srgb from-primary/80 to-cyan-500/80 text-white text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_20px_rgba(59,130,246,0.5)]">
-                                                    <Zap size={10} className="animate-pulse" />
-                                                    YOUR MATCH
-                                                    <Zap size={10} className="animate-pulse" />
-                                                </div>
-                                            </motion.div>
+                                    <div key={match.id} data-match-id={match.id} className="relative">
+                                        {(isUpcomingPlayerMatch || match.status === "live") && (
+                                            <p className={cn("mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.06em]", match.status === "live" ? "text-negative" : "text-gold")}>
+                                                {match.status === "live" && <span className="h-1.5 w-1.5 rounded-full bg-negative" aria-hidden="true" />}
+                                                {match.status === "live" ? "Live" : "Your match"}
+                                            </p>
                                         )}
-
-                                        {/* Spotlight Effect for Player's Upcoming Match */}
-                                        {isUpcomingPlayerMatch && (
-                                            <motion.div
-                                                className="absolute inset-0 -inset-4 rounded-3xl bg-gradient-radial from-primary/20 via-primary/5 to-transparent pointer-events-none animate-spotlight"
-                                            />
-                                        )}
-
-                                        {/* Match Card */}
-                                        <motion.div
-                                            initial={{ opacity: 0, rotateX: -10, y: 20 }}
-                                            animate={{ opacity: 1, rotateX: 0, y: 0 }}
-                                            transition={{
-                                                delay: (roundIdx * 0.15) + (matchIdx * 0.1),
-                                                type: "spring",
-                                                stiffness: 100,
-                                                damping: 15
-                                            }}
+                                        <div
                                             className={cn(
-                                                "glass-panel p-0 overflow-hidden border-white/5 bg-zinc-950/60 hover:bg-zinc-900/90 transition-all duration-300 w-full relative z-10 shadow-2xl backdrop-blur-xl group-hover:scale-[1.02] group-hover:shadow-primary/5 group-hover:border-white/10",
-                                                match.status === "live" && "ring-1 ring-primary/50 shadow-[0_0_30px_rgba(59,130,246,0.15)]",
-                                                match.status === "scheduled" && isOnPlayerPath && "ring-1 ring-primary/30 animate-pulse-glow",
-                                                isGrandFinalMatch && match.status !== "completed" && "ring-1 ring-amber-500/30",
-                                                onMatchClick && !isDragging && "cursor-pointer active:scale-[0.98]"
+                                                "relative z-10 overflow-hidden rounded-[4px] border bg-raised transition-colors duration-150",
+                                                isPlayerMatch(match) ? "border-line-strong" : "border-line",
+                                                onMatchClick && !isDragging && "cursor-pointer hover:border-line-strong hover:bg-hover",
                                             )}
                                             {...(onMatchClick ? pressable(() => handleMatchClick(match.id)) : {})}
                                         >
-                                            <div className="flex flex-col">
-                                                {/* Team 1 */}
-                                                <div className={cn(
-                                                    "flex items-center justify-between px-3 py-2.5 border-b border-white/5 relative overflow-hidden",
-                                                    match.team1?.isWinner && "bg-linear-to-r/srgb from-emerald-500/5 to-transparent",
-                                                    match.team1?.id === playerTeamId && !match.team1?.isWinner && match.status === "scheduled" && "bg-linear-to-r/srgb from-primary/5 to-transparent"
-                                                )}>
-                                                    {match.team1?.branding?.primaryColor && (
-                                                        <div
-                                                            className="absolute left-0 top-0 bottom-0 w-[3px] z-0"
-                                                            style={{ backgroundColor: match.team1.branding.primaryColor }}
-                                                        />
-                                                    )}
-                                                    <div className="flex items-center gap-2.5 relative z-10">
-                                                        <div className={cn(
-                                                            "w-7 h-7 rounded flex items-center justify-center relative transition-all duration-300",
-                                                            match.team1?.name !== "TBD" ? "bg-black/40 border border-white/5 group-hover:border-white/20" : "bg-white/5 border border-dashed border-white/10",
-                                                            match.team1?.id === playerTeamId && "border-primary/50 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-                                                        )}>
-                                                            {match.team1?.logo ? (
-                                                                <TeamLogoImage src={match.team1.logo} alt={match.team1.name} size={20} />
-                                                            ) : (
-                                                                <span className="text-xs font-bold text-white/20">{match.team1?.name === "TBD" ? "?" : match.team1?.name[0]}</span>
-                                                            )}
-                                                            {match.team1?.id === playerTeamId && (
-                                                                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-full border border-black" />
-                                                            )}
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <span className={cn(
-                                                                "text-xs font-bold uppercase tracking-wider leading-none transition-colors",
-                                                                match.team1?.isWinner ? "text-white" : match.team1?.name === "TBD" ? "text-white/40" : "text-white/60 group-hover:text-white/80",
-                                                                match.team1?.id === playerTeamId && "text-primary"
-                                                            )}>
-                                                                {match.team1?.name || "TBD"}
-                                                            </span>
-                                                            {renderForm(match.team1?.recentForm)}
-                                                        </div>
-                                                    </div>
-                                                    <span className={cn(
-                                                        "font-mono font-bold text-base tracking-tighter relative z-10",
-                                                        match.team1?.isWinner ? "text-emerald-400" : match.team1?.score !== undefined ? "text-white/40" : "text-transparent"
-                                                    )}>
-                                                        {match.team1?.score ?? "-"}
-                                                    </span>
-                                                    {match.team1?.isWinner && (
-                                                        <motion.div
-                                                            initial={{ x: "-100%" }}
-                                                            animate={{ x: "100%" }}
-                                                            transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }}
-                                                            className="absolute inset-0 bg-linear-to-r/srgb from-transparent via-emerald-500/10 to-transparent skew-x-12"
-                                                        />
-                                                    )}
-                                                </div>
+                                            {teamRow(match.team1, match.team2, completed)}
+                                            <div className="h-px bg-line" />
+                                            {teamRow(match.team2, match.team1, completed)}
+                                        </div>
 
-                                                {/* Team 2 */}
-                                                <div className={cn(
-                                                    "flex items-center justify-between px-3 py-2.5 relative overflow-hidden",
-                                                    match.team2?.isWinner && "bg-linear-to-r/srgb from-emerald-500/5 to-transparent",
-                                                    match.team2?.id === playerTeamId && !match.team2?.isWinner && match.status === "scheduled" && "bg-linear-to-r/srgb from-primary/5 to-transparent"
-                                                )}>
-                                                    {match.team2?.branding?.primaryColor && (
-                                                        <div
-                                                            className="absolute left-0 top-0 bottom-0 w-[3px] z-0"
-                                                            style={{ backgroundColor: match.team2.branding.primaryColor }}
-                                                        />
-                                                    )}
-                                                    <div className="flex items-center gap-2.5 relative z-10">
-                                                        <div className={cn(
-                                                            "w-7 h-7 rounded flex items-center justify-center relative transition-all duration-300",
-                                                            match.team2?.name !== "TBD" ? "bg-black/40 border border-white/5 group-hover:border-white/20" : "bg-white/5 border border-dashed border-white/10",
-                                                            match.team2?.id === playerTeamId && "border-primary/50 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-                                                        )}>
-                                                            {match.team2?.logo ? (
-                                                                <TeamLogoImage src={match.team2.logo} alt={match.team2.name} size={20} />
-                                                            ) : (
-                                                                <span className="text-xs font-bold text-white/20">{match.team2?.name === "TBD" ? "?" : match.team2?.name[0]}</span>
-                                                            )}
-                                                            {match.team2?.id === playerTeamId && (
-                                                                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-primary rounded-full border border-black" />
-                                                            )}
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <span className={cn(
-                                                                "text-xs font-bold uppercase tracking-wider leading-none transition-colors",
-                                                                match.team2?.isWinner ? "text-white" : match.team2?.name === "TBD" ? "text-white/40" : "text-white/60 group-hover:text-white/80",
-                                                                match.team2?.id === playerTeamId && "text-primary"
-                                                            )}>
-                                                                {match.team2?.name || "TBD"}
-                                                            </span>
-                                                            {renderForm(match.team2?.recentForm)}
-                                                        </div>
-                                                    </div>
-                                                    <span className={cn(
-                                                        "font-mono font-bold text-base tracking-tighter relative z-10",
-                                                        match.team2?.isWinner ? "text-emerald-400" : match.team2?.score !== undefined ? "text-white/40" : "text-transparent"
-                                                    )}>
-                                                        {match.team2?.score ?? "-"}
-                                                    </span>
-                                                    {match.team2?.isWinner && (
-                                                        <motion.div
-                                                            initial={{ x: "-100%" }}
-                                                            animate={{ x: "100%" }}
-                                                            transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }}
-                                                            className="absolute inset-0 bg-linear-to-r/srgb from-transparent via-emerald-500/10 to-transparent skew-x-12"
-                                                        />
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Live Badge */}
-                                            {match.status === "live" && (
-                                                <div className="absolute top-0 right-0 bg-primary px-3 py-1 text-[8px] font-bold uppercase text-white tracking-[0.2em] shadow-[0_0_15px_rgba(59,130,246,0.5)] z-20">
-                                                    LIVE
-                                                    <span className="absolute top-0 right-0 flex h-2 w-2">
-                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                                                    </span>
-                                                </div>
-                                            )}
-
-                                            {/* Grand Final Badge */}
-                                            {isGrandFinalMatch && match.status !== "completed" && (
-                                                <div className="absolute top-0 left-0 bg-linear-to-r/srgb from-amber-500 to-amber-600 px-3 py-1 text-[8px] font-bold uppercase text-black tracking-[0.2em] shadow-[0_0_15px_rgba(251,191,36,0.5)] z-20 flex items-center gap-1">
-                                                    <Sparkles size={10} />
-                                                    CHAMPIONSHIP
-                                                </div>
-                                            )}
-                                        </motion.div>
-
-                                        {/* Animated SVG Connectors (to next round) */}
+                                        {/* Connector to the next round */}
                                         {roundIdx < sortedRounds.length - 1 && (
-                                            <div className="absolute top-1/2 -right-8 w-8 h-full pointer-events-none transition-opacity duration-500" style={{ opacity: isOnPlayerPath ? 1 : 0.3 }}>
-                                                <svg className="w-full h-full overflow-visible">
-                                                    <defs>
-                                                        <linearGradient id={`flow-gradient-${match.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                                                            <stop offset="0%" stopColor={isOnPlayerPath ? "#3b82f6" : "#ffffff"} stopOpacity="0.5" />
-                                                            <stop offset="50%" stopColor={isOnPlayerPath ? "#10b981" : "#ffffff"} stopOpacity="1" />
-                                                            <stop offset="100%" stopColor={isOnPlayerPath ? "#3b82f6" : "#ffffff"} stopOpacity="0.5" />
-                                                        </linearGradient>
-                                                        <filter id={`glow-${match.id}`}>
-                                                            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                                                            <feMerge>
-                                                                <feMergeNode in="coloredBlur" />
-                                                                <feMergeNode in="SourceGraphic" />
-                                                            </feMerge>
-                                                        </filter>
-                                                    </defs>
-                                                    <path
-                                                        d={matchIdx % 2 === 0
-                                                            ? "M 0 0 L 32 0 L 32 60 L 64 60"
-                                                            : "M 0 0 L 32 0 L 32 -60 L 64 -60"
-                                                        }
-                                                        fill="none"
-                                                        stroke={match.status === "completed"
-                                                            ? (isOnPlayerPath ? "#10b981" : "#10b981")
-                                                            : `url(#flow-gradient-${match.id})`}
-                                                        strokeWidth={isOnPlayerPath ? "3" : "2"}
-                                                        strokeDasharray="8 4"
-                                                        className={cn(
-                                                            "transition-all duration-500",
-                                                            match.status !== "completed" && isOnPlayerPath && "animate-flowing-dash"
-                                                        )}
-                                                        filter={isOnPlayerPath ? `url(#glow-${match.id})` : undefined}
-                                                    />
-                                                </svg>
-                                            </div>
+                                            <span className={cn("pointer-events-none absolute -right-8 top-1/2 w-8 border-t", playerPath.has(match.id) ? "border-gold/60" : "border-line-strong")} aria-hidden="true" />
                                         )}
                                     </div>
                                 )
