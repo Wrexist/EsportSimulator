@@ -1,4 +1,4 @@
-import type { RadarBombState, RadarKillLine, RadarPlayerDot } from "@/lib/radar-position-engine"
+import type { RadarBombState, RadarKillLine, RadarPlayerDot } from "@/lib/radar-types"
 
 type RadarLevel = "upper" | "lower"
 

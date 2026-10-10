@@ -3,7 +3,7 @@ import { previewCareerRound } from './career-round-adapter'
 import type { SpatialRoundReplay } from './round-replay'
 import { projectRoundReplay } from './round-replay'
 import { toRadar, type SpatialReference, type Vec3 } from './types'
-import type { RadarBombState, RadarKillLine, RadarPlayerDot, RadarSmoke } from '@/lib/radar-position-engine'
+import type { RadarBombState, RadarKillLine, RadarPlayerDot, RadarSmoke } from '@/lib/radar-types'
 import { UTILITY_MODEL } from './utility'
 import type { PhysicalCareerJournal } from './career-round-journal'
 

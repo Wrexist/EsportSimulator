@@ -1,5 +1,5 @@
 import { layoutRadarLabels } from '@/lib/radar-label-layout'
-import type { RadarPlayerDot } from '@/lib/radar-position-engine'
+import type { RadarPlayerDot } from '@/lib/radar-types'
 
 const dots: RadarPlayerDot[] = Array.from({ length: 10 }, (_, i) => ({ playerId: `p${i}`, nickname: `Player${i}`, side: i < 5 ? 'ct' : 't', isAlive: true, angle: 0, x: 48 + i % 3, y: 48 + Math.floor(i / 3) }))
 

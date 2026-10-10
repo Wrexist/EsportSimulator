@@ -548,6 +548,10 @@ export interface LogEntry {
   reward?: number
   playerId?: string // For clutch
   details?: string // For save/clutch
+  /** Bombsite of a PLANT / DEFUSE / EXPLODE row (from the round script). */
+  site?: "A" | "B"
+  /** Where a KILL happened, e.g. "A site" (from the round script). */
+  location?: string
 }
 
 export interface ActiveMatchState {

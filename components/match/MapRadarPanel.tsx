@@ -6,11 +6,13 @@ import { cn } from "@/lib/utils"
 import { Map, ChevronUp, Minus, Plus } from "lucide-react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
-import type { RadarPlayerDot, RadarBombState, RadarKillLine, RadarSmoke } from "@/lib/radar-position-engine"
-import type { Point } from "@/lib/map-radar-data"
+import type { RadarPlayerDot, RadarBombState, RadarKillLine, RadarSmoke, Point } from "@/lib/radar-types"
+import type { RoundMap, RoundScript } from "@/engine/match/round-script-types"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { resolveAutoRadarLevel } from "@/lib/radar-level-selector"
 import { layoutRadarLabels, RADAR_LABEL_BASELINE, RADAR_LABEL_FONT_SIZE, type RadarLabel } from "@/lib/radar-label-layout"
+import { aliveCounts, bombAt, scriptAutoFloor } from "@/lib/radar-script-frame"
+import { RadarScriptLayer, type RadarScriptPlayerInfo } from "./RadarScriptLayer"
 
 function isFiniteCoord(value: unknown): value is number {
     return typeof value === "number" && Number.isFinite(value)
@@ -106,9 +108,19 @@ interface MapRadarPanelProps {
     fillHeight?: boolean
     /** The shown round is decided: no clutch banner, phase reads "ROUND OVER". */
     roundOver?: boolean
+    /**
+     * Round script of the shown round. When set (and `currentTime` ≥ 0) the
+     * radar draws the script — players sampled every frame, deaths, shot
+     * tracers, grenades and the bomb — instead of the snapshot props above.
+     */
+    script?: RoundScript | null
+    /** Round map of the script: site letters come from its bombsites. */
+    roundMap?: RoundMap | null
+    /** Names (and cash for the economy ring) by player id, for script mode. */
+    players?: Readonly<Record<string, RadarScriptPlayerInfo>>
 }
 
-function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated', fillHeight = false, roundOver = false }: MapRadarPanelProps) {
+function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated', fillHeight = false, roundOver = false, script, roundMap, players }: MapRadarPanelProps) {
     const panelId = useId().replace(/:/g, "")
     const [isExpanded, setIsExpanded] = useState(true)
     const [showNames, setShowNames] = useState(true)
@@ -121,6 +133,9 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
     const [manualRadarLevel, setManualRadarLevel] = useState<"upper" | "lower">("upper")
     const radarImageData = referenceImages || MAP_RADAR_IMAGES[currentMapId]
     const isDualLevel = !!radarImageData?.secondary
+    // Script mode: the live match hands over the round script and the clock.
+    const scriptTime = script && currentTime != null && currentTime >= 0 ? currentTime : undefined
+    const activeScript = scriptTime !== undefined ? script : undefined
 
     useEffect(() => {
         setManualRadarLevel("upper")
@@ -131,15 +146,19 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
     const resolvedRadarLevel = useMemo(() => (
         radarLevelMode === "manual"
             ? manualRadarLevel
-            : resolveAutoRadarLevel({
-                isDualLevel,
-                currentLevel: manualRadarLevel,
-                currentTime,
-                bombState,
-                killLines,
-                radarDots: tickDots,
-            })
-    ), [radarLevelMode, manualRadarLevel, isDualLevel, currentTime, bombState, killLines, tickDots])
+            : !isDualLevel
+                ? "upper"
+                : activeScript && scriptTime !== undefined
+                    ? scriptAutoFloor(activeScript, scriptTime, manualRadarLevel)
+                    : resolveAutoRadarLevel({
+                        isDualLevel,
+                        currentLevel: manualRadarLevel,
+                        currentTime,
+                        bombState,
+                        killLines,
+                        radarDots: tickDots,
+                    })
+    ), [radarLevelMode, manualRadarLevel, isDualLevel, currentTime, bombState, killLines, tickDots, activeScript, scriptTime])
 
     const radarSrc = radarImageData && resolvedRadarLevel === "lower" && radarImageData.secondary
         ? radarImageData.secondary
@@ -271,20 +290,35 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
         }).filter(Boolean) as Array<{ smoke: typeof visibleSmokes[number]; opacity: number }>
     }, [visibleSmokes, currentTime])
 
-    const safeSitePositions = useMemo(() => sitePositions && isFiniteCoord(sitePositions.a.x) && isFiniteCoord(sitePositions.a.y) && isFiniteCoord(sitePositions.b.x) && isFiniteCoord(sitePositions.b.y)
-        ? {
-            a: { x: clampRadarCoord(sitePositions.a.x), y: clampRadarCoord(sitePositions.a.y) },
-            b: { x: clampRadarCoord(sitePositions.b.x), y: clampRadarCoord(sitePositions.b.y) },
+    // Site letters: the round map's bombsites (from the game's bombsite
+    // entities) when there is one, else the caller's positions. On two-level
+    // maps a site on the other floor is dimmed.
+    const siteMarkers = useMemo(() => {
+        if (roundMap) {
+            return (["A", "B"] as const).map(id => {
+                const c = roundMap.sites[id].center
+                return { id, x: clampRadarCoord(c.x), y: clampRadarCoord(c.y), level: c.floor as "upper" | "lower" | undefined }
+            })
         }
-        : undefined, [sitePositions])
+        if (sitePositions && isFiniteCoord(sitePositions.a.x) && isFiniteCoord(sitePositions.a.y) && isFiniteCoord(sitePositions.b.x) && isFiniteCoord(sitePositions.b.y)) {
+            return [
+                { id: "A" as const, x: clampRadarCoord(sitePositions.a.x), y: clampRadarCoord(sitePositions.a.y), level: undefined },
+                { id: "B" as const, x: clampRadarCoord(sitePositions.b.x), y: clampRadarCoord(sitePositions.b.y), level: undefined },
+            ]
+        }
+        return []
+    }, [roundMap, sitePositions])
 
     const safeBombPosition = useMemo(() => bombState?.position && isFiniteCoord(bombState.position.x) && isFiniteCoord(bombState.position.y)
         ? { x: clampRadarCoord(bombState.position.x), y: clampRadarCoord(bombState.position.y) }
         : undefined, [bombState?.position])
     const bombVisibleOnCurrentLevel = !isDualLevel || !bombState?.level || bombState.level === resolvedRadarLevel
 
-    const ctAlive = safeDots.filter(d => d.side === "ct" && d.isAlive).length
-    const tAlive = safeDots.filter(d => d.side === "t" && d.isAlive).length
+    // Script mode reads alive counts and the bomb phase at the tick time.
+    const scriptAlive = useMemo(() => (activeScript && scriptTime !== undefined ? aliveCounts(activeScript, scriptTime) : null), [activeScript, scriptTime])
+    const scriptBomb = useMemo(() => (activeScript && scriptTime !== undefined ? bombAt(activeScript, scriptTime) : null), [activeScript, scriptTime])
+    const ctAlive = scriptAlive ? scriptAlive.CT : safeDots.filter(d => d.side === "ct" && d.isAlive).length
+    const tAlive = scriptAlive ? scriptAlive.T : safeDots.filter(d => d.side === "t" && d.isAlive).length
 
     // Clutch detection (live rounds only: after the round ends it would
     // label the end-of-round survivors, e.g. "1v4" after a bomb win).
@@ -298,6 +332,14 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
 
     // Round phase label
     const roundPhase = (() => {
+        if (scriptBomb) {
+            const site = scriptBomb.site ? ` ${scriptBomb.site}` : ""
+            if (scriptBomb.phase === "defused") return { label: "DEFUSED", color: "#5AA9FF" }
+            if (scriptBomb.phase === "exploded") return { label: "BOMB EXPLODED", color: "#FF8A3D" }
+            if (roundOver) return { label: "ROUND OVER", color: "#AEB6C2" }
+            if (scriptBomb.phase === "defusing") return { label: `DEFUSING${site}`, color: "#5AA9FF" }
+            if (scriptBomb.phase === "planted") return { label: `BOMB PLANTED${site}`, color: "#FF5468" }
+        }
         if (bombState?.defused) return { label: "DEFUSED", color: "#5AA9FF" }
         if (bombState?.exploded) return { label: "BOMB EXPLODED", color: "#FF8A3D" }
         if (roundOver) return { label: "ROUND OVER", color: "#AEB6C2" }
@@ -407,11 +449,11 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                     </defs>
 
                                     {/* Site Labels (A / B) — readable, outlined so they sit on any radar art */}
-                                    {safeSitePositions && (["a", "b"] as const).map(site => (
+                                    {siteMarkers.map(site => (
                                         <text
-                                            key={site}
-                                            x={safeSitePositions[site].x}
-                                            y={safeSitePositions[site].y}
+                                            key={site.id}
+                                            x={site.x}
+                                            y={site.y}
                                             textAnchor="middle"
                                             dominantBaseline="middle"
                                             fontSize="5"
@@ -419,15 +461,31 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                             stroke="#07090C"
                                             strokeWidth="0.8"
                                             paintOrder="stroke"
-                                            opacity="0.7"
+                                            opacity={isDualLevel && site.level && site.level !== resolvedRadarLevel ? 0.25 : 0.7}
                                             fontWeight="bold"
                                             fontFamily="sans-serif"
-                                            data-site-label={site}
+                                            data-site-label={site.id.toLowerCase()}
                                         >
-                                            {site.toUpperCase()}
+                                            {site.id}
                                         </text>
                                     ))}
 
+                                    {activeScript && scriptTime !== undefined && (
+                                        <RadarScriptLayer
+                                            script={activeScript}
+                                            currentTime={scriptTime}
+                                            tickDurationMs={tickDurationMs}
+                                            animate={isAnimating && !staticEffects}
+                                            level={resolvedRadarLevel}
+                                            dualLevel={isDualLevel}
+                                            players={players}
+                                            showNames={showNames}
+                                            staticEffects={staticEffects}
+                                            filterId={panelId}
+                                        />
+                                    )}
+
+                                    {!activeScript && <>
                                     {/* Smoke clouds — opacity precomputed in smokeRenderState. */}
                                     {smokeRenderState.map(({ smoke, opacity }, idx) => (
                                         <circle
@@ -569,32 +627,33 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                                             />
                                         </g>
                                     )}
+                                    </>}
 
                                     {/* Clutch banner */}
                                     {clutchText && (
                                         <g>
                                             <rect
-                                                x={20} y={3} width={60} height={7}
-                                                rx={3.5}
-                                                fill="rgba(0,0,0,0.6)"
+                                                x={34} y={1.5} width={32} height={4.8}
+                                                rx={2.4}
+                                                fill="rgba(7,9,12,0.78)"
                                             />
                                             <text
-                                                x={50} y={7.8}
+                                                x={50} y={4.05}
                                                 textAnchor="middle"
                                                 dominantBaseline="middle"
-                                                fontSize="4"
+                                                fontSize="2.8"
                                                 fill={clutchSide === "ct" ? "#5AA9FF" : "#FF8A3D"}
                                                 fontWeight="bold"
                                                 fontFamily="sans-serif"
-                                                letterSpacing="0.5"
+                                                letterSpacing="0.3"
                                             >
                                                 {clutchText}
                                             </text>
                                         </g>
                                     )}
 
-                                    {/* Player dots */}
-                                    {visibleDots.map(dot => {
+                                    {/* Player dots (snapshot mode; the script layer draws its own) */}
+                                    {(activeScript ? [] : visibleDots).map(dot => {
                                         const ctColor = "#5AA9FF"
                                         const tColor = "#FF8A3D"
                                         const color = dot.side === "ct" ? ctColor : tColor
@@ -694,7 +753,7 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                         </div>
                         <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-line px-3 py-2 text-xs text-ink-3">
                             <span className="flex items-center gap-3"><span className="font-semibold text-side-ct"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="font-semibold text-side-t"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>alive</span></span>
-                            <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : 'Career match positions are estimated from recorded round events.'}>{positionSource === 'physical-replay' ? 'Recorded positions' : 'Estimated positions'} · {isDualLevel ? `${resolvedRadarLevel === "upper" ? "Upper" : "Lower"} floor` : "Single level"}</span>
+                            <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : activeScript ? 'Positions follow the round script: routes, duels, grenades and the bomb are placed to match what happened in the round.' : 'Career match positions are estimated from recorded round events.'}>{positionSource === 'physical-replay' ? 'Recorded positions' : 'Estimated positions'} · {isDualLevel ? `${resolvedRadarLevel === "upper" ? "Upper" : "Lower"} floor` : "Single level"}</span>
                         </div>
                     </motion.div>
                 )}

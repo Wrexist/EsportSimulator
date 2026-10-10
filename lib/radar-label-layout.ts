@@ -1,4 +1,4 @@
-import type { RadarPlayerDot } from "./radar-position-engine"
+import type { RadarPlayerDot } from "./radar-types"
 
 export interface RadarLabel { x: number; y: number; width: number; height: number; text: string }
 
