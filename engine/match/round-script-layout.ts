@@ -1,7 +1,6 @@
 /**
  * Development / fallback RoundMap built from the coarse radar layouts
- * (`data/map-layouts/*.json`, or `MAP_LAYOUTS` from lib/map-radar-data which
- * has them projected onto the walk mask). The baked maps
+ * (`data/map-layouts/*.json`). The baked maps
  * (`data/round-maps/<mapId>.json`, Phase 2 W1) replace this; the script
  * builder only sees the generic `RoundMap`.
  *

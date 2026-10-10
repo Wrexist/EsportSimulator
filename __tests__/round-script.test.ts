@@ -15,7 +15,7 @@ import {
 } from '@/engine/match/round-script'
 import { navGraphFor } from '@/engine/match/round-script-nav'
 import type { RoundMap, RoundScript, RoundScriptInput, TrackKey } from '@/engine/match/round-script-types'
-import { MAP_LAYOUTS } from '@/lib/map-radar-data'
+import { MAP_LAYOUT_JSONS as MAP_LAYOUTS } from '@/data/map-layouts'
 import { getRoundMap, roundMapFor } from '@/data/round-maps'
 import type { CustomTactics, Match, Player, RoundResult, Team } from '@/types'
 import { MapId } from '@/types/enums'

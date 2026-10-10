@@ -44,7 +44,6 @@
     "remotion",
     "trailer",
     "verify-*.ts",
-    "scripts/generate-radar-nav-data.ts",
     "scripts/extract-map-layouts.mjs"
   ]
 }
