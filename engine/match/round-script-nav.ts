@@ -12,6 +12,9 @@
 
 import type { Floor, RPoint, RoundMap, Side, SiteId } from "./round-script-types"
 
+// Math is read once: global lookups are very slow inside Jest's sandbox (tests time the builder).
+const { ceil, floor, sqrt } = Math
+
 /** Route points closer than this (same floor) become one node. */
 const MERGE_DIST = 0.5
 /** Longer route segments are split so nodes stay ≤ this far apart. */
@@ -22,9 +25,11 @@ const STITCH_DIST = 1.6
 const LINK_DIST = 3
 /** Extra cost for walking *through* a spawn / hold / plant spot, so paths don't cut across a teammate's spot. */
 const SPOT_DETOUR = 4
+/** Seconds added to an edge that changes floor (ladders, stairs, drops: the 2D length barely moves). */
+const CLIMB_SECONDS = 1.2
 const CELL = 2
 
-const len = (dx: number, dy: number) => Math.sqrt(dx * dx + dy * dy)
+const len = (dx: number, dy: number) => sqrt(dx * dx + dy * dy)
 
 interface ShortestPaths {
     dist: Float64Array
@@ -47,7 +52,8 @@ export class NavGraph {
     private readonly grid = new Map<number, number[]>()
     private readonly paths = new Map<number, ShortestPaths>()
     /** Nodes added for spawns / holds / plant spots / site centres (not route points). */
-    private readonly spots = new Set<number>()
+    private readonly spotNodes = new Set<number>()
+    private spots = new Uint8Array(0)
 
     constructor(readonly map: RoundMap) {
         for (const route of map.routes) {
@@ -55,7 +61,7 @@ export class NavGraph {
             let prev: RPoint | null = null
             for (const p of route.points) {
                 if (prev) {
-                    const steps = Math.ceil(len(p.x - prev.x, p.y - prev.y) / MAX_EDGE)
+                    const steps = ceil(len(p.x - prev.x, p.y - prev.y) / MAX_EDGE)
                     for (let s = 1; s < steps; s++) {
                         const u = s / steps
                         nodes.push(this.addNode({ x: prev.x + (p.x - prev.x) * u, y: prev.y + (p.y - prev.y) * u, floor: u < 0.5 ? prev.floor : p.floor }))
@@ -77,6 +83,13 @@ export class NavGraph {
         this.siteNodes = { A: this.attach(map.sites.A.center, routeCount), B: this.attach(map.sites.B.center, routeCount) }
         for (const site of ["A", "B"] as const) this.plantNodes[site] = map.sites[site].plantSpots.map(p => this.attach(p, routeCount))
         this.connectComponents()
+        this.spots = new Uint8Array(this.size)
+        for (const n of this.spotNodes) this.spots[n] = 1
+    }
+
+    /** Compute every shortest-path table now (≈ 15 ms per map) so later rounds never pay for them. */
+    prepare(): void {
+        for (let n = 0; n < this.size; n++) this.shortest(n)
     }
 
     get size(): number {
@@ -93,6 +106,12 @@ export class NavGraph {
 
     neighbors(n: number): readonly number[] {
         return this.adj[n]
+    }
+
+    /** Walking cost of an edge in map-% (its length, plus climb time on floor changes). */
+    cost(a: number, b: number): number {
+        const i = this.adj[a].indexOf(b)
+        return i >= 0 ? this.adjW[a][i] : this.dist(a, b)
     }
 
     /** Walking distance between two nodes (Infinity if disconnected). */
@@ -149,7 +168,7 @@ export class NavGraph {
         this.floor.push(p.floor)
         this.adj.push([])
         this.adjW.push([])
-        const key = this.cellKey(Math.floor(p.x / CELL), Math.floor(p.y / CELL))
+        const key = this.cellKey(floor(p.x / CELL), floor(p.y / CELL))
         const cell = this.grid.get(key)
         if (cell) cell.push(id)
         else this.grid.set(key, [id])
@@ -159,7 +178,7 @@ export class NavGraph {
     /** Add a point off the routes and link it to the route nodes around it. */
     private attach(p: RPoint, routeCount: number): number {
         const n = this.addNode(p)
-        if (n >= routeCount) this.spots.add(n)
+        if (n >= routeCount) this.spotNodes.add(n)
         const close = this.near(p.x, p.y, LINK_DIST, p.floor).filter(m => m !== n && m < routeCount)
         if (close.length) for (const m of close) this.link(n, m)
         else if (!this.adj[n].length) {
@@ -176,7 +195,7 @@ export class NavGraph {
 
     private link(a: number, b: number): void {
         if (a === b || this.adj[a].includes(b)) return
-        const w = this.dist(a, b)
+        const w = this.dist(a, b) + (this.floor[a] !== this.floor[b] ? CLIMB_SECONDS * this.map.runSpeed : 0)
         this.adj[a].push(b)
         this.adjW[a].push(w)
         this.adj[b].push(a)
@@ -214,16 +233,16 @@ export class NavGraph {
         return (cx + 64) * 1024 + (cy + 64)
     }
 
-    private near(x: number, y: number, r: number, floor?: Floor): number[] {
+    private near(x: number, y: number, r: number, onFloor?: Floor): number[] {
         const out: number[] = []
-        const x0 = Math.floor((x - r) / CELL), x1 = Math.floor((x + r) / CELL)
-        const y0 = Math.floor((y - r) / CELL), y1 = Math.floor((y + r) / CELL)
+        const x0 = floor((x - r) / CELL), x1 = floor((x + r) / CELL)
+        const y0 = floor((y - r) / CELL), y1 = floor((y + r) / CELL)
         for (let cx = x0; cx <= x1; cx++) {
             for (let cy = y0; cy <= y1; cy++) {
                 const cell = this.grid.get(this.cellKey(cx, cy))
                 if (!cell) continue
                 for (const n of cell) {
-                    if (floor && this.floor[n] !== floor) continue
+                    if (onFloor && this.floor[n] !== onFloor) continue
                     if (len(this.x[n] - x, this.y[n] - y) <= r) out.push(n)
                 }
             }
@@ -275,7 +294,7 @@ export class NavGraph {
             const d = heapKey[0]
             const u = pop()
             if (d > dist[u]) continue
-            const detour = u !== target && this.spots.has(u) ? SPOT_DETOUR : 0
+            const detour = u !== target && this.spots[u] ? SPOT_DETOUR : 0
             const nbrs = this.adj[u]
             const ws = this.adjW[u]
             for (let e = 0; e < nbrs.length; e++) {

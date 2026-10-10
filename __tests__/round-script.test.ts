@@ -1,8 +1,8 @@
 /**
  * Round script builder (Phase 2A, W2).
  *
- * Real resolver rounds (legacy series, all 8 maps, the fallback RoundMap
- * from data/map-layouts) must turn into scripts that are deterministic,
+ * Real resolver rounds (legacy series, all 8 maps, the baked RoundMaps in
+ * data/round-maps) must turn into scripts that are deterministic,
  * keep every resolver fact (kills, plant, defuse, explosion), put each
  * killer within duel range of the victim, never teleport, keep teammates
  * apart, throw only bought utility, and build in < 2 ms per round.
@@ -11,11 +11,12 @@ import { performance } from 'node:perf_hooks'
 import { simulationEngineV2 } from '@/engine/match-simulation'
 import { createLegacySeriesState, playLegacyRound } from '@/engine/match/legacy-series'
 import {
-    buildRoundScript, roundMapFromLayout, sampleTrack, samplePositions, scriptInputFromResolverRound,
+    buildRoundScript, prepareRoundMap, roundMapFromLayout, sampleTrack, samplePositions, scriptInputFromResolverRound,
 } from '@/engine/match/round-script'
 import { navGraphFor } from '@/engine/match/round-script-nav'
 import type { RoundMap, RoundScript, RoundScriptInput, TrackKey } from '@/engine/match/round-script-types'
 import { MAP_LAYOUTS } from '@/lib/map-radar-data'
+import { getRoundMap, roundMapFor } from '@/data/round-maps'
 import type { CustomTactics, Match, Player, RoundResult, Team } from '@/types'
 import { MapId } from '@/types/enums'
 
@@ -78,7 +79,8 @@ function playRounds(seed: number): Played[] {
     return out
 }
 
-const roundMaps = new Map<string, RoundMap>(MAPS.map(m => [m, roundMapFromLayout(MAP_LAYOUTS[m], m)]))
+const fallbackMaps = new Map<string, RoundMap>(MAPS.map(m => [m, roundMapFromLayout(MAP_LAYOUTS[m], m)]))
+const roundMaps = new Map<string, RoundMap>(MAPS.map(m => [m, getRoundMap(m)!]))
 const rounds = [...playRounds(11), ...playRounds(29)]
 const scripts: { played: Played; script: RoundScript }[] = rounds.map(played => ({ played, script: buildRoundScript(played.input, roundMaps.get(played.map)!) }))
 const sideOf = (script: RoundScript, id: string) => script.sides[id]
@@ -86,7 +88,7 @@ const dist = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.
 
 describe('round script fallback map', () => {
     it.each(MAPS)('%s: has the RoundMap essentials and a connected walk graph', map => {
-        const m = roundMaps.get(map)!
+        const m = fallbackMaps.get(map)!
         expect(m.spawns.T.length).toBeGreaterThanOrEqual(5)
         expect(m.spawns.CT.length).toBeGreaterThanOrEqual(5)
         for (const site of ['A', 'B'] as const) {
@@ -105,9 +107,28 @@ describe('round script fallback map', () => {
     })
 
     it('puts Nuke B on the lower floor and Vertigo B on the upper one', () => {
-        expect(roundMaps.get(MapId.NUKE)!.sites.B.center.floor).toBe('lower')
-        expect(roundMaps.get(MapId.NUKE)!.sites.A.center.floor).toBe('upper')
-        expect(roundMaps.get(MapId.VERTIGO)!.sites.B.center.floor).toBe('upper')
+        expect(fallbackMaps.get(MapId.NUKE)!.sites.B.center.floor).toBe('lower')
+        expect(fallbackMaps.get(MapId.NUKE)!.sites.A.center.floor).toBe('upper')
+        expect(fallbackMaps.get(MapId.VERTIGO)!.sites.B.center.floor).toBe('upper')
+    })
+
+    it('is only used for maps without a baked file', () => {
+        expect(roundMapFor(MapId.MIRAGE, MAP_LAYOUTS[MapId.MIRAGE])).toBe(getRoundMap(MapId.MIRAGE))
+        expect(roundMapFor('Unknown', MAP_LAYOUTS[MapId.MIRAGE])?.mapId).toBe('Unknown')
+        expect(roundMapFor('Unknown')).toBeUndefined()
+    })
+
+    it('drives the same builder: kills in range, no teleports', () => {
+        let kills = 0, inRange = 0
+        for (const played of rounds.filter((_, i) => i % 4 === 0)) {
+            const map = fallbackMaps.get(played.map)!
+            const script = buildRoundScript(played.input, map)
+            for (const d of script.deaths) { kills++; if (dist(d.at, d.from) <= 12 && d.at.floor === d.from.floor) inRange++ }
+            for (const track of Object.values(script.tracks)) for (let i = 1; i < track.length; i++) {
+                expect(dist(track[i], track[i - 1]) / (track[i].t - track[i - 1].t)).toBeLessThanOrEqual(map.runSpeed * 1.1 + 1e-6)
+            }
+        }
+        expect(inRange / kills).toBeGreaterThan(0.98)
     })
 })
 
@@ -117,10 +138,11 @@ describe('round script builder', () => {
         expect(new Set(rounds.map(r => r.map)).size).toBe(8)
     })
 
-    it('is deterministic: same input, same script (also on a freshly built map)', () => {
-        for (const { played, script } of scripts.slice(0, 40)) {
+    it('is deterministic: same input, same script (also on a fresh or prepared copy of the map)', () => {
+        for (const [i, { played, script }] of scripts.slice(0, 40).entries()) {
             expect(buildRoundScript(played.input, roundMaps.get(played.map)!)).toEqual(script)
-            const fresh = roundMapFromLayout({ ...MAP_LAYOUTS[played.map] }, played.map)
+            const fresh = JSON.parse(JSON.stringify(roundMaps.get(played.map))) as RoundMap
+            if (i % 2) prepareRoundMap(fresh)
             expect(buildRoundScript(played.input, fresh)).toEqual(script)
         }
     })
@@ -151,7 +173,7 @@ describe('round script builder', () => {
                 for (let i = 1; i < track.length; i++) {
                     const dt = track[i].t - track[i - 1].t
                     const d = dist(track[i], track[i - 1])
-                    expect(d / dt).toBeLessThanOrEqual(map.runSpeed * 1.1 + 0.05)
+                    expect(d / dt).toBeLessThanOrEqual(map.runSpeed * 1.1 + 1e-6)
                     if (d > 0.01) expect(dt).toBeLessThanOrEqual(0.5 + 1e-3)
                 }
                 for (const k of track) {
@@ -164,7 +186,7 @@ describe('round script builder', () => {
         }
     })
 
-    it('keeps every position on the walk graph (route edges, plus the small sidestep)', () => {
+    it('keeps every position on the walk graph (route edges, plus the small teammate sidestep)', () => {
         const segDist = (p: TrackKey, a: { x: number; y: number }, b: { x: number; y: number }) => {
             const dx = b.x - a.x, dy = b.y - a.y
             const l2 = dx * dx + dy * dy
@@ -178,7 +200,7 @@ describe('round script builder', () => {
                     const near = g.around(g.nearest(k), 6)
                     let best = Infinity
                     for (const n of near) for (const m of g.neighbors(n)) best = Math.min(best, segDist(k, g.point(n), g.point(m)))
-                    expect(best).toBeLessThanOrEqual(1.45)
+                    expect(best).toBeLessThanOrEqual(0.85)
                 }
             }
         }
@@ -194,16 +216,20 @@ describe('round script builder', () => {
                 kills++
                 const ok = dist(d.at, d.from) <= 12 && d.at.floor === d.from.floor
                 if (ok) inRange++
-                if (d.t >= 12) { late++; if (ok) lateInRange++ }
+                if (d.t >= 15) { late++; if (ok) lateInRange++ }
                 const killer = sampleTrack(script.tracks[d.killerId], d.t)
-                expect(dist(killer, d.from)).toBeLessThan(0.05)
+                // Keys < 0.02 s apart are merged, so the shooter can sit a hair off its kill spot.
+                expect(dist(killer, d.from)).toBeLessThan(0.15)
                 const dots = samplePositions(script, d.t - 0.05)
                 const victim = dots.find(p => p.id === d.victimId)!
                 const enemies = dots.filter(p => p.alive && p.side !== victim.side).sort((a, b) => dist(a, victim) - dist(b, victim))
                 if (enemies[0]?.id === d.killerId) nearest++
             }
         }
-        expect(inRange / kills).toBeGreaterThan(0.99)
+        // Kills in the first seconds can be out of reach at run speed on the big maps (the
+        // resolver times them without positions); from 15 s on every fight is reachable
+        // except rare back-to-back chains across the map.
+        expect(inRange / kills).toBeGreaterThan(0.98)
         expect(lateInRange / late).toBeGreaterThan(0.995)
         expect(nearest / kills).toBeGreaterThan(0.8)
     })
@@ -245,7 +271,7 @@ describe('round script builder', () => {
             const p = script.bomb.plant!
             expect(p.t).toBe(plant.time)
             expect(p.site).toBe(script.plan.site)
-            expect(dist(p.at, map.sites[p.site].center)).toBeLessThanOrEqual(6)
+            expect(map.sites[p.site].plantSpots.some(spot => dist(spot, p.at) < 0.6)).toBe(true)
             expect(sideOf(script, p.planterId)).toBe('T')
             const planter = samplePositions(script, p.t).find(d => d.id === p.planterId)!
             expect(planter.alive).toBe(true)

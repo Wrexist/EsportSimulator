@@ -36,6 +36,9 @@ export interface RoundLayoutSource {
     bSiteLevel?: "lower"
 }
 
+// Math is read once: global lookups are very slow inside Jest's sandbox (tests time the builder).
+const { ceil, cos, max, min, PI, round, sin, sqrt } = Math
+
 /** CS2 overview scale (world units per radar pixel, 1024 px images). */
 const OVERVIEW_SCALE: Record<string, number> = {
     Ancient: 5, Anubis: 5.22, Inferno: 4.9, Mirage: 5, Nuke: 7, Overpass: 5.2, Sandstone: 4.4, Vertigo: 4,
@@ -48,7 +51,7 @@ const STEP = 1.45
 const LOWER_B_RADIUS = 6.5
 const CONTACT_RADIUS = 12
 
-const len = (dx: number, dy: number) => Math.sqrt(dx * dx + dy * dy)
+const len = (dx: number, dy: number) => sqrt(dx * dx + dy * dy)
 
 const cache = new WeakMap<object, RoundMap>()
 
@@ -62,8 +65,8 @@ export function roundMapFromLayout(layout: RoundLayoutSource, mapId: string = la
 
 const d = (a: XY, b: XY) => len(a.x - b.x, a.y - b.y)
 const lerp = (a: XY, b: XY, u: number): XY => ({ x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u })
-const r2 = (v: number) => Math.round(v * 100) / 100
-const clampPct = (v: number) => Math.max(0.5, Math.min(99.5, v))
+const r2 = (v: number) => round(v * 100) / 100
+const clampPct = (v: number) => max(0.5, min(99.5, v))
 const centroid = (ps: XY[]): XY => ({ x: ps.reduce((s, p) => s + p.x, 0) / ps.length, y: ps.reduce((s, p) => s + p.y, 0) / ps.length })
 
 function buildFromLayout(layout: RoundLayoutSource, mapId: string): RoundMap {
@@ -81,7 +84,7 @@ function buildFromLayout(layout: RoundLayoutSource, mapId: string): RoundMap {
         const out: RPoint[] = []
         for (let i = 0; i < pts.length; i++) {
             if (i > 0) {
-                const steps = Math.ceil(d(pts[i - 1], pts[i]) / STEP)
+                const steps = ceil(d(pts[i - 1], pts[i]) / STEP)
                 for (let s = 1; s < steps; s++) out.push(pt(lerp(pts[i - 1], pts[i], s / steps)))
             }
             out.push(pt(pts[i]))
@@ -119,7 +122,7 @@ function buildFromLayout(layout: RoundLayoutSource, mapId: string): RoundMap {
     const holds: RoundMapHold[] = []
     const upstream = (target: SiteId): XY => {
         const main = routes.find(r => r.id === `t-${target.toLowerCase()}-main`)!
-        return main.points[Math.max(0, main.contactIndex - 6)]
+        return main.points[max(0, main.contactIndex - 6)]
     }
     const addHold = (id: string, target: SiteId, kind: HoldKind, at: XY, watch: XY) => {
         holds.push({ id, site: target, kind, at: pt(at), watch: pt(watch) })
@@ -133,7 +136,7 @@ function buildFromLayout(layout: RoundLayoutSource, mapId: string): RoundMap {
     })
     for (const s of ["A", "B"] as const) {
         const c = site[s], e = engage[s]
-        const span = Math.max(1e-6, d(c, e))
+        const span = max(1e-6, d(c, e))
         const perp = { x: -(e.y - c.y) / span, y: (e.x - c.x) / span }
         const ctRoute = routes.find(r => r.id === `ct-${s.toLowerCase()}`)!
         const retake = [...ctRoute.points].reverse().find(p => d(p, c) >= 11) ?? ctRoute.points[0]
@@ -149,12 +152,12 @@ function buildFromLayout(layout: RoundLayoutSource, mapId: string): RoundMap {
     }
     for (const s of ["A", "B"] as const) {
         const c = site[s], e = engage[s]
-        const span = Math.max(1e-6, d(c, e))
+        const span = max(1e-6, d(c, e))
         const perp = { x: -(e.y - c.y) / span, y: (e.x - c.x) / span }
         const polygon: RPoint[] = []
         for (let k = 0; k < 8; k++) {
-            const a = (k / 8) * Math.PI * 2
-            polygon.push(pt({ x: c.x + Math.cos(a) * 5, y: c.y + Math.sin(a) * 5 }))
+            const a = (k / 8) * PI * 2
+            polygon.push(pt({ x: c.x + cos(a) * 5, y: c.y + sin(a) * 5 }))
         }
         sites[s] = {
             center: pt(c),
@@ -178,8 +181,8 @@ function buildFromLayout(layout: RoundLayoutSource, mapId: string): RoundMap {
         const out = ps.map(pt)
         const c = centroid(ps.length ? ps : [{ x: 50, y: 50 }])
         for (let k = out.length; k < 5; k++) {
-            const a = (k / 5) * Math.PI * 2
-            out.push(pt({ x: c.x + Math.cos(a) * 3, y: c.y + Math.sin(a) * 3 }))
+            const a = (k / 5) * PI * 2
+            out.push(pt({ x: c.x + cos(a) * 3, y: c.y + sin(a) * 3 }))
         }
         return out
     }
