@@ -348,7 +348,7 @@ function SquadPageInner() {
                 {academyPlayers.map((ap: any) => {
                   const prospect = playerById.get(ap.playerId)
                   if (!prospect) return null
-                  const rating = Math.round((prospect.skill + prospect.rifle + prospect.tactic + prospect.teamwork) / 4)
+                  const rating = evaluatePlayer(prospect).overallRating
                   return (
                     <li key={ap.id} className="flex items-center gap-3 px-4 py-2.5">
                       <div className="h-8 w-8 shrink-0 overflow-hidden rounded bg-raised">
