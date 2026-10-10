@@ -26,8 +26,8 @@ export default function PlayerPage() {
     // both before deciding a missing player is a genuine 404.
     if (!_hasHydrated || (!player && isLoading)) {
         return (
-            <div className="container mx-auto px-4 py-6">
-                <div role="status" aria-label="Loading player profile" className="h-64 animate-pulse rounded-lg bg-white/5" />
+            <div className="mx-auto max-w-[1600px]">
+                <div role="status" aria-label="Loading player profile" className="h-64 animate-pulse rounded-lg border border-line bg-panel" />
             </div>
         )
     }
@@ -37,13 +37,10 @@ export default function PlayerPage() {
     }
 
     return (
-        <div className="w-full min-w-0 max-w-[1440px] mx-auto px-2 sm:px-4 py-3 space-y-3">
-            <div className="flex items-center gap-4">
-                <Button variant="ghost" className="h-8 gap-2 px-2 text-slate-400" aria-label="Go back" onClick={() => router.back()}>
-                    <ArrowLeft className="w-4 h-4" /> Back
-                </Button>
-            </div>
-
+        <div className="mx-auto w-full min-w-0 max-w-[1600px] space-y-3 pb-16">
+            <Button variant="ghost" size="sm" className="-ml-2 h-8 gap-1.5 px-2 text-ink-3" aria-label="Go back" onClick={() => router.back()}>
+                <ArrowLeft className="h-4 w-4" /> Back
+            </Button>
             <PlayerDetail player={player} />
         </div>
     )
