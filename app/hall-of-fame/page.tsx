@@ -1,260 +1,140 @@
 "use client"
 
 import { useMemo } from "react"
+import Link from "next/link"
+import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
-import { Badge } from "@/components/ui/badge"
-import { Trophy, Star, Crown, Heart, Hourglass, Wand2, Brain, Shield, Activity, Puzzle, Zap, Crosshair, Award } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { PlayerPortrait } from "@/components/ui/asset-images"
+import { LoadingState } from "@/components/ui/loading"
+import { CountryFlag } from "@/components/ui/CountryFlag"
+import { Panel } from "@/src/components/ui/Panel"
+import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
+import { RoleTag } from "@/src/components/ui/RoleTag"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { HALL_OF_FAME_TUNING as HOF } from "@/lib/balance-tuning"
+import type { HallOfFameEntry, PlayerSaveData } from "@/engine/save-types"
 import { cn } from "@/lib/utils"
-import { PlayerCard } from "@/components/ui/PlayerCard"
-import { SectionHeader } from "@/src/components/ui/SectionHeader"
-import { EmptyState } from "@/src/components/ui/EmptyState"
-import { StatTile } from "@/src/components/ui/StatTile"
 
-// Icon Map for dynamic rendering
-const iconMap: Record<string, any> = {
-    Trophy, Star, Crown, Heart, Hourglass, Wand2, Brain, Shield, Activity, Puzzle, Zap, Crosshair
-}
-
-export default function HallOfFamePage() {
-    // Direct selectors — store initializes these as arrays so the previous
-    // `|| []` fallback was actually harmful: it returned a NEW empty array
-    // on each call, breaking useMemo dep equality below.
-    const hallOfFame = useGameStore((state) => state.hallOfFame)
-    const players = useGameStore((state) => state.players)
-    const activelyPlayingLegendIds = useGameStore((state) => state.activelyPlayingLegendIds)
-
-    // Memoized: these filter/sort passes ran on every render (and the component
-    // re-renders on any of three store selectors), rebuilding arrays each time.
-    const activeLegendKey = activelyPlayingLegendIds.join(",")
-    const foundingLegends = useMemo(() => {
-        // Sort: retired legends first, still-active legends at the bottom
-        return hallOfFame
-            .filter(l => l.category === "FOUNDING")
-            .sort((a, b) => {
-                const aActive = activelyPlayingLegendIds.includes(a.id) ? 1 : 0
-                const bActive = activelyPlayingLegendIds.includes(b.id) ? 1 : 0
-                return aActive - bActive
-            })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [hallOfFame, activeLegendKey])
-    const inductedLegends = useMemo(
-        () => hallOfFame.filter(l => l.category === "INDUCTED"),
-        [hallOfFame],
-    )
-
-    // O(1) player lookup. Without this, the render path was
-    // legends.length × players.length linear scans (66 × ~2000 = 132k ops).
-    const playerById = useMemo(() => {
-        const m = new Map<string, typeof players[number]>()
-        for (const p of players) m.set(p.id, p)
-        return m
-    }, [players])
-    const getLegendPlayerData = (legendId: string) => playerById.get(legendId)
-
-    const activeLegendSet = useMemo(
-        () => new Set(activelyPlayingLegendIds),
-        [activelyPlayingLegendIds]
-    )
-    const isStillActive = (legendId: string) => activeLegendSet.has(legendId)
-
+function LegendsTable({ legends, playerById, activeIds }: { legends: HallOfFameEntry[]; playerById: Map<string, PlayerSaveData>; activeIds: Set<string> }) {
     return (
-        <div className="premium-route space-y-6 max-w-7xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div>
-                    <h1 className="page-title mb-2 flex items-center gap-4">
-                        Hall of Fame
-                        <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/20">LEGENDS</Badge>
-                    </h1>
-                    <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">
-                        Players who defined eras through exceptional careers
-                    </p>
-                </div>
-            </div>
-
-            {/* Founding Legends Section */}
-            {foundingLegends.length > 0 && (
-                <section className="space-y-6">
-                    <SectionHeader
-                        icon={Award}
-                        iconClassName="text-amber-400"
-                        size="lg"
-                        title="Founding Legends"
-                        subtitle="Players who shaped the early history of esports"
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <AnimatePresence mode="popLayout">
-                            {foundingLegends.map((legend, idx) => (
-                                <motion.div
-                                    key={legend.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: idx * 0.05 }}
-                                >
-                                    <LegendCard legend={legend} playerData={getLegendPlayerData(legend.id)} isFounding isActive={isStillActive(legend.id)} />
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </div>
-                </section>
-            )}
-
-            {/* Inducted Legends Section */}
-            <section className="space-y-6">
-                <SectionHeader
-                    icon={Trophy}
-                    size="lg"
-                    title="Inducted Legends"
-                    subtitle="Players inducted through your simulation"
-                />
-                {inductedLegends.length === 0 ? (
-                    <EmptyState
-                        icon={Trophy}
-                        title="No Legends Yet"
-                        description="Players who achieve greatness through Major wins, MVP awards, and exceptional careers will be immortalized here upon retirement."
-                    />
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <AnimatePresence mode="popLayout">
-                            {inductedLegends.map((legend, idx) => (
-                                <motion.div
-                                    key={legend.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: idx * 0.05 }}
-                                >
-                                    <LegendCard legend={legend} playerData={getLegendPlayerData(legend.id)} />
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </div>
-                )}
-            </section>
-
-            {/* Footer Info */}
-            <div className="glass-panel p-6 border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div className="flex items-center gap-4 text-muted-foreground">
-                    <Shield size={20} className="text-amber-400" />
-                    <div>
-                        <p className="text-[10px] font-normal uppercase tracking-widest text-white">Induction Criteria</p>
-                        <p className="text-xs">100+ matches, 2+ major achievements (Major Win, MVP, Top 3 Rank, Longevity)</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <StatTile size="sm" label="Founding" tone="warning" value={foundingLegends.length} />
-                    <StatTile size="sm" label="Inducted" tone="brand" value={inductedLegends.length} />
-                </div>
-            </div>
+        <div className="overflow-x-auto">
+            <table data-slot="table" className="w-full min-w-[900px] border-collapse text-left">
+                <thead data-slot="table-header">
+                    <tr className="border-b border-line">
+                        <th data-slot="table-head" className="pl-4">Player</th>
+                        <th data-slot="table-head" className="px-3">Role</th>
+                        <th data-slot="table-head" className="px-3">Era</th>
+                        <th data-slot="table-head" className="px-3 text-right">Majors</th>
+                        <th data-slot="table-head" className="px-3 text-right">MVPs</th>
+                        <th data-slot="table-head" className="px-3 text-right">Matches</th>
+                        <th data-slot="table-head" className="px-3">Why they&apos;re here</th>
+                        <th data-slot="table-head" className="pl-3 pr-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {legends.map(legend => {
+                        const p = playerById.get(legend.id)
+                        const active = activeIds.has(legend.id)
+                        return (
+                            <tr key={legend.id} data-slot="table-row" className="h-14 border-b border-line">
+                                <td className="py-2 pl-4 pr-3">
+                                    <Link href={`/player/${legend.id}`} className="group flex min-w-0 items-center gap-3">
+                                        <span className="h-10 w-10 shrink-0 overflow-hidden rounded bg-raised">
+                                            <PlayerPortrait src={legend.portraitPath} seed={legend.id} alt={legend.name} size={40} />
+                                        </span>
+                                        <span className="min-w-0">
+                                            <span className="block truncate text-sm font-semibold text-ink-1 group-hover:text-gold">{legend.name}</span>
+                                            <span className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
+                                                <CountryFlag country={legend.nationality} size={12} />
+                                                {String(legend.nationality || "").toUpperCase()}
+                                            </span>
+                                        </span>
+                                    </Link>
+                                </td>
+                                <td className="px-3"><RoleTag role={legend.primaryRole} /></td>
+                                <td className="px-3 text-sm tabular-nums text-ink-2">{legend.eraStart}–{active ? "now" : legend.eraEnd}</td>
+                                <td className={cn("px-3 text-right text-sm tabular-nums", (p?.majorWins ?? 0) > 0 ? "text-gold" : "text-ink-3")}>{p?.majorWins ?? "—"}</td>
+                                <td className="px-3 text-right text-sm tabular-nums text-ink-2">{p?.totalMVPs ?? "—"}</td>
+                                <td className="px-3 text-right text-sm tabular-nums text-ink-2">{p?.matchesPlayed?.toLocaleString("en-US") ?? "—"}</td>
+                                <td className="px-3">
+                                    <span className="flex flex-wrap gap-1">
+                                        {legend.inductionReasons.map((r, i) => (
+                                            <span key={i} className="rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] text-ink-2">{r.label}</span>
+                                        ))}
+                                    </span>
+                                </td>
+                                <td className="pl-3 pr-4 text-xs text-ink-3">{active ? "Still playing" : "Retired"}</td>
+                            </tr>
+                        )
+                    })}
+                </tbody>
+            </table>
         </div>
     )
 }
 
-interface LegendCardProps {
-    legend: {
-        id: string
-        name: string
-        portraitPath: string
-        eraStart: number
-        eraEnd: number
-        primaryRole: string
-        inductionReasons: { type: string; label: string; icon: string }[]
-        nationality: string
-    }
-    playerData?: {
-        skill?: number
-        matchesPlayed?: number
-        majorWins?: number
-        totalMVPs?: number
-        avgRating?: number
-    }
-    isFounding?: boolean
-    isActive?: boolean
-}
+export default function HallOfFamePage() {
+    const { hallOfFame, players, activelyPlayingLegendIds, currentWeek, hydrated, isLoading, playerTeamId } = useGameStore(useShallow(state => ({
+        hydrated: state._hasHydrated,
+        isLoading: state.isLoading,
+        playerTeamId: state.playerTeamId,
+        hallOfFame: state.hallOfFame,
+        players: state.players,
+        activelyPlayingLegendIds: state.activelyPlayingLegendIds,
+        currentWeek: state.currentWeek,
+    })))
 
-function LegendCard({ legend, playerData, isFounding, isActive }: LegendCardProps) {
+    const activeIds = useMemo(() => new Set(activelyPlayingLegendIds), [activelyPlayingLegendIds])
+    const playerById = useMemo(() => new Map(players.map(p => [p.id, p])), [players])
+    const founding = useMemo(() => hallOfFame
+        .filter(l => l.category === "FOUNDING")
+        .sort((a, b) => Number(activeIds.has(a.id)) - Number(activeIds.has(b.id)) || a.eraStart - b.eraStart), [hallOfFame, activeIds])
+    const inducted = useMemo(() => hallOfFame.filter(l => l.category === "INDUCTED").sort((a, b) => b.eraEnd - a.eraEnd), [hallOfFame])
+    const season = Math.floor((currentWeek - 1) / 52) + 1
+
+    if (!hydrated || isLoading || !playerTeamId) return <LoadingState message="Loading Hall of Fame…" size="lg" className="min-h-[50vh]" />
+
     return (
-        <PlayerCard
-            player={{
-                id: legend.id,
-                nickname: legend.name,
-                portraitPath: legend.portraitPath,
-                role: legend.primaryRole,
-                nationality: legend.nationality,
-                overallRating: playerData?.skill,
-            }}
-            size="sm"
-            variant="default"
-            overlays={{ stats: playerData?.skill !== undefined }}
-            href={`/player/${legend.id}`}
-            muted={isActive}
-            className={cn(
-                isFounding && !isActive && "border-amber-500/40 ring-2 ring-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.15)]",
-            )}
-        >
-            {/* Corner ribbons */}
-            {isFounding && !isActive && (
-                <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden z-20 pointer-events-none">
-                    <div className="absolute top-2 right-[-20px] w-[80px] bg-linear-to-r/srgb from-amber-600 to-amber-400 text-[8px] font-normal text-black text-center py-0.5 rotate-45 shadow-lg">
-                        LEGEND
-                    </div>
-                </div>
-            )}
-            {isActive && (
-                <div className="absolute top-0 right-0 w-20 h-16 overflow-hidden z-20 pointer-events-none">
-                    <div className="absolute top-2 -right-4 w-[90px] bg-linear-to-r/srgb from-zinc-600 to-zinc-400 text-[7px] font-bold text-black text-center py-0.5 rotate-45 shadow-lg">
-                        STILL ACTIVE
-                    </div>
-                </div>
-            )}
+        <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
+            <ScreenHeader
+                eyebrow={`Season ${season} · Legacy`}
+                title="Hall of Fame"
+                subtitle="Players who defined eras. New legends are inducted when they retire."
+                aside={
+                    <KpiStrip>
+                        <Kpi label="Founding" value={founding.length} />
+                        <Kpi label="Inducted" value={inducted.length} />
+                        <Kpi label="Still playing" value={founding.filter(l => activeIds.has(l.id)).length} />
+                    </KpiStrip>
+                }
+            />
 
-            {/* Era + career stats + induction badges */}
-            <div className="relative z-10 pl-1 pr-1 pt-3 space-y-2">
-                <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                    <span>{legend.eraStart}–{legend.eraEnd}</span>
-                    {playerData && (
-                        <>
-                            {playerData.majorWins !== undefined && playerData.majorWins > 0 && (
-                                <span className="flex items-center gap-1">
-                                    <Trophy size={10} className="text-amber-400" />
-                                    {playerData.majorWins}
-                                </span>
-                            )}
-                            {playerData.totalMVPs !== undefined && playerData.totalMVPs > 0 && (
-                                <span className="flex items-center gap-1">
-                                    <Star size={10} className="text-yellow-400" />
-                                    {playerData.totalMVPs} MVP
-                                </span>
-                            )}
-                            {playerData.matchesPlayed !== undefined && (
-                                <span>{playerData.matchesPlayed.toLocaleString()} matches</span>
-                            )}
-                        </>
-                    )}
-                </div>
+            <Panel title="Inducted in your career" padded={false}>
+                {inducted.length > 0
+                    ? <LegendsTable legends={inducted} playerById={playerById} activeIds={activeIds} />
+                    : <p className="px-4 py-5 text-sm text-ink-3">No one yet. The first great career to end here gets the first plaque.</p>}
+            </Panel>
 
-                <div className="flex flex-wrap gap-1.5">
-                    {legend.inductionReasons.map((reason, i) => {
-                        const Icon = iconMap[reason.icon] || Trophy
-                        return (
-                            <Badge
-                                key={i}
-                                variant="outline"
-                                className={cn(
-                                    "text-[9px] py-0.5 px-2",
-                                    isFounding
-                                        ? "bg-amber-950/50 border-amber-700/30 text-amber-300"
-                                        : "bg-white/5 border-white/10 text-white/70",
-                                )}
-                            >
-                                <Icon className="w-2.5 h-2.5 mr-1" />
-                                {reason.label}
-                            </Badge>
-                        )
-                    })}
-                </div>
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+                <Panel title="Founding legends" padded={false}>
+                    {founding.length > 0
+                        ? <LegendsTable legends={founding} playerById={playerById} activeIds={activeIds} />
+                        : <p className="px-4 py-5 text-sm text-ink-3">No founding legends in this world.</p>}
+                </Panel>
+                <Panel title="How players get in" className="self-start">
+                    <p className="text-sm text-ink-2">At retirement a player is inducted with any two of:</p>
+                    <ul className="mt-2 space-y-1.5 text-sm text-ink-1">
+                        <li>A Major title</li>
+                        <li>{HOF.MVP_AWARDS}+ tournament MVPs</li>
+                        <li>{HOF.CAREER_KILLS.toLocaleString("en-US")}+ career kills</li>
+                        <li>{HOF.CAREER_MATCHES}+ matches</li>
+                        <li>A {HOF.CAREER_RATING.toFixed(2)}+ rating over {HOF.RATING_MIN_MATCHES}+ matches</li>
+                    </ul>
+                    <p className="mt-3 text-sm text-ink-2">
+                        {HOF.AUTO_MAJOR_WINS}+ Majors, or a {HOF.AUTO_RATING.toFixed(2)}+ rating over {HOF.RATING_MIN_MATCHES}+ matches, gets a player in on its own.
+                    </p>
+                </Panel>
             </div>
-        </PlayerCard>
+        </div>
     )
 }
-

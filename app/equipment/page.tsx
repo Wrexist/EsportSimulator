@@ -1,426 +1,182 @@
 "use client"
 
-import React, { useMemo, useRef, useState } from "react"
-import { equipmentArtwork } from "@/lib/ui-assets"
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import Link from "next/link"
-import { useGameStore } from "@/store/game-store"
-import { useShallow } from "zustand/react/shallow"
-import {
-    Mouse,
-    Keyboard,
-    Monitor,
-    Headphones,
-    Armchair,
-    Cpu,
-    Check,
-    ArrowUpCircle,
-    Gauge,
-    Sparkles,
-    TrendingUp
-} from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { motion, AnimatePresence } from "framer-motion"
-import { cn } from "@/lib/utils"
-import { toast } from "@/lib/toast"
+import { useMemo } from "react"
 import Image from "next/image"
+import { Armchair, Check, Cpu, Headphones, Keyboard, Monitor, Mouse } from "lucide-react"
+import { useShallow } from "zustand/react/shallow"
+import { useGameStore } from "@/store/game-store"
+import { Button } from "@/components/ui/button"
+import { LoadingState } from "@/components/ui/loading"
+import { Panel } from "@/src/components/ui/Panel"
+import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
+import { Meter } from "@/src/components/ui/Meter"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { equipmentArtwork } from "@/lib/ui-assets"
+import { toast } from "@/lib/toast"
+import { cn } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils-extended"
 import {
     EquipmentManager,
     EQUIPMENT_CATALOG,
     EQUIPMENT_TYPE_DISPLAY,
     EQUIPMENT_TIER_DISPLAY,
-    EquipmentType,
-    EquipmentCatalogItem
+    type EquipmentCatalogItem,
+    type EquipmentType,
 } from "@/engine/equipment-manager"
 import type { EquipmentItem } from "@/engine/save-types"
 
-import { formatCurrency } from "@/lib/utils-extended"
+const ICON: Record<string, typeof Mouse> = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
+const SLOTS = Object.keys(EQUIPMENT_TYPE_DISPLAY) as EquipmentType[]
+const money = (v: number) => formatCurrency(v, "$", false)
+/** Team-strength share of one item, exactly as the match engine applies it. */
+const gearStrengthPct = (item: { type: string; bonus?: { value: number } }) => EquipmentManager.itemStrengthBonus(item) * 100
 
-// Team-strength share of one item, as the match engine applies it.
-const gearStrengthPct = (item: { type: string; bonus?: { value: number } }) =>
-    (EquipmentManager.itemStrengthBonus(item) * 100).toFixed(1)
-
-const ICON_MAP: Record<string, typeof Mouse> = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
-// Derived from the display map so a future EquipmentType addition can't drift
-// — both lists stay in lock-step automatically.
-const EQUIPMENT_TYPES = Object.keys(EQUIPMENT_TYPE_DISPLAY) as EquipmentType[]
-
-export default function EquipmentPage() {
-    const { teams, playerTeamId, purchaseEquipment } = useGameStore(useShallow(state => ({
-        teams: state.teams,
-        playerTeamId: state.playerTeamId,
-        purchaseEquipment: state.purchaseEquipment,
-    })))
-    const [selectedType, setSelectedType] = useState<EquipmentType | "ALL">("ALL")
-    const [selectedItem, setSelectedItem] = useState<EquipmentCatalogItem | null>(null)
-    const comparisonTriggerRef = useRef<HTMLDivElement | null>(null)
-
-    const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
-
-    // Index team's currently-equipped items by type for O(1) lookup in the
-    // catalog .map() below. Was doing EquipmentManager.getTeamEquipment per
-    // row × 2 (isOwned + isUpgrade) — O(catalog × team_equipment.length).
-    const equippedByType = useMemo(() => {
-        const map = new Map<EquipmentType, EquipmentItem | undefined>()
-        if (!playerTeam) return map
-        for (const type of EQUIPMENT_TYPES) {
-            map.set(type, EquipmentManager.getTeamEquipment(playerTeam, type))
-        }
-        return map
-    }, [playerTeam])
-
-    const { bonuses, weeklyCost, completeness, avgTier } = useMemo(() => {
-        if (!playerTeam) return { bonuses: null, weeklyCost: 0, completeness: 0, avgTier: 0 }
-        return {
-            bonuses: EquipmentManager.calculateBonuses(playerTeam),
-            weeklyCost: EquipmentManager.calculateWeeklyCost(playerTeam),
-            completeness: EquipmentManager.getEquipmentCompleteness(playerTeam),
-            avgTier: EquipmentManager.getAverageEquipmentTier(playerTeam),
-        }
-    }, [playerTeam])
-
-    const displayItems = useMemo(() => (
-        selectedType === "ALL"
-            ? EQUIPMENT_CATALOG
-            : EQUIPMENT_CATALOG.filter(e => e.type === selectedType)
-    ), [selectedType])
-
-    if (!playerTeam) return null
-
-    const handlePurchase = (item: EquipmentCatalogItem) => {
-        if (!purchaseEquipment) return
-        const result = purchaseEquipment(item.id)
-        if (result.success) {
-            toast.success(`Purchased ${item.name}!`, {
-                description: `Installed immediately. Weekly upkeep: ${formatCurrency(item.weeklyCost, "$", false)}.`,
-            })
-            setSelectedItem(null)
-        } else {
-            toast.error("Purchase failed", { description: result.error })
-        }
-    }
-
-    const isOwned = (item: EquipmentCatalogItem) => equippedByType.get(item.type)?.id === item.id
-    const isUpgrade = (item: EquipmentCatalogItem) => {
-        const current = equippedByType.get(item.type)
-        return !current || item.tier > current.tier
-    }
-
+function GearTile({ item, equipped, budget, onBuy }: {
+    item: EquipmentCatalogItem
+    equipped: EquipmentItem | undefined
+    budget: number
+    onBuy: (item: EquipmentCatalogItem) => void
+}) {
+    const isEquipped = equipped?.id === item.id
+    const delta = gearStrengthPct(item) - (equipped ? gearStrengthPct(equipped) : 0)
+    const upkeepDelta = item.weeklyCost - (equipped?.weeklyCost ?? 0)
+    const short = item.purchaseCost - budget
     return (
-        <div className="equipment-page">
-            <nav aria-label="Club campus sections" className="mb-5 flex gap-2"><Button asChild variant="outline"><Link href="/basecamp">Club campus</Link></Button><Button asChild variant="secondary"><Link href="/equipment" aria-current="page">Equipment</Link></Button></nav>
-            {/* Header / Hero Section */}
-            <div className="relative pt-2 pb-6 px-0 overflow-hidden">
-                <div className="absolute inset-0 bg-grid-white/[0.02] bg-size-[32px]" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-primary/20 blur-[120px] rounded-full opacity-20 pointer-events-none" />
-
-                <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row justify-between items-end gap-8">
-                    <div>
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-3 mb-2"
-                        >
-                            <Badge className="bg-white/10 text-white hover:bg-white/20 border-white/10 backdrop-blur-md">
-                                LOGISTICS CENTER
-                            </Badge>
-                            <div className="h-px w-20 bg-linear-to-r/srgb from-white/20 to-transparent" />
-                        </motion.div>
-                        <h1 className="page-title mb-4">
-                            Equipment
-                        </h1>
-                        <p className="max-w-xl text-sm text-muted-foreground leading-relaxed">
-                            Upgrade your facility with professional-grade hardware.
-                            Gear improves team strength in career match simulation. It does not permanently increase player attributes or training speed.
-                        </p>
-                    </div>
-
-                    {/* Stats HUD */}
-                    <div className="flex gap-4">
-                        <div className="glass-panel p-6 border-white/10 backdrop-blur-xl bg-white/3 min-w-[160px]">
-                            <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground mb-1">Budget</p>
-                            <p className="text-3xl font-normal font-sans text-emerald-400 tracking-tight">
-                                {formatCurrency(playerTeam.budget)}
-                            </p>
-                        </div>
-                        <div className="glass-panel p-6 border-white/10 backdrop-blur-xl bg-white/3 min-w-[160px]">
-                            <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground mb-1">Upkeep</p>
-                            <p className="text-3xl font-normal font-sans text-red-400 tracking-tight">
-                                {formatCurrency(-weeklyCost, "$", false)}
-                            </p>
-                        </div>
-                    </div>
-                </div>
+        <div className={cn("flex min-w-0 gap-3 rounded border p-3", isEquipped ? "border-line-strong bg-raised" : "border-line bg-shell")}>
+            <div className="relative h-16 w-16 shrink-0">
+                <Image src={equipmentArtwork(item.type, item.tier, item.imagePath || EQUIPMENT_TYPE_DISPLAY[item.type].imagePath)} alt="" fill sizes="64px" className="object-contain" />
             </div>
-
-            <div className="max-w-7xl mx-auto px-8 space-y-8">
-                {/* Loadout Performance Summary — equipment translates into concrete
-                    player stat bonuses; surfacing completeness, average tier and the
-                    active bonuses gives upgrade decisions visible stakes. (These were
-                    computed but never rendered before — completed in audit.) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Loadout completeness */}
-                    <div className="glass-panel p-5 border-white/10 bg-white/3">
-                        <div className="flex items-center justify-between mb-3">
-                            <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-                                <Gauge size={12} /> Loadout Completeness
-                            </p>
-                            <span className="text-sm font-bold text-white">{completeness}%</span>
-                        </div>
-                        <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
-                            <div
-                                className="h-full rounded-full bg-linear-to-r/srgb from-primary/60 to-primary transition-all"
-                                style={{ width: `${completeness}%` }}
-                            />
-                        </div>
-                        <p className="text-[10px] text-muted-foreground mt-2">
-                            {completeness === 100 ? "Full pro-grade setup" : "Equip every slot for maximum gains"}
-                        </p>
+            <div className="flex min-w-0 flex-1 flex-col">
+                <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3 lg:hidden">{EQUIPMENT_TIER_DISPLAY[item.tier].label}</p>
+                        <p className="truncate text-sm font-semibold text-ink-1" title={item.name}>{item.name}</p>
                     </div>
-
-                    {/* Average tier */}
-                    <div className="glass-panel p-5 border-white/10 bg-white/3 flex flex-col justify-between">
-                        <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-                            <TrendingUp size={12} /> Average Tier
-                        </p>
-                        <div className="flex items-end gap-2 mt-2">
-                            <span className="text-3xl font-normal text-white tracking-tight">{avgTier.toFixed(1)}</span>
-                            <span className="text-xs text-muted-foreground mb-1">/ 3.0</span>
-                        </div>
-                    </div>
-
-                    {/* Active stat bonuses */}
-                    <div className="glass-panel p-5 border-white/10 bg-white/3">
-                        <p className="text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 mb-3">
-                            <Sparkles size={12} /> Installed gear ratings
-                        </p>
-                        {Object.keys(bonuses || {}).length === 0 ? (
-                            <p className="text-[11px] text-muted-foreground italic">No equipment bonuses yet — purchase gear below.</p>
-                        ) : (
-                            <div className="flex flex-wrap gap-1.5">
-                                {Object.entries(bonuses || {}).map(([stat, value]) => (
-                                    <Badge key={stat} variant="outline" className="text-[10px] h-5 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                                        +{value} {stat.replace(/([A-Z])/g, " $1").replace(/^./, c => c.toUpperCase()).trim()}
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    <span className="shrink-0 text-sm font-semibold tabular-nums text-ink-1">+{gearStrengthPct(item).toFixed(1)}%</span>
                 </div>
-
-                {/* Category Filter */}
-                <div className="flex flex-wrap items-center justify-center gap-3 py-4 sticky top-4 z-30">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-xl -z-10 rounded-2xl border border-white/5 shadow-2xl" />
-                    <Button
-                        variant={selectedType === "ALL" ? "default" : "ghost"}
-                        onClick={() => setSelectedType("ALL")}
-                        className={cn("rounded-xl h-10 px-6 font-bold tracking-wide transition-all", selectedType === "ALL" ? "bg-white text-black hover:bg-white/90" : "text-muted-foreground hover:text-white")}
-                    >
-                        ALL
-                    </Button>
-                    <div className="w-px h-6 bg-white/10 mx-2" />
-                    {Object.entries(EQUIPMENT_TYPE_DISPLAY).map(([type, info]) => {
-                        const Icon = ICON_MAP[info.icon]
-                        return (
-                            <Button
-                                key={type}
-                                variant={selectedType === type ? "default" : "ghost"}
-                                onClick={() => setSelectedType(type as EquipmentType)}
-                                className={cn(
-                                    "rounded-xl h-10 gap-2 font-bold tracking-wide transition-all",
-                                    selectedType === type
-                                        ? "bg-white text-black hover:bg-white/90 shadow-xs"
-                                        : "text-muted-foreground hover:text-white hover:bg-white/5"
-                                )}
-                            >
-                                <Icon size={16} />
-                                {info.label}
+                <p className="mt-0.5 text-xs tabular-nums text-ink-3">{money(item.purchaseCost)} · {money(item.weeklyCost)}/wk upkeep</p>
+                <div className="mt-auto pt-2">
+                    {isEquipped ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-positive"><Check size={12} /> Equipped</span>
+                    ) : short > 0 ? (
+                        <span className="text-xs text-ink-3">{money(short)} short</span>
+                    ) : (
+                        <div className="flex items-center justify-between gap-2">
+                            <span className={cn("text-xs tabular-nums", !equipped ? "text-ink-3" : delta > 0 ? "text-positive" : delta < 0 ? "text-caution" : "text-ink-3")}>
+                                {equipped ? `${delta >= 0 ? "+" : "−"}${Math.abs(delta).toFixed(1)}% · ${upkeepDelta >= 0 ? "+" : "−"}${money(Math.abs(upkeepDelta))}/wk` : "Empty slot"}
+                            </span>
+                            <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs" onClick={() => onBuy(item)}>
+                                {equipped ? (delta >= 0 ? "Upgrade" : "Swap down") : "Buy"}
                             </Button>
-                        )
-                    })}
-                </div>
-
-                {/* Main Grid */}
-                <div className="equipment-grid">
-                    <AnimatePresence mode="popLayout">
-                        {displayItems.map((item, idx) => {
-                            const typeDisplay = EQUIPMENT_TYPE_DISPLAY[item.type]
-                            const tierDisplay = EQUIPMENT_TIER_DISPLAY[item.tier]
-                            const owned = isOwned(item)
-                            const upgrade = !owned && isUpgrade(item)
-
-                            return (
-                                <motion.div
-                                    key={item.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.95 }}
-                                    transition={{ delay: idx * 0.05 }}
-                                    onClick={(event) => { comparisonTriggerRef.current = event.currentTarget; setSelectedItem(item) }}
-                                    role="button"
-                                    tabIndex={0}
-                                    aria-label={`Compare ${item.name}`}
-                                    onKeyDown={(event) => { if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); comparisonTriggerRef.current = event.currentTarget; setSelectedItem(item) } }}
-                                    className={cn(
-                                        "equipment-tile glass-card group relative h-[330px] rounded-2xl overflow-hidden cursor-pointer transition-[transform,border-color,box-shadow] duration-200 ease-out",
-                                        "border border-white/5 hover:border-white/20 hover:shadow-2xl hover:-translate-y-1",
-                                        owned ? "bg-emerald-950/20" : "bg-white/2"
-                                    )}
-                                >
-                                    {/* Background Image / Glow */}
-                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-radial-[circle_at_center_in_srgb] from-white/5 to-transparent" />
-
-                                    {/* Use the new realistic image */}
-                                    <div className="absolute inset-x-0 top-0 h-[190px] flex items-center justify-center p-4 transition-transform duration-200 ease-out group-hover:scale-[1.02]">
-                                        <div className="relative w-full h-full">
-                                            <Image
-                                                src={equipmentArtwork(item.type, item.tier, item.imagePath || typeDisplay.imagePath)}
-                                                alt={item.name}
-                                                fill
-                                                sizes="(max-width: 1350px) 300px, 450px"
-                                                className="object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Content Overlay */}
-                                    <div className="absolute inset-x-0 bottom-0 min-h-[140px] p-5 bg-linear-to-t/srgb from-[#112139] via-[#112139]/95 to-transparent flex flex-col justify-end">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <div>
-                                                <Badge variant="outline" className={cn("mb-2 border-none bg-white/5 backdrop-blur-xs", tierDisplay.color)}>
-                                                    TIER {item.tier} • {tierDisplay.label}
-                                                </Badge>
-                                                <h3 className="text-xl font-normal text-white leading-tight uppercase tracking-tight group-hover:text-primary transition-colors">
-                                                    {item.name}
-                                                </h3>
-                                            </div>
-                                            {owned && (
-                                                <div className="w-8 h-8 rounded-full bg-emerald-500 text-black flex items-center justify-center">
-                                                    <Check size={16} strokeWidth={4} />
-                                                </div>
-                                            )}
-                                            {upgrade && (
-                                                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold">
-                                                    <ArrowUpCircle size={12} />
-                                                    UPGRADE
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="flex items-center justify-between mt-2">
-                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                                <span className="text-emerald-400 font-bold">+{gearStrengthPct(item)}% team strength</span>
-                                            </div>
-                                            <p className="font-sans font-bold text-white">
-                                                {formatCurrency(item.purchaseCost, "$", false)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            )
-                        })}
-                    </AnimatePresence>
+                        </div>
+                    )}
                 </div>
             </div>
-
-            {/* Detail Modal */}
-            <Dialog open={!!selectedItem} onOpenChange={(open) => { if (!open) setSelectedItem(null) }}>
-                {selectedItem && (
-                    <DialogContent className="equipment-comparison sm:max-w-4xl p-0 gap-0 flex flex-col md:flex-row" onCloseAutoFocus={(event) => { event.preventDefault(); comparisonTriggerRef.current?.focus() }}>
-
-                            {/* Left: Visual */}
-                            <div className="w-full md:w-1/2 bg-linear-to-br/srgb from-white/3 to-transparent relative min-h-[240px] flex items-center justify-center p-8">
-                                <motion.div
-                                    className="relative w-full aspect-square"
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.2 }}
-                                >
-                                    <Image
-                                        src={equipmentArtwork(selectedItem.type, selectedItem.tier, selectedItem.imagePath || EQUIPMENT_TYPE_DISPLAY[selectedItem.type].imagePath)}
-                                        alt={selectedItem.name}
-                                        fill
-                                        className="object-contain drop-shadow-[0_50px_100px_rgba(0,0,0,0.8)]"
-                                    />
-                                </motion.div>
-                            </div>
-
-                            {/* Right: Info */}
-                            <div className="w-full md:w-1/2 p-6 flex flex-col">
-                                <div className="mb-auto">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <Badge className={cn("px-3 py-1 text-xs", EQUIPMENT_TIER_DISPLAY[selectedItem.tier].bgColor, EQUIPMENT_TIER_DISPLAY[selectedItem.tier].color)}>
-                                            TIER {selectedItem.tier}
-                                        </Badge>
-                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                                            {EQUIPMENT_TYPE_DISPLAY[selectedItem.type].label}
-                                        </span>
-                                    </div>
-
-                                    <DialogTitle className="text-2xl font-semibold text-white tracking-tight mb-3 pr-6">
-                                        {selectedItem.name}
-                                    </DialogTitle>
-                                    <DialogDescription className="leading-relaxed mb-5">
-                                        {selectedItem.description}.
-                                    </DialogDescription>
-
-                                    <div className="grid grid-cols-2 gap-3 mb-5">
-                                        <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                            <p className="text-[10px] font-normal uppercase text-muted-foreground mb-1">Team strength</p>
-                                            <p className="text-2xl font-normal text-emerald-400">+{gearStrengthPct(selectedItem)}%</p>
-                                        </div>
-                                        <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                            <p className="text-[10px] font-normal uppercase text-muted-foreground mb-1">Weekly Maintenance</p>
-                                            <p className="text-2xl font-normal text-red-400">{formatCurrency(-selectedItem.weeklyCost, "$", false)}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="pt-5 border-t border-white/10">
-                                    <p className="mb-4 text-sm text-muted-foreground">Replaces the current item in this slot immediately, with no trade-in refund. Upkeep replaces the old item’s cost at the next settlement. A cheaper replacement lowers ongoing costs.</p>
-                                    <p className="mb-4 text-sm text-muted-foreground">All gear together adds at most +{(EquipmentManager.STRENGTH_CAP * 100).toFixed(0)}% team strength. Weekly upkeep change: ${selectedItem.weeklyCost - (equippedByType.get(selectedItem.type)?.weeklyCost || 0)}.</p>
-                                    <div className="flex items-center justify-between mb-6">
-                                        <div>
-                                            <p className="text-xs font-bold text-muted-foreground uppercase">Price</p>
-                                            <p className="text-3xl font-normal text-white font-sans">{formatCurrency(selectedItem.purchaseCost, "$", false)}</p>
-                                        </div>
-                                        {isOwned(selectedItem) ? (
-                                            <div className="flex items-center gap-2 text-emerald-400 font-bold uppercase tracking-widest text-sm">
-                                                <CheckCircleIcon /> Item Acquired
-                                            </div>
-                                        ) : (
-                                            <div className={cn("text-sm font-bold uppercase tracking-widest", playerTeam.budget >= selectedItem.purchaseCost ? "text-emerald-400" : "text-red-500")}>
-                                                {playerTeam.budget >= selectedItem.purchaseCost ? "In Budget" : "Funds Needed"}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {!isOwned(selectedItem) && (
-                                        <Button
-                                            size="lg"
-                                            className="w-full h-14 text-lg font-normal uppercase tracking-widest bg-white text-black hover:bg-white/90"
-                                            onClick={() => handlePurchase(selectedItem)}
-                                            disabled={playerTeam.budget < selectedItem.purchaseCost}
-                                        >
-                                            Purchase Equipment
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
-                    </DialogContent>
-                )}
-            </Dialog>
         </div>
     )
 }
 
-function CheckCircleIcon() {
+export default function EquipmentPage() {
+    const { teams, playerTeamId, purchaseEquipment, currentWeek } = useGameStore(useShallow(state => ({
+        teams: state.teams,
+        playerTeamId: state.playerTeamId,
+        purchaseEquipment: state.purchaseEquipment,
+        currentWeek: state.currentWeek,
+    })))
+    const team = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+
+    const equippedByType = useMemo(() => {
+        const map = new Map<EquipmentType, EquipmentItem | undefined>()
+        if (team) for (const type of SLOTS) map.set(type, EquipmentManager.getTeamEquipment(team, type))
+        return map
+    }, [team])
+
+    if (!team) return <LoadingState message="Loading equipment…" size="lg" className="min-h-[50vh]" />
+
+    const strength = EquipmentManager.strengthBonus(team) * 100
+    const cap = EquipmentManager.STRENGTH_CAP * 100
+    const upkeep = EquipmentManager.calculateWeeklyCost(team)
+    const filled = SLOTS.filter(t => equippedByType.get(t)).length
+    const season = Math.ceil(currentWeek / 52)
+
+    const handleBuy = (item: EquipmentCatalogItem) => {
+        const result = purchaseEquipment(item.id)
+        if (result.success) toast.success(`${item.name} installed`, { description: `Upkeep ${money(item.weeklyCost)}/wk from the next settlement. The old item is not refunded.` })
+        else toast.error("Purchase failed", { description: result.error })
+    }
+
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-        </svg>
+        <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
+            <ScreenHeader
+                eyebrow={`Season ${season} · Club`}
+                title="Equipment"
+                subtitle={`Gear adds a share of team strength in matches — at most +${cap.toFixed(0)}% for a full elite set. It doesn't change player attributes or training.`}
+                aside={
+                    <KpiStrip>
+                        <Kpi label="Gear strength" value={`+${strength.toFixed(1)}%`} hint={`of +${cap.toFixed(0)}% max`} />
+                        <Kpi label="Upkeep / wk" value={formatCurrency(upkeep, "$", true)} />
+                        <Kpi label="Slots" value={`${filled} / ${SLOTS.length}`} />
+                        <Kpi label="Funds" value={formatCurrency(team.budget, "$", true)} />
+                    </KpiStrip>
+                }
+            />
+
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+                <Panel padded={false} className="overflow-hidden">
+                    <div className="hidden grid-cols-[200px_repeat(3,minmax(0,1fr))] gap-3 border-b border-line bg-raised px-4 py-2.5 lg:grid">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">Slot</span>
+                        {([1, 2, 3] as const).map(t => <span key={t} className="text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">{EQUIPMENT_TIER_DISPLAY[t].label}</span>)}
+                    </div>
+                    <div className="divide-y divide-line">
+                        {SLOTS.map(type => {
+                            const display = EQUIPMENT_TYPE_DISPLAY[type]
+                            const Icon = ICON[display.icon] ?? Cpu
+                            const equipped = equippedByType.get(type)
+                            const items = EQUIPMENT_CATALOG.filter(i => i.type === type).sort((a, b) => a.tier - b.tier)
+                            return (
+                                <div key={type} className="grid grid-cols-1 gap-3 px-4 py-3 lg:grid-cols-[200px_repeat(3,minmax(0,1fr))]">
+                                    <div className="flex items-center gap-3">
+                                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-raised text-ink-2"><Icon size={18} /></span>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-semibold text-ink-1">{display.label}</p>
+                                            <p className="truncate text-xs text-ink-3">{equipped ? `+${gearStrengthPct(equipped).toFixed(1)}% now` : "Empty"}</p>
+                                        </div>
+                                    </div>
+                                    {items.map(item => <GearTile key={item.id} item={item} equipped={equipped} budget={team.budget} onBuy={handleBuy} />)}
+                                </div>
+                            )
+                        })}
+                    </div>
+                </Panel>
+
+                <aside className="min-w-0 space-y-4">
+                    <Panel title="Team strength from gear">
+                        <div className="flex items-baseline justify-between">
+                            <span className="font-display text-4xl font-bold tabular-nums text-ink-1">+{strength.toFixed(1)}%</span>
+                            <span className="text-xs text-ink-3">cap +{cap.toFixed(0)}%</span>
+                        </div>
+                        <Meter value={(strength / cap) * 100} label="Gear strength toward cap" tone="neutral" showValue={false} className="mt-2" trackClassName="w-full" />
+                        <dl className="mt-4 divide-y divide-line">
+                            {SLOTS.map(type => {
+                                const item = equippedByType.get(type)
+                                return (
+                                    <div key={type} className="flex items-center justify-between gap-3 py-1.5 text-sm">
+                                        <dt className="text-ink-3">{EQUIPMENT_TYPE_DISPLAY[type].label}</dt>
+                                        <dd className={cn("tabular-nums", item ? "text-ink-1" : "text-ink-3")}>{item ? `+${gearStrengthPct(item).toFixed(1)}%` : "—"}</dd>
+                                    </div>
+                                )
+                            })}
+                        </dl>
+                    </Panel>
+                    <Panel title="How gear works">
+                        <ul className="space-y-3 text-sm text-ink-2">
+                            <li>One item per slot. Buying replaces the current item at once, with no refund for the old one.</li>
+                            <li>Each item adds a fixed share of team strength; a full elite set reaches the +{cap.toFixed(0)}% cap. AI clubs are assumed to own gear that scales with their reputation.</li>
+                            <li>Upkeep is charged every weekly settlement. A cheaper item lowers it.</li>
+                        </ul>
+                    </Panel>
+                </aside>
+            </div>
+        </div>
     )
 }
