@@ -92,7 +92,7 @@ export default function BasecampPage() {
         }
       />
 
-      <div className="campus-scene h-[240px]! rounded-[10px]! border-line!" role="group" aria-label="Select a facility">
+      <div className="campus-scene" role="group" aria-label="Select a facility">
         <Image src={UI_ASSETS.campus} alt="" fill priority sizes="1600px" className="object-cover" />
         {FACILITIES.map(f => {
           const level = levelOf(f.type)
@@ -100,7 +100,7 @@ export default function BasecampPage() {
             <button
               key={f.type}
               type="button"
-              className="campus-hotspot shadow-none!"
+              className="campus-hotspot"
               style={f.spot}
               aria-pressed={selected === f.type}
               onClick={() => { setSelected(f.type); document.getElementById(`facility-${f.type}`)?.scrollIntoView({ block: "nearest" }) }}

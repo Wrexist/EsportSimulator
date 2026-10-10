@@ -17,7 +17,7 @@ export interface EmptyStateProps {
   }
   /** Extra custom content rendered below the description. */
   children?: ReactNode
-  /** Use a dashed, glass-style card frame. Off for raw-content embedding. */
+  /** Draw a dashed frame. Off for raw-content embedding. */
   framed?: boolean
   className?: string
 }
@@ -38,26 +38,26 @@ export function EmptyState({
   return (
     <div className={cn(
       "premium-empty-state flex flex-col items-center justify-center text-center",
-      framed && "p-6 sm:p-8 rounded-xl border border-dashed border-white/10 bg-white/1",
-      !framed && "py-8",
+      framed && "rounded-lg border border-dashed border-line-strong px-6 py-6",
+      !framed && "py-6",
       className,
     )}>
       {Icon && (
-        <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-4 border border-white/10">
-          <Icon className="w-6 h-6 text-muted-foreground" />
+        <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-md bg-raised">
+          <Icon className="h-[18px] w-[18px] text-ink-3" />
         </div>
       )}
-      <h3 className="text-base font-semibold text-foreground">
+      <h3 className="text-sm font-semibold text-ink-1">
         {title}
       </h3>
       {description && (
-        <p className="text-sm leading-relaxed text-muted-foreground mt-2 max-w-md">
+        <p className="mt-1 max-w-md text-sm leading-relaxed text-ink-3">
           {description}
         </p>
       )}
-      {children && <div className="mt-4 w-full max-w-sm">{children}</div>}
+      {children && <div className="mt-3 w-full max-w-sm">{children}</div>}
       {action && (
-        <div className="mt-5">
+        <div className="mt-4">
           {action.href ? (
             <Button asChild variant="outline" size="sm" className="gap-2">
               <Link href={action.href}>{action.label}</Link>

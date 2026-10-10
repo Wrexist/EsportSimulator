@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import { facilityEffect } from "@/engine/organization-effects"
 import { motion, AnimatePresence } from "framer-motion"
 import { Zap, Heart, Users, LineChart, ArrowUp, Building2, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -54,35 +55,43 @@ const FACILITIES: {
         },
     ]
 
-const FACILITY_LEVELS: Record<FacilityType, Record<number, { desc: string; perks: string[] }>> = {
+const FACILITY_LEVELS: Record<FacilityType, Record<number, { desc: string }>> = {
     TRAINING: {
-        1: { desc: "Basic gaming booths for daily practice.", perks: ["+5% XP Gain from Scrims", "Unlock: Basic Scrims"] },
-        2: { desc: "Upgraded setup with a dedicated analysts corner.", perks: ["+10% XP Gain"] },
-        3: { desc: "Professional academy with private practice rooms.", perks: ["+20% XP Gain", "Unlock: Advanced Drills"] },
-        4: { desc: "State-of-the-art lab with bio-metric feedback.", perks: ["+35% XP Gain", "Reduce Fatigue Gain by 10%"] },
-        5: { desc: "The Empire Training Center: Apex of esports.", perks: ["+50% XP Gain", "Max Potential Unlock"] }
+        1: { desc: "Basic gaming booths for daily practice." },
+        2: { desc: "Upgraded setup with a dedicated analysts corner." },
+        3: { desc: "Professional academy with private practice rooms." },
+        4: { desc: "State-of-the-art lab with bio-metric feedback." },
+        5: { desc: "The Empire Training Center: Apex of esports." }
     },
     RECOVERY: {
-        1: { desc: "Basic rest area with snacks and drinks.", perks: ["+5% Stamina Recovery", "Unlock: Short Break"] },
-        2: { desc: "Chill zone with gaming chairs and lounges.", perks: ["+10% Stamina Recovery"] },
-        3: { desc: "Health suite with physical therapy equipment.", perks: ["+20% Stamina Recovery", "Reduce Injury Chance"] },
-        4: { desc: "Performance kitchen and dedicated sleep pods.", perks: ["+35% Stamina Recovery", "Boost Morale Recovery"] },
-        5: { desc: "Empire Wellness Retreat: Infinite stamina.", perks: ["+50% Stamina Recovery", "Near-Zero Injury Risk"] }
+        1: { desc: "Basic rest area with snacks and drinks." },
+        2: { desc: "Chill zone with gaming chairs and lounges." },
+        3: { desc: "Health suite with physical therapy equipment." },
+        4: { desc: "Performance kitchen and dedicated sleep pods." },
+        5: { desc: "Empire Wellness Retreat: Infinite stamina." }
     },
     TACTICAL: {
-        1: { desc: "Whiteboard and projector setup.", perks: ["+5% Tactical Read"] },
-        2: { desc: "VOD review station with basic software.", perks: ["+10% Tactical Read"] },
-        3: { desc: "War room with multi-screen data analysis.", perks: ["+20% Tactical Read"] },
-        4: { desc: "AI-assisted strategic simulator.", perks: ["Predict Opponent Vetos", "+35% Tactical Read"] },
-        5: { desc: "Empire Command Hub: Tactical perfection.", perks: ["Perfect Strategy Counter", "+50% Tactical Read"] }
+        1: { desc: "Whiteboard and projector setup." },
+        2: { desc: "VOD review station with basic software." },
+        3: { desc: "War room with multi-screen data analysis." },
+        4: { desc: "AI-assisted strategic simulator." },
+        5: { desc: "Empire Command Hub: Tactical perfection." }
     },
     FANZONE: {
-        1: { desc: "Small local fan club booth.", perks: ["+5% Merchandise Revenue", "+2% Fan Growth"] },
-        2: { desc: "Official team store and media studio.", perks: ["+15% Merchandise Revenue", "+5% Fan Growth"] },
-        3: { desc: "Interactive museum and fan experience hub.", perks: ["+30% Merchandise Revenue", "+10% Fan Growth"] },
-        4: { desc: "Global flagship store and content mansion.", perks: ["+50% Merchandise Revenue", "Unlock: Global Sponsorships"] },
-        5: { desc: "Empire Fan Plaza: Global cultural center.", perks: ["+100% Merchandise Revenue", "Legendary Status"] }
+        1: { desc: "Small local fan club booth." },
+        2: { desc: "Official team store and media studio." },
+        3: { desc: "Interactive museum and fan experience hub." },
+        4: { desc: "Global flagship store and content mansion." },
+        5: { desc: "Empire Fan Plaza: Global cultural center." }
     }
+}
+
+/**
+ * What a facility level actually does, from the engine rules. Every built
+ * level also counts toward the club facility bonus in matches.
+ */
+function facilityPerks(type: FacilityType, level: number): string[] {
+    return level > 0 ? [facilityEffect(type, level), "Counts toward the facility match bonus (max +10%)"] : []
 }
 
 export function FacilitiesApp() {
@@ -253,9 +262,9 @@ export function FacilitiesApp() {
                                                                 <p className="text-sm text-white/60 mb-4 leading-relaxed">{currentLevelInfo?.desc}</p>
 
                                                                 <div className="space-y-2">
-                                                                    {currentLevelInfo?.perks.map((perk, i) => (
-                                                                        <div key={i} className="flex items-center gap-3 text-xs font-medium text-cyan-100/80 bg-cyan-500/5 p-2 rounded-lg border border-cyan-500/10">
-                                                                            <CheckCircle2 size={14} className="text-cyan-400 shrink-0" />
+                                                                    {facilityPerks(fac.id as FacilityType, level).map((perk, i) => (
+                                                                        <div key={i} className="flex items-center gap-3 rounded border border-line bg-raised p-2 text-xs font-medium text-ink-2">
+                                                                            <CheckCircle2 size={14} className="shrink-0 text-positive" />
                                                                             {perk}
                                                                         </div>
                                                                     ))}
@@ -297,7 +306,7 @@ export function FacilitiesApp() {
                                                             <p className="text-sm text-white/60 mb-4 leading-relaxed">{nextLevelInfo?.desc}</p>
 
                                                             <div className="space-y-2 mb-6">
-                                                                {nextLevelInfo?.perks.map((perk, i) => (
+                                                                {facilityPerks(fac.id as FacilityType, level + 1).map((perk, i) => (
                                                                     <div key={i} className="flex items-center gap-3 text-xs font-medium text-white/80 bg-white/5 p-2 rounded-lg border border-white/5">
                                                                         <ArrowUp size={14} className="text-white/40 shrink-0" />
                                                                         {perk}
