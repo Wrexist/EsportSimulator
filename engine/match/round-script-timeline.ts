@@ -7,6 +7,7 @@
 import type { NavGraph } from "./round-script-nav"
 import { RUN_PACE, PLAN_PACE, len, weaponClass, hyp, alive, round3, roundPoint } from "./round-script-context"
 import type { Phase, Anchor, Step, Actor, Kill, State, Ctx } from "./round-script-context"
+import { zonePoint } from "./round-sim/zones"
 
 // Math is read once: global lookups are very slow inside Jest's sandbox (tests time the builder).
 const { abs, max, min } = Math
@@ -17,6 +18,9 @@ export const DUEL_MAX = 10
 export const BURST = 1.08
 /** Share of the theoretical reach a killer may use before its next fight (keeps slack for the duel itself). */
 export const LOOKAHEAD_MARGIN = 0.75
+/** script-v1: a duel more than this far (map-%) from the resolver's zone pays ZONE_PULL per extra map-%. */
+export const ZONE_RADIUS = 5
+export const ZONE_PULL = 2.5
 
 // ─── Default motion, legs, sampling of the plan ────────────────────────────
 
@@ -312,6 +316,8 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
     const matesK = others
     const bomb = ctx.plantT !== undefined && t >= ctx.plantT ? g.point(ctx.plantNode) : null
     const trade = kill.trade && ctx.lastDeath && t - ctx.lastDeath.t <= 6 ? g.point(ctx.lastDeath.node) : null
+    // script-v1: the resolver says where this fight happened.
+    const zone = kill.zone ? zonePoint(ctx.map, kill.zone) : undefined
     // Lookahead: the killer's next fight must stay within reach of its opponent.
     const nextKill = ctx.kills.find(x => x.t > t && (x.killerId === K.id || x.victimId === K.id))
     const nextFoe = nextKill ? ctx.byId.get(nextKill.killerId === K.id ? nextKill.victimId : nextKill.killerId) : undefined
@@ -362,6 +368,10 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
         if (trade) {
             const dt = len(kx - trade.x, ky - trade.y)
             if (dt > 7) cost += dt - 7
+        }
+        if (zone && zone.floor === g.floor[v]) {
+            const dz = len((vx + kx) / 2 - zone.x, (vy + ky) / 2 - zone.y)
+            if (dz > ZONE_RADIUS) cost += ZONE_PULL * (dz - ZONE_RADIUS)
         }
         if (cost < bestCost) {
             bestCost = cost

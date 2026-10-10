@@ -115,7 +115,11 @@ function buildZones(map: RoundMap): MapZones {
         }
     }
     const sites = { A: site("A"), B: site("B") }
-    const mids = map.holds.filter(h => h.kind === "mid")
+    // Maps without a mid hold (Nuke) use the hold nearest the middle of the two sites.
+    const between = { x: (map.sites.A.center.x + map.sites.B.center.x) / 2, y: (map.sites.A.center.y + map.sites.B.center.y) / 2 }
+    const mids = map.holds.some(h => h.kind === "mid")
+        ? map.holds.filter(h => h.kind === "mid")
+        : [...map.holds].sort((a, b) => hyp(a.at, between) - hyp(b.at, between)).slice(0, 1)
     const midTime = mids.length ? (Math.min(...mids.map(h => hyp(h.at, tSpawn))) * 1.35) / (v * 0.95) : 12
     const lurkOf = (s: SiteId) => {
         const r = map.routes.find(x => x.kind === "lurk" && x.site === s)

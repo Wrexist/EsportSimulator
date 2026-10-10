@@ -10,11 +10,21 @@ import type { CtSetup, RoundMapHold, RoundMapRoute, SiteId, TStrategy } from "./
 // Math is read once: global lookups are very slow inside Jest's sandbox (tests time the builder).
 const { abs, floor, max, min } = Math
 
+/** script-v1: seconds between the Ts leaving their staging spots and the resolver's first contact. */
+const EXEC_LEAD = 4
+
 // ─── Plan ──────────────────────────────────────────────────────────────────
 
 export function choosePlan(ctx: Ctx): void {
     const { input } = ctx
     const rng = ctx.rng.plan
+    if (input.plan) {
+        // script-v1: the resolver decided the plan; the script shows it.
+        ctx.strategy = input.plan.tStrategy
+        ctx.site = input.plan.site
+        ctx.ctSetup = input.plan.ctSetup
+        return
+    }
     const tStyle = (input.tPlaystyle ?? "").toLowerCase()
     const ctStyle = (input.ctPlaystyle ?? "").toLowerCase()
 
@@ -243,6 +253,9 @@ export function buildTPhases(ctx: Ctx): void {
             const from = regroup.get(ctx.planter) ?? stage.get(ctx.planter) ?? ctx.planter.spawn
             const travel = g.pathDist(from, ctx.plantNode) / (ctx.v * RUN_PACE)
             ctx.execAt = max(6, ctx.plantT - PLANT_SECONDS - travel - execDelay(ctx.planter) - rng.plan.range(1, 5))
+        } else if (ctx.input.plan?.execAt !== undefined) {
+            // script-v1: the resolver's execute (first contact on the site), less the walk in.
+            ctx.execAt = max(6, ctx.input.plan.execAt - EXEC_LEAD)
         } else if (ctx.kills.length) {
             const median = ctx.kills[floor((ctx.kills.length - 1) / 2)].t
             ctx.execAt = min(base, max(12, median - 2))

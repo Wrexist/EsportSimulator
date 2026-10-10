@@ -1097,6 +1097,8 @@ function retake(R: Round, plan: PlanState, lurker: Actor | null, pending: [Actor
         tEnd: deadline(), step: [1.2, 3], attTrade: T.TRADE_HOLD, defTrade: T.TRADE_HOLD, holdCut: 0, maxDuels: 99,
         attPts: () => (R.t > deadline() - 8 ? -T.RUSHED : 0), tag: "retake",
         stop: () => {
+            // The kit holder may have died: the deadline moves with the defuse time.
+            if (R.t > deadline()) return true
             const c = ctN()
             if (c < lastCT) { lastCT = c; return wantsSave() }
             return false
@@ -1109,7 +1111,9 @@ function retake(R: Round, plan: PlanState, lurker: Actor | null, pending: [Actor
         const cts = living(R.CT)
         const defuser = cts.find(a => a.kit) ?? cts[0]
         const dur = defuser.kit ? 5 : 10
-        const startDefuse = R.t + R.rng.range(0.8, 2.5)
+        // From the last T's death (the fight clock may have run on past it).
+        const lastDeath = max(...R.T.map(a => a.deathT))
+        const startDefuse = lastDeath + R.rng.range(0.8, 2.5)
         if (startDefuse + dur <= plantT + BOMB_TIME - 0.1) {
             R.t = startDefuse + dur
             R.events.push({ type: "DEFUSE", time: r1(R.t), side: "ct", playerId: defuser.id, site: R.S.id, zone: R.S.id, location: R.S.callout, details: "Bomb has been defused" })
