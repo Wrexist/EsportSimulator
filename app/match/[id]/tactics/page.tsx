@@ -33,6 +33,8 @@ import { Player } from "@/types"
 import { getMapAssetName, ACTIVE_MAP_POOL, MAP_NAMES } from "@/data/map-pool"
 import { MATCH_BALANCE, COST_CONSTANTS } from "@/lib/constants"
 import { ROUND_ECONOMY_TUNING } from "@/lib/balance-tuning"
+import { ANTI_STRAT_SELF_PENALTY, MAP_POINTS_PER_EDGE, MENTAL_PREP_EDGE, NON_PLAYER_BONUS_CAP, PREP_STRENGTH_PER_POINT, ROUND_SHARE_PER_EDGE, STYLE_SPECIALISATION_EDGE } from "@/engine/match/round-sim/team-edge"
+import { TUNING } from "@/engine/match/round-sim/tuning"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
@@ -40,17 +42,28 @@ const PLAYSTYLE_BEATS: Record<string, string> = { aggressive: "structured", stru
 const PLAYSTYLE_LABELS: Record<string, string> = { aggressive: "Aggressive", structured: "Structured", balanced: "Balanced", default: "Default" }
 const pct = (n: number) => `${Math.round(n * 100)}%`
 
-// Real effects, read from the engine constants the sim uses:
-// - VOD review adds 25 tactical prep; team-strength.ts turns prep into
-//   strength at prep / 400 (so +6.25%) for this week's match.
-// - Mental reset: +15 roster morale (store) and +3% match strength (team-strength.ts).
-// - Anti-strat: the target's equipment power ×0.85 (match-simulation.ts) and
-//   your own tactical modifier ×0.95 (team-strength.ts).
+// Real effects, read from the constants the match engine (script-v1,
+// engine/match/round-sim) applies. "Team strength" is its non-player edge:
+// every factor below is summed per team, the difference between the teams is
+// capped at ±10% and shifts every duel (team-edge.ts); measured, +1% ≈ +0.28%
+// of rounds won ≈ +0.85 map-win points.
+// - VOD review adds 25 tactical prep; prep / 400 → +6.25% for this match.
+// - Mental reset: +15 roster morale (store; morale is part of each player's
+//   duel condition) and +3% team strength.
+// - Playstyle counter +4% / −3% (shared cap with staff) and a sharper / blunter
+//   read of the opponent's plan (simulate.ts choosePlan).
+// - Anti-strat: the target's duels −6 rating (tuning.ts TARGETED) and your own
+//   team strength −2% (tunnel vision).
 // - Economy style shifts the automatic buy thresholds by $500 (economy-manager.ts).
-const VOD_STRENGTH_PCT = Math.round((25 / 400) * 100)
-const MENTAL_RESET_STRENGTH_PCT = 3
+const VOD_STRENGTH_PCT = Math.round(25 * PREP_STRENGTH_PER_POINT * 100)
+const MENTAL_RESET_STRENGTH_PCT = Math.round(MENTAL_PREP_EDGE * 100)
 const MENTAL_RESET_MORALE = 15
-const STYLE_SPECIALISATION_PCT = 5
+const STYLE_SPECIALISATION_PCT = Math.round(STYLE_SPECIALISATION_EDGE * 100)
+const ROUNDS_PER_STRENGTH_PCT = ROUND_SHARE_PER_EDGE
+const MAP_POINTS_PER_STRENGTH_PCT = MAP_POINTS_PER_EDGE / 100
+// A 50/50 duel for the anti-strat target becomes this many percent.
+const TARGET_DUEL_PCT = Math.round(100 / (1 + Math.exp(TUNING.TARGETED / TUNING.DUEL_SCALE)))
+const ANTI_STRAT_SELF_PCT = Math.round(ANTI_STRAT_SELF_PENALTY * 100)
 const FULL_BUY_FROM = ROUND_ECONOMY_TUNING.FULL_MIN_AVG_CASH
 
 const overline = "text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3"
@@ -529,9 +542,9 @@ export default function TacticalHQPage() {
     const dateLabel = formatGameCalendarDate(matchDate, { weekday: "short", month: "short", day: "numeric" })
 
     const matchupNote = playstyleMatchup === "advantage"
-        ? <span className="font-semibold text-positive">You counter them · +{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS)} team strength</span>
+        ? <span className="font-semibold text-positive">You counter them · +{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS)} team strength, better read</span>
         : playstyleMatchup === "disadvantage"
-            ? <span className="font-semibold text-negative">They counter you · −{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY)} team strength</span>
+            ? <span className="font-semibold text-negative">They counter you · −{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY)} team strength, worse read</span>
             : <span className="text-ink-2">No counter either way</span>
 
     const PLAYSTYLE_OPTIONS = [
@@ -629,7 +642,7 @@ export default function TacticalHQPage() {
                                     ))}
                                 </div>
                                 <p className="mt-1.5 text-[11px] text-ink-3">
-                                    Countering their style is worth +{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS)} team strength; being countered costs {pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY)}. The counter shares a +10% cap with staff bonuses.
+                                    Countering their style is worth +{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS)} team strength and a sharper read of their plan; being countered costs {pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY)} and blunts your read. The counter shares a +10% cap with staff bonuses. +1% team strength ≈ +{ROUNDS_PER_STRENGTH_PCT.toFixed(2)}% of rounds ≈ +{MAP_POINTS_PER_STRENGTH_PCT.toFixed(2)} map-win points; all non-player factors together are capped at ±{pct(NON_PLAYER_BONUS_CAP)}.
                                 </p>
                             </div>
 
@@ -656,7 +669,7 @@ export default function TacticalHQPage() {
                             <div>
                                 <div className="mb-2 flex items-baseline justify-between gap-4">
                                     <p className={overline}>Anti-strat</p>
-                                    <p className="text-xs text-ink-3">Pick one of their players. Target: −15% equipment power · your tactics −5%</p>
+                                    <p className="text-xs text-ink-3">Pick one of their players. Their duels −{TUNING.TARGETED} rating (a 50/50 duel becomes {TARGET_DUEL_PCT}/{100 - TARGET_DUEL_PCT}) · your team strength −{ANTI_STRAT_SELF_PCT}%</p>
                                 </div>
                                 <div className="grid grid-cols-5 gap-2">
                                     {opponentPlayers.slice(0, 5).map((player: any) => {

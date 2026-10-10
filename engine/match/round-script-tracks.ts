@@ -237,6 +237,7 @@ export function spaceTeammates(ctx: Ctx, raw: Map<Actor, TrackKey[]>): void {
 // ─── Utility ───────────────────────────────────────────────────────────────
 
 export function throwUtility(ctx: Ctx): ScriptUtility[] {
+    if (ctx.input.utility) return resolverUtility(ctx)
     const rng = ctx.rng.util
     const out: ScriptUtility[] = []
     const volley = (side: Side, site: SiteId, t0: number, throwers: Actor[]) => {
@@ -263,5 +264,21 @@ export function throwUtility(ctx: Ctx): ScriptUtility[] {
     volley("T", other(ctx.site), ctx.execAt - 9, ts.filter(a => a.job === "fake"))
     volley("T", ctx.site, execT, ts.filter(a => a.job !== "fake" && a.job !== "lurk"))
     volley("CT", ctx.site, ctx.plantT !== undefined ? ctx.plantT + rng.range(4, 8) : ctx.trigger + 0.5, cts)
+    return out.sort((a, b) => a.t - b.t)
+}
+
+/** script-v1: the grenades the resolver threw, on the baked spots it named (a dead thrower throws nothing). */
+function resolverUtility(ctx: Ctx): ScriptUtility[] {
+    const out: ScriptUtility[] = []
+    for (const u of ctx.input.utility ?? []) {
+        const thrower = ctx.byId.get(u.playerId)
+        if (!thrower || u.t >= thrower.deathT || u.t >= ctx.endTime) continue
+        const spot = ctx.map.utility.find(s => s.id === u.spot)
+            ?? ctx.map.utility.find(s => s.site === u.site && s.kind === u.kind && s.side === thrower.side)
+            ?? ctx.map.utility.find(s => s.site === u.site && s.side === thrower.side)
+        // No baked spot for this kind (CT flashes / HEs): onto the site itself.
+        const at = spot ? spot.at : ctx.map.sites[u.site].center
+        out.push({ t: round3(u.t), throwerId: u.playerId, kind: u.kind, at: { ...at }, radius: spot?.radius ?? 2, duration: UTILITY_SECONDS[u.kind] })
+    }
     return out.sort((a, b) => a.t - b.t)
 }

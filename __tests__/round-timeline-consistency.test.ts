@@ -38,11 +38,11 @@ function team(id: string, players: Player[], economyStyle?: string): Team {
     } as unknown as Team
 }
 
-function playMap(seed: number, homeSkill: number, awaySkill: number, map: MapId, economyStyle?: string): { result: MatchResult; homeIds: Set<string> } {
+function playMap(engine: string, seed: number, homeSkill: number, awaySkill: number, map: MapId, economyStyle?: string): { result: MatchResult; homeIds: Set<string> } {
     const hp = ROLES.map((r, i) => player(`H${i}`, homeSkill, r))
     const ap = ROLES.map((r, i) => player(`A${i}`, awaySkill, r))
     const home = team('HOME', hp, economyStyle), away = team('AWAY', ap)
-    const match = { id: `tl_${seed}`, homeTeamId: 'HOME', awayTeamId: 'AWAY', format: 'BO1', seed, date: new Date(0), mapVeto: [], vetoComplete: false, maps: [], mapResults: [], roundHistory: [] } as unknown as Match
+    const match = { id: `tl_${seed}`, engineVersion: engine, homeTeamId: 'HOME', awayTeamId: 'AWAY', format: 'BO1', seed, date: new Date(0), mapVeto: [], vetoComplete: false, maps: [], mapResults: [], roundHistory: [] } as unknown as Match
     const ctx = simulationEngineV2.createSeriesContext(match, home, away, hp, ap, {}, {}, [map], undefined, 'nobody')
     const run = runLegacySeries(ctx)
     return { result: finalizeLegacySeries(ctx, run.state), homeIds: new Set(hp.map(p => p.id)) }
@@ -106,7 +106,7 @@ function roundViolations(r: RoundResult, homeIds: Set<string>, homeId: string): 
     return out
 }
 
-describe('round timeline consistency over seeded maps', () => {
+describe.each(['legacy-v2', 'script-v1'])('round timeline consistency over seeded maps (%s)', engine => {
     const violations: Record<string, number> = {}
     let rounds = 0, clutches = 0, trades = 0, kills = 0
     const winTypes = new Set<string>()
@@ -117,7 +117,7 @@ describe('round timeline consistency over seeded maps', () => {
         for (const [hs, as] of gaps) {
             for (let i = 0; i < 6; i++) {
                 const seed = 9_000 + n * 7_919
-                const { result, homeIds } = playMap(seed, hs, as, MAPS[n % MAPS.length], n % 3 === 0 ? 'force' : undefined)
+                const { result, homeIds } = playMap(engine, seed, hs, as, MAPS[n % MAPS.length], n % 3 === 0 ? 'force' : undefined)
                 n++
                 for (const m of result.maps) for (const r of m.rounds) {
                     rounds++

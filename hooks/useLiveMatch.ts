@@ -8,6 +8,7 @@ import { MapId, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState
 import type { TeamSaveData } from "@/engine/save-types"
 import { EconomyManager, WEAPONS, commentaryManager } from "@/engine"
 import { LEGACY_MATCH_ENGINE, restoreLivePlayback, pendingLiveEvents, roundEndPending } from "@/engine/match/live-checkpoint"
+import { isEngineVersion, resolveEngineVersion } from "@/engine/match/engine-version"
 import { sanitizeRestoredSimState, buildRestoredGameState } from "@/engine/match/live-match-init"
 import {
     createLegacySeriesState,
@@ -227,7 +228,7 @@ export function useLiveMatch(id: string) {
         const activeMatchState = useGameStore.getState().activeMatchState
         const restoring = activeMatchState?.matchId === id
         try {
-            if (foundMatch.engineVersion && foundMatch.engineVersion !== LEGACY_MATCH_ENGINE) throw Error("Unsupported match engine")
+            if (foundMatch.engineVersion && !isEngineVersion(foundMatch.engineVersion)) throw Error("Unsupported match engine")
             if (restoring) {
                 playback = restoreLivePlayback(activeMatchState!)
                 if (activeMatchState!.playback?.saveId !== undefined && activeMatchState!.playback.saveId !== useGameStore.getState().saveId) throw Error("This match checkpoint belongs to another career")
@@ -238,8 +239,12 @@ export function useLiveMatch(id: string) {
             // map authority; URL hints are ignored so a stale link cannot change
             // the series (L21.A2). Same preparation as instant simulation.
             const savedMaps = playback?.maps.length ? playback.maps : Array.isArray(foundMatch.maps) && foundMatch.maps.length ? foundMatch.maps : undefined
+            // A resumed match keeps the engine its checkpoint was written with
+            // (every pre-script-v1 checkpoint is legacy-v2); a new one uses the
+            // match's recorded engine or the default.
+            const engineVersion = playback ? playback.engine : resolveEngineVersion(foundMatch.engineVersion)
             ctx = prepareLegacySeries({
-                match: { ...foundMatch, seed, maps: savedMaps },
+                match: { ...foundMatch, seed, maps: savedMaps, engineVersion },
                 homeTeam: hTeam,
                 awayTeam: aTeam,
                 homePlayers,
@@ -269,7 +274,7 @@ export function useLiveMatch(id: string) {
         const activeAwayIds = awayPlayers.map(player => player.id)
         const fresh = createLegacySeriesState(ctx)
         const shellResult: MatchResult = {
-            engineVersion: LEGACY_MATCH_ENGINE,
+            engineVersion: ctx.engineVersion ?? LEGACY_MATCH_ENGINE,
             lineups: { [hTeam.id]: activeHomeIds, [aTeam.id]: activeAwayIds },
             winnerId: null, homeScore: 0, awayScore: 0, maps: fresh.maps, mvpPlayerId: "", playerStats: {},
         }
@@ -297,7 +302,7 @@ export function useLiveMatch(id: string) {
             const restoredResultSource = (activeMatchState!.matchResult as unknown as MatchResult | undefined) || shellResult
             const restoredResult: MatchResult = {
                 ...restoredResultSource,
-                engineVersion: LEGACY_MATCH_ENGINE,
+                engineVersion: ctx.engineVersion ?? LEGACY_MATCH_ENGINE,
                 lineups: shellResult.lineups,
                 homeScore: sanitizedSimState.homeSeriesScore,
                 awayScore: sanitizedSimState.awaySeriesScore,
@@ -390,7 +395,7 @@ export function useLiveMatch(id: string) {
         const state: ActiveMatchState = {
             matchId: id,
             playback: {
-                version: 1, engine: LEGACY_MATCH_ENGINE, saveId: matchData.current!.ownerSaveId,
+                version: 1, engine: matchData.current!.ctx.engineVersion ?? LEGACY_MATCH_ENGINE, saveId: matchData.current!.ownerSaveId,
                 events: currentRoundEvents.current, processedTime: lastProcessedTime.current,
                 maps: matchData.current!.canonicalMaps, seed: matchData.current!.match.seed,
                 homeRoster: matchData.current!.homePlayerIds, awayRoster: matchData.current!.awayPlayerIds,

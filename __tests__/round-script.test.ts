@@ -62,7 +62,7 @@ function playRounds(seed: number): Played[] {
         const hp = ROLES.map((r, i) => player(`H${i}`, 70, r))
         const ap = ROLES.map((r, i) => player(`A${i}`, 70, r))
         const home = team('HOME', hp, 'aggressive'), away = team('AWAY', ap, 'structured')
-        const match = { id: `rs_${seed}_${map}`, homeTeamId: 'HOME', awayTeamId: 'AWAY', format: 'BO1', seed, date: new Date(0), mapVeto: [], vetoComplete: false, maps: [], mapResults: [], roundHistory: [] } as unknown as Match
+        const match = { id: `rs_${seed}_${map}`, engineVersion: 'legacy-v2', homeTeamId: 'HOME', awayTeamId: 'AWAY', format: 'BO1', seed, date: new Date(0), mapVeto: [], vetoComplete: false, maps: [], mapResults: [], roundHistory: [] } as unknown as Match
         const ctx = simulationEngineV2.createSeriesContext(match, home, away, hp, ap, {}, {}, [map], tactics(), 'HOME')
         let state = createLegacySeriesState(ctx)
         while (!state.finished) {

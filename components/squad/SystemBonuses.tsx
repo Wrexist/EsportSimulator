@@ -4,6 +4,7 @@ import { PlayerSaveData } from "@/engine/save-types"
 import { cn } from "@/lib/utils"
 import { Crosshair, Shield, Brain, Zap, Swords, Check } from "lucide-react"
 import { Panel } from "@/src/components/ui/Panel"
+import { ROLE_MISSING_EDGE } from "@/engine/match/round-sim/team-edge"
 
 interface SystemBonusesProps {
     players: PlayerSaveData[]
@@ -12,19 +13,22 @@ interface SystemBonusesProps {
 
 /**
  * Role coverage, exactly as the match engine scores it
- * (engine/match/team-strength.ts): roleCoverage = 0.8 + distinctRoles / 5 × 0.2.
- * Only each starter's PRIMARY role counts. Full coverage is neutral; each
- * role missing from the starting five costs 4% team strength.
+ * (engine/match/round-sim/team-edge.ts ROLE_MISSING_EDGE): each role missing
+ * from the starting five costs 4% team strength (non-player edge). Only each
+ * starter's PRIMARY role counts. Roles also have jobs in every round
+ * (round-sim/simulate.ts): the entry opens sites, the AWPer takes the AWP and
+ * long angles, the support buys and throws the most utility, the IGL's
+ * tactics/leadership decide reads.
  */
 const ROLES = [
-    { role: PlayerRole.IGL, label: "IGL", icon: Brain, note: "Calls the strats" },
+    { role: PlayerRole.IGL, label: "IGL", icon: Brain, note: "Reads their plan" },
     { role: PlayerRole.AWPER, label: "AWPer", icon: Crosshair, note: "Holds angles with the AWP" },
-    { role: PlayerRole.ENTRY_FRAGGER, label: "Entry", icon: Swords, note: "Opens sites" },
+    { role: PlayerRole.ENTRY_FRAGGER, label: "Entry", icon: Swords, note: "Takes the first duel" },
     { role: PlayerRole.SUPPORT, label: "Support", icon: Shield, note: "Utility and trades" },
     { role: PlayerRole.RIFLER, label: "Rifler", icon: Zap, note: "Core firepower" },
 ] as const
 
-const PER_MISSING_ROLE = 4
+const PER_MISSING_ROLE = Math.round(ROLE_MISSING_EDGE * 100)
 
 const SystemBonusesInner: React.FC<SystemBonusesProps> = ({ players, className }) => {
     const counts = useMemo(() => {

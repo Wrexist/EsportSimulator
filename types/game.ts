@@ -517,6 +517,9 @@ export interface SimState {
   awayMomentumScore: number
   /** L21 canonical stepper: transitions are applied when a round is computed. */
   rulesVersion?: number
+  /** script-v1 CS2 economy: loss-bonus level per team (0-4 → $1,400-$3,400); a win steps it down one. */
+  homeLossLevel?: number
+  awayLossLevel?: number
   /** Scoreboard and transition of the last computed round, for playback at ROUND_END. */
   lastRound?: {
     mapIndex: number

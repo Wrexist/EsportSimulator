@@ -87,6 +87,8 @@ export interface Kill {
     weapon?: string
     headshot?: boolean
     trade?: boolean
+    /** script-v1: baked zone id the resolver put this fight in. */
+    zone?: string
 }
 
 export interface State {
@@ -167,7 +169,7 @@ export function createContext(input: RoundScriptInput, map: RoundMap): Ctx {
         victim.deathT = e.time
         victim.eventTimes.push(e.time)
         byId.get(killerId)?.eventTimes.push(e.time)
-        kills.push({ t: e.time, killerId, victimId: victim.id, weapon: e.weapon, headshot: e.isHeadshot, trade: e.isTrade })
+        kills.push({ t: e.time, killerId, victimId: victim.id, weapon: e.weapon, headshot: e.isHeadshot, trade: e.isTrade, ...(e.zone ? { zone: e.zone } : {}) })
     }
     const plant = events.find(e => e.type === "PLANT")
     const defuse = events.find(e => e.type === "DEFUSE")

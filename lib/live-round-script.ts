@@ -5,8 +5,13 @@
  * has decided it (`playLegacyRound`), and the radar samples that script. The
  * script is rebuilt deterministically from the match seed and the recorded
  * round, so it is never persisted: a resumed match rebuilds it from the
- * checkpointed RoundResult (without bought utility, which the checkpoint does
- * not keep — the radar then simply shows no grenades for that round).
+ * checkpointed RoundResult. legacy-v2 rounds do not record bought utility, so
+ * a resumed legacy round shows no grenades.
+ *
+ * script-v1 rounds carry the resolver's plan, grenades and per-kill zones
+ * (RoundResult.plan / .utility, MatchEvent.zone); the builder uses them, so
+ * the radar shows the site, timing, smokes and fight places the engine
+ * decided, also after a resume.
  */
 
 import type { MatchEvent, RoundResult } from "@/types"
@@ -14,6 +19,7 @@ import type { LegacySeriesContext } from "@/engine/match/legacy-series"
 import { buildRoundScript, prepareRoundMap, scriptInputFromResolverRound, type ResolverLoadout } from "@/engine/match/round-script"
 import type { RPoint, RoundMap, RoundScript, SiteId } from "@/engine/match/round-script-types"
 import { roundMapFor } from "@/data/round-maps"
+import { calloutOf } from "@/engine/match/round-sim/zones"
 import { getMapLayoutJson } from "@/data/map-layouts"
 
 export interface LiveRoundScript {
@@ -94,37 +100,9 @@ export function buildLiveRoundScript(src: LiveRoundScriptSource): LiveRoundScrip
 
 // ─── Event annotations (display only) ──────────────────────────────────────
 
-const SITE_RADIUS = 7.5
-const SPAWN_RADIUS = 8
-const MID_RADIUS = 9
-const APPROACH_RADIUS = 24
-
-const dist = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y)
-
-function inPolygon(p: { x: number; y: number }, poly: readonly { x: number; y: number }[]): boolean {
-    let inside = false
-    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-        const a = poly[i], b = poly[j]
-        if ((a.y > p.y) !== (b.y > p.y) && p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x) inside = !inside
-    }
-    return inside
-}
-
-/** Coarse callout for a point: "A site", "B approach", "Mid", "T spawn", "CT side", … */
+/** Coarse callout for a point: "A site", "B approach", "Mid", "T spawn", "CT side", … (shared with the script-v1 resolver). */
 export function locationOf(map: RoundMap, p: RPoint): string {
-    const sameFloor = (q: RPoint) => map.floors.length < 2 || q.floor === p.floor
-    for (const id of ["A", "B"] as const) {
-        const site = map.sites[id]
-        if (sameFloor(site.center) && (dist(site.center, p) <= SITE_RADIUS || (site.polygon.length >= 3 && inPolygon(p, site.polygon)))) return `${id} site`
-    }
-    if (map.spawns.T.some(q => dist(q, p) <= SPAWN_RADIUS)) return "T spawn"
-    if (map.spawns.CT.some(q => dist(q, p) <= SPAWN_RADIUS)) return "CT spawn"
-    if (map.holds.some(h => h.kind === "mid" && dist(h.at, p) <= MID_RADIUS)) return "Mid"
-    const dA = dist(map.sites.A.center, p), dB = dist(map.sites.B.center, p)
-    if (Math.min(dA, dB) <= APPROACH_RADIUS) return `${dA <= dB ? "A" : "B"} approach`
-    const dT = Math.min(...map.spawns.T.map(q => dist(q, p)))
-    const dCT = Math.min(...map.spawns.CT.map(q => dist(q, p)))
-    return dT <= dCT ? "T side" : "CT side"
+    return calloutOf(map, p)
 }
 
 /**
@@ -139,6 +117,8 @@ export function annotateRoundEvents(events: MatchEvent[], live: LiveRoundScript 
     return events.map(e => {
         if (site && (e.type === "PLANT" || e.type === "DEFUSE" || e.type === "EXPLODE")) return e.site === site ? e : { ...e, site }
         if (e.type === "KILL" && e.victimId) {
+            // script-v1 kills already name where the engine fought them.
+            if (e.zone && e.location) return e
             const death = deaths.get(e.victimId)
             if (!death) return e
             const location = locationOf(live.map, death.at)

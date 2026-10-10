@@ -86,7 +86,7 @@ export function buildMatchInsights(args: { result: MatchResult; teamId: string; 
     if (m) {
         tactics.push(`Playstyle ${m.playstyle ?? 'default'}${m.opponentScouted ? (m.counter === 'advantage' ? ' countered the scouted opponent style (+4% base strength).' : m.counter === 'disadvantage' ? ' was countered by the scouted opponent style (-3% base strength).' : ' had no counter matchup.') : '; opponent style was not scouted, so the matchup is unknown.'}`)
         tactics.push(`Economy plan ${m.economyStyle ?? 'standard'}${m.strategyCalls ? `; you made ${m.strategyCalls} buy call${m.strategyCalls === 1 ? '' : 's'}.` : '; buys followed the plan.'}`)
-        const prep = [m.tacticalPrep ? `VOD prep ${m.tacticalPrep}%` : '', m.mentalPrep ? 'mental reset' : '', m.targetPlayerId ? 'anti-strat target set (target -15% equipment, your tactics -5%)' : ''].filter(Boolean)
+        const prep = [m.tacticalPrep ? `VOD prep ${m.tacticalPrep}%` : '', m.mentalPrep ? 'mental reset' : '', m.targetPlayerId ? 'anti-strat target set (target duels -6 rating, your team strength -2%)' : ''].filter(Boolean)
         if (prep.length) tactics.push(`Preparation: ${prep.join(', ')}.`)
         if (m.timeoutsUsed) {
             const regroup = keyRounds.filter(k => k.label.startsWith('Round played under'))

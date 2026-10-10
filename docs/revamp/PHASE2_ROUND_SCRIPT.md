@@ -72,3 +72,23 @@ Branch `claude/revamp-phase-2` (on top of Phase 0 + 1).
 Verification: type-check 0 · lint 0 · jest 214 suites / 2,217 tests. Screenshots: `tmp/phase2/radar/`.
 
 **Carried into 2B:** early kills (< ~15 s) are sometimes out of reach because the resolver times kills without positions; AI teams buy no grenades; teammates occasionally within 2–3.6% (4.3% of pairs); Nuke "nearest enemy" counts players on the other floor.
+
+---
+
+## Status — 2B item E (round engine "script-v1")
+
+Branch `claude/p2b-engine` (on top of `claude/revamp-phase-2b` with the calibration harness).
+
+**Engine** `engine/match/round-sim/`: a zone-level round resolver behind the stepper seam (`LegacyRoundEngine`), so economy, live playback, skip, checkpoints and stats keep one path.
+- *Plan*: T strategy (default / execute / rush / split / fake / eco) and site from buy, playstyle and IGL; CT setup (2-1-2 / stacks / aggressive) and a read of the T plan from IGL tactics + leadership (weighted by how tactical the map is) and the playstyle counter.
+- *Round*: early picks at the baked routes' contact points (mid fights, the T AWPer's long angle, an aggressive CT push), fakes, the execute (T smokes deny holds, flashes blind, molotovs flush, HE chips; CT molotov / flash / HE at the entrance), a site fight of duels with trades, crossfires, anchors falling back and rotators arriving on the baked rotation times, the plant (3.2 s, dropped bomb picked up), post-plant retakes or saves on CS2 timers (40 s bomb, 10 s / 5 s kit defuse), lurk picks, late hunts, time expiry.
+- *Duels*: P = logistic((rA − rB) / 30). r = aim (skill + rifle / AWP / pistol attribute + mastery) + weapon vs armour + holder / peeker + utility + opening (entry, reaction) / trade (trading) / clutch (clutch, composure) / lurk (creativity) + HP + numbers alive + kills already made + condition (form, morale, energy, fatigue) + day form + the capped team edge. Losers die, winners may be chipped: ADR, assists (≥ 41 damage or a flash) and KAST are real. Duel, chip, headshot and trade rolls are keyed (common random numbers).
+- *Economy* (script-v1 only): CS2 loss levels that step down on a win, plant / defuse / kill rewards, T time-loss survivors get nothing, grenades consumed, $12,500 overtime. Every team buys grenades.
+- *Versioning*: `engine/match/engine-version.ts` + `engine-registry.ts` (`getRoundEngine`, `withEngine`, `DEFAULT_MATCH_ENGINE = 'script-v1'`). A recorded `engineVersion` is kept; a live checkpoint keeps the engine it was started with (all earlier checkpoints are legacy-v2); everything new plays script-v1 on both the managed and the AI path.
+- *Script*: for script-v1 rounds the 2A builder uses the resolver's plan, execute time, grenades and per-kill zones (`RoundResult.plan / .utility`, `MatchEvent.zone`).
+
+Calibration: `docs/revamp/calibration/script-v1.{md,json}` (600 samples) against `legacy-v2.{md,json}`.
+
+Performance: ~0.13 ms per round (≈ 2.8 ms per BO1 map); 26-week season 6.99 s → 8.64 s, weekly tick 107 → 110 ms (`scripts/perf-baseline.ts`).
+
+Known gaps: kills/round 6.6 (target 7.1); clutch wins ≈ 3 per map (≈ 2) from rounds that trade down to 1v1 too often; 4k / aces above the harness estimates (at KPR 0.7 a Poisson spread alone gives ~1.1 4k and ~0.15 aces per map, so those estimates look low); ~1/3 of kills land > 8 map-% from the resolver's zone in the radar script (route / mid zones the 2A movement plan does not visit); rare builder bursts up to 1.25 × run speed (< 0.1% of segments).

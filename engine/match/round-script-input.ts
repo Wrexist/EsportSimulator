@@ -30,7 +30,7 @@ export interface ResolverRoundSource {
     seed: number
     matchId?: string
     mapIndex?: number
-    round: Pick<RoundResult, "roundNumber" | "winner" | "winType" | "ctTeam" | "events"> & Partial<Pick<RoundResult, "buys" | "playerEconomy">>
+    round: Pick<RoundResult, "roundNumber" | "winner" | "winType" | "ctTeam" | "events"> & Partial<Pick<RoundResult, "buys" | "playerEconomy" | "plan" | "utility">>
     home: ResolverTeamLineup
     away: ResolverTeamLineup
     /** Post-buy loadouts by player id: `LegacyRoundStep.preRound.home/away` (has utility) or the live roster. */
@@ -113,5 +113,7 @@ export function scriptInputFromResolverRound(src: ResolverRoundSource): RoundScr
         events: round.events ?? [],
         winnerSide: round.winner === "ct" ? "CT" : "T",
         endReason,
+        ...(round.plan ? { plan: { tStrategy: round.plan.tStrategy, site: round.plan.site, ctSetup: round.plan.ctSetup, ...(round.plan.execAt !== undefined ? { execAt: round.plan.execAt } : {}) } } : {}),
+        ...(round.utility?.length ? { utility: round.utility.map(u => ({ ...u })) } : {}),
     }
 }

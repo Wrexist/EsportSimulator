@@ -122,6 +122,14 @@ export interface RoundScriptInput {
     events: MatchEvent[]
     winnerSide: Side
     endReason: "elimination" | "bomb_exploded" | "defused" | "time"
+    /**
+     * script-v1 rounds: the resolver's plan and grenades. When present the
+     * builder uses them instead of choosing its own, and each KILL's `zone`
+     * pulls its duel to that place, so the radar shows where the engine says
+     * the fight happened.
+     */
+    plan?: { tStrategy: TStrategy; site: SiteId; ctSetup: CtSetup; execAt?: number }
+    utility?: { t: number; playerId: string; kind: UtilityKind; spot: string; site: SiteId }[]
 }
 
 export interface TrackKey {
