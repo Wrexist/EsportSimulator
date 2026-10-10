@@ -59,8 +59,9 @@ function adaptPlayerSaveToPlayer(p: PlayerSaveData): Player {
         creativity: p.creativity ?? 50,
         clutch: p.clutch ?? 50,
         tactic: p.tactic ?? 50,
-        entry: 50,
-        trading: 50,
+        // Not every save carries entry / trading: same neutral default as the managed path.
+        entry: (p as { entry?: number }).entry ?? 50,
+        trading: (p as { trading?: number }).trading ?? 50,
         // Mental stats
         leader: p.leader ?? 50,
         teamwork: p.teamwork ?? 50,

@@ -1,4 +1,6 @@
-import { runLegacySeries, finalizeLegacySeries, type LegacySeriesContext, type LegacyDecisionPolicy } from "./match/legacy-series"
+import { runLegacySeries, finalizeLegacySeries, type LegacySeriesContext, type LegacyDecisionPolicy, type LegacyRoundEngine } from "./match/legacy-series"
+import { LEGACY_ENGINE_VERSION, SCRIPT_ENGINE_VERSION, resolveEngineVersion, type EngineVersion } from "./match/engine-version"
+import { buildScriptSeries, scriptRoundEngine } from "./match/round-sim"
 /**
  * Phase 4 Simulation Engine
  * Deterministic, inspectable match simulation for the tactical FPS engine
@@ -13,7 +15,6 @@ import { runLegacySeries, finalizeLegacySeries, type LegacySeriesContext, type L
  */
 
 import { resolveCanonicalSeriesMaps } from '@/lib/live-match-utils'
-import { LEGACY_MATCH_ENGINE } from './match/live-checkpoint'
 import { SeededRNG, createMatchRNG, deriveSeed } from "./rng"
 import { WEAPONS } from "./economy-manager"
 import {
@@ -200,7 +201,7 @@ export class SimulationEngineV2 {
         customTactics?: CustomTactics,
         managedTeamId?: string,
     ): LegacySeriesContext {
-        if (match.engineVersion && match.engineVersion !== LEGACY_MATCH_ENGINE) throw Error('Unsupported match engine')
+        const engineVersion = resolveEngineVersion(match.engineVersion)
         const matchSeed = (typeof match.seed === 'number' && Number.isFinite(match.seed) && match.seed >= 0)
             ? Math.floor(match.seed) : 12345
         const activeHomePlayers = homePlayers.slice(0, 5)
@@ -229,9 +230,12 @@ export class SimulationEngineV2 {
         // Every team but the player's (managedTeamId as passed; none = both)
         // gets implicit gear when it owns none: AI clubs never buy any.
         const implicitGear = (team: Team) => team.id !== managedTeamId
+        const homeCounter = calculatePlaystyleCounterMod(homeTeam.playstyle, awayTeam.playstyle)
+        const awayCounter = calculatePlaystyleCounterMod(awayTeam.playstyle, homeTeam.playstyle)
 
-        return {
+        const ctx: LegacySeriesContext = {
             engine: this,
+            engineVersion: LEGACY_ENGINE_VERSION,
             seed: matchSeed,
             matchId: match.id,
             format: match.format,
@@ -239,17 +243,45 @@ export class SimulationEngineV2 {
             mapStartingSides: match.mapStartingSides,
             home: {
                 team: homeTeam, players: activeHomePlayers, staff: hStaff, mapStrengths: homeMapStrengths, stressRes: stress(activeHomePlayers),
-                strength: this.calculateTeamStrength(homeTeam, activeHomePlayers, hStaff, homeMentalPrep, calculatePlaystyleCounterMod(homeTeam.playstyle, awayTeam.playstyle), implicitGear(homeTeam)),
+                strength: this.calculateTeamStrength(homeTeam, activeHomePlayers, hStaff, homeMentalPrep, homeCounter, implicitGear(homeTeam)),
+                counterMod: homeCounter, mentalPrep: homeMentalPrep, implicitGear: implicitGear(homeTeam),
             },
             away: {
                 team: awayTeam, players: activeAwayPlayers, staff: aStaff, mapStrengths: awayMapStrengths, stressRes: stress(activeAwayPlayers),
-                strength: this.calculateTeamStrength(awayTeam, activeAwayPlayers, aStaff, awayMentalPrep, calculatePlaystyleCounterMod(awayTeam.playstyle, homeTeam.playstyle), implicitGear(awayTeam)),
+                strength: this.calculateTeamStrength(awayTeam, activeAwayPlayers, aStaff, awayMentalPrep, awayCounter, implicitGear(awayTeam)),
+                counterMod: awayCounter, mentalPrep: awayMentalPrep, implicitGear: implicitGear(awayTeam),
             },
             isHighPressure: !!match.isHighPressure,
             matchStage: match.stage,
             managedTeamId: managedTeamId ?? homeTeam.id,
             customTactics,
             playerMap: new Map(activeHomePlayers.concat(activeAwayPlayers).map(p => [p.id, p])),
+        }
+        return engineVersion === LEGACY_ENGINE_VERSION ? ctx : this.retargetSeriesContext(ctx, engineVersion)
+    }
+
+    /** The round engine (stepper seam) for an engine version. */
+    public roundEngineFor(version: EngineVersion): LegacyRoundEngine {
+        return version === SCRIPT_ENGINE_VERSION ? scriptRoundEngine : this
+    }
+
+    /**
+     * A copy of a series context on another engine: its round engine, the
+     * stepper rules it implies and (script-v1) the per-series data built from
+     * the same teams, players, staff and edge inputs.
+     */
+    public retargetSeriesContext(ctx: LegacySeriesContext, version: EngineVersion): LegacySeriesContext {
+        const side = (s: LegacySeriesContext['home']) => ({
+            team: s.team, players: s.players, staff: s.staff,
+            counterMod: s.counterMod ?? 1, mentalPrep: !!s.mentalPrep, implicitGear: !!s.implicitGear,
+        })
+        return {
+            ...ctx,
+            engine: this.roundEngineFor(version),
+            engineVersion: version,
+            script: version === SCRIPT_ENGINE_VERSION
+                ? buildScriptSeries({ seed: ctx.seed, matchId: ctx.matchId ?? '', home: side(ctx.home), away: side(ctx.away) })
+                : undefined,
         }
     }
 
