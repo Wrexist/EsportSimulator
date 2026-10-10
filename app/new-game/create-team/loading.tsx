@@ -1,5 +1,4 @@
-import { PageSkeleton } from "@/components/ui/skeletons"
-
+// Plain ink while the team creator chunk loads.
 export default function Loading() {
-    return <PageSkeleton title="Create Team" />
+    return <div className="min-h-dvh bg-ink" aria-busy="true" />
 }

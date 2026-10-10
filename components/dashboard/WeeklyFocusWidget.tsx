@@ -1,117 +1,88 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { useGameStore } from "@/store/game-store"
-import { WEEKLY_ACTIVITIES, WeeklyActivityType } from "@/types"
+import { WEEKLY_ACTIVITIES, WeeklyActivity, WeeklyActivityType } from "@/types"
 import { weeklyActivityXpBonus } from "@/types/activities"
+import { Panel } from "@/src/components/ui/Panel"
 import { cn } from "@/lib/utils"
-import { PlayCircle, Users, BarChart, Sword, CalendarClock } from "lucide-react"
+import { Check } from "lucide-react"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 
-export function WeeklyFocusWidget() {
+type Effect = { label: string; good: boolean }
+
+/** Only the effects the weekly settlement actually applies (weekly-activity-processor). */
+function activityEffects(activity: WeeklyActivity): Effect[] {
+    const e = activity.effects
+    const out: Effect[] = []
+    if (e.morale) out.push({ label: `${e.morale > 0 ? "+" : ""}${e.morale} morale`, good: e.morale > 0 })
+    if (e.fatigue) out.push({ label: `${e.fatigue > 0 ? "+" : ""}${e.fatigue} fatigue`, good: e.fatigue < 0 })
+    if (e.synergy) out.push({ label: `+${e.synergy} chemistry`, good: true })
+    if (e.reputation) out.push({ label: `+${e.reputation} reputation`, good: true })
+    const xp = weeklyActivityXpBonus(activity)
+    if (xp > 0) out.push({ label: `+${xp} XP per player`, good: true })
+    return out
+}
+
+/**
+ * Weekly focus picker — one plan for the next weekly settlement, as a compact
+ * list. `framed={false}` drops the panel so a parent panel can host it.
+ */
+export function WeeklyFocusWidget({ framed = true }: { framed?: boolean }) {
     const selectedActivity = useGameStore(state => state.selectedWeeklyActivity)
     const setWeeklyActivity = useGameStore(state => state.setWeeklyActivity)
     const budget = useGameStore(state => state.teams.find(t => t.id === state.playerTeamId)?.budget ?? 0)
 
-    const handleSelect = (type: WeeklyActivityType) => {
-        setWeeklyActivity(type)
-    }
-
-    const getIcon = (type: WeeklyActivityType) => {
-        switch (type) {
-            case WeeklyActivityType.STREAMING: return <PlayCircle className="w-4 h-4 text-purple-400" />
-            case WeeklyActivityType.TEAM_BONDING: return <Users className="w-4 h-4 text-green-400" />
-            case WeeklyActivityType.MEDIA_CAMPAIGN: return <BarChart className="w-4 h-4 text-blue-400" />
-            case WeeklyActivityType.BOOTCAMP: return <Sword className="w-4 h-4 text-red-500" />
-            default: return <CalendarClock className="w-4 h-4 text-gray-400" />
-        }
-    }
-
-    return (
-        <Card id="weekly-focus" className="scroll-mt-24 h-full bg-[#111111] border-white/5 flex flex-col">
-            <CardHeader className="pb-3 border-b border-white/5">
-                <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                        Weekly Focus
-                    </CardTitle>
-                    {selectedActivity && (
-                        <Badge variant="outline" className="text-xs border-primary/20 bg-primary/10 text-primary">
-                            Active
-                        </Badge>
-                    )}
-                </div>
-            </CardHeader>
-
-            <p className="px-6 pt-3 text-xs text-slate-400">Choose one plan for the next weekly settlement. Paid plans require enough cash; check finances before committing.</p>
-            <CardContent className="flex-1 p-3 overflow-y-auto space-y-3 custom-scrollbar">
+    const list = (
+        <div id="weekly-focus" className="scroll-mt-24">
+            <div className="flex items-baseline justify-between gap-3 px-4 pb-1 pt-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Weekly focus</p>
+                <p className="text-xs text-ink-3">Applies at the next weekly settlement</p>
+            </div>
+            <ul className="pb-2">
                 {Object.values(WEEKLY_ACTIVITIES).map((activity) => {
-
                     const isSelected = selectedActivity === activity.type
-
+                    const unaffordable = activity.cost > 0 && activity.cost > budget
+                    const effects = activityEffects(activity)
                     return (
-                        <button
-                            key={activity.type}
-                            onClick={() => handleSelect(activity.type)}
-                            disabled={activity.cost > 0 && activity.cost > budget}
-                            title={activity.cost > 0 && activity.cost > budget ? "Not enough cash for this plan" : "Applies at the next weekly settlement"}
-                            aria-pressed={isSelected}
-                            className={cn(
-                                "disabled:opacity-40 disabled:cursor-not-allowed w-full text-left p-3 rounded-lg border transition-[border-color,background-color,box-shadow] duration-100 ease-out relative group select-none touch-manipulation active:scale-[0.99] active:duration-0",
-                                isSelected
-                                    ? "bg-white/5 border-primary/50 shadow-[0_0_15px_rgba(34,211,238,0.1)]"
-                                    : "bg-black/20 border-white/5 hover:bg-white/5 hover:border-white/10"
-                            )}
-                        >
-                            <div className="flex items-start justify-between mb-1">
-                                <div className="flex items-center gap-2 font-semibold text-sm text-gray-200">
-                                    {getIcon(activity.type)}
-                                    {activity.name}
-                                </div>
-                                {activity.cost > 0 && (
-                                    <span className="text-xs font-mono text-red-400">{formatCurrency(-activity.cost, "$", false)}</span>
+                        <li key={activity.type}>
+                            <button
+                                type="button"
+                                onClick={() => setWeeklyActivity(activity.type as WeeklyActivityType)}
+                                disabled={unaffordable}
+                                title={unaffordable ? "Not enough cash for this plan" : undefined}
+                                aria-pressed={isSelected}
+                                className={cn(
+                                    "flex w-full items-start gap-3 border-l-2 px-4 py-2 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-40",
+                                    isSelected ? "border-gold bg-hover" : "border-transparent hover:bg-raised",
                                 )}
-                                {activity.effects.money && (
-                                    <span className="text-xs font-mono text-green-400">
-                                        {formatSignedCurrency(activity.effects.money, "$", false)}
-                                        <span className="text-gray-500">/week</span>
+                            >
+                                <span className={cn("mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border", isSelected ? "border-gold bg-gold text-gold-on" : "border-line-strong")}>
+                                    {isSelected && <Check size={11} strokeWidth={3} />}
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                    <span className="flex items-baseline justify-between gap-3">
+                                        <span className="text-sm font-semibold text-ink-1">{activity.name}</span>
+                                        {activity.cost > 0 && <span className="shrink-0 text-xs tabular-nums text-ink-2">{formatCurrency(activity.cost, "$", false)}</span>}
+                                        {!!activity.effects.money && (
+                                            <span className="shrink-0 text-xs tabular-nums text-positive">{formatSignedCurrency(activity.effects.money, "$", false)} / wk</span>
+                                        )}
                                     </span>
-                                )}
-                            </div>
-
-                            <p className="text-xs text-slate-400 line-clamp-2">{activity.description}</p>
-
-                            {/* Effects Badges */}
-                            <div className="flex flex-wrap gap-1 mt-2">
-                                {activity.effects.morale !== undefined && (
-                                    <span className={cn("text-[10px] px-1 rounded bg-white/5", activity.effects.morale > 0 ? "text-green-400" : "text-red-400")}>
-                                        {activity.effects.morale > 0 ? "+" : ""}{activity.effects.morale} Morale
+                                    <span className="block text-xs text-ink-3">
+                                        {effects.length === 0 ? activity.description : effects.map((fx, i) => (
+                                            <span key={fx.label}>
+                                                {i > 0 && " · "}
+                                                <span className={fx.good ? "text-positive" : "text-caution"}>{fx.label}</span>
+                                            </span>
+                                        ))}
                                     </span>
-                                )}
-                                {activity.effects.fatigue !== undefined && (
-                                    <span className={cn("text-[10px] px-1 rounded bg-white/5", activity.effects.fatigue < 0 ? "text-green-400" : "text-red-400")}>
-                                        {activity.effects.fatigue > 0 ? "+" : ""}{activity.effects.fatigue} Fatigue
-                                    </span>
-                                )}
-                                {activity.effects.xp !== undefined && (
-                                    <span className="text-[10px] px-1 rounded bg-white/5 text-yellow-400">
-                                        +{weeklyActivityXpBonus(activity)} XP per player
-                                    </span>
-                                )}
-                                {activity.effects.synergy !== undefined && (
-                                    <span className="text-[10px] px-1 rounded bg-white/5 text-green-400">
-                                        +{activity.effects.synergy} Chemistry
-                                    </span>
-                                )}
-                            </div>
-
-                            {isSelected && (
-                                <div className="absolute right-2 top-2 w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_cyan]" />
-                            )}
-                        </button>
+                                </span>
+                            </button>
+                        </li>
                     )
                 })}
-            </CardContent>
-        </Card>
+            </ul>
+        </div>
     )
+
+    return framed ? <Panel padded={false} className="h-full">{list}</Panel> : list
 }

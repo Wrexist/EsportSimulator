@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import {
-    ArrowLeft, Database, FileUp, Trash2, CheckCircle2, AlertCircle,
-    Store, RefreshCw, ExternalLink, Download, Users,
+    ArrowLeft, Trash2, CheckCircle2, AlertCircle,
+    RefreshCw, ExternalLink, Download, Users, FolderOpen,
 } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
+import { Panel } from "@/src/components/ui/Panel"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { cn } from "@/lib/utils"
 import { useToast } from "@/lib/toast"
 import {
     modExists,
@@ -172,263 +173,176 @@ export default function CommunityImportPage() {
         }
     }
 
-    return (
-        <div className="container mx-auto max-w-4xl px-4 py-8">
-            <div className="mb-6">
-                <Link href="/settings">
-                    <Button variant="ghost" size="sm">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Settings
-                    </Button>
-                </Link>
-            </div>
 
-            <div className="mb-8">
-                <div className="flex items-center gap-3 mb-2">
-                    <Database className="h-6 w-6" />
-                    <h1 className="text-2xl font-bold">Import Community Database</h1>
-                    {installed && (
-                        <Badge variant="secondary" className="ml-2">
-                            <CheckCircle2 className="h-3 w-3 mr-1" /> Database available
-                        </Badge>
-                    )}
-                </div>
-                <p className="text-muted-foreground">
-                    Replace the default roster data with a community-supplied JSON database.
-                    Files are stored locally on your machine and never included in the game build.
-                </p>
-            </div>
+    return (
+        <div className="mx-auto max-w-[960px] space-y-4 pb-16">
+            <ScreenHeader
+                eyebrow="Settings"
+                title="Community database"
+                subtitle="Replace the default roster data with a community database or a Steam Workshop mod. Files stay on this machine and only affect new careers."
+                aside={
+                    <>
+                        {installed && <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-positive"><CheckCircle2 size={14} /> Imported database available</span>}
+                        <Button asChild variant="ghost" className="gap-2"><Link href="/settings"><ArrowLeft size={16} /> Settings</Link></Button>
+                    </>
+                }
+            />
 
             {!electronAvailable && (
-                <Card className="mb-6 border-yellow-600/40">
-                    <CardHeader>
-                        <CardTitle className="text-yellow-600 flex items-center gap-2">
-                            <AlertCircle className="h-4 w-4" />
-                            Desktop-only feature
-                        </CardTitle>
-                        <CardDescription>
-                            Community database import is available in the desktop build. Launch the
-                            game via the Electron app to use this feature.
-                        </CardDescription>
-                    </CardHeader>
-                </Card>
+                <Panel>
+                    <p className="flex items-start gap-2 text-sm text-ink-2">
+                        <AlertCircle size={16} className="mt-0.5 shrink-0 text-caution" />
+                        Community databases and Workshop mods work in the desktop app only.
+                    </p>
+                </Panel>
+            )}
+
+            {status && (
+                <div className={cn("flex items-center gap-2 rounded-md border px-4 py-3 text-sm text-ink-1", status.kind === "ok" ? "border-positive/30" : "border-negative/40")}>
+                    {status.kind === "ok" ? <CheckCircle2 size={16} className="shrink-0 text-positive" /> : <AlertCircle size={16} className="shrink-0 text-negative" />}
+                    <span role="status">{status.msg}</span>
+                </div>
             )}
 
             {electronAvailable && (
-                <Card className="mb-6">
-                    <CardHeader>
-                        <div className="flex items-center justify-between gap-2">
-                            <CardTitle className="flex items-center gap-2">
-                                <Store className="h-5 w-5" /> Steam Workshop
-                                {active.source === "workshop" && (
-                                    <Badge variant="secondary" className="ml-1">
-                                        <CheckCircle2 className="h-3 w-3 mr-1" /> Active
-                                    </Badge>
-                                )}
-                            </CardTitle>
-                            <div className="flex gap-2">
-                                <Button variant="outline" size="sm" disabled={wsBusy}
-                                    onClick={() => void loadWorkshop()}>
-                                    <RefreshCw className="h-4 w-4 mr-1" /> Refresh
-                                </Button>
-                                <Button variant="outline" size="sm" disabled={!wsAvailable}
-                                    onClick={() => void openWorkshop()}>
-                                    <ExternalLink className="h-4 w-4 mr-1" /> Browse
-                                </Button>
-                            </div>
-                        </div>
-                        <CardDescription>
-                            Subscribe to a real-data mod on the Workshop to play with real team
-                            names, logos and player portraits. Your subscribed mods appear here —
-                            activate one, then start a new career.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        {!wsAvailable && (
-                            <p className="text-sm text-muted-foreground">
-                                Steam isn&apos;t connected right now, so subscribed mods can&apos;t be
-                                listed. Launch through Steam to manage Workshop mods.
-                            </p>
-                        )}
-
-                        {wsAvailable && wsMods.length === 0 && (
-                            <p className="text-sm text-muted-foreground">
-                                No subscribed mods found. Click <strong>Browse</strong> to view the Workshop, subscribe, then hit <strong>Refresh</strong>.
-                            </p>
-                        )}
-
-                        {wsMods.map((m) => {
-                            const isActive = active.source === "workshop" && active.workshopId === m.id
-                            return (
-                                <div key={m.id}
-                                    className="flex items-center justify-between gap-3 rounded-lg border border-white/10 p-3">
-                                    <div className="min-w-0">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <span className="font-medium truncate">{m.title}</span>
-                                            {m.isEmMod && <Badge variant="outline">Database schema 1</Badge>}
-                                            {isActive && (
-                                                <Badge variant="secondary">
-                                                    <CheckCircle2 className="h-3 w-3 mr-1" /> Active
-                                                </Badge>
-                                            )}
-                                            {!m.installed && <Badge variant="outline">Downloading…</Badge>}
-                                            {m.needsUpdate && <Badge variant="outline">Update pending</Badge>}
+                <Panel
+                    title={<span className="flex items-center gap-2">Steam Workshop {active.source === "workshop" && <span className="text-xs font-semibold text-positive">Active</span>}</span>}
+                    actions={
+                        <>
+                            <Button variant="ghost" size="sm" disabled={wsBusy} onClick={() => void loadWorkshop()} className="gap-1.5"><RefreshCw size={13} /> Refresh</Button>
+                            <Button variant="outline" size="sm" disabled={!wsAvailable} onClick={() => void openWorkshop()} className="gap-1.5"><ExternalLink size={13} /> Browse</Button>
+                        </>
+                    }
+                    padded={false}
+                >
+                    <p className="px-4 pt-3 text-xs text-ink-3">Subscribe to a database mod on the Workshop, activate it here, then start a new career.</p>
+                    {!wsAvailable && <p className="px-4 py-3 text-sm text-ink-3">Steam isn&apos;t connected, so subscriptions can&apos;t be listed. Launch through Steam to manage Workshop mods.</p>}
+                    {wsAvailable && wsMods.length === 0 && <p className="px-4 py-3 text-sm text-ink-3">No subscribed mods. Browse the Workshop, subscribe, then refresh.</p>}
+                    {wsMods.length > 0 && (
+                        <ul className="mt-2 divide-y divide-line border-t border-line">
+                            {wsMods.map((m) => {
+                                const isActive = active.source === "workshop" && active.workshopId === m.id
+                                return (
+                                    <li key={m.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                                        <div className="min-w-0">
+                                            <p className="flex flex-wrap items-center gap-2 text-sm">
+                                                <span className="truncate font-semibold text-ink-1">{m.title}</span>
+                                                {m.isEmMod && <span className="text-xs text-ink-3">Database schema 1</span>}
+                                                {isActive && <span className="text-xs font-semibold text-positive">Active</span>}
+                                                {!m.installed && <span className="text-xs text-ink-3">Downloading…</span>}
+                                                {m.needsUpdate && <span className="text-xs text-caution">Update pending</span>}
+                                            </p>
+                                            <p className="mt-0.5 flex items-center gap-3 text-xs text-ink-3">
+                                                {typeof m.teams === "number" && <span>{m.teams} teams</span>}
+                                                {typeof m.players === "number" && <span className="inline-flex items-center gap-1"><Users size={12} /> {m.players} players</span>}
+                                                {m.author && <span>by {m.author}</span>}
+                                            </p>
                                         </div>
-                                        <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3">
-                                            {typeof m.teams === "number" && (
-                                                <span className="flex items-center gap-1">
-                                                    <Database className="h-3 w-3" /> {m.teams} teams
-                                                </span>
-                                            )}
-                                            {typeof m.players === "number" && (
-                                                <span className="flex items-center gap-1">
-                                                    <Users className="h-3 w-3" /> {m.players} players
-                                                </span>
-                                            )}
-                                            {m.author && <span>by {m.author}</span>}
-                                        </div>
-                                    </div>
-                                    <div className="shrink-0">
-                                        {isActive ? (
-                                            <div className="flex flex-wrap gap-2">
-                                                <Button variant="outline" size="sm" disabled={wsBusy || !m.installed || !m.isEmMod || m.needsUpdate}
-                                                    onClick={() => void activateWorkshop(m.id)}>
-                                                    Use installed version
+                                        <div className="flex shrink-0 gap-2">
+                                            {isActive ? (
+                                                <>
+                                                    <Button variant="outline" size="sm" disabled={wsBusy || !m.installed || !m.isEmMod || m.needsUpdate} onClick={() => void activateWorkshop(m.id)}>Use installed version</Button>
+                                                    <Button variant="ghost" size="sm" disabled={wsBusy} onClick={() => void switchToCommunitySource()}>Deactivate</Button>
+                                                </>
+                                            ) : (
+                                                <Button variant="outline" size="sm" disabled={wsBusy || !m.installed || !m.isEmMod || m.needsUpdate} onClick={() => void activateWorkshop(m.id)} className="gap-1.5">
+                                                    <Download size={13} /> Activate
                                                 </Button>
-                                                <Button variant="ghost" size="sm" disabled={wsBusy}
-                                                    onClick={() => void switchToCommunitySource()}>Deactivate</Button>
-                                            </div>
-                                        ) : (
-                                            <Button size="sm" disabled={wsBusy || !m.installed || !m.isEmMod || m.needsUpdate}
-                                                onClick={() => void activateWorkshop(m.id)}>
-                                                <Download className="h-4 w-4 mr-1" /> Activate
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                            )
-                        })}
-                    </CardContent>
-                </Card>
+                                            )}
+                                        </div>
+                                    </li>
+                                )
+                            })}
+                        </ul>
+                    )}
+                </Panel>
             )}
 
-            {electronAvailable && <Card className="mb-6"><CardHeader>
-                <CardTitle>Import database with images</CardTitle>
-                <CardDescription>Choose the unpacked mod folder. PNG, JPEG and WebP images are retained locally so existing careers keep their portraits when you switch mods.</CardDescription>
-            </CardHeader><CardContent><Button disabled={busy} onClick={async () => {
-                setBusy(true)
-                try {
-                    const text = await window.electron?.mods?.readFolder()
-                    if (text) await applyPayload(text)
-                    else setStatus({ kind: "err", msg: "No valid folder selected. The folder must contain database JSON and all referenced PNG, JPEG or WebP images." })
-                } finally { setBusy(false) }
-            }}>Choose mod folder</Button></CardContent></Card>}
-
-            <Card className="mb-6">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <FileUp className="h-5 w-5" /> Upload JSON file
-                    </CardTitle>
-                    <CardDescription>
-                        Accepts a JSON file with optional <code>players</code>,{" "}
-                        <code>teams</code>, and <code>tournaments</code> arrays. Imported tournament definitions are retained in the database; the career calendar currently uses the built-in competition rules.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <input
-                        aria-label="Select community database JSON"
-                        type="file"
-                        accept="application/json,.json"
-                        disabled={busy || !electronAvailable}
-                        onChange={(e) => {
-                            const f = e.target.files?.[0]
-                            if (f) void onFile(f)
-                            e.target.value = ""
-                        }}
-                        className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-primary file:text-primary-foreground hover:file:opacity-90"
-                    />
-                </CardContent>
-            </Card>
-
-            <Card className="mb-6">
-                <CardHeader>
-                    <CardTitle>Paste JSON</CardTitle>
-                    <CardDescription>
-                        Paste a JSON object below and preview the changes. Maximum 16 MiB. No ZIP files or scripts.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    <Textarea
-                        aria-label="Community database JSON"
-                        maxLength={MAX_MOD_BYTES}
-                        value={pasted}
-                        onChange={(e) => setPasted(e.target.value)}
-                        disabled={busy || !electronAvailable}
-                        rows={10}
-                        placeholder='{ "players": [...], "teams": [...] }'
-                        className="font-mono text-xs"
-                    />
-                    <div className="flex gap-2">
-                        <Button
-                            onClick={() => void applyPayload(pasted)}
-                            disabled={busy || !pasted.trim() || !electronAvailable}
-                        >
-                            Preview import
-                        </Button>
-                        {installed && (
-                            <Button
-                                variant="destructive"
-                                onClick={() => void onRemove()}
-                                disabled={busy}
-                            >
-                                <Trash2 className="h-4 w-4 mr-1" />
-                                Remove Community Database
-                            </Button>
-                        )}
+            <Panel title="Import a database" padded={false}>
+                <div className="divide-y divide-line">
+                    {electronAvailable && (
+                        <div className="flex items-center justify-between gap-6 px-4 py-3">
+                            <div>
+                                <p className="text-sm font-semibold text-ink-1">Mod folder with images</p>
+                                <p className="text-xs text-ink-3">Choose the unpacked mod folder. PNG, JPEG and WebP images are kept locally so careers keep their portraits when you switch mods.</p>
+                            </div>
+                            <Button variant="outline" size="sm" disabled={busy} onClick={async () => {
+                                setBusy(true)
+                                try {
+                                    const text = await window.electron?.mods?.readFolder()
+                                    if (text) await applyPayload(text)
+                                    else setStatus({ kind: "err", msg: "No valid folder selected. The folder must contain database JSON and all referenced PNG, JPEG or WebP images." })
+                                } finally { setBusy(false) }
+                            }} className="gap-1.5"><FolderOpen size={13} /> Choose folder</Button>
+                        </div>
+                    )}
+                    <div className="flex items-center justify-between gap-6 px-4 py-3">
+                        <div>
+                            <label htmlFor="community-json-file" className="text-sm font-semibold text-ink-1">JSON file</label>
+                            <p className="text-xs text-ink-3">Optional <code>players</code>, <code>teams</code> and <code>tournaments</code> arrays. Imported tournaments are stored, but the career calendar still uses the built-in competitions.</p>
+                        </div>
+                        <input
+                            id="community-json-file"
+                            aria-label="Select community database JSON"
+                            type="file"
+                            accept="application/json,.json"
+                            disabled={busy || !electronAvailable}
+                            onChange={(e) => {
+                                const f = e.target.files?.[0]
+                                if (f) void onFile(f)
+                                e.target.value = ""
+                            }}
+                            className="block w-60 shrink-0 text-xs text-ink-3 file:mr-3 file:h-8 file:rounded-md file:border file:border-line file:bg-raised file:px-3 file:text-xs file:font-semibold file:text-ink-1 hover:file:bg-hover disabled:opacity-40"
+                        />
                     </div>
-                </CardContent>
-            </Card>
+                    <div className="space-y-3 px-4 py-3">
+                        <div>
+                            <label htmlFor="community-json-paste" className="text-sm font-semibold text-ink-1">Paste JSON</label>
+                            <p className="text-xs text-ink-3">Up to 16 MiB. No ZIP files or scripts.</p>
+                        </div>
+                        <Textarea
+                            id="community-json-paste"
+                            aria-label="Community database JSON"
+                            maxLength={MAX_MOD_BYTES}
+                            value={pasted}
+                            onChange={(e) => setPasted(e.target.value)}
+                            disabled={busy || !electronAvailable}
+                            rows={8}
+                            placeholder='{ "players": [...], "teams": [...] }'
+                            className="font-mono text-xs"
+                        />
+                        <div className="flex gap-2">
+                            <Button variant="outline" onClick={() => void applyPayload(pasted)} disabled={busy || !pasted.trim() || !electronAvailable}>Preview import</Button>
+                            {installed && (
+                                <Button variant="ghost" onClick={() => void onRemove()} disabled={busy} className="gap-1.5 text-negative!">
+                                    <Trash2 size={14} /> Remove imported database
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </Panel>
 
             {preview && (
-                <Card className="mb-6">
-                    <CardHeader><CardTitle>Review database</CardTitle><CardDescription>{preview.counts}</CardDescription></CardHeader>
-                    <CardContent className="space-y-3">
-                        <p className="text-sm">{preview.author}</p>
-                        <p className="text-sm text-muted-foreground">Matching IDs replace base entries; new IDs are added. This replaces the entire previous import. Existing careers keep their data. Use the folder import for accompanying images. Referenced mod images are retained in local versioned bundles; JSON alone cannot copy new media.</p>
-                        <Button disabled={busy} onClick={() => void installPreview()}>Install database</Button>{" "}
+                <Panel title="Review database" actions={<span className="text-xs tabular-nums text-ink-3">{preview.counts}</span>}>
+                    <p className="text-sm text-ink-1">{preview.author}</p>
+                    <p className="mt-2 text-xs leading-relaxed text-ink-3">Matching IDs replace base entries; new IDs are added. This replaces the whole previous import. Existing careers keep their data. JSON alone can&apos;t bring new images; use the folder import for those.</p>
+                    <div className="mt-4 flex gap-2">
+                        <Button disabled={busy} onClick={() => void installPreview()}>Install database</Button>
                         <Button variant="ghost" disabled={busy} onClick={() => setPreview(null)}>Cancel</Button>
-                    </CardContent>
-                </Card>
-            )}
-            {electronAvailable && <div className="flex flex-wrap gap-2 mb-6">
-                <Button variant="outline" disabled={busy || wsBusy} onClick={() => void switchToCommunitySource("none")}>Use base game</Button>
-                <Button variant="outline" disabled={busy || wsBusy} onClick={() => void switchToCommunitySource("community")}>Use imported database</Button>
-                <Button variant="outline" disabled={busy || wsBusy} onClick={() => void restorePrevious()}>Restore previous import</Button>
-            </div>}
-
-            {status && (
-                <Card
-                    className={
-                        status.kind === "ok"
-                            ? "border-green-600/40"
-                            : "border-red-600/40"
-                    }
-                >
-                    <CardContent className="py-4 flex items-center gap-2">
-                        {status.kind === "ok" ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        ) : (
-                            <AlertCircle className="h-4 w-4 text-red-600" />
-                        )}
-                        <span role="status" className="text-sm">{status.msg}</span>
-                    </CardContent>
-                </Card>
+                    </div>
+                </Panel>
             )}
 
-            {modPath && (
-                <p className="text-xs text-muted-foreground mt-6">
-                    Files are stored in <code className="break-all">{modPath}</code>.
-                </p>
+            {electronAvailable && (
+                <Panel title="Database for new careers" padded={false}>
+                    <div className="flex flex-wrap gap-2 px-4 py-3">
+                        <Button variant="outline" size="sm" disabled={busy || wsBusy} onClick={() => void switchToCommunitySource("none")}>Use base game</Button>
+                        <Button variant="outline" size="sm" disabled={busy || wsBusy} onClick={() => void switchToCommunitySource("community")}>Use imported database</Button>
+                        <Button variant="ghost" size="sm" disabled={busy || wsBusy} onClick={() => void restorePrevious()}>Restore previous import</Button>
+                    </div>
+                    {modPath && <p className="border-t border-line px-4 py-2 text-xs text-ink-3">Stored in <code className="break-all">{modPath}</code></p>}
+                </Panel>
             )}
         </div>
     )

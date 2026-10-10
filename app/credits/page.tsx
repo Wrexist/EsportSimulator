@@ -1,55 +1,53 @@
 "use client"
 
 import React from "react"
-import { motion } from "framer-motion"
-import { ArrowLeft, Heart, Code, Music, Globe, Database } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Panel } from "@/src/components/ui/Panel"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 
-const CREDITS = [
+const CREDITS: { category: string; entries: { role: string; name: string }[] }[] = [
     {
-        category: "Game Design & Development",
-        icon: Code,
+        category: "Game design and development",
         entries: [
-            { role: "Creator & Lead Developer", name: "IsacC" },
+            { role: "Creator and lead developer", name: "IsacC" },
         ],
     },
     {
-        category: "Data & Statistics",
-        icon: Database,
+        category: "Data",
         entries: [
-            { role: "Player & Team Data", name: "Original fictional roster generator" },
-            { role: "Tournament Structure", name: "Inspired by professional tactical FPS circuits" },
-            { role: "World Rankings Model", name: "Inspired by professional ranking methodologies" },
+            { role: "Players and teams", name: "Original fictional roster generator" },
+            { role: "Tournament structure", name: "Inspired by professional tactical FPS circuits" },
+            { role: "World rankings model", name: "Inspired by professional ranking methods" },
         ],
     },
     {
         category: "Technology",
-        icon: Globe,
         entries: [
-            { role: "Framework", name: "Next.js by Vercel" },
-            { role: "Desktop Runtime", name: "Electron" },
-            { role: "Steam Integration", name: "steamworks.js" },
-            { role: "UI Components", name: "Radix UI + Tailwind CSS" },
-            { role: "State Management", name: "Zustand with Immer" },
-            { role: "Animations", name: "Framer Motion" },
+            { role: "Framework", name: "Next.js" },
+            { role: "Desktop runtime", name: "Electron" },
+            { role: "Steam integration", name: "steamworks.js" },
+            { role: "Interface", name: "Radix UI and Tailwind CSS" },
+            { role: "State", name: "Zustand with Immer" },
+            { role: "Animation", name: "Framer Motion" },
+            { role: "Fonts", name: "Inter and Barlow Condensed (SIL OFL)" },
         ],
     },
     {
         category: "Audio",
-        icon: Music,
         entries: [
-            { role: "Sound Effects", name: "Procedurally generated (Web Audio API)" },
-            { role: "Ambient Music", name: "Procedurally generated" },
+            { role: "Sound effects", name: "Generated in the game (Web Audio API)" },
+            { role: "Ambient music", name: "Generated in the game" },
         ],
     },
     {
-        category: "Special Thanks",
-        icon: Heart,
+        category: "Special thanks",
         entries: [
-            { role: "Tactical FPS Community", name: "For decades of competitive excellence" },
-            { role: "Esports Organizations", name: "For inspiring the management simulation" },
-            { role: "Open Source Contributors", name: "For the incredible tools that made this possible" },
-            { role: "Playtesters & Bug Reporters", name: "Your feedback shaped this game" },
+            { role: "Tactical FPS community", name: "For decades of competitive play" },
+            { role: "Esports organizations", name: "For inspiring the management side" },
+            { role: "Open-source contributors", name: "For the tools this is built on" },
+            { role: "Playtesters and bug reporters", name: "Your feedback shaped this game" },
         ],
     },
 ]
@@ -58,70 +56,36 @@ export default function CreditsPage() {
     const router = useRouter()
 
     return (
-        <div className="min-h-screen liquid-app-bg text-white p-8">
-            <div className="max-w-2xl mx-auto">
-                <button
-                    onClick={() => router.back()}
-                    className="flex items-center gap-2 text-white/40 hover:text-white/80 text-sm mb-8 transition-colors"
-                >
-                    <ArrowLeft size={16} />
-                    Back
-                </button>
+        <div className="mx-auto max-w-[880px] space-y-5 pb-16">
+            <ScreenHeader
+                eyebrow={`Esports Manager · v${process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}`}
+                title="Credits"
+                aside={
+                    <Button variant="ghost" onClick={() => router.back()} className="gap-2">
+                        <ArrowLeft size={16} /> Back
+                    </Button>
+                }
+            />
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-12"
-                >
-                    <h1 className="text-3xl font-bold uppercase tracking-tighter mb-2">Credits</h1>
-                    <p className="text-sm text-white/40 uppercase tracking-widest">Esports Manager: FPS</p>
-                    <p className="text-xs text-white/20 mt-1">v{process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}</p>
-                </motion.div>
-
-                <div className="space-y-10">
-                    {CREDITS.map((section, si) => {
-                        const Icon = section.icon
-                        return (
-                            <motion.div
-                                key={section.category}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: si * 0.1 }}
-                            >
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-cyan-400">
-                                        <Icon size={16} />
-                                    </div>
-                                    <h2 className="text-sm font-medium uppercase tracking-widest text-white/60">{section.category}</h2>
+            <div className="gap-4 md:columns-2">
+                {CREDITS.map(section => (
+                    <Panel key={section.category} title={section.category} padded={false} className="mb-4 break-inside-avoid">
+                        <dl className="divide-y divide-line">
+                            {section.entries.map(entry => (
+                                <div key={entry.role} className="flex items-baseline justify-between gap-4 px-4 py-2.5">
+                                    <dt className="text-sm text-ink-3">{entry.role}</dt>
+                                    <dd className="text-right text-sm font-semibold text-ink-1">{entry.name}</dd>
                                 </div>
-                                <div className="space-y-2 pl-11">
-                                    {section.entries.map((entry, ei) => (
-                                        <div key={ei} className="flex justify-between items-baseline">
-                                            <span className="text-xs text-white/40">{entry.role}</span>
-                                            <span className="text-sm text-white/80">{entry.name}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        )
-                    })}
-                </div>
-
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                    className="text-center mt-16 pt-8 border-t border-white/5"
-                >
-                    <p className="text-xs text-white/20">
-                        This game is a work of fiction. Team names, player likenesses, and tournament structures
-                        are used for simulation purposes. No endorsement is implied.
-                    </p>
-                    <p className="text-xs text-white/10 mt-2">
-                        &copy; {new Date().getFullYear()} IsacC. All rights reserved.
-                    </p>
-                </motion.div>
+                            ))}
+                        </dl>
+                    </Panel>
+                ))}
             </div>
+
+            <p className="text-xs leading-relaxed text-ink-3">
+                This game is a work of fiction. Team names, player likenesses and tournament structures are used for simulation only, and no endorsement is implied.
+                © {new Date().getFullYear()} IsacC. All rights reserved.
+            </p>
         </div>
     )
 }

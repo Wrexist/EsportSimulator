@@ -6,6 +6,8 @@ import { usePathname } from 'next/navigation'
 import { Check } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '@/store/game-store'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { FIRST_SESSION_LABELS, FIRST_SESSION_STEPS, firstSessionGuidance, restoreFirstSession } from '@/lib/first-session'
 
 /**
@@ -39,47 +41,49 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
     const done = guide.reviewed.length
 
     return (
-        <section aria-labelledby="first-session-title" className="rounded-xl border border-slate-600/50 bg-slate-900/95 p-4 shadow-lg">
-            <div className="flex items-center justify-between gap-4">
-                <p id="first-session-title" className="text-xs text-slate-400">
-                    First session <span className="ml-2 tabular-nums">{done}/{FIRST_SESSION_STEPS.length} done</span>
+        <section aria-labelledby="first-session-title" className="rounded-lg border border-line-strong bg-panel">
+            <header className="flex min-h-11 items-center justify-between gap-4 border-b border-line px-4 py-2">
+                <p id="first-session-title" className="text-sm font-semibold text-ink-1">
+                    First session <span className="ml-2 text-xs font-normal tabular-nums text-ink-3">{done} / {FIRST_SESSION_STEPS.length} done</span>
                 </p>
-                <button type="button" onClick={state.dismiss} className="rounded text-xs text-slate-400 hover:text-white focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-emerald-400" aria-label="Skip first session guide. You can replay it from Settings.">Skip guide</button>
-            </div>
+                <button type="button" onClick={state.dismiss} className="rounded-sm text-xs font-medium text-ink-3 hover:text-ink-1" aria-label="Skip first session guide. You can replay it from Settings.">Skip guide</button>
+            </header>
 
-            {!compact && (
-                <ol className="mt-3 space-y-1" aria-label="First session steps">
-                    {FIRST_SESSION_STEPS.map(step => {
-                        const isDone = guide.reviewed.includes(step)
-                        const isCurrent = step === next.step
-                        return (
-                            <li key={step} aria-current={isCurrent ? 'step' : undefined} className={`flex items-center gap-2 text-sm ${isDone ? 'text-slate-500' : isCurrent ? 'font-medium text-slate-100' : 'text-slate-400'}`}>
-                                <span aria-hidden="true" className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${isDone ? 'border-emerald-400 bg-emerald-400 text-slate-950' : isCurrent ? 'border-emerald-400' : 'border-slate-600'}`}>
-                                    {isDone && <Check size={10} strokeWidth={3} />}
-                                </span>
-                                <span className={isDone ? 'line-through' : undefined}>{FIRST_SESSION_LABELS[step]}</span>
-                                <span className="sr-only">{isDone ? '(done)' : isCurrent ? '(next)' : ''}</span>
-                            </li>
-                        )
-                    })}
-                </ol>
-            )}
+            <div className="p-4">
+                {!compact && (
+                    <ol className="mb-3 space-y-1.5" aria-label="First session steps">
+                        {FIRST_SESSION_STEPS.map(step => {
+                            const isDone = guide.reviewed.includes(step)
+                            const isCurrent = step === next.step
+                            return (
+                                <li key={step} aria-current={isCurrent ? 'step' : undefined} className={cn('flex items-center gap-2.5 text-sm', isDone ? 'text-ink-3' : isCurrent ? 'font-semibold text-ink-1' : 'text-ink-2')}>
+                                    <span aria-hidden="true" className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full border', isDone ? 'border-positive bg-positive text-ink' : isCurrent ? 'border-ink-1' : 'border-line-strong')}>
+                                        {isDone && <Check size={10} strokeWidth={3} />}
+                                    </span>
+                                    <span className={isDone ? 'line-through' : undefined}>{FIRST_SESSION_LABELS[step]}</span>
+                                    <span className="sr-only">{isDone ? '(done)' : isCurrent ? '(next)' : ''}</span>
+                                </li>
+                            )
+                        })}
+                    </ol>
+                )}
 
-            <div className={compact ? 'mt-2' : 'mt-3 border-t border-white/5 pt-3'}>
-                <h2 className="text-base font-semibold text-slate-100">{next.title}</h2>
-                <p className="mt-1 text-sm leading-relaxed text-slate-300">{next.detail}</p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                    {canReview
-                        ? <button type="button" onClick={() => state.review(next.step)} className="rounded-lg bg-emerald-400 px-3 py-2 text-sm font-medium text-slate-950 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-200">{next.reviewLabel}</button>
-                        : next.action.href !== pathname && <Link href={next.action.href} className="rounded-lg bg-emerald-400 px-3 py-2 text-sm font-medium text-slate-950 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-200">{next.action.label}</Link>}
-                    {!compact && next.alternatives.map(link => (
-                        <Link key={link.href} href={link.href} className="rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 hover:bg-white/5 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-emerald-400">{link.label}</Link>
-                    ))}
+                <div className={compact ? undefined : 'border-t border-line pt-3'}>
+                    <h2 className="text-sm font-semibold text-ink-1">{next.title}</h2>
+                    <p className="mt-1 text-sm leading-relaxed text-ink-2">{next.detail}</p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                        {canReview
+                            ? <Button size="sm" variant="outline" onClick={() => state.review(next.step)}>{next.reviewLabel}</Button>
+                            : next.action.href !== pathname && <Button asChild size="sm" variant="outline"><Link href={next.action.href}>{next.action.label}</Link></Button>}
+                        {!compact && next.alternatives.map(link => (
+                            <Button key={link.href} asChild size="sm" variant="ghost"><Link href={link.href}>{link.label}</Link></Button>
+                        ))}
+                    </div>
+                    <details className="mt-3 text-xs text-ink-3">
+                        <summary className="cursor-pointer rounded-sm hover:text-ink-1">Why this matters</summary>
+                        <p className="mt-1 leading-relaxed">{next.help}</p>
+                    </details>
                 </div>
-                <details className="mt-3 text-xs text-slate-400">
-                    <summary className="cursor-pointer rounded hover:text-slate-200 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-emerald-400">Why this matters</summary>
-                    <p className="mt-1 leading-relaxed">{next.help}</p>
-                </details>
             </div>
         </section>
     )

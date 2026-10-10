@@ -1,22 +1,14 @@
 "use client"
 
 import React, { useCallback, useEffect, useState } from "react"
+import Link from "next/link"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
+import { useSettingsStore } from "@/lib/settings-store"
 import { useShallow } from "zustand/react/shallow"
 import { useRouter } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
-import {
-    Save,
-    Trash2,
-    Play,
-    Calendar,
-    Shield,
-    Clock,
-    AlertCircle,
-    ArrowLeft
-} from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { AlertCircle, Loader2, Trash2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
     AlertDialog,
     AlertDialogContent,
@@ -27,7 +19,10 @@ import {
     AlertDialogCancel,
     AlertDialogAction,
 } from "@/components/ui/alert-dialog"
-import { cn } from "@/lib/utils"
+import { TeamLogoImage } from "@/components/ui/asset-images"
+import { Panel } from "@/src/components/ui/Panel"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { formatCurrency } from "@/lib/utils-extended"
 import { SaveSlotMetadata } from "@/engine"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 
@@ -37,6 +32,18 @@ export default function LoadGamePage() {
             <LoadGamePageInner />
         </ErrorBoundary>
     )
+}
+
+function seasonWeek(week: number | null | undefined) {
+    const w = Math.max(1, week || 1)
+    return `Season ${Math.ceil(w / 52)} · Week ${((w - 1) % 52) + 1}`
+}
+
+const formatDate = (dateStr?: string | null) => {
+    if (!dateStr) return "—"
+    const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return "—"
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
 }
 
 function LoadGamePageInner() {
@@ -50,20 +57,19 @@ function LoadGamePageInner() {
         attemptSaveRecovery: state.attemptSaveRecovery,
         clearLoadError: state.clearLoadError,
     })))
+    const { autoSave, autoSaveInterval } = useSettingsStore(useShallow(s => ({ autoSave: s.autoSave, autoSaveInterval: s.autoSaveInterval })))
     const [slots, setSlots] = useState<SaveSlotMetadata[]>([])
-    const [, setIsLoading] = useState(true)
+    const [isLoading, setIsLoading] = useState(true)
     const [loadingSlotId, setLoadingSlotId] = useState<string | null>(null)
     const [recoveringSlotId, setRecoveringSlotId] = useState<string | null>(null)
     const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
 
-    // useCallback keeps the effect dep stable. `listSaves` is a module-level
-    // import (stable) but included in deps to satisfy exhaustive-deps.
+    // useCallback keeps the effect dep stable.
     const refreshSlots = useCallback(async () => {
         setIsLoading(true)
         try {
-            const availableSlots = await listSaves()
-            setSlots(availableSlots)
+            setSlots(await listSaves())
         } catch (error) {
             debug.error("Failed to load saves:", error)
             setSlots([])
@@ -97,17 +103,10 @@ function LoadGamePageInner() {
     const handleRecover = async (id: string) => {
         setRecoveringSlotId(id)
         try {
-            const ok = await attemptSaveRecovery(id)
-            if (ok) {
-                router.push("/")
-            }
+            if (await attemptSaveRecovery(id)) router.push("/")
         } finally {
             setRecoveringSlotId(null)
         }
-    }
-
-    const handleSkip = () => {
-        clearLoadError()
     }
 
     const handleDelete = async (id: string) => {
@@ -125,290 +124,187 @@ function LoadGamePageInner() {
         }
     }
 
-    const formatDate = (dateStr?: string) => {
-        if (!dateStr) return "Unknown"
-        return new Date(dateStr).toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        })
+    const careers = slots.filter(s => !s.isEmpty && s.saveId)
+
+    const renderError = (slot: SaveSlotMetadata) => {
+        if (!lastLoadError || lastLoadError.saveId !== slot.saveId) return null
+        const code = lastLoadError.errorCode
+        const isNewerVersion = code === "NEWER_VERSION"
+        const isCorrupted = code === "CORRUPTED" || code === "INTEGRITY_FAILED"
+        const isCloudConflict = code === "CLOUD_CONFLICT"
+        const heading = isCloudConflict ? "Choose which copy to load" : isNewerVersion
+            ? "Saved by a newer version"
+            : isCorrupted ? "Save appears corrupted" : "Load failed"
+        const body = isNewerVersion
+            ? "This save was written by a newer build of the game. Update through Steam to continue it, or pick another career."
+            : isCorrupted
+                ? `${lastLoadError.message} You can leave it untouched or try to recover it from its backup.`
+                : lastLoadError.message
+        return (
+            <tr className="border-b border-line bg-negative/5">
+                <td colSpan={7} className="px-4 py-3">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div className="flex min-w-0 items-start gap-2">
+                            <AlertCircle size={16} className="mt-0.5 shrink-0 text-negative" />
+                            <div className="min-w-0">
+                                <p className="text-sm font-semibold text-ink-1">{heading}</p>
+                                <p className="text-xs text-ink-2">{body}</p>
+                                {isNewerVersion && <p className="mt-1 font-mono text-xs text-ink-3">{lastLoadError.message}</p>}
+                            </div>
+                        </div>
+                        <div className="flex shrink-0 gap-2">
+                            {isNewerVersion ? (
+                                <>
+                                    <Button size="sm" variant="ghost" onClick={async () => {
+                                        try {
+                                            await navigator.clipboard.writeText(`Save: ${slot.saveId}\nError: ${lastLoadError.message}\nApp: ${typeof navigator !== "undefined" ? navigator.userAgent : "unknown"}`)
+                                        } catch { /* clipboard may be denied */ }
+                                        clearLoadError()
+                                    }}>Copy details</Button>
+                                    <Button size="sm" variant="outline" onClick={clearLoadError}>Skip</Button>
+                                </>
+                            ) : isCloudConflict ? (
+                                <>
+                                    <Button size="sm" variant="outline" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "local")}>Use this PC</Button>
+                                    <Button size="sm" variant="outline" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "cloud")}>Use Steam Cloud</Button>
+                                    <Button size="sm" variant="ghost" onClick={clearLoadError}>Cancel</Button>
+                                </>
+                            ) : isCorrupted ? (
+                                <>
+                                    <Button size="sm" variant="outline" disabled={recoveringSlotId === slot.saveId} onClick={() => slot.saveId && handleRecover(slot.saveId)}>
+                                        {recoveringSlotId === slot.saveId ? "Recovering…" : "Recover from backup"}
+                                    </Button>
+                                    <Button size="sm" variant="ghost" onClick={clearLoadError}>Skip</Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button size="sm" variant="outline" onClick={() => slot.saveId && handleLoad(slot.saveId)}>Retry</Button>
+                                    <Button size="sm" variant="ghost" onClick={clearLoadError}>Dismiss</Button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        )
     }
 
     return (
-        <div className="min-h-screen liquid-app-bg text-white p-8 md:p-12">
-            <div className="max-w-6xl mx-auto space-y-12">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div className="space-y-2">
-                        <button
-                            onClick={() => router.push("/")}
-                            className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors text-xs font-bold uppercase tracking-widest mb-4"
-                        >
-                            <ArrowLeft size={14} /> Back to Dashboard
-                        </button>
-                        <h1 className="text-5xl font-normal tracking-tighter uppercase liquid-text">
-                            Career Archives
-                        </h1>
-                        <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">Select a legacy to continue your journey</p>
+        <div className="mx-auto max-w-[1280px] space-y-5 pb-16">
+            <ScreenHeader
+                eyebrow="Saves"
+                title="Load game"
+                subtitle={`${isLoading ? "" : `${careers.length} ${careers.length === 1 ? "career" : "careers"} on this device. `}${autoSave ? `Auto-save is on (every ${autoSaveInterval} min).` : "Auto-save is off."} Each save keeps its last three versions as backups.`}
+                aside={
+                    <>
+                        <Button asChild variant="ghost"><Link href="/main-menu">Main menu</Link></Button>
+                        <Button asChild variant="outline"><Link href="/new-game">New career</Link></Button>
+                    </>
+                }
+            />
+
+            <Panel padded={false} className="overflow-hidden">
+                {isLoading ? (
+                    <p className="flex items-center gap-2 px-4 py-6 text-sm text-ink-3" role="status"><Loader2 size={15} className="animate-spin" /> Loading saves…</p>
+                ) : careers.length === 0 ? (
+                    <div className="flex items-center justify-between gap-4 px-4 py-5">
+                        <p className="text-sm text-ink-3">No saved careers yet.</p>
+                        <Button asChild variant="outline" size="sm"><Link href="/new-game">Start a career</Link></Button>
                     </div>
-
-                    <div className="hidden md:flex items-center gap-4 glass-panel p-4 border-white/5">
-                        <div className="text-right">
-                            <p className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground">Active Career</p>
-                            <p className="text-sm font-bold text-primary">
-                                {currentActiveId ? (slots.find(s => s.saveId === currentActiveId)?.saveName || "NONE") : "NONE"}
-                            </p>
-                        </div>
-                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                            <Save size={24} className="text-primary" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Slots Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <AnimatePresence mode="popLayout">
-                        {slots.length > 0 ? (
-                            slots.filter(s => !s.isEmpty && s.saveId).map((slot, idx) => (
-                                <motion.div
-                                    key={slot.saveId || idx}
-                                    layout
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: idx * 0.1 }}
-                                    className={cn(
-                                        "glass-panel group relative overflow-hidden flex flex-col border-white/5 hover:border-primary/30 transition-all duration-500",
-                                        currentActiveId && slot.saveId === currentActiveId && "border-primary/50 bg-primary/5"
-                                    )}
-                                >
-                                    {/* Slot Background Decor */}
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/10 transition-colors" />
-
-                                    <div className="p-6 flex-1 space-y-6">
-                                        <div className="flex justify-between items-start">
-                                            <div className="w-14 h-14 rounded-2xl bg-linear-to-br/srgb from-white/10 to-transparent border border-white/10 flex items-center justify-center font-normal text-2xl shadow-xl group-hover:scale-110 transition-transform">
-                                                {slot.teamName?.[0] || "?"}
-                                            </div>
-                                            <Badge className={cn(
-                                                "uppercase font-normal text-[8px] tracking-widest",
-                                                currentActiveId && slot.saveId === currentActiveId ? "bg-primary text-white" : "bg-white/5 text-muted-foreground"
-                                            )}>
-                                                {currentActiveId && slot.saveId === currentActiveId ? "ACTIVE" : "ARCHIVED"}
-                                            </Badge>
-                                        </div>
-
-                                        <div>
-                                            <h3 className="text-xl font-normal text-white uppercase truncate">{slot.saveName || "Unnamed Career"}</h3>
-                                            <p className="text-sm font-bold text-muted-foreground uppercase tracking-tight flex items-center gap-2 mt-1">
-                                                <Shield size={12} className="text-primary" /> {slot.teamName || "Unassigned"}
-                                            </p>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
-                                            <div className="space-y-1">
-                                                <p className="text-[8px] font-normal text-muted-foreground uppercase tracking-widest">Progress</p>
-                                                <div className="flex items-center gap-2 text-white font-bold text-xs">
-                                                    <Calendar size={12} className="text-muted-foreground" />
-                                                    Week {slot.currentWeek || 1}
-                                                </div>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-[8px] font-normal text-muted-foreground uppercase tracking-widest">Last Update</p>
-                                                <div className="flex items-center gap-2 text-white font-bold text-xs">
-                                                    <Clock size={12} className="text-muted-foreground" />
-                                                    {formatDate(slot.updatedAt || undefined)}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Load Error */}
-                                    {lastLoadError?.saveId === slot.saveId && (() => {
-                                        const code = lastLoadError.errorCode
-                                        const isNewerVersion = code === "NEWER_VERSION"
-                                        const isCorrupted = code === "CORRUPTED" || code === "INTEGRITY_FAILED"
-                                        const heading = code === "CLOUD_CONFLICT" ? "Choose your save copy" : isNewerVersion
-                                            ? "Save From Newer Version"
-                                            : isCorrupted
-                                                ? "Save Appears Corrupted"
-                                                : "Load Failed"
-                                        const body = isNewerVersion
-                                            ? "This save was written by a newer build of the game. Update via Steam to continue this career, or skip this save and pick another to play."
-                                            : isCorrupted
-                                                ? `${lastLoadError.message} You can skip this save (it will be left untouched) or attempt to recover from a backup.`
-                                                : lastLoadError.message
-                                        return (
-                                            <div className="mx-4 mb-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400">
-                                                <div className="flex items-start gap-2">
-                                                    <AlertCircle size={14} className="mt-0.5 shrink-0" />
-                                                    <div>
-                                                        <p className="text-[10px] font-bold uppercase tracking-wider mb-1">{heading}</p>
-                                                        <p className="text-[10px] text-red-400/80 leading-relaxed">{body}</p>
-                                                        {isNewerVersion && (
-                                                            <p className="text-[9px] text-red-400/60 mt-1 font-mono">
-                                                                {lastLoadError.message}
-                                                            </p>
-                                                        )}
+                ) : (
+                    <table data-slot="table" className="w-full border-collapse text-left">
+                        <thead data-slot="table-header">
+                            <tr className="border-b border-line">
+                                <th data-slot="table-head" className="pl-4">Career</th>
+                                <th data-slot="table-head" className="px-3">Progress</th>
+                                <th data-slot="table-head" className="px-3 text-right">Record</th>
+                                <th data-slot="table-head" className="px-3 text-right">Titles</th>
+                                <th data-slot="table-head" className="px-3 text-right">Funds</th>
+                                <th data-slot="table-head" className="px-3">Last saved</th>
+                                <th data-slot="table-head" className="pr-4"><span className="sr-only">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {careers.map(slot => {
+                                const isActive = !!currentActiveId && slot.saveId === currentActiveId
+                                const corrupted = !!slot.isCorrupted
+                                const busy = loadingSlotId === slot.saveId
+                                return (
+                                    <React.Fragment key={slot.saveId}>
+                                        <tr data-slot="table-row" data-state={isActive ? "selected" : undefined} className="h-16 border-b border-line">
+                                            <td className="py-2 pl-4 pr-3">
+                                                <div className="flex min-w-0 items-center gap-3">
+                                                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
+                                                        {slot.teamName
+                                                            ? <TeamLogoImage src={slot.teamLogo} team={slot.teamPreview} alt={slot.teamName} size={34} />
+                                                            : <AlertCircle size={18} className={corrupted ? "text-negative" : "text-ink-3"} />}
+                                                    </span>
+                                                    <div className="min-w-0">
+                                                        <h3 className="truncate text-[15px] font-semibold text-ink-1">{slot.teamName || slot.saveName || "Unnamed career"}</h3>
+                                                        <p className="truncate text-xs text-ink-3">
+                                                            {corrupted ? "Could not be read" : slot.saveName || "—"}
+                                                            {isActive && <span className="ml-2 font-semibold text-gold">Loaded</span>}
+                                                        </p>
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-2 mt-3">
-                                                    {isNewerVersion ? (
-                                                        <>
-                                                            <button
-                                                                onClick={handleSkip}
-                                                                className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
-                                                            >
-                                                                Skip Save
-                                                            </button>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    try {
-                                                                        await navigator.clipboard.writeText(
-                                                                            `Save: ${slot.saveId}\nError: ${lastLoadError.message}\nApp: ${typeof navigator !== "undefined" ? navigator.userAgent : "unknown"}`
-                                                                        )
-                                                                    } catch { /* clipboard may be denied; fail silently */ }
-                                                                    handleSkip()
-                                                                }}
-                                                                className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white/70 hover:bg-white/10 transition-colors"
-                                                            >
-                                                                Copy Details
-                                                            </button>
-                                                        </>
-                                                    ) : code === "CLOUD_CONFLICT" ? (
-                                                        <>
-                                                            <button className="flex-1 rounded-lg bg-white/10 p-2 text-sm" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "local")}>Use this PC</button>
-                                                            <button className="flex-1 rounded-lg bg-white/10 p-2 text-sm" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "cloud")}>Use Steam Cloud</button>
-                                                            <button className="rounded-lg p-2 text-sm" onClick={handleSkip}>Cancel</button>
-                                                        </>
-                                                    ) : isCorrupted ? (
-                                                        <>
-                                                            <button
-                                                                onClick={() => slot.saveId && handleRecover(slot.saveId)}
-                                                                disabled={recoveringSlotId === slot.saveId}
-                                                                className="flex-1 py-2 rounded-lg bg-amber-500/20 text-[9px] font-bold uppercase tracking-widest text-amber-300 hover:bg-amber-500/30 transition-colors disabled:opacity-50 disabled:cursor-wait"
-                                                            >
-                                                                {recoveringSlotId === slot.saveId ? "Recovering..." : "Attempt Recovery"}
-                                                            </button>
-                                                            <button
-                                                                onClick={handleSkip}
-                                                                className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white/70 hover:bg-white/10 transition-colors"
-                                                            >
-                                                                Skip Save
-                                                            </button>
-                                                        </>
+                                            </td>
+                                            <td className="px-3 text-sm text-ink-2">{slot.currentWeek ? seasonWeek(slot.currentWeek) : "—"}</td>
+                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{slot.stats ? `${slot.stats.wins}–${slot.stats.losses}` : "—"}</td>
+                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{slot.stats ? slot.stats.tournamentsWon : "—"}</td>
+                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{slot.budget !== undefined ? formatCurrency(slot.budget) : "—"}</td>
+                                            <td className="px-3 text-sm text-ink-3">{formatDate(slot.updatedAt)}</td>
+                                            <td className="w-44 pr-4">
+                                                <div className="flex items-center justify-end gap-1.5">
+                                                    {corrupted ? (
+                                                        <Button size="sm" variant="outline" disabled={recoveringSlotId === slot.saveId} onClick={() => slot.saveId && handleRecover(slot.saveId)}>
+                                                            {recoveringSlotId === slot.saveId ? "Recovering…" : "Recover"}
+                                                        </Button>
                                                     ) : (
-                                                        <>
-                                                            <button
-                                                                onClick={() => slot.saveId && handleLoad(slot.saveId)}
-                                                                className="flex-1 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
-                                                            >
-                                                                Retry
-                                                            </button>
-                                                            <button
-                                                                onClick={handleSkip}
-                                                                className="px-4 py-2 rounded-lg bg-white/5 text-[9px] font-bold uppercase tracking-widest text-white/50 hover:bg-white/10 transition-colors"
-                                                            >
-                                                                Dismiss
-                                                            </button>
-                                                        </>
+                                                        <Button size="sm" variant="outline" disabled={!!loadingSlotId} onClick={() => slot.saveId && handleLoad(slot.saveId)} aria-busy={busy || undefined}>
+                                                            {busy ? <><Loader2 size={13} className="animate-spin" /> Loading</> : isActive ? "Reload" : "Load"}
+                                                        </Button>
                                                     )}
+                                                    <Button
+                                                        size="icon-sm"
+                                                        variant="ghost"
+                                                        aria-label={`Delete ${slot.teamName || slot.saveName || "career"}`}
+                                                        disabled={isDeleting || !!loadingSlotId}
+                                                        onClick={() => slot.saveId && setDeleteTarget(slot.saveId)}
+                                                    >
+                                                        <Trash2 size={15} />
+                                                    </Button>
                                                 </div>
-                                            </div>
-                                        )
-                                    })()}
+                                            </td>
+                                        </tr>
+                                        {renderError(slot)}
+                                    </React.Fragment>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                )}
+            </Panel>
 
-                                    {/* Actions */}
-                                    <div className="p-2 flex gap-2 bg-white/5 border-t border-white/5">
-                                        <button
-                                            onClick={() => slot.saveId && handleLoad(slot.saveId)}
-                                            disabled={!!loadingSlotId}
-                                            className="premium-white-action flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold transition-colors disabled:opacity-50 disabled:cursor-wait"
-                                        >
-                                            {loadingSlotId === slot.saveId ? (
-                                                <><Clock size={12} className="animate-spin" /> Loading...</>
-                                            ) : (
-                                                <><Play size={12} fill="currentColor" /> Resume Career</>
-                                            )}
-                                        </button>
-                                        <button
-                                            disabled={isDeleting || !!loadingSlotId}
-                                            onClick={() => slot.saveId && setDeleteTarget(slot.saveId)}
-                                            className="w-12 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            ))
-                        ) : (
-                            <div className="col-span-full py-32 flex flex-col items-center text-center space-y-6">
-                                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                                    <AlertCircle size={40} className="text-muted-foreground" />
-                                </div>
-                                <div className="space-y-2">
-                                    <h3 className="text-2xl font-normal text-white uppercase">No legacies found</h3>
-                                    <p className="text-muted-foreground max-w-xs mx-auto text-sm">You haven&apos;t started any career paths yet. Create a new one from the dashboard.</p>
-                                </div>
-                                <button
-                                    onClick={() => router.push("/")}
-                                    className="px-8 py-4 rounded-2xl bg-white text-black text-xs font-normal uppercase tracking-widest hover:scale-105 transition-transform"
-                                >
-                                    Start New Career
-                                </button>
-                            </div>
-                        )}
-                    </AnimatePresence>
-                </div>
-
-                {/* Footer Info */}
-                <div className="glass-panel p-6 border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                            <Save size={18} className="text-emerald-500" />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-normal uppercase tracking-widest text-white">Auto-Backup Active</p>
-                            <p className="text-xs text-muted-foreground">Your progress is safely stored in local archives.</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-8">
-                        <div className="text-center">
-                            <p className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground">Total Slots</p>
-                            <p className="text-xl font-normal text-white">{slots.length} / 10</p>
-                        </div>
-                        <div className="w-px h-10 bg-white/10 self-center" />
-                        <div className="text-center">
-                            <p className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground">Storage Status</p>
-                            <p className="text-xl font-normal text-emerald-500 uppercase">Synced</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Delete Confirmation Dialog */}
-                <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle className="text-white">Delete Career</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Are you sure you want to delete this career? This action cannot be undone.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel disabled={isDeleting} className="border-white/10 text-white hover:bg-white/10">
-                                Cancel
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                                disabled={isDeleting}
-                                onClick={() => deleteTarget && handleDelete(deleteTarget)}
-                                className="bg-red-600 hover:bg-red-700 text-white"
-                            >
-                                {isDeleting ? "Deleting..." : "Delete"}
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </div>
+            <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete career?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            The career and its backups are removed from this device. This cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            disabled={isDeleting}
+                            onClick={() => deleteTarget && handleDelete(deleteTarget)}
+                            className="bg-negative text-ink hover:bg-negative/90"
+                        >
+                            {isDeleting ? "Deleting…" : "Delete"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

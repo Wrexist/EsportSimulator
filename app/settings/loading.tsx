@@ -1,27 +1,17 @@
-// Streaming skeleton for the settings page — mirrors the section/row layout.
+// Streaming skeleton for the settings page: header line, then two columns of panels.
 
 export default function SettingsLoading() {
     return (
-        <div className="max-w-5xl mx-auto p-6 space-y-6">
-            <div className="h-9 w-32 rounded-lg bg-white/4 animate-pulse" />
-            {Array.from({ length: 4 }).map((_, section) => (
-                <div
-                    key={section}
-                    className="rounded-2xl border border-white/5 bg-white/2 p-5 space-y-3"
-                    style={{ animationDelay: `${section * 60}ms` }}
-                >
-                    <div className="h-5 w-40 rounded bg-white/4 animate-pulse" />
-                    <div className="space-y-2">
-                        {Array.from({ length: 4 }).map((_, row) => (
-                            <div
-                                key={row}
-                                className="h-10 rounded-lg bg-white/1.5 animate-pulse"
-                                style={{ animationDelay: `${section * 60 + row * 25}ms` }}
-                            />
-                        ))}
+        <div className="mx-auto max-w-[1280px] space-y-5" aria-busy="true">
+            <div className="h-10 w-48 animate-pulse rounded-md bg-panel" />
+            <div className="h-10 border-b border-line" />
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                {[0, 1].map(col => (
+                    <div key={col} className="space-y-4">
+                        {[0, 1].map(i => <div key={i} className="h-56 rounded-lg border border-line bg-panel" />)}
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     )
 }
