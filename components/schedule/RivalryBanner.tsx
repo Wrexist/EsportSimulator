@@ -55,18 +55,7 @@ export function RivalryBanner({ rivalry, recentH2H, playerTeamId, opponentName }
 
     const streak = deriveStreak(recentH2H, playerTeamId)
     const isHeated = rivalry.intensity === "HEATED" || rivalry.intensity === "FIERCE"
-    const tone = streak.type === "losses" && streak.length >= 3
-        ? "danger"
-        : streak.type === "wins" && streak.length >= 3
-            ? "dominant"
-            : isHeated ? "heated" : "neutral"
-
-    const toneClasses: Record<typeof tone, string> = {
-        danger: "border-red-500/30 bg-red-500/10 text-red-300",
-        dominant: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-        heated: "border-orange-500/30 bg-orange-500/10 text-orange-300",
-        neutral: "border-white/10 bg-white/4 text-white/70",
-    }
+    const losingRun = streak.type === "losses" && streak.length >= 3
 
     const intensityLabel: Record<RivalryData["intensity"], string> = {
         FRIENDLY: "Familiar",
@@ -92,22 +81,19 @@ export function RivalryBanner({ rivalry, recentH2H, playerTeamId, opponentName }
 
     return (
         <div
-            className={cn(
-                "flex items-center gap-3 rounded-lg border px-3 py-2 mb-4 transition-colors",
-                toneClasses[tone],
-            )}
+            className="flex items-center gap-3 rounded-md border border-line bg-shell px-3 py-2"
             role="region"
             aria-label="Rivalry summary"
         >
-            {tone === "danger"
-                ? <Flame className="w-4 h-4 shrink-0" aria-hidden="true" />
-                : <Swords className="w-4 h-4 shrink-0" aria-hidden="true" />}
-            <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium leading-tight">{headline}</p>
-                <p className="text-[10px] uppercase tracking-widest opacity-60 mt-0.5">
+            {losingRun || isHeated
+                ? <Flame className={cn("h-4 w-4 shrink-0", losingRun ? "text-caution" : "text-ink-2")} aria-hidden="true" />
+                : <Swords className="h-4 w-4 shrink-0 text-ink-3" aria-hidden="true" />}
+            <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold leading-tight text-ink-1">{headline}</p>
+                <p className="mt-0.5 text-xs text-ink-3">
                     {intensityLabel[rivalry.intensity]} · {rivalry.matchesPlayed} meetings
                     {rivalry.highStakesCount && rivalry.highStakesCount > 0
-                        ? ` · ${rivalry.highStakesCount} playoff`
+                        ? ` · ${rivalry.highStakesCount} in playoffs`
                         : ""}
                 </p>
             </div>

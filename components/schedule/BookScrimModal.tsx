@@ -4,16 +4,16 @@ import React, { useState, useMemo, useEffect } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { calculateTeamTier } from "@/engine/tier-system"
-import { motion } from "framer-motion"
-import { X, Swords, Lock } from "lucide-react"
+import { calculateTeamTier, type TierLevel } from "@/engine/tier-system"
+import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { CountryFlag } from "@/components/ui/CountryFlag"
-import { getTeamFlag } from "@/engine/region-logic"
-import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { RatingChip } from "@/src/components/ui/RatingChip"
 import { toast } from "@/lib/toast"
-import { useFocusTrap, pressable } from "@/lib/accessibility"
+import { cn } from "@/lib/utils"
+import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
+import { ScheduleDialog } from "./ScheduleDialog"
 
 interface BookScrimModalProps {
     isOpen: boolean
@@ -22,8 +22,10 @@ interface BookScrimModalProps {
     initialDay?: number
 }
 
+const TIER_LABEL: Record<TierLevel, string> = { ELITE: "Elite", PRO: "Pro", SEMI_PRO: "Semi-pro", AMATEUR: "Amateur" }
+
 export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookScrimModalProps) {
-    const { teams, playerTeamId, players, scheduleScrim, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
+    const { teams, playerTeamId, players, scheduleScrim, currentWeek, currentDay, timeMode, gameStartDate } = useGameStore(useShallow(state => ({
         teams: state.teams,
         playerTeamId: state.playerTeamId,
         players: state.players,
@@ -31,6 +33,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
         currentWeek: state.currentWeek,
         currentDay: state.currentDay,
         timeMode: state.timeMode,
+        gameStartDate: state.gameStartDate,
     })))
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null)
     const [selectedDay, setSelectedDay] = useState<number>(initialDay)
@@ -50,37 +53,44 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
         setError(null)
     }, [isOpen, initialDay, week, currentWeek, currentDay, timeMode])
 
+    // Day buttons use the real calendar (week day 0 is the career's start weekday, not always Monday).
+    const days = useMemo(() => Array.from({ length: 7 }, (_, idx) => {
+        const date = gameCalendarDate(gameStartDate, week, idx)
+        return {
+            idx,
+            weekday: formatGameCalendarDate(date, { weekday: "short" }),
+            date: formatGameCalendarDate(date, { month: "short", day: "numeric" }),
+            closed: timeMode === "HYBRID_DAILY" && week === currentWeek && idx < currentDay,
+        }
+    }), [gameStartDate, week, timeMode, currentWeek, currentDay])
+
     // Filter potential opponents
     const opponents = useMemo(() => {
         if (!playerTeamId) return []
-
-        const myTeam = teams.find(t => t.id === playerTeamId)
-        if (!myTeam) return []
-
+        const term = searchTerm.trim().toLowerCase()
         return teams
             .filter(t => t.id !== playerTeamId)
-            .filter(t => t.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            .filter(t => !term || t.name.toLowerCase().includes(term))
             .sort((a, b) => (b.reputation || 0) - (a.reputation || 0))
     }, [teams, playerTeamId, searchTerm])
 
-    // Memoize team average ratings to avoid recalculating evaluatePlayer on every render
+    // Team ratings, memoized: evaluatePlayer is not free.
     const teamAvgRatings = useMemo(() => {
+        const byId = new Map(players.map(p => [p.id, p]))
         const map = new Map<string, number>()
         for (const team of opponents) {
-            const roster = team.rosterIds
-                .map(id => players.find(p => p.id === id))
-                .filter((p): p is typeof players[number] => p !== undefined)
-            const avgRating = roster.length > 0
-                ? Math.round(roster.reduce((sum, p) => sum + (evaluatePlayer(p).overallRating), 0) / roster.length)
-                : 0
-            map.set(team.id, avgRating)
+            const roster = team.rosterIds.map(id => byId.get(id)).filter((p): p is typeof players[number] => p !== undefined)
+            map.set(team.id, roster.length > 0 ? Math.round(roster.reduce((sum, p) => sum + evaluatePlayer(p).overallRating, 0) / roster.length) : 0)
         }
         return map
     }, [opponents, players])
 
+    const selectedDayInfo = days[selectedDay]
+
     const handleBook = () => {
+        if (!selectedTeamId) return
         const opponent = teams.find(t => t.id === selectedTeamId)
-        const result = scheduleScrim(selectedTeamId!, week, selectedDay) as unknown as { success: boolean, message: string }
+        const result = scheduleScrim(selectedTeamId, week, selectedDay) as unknown as { success: boolean, message: string }
         if (result.success) {
             toast.success(`Scrim booked vs ${opponent?.name || "opponent"}`)
             onClose()
@@ -89,158 +99,91 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
         }
     }
 
-    const dialogRef = useFocusTrap(isOpen, onClose)
-
-    if (!isOpen) return null
-
     return (
-        <div className="fixed inset-0 top-16 z-modal flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                ref={dialogRef} tabIndex={-1}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title-book-scrim"
-                className="glass-panel w-full max-w-2xl flex flex-col max-h-[min(80vh,calc(100dvh-6rem))] shadow-2xl border-white/10"
-            >
-                {/* Header */}
-                <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                    <div>
-                        <h2 id="modal-title-book-scrim" className="text-2xl font-normal uppercase tracking-tight flex items-center gap-2">
-                            <Swords className="text-primary" />
-                            Find Scrim
-                        </h2>
-                        <p className="text-xs text-muted-foreground uppercase tracking-widest mt-1">
-                            Schedule practice match for Week {week}
-                        </p>
-                    </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-lg transition-all" aria-label="Close dialog">
-                        <X size={20} className="text-white/50 hover:text-white" />
-                    </button>
+        <ScheduleDialog
+            isOpen={isOpen}
+            onClose={onClose}
+            titleId="modal-title-book-scrim"
+            title="Book scrim"
+            subtitle={`Week ${week} · practice match`}
+            className="max-w-2xl"
+            footer={
+                <>
+                    {error && <p role="alert" className="mr-auto text-xs font-medium text-negative">{error}</p>}
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleBook} disabled={!selectedTeamId || !!selectedDayInfo?.closed}>
+                        Book for {selectedDayInfo ? `${selectedDayInfo.weekday}, ${selectedDayInfo.date}` : "this day"}
+                    </Button>
+                </>
+            }
+        >
+            <div className="border-b border-line px-6 py-4">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Day</p>
+                <div className="grid grid-cols-7 gap-1.5" role="radiogroup" aria-label="Day">
+                    {days.map(d => (
+                        <button
+                            key={d.idx}
+                            type="button"
+                            role="radio"
+                            aria-checked={selectedDay === d.idx}
+                            onClick={() => setSelectedDay(d.idx)}
+                            disabled={d.closed}
+                            className={cn(
+                                "flex h-12 flex-col items-center justify-center rounded-md border text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-40",
+                                selectedDay === d.idx ? "border-gold bg-hover text-ink-1" : "border-line bg-shell text-ink-2 hover:bg-raised",
+                            )}
+                        >
+                            <span className="font-semibold">{d.weekday}</span>
+                            <span className="text-[11px] tabular-nums text-ink-3">{d.date}</span>
+                        </button>
+                    ))}
                 </div>
+            </div>
 
-                {/* Search Bar */}
-                <div className="px-6 py-4 border-b border-white/5">
-                    <input
+            <div className="px-6 pt-4">
+                <div className="relative">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" size={15} />
+                    <Input
                         type="text"
-                        placeholder="Search teams..."
+                        placeholder="Search clubs"
+                        aria-label="Search clubs"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-hidden focus:border-primary/50 transition-colors"
+                        className="h-9 pl-9 text-sm"
                     />
                 </div>
+            </div>
 
-                {/* Team List */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
-                    {opponents.length === 0 ? (
-                        <div className="text-center py-8 text-white/30 text-sm">No teams found matching &quot;{searchTerm}&quot;</div>
-                    ) : (
-                        opponents.map(team => {
-                            const avgRating = teamAvgRatings.get(team.id) || 0
-
+            <div className="max-h-[340px] overflow-y-auto px-3 py-3">
+                {opponents.length === 0 ? (
+                    <p className="px-3 py-4 text-sm text-ink-3">No clubs match “{searchTerm}”.</p>
+                ) : (
+                    <ul aria-label="Opponents">
+                        {opponents.map(team => {
                             const isSelected = selectedTeamId === team.id
-
                             return (
-                                <div
-                                    key={team.id}
-                                    {...pressable(() => setSelectedTeamId(team.id), { pressed: selectedTeamId === team.id })}
-                                    className={`
-                                    p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between group
-                                    ${isSelected
-                                            ? "bg-primary/10 border-primary shadow-[0_0_15px_rgba(59,130,246,0.3)]"
-                                            : "bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10"
-                                        }
-                                `}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center shrink-0 bg-black/30 border border-white/5">
-                                            <TeamLogoDisplay team={team} size={40} />
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <h3 className="font-bold text-white uppercase tracking-tight">{team.name}</h3>
-                                                <CountryFlag country={getTeamFlag(team.rosterIds, players)} />
-                                            </div>
-                                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                                                <Badge variant="outline" className="text-[9px] h-4 border-white/10">
-                                                    {calculateTeamTier(team.worldRanking || 100)}
-                                                </Badge>
-                                                <span>OVR: <span className="text-white font-bold">{avgRating}</span></span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {isSelected && (
-                                        <div className="text-primary font-normal uppercase text-xs tracking-widest animate-pulse">
-                                            Selected
-                                        </div>
-                                    )}
-                                </div>
-                            )
-                        })
-                    )}
-                </div>
-
-                {/* Day Selection */}
-                <div className="px-6 py-4 border-t border-white/5">
-                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 block">
-                        Select Day
-                    </label>
-                    <div className="grid grid-cols-7 gap-2">
-                        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, idx) => {
-                            const isPastDayInCurrentWeek =
-                                timeMode === "HYBRID_DAILY" &&
-                                week === currentWeek &&
-                                idx < currentDay
-
-                            return (
-                                <button
-                                    key={day}
-                                    onClick={() => setSelectedDay(idx)}
-                                    disabled={isPastDayInCurrentWeek}
-                                    className={`
-                                    h-10 rounded-lg flex items-center justify-center text-xs font-bold uppercase transition-all
-                                    ${isPastDayInCurrentWeek
-                                            ? "bg-white/5 text-white/30 border border-white/5 cursor-not-allowed"
-                                            : ""
-                                        }
-                                    ${selectedDay === idx
-                                            ? "bg-primary text-black shadow-[0_0_10px_rgba(16,185,129,0.4)]"
-                                            : "bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white"
-                                        }
-                                `}
-                                >
-                                    <span className="inline-flex items-center gap-1">
-                                        {day}
-                                        {isPastDayInCurrentWeek && <Lock size={10} className="opacity-60" />}
-                                    </span>
-                                </button>
+                                <li key={team.id}>
+                                    <button
+                                        type="button"
+                                        aria-pressed={isSelected}
+                                        onClick={() => setSelectedTeamId(team.id)}
+                                        className={cn(
+                                            "flex w-full items-center gap-3 rounded-md border-l-2 px-3 py-2 text-left transition-colors",
+                                            isSelected ? "border-gold bg-hover" : "border-transparent hover:bg-raised",
+                                        )}
+                                    >
+                                        <TeamLogoDisplay team={team} size={28} />
+                                        <span className={cn("min-w-0 flex-1 truncate text-sm font-semibold", isSelected ? "text-gold" : "text-ink-1")}>{team.name}</span>
+                                        <span className="w-16 text-xs text-ink-3">#{team.worldRanking || "—"}</span>
+                                        <span className="w-20 text-xs text-ink-2">{TIER_LABEL[calculateTeamTier(team.worldRanking || 100)]}</span>
+                                        <RatingChip value={teamAvgRatings.get(team.id) || 0} size="sm" />
+                                    </button>
+                                </li>
                             )
                         })}
-                    </div>
-                </div>
-
-                {
-                    error && (
-                        <div className="mx-6 mb-4 p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-200 text-xs font-bold text-center animate-shake">
-                            {error}
-                        </div>
-                    )
-                }
-
-                {/* Footer */}
-                <div className="p-6 border-t border-white/5 bg-black/20">
-                    <Button
-                        onClick={handleBook}
-                        disabled={!selectedTeamId}
-                        className="w-full h-12 font-normal uppercase tracking-widest text-lg"
-                    >
-                        Confirm Match {selectedDay !== 0 && `(on ${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][selectedDay]})`}
-                    </Button>
-                </div>
-            </motion.div >
-        </div >
+                    </ul>
+                )}
+            </div>
+        </ScheduleDialog>
     )
 }

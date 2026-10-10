@@ -2,20 +2,19 @@
 
 import React, { useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
-import { X, Swords, Trophy, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { TeamSaveData, PlayerSaveData, MatchSaveData, CompletedMatchSaveData } from "@/engine/save-types"
 import { TeamLogoImage, PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
+import { RatingChip } from "@/src/components/ui/RatingChip"
+import { RoleTag } from "@/src/components/ui/RoleTag"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { RivalryBanner } from "./RivalryBanner"
 import { ScoutingReport } from "./ScoutingReport"
+import { ScheduleDialog } from "./ScheduleDialog"
 import { getMatchHeadline, getMatchTone } from "@/lib/match-stakes"
-import { useFocusTrap } from "@/lib/accessibility"
 
 interface TeamMatchPopupProps {
     isOpen: boolean
@@ -29,13 +28,15 @@ interface TeamMatchPopupProps {
     currentWeek: number
     /**
      * Full completed-match history. Used by RivalryBanner to derive the
-     * live H2H streak between player and opponent. Cheap to pass — the
-     * banner filters internally and the popup doesn't render until
-     * it's mounted.
+     * live H2H streak between player and opponent.
      */
     completedMatches?: CompletedMatchSaveData[]
     /** The player team's id. Drives streak orientation in the banner. */
     playerTeamId?: string
+    /** False while the fixture is still in the future; the match screen opens on match day. */
+    isDue?: boolean
+    /** Readable match date, e.g. "Mon, Oct 12". */
+    dateLabel?: string
 }
 
 export function TeamMatchPopup({
@@ -49,26 +50,21 @@ export function TeamMatchPopup({
     stage,
     currentWeek: _currentWeek,
     completedMatches,
-    playerTeamId
+    playerTeamId,
+    isDue = true,
+    dateLabel,
 }: TeamMatchPopupProps) {
     const router = useRouter()
 
     // Memoize opponent rating and top players to avoid recalculating evaluatePlayer on every render
     const opponentRating = useMemo(() => opponentRoster.length > 0
-        ? Math.round(opponentRoster.reduce((sum, p) => sum + evaluatePlayer(p).overallRating, 0) / opponentRoster.length)
+        ? Math.round(opponentRoster.slice(0, 5).reduce((sum, p) => sum + evaluatePlayer(p).overallRating, 0) / Math.min(5, opponentRoster.length))
         : 0, [opponentRoster])
 
-    const topPlayers = useMemo(() => [...opponentRoster]
-        .map(p => ({ ...p, ovr: evaluatePlayer(p).overallRating }))
-        .sort((a, b) => b.ovr - a.ovr)
-        .slice(0, 5), [opponentRoster])
+    const lineup = useMemo(() => opponentRoster
+        .slice(0, 5)
+        .map(p => ({ ...p, ovr: evaluatePlayer(p).overallRating })), [opponentRoster])
 
-    /**
-     * Rivalry stats (aggregate H2H record + intensity tag) and a
-     * newest-first list of head-to-head completed matches. RivalryBanner
-     * derives the live streak from the latter — a "lost 4 straight"
-     * narrative the aggregate record can't capture.
-     */
     const rivalry = useMemo(() => {
         if (!playerTeam || !opponent) return undefined
         return playerTeam.rivalries?.find(r => r.opponentTeamId === opponent.id)
@@ -84,232 +80,113 @@ export function TeamMatchPopup({
             .sort((a, b) => (b.week || 0) - (a.week || 0))
     }, [completedMatches, opponent, playerTeamId])
 
-    // Standard modal keyboard contract: Escape closes, focus is trapped
-    // inside and returned to the trigger (the hook reads the latest onClose).
-    const dialogRef = useFocusTrap(isOpen && !!opponent, onClose)
-
-    if (!isOpen || !opponent) return null
+    if (!opponent) return null
 
     const handleGoToMatch = () => {
         onClose()
-        if (match.result) {
-            router.push(`/match/${match.id}/result`)
-        } else {
-            router.push(`/match/${match.id}/tactics`)
-        }
+        router.push(match.result ? `/match/${match.id}/result` : `/match/${match.id}/tactics`)
     }
 
+    // Stakes copy is written for tournament stages; scrims and friendlies have none.
+    const hasStakes = !!stage && !match.isScrim
+    const tone = hasStakes ? getMatchTone(stage, true) : null
+    const headline = hasStakes ? getMatchHeadline(stage, true, opponent.name) : null
+
     return (
-        <AnimatePresence>
-            {isOpen && (
+        <ScheduleDialog
+            isOpen={isOpen}
+            onClose={onClose}
+            titleId="modal-title-match-preview"
+            title="Match preview"
+            subtitle={[tournamentName, stage, match.format, dateLabel].filter(Boolean).join(" · ")}
+            closeLabel="Close match preview"
+            className="max-w-xl"
+            footer={
                 <>
-                    {/* Backdrop */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        className="fixed inset-0 top-16 bg-black/60 backdrop-blur-xs z-modal"
-                    />
-
-                    {/* Popup */}
-                    <motion.div
-                        drag
-                        dragMomentum={false}
-                        initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
-                        animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
-                        exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-40%" }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="fixed left-1/2 top-1/2 z-modal w-[calc(100vw-2rem)] max-w-xl cursor-move"
-                        style={{ x: "-50%", y: "-50%" }} // Ensure transform is applied for centering
-                        ref={dialogRef} tabIndex={-1}
-                        role="dialog"
-                        aria-modal="true"
-                        aria-label={`Match preview: ${opponent.name}`}
-                    >
-                        <div className="bg-[#0a0c10]/95 backdrop-blur-xl border border-white/10 rounded-3xl overflow-y-auto max-h-[calc(100dvh-6rem)] shadow-2xl shadow-black/50">
-                            {/* Header with Match Info */}
-                            <div className="p-6 bg-linear-to-br/srgb from-primary/10 via-transparent to-cyan-500/5 border-b border-white/5">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <Swords size={16} className="text-primary" />
-                                        <span className="text-xs font-bold text-primary uppercase tracking-widest">Match Preview</span>
-                                    </div>
-                                    <button
-                                        onClick={onClose}
-                                        aria-label="Close match preview"
-                                        className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
-                                    >
-                                        <X size={16} />
-                                    </button>
-                                </div>
-
-                                {/* Tournament Info */}
-                                {tournamentName && (
-                                    <div className="mb-4 space-y-1">
-                                        <div className="flex items-center gap-2">
-                                            <Trophy size={14} className="text-amber-400" aria-hidden="true" />
-                                            <span className="text-sm text-white/80">{tournamentName}</span>
-                                            {stage && (
-                                                <Badge variant="outline" className="text-[8px] border-amber-500/20 text-amber-400 bg-amber-500/10">
-                                                    {stage}
-                                                </Badge>
-                                            )}
-                                        </div>
-                                        {/* Stakes headline — one-sentence narrative on what
-                                            THIS bracket position means. Color-coded by tone
-                                            (championship = gold, elimination = red, etc.). */}
-                                        {stage && (() => {
-                                            const tone = getMatchTone(stage, true)
-                                            const headline = getMatchHeadline(stage, true, opponent.name)
-                                            const toneColor = tone === "championship"
-                                                ? "text-amber-400"
-                                                : tone === "elimination"
-                                                    ? "text-red-400"
-                                                    : tone === "advancement"
-                                                        ? "text-sky-400"
-                                                        : "text-white/55"
-                                            return (
-                                                <p className={cn("text-[11px] leading-snug pl-6", toneColor)}>
-                                                    {headline}
-                                                </p>
-                                            )
-                                        })()}
-                                    </div>
-                                )}
-
-                                {/* Rivalry banner — surfaces live H2H streak + intensity tag.
-                                    The banner self-skips when there isn't a real rivalry
-                                    record (<2 prior meetings), so the prop wiring is a
-                                    no-op for fresh opponents. */}
-                                {playerTeamId && (
-                                    <RivalryBanner
-                                        rivalry={rivalry}
-                                        recentH2H={recentH2H}
-                                        playerTeamId={playerTeamId}
-                                        opponentName={opponent.name}
-                                    />
-                                )}
-
-                                {/* VS Display */}
-                                <div className="flex items-center justify-center gap-6">
-                                    {/* Player Team */}
-                                    <div className="flex flex-col items-center gap-2">
-                                        <div
-                                            className="w-16 h-16 rounded-2xl bg-white/5 border flex items-center justify-center overflow-hidden"
-                                            style={{ borderColor: playerTeam?.branding?.primaryColor ?? "rgb(255 255 255 / 0.1)" }}
-                                        >
-                                            <TeamLogoImage src={playerTeam?.logoPath} alt={playerTeam?.name || "Your Team"} size={48} />
-                                        </div>
-                                        <span className="text-xs font-bold text-white truncate max-w-[80px]">{playerTeam?.name}</span>
-                                        <Badge className="text-[8px] bg-primary/20 text-primary border-primary/30">YOU</Badge>
-                                    </div>
-
-                                    {/* VS */}
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-2xl font-bold text-white/20">VS</span>
-                                    </div>
-
-                                    {/* Opponent Team */}
-                                    <div className="flex flex-col items-center gap-2">
-                                        <div
-                                            className="w-16 h-16 rounded-2xl bg-white/5 border flex items-center justify-center overflow-hidden"
-                                            style={{ borderColor: opponent.branding?.primaryColor ?? "rgb(255 255 255 / 0.1)" }}
-                                        >
-                                            <TeamLogoImage src={opponent.logoPath} alt={opponent.name} size={48} />
-                                        </div>
-                                        <span className="text-xs font-bold text-white truncate max-w-[80px]">{opponent.name}</span>
-                                        <Badge variant="outline" className="text-[8px] border-white/10 text-white/60">
-                                            #{opponent.worldRanking || "?"}
-                                        </Badge>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Opponent Stats */}
-                            <div className="p-4 border-b border-white/5">
-                                <div className="grid grid-cols-3 gap-3">
-                                    <div className="text-center p-3 bg-white/5 rounded-xl">
-                                        <p className="text-2xl font-bold text-white">{opponentRating}</p>
-                                        <p className="text-[9px] text-white/40 uppercase font-bold">Team OVR</p>
-                                    </div>
-                                    <div className="text-center p-3 bg-white/5 rounded-xl">
-                                        <p className="text-2xl font-bold text-white">#{opponent.worldRanking || "?"}</p>
-                                        <p className="text-[9px] text-white/40 uppercase font-bold">World Rank</p>
-                                    </div>
-                                    <div className="text-center p-3 bg-white/5 rounded-xl">
-                                        <p className="text-2xl font-bold text-white">{opponent.elo || 1000}</p>
-                                        <p className="text-[9px] text-white/40 uppercase font-bold">ELO</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Auto-generated scouting report — derives 2-4
-                                tendency cards (star-heavy, AWP threat, IGL-
-                                led, veteran, fragmented chemistry, etc.) from
-                                the opponent's roster and team data. Gives
-                                every match a "read" before the player commits
-                                to PLAY MATCH. */}
-                            <div className="px-4 pb-4">
-                                <ScoutingReport opponent={opponent} opponentRoster={opponentRoster} />
-                            </div>
-
-                            {/* Opponent Roster Preview */}
-                            <div className="p-4">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Opponent Roster</h3>
-                                    <span className="text-[10px] text-white/30">{opponentRoster.length} players</span>
-                                </div>
-                                <div className="space-y-1.5">
-                                    {topPlayers.map(player => (
-                                        <div key={player.id} className="flex items-center gap-3 p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
-                                            <div className="w-8 h-8 rounded-lg bg-white/5 overflow-hidden flex items-center justify-center shrink-0">
-                                                <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={32} variant="card" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-1.5">
-                                                    <span className="text-xs font-bold text-white truncate">{player.nickname}</span>
-                                                    <CountryFlag country={player.nationality} size={10} className="opacity-60" />
-                                                </div>
-                                                <span className="text-[10px] text-white/40">{resolvePlayerRole(player)}</span>
-                                            </div>
-                                            <div className="text-right shrink-0">
-                                                <span className={cn(
-                                                    "text-sm font-bold",
-                                                    player.ovr >= 85 ? "text-amber-400" : player.ovr >= 75 ? "text-emerald-400" : "text-white/60"
-                                                )}>
-                                                    {player.ovr}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="sticky bottom-0 p-4 bg-[#11141a] border-t border-white/5">
-                                <div className="flex gap-3">
-                                    <Button
-                                        variant="outline"
-                                        onClick={onClose}
-                                        className="flex-1 h-11 border-white/10 text-white/60 hover:bg-white/5"
-                                    >
-                                        Close
-                                    </Button>
-                                    <Button
-                                        variant="play"
-                                        onClick={handleGoToMatch}
-                                        className="flex-1 h-11"
-                                    >
-                                        <Play size={16} className="mr-2 fill-black" />
-                                        {match.result ? "View Result" : "PLAY MATCH"}
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
+                    {!match.result && !isDue && <p className="mr-auto text-xs text-ink-3">Opens on match day{dateLabel ? ` (${dateLabel})` : ""}.</p>}
+                    <Button variant="ghost" onClick={onClose}>Close</Button>
+                    {match.result
+                        ? <Button variant="outline" onClick={handleGoToMatch}>View result</Button>
+                        : isDue && <Button onClick={handleGoToMatch}>Go to match</Button>}
                 </>
-            )}
-        </AnimatePresence>
+            }
+        >
+            <div className="space-y-5 p-6">
+                {headline && (
+                    <p className={cn("text-sm", tone === "championship" ? "text-gold" : "text-ink-2")}>{headline}</p>
+                )}
+
+                {playerTeamId && (
+                    <RivalryBanner
+                        rivalry={rivalry}
+                        recentH2H={recentH2H}
+                        playerTeamId={playerTeamId}
+                        opponentName={opponent.name}
+                    />
+                )}
+
+                {/* Matchup */}
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-line bg-raised">
+                            <TeamLogoImage src={playerTeam?.logoPath} team={playerTeam} alt={playerTeam?.name || "Your team"} size={42} />
+                        </span>
+                        <span className="min-w-0">
+                            <span className="block truncate font-display text-xl font-bold uppercase leading-none text-ink-1">{playerTeam?.name}</span>
+                            <span className="mt-1 block text-xs text-ink-3">World #{playerTeam?.worldRanking ?? "—"}</span>
+                        </span>
+                    </div>
+                    <span className="font-display text-2xl font-bold uppercase text-ink-3">VS</span>
+                    <div className="flex min-w-0 flex-row-reverse items-center gap-3 text-right">
+                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-line bg-raised">
+                            <TeamLogoImage src={opponent.logoPath} team={opponent} alt={opponent.name} size={42} />
+                        </span>
+                        <span className="min-w-0">
+                            <span className="block truncate font-display text-xl font-bold uppercase leading-none text-ink-1">{opponent.name}</span>
+                            <span className="mt-1 block text-xs text-ink-3">World #{opponent.worldRanking ?? "—"}</span>
+                        </span>
+                    </div>
+                </div>
+
+                <dl className="grid grid-cols-3 divide-x divide-line rounded-md border border-line">
+                    <div className="px-3 py-2.5">
+                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Their OVR</dt>
+                        <dd className="mt-1"><RatingChip value={opponentRating} size="md" bare className="min-w-0 px-0 text-2xl" /></dd>
+                    </div>
+                    <div className="px-3 py-2.5">
+                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">World rank</dt>
+                        <dd className="mt-1 font-display text-2xl font-bold leading-none tabular-nums text-ink-1">#{opponent.worldRanking ?? "—"}</dd>
+                    </div>
+                    <div className="px-3 py-2.5">
+                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Chemistry</dt>
+                        <dd className="mt-1 font-display text-2xl font-bold leading-none tabular-nums text-ink-1">{Math.round(opponent.chemistry ?? 0)}</dd>
+                    </div>
+                </dl>
+
+                <ScoutingReport opponent={opponent} opponentRoster={opponentRoster} />
+
+                <section aria-labelledby="opponent-lineup-title">
+                    <div className="mb-2 flex items-baseline justify-between">
+                        <p id="opponent-lineup-title" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Their starting five</p>
+                        <span className="text-xs text-ink-3">{opponentRoster.length} on roster</span>
+                    </div>
+                    <ul className="divide-y divide-line rounded-md border border-line">
+                        {lineup.map(player => (
+                            <li key={player.id} className="flex items-center gap-3 px-3 py-2">
+                                <span className="h-8 w-8 shrink-0 overflow-hidden rounded bg-raised">
+                                    <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={32} variant="card" />
+                                </span>
+                                <span className="flex min-w-0 flex-1 items-center gap-2">
+                                    <span className="truncate text-sm font-semibold text-ink-1">{player.nickname}</span>
+                                    <CountryFlag country={player.nationality} size={12} />
+                                </span>
+                                <RoleTag role={resolvePlayerRole(player)} />
+                                <RatingChip value={player.ovr} size="sm" />
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            </div>
+        </ScheduleDialog>
     )
 }

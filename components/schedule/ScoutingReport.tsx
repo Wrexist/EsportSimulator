@@ -1,196 +1,98 @@
 "use client"
 
-import { Search, AlertCircle, Crosshair, Brain, Users, Trophy } from "lucide-react"
 import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
-import { cn } from "@/lib/utils"
-import { clutchRateFraction } from "@/lib/utils-extended"
 
 interface ScoutingReportProps {
     opponent: TeamSaveData
     opponentRoster: PlayerSaveData[]
 }
 
-interface Tendency {
-    icon: typeof Crosshair
+interface Finding {
     title: string
     body: string
-    tone: "red" | "amber" | "blue" | "emerald" | "violet"
+    /** Signed share of team strength, when the match engine applies one. */
+    effect?: number
 }
 
+const pct = (fraction: number) => `${fraction > 0 ? "+" : ""}${Math.round(fraction * 100)}%`
+
 /**
- * Pre-match scouting report. Auto-generates 2-4 narrative tendency cards
- * by analyzing the opponent's roster shape against league norms. Stops
- * the pre-match screen from feeling like a flat scoreboard.
- *
- * All findings are derived from PlayerSaveData / TeamSaveData fields that
- * already exist — no new schema, no separate analysis pipeline. Each
- * tendency only renders when the relevant signal is strong enough to be
- * a story (not "they have an AWP" — every team has an AWP).
+ * Pre-match read on the opponent. Only reports what the match engine actually
+ * uses (engine/match/team-strength.ts): chemistry, morale and role coverage
+ * add to strength, fatigue multiplies it, and the lineup's ratings. Play-style
+ * attributes (AWP, leadership, clutch, entry) are not modelled yet, so they
+ * are not claimed here.
  */
-function deriveTendencies(opponent: TeamSaveData, roster: PlayerSaveData[]): Tendency[] {
-    if (roster.length === 0) return []
-
-    const tendencies: Tendency[] = []
+function deriveFindings(opponent: TeamSaveData, roster: PlayerSaveData[]): Finding[] {
     const active = roster.slice(0, 5)
-    const evaluations = active.map(p => ({ player: p, ovr: evaluatePlayer(p).overallRating }))
-    const sorted = [...evaluations].sort((a, b) => b.ovr - a.ovr)
+    if (active.length === 0) return []
+    const findings: Finding[] = []
 
-    // ─── Star-power asymmetry ─────────────────────────────────────────────
-    if (sorted.length >= 5) {
-        const star = sorted[0]
-        const median = sorted[2].ovr
-        if (star.ovr - median >= 12) {
-            tendencies.push({
-                icon: Crosshair,
-                title: "Star-Heavy",
-                body: `${star.player.nickname} is the engine — averaging ${star.player.avgRating.toFixed(2)} rating with the next-best teammate ${(star.ovr - median).toFixed(0)} points behind. Shut them down and the lineup loses its shape.`,
-                tone: "red",
-            })
+    // Star dependency (ratings).
+    const rated = active.map(p => ({ player: p, ovr: evaluatePlayer(p).overallRating })).sort((a, b) => b.ovr - a.ovr)
+    if (rated.length >= 5 && rated[0].ovr - rated[2].ovr >= 12) {
+        findings.push({
+            title: `Built around ${rated[0].player.nickname}`,
+            body: `Rated ${rated[0].ovr}, ${rated[0].ovr - rated[2].ovr} above the middle of the lineup.`,
+        })
+    }
+
+    // Chemistry: 0.85–1.15 additive.
+    const chemistry = typeof opponent.chemistry === "number" ? opponent.chemistry : null
+    if (chemistry !== null) {
+        const effect = 0.85 + (chemistry / 100) * 0.3 - 1
+        if (Math.abs(effect) >= 0.05) {
+            findings.push({ title: `Chemistry ${Math.round(chemistry)}`, body: effect > 0 ? "A settled lineup." : "The lineup has not gelled yet.", effect })
         }
     }
 
-    // ─── AWP threat ───────────────────────────────────────────────────────
-    const awper = active.find(p => p.role === "AWPER" || p.secondaryRole === "AWPER")
-    if (awper && awper.awp >= 80) {
-        tendencies.push({
-            icon: Crosshair,
-            title: "Premier AWP",
-            body: `${awper.nickname} is a legitimate sniper threat (AWP ${awper.awp}). Expect them to hold long angles on T-side as well as CT — they pick rather than wait.`,
-            tone: "amber",
-        })
+    // Morale: 0.8–1.2 additive.
+    const avgMorale = active.reduce((s, p) => s + (p.morale ?? 50), 0) / active.length
+    const moraleEffect = 0.8 + (avgMorale / 100) * 0.4 - 1
+    if (Math.abs(moraleEffect) >= 0.06) {
+        findings.push({ title: `Morale ${Math.round(avgMorale)}`, body: moraleEffect > 0 ? "Confident going in." : "Low confidence.", effect: moraleEffect })
     }
 
-    // ─── IGL-led / Tactical ───────────────────────────────────────────────
-    const igl = active.find(p => p.role === "IGL" || p.secondaryRole === "IGL")
-    if (igl && igl.leader >= 75) {
-        tendencies.push({
-            icon: Brain,
-            title: "Tactical Read",
-            body: `${igl.nickname} runs the comms (Leadership ${igl.leader}). Their mid-round decision-making is the team's biggest force multiplier — expect crisp executes and clean fakes.`,
-            tone: "violet",
-        })
+    // Fatigue: 1.0–0.7 multiplier.
+    const avgFatigue = active.reduce((s, p) => s + (p.fatigue ?? 0), 0) / active.length
+    const fatigueEffect = -(avgFatigue / 100) * 0.3
+    if (fatigueEffect <= -0.06) {
+        findings.push({ title: `Fatigue ${Math.round(avgFatigue)}`, body: "Tired legs.", effect: fatigueEffect })
     }
 
-    // ─── Aggressive / Entry-heavy ─────────────────────────────────────────
-    const entry = active.find(p => p.role === "ENTRY_FRAGGER" || p.secondaryRole === "ENTRY_FRAGGER")
-    if (entry && entry.skill >= 78 && entry.reaction >= 78) {
-        tendencies.push({
-            icon: Crosshair,
-            title: "Hard Entry",
-            body: `${entry.nickname} opens up sites with first-bullet pressure. Their early-round trades will dictate the round economy — don't let them get free picks at default angles.`,
-            tone: "red",
-        })
+    // Role coverage: 0.8 + distinct/5 × 0.2.
+    const roles = new Set(active.map(p => p.role)).size
+    if (roles < 4) {
+        findings.push({ title: `${roles} distinct roles`, body: "Overlapping roles in the starting five.", effect: (roles / 5) * 0.2 - 0.2 })
     }
 
-    // ─── Veteran experience ───────────────────────────────────────────────
-    const averageAge = active.reduce((sum, p) => sum + p.age, 0) / active.length
-    const totalMVPs = active.reduce((sum, p) => sum + (p.totalMVPs || 0), 0)
-    if (averageAge >= 27) {
-        tendencies.push({
-            icon: Trophy,
-            title: "Veteran Squad",
-            body: `Average age ${averageAge.toFixed(0)} with ${totalMVPs} tournament MVPs between them. They've seen this scenario before — expect composure under match-point pressure.`,
-            tone: "emerald",
-        })
-    } else if (averageAge <= 21 && roster.some(p => p.potential >= 85)) {
-        tendencies.push({
-            icon: Brain,
-            title: "Young Up-and-Comers",
-            body: `Average age ${averageAge.toFixed(0)} with at least one high-potential prospect on the roster. Inexperience cuts both ways — they'll throw hero plays at the wrong moments, but the upside is real.`,
-            tone: "blue",
-        })
-    }
-
-    // ─── Clutch danger ────────────────────────────────────────────────────
-    const clutchers = active.filter(p => clutchRateFraction(p.clutchSuccessRate) >= 0.35)
-    if (clutchers.length >= 2) {
-        tendencies.push({
-            icon: Trophy,
-            title: "Clutch DNA",
-            body: `${clutchers.length} players on this roster win 1vX situations at a 35%+ clip. Round-deciders don't go their way by accident — be careful in 2v3 / 3v4 trades.`,
-            tone: "amber",
-        })
-    }
-
-    // ─── Cohesion / chemistry signal ──────────────────────────────────────
-    const chemistry = opponent.chemistry
-    if (typeof chemistry === "number" && chemistry >= 80) {
-        tendencies.push({
-            icon: Users,
-            title: "Cohesive Unit",
-            body: `Team chemistry sits at ${chemistry}/100 — the lineup has been together long enough to feel one another's reads. They trade fast and don't peek twice.`,
-            tone: "emerald",
-        })
-    } else if (typeof chemistry === "number" && chemistry < 50) {
-        tendencies.push({
-            icon: AlertCircle,
-            title: "Fragmented Roster",
-            body: `Team chemistry is only ${chemistry}/100 — a recent shake-up means rotations aren't yet automatic. Punish slow trades and stretched setups.`,
-            tone: "amber",
-        })
-    }
-
-    return tendencies.slice(0, 4)
-}
-
-const TONE_CLASSES: Record<Tendency["tone"], { bg: string; ring: string; icon: string; text: string }> = {
-    red:     { bg: "bg-red-500/5",     ring: "ring-red-500/25",     icon: "text-red-400",     text: "text-red-100" },
-    amber:   { bg: "bg-amber-500/5",   ring: "ring-amber-500/25",   icon: "text-amber-400",   text: "text-amber-100" },
-    blue:    { bg: "bg-sky-500/5",     ring: "ring-sky-500/25",     icon: "text-sky-400",     text: "text-sky-100" },
-    emerald: { bg: "bg-emerald-500/5", ring: "ring-emerald-500/25", icon: "text-emerald-400", text: "text-emerald-100" },
-    violet:  { bg: "bg-violet-500/5",  ring: "ring-violet-500/25",  icon: "text-violet-400",  text: "text-violet-100" },
+    return findings.slice(0, 4)
 }
 
 export function ScoutingReport({ opponent, opponentRoster }: ScoutingReportProps) {
-    const tendencies = deriveTendencies(opponent, opponentRoster)
-
-    if (tendencies.length === 0) {
-        return (
-            <div className="rounded-xl border border-white/10 bg-white/3 p-4">
-                <div className="flex items-center gap-2 mb-1">
-                    <Search size={14} className="text-white/40" aria-hidden="true" />
-                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">
-                        Scouting Report
-                    </p>
-                </div>
-                <p className="text-xs text-white/55 leading-relaxed">
-                    Limited tape on {opponent.name}. Adjust the read mid-match.
-                </p>
-            </div>
-        )
-    }
+    const findings = deriveFindings(opponent, opponentRoster)
 
     return (
-        <div className="rounded-xl border border-white/10 bg-white/3 p-4 space-y-3">
-            <div className="flex items-center gap-2">
-                <Search size={14} className="text-white/60" aria-hidden="true" />
-                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/60">
-                    Scouting Report
-                </p>
-            </div>
-            <div className="space-y-2">
-                {tendencies.map((t, idx) => {
-                    const cls = TONE_CLASSES[t.tone]
-                    const Icon = t.icon
-                    return (
-                        <div
-                            key={idx}
-                            className={cn("flex items-start gap-2.5 rounded-lg ring-1 p-2.5", cls.bg, cls.ring)}
-                        >
-                            <div className={cn("shrink-0 mt-0.5", cls.icon)}>
-                                <Icon size={14} aria-hidden="true" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] mb-0.5", cls.text)}>
-                                    {t.title}
-                                </p>
-                                <p className="text-[11px] text-white/65 leading-relaxed">{t.body}</p>
-                            </div>
-                        </div>
-                    )
-                })}
-            </div>
-        </div>
+        <section aria-labelledby="scouting-report-title">
+            <p id="scouting-report-title" className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Opponent read</p>
+            {findings.length === 0 ? (
+                <p className="text-sm text-ink-3">Nothing stands out: no star dependency, and chemistry, morale and fatigue are near neutral.</p>
+            ) : (
+                <ul className="divide-y divide-line rounded-md border border-line">
+                    {findings.map(f => (
+                        <li key={f.title} className="flex items-baseline justify-between gap-3 px-3 py-2">
+                            <span className="min-w-0">
+                                <span className="text-sm font-semibold text-ink-1">{f.title}</span>
+                                <span className="ml-2 text-xs text-ink-3">{f.body}</span>
+                            </span>
+                            {f.effect !== undefined && (
+                                <span className="shrink-0 text-xs font-semibold tabular-nums text-ink-2" title="Effect on their team strength">{pct(f.effect)} strength</span>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </section>
     )
 }
