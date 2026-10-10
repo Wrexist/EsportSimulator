@@ -105,7 +105,12 @@ export function sanitizeRestoredSimState(args: {
     currentMapIndex: number
 }): SimState {
     const { restoredSim, homeEconomy, awayEconomy, homeStartsCT, currentMapIndex } = args
+    // script-v1 CS2 loss-bonus levels (0-4); absent on legacy-v2 checkpoints.
+    const level = (v: unknown) => (typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= 4 ? { value: v } : null)
+    const homeLevel = level(restoredSim?.homeLossLevel), awayLevel = level(restoredSim?.awayLossLevel)
     return {
+        ...(homeLevel ? { homeLossLevel: homeLevel.value } : {}),
+        ...(awayLevel ? { awayLossLevel: awayLevel.value } : {}),
         homeEconomy,
         awayEconomy,
         homeWinStreak: restoredSim?.homeWinStreak ?? 0,

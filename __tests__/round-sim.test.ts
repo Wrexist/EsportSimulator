@@ -17,6 +17,7 @@ import { scriptRating } from '@/engine/match/match-stats'
 import { buildRoundScript, samplePositions, scriptInputFromResolverRound } from '@/engine/match/round-script'
 import { zonePoint } from '@/engine/match/round-sim/zones'
 import { restoreLivePlayback } from '@/engine/match/live-checkpoint'
+import { sanitizeRestoredSimState } from '@/engine/match/live-match-init'
 import { buildSide, even } from '@/engine/match/calibration/fixtures'
 import { getRoundMap } from '@/data/round-maps'
 import { SeededRNG } from '@/engine/rng'
@@ -72,6 +73,14 @@ describe('engine selection and versioning', () => {
         // Checkpoints from before engine stamps are legacy-v2.
         expect(restoreLivePlayback(base).engine).toBe('legacy-v2')
         expect(() => restoreLivePlayback({ ...base, playback: { ...playback, engine: 'nope' } } as unknown as ActiveMatchState)).toThrow()
+    })
+
+    test('a resumed script-v1 match keeps its loss-bonus levels', () => {
+        const restored = sanitizeRestoredSimState({ restoredSim: { homeLossLevel: 3, awayLossLevel: 0 }, homeEconomy: {}, awayEconomy: {}, homeStartsCT: true, currentMapIndex: 0 })
+        expect(restored.homeLossLevel).toBe(3)
+        expect(restored.awayLossLevel).toBe(0)
+        const bad = sanitizeRestoredSimState({ restoredSim: { homeLossLevel: 9 } as never, homeEconomy: {}, awayEconomy: {}, homeStartsCT: true, currentMapIndex: 0 })
+        expect(bad.homeLossLevel).toBeUndefined()
     })
 
     test('the AI path plays the same engine and the same result as the managed path', () => {
