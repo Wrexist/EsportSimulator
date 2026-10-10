@@ -21,6 +21,13 @@ export interface MatchEvent {
     isTrade?: boolean
     isFlashAssist?: boolean
     side?: "ct" | "t"
+    /**
+     * Display only, from the round script (never read by the resolver or the
+     * script builder): bombsite of a PLANT / DEFUSE / EXPLODE.
+     */
+    site?: "A" | "B"
+    /** Display only: where a KILL happened ("A site", "Mid", …), from the round script. */
+    location?: string
 }
 
 export type MatchEventType = "KILL" | "PLANT" | "DEFUSE" | "ROUND_END" | "SAVE" | "CLUTCH"

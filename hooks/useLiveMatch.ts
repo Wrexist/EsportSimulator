@@ -21,6 +21,7 @@ import {
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { soundManager } from "@/lib/sound-manager"
 import { resolveHomeStartsCT } from "@/lib/live-match-utils"
+import { annotateRoundEvents, buildLiveRoundScript, warmRoundMap, type LiveRoundScript } from "@/lib/live-round-script"
 import { MAP_NAMES } from "@/data/map-pool"
 import {
     ROUND_SECONDS,
@@ -142,6 +143,15 @@ export function useLiveMatch(id: string) {
     const [roundHomeIsCT, setRoundHomeIsCT] = useState(true)
 
     const currentRoundEvents = useRef<MatchEvent[]>([])
+    // Round script of the round on screen (radar positions, duels, utility,
+    // bomb). Built once per round from the resolved round and rebuilt on
+    // restore; never part of the checkpoint (deterministic from seed + round).
+    const [roundScript, setRoundScriptState] = useState<LiveRoundScript | null>(null)
+    const roundScriptRef = useRef<LiveRoundScript | null>(null)
+    const setRoundScript = useCallback((live: LiveRoundScript | null) => {
+        roundScriptRef.current = live
+        setRoundScriptState(live)
+    }, [])
     const isSimulatingRef = useRef(false)
     // Set while "Skip match" reveals a round: no per-round win/lose cue.
     const silentPlaybackRef = useRef(false)
@@ -300,6 +310,17 @@ export function useLiveMatch(id: string) {
             const lastRecorded = lastMap?.rounds[lastMap.rounds.length - 1]
             setRoundHomeIsCT(lastRecorded ? lastRecorded.ctTeam === hTeam.id : sanitizedSimState.homeStartsCT)
 
+            // Radar: rebuild the shown round's script from its recorded round
+            // (the bought utility is not checkpointed, so no grenades).
+            const shown = sanitizedSimState.lastRound
+            const shownRounds = shown ? restoredResult.maps[shown.mapIndex]?.rounds ?? [] : []
+            const shownRound = shown ? shownRounds.find(r => r.roundNumber === shown.roundNumber) ?? shownRounds[shownRounds.length - 1] : undefined
+            const restoredScript = shown && shownRound
+                ? buildLiveRoundScript({ ctx, mapId: canonicalMaps[shown.mapIndex] ?? restoredResult.maps[shown.mapIndex]?.map ?? "", mapIndex: shown.mapIndex, round: shownRound })
+                : null
+            setRoundScript(restoredScript)
+            warmRoundMap(currentMapId)
+
             matchData.current = {
                 ownerSaveId: useGameStore.getState().saveId,
                 match: runtimeMatch, result: restoredResult, homeTeam: hTeam, awayTeam: aTeam,
@@ -312,7 +333,7 @@ export function useLiveMatch(id: string) {
             // Visible mid-round inventories/deaths, not the resolved end-of-round economy.
             setHomeRoster(structuredClone(activeMatchState!.homeRoster))
             setAwayRoster(structuredClone(activeMatchState!.awayRoster))
-            currentRoundEvents.current = playback.events
+            currentRoundEvents.current = annotateRoundEvents(playback.events, restoredScript)
             lastProcessedTime.current = playback.processedTime
             roundInFlightRef.current = inFlight
             setLogs(Array.isArray(activeMatchState!.logs) ? activeMatchState!.logs : [])
@@ -348,12 +369,14 @@ export function useLiveMatch(id: string) {
         setOriginalAwayPlayers(awayPlayers)
 
         const initialMapId = canonicalMaps[0] || MapId.SANDSTONE
+        setRoundScript(null)
+        warmRoundMap(initialMapId)
         const startMsg = commentaryManager.generate("MATCH_START", { map: MAP_NAMES[initialMapId] || initialMapId })
         setLogs([{ type: "SYSTEM", message: startMsg }])
         setGameState(prev => ({ ...prev, status: "IN_PROGRESS", time: -1, isPaused: false }))
         setIsPlaying(false)
         setIsWaitingForStrategy(true)
-    }, [scheduledMatches, teams, players, id, setActiveMatch, staff, router, currentWeek, currentDay, timeMode, customTactics])
+    }, [scheduledMatches, teams, players, id, setActiveMatch, staff, router, currentWeek, currentDay, timeMode, customTactics, setRoundScript])
 
     // Persistence
     useEffect(() => {
@@ -433,7 +456,16 @@ export function useLiveMatch(id: string) {
         roundInFlightRef.current = true
         setSimState(step.state.sim)
         setRoundHomeIsCT(sideBefore)
-        currentRoundEvents.current = step.round.events || []
+        // The round is decided: describe it once for the radar (~1 ms warm).
+        const live = buildLiveRoundScript({
+            ctx: runtime.ctx,
+            mapId: runtime.canonicalMaps[mapIndex] ?? step.state.maps[mapIndex]?.map ?? "",
+            mapIndex,
+            round: step.round,
+            loadouts: { ...step.preRound.home, ...step.preRound.away },
+        })
+        setRoundScript(live)
+        currentRoundEvents.current = annotateRoundEvents(step.round.events || [], live)
 
         const getStratName = (stratId: string, side: "ct" | "t", managed: boolean) => {
             const tactic = managed ? customTactics[stratId as keyof typeof customTactics]?.[side] : undefined
@@ -475,7 +507,7 @@ export function useLiveMatch(id: string) {
         setIsBombPlanted(false)
         setBombTime(BOMB_SECONDS)
         lastProcessedTime.current = -1
-    }, [customTactics])
+    }, [customTactics, setRoundScript])
 
     useEffect(() => {
         startNextRoundRef.current = startNextRound
@@ -490,6 +522,9 @@ export function useLiveMatch(id: string) {
         const fromTime = lastProcessedTime.current
         const events = currentRoundEvents.current
         const eventsToProcess = pendingLiveEvents(events, fromTime, currentTime)
+        const playerName = (playerId: string | undefined) => playerId
+            ? [...latestHomeRosterRef.current, ...latestAwayRosterRef.current].find(p => p.id === playerId)?.name
+            : undefined
 
         eventsToProcess.forEach(nextEvent => {
             if (nextEvent.type === "KILL") {
@@ -565,18 +600,26 @@ export function useLiveMatch(id: string) {
                         isUtility: nextEvent.isUtility,
                         isTrade: nextEvent.isTrade,
                         isFlashAssist: nextEvent.isFlashAssist,
+                        location: nextEvent.location,
                         reward
                     }, ...prev]
                 })
             } else if (nextEvent.type === "PLANT") {
-                setLogs(prev => [{ type: "PLANT", time: nextEvent.time, message: commentaryManager.generate("PLANT", {}) }, ...prev])
+                const site = nextEvent.site
+                const planter = playerName(roundScriptRef.current?.script.bomb.plant?.planterId)
+                const message = site ? `Bomb planted at ${site}${planter ? ` by ${planter}` : ""}` : commentaryManager.generate("PLANT", {})
+                setLogs(prev => [{ type: "PLANT", time: nextEvent.time, message, site }, ...prev])
                 setIsBombPlanted(true)
                 setBombTime(BOMB_SECONDS)
             } else if (nextEvent.type === "DEFUSE") {
-                setLogs(prev => [{ type: "DEFUSE", time: nextEvent.time, message: commentaryManager.generate("DEFUSE", {}) }, ...prev])
+                const site = nextEvent.site
+                const defuser = playerName(roundScriptRef.current?.script.bomb.defuse?.defuserId)
+                const message = site ? `Bomb defused at ${site}${defuser ? ` by ${defuser}` : ""}` : commentaryManager.generate("DEFUSE", {})
+                setLogs(prev => [{ type: "DEFUSE", time: nextEvent.time, message, site }, ...prev])
                 setIsBombPlanted(false)
             } else if (nextEvent.type === "EXPLODE") {
-                setLogs(prev => [{ type: "EXPLODE", time: nextEvent.time, message: commentaryManager.generate("EXPLODE", {}) }, ...prev])
+                const site = nextEvent.site
+                setLogs(prev => [{ type: "EXPLODE", time: nextEvent.time, message: site ? `Bomb exploded at ${site}` : commentaryManager.generate("EXPLODE", {}), site }, ...prev])
                 setIsBombPlanted(false)
             } else if (nextEvent.type === "CLUTCH") {
                 const playersInRound = [...latestHomeRosterRef.current, ...latestAwayRosterRef.current]
@@ -646,6 +689,8 @@ export function useLiveMatch(id: string) {
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
                     setLogs(prev => [{ type: "SYSTEM", message: `--- NEXT MAP: ${(MAP_NAMES[nextMapId] || nextMapId).toUpperCase()} ---` }, ...prev])
+                    // Warm the next map's walk graph before its pistol round is built.
+                    if (nextMapId) warmRoundMap(nextMapId)
                     queueRoundStart("PISTOL")
                 } else if (transition === "OVERTIME") {
                     setLogs(prev => [{ type: "SYSTEM", message: "--- OVERTIME: 12-12 · MR3 · FIRST TO 16 ---" }, ...prev])
@@ -797,7 +842,15 @@ export function useLiveMatch(id: string) {
             // Leave the radar and feed on the end of the deciding round.
             const finalEvents = finalRound.events || []
             const endTime = finalEvents.length ? Math.max(...finalEvents.map(e => Math.ceil(e.time))) + 1 : 0
-            currentRoundEvents.current = finalEvents
+            const finalScript = buildLiveRoundScript({
+                ctx: runtime.ctx,
+                mapId: runtime.canonicalMaps[last.mapIndex] ?? done.state.maps[last.mapIndex]?.map ?? "",
+                mapIndex: last.mapIndex,
+                round: finalRound,
+                loadouts: done.lastStep ? { ...done.lastStep.preRound.home, ...done.lastStep.preRound.away } : undefined,
+            })
+            setRoundScript(finalScript)
+            currentRoundEvents.current = annotateRoundEvents(finalEvents, finalScript)
             lastProcessedTime.current = endTime
             roundInFlightRef.current = false
             setRoundHomeIsCT(finalRound.ctTeam === homeTeam.id)
@@ -854,7 +907,7 @@ export function useLiveMatch(id: string) {
             silentPlaybackRef.current = false
             isSimulatingRef.current = false
         }
-    }, [processNextEvent, customTactics, playerTeam])
+    }, [processNextEvent, customTactics, playerTeam, setRoundScript])
 
     const callTimeout = useCallback(() => {
         const next = spendTimeout({ remaining: timeoutsRemainingRef.current, rounds: timeoutBoostRoundsRef.current }, isWaitingForStrategy, latestGameStateRef.current?.status || '')
@@ -909,6 +962,7 @@ export function useLiveMatch(id: string) {
         matchData,
         playerTeam,
         currentRoundEvents, // Ref
+        roundScript,
         originalHomePlayers,
         originalAwayPlayers,
         setSpeed,

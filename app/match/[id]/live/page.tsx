@@ -20,8 +20,8 @@ import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { CustomTactics, LivePlayerState, MapId, MatchEvent, Team } from "@/types"
-import { computeRadarPositions, type RadarPlayerDot } from "@/lib/radar-position-engine"
+import { CustomTactics, LivePlayerState, MapId, Team } from "@/types"
+import { liveRoundMap } from "@/lib/live-round-script"
 import { MAP_NAMES } from "@/data/map-pool"
 
 import { formatCurrency } from "@/lib/utils-extended"
@@ -69,7 +69,12 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
                                 {l.isHeadshot && <HeadshotMark className="text-ink-1" />}
                             </span>
                             <span className={cn("min-w-0 truncate font-semibold", sideText(otherSide(l.killerSide)))}>{l.victimName}</span>
-                            {l.isTrade && <span className="ml-auto shrink-0 rounded-sm border border-line-strong px-1 text-[11px] font-semibold uppercase leading-4 tracking-[0.04em] text-ink-2">Trade</span>}
+                            {(l.location || l.isTrade) && (
+                                <span className="ml-auto flex shrink-0 items-center gap-1.5">
+                                    {l.location && <span className="whitespace-nowrap text-[11px] text-ink-3" data-kill-location="">{l.location}</span>}
+                                    {l.isTrade && <span className="rounded-sm border border-line-strong px-1 text-[11px] font-semibold uppercase leading-4 tracking-[0.04em] text-ink-2">Trade</span>}
+                                </span>
+                            )}
                         </li>
                     )
                 }
@@ -215,6 +220,7 @@ export default function LiveMatchPage() {
         originalHomePlayers,
         originalAwayPlayers,
         currentRoundEvents,
+        roundScript,
         roundTime,
         isBombPlanted,
         bombTime,
@@ -270,68 +276,32 @@ export default function LiveMatchPage() {
         return () => window.removeEventListener("keydown", onKeyDown)
     }, [togglePlayback])
 
-    // Compute live radar positions from round events (must be before early return for hooks rules)
+    // Radar (hooks before the early return). The round on screen is described
+    // by its round script, built once per round by useLiveMatch; the radar
+    // samples it itself on every animation frame, so the page only hands over
+    // the script and the tick clock.
     const currentMapId = matchData.current?.result.maps[gameState.currentMapIndex]?.map || MapId.SANDSTONE
+    const roundMap = useMemo(() => liveRoundMap(currentMapId) ?? null, [currentMapId])
+    const radarScript = roundScript && roundScript.mapId === currentMapId && gameState.time >= 0 ? roundScript.script : null
 
-    // Roster identity hash — only changes when player IDs / dead-mask / money
-    // shift, NOT every render. Without this, radar recompute fired on every
-    // useState update of the roster arrays (~60Hz during a live round).
-    const rosterFingerprint = useMemo(() => {
-        return homeRoster.map(p => `${p.id}:${p.isDead ? 1 : 0}:${p.money}`).join("|")
-            + "#" + awayRoster.map(p => `${p.id}:${p.isDead ? 1 : 0}:${p.money}`).join("|")
-    }, [homeRoster, awayRoster])
-
-    // Every radar snapshot re-simulates the round from t=0, so the snapshots
-    // are cached per round: the look-ahead frame computed on this tick is the
-    // current frame on the next one, and each kill-line snapshot is simulated
-    // once. Net cost is about one simulation per tick instead of two plus two
-    // per recent kill. A new round, map, side or player list starts a new cache.
-    const radarCacheRef = useRef<{ key: string; events: MatchEvent[] | null; dots: Map<number, RadarPlayerDot[]> }>({ key: "", events: null, dots: new Map() })
-    const radarFrames = useMemo(() => {
-        if (!simState || !matchData.current || gameState.time < 0) return null
-        const events = currentRoundEvents.current
-        const victims = new Set(events.filter(e => e.type === "KILL").map(e => e.victimId))
-        // Only "dead without a kill event" changes positions; a kill's victim is
-        // already timed from the event, so a death mid-round keeps the cache.
-        const toInput = (p: LivePlayerState) => ({ id: p.id, isDead: p.isDead && !victims.has(p.id), nickname: p.name, money: p.money })
-        const home = homeRoster.map(toInput), away = awayRoster.map(toInput)
-        const seed = matchData.current.match.seed ?? 0
-        const key = [currentMapId, gameState.round, seed, roundHomeIsCT, ...home.map(p => `${p.id}${p.isDead ? "!" : ""}`), "|", ...away.map(p => `${p.id}${p.isDead ? "!" : ""}`)].join(",")
-        if (radarCacheRef.current.key !== key || radarCacheRef.current.events !== events) {
-            radarCacheRef.current = { key, events, dots: new Map() }
-        }
-        const options = { dotCache: radarCacheRef.current.dots }
-        const now = computeRadarPositions(currentMapId as MapId, gameState.time, events, home, away, roundHomeIsCT, gameState.round, seed, options)
-        // Positions one game-second ahead: the radar glides toward them over the tick.
-        const next = computeRadarPositions(currentMapId as MapId, gameState.time + 1, events, home, away, roundHomeIsCT, gameState.round, seed, options)
-        // Cached dots keep the money they were first computed with; refresh the eco ring.
-        const money = new Map([...home, ...away].map(p => [p.id, p.money]))
-        return { now: { ...now, dots: now.dots.map(dot => ({ ...dot, money: money.get(dot.playerId) ?? dot.money })) }, next }
-        // Intentionally depend on rosterFingerprint instead of the array
-        // refs so an unchanged roster (most ticks) skips the recompute.
+    // Names and cash (economy ring) by player id. Rebuilt only when a name or
+    // a cash value changes, not on every roster update, so the memoized radar
+    // panel is not re-rendered by unrelated roster changes.
+    const radarPlayersKey = [...homeRoster, ...awayRoster].map(p => `${p.id}:${p.name}:${p.money}`).join("|")
+    const radarPlayers = useMemo(
+        () => Object.fromEntries([...homeRoster, ...awayRoster].map(p => [p.id, { name: p.name, money: p.money }])),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gameState.time, gameState.round, currentMapId, simState, roundHomeIsCT, matchData, currentRoundEvents, rosterFingerprint])
-    const radarData = radarFrames?.now ?? null
+        [radarPlayersKey]
+    )
     // The round shown on the radar has been decided (its ROUND_END was played
     // back): no live clutch banner over the end-of-round positions.
     const roundEndEvent = currentRoundEvents.current.find(e => e.type === "ROUND_END")
     const roundOver = gameState.status === "FINISHED" || isWaitingForStrategy
         || (roundEndEvent != null && gameState.time >= Math.floor(roundEndEvent.time))
-    const nextRadarData = radarFrames?.next ?? null
 
     // Build O(1) lookup maps for original players (used in roster rendering)
     const originalHomeMap = useMemo(() => new Map((originalHomePlayers || []).map(p => [p.id, p])), [originalHomePlayers])
     const originalAwayMap = useMemo(() => new Map((originalAwayPlayers || []).map(p => [p.id, p])), [originalAwayPlayers])
-
-    // Stabilize sitePositions identity: `{ a, b }` was being re-created inline in
-    // the MapRadarPanel JSX on every parent render, which busts MapRadarPanel's
-    // React.memo. Keyed on the coordinates (the engine returns fresh point
-    // objects every tick) so it only changes when a site actually moves.
-    const aX = radarData?.aSite.x, aY = radarData?.aSite.y, bX = radarData?.bSite.x, bY = radarData?.bSite.y
-    const sitePositions = useMemo(
-        () => (aX != null && aY != null && bX != null && bY != null ? { a: { x: aX, y: aY }, b: { x: bX, y: bY } } : undefined),
-        [aX, aY, bX, bY]
-    )
 
 
     if (!matchData.current || !simState) {
@@ -635,14 +605,11 @@ export default function LiveMatchPage() {
                             <MapRadarPanel
                                 currentMapId={currentMapId}
                                 mapName={mapName}
-                                radarDots={radarData?.dots}
-                                nextRadarDots={nextRadarData?.dots}
+                                script={radarScript}
+                                roundMap={roundMap}
+                                players={radarPlayers}
                                 tickDurationMs={1000 / Math.max(0.1, speed)}
                                 isAnimating={isPlaying}
-                                bombState={radarData?.bomb}
-                                killLines={radarData?.killLines}
-                                smokes={radarData?.smokes}
-                                sitePositions={sitePositions}
                                 currentTime={gameState.time}
                                 roundOver={roundOver}
                                 fillHeight

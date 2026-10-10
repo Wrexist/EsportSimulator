@@ -413,10 +413,31 @@ export function buildCtPhases(ctx: Ctx): void {
 /** After a SAVE call the losing side's survivors fall back toward their spawn. */
 export function applySave(ctx: Ctx, side: Actor[]): void {
     const saveT = ctx.saveT
-    if (saveT === undefined || !side.length || side[0].side === ctx.input.winnerSide) return
+    if (saveT === undefined) return applyLateSave(ctx, side)
+    if (!side.length || side[0].side === ctx.input.winnerSide) return
     for (const a of side) {
         if (!alive(a, saveT)) continue
         a.phases = [...a.phases.filter(p => p.t < saveT + 0.5), { t: saveT + 0.5, node: a.spawn, pace: RUN_PACE }]
+    }
+}
+
+/**
+ * Losers who survive a bomb round without a SAVE call and take no part in it
+ * after the plant (CTs while the bomb explodes, Ts while it is defused) give
+ * the site up: from their last fight (or the plant) they fall back toward
+ * their spawn instead of walking up to the enemy and standing next to them
+ * until the round ends.
+ */
+export function applyLateSave(ctx: Ctx, side: Actor[]): void {
+    if (!side.length || ctx.plantT === undefined || ctx.saveT !== undefined) return
+    const s = side[0].side
+    if (s === ctx.input.winnerSide) return
+    const lost = s === "CT" ? ctx.exploded : ctx.defuseT !== undefined
+    if (!lost) return
+    for (const a of side) {
+        if (a.deathT !== Infinity) continue
+        const t = max(ctx.plantT, ...a.eventTimes) + 1
+        a.phases = [...a.phases.filter(p => p.t < t), { t, node: a.spawn, pace: RUN_PACE }]
     }
 }
 
