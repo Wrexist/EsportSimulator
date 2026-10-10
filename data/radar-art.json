@@ -1,0 +1,28 @@
+{
+  "Ancient": {
+    "upper": "/radar-art/Ancient-upper.webp"
+  },
+  "Anubis": {
+    "upper": "/radar-art/Anubis-upper.webp"
+  },
+  "Inferno": {
+    "upper": "/radar-art/Inferno-upper.webp"
+  },
+  "Mirage": {
+    "upper": "/radar-art/Mirage-upper.webp"
+  },
+  "Nuke": {
+    "upper": "/radar-art/Nuke-upper.webp",
+    "lower": "/radar-art/Nuke-lower.webp"
+  },
+  "Overpass": {
+    "upper": "/radar-art/Overpass-upper.webp"
+  },
+  "Sandstone": {
+    "upper": "/radar-art/Sandstone-upper.webp"
+  },
+  "Vertigo": {
+    "upper": "/radar-art/Vertigo-upper.webp",
+    "lower": "/radar-art/Vertigo-lower.webp"
+  }
+}
