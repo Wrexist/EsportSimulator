@@ -1,7 +1,18 @@
 import { memo } from "react"
+import { motion } from "framer-motion"
 import { LiveGameState, Team, MapId } from "@/types"
 import { cn } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { useAppReducedMotion } from "@/lib/reduced-motion"
+
+/** One revealed round of the current map, for the history strip. */
+export interface ScorebugRound {
+    round: number
+    winner: "home" | "away"
+    /** Side the winning team played the round on. */
+    side: "ct" | "t"
+    winType?: string
+}
 
 interface LiveMatchScoreboardProps {
     gameState: LiveGameState
@@ -20,11 +31,63 @@ interface LiveMatchScoreboardProps {
     isBombPlanted?: boolean
     /** Seconds remaining on the bomb (counts down from 0:40). */
     bombTime?: number
+    /** Side the home team is on this round (accent stripes). */
+    homeIsCT?: boolean
+    /** Rounds already revealed on this map (never the one in flight). */
+    roundHistory?: ScorebugRound[]
 }
 
-import { motion } from "framer-motion"
-import { useAppReducedMotion } from "@/lib/reduced-motion"
-import { scorePulse } from "@/lib/motion"
+const WIN_TYPE_LABEL: Record<string, string> = {
+    ELIMINATION: "elimination", elimination: "elimination",
+    BOMB_EXPLODED: "bomb exploded", bomb: "bomb exploded",
+    BOMB_DEFUSE: "bomb defused", defuse: "bomb defused",
+    TIME: "time ran out", time: "time ran out",
+}
+
+function SidePill({ ct }: { ct: boolean }) {
+    return (
+        <span className={cn("rounded-sm px-1.5 py-0.5 text-[11px] font-bold leading-none tracking-[0.06em]", ct ? "bg-side-ct/15 text-side-ct" : "bg-side-t/15 text-side-t")}>
+            {ct ? "CT" : "T"}
+        </span>
+    )
+}
+
+function SeriesPips({ won, toWin, label, align }: { won: number; toWin: number; label: string; align: "left" | "right" }) {
+    if (toWin <= 1) return null
+    return (
+        <div className={cn("flex gap-1", align === "right" && "justify-end")} role="img" aria-label={label}>
+            {Array.from({ length: toWin }, (_, i) => (
+                <span key={i} className={cn("h-1.5 w-5 rounded-full", i < won ? "bg-ink-1" : "bg-hover")} />
+            ))}
+        </div>
+    )
+}
+
+/**
+ * Round history: one column per round, the top cell for the home team and the
+ * bottom one for the away team, filled in the colour of the side that won it.
+ * Regulation is 24 rounds with a gap at the half; overtime extends the strip.
+ */
+function RoundHistory({ rounds, homeName, awayName }: { rounds: ScorebugRound[]; homeName: string; awayName: string }) {
+    const slots = Math.max(24, rounds.length)
+    const byRound = new Map(rounds.map(r => [r.round, r]))
+    return (
+        <div className="flex items-center gap-[3px]" aria-label="Round history">
+            {Array.from({ length: slots }, (_, i) => {
+                const n = i + 1
+                const r = byRound.get(n)
+                const fill = r ? (r.side === "ct" ? "bg-side-ct" : "bg-side-t") : ""
+                const title = r ? `Round ${n}: ${r.winner === "home" ? homeName : awayName} (${r.side.toUpperCase()}) · ${WIN_TYPE_LABEL[r.winType ?? ""] ?? "won"}` : `Round ${n}`
+                return (
+                    <div key={n} title={title} className={cn("flex flex-col gap-[3px]", (n === 13 || (n > 24 && (n - 25) % 6 === 0)) && "ml-2")}>
+                        <span className={cn("h-2 w-2.5 rounded-[1px]", r?.winner === "home" ? fill : "bg-hover")} />
+                        <span className={cn("h-2 w-2.5 rounded-[1px]", r?.winner === "away" ? fill : "bg-hover")} />
+                    </div>
+                )
+            })}
+        </div>
+    )
+}
 
 // Memoized: live page renders this on every tick (~30-60Hz). Most ticks
 // don't change scoreboard inputs (scores update once per round, not per
@@ -43,6 +106,8 @@ function LiveMatchScoreboardImpl({
     roundTime,
     isBombPlanted,
     bombTime,
+    homeIsCT = true,
+    roundHistory = [],
 }: LiveMatchScoreboardProps) {
     // Display the actual round countdown (1:55 → 0:00). Falls back to the raw
     // game-time tick when no roundTime is provided so existing callers keep
@@ -53,119 +118,83 @@ function LiveMatchScoreboardImpl({
             ? Math.max(0, roundTime)
             : Math.max(0, gameState.time)
     const showTimer = gameState.time >= 0
-    const isUrgent = isBombPlanted
-        ? displaySeconds <= 10
-        : displaySeconds <= 10 && displaySeconds > 0
+    const isUrgent = !isBombPlanted && displaySeconds <= 10 && displaySeconds > 0
     const reduceMotion = useAppReducedMotion()
+    const finished = gameState.status === "FINISHED"
+    const toWin = mapsToWinForFormat(matchFormat)
+    const phase = roundPhaseLabel(gameState.round, homeScore, awayScore)
 
-    /** CT side — cool blue; T side — amber (readability over heavy glow) */
-    const homeBorderClass = "border-l-4 border-l-sky-400/45"
-    const awayBorderClass = "border-r-4 border-r-amber-400/45"
+    const score = (value: number, leading: boolean) => (
+        <div className="relative flex h-[60px] w-[76px] items-center justify-center overflow-hidden">
+            <motion.span
+                key={value}
+                initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className={cn("font-display text-[64px] font-bold leading-none tabular-nums", leading ? "text-ink-1" : "text-ink-2")}
+            >
+                {value}
+            </motion.span>
+        </div>
+    )
 
     return (
-        <div className="match-scoreboard flex justify-between relative z-10" role="region" aria-label="Match scoreboard" aria-live="polite">
-            {/* HOME TEAM */}
-            <div className={cn("score-team flex items-center pl-3", homeBorderClass)}>
-                <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center font-normal text-2xl overflow-hidden relative group">
+        <div
+            className="relative z-10 mb-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch overflow-hidden rounded-lg border border-line bg-panel"
+            role="region"
+            aria-label="Match scoreboard"
+            aria-live="polite"
+        >
+            {/* HOME */}
+            <div className="flex min-w-0 items-center gap-4 py-3 pl-0 pr-6">
+                <span className={cn("h-full w-1 self-stretch", homeIsCT ? "bg-side-ct" : "bg-side-t")} aria-hidden="true" />
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
                     <TeamLogoDisplay team={homeTeam} size={40} />
-                    <div className="absolute inset-0 bg-linear-to-tr/srgb from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <div>
-                    <div className="score-team-name uppercase">{homeTeam.name}</div>
-                    <div
-                        className="flex gap-1 mt-1"
-                        role="img"
-                        aria-label={`Maps won: ${homeSeriesScore} of ${mapsToWinForFormat(matchFormat)}`}
-                    >
-                        {Array.from({ length: mapsToWinForFormat(matchFormat) }, (_, i) => (
-                            <div key={i} className={cn("w-2 h-2 rounded-full", i < homeSeriesScore ? "bg-white shadow-dot-soft" : "bg-white/10")} />
-                        ))}
+                <div className="min-w-0">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <span className="truncate font-display text-[26px] font-bold uppercase leading-none text-ink-1">{homeTeam.name}</span>
+                        {!finished && <SidePill ct={homeIsCT} />}
                     </div>
+                    <div className="mt-1.5"><SeriesPips won={homeSeriesScore} toWin={toWin} label={`Maps won: ${homeSeriesScore} of ${toWin}`} align="left" /></div>
                 </div>
+                <div className="ml-auto">{score(homeScore, homeScore >= awayScore)}</div>
             </div>
 
-            {/* SCORE */}
-            <div className="flex flex-col items-center">
-                <div className="score-core flex items-center rounded-xl relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r/srgb from-transparent via-white/15 to-transparent" />
-
-                    {/* Animated Home Score */}
-                    <div className="w-20 text-center relative h-[60px] flex items-center justify-center">
-                        <motion.div
-                            key={homeScore}
-                            variants={reduceMotion ? undefined : scorePulse}
-                            initial={reduceMotion ? false : "initial"}
-                            animate={reduceMotion ? undefined : "animate"}
-                            exit={reduceMotion ? undefined : "exit"}
-                            className="text-6xl font-normal text-white tracking-tighter absolute"
-                            style={{ textShadow: "0 2px 24px rgba(56, 189, 248, 0.12)" }}
-                        >
-                            {homeScore}
-                        </motion.div>
-                    </div>
-
-                    <div className="flex flex-col items-center gap-1">
-                        <div className="text-[10px] font-bold tracking-[0.2em] text-white/50 bg-white/5 px-3 py-1 rounded-full uppercase">
-                            {mapName}
-                        </div>
-                        <div className={cn("text-xs font-bold px-2 py-0.5 rounded text-white/80 flex items-center gap-1.5", gameState.status === "FINISHED" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5")}>
-                            <span>{gameState.status === "FINISHED" ? "FINAL" : `RND ${gameState.round} / 24`}</span>
-                            {gameState.status !== "FINISHED" && (
-                                <span className="text-[9px] uppercase tracking-widest text-white/40">
-                                    · {roundPhaseLabel(gameState.round)}
-                                </span>
-                            )}
-                        </div>
-                        {showTimer && (
-                            <div className={cn(
-                                "text-xl font-mono tabular-nums tracking-wider",
-                                gameState.isPaused
-                                    ? "text-white/30"
-                                    : isBombPlanted
-                                        ? "text-red-400 animate-pulse"
-                                        : isUrgent
-                                            ? "text-red-500 animate-pulse"
-                                            : "text-white/80"
-                            )}>
-                                {Math.floor(displaySeconds / 60)}:{(displaySeconds % 60).toString().padStart(2, '0')}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Animated Away Score */}
-                    <div className="w-20 text-center relative h-[60px] flex items-center justify-center">
-                        <motion.div
-                            key={awayScore}
-                            variants={reduceMotion ? undefined : scorePulse}
-                            initial={reduceMotion ? false : "initial"}
-                            animate={reduceMotion ? undefined : "animate"}
-                            exit={reduceMotion ? undefined : "exit"}
-                            className="text-6xl font-normal text-white tracking-tighter absolute"
-                            style={{ textShadow: "0 2px 24px rgba(251, 191, 36, 0.12)" }}
-                        >
-                            {awayScore}
-                        </motion.div>
-                    </div>
+            {/* CENTRE */}
+            <div className="flex min-w-[340px] flex-col items-center justify-center gap-1.5 border-x border-line bg-shell px-6 py-2">
+                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
+                    <span className="text-ink-2">{mapName}</span>
+                    <span aria-hidden="true">·</span>
+                    <span className={finished ? "text-ink-1" : undefined}>{finished ? "Final" : `RND ${gameState.round} / 24`}</span>
+                    {!finished && phase && <><span aria-hidden="true">·</span><span className={phase === "Match point" ? "text-ink-1" : undefined}>{phase}</span></>}
                 </div>
+                {showTimer && !finished && (
+                    <div className={cn(
+                        "font-display text-[28px] font-bold leading-none tabular-nums",
+                        gameState.isPaused ? "text-ink-3" : isBombPlanted ? "text-negative" : isUrgent ? "text-caution" : "text-ink-1",
+                    )}>
+                        {isBombPlanted && <span className="mr-2 align-middle text-[11px] font-semibold uppercase tracking-[0.08em]">Bomb</span>}
+                        {Math.floor(displaySeconds / 60)}:{(displaySeconds % 60).toString().padStart(2, '0')}
+                    </div>
+                )}
+                <RoundHistory rounds={roundHistory} homeName={homeTeam.name} awayName={awayTeam.name} />
             </div>
 
-            {/* AWAY TEAM */}
-            <div className={cn("score-team flex items-center justify-end text-right pr-3", awayBorderClass)}>
-                <div>
-                    <div className="score-team-name uppercase">{awayTeam.name}</div>
-                    <div
-                        className="flex gap-1 mt-1 justify-end"
-                        role="img"
-                        aria-label={`Maps won: ${awaySeriesScore} of ${mapsToWinForFormat(matchFormat)}`}
-                    >
-                        {Array.from({ length: mapsToWinForFormat(matchFormat) }, (_, i) => (
-                            <div key={i} className={cn("w-2 h-2 rounded-full", i < awaySeriesScore ? "bg-white shadow-dot-soft" : "bg-white/10")} />
-                        ))}
-                    </div>
-                </div>
-                <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center font-normal text-2xl overflow-hidden">
+            {/* AWAY */}
+            <div className="flex min-w-0 flex-row-reverse items-center gap-4 py-3 pl-6 pr-0 text-right">
+                <span className={cn("h-full w-1 self-stretch", homeIsCT ? "bg-side-t" : "bg-side-ct")} aria-hidden="true" />
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
                     <TeamLogoDisplay team={awayTeam} size={40} />
                 </div>
+                <div className="min-w-0">
+                    <div className="flex min-w-0 flex-row-reverse items-center gap-2">
+                        <span className="truncate font-display text-[26px] font-bold uppercase leading-none text-ink-1">{awayTeam.name}</span>
+                        {!finished && <SidePill ct={!homeIsCT} />}
+                    </div>
+                    <div className="mt-1.5"><SeriesPips won={awaySeriesScore} toWin={toWin} label={`Maps won: ${awaySeriesScore} of ${toWin}`} align="right" /></div>
+                </div>
+                <div className="mr-auto">{score(awayScore, awayScore >= homeScore)}</div>
             </div>
         </div>
     )
@@ -178,17 +207,16 @@ function mapsToWinForFormat(format: string): number {
 }
 
 /**
- * Broadcast-style label for what kind of round this is. Round 1 and 13 are
- * pistol rounds (frozen economy), rounds 2-3 and 14-15 are usually anti-eco
- * or force-buy follow-ups, and the rest are full-buy unless the engine
- * forces an eco — the round-tag here is the BROADCAST framing, not the
- * actual buy decision (which the player/AI sets in the strategy panel).
+ * Broadcast tag for the round. Only facts: pistol rounds (1 and 13),
+ * overtime, and match point in regulation (first to 13). It used to say
+ * "Full Buy" / "Anti-Eco" from the round number alone, which was often
+ * not what either team bought.
  */
-function roundPhaseLabel(round: number): string {
+function roundPhaseLabel(round: number, homeScore: number, awayScore: number): string | null {
+    if (round > 24) return "Overtime"
     if (round === 1 || round === 13) return "Pistol"
-    if (round === 2 || round === 14) return "Anti-Eco"
-    if (round === 12 || round === 24) return "Last Round"
-    return "Full Buy"
+    if (Math.max(homeScore, awayScore) === 12) return "Match point"
+    return null
 }
 
 export const LiveMatchScoreboard = memo(LiveMatchScoreboardImpl)

@@ -29,29 +29,26 @@ export function HalfTimeOverlay({ active }: { active: boolean }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: reduceMotion ? 0.1 : 0.3 }}
+                    transition={{ duration: reduceMotion ? 0.1 : 0.2 }}
                     className="fixed inset-0 z-modal pointer-events-none flex items-center justify-center"
                     aria-hidden="true"
                 >
-                    {/* Soft dark vignette so the card pops */}
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-xs" />
+                    <div className="absolute inset-0 bg-ink/50" />
 
                     <motion.div
-                        initial={{ scale: 0.96, opacity: 0, y: 12 }}
-                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.98, opacity: 0, y: 8 }}
-                        transition={{ duration: reduceMotion ? 0.1 : 0.35, ease: "easeOut" }}
-                        className="relative z-10 px-10 py-8 rounded-2xl bg-white/6 border border-white/15 backdrop-blur-xl shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)] text-center"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 4 }}
+                        transition={{ duration: reduceMotion ? 0.1 : 0.2, ease: "easeOut" }}
+                        className="relative z-10 rounded-[10px] border border-line-strong bg-panel px-12 py-8 text-center"
                     >
-                        <ArrowLeftRight className="w-10 h-10 mx-auto mb-4 text-cyan-300/80" />
-                        <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-cyan-300/80 mb-2">
-                            Broadcast Pause
-                        </p>
-                        <h2 className="text-4xl font-black tracking-tight text-white drop-shadow-[0_2px_18px_rgba(56,189,248,0.25)]">
-                            HALF TIME
-                        </h2>
-                        <p className="text-xs text-white/55 mt-3 uppercase tracking-widest">
-                            Teams swapping sides
+                        <ArrowLeftRight className="mx-auto mb-3 h-8 w-8 text-ink-3" />
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Half time</p>
+                        <h2 className="mt-1 font-display text-5xl font-bold uppercase leading-none text-ink-1">Switching sides</h2>
+                        <p className="mt-3 flex items-center justify-center gap-3 text-sm font-semibold">
+                            <span className="text-side-ct">CT</span>
+                            <ArrowLeftRight className="h-4 w-4 text-ink-3" aria-hidden="true" />
+                            <span className="text-side-t">T</span>
                         </p>
                     </motion.div>
                 </motion.div>

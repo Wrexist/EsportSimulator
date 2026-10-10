@@ -3,42 +3,20 @@
 import React, { useMemo, useState } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import {
-    Trophy,
-    TrendingUp,
-    Users,
-    Search,
-    Star,
-    Crown,
-    Award,
-    ChevronUp,
-    ChevronDown,
-    Swords,
-    DollarSign,
-    Pause
-} from "lucide-react"
+import { Trophy, Search, ChevronUp, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
-import {
-    GlassTable,
-    GlassTableHeader,
-    GlassTableHead,
-    GlassTableRow,
-    GlassTableCell,
-} from "@/components/ui/GlassTable"
-import {
-    getFPLTierColor,
-    getFPLPlayerTypeLabel,
-    getFPLPlayerTypeColor,
-    FPL_CONSTANTS
-} from "@/types/fpl"
-
+import { getFPLPlayerTypeLabel, FPL_CONSTANTS } from "@/types/fpl"
 import { formatCurrency } from "@/lib/utils-extended"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
+import { Panel } from "@/src/components/ui/Panel"
+import { EmptyState } from "@/src/components/ui/EmptyState"
+
 export default function FPLPage() {
     const { players, playerTeamId, teams, currentWeek, fplData } = useGameStore(useShallow(state => ({
         players: state.players,
@@ -152,16 +130,9 @@ export default function FPLPage() {
 
     if (!fplData) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="text-center">
-                    <Trophy size={48} className="mx-auto mb-4 text-amber-400" />
-                    <p className="text-white text-sm font-bold uppercase tracking-widest">
-                        FPL Season Not Started
-                    </p>
-                    <p className="text-xs text-white/40 mt-2 max-w-sm mx-auto">
-                        The Fantasy Player League begins tracking individual player performance after your first game week. Advance time to get started.
-                    </p>
-                </div>
+            <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
+                <ScreenHeader eyebrow="Competition" title="FPL" subtitle="The Fantasy Player League ranks every pro by individual results across the season." />
+                <EmptyState icon={Trophy} title="FPL season not started" description="Tracking starts after your first game week. Advance time to get going." />
             </div>
         )
     }
@@ -171,682 +142,299 @@ export default function FPLPage() {
     const isOffSeason = !!(fplData.offSeasonEndWeek && currentWeek <= fplData.offSeasonEndWeek)
     const offSeasonWeeksLeft = isOffSeason ? fplData.offSeasonEndWeek! - currentWeek + 1 : 0
 
+    const ratingTone = (r: number) => r >= 1.15 ? "text-positive" : r < 0.85 ? "text-ink-3" : "text-ink-1"
+    const rankCell = (rank: number) => (
+        <span className={cn("font-display text-lg font-bold tabular-nums", rank <= 3 ? "text-ink-1" : "text-ink-3")}>{rank}</span>
+    )
+
     // Render standings table with zone indicators
     const renderStandingsTable = (
         standings: typeof fplStandings,
         isChallenger: boolean
     ) => (
-        <GlassTable>
-            <GlassTableHeader>
-                <GlassTableRow>
-                    <GlassTableHead className="w-16">#</GlassTableHead>
-                    <GlassTableHead>Player</GlassTableHead>
-                    <GlassTableHead>Team</GlassTableHead>
-                    <GlassTableHead className="text-center">Points</GlassTableHead>
-                    <GlassTableHead className="text-center">W/L</GlassTableHead>
-                    <GlassTableHead className="text-center">Rating</GlassTableHead>
-                    <GlassTableHead className="text-center">ELO</GlassTableHead>
-                </GlassTableRow>
-            </GlassTableHeader>
+        <table data-slot="table" className="w-full border-collapse text-left">
+            <thead data-slot="table-header">
+                <tr className="border-b border-line">
+                    <th data-slot="table-head" className="w-16 pl-4">#</th>
+                    <th data-slot="table-head">Player</th>
+                    <th data-slot="table-head" className="px-3">Team</th>
+                    <th data-slot="table-head" className="px-3 text-right">Points</th>
+                    <th data-slot="table-head" className="px-3 text-right">W</th>
+                    <th data-slot="table-head" className="px-3 text-right">L</th>
+                    <th data-slot="table-head" className="px-3 text-right">Rating</th>
+                    <th data-slot="table-head" className="px-3 text-right">Elo</th>
+                    <th data-slot="table-head" className="pr-4 text-right">Zone</th>
+                </tr>
+            </thead>
             <tbody>
                 {standings.slice(0, 100).map((entry) => {
                     const isMyPlayer = myRosterIds.includes(entry.player.id)
-                    const isInZone = isChallenger
-                        ? entry.standing.isInPromotionZone
-                        : entry.standing.isInRelegationZone
-
+                    const isInZone = isChallenger ? entry.standing.isInPromotionZone : entry.standing.isInRelegationZone
                     return (
-                        <GlassTableRow
+                        <tr
                             key={entry.player.id}
-                            className={cn(
-                                "cursor-pointer transition-colors",
-                                isMyPlayer && "bg-cyan-500/10 hover:bg-cyan-500/15",
-                                isInZone && isChallenger && "bg-emerald-500/5 border-l-4 border-l-emerald-500",
-                                isInZone && !isChallenger && "bg-red-500/5 border-l-4 border-l-red-500"
-                            )}
+                            data-slot="table-row"
+                            className={cn("h-12 border-b border-line last:border-b-0", isMyPlayer && "bg-gold/[0.06] shadow-[inset_2px_0_0_var(--gold)]")}
                         >
-                            <GlassTableCell>
-                                <div className="flex items-center gap-2">
-                                    <div className={cn(
-                                        "w-8 h-8 rounded-lg flex items-center justify-center font-bold",
-                                        entry.standing.rank === 1 ? "bg-amber-500/20 text-amber-400" :
-                                            entry.standing.rank === 2 ? "bg-gray-400/20 text-gray-300" :
-                                                entry.standing.rank === 3 ? "bg-orange-600/20 text-orange-400" :
-                                                    "bg-white/5 text-white/60"
-                                    )}>
-                                        {entry.standing.rank <= 3 ? (
-                                            <Crown size={16} />
-                                        ) : (
-                                            entry.standing.rank
-                                        )}
-                                    </div>
-                                    {isInZone && (
-                                        <Badge className={cn(
-                                            "text-[8px] px-1.5",
-                                            isChallenger
-                                                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                                                : "bg-red-500/20 text-red-400 border-red-500/30"
-                                        )}>
-                                            {isChallenger ? (
-                                                <><ChevronUp size={10} /> PROMO</>
-                                            ) : (
-                                                <><ChevronDown size={10} /> RELEG</>
-                                            )}
-                                        </Badge>
+                            <td className="pl-4">{rankCell(entry.standing.rank)}</td>
+                            <td className="py-1.5 pr-3">
+                                <Link href={`/player/${entry.player.id}`} className="group flex min-w-0 items-center gap-3">
+                                    <span className="h-9 w-9 shrink-0 overflow-hidden rounded bg-raised">
+                                        <PlayerPortrait src={entry.player.portraitPath} seed={entry.player.id} alt={entry.player.nickname} size={36} />
+                                    </span>
+                                    <CountryFlag country={entry.player.nationality} showName={false} size={14} />
+                                    <span className="truncate text-sm font-semibold text-ink-1 group-hover:text-gold">{entry.player.nickname}</span>
+                                    {entry.nonProMeta && (
+                                        <span className="shrink-0 rounded-sm border border-line-strong px-1.5 text-[11px] font-semibold leading-4 text-ink-2">
+                                            {getFPLPlayerTypeLabel(entry.nonProMeta.playerType)}
+                                        </span>
                                     )}
-                                </div>
-                            </GlassTableCell>
-                            <GlassTableCell>
-                                <Link href={`/player/${entry.player.id}`}>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 overflow-hidden">
-                                            <PlayerPortrait
-                                                src={entry.player.portraitPath} seed={entry.player.id}
-                                                alt={entry.player.nickname}
-                                                size={40}
-                                            />
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-white flex items-center gap-2">
-                                                {entry.player.nickname}
-                                                {isMyPlayer && (
-                                                    <Star size={12} className="text-cyan-400" fill="currentColor" />
-                                                )}
-                                            </p>
-                                            <div className="flex items-center gap-2">
-                                                <CountryFlag country={entry.player.nationality} showName={false} size={12} />
-                                                {entry.nonProMeta && (
-                                                    <Badge className={cn(
-                                                        "text-[8px] px-1.5 py-0",
-                                                        getFPLPlayerTypeColor(entry.nonProMeta.playerType)
-                                                    )}>
-                                                        {getFPLPlayerTypeLabel(entry.nonProMeta.playerType)}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
                                 </Link>
-                            </GlassTableCell>
-                            <GlassTableCell>
-                                <span className="text-xs text-white/60">
-                                    {entry.team?.name || "Free Agent"}
-                                </span>
-                            </GlassTableCell>
-                            <GlassTableCell className="text-center">
-                                <span className="text-lg font-bold text-amber-400">
-                                    {entry.standing.points}
-                                </span>
-                            </GlassTableCell>
-                            <GlassTableCell className="text-center">
-                                <span className="text-emerald-400">{entry.standing.wins}</span>
-                                <span className="text-white/30">/</span>
-                                <span className="text-red-400">{entry.standing.losses}</span>
-                            </GlassTableCell>
-                            <GlassTableCell className="text-center">
-                                <span className={cn(
-                                    "font-bold",
-                                    entry.standing.avgRating >= 1.2 ? "text-emerald-400" :
-                                        entry.standing.avgRating >= 1.0 ? "text-white" : "text-red-400"
-                                )}>
-                                    {entry.standing.avgRating.toFixed(2)}
-                                </span>
-                            </GlassTableCell>
-                            <GlassTableCell className="text-center">
-                                <span className="font-mono text-white/60">
-                                    {entry.stats.fplElo}
-                                </span>
-                            </GlassTableCell>
-                        </GlassTableRow>
+                            </td>
+                            <td className="px-3 text-sm text-ink-2">{entry.team?.name || <span className="text-ink-3">Free agent</span>}</td>
+                            <td className="px-3 text-right font-display text-lg font-bold tabular-nums text-ink-1">{entry.standing.points}</td>
+                            <td className="px-3 text-right text-sm tabular-nums text-ink-1">{entry.standing.wins}</td>
+                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{entry.standing.losses}</td>
+                            <td className={cn("px-3 text-right text-sm font-semibold tabular-nums", ratingTone(entry.standing.avgRating))}>{entry.standing.avgRating.toFixed(2)}</td>
+                            <td className="px-3 text-right text-sm tabular-nums text-ink-3">{entry.stats.fplElo}</td>
+                            <td className="pr-4 text-right">
+                                {isInZone && (isChallenger
+                                    ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-positive"><ChevronUp size={13} aria-hidden="true" /> Promotion</span>
+                                    : <span className="inline-flex items-center gap-1 text-xs font-semibold text-negative"><ChevronDown size={13} aria-hidden="true" /> Relegation</span>)}
+                            </td>
+                        </tr>
                     )
                 })}
             </tbody>
-        </GlassTable>
+        </table>
+    )
+
+    const searchBox = (
+        <div className="relative w-full max-w-[320px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" size={15} />
+            <Input placeholder="Search players" aria-label="Search players" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-9 pl-9 text-sm" />
+        </div>
     )
 
     return (
-        <div className="space-y-8 max-w-7xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div>
-                    <h1 className="page-title mb-2 flex items-center gap-3">
-                        <Swords className="text-amber-400" size={36} />
-                        FPL Leagues
-                    </h1>
-                    <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">
-                        Individual Player Rankings • Season {season.seasonNumber}
-                    </p>
-                </div>
+        <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
+            <ScreenHeader
+                eyebrow={`Season ${season.seasonNumber} · Competition`}
+                title="FPL"
+                subtitle="Every pro ranked by individual results. It runs on its own: the top three earn player XP and prize money, not club money."
+                aside={
+                    <KpiStrip>
+                        <Kpi label="FPL Pro pool" value={formatCurrency(FPL_CONSTANTS.PRIZE_POOL_BASE, "$", false)} />
+                        <Kpi label="Challenger pool" value={formatCurrency(FPL_CONSTANTS.PRIZE_POOL_FPL_C, "$", false)} />
+                        {isOffSeason
+                            ? <Kpi label="Off-season" value={`${offSeasonWeeksLeft} wk`} hint={`until season ${season.seasonNumber}`} />
+                            : <Kpi label="Weeks left" value={weeksRemaining} />}
+                    </KpiStrip>
+                }
+            />
 
-                {/* Season Info */}
-                <div className="flex gap-4">
-                    <div className="glass-panel p-4 border-amber-500/20 bg-amber-500/5">
-                        <div className="flex items-center gap-4">
-                            <div className="text-center">
-                                <p className="text-xl font-bold text-amber-400">FPL</p>
-                                <p className="text-lg font-bold text-white">{formatCurrency(FPL_CONSTANTS.PRIZE_POOL_BASE, "$", false)}</p>
-                                <p className="text-[10px] text-white/40 uppercase">Prize Pool</p>
-                            </div>
-                            <div className="w-px h-10 bg-white/10" />
-                            <div className="text-center">
-                                <p className="text-xl font-bold text-purple-400">FPL-C</p>
-                                <p className="text-lg font-bold text-white">{formatCurrency(FPL_CONSTANTS.PRIZE_POOL_FPL_C, "$", false)}</p>
-                                <p className="text-[10px] text-white/40 uppercase">Prize Pool</p>
-                            </div>
-                            <div className="w-px h-10 bg-white/10" />
-                            <div className="text-center">
-                                {isOffSeason ? (
-                                    <>
-                                        <div className="flex items-center gap-1 justify-center">
-                                            <Pause size={14} className="text-orange-400" />
-                                            <p className="text-lg font-bold text-orange-400">OFF-SEASON</p>
-                                        </div>
-                                        <p className="text-[10px] text-white/40 uppercase">{offSeasonWeeksLeft}w until Season {season.seasonNumber}</p>
-                                    </>
-                                ) : (
-                                    <>
-                                        <p className="text-2xl font-bold text-white">{weeksRemaining}</p>
-                                        <p className="text-[10px] text-white/40 uppercase">Weeks Left</p>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* What is FPL? (E7) — the mechanic is never explained otherwise. */}
-            <div className="rounded-lg border border-white/5 bg-white/2 p-4 flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/10 shrink-0"><Users size={14} className="text-amber-400" /></div>
-                <div>
-                    <p className="text-xs font-bold text-white/80 uppercase tracking-wide mb-1">What is FPL?</p>
-                    <p className="text-[11px] text-white/50 leading-relaxed">
-                        The Fantasy Player League ranks every pro by individual performance across the season — it runs automatically alongside your matches, no management needed. Your players climb by playing well, building their reputation and value. The top performers in FPL-C earn promotion to the elite FPL.
-                    </p>
-                </div>
-            </div>
-
-            {/* My Players Quick View */}
+            {/* Your players */}
             {(myPlayersInFPL.length > 0 || myPlayersInFPLC.length > 0) && (
-                <div className="glass-panel p-6 border-cyan-500/20 bg-cyan-500/5">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-cyan-400 mb-4 flex items-center gap-2">
-                        <Users size={14} /> Your Players in FPL
-                    </h3>
-                    <div className="flex flex-wrap gap-4">
+                <Panel title="Your players" padded={false} actions={<span className="text-xs text-ink-3">{myPlayersInFPL.length} in Pro · {myPlayersInFPLC.length} in Challenger</span>}>
+                    <ul className="grid grid-cols-1 divide-line md:grid-cols-5 md:divide-x">
                         {[...myPlayersInFPL, ...myPlayersInFPLC].slice(0, 5).map(entry => (
-                            <Link key={entry.player.id} href={`/player/${entry.player.id}`}>
-                                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
-                                    <div className="relative">
-                                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-white/10">
-                                            <PlayerPortrait
-                                                src={entry.player.portraitPath} seed={entry.player.id}
-                                                alt={entry.player.nickname}
-                                                size={40}
-                                            />
-                                        </div>
-                                        <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-black flex items-center justify-center text-[10px] font-bold text-amber-400 border border-amber-500/30">
-                                            #{entry.standing.rank}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-white">{entry.player.nickname}</p>
-                                        <div className="flex items-center gap-2">
-                                            <Badge className={getFPLTierColor(entry.stats.fplTier)}>
-                                                {entry.stats.fplTier}
-                                            </Badge>
-                                            <span className="text-xs text-white/50">{entry.stats.fplElo} ELO</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
+                            <li key={entry.player.id}>
+                                <Link href={`/player/${entry.player.id}`} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-hover">
+                                    <span className="h-10 w-10 shrink-0 overflow-hidden rounded bg-raised">
+                                        <PlayerPortrait src={entry.player.portraitPath} seed={entry.player.id} alt={entry.player.nickname} size={40} />
+                                    </span>
+                                    <span className="min-w-0">
+                                        <span className="block truncate text-sm font-semibold text-ink-1">{entry.player.nickname}</span>
+                                        <span className="block text-xs tabular-nums text-ink-3">
+                                            #{entry.standing.rank} in {entry.stats.fplTier === "FPL" ? "Pro" : entry.stats.fplTier === "FPL_C" ? "Challenger" : entry.stats.fplTier} · {entry.stats.fplElo} Elo
+                                        </span>
+                                    </span>
+                                </Link>
+                            </li>
                         ))}
-                    </div>
-                </div>
+                    </ul>
+                </Panel>
             )}
 
-            {/* Promotion/Relegation Info */}
-            <div className="grid grid-cols-2 gap-4">
-                <div className="glass-panel p-4 border-emerald-500/20 bg-emerald-500/5">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                            <ChevronUp className="text-emerald-400" size={24} />
-                        </div>
-                        <div>
-                            <p className="text-sm font-bold text-emerald-400">Promotion Zone</p>
-                            <p className="text-xs text-white/50">Top {FPL_CONSTANTS.PROMOTION_SLOTS} from FPL-C get promoted to FPL</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="glass-panel p-4 border-red-500/20 bg-red-500/5">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
-                            <ChevronDown className="text-red-400" size={24} />
-                        </div>
-                        <div>
-                            <p className="text-sm font-bold text-red-400">Relegation Zone</p>
-                            <p className="text-xs text-white/50">Bottom {FPL_CONSTANTS.RELEGATION_SLOTS} non-pros from FPL get relegated</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full max-w-2xl grid-cols-4 bg-white/5">
-                    <TabsTrigger value="fpl" className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400">
-                        <Crown size={14} className="mr-2" />
-                        FPL Pro
-                    </TabsTrigger>
-                    <TabsTrigger value="fpl-c" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400">
-                        <TrendingUp size={14} className="mr-2" />
-                        FPL Challenger
-                    </TabsTrigger>
-                    <TabsTrigger value="season" className="data-[state=active]:bg-white/10">
-                        <Award size={14} className="mr-2" />
-                        Season
-                    </TabsTrigger>
-                    <TabsTrigger value="history" className="data-[state=active]:bg-white/10">
-                        <Trophy size={14} className="mr-2" />
-                        History
-                    </TabsTrigger>
-                </TabsList>
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                    <TabsList>
+                        <TabsTrigger value="fpl">FPL Pro <span className="tabular-nums text-ink-3">{fplStandings.length}</span></TabsTrigger>
+                        <TabsTrigger value="fpl-c">FPL Challenger <span className="tabular-nums text-ink-3">{fplCStandings.length}</span></TabsTrigger>
+                        <TabsTrigger value="season">Season</TabsTrigger>
+                        <TabsTrigger value="history">History</TabsTrigger>
+                    </TabsList>
+                    {(activeTab === "fpl" || activeTab === "fpl-c") && searchBox}
+                </div>
 
-                {/* Search Bar (shared) */}
-                {(activeTab === "fpl" || activeTab === "fpl-c") && (
-                    <div className="mt-6 mb-4">
-                        <div className="relative max-w-md">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                            <Input
-                                placeholder="Search players..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-12 h-12 bg-white/5 border-white/10 rounded-xl"
-                            />
-                        </div>
-                    </div>
-                )}
-
-                {/* FPL Pro Tab */}
-                <TabsContent value="fpl" className="mt-4 space-y-6">
-                    <div className="glass-panel p-4 border-amber-500/20">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-bold text-amber-400 flex items-center gap-2">
-                                <Crown size={20} />
-                                FPL Pro League
-                            </h3>
-                            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">
-                                {fplStandings.length} Players
-                            </Badge>
-                        </div>
-                        <p className="text-xs text-white/50 mb-4">
-                            The elite tier of competitive FPL. Bottom {FPL_CONSTANTS.RELEGATION_SLOTS} non-pro players get relegated to FPL Challenger at season end.
-                        </p>
+                <TabsContent value="fpl" className="mt-4">
+                    <Panel title="FPL Pro" padded={false} actions={<span className="text-xs text-ink-3">Bottom {FPL_CONSTANTS.RELEGATION_SLOTS} non-pros drop to Challenger at season end</span>}>
                         {renderStandingsTable(fplStandings, false)}
-                    </div>
+                    </Panel>
                 </TabsContent>
 
-                {/* FPL Challenger Tab */}
-                <TabsContent value="fpl-c" className="mt-4 space-y-6">
-                    <div className="glass-panel p-4 border-purple-500/20">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-bold text-purple-400 flex items-center gap-2">
-                                <TrendingUp size={20} />
-                                FPL Challenger League
-                            </h3>
-                            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-                                {fplCStandings.length} Players
-                            </Badge>
-                        </div>
-                        <p className="text-xs text-white/50 mb-4">
-                            The proving ground for rising stars. Top {FPL_CONSTANTS.PROMOTION_SLOTS} players get promoted to FPL Pro at season end.
-                        </p>
+                <TabsContent value="fpl-c" className="mt-4">
+                    <Panel title="FPL Challenger" padded={false} actions={<span className="text-xs text-ink-3">Top {FPL_CONSTANTS.PROMOTION_SLOTS} go up to FPL Pro at season end</span>}>
                         {renderStandingsTable(fplCStandings, true)}
-                    </div>
+                    </Panel>
                 </TabsContent>
 
                 {/* Season Leaderboard Tab */}
-                <TabsContent value="season" className="mt-6 space-y-6">
-                    <div className="glass-panel p-6 border-amber-500/20">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                                <Award className="text-amber-400" />
-                                Season {season.seasonNumber} Leaderboard
-                            </h3>
-                            <div className="text-sm text-white/60">
-                                Week {Math.max(1, currentWeek - season.startWeek + 1)} of {FPL_CONSTANTS.SEASON_LENGTH}
-                            </div>
-                        </div>
-
-                        {/* Prize Distribution */}
-                        <div className="grid grid-cols-3 gap-4 mb-8">
-                            {[1, 2, 3].map(place => {
-                                const entry = seasonLeaderboard[place - 1]
-                                const reward = season.rewards[place - 1]
-                                return (
-                                    <div
-                                        key={place}
-                                        className={cn(
-                                            "p-4 rounded-xl border text-center",
-                                            place === 1 ? "bg-amber-500/10 border-amber-500/30" :
-                                                place === 2 ? "bg-gray-400/10 border-gray-400/30" :
-                                                    "bg-orange-600/10 border-orange-600/30"
-                                        )}
-                                    >
-                                        <div className={cn(
-                                            "w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center",
-                                            place === 1 ? "bg-amber-500/20 text-amber-400" :
-                                                place === 2 ? "bg-gray-400/20 text-gray-300" :
-                                                    "bg-orange-600/20 text-orange-400"
-                                        )}>
-                                            <Crown size={20} />
-                                        </div>
-                                        <p className="text-lg font-bold text-white mb-1">
-                                            {reward ? `${formatCurrency(reward.prize, "$", false)}` : "—"}
-                                        </p>
-                                        {reward?.xpBonus != null && <p className="text-xs text-white/40">+{reward.xpBonus} XP</p>}
-                                        {entry && (
-                                            <div className="mt-3 pt-3 border-t border-white/10">
-                                                <p className="text-sm font-bold text-white">{entry.player.nickname}</p>
-                                                <p className="text-xs text-white/50">{entry.points} pts</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )
-                            })}
-                        </div>
-
-                        {/* Full Leaderboard */}
-                        <GlassTable>
-                            <GlassTableHeader>
-                                <GlassTableRow>
-                                    <GlassTableHead className="w-16">#</GlassTableHead>
-                                    <GlassTableHead>Player</GlassTableHead>
-                                    <GlassTableHead className="text-center">Points</GlassTableHead>
-                                    <GlassTableHead className="text-center">Matches</GlassTableHead>
-                                    <GlassTableHead className="text-center">Win Rate</GlassTableHead>
-                                </GlassTableRow>
-                            </GlassTableHeader>
-                            <tbody>
-                                {seasonLeaderboard.slice(0, 50).map((entry, idx) => (
-                                    <GlassTableRow key={entry.player.id}>
-                                        <GlassTableCell>
-                                            <span className={cn(
-                                                "font-bold",
-                                                idx < 3 ? "text-amber-400" : "text-white/60"
-                                            )}>
-                                                {idx + 1}
-                                            </span>
-                                        </GlassTableCell>
-                                        <GlassTableCell>
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/10">
-                                                    <PlayerPortrait
-                                                        src={entry.player.portraitPath} seed={entry.player.id}
-                                                        alt={entry.player.nickname}
-                                                        size={32}
-                                                    />
-                                                </div>
-                                                <span className="font-bold text-white">{entry.player.nickname}</span>
-                                            </div>
-                                        </GlassTableCell>
-                                        <GlassTableCell className="text-center">
-                                            <span className="text-lg font-bold text-amber-400">{entry.points}</span>
-                                        </GlassTableCell>
-                                        <GlassTableCell className="text-center text-white/60">
-                                            {entry.stats.matchesPlayed}
-                                        </GlassTableCell>
-                                        <GlassTableCell className="text-center">
-                                            <span className={cn(
-                                                "font-bold",
-                                                entry.winRate >= 60 ? "text-emerald-400" :
-                                                    entry.winRate >= 50 ? "text-white" : "text-red-400"
-                                            )}>
-                                                {entry.winRate}%
-                                            </span>
-                                        </GlassTableCell>
-                                    </GlassTableRow>
-                                ))}
-                            </tbody>
-                        </GlassTable>
+                <TabsContent value="season" className="mt-4">
+                    <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+                        <Panel title={`Season ${season.seasonNumber} leaderboard`} padded={false} actions={<span className="text-xs tabular-nums text-ink-3">Week {Math.max(1, currentWeek - season.startWeek + 1)} of {FPL_CONSTANTS.SEASON_LENGTH}</span>}>
+                            <table data-slot="table" className="w-full border-collapse text-left">
+                                <thead data-slot="table-header">
+                                    <tr className="border-b border-line">
+                                        <th data-slot="table-head" className="w-16 pl-4">#</th>
+                                        <th data-slot="table-head">Player</th>
+                                        <th data-slot="table-head" className="px-3 text-right">Points</th>
+                                        <th data-slot="table-head" className="px-3 text-right">Matches</th>
+                                        <th data-slot="table-head" className="pr-4 text-right">Win rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {seasonLeaderboard.slice(0, 50).map((entry, idx) => (
+                                        <tr key={entry.player.id} data-slot="table-row" className={cn("h-11 border-b border-line last:border-b-0", myRosterIds.includes(entry.player.id) && "bg-gold/[0.06] shadow-[inset_2px_0_0_var(--gold)]")}>
+                                            <td className="pl-4">{rankCell(idx + 1)}</td>
+                                            <td>
+                                                <span className="flex items-center gap-3">
+                                                    <span className="h-8 w-8 overflow-hidden rounded bg-raised">
+                                                        <PlayerPortrait src={entry.player.portraitPath} seed={entry.player.id} alt={entry.player.nickname} size={32} />
+                                                    </span>
+                                                    <span className="text-sm font-semibold text-ink-1">{entry.player.nickname}</span>
+                                                </span>
+                                            </td>
+                                            <td className="px-3 text-right font-display text-lg font-bold tabular-nums text-ink-1">{entry.points}</td>
+                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{entry.stats.matchesPlayed}</td>
+                                            <td className={cn("pr-4 text-right text-sm font-semibold tabular-nums", entry.winRate >= 60 ? "text-positive" : entry.winRate >= 50 ? "text-ink-1" : "text-ink-3")}>{entry.winRate}%</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </Panel>
+                        <Panel title="Season rewards" padded={false}>
+                            <table data-slot="table" className="w-full border-collapse text-left">
+                                <tbody>
+                                    {[1, 2, 3].map(place => {
+                                        const entry = seasonLeaderboard[place - 1]
+                                        const reward = season.rewards[place - 1]
+                                        return (
+                                            <tr key={place} className="h-14 border-b border-line last:border-b-0">
+                                                <td className="w-12 pl-4">{place === 1 ? <Trophy size={16} className="text-gold" aria-label="1st" /> : <span className="font-display text-lg font-bold text-ink-2">{place}</span>}</td>
+                                                <td>
+                                                    <span className="block text-sm font-semibold text-ink-1">{entry?.player.nickname ?? "—"}</span>
+                                                    {entry && <span className="block text-xs tabular-nums text-ink-3">{entry.points} pts so far</span>}
+                                                </td>
+                                                <td className="pr-4 text-right">
+                                                    <span className="block font-display text-lg font-bold tabular-nums text-ink-1">{reward ? formatCurrency(reward.prize, "$", false) : "—"}</span>
+                                                    {reward?.xpBonus != null && <span className="block text-xs tabular-nums text-ink-3">+{reward.xpBonus} XP</span>}
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        </Panel>
                     </div>
                 </TabsContent>
 
                 {/* History Tab */}
-                <TabsContent value="history" className="mt-6 space-y-6">
-                    {/* Hall of Champions */}
+                <TabsContent value="history" className="mt-4 space-y-4">
                     {hallOfChampions.length > 0 && (
-                        <div className="glass-panel p-6 border-amber-500/20 bg-amber-500/5">
-                            <h3 className="text-lg font-bold text-amber-400 mb-4 flex items-center gap-3">
-                                <Crown size={20} />
-                                Hall of Champions
-                            </h3>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                                {hallOfChampions.map((entry, idx) => (
-                                    <Link key={entry.player.id} href={`/player/${entry.player.id}`}>
-                                        <div className={cn(
-                                            "p-3 rounded-xl border text-center hover:bg-white/5 transition-colors",
-                                            idx === 0 ? "bg-amber-500/10 border-amber-500/30" : "bg-white/2 border-white/10"
-                                        )}>
-                                            <div className="w-12 h-12 rounded-lg overflow-hidden border border-white/10 mx-auto mb-2">
-                                                <PlayerPortrait src={entry.player.portraitPath} seed={entry.player.id} alt={entry.player.nickname} size={48} />
-                                            </div>
-                                            <p className={cn("font-bold text-sm", idx === 0 ? "text-amber-400" : "text-white")}>
-                                                {entry.player.nickname}
-                                            </p>
-                                            <div className="flex items-center justify-center gap-1 mt-1">
-                                                <Trophy size={12} className="text-amber-400" />
-                                                <span className="text-sm font-bold text-amber-400">
-                                                    {entry.stats.fplChampionships || 0}x
-                                                </span>
-                                            </div>
-                                            <p className="text-xs text-emerald-400 mt-1 flex items-center justify-center gap-1">
-                                                <DollarSign size={10} />
-                                                {(entry.stats.totalFPLEarnings || 0).toLocaleString()}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
+                        <Panel title="Hall of champions" padded={false}>
+                            <table data-slot="table" className="w-full border-collapse text-left">
+                                <thead data-slot="table-header">
+                                    <tr className="border-b border-line">
+                                        <th data-slot="table-head" className="pl-4">Player</th>
+                                        <th data-slot="table-head" className="px-3 text-right">Titles</th>
+                                        <th data-slot="table-head" className="pr-4 text-right">FPL earnings</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {hallOfChampions.map(entry => (
+                                        <tr key={entry.player.id} data-slot="table-row" className="h-11 border-b border-line last:border-b-0">
+                                            <td className="pl-4">
+                                                <Link href={`/player/${entry.player.id}`} className="flex items-center gap-3 hover:text-gold">
+                                                    <span className="h-8 w-8 overflow-hidden rounded bg-raised">
+                                                        <PlayerPortrait src={entry.player.portraitPath} seed={entry.player.id} alt={entry.player.nickname} size={32} />
+                                                    </span>
+                                                    <span className="text-sm font-semibold text-ink-1">{entry.player.nickname}</span>
+                                                </Link>
+                                            </td>
+                                            <td className="px-3 text-right">
+                                                <span className="inline-flex items-center gap-1 text-sm font-semibold tabular-nums text-ink-1"><Trophy size={13} className="text-gold" aria-hidden="true" />{entry.stats.fplChampionships || 0}</span>
+                                            </td>
+                                            <td className="pr-4 text-right text-sm tabular-nums text-ink-2">{formatCurrency(entry.stats.totalFPLEarnings || 0, "$", false)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </Panel>
                     )}
 
-                    <div className="glass-panel p-6">
-                        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                            <Trophy className="text-amber-400" />
-                            Season History
-                        </h3>
-
-                        {fplData.seasonHistory.length === 0 ? (
-                            <div className="text-center py-12 text-white/40">
-                                <Trophy size={48} className="mx-auto mb-4 opacity-30" />
-                                <p>No completed seasons yet</p>
-                                <p className="text-sm mt-2">The first champion will be crowned at the end of Season 1</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-6">
-                                {[...fplData.seasonHistory].reverse().map(pastSeason => {
-                                    const champion = players.find(p => p.id === pastSeason.champion)
-                                    const championStats = pastSeason.champion ? fplData.playerStats[pastSeason.champion] : null
-                                    const seasonTierChanges = fplData.tierChanges?.filter(
-                                        tc => tc.seasonNumber === pastSeason.seasonNumber
-                                    ) || []
-                                    const promotions = seasonTierChanges.filter(tc => tc.reason === 'PROMOTION')
-                                    const demotions = seasonTierChanges.filter(tc => tc.reason === 'DEMOTION')
-
-                                    return (
-                                        <div
-                                            key={pastSeason.id}
-                                            className="rounded-xl border border-white/10 bg-white/2 overflow-hidden"
-                                        >
-                                            {/* Season Header */}
-                                            <div className="flex items-center justify-between p-5 bg-white/5">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                                                        <Crown className="text-amber-400" size={24} />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-lg font-bold text-white">
-                                                            Season {pastSeason.seasonNumber}
-                                                        </p>
-                                                        <p className="text-xs text-white/40">
-                                                            Weeks {pastSeason.startWeek} – {pastSeason.endWeek} • Prize Pool {formatCurrency(pastSeason.prizePool, "$", false)}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                {champion && (
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="text-right">
-                                                            <p className="font-bold text-amber-400">{champion.nickname}</p>
-                                                            <div className="flex items-center gap-2 justify-end">
-                                                                <p className="text-[10px] text-white/40 uppercase tracking-widest">Champion</p>
-                                                                {championStats && (championStats.fplChampionships || 0) > 1 && (
-                                                                    <Badge size="xs" className="px-1 bg-amber-500/20 text-amber-400 border-amber-500/30">
-                                                                        {championStats.fplChampionships}x
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
-                                                            {championStats && (
-                                                                <p className="text-[10px] text-emerald-400">
-                                                                    {formatCurrency((championStats.totalFPLEarnings || 0), "$", false)} total earned
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-amber-500/30">
-                                                            <PlayerPortrait
-                                                                src={champion.portraitPath} seed={champion.id}
-                                                                alt={champion.nickname}
-                                                                size={40}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                )}
+                    {fplData.seasonHistory.length === 0 ? (
+                        <EmptyState icon={Trophy} title="No completed seasons yet" description={`The first champion is crowned at the end of season ${season.seasonNumber}.`} />
+                    ) : (
+                        [...fplData.seasonHistory].reverse().map(pastSeason => {
+                            const champion = playersById.get(pastSeason.champion ?? "")
+                            const seasonTierChanges = fplData.tierChanges?.filter(tc => tc.seasonNumber === pastSeason.seasonNumber) || []
+                            const promotions = seasonTierChanges.filter(tc => tc.reason === 'PROMOTION')
+                            const demotions = seasonTierChanges.filter(tc => tc.reason === 'DEMOTION')
+                            return (
+                                <Panel
+                                    key={pastSeason.id}
+                                    title={`Season ${pastSeason.seasonNumber}`}
+                                    actions={<span className="text-xs tabular-nums text-ink-3">Weeks {pastSeason.startWeek}–{pastSeason.endWeek} · pool {formatCurrency(pastSeason.prizePool, "$", false)}{champion ? ` · champion ${champion.nickname}` : ""}</span>}
+                                    padded={false}
+                                >
+                                    {pastSeason.leaderboard && pastSeason.leaderboard.length > 0 && (
+                                        <table data-slot="table" className="w-full border-collapse text-left">
+                                            <thead data-slot="table-header">
+                                                <tr className="border-b border-line">
+                                                    <th data-slot="table-head" className="w-16 pl-4">#</th>
+                                                    <th data-slot="table-head">Player</th>
+                                                    <th data-slot="table-head" className="px-3 text-right">Points</th>
+                                                    <th data-slot="table-head" className="px-3 text-right">Matches</th>
+                                                    <th data-slot="table-head" className="px-3 text-right">Win rate</th>
+                                                    <th data-slot="table-head" className="pr-4 text-right">Prize</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {pastSeason.leaderboard.slice(0, 10).map((entry, idx) => {
+                                                    const p = playersById.get(entry.playerId)
+                                                    const isMyPlayer = myRosterIds.includes(entry.playerId)
+                                                    const prize = idx < pastSeason.rewards.length ? pastSeason.rewards[idx].prize : 0
+                                                    return (
+                                                        <tr key={entry.playerId} data-slot="table-row" className={cn("h-10 border-b border-line last:border-b-0", isMyPlayer && "bg-gold/[0.06] shadow-[inset_2px_0_0_var(--gold)]")}>
+                                                            <td className="pl-4">{idx === 0 ? <Trophy size={15} className="text-gold" aria-label="Champion" /> : rankCell(idx + 1)}</td>
+                                                            <td className="text-sm font-semibold text-ink-1">{p ? <Link href={`/player/${p.id}`} className="hover:text-gold">{p.nickname}</Link> : <span className="text-ink-3">Unknown player</span>}</td>
+                                                            <td className="px-3 text-right text-sm font-semibold tabular-nums text-ink-1">{entry.points}</td>
+                                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{entry.matchesPlayed}</td>
+                                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{entry.winRate}%</td>
+                                                            <td className="pr-4 text-right text-sm tabular-nums text-ink-1">{prize > 0 ? formatCurrency(prize, "$", false) : <span className="text-ink-3">—</span>}</td>
+                                                        </tr>
+                                                    )
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                    {(promotions.length > 0 || demotions.length > 0) && (
+                                        <div className="grid grid-cols-2 divide-x divide-line border-t border-line text-sm">
+                                            <div className="px-4 py-3">
+                                                <p className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-positive"><ChevronUp size={12} aria-hidden="true" /> Promoted to FPL Pro</p>
+                                                <p className="text-ink-2">{promotions.map(tc => tc.playerName).join(", ") || "—"}</p>
                                             </div>
-
-                                            {/* Top 10 Leaderboard */}
-                                            {pastSeason.leaderboard && pastSeason.leaderboard.length > 0 && (
-                                                <div className="px-5 pt-4 pb-2">
-                                                    <h4 className="text-xs font-bold uppercase tracking-widest text-white/50 mb-3 flex items-center gap-2">
-                                                        <Award size={12} /> Final Standings
-                                                    </h4>
-                                                    <GlassTable>
-                                                        <GlassTableHeader>
-                                                            <GlassTableRow>
-                                                                <GlassTableHead className="w-12">#</GlassTableHead>
-                                                                <GlassTableHead>Player</GlassTableHead>
-                                                                <GlassTableHead className="text-center">Points</GlassTableHead>
-                                                                <GlassTableHead className="text-center">Matches</GlassTableHead>
-                                                                <GlassTableHead className="text-center">Win Rate</GlassTableHead>
-                                                                <GlassTableHead className="text-center">Prize</GlassTableHead>
-                                                            </GlassTableRow>
-                                                        </GlassTableHeader>
-                                                        <tbody>
-                                                            {pastSeason.leaderboard.slice(0, 10).map((entry, idx) => {
-                                                                const p = players.find(pl => pl.id === entry.playerId)
-                                                                const isChampion = idx === 0
-                                                                const isMyPlayer = myRosterIds.includes(entry.playerId)
-                                                                const prize = idx < pastSeason.rewards.length ? pastSeason.rewards[idx].prize : 0
-                                                                return (
-                                                                    <GlassTableRow
-                                                                        key={entry.playerId}
-                                                                        className={cn(
-                                                                            isMyPlayer && "bg-cyan-500/10"
-                                                                        )}
-                                                                    >
-                                                                        <GlassTableCell>
-                                                                            <div className={cn(
-                                                                                "w-7 h-7 rounded-lg flex items-center justify-center font-bold text-sm",
-                                                                                idx === 0 ? "bg-amber-500/20 text-amber-400" :
-                                                                                    idx === 1 ? "bg-gray-400/20 text-gray-300" :
-                                                                                        idx === 2 ? "bg-orange-600/20 text-orange-400" :
-                                                                                            "bg-white/5 text-white/50"
-                                                                            )}>
-                                                                                {idx < 3 ? <Crown size={12} /> : idx + 1}
-                                                                            </div>
-                                                                        </GlassTableCell>
-                                                                        <GlassTableCell>
-                                                                            {p ? (
-                                                                                <Link href={`/player/${p.id}`}>
-                                                                                    <div className="flex items-center gap-2">
-                                                                                        <div className="w-7 h-7 rounded-md overflow-hidden border border-white/10">
-                                                                                            <PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} size={28} />
-                                                                                        </div>
-                                                                                        <span className={cn("font-bold text-sm", isChampion ? "text-amber-400" : "text-white")}>
-                                                                                            {p.nickname}
-                                                                                        </span>
-                                                                                        {isMyPlayer && <Star size={10} className="text-cyan-400" fill="currentColor" />}
-                                                                                    </div>
-                                                                                </Link>
-                                                                            ) : (
-                                                                                <span className="text-white/40 text-sm">Unknown player</span>
-                                                                            )}
-                                                                        </GlassTableCell>
-                                                                        <GlassTableCell className="text-center">
-                                                                            <span className="font-bold text-amber-400">{entry.points}</span>
-                                                                        </GlassTableCell>
-                                                                        <GlassTableCell className="text-center text-white/60 text-sm">
-                                                                            {entry.matchesPlayed}
-                                                                        </GlassTableCell>
-                                                                        <GlassTableCell className="text-center">
-                                                                            <span className={cn(
-                                                                                "font-bold text-sm",
-                                                                                entry.winRate >= 60 ? "text-emerald-400" :
-                                                                                    entry.winRate >= 50 ? "text-white" : "text-red-400"
-                                                                            )}>
-                                                                                {entry.winRate}%
-                                                                            </span>
-                                                                        </GlassTableCell>
-                                                                        <GlassTableCell className="text-center">
-                                                                            {prize > 0 ? (
-                                                                                <span className="text-emerald-400 font-bold text-sm">{formatCurrency(prize, "$", false)}</span>
-                                                                            ) : (
-                                                                                <span className="text-white/20">—</span>
-                                                                            )}
-                                                                        </GlassTableCell>
-                                                                    </GlassTableRow>
-                                                                )
-                                                            })}
-                                                        </tbody>
-                                                    </GlassTable>
-                                                </div>
-                                            )}
-
-                                            {/* Promotions & Relegations for this season */}
-                                            {(promotions.length > 0 || demotions.length > 0) && (
-                                                <div className="px-5 pt-2 pb-5">
-                                                    <div className="grid grid-cols-2 gap-3">
-                                                        {promotions.length > 0 && (
-                                                            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-3">
-                                                                <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-2 flex items-center gap-1">
-                                                                    <ChevronUp size={12} /> Promoted to FPL
-                                                                </p>
-                                                                <div className="space-y-1">
-                                                                    {promotions.map(tc => (
-                                                                        <p key={tc.playerId} className="text-sm text-white/80">{tc.playerName}</p>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                        {demotions.length > 0 && (
-                                                            <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-3">
-                                                                <p className="text-[10px] font-bold uppercase tracking-widest text-red-400 mb-2 flex items-center gap-1">
-                                                                    <ChevronDown size={12} /> Relegated to FPL-C
-                                                                </p>
-                                                                <div className="space-y-1">
-                                                                    {demotions.map(tc => (
-                                                                        <p key={tc.playerId} className="text-sm text-white/80">{tc.playerName}</p>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
+                                            <div className="px-4 py-3">
+                                                <p className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-negative"><ChevronDown size={12} aria-hidden="true" /> Relegated to Challenger</p>
+                                                <p className="text-ink-2">{demotions.map(tc => tc.playerName).join(", ") || "—"}</p>
+                                            </div>
                                         </div>
-                                    )
-                                })}
-                            </div>
-                        )}
-                    </div>
+                                    )}
+                                </Panel>
+                            )
+                        })
+                    )}
                 </TabsContent>
             </Tabs>
         </div>
