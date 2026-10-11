@@ -23,8 +23,9 @@ import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legac
 import { soundManager } from "@/lib/sound-manager"
 import { resolveHomeStartsCT } from "@/lib/live-match-utils"
 import { annotateRoundEvents, buildLiveRoundScript, warmRoundMap, type LiveRoundScript } from "@/lib/live-round-script"
-import { AUTO_CONFIRM_MS, BREAK_CARD_MS, PISTOL_START_MS, ROUND_BEAT_MS, computeRoundPacing, defaultLiveSpeed, tickWallMs, type PacingMode, type RoundPacing } from "@/lib/live-match-pacing"
+import { AUTO_CONFIRM_MS, BREAK_CARD_MS, PISTOL_START_MS, ROUND_BEAT_MS, computeRoundPacing, defaultLiveSpeed, type PacingMode, type RoundPacing } from "@/lib/live-match-pacing"
 import { buildRoundTimeline, summarizeRound, type RoundSummary, type RoundTimeline } from "@/lib/live-match-roster"
+import { LiveClock, liveWakeTimes, nextWakeAfter, roundBombTimes, roundClockSeconds, scorebugTime } from "@/lib/live-clock"
 import type { LegacyTransition } from "@/engine/match/legacy-series"
 import { MAP_NAMES } from "@/data/map-pool"
 import {
@@ -43,6 +44,8 @@ type RoundStrategy = ManagerStrategy | "PISTOL"
 
 /** Max kill/event-feed rows kept in state + DOM during a live match. */
 const MAX_LIVE_LOG_ENTRIES = 200
+/** Longest single wait of the playback loop (wall ms) before it re-checks the clock. */
+const MAX_WAKE_WAIT_MS = 1000
 
 /** What the screen shows about the round being played back (built once per round). */
 export interface LiveRoundView {
@@ -52,6 +55,8 @@ export interface LiveRoundView {
     roundNumber: number
     pacing: RoundPacing
     timeline: RoundTimeline
+    /** Round times at which the screen (outside the radar canvas) changes: the hook renders then. */
+    wakes: number[]
     /** Post-buy weapon and kit by player id (radar glyphs); absent after a restore. */
     gear: Readonly<Record<string, { weapon?: string; hasKit?: boolean }>>
 }
@@ -106,13 +111,16 @@ interface LiveMatchRuntimeData {
 function makeRoundView(ids: { homePlayerIds: string[]; awayPlayerIds: string[] }, mapIndex: number, round: RoundResult, live: LiveRoundScript | null, events: MatchEvent[], loadouts?: Readonly<Record<string, { utility?: readonly string[]; weapon?: string; hasKit?: boolean } | undefined>>): LiveRoundView {
     const gear: Record<string, { weapon?: string; hasKit?: boolean }> = {}
     for (const [id, l] of Object.entries(loadouts ?? {})) if (l) gear[id] = { weapon: l.weapon, hasKit: l.hasKit }
+    const pacing = computeRoundPacing(events, live?.script)
+    const timeline = buildRoundTimeline({ round, homeIds: ids.homePlayerIds, awayIds: ids.awayPlayerIds, loadouts, script: live?.script })
     return {
         gear,
         key: `${mapIndex}:${round.roundNumber}`,
         mapIndex,
         roundNumber: round.roundNumber,
-        pacing: computeRoundPacing(events, live?.script),
-        timeline: buildRoundTimeline({ round, homeIds: ids.homePlayerIds, awayIds: ids.awayPlayerIds, loadouts, script: live?.script }),
+        pacing,
+        timeline,
+        wakes: liveWakeTimes({ events, timeline, pacing, script: live?.script }),
     }
 }
 
@@ -230,6 +238,11 @@ export function useLiveMatch(id: string) {
     const hasInitialized = useRef(false)
     const isMountedRef = useRef(true)
     const lastProcessedTime = useRef(-1)
+    // Continuous round clock (lib/live-clock): the radar samples it every
+    // frame; the loop below reveals events when it reaches their time.
+    // `uiTimeRef` mirrors gameState.time, the round time the screen shows.
+    const [liveClock] = useState(() => new LiveClock())
+    const uiTimeRef = useRef(-1)
     const pendingCheckpoint = useRef<ActiveMatchState | null>(null)
     const pendingTimers = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
     const latestSimStateRef = useRef<SimState | null>(null)
@@ -409,17 +422,22 @@ export function useLiveMatch(id: string) {
                 homePlayerIds: activeHomeIds, awayPlayerIds: activeAwayIds, canonicalMaps, mapStartingSides, ctx,
             }
 
+            // An in-flight round resumes exactly where its playback stopped.
+            const resumeAt = inFlight ? playback.processedTime : restoredGameState.time
             latestSimStateRef.current = sanitizedSimState
-            setGameState(restoredGameState)
+            setGameState(inFlight ? { ...restoredGameState, time: resumeAt } : restoredGameState)
             setSimState(sanitizedSimState)
             // Visible mid-round inventories/deaths, not the resolved end-of-round economy.
             setHomeRoster(structuredClone(activeMatchState!.homeRoster))
             setAwayRoster(structuredClone(activeMatchState!.awayRoster))
             currentRoundEvents.current = annotateRoundEvents(playback.events, restoredScript)
-            setRoundView(shown && shownRound
+            const restoredView = shown && shownRound
                 ? makeRoundView({ homePlayerIds: activeHomeIds, awayPlayerIds: activeAwayIds }, shown.mapIndex, shownRound, restoredScript, currentRoundEvents.current)
-                : null)
+                : null
+            setRoundView(restoredView)
             lastProcessedTime.current = playback.processedTime
+            uiTimeRef.current = resumeAt
+            liveClock.startRound(restoredView?.pacing ?? null, resumeAt)
             roundInFlightRef.current = inFlight
             setLogs(Array.isArray(activeMatchState!.logs) ? activeMatchState!.logs : [])
             setRoundTime(typeof activeMatchState!.roundTime === "number" ? activeMatchState!.roundTime : ROUND_SECONDS)
@@ -463,7 +481,7 @@ export function useLiveMatch(id: string) {
         setGameState(prev => ({ ...prev, status: "IN_PROGRESS", time: -1, isPaused: false }))
         setIsPlaying(false)
         setIsWaitingForStrategy(true)
-    }, [scheduledMatches, teams, players, id, setActiveMatch, staff, router, currentWeek, currentDay, timeMode, customTactics, setRoundScript, setRoundView])
+    }, [scheduledMatches, teams, players, id, setActiveMatch, staff, router, currentWeek, currentDay, timeMode, customTactics, setRoundScript, setRoundView, liveClock])
 
     // Persistence
     useEffect(() => {
@@ -478,7 +496,7 @@ export function useLiveMatch(id: string) {
             matchId: id,
             playback: {
                 version: 1, engine: matchData.current!.ctx.engineVersion ?? LEGACY_MATCH_ENGINE, saveId: matchData.current!.ownerSaveId,
-                events: currentRoundEvents.current, processedTime: lastProcessedTime.current,
+                events: currentRoundEvents.current, processedTime: lastProcessedTime.current, exactTime: true,
                 maps: matchData.current!.canonicalMaps, seed: matchData.current!.match.seed,
                 homeRoster: matchData.current!.homePlayerIds, awayRoster: matchData.current!.awayPlayerIds,
             },
@@ -503,15 +521,41 @@ export function useLiveMatch(id: string) {
     }, [id, gameState, simState, homeRoster, awayRoster, logs, roundTime, isBombPlanted, bombTime, isWaitingForStrategy, timeoutsRemaining, timeoutBoostRounds, originalHomePlayers, originalAwayPlayers])
 
     // Fixed cadence cannot be starved by fast playback. Clone at the ownership boundary.
+    // The page only renders when the screen changes, so while a round plays the
+    // flush also stamps the live clock: a reload resumes where playback was,
+    // not at the last event. Nothing is revealed between the last processed
+    // time and the next wake, so the stamped state is exactly the shown one.
+    const lastCheckpoint = useRef<ActiveMatchState | null>(null)
     useEffect(() => {
+        const stamp = (s: ActiveMatchState | null): ActiveMatchState | null => {
+            const view = roundViewRef.current
+            if (!s?.playback || !liveClock.isRunning || !view || view.mapIndex !== s.gameState.currentMapIndex || view.roundNumber !== s.gameState.round) return null
+            const from = s.playback.processedTime
+            const t = Math.min(liveClock.now(), nextWakeAfter(view.wakes, from) - 0.001)
+            if (!(t > from + 0.05) || t <= (s.gameState.time ?? -1)) return null
+            const { plantAt, bombEndAt } = roundBombTimes(s.playback.events)
+            const shown = scorebugTime(t, plantAt, bombEndAt)
+            return {
+                ...s,
+                playback: { ...s.playback, processedTime: t },
+                gameState: { ...s.gameState, time: t },
+                roundTime: roundClockSeconds(t, plantAt),
+                isBombPlanted: shown.planted,
+                bombTime: shown.planted ? shown.seconds : BOMB_SECONDS,
+            }
+        }
         const flush = () => {
-            const snapshot = pendingCheckpoint.current
+            const pending = pendingCheckpoint.current
             pendingCheckpoint.current = null
+            if (pending) lastCheckpoint.current = pending
+            const stamped = stamp(lastCheckpoint.current)
+            if (stamped) lastCheckpoint.current = stamped
+            const snapshot = stamped ?? pending
             if (snapshot) updateActiveMatchState(structuredClone(snapshot))
         }
         const timer = setInterval(flush, 500)
         return () => { clearInterval(timer); flush() }
-    }, [id, updateActiveMatchState])
+    }, [id, updateActiveMatchState, liveClock])
 
     const isPlayerHome = !!playerTeam && matchData.current?.homeTeam.id === playerTeam.id
 
@@ -564,7 +608,11 @@ export function useLiveMatch(id: string) {
         })
         setRoundScript(live)
         currentRoundEvents.current = annotateRoundEvents(step.round.events || [], live)
-        setRoundView(makeRoundView(runtime, mapIndex, step.round, live, currentRoundEvents.current, loadouts))
+        const view = makeRoundView(runtime, mapIndex, step.round, live, currentRoundEvents.current, loadouts)
+        setRoundView(view)
+        // The clock starts at 0 (paused until the render that starts playback).
+        liveClock.startRound(view.pacing, 0)
+        uiTimeRef.current = 0
 
         const getStratName = (stratId: string, side: "ct" | "t", managed: boolean) => {
             const tactic = managed ? customTactics[stratId as keyof typeof customTactics]?.[side] : undefined
@@ -606,7 +654,7 @@ export function useLiveMatch(id: string) {
         setIsBombPlanted(false)
         setBombTime(BOMB_SECONDS)
         lastProcessedTime.current = -1
-    }, [customTactics, setRoundScript, setRoundView])
+    }, [customTactics, setRoundScript, setRoundView, liveClock])
 
     useEffect(() => {
         startNextRoundRef.current = startNextRound
@@ -708,18 +756,14 @@ export function useLiveMatch(id: string) {
                 const planter = playerName(roundScriptRef.current?.script.bomb.plant?.planterId)
                 const message = site ? `Bomb planted at ${site}${planter ? ` by ${planter}` : ""}` : commentaryManager.generate("PLANT", {})
                 setLogs(prev => [{ type: "PLANT", time: nextEvent.time, message, site }, ...prev])
-                setIsBombPlanted(true)
-                setBombTime(BOMB_SECONDS)
             } else if (nextEvent.type === "DEFUSE") {
                 const site = nextEvent.site
                 const defuser = playerName(roundScriptRef.current?.script.bomb.defuse?.defuserId)
                 const message = site ? `Bomb defused at ${site}${defuser ? ` by ${defuser}` : ""}` : commentaryManager.generate("DEFUSE", {})
                 setLogs(prev => [{ type: "DEFUSE", time: nextEvent.time, message, site }, ...prev])
-                setIsBombPlanted(false)
             } else if (nextEvent.type === "EXPLODE") {
                 const site = nextEvent.site
                 setLogs(prev => [{ type: "EXPLODE", time: nextEvent.time, message: site ? `Bomb exploded at ${site}` : commentaryManager.generate("EXPLODE", {}), site }, ...prev])
-                setIsBombPlanted(false)
             } else if (nextEvent.type === "CLUTCH") {
                 const playersInRound = [...latestHomeRosterRef.current, ...latestAwayRosterRef.current]
                 const player = playersInRound.find(roundPlayer => roundPlayer.id === nextEvent.playerId)
@@ -803,6 +847,7 @@ export function useLiveMatch(id: string) {
                     soundManager.play(playerWon ? "victory" : "defeat")
                 } else if (transition === "MAP_END") {
                     const nextMapId = runtime.canonicalMaps[roundState.currentMapIndex]
+                    uiTimeRef.current = -1
                     setGameState(prev => ({ ...prev, currentMapIndex: roundState.currentMapIndex, homeScore: 0, awayScore: 0, round: 1, time: -1 }))
                     settle()
                     setIsPlaying(false)
@@ -844,47 +889,71 @@ export function useLiveMatch(id: string) {
     }, [simState, originalHomePlayers, originalAwayPlayers, queueRoundStart, playerTeam])
 
     // --- GAME LOOP ---
-    // One tick per round second. A tick's wall-clock length comes from the
-    // pacing (key moments at speed, quiet stretches fast-forwarded with an
-    // ease) or, in full-round mode, 1000/speed. Each tick is timed from the
-    // moment the previous one fired (not "after the last render"), so render
-    // time does not stretch playback; a pause keeps the elapsed part of the
-    // tick, so the radar resumes its glide instead of restarting it.
-    const tickMs = tickWallMs(roundViewRef.current?.pacing ?? null, Math.max(0, gameState.time), speed, pacingMode)
-    const tickClockRef = useRef({ key: "", anchor: 0, pausedAt: 0 })
+    // The round plays on a continuous clock (lib/live-clock): key moments at
+    // speed, quiet stretches fast-forwarded with an ease, or full rounds at
+    // `speed`. The radar samples the clock every animation frame and the
+    // scorebug timer reads it on its own (≤ 4×/s); the page only renders when
+    // what it shows changes: at each event / HP step / grenade / pacing
+    // boundary (the round's `wakes`), revealed when the clock reaches them
+    // (time <= now, the rule the radar uses too). The checkpoint stamps the
+    // clock in between (see the flush). A hidden window pauses the clock, so
+    // a round never plays unseen.
+    const [pageVisible, setPageVisible] = useState(true)
     useEffect(() => {
-        const clock = tickClockRef.current
-        const key = `${gameState.currentMapIndex}:${gameState.round}:${gameState.time}`
-        const now = performance.now()
-        if (clock.key !== key) { clock.key = key; clock.anchor = now; clock.pausedAt = 0 }
-        if (gameState.status !== "IN_PROGRESS" || gameState.isPaused || !isPlaying || isWaitingForStrategy) {
-            if (!clock.pausedAt) clock.pausedAt = now
-            return
+        const sync = () => setPageVisible(!document.hidden)
+        sync()
+        document.addEventListener("visibilitychange", sync)
+        return () => document.removeEventListener("visibilitychange", sync)
+    }, [])
+    const running = gameState.status === "IN_PROGRESS" && !gameState.isPaused && isPlaying && !isWaitingForStrategy && gameState.time >= 0 && pageVisible
+
+    // Scorebug timers at the shown round time (checkpointed; the live scorebug
+    // reads the clock itself): the round clock stops at the plant, the bomb
+    // counts down from it.
+    const syncRoundClock = useCallback((t: number) => {
+        const { plantAt, bombEndAt } = roundBombTimes(currentRoundEvents.current)
+        const s = scorebugTime(t, plantAt, bombEndAt)
+        setIsBombPlanted(s.planted)
+        setBombTime(s.planted ? s.seconds : BOMB_SECONDS)
+        setRoundTime(roundClockSeconds(t, plantAt))
+    }, [])
+
+    /** Moves the screen to round time `t`: scorebug, then the events up to `t`. */
+    const advanceTo = useCallback((t: number) => {
+        uiTimeRef.current = t
+        setGameState(prev => (prev.time === t ? prev : { ...prev, time: t }))
+        syncRoundClock(t)
+        processNextEvent(t)
+    }, [processNextEvent, syncRoundClock])
+    const advanceRef = useRef(advanceTo)
+    advanceRef.current = advanceTo
+
+    // Speed / pacing changes keep the round time and continue at the new rate
+    // (declared before the loop so the loop reschedules with the new rate).
+    useEffect(() => { liveClock.configure(speed, pacingMode) }, [liveClock, speed, pacingMode])
+    useEffect(() => { liveClock.setRunning(running) }, [liveClock, running])
+
+    useEffect(() => {
+        if (!running) return
+        let timer = 0
+        const schedule = () => {
+            const wake = nextWakeAfter(roundViewRef.current?.wakes, uiTimeRef.current)
+            const now = performance.now()
+            const due = liveClock.wallAt(wake, now)
+            if (!Number.isFinite(due)) return
+            // A long timer re-checks now and then (the clock may have been re-anchored).
+            timer = window.setTimeout(() => fire(wake, due), Math.min(MAX_WAKE_WAIT_MS, Math.max(0, due - now + 1)))
         }
-        if (clock.pausedAt) { clock.anchor += now - clock.pausedAt; clock.pausedAt = 0 }
-        const interval = tickMs
-        // A long stall (hidden window, slow frame): never burst through ticks.
-        if (now - clock.anchor > interval + 250) clock.anchor = now - interval
-        const delay = Math.max(0, clock.anchor + interval - now)
-        const timer = window.setTimeout(() => {
-            const nextTime = gameState.time + 1
-            clock.key = `${gameState.currentMapIndex}:${gameState.round}:${nextTime}`
-            clock.anchor = performance.now()
-            clock.pausedAt = 0
-            if (isBombPlanted) setBombTime(prev => Math.max(0, prev - 1))
-            else setRoundTime(prev => Math.max(0, prev - 1))
-
-            setGameState(prev => ({ ...prev, time: nextTime }))
-            processNextEvent(nextTime)
-
-            if ((roundTime === 0 && !isBombPlanted) || (bombTime === 0 && isBombPlanted)) {
-                const endEvent = currentRoundEvents.current.find(e => e.type === "ROUND_END")
-                if (endEvent) processNextEvent(Math.max(nextTime, Math.ceil(endEvent.time)))
-            }
-        }, delay)
-
+        const fire = (wake: number, due: number) => {
+            const now = performance.now()
+            // Timer jitter: a wake that is due is reached.
+            const t = now >= due - 2 ? Math.max(wake, liveClock.now(now)) : liveClock.now(now)
+            if (t >= wake) advanceRef.current(t)
+            schedule()
+        }
+        schedule()
         return () => window.clearTimeout(timer)
-    }, [gameState.status, gameState.round, gameState.time, gameState.currentMapIndex, gameState.isPaused, tickMs, isPlaying, isWaitingForStrategy, isBombPlanted, roundTime, bombTime, processNextEvent])
+    }, [running, liveClock, speed, pacingMode])
 
     // --- AUTO ACTIONS ---
     // Auto/skip makes no manager call: the managed team buys by its economy
@@ -919,12 +988,12 @@ export function useLiveMatch(id: string) {
         const events = currentRoundEvents.current
         if (roundInFlightRef.current && events.length > 0) {
             const maxTime = Math.max(...events.map(e => Math.ceil(e.time))) + 1
-            processNextEvent(maxTime)
-            setGameState(prev => ({ ...prev, time: maxTime }))
-            lastProcessedTime.current = maxTime
+            // The radar jumps to the end of the round with the rest of the screen.
+            liveClock.seek(maxTime)
+            advanceTo(maxTime)
         }
         isSimulatingRef.current = false
-    }, [isWaitingForStrategy, startNextRound, processNextEvent])
+    }, [isWaitingForStrategy, startNextRound, advanceTo, liveClock])
 
     // Space / play button. Mid-round it pauses playback; between rounds it
     // holds (or releases) the auto-tactics countdown on the decision card.
@@ -992,7 +1061,10 @@ export function useLiveMatch(id: string) {
             })
             setRoundScript(finalScript)
             currentRoundEvents.current = annotateRoundEvents(finalEvents, finalScript)
-            setRoundView(makeRoundView(runtime, last.mapIndex, finalRound, finalScript, currentRoundEvents.current, done.lastStep ? { ...done.lastStep.preRound.home, ...done.lastStep.preRound.away } : undefined))
+            const finalView = makeRoundView(runtime, last.mapIndex, finalRound, finalScript, currentRoundEvents.current, done.lastStep ? { ...done.lastStep.preRound.home, ...done.lastStep.preRound.away } : undefined)
+            setRoundView(finalView)
+            liveClock.startRound(finalView.pacing, endTime)
+            uiTimeRef.current = endTime
             lastProcessedTime.current = endTime
             roundInFlightRef.current = false
             setRoundHomeIsCT(finalRound.ctTeam === homeTeam.id)
@@ -1052,7 +1124,7 @@ export function useLiveMatch(id: string) {
             silentPlaybackRef.current = false
             isSimulatingRef.current = false
         }
-    }, [processNextEvent, customTactics, playerTeam, setRoundScript, setRoundView])
+    }, [processNextEvent, customTactics, playerTeam, setRoundScript, setRoundView, liveClock])
 
     const callTimeout = useCallback(() => {
         const next = spendTimeout({ remaining: timeoutsRemainingRef.current, rounds: timeoutBoostRoundsRef.current }, isWaitingForStrategy, latestGameStateRef.current?.status || '')
@@ -1130,7 +1202,8 @@ export function useLiveMatch(id: string) {
         ownIsCT,
         pacingMode,
         setPacingMode,
-        tickMs,
+        /** Continuous round clock for the radar (stable object). */
+        liveClock,
         roundView,
         roundBeat,
         intermission,

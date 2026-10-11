@@ -24,11 +24,16 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { CustomTactics, LivePlayerState, MapId, Team } from "@/types"
 import { liveRoundMap } from "@/lib/live-round-script"
+import { roundBombTimes } from "@/lib/live-clock"
 import { MAP_NAMES } from "@/data/map-pool"
-import { AUTO_CONFIRM_MS, inMoment } from "@/lib/live-match-pacing"
+import { AUTO_CONFIRM_MS, FAST_FORWARD_LEAD, inMoment } from "@/lib/live-match-pacing"
 import { adrOf, samplePlayer, tallyMatchDamage } from "@/lib/live-match-roster"
 import { previewDecision } from "@/lib/live-match-decision"
 import type { ManagerStrategy } from "@/engine/match/legacy-series"
+
+declare global {
+    interface Window { __liveCommits?: number }
+}
 
 export default function LiveMatchPage() {
     const params = useParams<{ id: string }>()
@@ -69,7 +74,7 @@ export default function LiveMatchPage() {
         ownIsCT,
         pacingMode,
         setPacingMode,
-        tickMs,
+        liveClock,
         roundView,
         roundBeat,
         intermission,
@@ -78,6 +83,10 @@ export default function LiveMatchPage() {
         shownLossLevels,
     } = useLiveMatch(params.id)
     const router = useRouter()
+    // Dev builds count the page's commits on window.__liveCommits (perf tooling).
+    useEffect(() => {
+        if (process.env.NODE_ENV !== "production") window.__liveCommits = (window.__liveCommits ?? 0) + 1
+    })
     // A loaded career without this fixture (stale link, already resolved):
     // the hook never initialises, so explain instead of spinning forever.
     const matchMissing = useGameStore(state => state.teams.length > 0 && !state.scheduledMatches.some(m => m.id === params.id))
@@ -108,8 +117,9 @@ export default function LiveMatchPage() {
 
     // Radar (hooks before the early return). The round on screen is described
     // by its round script, built once per round by useLiveMatch; the radar
-    // samples it itself on every animation frame, so the page only hands over
-    // the script, the tick clock and each tick's wall-clock length (pacing).
+    // samples it on every animation frame at the hook's continuous clock, so
+    // the page only hands over the script and the clock (and re-renders only
+    // when the feed, roster or scorebug change).
     const currentMapId = matchData.current?.result.maps[gameState.currentMapIndex]?.map || MapId.SANDSTONE
     const roundMap = useMemo(() => liveRoundMap(currentMapId) ?? null, [currentMapId])
     const radarScript = roundScript && roundScript.mapId === currentMapId && gameState.time >= 0 ? roundScript.script : null
@@ -138,7 +148,14 @@ export default function LiveMatchPage() {
     // back): no live clutch banner over the end-of-round positions.
     const roundEndEvent = currentRoundEvents.current.find(e => e.type === "ROUND_END")
     const roundOver = gameState.status === "FINISHED" || isWaitingForStrategy
-        || (roundEndEvent != null && gameState.time >= Math.floor(roundEndEvent.time))
+        || (roundEndEvent != null && gameState.time >= roundEndEvent.time)
+    // The round in flight: the scorebug timer reads the live clock itself.
+    const roundLive = !roundOver && gameState.time >= 0
+    const { plantAt, bombEndAt } = roundBombTimes(currentRoundEvents.current)
+    const scorebugClock = useMemo(
+        () => (roundLive ? { source: liveClock, plantAt, bombEndAt } : null),
+        [roundLive, liveClock, plantAt, bombEndAt]
+    )
 
     const originalHomeMap = useMemo(() => new Map((originalHomePlayers || []).map(p => [p.id, p])), [originalHomePlayers])
     const originalAwayMap = useMemo(() => new Map((originalAwayPlayers || []).map(p => [p.id, p])), [originalAwayPlayers])
@@ -191,6 +208,30 @@ export default function LiveMatchPage() {
     }, [ownIsCT, setDecisionHold])
     const toggleHold = useCallback(() => setDecisionHold(h => !h), [setDecisionHold])
     const pickStrategy = useCallback((strategy: ManagerStrategy) => startNextRound(strategy), [startNextRound])
+
+    // The buy decision sits in the radar's overlay slot, above its scrubber.
+    // Built here (memoized) so the radar panel's memo holds between renders.
+    const overtimeNote = intermission && (intermission.kind === "overtime" || intermission.kind === "overtime-switch")
+        ? intermission.kind === "overtime" ? "Overtime · MR3 · $12,500 each" : "Overtime · sides switched"
+        : simState?.isOvertime ? "Overtime" : undefined
+    const timeoutDisabled = timeoutsRemaining <= 0 || timeoutActive || !isWaitingForStrategy || gameState.status !== "IN_PROGRESS"
+    const decisionKey = `${gameState.currentMapIndex}-${preview?.round ?? 0}`
+    const decisionOverlay = useMemo(() => (
+        <AnimatePresence>
+            {preview && (
+                <DecisionCard
+                    key={`decision-${decisionKey}`}
+                    preview={preview}
+                    names={names}
+                    onPick={pickStrategy}
+                    onEditLoadout={openLoadoutEditor}
+                    auto={{ on: isAutoTactics, hold: decisionHold, durationMs: AUTO_CONFIRM_MS, onToggleHold: toggleHold, key: `${decisionKey}-${decisionHold}` }}
+                    timeout={{ remaining: timeoutsRemaining, active: timeoutActive, disabled: timeoutDisabled, onCall: callTimeout }}
+                    overtimeNote={overtimeNote}
+                />
+            )}
+        </AnimatePresence>
+    ), [preview, decisionKey, names, pickStrategy, openLoadoutEditor, isAutoTactics, decisionHold, toggleHold, timeoutsRemaining, timeoutActive, timeoutDisabled, callTimeout, overtimeNote])
     const leaveToHub = useCallback(() => router.push(`/match/${params.id}/tactics`), [router, params.id])
     const pauseForLeave = useCallback(() => setIsPlaying(false), [setIsPlaying])
 
@@ -219,7 +260,7 @@ export default function LiveMatchPage() {
 
     // Live state of the round on screen: HP, deaths (with the killer) and
     // grenades from the round timeline at the playback clock.
-    const inFlight = !roundOver && gameState.time >= 0
+    const inFlight = roundLive
     const timeline = inFlight && roundView && roundView.key === `${gameState.currentMapIndex}:${gameState.round}` ? roundView.timeline : null
     const rows = (roster: LivePlayerState[], originals: Map<string, { portraitPath?: string }>, isCT: boolean, economy: Record<string, { utility?: string[] }> | undefined): RosterCardRowProps[] =>
         roster.slice(0, 5).map(p => {
@@ -254,13 +295,13 @@ export default function LiveMatchPage() {
     const aliveCount = (list: RosterCardRowProps[]) => list.filter(p => !p.dead).length
 
     // Multi-kill callout (3rd / 4th / 5th kill of a player this round).
-    const multi = timeline ? [...timeline.multiKills].reverse().find(k => Math.floor(k.t) <= gameState.time) : undefined
+    const multi = timeline ? [...timeline.multiKills].reverse().find(k => k.t <= gameState.time) : undefined
     const homeIds = new Set(homeRoster.map(p => p.id))
     const callout: MomentCalloutData | null = multi && roundView
         ? { id: `${roundView.key}:${multi.playerId}:${multi.count}`, playerName: names[multi.playerId] ?? "Player", count: multi.count, side: homeIds.has(multi.playerId) === homeIsCT ? "CT" : "T" }
         : null
 
-    const fastForward = pacingMode === "moments" && !!roundView && inFlight && !inMoment(roundView.pacing, gameState.time + 0.5)
+    const fastForward = pacingMode === "moments" && !!roundView && inFlight && !inMoment(roundView.pacing, gameState.time + FAST_FORWARD_LEAD)
     // Dock play button: mid-round it is playback; between rounds the auto call.
     const dockPlaying = isWaitingForStrategy ? (isAutoTactics && !decisionHold) : isPlaying
 
@@ -275,11 +316,6 @@ export default function LiveMatchPage() {
             { label: "On time", home: count("home", ["TIME"]), away: count("away", ["TIME"]) },
         ]
     })() : []
-    const overtimeNote = intermission && (intermission.kind === "overtime" || intermission.kind === "overtime-switch")
-        ? intermission.kind === "overtime" ? "Overtime · MR3 · $12,500 each" : "Overtime · sides switched"
-        : simState.isOvertime ? "Overtime" : undefined
-    const timeoutDisabled = timeoutsRemaining <= 0 || timeoutActive || !isWaitingForStrategy || gameState.status !== "IN_PROGRESS"
-
     const ownKey = isPlayerHome ? "home" : "away"
     const roundsPanel = <RoundsPanel rounds={roundHistory} mapName={mapName} ownKey={ownKey} homeName={homeTeam.name} awayName={awayTeam.name} />
     const feedPanel = <LiveFeedPanel logs={logs} />
@@ -315,6 +351,7 @@ export default function LiveMatchPage() {
                 roundHistory={roundHistory}
                 homeLossLevel={shownLossLevels.home}
                 awayLossLevel={shownLossLevels.away}
+                clock={scorebugClock}
             />
 
             <LiveMatchControlBar
@@ -351,10 +388,11 @@ export default function LiveMatchPage() {
                         roundMap={roundMap}
                         players={radarPlayers}
                         review={radarReview}
-                        tickDurationMs={tickMs}
+                        clock={liveClock}
                         isAnimating={isPlaying}
                         currentTime={gameState.time}
                         roundOver={roundOver}
+                        overlay={decisionOverlay}
                         fillHeight
                     />
                     <MomentCallout callout={callout} />
@@ -373,20 +411,6 @@ export default function LiveMatchPage() {
                                 nextMapName={breakCard.nextMapId ? MAP_NAMES[breakCard.nextMapId as MapId] ?? breakCard.nextMapId : undefined}
                                 stats={breakStats}
                                 onContinue={() => startNextRound("PISTOL")}
-                            />
-                        )}
-                    </AnimatePresence>
-                    <AnimatePresence>
-                        {preview && (
-                            <DecisionCard
-                                key={`decision-${gameState.currentMapIndex}-${preview.round}`}
-                                preview={preview}
-                                names={names}
-                                onPick={pickStrategy}
-                                onEditLoadout={openLoadoutEditor}
-                                auto={{ on: isAutoTactics, hold: decisionHold, durationMs: AUTO_CONFIRM_MS, onToggleHold: toggleHold, key: `${gameState.currentMapIndex}-${preview.round}-${decisionHold}` }}
-                                timeout={{ remaining: timeoutsRemaining, active: timeoutActive, disabled: timeoutDisabled, onCall: callTimeout }}
-                                overtimeNote={overtimeNote}
                             />
                         )}
                     </AnimatePresence>

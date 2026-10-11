@@ -5,6 +5,7 @@ import type { Floor } from "@/engine/match/round-script-types"
 import { RadarRenderer, imageContentBounds, type RadarSite } from "@/lib/radar-draw"
 import { createRadarScene, sampleRadarScene, sceneAliveCounts, sceneFromSnapshot, type PreparedRadarScript, type RadarScene, type SnapshotInput } from "@/lib/radar-scene"
 import { clockTime, type RadarClock } from "@/lib/radar-clock"
+import type { LiveTimeSource } from "@/lib/live-clock"
 import { sceneAutoFloor } from "@/lib/radar-level-selector"
 import { DEFAULT_VIEW, MAX_ZOOM, fitView, panBy, zoomAt, type RadarBounds, type RadarView } from "@/lib/radar-view"
 import type { RadarArt } from "@/lib/radar-types"
@@ -19,7 +20,16 @@ export interface RadarFeed {
     prep: PreparedRadarScript | null
     /** Snapshot mode input (time comes from the clock). */
     snapshot: Omit<SnapshotInput, "t" | "alpha"> | null
+    /** Tick clock: glides between the panel's `currentTime` ticks (used without `source`). */
     clock: RadarClock
+    /** Continuous round clock (the live match), sampled every frame; null = the tick clock. */
+    source: LiveTimeSource | null
+    /**
+     * Wall ms (performance.now()) when the shown round was decided, -1 while it
+     * plays: transient effects keep fading for up to AFTERGLOW_SECONDS after it
+     * instead of freezing on the last frame.
+     */
+    settledAt: number
     review: {
         active: boolean
         prep: PreparedRadarScript | null
@@ -34,8 +44,19 @@ export interface RadarFeed {
 }
 
 export function createRadarFeed(clock: RadarClock): RadarFeed {
-    return { prep: null, snapshot: null, clock, review: { active: false, prep: null, t: 0, playing: false, live: false, lastMs: 0 }, version: 0 }
+    return { prep: null, snapshot: null, clock, source: null, settledAt: -1, review: { active: false, prep: null, t: 0, playing: false, live: false, lastMs: 0 }, version: 0 }
 }
+
+/** Live round time the feed shows at wall-clock `now`. */
+export function feedLiveTime(feed: RadarFeed, now = performance.now()): number {
+    return feed.source ? feed.source.now(now) : clockTime(feed.clock, now)
+}
+
+/**
+ * Seconds the scene keeps aging after the round is decided: longer than every
+ * transient effect (tracer 1.2 s, hit 0.8 s, pop 0.7 s, death burst 0.6 s).
+ */
+export const AFTERGLOW_SECONDS = 1.5
 
 export interface RadarCanvasHandle {
     zoomBy(factor: number): void
@@ -157,7 +178,7 @@ function RadarCanvasInner(props: RadarCanvasProps, ref: React.ForwardedRef<Radar
             const p = propsRef.current
             const feed = p.feed.current
             const review = feed.review
-            const liveT = clockTime(feed.clock, now)
+            const liveT = feedLiveTime(feed, now)
 
             // Time shown: the review time, or the live clock.
             let t = liveT
@@ -178,8 +199,15 @@ function RadarCanvasInner(props: RadarCanvasProps, ref: React.ForwardedRef<Radar
                 t = review.t
             }
 
+            // A decided round: effects finish fading (players stay put: their
+            // tracks end with the round). Reduced motion: they end at once.
+            const afterglow = review.active || feed.settledAt < 0 ? 0
+                : p.reducedMotion ? AFTERGLOW_SECONDS
+                    : Math.min(AFTERGLOW_SECONDS, Math.max(0, (now - feed.settledAt) / 1000))
+            const sceneT = t + afterglow
+
             const scene = sceneRef.current
-            if (prep) sampleRadarScene(prep, t, scene)
+            if (prep) sampleRadarScene(prep, sceneT, scene)
             else if (feed.snapshot && !review.active) sceneFromSnapshot({ ...feed.snapshot, t: Math.floor(liveT), alpha: liveT - Math.floor(liveT) }, scene)
             else scene.playerCount = scene.deathCount = scene.tracerCount = scene.hitCount = scene.utilityCount = scene.grenadeCount = 0, scene.bomb.phase = "none", scene.bomb.hasPos = false
             const hasScene = !!prep || (!!feed.snapshot && !review.active)
@@ -191,15 +219,15 @@ function RadarCanvasInner(props: RadarCanvasProps, ref: React.ForwardedRef<Radar
                 p.onFloorChange?.(floor)
             }
 
-            const changed = dirtyRef.current || t !== lastT || floor !== lastFloor || feed.version !== lastVersion
+            const changed = dirtyRef.current || sceneT !== lastT || floor !== lastFloor || feed.version !== lastVersion
                 || selectedRef.current !== lastSel || p.showNames !== lastNames
-            const wallClockDue = animating && now - lastAnimMs >= (t === lastT ? 33 : 0)
+            const wallClockDue = animating && now - lastAnimMs >= (sceneT === lastT ? 33 : 0)
             if (!changed && !wallClockDue) {
                 if (perf) perf.skipped++
                 return
             }
             dirtyRef.current = false
-            lastT = t; lastFloor = floor; lastVersion = feed.version; lastSel = selectedRef.current; lastNames = p.showNames; lastAnimMs = now
+            lastT = sceneT; lastFloor = floor; lastVersion = feed.version; lastSel = selectedRef.current; lastNames = p.showNames; lastAnimMs = now
 
             const t0 = perf ? performance.now() : 0
             animating = renderer.draw(hasScene ? scene : null, {

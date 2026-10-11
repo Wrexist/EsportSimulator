@@ -16,9 +16,9 @@
  * after a moment and slows down before the next one. Moments always play
  * at exactly the moment speed.
  *
- * The live loop ticks once per round second (the radar glides between
- * ticks over the tick's wall-clock length), so the pacing is expressed as
- * the wall-clock length of each one-second tick: `tickWallMs`.
+ * The pacing is expressed as the wall-clock length of each round second
+ * (`tickWallMs`); the live clock (lib/live-clock.ts) plays the round
+ * continuously at that rate, so the radar moves smoothly at any speed.
  *
  * Pure and deterministic: same events/script → same windows and timings.
  */
@@ -81,7 +81,7 @@ export const PACING = {
     QUIET_FACTOR: 8,
     /** Round seconds over which the speed eases between moment and quiet speed. */
     RAMP_SECONDS: 3,
-    /** Fastest tick (wall ms per round second): at most 20 renders a second. */
+    /** Shortest wall-clock round second (ms): fast-forward plays at most 20× real time. */
     MIN_TICK_MS: 50,
 } as const
 
@@ -172,6 +172,11 @@ export function pacingRate(pacing: RoundPacing, t: number): number {
     // After the last moment (the round has ended or will on time).
     return 1 + (PACING.QUIET_FACTOR - 1) * smoothstep((t - prevEnd) / PACING.RAMP_SECONDS)
 }
+
+/** The dock's key-moment indicator switches this many round seconds before a boundary. */
+export const FAST_FORWARD_LEAD = 0.5
+/** The radar labels the first round seconds "FREEZE TIME". */
+export const FREEZE_LABEL_SECONDS = 3
 
 /** True when round time `t` is inside a key moment. */
 export function inMoment(pacing: RoundPacing, t: number): boolean {
