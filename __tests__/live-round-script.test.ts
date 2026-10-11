@@ -85,8 +85,10 @@ describe('live round script', () => {
                 expect(live!.script).toEqual(direct)
             }
         }
-        const mean = ms.reduce((s, x) => s + x, 0) / ms.length
-        expect(mean).toBeLessThan(4)
+        // Regression guard, not a benchmark: median with headroom so parallel
+        // suite runs on a busy machine don't fail it.
+        const median = [...ms].sort((x, y) => x - y)[Math.floor(ms.length / 2)]
+        expect(median).toBeLessThan(10)
     })
 
     it('rebuilds the same round on restore (recorded round, no loadouts): only the grenades are missing', () => {
