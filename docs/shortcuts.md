@@ -19,7 +19,8 @@ Press **F1** or **?** at any time in-game to open this list. On macOS, use **⌘
 | Shortcut | Action                   |
 | -------- | ------------------------ |
 | `1`      | Home (dashboard)         |
-| `2`      | Desktop                  |
+| `2`      | Open inbox               |
+| `I`      | Open / close inbox       |
 | `3`      | Squad                    |
 | `4`      | Training                 |
 | `5`      | Schedule                 |

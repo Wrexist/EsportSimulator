@@ -557,7 +557,7 @@ function DevToolsPanel() {
                                         <div className="grid grid-cols-3 gap-2">
                                             {[
                                                 { label: "Squad", path: "/squad", icon: <Shield size={11} /> },
-                                                { label: "Desktop", path: "/desktop", icon: <Bell size={11} /> },
+                                                { label: "Inbox", path: "?inbox=all", icon: <Bell size={11} /> },
                                                 { label: "Finances", path: "/finances", icon: <Coins size={11} /> },
                                                 { label: "Training", path: "/training", icon: <Target size={11} /> },
                                                 { label: "Scouting", path: "/scouting", icon: <Globe size={11} /> },

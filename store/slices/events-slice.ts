@@ -64,7 +64,13 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
             if (event.type === "JOB_OFFER") return
             if (typeof event.data.deadlineWeek === 'number' && state.currentWeek > event.data.deadlineWeek) return
             if (event.data.playerId && !state.teams.find(t => t.id === state.playerTeamId)?.rosterIds.includes(String(event.data.playerId))) return
-            if (event.data.teamId && event.data.teamId !== state.playerTeamId) return
+            if (event.type === "TRANSFER_OFFER") {
+                // Accepting a bid goes through acceptTransferOffer (fee, contract,
+                // roster move); only the effect-free "reject" resolves here. The
+                // own-club guard below would block it: a bid's teamId is the
+                // bidding club, which made Reject a dead button.
+                if (choiceId !== "reject") return
+            } else if (event.data.teamId && event.data.teamId !== state.playerTeamId) return
 
             // Apply standard effect bundle (morale / money / loyalty / reputation)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by event type

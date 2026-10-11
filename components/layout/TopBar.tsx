@@ -19,6 +19,7 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
 import { navHubs, hubForPath, isNavItemActive, settingsItem } from "@/lib/navigation"
 import { NavigationSearch } from "./NavigationSearch"
+import { InboxButton } from "@/components/inbox/InboxButton"
 
 /**
  * Two-row game header (design system v2).
@@ -247,6 +248,7 @@ export function TopBar() {
                         </button>
                     </div>
 
+                    <InboxButton />
                     <Link
                         href={settingsItem.href}
                         aria-label="Settings"
