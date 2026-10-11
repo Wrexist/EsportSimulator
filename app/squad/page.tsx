@@ -184,7 +184,7 @@ export default function SquadPage() {
 }
 
 function SquadPageInner() {
-  const { players, playerTeamId, academyPlayers, swapRosterPositions, contracts, currentWeek, treatInjury, promoteProspect, addToast } = useGameStore(useShallow(state => ({
+  const { players, playerTeamId, academyPlayers, swapRosterPositions, contracts, currentWeek, treatInjury, promoteProspect, addToast, loading } = useGameStore(useShallow(state => ({
     players: state.players,
     playerTeamId: state.playerTeamId,
     academyPlayers: state.academyPlayers,
@@ -194,6 +194,8 @@ function SquadPageInner() {
     treatInjury: state.treatInjury,
     promoteProspect: state.promoteProspect,
     addToast: state.addToast,
+    // A fresh career or a load is still filling the store: wait, don't say "not found".
+    loading: !state._hasHydrated || state.isLoading,
   })))
   const teamData = useCurrentTeam()
   const router = useRouter()
@@ -236,6 +238,8 @@ function SquadPageInner() {
     setSelectedSwapIndex(null)
     addToast({ message: "Lineup updated", type: "info" })
   }, [selectedSwapIndex, swapRosterPositions, playerTeamId, addToast])
+
+  if (!teamData && loading) return <div className="min-h-[50vh]" aria-busy="true" />
 
   if (!teamData) {
     return (
