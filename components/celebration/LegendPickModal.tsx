@@ -16,6 +16,7 @@ import type { LegendPickData } from "@/engine/save-types"
 import { panelTransition } from "@/lib/motion"
 import { useFocusTrap } from "@/lib/accessibility"
 import { LEGEND_CONTRACT_WEEKS, LEGEND_MIN_RUNWAY_WEEKS, quoteLegendSigning } from "@/lib/legend-signing"
+import { departuresToSign, SENIOR_ROSTER_MAX } from "@/engine/roster-rules"
 
 interface LegendPickModalProps {
     data: LegendPickData
@@ -270,6 +271,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                         ? "Your club stays cash-positive."
                                         : `Cash lasts about ${quote.runwayWeeks} weeks at the new rate.`}
                                     {!quote.affordable && ` You need at least ${LEGEND_MIN_RUNWAY_WEEKS} weeks of cover to sign.`}
+                                    {quote.overCap && ` Signing him takes your squad to ${quote.rosterAfter}/${SENIOR_ROSTER_MAX}: to sign anyone else, first release or sell ${departuresToSign(quote.rosterAfter) === 1 ? "one player" : `${departuresToSign(quote.rosterAfter)} players`}.`}
                                 </p>
                             )}
                             <div className="flex flex-wrap items-center justify-center gap-3">
