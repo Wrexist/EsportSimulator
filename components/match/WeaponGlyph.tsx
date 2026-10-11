@@ -53,6 +53,60 @@ export function WeaponGlyph({ weapon, className, title }: { weapon: string | und
     )
 }
 
+// ─── Gear glyphs (roster cards, decision card) ─────────────────────────────
+
+const NADE_NAME: Record<string, string> = { smoke: "Smoke", flash: "Flashbang", he: "HE grenade", molotov: "Molotov" }
+const NADE_COLOR: Record<string, string> = { smoke: "#AEB6C2", flash: "#F2F4F7", he: "#3DD68C", molotov: "#FF8A3D" }
+// 10×14 silhouettes: smoke (can, banded), flash (can + lever), HE (round body
+// + lever), molotov (bottle with a flame).
+const NADE_PATH: Record<string, string> = {
+    smoke: "M2.2 4.2h5.6v9H2.2zM3.4 1.6h3.2v2.6H3.4z",
+    flash: "M2.4 5h5.2v8.2H2.4zM3.4 2.2h3.2V5H3.4zM6.6 2.6h1.6l.6 3.4h-1z",
+    he: "M5 5.2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zM4 2.4h2V5.4H4zM6 2.8h1.6l.7 3h-1z",
+    molotov: "M4 4h2v2.4l2.4 2.2v4.8H1.6V8.6L4 6.4z",
+}
+const NADE_DETAIL: Record<string, { d: string; fill: string } | undefined> = {
+    smoke: { d: "M2.2 7.4h5.6v1.2H2.2z", fill: "#07090C" },
+    molotov: { d: "M5 .4c.9.9 1.1 1.8.6 2.7-.3.5-.9.7-1.4.4-.6-.4-.5-1.2 0-1.7.3-.4.6-.8.8-1.4z", fill: "#F2B53A" },
+}
+
+/** One grenade (smoke / flash / he / molotov), coloured by kind. */
+export function GrenadeGlyph({ kind, className }: { kind: string; className?: string }) {
+    const k = NADE_PATH[kind] ? kind : "he"
+    const name = NADE_NAME[k]
+    const detail = NADE_DETAIL[k]
+    return (
+        <svg viewBox="0 0 10 14" className={cn("h-3.5 w-2.5 shrink-0", className)} role="img" aria-label={name}>
+            <title>{name}</title>
+            <path d={NADE_PATH[k]} fill={NADE_COLOR[k]} />
+            {detail && <path d={detail.d} fill={detail.fill} />}
+        </svg>
+    )
+}
+
+/** Kevlar (outline) or kevlar + helmet (filled with a visor line). */
+export function ArmorGlyph({ helmet, className }: { helmet: boolean; className?: string }) {
+    const name = helmet ? "Kevlar + helmet" : "Kevlar"
+    return (
+        <svg viewBox="0 0 12 12" className={cn("h-3 w-3 shrink-0", className)} role="img" aria-label={name}>
+            <title>{name}</title>
+            <path d="M6 .8 10.6 2.5v3.3c0 2.7-1.9 4.6-4.6 5.4C3.3 10.4 1.4 8.5 1.4 5.8V2.5z" fill={helmet ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.2" />
+            {helmet && <path d="M3.6 5.4h4.8" stroke="#07090C" strokeWidth="1.2" />}
+        </svg>
+    )
+}
+
+/** Defuse kit. */
+export function KitGlyph({ className }: { className?: string }) {
+    return (
+        <svg viewBox="0 0 12 12" className={cn("h-3 w-3 shrink-0", className)} role="img" aria-label="Defuse kit">
+            <title>Defuse kit</title>
+            <path d="M1.5 3.5h9v6.5h-9zM4 1.8h4v1.7H4z" fill="none" stroke="currentColor" strokeWidth="1.2" />
+            <path d="M3.5 6.7h5M6 4.8v3.8" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+    )
+}
+
 /** Headshot marker: a small crosshair. */
 export function HeadshotMark({ className }: { className?: string }) {
     return (

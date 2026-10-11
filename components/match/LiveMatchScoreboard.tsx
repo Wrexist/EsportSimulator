@@ -4,6 +4,8 @@ import { LiveGameState, Team, MapId } from "@/types"
 import { cn } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
+import { lossBonusAt } from "@/engine/match/round-sim/economy"
+import { buyShortLabel } from "@/lib/live-match-decision"
 
 /** One revealed round of the current map, for the history strip. */
 export interface ScorebugRound {
@@ -12,6 +14,12 @@ export interface ScorebugRound {
     /** Side the winning team played the round on. */
     side: "ct" | "t"
     winType?: string
+    /** Buy each team ran (public: visible from equipment). */
+    homeBuy?: string
+    awayBuy?: string
+    /** Map score after the round. */
+    homeScore?: number
+    awayScore?: number
 }
 
 interface LiveMatchScoreboardProps {
@@ -35,14 +43,19 @@ interface LiveMatchScoreboardProps {
     homeIsCT?: boolean
     /** Rounds already revealed on this map (never the one in flight). */
     roundHistory?: ScorebugRound[]
+    /** script-v1 loss-bonus level (0–4) per team for the round on screen. */
+    homeLossLevel?: number
+    awayLossLevel?: number
 }
 
 const WIN_TYPE_LABEL: Record<string, string> = {
-    ELIMINATION: "elimination", elimination: "elimination",
-    BOMB_EXPLODED: "bomb exploded", bomb: "bomb exploded",
-    BOMB_DEFUSE: "bomb defused", defuse: "bomb defused",
-    TIME: "time ran out", time: "time ran out",
+    ELIMINATION: "Elimination", elimination: "Elimination",
+    BOMB_EXPLODED: "Bomb exploded", bomb: "Bomb exploded",
+    BOMB_DEFUSE: "Bomb defused", defuse: "Bomb defused",
+    TIME: "Time ran out", time: "Time ran out",
 }
+/** One-letter marks inside the history cells: E(lim), B(omb), D(efuse), T(ime). */
+const WIN_TYPE_MARK: Record<string, string> = { ELIMINATION: "", BOMB_EXPLODED: "B", BOMB_DEFUSE: "D", TIME: "T" }
 
 function SidePill({ ct }: { ct: boolean }) {
     return (
@@ -63,12 +76,30 @@ function SeriesPips({ won, toWin, label, align }: { won: number; toWin: number; 
     )
 }
 
+/** Loss-bonus ladder: five steps ($1,400 → $3,400), the current one lit. */
+function LossBonus({ level, align }: { level?: number; align: "left" | "right" }) {
+    if (typeof level !== "number") return null
+    const bonus = lossBonusAt(level)
+    return (
+        <div className={cn("flex items-center gap-1.5 text-[11px] leading-none text-ink-3", align === "right" && "flex-row-reverse")}
+            title={`Loss bonus level ${level + 1} of 5: a lost round pays $${bonus.toLocaleString("en-US")} each. A loss moves it up, a win down.`}
+            data-loss-level={level}>
+            <span className="uppercase tracking-[0.06em]">Loss bonus</span>
+            <span className={cn("flex gap-0.5", align === "right" && "flex-row-reverse")} aria-hidden="true">
+                {Array.from({ length: 5 }, (_, i) => <span key={i} className={cn("h-2 w-1 rounded-[1px]", i <= level ? "bg-ink-2" : "bg-hover")} />)}
+            </span>
+            <span className="tabular-nums text-ink-2">${bonus.toLocaleString("en-US")}</span>
+        </div>
+    )
+}
+
 /**
  * Round history: one column per round, the top cell for the home team and the
- * bottom one for the away team, filled in the colour of the side that won it.
+ * bottom one for the away team, filled in the colour of the side that won it
+ * and marked B / D / T for bomb, defuse and time wins. Hover for how it ended.
  * Regulation is 24 rounds with a gap at the half; overtime extends the strip.
  */
-function RoundHistory({ rounds, homeName, awayName }: { rounds: ScorebugRound[]; homeName: string; awayName: string }) {
+const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName }: { rounds: ScorebugRound[]; homeName: string; awayName: string }) {
     const slots = Math.max(24, rounds.length)
     const byRound = new Map(rounds.map(r => [r.round, r]))
     return (
@@ -76,22 +107,40 @@ function RoundHistory({ rounds, homeName, awayName }: { rounds: ScorebugRound[];
             {Array.from({ length: slots }, (_, i) => {
                 const n = i + 1
                 const r = byRound.get(n)
-                const fill = r ? (r.side === "ct" ? "bg-side-ct" : "bg-side-t") : ""
-                const title = r ? `Round ${n}: ${r.winner === "home" ? homeName : awayName} (${r.side.toUpperCase()}) · ${WIN_TYPE_LABEL[r.winType ?? ""] ?? "won"}` : `Round ${n}`
+                const fill = r ? (r.side === "ct" ? "bg-side-ct text-ink" : "bg-side-t text-ink") : ""
+                const mark = r ? WIN_TYPE_MARK[r.winType ?? ""] ?? "" : ""
+                const how = r ? WIN_TYPE_LABEL[r.winType ?? ""] ?? "Won" : ""
+                const cell = (mine: boolean) => (
+                    <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded-[2px] text-[9px] font-bold leading-none", mine ? fill : "bg-hover")}>{mine ? mark : ""}</span>
+                )
                 return (
-                    <div key={n} title={title} className={cn("flex flex-col gap-[3px]", (n === 13 || (n > 24 && (n - 25) % 6 === 0)) && "ml-2")}>
-                        <span className={cn("h-2 w-2.5 rounded-[1px]", r?.winner === "home" ? fill : "bg-hover")} />
-                        <span className={cn("h-2 w-2.5 rounded-[1px]", r?.winner === "away" ? fill : "bg-hover")} />
+                    <div
+                        key={n}
+                        className={cn("group relative flex flex-col gap-[3px]", (n === 13 || (n > 24 && (n - 25) % 6 === 0)) && "ml-2")}
+                        aria-label={r ? `Round ${n}: ${r.winner === "home" ? homeName : awayName} (${r.side.toUpperCase()}), ${how.toLowerCase()}` : `Round ${n}`}
+                        data-round-dot={r ? r.winner : undefined}
+                    >
+                        {cell(r?.winner === "home")}
+                        {cell(r?.winner === "away")}
+                        {r && (
+                            <div className="pointer-events-none invisible absolute left-1/2 top-full z-50 mt-1.5 w-max -translate-x-1/2 rounded-md border border-line-strong bg-raised px-2.5 py-2 text-left opacity-0 shadow-[0_8px_24px_rgba(0,0,0,0.5)] transition-opacity duration-100 group-hover:visible group-hover:opacity-100" role="tooltip">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">Round {n}{r.homeScore !== undefined ? ` · ${r.homeScore}–${r.awayScore}` : ""}</p>
+                                <p className="mt-0.5 text-sm font-semibold text-ink-1">
+                                    {r.winner === "home" ? homeName : awayName} <span className={r.side === "ct" ? "text-side-ct" : "text-side-t"}>({r.side.toUpperCase()})</span>
+                                </p>
+                                <p className="text-xs text-ink-2">{how}</p>
+                                {(r.homeBuy || r.awayBuy) && <p className="mt-0.5 text-xs text-ink-3">Buys: {buyShortLabel(r.homeBuy)} / {buyShortLabel(r.awayBuy)}</p>}
+                            </div>
+                        )}
                     </div>
                 )
             })}
         </div>
     )
-}
+})
 
-// Memoized: live page renders this on every tick (~30-60Hz). Most ticks
-// don't change scoreboard inputs (scores update once per round, not per
-// tick), so memo skips the render entirely while idle.
+// Memoized: the live page re-renders every tick; most ticks only change the
+// round timer, and the history strip is memoized on its own.
 function LiveMatchScoreboardImpl({
     gameState,
     homeTeam,
@@ -108,6 +157,8 @@ function LiveMatchScoreboardImpl({
     bombTime,
     homeIsCT = true,
     roundHistory = [],
+    homeLossLevel,
+    awayLossLevel,
 }: LiveMatchScoreboardProps) {
     // Display the actual round countdown (1:55 → 0:00). Falls back to the raw
     // game-time tick when no roundTime is provided so existing callers keep
@@ -125,13 +176,13 @@ function LiveMatchScoreboardImpl({
     const phase = roundPhaseLabel(gameState.round, homeScore, awayScore)
 
     const score = (value: number, leading: boolean) => (
-        <div className="relative flex h-[60px] w-[76px] items-center justify-center overflow-hidden">
+        <div className="relative flex h-[52px] w-[68px] items-center justify-center overflow-hidden">
             <motion.span
                 key={value}
                 initial={reduceMotion ? false : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className={cn("font-display text-[64px] font-bold leading-none tabular-nums", leading ? "text-ink-1" : "text-ink-2")}
+                className={cn("font-display text-[56px] font-bold leading-none tabular-nums", leading ? "text-ink-1" : "text-ink-2")}
             >
                 {value}
             </motion.span>
@@ -140,59 +191,65 @@ function LiveMatchScoreboardImpl({
 
     return (
         <div
-            className="relative z-10 mb-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch overflow-hidden rounded-lg border border-line bg-panel"
+            className="relative z-10 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch rounded-lg border border-line bg-panel"
             role="region"
             aria-label="Match scoreboard"
             aria-live="polite"
         >
             {/* HOME */}
-            <div className="flex min-w-0 items-center gap-4 py-3 pl-0 pr-6">
-                <span className={cn("h-full w-1 self-stretch", homeIsCT ? "bg-side-ct" : "bg-side-t")} aria-hidden="true" />
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
-                    <TeamLogoDisplay team={homeTeam} size={40} />
+            <div className="flex min-w-0 items-center gap-4 py-2.5 pl-0 pr-6">
+                <span className={cn("h-full w-1 self-stretch rounded-l-lg", homeIsCT ? "bg-side-ct" : "bg-side-t")} aria-hidden="true" />
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
+                    <TeamLogoDisplay team={homeTeam} size={36} />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 space-y-1.5">
                     <div className="flex min-w-0 items-center gap-2">
                         <span className="truncate font-display text-[26px] font-bold uppercase leading-none text-ink-1">{homeTeam.name}</span>
                         {!finished && <SidePill ct={homeIsCT} />}
                     </div>
-                    <div className="mt-1.5"><SeriesPips won={homeSeriesScore} toWin={toWin} label={`Maps won: ${homeSeriesScore} of ${toWin}`} align="left" /></div>
+                    <div className="flex items-center gap-3">
+                        <SeriesPips won={homeSeriesScore} toWin={toWin} label={`Maps won: ${homeSeriesScore} of ${toWin}`} align="left" />
+                        {!finished && <LossBonus level={homeLossLevel} align="left" />}
+                    </div>
                 </div>
                 <div className="ml-auto">{score(homeScore, homeScore >= awayScore)}</div>
             </div>
 
             {/* CENTRE */}
-            <div className="flex min-w-[340px] flex-col items-center justify-center gap-1.5 border-x border-line bg-shell px-6 py-2">
+            <div className="flex min-w-[460px] flex-col items-center justify-center gap-1.5 border-x border-line bg-shell px-6 py-2">
                 <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
                     <span className="text-ink-2">{mapName}</span>
                     <span aria-hidden="true">·</span>
                     <span className={finished ? "text-ink-1" : undefined}>{finished ? "Final" : `RND ${gameState.round} / 24`}</span>
                     {!finished && phase && <><span aria-hidden="true">·</span><span className={phase === "Match point" ? "text-ink-1" : undefined}>{phase}</span></>}
+                    {showTimer && !finished && (
+                        <span className={cn(
+                            "ml-1 font-display text-[22px] font-bold normal-case leading-none tracking-normal tabular-nums",
+                            gameState.isPaused ? "text-ink-3" : isBombPlanted ? "text-negative" : isUrgent ? "text-caution" : "text-ink-1",
+                        )}>
+                            {isBombPlanted && <span className="mr-1.5 align-middle font-sans text-[11px] font-semibold uppercase tracking-[0.08em]">Bomb</span>}
+                            {Math.floor(displaySeconds / 60)}:{(displaySeconds % 60).toString().padStart(2, '0')}
+                        </span>
+                    )}
                 </div>
-                {showTimer && !finished && (
-                    <div className={cn(
-                        "font-display text-[28px] font-bold leading-none tabular-nums",
-                        gameState.isPaused ? "text-ink-3" : isBombPlanted ? "text-negative" : isUrgent ? "text-caution" : "text-ink-1",
-                    )}>
-                        {isBombPlanted && <span className="mr-2 align-middle text-[11px] font-semibold uppercase tracking-[0.08em]">Bomb</span>}
-                        {Math.floor(displaySeconds / 60)}:{(displaySeconds % 60).toString().padStart(2, '0')}
-                    </div>
-                )}
                 <RoundHistory rounds={roundHistory} homeName={homeTeam.name} awayName={awayTeam.name} />
             </div>
 
             {/* AWAY */}
-            <div className="flex min-w-0 flex-row-reverse items-center gap-4 py-3 pl-6 pr-0 text-right">
-                <span className={cn("h-full w-1 self-stretch", homeIsCT ? "bg-side-t" : "bg-side-ct")} aria-hidden="true" />
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
-                    <TeamLogoDisplay team={awayTeam} size={40} />
+            <div className="flex min-w-0 flex-row-reverse items-center gap-4 py-2.5 pl-6 pr-0 text-right">
+                <span className={cn("h-full w-1 self-stretch rounded-r-lg", homeIsCT ? "bg-side-t" : "bg-side-ct")} aria-hidden="true" />
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
+                    <TeamLogoDisplay team={awayTeam} size={36} />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 space-y-1.5">
                     <div className="flex min-w-0 flex-row-reverse items-center gap-2">
                         <span className="truncate font-display text-[26px] font-bold uppercase leading-none text-ink-1">{awayTeam.name}</span>
                         {!finished && <SidePill ct={!homeIsCT} />}
                     </div>
-                    <div className="mt-1.5"><SeriesPips won={awaySeriesScore} toWin={toWin} label={`Maps won: ${awaySeriesScore} of ${toWin}`} align="right" /></div>
+                    <div className="flex flex-row-reverse items-center gap-3">
+                        <SeriesPips won={awaySeriesScore} toWin={toWin} label={`Maps won: ${awaySeriesScore} of ${toWin}`} align="right" />
+                        {!finished && <LossBonus level={awayLossLevel} align="right" />}
+                    </div>
                 </div>
                 <div className="mr-auto">{score(awayScore, awayScore >= homeScore)}</div>
             </div>
