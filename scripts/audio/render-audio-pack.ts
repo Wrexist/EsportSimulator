@@ -262,7 +262,7 @@ function main() {
         const t0 = Date.now()
         const { audio, loopStart, loopEnd, bpm } = renderMusicFile(id)
         const { rel, decoded } = writeAudio(ffmpeg, audio, `music/${id}`, MUSIC_BITRATE)
-        manifest.music[id] = { file: rel, category: 'music', gain: MUSIC_GAIN[id], duration: round(decoded.l.length / SR), loopStart: round(loopStart, 6), loopEnd: round(loopEnd, 6), bpm }
+        manifest.music[id] = { file: rel, category: 'music', gain: MUSIC_GAIN[id], duration: round(decoded.l.length / SR), loopStart: round(loopStart, 9), loopEnd: round(loopEnd, 9), bpm }
         const s = stats(id, rel, 'music', decoded, audio)
         s.seamDb = seamError(audio, loopStart, loopEnd)
         if (decoded.l.length !== audio.l.length) throw new Error(`${rel}: decoded length ${decoded.l.length} != rendered ${audio.l.length}; loop points would drift`)

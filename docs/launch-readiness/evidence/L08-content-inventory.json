@@ -57334,8 +57334,8 @@
     },
     {
       "path": "public/audio/manifest.json",
-      "sha256": "223214cec5be340a5f5ad33692e2712b8cac105e7375d8cecc9b98e6f5a55479",
-      "bytes": 6114,
+      "sha256": "4cdc14d3b25500b1a5bf2edb739ae8a70c44f7fb17a313fa35648863a6cca7a4",
+      "bytes": 6117,
       "kind": "sound",
       "source": "Project-made: rendered by scripts/audio/render-audio-pack.ts (deterministic synthesis, no samples)",
       "evidence": "scripts/audio/render-audio-pack.ts",
