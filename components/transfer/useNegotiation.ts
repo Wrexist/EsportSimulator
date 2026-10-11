@@ -20,7 +20,6 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { SeededRNG } from "@/engine/rng"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
 import { quotePlayerSigning } from "@/engine/finance-forecast"
-import { fireConfetti } from "@/lib/confetti-lazy"
 import { formatCurrency } from "@/lib/utils-extended"
 
 export type NegotiationStage = "BUYOUT" | "CONTRACT" | "SUCCESS" | "FAILED"
@@ -66,7 +65,7 @@ function bandChance(ratio: number, band: readonly [number, number]): number {
 }
 
 export function useNegotiation(playerId: string | null, active = true) {
-    const { players, teams, contracts, staff, academyCount, playerTeamId, transferPlayer, currentWeek, saveId, addToast, boardState } = useGameStore(useShallow(state => ({
+    const { players, teams, contracts, staff, academyCount, playerTeamId, transferPlayer, currentWeek, saveId, addToast, boardState, queueSigningMoment } = useGameStore(useShallow(state => ({
         players: state.players,
         teams: state.teams,
         contracts: state.contracts,
@@ -78,6 +77,7 @@ export function useNegotiation(playerId: string | null, active = true) {
         saveId: state.saveId,
         addToast: state.addToast,
         boardState: state.boardState,
+        queueSigningMoment: state.queueSigningMoment,
     })))
 
     const playerSave = playerId ? players.find(p => p.id === playerId) : undefined
@@ -197,13 +197,9 @@ export function useNegotiation(playerId: string | null, active = true) {
         ? [Math.ceil(evaluation.transferValue * FEE_BAND[0] * ACCEPT_WITHIN), Math.ceil(evaluation.transferValue * FEE_BAND[1] * ACCEPT_WITHIN)]
         : [0, 0]
 
-    const celebrateSigning = (nickname: string, salary: number, skill: number) => {
-        if ((skill ?? 0) >= 85) {
-            fireConfetti({ particleCount: 120, spread: 80, origin: { y: 0.4 } })
-            addToast({ message: `Blockbuster signing — ${nickname} joins for ${money(salary)}/wk`, type: "achievement" })
-        } else {
-            addToast({ message: `${nickname} signed for ${money(salary)}/wk`, type: "achievement" })
-        }
+    /** The signing reveal (Phase 5.4a): a full-screen moment with the deal as made. */
+    const celebrateSigning = (signing: { playerId: string; fee: number; salaryPerWeek: number; contractEndWeek: number; fromTeamId: string | null }) => {
+        queueSigningMoment(signing)
     }
 
     const submitBuyout = () => {
@@ -267,7 +263,7 @@ export function useNegotiation(playerId: string | null, active = true) {
                 if (result.success) {
                     setNegotiationLog(prev => [...prev, "Contract accepted."])
                     setStage("SUCCESS")
-                    celebrateSigning(playerSave.nickname, sanitizedSalary, playerSave.skill)
+                    celebrateSigning({ playerId: playerSave.id, fee: sanitizedBuyoutOffer, salaryPerWeek: sanitizedSalary, contractEndWeek: currentWeek + sanitizedDuration, fromTeamId: currentTeam?.id ?? null })
                 } else {
                     const reason = result.message || "The deal could not be completed."
                     setNegotiationLog(prev => [...prev, `Transfer rejected: ${reason}`])
@@ -278,7 +274,6 @@ export function useNegotiation(playerId: string | null, active = true) {
             } else {
                 setNegotiationLog(prev => [...prev, "Contract accepted."])
                 setStage("SUCCESS")
-                celebrateSigning(playerSave.nickname, sanitizedSalary, playerSave.skill)
             }
         } else {
             setNegotiationLog(prev => [...prev, `${money(sanitizedSalary)}/wk rejected. Accepts ${money(Math.ceil(minimumSalary * 0.97))}/wk or more at this length.`])

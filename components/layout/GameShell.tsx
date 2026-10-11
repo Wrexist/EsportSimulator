@@ -25,10 +25,11 @@ import { MotionConfig } from "framer-motion"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { createSessionPersistence } from "@/lib/session-persistence"
 import { waitForPendingGameSave } from "@/store/game-store"
+import { useMomentPending } from "@/components/moments/moment-state"
 
 const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod => mod.ExitConfirmDialog), { ssr: false })
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
-const TournamentWinCelebration = dynamic(() => import("../celebration/TournamentWinCelebration").then(mod => mod.TournamentWinCelebration), { ssr: false })
+const MomentHost = dynamic(() => import("../moments/MomentHost").then(mod => mod.MomentHost), { ssr: false })
 const ToastNotifications = dynamic(() => import("../ui/ToastNotifications").then(mod => mod.ToastNotifications), { ssr: false })
 const LegendPickModal = dynamic(() => import("../celebration/LegendPickModal").then(mod => mod.LegendPickModal), { ssr: false })
 const BugReportButton = dynamic(() => import("../ui/BugReportButton").then(mod => mod.BugReportButton), { ssr: false })
@@ -48,16 +49,18 @@ function isLiveMatchPath(path: string | null | undefined): boolean {
 
 export function GameShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
-    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton, soundEnabled } = useGameStore(useShallow(state => ({
+    const { theme, pendingLegendPick, selectLegend, initAchievements, showBugReportButton, soundEnabled } = useGameStore(useShallow(state => ({
         theme: state.theme,
         soundEnabled: state.soundEnabled,
-        pendingCelebration: state.pendingCelebration,
-        clearCelebration: state.clearCelebration,
         pendingLegendPick: state.pendingLegendPick,
         selectLegend: state.selectLegend,
         initAchievements: state.initAchievements,
         showBugReportButton: state.showBugReportButton,
     })))
+
+    // Full-screen moments (titles, tier moves, signings, welcome) come first;
+    // the legend pick of a major opens after its title moment.
+    const momentPending = useMomentPending()
 
     // Keyboard shortcuts modal state
     const [shortcutsOpen, setShortcutsOpen] = useState(false)
@@ -371,16 +374,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                     onCancel={handleExitCancel}
                 />
             )}
+            <MomentHost />
             {
-                pendingCelebration && (
-                    <TournamentWinCelebration
-                        data={pendingCelebration}
-                        onClose={clearCelebration}
-                    />
-                )
-            }
-            {
-                pendingLegendPick && !pendingCelebration && (
+                pendingLegendPick && !momentPending && (
                     <LegendPickModal
                         data={pendingLegendPick}
                         onSelect={selectLegend}
