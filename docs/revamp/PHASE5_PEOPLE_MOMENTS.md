@@ -61,3 +61,10 @@ Also fixed: a $15k/week legend coach was offered to clubs that could not pay it 
 Verification: type-check 0 · lint 0 · jest 253 suites / 2,696 tests · live run on the merged branch (new career → welcome → intro → match → end beat → result → signing reveal → forced title/league/tier moments → home, squad, week, league, trophies, settings, inbox): 0 page errors. Screenshots `tmp/phase5/`.
 
 Open: listen-check the audio (`tmp/phase5/audio/preview.html`); contract standoffs did not trigger in the 3-seed season (unit-tested); every snapshot player has amicability 70, so only the Hothead rift fires; old AI trophy PNGs are still referenced by `data/tournaments.json` save summaries.
+
+### Fixes (stream 5.8a, branch `claude/p5-fixes`)
+- **Squad cap:** the manager can release a senior player (rest of the contract paid at once, stated before confirming; never below five). Squad, market board and deal panel show the squad against the cap of 7 and say how many to release or sell. `engine/roster-rules.ts`.
+- **Contract standoff:** opening snapshot deals have already run part of their length (no deal of a player aged 20–30 used to end in season 1); the standoff opens in the final year of a top-five Ambitious/Mercenary player, at most 2 a season. 3-seed season: [2, 1, 0] (`docs/launch-readiness/evidence/phase5-3-storylines-p5-fixes.json`).
+- **Amicability (save v10):** archetype base + id-hash spread instead of 70 for everyone; rifts capped at 2 a season.
+- **Persistence:** the legend-pick decision, auto tactics (`GameSave.autoTactics`), the daily/weekly switch and the day within the week are saved at once.
+- **Load game:** Titles counts the club's trophies.
