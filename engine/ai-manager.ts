@@ -30,6 +30,7 @@ import {
 import { logger } from "@/lib/logger"
 import { recalculateTeamSynergy } from "./processors/team-synergy-recalc"
 import { recruitmentSalary } from "./recruitment"
+import { ensurePersonality } from "./personality"
 import { aiCanCommit, aiClubBudget } from "./ai/club-budget"
 import { freeAgentsBySkill, renewExpiringContracts, upgradeFromFreeAgency } from "./ai/squad-maintenance"
 import { applyTierBands, refreshWorldRankings as refreshWorldRankingsFn, tiersAreBanded } from "./world-ranking"
@@ -408,6 +409,8 @@ export class AIManager {
                 // fall back to a random 60-90 ceiling for legacy/missing data.
                 potential: s?.potential ?? rng.int(60, 90),
             }
+            // Phase 5.2: the scouted prospect keeps the type he rolled as his archetype.
+            ensurePersonality(prospectPlayer, prospect.archetype)
             // Commit the prospect AFTER prospect generation has succeeded —
             // the previous flow wrapped the push + penalty inside the same
             // catch as prospect-generation, so a throw from

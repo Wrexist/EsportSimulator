@@ -20,6 +20,7 @@ import type {
   Psychologist,
 } from "@/types/game"
 import { SeededRNG } from "./rng"
+import { deriveArchetype, deriveTraits } from "./personality"
 
 export class DataGenerator {
   private static rng: SeededRNG = new SeededRNG(42)
@@ -264,9 +265,14 @@ export class DataGenerator {
 
     const baseSalary = (potential / 100) * 50000
     const salaryVariance = baseSalary * 0.3
+    const id = this.nextId("player")
+    // Phase 5.2: personality and traits from the same stats (no RNG draws).
+    const profile = { ...stats, id, age, role, potential }
 
     return {
-      id: this.nextId("player"),
+      id,
+      personality: { archetype: deriveArchetype(profile) },
+      traits: deriveTraits(profile),
       firstName,
       lastName,
       nickname,

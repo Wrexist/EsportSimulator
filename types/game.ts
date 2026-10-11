@@ -85,6 +85,9 @@ export interface Player {
 
   // Phase 17/18
   perks?: string[]
+  traits?: string[]
+  /** Phase 5.2 personality (engine/personality.ts). */
+  personality?: { archetype: import("@/engine/save-types").PersonalityArchetype }
   roleMastery?: Record<string, number>
   availableSkillPoints?: number
   trainingFocus?: string // TrainingFocus enum key

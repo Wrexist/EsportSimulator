@@ -31,7 +31,7 @@ import { logger } from "@/lib/logger"
 /**
  * Current save version - increment when schema changes
  */
-export const CURRENT_SAVE_VERSION = 8
+export const CURRENT_SAVE_VERSION = 9
 
 /**
  * Minimum supported save version for migration
@@ -499,6 +499,8 @@ export interface ScoutedPlayerEntry {
  */
 export interface TeamSaveData {
     managementState?: import("./club-management").ClubManagementState
+    /** Phase 5.2: captain, mentors, transfer-request weeks. */
+    dressingRoom?: DressingRoomState
 
     id: string
     name: string
@@ -798,6 +800,62 @@ export interface PlayerSaveData {
     // Phase 70: Youth Academy
     isAcademyGraduate?: boolean
     enrolledWeek?: number
+
+    // Phase 5.2: personality (archetype + dressing-room state). Every player
+    // has one from save v9; optional so older records and fixtures type-check
+    // (engine/personality.ts getArchetype derives it on the fly).
+    personality?: PlayerPersonality
+}
+
+/** Phase 5.2 archetypes (engine/personality.ts ARCHETYPE_INFO). */
+export type PersonalityArchetype =
+    | "PROFESSIONAL" | "AMBITIOUS" | "LOYAL" | "MERCENARY"
+    | "HOTHEAD" | "LEADER" | "SHOWMAN" | "QUIET"
+
+export type PromiseKind = "START" | "COMPETE"
+
+/** A promise the manager made to a player (engine/personality.ts recordPromise). */
+export interface PlayerPromise {
+    kind: PromiseKind
+    /** Club that made it; the promise lapses if he leaves. */
+    teamId: string
+    madeWeek: number
+    deadlineWeek: number
+    /** COMPETE: the club's world rank when made. */
+    baselineRank?: number
+    /** START: official matches in a row he has sat out (fit) since the promise. */
+    benchedRun?: number
+}
+
+/** Official appearances at his current club (morale v2 playing time). */
+export interface PlayerAppearances {
+    teamId: string
+    /** Official starts in a row. */
+    starts: number
+    /** Official matches in a row sat out while fit. */
+    benched: number
+    /** Started REGULAR_STARTS in a row at this club: expects to play. */
+    regular: boolean
+}
+
+export interface PlayerPersonality {
+    archetype: PersonalityArchetype
+    apps?: PlayerAppearances
+    /** Consecutive weeks below the unhappy morale line (managed club). */
+    unhappyWeeks?: number
+    /** Week of his last transfer request. */
+    lastRequestWeek?: number
+    promise?: PlayerPromise
+    lastPromise?: { kind: PromiseKind; outcome: "KEPT" | "BROKEN"; week: number }
+}
+
+/** Phase 5.2: the managed club's captain and mentors (AI clubs use the default captain). */
+export interface DressingRoomState {
+    /** Manager's pick; absent = highest leader stat on the roster. */
+    captainId?: string
+    mentorships?: Array<{ mentorId: string; menteeId: string; sinceWeek: number }>
+    /** Weeks of this club's transfer requests (season cap). */
+    requestWeeks?: number[]
 }
 
 /**
