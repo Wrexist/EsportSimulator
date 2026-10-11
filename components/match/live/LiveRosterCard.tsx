@@ -81,7 +81,7 @@ const RosterCardRow = memo(function RosterCardRow(p: RosterCardRowProps) {
                             </span>
                         </>
                     )}
-                    <span className="grid shrink-0 grid-cols-[repeat(3,18px)_30px] text-right text-xs leading-none tabular-nums">
+                    <span className="grid shrink-0 grid-cols-[repeat(3,22px)_32px] text-right text-xs leading-none tabular-nums">
                         <span className="font-semibold text-ink-1" title="Kills">{p.kills}</span>
                         <span className="text-ink-2" title="Assists">{p.assists}</span>
                         <span className="text-ink-2" title="Deaths">{p.deaths}</span>
@@ -116,7 +116,7 @@ export function LiveRosterCard({ teamName, isCT, alive, teamCash, players, foote
             </header>
             <div className="flex items-center border-b border-line bg-shell px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">
                 <span>Player</span>
-                <span className="ml-auto grid grid-cols-[repeat(3,18px)_30px] text-right">
+                <span className="ml-auto grid grid-cols-[repeat(3,22px)_32px] text-right">
                     <span title="Kills">K</span><span title="Assists">A</span><span title="Deaths">D</span><span title="Average damage per round this match">ADR</span>
                 </span>
             </div>

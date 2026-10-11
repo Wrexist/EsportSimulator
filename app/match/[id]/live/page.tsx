@@ -313,6 +313,7 @@ export default function LiveMatchPage() {
                 isPlaying={dockPlaying}
                 onTogglePlayback={togglePlayback}
                 isWaitingForStrategy={isWaitingForStrategy}
+                betweenRounds={roundOver}
                 speed={speed}
                 setSpeed={setSpeed}
                 pacingMode={pacingMode}

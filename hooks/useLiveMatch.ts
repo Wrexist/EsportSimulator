@@ -547,17 +547,18 @@ export function useLiveMatch(id: string) {
         setRoundBeat(null)
         setIntermission(null)
         setDecisionHold(false)
-        // The round is decided: describe it once for the radar (~1 ms warm).
+        // The round is decided: describe it once for the radar (~1 ms warm),
+        // and once for the screen (pacing windows, HP / death / grenade timeline).
+        const loadouts = { ...step.preRound.home, ...step.preRound.away }
         const live = buildLiveRoundScript({
             ctx: runtime.ctx,
             mapId: runtime.canonicalMaps[mapIndex] ?? step.state.maps[mapIndex]?.map ?? "",
             mapIndex,
             round: step.round,
-            loadouts: { ...step.preRound.home, ...step.preRound.away },
+            loadouts,
         })
         setRoundScript(live)
         currentRoundEvents.current = annotateRoundEvents(step.round.events || [], live)
-        const loadouts = { ...step.preRound.home, ...step.preRound.away }
         setRoundView(makeRoundView(runtime, mapIndex, step.round, live, currentRoundEvents.current, loadouts))
 
         const getStratName = (stratId: string, side: "ct" | "t", managed: boolean) => {

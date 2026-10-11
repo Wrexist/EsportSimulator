@@ -15,6 +15,8 @@ interface LiveMatchControlBarProps {
     isPlaying: boolean
     onTogglePlayback: () => void
     isWaitingForStrategy: boolean
+    /** No round is being played back (decision, round-end beat, half-time break). */
+    betweenRounds: boolean
     speed: number
     setSpeed: (speed: number) => void
     pacingMode: PacingMode
@@ -44,6 +46,7 @@ function LiveMatchControlBarComponent({
     isPlaying,
     onTogglePlayback,
     isWaitingForStrategy,
+    betweenRounds,
     speed,
     setSpeed,
     pacingMode,
@@ -56,8 +59,8 @@ function LiveMatchControlBarComponent({
 }: LiveMatchControlBarProps) {
     const inProgress = gameState.status === "IN_PROGRESS"
     // Paused mid-round is the state the player must notice; between rounds
-    // the decision card is the call to action instead.
-    const pausedMidRound = inProgress && !isPlaying && !isWaitingForStrategy
+    // the decision card (or the break card) is the call to action instead.
+    const pausedMidRound = inProgress && !isPlaying && !betweenRounds
     const momentSpeed = speed * PACING.MOMENT_SPEED
     return (
         <div className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border border-line bg-panel px-2 py-1.5" role="toolbar" aria-label="Match controls">
@@ -174,12 +177,12 @@ function LiveMatchControlBarComponent({
                 <span
                     className={cn(
                         "inline-flex w-[118px] items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.06em]",
-                        pacingMode === "moments" && fastForward && isPlaying && !isWaitingForStrategy ? "text-ink-2" : "text-ink-3",
+                        pacingMode === "moments" && fastForward && isPlaying && !betweenRounds ? "text-ink-2" : "text-ink-3",
                     )}
                     aria-live="off"
                     data-pacing-state={pacingMode === "moments" ? (fastForward ? "fast-forward" : "moment") : "full"}
                 >
-                    {pacingMode === "moments" && isPlaying && !isWaitingForStrategy
+                    {pacingMode === "moments" && isPlaying && !betweenRounds
                         ? fastForward ? <><ChevronsRight size={13} aria-hidden="true" /> Fast-forward</> : <><span className="h-1.5 w-1.5 rounded-full bg-gold" aria-hidden="true" /> Key moment</>
                         : pacingMode === "moments" ? `Moments ${momentSpeed}×` : `Real time ${speed}×`}
                 </span>

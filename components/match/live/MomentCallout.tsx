@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
@@ -23,14 +23,17 @@ const LABEL: Record<number, string> = { 3: "Triple kill", 4: "Quad kill", 5: "AC
 export function MomentCallout({ callout }: { callout: MomentCalloutData | null }) {
     const reduceMotion = useAppReducedMotion()
     const [shown, setShown] = useState<MomentCalloutData | null>(null)
+    const lastId = useRef<string | null>(null)
+    const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
     useEffect(() => {
-        if (!callout) return
+        // A new moment (re)arms the callout; the callout going away does not cut it short.
+        if (!callout || callout.id === lastId.current) return
+        lastId.current = callout.id
         setShown(callout)
-        const t = setTimeout(() => setShown(s => (s?.id === callout.id ? null : s)), SHOW_MS)
-        return () => clearTimeout(t)
-        // Re-arm only for a new moment.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [callout?.id])
+        if (timer.current) clearTimeout(timer.current)
+        timer.current = setTimeout(() => setShown(null), SHOW_MS)
+    }, [callout])
+    useEffect(() => () => { if (timer.current) clearTimeout(timer.current) }, [])
     return (
         <div className="pointer-events-none absolute inset-x-0 top-14 z-20 flex justify-center" aria-live="polite">
             <AnimatePresence>
