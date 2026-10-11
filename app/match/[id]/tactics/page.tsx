@@ -19,6 +19,7 @@ import { RatingChip } from "@/src/components/ui/RatingChip"
 import { Meter } from "@/src/components/ui/Meter"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { TierTag } from "@/src/components/ui/TierTag"
+import { PressPanel } from "@/components/storylines/PressConference"
 import { cn, deterministicSeed } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { formatGameCalendarDate } from "@/lib/game-calendar"
@@ -786,6 +787,9 @@ export default function TacticalHQPage() {
                             )}
                         </div>
                     </Panel>
+
+                    {/* Phase 5.3: press conference before a big match (optional) */}
+                    <PressPanel matchId={match.id} />
 
                     {/* Opponent intel */}
                     <Panel title="Opponent intel" actions={<span className="text-xs text-ink-3">{opponent.name}</span>} padded={false}>

@@ -546,6 +546,7 @@ export interface GameStoreState extends AdvanceState, MomentsState {
   socialFeed?: import("@/engine/save-types").SocialPost[]
   careerStats?: import("@/engine/save-types").CareerStats
   recordBook?: import("@/engine/records-types").RecordBook
+  storylines?: import("@/engine/storylines/types").StoryArc[]
 
   // Sponsorship Manager
   sponsorOffers: SponsorSaveData[]
@@ -587,6 +588,8 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   acknowledgeEvent: (eventId: string) => void
   markAllEventsAsRead: () => void
   resolveEventChoice: (eventId: string, choiceId: string) => void
+  /** Phase 5.3: answer a press conference (question id → answer id). */
+  answerPressConference: (eventId: string, answers: Record<string, string>) => { ok: boolean; message: string }
   saveMatchResult: (matchId: string, result: MatchResult) => void
   transferPlayer: (playerId: string, fromTeamId: string | null, toTeamId: string, fee: number, newContract?: { salaryPerWeek: number, startWeek: number, endWeek: number, buyout: number }) => { success: boolean; message?: string }
   scheduleScrim: (opponentId: string, week: number, day?: number) => { success: boolean, message: string }
@@ -834,6 +837,10 @@ function weekRecordedActions(set: unknown, get: unknown) {
       if (!event) return null
       const choice = (event as unknown as { choices?: { id: string; text?: string }[] }).choices?.find(c => c.id === choiceId)
       return { type: "event", label: short(`${getEventTitle(event)}: ${choice?.text ?? choiceId}`) }
+    }),
+    answerPressConference: recordWeekChanges(g, s, events.answerPressConference, (st, eventId: string) => {
+      const event = store(st).eventsLog.find(e => e.id === eventId)
+      return event ? { type: "event", label: short(getEventTitle(event)) } : null
     }),
     treatInjury: recordWeekChanges(g, s, settings.treatInjury, () => ({ type: "injury", label: "Medical treatment" })),
     performMentalReset: recordWeekChanges(g, s, ops.performMentalReset, () => ({ type: "staff", label: "Mental reset" })),
@@ -1292,6 +1299,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             ...careerAdvanceState(newSave, playerTeamId, true),
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
             recordBook: newSave.recordBook, // explicit: a new career never inherits the last one's records
+            storylines: newSave.storylines, // nor its storylines (Phase 5.3)
             availableEquipment: initialEquipment,
             playerTeamId: playerTeamId, // We assume the user controls the team they selected
             theme: "crystal", // Default theme for new game
@@ -1604,6 +1612,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             ...careerAdvanceState(newSave, result.teamId, true),
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
             recordBook: newSave.recordBook,
+            storylines: newSave.storylines,
             availableEquipment: [
               { id: "mouse_001", name: "Basic Gaming Mouse", type: "MOUSE", weeklyCost: 0, tier: 1, purchasedWeek: 0, bonus: { stat: "skill", value: 1 } },
             ],
@@ -1748,6 +1757,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             league: hydratedSave.league,
             careerStats: hydratedSave.careerStats,
             recordBook: hydratedSave.recordBook,
+            storylines: hydratedSave.storylines,
             activeScoutingMission: hydratedSave.activeScoutingMission,
             gameOverReason: hydratedSave.gameOverReason,
             gameOverWeek: hydratedSave.gameOverWeek,

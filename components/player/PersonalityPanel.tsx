@@ -6,7 +6,7 @@ import {
     ARCHETYPE_INFO, DRESSING_ROOM_RULES, PROMISE_LABEL, TRAIT_INFO,
     activePromise, captainDefeatShield, captainId, getArchetype, mentorTrainingFactor,
 } from "@/engine/personality"
-import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
+import { PERSONALITY_TUNING, STORY_TUNING } from "@/lib/balance-tuning"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { ArchetypeChip, TraitChip, playstyleTraits } from "./PersonalityChips"
 
@@ -46,6 +46,8 @@ export function PersonalityPanel({ player }: { player: PlayerSaveData }) {
     if (promise) status.push(`Promise: “${PROMISE_LABEL[promise.kind].promise}” — settles by week ${promise.deadlineWeek} (${Math.max(0, promise.deadlineWeek - currentWeek)} weeks left).`)
     const last = player.personality?.lastPromise
     if (last && !promise) status.push(`${last.outcome === "KEPT" ? PROMISE_LABEL[last.kind].kept : PROMISE_LABEL[last.kind].broken} (week ${last.week}).`)
+    // Phase 5.3: the last-dance storyline's persuasion (engine/retirement-chance.ts).
+    if (player.personality?.persuadedSeason === Math.floor((currentWeek - 1) / 52) + 1) status.push(`Persuaded to play on: this season's retirement chance × ${STORY_TUNING.PERSUADE_RETIREMENT_FACTOR}.`)
     if (isOwn && (player.personality?.unhappyWeeks ?? 0) > 0) status.push(`Morale under ${PERSONALITY_TUNING.UNHAPPY_MORALE} for ${player.personality!.unhappyWeeks} week${player.personality!.unhappyWeeks === 1 ? "" : "s"}.`)
 
     return (

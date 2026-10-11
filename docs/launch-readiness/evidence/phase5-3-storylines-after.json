@@ -1,0 +1,779 @@
+{
+  "generated": "2026-10-11T13:39:13.158Z",
+  "label": "after",
+  "stream": "Phase 5.3 storylines & press conferences",
+  "driver": "long-career-campaign.ts (real useGameStore coordinator, full snapshot world, competent policy: answers inbox decisions with its usual rule and faces the press with the first answer to each question), one season per seed, final save kept with --dump-final.",
+  "seeds": 3,
+  "aggregate": {
+    "managedStorylinesPerSeason": [
+      10,
+      9,
+      8
+    ],
+    "managedStorylinesNamingPlayersOrClubs": [
+      10,
+      8,
+      8
+    ],
+    "otherClubStorylinesPerSeason": [
+      14,
+      14,
+      15
+    ],
+    "storylineDecisionsPerSeason": [
+      7,
+      7,
+      6
+    ],
+    "pressConferencesPerSeason": [
+      27,
+      0,
+      8
+    ],
+    "pressAnswered": [
+      27,
+      0,
+      8
+    ],
+    "kindsSeenManaged": [
+      "BOARD_PRESSURE",
+      "GIANT_KILLER",
+      "LAST_DANCE",
+      "RIFT",
+      "RISING_STAR",
+      "RIVALRY",
+      "SLUMP"
+    ],
+    "kindsSeenAll": [
+      "BOARD_PRESSURE",
+      "GIANT_KILLER",
+      "LAST_DANCE",
+      "RIFT",
+      "RISING_STAR",
+      "RIVALRY",
+      "SLUMP"
+    ],
+    "inboxDecisionsInFinalLog": [
+      61,
+      44,
+      38
+    ],
+    "managedRivalries": [
+      67,
+      15,
+      59
+    ],
+    "storiesWithUnknownPlayerOrClub": 0,
+    "aiAdministrations": [
+      0,
+      0,
+      0
+    ],
+    "failures": [
+      [],
+      [],
+      []
+    ]
+  },
+  "inboxNoise": {
+    "weeks": 12,
+    "tier": "mid",
+    "summary": {
+      "finalBadge": [
+        4,
+        5,
+        5
+      ],
+      "finalOpenDecisions": [
+        1,
+        2,
+        0
+      ],
+      "maxOpenDecisions": [
+        3,
+        2,
+        2
+      ],
+      "avgNewInboxPerWeek": 1.5,
+      "maxNewInboxPerWeek": 3,
+      "nonMatchStops": [
+        6,
+        6,
+        4
+      ]
+    },
+    "finalBadgeAtWeek13": [
+      4,
+      5,
+      5
+    ]
+  },
+  "performance": {
+    "source": "tmp\\p53\\perf-steps-after.log",
+    "ticks": 54,
+    "storylinesStep": {
+      "count": 54,
+      "totalMs": 182.5,
+      "avgMs": 3.38
+    },
+    "shareOfTick": 0.0019,
+    "allStepsMs": 95776
+  },
+  "calibration": {
+    "engine": "script-v1",
+    "mapsSimulated": 6100,
+    "statusCounts": {
+      "pass": 48,
+      "warn": 2,
+      "info": 1
+    }
+  },
+  "perSeed": [
+    {
+      "seed": 1,
+      "tier": "top",
+      "club": "Natus Vincera",
+      "ticks": 52,
+      "finalWeek": 53,
+      "failures": [],
+      "storylines": {
+        "arcsManaged": 10,
+        "arcsOtherClubs": 14,
+        "arcsManagedByKind": {
+          "SLUMP": 4,
+          "RISING_STAR": 3,
+          "RIVALRY": 3
+        },
+        "arcsOtherByKind": {
+          "GIANT_KILLER": 14
+        },
+        "managedWithPlayers": 7,
+        "managedWithResults": 3,
+        "outcomes": {
+          "SLUMP:RECOVERED": 3,
+          "RISING_STAR:KEPT": 3,
+          "RIVALRY:WON": 2,
+          "RIVALRY:LOST": 1,
+          "SLUMP:ACTIVE": 1
+        },
+        "decisions": 7,
+        "decisionsByKind": {
+          "SLUMP": 4,
+          "RISING_STAR": 3
+        },
+        "decisionChoices": {
+          "SLUMP:back": 3,
+          "RISING_STAR:promise": 3,
+          "SLUMP:open": 1
+        },
+        "pressConferences": 27,
+        "pressByReason": {
+          "TOP10": 13,
+          "FINAL": 9,
+          "DECIDER": 1,
+          "DERBY": 4
+        },
+        "pressAnswered": 27,
+        "pressQuestions": 80,
+        "sampleLines": [
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "managed",
+            "log": [
+              "w9: b1tt rated 0.55 over his last 5 maps.",
+              "w10: The press asks whether b1tt keeps his place.",
+              "w11: You back b1tt in public and promise he starts.",
+              "w12: b1tt is back in form, rated 1.23 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "RISING_STAR",
+            "outcome": "KEPT",
+            "team": "managed",
+            "log": [
+              "w13: dwoshka rated 1.50 over his last 8 maps at 21.",
+              "w13: You told the press, \"He's not for sale.\"",
+              "w15: Market value $730,000; 6 higher-ranked clubs could pay it.",
+              "w16: You promise dwoshka a starting place.",
+              "w23: dwoshka stayed in the side over the 8 weeks, as promised."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "managed",
+            "log": [
+              "w23: Pryme rated 0.81 over his last 5 maps.",
+              "w24: The press asks whether Pryme keeps his place.",
+              "w25: You back Pryme in public and promise he starts.",
+              "w25: Pryme is back in form, rated 1.24 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "RISING_STAR",
+            "outcome": "KEPT",
+            "team": "managed",
+            "log": [
+              "w24: w0nder rated 1.37 over his last 8 maps at 21.",
+              "w25: You told the press, \"He's not for sale.\"",
+              "w26: Market value $11,090,000; no higher-ranked club could pay it.",
+              "w27: You promise w0nder a starting place.",
+              "w34: w0nder stayed in the side over the 8 weeks, as promised."
+            ]
+          },
+          {
+            "kind": "RIVALRY",
+            "outcome": "WON",
+            "team": "managed",
+            "log": [
+              "w26: Natus Vincera level at 2–2 against Furiax before meeting 5 in Week 27.",
+              "w28: Natus Vincera beat Furiax 13–6, sL1m3x the MVP (1.90)."
+            ]
+          },
+          {
+            "kind": "RISING_STAR",
+            "outcome": "KEPT",
+            "team": "managed",
+            "log": [
+              "w34: sL1m3x rated 1.31 over his last 8 maps at 20.",
+              "w35: You told the press, \"He's not for sale.\"",
+              "w36: Market value $1,720,000; no higher-ranked club could pay it.",
+              "w37: You promise sL1m3x a starting place.",
+              "w44: sL1m3x stayed in the side over the 8 weeks, as promised."
+            ]
+          }
+        ],
+        "otherSample": [
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "log": [
+              "w11: THONDER dOWNUNDER beat Phaze (#5) 2–1 and Heroiq (#18) 3–2.",
+              "w12: THONDER dOWNUNDER's run goes on with a 13–5 win over Iruption in Asia-Pacific Division 1."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "log": [
+              "w14: IYEBALLERS beat Ninjas in Nightwear (#15) 13–10 and Gamer Legionnaires (#20) 13–6.",
+              "w15: IYEBALLERS's run goes on with a 13–6 win over FlyCrest in Northern Major Americas RMR."
+            ]
+          }
+        ]
+      },
+      "finalSave": {
+        "storylinesKept": 24,
+        "managedKept": 10,
+        "arcsWithUnknownPlayer": 0,
+        "arcsWithUnknownClub": 0,
+        "decisionEventsInLog": 61,
+        "decisionEventsByKind": {
+          "FAN": 4,
+          "PRESS": 27,
+          "MEDIA": 3,
+          "STORYLINE": 7,
+          "loss_streak": 1,
+          "CAREER_UPDATE": 5,
+          "MORALE": 3,
+          "INJURY": 8,
+          "win_streak": 1,
+          "SPONSOR": 1,
+          "CONTRACT_OFFER": 1
+        },
+        "managedRivalries": 67,
+        "biggestRival": {
+          "club": "Furiax",
+          "meetings": 8,
+          "intensity": "FIERCE",
+          "record": "5-3"
+        },
+        "storyNews": 28,
+        "sample": [
+          {
+            "kind": "SLUMP",
+            "outcome": "ACTIVE",
+            "log": [
+              "w52: Pryme rated 0.75 over his last 5 maps.",
+              "w53: The press asks whether Pryme keeps his place."
+            ]
+          },
+          {
+            "kind": "RIVALRY",
+            "outcome": "WON",
+            "log": [
+              "w51: Natus Vincera leads 4–3 against Furiax before meeting 8 in Week 51.",
+              "w52: Natus Vincera beat Furiax 3–2, sL1m3x the MVP (1.16)."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "log": [
+              "w44: sL1m3x rated 0.89 over his last 5 maps.",
+              "w44: You told the press, \"I trust him to come good.\"",
+              "w45: The press asks whether sL1m3x keeps his place.",
+              "w46: You back sL1m3x in public and promise he starts.",
+              "w46: sL1m3x is back in form, rated 1.29 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "RIVALRY",
+            "outcome": "LOST",
+            "log": [
+              "w37: Natus Vincera leads 3–2 against Furiax before meeting 6 in Week 37.",
+              "w38: Natus Vincera lost to Furiax 0–2, rod the MVP (1.38)."
+            ]
+          },
+          {
+            "kind": "RISING_STAR",
+            "outcome": "KEPT",
+            "log": [
+              "w34: sL1m3x rated 1.31 over his last 8 maps at 20.",
+              "w35: You told the press, \"He's not for sale.\"",
+              "w36: Market value $1,720,000; no higher-ranked club could pay it.",
+              "w37: You promise sL1m3x a starting place.",
+              "w44: sL1m3x stayed in the side over the 8 weeks, as promised."
+            ]
+          }
+        ]
+      },
+      "aiAdministrations": {
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      "tickMsMedian": 2014
+    },
+    {
+      "seed": 2,
+      "tier": "mid",
+      "club": "Floxo",
+      "ticks": 52,
+      "finalWeek": 53,
+      "failures": [],
+      "storylines": {
+        "arcsManaged": 9,
+        "arcsOtherClubs": 14,
+        "arcsManagedByKind": {
+          "SLUMP": 3,
+          "BOARD_PRESSURE": 1,
+          "RIVALRY": 1,
+          "RIFT": 2,
+          "LAST_DANCE": 1,
+          "RISING_STAR": 1
+        },
+        "arcsOtherByKind": {
+          "GIANT_KILLER": 14
+        },
+        "managedWithPlayers": 7,
+        "managedWithResults": 1,
+        "outcomes": {
+          "SLUMP:FADED": 1,
+          "BOARD_PRESSURE:LEFT": 1,
+          "SLUMP:RECOVERED": 2,
+          "RIVALRY:MANAGER_LEFT": 1,
+          "RIFT:SETTLED": 2,
+          "LAST_DANCE:PLAYS_ON": 1,
+          "RISING_STAR:KEPT": 1
+        },
+        "decisions": 7,
+        "decisionsByKind": {
+          "SLUMP": 3,
+          "RIFT": 2,
+          "LAST_DANCE": 1,
+          "RISING_STAR": 1
+        },
+        "decisionChoices": {
+          "SLUMP:back": 3,
+          "RIFT:side_a": 2,
+          "LAST_DANCE:persuade": 1,
+          "RISING_STAR:promise": 1
+        },
+        "pressConferences": 0,
+        "pressByReason": {},
+        "pressAnswered": 0,
+        "pressQuestions": 0,
+        "sampleLines": [
+          {
+            "kind": "SLUMP",
+            "outcome": "FADED",
+            "team": "team_66_fluxion",
+            "log": [
+              "w9: ixit rated 0.42 over his last 5 maps.",
+              "w11: The press asks whether ixit keeps his place.",
+              "w12: You back ixit in public and promise he starts.",
+              "w17: ixit's slump goes on, rated 0.56 over his last 5 official maps."
+            ]
+          },
+          {
+            "kind": "BOARD_PRESSURE",
+            "outcome": "LEFT",
+            "team": "team_66_fluxion",
+            "log": [
+              "w12: Board confidence down to 44/100.",
+              "w14: The board demands that the club finish 7th or better in Americas Division 2 (10th against a target of 7th).",
+              "w24: campaign-2 leaves Floxo for Fuur Magic before the board decides."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "team_66_fluxion",
+            "log": [
+              "w18: Locaozy rated 0.59 over his last 5 maps.",
+              "w19: The press asks whether Locaozy keeps his place.",
+              "w20: You back Locaozy in public and promise he starts.",
+              "w21: Locaozy is back in form, rated 1.07 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "RIVALRY",
+            "outcome": "MANAGER_LEFT",
+            "team": "team_66_fluxion",
+            "log": [
+              "w23: Floxo trails 0–3 against Mersborne before meeting 4 in Week 24.",
+              "w24: You left the club, which ends the story."
+            ]
+          },
+          {
+            "kind": "RIFT",
+            "outcome": "SETTLED",
+            "team": "managed",
+            "log": [
+              "w25: Ltzx earns $250 a week, less than Birar on $2,729, who is rated 5 OVR lower. The Hothead has noticed.",
+              "w26: The squad waits for your call on Ltzx and Birar.",
+              "w27: You side with Ltzx.",
+              "w30: The rift has settled (Ltzx morale 69, Birar morale 59, team chemistry 64)."
+            ]
+          },
+          {
+            "kind": "LAST_DANCE",
+            "outcome": "PLAYS_ON",
+            "team": "managed",
+            "log": [
+              "w28: rimix, 32, hints at retiring (15% chance at season end).",
+              "w29: rimix asks for time to think.",
+              "w30: You persuade rimix to give it another go.",
+              "w52: rimix will play another season at Fuur Magic."
+            ]
+          }
+        ],
+        "otherSample": [
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "log": [
+              "w7: Diep Cross beat Spiryt (#5) 13–5 and Futura (#15) 13–7.",
+              "w8: Diep Cross's run goes on with a 13–5 win over Chenge The Game in Asia-Pacific Division 2."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "ENDED",
+            "log": [
+              "w8: Wyldcard beat Mouze (#8) 2–0 and Ninjas in Nightwear (#14) 13–8.",
+              "w9: Wyldcard's run ends with a 11–13 defeat to Geimin Gladiators in Americas Division 2."
+            ]
+          }
+        ]
+      },
+      "finalSave": {
+        "storylinesKept": 23,
+        "managedKept": 9,
+        "arcsWithUnknownPlayer": 0,
+        "arcsWithUnknownClub": 0,
+        "decisionEventsInLog": 44,
+        "decisionEventsByKind": {
+          "FAN": 7,
+          "MORALE": 13,
+          "SPONSOR": 4,
+          "CAREER_UPDATE": 4,
+          "STORYLINE": 7,
+          "MEDIA": 2,
+          "loss_streak": 4,
+          "win_streak": 3
+        },
+        "managedRivalries": 15,
+        "biggestRival": {
+          "club": "F5x",
+          "meetings": 4,
+          "intensity": "NEUTRAL",
+          "record": "4-0"
+        },
+        "storyNews": 27,
+        "sample": [
+          {
+            "kind": "RIFT",
+            "outcome": "SETTLED",
+            "log": [
+              "w48: Ltzx earns $250 a week, less than Birar on $2,729, who is rated 3 OVR lower. The Hothead has noticed.",
+              "w49: The squad waits for your call on Ltzx and Birar.",
+              "w50: You side with Ltzx.",
+              "w53: The rift has settled (Ltzx morale 85, Birar morale 59, team chemistry 80)."
+            ]
+          },
+          {
+            "kind": "RISING_STAR",
+            "outcome": "KEPT",
+            "log": [
+              "w39: Ltzx rated 1.17 over his last 8 maps at 20.",
+              "w40: Market value $1,250,000; 8 higher-ranked clubs could pay it.",
+              "w41: You promise Ltzx a starting place.",
+              "w48: Ltzx stayed in the side over the 8 weeks, as promised."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "log": [
+              "w30: brukeN rated 0.78 over his last 5 maps.",
+              "w33: The press asks whether brukeN keeps his place.",
+              "w34: You back brukeN in public and promise he starts.",
+              "w38: brukeN is back in form, rated 1.00 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "LAST_DANCE",
+            "outcome": "PLAYS_ON",
+            "log": [
+              "w28: rimix, 32, hints at retiring (15% chance at season end).",
+              "w29: rimix asks for time to think.",
+              "w30: You persuade rimix to give it another go.",
+              "w52: rimix will play another season at Fuur Magic."
+            ]
+          },
+          {
+            "kind": "RIFT",
+            "outcome": "SETTLED",
+            "log": [
+              "w25: Ltzx earns $250 a week, less than Birar on $2,729, who is rated 5 OVR lower. The Hothead has noticed.",
+              "w26: The squad waits for your call on Ltzx and Birar.",
+              "w27: You side with Ltzx.",
+              "w30: The rift has settled (Ltzx morale 69, Birar morale 59, team chemistry 64)."
+            ]
+          }
+        ]
+      },
+      "aiAdministrations": {
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      "tickMsMedian": 1907.5
+    },
+    {
+      "seed": 3,
+      "tier": "low",
+      "club": "LEG",
+      "ticks": 52,
+      "finalWeek": 53,
+      "failures": [],
+      "storylines": {
+        "arcsManaged": 8,
+        "arcsOtherClubs": 15,
+        "arcsManagedByKind": {
+          "SLUMP": 5,
+          "GIANT_KILLER": 2,
+          "LAST_DANCE": 1
+        },
+        "arcsOtherByKind": {
+          "GIANT_KILLER": 15
+        },
+        "managedWithPlayers": 6,
+        "managedWithResults": 2,
+        "outcomes": {
+          "SLUMP:RECOVERED": 4,
+          "GIANT_KILLER:CONTINUES": 2,
+          "LAST_DANCE:PLAYS_ON": 1,
+          "SLUMP:ACTIVE": 1
+        },
+        "decisions": 6,
+        "decisionsByKind": {
+          "SLUMP": 5,
+          "LAST_DANCE": 1
+        },
+        "decisionChoices": {
+          "SLUMP:back": 4,
+          "LAST_DANCE:persuade": 1,
+          "SLUMP:open": 1
+        },
+        "pressConferences": 8,
+        "pressByReason": {
+          "FINAL": 3,
+          "DECIDER": 4,
+          "TOP10": 1
+        },
+        "pressAnswered": 8,
+        "pressQuestions": 24,
+        "sampleLines": [
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "managed",
+            "log": [
+              "w7: Sendman rated 0.85 over his last 5 maps.",
+              "w8: The press asks whether Sendman keeps his place.",
+              "w9: You back Sendman in public and promise he starts.",
+              "w9: Sendman is back in form, rated 1.22 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "team": "managed",
+            "log": [
+              "w12: LEG beat 100 Rogues (#9) 2–1 and lus kogutos (#71) 13–3.",
+              "w13: LEG's run goes on with a 2–0 win over K27x in Northern Major Asia RMR."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "managed",
+            "log": [
+              "w15: Wulffe rated 0.88 over his last 5 maps.",
+              "w16: The press asks whether Wulffe keeps his place.",
+              "w17: You back Wulffe in public and promise he starts.",
+              "w17: Wulffe is back in form, rated 1.66 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "managed",
+            "log": [
+              "w25: kmrnx rated 0.89 over his last 5 maps.",
+              "w26: The press asks whether kmrnx keeps his place.",
+              "w26: You told the press, \"I trust him to come good.\"",
+              "w27: You back kmrnx in public and promise he starts.",
+              "w27: kmrnx is back in form, rated 1.30 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "LAST_DANCE",
+            "outcome": "PLAYS_ON",
+            "team": "managed",
+            "log": [
+              "w28: djey, 32, hints at retiring (15% chance at season end).",
+              "w29: djey asks for time to think.",
+              "w30: You persuade djey to give it another go.",
+              "w39: You told the press, \"He has plenty left to give.\"",
+              "w52: djey will play another season at LEG."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "team": "managed",
+            "log": [
+              "w30: LEG beat Heroiq (#9) 2–0 and CYBIRSHOKE (#21) 2–0.",
+              "w31: LEG's run goes on with a 3–0 win over FlyCrest in Summer Open Colone Open Qualifier."
+            ]
+          }
+        ],
+        "otherSample": [
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "log": [
+              "w3: BetBloom beat Paravision (#5) 13–9 and Spiryt (#7) 13–4.",
+              "w4: BetBloom's run goes on with a 13–3 win over B9 in CIS Division 1."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "log": [
+              "w6: BISTIA beat The Mongalz (#14) 13–7 and NRGX (#20) 13–7.",
+              "w7: BISTIA's run goes on with a 13–3 win over Natus Vincera in Epic Arena Premier Season 48."
+            ]
+          }
+        ]
+      },
+      "finalSave": {
+        "storylinesKept": 23,
+        "managedKept": 8,
+        "arcsWithUnknownPlayer": 0,
+        "arcsWithUnknownClub": 0,
+        "decisionEventsInLog": 38,
+        "decisionEventsByKind": {
+          "win_streak": 5,
+          "FAN": 4,
+          "CAREER_UPDATE": 5,
+          "MORALE": 5,
+          "STORYLINE": 6,
+          "MEDIA": 2,
+          "PRESS": 8,
+          "SPONSOR": 3
+        },
+        "managedRivalries": 59,
+        "biggestRival": {
+          "club": "SpurtsBetExpert",
+          "meetings": 4,
+          "intensity": "NEUTRAL",
+          "record": "2-2"
+        },
+        "storyNews": 24,
+        "sample": [
+          {
+            "kind": "SLUMP",
+            "outcome": "ACTIVE",
+            "log": [
+              "w52: djey rated 0.78 over his last 5 maps.",
+              "w53: The press asks whether djey keeps his place."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "log": [
+              "w42: kmrnx rated 0.87 over his last 5 maps.",
+              "w43: The press asks whether kmrnx keeps his place.",
+              "w44: You back kmrnx in public and promise he starts.",
+              "w44: kmrnx is back in form, rated 1.00 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "log": [
+              "w30: LEG beat Heroiq (#9) 2–0 and CYBIRSHOKE (#21) 2–0.",
+              "w31: LEG's run goes on with a 3–0 win over FlyCrest in Summer Open Colone Open Qualifier."
+            ]
+          },
+          {
+            "kind": "LAST_DANCE",
+            "outcome": "PLAYS_ON",
+            "log": [
+              "w28: djey, 32, hints at retiring (15% chance at season end).",
+              "w29: djey asks for time to think.",
+              "w30: You persuade djey to give it another go.",
+              "w39: You told the press, \"He has plenty left to give.\"",
+              "w52: djey will play another season at LEG."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "log": [
+              "w25: kmrnx rated 0.89 over his last 5 maps.",
+              "w26: The press asks whether kmrnx keeps his place.",
+              "w26: You told the press, \"I trust him to come good.\"",
+              "w27: You back kmrnx in public and promise he starts.",
+              "w27: kmrnx is back in form, rated 1.30 over his last 3 official maps."
+            ]
+          }
+        ]
+      },
+      "aiAdministrations": {
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      "tickMsMedian": 1996.5
+    }
+  ],
+  "notes": "Same seeds, clubs and policy as the before run. Untraced A/B perf-baseline runs (26 weeks, machine shared with another agent at 80-95% CPU) were too noisy to compare (single-match control 13.3/14.4 ms base vs 27.4/8.2 ms after); the traced step share is the direct measure. Contract standoffs did not trigger in these three seasons (no top-3 Ambitious/Mercenary deal entered the 6-12 week window); unit tests cover the arc."
+}

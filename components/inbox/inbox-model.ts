@@ -23,6 +23,7 @@ import type { InboxTab } from "@/lib/navigation"
 import { getEventTitle, isPendingDecisionEvent, isTransferRumor } from "@/lib/event-format"
 import { DIGEST_TYPE, digestItems, type DigestItem } from "@/lib/inbox-digest"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
+import { PERSONALITY_TUNING, STORY_TUNING } from "@/lib/balance-tuning"
 
 export type InboxKind = "decision" | "message" | "news"
 export type DecisionKind = "choice" | "job_offer" | "transfer_offer"
@@ -154,6 +155,16 @@ export function getEventSender(event: GameEventSaveData, ctx: InboxContext): str
         case "TOURNAMENT_UPDATE": return data.tournamentName || "Tournament office"
         case "MEDIA": return data.outlet || (data.proAwards ? "Pro awards" : "Press office")
         case "FAN": return "Fan club"
+        case "PRESS": return "Press office"
+        case "STORYLINE":
+            switch (data.storyKind) {
+                case "CONTRACT_STANDOFF": return `${playerLabel(data, ctx)}'s agent`
+                case "LAST_DANCE": return playerLabel(data, ctx)
+                case "RIFT": return "Dressing room"
+                case "SLUMP":
+                case "RISING_STAR": return "Assistant manager"
+                default: return "Club office"
+            }
         case "SPONSOR":
         case "SPONSOR_OFFER": return data.brand || "Commercial team"
         case "TRAINING_START":
@@ -401,6 +412,29 @@ export function describeChoice(event: GameEventSaveData, choice: ChoiceLike, bud
         const kind = fx.promise as PromiseKind
         chips.push({ label: `Promise “${PROMISE_LABEL[kind].promise}” for ${promiseWindow(kind)} wks`, tone: "neutral" })
     }
+    // Phase 5.3 (engine/event-choice.ts): named players, board, fans, renewal, bench, retirement, mentor.
+    for (const p of Array.isArray(fx.players) ? fx.players : []) {
+        const who = typeof p?.name === "string" ? p.name : "player"
+        const m = num(p?.morale), l = num(p?.loyalty)
+        if (m) chips.push({ label: `${signed(m)} morale (${who})`, tone: m > 0 ? "positive" : "negative" })
+        if (l) chips.push({ label: `${signed(l)} loyalty (${who})`, tone: l > 0 ? "positive" : "negative" })
+    }
+    const board = num(fx.board)
+    if (board) chips.push({ label: `${signed(board)} board confidence`, tone: board > 0 ? "positive" : "negative" })
+    const fans = num(fx.fans)
+    if (fans) chips.push({ label: `${fans > 0 ? "+" : "-"}${Math.abs(fans).toLocaleString("en-US")} fans`, tone: fans > 0 ? "positive" : "negative" })
+    const renew = fx.renew as { salary?: unknown; weeks?: unknown; current?: unknown } | undefined
+    if (renew && num(renew.salary) && num(renew.weeks)) {
+        chips.push({ label: `New deal: ${formatCurrency(renew.salary as number, "$", false)}/wk, +${renew.weeks} wks`, tone: "neutral" })
+        const raise = Math.max(0, (renew.salary as number) - (num(renew.current) ?? 0)) * STORY_TUNING.STANDOFF_RUNWAY_WEEKS
+        if (num(renew.current) != null && budget < raise) blockedReason = `Needs ${formatCurrency(raise, "$", false)} in the bank`
+    }
+    if (fx.bench) chips.push({ label: "Leaves the starting five", tone: "negative" })
+    const persuade = fx.persuade as { from?: unknown; to?: unknown } | undefined
+    if (persuade && num(persuade.from) != null && num(persuade.to) != null) chips.push({ label: `Retirement chance ${persuade.from}% → ${persuade.to}%`, tone: "positive" })
+    const mentor = fx.mentor as { name?: unknown } | undefined
+    if (mentor) chips.push({ label: `Mentors ${typeof mentor.name === "string" ? mentor.name : "a team-mate"}: training +${Math.round((PERSONALITY_TUNING.MENTOR_TRAINING - 1) * 100)}%`, tone: "positive" })
+    if (typeof fx.follows === "string" && fx.follows) chips.push({ label: fx.follows, tone: "neutral" })
     if (chips.length === 0) chips.push({ label: "No effect", tone: "neutral" })
     return { chips, blockedReason }
 }

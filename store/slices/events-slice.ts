@@ -20,6 +20,7 @@ import type { EventsActions, SliceCreator } from "@/store/types"
 import type { GameSave } from "@/engine/save-types"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
 import { applyChoiceEffects, type ChoiceEffects, type ChoiceTarget } from "@/engine/event-choice"
+import { answerPressConference, type PressTarget } from "@/engine/storylines/press"
 import { getArchetype } from "@/engine/personality"
 import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { generateSocialPosts } from "@/lib/social-generator"
@@ -170,6 +171,17 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                 state.acknowledgedEventIds.push(eventId)
             }
         })
+    },
+
+    // Phase 5.3: every chosen answer applies through the shared effect code
+    // (engine/event-choice.ts); refused once the match has been played.
+    answerPressConference: (eventId, answers) => {
+        let result = { ok: false, message: "Press conference not found." }
+        set((state) => {
+            const r = answerPressConference(state as unknown as PressTarget, eventId, answers)
+            result = { ok: r.ok, message: r.message }
+        })
+        return result
     },
 
     addNewsItem: (item) => set((state) => {

@@ -1,0 +1,212 @@
+{
+  "generated": "2026-10-11T13:15:36.375Z",
+  "label": "before",
+  "stream": "Phase 5.3 storylines & press conferences",
+  "driver": "long-career-campaign.ts (real useGameStore coordinator, full snapshot world, competent policy: answers inbox decisions with its usual rule and faces the press with the first answer to each question), one season per seed, final save kept with --dump-final.",
+  "seeds": 3,
+  "aggregate": {
+    "managedStorylinesPerSeason": [
+      0,
+      0,
+      0
+    ],
+    "managedStorylinesNamingPlayersOrClubs": [
+      0,
+      0,
+      0
+    ],
+    "otherClubStorylinesPerSeason": [
+      0,
+      0,
+      0
+    ],
+    "storylineDecisionsPerSeason": [
+      0,
+      0,
+      0
+    ],
+    "pressConferencesPerSeason": [
+      0,
+      0,
+      0
+    ],
+    "pressAnswered": [
+      0,
+      0,
+      0
+    ],
+    "kindsSeenManaged": [],
+    "kindsSeenAll": [],
+    "inboxDecisionsInFinalLog": [
+      33,
+      41,
+      28
+    ],
+    "managedRivalries": [
+      0,
+      10,
+      0
+    ],
+    "storiesWithUnknownPlayerOrClub": 0,
+    "aiAdministrations": [
+      0,
+      0,
+      0
+    ],
+    "failures": [
+      [],
+      [],
+      []
+    ]
+  },
+  "inboxNoise": {
+    "weeks": 12,
+    "tier": "mid",
+    "summary": {
+      "finalBadge": [
+        4,
+        5,
+        5
+      ],
+      "finalOpenDecisions": [
+        1,
+        2,
+        0
+      ],
+      "maxOpenDecisions": [
+        3,
+        2,
+        2
+      ],
+      "avgNewInboxPerWeek": 1.5,
+      "maxNewInboxPerWeek": 3,
+      "nonMatchStops": [
+        5,
+        6,
+        4
+      ]
+    },
+    "finalBadgeAtWeek13": [
+      4,
+      5,
+      5
+    ]
+  },
+  "performance": null,
+  "calibration": null,
+  "perSeed": [
+    {
+      "seed": 1,
+      "tier": "top",
+      "club": "Natus Vincera",
+      "ticks": 52,
+      "finalWeek": 53,
+      "failures": [],
+      "storylines": null,
+      "finalSave": {
+        "storylinesKept": 0,
+        "managedKept": 0,
+        "arcsWithUnknownPlayer": 0,
+        "arcsWithUnknownClub": 0,
+        "decisionEventsInLog": 33,
+        "decisionEventsByKind": {
+          "FAN": 7,
+          "MEDIA": 3,
+          "loss_streak": 1,
+          "CAREER_UPDATE": 5,
+          "MORALE": 2,
+          "INJURY": 11,
+          "win_streak": 2,
+          "CONTRACT_OFFER": 1,
+          "SPONSOR": 1
+        },
+        "managedRivalries": 0,
+        "biggestRival": null,
+        "storyNews": 0,
+        "sample": []
+      },
+      "aiAdministrations": {
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      "tickMsMedian": 1561
+    },
+    {
+      "seed": 2,
+      "tier": "mid",
+      "club": "Floxo",
+      "ticks": 52,
+      "finalWeek": 53,
+      "failures": [],
+      "storylines": null,
+      "finalSave": {
+        "storylinesKept": 0,
+        "managedKept": 0,
+        "arcsWithUnknownPlayer": 0,
+        "arcsWithUnknownClub": 0,
+        "decisionEventsInLog": 41,
+        "decisionEventsByKind": {
+          "FAN": 7,
+          "MORALE": 17,
+          "SPONSOR": 4,
+          "CAREER_UPDATE": 6,
+          "loss_streak": 5,
+          "MEDIA": 1,
+          "win_streak": 1
+        },
+        "managedRivalries": 10,
+        "biggestRival": {
+          "club": "Onderground",
+          "meetings": 2,
+          "intensity": "FRIENDLY",
+          "record": "1-1"
+        },
+        "storyNews": 0,
+        "sample": []
+      },
+      "aiAdministrations": {
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      "tickMsMedian": 1486.5
+    },
+    {
+      "seed": 3,
+      "tier": "low",
+      "club": "LEG",
+      "ticks": 52,
+      "finalWeek": 53,
+      "failures": [],
+      "storylines": null,
+      "finalSave": {
+        "storylinesKept": 0,
+        "managedKept": 0,
+        "arcsWithUnknownPlayer": 0,
+        "arcsWithUnknownClub": 0,
+        "decisionEventsInLog": 28,
+        "decisionEventsByKind": {
+          "win_streak": 7,
+          "FAN": 4,
+          "CAREER_UPDATE": 6,
+          "MORALE": 4,
+          "MEDIA": 3,
+          "SPONSOR": 3,
+          "CONTRACT_OFFER": 1
+        },
+        "managedRivalries": 0,
+        "biggestRival": null,
+        "storyNews": 0,
+        "sample": []
+      },
+      "aiAdministrations": {
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      "tickMsMedian": 1416.5
+    }
+  ],
+  "notes": "Base engine (48766585): no storylines and no press conferences; the managed club's own (instant or live) matches never updated rivalries."
+}

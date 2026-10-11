@@ -17,6 +17,8 @@ import {
     diffClubs, mergeChanges, residualChanges, sideScore,
     type ChangeCause, type ChangeEntry, type ClubSnapshot,
 } from "./week-changes"
+import type { StoryArc } from "@/engine/storylines/types"
+import { STORY_KIND_LABEL, leadingBeat } from "@/engine/storylines/view"
 
 export const WEEK_REPORT_HISTORY = 4
 /** Busy weeks keep the most important entries (club, injuries, contracts, attributes, then the biggest condition swings). */
@@ -83,6 +85,8 @@ export interface WeekReport {
     names: Record<string, string>
     /** Decisions settled by their default this week; their effects carry the cause "Unanswered: …". */
     unanswered?: ReportUnanswered[]
+    /** Phase 5.3: the week's most important storyline beat (it leads the headline). */
+    story?: { kind: string; label: string; text: string }
     partial?: boolean
 }
 
@@ -131,6 +135,8 @@ export interface ReportStateSource {
     tournaments?: Array<{ id: string; name?: string; shortName?: string }>
     /** Read for decisions the tick settled by default (`data.unanswered`). */
     eventsLog?: Array<{ id: string; data?: unknown }>
+    /** Phase 5.3: storyline arcs (the headline leads with the week's most important beat). */
+    storylines?: StoryArc[]
 }
 
 export interface BuildReportInput {
@@ -249,9 +255,15 @@ export function buildWeekReport(input: BuildReportInput): WeekReport {
     // 6. Decisions left unanswered: the tick applied their stated defaults.
     const unanswered = unansweredThisTick(state)
 
+    // 7. Phase 5.3: the most important storyline beat of the played week or
+    // the tick that closed it.
+    const beat = leadingBeat(state.storylines, teamId, week, state.currentWeek)
+    const story = beat ? { kind: beat.arc.kind, label: STORY_KIND_LABEL[beat.arc.kind], text: beat.text } : undefined
+
     const report: WeekReport = {
         v: 1, week, teamId, headline: "", changes, matches, warnings, kpis, names,
         ...(unanswered.length ? { unanswered } : {}),
+        ...(story ? { story } : {}),
         ...(tracker?.partial || !trackerValid ? { partial: true } : {}),
     }
     report.headline = weekHeadline(report)
@@ -309,8 +321,14 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     const net = moneyNet(report)
     if (clauses.length < 3 && Math.abs(net) >= 1) clauses.push(`finances ${formatMoney(net, true)}`)
 
-    if (clauses.length === 0) return "A quiet week: nothing on your club changed."
     const join = (xs: string[]) => xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`
+    // Phase 5.3: a storyline beat leads ("Slump: …"), then the week's top clause.
+    if (report.story) {
+        const story = `${report.story.label}: ${report.story.text.replace(/\.$/, "")}`
+        const first = clauses[0] && /^(Beat|Lost|Won) /.test(clauses[0]) ? clauses[0].charAt(0).toLowerCase() + clauses[0].slice(1) : clauses[0]
+        return first ? `${story}; ${first}.` : `${story}.`
+    }
+    if (clauses.length === 0) return "A quiet week: nothing on your club changed."
     // Without a match the sentence leads with the week type, so a player's
     // nickname is never re-capitalized as the first word.
     if (matches.length === 0) return `Training week: ${join(clauses)}.`
@@ -356,9 +374,10 @@ export function sanitizeWeekReports(raw: unknown): WeekReportsState | null {
         ? raw.history.filter((r): r is WeekReport => isObj(r) && r.v === 1 && typeof r.week === "number" && typeof r.teamId === "string" && Array.isArray(r.changes) && isObj(r.kpis))
             .map(r => {
                 const unanswered = Array.isArray(r.unanswered) ? r.unanswered.filter(u => isObj(u) && typeof u.label === "string" && typeof u.outcome === "string") : []
-                const { unanswered: _raw, ...rest } = r
+                const { unanswered: _raw, story: _story, ...rest } = r
                 void _raw
-                return { ...rest, changes: r.changes.filter(validEntry).slice(0, WEEK_REPORT_MAX_ENTRIES), matches: Array.isArray(r.matches) ? r.matches : [], warnings: Array.isArray(r.warnings) ? r.warnings : [], names: isObj(r.names) ? r.names : {}, ...(unanswered.length ? { unanswered } : {}) }
+                const story = isObj(_story) && typeof _story.text === "string" && typeof _story.label === "string" && typeof _story.kind === "string" ? _story : undefined
+                return { ...rest, changes: r.changes.filter(validEntry).slice(0, WEEK_REPORT_MAX_ENTRIES), matches: Array.isArray(r.matches) ? r.matches : [], warnings: Array.isArray(r.warnings) ? r.warnings : [], names: isObj(r.names) ? r.names : {}, ...(unanswered.length ? { unanswered } : {}), ...(story ? { story } : {}) }
             })
             .slice(0, WEEK_REPORT_HISTORY)
         : []

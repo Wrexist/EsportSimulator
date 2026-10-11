@@ -125,6 +125,11 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
         const type = String(e.type)
         if (isPendingDecisionEvent(e)) {
             if (typeof data.deadlineWeek === "number" && data.deadlineWeek < state.currentWeek) continue
+            // Phase 5.3: the press conference before a big match (answered on the match screen).
+            if (e.id.startsWith("press_") && typeof data.matchId === "string") {
+                out.push({ key: `event:${e.id}`, kind: "event", reason: `Press conference before the match: ${decisionLabel(e).replace(/^Press conference:\s*/, "")}`, href: `/match/${data.matchId}/tactics`, actionLabel: "Face the press" })
+                continue
+            }
             out.push({ key: `event:${e.id}`, kind: "event", reason: `${decisionLabel(e)} needs an answer`, href: "/", actionLabel: "Decide" })
             continue
         }
@@ -193,7 +198,12 @@ const GROUPED: Partial<Record<StopKind, (n: number) => string>> = {
 export function nextStop(state: StopSource, seen: ReadonlySet<string>): (AdvanceStop & { keys?: string[] }) | null {
     const signals = collectStopSignals(state)
     for (const s of signals) {
-        if (s.kind === "moment" || s.kind === "match" || s.kind === "game-over") return s
+        if (s.kind === "moment" || s.kind === "game-over") return s
+        // Phase 5.3: a press conference stops Continue once, before its match.
+        if (s.kind === "match") {
+            const press = signals.find(x => x.key.startsWith("event:press_") && !seen.has(x.key))
+            return press ?? s
+        }
         if (seen.has(s.key)) continue
         const same = signals.filter(x => x.kind === s.kind && !seen.has(x.key))
         const group = GROUPED[s.kind]

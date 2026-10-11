@@ -90,6 +90,7 @@ export function buildSaveSnapshot(state: SaveSnapshotState): GameSave {
         socialFeed: state.socialFeed,
         careerStats: state.careerStats,
         recordBook: state.recordBook,
+        storylines: state.storylines,
         difficulty: state.difficulty,
         lastPlayedAt: new Date().toISOString(),
         pendingCelebration: state.pendingCelebration,

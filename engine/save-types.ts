@@ -172,6 +172,9 @@ export interface GameSave {
     // === RECORDS, SEASON HONOURS (Phase 5.1) ===
     recordBook?: import("./records-types").RecordBook
 
+    // === STORYLINES (Phase 5.3): active arcs and recent resolved ones ===
+    storylines?: import("./storylines/types").StoryArc[]
+
     // === BOARD EXPECTATIONS & CONFIDENCE ===
     boardState?: BoardState
 
@@ -835,6 +838,9 @@ export interface PlayerSaveData {
     // has one from save v9; optional so older records and fixtures type-check
     // (engine/personality.ts getArchetype derives it on the fly).
     personality?: PlayerPersonality
+
+    // Phase 5.3: last official map ratings at the managed club (storylines, press).
+    formWindow?: import("./storylines/types").FormWindow
 }
 
 /** Phase 5.2 archetypes (engine/personality.ts ARCHETYPE_INFO). */
@@ -877,6 +883,8 @@ export interface PlayerPersonality {
     lastRequestWeek?: number
     promise?: PlayerPromise
     lastPromise?: { kind: PromiseKind; outcome: "KEPT" | "BROKEN"; week: number }
+    /** Phase 5.3: season in which the manager persuaded him to play on (retirement chance × STORY_TUNING.PERSUADE_RETIREMENT_FACTOR). */
+    persuadedSeason?: number
 }
 
 /** Phase 5.2: the managed club's captain and mentors (AI clubs use the default captain). */

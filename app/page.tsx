@@ -10,6 +10,7 @@ import { NewsFeed } from "@/components/dashboard/NewsFeed"
 import { ActionCenter } from "@/components/dashboard/ActionCenter"
 import { GettingStartedChecklist } from "@/components/dashboard/GettingStartedChecklist"
 import { LastWeekPanel } from "@/components/report/LastWeekPanel"
+import { StorylinesPanel } from "@/components/storylines/StorylinesPanel"
 import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
 import { BoardConfidenceChip } from "@/components/career/BoardConfidence"
 import { graceWeeksLeft } from "@/components/career/board-view"
@@ -655,6 +656,7 @@ export default function Page() {
         <aside className="min-w-0 space-y-4">
           <GettingStartedChecklist />
           <ActionCenter />
+          <StorylinesPanel />
           <LastWeekPanel />
           <Panel title="News" padded={false}>
             <div className="max-h-[420px] overflow-y-auto">
