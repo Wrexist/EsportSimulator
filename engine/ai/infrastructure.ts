@@ -119,16 +119,24 @@ export function manageSponsors(team: TeamSaveData, save: GameSave, rng: SeededRN
     if (eligible.length === 0) return
 
     const tierRank = { ELITE: 3, PREMIUM: 2, STANDARD: 1 } as const
-    eligible.sort((a, b) => (tierRank[b.tier] || 0) - (tierRank[a.tier] || 0))
-    const picked = eligible[0]
+    eligible.sort((a, b) => (tierRank[b.tier] || 0) - (tierRank[a.tier] || 0) || b.weeklyPayout - a.weeklyPayout)
 
-    team.sponsors.push({
-        ...picked,
-        signedWeek: save.currentWeek,
-        followerCheckpoint: team.followers || 0,
-        lastProcessedWeek: undefined,
-        remainingWeeks: Math.max(1, Math.floor(picked.remainingWeeks || 0)),
-    })
+    // Phase 4.4: fill every open eligible slot in one look (one deal per
+    // tier), as the managed club can from the Sponsorships screen. Signing a
+    // single deal per look left AI clubs a slot or two short for months,
+    // which the new economy (sponsors sized to running costs) turned into a
+    // structural deficit for top AI clubs.
+    for (const picked of eligible) {
+        if (team.sponsors.length >= MAX_AI_SPONSORS) break
+        if (team.sponsors.some(s => s.tier === picked.tier)) continue
+        team.sponsors.push({
+            ...picked,
+            signedWeek: save.currentWeek,
+            followerCheckpoint: team.followers || 0,
+            lastProcessedWeek: undefined,
+            remainingWeeks: Math.max(1, Math.floor(picked.remainingWeeks || 0)),
+        })
+    }
 }
 
 /**
