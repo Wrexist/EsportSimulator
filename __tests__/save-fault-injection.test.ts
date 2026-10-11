@@ -741,7 +741,9 @@ const NON_CAREER_STORE_KEYS = [
     // new-game setup inputs and a static shop catalogue
     "selectedRegions", "availableEquipment",
     // transient UI / runtime
-    "weekReveal", "weekProgress", "toasts", "isLoading", "error", "lastLoadError", "isInitialized", "_hasHydrated",
+    "weekProgress", "toasts", "isLoading", "error", "lastLoadError", "isInitialized", "_hasHydrated",
+    // Continue run + weekly report UI (the reports themselves are saved as weekReports)
+    "continueRun", "advanceStop", "advanceSeenKeys", "weekReportOpen", "weekReportToast",
     // indexes rebuilt on hydration
     "_teamIndex", "_playerIndex", "_contractByPlayerIndex", "_staffIndex", "_completedMatchIds",
 ]
@@ -758,6 +760,19 @@ function sentinelCareer(): GameSave {
     tactics.FULL.ct.primaryWeaponId = "rt-weapon"
     return Object.assign(save, {
         saveId: "save_roundtrip_sentinel",
+        weekReports: {
+            tracker: {
+                week: 9, teamId: team,
+                baseline: { teamId: team, week: 9, budget: 1000, reputation: 50, chemistry: 50, elo: 1500, worldRanking: 3, board: 38, players: [], contracts: {}, ledger: [] },
+                changes: [{ kind: "morale", subjectId: player, label: "Morale", delta: 5, cause: { type: "match", label: "Beat RT 2–0" } }],
+            },
+            history: [{
+                v: 1, week: 8, teamId: team, headline: "RT week.",
+                changes: [{ kind: "money", subjectId: team, label: "Player salaries", delta: -100, cause: { type: "salary", label: "Player wages" } }],
+                matches: [], warnings: [], names: { [player]: "RT" },
+                kpis: { budget: [1, 2], rank: [3, 3], elo: [1500, 1500], board: [38, 38], chemistry: [50, 50], morale: [60, 60], reputation: [50, 50] },
+            }],
+        },
         lastRngSeed: 987654,
         lastCommittedWeekTick: 9,
         currentDay: 3,

@@ -111,6 +111,12 @@ import { createStaffManagementSlice } from "@/store/slices/staff-management-slic
 import { createTeamFacilitiesSlice } from "@/store/slices/team-facilities-slice"
 import { createTransferContractSlice } from "@/store/slices/transfer-contract-slice"
 import { createAcademySlice } from "@/store/slices/academy-slice"
+import { createAdvanceSlice, initialAdvanceState, isContinueStepping, type AdvanceState, type AdvanceActions } from "@/store/slices/advance-slice"
+import { WeekChangeRecorder, diffClubs, snapshotClub, type ChangeCause, type ChangeEntry } from "@/lib/week-changes"
+import { buildWeekReport, newTracker, pushWeekReport, sanitizeWeekReports } from "@/lib/week-report"
+import { recordWeekChanges, withTracker, type TrackingState } from "@/store/utils/week-tracking"
+import { getEventTitle } from "@/lib/event-format"
+import drillCatalog from "@/data/drills.json"
 import { formatCurrency } from "@/lib/utils-extended"
 
 enableMapSet()
@@ -410,7 +416,7 @@ const parseBoundedNumber = (
 }
 
 // UI-specific state extensions
-export interface GameStoreState {
+export interface GameStoreState extends AdvanceState {
   // Game Data (Mirrors GameSave)
   saveId: string | null
   saveName: string
@@ -495,7 +501,6 @@ export interface GameStoreState {
 
   // UI Celebrations
   pendingCelebration: import("@/engine/save-types").CelebrationData | null
-  weekReveal: import("@/store/types").WeekRevealData | null
   weekProgress: import("@/store/types").WeekProgressPhase | null
   pendingSeasonRecap: number | null
   pendingLegendPick: import("@/engine/save-types").LegendPickData | null
@@ -561,7 +566,7 @@ export interface GameStoreState {
   showBugReportButton: boolean
 }
 
-interface GameStoreActions extends PhysicalPreviewActions {
+interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions {
   // Lifecycle
   initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string) => Promise<void>
   initializeCustomTeam: (managerName: string, teamData: import("@/types/team-creator").CustomTeamData) => Promise<void>
@@ -705,7 +710,6 @@ interface GameStoreActions extends PhysicalPreviewActions {
 
   // UI Celebrations
   clearCelebration: () => void
-  dismissWeekReveal: () => void
   clearPendingSeasonRecap: () => void
   selectLegend: (legendId: string) => void
   clearLegendPick: () => void
@@ -783,6 +787,66 @@ function weekBlockingMatch(
   completedIds: Set<string> = new Set(state.completedMatches.map(cm => cm.id)),
 ) {
   return pendingPlayableMatch(state, completedIds, { respectDay: false })
+}
+
+/**
+ * Weekly report: store actions whose effect has a known cause record the
+ * managed-club changes they make as they happen (store/utils/week-tracking.ts).
+ * Each wraps the slice's own implementation; behaviour is unchanged.
+ */
+function weekRecordedActions(set: unknown, get: unknown) {
+  type Store = GameStoreState & GameStoreActions
+  const g = get as () => TrackingState
+  const s = set as Parameters<typeof recordWeekChanges>[1]
+  const slice = <T,>(create: (set: never, get: never) => T): T => create(set as never, get as never)
+  const store = (st: TrackingState) => st as unknown as Store
+  const short = (text: string) => (text.length > 70 ? `${text.slice(0, 67)}...` : text)
+
+  const matchCause = (st: TrackingState, matchId: string): ChangeCause | null => {
+    const state = store(st)
+    const m = state.completedMatches.find(cm => cm.id === matchId)
+    if (!m?.result || !state.playerTeamId) return null
+    const isHome = m.homeTeamId === state.playerTeamId
+    const opp = state.teams.find(t => t.id === (isHome ? m.awayTeamId : m.homeTeamId))?.name ?? "opponent"
+    const won = m.result.winnerId === state.playerTeamId
+    const mine = isHome ? m.result.homeScore : m.result.awayScore
+    const theirs = isHome ? m.result.awayScore : m.result.homeScore
+    return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${mine}–${theirs}` }
+  }
+
+  const sim = slice(createMatchSimulationSlice as never) as ReturnType<typeof createMatchSimulationSlice>
+  const drills = slice(createTeamDrillsSlice as never) as ReturnType<typeof createTeamDrillsSlice>
+  const events = slice(createEventsSlice as never) as ReturnType<typeof createEventsSlice>
+  const settings = slice(createTeamSettingsSlice as never) as ReturnType<typeof createTeamSettingsSlice>
+  const ops = slice(createMatchOperationsSlice as never) as ReturnType<typeof createMatchOperationsSlice>
+  const transfers = slice(createTransferContractSlice as never) as ReturnType<typeof createTransferContractSlice>
+
+  return {
+    saveMatchResult: recordWeekChanges(g, s, sim.saveMatchResult, (st, matchId: string) => matchCause(st, matchId)),
+    runTeamDrill: recordWeekChanges(g, s, drills.runTeamDrill, (_st, drillId: string) =>
+      ({ type: "training", label: `Drill: ${drillCatalog.find(d => d.id === drillId)?.name ?? "team drill"}` })),
+    resolveEventChoice: recordWeekChanges(g, s, events.resolveEventChoice, (st, eventId: string, choiceId: string) => {
+      const event = store(st).eventsLog.find(e => e.id === eventId)
+      if (!event) return null
+      const choice = (event as unknown as { choices?: { id: string; text?: string }[] }).choices?.find(c => c.id === choiceId)
+      return { type: "event", label: short(`${getEventTitle(event)}: ${choice?.text ?? choiceId}`) }
+    }),
+    treatInjury: recordWeekChanges(g, s, settings.treatInjury, () => ({ type: "injury", label: "Medical treatment" })),
+    performMentalReset: recordWeekChanges(g, s, ops.performMentalReset, () => ({ type: "staff", label: "Mental reset" })),
+    renewContract: recordWeekChanges(g, s, transfers.renewContract, () => ({ type: "contract", label: "Contract renewal" })),
+    acceptTransferOffer: recordWeekChanges(g, s, transfers.acceptTransferOffer, () => ({ type: "transfer", label: "Transfer offer accepted" })),
+  }
+}
+
+/**
+ * Advance/report state for a career that just became active: its saved
+ * reports (sanitized) and a tracker for the current week. `fresh` marks a
+ * brand-new career, whose baseline is the true start of the week.
+ */
+function careerAdvanceState(save: GameSave, playerTeamId: string | null, fresh: boolean): AdvanceState {
+  const loaded = sanitizeWeekReports((save as GameSave & { weekReports?: unknown }).weekReports)
+  const source = { ...save, playerTeamId, weekReports: loaded } as unknown as TrackingState
+  return { ...initialAdvanceState, weekReports: withTracker(source, !fresh) }
 }
 
 /** Field defaults shared by load hydration and the weekly commit. */
@@ -885,6 +949,14 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set as Parameters<typeof createAcademySlice>[0],
         get as Parameters<typeof createAcademySlice>[1],
       ),
+      // Continue to next decision + weekly report state (Phase 4 stream 4.1).
+      ...createAdvanceSlice(
+        set as unknown as Parameters<typeof createAdvanceSlice>[0],
+        get as unknown as Parameters<typeof createAdvanceSlice>[1],
+      ),
+      ...initialAdvanceState,
+      // Overrides the slice actions above with change-recording wrappers.
+      ...weekRecordedActions(set, get),
 
       // Initial State
       saveId: null,
@@ -988,7 +1060,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       // UI Celebrations
       pendingCelebration: null,
-      weekReveal: null,
       weekProgress: null,
       pendingSeasonRecap: null,
       pendingLegendPick: null,
@@ -1247,6 +1318,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Update Store
           set({
             ...newSave,
+            ...careerAdvanceState(newSave, playerTeamId, true),
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
             availableEquipment: initialEquipment,
             playerTeamId: playerTeamId, // We assume the user controls the team they selected
@@ -1597,6 +1669,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Update Store
           set({
             ...newSave,
+            ...careerAdvanceState(newSave, result.teamId, true),
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
             availableEquipment: [
               { id: "mouse_001", name: "Basic Gaming Mouse", type: "MOUSE", weeklyCost: 0, tier: 1, purchasedWeek: 0, bonus: { stat: "skill", value: 1 } },
@@ -1810,6 +1883,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           set({
             ...hydratedSave,
+            ...careerAdvanceState(hydratedSave, inferredTeamId, false),
             firstSession: restoreFirstSession(hydratedSave.firstSession),
             selectedWeeklyActivity: restoreWeeklyPlan(hydratedSave.selectedWeeklyActivity),
             manualTutorialTrigger: 0,
@@ -1927,6 +2001,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         const state = get()
         // A dissolved career must not move its calendar (daily mode never reached advanceWeek's guard).
         if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state)) return
+        // During a Continue run only the run itself advances (no stray hotkey steps past a stop).
+        if (state.continueRun && !isContinueStepping()) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
           return
@@ -1953,6 +2029,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       advanceToWeekEnd: async () => {
         const state = get()
         if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state)) return
+        if (state.continueRun && !isContinueStepping()) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
           return
@@ -1994,6 +2071,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
         // Guard: no career loaded — nothing to advance (would persist a phantom save)
         if (!hasLoadedCareer(state)) return
+
+        // Guard: during a Continue run only the run itself advances.
+        if (state.continueRun && !isContinueStepping()) return
 
         // Guard: prevent advancing if game is over (bankruptcy)
         if (state.gameOverReason) {
@@ -2037,6 +2117,14 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const latestState = get()
           const saveState: GameSave = structuredClone(buildSaveSnapshot(latestState))
           const preTickRng = new SeededRNG(saveState.lastRngSeed ?? generateSeed())
+          // Weekly report: the club as the manager leaves the week, plus each
+          // pre-tick step's movement with its cause.
+          const reportTeamId = state.playerTeamId || ""
+          const playedWeek = state.currentWeek
+          const weekTracker = latestState.weekReports?.tracker ?? null
+          const preTick = new WeekChangeRecorder(reportTeamId)
+          preTick.begin(saveState)
+          const preAdvanceClub = preTick.snapshot
           phase("01_snapshotClone")
 
           // Yield so the browser can paint the overlay spinner frame after
@@ -2059,6 +2147,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             rng: preTickRng,
             nextId: nextDeterministicId,
           })
+          preTick.mark(saveState, { type: "development", label: "Weekly XP" })
 
           const rng = new SeededRNG(preTickRng.getState())
 
@@ -2091,15 +2180,23 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             selectedActivity: state.selectedWeeklyActivity,
             nextId: nextDeterministicId,
           })
-
-
+          const focusName = state.selectedWeeklyActivity ? WEEKLY_ACTIVITIES[state.selectedWeeklyActivity]?.name : undefined
+          preTick.mark(saveState, { type: "activity", label: focusName ? `Weekly focus: ${focusName}` : "Weekly focus" })
 
           // Apply this-week scheduledActivities (staff meetings, bootcamps,
           // rest, travel). Each one applies its own effects + chemistry
           // bonus + surfaces an event. Module owns the per-effect math.
+          const bookedNames = (saveState.scheduledActivities || [])
+            .filter(a => a.week === saveState.currentWeek || (saveState.currentWeek > a.week && saveState.currentWeek < a.week + (a.duration || 0)))
+            .filter(a => a.type === "STAFF_MEETING" || a.type === "BOOTCAMP" || a.type === "TRAVEL" || (a.type === "REST" && !a.id.startsWith("rest_w")))
+            .map(a => a.name || a.type)
           applyScheduledActivities(saveState, {
             playerTeamId: state.playerTeamId || "",
             nextId: nextDeterministicId,
+          })
+          preTick.mark(saveState, {
+            type: bookedNames.some(n => /meeting/i.test(n)) ? "staff" : "activity",
+            label: [...new Set(bookedNames)].join(", ") || "Booked activity",
           })
 
           // Auto-register the player team for upcoming INVITE/POINTS
@@ -2109,6 +2206,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             playerTeamId: state.playerTeamId || "",
             nextId: nextDeterministicId,
           })
+          preTick.mark(saveState, { type: "other", label: "Tournament registration" })
 
           // Phase 20 Enhancement: Simulate Weekly AI Registrations
           TournamentManager.simulateWeeklyRegistrationsV2(saveState, state.currentWeek, rng)
@@ -2126,6 +2224,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (!fplOk) {
             get().addToast({ message: "FPL rankings update failed this week", type: "warning", duration: 5000 })
           }
+          preTick.mark(saveState, { type: "world", label: "World update" })
+          const preTickChanges = preTick.result()
           phase("03_fpl")
 
           // Run the week off the main thread when possible. The bridge falls
@@ -2183,7 +2283,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // durable save. A failed post-step must not replay an advanced week.
             try {
             // Process academy weekly training, scouting missions, and prospect development
+            const preAcademyClub = snapshotClub(get(), reportTeamId)
             get().processAcademyWeek()
+            const postTickChanges = diffClubs(preAcademyClub, snapshotClub(get(), reportTeamId), { type: "academy", label: "Academy week" })
             phase("06_academy")
 
             // Rebuild entity indexes after state update for O(1) lookups
@@ -2261,86 +2363,34 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               get().acknowledgeEvent(event.id)
             })
 
-            // Build the "week in review" reveal — drives the post-processing
-            // ticker in WeekProcessingOverlay. Player-team matches first, then
-            // up to five captioned events from the week just played.
-            const ptid = state.playerTeamId
-            if (ptid) {
-              const playedWeek = state.currentWeek
-              const revealState = get()
-              const teamName = (id: string | null) =>
-                id ? (revealState.teams.find(t => t.id === id)?.name ?? "Unknown") : "TBD"
-              const revealItems: import("@/store/types").WeekRevealItem[] = []
-              let revealWins = 0
-              let revealLosses = 0
-              for (const m of revealState.completedMatches) {
-                if (m.week !== playedWeek) continue
-                if (m.homeTeamId !== ptid && m.awayTeamId !== ptid) continue
-                const isHome = m.homeTeamId === ptid
-                const won = m.result?.winnerId === ptid
-                const myScore = (isHome ? m.result?.homeScore : m.result?.awayScore) ?? 0
-                const oppScore = (isHome ? m.result?.awayScore : m.result?.homeScore) ?? 0
-                if (won) revealWins++; else revealLosses++
-                const flags = [
-                  won && m._underdogWin ? "Upset" : "",
-                  won && m._comebackWin ? "Comeback" : "",
-                ].filter(Boolean)
-                revealItems.push({
-                  id: `match-${m.id}`,
-                  kind: "match",
-                  tone: won ? "win" : "loss",
-                  title: `${won ? "Beat" : "Lost to"} ${teamName(isHome ? m.awayTeamId : m.homeTeamId)}`,
-                  detail: `${myScore}–${oppScore}${flags.length ? ` · ${flags.join(" · ")}` : ""}`,
+            // Weekly report (replaces the old five-line "week in review"):
+            // every change of the week with its cause. Modal after a weekly
+            // advance, compact toast in daily mode; a Continue run opens the
+            // last report itself when it stops.
+            try {
+              if (reportTeamId) {
+                const reportState = get()
+                const finalClub = snapshotClub(reportState, reportTeamId)
+                const tickChanges: ChangeEntry[] = [...preTickChanges, ...(result.changes ?? []), ...postTickChanges]
+                const report = buildWeekReport({
+                  week: playedWeek,
+                  teamId: reportTeamId,
+                  tracker: weekTracker,
+                  preAdvance: preAdvanceClub,
+                  tickChanges,
+                  final: finalClub,
+                  state: reportState,
+                })
+                const presentation = reportState.continueRun ? {}
+                  : reportState.timeMode === "WEEKLY" ? { weekReportOpen: playedWeek, weekReportToast: null }
+                    : { weekReportToast: playedWeek }
+                set({
+                  weekReports: pushWeekReport(reportState.weekReports, report, finalClub ? newTracker(finalClub) : null),
+                  ...presentation,
                 })
               }
-              // Board moments surface in the reveal so quarterly pulses and
-              // season verdicts are felt, not buried in the news feed.
-              for (const n of revealState.newsFeed) {
-                if (n.week !== playedWeek && n.week !== revealState.currentWeek) continue
-                if (!n.id.startsWith("board_pulse_") && !n.id.startsWith("board_review_")) continue
-                const negative = /uneasy|alarmed|furious|concerned|Sacked/i.test(n.title)
-                revealItems.push({
-                  id: `board-${n.id}`,
-                  kind: "event",
-                  tone: negative ? "loss" : "win",
-                  title: n.title,
-                  detail: n.content.length > 110 ? `${n.content.slice(0, 107)}...` : n.content,
-                })
-              }
-              const seenEvent = new Set<string>()
-              let eventCount = 0
-              for (const e of revealState.eventsLog) {
-                if (eventCount >= 5) break
-                if (e.week !== playedWeek && e.week !== revealState.currentWeek) continue
-                if (seenEvent.has(e.id)) continue
-                seenEvent.add(e.id)
-                const d = e.data as { title?: string; headline?: string; description?: string; message?: string }
-                const text = d?.title || d?.headline || d?.description || d?.message
-                if (typeof text !== "string" || !text.trim()) continue
-                eventCount++
-                revealItems.push({
-                  id: `event-${e.id}`,
-                  kind: "event",
-                  tone: "neutral",
-                  title: text.length > 90 ? `${text.slice(0, 87)}...` : text,
-                })
-              }
-              const headline =
-                revealItems.length === 0 ? "A quiet week"
-                  : revealWins > 0 && revealLosses === 0 ? "A flawless week"
-                    : revealLosses > 0 && revealWins === 0 ? "A rough week"
-                      : revealWins > revealLosses ? "A strong week"
-                        : revealWins < revealLosses ? "A tough week"
-                          : "A mixed week"
-              if (revealItems.length === 0) {
-                revealItems.push({
-                  id: "summary-quiet",
-                  kind: "summary",
-                  tone: "neutral",
-                  title: "Nothing major to report.",
-                })
-              }
-              set({ weekReveal: { week: playedWeek, headline, items: revealItems } })
+            } catch (reportErr) {
+              logger.error("[advanceWeek] weekly report failed (week committed)", reportErr)
             }
             phase("10_toastsReveal")
             } catch (postErr) {

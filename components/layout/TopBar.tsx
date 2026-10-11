@@ -4,17 +4,13 @@ import Link from "next/link"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import React, { useState, useEffect, useMemo } from "react"
 import { formatGameCalendarDate } from "@/lib/game-calendar"
-import { Clock, Play, Swords, Settings } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { spinTransition } from "@/lib/motion"
-import { soundManager } from "@/lib/sound-manager"
-import { motion } from "framer-motion"
+import { Settings } from "lucide-react"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { AnimatedNumber } from "@/components/ui/animated-number"
-import { selectPlayableMatchId } from "@/lib/playable-match"
+import { AdvanceControl } from "@/components/report/AdvanceControl"
 import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
 import { navHubs, hubForPath, isNavItemActive, settingsItem } from "@/lib/navigation"
@@ -34,11 +30,6 @@ export function TopBar() {
         currentDay,
         timeMode,
         getDateForWeek,
-        advanceDay,
-        advanceToWeekEnd,
-        advanceWeek,
-        isLoading,
-        gameOverReason,
         saveId,
         playerTeamId,
         setTimeMode,
@@ -49,11 +40,6 @@ export function TopBar() {
             currentDay: s.currentDay,
             timeMode: s.timeMode,
             getDateForWeek: s.getDateForWeek,
-            advanceDay: s.advanceDay,
-            advanceToWeekEnd: s.advanceToWeekEnd,
-            advanceWeek: s.advanceWeek,
-            isLoading: s.isLoading,
-            gameOverReason: s.gameOverReason,
             saveId: s.saveId,
             playerTeamId: s.playerTeamId,
             setTimeMode: s.setTimeMode,
@@ -61,7 +47,6 @@ export function TopBar() {
         }))
     )
 
-    const router = useRouter()
     const pathname = usePathname()
     const activeHub = hubForPath(pathname)
 
@@ -83,19 +68,9 @@ export function TopBar() {
         return (parts[0] || "M").slice(0, 2).toUpperCase()
     }, [managerName])
 
-    // Only offer "Play match" for a fixture the store will actually simulate
-    // (shared predicate with the advance-week guard). A due fixture where a
-    // side can't field five is resolved by forfeit when the week advances, so
-    // CONTINUE is shown instead; offering it led to "Match Not Found" (L27).
-    // The selector returns a primitive id, so the header doesn't re-render on
-    // unrelated player/team updates.
-    const pendingMatchId = useGameStore(selectPlayableMatchId)
     // No career loaded (fresh launch, deleted save): advancing would build a
     // phantom save for team "unknown", so there is nothing to advance.
     const hasCareer = !!saveId && !!playerTeamId
-    // A dissolved career (game over) can't advance or play; the game-over
-    // screen offers Load Save / Main Menu instead.
-    const controlsLocked = isLoading || !!gameOverReason || !hasCareer
 
     const [isMounted, setIsMounted] = useState(false)
     useEffect(() => { setIsMounted(true) }, [])
@@ -104,75 +79,10 @@ export function TopBar() {
     // server render matches the first client render).
     const hideCareerControls = isMounted && !hasCareer
 
-    const advanceSpinner = (
-        <motion.div animate={{ rotate: 360 }} transition={spinTransition}>
-            <Clock size={18} />
-        </motion.div>
-    )
+    // Play match / CONTINUE (to the next decision) / Next day / Skip week.
+    // Locked without a career, on game over and while loading (AdvanceControl).
+    const advanceControl = <AdvanceControl />
 
-    const advanceControl = (() => {
-        if (pendingMatchId) {
-            return (
-                <Button
-                    variant="play"
-                    onClick={() => router.push(`/match/${pendingMatchId}/tactics`)}
-                    disabled={controlsLocked}
-                    className="h-10 px-5 shrink-0"
-                >
-                    <span className="tracking-wide">Play match</span>
-                    <Swords size={16} />
-                </Button>
-            )
-        }
-        if (timeMode === "HYBRID_DAILY") {
-            return (
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant="outline"
-                        onClick={() => advanceToWeekEnd()}
-                        disabled={controlsLocked}
-                        className="h-10 px-3 text-xs font-semibold"
-                    >
-                        Skip week
-                    </Button>
-                    <Button
-                        variant="continue"
-                        onClick={() => {
-                            soundManager.play('weekAdvance')
-                            advanceDay()
-                        }}
-                        disabled={controlsLocked}
-                        className="h-10 px-5"
-                    >
-                        {isLoading ? advanceSpinner : (
-                            <span className="flex items-center gap-2">
-                                <span className="tracking-wide">Next day</span>
-                                <Play size={15} fill="currentColor" />
-                            </span>
-                        )}
-                    </Button>
-                </div>
-            )
-        }
-        return (
-            <Button
-                variant="continue"
-                onClick={() => {
-                    soundManager.play('weekAdvance')
-                    advanceWeek()
-                }}
-                disabled={controlsLocked}
-                className="h-10 px-5 shrink-0"
-            >
-                {isLoading ? advanceSpinner : (
-                    <span className="flex items-center gap-2">
-                        <span className="tracking-wide">CONTINUE</span>
-                        <Play size={15} fill="currentColor" />
-                    </span>
-                )}
-            </Button>
-        )
-    })()
 
     return (
         <header className="game-topbar shrink-0 sticky top-0 z-40 flex flex-col">

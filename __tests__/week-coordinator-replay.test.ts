@@ -18,7 +18,10 @@ test.each([0, 3402])('full application coordinator replays seed %s after a JSON 
     fixture.scheduledMatches = []
     fixture.lastRngSeed = seed
     const run = async () => {
-        useGameStore.setState({ ...initial, ...JSON.parse(JSON.stringify(fixture)), isInitialized: true, isLoading: false, _completedMatchIds: new Set() })
+        // setState merges: clear what the previous run created that the
+        // fixture doesn't carry (board state, weekly reports), or run 2 would
+        // start from a different career than run 1.
+        useGameStore.setState({ ...initial, boardState: undefined, weekReports: null, ...JSON.parse(JSON.stringify(fixture)), isInitialized: true, isLoading: false, _completedMatchIds: new Set() })
         await useGameStore.getState().advanceWeek()
         expect(useGameStore.getState().currentWeek).toBe(fixture.currentWeek + 1)
         expect(useGameStore.getState().isLoading).toBe(false)

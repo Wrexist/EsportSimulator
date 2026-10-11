@@ -98,5 +98,6 @@ export function buildSaveSnapshot(state: SaveSnapshotState): GameSave {
         activelyPlayingLegendIds: state.activelyPlayingLegendIds || [],
         gameOverReason: state.gameOverReason ?? undefined,
         gameOverWeek: state.gameOverWeek ?? undefined,
+        weekReports: state.weekReports ?? undefined,
     }
 }

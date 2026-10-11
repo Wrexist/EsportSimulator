@@ -10,6 +10,7 @@ import { NewsFeed } from "@/components/dashboard/NewsFeed"
 import { ActionCenter } from "@/components/dashboard/ActionCenter"
 import { GettingStartedChecklist } from "@/components/dashboard/GettingStartedChecklist"
 import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
+import { LastWeekPanel } from "@/components/report/LastWeekPanel"
 import { Button } from "@/components/ui/button"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { PlayerPortrait } from "@/components/ui/asset-images"
@@ -676,6 +677,7 @@ export default function Page() {
           <ActionCenter>
             <WeeklyFocusWidget framed={false} />
           </ActionCenter>
+          <LastWeekPanel />
           <Panel title="News" padded={false}>
             <div className="max-h-[420px] overflow-y-auto">
               <NewsFeed limit={8} />
