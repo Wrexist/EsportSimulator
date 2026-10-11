@@ -209,28 +209,28 @@ export default function LiveMatchPage() {
     const toggleHold = useCallback(() => setDecisionHold(h => !h), [setDecisionHold])
     const pickStrategy = useCallback((strategy: ManagerStrategy) => startNextRound(strategy), [startNextRound])
 
-    // The buy decision sits in the radar's overlay slot, above its scrubber.
+    // The buy decision sits in the radar's overlay slot, above its scrubber
+    // (null while a round plays: the slot then is not in the DOM at all).
     // Built here (memoized) so the radar panel's memo holds between renders.
     const overtimeNote = intermission && (intermission.kind === "overtime" || intermission.kind === "overtime-switch")
         ? intermission.kind === "overtime" ? "Overtime · MR3 · $12,500 each" : "Overtime · sides switched"
         : simState?.isOvertime ? "Overtime" : undefined
     const timeoutDisabled = timeoutsRemaining <= 0 || timeoutActive || !isWaitingForStrategy || gameState.status !== "IN_PROGRESS"
     const decisionKey = `${gameState.currentMapIndex}-${preview?.round ?? 0}`
-    const decisionOverlay = useMemo(() => (
-        <AnimatePresence>
-            {preview && (
-                <DecisionCard
-                    key={`decision-${decisionKey}`}
-                    preview={preview}
-                    names={names}
-                    onPick={pickStrategy}
-                    onEditLoadout={openLoadoutEditor}
-                    auto={{ on: isAutoTactics, hold: decisionHold, durationMs: AUTO_CONFIRM_MS, onToggleHold: toggleHold, key: `${decisionKey}-${decisionHold}` }}
-                    timeout={{ remaining: timeoutsRemaining, active: timeoutActive, disabled: timeoutDisabled, onCall: callTimeout }}
-                    overtimeNote={overtimeNote}
-                />
-            )}
-        </AnimatePresence>
+    const decisionOverlay = useMemo(() => (preview
+        ? (
+            <DecisionCard
+                key={`decision-${decisionKey}`}
+                preview={preview}
+                names={names}
+                onPick={pickStrategy}
+                onEditLoadout={openLoadoutEditor}
+                auto={{ on: isAutoTactics, hold: decisionHold, durationMs: AUTO_CONFIRM_MS, onToggleHold: toggleHold, key: `${decisionKey}-${decisionHold}` }}
+                timeout={{ remaining: timeoutsRemaining, active: timeoutActive, disabled: timeoutDisabled, onCall: callTimeout }}
+                overtimeNote={overtimeNote}
+            />
+        )
+        : null
     ), [preview, decisionKey, names, pickStrategy, openLoadoutEditor, isAutoTactics, decisionHold, toggleHold, timeoutsRemaining, timeoutActive, timeoutDisabled, callTimeout, overtimeNote])
     const leaveToHub = useCallback(() => router.push(`/match/${params.id}/tactics`), [router, params.id])
     const pauseForLeave = useCallback(() => setIsPlaying(false), [setIsPlaying])

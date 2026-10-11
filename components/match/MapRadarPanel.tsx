@@ -79,7 +79,8 @@ interface MapRadarPanelProps {
      * Content laid over the bottom of the radar view (e.g. the live buy
      * decision): it sits above the round scrubber and footer and never covers
      * them, and scrolls when taller than the view. Shown in the panel's flow
-     * when the radar is collapsed.
+     * when the radar is collapsed. Pass null when there is nothing to show
+     * (the slot then leaves the DOM, fading out).
      */
     overlay?: ReactNode
 }
@@ -383,11 +384,20 @@ function MapRadarPanelComponent({
                                 )}
                             </div>
                         </div>
-                        {overlay != null && (
-                            <div className="radar-overlay-slot pointer-events-none absolute inset-x-3 bottom-2 top-2 z-20 flex flex-col justify-end">
-                                <div className="pointer-events-auto max-h-full min-h-0 overflow-y-auto overscroll-contain rounded-lg">{overlay}</div>
-                            </div>
-                        )}
+                        {/* Mounted only while there is something to show: an empty
+                            scroller over the canvas costs layerization every frame. */}
+                        <AnimatePresence>
+                            {overlay != null && (
+                                <motion.div
+                                    key="radar-overlay"
+                                    initial={false}
+                                    exit={staticEffects ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, y: 10, transition: { duration: 0.16, ease: "easeOut" } }}
+                                    className="radar-overlay-slot pointer-events-none absolute inset-x-3 bottom-2 top-2 z-20 flex flex-col justify-end"
+                                >
+                                    <div className="pointer-events-auto max-h-full min-h-0 overflow-y-auto overscroll-contain rounded-lg">{overlay}</div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                         </div>
                         {livePrep && (
                             <RadarScrubber
