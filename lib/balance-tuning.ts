@@ -599,3 +599,133 @@ export const PERSONALITY_TUNING = {
     /** Rejecting a club's bid for a Mercenary. */
     MERCENARY_BID_REJECT_MORALE: -6,
 } as const
+
+/**
+ * Phase 5.3 storylines and press conferences (engine/storylines/). Every
+ * number a storyline choice or press answer applies lives here, and the
+ * decision copy reads it from here, so the stated effect is the applied one.
+ */
+export const STORY_TUNING = {
+    // ── caps ──
+    /** Active arcs involving the managed club at once. */
+    MAX_ACTIVE_MANAGED: 2,
+    /** Resolved arcs kept in the save (player logs, cooldowns), newest first. */
+    KEEP_RESOLVED: 30,
+    /** Beat lines kept per arc. */
+    LOG_LENGTH: 8,
+    /** A decision beat waits (up to this many weeks) while MAX_OPEN_DECISIONS answers are already open. */
+    DECISION_WAIT_WEEKS: 3,
+    /** Weeks to answer a storyline decision. */
+    DECISION_WINDOW: 2,
+
+    // ── form: official map ratings at the managed club, newest last ──
+    FORM_WINDOW: 8,
+
+    // ── contract standoff ──
+    STANDOFF_MIN_WEEKS: 6,
+    STANDOFF_MAX_WEEKS: 12,
+    /** Top-N players by overall rating at the club. */
+    STANDOFF_TOP_N: 3,
+    /** Wage he asks: the usual renewal wage (Phase 5.2, by archetype) times this. */
+    STANDOFF_PREMIUM: 1.1,
+    STANDOFF_EXTENSION_WEEKS: 52,
+    /** Weeks of the raise the club must hold in the bank (the Renew button's gate). */
+    STANDOFF_RUNWAY_WEEKS: 26,
+    STANDOFF_OFFER_MORALE: 5,
+    STANDOFF_OFFER_LOYALTY: 3,
+    /** "Wait": still unrenewed this many weeks before his deal ends, he hands in a transfer request. */
+    STANDOFF_REQUEST_BEFORE_END: 3,
+    /** A listed player not sold within this many weeks ends the story. */
+    LISTED_RESOLVE_WEEKS: 8,
+
+    // ── rising star ──
+    RISING_MAX_AGE: 21,
+    RISING_MIN_MAPS: 6,
+    RISING_RATING: 1.15,
+    RISING_PROMISE_MORALE: 4,
+    RISING_PROMISE_LOYALTY: 3,
+    RISING_QUIET_RESOLVE_WEEKS: 6,
+
+    // ── slump ──
+    SLUMP_MAPS: 5,
+    SLUMP_RATING: 0.9,
+    SLUMP_BACK_MORALE: 6,
+    SLUMP_BENCH_MORALE: -3,
+    SLUMP_REST_FATIGUE: -10,
+    SLUMP_REST_MORALE: 3,
+    /** Back in form: this average over the last RECOVERY_MAPS maps, all played since the slump began. */
+    RECOVERY_MAPS: 3,
+    RECOVERY_RATING: 1.0,
+    /** Out of the side: official matches in a row on the bench. */
+    DROPPED_BENCHED: 3,
+    SLUMP_MAX_WEEKS: 8,
+
+    // ── rivalry ──
+    /** Meetings before the biggest rival counts as a rivalry. */
+    RIVAL_MIN_MEETINGS: 3,
+    /** Weeks ahead of the fixture the build-up may start. */
+    RIVAL_LOOKAHEAD: 1,
+
+    // ── veteran's last dance ──
+    LAST_DANCE_MIN_AGE: 31,
+    /** Season-end retirement chance (engine/processors/event-processor.ts) that makes it a story. */
+    LAST_DANCE_MIN_CHANCE: 0.1,
+    /** Weeks of the season the hint can come (the retirement check runs in week 52). */
+    LAST_DANCE_FROM_WEEK: 28,
+    LAST_DANCE_TO_WEEK: 46,
+    /** Persuaded: this season's retirement chance is multiplied by this. */
+    PERSUADE_RETIREMENT_FACTOR: 0.5,
+    PERSUADE_MORALE: 5,
+    PERSUADE_LOYALTY: 5,
+
+    // ── dressing-room rift ──
+    /** Two starters this unfriendly (amicability) clash after a bad run. */
+    RIFT_AMICABILITY: 35,
+    RIFT_SIDE_WITH: 8,
+    RIFT_SIDE_AGAINST: -6,
+    RIFT_CLEAR_MORALE: 4,
+    RIFT_CLEAR_CHEMISTRY: -2,
+    RIFT_RESOLVE_WEEKS: 3,
+
+    // ── giant-killer run ──
+    GIANT_WINDOW_WEEKS: 3,
+    /** "Ranked much higher": at least this many world-ranking places above the winner. */
+    GIANT_RANK_GAP: 15,
+    /** Another club's run only makes news when both beaten clubs are in this top. */
+    GIANT_AI_MAX_OPP_RANK: 20,
+    /** The managed club's run: followers gained and board confidence, applied once. */
+    GIANT_FANS: 2000,
+    GIANT_BOARD: 2,
+    GIANT_RESOLVE_WEEKS: 3,
+
+    // ── board under pressure ──
+    BOARD_PRESSURE_BELOW: 45,
+    BOARD_ULTIMATUM_AFTER_WEEKS: 2,
+    BOARD_MAX_WEEKS: 20,
+
+    // ── cooldowns: weeks since the club's last arc of the kind, and since the subject's last one ──
+    COOLDOWN_KIND: {
+        CONTRACT_STANDOFF: 6, RISING_STAR: 8, SLUMP: 4, RIVALRY: 4,
+        LAST_DANCE: 4, RIFT: 8, GIANT_KILLER: 8, BOARD_PRESSURE: 12,
+    },
+    COOLDOWN_SUBJECT: {
+        CONTRACT_STANDOFF: 26, RISING_STAR: 52, SLUMP: 12, RIVALRY: 6,
+        LAST_DANCE: 52, RIFT: 16, GIANT_KILLER: 13, BOARD_PRESSURE: 16,
+    },
+
+    // ── press conferences ──
+    PRESS_BOLD_MORALE: 3,
+    PRESS_BOLD_FANS: 1000,
+    PRESS_BOLD_BOARD: -1,
+    PRESS_MEASURED_BOARD: 1,
+    PRESS_PLAYER_BACK_MORALE: 4,
+    PRESS_PLAYER_CRITICISE_MORALE: -4,
+    PRESS_PLAYER_CRITICISE_BOARD: 1,
+    PRESS_PLAYER_STAY_LOYALTY: 2,
+    PRESS_TEAM_MORALE: 1,
+    PRESS_FORM_FANS: 500,
+    /** A question about a player in form needs this rating over his last SLUMP_MAPS maps. */
+    PRESS_STAR_RATING: 1.1,
+    /** League decider: this many league rounds or fewer left for the club. */
+    PRESS_DECIDER_ROUNDS: 2,
+} as const

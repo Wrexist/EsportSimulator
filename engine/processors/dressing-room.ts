@@ -189,10 +189,14 @@ function requestReason(p: PlayerSaveData, team: TeamSaveData): { reason: "BENCH"
     return { reason: "MORALE", text: `His morale has been below ${T.UNHAPPY_MORALE} for weeks and he doubts the project.` }
 }
 
-/** The inbox decision. Choice effects go through engine/event-choice.ts like every answer. */
-export function transferRequestEvent(p: PlayerSaveData, team: TeamSaveData, week: number): GameEventSaveData {
+/**
+ * The inbox decision. Choice effects go through engine/event-choice.ts like
+ * every answer. `cause` replaces the morale/bench reason when another rule
+ * raises the request (Phase 5.3: an unrenewed contract standoff).
+ */
+export function transferRequestEvent(p: PlayerSaveData, team: TeamSaveData, week: number, cause?: { reason: string; text: string }): GameEventSaveData {
     const archetype = getArchetype(p)
-    const { reason, text } = requestReason(p, team)
+    const { reason, text } = cause ?? requestReason(p, team)
     const promise = reason === "BENCH" ? "START" : "COMPETE"
     return {
         id: `transfer_request_${p.id}_${week}`,

@@ -30,7 +30,7 @@ import type {
 import type { MapResult, MatchResult } from "@/types"
 import { scriptLine, tallyScriptMap } from "./match/match-stats"
 import { matchImportance, type MatchImportance } from "./world-ranking"
-import { RANKING_TUNING, RECORDS_TUNING } from "@/lib/balance-tuning"
+import { RANKING_TUNING, RECORDS_TUNING, STORY_TUNING } from "@/lib/balance-tuning"
 import { recordManagedResult, recordManagedTitle } from "./manager-timeline"
 import { perfTrace } from "./perf-trace"
 
@@ -203,6 +203,16 @@ const mapScore = (m: MapResult) => ({
     away: m.awayScore ?? m.finalScore?.team2 ?? 0,
 })
 
+/**
+ * Phase 5.3: the managed club's players keep their last official map
+ * ratings at the club (storylines and press read them). Reset on a club change.
+ */
+export function pushFormRating(p: PlayerSaveData, clubId: string, rating: number): void {
+    const window = p.formWindow && p.formWindow.clubId === clubId ? p.formWindow : (p.formWindow = { clubId, ratings: [] })
+    window.ratings.push(round(rating, 2))
+    if (window.ratings.length > STORY_TUNING.FORM_WINDOW) window.ratings.splice(0, window.ratings.length - STORY_TUNING.FORM_WINDOW)
+}
+
 function updatePersonalBest(p: PlayerSaveData, key: "bestMapRating" | "mostMapKills", value: number, week: number, vs: string, map: string): void {
     const best = p[key]
     if (best && best.value >= value) return
@@ -277,6 +287,7 @@ function recordMatch(save: GameSave, match: OfficialMatch, result: MatchResult, 
                     })
                     updatePersonalBest(p, "bestMapRating", rating, match.week, opponentOf(teamId), map.map)
                     updatePersonalBest(p, "mostMapKills", a.kills, match.week, opponentOf(teamId), map.map)
+                    if (teamId === save.playerTeamId) pushFormRating(p, teamId, rating)
                 }
                 const entry = (value: number): RecordEntry => ({
                     value, teamId, opponentId: opponentOf(teamId), week: match.week, matchId: match.id,
@@ -317,6 +328,8 @@ function recordMatch(save: GameSave, match: OfficialMatch, result: MatchResult, 
                 maps: maps.length, rounds, kills: st.kills || 0, deaths: st.deaths || 0, assists: st.assists || 0, damage,
                 ratingSum: rating * rounds, impact: (rating - 1) * rounds * (weight.get(teamId) ?? 0),
             })
+            // No per-map table in a legacy result: each map carries the series rating.
+            if (teamId === save.playerTeamId) for (let i = 0; i < maps.length; i++) pushFormRating(p, teamId, rating)
         }
     }
 

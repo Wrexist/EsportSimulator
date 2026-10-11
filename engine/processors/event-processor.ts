@@ -3,6 +3,7 @@ import { SeededRNG } from "../rng"
 import { EventType, Team, InjuryType } from "@/types"
 import { SaveManager } from "../save-manager"
 import { hallOfFameAchievements, hallOfFameEntry, qualifiesForHallOfFame } from "../hall-of-fame-manager"
+import { retirementChance } from "../retirement-chance"
 
 const INJURY_BASE_CHANCE = 0.002
 const FATIGUE_INJURY_MULTIPLIER = 0.002
@@ -480,13 +481,7 @@ export class EventProcessor {
 
             // Probabilistic retirement from age 32+
             if (player.age >= 32) {
-                const ageOverThreshold = player.age - 31
-                let retirementChance = 0.05 * ageOverThreshold
-                if (player.skill < 60) retirementChance += 0.1
-                if (player.form < 40) retirementChance += 0.1
-                if (player.health < 50) retirementChance += 0.15
-
-                if (rng.bool(retirementChance)) {
+                if (rng.bool(retirementChance(player, save.currentWeek))) {
                     retirePlayer(player)
                 }
             }

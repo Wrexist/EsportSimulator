@@ -1,5 +1,7 @@
 import { generateCareerDecision } from "./career-decisions"
 import { expireDecisions, normalizeDecisions } from "./decision-deadlines"
+import { processStorylines } from "./storylines"
+import { createPressConference } from "./storylines/press"
 /**
  * Atomic Week Processor
  * Phase 5: Transactional week tick with rollback/resume
@@ -700,6 +702,14 @@ export class AtomicWeekProcessor {
                 closeStint(save, save.gameOverReason === "SACKED" ? "sacked" : "folded")
                 JobOfferGenerator.createDismissalOffers(save, new SeededRNG(rng.int(1, 2147483646)))
             }
+            // Phase 5.3: storylines (beats, decisions, news) once results,
+            // retirements and the board have settled, then this week's press
+            // conference before a big match. No RNG.
+            const __sStories = perfTrace.stepsEnabled ? perfTrace.now() : 0
+            const stories = processStorylines(save)
+            createPressConference(save)
+            mark({ type: "event", label: stories.applied[0] ?? "Storylines" })
+            perfTrace.step("step.12b_storylines", __sStories)
             // Every open request gets its deadline and default; a repeat of an
             // open request refreshes it instead of stacking (Phase 4.9).
             normalizeDecisions(save)

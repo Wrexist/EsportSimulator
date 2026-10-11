@@ -74,7 +74,27 @@ const PREFIX_RULES: Array<[prefix: string, rule: DecisionRule]> = [
     // Phase 5.2: a player's transfer request (engine/processors/dressing-room.ts
     // spaces them out and caps them per season itself).
     ["transfer_request_", rule({ family: "transfer_request", label: "Transfer request", window: 2, cooldown: 0, defaultChoiceId: "refuse", consequence: "refuses {name}'s transfer request (his morale and loyalty drop)" })],
+    // Phase 5.3: a press conference before a big match; the deadline is match day.
+    ["press_", rule({ family: "press", label: "Press conference", window: 0, cooldown: 0, defaultChoiceId: "no_one", consequence: "sends no one to the press conference: no effect" })],
 ]
+
+/**
+ * Phase 5.3 storyline decisions (engine/storylines/): each carries its own
+ * default and the consequence it states (`data.storyDefault`); one family per
+ * arc, so two stories never merge, and no cooldown (the arc spaces itself).
+ */
+function storyRule(e: EventLike): DecisionRule {
+    const data = dataOf(e)
+    const d = (data.storyDefault ?? {}) as { choiceId?: unknown; consequence?: unknown; label?: unknown }
+    return {
+        family: `story:${String(data.storyArcId ?? e.id)}`,
+        label: typeof d.label === "string" ? d.label : typeof data.title === "string" ? data.title : "Storyline decision",
+        window: 2,
+        cooldown: 0,
+        defaultChoiceId: typeof d.choiceId === "string" ? d.choiceId : null,
+        consequence: typeof d.consequence === "string" ? d.consequence : "lets it lapse",
+    }
+}
 
 /** Situation decisions (engine/career-decisions.ts) keep their two-week window and eight-week spacing. */
 const CAREER_RULES: Record<string, DecisionRule> = {
@@ -118,6 +138,7 @@ export function decisionRuleFor(e: EventLike): DecisionRule | null {
         return CAREER_RULES[key] ?? fallbackRule(e)
     }
     if (type === "CONTRACT" && dataOf(e).action === "EXPIRING") return LEGACY_CONTRACT_RULE
+    if (e.id.startsWith("story_")) return storyRule(e)
     for (const [prefix, r] of PREFIX_RULES) if (e.id.startsWith(prefix)) return r
     return isPendingDecisionEvent(e) ? fallbackRule(e) : null
 }
