@@ -136,17 +136,19 @@ export function DisplaySettings() {
 
 export function AudioSettings() {
     const s = useSettingsStore(useShallow(state => ({
+        soundEnabled: state.soundEnabled, setSoundEnabled: state.setSoundEnabled,
         masterVolume: state.masterVolume, setMasterVolume: state.setMasterVolume,
         musicVolume: state.musicVolume, setMusicVolume: state.setMusicVolume,
         sfxVolume: state.sfxVolume, setSfxVolume: state.setSfxVolume,
+        uiSounds: state.uiSounds, setUiSounds: state.setUiSounds,
+        hoverSounds: state.hoverSounds, setHoverSounds: state.setHoverSounds,
+        muteWhenUnfocused: state.muteWhenUnfocused, setMuteWhenUnfocused: state.setMuteWhenUnfocused,
     })))
-    const soundEnabled = useGameStore(state => state.soundEnabled)
-    const setSoundEnabled = useGameStore(state => state.setSoundEnabled)
 
     return (
         <div className="divide-y divide-line">
-            <SettingRow id="set-sound" label="Sound" hint="All game audio: interface sounds and music.">
-                <Switch id="set-sound" checked={soundEnabled} onCheckedChange={setSoundEnabled} />
+            <SettingRow id="set-sound" label="Sound" hint="All game audio: music, match and moment sounds, interface sounds.">
+                <Switch id="set-sound" checked={s.soundEnabled} onCheckedChange={s.setSoundEnabled} />
             </SettingRow>
             <SettingRow label="Master volume">
                 <SettingSlider label="Master volume" value={s.masterVolume} min={0} max={100} step={1}
@@ -156,9 +158,18 @@ export function AudioSettings() {
                 <SettingSlider label="Music volume" value={s.musicVolume} min={0} max={100} step={1}
                     onChange={(v) => { s.setMusicVolume(v); soundManager.setMusicVolume(v) }} />
             </SettingRow>
-            <SettingRow label="Effects volume">
+            <SettingRow label="Effects volume" hint="Match, moment and interface sounds.">
                 <SettingSlider label="Effects volume" value={s.sfxVolume} min={0} max={100} step={1}
                     onChange={(v) => { s.setSfxVolume(v); soundManager.setSfxVolume(v) }} />
+            </SettingRow>
+            <SettingRow id="set-ui-sounds" label="Interface sounds" hint="Clicks, tabs, toggles and notifications.">
+                <Switch id="set-ui-sounds" checked={s.uiSounds} onCheckedChange={(v) => { s.setUiSounds(v); soundManager.setUiSounds(v) }} />
+            </SettingRow>
+            <SettingRow id="set-hover-sounds" label="Hover sounds" hint="A faint tick when the pointer moves over a button.">
+                <Switch id="set-hover-sounds" checked={s.hoverSounds} disabled={!s.uiSounds} onCheckedChange={(v) => { s.setHoverSounds(v); soundManager.setHoverSounds(v) }} />
+            </SettingRow>
+            <SettingRow id="set-mute-unfocused" label="Mute when the window is in the background" hint="Silences music and sounds while you use another window.">
+                <Switch id="set-mute-unfocused" checked={s.muteWhenUnfocused} onCheckedChange={(v) => { s.setMuteWhenUnfocused(v); soundManager.setMuteWhenUnfocused(v) }} />
             </SettingRow>
         </div>
     )

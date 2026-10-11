@@ -48,9 +48,8 @@ function isLiveMatchPath(path: string | null | undefined): boolean {
 
 export function GameShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
-    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton, soundEnabled } = useGameStore(useShallow(state => ({
+    const { theme, pendingCelebration, clearCelebration, pendingLegendPick, selectLegend, initAchievements, showBugReportButton } = useGameStore(useShallow(state => ({
         theme: state.theme,
-        soundEnabled: state.soundEnabled,
         pendingCelebration: state.pendingCelebration,
         clearCelebration: state.clearCelebration,
         pendingLegendPick: state.pendingLegendPick,
@@ -87,6 +86,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     }, [])
 
     const reducedMotion = useSettingsStore(state => state.reducedMotion)
+    const soundEnabled = useSettingsStore(state => state.soundEnabled)
     const motionReduced = useAppReducedMotion()
     const preferencesHydrated = useGameStore(state => state._hasHydrated)
 
@@ -98,6 +98,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             soundManager.setMasterVolume(settings.masterVolume)
             soundManager.setMusicVolume(settings.musicVolume)
             soundManager.setSfxVolume(settings.sfxVolume)
+            soundManager.setUiSounds(settings.uiSounds)
+            soundManager.setHoverSounds(settings.hoverSounds)
+            soundManager.setMuteWhenUnfocused(settings.muteWhenUnfocused)
             document.documentElement.classList.toggle("reduce-motion", settings.reducedMotion || media.matches)
             if (settings.reducedMotion || media.matches) stopConfetti()
             document.documentElement.classList.remove(...COLOR_VISION_MODES.filter(mode => mode !== "off"))
@@ -158,10 +161,13 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         }
         const handleVisibilityChange = () => {
             runtimeWindow.__esimWindowFocused = !document.hidden
-            soundManager.setForeground(!document.hidden)
+            // Audio follows focus too ("mute when window unfocused" decides whether that silences it).
+            soundManager.setForeground(!document.hidden && (typeof document.hasFocus !== "function" || document.hasFocus()))
         }
         window.addEventListener("beforeunload", handleBeforeUnload)
         document.addEventListener("visibilitychange", handleVisibilityChange)
+        window.addEventListener("focus", handleVisibilityChange)
+        window.addEventListener("blur", handleVisibilityChange)
         handleVisibilityChange()
         return () => {
             disposed = true
@@ -171,17 +177,20 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             exitResolverRef.current = null
             window.removeEventListener("beforeunload", handleBeforeUnload)
             document.removeEventListener("visibilitychange", handleVisibilityChange)
+            window.removeEventListener("focus", handleVisibilityChange)
+            window.removeEventListener("blur", handleVisibilityChange)
         }
     }, [])
 
-    const musicScene = routeMusicScene(pathname)
+    const inCareer = useGameStore(state => !!state.saveId && !!state.playerTeamId)
+    const musicScene = routeMusicScene(pathname, inCareer)
     useEffect(() => {
         soundManager.setQuietScene(musicScene === "silent")
         soundManager.setEnabled(preferencesHydrated && soundEnabled)
         if (musicScene === "silent") soundManager.stopMusic()
-        if (musicScene !== "silent") soundManager.startMusic(musicScene)
-        return () => { soundManager.stopMusic() }
+        else soundManager.startMusic(musicScene)
     }, [musicScene, soundEnabled, preferencesHydrated])
+    useEffect(() => () => soundManager.stopMusic(), [])
 
     const isNewGame = pathname === "/new-game" || pathname?.startsWith("/new-game/")
     const isMainMenu = pathname === "/main-menu"
@@ -284,6 +293,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
 
             if (e.key === "Escape") {
                 e.preventDefault()
+                soundManager.play("back")
                 router.back()
                 return
             }

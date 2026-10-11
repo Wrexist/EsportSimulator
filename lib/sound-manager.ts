@@ -1,474 +1,534 @@
 "use client"
 
-// Web Audio API Synthesizer for UI Sounds & Procedural Music
-// Generates all audio procedurally to avoid asset dependencies
+/**
+ * Sample-based audio engine. Every sound and music cue is a file under
+ * public/audio described by manifest.json (rendered by
+ * scripts/audio/render-audio-pack.ts). The engine only knows manifest ids,
+ * so any file can be replaced without code changes.
+ *
+ * Graph:  voice → category bus (ui | match | moment) → sfx ┐
+ *         music voice (crossfade) → music → duck ──────────┴→ master → focus → limiter → out
+ *
+ * Without an AudioContext (SSR, jsdom tests) every call is a no-op. If a file
+ * cannot be loaded the sound falls back to a short synthesised cue.
+ */
 
-import { AudioFeedbackGate, type SoundType } from './audio-feedback'
-
+import manifestJson from '@/public/audio/manifest.json'
+import { AudioFeedbackGate, type MusicScene, type SoundCategory, type SoundType } from './audio-feedback'
 import { useSettingsStore } from './settings-store'
 import { routeMusicScene } from './route-audio'
 
+export interface ManifestSound { file: string; category: SoundCategory; gain: number; duration: number; variation?: number; duck?: number; alias?: string }
+export interface ManifestMusic { file: string; gain: number; duration: number; loopStart: number; loopEnd: number; bpm?: number }
+export interface AudioManifest { format: string; sounds: Partial<Record<string, ManifestSound>>; music: Partial<Record<string, ManifestMusic>> }
+export interface PlayOptions {
+    /** linear gain multiplier for this call */
+    gain?: number
+    /** playback-rate multiplier (pitch) */
+    rate?: number
+    /** play at most once per key for the whole session, e.g. `outcome:<matchId>` */
+    key?: string
+}
+
+export const AUDIO_MANIFEST = manifestJson as unknown as AudioManifest
+const AUDIO_BASE = '/audio/'
+/** Headroom into the limiter, and music sitting under effects at equal slider values. */
+const MASTER_SCALE = 0.9
+const MUSIC_SCALE = 0.7
+const MAX_VOICES = 24
+const MAX_SAME_ID = 3
+/** How late a sound may still start once its file arrives (seconds). */
+const MAX_LATENCY: Record<SoundCategory, number> = { ui: 0.12, match: 0.35, moment: 2.5 }
+const MUSIC_FADE_IN = 1.6
+const MUSIC_FADE_OUT = 1.2
+/** Title moments switch the music to the celebration loop for a while. */
+const CELEBRATION_MS: Partial<Record<SoundType, number>> = { titleWin: 32_000, titleWinMajor: 45_000 }
+const UNLOCK_EVENTS = ['pointerdown', 'keydown', 'touchstart', 'click'] as const
+
+type FallbackShape = 'tick' | 'up' | 'down' | 'fanfare' | 'beeps' | 'thud'
+const FALLBACK: Partial<Record<SoundType, FallbackShape>> = {
+    click: 'tick', hover: 'tick', tab: 'tick', toggle: 'tick', back: 'tick',
+    error: 'down', roundLose: 'down', defeat: 'down', relegation: 'down',
+    victory: 'fanfare', titleWin: 'fanfare', titleWinMajor: 'fanfare', clutch: 'fanfare', seasonReview: 'fanfare', matchIntro: 'fanfare',
+    countdown: 'beeps', start: 'beeps', matchStart: 'beeps', bombPlant: 'beeps', bombDefuse: 'beeps',
+    bombExplode: 'thud',
+}
+
+interface Voice { src: AudioBufferSourceNode; gain: GainNode; id: SoundType }
+interface MusicVoice { scene: MusicScene; src: AudioBufferSourceNode; gain: GainNode; startedAt: number; offset: number; entry: ManifestMusic }
+interface Buses { master: GainNode; focus: GainNode; sfx: GainNode; music: GainNode; duck: GainNode; cat: Record<SoundCategory, GainNode> }
+
+const clampVolume = (value: number) => Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0
+
+function setParam(param: AudioParam, value: number, ctx: BaseAudioContext | null, smooth = 0.015) {
+    try {
+        if (ctx && typeof param.setTargetAtTime === 'function') {
+            param.cancelScheduledValues?.(ctx.currentTime)
+            param.setTargetAtTime(value, ctx.currentTime, smooth)
+        }
+    } catch { /* fall through to a direct set */ }
+    param.value = value
+}
+
 export class SoundManager {
+    private ctx: AudioContext | null = null
+    private decoder: BaseAudioContext | null = null
+    private buses: Buses | null = null
+    private buffers = new Map<string, AudioBuffer>()
+    private loading = new Map<string, Promise<AudioBuffer | null>>()
+    private failed = new Set<string>()
+    private voices: Voice[] = []
+    private gate = new AudioFeedbackGate()
+    private playedKeys = new Set<string>()
+
+    private enabled = true
     private quietScene = false
     private foreground = true
-    private ctx: AudioContext | null = null
-    private enabled: boolean = true
-    private masterGain: GainNode | null = null
-    private musicGain: GainNode | null = null
-    private sfxGain: GainNode | null = null
+    private muteWhenUnfocused = true
+    private uiSounds = true
+    private hoverSounds = false
     private masterVolume = 80
-    private musicVolume = 0
+    private musicVolume = 45
     private sfxVolume = 80
-    private pendingMusicScene: 'menu' | 'match' | 'dashboard' | null = null
-    private musicPlaying: boolean = false
-    private musicOscillators: OscillatorNode[] = []
-    private musicCleanup = new Map<OscillatorNode, () => void>()
-    private activeMusicScene: 'menu' | 'match' | 'dashboard' | null = null
-    private feedbackGate = new AudioFeedbackGate()
-    private musicInterval: ReturnType<typeof setInterval> | null = null
-    private ambientNoiseNode: AudioBufferSourceNode | null = null
-    private activeNodes: { osc: OscillatorNode; gain: GainNode }[] = []
-    private static readonly MAX_CONCURRENT_SOUNDS = 32
+    private categoryVolume: Record<SoundCategory, number> = { ui: 100, match: 100, moment: 100 }
+
+    private baseScene: MusicScene | null = null
+    private celebrating = false
+    private celebrationTimers: ReturnType<typeof setTimeout>[] = []
+    private music: MusicVoice | null = null
+    private pendingScene: MusicScene | null = null
+    private musicToken = 0
+    private positions = new Map<MusicScene, number>()
+    private refreshQueued = false
+    private suspendTimer: ReturnType<typeof setTimeout> | null = null
 
     constructor() {
-        if (typeof window !== "undefined") {
-            const initAudio = () => {
-                window.removeEventListener('click', initAudio)
-                window.removeEventListener('keydown', initAudio)
-                try {
-                    // Read stored preferences at the first gesture, before connecting audio.
-                    const settings = useSettingsStore.getState()
-                    this.setMasterVolume(settings.masterVolume)
-                    this.setMusicVolume(settings.musicVolume)
-                    this.setSfxVolume(settings.sfxVolume)
-                    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
-                    this.ctx = new AudioContextClass()
+        if (typeof window === 'undefined') return
+        const unlock = () => {
+            for (const type of UNLOCK_EVENTS) window.removeEventListener(type, unlock, true)
+            this.unlock()
+        }
+        // Capture phase: the context exists before a button's own pointerdown plays its click.
+        for (const type of UNLOCK_EVENTS) window.addEventListener(type, unlock, true)
+        // Decode the interface set ahead of the first press with an offline decoder (no autoplay limits).
+        const idle = (window as typeof window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback
+        if (typeof idle === 'function') idle.call(window, () => this.preload('ui'), { timeout: 4000 })
+        else if (typeof setTimeout === 'function') setTimeout(() => this.preload('ui'), 1500)
+    }
 
-                    // Master gain → destination
-                    this.masterGain = this.ctx.createGain()
-                    this.masterGain.gain.value = this.masterVolume / 100 * 0.42
-                    this.masterGain.connect(this.ctx.destination)
+    // ── lifecycle ───────────────────────────────────────────────────────────
 
-                    // Music sub-bus
-                    this.musicGain = this.ctx.createGain()
-                    this.musicGain.gain.value = this.musicVolume / 100 * 0.46
-                    this.musicGain.connect(this.masterGain)
-
-                    // SFX sub-bus
-                    this.sfxGain = this.ctx.createGain()
-                    this.sfxGain.gain.value = this.sfxVolume / 100
-                    this.sfxGain.connect(this.masterGain)
-                    if (this.pendingMusicScene) this.startMusic(this.pendingMusicScene)
-                } catch {
-                    // Silently degrade — all methods check for null ctx
-                }
-            }
-
-            window.addEventListener('click', initAudio)
-            window.addEventListener('keydown', initAudio)
+    /** Create/resume the AudioContext. Runs on the first gesture; safe to call again. */
+    public unlock() {
+        if (typeof window === 'undefined') return
+        if (this.ctx) {
+            if (this.ctx.state === 'suspended' && this.audible()) this.ctx.resume?.().catch(() => { })
+            return
+        }
+        try {
+            this.readSettings()
+            const Ctor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+            if (!Ctor) return
+            const ctx = new Ctor()
+            this.ctx = ctx
+            this.buses = this.buildGraph(ctx)
+            if (ctx.state === 'suspended') ctx.resume?.().catch(() => { })
+            this.preload('ui')
+            this.requestRefresh()
+        } catch {
+            this.ctx = null
+            this.buses = null
         }
     }
 
+    private readSettings() {
+        try {
+            const s = useSettingsStore.getState()
+            this.masterVolume = clampVolume(s.masterVolume)
+            this.musicVolume = clampVolume(s.musicVolume)
+            this.sfxVolume = clampVolume(s.sfxVolume)
+            if (typeof s.uiSounds === 'boolean') this.uiSounds = s.uiSounds
+            if (typeof s.hoverSounds === 'boolean') this.hoverSounds = s.hoverSounds
+            if (typeof s.muteWhenUnfocused === 'boolean') this.muteWhenUnfocused = s.muteWhenUnfocused
+        } catch { /* settings unavailable: keep defaults */ }
+    }
+
+    private buildGraph(ctx: AudioContext): Buses {
+        const gain = (value: number) => { const g = ctx.createGain(); g.gain.value = value; return g }
+        const master = gain(this.masterVolume / 100 * MASTER_SCALE)
+        const focus = gain(this.audible() ? 1 : 0)
+        const music = gain(this.musicVolume / 100 * MUSIC_SCALE)
+        const sfx = gain(this.sfxVolume / 100)
+        const duck = gain(1)
+        const cat = {
+            ui: gain(this.uiSounds ? this.categoryVolume.ui / 100 : 0),
+            match: gain(this.categoryVolume.match / 100),
+            moment: gain(this.categoryVolume.moment / 100),
+        }
+        master.connect(focus)
+        const limiter = typeof ctx.createDynamicsCompressor === 'function' ? ctx.createDynamicsCompressor() : null
+        if (limiter) {
+            limiter.threshold.value = -4; limiter.knee.value = 2; limiter.ratio.value = 12
+            limiter.attack.value = 0.002; limiter.release.value = 0.15
+            focus.connect(limiter); limiter.connect(ctx.destination)
+        } else focus.connect(ctx.destination)
+        sfx.connect(master)
+        music.connect(duck); duck.connect(master)
+        cat.ui.connect(sfx); cat.match.connect(sfx); cat.moment.connect(sfx)
+        return { master, focus, sfx, music, duck, cat }
+    }
+
+    private audible(): boolean { return this.foreground || !this.muteWhenUnfocused }
+
+    private isQuiet(): boolean {
+        return this.quietScene || (typeof window !== 'undefined' && routeMusicScene(window.location?.pathname ?? null) === 'silent')
+    }
+
+    // ── settings ────────────────────────────────────────────────────────────
+
     public setEnabled(enabled: boolean) {
         this.enabled = enabled
-        if (!enabled) {
-            this.stopMusic()
-            this.stopAllSfx()
-        }
+        if (!enabled) this.stopAllSfx()
+        this.requestRefresh()
     }
 
     public setQuietScene(quiet: boolean) {
         this.quietScene = quiet
-        if (quiet) { this.stopMusic(); this.stopAllSfx() }
+        if (quiet) this.stopAllSfx()
+        this.requestRefresh()
     }
 
+    /** Window focus/visibility. Muting while unfocused keeps music position (the context is suspended). */
     public setForeground(foreground: boolean) {
         if (foreground === this.foreground) return
         this.foreground = foreground
-        if (!foreground) {
-            const scene = this.pendingMusicScene
-            this.stopMusic(); this.stopAllSfx()
-            this.pendingMusicScene = scene
-            this.ctx?.suspend().catch(() => {})
-        } else if (this.pendingMusicScene) this.startMusic(this.pendingMusicScene)
+        this.applyAudibility()
     }
 
-    private isQuiet(): boolean {
-        return this.quietScene || !this.foreground || (typeof window !== 'undefined' && routeMusicScene(window.location?.pathname ?? null) === 'silent')
+    public setMuteWhenUnfocused(mute: boolean) {
+        this.muteWhenUnfocused = mute
+        this.applyAudibility()
+    }
+
+    private applyAudibility() {
+        const ctx = this.ctx, buses = this.buses
+        if (!ctx || !buses) return
+        if (this.suspendTimer) { clearTimeout(this.suspendTimer); this.suspendTimer = null }
+        if (this.audible()) {
+            if (ctx.state === 'suspended') ctx.resume?.().catch(() => { })
+            setParam(buses.focus.gain, 1, ctx, 0.08)
+        } else {
+            setParam(buses.focus.gain, 0, ctx, 0.04)
+            this.suspendTimer = setTimeout(() => {
+                this.suspendTimer = null
+                if (!this.audible()) ctx.suspend?.().catch(() => { })
+            }, 220)
+        }
     }
 
     public setMasterVolume(value: number) {
-        this.masterVolume = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0
-        if (this.masterGain) this.masterGain.gain.value = this.masterVolume / 100 * 0.42
+        this.masterVolume = clampVolume(value)
+        if (this.buses) setParam(this.buses.master.gain, this.masterVolume / 100 * MASTER_SCALE, this.ctx)
+        this.requestRefresh()
     }
 
     public setMusicVolume(value: number) {
-        this.musicVolume = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0
-        if (this.musicGain) this.musicGain.gain.value = this.musicVolume / 100 * 0.46
+        this.musicVolume = clampVolume(value)
+        if (this.buses) setParam(this.buses.music.gain, this.musicVolume / 100 * MUSIC_SCALE, this.ctx)
+        this.requestRefresh()
     }
 
     public setSfxVolume(value: number) {
-        this.sfxVolume = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0
-        if (this.sfxGain) this.sfxGain.gain.value = this.sfxVolume / 100
+        this.sfxVolume = clampVolume(value)
+        if (this.buses) setParam(this.buses.sfx.gain, this.sfxVolume / 100, this.ctx)
     }
 
-    // ============ SFX ============
+    /** Independent level per effect category (0–100); the settings screen exposes ui on/off. */
+    public setCategoryVolume(category: SoundCategory, value: number) {
+        this.categoryVolume[category] = clampVolume(value)
+        this.applyCategory(category)
+    }
 
-    public play(type: SoundType) {
-        if (!this.enabled || this.isQuiet() || !this.ctx || !this.sfxGain || this.masterVolume === 0 || this.sfxVolume === 0) return
-        if (!this.feedbackGate.allow(type, this.ctx.currentTime)) return
+    public setUiSounds(enabled: boolean) {
+        this.uiSounds = enabled
+        this.applyCategory('ui')
+    }
 
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume().catch(() => { })
+    public setHoverSounds(enabled: boolean) { this.hoverSounds = enabled }
+
+    private applyCategory(category: SoundCategory) {
+        if (!this.buses) return
+        const on = category !== 'ui' || this.uiSounds
+        setParam(this.buses.cat[category].gain, on ? this.categoryVolume[category] / 100 : 0, this.ctx)
+    }
+
+    // ── effects ─────────────────────────────────────────────────────────────
+
+    public play(type: SoundType, opts: PlayOptions = {}) {
+        if (!this.enabled || this.isQuiet()) return
+        const entry = AUDIO_MANIFEST.sounds[type]
+        if (!entry) return
+        if (entry.category === 'ui' && !this.uiSounds) return
+        if (type === 'hover' && !this.hoverSounds) return
+        const ctx = this.ctx
+        if (!ctx || !this.buses || !this.audible()) return
+        if (this.masterVolume === 0 || this.sfxVolume === 0) return
+        if (opts.key) {
+            if (this.playedKeys.has(opts.key)) return
+            this.playedKeys.add(opts.key)
+            if (this.playedKeys.size > 256) this.playedKeys.delete(this.playedKeys.values().next().value as string)
         }
+        if (!this.gate.allow(type, ctx.currentTime)) return
+        if (ctx.state === 'suspended') ctx.resume?.().catch(() => { })
 
         try {
-        const t = this.ctx.currentTime
-
-        switch (type) {
-            case 'click': {
-                const osc = this.ctx.createOscillator()
-                const gain = this.ctx.createGain()
-                osc.connect(gain)
-                gain.connect(this.sfxGain)
-                osc.type = 'sine'
-                osc.frequency.setValueAtTime(720, t)
-                osc.frequency.exponentialRampToValueAtTime(980, t + 0.05)
-                gain.gain.setValueAtTime(0.14, t)
-                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.042)
-                osc.start(t)
-                osc.stop(t + 0.045)
-                this.trackNode(osc, gain)
-                break
-            }
-            case 'hover': {
-                const osc = this.ctx.createOscillator()
-                const gain = this.ctx.createGain()
-                osc.connect(gain)
-                gain.connect(this.sfxGain)
-                osc.type = 'triangle'
-                osc.frequency.setValueAtTime(400, t)
-                gain.gain.setValueAtTime(0.05, t)
-                gain.gain.linearRampToValueAtTime(0, t + 0.01)
-                osc.start(t)
-                osc.stop(t + 0.01)
-                this.trackNode(osc, gain)
-                break
-            }
-            case 'success':
-                this.playTone(523.25, t, 0.1)
-                this.playTone(659.25, t + 0.05, 0.1)
-                this.playTone(783.99, t + 0.1, 0.2)
-                break
-            case 'notification':
-                this.playTone(880, t, 0.08, 'sine', 0.12)
-                this.playTone(1320, t + 0.08, 0.18, 'sine', 0.08)
-                break
-            case 'error': {
-                const osc = this.ctx.createOscillator()
-                const gain = this.ctx.createGain()
-                osc.connect(gain)
-                gain.connect(this.sfxGain)
-                osc.type = 'triangle'
-                osc.frequency.setValueAtTime(150, t)
-                osc.frequency.linearRampToValueAtTime(100, t + 0.2)
-                gain.gain.setValueAtTime(0.16, t)
-                gain.gain.linearRampToValueAtTime(0, t + 0.2)
-                osc.start(t)
-                osc.stop(t + 0.2)
-                this.trackNode(osc, gain)
-                break
-            }
-            case 'start': {
-                const o1 = this.ctx.createOscillator()
-                const g1 = this.ctx.createGain()
-                o1.connect(g1)
-                g1.connect(this.sfxGain)
-                o1.frequency.setValueAtTime(110, t)
-                o1.frequency.exponentialRampToValueAtTime(440, t + 0.5)
-                g1.gain.setValueAtTime(0, t)
-                g1.gain.linearRampToValueAtTime(0.5, t + 0.1)
-                g1.gain.exponentialRampToValueAtTime(0.01, t + 1.0)
-                o1.start(t)
-                o1.stop(t + 1.0)
-                this.trackNode(o1, g1)
-                break
-            }
-            case 'victory':
-                // Triumphant ascending arpeggio (C major → G major)
-                this.playTone(523.25, t, 0.15, 'sine', 0.4)       // C5
-                this.playTone(659.25, t + 0.1, 0.15, 'sine', 0.4)  // E5
-                this.playTone(783.99, t + 0.2, 0.15, 'sine', 0.4)  // G5
-                this.playTone(1046.5, t + 0.3, 0.4, 'sine', 0.5)   // C6
-                this.playTone(987.77, t + 0.5, 0.15, 'sine', 0.3)  // B5
-                this.playTone(1174.7, t + 0.6, 0.5, 'sine', 0.4)   // D6
-                break
-            case 'defeat':
-                // Descending minor chord
-                this.playTone(440, t, 0.3, 'sine', 0.3)            // A4
-                this.playTone(349.23, t + 0.15, 0.3, 'sine', 0.25) // F4
-                this.playTone(293.66, t + 0.3, 0.5, 'sine', 0.2)   // D4
-                break
-            case 'matchStart':
-                // Countdown beep pattern
-                this.playTone(440, t, 0.08, 'square', 0.2)
-                this.playTone(440, t + 0.3, 0.08, 'square', 0.2)
-                this.playTone(440, t + 0.6, 0.08, 'square', 0.2)
-                this.playTone(880, t + 0.9, 0.2, 'square', 0.3)
-                break
-            case 'roundWin':
-                this.playTone(659.25, t, 0.08, 'sine', 0.3)
-                this.playTone(783.99, t + 0.06, 0.12, 'sine', 0.3)
-                break
-            case 'roundLose':
-                this.playTone(349.23, t, 0.08, 'sine', 0.2)
-                this.playTone(293.66, t + 0.06, 0.12, 'sine', 0.2)
-                break
-            case 'weekAdvance':
-                // Soft clock-tick progression
-                this.playTone(520, t, 0.045, 'sine', 0.11)
-                this.playTone(740, t + 0.07, 0.08, 'sine', 0.09)
-                break
-            case 'transfer':
-                // Cash register / deal sound
-                this.playTone(523.25, t, 0.1, 'sine', 0.3)
-                this.playTone(659.25, t + 0.08, 0.1, 'sine', 0.3)
-                this.playTone(783.99, t + 0.16, 0.15, 'sine', 0.35)
-                break
-            case 'achievement':
-                // Triumphant fanfare
-                this.playTone(523.25, t, 0.12, 'sine', 0.4)
-                this.playTone(659.25, t + 0.1, 0.12, 'sine', 0.4)
-                this.playTone(783.99, t + 0.2, 0.12, 'sine', 0.4)
-                this.playTone(1046.5, t + 0.35, 0.5, 'sine', 0.5)
-                break
-            case 'contractSign':
-                // Pen scratch + confirmation
-                this.playTone(400, t, 0.05, 'triangle', 0.15)
-                this.playTone(600, t + 0.1, 0.15, 'sine', 0.25)
-                break
-            case 'facilityUpgrade':
-                // Building/construction ascending
-                this.playTone(220, t, 0.15, 'sine', 0.2)
-                this.playTone(330, t + 0.12, 0.15, 'sine', 0.25)
-                this.playTone(440, t + 0.24, 0.15, 'sine', 0.3)
-                this.playTone(550, t + 0.36, 0.25, 'sine', 0.35)
-                break
-            case 'tournamentAdvance':
-                // Ascending power chord
-                this.playTone(440, t, 0.1, 'sine', 0.3)
-                this.playTone(554.37, t + 0.08, 0.1, 'sine', 0.3)
-                this.playTone(659.25, t + 0.16, 0.2, 'sine', 0.35)
-                break
-        }
+            const buffer = this.buffers.get(entry.file)
+            if (buffer) { this.startVoice(type, entry, buffer, opts); return }
+            const failed = this.failed.has(entry.file)
+            // The very first interface press must be audible even if its file is still decoding.
+            if (entry.category === 'ui' || failed) this.playFallback(type, entry)
+            if (failed) return
+            const requested = ctx.currentTime
+            void this.load(entry.file).then(loaded => {
+                if (entry.category === 'ui' || this.ctx !== ctx || !this.enabled || this.isQuiet()) return
+                if (ctx.currentTime - requested > MAX_LATENCY[entry.category]) return
+                if (loaded) this.startVoice(type, entry, loaded, opts)
+                else this.playFallback(type, entry)
+            })
         } catch { /* AudioContext error — silently degrade */ }
     }
 
-    // ============ AMBIENT MUSIC ============
-
-    public startMusic(scene: 'menu' | 'match' | 'dashboard' = 'menu') {
-        if (!this.enabled) return
-        if (this.isQuiet()) { if (!this.foreground) this.pendingMusicScene = scene; return }
-        if (this.musicPlaying && this.activeMusicScene !== scene) this.stopMusic()
-        this.pendingMusicScene = scene
-        if (!this.ctx || !this.musicGain || this.musicPlaying) return
-
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume().catch(() => { })
-        }
-
-        this.musicPlaying = true
-        this.activeMusicScene = scene
-
-        if (scene === 'match') {
-            this.startMatchAmbience()
-        } else {
-            this.startAmbientPad()
-        }
+    private startVoice(type: SoundType, entry: ManifestSound, buffer: AudioBuffer, opts: PlayOptions) {
+        const ctx = this.ctx!, buses = this.buses!
+        const same = this.voices.filter(v => v.id === type)
+        if (same.length >= MAX_SAME_ID) this.releaseVoice(same[0], true)
+        if (this.voices.length >= MAX_VOICES) this.releaseVoice(this.voices[0], true)
+        const src = ctx.createBufferSource()
+        src.buffer = buffer
+        const variation = entry.variation ?? 0
+        const rate = (opts.rate ?? 1) * (variation ? 1 + (Math.random() * 2 - 1) * variation : 1)
+        if (rate !== 1) src.playbackRate.value = rate
+        const gain = ctx.createGain()
+        gain.gain.value = (entry.gain ?? 1) * (opts.gain ?? 1)
+        src.connect(gain)
+        gain.connect(buses.cat[entry.category])
+        const voice: Voice = { src, gain, id: type }
+        this.voices.push(voice)
+        src.addEventListener('ended', () => this.releaseVoice(voice), { once: true })
+        src.start()
+        if (entry.duck !== undefined) this.duckMusic(entry.duck, entry.duration)
+        const celebrate = CELEBRATION_MS[type]
+        if (celebrate) this.celebrate(celebrate, entry.duration * 0.8)
     }
 
-    public stopMusic() {
-        this.pendingMusicScene = null
-        this.musicPlaying = false
-        this.activeMusicScene = null
-        this.musicOscillators.slice().forEach(osc => {
-            try { osc.stop() } catch { }
-            this.musicCleanup.get(osc)?.()
-        })
-        this.musicOscillators = []
-        if (this.musicInterval) {
-            clearInterval(this.musicInterval)
-            this.musicInterval = null
-        }
-        if (this.ambientNoiseNode) {
-            try { this.ambientNoiseNode.stop() } catch { }
-            this.ambientNoiseNode = null
-        }
+    private releaseVoice(voice: Voice, stop = false) {
+        const idx = this.voices.indexOf(voice)
+        if (idx === -1) return
+        this.voices.splice(idx, 1)
+        if (stop) { try { voice.src.stop() } catch { /* already stopped */ } }
+        try { voice.src.disconnect() } catch { /* already disconnected */ }
+        try { voice.gain.disconnect() } catch { /* already disconnected */ }
     }
 
     public stopAllSfx() {
-        for (const entry of this.activeNodes.slice()) {
-            try { entry.osc.stop() } catch { /* already stopped */ }
-            try { entry.osc.disconnect() } catch { /* already disconnected */ }
-            try { entry.gain.disconnect() } catch { /* already disconnected */ }
-        }
-        this.activeNodes = []
+        for (const voice of this.voices.slice()) this.releaseVoice(voice, true)
     }
 
-    private startAmbientPad() {
-        if (!this.ctx || !this.musicGain) return
+    /** Short synthesised stand-in when a file is missing or still decoding. */
+    private playFallback(type: SoundType, entry: ManifestSound) {
+        const ctx = this.ctx, buses = this.buses
+        if (!ctx || !buses) return
+        const shape = FALLBACK[type] ?? (entry.category === 'ui' ? 'tick' : 'up')
+        const t = ctx.currentTime
+        const tone = (freq: number, at: number, dur: number, vol: number, wave: OscillatorType = 'sine') => {
+            const osc = ctx.createOscillator(), g = ctx.createGain()
+            osc.type = wave
+            osc.frequency.setValueAtTime(freq, t + at)
+            g.gain.setValueAtTime(0.0001, t + at)
+            g.gain.exponentialRampToValueAtTime(vol, t + at + 0.004)
+            g.gain.exponentialRampToValueAtTime(0.0001, t + at + dur)
+            osc.connect(g); g.connect(buses.cat[entry.category])
+            osc.addEventListener('ended', () => { try { osc.disconnect(); g.disconnect() } catch { /* gone */ } }, { once: true })
+            osc.start(t + at); osc.stop(t + at + dur + 0.02)
+        }
+        switch (shape) {
+            case 'tick': tone(1800, 0, 0.035, 0.07); break
+            case 'up': tone(880, 0, 0.2, 0.09); tone(1318.5, 0.07, 0.28, 0.09); break
+            case 'down': tone(330, 0, 0.18, 0.1, 'triangle'); tone(262, 0.1, 0.24, 0.09, 'triangle'); break
+            case 'fanfare': [587.3, 740, 880, 1174.7].forEach((f, i) => tone(f, i * 0.09, 0.45, 0.1)); break
+            case 'beeps': tone(1046.5, 0, 0.08, 0.09); tone(1046.5, 0.15, 0.08, 0.09); break
+            case 'thud': tone(70, 0, 0.45, 0.2); break
+        }
+    }
+
+    private duckMusic(level: number, duration: number) {
+        const ctx = this.ctx, buses = this.buses
+        if (!ctx || !buses) return
+        const p = buses.duck.gain
+        const now = ctx.currentTime
         try {
-
-        // Warm ambient pad using detuned sine waves (ethereal, non-distracting)
-        const chords = [
-            [130.81, 164.81, 196.00], // C3 E3 G3
-            [110.00, 130.81, 164.81], // A2 C3 E3
-            [116.54, 146.83, 174.61], // Bb2 D3 F3
-            [98.00, 130.81, 164.81],  // G2 C3 E3
-        ]
-
-        let chordIdx = 0
-
-        const playChord = () => {
-            if (!this.ctx || !this.musicGain || !this.musicPlaying) return
-
-            const t = this.ctx.currentTime
-            const notes = chords[chordIdx % chords.length]
-
-            notes.forEach(freq => {
-                const osc = this.ctx!.createOscillator()
-                const gain = this.ctx!.createGain()
-                osc.connect(gain)
-                gain.connect(this.musicGain!)
-
-                osc.type = 'sine'
-                osc.frequency.setValueAtTime(freq, t)
-                // Slight detune for warmth
-                osc.detune.setValueAtTime((Math.random() - 0.5) * 10, t)
-
-                gain.gain.setValueAtTime(0, t)
-                gain.gain.linearRampToValueAtTime(0.08, t + 1.5)
-                gain.gain.setValueAtTime(0.08, t + 6)
-                gain.gain.linearRampToValueAtTime(0, t + 8)
-
-                osc.start(t)
-                osc.stop(t + 8.5)
-                this.trackMusicNode(osc, gain)
-            })
-
-            chordIdx++
-        }
-
-        playChord()
-        this.musicInterval = setInterval(playChord, 8000)
-        } catch { /* AudioContext error — silently degrade */ }
+            p.cancelScheduledValues(now)
+            p.setValueAtTime(p.value, now)
+            p.linearRampToValueAtTime(level, now + 0.08)
+            const hold = Math.max(0.25, duration * 0.75)
+            p.setValueAtTime(level, now + 0.08 + hold)
+            p.linearRampToValueAtTime(1, now + 0.08 + hold + 1.2)
+        } catch { p.value = 1 }
     }
 
-    private startMatchAmbience() {
-        if (!this.ctx || !this.musicGain) return
-        try {
+    // ── music ───────────────────────────────────────────────────────────────
 
-        // Low frequency hum + filtered noise for crowd ambience
-        const t = this.ctx.currentTime
-
-        // Sub bass drone
-        const drone = this.ctx.createOscillator()
-        const droneGain = this.ctx.createGain()
-        drone.connect(droneGain)
-        droneGain.connect(this.musicGain)
-        drone.type = 'sine'
-        drone.frequency.setValueAtTime(55, t) // A1 - low sub bass
-        droneGain.gain.setValueAtTime(0, t)
-        droneGain.gain.linearRampToValueAtTime(0.06, t + 2)
-        drone.start(t)
-        this.trackMusicNode(drone, droneGain)
-
-        // Filtered noise for crowd rumble
-        const bufferSize = this.ctx.sampleRate * 4
-        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate)
-        const data = buffer.getChannelData(0)
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = (Math.random() * 2 - 1) * 0.5
-        }
-
-        const noiseSource = this.ctx.createBufferSource()
-        noiseSource.buffer = buffer
-        noiseSource.loop = true
-
-        const filter = this.ctx.createBiquadFilter()
-        filter.type = 'lowpass'
-        filter.frequency.setValueAtTime(300, t)
-
-        const noiseGain = this.ctx.createGain()
-        noiseGain.gain.setValueAtTime(0, t)
-        noiseGain.gain.linearRampToValueAtTime(0.04, t + 3)
-
-        noiseSource.connect(filter)
-        filter.connect(noiseGain)
-        noiseGain.connect(this.musicGain)
-        noiseSource.start(t)
-        noiseSource.addEventListener('ended', () => {
-            noiseSource.disconnect(); filter.disconnect(); noiseGain.disconnect()
-        }, { once: true })
-        this.ambientNoiseNode = noiseSource
-        } catch { /* AudioContext error — silently degrade */ }
+    /** Route music. 'dashboard' is the legacy name of the career scene. */
+    public startMusic(scene: MusicScene | 'dashboard' = 'menu') {
+        const next: MusicScene = scene === 'dashboard' ? 'career' : scene
+        if (next !== this.baseScene && next === 'match') this.endCelebration()
+        this.baseScene = next
+        if (next === 'match') this.preload('match')
+        this.requestRefresh()
     }
 
-    // ============ INTERNALS ============
-
-    private trackMusicNode(osc: OscillatorNode, gain: GainNode) {
-        this.musicOscillators.push(osc)
-        const cleanup = () => {
-            try { osc.disconnect(); gain.disconnect() } catch { /* already disconnected */ }
-            this.musicOscillators = this.musicOscillators.filter(node => node !== osc)
-            this.musicCleanup.delete(osc)
-        }
-        this.musicCleanup.set(osc, cleanup)
-        osc.addEventListener('ended', cleanup, { once: true })
+    public stopMusic() {
+        this.baseScene = null
+        this.requestRefresh()
     }
 
-    private trackNode(osc: OscillatorNode, gain: GainNode) {
-        // Evict oldest node if at capacity
-        if (this.activeNodes.length >= SoundManager.MAX_CONCURRENT_SOUNDS) {
-            const oldest = this.activeNodes.shift()
-            if (oldest) {
-                try { oldest.osc.stop() } catch { /* already stopped */ }
-                try { oldest.osc.disconnect() } catch { /* already disconnected */ }
-                try { oldest.gain.disconnect() } catch { /* already disconnected */ }
-            }
-        }
+    /** Switch to the celebration loop for a while (after `delaySec`), then back to the route's scene. */
+    public celebrate(durationMs = 32_000, delaySec = 0) {
+        this.endCelebration()
+        const start = () => { this.celebrating = true; this.requestRefresh() }
+        if (delaySec > 0) this.celebrationTimers.push(setTimeout(start, delaySec * 1000))
+        else start()
+        this.celebrationTimers.push(setTimeout(() => { this.celebrating = false; this.requestRefresh() }, delaySec * 1000 + durationMs))
+        const entry = AUDIO_MANIFEST.music.celebration
+        if (entry) void this.load(entry.file)
+    }
 
-        const entry = { osc, gain }
-        this.activeNodes.push(entry)
+    private endCelebration() {
+        this.celebrationTimers.forEach(clearTimeout)
+        this.celebrationTimers = []
+        if (this.celebrating) { this.celebrating = false; this.requestRefresh() }
+    }
 
-        // Auto-cleanup when the oscillator ends
-        osc.addEventListener('ended', () => {
-            try { osc.disconnect() } catch { /* already disconnected */ }
-            try { gain.disconnect() } catch { /* already disconnected */ }
-            const idx = this.activeNodes.indexOf(entry)
-            if (idx !== -1) this.activeNodes.splice(idx, 1)
+    /** The scene that should be audible right now (null = silence). */
+    public currentScene(): MusicScene | null {
+        if (!this.enabled || this.isQuiet() || this.musicVolume === 0 || this.masterVolume === 0 || !this.baseScene) return null
+        return this.celebrating && this.baseScene !== 'match' ? 'celebration' : this.baseScene
+    }
+
+    private requestRefresh() {
+        if (this.refreshQueued) return
+        this.refreshQueued = true
+        // Coalesce stop/start pairs from one render (route effects) into one decision.
+        void Promise.resolve().then(() => { this.refreshQueued = false; this.refreshMusic() })
+    }
+
+    private refreshMusic() {
+        if (!this.ctx || !this.buses) return
+        const want = this.currentScene()
+        if (want && want === this.music?.scene) { this.pendingScene = null; return }
+        if (want && want === this.pendingScene) return
+        this.fadeOutMusic()
+        this.musicToken++
+        this.pendingScene = null
+        if (!want) return
+        const entry = AUDIO_MANIFEST.music[want]
+        if (!entry) return
+        const token = this.musicToken
+        this.pendingScene = want
+        void this.load(entry.file).then(buffer => {
+            if (token !== this.musicToken) return
+            this.pendingScene = null
+            if (buffer && this.ctx && this.currentScene() === want) this.startMusicVoice(want, entry, buffer)
         })
     }
 
-    private playTone(freq: number, startTime: number, duration: number, type: OscillatorType = 'sine', volume: number = 0.3) {
-        if (!this.ctx || !this.sfxGain) return
+    private startMusicVoice(scene: MusicScene, entry: ManifestMusic, buffer: AudioBuffer) {
+        const ctx = this.ctx!, buses = this.buses!
+        try {
+            const src = ctx.createBufferSource()
+            src.buffer = buffer
+            src.loop = true
+            src.loopStart = entry.loopStart
+            src.loopEnd = entry.loopEnd
+            const gain = ctx.createGain()
+            const now = ctx.currentTime
+            gain.gain.setValueAtTime(0, now)
+            gain.gain.linearRampToValueAtTime(entry.gain ?? 1, now + MUSIC_FADE_IN)
+            src.connect(gain)
+            gain.connect(buses.music)
+            const offset = scene === 'celebration' ? 0 : this.positions.get(scene) ?? 0
+            src.start(now, offset)
+            this.music = { scene, src, gain, startedAt: now, offset, entry }
+        } catch { this.music = null }
+    }
 
-        const osc = this.ctx.createOscillator()
-        const gain = this.ctx.createGain()
+    private fadeOutMusic() {
+        const m = this.music
+        if (!m) return
+        this.music = null
+        const ctx = this.ctx
+        if (!ctx) return
+        const now = ctx.currentTime
+        const len = m.entry.loopEnd - m.entry.loopStart
+        let pos = m.offset + (now - m.startedAt)
+        if (pos > m.entry.loopEnd && len > 0) pos = m.entry.loopStart + ((pos - m.entry.loopStart) % len)
+        this.positions.set(m.scene, pos)
+        try {
+            m.gain.gain.cancelScheduledValues(now)
+            m.gain.gain.setValueAtTime(m.gain.gain.value, now)
+            m.gain.gain.linearRampToValueAtTime(0, now + MUSIC_FADE_OUT)
+            m.src.addEventListener('ended', () => { try { m.src.disconnect(); m.gain.disconnect() } catch { /* gone */ } }, { once: true })
+            m.src.stop(now + MUSIC_FADE_OUT + 0.05)
+        } catch {
+            try { m.src.disconnect(); m.gain.disconnect() } catch { /* gone */ }
+        }
+    }
 
-        osc.connect(gain)
-        gain.connect(this.sfxGain)
+    // ── loading ─────────────────────────────────────────────────────────────
 
-        osc.type = type
-        osc.frequency.setValueAtTime(freq, startTime)
+    /** Fetch and decode every file of a category (or the music cue for a scene). */
+    public preload(set: SoundCategory | 'match') {
+        const files = new Set<string>()
+        for (const entry of Object.values(AUDIO_MANIFEST.sounds)) if (entry && entry.category === set) files.add(entry.file)
+        if (set === 'match' && AUDIO_MANIFEST.music.match) files.add(AUDIO_MANIFEST.music.match.file)
+        files.forEach(file => { void this.load(file) })
+    }
 
-        gain.gain.setValueAtTime(volume, startTime)
-        gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
+    private getDecoder(): BaseAudioContext | null {
+        if (this.ctx) return this.ctx
+        if (this.decoder) return this.decoder
+        if (typeof window === 'undefined') return null
+        try {
+            const Offline = window.OfflineAudioContext || (window as typeof window & { webkitOfflineAudioContext?: typeof OfflineAudioContext }).webkitOfflineAudioContext
+            this.decoder = Offline ? new Offline(2, 1, 48000) : null
+        } catch { this.decoder = null }
+        return this.decoder
+    }
 
-        osc.start(startTime)
-        osc.stop(startTime + duration)
+    private load(file: string): Promise<AudioBuffer | null> {
+        const cached = this.buffers.get(file)
+        if (cached) return Promise.resolve(cached)
+        if (this.failed.has(file)) return Promise.resolve(null)
+        const pending = this.loading.get(file)
+        if (pending) return pending
+        const decoder = this.getDecoder()
+        if (!decoder || typeof fetch !== 'function') return Promise.resolve(null)
+        const job = fetch(AUDIO_BASE + file)
+            .then(res => { if (!res.ok) throw new Error(`${res.status} ${file}`); return res.arrayBuffer() })
+            .then(data => decoder.decodeAudioData(data))
+            .then(buffer => { this.buffers.set(file, buffer); return buffer })
+            .catch(() => { this.failed.add(file); return null })
+            .finally(() => { this.loading.delete(file) })
+        this.loading.set(file, job)
+        return job
+    }
 
-        this.trackNode(osc, gain)
+    /** Diagnostics for tests and the settings screen. */
+    public status() {
+        return {
+            unlocked: !!this.ctx, state: this.ctx?.state ?? 'none', scene: this.music?.scene ?? null,
+            loaded: this.buffers.size, failed: [...this.failed], voices: this.voices.length,
+        }
     }
 }
 

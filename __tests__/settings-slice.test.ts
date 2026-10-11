@@ -1,19 +1,14 @@
 /**
- * Tests for the settings slice — the tutorial/sound/volume/time-mode
- * toggles persisted on the store.
- *
- * soundManager calls (setEnabled, setMasterVolume, setMusicVolume) are
- * safe to invoke in the jest node env because SoundManager bails out
- * of AudioContext init when `typeof window === "undefined"`. The methods
- * become no-ops; we just observe the state changes.
+ * Tests for the settings slice — the tutorial/display/time-mode toggles
+ * persisted on the store. Audio settings (sound on/off, volumes) live only
+ * in lib/settings-store.ts, never on the game store.
  *
  * Coverage:
  *   - completeOnboarding / completeTutorial: idempotent setters
  *   - triggerTutorial: resets multiple flags + bumps manualTutorialTrigger
- *   - setShowTutorialOnNewGame / setSoundEnabled / setResolution /
- *     setMasterVolume / setMusicVolume / setGameSpeed / setDifficulty /
- *     setAutoSave / setNotifications / setShowBugReportButton: trivial
- *     setters
+ *   - setShowTutorialOnNewGame / setResolution / setGameSpeed /
+ *     setDifficulty / setAutoSave / setNotifications /
+ *     setShowBugReportButton: trivial setters
  *   - setTimeMode: HYBRID_DAILY ↔ WEEKLY behavior with currentDay
  *     transition (the only state-touching action)
  */
@@ -91,21 +86,12 @@ describe("settings — tutorial / onboarding flags", () => {
     })
 })
 
-describe("settings — sound + display setters", () => {
-    test("setSoundEnabled writes to state (sound manager side-effect is async-imported, ignored here)", () => {
-        const h = makeHarness(makeBaseState({ soundEnabled: true }))
-        const slice = createSettingsSlice(h.set, h.get)
-        slice.setSoundEnabled(false)
-        expect(h.state().soundEnabled).toBe(false)
-    })
-
-    test("setMasterVolume / setMusicVolume write to state", () => {
-        const h = makeHarness(makeBaseState({ masterVolume: 80, musicVolume: 60 }))
-        const slice = createSettingsSlice(h.set, h.get)
-        slice.setMasterVolume(30)
-        slice.setMusicVolume(20)
-        expect(h.state().masterVolume).toBe(30)
-        expect(h.state().musicVolume).toBe(20)
+describe("settings — display setters", () => {
+    test("audio settings have one home: the game store carries no duplicate sound/volume fields", () => {
+        const h = makeHarness(makeBaseState())
+        const slice = createSettingsSlice(h.set, h.get) as Record<string, unknown>
+        for (const key of ["setSoundEnabled", "setMasterVolume", "setMusicVolume"]) expect(slice[key]).toBeUndefined()
+        for (const key of ["soundEnabled", "masterVolume", "musicVolume"]) expect(settingsInitialState).not.toHaveProperty(key)
     })
 
     test("setResolution / setGameSpeed / setDifficulty plain setters", () => {
