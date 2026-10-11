@@ -112,7 +112,7 @@ import { createTeamFacilitiesSlice } from "@/store/slices/team-facilities-slice"
 import { createTransferContractSlice } from "@/store/slices/transfer-contract-slice"
 import { createAcademySlice } from "@/store/slices/academy-slice"
 import { createAdvanceSlice, initialAdvanceState, isContinueStepping, type AdvanceState, type AdvanceActions } from "@/store/slices/advance-slice"
-import { WeekChangeRecorder, diffClubs, snapshotClub, type ChangeCause, type ChangeEntry } from "@/lib/week-changes"
+import { WeekChangeRecorder, diffClubs, sideScore, snapshotClub, type ChangeCause, type ChangeEntry } from "@/lib/week-changes"
 import { buildWeekReport, newTracker, pushWeekReport, sanitizeWeekReports } from "@/lib/week-report"
 import { recordWeekChanges, withTracker, type TrackingState } from "@/store/utils/week-tracking"
 import { getEventTitle } from "@/lib/event-format"
@@ -809,9 +809,7 @@ function weekRecordedActions(set: unknown, get: unknown) {
     const isHome = m.homeTeamId === state.playerTeamId
     const opp = state.teams.find(t => t.id === (isHome ? m.awayTeamId : m.homeTeamId))?.name ?? "opponent"
     const won = m.result.winnerId === state.playerTeamId
-    const mine = isHome ? m.result.homeScore : m.result.awayScore
-    const theirs = isHome ? m.result.awayScore : m.result.homeScore
-    return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${mine}–${theirs}` }
+    return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${sideScore(m.result, isHome)}` }
   }
 
   const sim = slice(createMatchSimulationSlice as never) as ReturnType<typeof createMatchSimulationSlice>

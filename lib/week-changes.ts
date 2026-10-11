@@ -155,6 +155,22 @@ export function moneyCause(category: string, description: string): ChangeCause {
     }
 }
 
+/**
+ * Score from the managed club's side, as the result screens show it: rounds
+ * for a single map, maps for a series.
+ */
+export function sideScore(
+    result: { homeScore: number; awayScore: number; maps?: unknown[] },
+    isHome: boolean,
+): string {
+    const maps = (result.maps ?? []) as Array<{ homeScore?: number; awayScore?: number; finalScore?: { team1: number; team2: number } }>
+    if (maps.length === 1) {
+        const h = maps[0].finalScore?.team1 ?? maps[0].homeScore, a = maps[0].finalScore?.team2 ?? maps[0].awayScore
+        if (typeof h === "number" && typeof a === "number") return isHome ? `${h}–${a}` : `${a}–${h}`
+    }
+    return isHome ? `${result.homeScore}–${result.awayScore}` : `${result.awayScore}–${result.homeScore}`
+}
+
 type PendingEntry = Omit<ChangeEntry, "cause">
 export type CauseResolver = ChangeCause | ((entry: PendingEntry) => ChangeCause)
 

@@ -58,7 +58,7 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
     const playable = pendingPlayableMatch(state, completed, { respectDay: true })
     if (playable) {
         const opp = playable.homeTeamId === me ? playable.awayTeamId : playable.homeTeamId
-        out.push({ key: `match:${playable.id}`, kind: "match", reason: `Match day: ${teamName(opp)}${playable.format ? ` (${playable.format})` : ""}`, href: `/match/${playable.id}/tactics`, actionLabel: "Play match" })
+        out.push({ key: `match:${playable.id}`, kind: "match", reason: `Play ${teamName(opp)}${playable.format ? ` (${playable.format})` : ""}`, href: `/match/${playable.id}/tactics`, actionLabel: "Play match" })
     }
 
     if (state.gameOverReason) out.push({ key: `game-over:${state.gameOverReason}`, kind: "game-over", reason: "Your career is over", href: "/" })

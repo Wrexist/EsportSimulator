@@ -13,6 +13,8 @@ export interface ChangeRow {
     change: string
     cause: string
     tone: Tone
+    /** Same text split by value, each with its own tone (condition rows sharing a cause). */
+    parts?: { text: string; tone: Tone }[]
 }
 
 export interface PlayerGroup {
@@ -73,14 +75,27 @@ export function playerGroups(report: WeekReport): PlayerGroup[] {
             const total = sorted.reduce((s, e) => s + e.delta, 0)
             rows.push({ change: sorted.map(e => `${e.label} ${signedDelta(e.delta)}`).join(" · "), cause, tone: toneOf("attribute", total) })
         }
-        // Condition values: net change with its causes.
+        // Condition values: net change with its causes; values that share
+        // exactly the same causes (e.g. morale and form both drifting) share a row.
+        const conditionRows: ChangeRow[] = []
         for (const kind of CONDITION_ORDER) {
             const list = entries.filter(x => x.kind === kind)
             if (list.length === 0) continue
             const net = list.reduce((s, e) => s + e.delta, 0)
             if (!list.some(e => Math.abs(e.delta) >= 0.5) && Math.abs(net) < 0.5) continue
-            rows.push({ change: `${CONDITION_LABEL[kind]} ${Math.abs(net) < 0.05 ? "±0" : signedDelta(net)}`, cause: causeParts(list, list.length > 1), tone: toneOf(kind, net) })
+            const text = `${CONDITION_LABEL[kind]} ${Math.abs(net) < 0.05 ? "±0" : signedDelta(net)}`
+            const tone = toneOf(kind, net)
+            const cause = causeParts(list, list.length > 1)
+            const same = conditionRows.find(r => r.cause === cause && list.length === 1)
+            if (same) {
+                same.parts = [...(same.parts ?? [{ text: same.change, tone: same.tone }]), { text, tone }]
+                same.change = same.parts.map(p => p.text).join(" · ")
+                same.tone = same.parts.every(p => p.tone === same.parts![0].tone) ? same.parts[0].tone : "neutral"
+            } else {
+                conditionRows.push({ change: text, cause, tone })
+            }
         }
+        rows.push(...conditionRows)
         if (rows.length) groups.push({ id, name: report.names[id] ?? "Player", rows })
     }
     return groups
@@ -131,7 +146,7 @@ export function teamRows(report: WeekReport): TeamRow[] {
     }
     const [m0, m1] = report.kpis.morale
     if (m0 != null && m1 != null && Math.abs(m1 - m0) >= 0.5) {
-        rows.push({ label: "Squad morale (avg)", change: `${Math.round(m0)} → ${Math.round(m1)}`, cause: "See player changes", tone: m1 > m0 ? "up" : "down" })
+        rows.push({ label: "Morale (avg)", change: `${Math.round(m0)} → ${Math.round(m1)}`, cause: "See player changes", tone: m1 > m0 ? "up" : "down" })
     }
     return rows
 }
@@ -142,7 +157,9 @@ export function topPlayerChanges(report: WeekReport, max = 3): { name: string; c
         .filter(e => e.kind === "attribute" && e.subjectId !== report.teamId)
         .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
     const injuries = report.changes.filter(e => e.kind === "injury" && e.delta > 0)
-    const picked: ChangeEntry[] = [...injuries, ...attr].slice(0, max)
+    // One line per player: their biggest change.
+    const seen = new Set<string>()
+    const picked: ChangeEntry[] = [...injuries, ...attr].filter(e => !seen.has(e.subjectId) && !!seen.add(e.subjectId)).slice(0, max)
     return picked.map(e => ({
         name: report.names[e.subjectId] ?? "Player",
         change: e.kind === "injury" ? `Injured · ${e.delta} wk` : `${e.label} ${signedDelta(e.delta)}`,

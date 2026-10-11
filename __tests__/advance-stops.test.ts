@@ -25,7 +25,7 @@ test("a playable match stops, always, even once seen", () => {
     const save = base()
     save.scheduledMatches = [{ id: "m1", homeTeamId: save.playerTeamId, awayTeamId: "team_ai_1", week: 5, format: "BO3", stage: "Group", tournamentId: null, seed: 1 } as never]
     const stop = nextStop(src(save), new Set(["match:m1"]))
-    expect(stop).toMatchObject({ kind: "match", reason: "Match day: AI Team 1 (BO3)", href: "/match/m1/tactics" })
+    expect(stop).toMatchObject({ kind: "match", reason: "Play AI Team 1 (BO3)", href: "/match/m1/tactics" })
 })
 
 test("daily mode only stops on match day", () => {

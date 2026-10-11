@@ -48,7 +48,7 @@ test("daily mode: Continue runs the days and stops on match day, saying so", asy
     load({ timeMode: "HYBRID_DAILY", match: { day: 3 } })
     await run()
     expect(store().currentDay).toBe(3)
-    expect(store().advanceStop).toMatchObject({ kind: "match", reason: "Match day: AI Team 1 (BO1)" })
+    expect(store().advanceStop).toMatchObject({ kind: "match", reason: "Play AI Team 1 (BO1)" })
     expect(store().continueRun).toBeNull()
     expect(weekProcessorBridge.processWeek).not.toHaveBeenCalled()
 })

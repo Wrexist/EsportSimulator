@@ -14,12 +14,13 @@
  */
 
 import {
-    diffClubs, mergeChanges, residualChanges,
+    diffClubs, mergeChanges, residualChanges, sideScore,
     type ChangeCause, type ChangeEntry, type ClubSnapshot,
 } from "./week-changes"
 
 export const WEEK_REPORT_HISTORY = 4
-export const WEEK_REPORT_MAX_ENTRIES = 160
+/** Busy weeks keep the most important entries (club, injuries, contracts, attributes, then the biggest condition swings). */
+export const WEEK_REPORT_MAX_ENTRIES = 120
 const TRACKER_MAX_ENTRIES = 200
 
 export interface WeekTracker {
@@ -111,8 +112,6 @@ interface MatchLike {
     result?: { winnerId?: string | null; homeScore: number; awayScore: number; maps?: unknown[] }
 }
 
-type MapScore = { homeScore?: number; awayScore?: number; finalScore?: { team1: number; team2: number } }
-
 export interface ReportStateSource {
     currentWeek: number
     teams: Array<{ id: string; name: string; rosterIds: string[]; financialState?: string }>
@@ -153,15 +152,7 @@ export function compactChanges(entries: ChangeEntry[], max = WEEK_REPORT_MAX_ENT
 }
 
 function scoreFor(m: MatchLike, teamId: string): string {
-    const r = m.result
-    if (!r) return "–"
-    const home = m.homeTeamId === teamId
-    const maps = (r.maps ?? []) as MapScore[]
-    if (maps.length === 1) {
-        const h = maps[0].finalScore?.team1 ?? maps[0].homeScore, a = maps[0].finalScore?.team2 ?? maps[0].awayScore
-        if (typeof h === "number" && typeof a === "number") return home ? `${h}–${a}` : `${a}–${h}`
-    }
-    return home ? `${r.homeScore}–${r.awayScore}` : `${r.awayScore}–${r.homeScore}`
+    return m.result ? sideScore(m.result, m.homeTeamId === teamId) : "–"
 }
 
 const avg = (xs: number[]): number | null => (xs.length ? Math.round((xs.reduce((s, x) => s + x, 0) / xs.length) * 10) / 10 : null)
@@ -277,7 +268,7 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     }
 
     const [r0, r1] = report.kpis.rank
-    if (r0 != null && r1 != null && r0 !== r1) clauses.push(`${r1 < r0 ? "climbed" : "dropped"} ${Math.abs(r1 - r0)} place${Math.abs(r1 - r0) === 1 ? "" : "s"} to #${r1}`)
+    if (r0 != null && r1 != null && r0 !== r1) clauses.push(`${matches.length ? "" : "the club "}${r1 < r0 ? "climbed" : "dropped"} ${Math.abs(r1 - r0)} place${Math.abs(r1 - r0) === 1 ? "" : "s"} to #${r1}`)
 
     const injuries = report.changes.filter(e => e.kind === "injury" && e.delta > 0 && !e.label.startsWith("Recovered"))
     for (const inj of injuries.slice(0, 1)) clauses.push(`${report.names[inj.subjectId] ?? "a player"} injured for ${inj.delta} week${inj.delta === 1 ? "" : "s"}`)
@@ -290,8 +281,11 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     if (clauses.length < 3 && Math.abs(net) >= 1) clauses.push(`finances ${formatMoney(net, true)}`)
 
     if (clauses.length === 0) return "A quiet week: nothing on your club changed."
-    const [first, ...rest] = clauses
-    const sentence = rest.length === 0 ? first : rest.length === 1 ? `${first} and ${rest[0]}` : `${first}, ${rest.slice(0, -1).join(", ")} and ${rest[rest.length - 1]}`
+    const join = (xs: string[]) => xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`
+    // Without a match the sentence leads with the week type, so a player's
+    // nickname is never re-capitalized as the first word.
+    if (matches.length === 0) return `Training week: ${join(clauses)}.`
+    const sentence = join(clauses)
     return `${sentence.charAt(0).toUpperCase()}${sentence.slice(1)}.`
 }
 

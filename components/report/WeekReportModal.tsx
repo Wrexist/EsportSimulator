@@ -33,11 +33,20 @@ export function WeekReportModal() {
     useEffect(() => {
         if (!isOpen) return
         const t = setTimeout(() => doneRef.current?.focus(), 50)
+        // Document bubble phase: focused controls still get their keys, but
+        // Space never reaches the shell's advance hotkey (a window listener)
+        // while the report is open. Escape closes; Enter/Space close unless a
+        // control has focus (the focused Continue button closes natively).
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close() }
+            if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); return }
+            if (e.key !== " " && e.key !== "Enter") return
+            e.stopPropagation()
+            if ((e.target as HTMLElement | null)?.closest("a, button")) return
+            e.preventDefault()
+            close()
         }
-        window.addEventListener("keydown", onKey, true)
-        return () => { clearTimeout(t); window.removeEventListener("keydown", onKey, true) }
+        document.addEventListener("keydown", onKey)
+        return () => { clearTimeout(t); document.removeEventListener("keydown", onKey) }
     }, [isOpen, close])
 
     if (!report || !history) return null

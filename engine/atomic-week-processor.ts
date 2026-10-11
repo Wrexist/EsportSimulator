@@ -79,7 +79,7 @@ import { StaffGenerator } from "./staff-generator"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
 import { processSeasonBoardReview, ensureBoardState, processMidSeasonBoardPulse } from "./board-expectations"
 import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
-import { WeekChangeRecorder, type ChangeCause, type ChangeEntry, type CauseResolver } from "@/lib/week-changes"
+import { WeekChangeRecorder, sideScore, type ChangeCause, type ChangeEntry, type CauseResolver } from "@/lib/week-changes"
 
 // ===== TYPES =====
 
@@ -782,12 +782,9 @@ export class AtomicWeekProcessor {
             const oppId = cm ? (cm.homeTeamId === playerTeamId ? cm.awayTeamId : cm.homeTeamId) : ""
             const opp = (idx?.teamIndex.get(oppId) ?? save.teams.find(t => t.id === oppId))?.name ?? "opponent"
             if (!cm?.result) return { type: "match", label: `Match vs ${opp}` }
-            const isHome = cm.homeTeamId === playerTeamId
             const won = cm.result.winnerId === playerTeamId
-            const mine = isHome ? cm.result.homeScore : cm.result.awayScore
-            const theirs = isHome ? cm.result.awayScore : cm.result.homeScore
             if (!cm.result.maps?.length) return { type: "match", label: `Forfeit ${won ? "win" : "loss"} vs ${opp}` }
-            return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${mine}–${theirs}` }
+            return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${sideScore(cm.result, cm.homeTeamId === playerTeamId)}` }
         }
         const weekMatches = save.scheduledMatches.filter(m => {
             const isPastWeek = m.week < save.currentWeek

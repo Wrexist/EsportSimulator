@@ -74,7 +74,16 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                                             <Link href={`/player/${group.id}`} className="block truncate font-semibold text-ink-1 hover:text-gold">{group.name}</Link>
                                         )}
                                     </td>
-                                    <td className={cn("py-1.5 pr-3 font-semibold tabular-nums", TONE_TEXT[row.tone])}>{row.change}</td>
+                                    <td className={cn("py-1.5 pr-3 font-semibold tabular-nums", TONE_TEXT[row.tone])}>
+                                        {row.parts
+                                            ? row.parts.map((p, k) => (
+                                                <span key={k}>
+                                                    {k > 0 && <span className="text-ink-3"> · </span>}
+                                                    <span className={TONE_TEXT[p.tone]}>{p.text}</span>
+                                                </span>
+                                            ))
+                                            : row.change}
+                                    </td>
                                     <td className="py-1.5 pr-4 text-ink-3">{row.cause}</td>
                                 </tr>
                             )))}
