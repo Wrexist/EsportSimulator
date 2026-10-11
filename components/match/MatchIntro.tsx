@@ -92,7 +92,7 @@ export function MatchIntro(props: MatchIntroProps) {
         doneRef.current = true
         doneCb.current()
     }, [])
-    const rootRef = useFocusTrap<HTMLDivElement>(true, finish)
+    const rootRef = useFocusTrap(true, finish)
 
     useEffect(() => {
         soundManager.play("matchIntro")

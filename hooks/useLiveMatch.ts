@@ -127,14 +127,34 @@ function makeRoundView(ids: { homePlayerIds: string[]; awayPlayerIds: string[] }
 
 export interface LiveMatchOptions {
     /**
-     * Hold the first round while the match intro is on screen (Phase 5.4a):
-     * the pistol round and auto tactics wait until it is released.
+     * Key of this match's intro (Phase 5.4a). A match that starts fresh (no
+     * checkpoint to resume) and has not played its intro opens with
+     * `introActive`; the pistol round and auto tactics wait until `endIntro`.
      */
-    holdStart?: boolean
+    introKey?: string
+}
+
+const introSessionKey = (key: string) => `esm:${key}`
+
+/** Has this intro played (saved key, or this session before the next save)? */
+function introPlayed(key: string): boolean {
+    if (useGameStore.getState().seenMomentKeys?.includes(key)) return true
+    try { return typeof sessionStorage !== "undefined" && sessionStorage.getItem(introSessionKey(key)) === "1" } catch { return false }
+}
+
+/** Record the intro as played: saved with the career, and for this session. */
+function markIntroPlayed(key: string): void {
+    useGameStore.getState().markMomentSeen(key)
+    try { sessionStorage.setItem(introSessionKey(key), "1") } catch { /* storage denied: the saved key still holds */ }
 }
 
 export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
-    const holdStart = !!options.holdStart
+    const introKeyRef = useRef(options.introKey)
+    introKeyRef.current = options.introKey
+    // The intro is decided where the match is set up: only a fresh start shows it.
+    const [introActive, setIntroActive] = useState(false)
+    const holdStart = introActive
+    const endIntro = useCallback(() => setIntroActive(false), [])
     const router = useRouter()
     const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
@@ -491,6 +511,11 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         setGameState(prev => ({ ...prev, status: "IN_PROGRESS", time: -1, isPaused: false }))
         setIsPlaying(false)
         setIsWaitingForStrategy(true)
+        const introKey = introKeyRef.current
+        if (introKey && !introPlayed(introKey)) {
+            markIntroPlayed(introKey)
+            setIntroActive(true)
+        }
     }, [scheduledMatches, teams, players, id, setActiveMatch, staff, router, currentWeek, currentDay, timeMode, customTactics, setRoundScript, setRoundView, liveClock])
 
     // Persistence
@@ -1239,5 +1264,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         setDecisionHold,
         shownLossLevels,
         finishedResult,
+        introActive,
+        endIntro,
     }
 }

@@ -110,7 +110,7 @@ export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actio
         closedRef.current = true
         dismissRef.current()
     }
-    const dialogRef = useFocusTrap<HTMLDivElement>(true, close)
+    const dialogRef = useFocusTrap(true, close)
 
     useEffect(() => {
         playMomentCue(momentKey, sound)

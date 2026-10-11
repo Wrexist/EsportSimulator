@@ -35,25 +35,12 @@ import { MatchEndBeat } from "@/components/match/MatchEndBeat"
 import { competitionOf } from "@/lib/match-framing"
 import { headToHeadOf, introContextLine } from "@/lib/match-intro"
 
-/** Session mark for a played match intro (survives a reload before the next save). */
-const introSessionKey = (key: string) => `esm:${key}`
-function introSeenThisSession(key: string): boolean {
-    try { return typeof sessionStorage !== "undefined" && sessionStorage.getItem(introSessionKey(key)) === "1" } catch { return false }
-}
-
 declare global {
     interface Window { __liveCommits?: number }
 }
 
 export default function LiveMatchPage() {
     const params = useParams<{ id: string }>()
-    // Match intro (Phase 5.4a): once per match, before the first round; never
-    // on a resumed match (its checkpoint exists) or after it played once.
-    const introKey = `intro:${params.id}`
-    const [introPending, setIntroPending] = useState(() => {
-        const s = useGameStore.getState()
-        return s.activeMatchState?.matchId !== params.id && !s.seenMomentKeys.includes(introKey) && !introSeenThisSession(introKey)
-    })
     const [endBeatDone, setEndBeatDone] = useState(false)
     const {
         gameState,
@@ -100,7 +87,9 @@ export default function LiveMatchPage() {
         setDecisionHold,
         shownLossLevels,
         finishedResult,
-    } = useLiveMatch(params.id, { holdStart: introPending })
+        introActive,
+        endIntro,
+    } = useLiveMatch(params.id, { introKey: `intro:${params.id}` })
     const router = useRouter()
     // Dev builds count the page's commits on window.__liveCommits (perf tooling).
     useEffect(() => {
@@ -253,9 +242,11 @@ export default function LiveMatchPage() {
     ), [preview, decisionKey, names, pickStrategy, openLoadoutEditor, isAutoTactics, decisionHold, toggleHold, timeoutsRemaining, timeoutActive, timeoutDisabled, callTimeout, overtimeNote])
     const leaveToHub = useCallback(() => router.push(`/match/${params.id}/tactics`), [router, params.id])
 
-    // Intro facts, once the match is set up: competition, head-to-head from
-    // the recorded meetings, and one true line of context.
-    const introReady = introPending && !!matchData.current && !!simState && originalHomePlayers.length > 0
+    // Match intro (Phase 5.4a): once per match, before the first round of a
+    // fresh start (useLiveMatch decides; a resumed match never shows it). Its
+    // facts: competition, head-to-head from the recorded meetings, and one
+    // true line of context.
+    const introReady = introActive && !!matchData.current && !!simState && originalHomePlayers.length > 0
     const introData = useMemo(() => {
         if (!introReady || !matchData.current) return null
         const { homeTeam, awayTeam, match, canonicalMaps } = matchData.current
@@ -266,12 +257,6 @@ export default function LiveMatchPage() {
         return { competition, h2h, context, maps: canonicalMaps as string[] }
         // eslint-disable-next-line react-hooks/exhaustive-deps -- built once when the match is ready
     }, [introReady])
-    useEffect(() => {
-        if (!introReady) return
-        useGameStore.getState().markMomentSeen(introKey)
-        try { sessionStorage.setItem(introSessionKey(introKey), "1") } catch { /* storage denied: the saved key still holds */ }
-    }, [introReady, introKey])
-    const endIntro = useCallback(() => setIntroPending(false), [])
     const endBeat = useCallback(() => setEndBeatDone(true), [])
     const pauseForLeave = useCallback(() => setIsPlaying(false), [setIsPlaying])
 

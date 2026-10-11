@@ -44,7 +44,7 @@ export function MatchEndBeat({ result, format, homeTeam, awayTeam, playerTeamId,
         doneRef.current = true
         doneCb.current()
     }, [])
-    const rootRef = useFocusTrap<HTMLDivElement>(true, finish)
+    const rootRef = useFocusTrap(true, finish)
 
     useEffect(() => {
         const t = setTimeout(finish, END_BEAT_MS)
