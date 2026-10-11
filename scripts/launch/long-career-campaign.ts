@@ -296,6 +296,15 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     }
     const policy = () => {
         const s = get()
+        // Phase 5.3: face the press before a big match: the first answer to
+        // every question (the press conference's only button otherwise is
+        // "send no one", which the loop below would pick).
+        for (const e of s.eventsLog) {
+            const press = (e.data as { press?: { questions?: Array<{ id: string; answers: Array<{ id: string }> }> } } | undefined)?.press
+            if (!e.id.startsWith('press_') || e.selectedChoiceId || e.data?.isWithdrawn || !press?.questions) continue
+            const answers = Object.fromEntries(press.questions.map(q => [q.id, q.answers[0]?.id]).filter(([, a]) => a)) as Record<string, string>
+            if (get().answerPressConference(e.id, answers).ok) policyStats.choices++
+        }
         // Inbox decisions: take the money-maximising branch of every open
         // choice event (greedy: exposes repeatable money sources).
         // State-derived so a reload replays them.
@@ -471,6 +480,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     const aiEconomy = newAIEconomyTracker(snap(), teamId)
     const rankings = newRankingTracker(snap(), teamId)
     const dressing = newDressingTracker()
+    const stories = newStoryTracker()
     const startRank = playerTeam().worldRanking ?? null
     // --record-results: every official result and a periodic club snapshot
     // (tmp/ only), for replaying rating models offline (Phase 4.8).
@@ -544,6 +554,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         trackAIEconomyWeek(aiEconomy, s, teamId, project)
         trackRankingWeek(rankings, s, teamId)
         trackDressingWeek(dressing, s, teamId)
+        trackStoryWeek(stories, s)
         if (recordResults) {
             const tiers = new Map(s.tournaments.map(t => [t.id, t.tier]))
             const rows: string[] = []
@@ -566,8 +577,8 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
             wages: wageBillOf(s, t.id, t.rosterIds), staff: t.staffIds.length, spons: (t.sponsors || []).map(x => `${x.tier[0]}${Math.round(x.weeklyPayout)}`).join(','), adm: t.administrations ?? 0, st: t.financialState,
         })).join('\n') + '\n')
         if (get().gameOverReason && recoverFromDismissal()) { lastIds = new Set(get().eventsLog.map(e => e.id)) }
-        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push({ ...seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id), structure: seasonStructureMetrics(season, s, teamId), aiEconomy: aiEconomyMetrics(aiEconomy, s), rankings: rankingMetrics(rankings, s, teamId, strengthOf), dressingRoom: dressingMetrics(dressing, s, teamId) })
-        if (ticks % 52 === 0) resetDressingTracker(dressing)
+        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push({ ...seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id), structure: seasonStructureMetrics(season, s, teamId), aiEconomy: aiEconomyMetrics(aiEconomy, s), rankings: rankingMetrics(rankings, s, teamId, strengthOf), dressingRoom: dressingMetrics(dressing, s, teamId), storylines: storyMetrics(stories, s, teamId) })
+        if (ticks % 52 === 0) { resetDressingTracker(dressing); resetStoryTracker(stories) }
         if (ticks % 52 === 0) { Object.assign(seasonOpen, openState(s, playerTeam().budget)); income.clear(); resetSeasonTracker(season, s); resetAIEconomyTracker(aiEconomy, s, teamId); resetRankingTracker(rankings, s, teamId) }
         if (ticks % 26 === 0) process.stdout.write(`${tag} tick ${ticks} week ${s.currentWeek} cash ${Math.round(playerTeam().budget)} failures ${failures.length} avgMs ${Math.round(tickMs.slice(-26).reduce((a, b) => a + b, 0) / 26)}\n`)
     }
@@ -776,6 +787,103 @@ export function dressingRoomSummary(results: any[], seasonsAll: any[]) {
         traitShareFinal: distribution(last.map((d: any) => d.traitShare)),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         aiAdministrationsCareer: results.map((r: any) => r.aiAdministrationsCareer?.total ?? null),
+    }
+}
+
+// ---------------------------------------------------------------- storylines (Phase 5.3)
+/**
+ * Storylines and press conferences (read-only; a save without storylines
+ * reports zero). Arcs are counted once by id in the season they started,
+ * storyline decisions and press conferences once by event id; the answer
+ * (policy or the stated default at the deadline) is read when it settles.
+ */
+interface StoryArcLike {
+    id: string; kind: string; managed: boolean; teamId: string; playerIds: string[]; clubIds: string[]
+    startedWeek: number; state: string; outcome?: string; choice?: string; log: Array<{ week: number; text: string }>
+}
+export interface StoryTracker {
+    arcs: Map<string, StoryArcLike>
+    decisions: Map<string, { week: number; kind: string; choice: string | null; byDefault: boolean }>
+    press: Map<string, { week: number; reason: string; choice: string | null; questions: number }>
+    seasonStartWeek: number | null
+}
+
+export function newStoryTracker(): StoryTracker {
+    return { arcs: new Map(), decisions: new Map(), press: new Map(), seasonStartWeek: null }
+}
+
+export function resetStoryTracker(t: StoryTracker): void { t.seasonStartWeek = null }
+
+export function trackStoryWeek(t: StoryTracker, s: GameSave): void {
+    t.seasonStartWeek ??= s.currentWeek
+    for (const a of ((s as unknown as { storylines?: StoryArcLike[] }).storylines ?? [])) t.arcs.set(a.id, structuredClone(a))
+    for (const e of s.eventsLog) {
+        const data = (e.data ?? {}) as Record<string, unknown>
+        if (e.id.startsWith('story_')) {
+            const row = t.decisions.get(e.id) ?? { week: e.week, kind: String(data.storyKind ?? ''), choice: null, byDefault: false }
+            if (e.selectedChoiceId) { row.choice = e.selectedChoiceId; row.byDefault = !!data.unanswered }
+            t.decisions.set(e.id, row)
+        } else if (e.id.startsWith('press_')) {
+            const press = data.press as { reason?: string; questions?: unknown[] } | undefined
+            const row = t.press.get(e.id) ?? { week: e.week, reason: String(press?.reason ?? ''), choice: null, questions: press?.questions?.length ?? 0 }
+            if (e.selectedChoiceId) row.choice = data.isWithdrawn ? 'withdrawn' : e.selectedChoiceId
+            else if (data.isWithdrawn) row.choice = 'withdrawn'
+            t.press.set(e.id, row)
+        }
+    }
+}
+
+export function storyMetrics(t: StoryTracker, s: GameSave, teamId: string) {
+    const from = t.seasonStartWeek ?? s.currentWeek - 51
+    const arcs = [...t.arcs.values()].filter(a => a.startedWeek >= from)
+    const managed = arcs.filter(a => a.managed)
+    const count = (rows: Array<{ kind: string }>) => rows.reduce((m: Record<string, number>, a) => { m[a.kind] = (m[a.kind] ?? 0) + 1; return m }, {})
+    const decisions = [...t.decisions.values()].filter(d => d.week >= from)
+    const press = [...t.press.values()].filter(p => p.week >= from)
+    return {
+        arcsManaged: managed.length,
+        arcsOtherClubs: arcs.length - managed.length,
+        arcsManagedByKind: count(managed),
+        arcsOtherByKind: count(arcs.filter(a => !a.managed)),
+        managedWithPlayers: managed.filter(a => a.playerIds.length > 0).length,
+        managedWithResults: managed.filter(a => a.clubIds.length > 0).length,
+        outcomes: managed.reduce((m: Record<string, number>, a) => { const k = `${a.kind}:${a.state === 'ACTIVE' ? 'ACTIVE' : a.outcome ?? '?'}`; m[k] = (m[k] ?? 0) + 1; return m }, {}),
+        decisions: decisions.length,
+        decisionsByKind: count(decisions),
+        decisionChoices: decisions.reduce((m: Record<string, number>, d) => { const k = `${d.kind}:${d.choice ?? 'open'}${d.byDefault ? ' (default)' : ''}`; m[k] = (m[k] ?? 0) + 1; return m }, {}),
+        pressConferences: press.length,
+        pressByReason: press.reduce((m: Record<string, number>, p) => { m[p.reason] = (m[p.reason] ?? 0) + 1; return m }, {}),
+        pressAnswered: press.filter(p => p.choice === 'answered').length,
+        pressQuestions: press.reduce((n, p) => n + p.questions, 0),
+        sampleLines: managed.slice(0, 6).map(a => ({ kind: a.kind, outcome: a.outcome ?? a.state, team: teamId === a.teamId ? 'managed' : a.teamId, log: a.log.map(l => `w${l.week}: ${l.text}`) })),
+        otherSample: arcs.filter(a => !a.managed).slice(0, 2).map(a => ({ kind: a.kind, outcome: a.outcome ?? a.state, log: a.log.map(l => `w${l.week}: ${l.text}`) })),
+    }
+}
+
+/** Phase 5.3 summary: storylines per managed season, decisions, press conferences. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function storySummary(seasonsAll: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ss = seasonsAll.filter((s: any) => s.storylines)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const merge = (key: string) => ss.reduce((m: Record<string, number>, s: any) => { for (const [k, v] of Object.entries(s.storylines[key] as Record<string, number>)) m[k] = (m[k] ?? 0) + v; return m }, {})
+    return {
+        seasons: ss.length,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        managedArcsPerSeason: distribution(ss.map((s: any) => s.storylines.arcsManaged)),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        managedArcsNamingPlayersOrClubs: distribution(ss.map((s: any) => s.storylines.managedWithPlayers + s.storylines.managedWithResults)),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        otherClubArcsPerSeason: distribution(ss.map((s: any) => s.storylines.arcsOtherClubs)),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        decisionsPerSeason: distribution(ss.map((s: any) => s.storylines.decisions)),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        pressPerSeason: distribution(ss.map((s: any) => s.storylines.pressConferences)),
+        kindsManaged: merge('arcsManagedByKind'),
+        kindsOther: merge('arcsOtherByKind'),
+        outcomes: merge('outcomes'),
+        decisionChoices: merge('decisionChoices'),
+        pressByReason: merge('pressByReason'),
     }
 }
 
@@ -1396,6 +1504,8 @@ function aggregate() {
     ;(summary as any).rankings = rankingSummary(results, seasonsAll)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(summary as any).dressingRoom = dressingRoomSummary(results, seasonsAll)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(summary as any).storylines = storySummary(seasonsAll)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(summary as any).sponsorToWageRatio = distribution(seasonsAll.map((s: any) => (s.managed.ledger['INCOME:SPONSOR'] ?? 0) / Math.max(1, (s.managed.ledger['EXPENSE:WAGES_PLAYER'] ?? 0) + (s.managed.ledger['EXPENSE:WAGES_STAFF'] ?? 0))))
     summary.managedIncomeByCategory = Object.fromEntries(Object.entries(summary.managedIncomeByCategory).map(([k, v]) => [k, distribution(v) as unknown as number[]]))
