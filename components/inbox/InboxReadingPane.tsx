@@ -8,6 +8,7 @@ import { PlayerPortrait } from "@/components/ui/asset-images"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { useGameStore } from "@/store/game-store"
 import type { GameEventSaveData } from "@/engine/save-types"
+import { isRealAwards } from "@/engine/pro-awards-engine"
 import {
     answerByWeek, choiceLabel, getEventBody, parseMessageBody, weekLabel,
     type ChoiceLike, type InboxContext, type InboxItem,
@@ -182,7 +183,7 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
                 {item.decision === "transfer_offer" && <TransferOfferDecision event={event} ctx={ctx} />}
                 {item.decision === "job_offer" && <JobOfferDecision event={event} />}
                 {!item.decision && <ResolvedNote event={event} />}
-                {event.type === "MEDIA" && data.proAwards && (
+                {event.type === "MEDIA" && isRealAwards(data.proAwards) && (
                     <Button variant="outline" onClick={() => onOpenAwards(data.proAwards)}>Open the awards ceremony</Button>
                 )}
                 {item.decision !== "transfer_offer" && <EventLinks event={event} />}

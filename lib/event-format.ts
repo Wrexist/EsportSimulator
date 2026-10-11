@@ -35,7 +35,7 @@ export function getEventTitle(event: GameEventSaveData): string {
         case "TOURNAMENT": return "Tournament"
         case "MEDIA":
             if (data?.proAwards) {
-                return `🏆 Pro Top 20 of ${data.proAwards.year}`
+                return typeof data.proAwards.minMaps === "number" ? `🏆 Pro Top 20 of season ${data.proAwards.year}` : `🏆 Pro Top 20 of ${data.proAwards.year}`
             }
             return data.title || "Media Update"
         default: return data.title || "Notification"

@@ -196,7 +196,7 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
         case "AI_TRANSFER": return `${data.playerName || "A player"} joins ${data.toTeamName || "a new club"}`
         case "RETIREMENT": return `${who} retires`
         case "MEDIA":
-            if (data.proAwards?.year != null) return `Pro Top 20 of ${data.proAwards.year}`
+            if (data.proAwards?.year != null) return (typeof data.proAwards.minMaps === "number" ? `Pro Top 20 of season ${data.proAwards.year}` : `Pro Top 20 of ${data.proAwards.year}`)
             return data.title || "Media update"
         case DIGEST_TYPE: {
             const items = digestItems(event)

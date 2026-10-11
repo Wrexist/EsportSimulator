@@ -14,6 +14,7 @@ import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { Meter } from "@/src/components/ui/Meter"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { CareerLegacyCard } from "@/components/career/CareerLegacyCard"
+import { ClubTimelinePanel, ReputationPanel, stintTitles } from "@/components/career/ManagerRecord"
 import { ManagerProgression } from "@/engine/manager-progression"
 import type { SaveSlotMetadata } from "@/engine/save-types"
 import { toast } from "@/lib/toast"
@@ -30,14 +31,13 @@ function eventText(event: { type: string; data?: unknown }): string {
 export default function CareerPage() {
     const router = useRouter()
     const {
-        playerTeamId, currentWeek, completedMatches, eventsLog, saveId: currentSaveId,
+        playerTeamId, currentWeek, eventsLog, saveId: currentSaveId,
         listSaves, switchSave, deleteSaveInSlot, managerDetails, teams, hydrated, isLoading,
     } = useGameStore(useShallow(state => ({
         hydrated: state._hasHydrated,
         isLoading: state.isLoading,
         playerTeamId: state.playerTeamId,
         currentWeek: state.currentWeek,
-        completedMatches: state.completedMatches,
         eventsLog: state.eventsLog,
         saveId: state.saveId,
         listSaves: state.listSaves,
@@ -52,21 +52,17 @@ export default function CareerPage() {
     const [switchingTo, setSwitchingTo] = useState<string | null>(null)
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
+    // Every managed match (friendlies included) from the manager's own counters, not the capped match log.
     const record = useMemo(() => {
-        let wins = 0, losses = 0
-        for (const m of completedMatches) {
-            if (m.homeTeamId !== playerTeamId && m.awayTeamId !== playerTeamId) continue
-            if (!m.result) continue
-            const won = (m.homeTeamId === playerTeamId && m.result.homeScore > m.result.awayScore)
-                || (m.awayTeamId === playerTeamId && m.result.awayScore > m.result.homeScore)
-            if (won) wins++
-            else if (m.result.homeScore !== m.result.awayScore) losses++
-        }
+        const wins = managerDetails?.careerWins ?? 0, losses = managerDetails?.careerLosses ?? 0
         return { wins, losses, played: wins + losses, rate: wins + losses > 0 ? Math.round((wins / (wins + losses)) * 100) : 0 }
-    }, [completedMatches, playerTeamId])
+    }, [managerDetails?.careerWins, managerDetails?.careerLosses])
 
-    const titles = useMemo(() => eventsLog.filter(e => e.type === "TOURNAMENT_WIN").length, [eventsLog])
-    const majors = useMemo(() => eventsLog.filter(e => e.type === "TOURNAMENT_WIN" && (e.data as { tier?: string } | undefined)?.tier === "S_TIER").length, [eventsLog])
+    // Titles won while in charge, club by club (Phase 5.1 timeline).
+    const { titles, majors } = useMemo(() => (managerDetails?.stints ?? []).reduce((sum, stint) => {
+        const t = stintTitles(stint, teams.find(team => team.id === stint.teamId))
+        return { titles: sum.titles + t.titles, majors: sum.majors + t.majors }
+    }, { titles: 0, majors: 0 }), [managerDetails?.stints, teams])
     const log = useMemo(() => eventsLog.slice(0, 16), [eventsLog])
 
     const loadSaves = useCallback(async () => {
@@ -121,7 +117,8 @@ export default function CareerPage() {
                 aside={
                     <KpiStrip>
                         <Kpi label="Level" value={level} hint={`${xp.toLocaleString("en-US")} / ${xpNext.toLocaleString("en-US")} XP`} />
-                        <Kpi label="Record" value={<span>{record.wins}<span className="text-ink-3">–</span>{record.losses}</span>} hint={`${record.rate}% won`} />
+                        <Kpi label="Reputation" value={Math.round(managerDetails?.reputation ?? 0)} hint="of 100" />
+                        <Kpi label="Record" value={<span>{record.wins}<span className="text-ink-3">–</span>{record.losses}</span>} hint={`${record.rate}% won · all matches`} />
                         <Kpi label="Titles" value={titles} valueClassName={titles > 0 ? "text-gold" : undefined} hint={majors > 0 ? `${majors} major${majors === 1 ? "" : "s"}` : undefined} />
                         <Kpi label="Season" value={seasons} hint={`Week ${currentWeek}`} />
                     </KpiStrip>
@@ -134,6 +131,8 @@ export default function CareerPage() {
                         <Meter value={xpNext > 0 ? (xp / xpNext) * 100 : 0} label="XP to next level" tone="neutral" showValue={false} trackClassName="w-full h-2" />
                         <p className="mt-2 text-xs text-ink-3">Every win earns 100 XP and every loss 25 XP; analyst talents can add up to +50%.</p>
                     </Panel>
+
+                    <ClubTimelinePanel />
 
                     <CareerLegacyCard />
 
@@ -160,6 +159,9 @@ export default function CareerPage() {
                         ) : <p className="px-4 py-6 text-sm text-ink-3">Nothing recorded yet. Results, signings and news land here.</p>}
                     </Panel>
                 </div>
+
+                <div className="min-w-0 space-y-4 self-start">
+                <ReputationPanel />
 
                 <Panel
                     title="Saves"
@@ -219,6 +221,7 @@ export default function CareerPage() {
                         </ul>
                     )}
                 </Panel>
+                </div>
             </div>
         </div>
     )
