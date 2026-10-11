@@ -20,7 +20,7 @@ Goal: every click is a decision and every change has a visible cause. Fewer, dee
 | **4.2** Week plan hub | `/week` merges training focus, scrims, bootcamps, media, rest, staff meeting into a 3-slot weekly plan with honest previews; old routes redirect into it. Navigation hubs become Home · Squad · Week · Match · Recruitment · Competition · Club. | After 4.1 (shares advance flow). |
 | **4.3** Inbox drawer | Replace the fake desktop OS (`/desktop`) with an inbox drawer in the shell: messages, decisions (event choices), offers; badge in the top bar; `/desktop` redirects. | Desktop "apps" already have real screens. |
 | **4.4** Season & money | Guaranteed weekly regional league for every tier (passive clubs played only 6–49 matches/season), starting budgets and wages that create pressure, board objectives that matter, AI gear parity check; verified with `npm run campaign:long`. | After 4.1. |
-| **4.5** Cuts (owner decision) | FPL, staff meetings as a separate screen, standalone Equipment (fold into Facilities), Map Studio in the player build, Academy simplified. | Waiting on the owner. |
+| **4.5** Cuts (**approved 2026-10-11**) | FPL, staff meetings as a separate screen (→ Week plan), standalone Equipment (fold into Facilities), Map Studio in the player build (done: excluded from packaging), Academy simplified. | UI cuts ride with 4.2, engine-side FPL removal with 4.4. |
 
 ## Done when
 - A passive season gives every club a regular fixture list; a new player reaches a meaningful decision within 3 clicks of Continue.
