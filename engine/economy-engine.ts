@@ -54,6 +54,11 @@ export class EconomyEngine {
         staff: StaffSaveData[],
         settlementWeek?: number,
         academyProspectCount = 0,
+        /**
+         * AI clubs (not the managed club): with no gear on file they play with
+         * implicit gear (match strength) and pay its upkeep here (Phase 4.4).
+         */
+        options: { implicitGear?: boolean } = {},
     ): WeeklyFinancialReport {
 
         // 1. Calculate Expenses
@@ -61,7 +66,10 @@ export class EconomyEngine {
         const staffWages = this.calculateStaffWages(team.staffIds, staff, settlementWeek)
         const facilitiesUpkeep = this.calculateFacilitiesUpkeep(team)
 
-        const equipmentUpkeep = EquipmentManager.calculateWeeklyCost(team)
+        const ownsGear = EquipmentManager.activeEquipment(team).length > 0
+        const equipmentUpkeep = ownsGear || !options.implicitGear
+            ? EquipmentManager.calculateWeeklyCost(team)
+            : EquipmentManager.implicitWeeklyCost(team)
         const academyUpkeep = team.academyFacility?.level ? calculateWeeklyUpkeep(team.academyFacility.level, academyProspectCount) : 0
         const operations = this.calculateOperationsCost(team)
         const totalExpenses = playerWages + staffWages + facilitiesUpkeep + equipmentUpkeep + academyUpkeep + operations

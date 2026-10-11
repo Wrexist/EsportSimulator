@@ -77,6 +77,7 @@ export class FinanceProcessor {
                 save.staff,
                 save.currentWeek,
                 team.id === playerTeamId ? (save.academyPlayers?.length ?? 0) : (team.managementState?.academyPlayers?.length ?? 0),
+                { implicitGear: team.id !== playerTeamId },
             )
 
             if (legacySettled) {

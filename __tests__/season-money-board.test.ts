@@ -61,9 +61,14 @@ describe("starting cash and runway", () => {
         expect(EconomyEngine.processWeeklyFinances(team, save.players, save.contracts, save.staff, 2, 0).income.leagueShare).toBe(leagueCentralPayment(1))
         expect(leagueCentralPayment(1)).toBeGreaterThan(leagueCentralPayment(3))
         expect(leagueCentralPayment(9)).toBe(LEAGUE_TUNING.CENTRAL_PAYMENT_BY_LEVEL.at(-1))
-        // No deals: a club runs a deficit and must earn (sponsors, prizes) to grow.
-        team.leagueDivisionLevel = 3
+        // At market wages and without a deal, a lower-division club runs a
+        // deficit and has to earn (sponsors, prizes, promotion) to grow.
+        team.leagueDivisionLevel = 4
+        save.contracts.filter(c => c.teamId === team.id).forEach(c => { c.salaryPerWeek = 1_500 })
         expect(EconomyEngine.processWeeklyFinances(team, save.players, save.contracts, save.staff, 2, 0).net).toBeLessThan(0)
+        // AI clubs also pay for the implicit gear they play with (gear parity).
+        const ai = EconomyEngine.processWeeklyFinances(team, save.players, save.contracts, save.staff, 2, 0, { implicitGear: true })
+        expect(ai.expenses.equipment).toBeGreaterThan(0)
     })
 })
 
@@ -90,6 +95,18 @@ describe("AI clubs follow the insolvency rule", () => {
         expect(ai.reputation).toBe(rep - CLUB_ECONOMY_TUNING.ADMINISTRATION_REPUTATION_PENALTY)
         expect(ai.administrations).toBe(1)
         expect(ai.consecutiveInsolventWeeks).toBe(0)
+        // The starting five stay; the top earner is listed and the debt is cleared.
+        expect(ai.rosterIds).toHaveLength(5)
+        expect(ai.rosterIds.some(id => save.players.find(p => p.id === id)?.forSale)).toBe(true)
+        expect(ai.budget).toBeGreaterThan(0)
+        expect(ai.budget).toBeCloseTo(CLUB_ECONOMY_TUNING.ADMINISTRATION_RECAPITALISE_WEEKS * weeklyCosts(save, ai), -1)
+        // Cost control: a loss-making AI club with a short runway lets its priciest staff go.
+        const other = save.teams[2]
+        save.staff.push({ id: "st_2", teamId: other.id, name: "A", role: "coach", salaryPerWeek: 3000 } as never, { id: "st_3", teamId: other.id, name: "B", role: "analyst", salaryPerWeek: 1000 } as never)
+        other.staffIds = ["st_2", "st_3"]
+        other.weeklyNet = -500; other.runwayWeeks = 10
+        processAIAdministration(save, save.playerTeamId)
+        expect(other.staffIds).toEqual(["st_3"])
         // The managed club is never put into administration (it goes bankrupt instead).
         const me = save.teams[0]
         me.consecutiveInsolventWeeks = 20

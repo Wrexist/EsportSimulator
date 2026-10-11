@@ -30,7 +30,7 @@ describe("one projection for dashboard, Finances, and recurring settlement", () 
     expect(dashboard.expenses.facilities).toBeGreaterThan(0)
     expect(dashboard.expenses.equipment).toBe(500)
     expect(dashboard.expenses.total).toBe(2000 + dashboard.expenses.facilities + 500 + dashboard.expenses.operations)
-    expect(dashboard.expenses.operations).toBe(600 + 30 * 50)
+    expect(dashboard.expenses.operations).toBe(300 + 15 * 50)
     expect(team.budget).toBe(before) // A preview cannot charge the player.
 
     const settlement = FinanceProcessor.processFinance(save, "player")

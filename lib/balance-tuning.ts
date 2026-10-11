@@ -196,9 +196,9 @@ export const LEAGUE_TUNING = {
      * last value applies to every deeper level). Replaces the flat $15,000
      * "league revenue share" every club received regardless of stature.
      */
-    CENTRAL_PAYMENT_BY_LEVEL: [6_000, 4_000, 2_500, 1_800, 1_200] as const,
+    CENTRAL_PAYMENT_BY_LEVEL: [8_000, 6_000, 4_500, 3_500, 2_500] as const,
     /** Paid to clubs outside the league (none normally; old saves until the first draw). */
-    CENTRAL_PAYMENT_FALLBACK: 1_200,
+    CENTRAL_PAYMENT_FALLBACK: 2_500,
     /** Split prize pool by division level, paid by final table position. */
     SPLIT_PRIZE_POOL_BY_LEVEL: [120_000, 60_000, 35_000, 20_000, 12_000] as const,
     SPLIT_PRIZE_SHARES: [0.40, 0.20, 0.10, 0.10, 0.05, 0.05, 0.05, 0.05] as const,
@@ -229,8 +229,8 @@ export const CLUB_ECONOMY_TUNING = {
     SPONSOR_FLOOR_BASE: 400,
     SPONSOR_FLOOR_PER_REP: 30,
     /** Club operations (travel, admin, content, housing): BASE + PER_REP x reputation per week. */
-    OPERATIONS_BASE: 600,
-    OPERATIONS_PER_REP: 30,
+    OPERATIONS_BASE: 300,
+    OPERATIONS_PER_REP: 15,
     /** Starting cash = this many weeks of running costs (wages, staff, upkeep, operations)... */
     STARTING_RUNWAY_WEEKS: 26,
     /** ...rounded to this step, never below the minimum. */
@@ -239,6 +239,17 @@ export const CLUB_ECONOMY_TUNING = {
     /** AI administration: after this many consecutive insolvent weeks (the managed club's bankruptcy rule). */
     ADMINISTRATION_WEEKS: 8,
     ADMINISTRATION_REPUTATION_PENALTY: 10,
+    /**
+     * New owners recapitalise an AI club in administration to this many weeks
+     * of its (cut) running costs; without it a club that only breaks even
+     * stays insolvent forever, re-enters administration every 8 weeks and
+     * forfeits its fixtures (campaign 2026-10-11: 61 insolvent AI clubs, 56
+     * short rosters in season 2). The managed club instead goes bankrupt and
+     * the manager moves to another club.
+     */
+    ADMINISTRATION_RECAPITALISE_WEEKS: 8,
+    /** AI cost control: an AI club losing money with less than this runway lets its highest-paid staff go (one a week). */
+    COST_CONTROL_RUNWAY_WEEKS: 26,
 } as const
 
 /** Weekly running costs the starting runway is measured against. */

@@ -13,6 +13,7 @@
  */
 
 import { FinanceProcessor } from "@/engine/processors/finance-processor"
+import { EquipmentManager } from "@/engine/equipment-manager"
 import { clubOperationsCost, leagueCentralPayment } from "@/lib/balance-tuning"
 import { moneyCause } from "@/lib/week-changes"
 import type { GameSave, TeamSaveData, PlayerSaveData, ContractSaveData, StaffSaveData } from "@/engine/save-types"
@@ -118,7 +119,9 @@ describe("FinanceProcessor.processFinance", () => {
 
         // Pre-fix the equipment team's weeklyNet stayed at the pre-equipment
         // value, reading $1000 too high; now it's exactly its upkeep lower.
-        expect(baselineTeam.weeklyNet - equipTeam.weeklyNet).toBe(1000)
+        // Phase 4.4 gear parity: an AI club without gear pays for the implicit
+        // gear it plays with, so owned gear replaces that upkeep.
+        expect(baselineTeam.weeklyNet - equipTeam.weeklyNet).toBe(1000 - EquipmentManager.implicitWeeklyCost(baselineTeam))
     })
 
     test("AI team equipment cost is deducted but NOT logged to ledger", () => {
@@ -138,9 +141,9 @@ describe("FinanceProcessor.processFinance", () => {
         // Ledger is for the player team only.
         expect(saveWithEquip.financeLedger.length).toBe(0)
         // The equipment cost lands on the AI team's budget — the only
-        // difference between the two saves should be exactly the $1000
-        // weekly cost.
-        expect(baselineTeam.budget - aiTeam.budget).toBe(1000)
+        // difference between the two saves is the $1000 weekly cost minus the
+        // implicit-gear upkeep it replaces (Phase 4.4 gear parity).
+        expect(baselineTeam.budget - aiTeam.budget).toBe(1000 - EquipmentManager.implicitWeeklyCost(baselineTeam))
     })
 
     test("budget warning event emits when state degrades from STABLE", () => {
