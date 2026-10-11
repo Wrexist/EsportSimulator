@@ -84,6 +84,7 @@ export function generateCustomTeamData(data: CustomTeamData, teamId: string): Pa
         fanbase: fanbase,
         chemistry: 50,
         elo: 800, // Start at low ELO (bottom tier)
+        ratedMatches: 0, // Provisional rating for the first RANKING_TUNING.PROVISIONAL_MATCHES results (Phase 4.8)
         rosterIds: [], // Empty roster - must sign free agents
         staffIds: [],
         trainingSlotsUsed: 0,

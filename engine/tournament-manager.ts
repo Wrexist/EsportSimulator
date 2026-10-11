@@ -62,6 +62,13 @@ function getMatchAnalyzer(): typeof MatchAnalyzer {
     return _MatchAnalyzer!
 }
 
+/** Winner's net rounds over a series (the rating's margin-of-victory input). */
+function roundDifferential(result: { maps?: Array<{ homeScore?: number; awayScore?: number }> }, homeWon: boolean): number {
+    let home = 0, away = 0
+    for (const m of result.maps ?? []) { home += m.homeScore || 0; away += m.awayScore || 0 }
+    return homeWon ? home - away : away - home
+}
+
 /** Get coach tactical bonus for a team from save data */
 function getCoachTacticalBonus(save: GameSave, team: { staffIds: string[] }): number {
     const coach = save.staff?.find(s => team.staffIds?.includes(s.id) && s.role === "coach")
@@ -519,7 +526,8 @@ export class TournamentManager {
 
                 // Update ELO
                 const scoreDiff = Math.abs(result.homeScore - result.awayScore)
-                LeagueEngine.updateEloAfterMatch(save, bracketMatch.winnerId, bracketMatch.loserId!, scoreDiff, tournament.tier, undefined, undefined)
+                LeagueEngine.updateEloAfterMatch(save, bracketMatch.winnerId, bracketMatch.loserId!, scoreDiff, tournament.tier, undefined, undefined,
+                    roundDifferential(result, homeWon), { tournamentId: tournament.id, stage: bracketMatch.stage, maps: result.maps?.length ?? 0 })
 
                 // Process progression (assigns winner to next round)
                 this.routeRepairedProgression(save, tournament, bracketMatch, bracketMatch.winnerId, bracketMatch.loserId)
@@ -630,18 +638,16 @@ export class TournamentManager {
                 updateForm(winnerId, "W")
                 updateForm(loserId, "L")
 
-                // Calculate matches played
-                const getMatchesPlayed = (tid: string) =>
-                    save.completedMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid).length
-
                 LeagueEngine.updateEloAfterMatch(
                     save,
                     winnerId,
                     loserId,
                     scoreDiff,
                     tournament.tier,
-                    getMatchesPlayed(winnerId),
-                    getMatchesPlayed(loserId)
+                    undefined,
+                    undefined,
+                    roundDifferential(result, winnerId === homeTeam.id),
+                    { tournamentId: tournament.id, stage: match.stage, maps: result.maps?.length ?? 0 },
                 )
             }
         }
@@ -784,7 +790,9 @@ export class TournamentManager {
             scoreDiff,
             tournament.tier,
             undefined,
-            undefined
+            undefined,
+            roundDifferential(result, homeWon),
+            { tournamentId: tournament.id, stage: bracketMatch.stage, maps: result.maps?.length ?? 0 },
         )
 
         // Process this match's progression (will add winner to next round)

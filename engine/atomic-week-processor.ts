@@ -67,6 +67,7 @@ import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/n
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
 import { LeagueEngine } from "./league-engine"
+import { applyTierBands, tiersAreBanded } from "./world-ranking"
 import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
 import { JobOfferGenerator } from "./job-offer-generator"
@@ -406,14 +407,10 @@ export class AtomicWeekProcessor {
                 processLeagueWeek(save, config.playerTeamId, ledgerIdSet, eventIdSet)
                 mark(e => e.kind === "reputation" ? { type: "world", label: "League title" } : { type: "world", label: "League table" })
 
-                // Sync all team league tiers based on current Elo
-                // This ensures teams always have correct S/A/B tier assignment
-                save.teams.forEach(team => {
-                    const correctTier = LeagueEngine.getTierFromElo(team.elo)
-                    if (team.leagueTier !== correctTier) {
-                        team.leagueTier = correctTier
-                    }
-                })
+                // League tiers are world-rank bands set at season end (Phase
+                // 4.8); a save whose tiers came from the old Elo thresholds is
+                // banded once here. (A weekly Elo sync made tiers inflate.)
+                if (!tiersAreBanded(save)) applyTierBands(save)
 
                 // Phase 19: Check for season end and process promotions/relegations
                 if (LeagueEngine.isSeasonEnd(save.currentWeek)) {
@@ -821,21 +818,6 @@ export class AtomicWeekProcessor {
         // (which was O(matches × scheduled) — ~50 × 1000 = 50k element touches/week).
         const removedMatchIds = new Set<string>()
 
-        // Precomputed matches-played count per team (Phase O perf fix).
-        // The Elo update below uses this to apply the K=50 calibration
-        // factor for teams under 10 matches. Originally this was computed
-        // inline by save.completedMatches.filter(m => m.home/away === tid).length
-        // for BOTH winner and loser of EVERY processed match — making the
-        // week-tick O(matches_this_week × completed_log_size). After 52 weeks
-        // the log can be 500+ entries and a single tick was 70× slower than
-        // a week-1 tick (smoke profile measured 2.6s late vs 37ms early).
-        // Pre-build the Map once, increment as matches are processed.
-        const matchesPlayedByTeam = new Map<string, number>()
-        for (const cm of save.completedMatches) {
-            matchesPlayedByTeam.set(cm.homeTeamId, (matchesPlayedByTeam.get(cm.homeTeamId) || 0) + 1)
-            matchesPlayedByTeam.set(cm.awayTeamId, (matchesPlayedByTeam.get(cm.awayTeamId) || 0) + 1)
-        }
-
         for (const match of weekMatches) {
             const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
             const awayTeam = idx?.teamIndex.get(match.awayTeamId) ?? save.teams.find(t => t.id === match.awayTeamId)
@@ -864,11 +846,6 @@ export class AtomicWeekProcessor {
                     save, match, homeTeam, awayTeam, homePlayers, awayPlayers,
                     playerTeamId, removedMatchIds,
                 })
-                // Keep matchesPlayedByTeam in sync (Phase O perf path) so a
-                // subsequent regular match in the same tick reads the
-                // post-forfeit count for K-factor calibration.
-                matchesPlayedByTeam.set(match.homeTeamId, (matchesPlayedByTeam.get(match.homeTeamId) || 0) + 1)
-                matchesPlayedByTeam.set(match.awayTeamId, (matchesPlayedByTeam.get(match.awayTeamId) || 0) + 1)
                 matchesPlayed += forfeitDelta
                 continue
             }
@@ -947,10 +924,6 @@ export class AtomicWeekProcessor {
             }
 
             save.completedMatches.push(completedMatch)
-            // Keep the precomputed count in sync so the Elo K-factor
-            // calibration below reads the post-push value.
-            matchesPlayedByTeam.set(match.homeTeamId, (matchesPlayedByTeam.get(match.homeTeamId) || 0) + 1)
-            matchesPlayedByTeam.set(match.awayTeamId, (matchesPlayedByTeam.get(match.awayTeamId) || 0) + 1)
             removedMatchIds.add(match.id)
 
             // Achievement flag detection extracted to
@@ -1101,22 +1074,17 @@ export class AtomicWeekProcessor {
                 updateForm(winnerId, "W")
                 updateForm(loserId, "L")
 
-                // Resolve tournament tier for K-factor bonus
+                // Resolve the event tier: it sets the match's rating weight
                 let tournamentTier: string | undefined
                 if (match.tournamentId && match.tournamentId !== "SCRIM") {
                     const tournament = idx?.tournamentIndex.get(match.tournamentId) ?? save.tournaments.find(t => t.id === match.tournamentId)
                     if (tournament) tournamentTier = tournament.tier
                 }
 
-                // Matches played for K=50 calibration (first 10 matches).
-                // Pulled from the precomputed Map built before the per-match
-                // loop instead of re-scanning save.completedMatches each call.
-                // Subtract 1 because the current match's push above included
-                // this match for both teams, so the count is off-by-one for
-                // the calibration window (a team's 10th real match should
-                // still read as match 10, not 11).
-                const winnerMatches = Math.max(0, (matchesPlayedByTeam.get(winnerId) || 0) - 1)
-                const loserMatches = Math.max(0, (matchesPlayedByTeam.get(loserId) || 0) - 1)
+                // Phase 4.8: no per-club "calibration" K. It was read from the
+                // completed-match log, which the league compacts to four weeks,
+                // so most clubs stayed on the volatile K forever; new clubs
+                // get a provisional K from their own rated-match counter.
 
                 // Calculate Net Round Differential (Total rounds won by winner - Total rounds won by loser)
                 // result.maps contains round scores. result.homeScore is Map wins.
@@ -1140,9 +1108,10 @@ export class AtomicWeekProcessor {
                     loserId,
                     scoreDiff,
                     tournamentTier,
-                    winnerMatches,
-                    loserMatches,
-                    roundDiff
+                    undefined,
+                    undefined,
+                    roundDiff,
+                    { tournamentId: match.tournamentId, stage: match.stage, maps: result.maps.length },
                 )
 
                 // Store ELO change (Phase 19 improvement)
@@ -1194,8 +1163,6 @@ export class AtomicWeekProcessor {
                             save, match, homeTeam, awayTeam, homePlayers, awayPlayers,
                             playerTeamId, removedMatchIds,
                         })
-                        matchesPlayedByTeam.set(match.homeTeamId, (matchesPlayedByTeam.get(match.homeTeamId) || 0) + 1)
-                        matchesPlayedByTeam.set(match.awayTeamId, (matchesPlayedByTeam.get(match.awayTeamId) || 0) + 1)
                         matchesPlayed += forfeitDelta
                     } catch (forfeitErr) {
                         debug.error('[atomic-week-processor] forfeit fallback failed; dropping match', forfeitErr)

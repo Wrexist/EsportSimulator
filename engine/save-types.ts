@@ -526,6 +526,10 @@ export interface TeamSaveData {
     startingLeagueTier?: string
     worldRanking?: number // Phase 19: Calculated 1-30 rank
     peakWorldRanking?: number // Career-best (lowest) world ranking ever held — only improves (C8)
+    /** Elo at the last world-ranking refresh; splits the next rank change into own and other results (Phase 4.8). */
+    rankedElo?: number
+    /** Rated results so far, tracked only for new clubs (provisional K while under RANKING_TUNING.PROVISIONAL_MATCHES). */
+    ratedMatches?: number
     // Phase 17: Tactical Mastery
     synergyMatrix?: Record<string, number> // key: "id1_id2", value: 0-100
 

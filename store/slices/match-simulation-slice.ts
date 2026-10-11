@@ -272,21 +272,16 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                     ? (homeRoundsTotal - awayRoundsTotal)
                     : (awayRoundsTotal - homeRoundsTotal)
 
-                const getMatchesPlayed = (teamId: string) =>
-                    state.completedMatches.filter(m => m.homeTeamId === teamId || m.awayTeamId === teamId).length
-                const winnerMatches = getMatchesPlayed(wId)
-                const loserMatches = getMatchesPlayed(lId)
-
                 const eloResult = LeagueEngine.updateEloAfterMatch(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    state as any,
+                    state,
                     wId,
                     lId,
                     scoreDiff,
                     tournamentTier,
-                    winnerMatches,
-                    loserMatches,
+                    undefined,
+                    undefined,
                     roundDiff,
+                    { tournamentId: match.tournamentId, stage: match.stage, maps: result.maps.length },
                 )
 
                 if (eloResult) {

@@ -54,7 +54,9 @@ describe("week processor records changes with causes", () => {
 
     test("a match simulated in the tick is the cause of its morale, form and Elo swing", async () => {
         const save = createLaunchFixture("first-week")
-        // The manager's week-1 fixture is still open when week 2 is processed.
+        // A league fixture (friendlies are unrated, Phase 4.8). The manager's
+        // week-1 fixture is still open when week 2 is processed.
+        Object.assign(save.scheduledMatches[0], { tournamentId: "league_s1_p1_europe_d1", stage: "Europe Division 1 · Round 1" })
         const { result, save: after } = await computeWeek(save, config(save), 5)
         const played = after.completedMatches.find(m => m.id === "qa_match_first-week")!
         const won = played.result.winnerId === save.playerTeamId

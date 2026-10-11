@@ -369,6 +369,64 @@ export const BOARD_TUNING = {
     DISMISSAL_OFFERS: 3,
 } as const
 
+/**
+ * World ranking (Phase 4.8). Elo is the ranking: world rank = Elo order, the
+ * league tier is the rank band at the last season end. The previous model
+ * gave the winner and the loser different K-factors (by rank, an upset bonus,
+ * margin bonuses for the winner only) so every match created points (pool
+ * mean 1366 -> 1427 -> 1484 over two seasons), counted "calibration" matches
+ * from a match log the league trims to four weeks (so most clubs stayed on
+ * the volatile K = 32 forever), and set tiers from absolute Elo, so the S tier
+ * grew from 10 clubs to 83 after week one and ~133 by the end of season two
+ * (campaign evidence phase4-8-rankings-before.json). Now:
+ *  - one K per match, by importance (league < qualifier < event tier <
+ *    playoffs; friendlies are unrated), and the same points move from loser
+ *    to winner, so the pool never inflates;
+ *  - margin of victory scales K a little, damped when the favourite wins big
+ *    (it already expected to);
+ *  - a new club's first matches move faster (provisional K, shared by both
+ *    sides so the exchange stays zero-sum);
+ *  - between seasons every rating moves REGRESSION toward the pool mean
+ *    (order preserving, so no rank changes at the rollover);
+ *  - tiers by rank bands at season end.
+ */
+export const RANKING_TUNING = {
+    /** K by match importance. FRIENDLY (preseason friendlies, scrims) is unrated. */
+    K: {
+        FRIENDLY: 0,
+        LEAGUE: 8,
+        QUALIFIER: 10,
+        C_TIER: 10,
+        B_TIER: 12,
+        A_TIER: 16,
+        S_TIER: 20,
+    } as Record<string, number>,
+    /** Playoff (elimination bracket) matches of an event weigh this much more. */
+    PLAYOFF_MULTIPLIER: 1.25,
+    /** Margin of victory: up to +MOV_MAX of K at MOV_FULL_ROUND_DIFF rounds per map. */
+    MOV_MAX: 0.25,
+    MOV_FULL_ROUND_DIFF: 10,
+    /** Autocorrelation damping of the margin bonus: SCALE / (SCALE + favourite's Elo edge / 1000). */
+    MOV_DAMPING_SCALE: 2.2,
+    /** Clubs with fewer rated matches than this get a provisional K (new orgs only). */
+    PROVISIONAL_MATCHES: 20,
+    PROVISIONAL_MULTIPLIER: 2,
+    /** No rating falls below this; the exchange is clamped so it stays zero-sum. */
+    FLOOR: 600,
+    /** Share of the distance to the pool mean removed at every season end. */
+    REGRESSION: 0.1,
+    /**
+     * League tiers by world-rank band at season end, as cumulative shares of
+     * the clubs (rounded): in the 198-club world S = ranks 1-16, A = 17-48,
+     * B = 49-111, C = 112 and below.
+     */
+    TIER_BANDS: [
+        { tier: "S_TIER", share: 0.08 },
+        { tier: "A_TIER", share: 0.24 },
+        { tier: "B_TIER", share: 0.56 },
+    ] as const,
+} as const
+
 /** Tournament entry for the managed club. */
 export const REGISTRATION_TUNING = {
     /** Open qualifiers are entered automatically (same eligibility and double-entry rules as the Register button). */
