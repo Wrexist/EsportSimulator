@@ -24,7 +24,7 @@ import { RECORD_KEYS, type RecordEntry, type RecordKey } from "@/engine/records-
 const SeasonReviewReplay = dynamic(() => import("@/components/moments/season-review/SeasonReviewReplay").then(m => m.SeasonReviewReplay), { ssr: false })
 
 const TIER_ORDER = ["S_TIER", "A_TIER", "B_TIER", "C_TIER"] as const
-const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier" }
+const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier", QUALIFIER: "Qualifier" }
 const displayName = (name: string) => name.replace(/\s+\d{4}$/, "")
 const weekLabel = (week: number) => `S${Math.ceil(week / WEEKS_PER_YEAR)} W${((week - 1) % WEEKS_PER_YEAR) + 1}`
 const baseId = (id: string) => id.replace(/_s\d+$/, "")
@@ -193,7 +193,7 @@ export default function TrophyRoomPage() {
                                         <td className="pl-4 text-sm tabular-nums text-ink-3">{t.year}</td>
                                         <td className="px-3 text-sm font-semibold text-gold">
                                             <span className="flex items-center gap-2.5">
-                                                <Image src={t.art.src} alt="" width={26} height={26} className="h-[26px] w-[26px] shrink-0 object-contain" />
+                                                <Image src={t.art.src} alt="" width={32} height={32} className="h-8 w-8 shrink-0 object-contain" />
                                                 {t.name}
                                             </span>
                                         </td>
@@ -220,7 +220,7 @@ export default function TrophyRoomPage() {
                                 <li key={r.season} className="flex items-center gap-3 px-4 py-2.5">
                                     <div className="min-w-0 flex-1">
                                         <p className="text-sm font-semibold text-ink-1">Season {r.season}{r.club ? <span className="font-normal text-ink-3"> · {r.club}</span> : null}</p>
-                                        <p className="mt-0.5 truncate text-xs text-ink-3" title={r.line}>{[r.line, r.mvp ? `MVP ${r.mvp}` : null].filter(Boolean).join(" · ") || "No official results"}</p>
+                                        <p className="mt-0.5 line-clamp-2 text-xs text-ink-3">{[r.line, r.mvp ? `MVP ${r.mvp}` : null].filter(Boolean).join(" · ") || "No official results"}</p>
                                     </div>
                                     <Button variant="outline" size="sm" onClick={() => setReplaySeason(r.season)}>Replay</Button>
                                 </li>

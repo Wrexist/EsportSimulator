@@ -80,11 +80,13 @@ export function TitleMomentView({ moment, onDismiss }: { moment: TitleMoment; on
     if (moment.fanGain) facts.push({ label: "New followers", value: `+${moment.fanGain.toLocaleString("en-US")}` })
 
     const headlineId = `moment-title-${moment.key}`
+    // S-tier titles get the full-scale moment; only a Major is called one.
+    const isMajor = isMajorTournament(moment.tournamentId)
     return (
         <MomentFrame momentKey={moment.key} labelledBy={headlineId} sound={moment.major ? "titleWinMajor" : "titleWin"} onDismiss={onDismiss}>
-            <TrophyArt kind={trophyKindForTournament(moment.tier, { major: isMajorTournament(moment.tournamentId) })} size={scale} />
+            <TrophyArt kind={trophyKindForTournament(moment.tier, { major: isMajor })} size={scale} />
             <motion.div {...reveal(0.35)} className="mt-8 flex items-center gap-3">
-                <MomentOverline>{moment.major ? "Major champions" : "Champions"}</MomentOverline>
+                <MomentOverline>{isMajor ? "Major champions" : "Champions"}</MomentOverline>
                 <TierTag tier={moment.tier} />
             </motion.div>
             <motion.h2

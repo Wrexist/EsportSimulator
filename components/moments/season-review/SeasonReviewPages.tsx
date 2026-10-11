@@ -113,7 +113,7 @@ export function ClubPage({ headingId }: { headingId: string }) {
                 <motion.ul {...reveal(0.3)} className="mt-6 flex max-w-5xl flex-wrap items-end justify-center gap-x-3 gap-y-2" aria-label="Titles won">
                     {club.trophies.map((t, i) => (
                         <li key={`${t.name}-${i}`} className="flex flex-col items-center">
-                            <TrophyImage kind={t.art} size={t.major ? 76 : 60} title={`${t.name} (${weekOfSeasonLabel(t.week)})`} className="drop-shadow-lg" />
+                            <TrophyImage kind={t.art} size={t.major ? 92 : 72} title={`${t.name} (${weekOfSeasonLabel(t.week)})`} className="drop-shadow-lg" />
                         </li>
                     ))}
                 </motion.ul>
@@ -135,6 +135,7 @@ export function ClubPage({ headingId }: { headingId: string }) {
                             <div className="min-w-0">
                                 <p className="truncate font-display text-[28px] font-bold uppercase leading-none text-ink-1">{best.name}</p>
                                 <p className="mt-1 text-xs text-ink-3"><span className="font-semibold text-ink-1 tabular-nums">{rating2(best.rating)}</span> rating · {plural(best.maps, "map")} · {best.kills}–{best.deaths}</p>
+                                <p className="mt-0.5 text-xs text-ink-3">ADR {best.adr.toFixed(1)}{best.mvps > 0 ? ` · ${plural(best.mvps, "match MVP")}` : ""}</p>
                             </div>
                         </div>
                     ) : <p className="mt-2 text-sm text-ink-3">No official maps for the club this season</p>}
@@ -179,7 +180,7 @@ export function AwardPage({ headingId, award }: { headingId: string; award: "mvp
     const facts: MomentFact[] = [
         { label: "Rating", value: rating2(p.rating), hint: `Weighted ${rating2(p.score)}` },
         { label: "Maps", value: p.maps, hint: plural(p.rounds, "round") },
-        { label: "K–D", value: `${p.kills}–${p.deaths}`, hint: `${p.kpr.toFixed(2)} kills a round` },
+        { label: "K/D", value: p.deaths ? (p.kills / p.deaths).toFixed(2) : String(p.kills), hint: `${p.kills} kills, ${p.deaths} deaths` },
         { label: "ADR", value: p.adr.toFixed(1), hint: "Damage a round" },
     ]
     const extras = [

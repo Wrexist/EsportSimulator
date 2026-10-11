@@ -177,7 +177,10 @@ export interface SeasonReviewView {
 }
 
 export const weekOfSeasonLabel = (week: number) => `Week ${((Math.max(1, week) - 1) % WEEKS_PER_SEASON) + 1}`
-const tierLabel = (tier: string) => TIER_DISPLAY[tier as keyof typeof TIER_DISPLAY]?.label ?? tier
+const tierLabel = (tier: string) => tier === "QUALIFIER" ? "Qualifier" : TIER_DISPLAY[tier as keyof typeof TIER_DISPLAY]?.label ?? tier
+/** Champions list order: Majors, then S/A/B/C events, league titles, qualifiers. */
+const TITLE_ORDER = ["S_TIER", "A_TIER", "B_TIER", "C_TIER", "LEAGUE", "QUALIFIER"]
+const titleRank = (tier: string) => { const i = TITLE_ORDER.indexOf(tier); return i < 0 ? TITLE_ORDER.length : i }
 const dash = (score: string) => score.replace("-", "–")
 
 const MAX_ARCS = 4
@@ -342,7 +345,7 @@ function seasonBeats(src: ReviewSource, lk: Lookups, review: SeasonReview, club:
             })
         }
     }
-    for (const t of club.trophies) beats.push({ order: t.week * 10 + 1, when: weekOfSeasonLabel(t.week), title: `Won ${t.name}`, detail: t.major ? "Major champions" : t.tier === "LEAGUE" ? "League title" : `${tierLabel(t.tier)} title`, tone: "gold" })
+    for (const t of club.trophies) beats.push({ order: t.week * 10 + 1, when: weekOfSeasonLabel(t.week), title: `Won ${t.name}`, detail: t.major ? "Major champions" : t.tier === "LEAGUE" ? "League title" : t.tier === "QUALIFIER" ? "Qualifier" : `${tierLabel(t.tier)} title`, tone: "gold" })
     if (club.biggestWin) beats.push({ order: club.biggestWin.week * 10 + 2, when: weekOfSeasonLabel(club.biggestWin.week), title: `Biggest win: ${club.biggestWin.score} vs ${club.biggestWin.opponentName}`, detail: `+${club.biggestWin.margin} rounds${club.biggestWin.map ? ` · ${club.biggestWin.map}` : ""}`, tone: "positive" })
     if (club.worstLoss) beats.push({ order: club.worstLoss.week * 10 + 2, when: weekOfSeasonLabel(club.worstLoss.week), title: `Heaviest defeat: ${club.worstLoss.score} vs ${club.worstLoss.opponentName}`, detail: `−${club.worstLoss.margin} rounds${club.worstLoss.map ? ` · ${club.worstLoss.map}` : ""}`, tone: "negative" })
     for (const key of review.records.broken) {
@@ -399,7 +402,7 @@ export function buildSeasonReviewView(src: ReviewSource, season: number): Season
         return r ? [reviewRecord(lk, key, r, broken.has(key))] : []
     })
     const titles = review.records.titles.map(t => reviewTrophy(lk, t))
-        .sort((a, b) => Number(b.major) - Number(a.major) || "SABCL".indexOf(a.tier.charAt(0)) - "SABCL".indexOf(b.tier.charAt(0)) || a.week - b.week)
+        .sort((a, b) => Number(b.major) - Number(a.major) || titleRank(a.tier) - titleRank(b.tier) || a.week - b.week)
 
     const arcs = readStorylineArcs(src.storylines, teamId, season)
     const beats = arcs.length ? [] : seasonBeats(src, lk, review, club)

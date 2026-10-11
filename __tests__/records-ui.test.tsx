@@ -133,7 +133,7 @@ test('awards ceremony (season review) renders real season numbers; seasons with 
     expect(html).toContain('Player of the season')
     expect(html).toContain(mvp.name)
     expect(html).toContain(mvp.rating.toFixed(2))
-    expect(html).toContain(`${mvp.kills}–${mvp.deaths}`)
+    expect(html).toContain(`${mvp.kills} kills, ${mvp.deaths} deaths`)
     expect(html).toMatch(art('award'))
     expect(buildSeasonReviewView(save, 7)).toBeNull()
 })
