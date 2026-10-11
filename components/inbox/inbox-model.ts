@@ -7,6 +7,11 @@
  *   - `newsFeed`   → narrative headlines;
  *   - `socialFeed` → the social timeline (read-only; folded into News).
  *
+ * Low-value notices are folded into one weekly round-up (lib/inbox-digest.ts):
+ * the folded events stay in the log, hidden here, and are listed inside the
+ * digest message. Every open decision states its deadline and the default
+ * the club applies if it goes unanswered (engine/decision-deadlines.ts).
+ *
  * Effect labels are derived from what the store actually applies
  * (`resolveEventChoice`, `acceptTransferOffer`, `JobOfferGenerator`), never
  * from the choice's marketing text — the Phase 0 truth rule.
@@ -14,7 +19,8 @@
 
 import type { GameEventSaveData, SocialPost } from "@/engine/save-types"
 import type { InboxTab } from "@/lib/navigation"
-import { getEventTitle, isPendingDecisionEvent } from "@/lib/event-format"
+import { getEventTitle, isPendingDecisionEvent, isTransferRumor } from "@/lib/event-format"
+import { DIGEST_TYPE, digestItems, type DigestItem } from "@/lib/inbox-digest"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 
 export type InboxKind = "decision" | "message" | "news"
@@ -88,6 +94,8 @@ export function getDecisionKind(event: GameEventSaveData, ctx: InboxContext): De
         return "job_offer"
     }
     if (event.type === "TRANSFER_OFFER") {
+        // A rumour carries no bid: nothing to accept.
+        if (isTransferRumor(event)) return null
         if (data.playerId && !ctx.rosterIds.has(String(data.playerId))) return null
         return "transfer_offer"
     }
@@ -99,7 +107,24 @@ export function getDecisionKind(event: GameEventSaveData, ctx: InboxContext): De
 
 export function getInboxKind(event: GameEventSaveData, ctx: InboxContext): InboxKind {
     if (getDecisionKind(event, ctx)) return "decision"
-    return NEWS_EVENT_TYPES.has(event.type as string) ? "news" : "message"
+    return NEWS_EVENT_TYPES.has(event.type as string) || isWireStory(event, ctx) ? "news" : "message"
+}
+
+/**
+ * Stories about other clubs that older saves still hold as events: another
+ * club's injuries and trophies, transfer rumours. Wire news, not mail.
+ */
+function isWireStory(event: GameEventSaveData, ctx: InboxContext): boolean {
+    const data = dataOf(event)
+    if (isTransferRumor(event)) return true
+    if (event.type === "INJURY" && data.playerId && !data.fatigue && !ctx.rosterIds.has(String(data.playerId))) return true
+    if (event.type === "MEDIA" && event.id.startsWith("trophy_") && data.teamId && data.teamId !== ctx.playerTeamId) return true
+    return false
+}
+
+/** Folded into a weekly round-up: listed inside the digest, not on its own. */
+export function isFolded(event: GameEventSaveData): boolean {
+    return !!dataOf(event).digestId
 }
 
 // ─── Copy ─────────────────────────────────────────────────────────────────
@@ -143,6 +168,7 @@ export function getEventSender(event: GameEventSaveData, ctx: InboxContext): str
         case "ROSTER_UPDATE":
         case "TRANSFER_WINDOW": return "Transfer wire"
         case "RETIREMENT": return "Esports wire"
+        case DIGEST_TYPE: return "Assistant manager"
         default: return "Club office"
     }
 }
@@ -172,6 +198,12 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
         case "MEDIA":
             if (data.proAwards?.year != null) return `Pro Top 20 of ${data.proAwards.year}`
             return data.title || "Media update"
+        case DIGEST_TYPE: {
+            const items = digestItems(event)
+            const weeks = [...new Set(items.map(i => i.week))].sort((a, b) => a - b)
+            const span = weeks.length > 1 ? `weeks ${weeks[0]}–${weeks[weeks.length - 1]}` : weeks.length ? `week ${weeks[0]}` : ""
+            return `Round-up: ${items.length} smaller update${items.length === 1 ? "" : "s"}${span ? ` (${span})` : ""}`
+        }
         default: {
             const title = data.title || getEventTitle(event)
             return stripEmoji(String(title)).trim() || "Notification"
@@ -179,8 +211,37 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
     }
 }
 
-/** Plain-text body of an event message. */
+/**
+ * Plain-text body of an event message. An open decision ends with what the
+ * club does if it goes unanswered ("If you don't answer by Week 9, ...").
+ */
 export function getEventBody(event: GameEventSaveData, ctx: InboxContext): string {
+    const body = eventBodyText(event, ctx)
+    const note = dataOf(event).ifUnanswered
+    return typeof note === "string" && event.selectedChoiceId === undefined && !dataOf(event).isWithdrawn ? `${body}\n\n${note}` : body
+}
+
+/** One line per folded notice. */
+export function digestLine(item: DigestItem, ctx: InboxContext): string {
+    const d = item.data as AnyData
+    const text = (v: unknown) => (typeof v === "string" ? stripEmoji(v).trim() : "")
+    const asEvent = (): GameEventSaveData => ({ id: item.id, type: item.type, week: item.week, data: d, acknowledged: true })
+    switch (item.type) {
+        case "PLAYER_LEVEL_UP": {
+            if (text(d.message)) return text(d.message)
+            return `${d.playerName || playerLabel(d, ctx)} reached level ${d.newLevel ?? "?"}${num(d.breakthroughPotential) != null ? ` (potential now ${d.breakthroughPotential})` : ""}`
+        }
+        case "STAFF_LEVEL_UP": return `${d.staffName || "A staff member"} reached level ${d.newLevel ?? "?"}`
+        case "FAN": return text(d.title) || text(d.message) || "Fan milestone"
+        case "INJURY": return getEventSubject(asEvent(), ctx)
+        default: {
+            const line = text(d.description) || text(d.message) || text(d.title) || getEventSubject(asEvent(), ctx)
+            return line.length > 160 ? `${line.slice(0, 157)}...` : line
+        }
+    }
+}
+
+function eventBodyText(event: GameEventSaveData, ctx: InboxContext): string {
     const data = dataOf(event)
     const who = playerLabel(data, ctx)
     switch (event.type as string) {
@@ -212,6 +273,15 @@ export function getEventBody(event: GameEventSaveData, ctx: InboxContext): strin
         case "AI_SIGNING": return `${data.teamName || "A club"} has signed ${data.playerName || "a player"} from the free-agent pool.`
         case "AI_TRANSFER": return `${data.toTeamName || "A club"} has signed ${data.playerName || "a player"}${data.fromTeamName ? ` from ${data.fromTeamName}` : ""}${num(data.fee) != null ? ` for ${formatCurrency(data.fee, "$", false)}` : " for an undisclosed fee"}.`
         case "RETIREMENT": return data.message || `${who} has retired from professional play.`
+        case DIGEST_TYPE: {
+            const items = digestItems(event)
+            if (items.length === 0) return "Nothing new."
+            const blocks: string[] = ["Smaller updates from around the club, collected here so they don't each take a row in your inbox."]
+            for (const week of [...new Set(items.map(i => i.week))]) {
+                blocks.push([`WEEK ${week}`, ...items.filter(i => i.week === week).map(i => `• ${digestLine(i, ctx)}`)].join("\n"))
+            }
+            return blocks.join("\n\n")
+        }
         case "MEDIA":
             if (data.proAwards) {
                 const top = data.proAwards.top20?.[0]?.nickname
@@ -371,7 +441,7 @@ export function eventToItem(event: GameEventSaveData, ctx: InboxContext): InboxI
 
 /** Every inbox item, newest first. Decisions are not pinned here — see `itemsForTab`. */
 export function buildInboxItems(sources: InboxSources, ctx: InboxContext): InboxItem[] {
-    const items: InboxItem[] = sources.eventsLog.map(e => eventToItem(e, ctx))
+    const items: InboxItem[] = sources.eventsLog.filter(e => !isFolded(e)).map(e => eventToItem(e, ctx))
     for (const n of sources.newsFeed ?? []) {
         items.push({ key: `news:${n.id}`, source: "news", kind: "news", decision: null, week: n.week, unread: false, sender: "Esports wire", subject: n.title, preview: n.content, news: n })
     }
@@ -402,6 +472,7 @@ export interface InboxCounts {
 export function countInbox(eventsLog: readonly GameEventSaveData[], ctx: InboxContext): InboxCounts {
     const counts: InboxCounts = { decisions: 0, unreadMessages: 0, unreadNews: 0 }
     for (const event of eventsLog) {
+        if (isFolded(event)) continue
         const kind = getInboxKind(event, ctx)
         if (kind === "decision") counts.decisions++
         else if (!event.acknowledged) {

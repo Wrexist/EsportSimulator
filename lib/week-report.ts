@@ -51,6 +51,14 @@ export interface ReportWarning {
     href?: string
 }
 
+/** A decision the manager left unanswered; the club applied its stated default (Phase 4.9). */
+export interface ReportUnanswered {
+    /** "Fan meetup request", "Unhappy player (ace)". */
+    label: string
+    /** The default applied, as the choice reads ("Focus purely on practice (Morale +2)"), or "Lapsed". */
+    outcome: string
+}
+
 export interface ReportKpis {
     budget: [number, number]
     rank: [number | null, number | null]
@@ -73,6 +81,8 @@ export interface WeekReport {
     kpis: ReportKpis
     /** subjectId → display name at report time (players may leave). */
     names: Record<string, string>
+    /** Decisions settled by their default this week; their effects carry the cause "Unanswered: …". */
+    unanswered?: ReportUnanswered[]
     partial?: boolean
 }
 
@@ -119,6 +129,8 @@ export interface ReportStateSource {
     contracts: Array<{ playerId: string; teamId: string; endWeek: number }>
     completedMatches: MatchLike[]
     tournaments?: Array<{ id: string; name?: string; shortName?: string }>
+    /** Read for decisions the tick settled by default (`data.unanswered`). */
+    eventsLog?: Array<{ id: string; data?: unknown }>
 }
 
 export interface BuildReportInput {
@@ -234,9 +246,26 @@ export function buildWeekReport(input: BuildReportInput): WeekReport {
     const fs = team?.financialState
     if (fs && fs !== "STABLE") warnings.push({ kind: "finance", label: `Finances: ${fs.toLowerCase()}`, href: "/finances" })
 
-    const report: WeekReport = { v: 1, week, teamId, headline: "", changes, matches, warnings, kpis, names, ...(tracker?.partial || !trackerValid ? { partial: true } : {}) }
+    // 6. Decisions left unanswered: the tick applied their stated defaults.
+    const unanswered = unansweredThisTick(state)
+
+    const report: WeekReport = {
+        v: 1, week, teamId, headline: "", changes, matches, warnings, kpis, names,
+        ...(unanswered.length ? { unanswered } : {}),
+        ...(tracker?.partial || !trackerValid ? { partial: true } : {}),
+    }
     report.headline = weekHeadline(report)
     return report
+}
+
+function unansweredThisTick(state: ReportStateSource): ReportUnanswered[] {
+    const out: ReportUnanswered[] = []
+    for (const e of state.eventsLog ?? []) {
+        const u = (e.data as { unanswered?: { week?: unknown; label?: unknown; outcome?: unknown } } | undefined)?.unanswered
+        if (!u || u.week !== state.currentWeek || typeof u.label !== "string") continue
+        out.push({ label: u.label, outcome: typeof u.outcome === "string" ? u.outcome : "Lapsed" })
+    }
+    return out
 }
 
 // ---------- headline ----------
@@ -325,7 +354,12 @@ export function sanitizeWeekReports(raw: unknown): WeekReportsState | null {
         : null
     const history = Array.isArray(raw.history)
         ? raw.history.filter((r): r is WeekReport => isObj(r) && r.v === 1 && typeof r.week === "number" && typeof r.teamId === "string" && Array.isArray(r.changes) && isObj(r.kpis))
-            .map(r => ({ ...r, changes: r.changes.filter(validEntry).slice(0, WEEK_REPORT_MAX_ENTRIES), matches: Array.isArray(r.matches) ? r.matches : [], warnings: Array.isArray(r.warnings) ? r.warnings : [], names: isObj(r.names) ? r.names : {} }))
+            .map(r => {
+                const unanswered = Array.isArray(r.unanswered) ? r.unanswered.filter(u => isObj(u) && typeof u.label === "string" && typeof u.outcome === "string") : []
+                const { unanswered: _raw, ...rest } = r
+                void _raw
+                return { ...rest, changes: r.changes.filter(validEntry).slice(0, WEEK_REPORT_MAX_ENTRIES), matches: Array.isArray(r.matches) ? r.matches : [], warnings: Array.isArray(r.warnings) ? r.warnings : [], names: isObj(r.names) ? r.names : {}, ...(unanswered.length ? { unanswered } : {}) }
+            })
             .slice(0, WEEK_REPORT_HISTORY)
         : []
     if (!tracker && history.length === 0) return null

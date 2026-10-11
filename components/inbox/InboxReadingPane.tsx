@@ -62,7 +62,10 @@ function ResolvedNote({ event }: { event: GameEventSaveData }) {
     if (data.isWithdrawn && !event.selectedChoiceId) return <p className="text-xs font-medium text-ink-3">This is no longer open.</p>
     if (!event.selectedChoiceId || event.selectedChoiceId === "dismiss") return null
     const choice = ((event as { choices?: ChoiceLike[] }).choices ?? []).find(c => c.id === event.selectedChoiceId)
-    const text = event.selectedChoiceId === "expired" ? "Expired before it was answered"
+    // Settled by its stated default when the deadline passed (Phase 4.9).
+    const unanswered = data.unanswered as { week?: number } | undefined
+    const text = unanswered ? (choice ? `Unanswered: the club went with “${choiceLabel(choice)}” in week ${unanswered.week}` : `Unanswered: it lapsed in week ${unanswered.week}`)
+        : event.selectedChoiceId === "expired" ? "Expired before it was answered"
         : choice ? `You chose: ${choiceLabel(choice)}`
             : event.selectedChoiceId === "reject" ? "You rejected it"
                 : event.selectedChoiceId === "ACCEPT" || event.selectedChoiceId === "accept" ? "You accepted"

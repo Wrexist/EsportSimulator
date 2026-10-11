@@ -80,8 +80,9 @@ export class LegendEventsManager {
                 playerName: player.nickname,
                 benefit: "+1 Skill Point, +15 Morale"
             },
+            // A message: the benefit is already applied, there is nothing to
+            // decide (a lone "Incredible!" button read as a pending decision).
             acknowledged: false,
-            choices: [{ id: "ack", text: "Incredible!", effects: {} }]
         })
     }
 

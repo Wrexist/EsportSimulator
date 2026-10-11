@@ -6,6 +6,7 @@
 
 import type { ChangeEntry } from "@/lib/week-changes"
 import { fmtDelta, formatMoney, moneyNet, signedDelta, type WeekReport } from "@/lib/week-report"
+import { choiceLabel } from "@/components/inbox/inbox-model"
 
 export type Tone = "up" | "down" | "neutral"
 
@@ -165,6 +166,14 @@ export function topPlayerChanges(report: WeekReport, max = 3): { name: string; c
         change: e.kind === "injury" ? `Injured · ${e.delta} wk` : `${e.label} ${signedDelta(e.delta)}`,
         cause: e.cause.label,
         tone: e.kind === "injury" ? "down" : toneOf(e.kind, e.delta),
+    }))
+}
+
+/** Unanswered decisions with the default the club applied, without the inline effect note. */
+export function unansweredRows(report: WeekReport): { label: string; outcome: string }[] {
+    return (report.unanswered ?? []).map(u => ({
+        label: u.label,
+        outcome: u.outcome === "Lapsed" ? "Lapsed, no effect" : choiceLabel({ id: "", text: u.outcome }),
     }))
 }
 

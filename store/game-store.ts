@@ -117,6 +117,8 @@ import { WeekChangeRecorder, diffClubs, sideScore, snapshotClub, type ChangeCaus
 import { buildWeekReport, newTracker, pushWeekReport, sanitizeWeekReports } from "@/lib/week-report"
 import { recordWeekChanges, withTracker, type TrackingState } from "@/store/utils/week-tracking"
 import { getEventTitle } from "@/lib/event-format"
+import { foldWeeklyDigest } from "@/lib/inbox-digest"
+import { normalizeDecisions } from "@/engine/decision-deadlines"
 import drillCatalog from "@/data/drills.json"
 import { formatCurrency } from "@/lib/utils-extended"
 
@@ -1693,6 +1695,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           AIManager.initializeTeamData(hydratedSave)
           reconcileAllRoles(hydratedSave.teams, hydratedSave.players)
+          // Older saves hold open requests without a deadline (and stacked
+          // repeats): give each its deadline and default, merge repeats (Phase 4.9).
+          normalizeDecisions(hydratedSave, { arrivals: false })
 
           set({
             ...hydratedSave,
@@ -2162,6 +2167,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               })
               get().acknowledgeEvent(event.id)
             })
+
+            // Smaller notices (level-ups, milestones, confirmations, match-day
+            // reminders) go into one weekly round-up instead of one inbox row
+            // each (Phase 4.9). After the toasts, which read them.
+            set(s => { foldWeeklyDigest(s) })
 
             // Weekly report (replaces the old five-line "week in review"):
             // every change of the week with its cause. Modal after a weekly
