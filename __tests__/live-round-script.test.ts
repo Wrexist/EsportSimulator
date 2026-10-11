@@ -268,28 +268,29 @@ describe('radar panel in script mode', () => {
         ...extra,
     }))
 
-    it('draws players, names, site letters from the baked map and the round-script source', () => {
+    it('draws the round script on the canvas with a live scrubber for the round', () => {
         const html = render(2)
         expect(html).toContain('data-radar-source="round-script"')
-        expect(html.match(/data-side-shape="ct-circle"/g)).toHaveLength(5)
-        expect(html.match(/data-side-shape="t-diamond"/g)).toHaveLength(5)
-        expect(html.match(/data-view-cone=""/g)).toHaveLength(10)
-        expect(html).toContain('N_H0'.toUpperCase())
-        const a = live.map.sites.A.center
-        expect(html).toMatch(new RegExp(`<text x="${a.x}" y="${a.y}"[^>]*data-site-label="a"`))
+        expect(html.match(/<canvas\b/g)).toHaveLength(1)
+        expect(html).toMatch(/aria-label="Mirage radar: CT 5 alive, T 5 alive/)
+        expect(html).toContain('role="slider"')
+        expect(html).toContain(`>R${live.script.round}<`)
+        expect(html).not.toContain('Back to live')
     })
 
-    it('draws death markers, the tracer of a fresh kill and the planted bomb', () => {
+    it('ticks kills as they happen, shows the planted bomb and the whole round once it is over', () => {
         const kill = live.script.deaths[0]
-        const atKill = render(kill.t + 0.2)
-        expect(atKill).toContain(`data-death-marker="${kill.victimId}"`)
-        expect(atKill).toContain('data-tracer=""')
+        const atKill = render(Math.ceil(kill.t) + 0.2)
+        expect((atKill.match(/data-scrub-tick="kill"/g) ?? []).length).toBe(live.script.deaths.filter(d => d.t <= Math.ceil(kill.t) + 0.2).length)
+        const before = render(Math.max(0, Math.floor(kill.t) - 1))
+        expect(before).not.toContain('data-scrub-tick="kill"')
         const plant = live.script.bomb.plant!
         const planted = render(Math.ceil(plant.t) + 1)
-        expect(planted).toMatch(/data-bomb="(planted|defusing|defused|exploded)"/)
         expect(planted).toMatch(new RegExp(`BOMB PLANTED ${plant.site}|DEFUSING ${plant.site}|DEFUSED|BOMB EXPLODED`))
+        expect(planted).toContain('data-scrub-tick="plant"')
         const end = render(live.script.endTime + 1, { roundOver: true })
-        for (const d of live.script.deaths) expect(end).toContain(`data-death-marker="${d.victimId}"`)
+        expect(end.match(/data-scrub-tick="kill"/g)).toHaveLength(live.script.deaths.length)
+        expect(end).not.toContain('CLUTCH')
     })
 
     it('keeps the snapshot mode (no script) and hides the script before the round starts', () => {

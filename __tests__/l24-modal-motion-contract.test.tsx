@@ -305,7 +305,10 @@ describe('reduced motion (in-game setting OR OS preference)', () => {
 })
 
 describe('colour-independent side signals (L24.2)', () => {
-    it('draws CT players as circles and T players as diamonds, with a shape legend', () => {
+    // The canvas draws CT players as circles and T players as diamonds
+    // (asserted against a recording context in radar-draw.test.ts); the panel
+    // carries the matching shape legend.
+    it('shows the circle / diamond shape legend next to the radar', () => {
         const html = renderToStaticMarkup(React.createElement(MapRadarPanel, {
             currentMapId: MapId.MIRAGE, mapName: 'Mirage', currentTime: 0,
             radarDots: [
@@ -313,9 +316,9 @@ describe('colour-independent side signals (L24.2)', () => {
                 { playerId: 't', nickname: 'Att', side: 't', isAlive: true, x: 60, y: 60, angle: 0 },
             ],
         } as any))
-        expect(html).toContain('data-side-shape="ct-circle"')
-        expect(html).toContain('data-side-shape="t-diamond"')
         expect(html).toMatch(/●[^<]*<\/span>CT/)
         expect(html).toMatch(/◆[^<]*<\/span>T/)
+        const draw = fs.readFileSync(path.resolve(__dirname, '../lib/radar-draw.ts'), 'utf8')
+        expect(draw).toContain('CT circle, T diamond')
     })
 })
