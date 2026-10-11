@@ -11,12 +11,13 @@ import { TitleMomentView, LeagueTitleMomentView } from "./TitleMomentView"
 import { TierMoveMomentView } from "./TierMoveMomentView"
 import { SigningRevealView } from "./SigningRevealView"
 import { WelcomeMomentView } from "./WelcomeMomentView"
+import { SeasonReviewMomentView } from "./SeasonReviewMomentView"
 import { momentBlockedRoute } from "./moment-state"
 
 /** A short beat before a moment opens, so the screen underneath lands first. */
 function openDelay(m: Moment, path: string): number {
     if (m.kind === "title" && /^\/match\/[^/]+\/result/.test(path)) return 1400
-    return m.kind === "welcome" ? 700 : 450
+    return m.kind === "welcome" || m.kind === "season-review" ? 700 : 450
 }
 
 /**
@@ -59,5 +60,6 @@ function renderMoment(m: Moment, onDismiss: () => void) {
         case "relegation": return <TierMoveMomentView key={m.key} moment={m} onDismiss={onDismiss} />
         case "signing": return <SigningRevealView key={m.key} moment={m} onDismiss={onDismiss} />
         case "welcome": return <WelcomeMomentView key={m.key} moment={m} onDismiss={onDismiss} />
+        case "season-review": return <SeasonReviewMomentView key={m.key} moment={m} onDismiss={onDismiss} />
     }
 }
