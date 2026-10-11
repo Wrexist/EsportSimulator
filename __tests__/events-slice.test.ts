@@ -365,6 +365,54 @@ describe("resolveEventChoice — legend coach hire affordability", () => {
         expect(entry!.amount).toBe(15_000)
         expect(after.eventsLog[0].selectedChoiceId).toBe("hire")
     })
+
+    test("the legend joins team.staffIds (weekly wages are paid from it) and replaces the old coach there", () => {
+        const state = legendEventState(50_000)
+        state.teams = [makeTeam("player", { budget: 50_000, staffIds: ["old_coach", "analyst_1"] } as never)]
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        state.staff = [{ id: "old_coach", teamId: "player", role: "coach", salaryPerWeek: 2_000 }, { id: "analyst_1", teamId: "player", role: "analyst", salaryPerWeek: 1_000 }] as any
+        const h = makeHarness(state)
+        createEventsSlice(h.set, h.get).resolveEventChoice("legend_coach_opportunity_x", "hire")
+        const after = h.state()
+        const legend = after.staff.find(s => s.role === "coach")!
+        expect(legend.id).toMatch(/^legend_coach_/)
+        expect(after.teams[0].staffIds).toEqual(["analyst_1", legend.id])
+    })
+})
+
+describe("resolveEventChoice — team-wide choices", () => {
+    test("a team event's morale choice applies to every roster player (was a no-op)", () => {
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", { rosterIds: ["p1", "p2"] } as never)],
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            players: [{ id: "p1", morale: 50, loyalty: 50, fatigue: 20 }, { id: "p2", morale: 95, loyalty: 50, fatigue: 20 }, { id: "x9", morale: 50, loyalty: 50, fatigue: 20 }] as any,
+            eventsLog: [makeEvent("equipment_deal_5", {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                choices: [{ id: "accept_deal", text: "Accept Deal (-$3k, Morale +8)", effects: { money: -3000, morale: 8 } }] as any,
+            })],
+        }))
+        createEventsSlice(h.set, h.get).resolveEventChoice("equipment_deal_5", "accept_deal")
+        const after = h.state()
+        expect(after.players.map(p => p.morale)).toEqual([58, 100, 50])
+        expect(after.teams[0].budget).toBe(97_000)
+        expect(after.eventsLog[0].selectedChoiceId).toBe("accept_deal")
+    })
+
+    test("a player event's morale choice still targets only that player", () => {
+        const h = makeHarness(makeBaseState({
+            teams: [makeTeam("player", { rosterIds: ["p1", "p2"] } as never)],
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            players: [{ id: "p1", morale: 50, loyalty: 50, fatigue: 20 }, { id: "p2", morale: 50, loyalty: 50, fatigue: 20 }] as any,
+            eventsLog: [makeEvent("morale_p1_5", {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                data: { playerId: "p1" } as any,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                choices: [{ id: "talk", text: "One-on-One Talk (Morale +10)", effects: { morale: 10 } }] as any,
+            })],
+        }))
+        createEventsSlice(h.set, h.get).resolveEventChoice("morale_p1_5", "talk")
+        expect(h.state().players.map(p => p.morale)).toEqual([60, 50])
+    })
 })
 
 describe("social feed actions", () => {

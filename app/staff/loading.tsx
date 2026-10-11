@@ -1,18 +1,11 @@
-// Streaming skeleton for the staff page.
+// Streaming skeleton for the staff page: header, then two table panels.
 
 export default function StaffLoading() {
     return (
-        <div className="max-w-7xl mx-auto p-6 space-y-6">
-            <div className="h-8 w-40 rounded-lg bg-white/4 animate-pulse" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Array.from({ length: 6 }).map((_, i) => (
-                    <div
-                        key={i}
-                        className="h-40 rounded-xl bg-white/2 border border-white/5 animate-pulse"
-                        style={{ animationDelay: `${i * 30}ms` }}
-                    />
-                ))}
-            </div>
+        <div role="status" aria-label="Loading staff" className="mx-auto max-w-[1600px] space-y-6">
+            <div className="h-10 w-48 animate-pulse rounded bg-raised" />
+            <div className="h-40 animate-pulse rounded-lg border border-line bg-panel" />
+            <div className="h-96 animate-pulse rounded-lg border border-line bg-panel" />
         </div>
     )
 }

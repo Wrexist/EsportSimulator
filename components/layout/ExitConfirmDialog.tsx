@@ -18,27 +18,24 @@ interface ExitConfirmDialogProps {
 const VARIANT_CONFIG = {
     saving: {
         icon: Save,
-        iconColor: "text-cyan-400",
-        iconBg: "bg-cyan-500/10",
-        glowColor: "bg-cyan-500/10",
+        iconColor: "text-gold",
+        iconBg: "bg-gold/10",
         title: "Saving Your Game",
         description: "Please wait while your progress is being saved...",
         showButtons: false,
     },
     saveFailed: {
         icon: AlertTriangle,
-        iconColor: "text-amber-400",
-        iconBg: "bg-amber-500/10",
-        glowColor: "bg-amber-500/10",
+        iconColor: "text-caution",
+        iconBg: "bg-caution/10",
         title: "Auto-Save Failed",
         description: "Your latest progress could not be saved. Are you sure you want to exit without saving?",
         showButtons: true,
     },
     simulationRunning: {
         icon: AlertTriangle,
-        iconColor: "text-red-400",
-        iconBg: "bg-red-500/10",
-        glowColor: "bg-red-500/10",
+        iconColor: "text-negative",
+        iconBg: "bg-negative/10",
         title: "Process Still Running",
         description: "A simulation or save operation is still in progress. Exiting now may result in data loss.",
         showButtons: true,
@@ -60,7 +57,7 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-celebration bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
+                    className="fixed inset-0 z-celebration bg-ink/90 flex items-center justify-center p-4"
                 >
                     <motion.div
                         initial={{ scale: 0.9, y: 20 }}
@@ -71,13 +68,11 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="modal-title-exit-confirm"
-                        className="bg-[#0e1217] border border-white/10 rounded-3xl p-8 max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto text-center shadow-2xl relative"
+                        className="bg-panel border border-line-strong rounded-[10px] p-8 max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto text-center relative"
                     >
-                        {/* Ambient glow */}
-                        <div className={`absolute top-0 inset-x-0 h-32 ${config.glowColor} blur-3xl pointer-events-none`} />
 
                         {/* Icon */}
-                        <div className={`w-16 h-16 rounded-2xl ${config.iconBg} ${config.iconColor} flex items-center justify-center mx-auto mb-6 relative`}>
+                        <div className={`w-16 h-16 rounded-lg ${config.iconBg} ${config.iconColor} flex items-center justify-center mx-auto mb-6 relative`}>
                             {variant === "saving" ? (
                                 <Spinner className="size-8" />
                             ) : (
@@ -86,12 +81,12 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
                         </div>
 
                         {/* Title */}
-                        <h2 id="modal-title-exit-confirm" className="text-2xl font-normal text-white mb-2 uppercase tracking-tight relative">
+                        <h2 id="modal-title-exit-confirm" className="font-display text-2xl font-bold text-ink-1 mb-2 uppercase relative">
                             {config.title}
                         </h2>
 
                         {/* Description */}
-                        <p className="text-muted-foreground mb-8 relative">
+                        <p className="text-ink-2 mb-8 relative">
                             {config.description}
                         </p>
 
@@ -101,7 +96,7 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
                                 <Button
                                     onClick={onCancel}
                                     size="lg"
-                                    className="flex-1 h-14 bg-linear-to-r/srgb from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-normal uppercase tracking-widest rounded-xl shadow-lg shadow-cyan-500/20"
+                                    className="flex-1 h-12"
                                 >
                                     Stay
                                 </Button>
@@ -109,7 +104,7 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
                                     onClick={onConfirm}
                                     variant="outline"
                                     size="lg"
-                                    className="flex-1 h-14 border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 font-normal uppercase tracking-widest rounded-xl"
+                                    className="flex-1 h-12 border-negative/40 text-negative hover:bg-negative/10"
                                 >
                                     Exit
                                 </Button>

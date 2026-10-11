@@ -1,87 +1,22 @@
 /**
- * Pro Top 20 Awards Engine - Authentic Implementation
- * 
- * Based on the real Pro Top 20 Players ranking system:
- * 
- * REVEAL SCHEDULE:
- * - Revealed daily during January (offseason)
- * - #20 revealed on Day 1, #1 revealed on Day 20
- * - Each day triggers a notification for that player
- * 
- * RANKING CRITERIA (weighted):
- * - Pro Rating 2.0 at Big Events (40%)
- * - Impact Rating (15%)
- * - Big Event Playoffs Performance (20%)
- * - MVP/EVP Awards (15%)
- * - Major Performance Multiplier (10%)
- * 
- * SPECIAL AWARDS:
- * - MVP of the Year (most MVPs)
- * - Rookie of the Year (best player under 21)
- * - IGL of the Year (highest rated IGL)
- * - AWPer of the Year (highest rated AWPer)
+ * Pro Top 20 (Phase 5.1: real stats only).
+ *
+ * The yearly Top 20 is the closed season's ranking from season-honours.ts:
+ * players with enough official maps, ordered by their importance-weighted
+ * rating (each map counts at its competition's weight). Every number shown
+ * is a real season total: rating, ADR, kills per round, K-D, maps, match MVP
+ * awards, titles and Majors won on the club's roster. Nothing is invented:
+ * the old OVR-based ratings and hash-made Major wins, Major MVPs, EVPs and
+ * "big event wins" are gone.
+ *
+ * Revealed in the season review's awards ceremony (Phase 5.4b,
+ * components/moments/season-review) from #20 to #1 at the start of the next
+ * season; the inbox event carries the awards object and reopens the review.
  */
 
-import { GameSave, PlayerSaveData } from "./save-types"
-import { evaluatePlayer } from "./player-evaluation"
+import type { GameSave } from "./save-types"
+import type { AwardWinner, SeasonHonours } from "./records-types"
 import { EventType } from "@/types"
-
-// ===== REAL DATA AGGREGATION =====
-
-interface AggregatedStats {
-    kills: number; deaths: number; assists: number
-    adrTotal: number; kastTotal: number; ratingTotal: number
-    matchCount: number; mvpCount: number; mapsPlayed: number
-    recordedRounds: number; killsWithRounds: number
-}
-
-/**
- * Aggregate real player stats from completed matches for a given year.
- * Returns a Map of playerId -> aggregated stats.
- */
-function aggregatePlayerStatsForYear(save: GameSave, year: number): Map<string, AggregatedStats> {
-    const stats = new Map<string, AggregatedStats>()
-    if (!save.completedMatches) return stats
-
-    for (const match of save.completedMatches) {
-        if (Math.ceil((match.week ?? 0) / 52) !== year) continue
-        if (!match.result?.playerStats) continue
-
-        for (const [playerId, ps] of Object.entries(match.result.playerStats)) {
-            const existing = stats.get(playerId) || {
-                kills: 0, deaths: 0, assists: 0,
-                adrTotal: 0, kastTotal: 0, ratingTotal: 0,
-                matchCount: 0, mvpCount: 0, mapsPlayed: 0, recordedRounds: 0, killsWithRounds: 0
-            }
-            existing.kills += ps.kills ?? 0
-            existing.deaths += ps.deaths ?? 0
-            existing.assists += ps.assists ?? 0
-            existing.adrTotal += ps.adr ?? 0
-            existing.kastTotal += ps.kast ?? 0
-            existing.ratingTotal += ps.rating ?? 0
-            existing.matchCount++
-            existing.mapsPlayed += ps.mapsPlayed ?? 1
-            const rounds = (match.result.maps || []).reduce((sum, map) => {
-                const home = map.homeScore ?? map.finalScore?.team1
-                const away = map.awayScore ?? map.finalScore?.team2
-                return sum + (Number.isFinite(home) && Number.isFinite(away) && home! + away! > 0
-                    ? home! + away! : map.rounds?.length || 0)
-            }, 0)
-            if (rounds > 0) { existing.recordedRounds += rounds; existing.killsWithRounds += ps.kills ?? 0 }
-            if (match.result.mvpPlayerId === playerId) existing.mvpCount++
-            stats.set(playerId, existing)
-        }
-    }
-    return stats
-}
-
-// ===== TYPES =====
-
-// Older/custom IDs can be shorter than the variance slot. Preserve existing
-// long-ID results while making every short/empty-ID slot deterministic and finite.
-function varianceCode(id: string, slot: number): number {
-    return id.charCodeAt(slot % Math.max(1, id.length)) || 1
-}
 
 export interface Top20Player {
     rank: number
@@ -93,404 +28,146 @@ export interface Top20Player {
     teamId: string
     teamName: string
     teamLogo: string
-    overallRating: number
 
-    // Pro-style stats
-    proRating: number      // Pro 2.0 Rating (0.80-1.50+)
-    impactRating: number    // Impact contribution (0.80-1.50+)
-    kast: number            // Kill/Assist/Survived/Traded % (50-85%)
-    adr: number             // Average Damage per Round (60-100+)
-    kpr: number             // Kills Per Round (0.5-1.0+)
+    /** Rounds-weighted season rating (script-v1 HLTV-2.0-style). */
+    rating: number
+    /** Importance-weighted rating the ranking uses. */
+    score: number
+    adr: number
+    kpr: number
+    kills: number
+    deaths: number
+    mapsPlayed: number
+    /** Match MVP awards this season. */
+    mvpCount: number
+    /** Titles won on the club's roster this season. */
+    titles: number
+    majorWins: number
 
-    // Achievements
-    mvpCount: number        // Big Event MVP medals
-    evpCount: number        // Big Event EVP (Exceptional Valuable Player)
-    majorMvps: number       // Major MVPs (extra prestige)
-    majorWins: number       // Major championships won
-    bigEventWins: number    // All Big Event wins
-    mapsPlayed: number      // Total maps at Big Events
-
-    // Meta
     age: number
     role: string
     isPlayerTeam: boolean
 
-    // Day revealed (1-20, where 1 = #20 player, 20 = #1 player)
+    /** Day revealed (1-20, where 1 = #20 player, 20 = #1 player). */
     revealDay: number
 }
 
 export interface AnnualAwards {
+    /** Season the awards are for. */
     year: number
     generatedWeek: number
-    revealStartWeek: number  // Week when reveals start
-    currentRevealDay: number // How many have been revealed (0-20)
+    revealStartWeek: number
+    currentRevealDay: number
     isFullyRevealed: boolean
+    /** Official maps needed to be ranked. */
+    minMaps: number
 
     top20: Top20Player[]
 
-    // Special awards
-    mvpOfTheYear: Top20Player | null       // Most MVPs
-    rookieOfTheYear: Top20Player | null    // Best under 21
-    iglOfTheYear: Top20Player | null       // Best IGL
-    awperOfTheYear: Top20Player | null     // Best AWPer
-}
-
-// ===== CONSTANTS =====
-
-// Big Event tiers for weighting
-const BIG_EVENT_TIERS = ["S_TIER", "A_TIER"]
-
-// Role detection keywords
-const IGL_ROLES = ["IGL", "LEADER", "CAPTAIN"]
-const AWPER_ROLES = ["AWPER", "AWP", "OP"]
-
-// ===== STAT CALCULATIONS =====
-
-/**
- * Calculate Pro 2.0 Rating based on player stats
- * Real formula: Weighted combination of kills, deaths, assists, traded, flash assists, etc.
- * Simplified: Based on OVR + key mechanical stats
- */
-function calculateProRating(player: PlayerSaveData, rngSeed: number): number {
-    const evaluation = evaluatePlayer(player)
-    const ovr = evaluation.overallRating
-
-    // Base rating from OVR (maps 50-100 to 0.80-1.40)
-    let rating = 0.80 + (ovr - 50) * 0.012
-
-    // Mechanical stat bonuses
-    const rifle = player.rifle || 50
-    const pistol = player.pistol || 50
-    const clutch = player.clutch || 50
-    const reaction = player.reaction || 50
-
-    // Add mechanical influence
-    rating += ((rifle - 70) * 0.003)
-    rating += ((pistol - 70) * 0.001)
-    rating += ((clutch - 70) * 0.002)
-    rating += ((reaction - 70) * 0.002)
-
-    // Seeded variance for consistency
-    const variance = (Math.sin(rngSeed * varianceCode(player.id, 0)) * 0.05)
-    rating += variance
-
-    // Clamp to realistic Pro range
-    return Math.max(0.80, Math.min(1.55, parseFloat(rating.toFixed(2))))
+    /** Season MVP (the #1 of the ranking). */
+    mvpOfTheYear: Top20Player | null
+    /** Best ranked player aged 20 or younger, or in his first season (season-honours.ts). */
+    rookieOfTheYear: Top20Player | null
+    /** Best ranked IGL and AWPer. */
+    iglOfTheYear: Top20Player | null
+    awperOfTheYear: Top20Player | null
 }
 
 /**
- * Calculate Impact Rating (contribution to round wins)
+ * True for awards built from real season stats (Phase 5.1). Awards events
+ * from older saves carried OVR-derived ratings and invented Major wins; the
+ * ceremony does not show them.
  */
-function calculateImpactRating(player: PlayerSaveData, rngSeed: number): number {
-    const evaluation = evaluatePlayer(player)
-    const ovr = evaluation.overallRating
-
-    // Base impact from OVR
-    let impact = 0.85 + (ovr - 50) * 0.010
-
-    // Entry/Clutch players have higher impact
-    const clutch = player.clutch || 50
-    const creativity = player.creativity || 50
-
-    impact += ((clutch - 60) * 0.003)
-    impact += ((creativity - 60) * 0.002)
-
-    // Role-based bonuses (Entry fraggers and AWPers typically higher impact)
-    const role = player.role?.toUpperCase() || ""
-    if (role.includes("ENTRY") || role.includes("AWP")) {
-        impact += 0.03
-    }
-
-    // Seeded variance
-    const variance = (Math.cos(rngSeed * varianceCode(player.id, 1) * 1.5) * 0.04)
-    impact += variance
-
-    return Math.max(0.80, Math.min(1.50, parseFloat(impact.toFixed(2))))
+export function isRealAwards(raw: unknown): raw is AnnualAwards {
+    const a = raw as Partial<AnnualAwards> | null
+    return !!a && typeof a.minMaps === "number" && Array.isArray(a.top20) && a.top20.every(p => typeof p?.rating === "number")
 }
 
-/**
- * Calculate KAST % (Kill/Assist/Survive/Trade percentage)
- */
-function calculateKAST(player: PlayerSaveData, rngSeed: number): number {
-    const ovr = evaluatePlayer(player).overallRating
-    const teamwork = player.teamwork || 50
-
-    // Base KAST scales with OVR (60-85% range)
-    let kast = 60 + (ovr - 50) * 0.4
-    kast += (teamwork - 50) * 0.15
-
-    // Variance
-    const variance = Math.sin(rngSeed * varianceCode(player.id, 2)) * 3
-    kast += variance
-
-    return Math.max(55, Math.min(85, parseFloat(kast.toFixed(1))))
-}
-
-/**
- * Calculate ADR (Average Damage per Round)
- */
-function calculateADR(player: PlayerSaveData, rngSeed: number): number {
-    const ovr = evaluatePlayer(player).overallRating
-    const rifle = player.rifle || 50
-
-    // Base ADR (60-100+ range)
-    let adr = 60 + (ovr - 50) * 0.6
-    adr += (rifle - 50) * 0.2
-
-    // Variance
-    const variance = Math.cos(rngSeed * varianceCode(player.id, 3) * 2) * 5
-    adr += variance
-
-    return Math.max(60, Math.min(110, parseFloat(adr.toFixed(1))))
-}
-
-/**
- * Calculate KPR (Kills Per Round)
- */
-function calculateKPR(player: PlayerSaveData, rngSeed: number): number {
-    const ovr = evaluatePlayer(player).overallRating
-
-    // Base KPR (0.55-1.0+ range)
-    let kpr = 0.55 + (ovr - 50) * 0.008
-
-    // Variance
-    const variance = Math.sin(rngSeed * varianceCode(player.id, 4) * 0.7) * 0.05
-    kpr += variance
-
-    return Math.max(0.55, Math.min(1.05, parseFloat(kpr.toFixed(2))))
-}
-
-// ===== MAIN GENERATION =====
-
-/**
- * Generate Top 20 players for the year
- * Uses comprehensive stats and achievements
- */
-export function generateAnnualTop20(
-    save: GameSave,
-    playerTeamId: string
-): AnnualAwards {
-    const { players, teams, currentWeek } = save
-    const year = Math.ceil(currentWeek / 52)
-    const rngSeed = currentWeek * 1337 + year * 42
-
-    // Aggregate real match data for the year
-    const realStats = aggregatePlayerStatsForYear(save, year)
-
-    // Get all active players
-    const activePlayers = players.filter(p => !p.isRetired)
-
-    // Calculate comprehensive stats for each player
-    const playerScores = activePlayers.map(player => {
-        const evaluation = evaluatePlayer(player)
-        const team = teams.find(t => t.rosterIds?.includes(player.id))
-        const real = realStats.get(player.id)
-
-        // Use real data when player has 10+ matches, otherwise fabricate
-        let proRating: number, impactRating: number, kast: number, adr: number, kpr: number, mvpCount: number, mapsPlayed: number
-        if (real && real.matchCount >= 10) {
-            proRating = real.ratingTotal / real.matchCount
-            kast = real.kastTotal / real.matchCount
-            adr = real.adrTotal / real.matchCount
-            kpr = real.recordedRounds > 0 ? real.killsWithRounds / real.recordedRounds : 0.5
-            mvpCount = real.mvpCount
-            mapsPlayed = real.mapsPlayed
-            // Impact has no direct match analog — derive from KPR and clutch contribution
-            impactRating = proRating * 0.7 + kpr * 0.3
-        } else {
-            proRating = calculateProRating(player, rngSeed)
-            kast = calculateKAST(player, rngSeed)
-            adr = calculateADR(player, rngSeed)
-            kpr = calculateKPR(player, rngSeed)
-            impactRating = calculateImpactRating(player, rngSeed)
-            mvpCount = 0
-            mapsPlayed = 0
-        }
-
-        // Simulate achievements based on team performance and player skill
-        const teamRank = team?.worldRanking || 50
-        const isTopTeam = teamRank <= 10
-        const isElitePlayer = evaluation.overallRating >= 85
-
-        const seedMod = (rngSeed * varianceCode(player.id, 0)) % 100 / 100
-
-        // MVP count: prefer real data, supplement with fabricated for achievements
-        if (!real || real.matchCount < 10) {
-            const mvpChance = isElitePlayer && isTopTeam ? 0.7 : isElitePlayer ? 0.4 : isTopTeam ? 0.25 : 0.1
-            mvpCount = Math.floor(seedMod * (mvpChance * 6))
-        }
-        const evpCount = Math.floor((seedMod * 1.3) % 1 * 4)
-        const majorMvps = (isElitePlayer && isTopTeam && seedMod > 0.7) ? 1 : 0
-        const majorWins = (isTopTeam && seedMod > 0.6) ? Math.floor(seedMod * 2) : 0
-        const bigEventWins = isTopTeam ? Math.floor(seedMod * 5) : Math.floor(seedMod * 2)
-        if (!real || real.matchCount < 10) {
-            mapsPlayed = 80 + Math.floor(seedMod * 120)
-        }
-
-        // Pro Composite Score (weighted formula)
-        const compositeScore = (
-            (proRating * 40) +           // 40% Pro Rating
-            (impactRating * 15) +          // 15% Impact
-            ((kast / 100) * 15) +          // 15% KAST (normalized)
-            (mvpCount * 8) +               // MVP weight
-            (evpCount * 3) +               // EVP weight
-            (majorMvps * 15) +             // Major MVP bonus
-            (majorWins * 12) +              // Major wins
-            (bigEventWins * 5) +            // Big event wins
-            (evaluation.overallRating * 0.3) + // Small OVR factor
-            ((100 - teamRank) * 0.2)       // Team prestige
-        )
-
-        return {
-            player,
-            team,
-            evaluation,
-            proRating,
-            impactRating,
-            kast,
-            adr,
-            kpr,
-            mvpCount,
-            evpCount,
-            majorMvps,
-            majorWins,
-            bigEventWins,
-            mapsPlayed,
-            compositeScore
-        }
-    })
-
-    // Sort by composite score and take top 20
-    const sortedPlayers = playerScores
-        .sort((a, b) => b.compositeScore - a.compositeScore)
-        .slice(0, 20)
-
-    // Build Top 20 array
-    const top20: Top20Player[] = sortedPlayers.map((entry, index) => ({
-        rank: index + 1,
-        playerId: entry.player.id,
-        playerName: entry.player.name,
-        nickname: entry.player.nickname,
-        nationality: entry.player.nationality,
-        portraitPath: entry.player.portraitPath || "",
-        teamId: entry.team?.id || "",
-        teamName: entry.team?.name || "Free Agent",
-        teamLogo: entry.team?.logoPath || "",
-        overallRating: entry.evaluation.overallRating,
-
-        // Pro stats
-        proRating: entry.proRating,
-        impactRating: entry.impactRating,
-        kast: entry.kast,
-        adr: entry.adr,
-        kpr: entry.kpr,
-
-        // Achievements
-        mvpCount: entry.mvpCount,
-        evpCount: entry.evpCount,
-        majorMvps: entry.majorMvps,
-        majorWins: entry.majorWins,
-        bigEventWins: entry.bigEventWins,
-        mapsPlayed: entry.mapsPlayed,
-
-        // Meta
-        age: entry.player.age || 20,
-        role: entry.player.role || "Rifler",
-        isPlayerTeam: entry.team?.id === playerTeamId,
-
-        // Reveal day (20 = #1, 1 = #20)
-        revealDay: 20 - index
-    }))
-
-    // Determine special awards
-    const mvpOfTheYear = [...top20].sort((a, b) =>
-        (b.mvpCount + b.majorMvps * 2) - (a.mvpCount + a.majorMvps * 2)
-    )[0] || null
-
-    const rookieOfTheYear = top20.find(p => p.age <= 21) || null
-
-    const iglOfTheYear = top20.find(p =>
-        IGL_ROLES.some(r => p.role.toUpperCase().includes(r))
-    ) || null
-
-    const awperOfTheYear = top20.find(p =>
-        AWPER_ROLES.some(r => p.role.toUpperCase().includes(r))
-    ) || null
-
+function toTop20Player(save: GameSave, w: AwardWinner, playerTeamId: string): Top20Player {
+    const player = save.players.find(p => p.id === w.playerId)
+    const team = save.teams.find(t => t.id === w.teamId)
+    const rank = w.rank ?? 0
     return {
-        year,
-        generatedWeek: currentWeek,
-        revealStartWeek: currentWeek,
+        rank,
+        playerId: w.playerId,
+        playerName: player?.name ?? w.name,
+        nickname: w.name,
+        nationality: player?.nationality ?? "",
+        portraitPath: player?.portraitPath ?? "",
+        teamId: w.teamId,
+        teamName: team?.name ?? w.teamId,
+        teamLogo: team?.logoPath ?? "",
+        rating: w.rating,
+        score: w.score,
+        adr: w.adr,
+        kpr: w.rounds ? Math.round(w.kills / w.rounds * 100) / 100 : 0,
+        kills: w.kills,
+        deaths: w.deaths,
+        mapsPlayed: w.maps,
+        mvpCount: w.mvps,
+        titles: w.trophies,
+        majorWins: w.majors,
+        age: w.age,
+        role: w.role,
+        isPlayerTeam: w.teamId === playerTeamId,
+        revealDay: rank ? 21 - rank : 0,
+    }
+}
+
+/** The awards ceremony's data for a closed season. */
+export function buildAnnualAwards(save: GameSave, honours: SeasonHonours, playerTeamId: string): AnnualAwards {
+    const top20 = honours.top20.map(w => toTop20Player(save, w, playerTeamId))
+    const byRole = (role: string) => top20.find(p => p.role.toUpperCase() === role) ?? null
+    const rookie = honours.rookie ? (top20.find(p => p.playerId === honours.rookie!.playerId) ?? toTop20Player(save, honours.rookie, playerTeamId)) : null
+    return {
+        year: honours.season,
+        generatedWeek: honours.week,
+        revealStartWeek: honours.week,
         currentRevealDay: 0,
         isFullyRevealed: false,
+        minMaps: honours.minMaps,
         top20,
-        mvpOfTheYear,
-        rookieOfTheYear,
-        iglOfTheYear,
-        awperOfTheYear
+        mvpOfTheYear: top20[0] ?? null,
+        rookieOfTheYear: rookie,
+        iglOfTheYear: byRole("IGL"),
+        awperOfTheYear: byRole("AWPER"),
     }
 }
 
 /**
- * Check if Pro Awards should be triggered
- * Awards start revealing at Week 1 of each new year (Jan 1)
+ * The awards (and the season close) run in the first week of each season
+ * from season 2 (week 53, 105, ...), for the season that just ended.
  */
 export function shouldTriggerAwards(currentWeek: number): boolean {
-    // Trigger on first week of year 2 onwards (week 53, 105, 157, etc.)
     return currentWeek >= 53 && currentWeek % 52 === 1
 }
 
-/**
- * Get which player rank should be revealed on a given day
- * Day 1 = #20, Day 20 = #1
- */
+/** Day 1 reveals #20, day 20 reveals #1. */
 export function getRevealForDay(day: number): number {
     if (day < 1 || day > 20) return 0
-    return 21 - day // Day 1 = rank 20, Day 20 = rank 1
+    return 21 - day
 }
 
-/**
- * Add Pro Awards event to event log with daily reveal support
- */
+/** Inbox event carrying the awards (once per season). */
 export function addProAwardsEvent(save: GameSave, awards: AnnualAwards): void {
-    // Check if we already generated awards for this year
-    const existingAwards = save.eventsLog.find(e =>
-        e.type === EventType.MEDIA &&
-        (e.data.proAwards as { year?: number } | undefined)?.year === awards.year
-    )
-
-    if (existingAwards) return
-
-    // Find if any player team members are in top 20
-    const playerTeamMembers = awards.top20.filter(p => p.isPlayerTeam)
-
-    const eventMessage = playerTeamMembers.length > 0
-        ? `🏆 Pro Top 20 of ${awards.year} is being revealed! Your team has ${playerTeamMembers.length} player(s) in the ranking. Check the awards ceremony to see where they placed!`
-        : `🏆 Pro Top 20 of ${awards.year} is being revealed! The world's best players are being announced one by one. Watch the ceremony to see who made the list.`
-
+    const id = `pro_top20_season${awards.year}`
+    if (save.eventsLog.some(e => e.id === id)) return
+    if (!awards.top20.length) return
+    const ours = awards.top20.filter(p => p.isPlayerTeam)
+    const message = ours.length > 0
+        ? `The Pro Top 20 of season ${awards.year} is out: ${ours.length} of your players made the list. Ranked on official maps (at least ${awards.minMaps}), each map weighted by its competition.`
+        : `The Pro Top 20 of season ${awards.year} is out. Ranked on official maps (at least ${awards.minMaps}), each map weighted by its competition.`
     save.eventsLog.push({
-        id: `pro_top20_year${awards.year}`,
+        id,
         type: EventType.MEDIA,
         week: save.currentWeek,
         data: {
-            title: `🏆 Pro Top 20 of ${awards.year}`,
-            message: eventMessage,
+            title: `Pro Top 20 of season ${awards.year}`,
+            message,
             proAwards: awards,
-            hasPlayerTeamMember: playerTeamMembers.length > 0,
-            playerTeamMembers: playerTeamMembers.map(p => ({
-                rank: p.rank,
-                nickname: p.nickname,
-                revealDay: p.revealDay
-            }))
+            hasPlayerTeamMember: ours.length > 0,
+            playerTeamMembers: ours.map(p => ({ rank: p.rank, nickname: p.nickname, revealDay: p.revealDay })),
         },
-        acknowledged: false
+        acknowledged: false,
     })
-}
-
-export default {
-    generateAnnualTop20,
-    shouldTriggerAwards,
-    addProAwardsEvent,
-    getRevealForDay,
-    calculateProRating
 }

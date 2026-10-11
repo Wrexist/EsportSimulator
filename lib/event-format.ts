@@ -35,7 +35,7 @@ export function getEventTitle(event: GameEventSaveData): string {
         case "TOURNAMENT": return "Tournament"
         case "MEDIA":
             if (data?.proAwards) {
-                return `🏆 Pro Top 20 of ${data.proAwards.year}`
+                return typeof data.proAwards.minMaps === "number" ? `🏆 Pro Top 20 of season ${data.proAwards.year}` : `🏆 Pro Top 20 of ${data.proAwards.year}`
             }
             return data.title || "Media Update"
         default: return data.title || "Notification"
@@ -58,5 +58,21 @@ export function isPendingDecisionEvent(event: GameEventSaveData): boolean {
     if (type === "JOB_OFFER" || type === "TRANSFER_OFFER") return false
     // CONTRACT events with a TRANSFER_OFFER action go through acceptTransferOffer.
     if (type === "CONTRACT" && e.data?.action === "TRANSFER_OFFER") return false
+    // A lone no-effect "acknowledge" button (older mentorship and Hall of
+    // Fame notices) is a message, not a decision.
+    if (isAcknowledgementOnly(e.choices)) return false
     return e.choices.every((c: any) => c && c.effects)
+}
+
+function isAcknowledgementOnly(choices: Array<{ id?: string; effects?: Record<string, unknown> }>): boolean {
+    if (choices.length !== 1 || choices[0]?.id !== "ack") return false
+    return Object.values(choices[0].effects ?? {}).every(v => !v)
+}
+
+/**
+ * "Reports suggest X is interested": no bid exists, so it cannot be accepted.
+ * New rumours go to the news feed; older saves still hold them as events.
+ */
+export function isTransferRumor(event: Pick<GameEventSaveData, "id" | "type" | "data">): boolean {
+    return event.type === "TRANSFER_OFFER" && (event.id.startsWith("transfer_rumor_") || !!(event.data as { rumor?: unknown } | undefined)?.rumor)
 }

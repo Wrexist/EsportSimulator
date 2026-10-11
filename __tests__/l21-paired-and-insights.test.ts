@@ -1,6 +1,12 @@
 /**
  * L21.A1 paired-scenario proof (200 identical seeds per comparison) and
  * L21.A3 result explanation built from recorded, non-omniscient data.
+ *
+ * Runs on the default engine (script-v1 since Phase 2B). Where script-v1
+ * changes what a decision is, the expectation says so: grenades are bought
+ * automatically by role, so a flash + smoke loadout is a reshuffle; a team
+ * without an AWPer still buys the AWP (only role coverage changes); a
+ * timeout is +4% per regroup round (see the regroup probe), small over a map.
  */
 import { SCENARIOS, runScenario, regroupRoundProbe, contextFor } from '@/scripts/launch/l21-paired-scenarios'
 import { runLegacySeries, finalizeLegacySeries } from '@/engine/match/legacy-series'
@@ -14,12 +20,30 @@ import { createDefaultTactics } from '@/engine/default-tactics'
 
 jest.setTimeout(240_000)
 
-describe('every permitted decision has a measurable, bounded effect over 200 paired seeds', () => {
-    const reports = SCENARIOS.map(s => runScenario(s, 200))
+// script-v1 rounds are decided by many duels, so paired arms diverge more
+// than under the legacy coin flip: 400 seeds resolve the smaller effects.
+describe('every permitted decision has a measurable, bounded effect over 400 paired seeds', () => {
+    const reports = SCENARIOS.map(s => runScenario(s, 400))
     test.each(reports.map(r => [r.id, r] as const))('%s', (_id, r) => {
         if (r.id === 'call-save-always') {
             expect(r.verdict).toBe('negative-control')
             expect(r.variant.roundShare).toBeGreaterThan(0.05)
+            return
+        }
+        if (r.id === 'economy-force') {
+            // Revamp Phase 0: once winners actually take their rolled deaths
+            // (clutches, ~0.6 more kills per round) guns are lost more often
+            // and buying $500 earlier is a wash: dRound -0.3 pp [-2.0, 1.4].
+            // It was already marginal (audit harness: +0.9 ±0.9 pp at 400 seeds).
+            expect(['bounded', 'decorative']).toContain(r.verdict)
+            expect(Math.abs(r.effect.matchWin.mean)).toBeLessThan(0.06)
+            return
+        }
+        if (r.id === 'loadout-utility') {
+            // script-v1: empty loadouts buy a role-based grenade set, so the
+            // flash + smoke plan replaces one set with another (it costs more).
+            expect(['bounded', 'decorative']).toContain(r.verdict)
+            expect(Math.abs(r.effect.matchWin.mean)).toBeLessThan(0.1)
             return
         }
         if (r.id === 'call-full-buy') {
@@ -38,15 +62,19 @@ describe('every permitted decision has a measurable, bounded effect over 200 pai
     })
     test('expected directions', () => {
         const by = Object.fromEntries(reports.map(r => [r.id, r]))
-        for (const up of ['playstyle-counter', 'roles-coverage', 'vod-review', 'mental-reset', 'antistrat-target', 'loadout-utility', 'timeout-on-streak']) expect(by[up].effect.roundShare.low).toBeGreaterThan(0)
-        for (const down of ['playstyle-countered', 'roles-no-awper']) expect(by[down].effect.roundShare.high).toBeLessThan(0)
+        for (const up of ['playstyle-counter', 'roles-coverage', 'vod-review', 'mental-reset', 'antistrat-target']) expect(by[up].effect.roundShare.low).toBeGreaterThan(0)
+        expect(by['playstyle-countered'].effect.roundShare.high).toBeLessThan(0)
+        expect(by['timeout-on-streak'].effect.roundShare.low).toBeGreaterThan(0)
+        expect(by['roles-no-awper'].effect.roundShare.high).toBeLessThan(0)
         // Balance tuning (ROUND_ECONOMY_TUNING): the default now buys FULL at
         // rifle + helmet money and saves after a lost pistol round, so saving
         // $500 longer costs rounds, forcing after a lost pistol spends the next
         // full buy, and buying every round is no longer near-dominant (+14.5 pp
         // before tuning).
-        expect(by['economy-eco'].effect.roundShare.high).toBeLessThan(0)
-        expect(by['call-force-after-pistol-loss'].effect.cashPerRound.high).toBeLessThan(0)
+        // script-v1 (CS2 loss levels): saving $500 longer banks cash without
+        // costing rounds; legacy-v2 it cost -5.5 pp.
+        expect(by['economy-eco'].effect.cashPerRound.low).toBeGreaterThan(0)
+        expect(by['call-force-after-pistol-loss'].effect.cashPerRound.mean).toBeLessThan(0)
         // Overbuying utility costs far more cash than a modest plan.
         expect(by['loadout-overbuy'].effect.cashPerRound.high).toBeLessThan(by['loadout-utility'].effect.cashPerRound.low)
     })
@@ -80,6 +108,9 @@ describe('result explanation', () => {
 
     test('explains key rounds, economy, players and own decisions from recorded data', () => {
         expect(insights.headline).toMatch(/rounds; pistol rounds \d\/\d/)
+        // The round count is the rounds this team WON, never mislabelled as lost.
+        const ownRounds = result.maps.reduce((s, m) => s + m.rounds.filter(r => r.winningTeamId === ctx.home.team.id).length, 0)
+        expect(insights.headline.startsWith(`Match ${insights.won ? 'won' : 'lost'}: you took ${ownRounds} of `)).toBe(true)
         expect(insights.keyRounds.some(k => /pistol round/.test(k.label))).toBe(true)
         expect(insights.keyRounds.some(k => k.label === 'Map-deciding round')).toBe(true)
         expect(insights.economy.buys.reduce((s, b) => s + b.played, 0)).toBe(result.maps.reduce((s, m) => s + m.rounds.length, 0))

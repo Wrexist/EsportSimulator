@@ -226,6 +226,25 @@ describe("SaveManager hardening", () => {
         expect(result.save).not.toBeNull()
         expect(storage.store.has(tmpKey)).toBe(false)
     })
+
+    test("save-slot summary counts the club's titles, not only the manager's S-tier counter", async () => {
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave()
+        const team = save.teams[0]
+        // Ten titles: two Majors, eight others (league and B/C-tier events).
+        team.trophies = Array.from({ length: 10 }, (_, i) => ({
+            tournamentId: i < 2 ? `major_cologne_s${i + 1}` : `league_eu_d1_s${i}`,
+            tournamentName: `Title ${i + 1}`,
+            tier: i < 2 ? "S_TIER" : "B_TIER",
+            week: 10 + i,
+        })) as typeof team.trophies
+        save.managerDetails.championships = 0
+        await sm.saveGame(save)
+        const slot = (await sm.getSaveSlots()).find(s => s.saveId === save.saveId)
+        expect(slot?.stats?.tournamentsWon).toBe(10)
+        expect(slot?.stats?.majorWins).toBe(2)
+    })
 })
 
 describe("SaveManager migration ladder", () => {

@@ -10,6 +10,7 @@
  */
 import { quotePlayerSigning } from "@/engine/finance-forecast"
 import type { ContractSaveData, PlayerSaveData, StaffSaveData, TeamSaveData } from "@/engine/save-types"
+import { SENIOR_ROSTER_MAX } from "@/engine/roster-rules"
 
 /** Two insolvency windows (8 weeks each) of cover at the new weekly rate. */
 export const LEGEND_MIN_RUNWAY_WEEKS = 16
@@ -25,6 +26,13 @@ export interface LegendQuote {
     weeklyNet: number
     runwayWeeks: number
     affordable: boolean
+    /**
+     * Senior squad size after the signing. A legend may take the squad over
+     * SENIOR_ROSTER_MAX (the reward is not refused for it), but the club then
+     * signs no one else until it releases or sells (engine/roster-rules.ts).
+     */
+    rosterAfter: number
+    overCap: boolean
 }
 
 export function quoteLegendSigning(
@@ -41,5 +49,7 @@ export function quoteLegendSigning(
         weeklyNet: quote.weeklyNet,
         runwayWeeks: quote.runwayWeeks,
         affordable: quote.weeklyNet >= 0 || quote.runwayWeeks >= LEGEND_MIN_RUNWAY_WEEKS,
+        rosterAfter: team.rosterIds.length + 1,
+        overCap: team.rosterIds.length + 1 > SENIOR_ROSTER_MAX,
     }
 }

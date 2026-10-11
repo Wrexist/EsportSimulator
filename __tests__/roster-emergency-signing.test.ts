@@ -5,7 +5,8 @@
  * if it passed the normal affordability filter (26 weeks of runway + a 50k
  * floor). A broke team therefore signed nobody and stayed sub-quorum
  * forever, forfeiting every match. manageRoster now signs in emergency mode
- * — affordability waived — whenever the roster is below 5.
+ * — affordability waived — whenever the roster is below 5 (Phase 4.6: a
+ * hard invariant, engine/ai/club-budget.ts fillAIRosterToFive).
  */
 
 import { manageRoster } from "@/engine/ai/roster-management"
@@ -49,25 +50,44 @@ function makeSave(teams: TeamSaveData[], players: PlayerSaveData[]): GameSave {
 }
 
 describe("manageRoster — emergency signing below quorum", () => {
-    it("an insolvent team cannot create unaffordable new wages", () => {
+    it("an insolvent team still fields five: it signs the cheapest free agents on credit, no cash invented", () => {
+        // Phase 4.6: five players is a hard invariant of the AI weekly logic.
+        // Before, an indebted club whose wages exceeded its income signed
+        // nobody and forfeited for months (campaign 2026-10-11: AI rosters
+        // down to three players in season 2).
         const broke = makeTeam("broke", {
             budget: -200_000,
             financialState: "INSOLVENT",
             rosterIds: ["p1", "p2", "p3"], // only 3 — below the 5 quorum
         })
-        const freeAgents = [makePlayer("fa1"), makePlayer("fa2")]
+        const freeAgents = [makePlayer("fa1"), makePlayer("fa2"), { ...makePlayer("fa3"), skill: 75, potential: 90 }]
         const rostered = ["p1", "p2", "p3"].map(makePlayer)
         const save = makeSave([broke], [...rostered, ...freeAgents])
-        // Existing wages exceed weekly income, so no new wage is covered by
-        // cash flow either (a cash-flow-positive indebted club may still fill
-        // its quorum — see long-career-campaign.test.ts).
         save.contracts = ["p1", "p2", "p3"].map(playerId => ({ playerId, teamId: "broke", salaryPerWeek: 20_000, startWeek: 1, endWeek: 100, buyout: 0 }))
 
         manageRoster(broke, save)
 
-        expect(broke.rosterIds.length).toBe(3)
-        expect(save.contracts).toHaveLength(3)
+        expect(broke.rosterIds).toHaveLength(5)
+        // The cheapest asks (the two skill-55 players), not the expensive star.
+        expect(broke.rosterIds).toEqual(expect.arrayContaining(["fa1", "fa2"]))
+        expect(broke.rosterIds).not.toContain("fa3")
+        expect(save.contracts).toHaveLength(5)
+        // No fee and no cash conjured: wages are charged by the weekly settlement.
         expect(broke.budget).toBe(-200_000)
+    })
+
+    it("with free agency empty, a short club fields a trialist from the local scene", () => {
+        const team = makeTeam("short", { budget: 50_000, rosterIds: ["p1", "p2", "p3", "p4"] })
+        const save = makeSave([team], ["p1", "p2", "p3", "p4"].map(makePlayer))
+        manageRoster(team, save)
+        expect(team.rosterIds).toHaveLength(5)
+        const trialist = save.players.find(p => p.id === team.rosterIds[4])!
+        expect(trialist.id).toMatch(/^trialist_short_5_/)
+        expect(save.contracts.find(c => c.playerId === trialist.id)?.salaryPerWeek).toBeGreaterThan(0)
+        // Deterministic: the same week and club produce the same trialist.
+        const again = makeSave([makeTeam("short", { budget: 50_000, rosterIds: ["p1", "p2", "p3", "p4"] })], ["p1", "p2", "p3", "p4"].map(makePlayer))
+        manageRoster(again.teams[0], again)
+        expect(again.players.at(-1)).toEqual(trialist)
     })
 
     it("a solvent, full roster is unaffected by the emergency path", () => {

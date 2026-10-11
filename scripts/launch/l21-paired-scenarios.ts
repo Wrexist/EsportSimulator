@@ -21,7 +21,7 @@ import { getActivePlayersByRosterOrder } from '../../lib/live-match-builders'
 import { prepareLegacySeries } from '../../engine/match/legacy-prepare'
 import { runLegacySeries, finalizeLegacySeries, type LegacyDecisionPolicy, type LegacySeriesContext } from '../../engine/match/legacy-series'
 import { simulationEngineV2 as engine } from '../../engine/match-simulation'
-import { regroupLossStreak } from '../../engine/match/manager-controls'
+import { regroupEdge } from '../../engine/match/manager-controls'
 import { createDefaultTactics } from '../../engine/default-tactics'
 import { SeededRNG } from '../../engine/rng'
 import type { GameSave } from '../../engine/save-types'
@@ -186,7 +186,9 @@ export function regroupRoundProbe(seeds = 400) {
     let baseline = 0, regroup = 0, unchanged = 0
     for (let seed = 1; seed <= seeds; seed++) {
         const run = (loss: number, active: boolean) => engine.simulateRound(new SeededRNG(seed), ctx.home.players, ctx.away.players, 50, 50, 50, 50, true, 0, 0,
-            regroupLossStreak(loss, active), 0, 5, econ(ctx.home.players, true), econ(ctx.away.players, false))
+            loss, 0, 5, econ(ctx.home.players, true), econ(ctx.away.players, false),
+            'FULL', 'FULL', false, undefined, undefined, undefined, undefined, undefined, 0, 0, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+            regroupEdge(loss, active), 0)
         unchanged += Number(JSON.stringify(run(0, false)) === JSON.stringify(run(0, true)))
         baseline += Number(run(5, false).winner === 'HOME')
         regroup += Number(run(5, true).winner === 'HOME')

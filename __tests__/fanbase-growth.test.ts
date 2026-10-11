@@ -192,7 +192,8 @@ describe("processFanbaseGrowth — ranking + marketing", () => {
         const save = makeSave([team], {
             currentWeek: 12,
             scheduledActivities: [
-                // Campaign started week 10, 4 weeks long, so weeks 10..13 are active.
+                // Campaign started week 10, 4 weeks long, so weeks 10..13 are active;
+                // the tick entering week 12 settles week 11.
                 {
                     id: "mkt1", type: "MARKETING", week: 10, duration: 4,
                     data: { followersPerWeek: 250 },
@@ -204,21 +205,40 @@ describe("processFanbaseGrowth — ranking + marketing", () => {
         expect(team.followers).toBe(250)
     })
 
-    test("MARKETING campaign that just ended does not contribute", () => {
+    test("MARKETING campaign pays for its last week at the next update, then stops", () => {
+        // Campaign started week 10, 4 weeks long: it runs weeks 10..13. The
+        // tick entering week 14 settles week 13 (paid); the one entering 15 does not.
+        const campaign = { id: "mkt1", type: "MARKETING", week: 10, duration: 4, data: { followersPerWeek: 250 } } as never
+        const last = makeTeam("t1", { reputation: 0, followers: 0 })
+        processFanbaseGrowth(makeSave([last], { currentWeek: 14, scheduledActivities: [campaign] }), rng)
+        expect(last.followers).toBe(250)
+        const after = makeTeam("t1", { reputation: 0, followers: 0 })
+        processFanbaseGrowth(makeSave([after], { currentWeek: 15, scheduledActivities: [campaign] }), rng)
+        expect(after.followers).toBe(0)
+    })
+
+    test("regression: a campaign does not pay before its first week has run", () => {
+        // Booked for week 10: the tick entering week 10 settles week 9 (nothing yet).
+        const campaign = { id: "mkt1", type: "MARKETING", week: 10, duration: 2, data: { followersPerWeek: 250 } } as never
+        const early = makeTeam("t1", { reputation: 0, followers: 0 })
+        processFanbaseGrowth(makeSave([early], { currentWeek: 10, scheduledActivities: [campaign] }), rng)
+        expect(early.followers).toBe(0)
+    })
+
+    test("regression: a one-week campaign booked for the current week pays at the next update", () => {
+        // Booked during week 10 for week 10, one week long: it used to never pay.
+        const campaign = { id: "mkt1", type: "MARKETING", week: 10, duration: 1, data: { followersPerWeek: 800 } } as never
         const team = makeTeam("t1", { reputation: 0, followers: 0 })
-        const save = makeSave([team], {
-            currentWeek: 14,
-            scheduledActivities: [
-                // Campaign started week 10, 4 weeks long, so weeks 10..13 are active; week 14 is past.
-                {
-                    id: "mkt1", type: "MARKETING", week: 10, duration: 4,
-                    data: { followersPerWeek: 250 },
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } as any,
-            ],
-        })
-        processFanbaseGrowth(save, rng)
-        expect(team.followers).toBe(0)
+        processFanbaseGrowth(makeSave([team], { currentWeek: 11, scheduledActivities: [campaign] }), rng)
+        expect(team.followers).toBe(800)
+        // Total over the campaign: exactly duration x followersPerWeek.
+        let total = 0
+        for (let w = 9; w <= 13; w++) {
+            const t = makeTeam("t1", { reputation: 0, followers: 0 })
+            processFanbaseGrowth(makeSave([t], { currentWeek: w, scheduledActivities: [campaign] }), rng)
+            total += t.followers ?? 0
+        }
+        expect(total).toBe(800)
     })
 })
 

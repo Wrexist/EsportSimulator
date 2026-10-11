@@ -51,7 +51,7 @@ export class FinanceProcessor {
             && ledgerIds.has(`inc_league_${save.currentWeek}_${playerTeamId}`)
         const legacyRows = legacySettled ? save.financeLedger.filter(e =>
             e.week === save.currentWeek && e.teamId === playerTeamId &&
-            /^(inc_spon_|inc_fan_|inc_league_|exp_equip_|exp_wage_p_|exp_wage_s_|exp_fac_)/.test(e.id)) : []
+            /^(inc_spon_|inc_fan_|inc_league_|exp_equip_|exp_wage_p_|exp_wage_s_|exp_fac_|exp_ops_)/.test(e.id)) : []
         const pushLedger = (entry: FinanceLedgerEntry): void => {
             if (ledgerIds.has(entry.id)) return
             save.financeLedger.push(entry)
@@ -77,6 +77,7 @@ export class FinanceProcessor {
                 save.staff,
                 save.currentWeek,
                 team.id === playerTeamId ? (save.academyPlayers?.length ?? 0) : (team.managementState?.academyPlayers?.length ?? 0),
+                { implicitGear: team.id !== playerTeamId },
             )
 
             if (legacySettled) {
@@ -111,17 +112,17 @@ export class FinanceProcessor {
             // team from healthy into INSOLVENT, and reading report.state here
             // would reset the counter every week so the bankruptcy game-over
             // could never fire for an equipment-driven insolvency.
-            if (team.id === playerTeamId) {
-                if (team.financialState === "INSOLVENT") {
-                    team.consecutiveInsolventWeeks = (team.consecutiveInsolventWeeks ?? 0) + 1
-                    // 8 consecutive weeks of insolvency = team dissolved
-                    if (team.consecutiveInsolventWeeks >= 8) {
-                        save.gameOverReason = "BANKRUPTCY"
-                        save.gameOverWeek = save.currentWeek
-                    }
-                } else {
-                    team.consecutiveInsolventWeeks = 0
+            // Every club counts insolvent weeks (AI clubs go into administration
+            // at the same threshold: engine/season/club-finances.ts).
+            if (team.financialState === "INSOLVENT") {
+                team.consecutiveInsolventWeeks = (team.consecutiveInsolventWeeks ?? 0) + 1
+                // 8 consecutive weeks of insolvency = team dissolved
+                if (team.id === playerTeamId && team.consecutiveInsolventWeeks >= 8) {
+                    save.gameOverReason = "BANKRUPTCY"
+                    save.gameOverWeek = save.currentWeek
                 }
+            } else {
+                team.consecutiveInsolventWeeks = 0
             }
 
             // Generate budget warning events for player team
@@ -186,6 +187,7 @@ export class FinanceProcessor {
                 // ledger sum undershot the actual budget change by $15k/week and
                 // every recorded running balance was internally inconsistent.
                 if (report.income.leagueShare > 0) {
+                    const division = save.league?.current?.divisions.find(d => d.id === team.leagueDivisionId)
                     pushLedger({
                         id: `inc_league_${save.currentWeek}_${team.id}`,
                         week: save.currentWeek,
@@ -193,7 +195,7 @@ export class FinanceProcessor {
                         type: "INCOME",
                         category: "OTHER",
                         amount: report.income.leagueShare,
-                        description: "League revenue share",
+                        description: division ? `League central payment (${division.name})` : "League central payment",
                         balance: team.budget
                     })
                 }
@@ -238,6 +240,18 @@ export class FinanceProcessor {
                         amount: report.expenses.staffWages,
                         description: "Staff salaries",
                         balance: team.budget
+                    })
+                }
+                if (report.expenses.operations > 0) {
+                    pushLedger({
+                        id: `exp_ops_${save.currentWeek}_${team.id}`,
+                        week: save.currentWeek,
+                        teamId: team.id,
+                        type: "EXPENSE",
+                        category: "FACILITIES",
+                        amount: report.expenses.operations,
+                        description: "Club operations (travel, admin, content)",
+                        balance: team.budget,
                     })
                 }
                 if (report.expenses.facilities > 0) {
@@ -299,17 +313,25 @@ export class FinanceProcessor {
         // Build Set of existing event IDs for O(1) duplicate checks
         const existingEventIds = new Set(save.eventsLog.map(e => e.id))
 
-        // Early warning: alert player 4 weeks before contracts expire
+        // Early warning: alert player 4 weeks before contracts expire. One
+        // message per contract, kept current each week, instead of a new one
+        // every week (Phase 4.9).
         const WARNING_WEEKS = 4
+        const eventById = new Map(save.eventsLog.map(e => [e.id, e]))
         for (const member of save.staff) {
             if (member.contractEndWeek === undefined) continue // Old careers without a dated term retain their staff.
             const weeksLeft = member.contractEndWeek - save.currentWeek
             if (member.teamId === playerTeamId && weeksLeft <= WARNING_WEEKS) {
-                const id = `staff_contract_${save.currentWeek}_${member.id}`
-                if (!existingEventIds.has(id)) {
-                    save.eventsLog.unshift({ id, week: save.currentWeek, type: "CONTRACT", acknowledged: false,
-                        data: { staffId: member.id, weeksLeft: Math.max(0, weeksLeft), importance: "HIGH",
-                            description: weeksLeft <= 0 ? `${member.name}'s contract expired. They have left the staff and are available on the market.` : `${member.name}'s staff contract expires in ${weeksLeft} weeks. Renew to keep their services.` } })
+                const id = `staff_contract_${member.id}_${member.contractEndWeek}`
+                const data = { staffId: member.id, weeksLeft: Math.max(0, weeksLeft), importance: "HIGH",
+                    description: weeksLeft <= 0 ? `${member.name}'s contract expired. They have left the staff and are available on the market.` : `${member.name}'s staff contract expires in ${weeksLeft} week${weeksLeft === 1 ? "" : "s"}. Renew to keep their services.` }
+                const existing = eventById.get(id)
+                if (existing) {
+                    // Leaving is news even if the warning was read.
+                    if (weeksLeft <= 0 && Number(existing.data.weeksLeft) > 0) existing.acknowledged = false
+                    existing.data = { ...existing.data, ...data }
+                } else {
+                    save.eventsLog.unshift({ id, week: save.currentWeek, type: "CONTRACT", acknowledged: false, data })
                     existingEventIds.add(id)
                 }
             }
@@ -330,21 +352,17 @@ export class FinanceProcessor {
             const player = save.players.find(p => p.id === contract.playerId)
             if (!player) continue
             const weeksLeft = contract.endWeek - save.currentWeek
-            const warnId = `contract_warn_${save.currentWeek}_${contract.playerId}`
-            // Only push if we haven't already warned this week
-            if (!existingEventIds.has(warnId)) {
-                save.eventsLog.unshift({
-                    id: warnId,
-                    type: "CONTRACT" as EventType,
-                    week: save.currentWeek,
-                    data: {
-                        playerId: player.id,
-                        description: `${player.nickname}'s contract expires in ${weeksLeft} week${weeksLeft !== 1 ? 's' : ''}. Consider renewing.`,
-                        weeksLeft,
-                        importance: weeksLeft <= 1 ? "HIGH" : "MEDIUM"
-                    },
-                    acknowledged: false
-                })
+            const warnId = `contract_warn_${contract.playerId}_${contract.endWeek}`
+            const data = {
+                playerId: player.id,
+                description: `${player.nickname}'s contract expires in ${weeksLeft} week${weeksLeft !== 1 ? 's' : ''}. Consider renewing.`,
+                weeksLeft,
+                importance: weeksLeft <= 1 ? "HIGH" : "MEDIUM"
+            }
+            const existing = eventById.get(warnId)
+            if (existing) existing.data = { ...existing.data, ...data }
+            else if (!existingEventIds.has(warnId)) {
+                save.eventsLog.unshift({ id: warnId, type: "CONTRACT" as EventType, week: save.currentWeek, data, acknowledged: false })
                 existingEventIds.add(warnId)
             }
         }

@@ -30,13 +30,14 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
         label: "Navigation",
         shortcuts: [
             { keys: ["1"], description: "Home (dashboard)" },
-            { keys: ["2"], description: "Desktop" },
+            { keys: ["2"], description: "Open inbox" },
+            { keys: ["I"], description: "Open / close inbox" },
             { keys: ["3"], description: "Squad" },
-            { keys: ["4"], description: "Training" },
-            { keys: ["5"], description: "Schedule" },
-            { keys: ["6"], description: "Transfers" },
-            { keys: ["7"], description: "Tournaments" },
-            { keys: ["8"], description: "Finances" },
+            { keys: ["4"], description: "Week plan" },
+            { keys: ["5"], description: "Match centre (next match)" },
+            { keys: ["6"], description: "Recruitment (transfers)" },
+            { keys: ["7"], description: "Competition (league)" },
+            { keys: ["8"], description: "Club (finances)" },
             { keys: ["9"], description: "Settings" },
             { keys: ["Esc"], description: "Go back / Close modal" },
         ],
@@ -45,6 +46,7 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
         label: "Gameplay",
         shortcuts: [
             { keys: ["Space"], description: "Advance time (day or week)" },
+            { keys: ["Space"], description: "Pause / resume a live match" },
         ],
     },
     {
@@ -56,15 +58,22 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
     },
 ]
 
-// Sidebar-aligned number-key routes. Mirrors the 1-9 entries above.
+// Hub-aligned number-key routes: 1 and 3–8 open the seven top-bar hubs in
+// order (Home, Squad, Week, Match, Recruitment, Competition, Club), 9 is
+// Settings. Mirrors the entries above; "2" is the inbox drawer
+// (INBOX_OPEN_KEY), which overlays the current screen.
 export const NUMBER_KEY_ROUTES: Record<string, string> = {
     "1": "/",
-    "2": "/desktop",
     "3": "/squad",
-    "4": "/training",
-    "5": "/schedule",
+    "4": "/week",
+    "5": "/match",
     "6": "/transfers",
-    "7": "/tournaments",
+    "7": "/league",
     "8": "/finances",
     "9": "/settings",
 }
+
+/** Opens the inbox drawer (was the `/desktop` route). */
+export const INBOX_OPEN_KEY = "2"
+/** Toggles the inbox drawer (case-insensitive, no modifiers). */
+export const INBOX_TOGGLE_KEY = "i"

@@ -5,7 +5,7 @@ import { useGameStore } from "@/store/game-store"
 import { X, TrendingUp, Star, Award, Zap, AlertTriangle } from "lucide-react"
 import { memo, useEffect, useCallback } from "react"
 import { liquidSpring, quickEase } from "@/lib/motion"
-import { soundManager } from "@/lib/sound-manager"
+import { useMomentOnScreenNow } from "@/components/moments/moment-state"
 
 export interface ToastData {
     id: string
@@ -15,45 +15,41 @@ export interface ToastData {
     duration?: number
 }
 
-// Audio feedback for meaningful in-game moments. Deliberately sparse — the
-// high-frequency types (xp_gain, info) stay silent so feedback feels earned,
-// not spammy. soundManager.play() self-gates on the global sound setting.
-const TOAST_SOUND: Partial<Record<ToastData["type"], "achievement" | "success" | "error">> = {
-    achievement: "achievement",
-    level_up: "success",
-    warning: "error",
-    error: "error",
-}
+// Toast sounds play once from the store's addToast (lib/audio-feedback toastSoundFor),
+// never from this component, so a toast is one sound.
 
 function getToastIcon(toast: ToastData) {
     if (toast.icon) return toast.icon
     switch (toast.type) {
-        case "level_up": return <TrendingUp size={18} className="text-emerald-400" />
-        case "xp_gain": return <Star size={18} className="text-amber-400" />
-        case "achievement": return <Award size={18} className="text-purple-400" />
-        case "warning": return <AlertTriangle size={18} className="text-red-400" />
-        default: return <Zap size={18} className="text-cyan-400" />
+        case "level_up": return <TrendingUp size={18} className="text-positive" />
+        case "xp_gain": return <Star size={18} className="text-gold" />
+        case "achievement": return <Award size={18} className="text-gold" />
+        case "warning": return <AlertTriangle size={18} className="text-negative" />
+        default: return <Zap size={18} className="text-gold" />
     }
 }
 
 function getToastStyle(toast: ToastData) {
     switch (toast.type) {
-        case "level_up": return "border-emerald-300/25"
-        case "xp_gain": return "border-amber-300/25"
-        case "achievement": return "border-violet-300/25"
-        case "warning": return "border-red-300/25"
-        default: return "border-cyan-200/25"
+        case "level_up": return "border-positive/30"
+        case "xp_gain": return "border-gold/30"
+        case "achievement": return "border-gold/40"
+        case "warning": return "border-negative/40"
+        default: return "border-gold/25"
     }
 }
 
 export function ToastNotifications() {
     const toasts = useGameStore(state => state.toasts) || []
     const removeToast = useGameStore(state => state.removeToast)
+    // A full-screen moment holds the toasts (they would cover its actions);
+    // they show, with their full time, once it closes.
+    const held = useMomentOnScreenNow()
 
     return (
         <div aria-live="polite" role="status" className="fixed top-16 right-6 z-toast flex flex-col gap-2 pointer-events-none">
             <AnimatePresence>
-                {toasts.map(toast => (
+                {!held && toasts.map(toast => (
                     <ToastItem
                         key={toast.id}
                         toast={toast}
@@ -74,14 +70,6 @@ const ToastItem = memo(function ToastItem({
 }) {
     const onRemove = useCallback(() => removeToast(toast.id), [removeToast, toast.id])
 
-    // Play the matching sound once when the toast first appears (keyed on id so
-    // it doesn't re-fire on re-render).
-    useEffect(() => {
-        const sfx = TOAST_SOUND[toast.type]
-        if (sfx) soundManager.play(sfx)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [toast.id])
-
     // Use toast.id (not the toast object reference) so the auto-dismiss timer
     // does NOT reset every time the parent re-renders. Previously the inline
     // `() => removeToast(toast.id)` prop changed identity on each render,
@@ -97,16 +85,16 @@ const ToastItem = memo(function ToastItem({
             animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: 18, scale: 0.98, filter: "blur(6px)" }}
             transition={toast.duration ? quickEase : liquidSpring}
-            className={`pointer-events-auto liquid-panel flex items-center gap-3 px-4 py-3 rounded-lg border ${getToastStyle(toast)}`}
+            className={`pointer-events-auto bg-panel flex items-center gap-3 px-4 py-3 rounded-lg border ${getToastStyle(toast)}`}
         >
-            <div className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-hover flex items-center justify-center shrink-0">
                 {getToastIcon(toast)}
             </div>
-            <p className="text-sm font-semibold text-white/90">{toast.message}</p>
+            <p className="text-sm font-semibold text-ink-1">{toast.message}</p>
             <button
                 onClick={onRemove}
                 aria-label="Dismiss notification"
-                className="p-1 rounded-lg hover:bg-white/10 active:bg-white/15 active:scale-90 transition-all text-white/50 hover:text-white"
+                className="p-1 rounded-lg hover:bg-hover active:bg-hover active:scale-90 transition-all text-ink-2 hover:text-ink-1"
             >
                 <X size={14} />
             </button>

@@ -1,37 +1,19 @@
 "use client"
 
-import { formatCurrency } from "@/lib/utils-extended"
-import { useFocusTrap } from "@/lib/accessibility"
-
 import { createPortal } from "react-dom"
-import React, { useState, useEffect, useRef, useMemo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { useRouter } from "next/navigation"
-import { useGameStore } from "@/store/game-store"
+import { X } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
-import { getVisibleStats, formatScoutedRating } from "@/engine/scouting-system"
-import { buyerReputationFactor, freeAgentWageFactor, recruitmentSalary } from "@/engine/recruitment"
-import { evaluatePlayer } from "@/engine/player-evaluation"
-import { getDisplayPlayerTier, getTierStyle, TierLevel } from "@/engine/tier-system"
-import { SeededRNG } from "@/engine/rng"
-import { getBoardSanctionedFee } from "@/engine/board-expectations"
-import { quotePlayerSigning } from "@/engine/finance-forecast"
-import { fireConfetti } from "@/lib/confetti-lazy"
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider" // Assuming we have or will treat as standard input
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import { useGameStore } from "@/store/game-store"
+import { useFocusTrap } from "@/lib/accessibility"
+import { getVisibleStats } from "@/engine/scouting-system"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { PlayerPortrait } from "@/components/ui/asset-images"
-import {
-    DollarSign,
-    CheckCircle2,
-    XCircle,
-    Handshake,
-    Clock,
-    AlertCircle
-} from "lucide-react"
+import { RoleTag } from "@/src/components/ui/RoleTag"
 import { cn } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils-extended"
+import { useNegotiation } from "./useNegotiation"
+import { DealTerms } from "./DealTerms"
+import { ScoutedRating, REPORT_LABEL } from "./ScoutedRating"
 
 interface NegotiationModalProps {
     playerId: string
@@ -40,559 +22,63 @@ interface NegotiationModalProps {
     className?: string
 }
 
-type NegotiationStage = "BUYOUT" | "CONTRACT" | "SUCCESS" | "FAILED"
-
-const MAX_NEGOTIATION_SALARY = 10_000_000
-
-const deterministicSeed = (...parts: Array<string | number | undefined | null>): number => {
-    const payload = parts
-        .filter((part): part is string | number => part !== undefined && part !== null)
-        .map(String)
-        .join("|")
-
-    let hash = 2166136261
-    for (let i = 0; i < payload.length; i++) {
-        hash ^= payload.charCodeAt(i)
-        hash = Math.imul(hash, 16777619)
-    }
-
-    return (hash >>> 0) || 1
-}
-
+/** Modal form of the transfer deal (player profile, desktop market). Transfers and Scouting dock the same terms inline. */
 export function NegotiationModal({ playerId, isOpen, onClose, className }: NegotiationModalProps) {
-    const router = useRouter()
-    const { players, teams, contracts, staff, academyCount, scoutedPlayers, playerTeamId, transferPlayer, currentWeek, saveId, addToast, boardState } = useGameStore(useShallow(state => ({
-        players: state.players,
+    const n = useNegotiation(playerId, isOpen)
+    const { scoutedPlayers, currentWeek } = useGameStore(useShallow(state => ({
         scoutedPlayers: state.scoutedPlayers,
-        teams: state.teams,
-        contracts: state.contracts,
-        staff: state.staff,
-        academyCount: state.academyPlayers.length,
-        playerTeamId: state.playerTeamId,
-        transferPlayer: state.transferPlayer,
         currentWeek: state.currentWeek,
-        saveId: state.saveId,
-        addToast: state.addToast,
-        boardState: state.boardState,
     })))
+    const dialogRef = useFocusTrap(isOpen && n.ready, onClose)
+    if (!isOpen || !n.ready || !n.playerSave || !n.evaluation || typeof document === "undefined") return null
 
-    // Derived Data
-    const playerSave = players.find(p => p.id === playerId)
-    const currentTeam = teams.find(t => t.rosterIds.includes(playerId))
-    const myTeam = teams.find(t => t.id === playerTeamId)
-    // Board war-chest: the single-fee ceiling the board will sanction.
-    const boardSanction = getBoardSanctionedFee(boardState, myTeam?.budget || 0)
-
-    // Local State
-    const [stage, setStage] = useState<NegotiationStage>("BUYOUT")
-    const [buyoutOffer, setBuyoutOffer] = useState<number>(0)
-    const [salaryOffer, setSalaryOffer] = useState<number>(0)
-    const [durationOffer, setDurationOffer] = useState<number>(52) // 1 year
-    const [negotiationLog, setNegotiationLog] = useState<string[]>([])
-    const [initializedKey, setInitializedKey] = useState("")
-    const sessionKey = `${saveId}:${playerId}:${currentWeek}`
-    const originalOwner = useRef<string | null>(null)
-    const [failureMessage, setFailureMessage] = useState<string | null>(null)
-    // transferPlayer is synchronous, but React batches state updates — a
-    // same-frame double-click would call the handler twice before `stage`
-    // re-renders. A ref updates synchronously and closes that window.
-    const dealSubmittedRef = useRef(false)
-    const costPreview = useMemo(() => myTeam ? quotePlayerSigning(myTeam, players, contracts, staff, currentWeek, playerId, buyoutOffer, salaryOffer, durationOffer, academyCount) : null,
-        [myTeam, players, contracts, staff, currentWeek, playerId, buyoutOffer, salaryOffer, durationOffer, academyCount])
-
-    // Initialization
-    useEffect(() => {
-        if (isOpen && initializedKey !== sessionKey && playerSave) {
-            // Determine starting stage
-            // We need to define currentTeam here loosely or assume the derived one is correct for initial load
-            const initialTeam = teams.find(t => t.rosterIds.includes(playerId))
-            originalOwner.current = initialTeam?.id || null
-            setBuyoutOffer(0)
-            setDurationOffer(104)
-            setNegotiationLog([])
-            setFailureMessage(null)
-            dealSubmittedRef.current = false
-
-            if (!initialTeam) {
-                setStage("CONTRACT")
-            } else {
-                setStage("BUYOUT")
-                // Start suggestion (use safely)
-                const contract = contracts.find(c => c.playerId === playerId && c.teamId === initialTeam.id && c.endWeek > currentWeek)
-                setBuyoutOffer(Math.round((contract?.buyout || evaluatePlayer(playerSave, undefined, undefined, currentWeek).transferValue) * 0.8))
-            }
-
-            // Default salary suggestion
-            const suggestedSalary = recruitmentSalary(playerSave, currentWeek, myTeam)
-            setSalaryOffer(suggestedSalary)
-
-            setInitializedKey(sessionKey)
-        } else if (!isOpen) {
-            setInitializedKey("")
-            setNegotiationLog([])
-            setFailureMessage(null)
-            dealSubmittedRef.current = false
-        }
-    }, [isOpen, initializedKey, sessionKey, playerSave, playerId, teams, contracts, currentWeek, myTeam])
-
-    const dialogRef = useFocusTrap(isOpen && !!playerSave && initializedKey === sessionKey, onClose)
-    if (!isOpen || !playerSave || initializedKey !== sessionKey || typeof document === "undefined") return null
-
-    const evaluation = evaluatePlayer(playerSave, undefined, undefined, currentWeek)
-    const knowledge = getVisibleStats(playerSave, scoutedPlayers, myTeam?.rosterIds || [], currentWeek)
-    const playerTier = getDisplayPlayerTier(knowledge.scoutingLevel === "ELITE" ? evaluation.overallRating : 0, currentTeam?.tier as TierLevel)
-    const tierStyle = getTierStyle(playerTier)
-    const getNegotiationRng = (phase: string) => new SeededRNG(
-        deterministicSeed(
-            saveId || "local",
-            currentWeek,
-            playerId,
-            currentTeam?.id || "FA",
-            myTeam?.id || "NO_TEAM",
-            phase
-        )
-    )
-
-    // Duration preference calculation
-    const calculateDurationPreference = () => {
-        // Base ideal duration by age
-        let idealWeeks: number
-        if (playerSave.age <= 20) idealWeeks = 130       // ~2.5 years - young, wants stability
-        else if (playerSave.age <= 22) idealWeeks = 112   // ~2 years - developing
-        else if (playerSave.age <= 25) idealWeeks = 90    // ~1.7 years - prime, flexible
-        else if (playerSave.age <= 28) idealWeeks = 72    // ~1.4 years - experienced
-        else if (playerSave.age <= 31) idealWeeks = 52    // 1 year - aging
-        else idealWeeks = 36                               // ~8 months - near retirement
-
-        // Loyalty modifier: high loyalty = longer commitment comfort
-        const loyalty = playerSave.loyalty ?? 50
-        const loyaltyFactor = loyalty / 100
-        idealWeeks = Math.round(idealWeeks * (0.8 + loyaltyFactor * 0.4)) // ±20%
-
-        // Elite players want shorter deals (leverage to renegotiate)
-        if (evaluation.overallRating >= 85) idealWeeks = Math.round(idealWeeks * 0.8)
-        else if (evaluation.overallRating >= 78) idealWeeks = Math.round(idealWeeks * 0.9)
-
-        // Deterministic variance ±15%
-        const durationVariance = getNegotiationRng("DURATION_PREF").range(0.85, 1.15)
-        idealWeeks = Math.round(idealWeeks * durationVariance)
-
-        // Compute acceptable range around ideal
-        const minWeeks = Math.max(12, Math.round(idealWeeks * 0.45))
-        const maxWeeks = Math.min(156, Math.round(idealWeeks * 1.8))
-
-        return { minWeeks, maxWeeks, idealWeeks: Math.max(12, Math.min(156, idealWeeks)) }
-    }
-
-    const durationPref = calculateDurationPreference()
-
-    const formatWeeksAsYears = (weeks: number) => {
-        const years = weeks / 52
-        if (years < 1) return `${weeks} weeks`
-        if (years === Math.floor(years)) return `${years} year${years > 1 ? "s" : ""}`
-        return `${years.toFixed(1)} years`
-    }
-
-    // Handlers
-    const handleBuyoutSubmit = () => {
-        // AI Logic:
-        // 1. Baseline: 95% of market value
-        // 2. Variance: +/- 10% based on random factor (simulated 'mood' or 'stubbornness')
-        const sanitizedBuyoutOffer = Math.max(0, Math.floor(buyoutOffer))
-        const variance = getNegotiationRng("BUYOUT_THRESHOLD").range(0.9, 1.1)
-        const minPrice = Math.round(evaluation.transferValue * variance)
-
-        // Accept if within 3% of target (avoids near-miss rejections)
-        if (sanitizedBuyoutOffer >= minPrice * 0.97) {
-            setNegotiationLog(prev => [...prev, `Team accepted offer of ${formatMoney(sanitizedBuyoutOffer)}`])
-            setStage("CONTRACT")
-        } else {
-            setNegotiationLog(prev => [...prev, `Offer of ${formatMoney(sanitizedBuyoutOffer)} rejected. Team wants ${formatMoney(minPrice)}.`]) // In hard mode, don't show specific price
-
-        }
-    }
-
-    const handleContractSubmit = () => {
-        if ((currentTeam?.id || null) !== originalOwner.current) {
-            setFailureMessage("This player's club changed during negotiations. Close and reopen to request current terms.")
-            return
-        }
-        const sanitizedDuration = Math.max(12, Math.min(156, Math.floor(durationOffer)))
-        const sanitizedSalary = Math.max(0, Math.min(MAX_NEGOTIATION_SALARY, Math.floor(salaryOffer)))
-        const sanitizedBuyoutOffer = Math.max(0, Math.floor(buyoutOffer))
-
-        // Step 1: Check duration preference
-        if (sanitizedDuration < durationPref.minWeeks) {
-            setNegotiationLog(prev => [...prev, `Player wants a longer contract (at least ${formatWeeksAsYears(durationPref.minWeeks)}).`])
-
-            return
-        }
-        if (sanitizedDuration > durationPref.maxWeeks) {
-            setNegotiationLog(prev => [...prev, `Player doesn't want to commit that long (max ${formatWeeksAsYears(durationPref.maxWeeks)}).`])
-
-            return
-        }
-
-        // Step 2: Check salary
-        const baseSalary = evaluation.transferValue / 150
-
-        // Deterministic variance blocks re-roll abuse via reload/reopen.
-        const variance = getNegotiationRng("CONTRACT_THRESHOLD").range(0.9, 1.2)
-        let minSalary = baseSalary * variance
-
-        // Age tax (Veterans know their worth)
-        if (playerSave.age > 28) minSalary *= 1.1
-
-        // Same free-agent decay and buyer-tier scaling as every AI quote.
-        minSalary *= freeAgentWageFactor(playerSave, currentWeek) * buyerReputationFactor(myTeam)
-
-        // Duration fit modifier: closer to ideal = slight discount, edges of range = premium
-        const distFromIdeal = Math.abs(sanitizedDuration - durationPref.idealWeeks) / Math.max(1, durationPref.maxWeeks - durationPref.minWeeks)
-        const durationFitMultiplier = 0.95 + distFromIdeal * 0.10 // 0.95 at ideal, up to 1.05 at edge
-        minSalary *= durationFitMultiplier
-
-        const minimumSalary = Math.round(minSalary)
-
-        // Accept if within 3% of target (avoids near-miss rejections)
-        if (sanitizedSalary >= minimumSalary * 0.97) {
-            // Execute the transfer first — only flip to SUCCESS if the store
-            // accepts it. Previously the UI advanced to SUCCESS even when
-            // the engine refused (roster full, contract conflict, etc.),
-            // showing a "deal done" screen for a transfer that never happened.
-            if (myTeam) {
-                if (dealSubmittedRef.current) return
-                dealSubmittedRef.current = true
-                const result = transferPlayer(
-                    playerId,
-                    currentTeam?.id || "FA",
-                    myTeam.id,
-                    sanitizedBuyoutOffer,
-                    {
-                        salaryPerWeek: sanitizedSalary,
-                        startWeek: currentWeek,
-                        endWeek: currentWeek + sanitizedDuration,
-                        buyout: Math.max(sanitizedSalary * 20, sanitizedBuyoutOffer * 2) // Default clause
-                    }
-                )
-                if (result.success) {
-                    setNegotiationLog(prev => [...prev, `Player accepted contract!`])
-                    setStage("SUCCESS")
-                    celebrateSigning(playerSave.nickname, sanitizedSalary, playerSave.skill)
-                } else {
-                    const reason = result.message || "The deal could not be completed."
-                    setNegotiationLog(prev => [...prev, `Transfer rejected: ${reason}`])
-                    setFailureMessage(reason)
-                    setStage("FAILED")
-                    addToast({ message: `Transfer failed: ${reason}`, type: "error" })
-                }
-            } else {
-                setNegotiationLog(prev => [...prev, `Player accepted contract!`])
-                setStage("SUCCESS")
-                celebrateSigning(playerSave.nickname, sanitizedSalary, playerSave.skill)
-            }
-        } else {
-            setNegotiationLog(prev => [...prev, `Player rejected ${formatMoney(sanitizedSalary)}/wk. Minimum expected: ${formatMoney(minimumSalary)}/wk.`])
-
-        }
-    }
-
-    const formatMoney = (value: number) => formatCurrency(value, '$', false)
-
-    // Scale the feedback to the signing: a marquee player (high skill) gets a
-    // blockbuster celebration; everyone else a normal toast (D12). Also fixes the
-    // free-agent path, which used to complete silently.
-    const celebrateSigning = (nickname: string, salary: number, skill: number) => {
-        if ((skill ?? 0) >= 85) {
-            fireConfetti({ particleCount: 120, spread: 80, origin: { y: 0.4 } })
-            addToast({ message: `🌟 Blockbuster signing — ${nickname} joins for ${formatMoney(salary)}/wk!`, type: "achievement" })
-        } else {
-            addToast({ message: `${nickname} signed for ${formatMoney(salary)}/wk`, type: "achievement" })
-        }
-    }
+    const player = n.playerSave
+    const knowledge = getVisibleStats(player, scoutedPlayers, n.myTeam?.rosterIds || [], currentWeek)
+    const title = n.stage === "BUYOUT" ? `Fee talks with ${n.currentTeam?.name ?? "the club"}` : n.currentTeam ? "Contract offer" : "Sign free agent"
 
     return createPortal(
-        <AnimatePresence>
-            <div className={cn(className, "fixed inset-0 z-modal flex items-center justify-center p-4 bg-black/85 backdrop-blur-md")}>
-                <motion.div
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.95, opacity: 0 }}
-                    ref={dialogRef} tabIndex={-1} role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="modal-title-negotiation"
-                    className="glass-panel w-full max-w-4xl h-[min(600px,85vh)] flex overflow-hidden shadow-2xl border-white/10"
-                >
-                    {/* Left Panel: Player Info */}
-                    <div className="w-1/3 shrink-0 min-h-0 overflow-y-auto border-r border-white/10 bg-black/20 p-5 flex flex-col relative">
-                        <div className="absolute inset-0 bg-linear-to-b/srgb from-primary/5 to-transparent" />
-
-                        <div className="relative z-10 flex flex-col items-center text-center">
-                            <div className="w-24 h-24 rounded-2xl bg-white/5 mb-4 overflow-hidden shadow-lg">
-                                <PlayerPortrait
-                                    key={playerSave.id}
-                                    src={playerSave.portraitPath}
-                                    seed={playerSave.id}
-                                    alt={playerSave.nickname}
-                                    size={96}
-                                    variant="hero"
-                                />
-                            </div>
-                            <h2 id="modal-title-negotiation" className="text-2xl font-normal text-white">{playerSave.nickname}</h2>
-                            <p className="text-sm text-muted-foreground mb-2">{playerSave.name}</p>
-
-                            <Badge className={cn("mb-4", tierStyle.bgColor, tierStyle.color)}>
-                                {knowledge.scoutingLevel === "ELITE" ? tierStyle.label : "Scouting estimate"}
-                            </Badge>
-
-                            <div className="w-full space-y-3">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Rating</span>
-                                    <span className="font-bold text-white">{formatScoutedRating(knowledge.ovrRange)}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Age</span>
-                                    <span className="font-bold text-white">{playerSave.age}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Country</span>
-                                    <CountryFlag country={playerSave.nationality} showName={true} />
-                                </div>
-                                <Separator className="bg-white/10" />
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Market Value</span>
-                                    <span className="font-bold text-emerald-400">{formatMoney(evaluation.transferValue)}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Current Team</span>
-                                    <span className="font-bold text-white max-w-[120px] truncate">{currentTeam?.name || "Free Agent"}</span>
-                                </div>
-                            </div>
-                            {stage === "CONTRACT" && (
-                                <div className="w-full mt-5 border-t border-white/10 pt-4">
-                                    <Button onClick={handleContractSubmit} className="w-full h-11 text-sm font-normal bg-primary hover:bg-primary/90 text-primary-foreground">
-                                        OFFER CONTRACT
-                                    </Button>
-
-                                    {negotiationLog.length > 0 && (
-                                        <div role="status" className="mt-3 rounded-lg bg-black/20 p-3 text-xs space-y-1 max-h-24 overflow-y-auto">
-                                            {negotiationLog.map((log, i) => (
-                                                <p key={i} className="text-white/70">→ {log}</p>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+        <div className={cn(className, "fixed inset-0 z-modal flex items-center justify-center bg-ink/80 p-4")}>
+            <div
+                ref={dialogRef}
+                tabIndex={-1}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title-negotiation"
+                className="flex max-h-[calc(100dvh-3rem)] w-full max-w-3xl overflow-hidden rounded-[10px] border border-line-strong bg-panel"
+            >
+                <aside className="hidden w-64 shrink-0 flex-col gap-4 border-r border-line bg-shell p-5 sm:flex">
+                    <div className="h-20 w-20 overflow-hidden rounded bg-raised">
+                        <PlayerPortrait key={player.id} src={player.portraitPath} seed={player.id} alt={player.nickname} size={80} />
                     </div>
-
-                    {/* Right Panel: Negotiation Interface */}
-                    <div className="flex-1 min-w-0 min-h-0 flex flex-col bg-[#0e1217]">
-                        {/* Header */}
-                        <div className="p-5 shrink-0 border-b border-white/5 flex justify-between items-center">
-                            <div>
-                                <h3 className="text-xl font-normal uppercase tracking-tight text-white flex items-center gap-2">
-                                    <Handshake className="text-primary" />
-                                    {stage === "BUYOUT" ? "Transfer Negotiation" : !currentTeam ? "Sign Free Agent" : "Contract Offer"}
-                                </h3>
-                                <p className="text-xs text-muted-foreground uppercase tracking-widest mt-1">
-                                    {stage === "BUYOUT" ? `Negotiating with ${currentTeam?.name ?? "the current club"}` : "Negotiating with Player Agent"}
-                                </p>
-                            </div>
-                            <button onClick={onClose} className="p-2 hover:bg-white/5 active:bg-white/10 active:scale-90 rounded-lg transition-all" aria-label="Close dialog">
-                                <XCircle className="text-muted-foreground" />
-                            </button>
-                        </div>
-
-                        {/* Content Area */}
-                        <div className="flex-1 min-h-0 overflow-y-auto p-6 relative">
-                            {/* Background Texture */}
-                            <div className="absolute inset-0 premium-grid-texture opacity-[0.02]" />
-
-                            {stage === "BUYOUT" && (
-                                <div className="space-y-8 relative z-10">
-                                    <div className="glass-panel p-6 border-white/5 bg-white/5">
-                                        <label className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-2 block">Transfer Fee Offer</label>
-                                        <div className="flex items-center gap-4">
-                                            <div className="bg-black/30 p-4 rounded-xl flex-1 flex items-center gap-2 border border-white/10">
-                                                <DollarSign className="text-emerald-400" />
-                                                <input
-                                                    type="number"
-                                                    aria-label="Transfer fee offer" value={buyoutOffer}
-                                                    onChange={(e) => {
-                                                        const val = Number(e.target.value)
-                                                        if (!Number.isFinite(val)) {
-                                                            setBuyoutOffer(0)
-                                                            return
-                                                        }
-                                                        const budgetCap = Math.max(0, Math.floor(myTeam?.budget || 0))
-                                                        setBuyoutOffer(Math.max(0, Math.min(Math.floor(val), budgetCap)))
-                                                    }}
-                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-hidden w-full"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="flex justify-between mt-2 text-xs font-bold uppercase tracking-wider">
-                                            <span className="text-muted-foreground">Market: {formatMoney(evaluation.transferValue)}</span>
-                                            <span className={cn(
-                                                (myTeam?.budget || 0) <= 0 ? "text-rose-400" : "text-emerald-400"
-                                            )}>
-                                                Budget: {formatMoney(myTeam?.budget || 0)}
-                                            </span>
-                                        </div>
-                                        {boardSanction.fraction < 1 && (
-                                            <div className="mt-2 flex justify-between text-xs font-bold uppercase tracking-wider text-amber-400/90">
-                                                <span>Board sanction limit</span>
-                                                <span>{formatMoney(boardSanction.maxFee)} ({Math.round(boardSanction.fraction * 100)}% of budget)</span>
-                                            </div>
-                                        )}
-                                        {(myTeam?.budget || 0) < evaluation.transferValue * 0.5 && (
-                                            <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-2 text-rose-400 text-[10px] font-bold uppercase">
-                                                <AlertCircle size={14} />
-                                                Insufficient funds for a competitive offer
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <Button
-                                        onClick={handleBuyoutSubmit}
-                                        disabled={buyoutOffer <= 0 || buyoutOffer > (myTeam?.budget || 0)}
-                                        title={buyoutOffer <= 0
-                                            ? "Enter an offer amount"
-                                            : buyoutOffer > (myTeam?.budget || 0)
-                                                ? "Offer exceeds your available budget"
-                                                : undefined}
-                                        className="w-full h-14 text-lg font-normal bg-emerald-500 hover:bg-emerald-600 text-black disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        SUBMIT OFFER
-                                    </Button>
-
-                                    {negotiationLog.length > 0 && (
-                                        <div className="bg-black/40 p-4 rounded-xl text-sm space-y-1">
-                                            {negotiationLog.map((log, i) => (
-                                                <p key={i} className="text-white/70">→ {log}</p>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {stage === "CONTRACT" && (
-                                <div className="space-y-6 relative z-10">
-                                    <div className="glass-panel p-6 border-white/5 bg-white/5 space-y-6">
-                                        <div>
-                                            <label className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-4 block">Weekly Salary</label>
-                                            <div className="bg-black/30 p-4 rounded-xl flex-1 flex items-center gap-2 border border-white/10">
-                                                <DollarSign className="text-emerald-400" />
-                                                <input
-                                                    type="number"
-                                                    aria-label="Weekly salary offer" value={salaryOffer}
-                                                    onChange={(e) => {
-                                                        const val = Number(e.target.value)
-                                                        if (!Number.isFinite(val)) {
-                                                            setSalaryOffer(0)
-                                                            return
-                                                        }
-                                                        setSalaryOffer(Math.max(0, Math.min(MAX_NEGOTIATION_SALARY, Math.floor(val))))
-                                                    }}
-                                                    className="bg-transparent border-none text-3xl font-normal text-white focus:outline-hidden w-full"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="text-xs font-normal uppercase tracking-widest text-muted-foreground mb-4 block">Contract Duration (Weeks)</label>
-                                            <div className="flex items-center gap-4">
-                                                <Slider
-                                                    aria-label="Contract duration" aria-valuetext={`${durationOffer} weeks`} value={[durationOffer]}
-                                                    onValueChange={(v) => setDurationOffer(Math.max(12, Math.min(156, Math.floor(v[0] || 52))))}
-                                                    min={12}
-                                                    max={156}
-                                                    step={12}
-                                                    className="flex-1"
-                                                />
-                                                <span className="w-20 text-right font-bold text-white">{durationOffer} wks</span>
-                                            </div>
-                                            <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
-                                                <Clock size={12} />
-                                                Player prefers {formatWeeksAsYears(durationPref.minWeeks)} – {formatWeeksAsYears(durationPref.maxWeeks)}
-                                                {durationOffer >= durationPref.minWeeks && durationOffer <= durationPref.maxWeeks
-                                                    ? <span className="text-emerald-400 ml-1">✓</span>
-                                                    : <span className="text-rose-400 ml-1">✗</span>
-                                                }
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="rounded-lg border border-white/10 p-4 text-sm space-y-2" aria-label="Contract costs">
-                                        <div className="flex justify-between gap-4"><span className="text-muted-foreground">Due on signing</span><span>{formatMoney(buyoutOffer)}</span></div>
-                                        <div className="flex justify-between gap-4"><span className="text-muted-foreground">Cash after signing</span><span className={cn((myTeam?.budget ?? 0) < buyoutOffer && "text-rose-400")}>{formatMoney((myTeam?.budget ?? 0) - buyoutOffer)}</span></div>
-                                        <div className="flex justify-between gap-4"><span className="text-muted-foreground">Added weekly wages</span><span>{formatMoney(salaryOffer)}/wk</span></div>
-                                        <div className="flex justify-between gap-4"><span className="text-muted-foreground">Scheduled wages over term</span><span>{formatMoney(salaryOffer * Math.max(0, durationOffer - 1))}</span></div>
-                                        {costPreview && <>
-                                            <div className="flex justify-between gap-4"><span className="text-muted-foreground">Estimated weekly net after signing</span><span className={cn(costPreview.weeklyNet < 0 && "text-rose-400")}>{formatMoney(costPreview.weeklyNet)}</span></div>
-                                            <div className="flex justify-between gap-4"><span className="text-muted-foreground">Runway at this rate</span><span>{costPreview.runwayWeeks >= 999 ? "No current deficit" : `${costPreview.runwayWeeks} weeks`}</span></div>
-                                        </>}
-                                        <p className="text-xs text-muted-foreground">Wages start at the next weekly settlement and stop when the contract expires. The signing fee is paid once; wages are paid weekly.</p>
-                                    </div>
-
-                                </div>
-                            )}
-
-                            {stage === "SUCCESS" && (
-                                <div className="text-center space-y-6 relative z-10 animate-in fade-in zoom-in">
-                                    <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto border border-emerald-500/50">
-                                        <CheckCircle2 size={48} className="text-emerald-500" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-3xl font-normal text-white uppercase transform skew-x-[-10deg]">Welcome to the Team!</h2>
-                                        <p className="text-muted-foreground mt-2">{playerSave.nickname} has joined {myTeam?.name}</p>
-                                    </div>
-                                    <Button onClick={() => {
-                                        router.push("/squad")
-                                        onClose()
-                                    }} className="w-full h-14 text-lg font-normal bg-emerald-500 hover:bg-emerald-600 text-black">
-                                        GO TO SQUAD
-                                    </Button>
-                                </div>
-                            )}
-
-                            {stage === "FAILED" && (
-                                <div className="text-center space-y-6 relative z-10 animate-in fade-in zoom-in">
-                                    <div className="w-24 h-24 bg-rose-500/15 rounded-full flex items-center justify-center mx-auto border border-rose-500/40">
-                                        <XCircle size={48} className="text-rose-400" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-3xl font-normal text-white uppercase transform skew-x-[-10deg]">Deal Collapsed</h2>
-                                        <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-                                            {failureMessage || "The transfer could not be completed."}
-                                        </p>
-                                    </div>
-                                    <div className="flex gap-3">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => {
-                                                // Re-arm the submit guard: the player may fix the
-                                                // blocker (e.g. sell first) and re-offer.
-                                                dealSubmittedRef.current = false
-                                                setFailureMessage(null)
-                                                setStage("CONTRACT")
-                                            }}
-                                            className="flex-1 h-12 font-normal"
-                                        >
-                                            BACK TO OFFER
-                                        </Button>
-                                        <Button onClick={onClose} className="flex-1 h-12 font-normal bg-white/10 hover:bg-white/15 text-white">
-                                            CLOSE
-                                        </Button>
-                                    </div>
-                                </div>
-                            )}
-
-                        </div>
+                    <div className="min-w-0">
+                        <p className="truncate font-display text-2xl font-bold uppercase leading-none text-ink-1">{player.nickname}</p>
+                        {player.name && player.name !== player.nickname && <p className="mt-1 truncate text-xs text-ink-3">{player.name}</p>}
+                        <div className="mt-2 flex items-center gap-2"><RoleTag role={player.role} /><span className="text-xs tabular-nums text-ink-3">Age {player.age}</span></div>
                     </div>
-                </motion.div>
+                    <dl className="space-y-2 text-xs">
+                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">Rating</dt><dd><ScoutedRating knowledge={knowledge} size="sm" /></dd></div>
+                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">Report</dt><dd className="text-ink-2">{REPORT_LABEL[knowledge.scoutingLevel]}</dd></div>
+                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">Country</dt><dd><CountryFlag country={player.nationality} showName size={14} /></dd></div>
+                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">Club</dt><dd className="max-w-[120px] truncate text-ink-2">{n.currentTeam?.name ?? "Free agent"}</dd></div>
+                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">Value</dt><dd className="tabular-nums text-ink-1">{formatCurrency(n.evaluation.transferValue, "$", false)}</dd></div>
+                    </dl>
+                </aside>
+                <div className="flex min-w-0 flex-1 flex-col">
+                    <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">Negotiation</p>
+                            <h2 id="modal-title-negotiation" className="truncate font-display text-2xl font-bold uppercase text-ink-1">{title}</h2>
+                        </div>
+                        <button onClick={onClose} className="rounded p-2 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1" aria-label="Close dialog">
+                            <X size={18} />
+                        </button>
+                    </header>
+                    <div className="min-h-0 flex-1 overflow-y-auto p-5">
+                        <DealTerms n={n} onDone={onClose} />
+                    </div>
+                </div>
             </div>
-        </AnimatePresence>,
+        </div>,
         document.body
     )
 }

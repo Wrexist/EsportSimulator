@@ -1,6 +1,6 @@
 const path = require('node:path');
 const fs = require('node:fs');
-const retired = /(?:^|\/)public\/(?:assets\/teams\/[^/]+\/players\/|assets\/teams\/[^/]+\/logo\.original\.|assets\/Steamworks Bilder\/|assets\/portraits\/mockup|Live match\.jpg$|assets\/(?:Assets\.txt|Thecore)$)/i;
+const retired = /(?:^|\/)public\/(?:assets\/teams\/[^/]+\/players\/|assets\/teams\/[^/]+\/logo\.original\.|assets\/Steamworks Bilder\/|assets\/portraits\/mockup|Live match\.jpg$|assets\/(?:Assets\.txt|Thecore)$|maps\/de_[^/]*radar_psd[^/]*\.png$|assets\/tournaments\/logo_(?:cct|perfect_world|copenhagen_major|shanghai_major)\.)/i;
 function retiredArtwork(entries) {
   return entries.map(entry => entry.replace(/\\/g, '/')).filter(entry => retired.test(entry) || /(?:^|\/)public\/assets\/teams\/[^/]+\/(?:logo[^/]*\.(?:png|webp|jpe?g|gif|avif)$|\.logo_)/i.test(entry));
 }

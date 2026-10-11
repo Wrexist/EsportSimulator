@@ -84,6 +84,8 @@ test('weekly training never reduces an existing specialist stat to a lower poten
 test('optional investments require ongoing affordability, including role-training costs', () => {
     const save = createLaunchFixture('first-week', 3417), team = save.teams[0]
     team.budget = 1_000_000
+    // Phase 4.4: running costs exceed base income, so a deal makes the club cash-positive.
+    team.sponsors = [{ id: 'qa_sponsor', name: 'QA Partner', tier: 'STANDARD', weeklyPayout: 100_000 } as never]
     expect(affordableInvestment(save, team, 10000)).toBe(true)
     expect(affordableInvestment(save, team, 10000, 1_000_000)).toBe(false)
     team.activeRoleTraining = [{ weeklyCost: 1_000_000 } as never]

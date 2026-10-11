@@ -52,15 +52,17 @@ export const SPONSOR_TUNING = {
     ELITE_MULTIPLIER: 2.2,
     /**
      * One offer's effective weekly income (payout x reputation factor) may not
-     * exceed this share of the club's weekly wage bill (players + staff), with
-     * the wage bill floored at WAGE_BILL_FLOOR so lean small clubs still get
-     * normal offers. Three such sponsors cover at most ~1x the wage bill, so
-     * raising wages never pays for itself through sponsors.
+     * exceed this share of the club's weekly running costs (players + staff +
+     * operations), with the base floored at WAGE_BILL_FLOOR so lean small
+     * clubs still get normal offers. Three such sponsors cover at most ~0.9x
+     * of running costs (Phase 4.4: was 0.34 of a $20k + $1k x rep floor,
+     * which paid a $1.7k/week semi-pro club up to $27k per deal), so raising
+     * wages never pays for itself through sponsors.
      */
-    MAX_SHARE_OF_WAGE_BILL: 0.34,
-    /** Wage-bill floor = BASE + PER_REP x reputation: a famous club with a lean payroll still sells exposure. */
-    WAGE_BILL_FLOOR: 20_000,
-    WAGE_BILL_FLOOR_PER_REP: 1_000,
+    MAX_SHARE_OF_WAGE_BILL: 0.3,
+    /** Base floor = BASE + PER_REP x reputation: a famous club with a lean payroll still sells exposure. */
+    WAGE_BILL_FLOOR: 2_000,
+    WAGE_BILL_FLOOR_PER_REP: 100,
 } as const
 
 /** Wage bill used for the sponsor cap: the actual bill, floored by reputation. */
@@ -125,11 +127,20 @@ export const AI_SQUAD_TUNING = {
     RENEW_TOP_N: 6,
     /** ...below this age (older players are left to retire or move on). */
     RENEW_MAX_AGE: 33,
-    /** Opening snapshot contracts end within +/- this many weeks of their nominal length (seeded). */
+    /**
+     * Opening snapshot contracts were signed before the career began: weeks
+     * left are drawn (seeded) between MIN and the nominal length + STAGGER.
+     * Phase 5 fix: before, it was the nominal length +/- STAGGER, so no deal
+     * of a player aged 20-30 reached its final year in season 1.
+     */
     INITIAL_CONTRACT_STAGGER_WEEKS: 26,
     INITIAL_CONTRACT_MIN_WEEKS: 26,
-    /** Pass 2: weekly chance an AI club reviews sponsor offers (was 0.05), and its slot count (was 2; human cap 3). */
-    SPONSOR_LOOK_CHANCE: 0.25,
+    /**
+     * Weekly chance an AI club with an open, eligible sponsor slot reviews
+     * offers, and its slot count (human cap 3). Pass 2: 0.05 -> 0.25;
+     * Phase 4.6: every week (the managed club can look every week too).
+     */
+    SPONSOR_LOOK_CHANCE: 1,
     /** Pass 2: AI academy prospects leave at this age, and an AI academy holds at most this many (season end). */
     ACADEMY_RELEASE_AGE: 20,
     ACADEMY_MAX_PROSPECTS: 3,
@@ -148,25 +159,326 @@ export const AI_SQUAD_TUNING = {
     MAX_ROSTER: 7,
 } as const
 
+/**
+ * Regional league (Phase 4.4). Before it, a passive club played a median of
+ * 4 official matches a season (143 of 197 AI clubs under 20; campaign
+ * 2026-10-11 "before"). Every club now plays a weekly league in two splits a
+ * season, in divisions of about ten clubs per region, with promotion and
+ * relegation between splits.
+ *
+ * Fixture target: 30-45 official matches a season for a typical club. A
+ * double round robin of ten is 18 league matches a split (36 a season); with
+ * the open/regional events lower clubs reach, that lands in the band.
+ * Divisions of busy international clubs (median world rank <= 30) play a
+ * single round robin (9 a split) because the circuit already gives them
+ * 25-60 matches. One league round per week at most, on a weekday, so a club
+ * never has two league games in a week and the weekend stays free for events.
+ */
+export const LEAGUE_TUNING = {
+    /** Club region -> league region (small regions share a conference). */
+    REGION_OF: {
+        EU: "EUROPE", MENA: "EUROPE", CIS: "CIS",
+        NA: "AMERICAS", BR: "AMERICAS", SA: "AMERICAS",
+        ASIA: "ASIA_PACIFIC", OCE: "ASIA_PACIFIC", OCEANIA: "ASIA_PACIFIC",
+    } as Record<string, "EUROPE" | "CIS" | "AMERICAS" | "ASIA_PACIFIC">,
+    DEFAULT_REGION: "EUROPE" as const,
+    REGION_NAMES: { EUROPE: "Europe", CIS: "CIS", AMERICAS: "Americas", ASIA_PACIFIC: "Asia-Pacific" } as const,
+    /** Clubs per division (a region of N clubs gets round(N / size) divisions, sized as evenly as possible). */
+    DIVISION_TARGET_SIZE: 10,
+    /** A division whose median world ranking is at most this plays a single round robin. */
+    LIGHT_SCHEDULE_MEDIAN_RANK: 30,
+    /** Week-of-season windows. The split is drawn on drawWeek; rounds are spread over firstWeek..lastWeek. */
+    SPLITS: [
+        { split: 1 as const, drawWeek: 1, firstWeek: 2, lastWeek: 24 },
+        { split: 2 as const, drawWeek: 26, firstWeek: 27, lastWeek: 49 },
+    ],
+    /** A split can be drawn late (old saves, careers started mid-split) while at least this many weeks remain. */
+    LATE_DRAW_MIN_WEEKS: 8,
+    PROMOTED: 2,
+    RELEGATED: 2,
+    MATCH_FORMAT: "BO1" as const,
+    /** Preferred weekdays (0 = Mon). Events prefer Fri-Sun, so league nights stay clear of them. */
+    DAYS_DOUBLE: [1, 2, 0, 3],
+    DAYS_SINGLE: [2, 1, 3, 0],
+    /**
+     * Weekly central distribution by division level (index = level - 1; the
+     * last value applies to every deeper level). Replaces the flat $15,000
+     * "league revenue share" every club received regardless of stature.
+     */
+    CENTRAL_PAYMENT_BY_LEVEL: [8_000, 6_000, 4_500, 3_500, 2_500] as const,
+    /** Paid to clubs outside the league (none normally; old saves until the first draw). */
+    CENTRAL_PAYMENT_FALLBACK: 2_500,
+    /** Split prize pool by division level, paid by final table position. */
+    SPLIT_PRIZE_POOL_BY_LEVEL: [120_000, 60_000, 35_000, 20_000, 12_000] as const,
+    SPLIT_PRIZE_SHARES: [0.40, 0.20, 0.10, 0.10, 0.05, 0.05, 0.05, 0.05] as const,
+    /** Reputation for a division title (top division / any other). */
+    CHAMPION_REPUTATION_TOP: 4,
+    CHAMPION_REPUTATION: 2,
+    /** AI-vs-AI league match records are kept this many weeks; the table keeps the results. */
+    AI_MATCH_RECORD_WEEKS: 4,
+    /** Finished splits kept in league history. */
+    HISTORY_SPLITS: 4,
+} as const
+
+/**
+ * Club economy (Phase 4.4). Before: every club got $15,000/week of league
+ * share plus a sponsor floor of $2,000 + $150 x reputation, so every non-elite
+ * club made $19-23k a week doing nothing and the managed club banked
+ * +$3-5M a season. Now the unconditional income is small, clubs pay for their
+ * operation, and starting cash is a fixed number of weeks of running costs,
+ * so every tier starts with the same runway and has to earn (sponsors,
+ * prizes, league finish) to grow. Same rules for the managed and AI clubs.
+ */
+export const CLUB_ECONOMY_TUNING = {
+    /**
+     * Base partner income (minor partners, platform revenue): BASE + PER_REP x
+     * reputation per week, earned before any signed deal; signed deals add on
+     * top. Was a max() floor of 2,000 + 150 x rep.
+     */
+    SPONSOR_FLOOR_BASE: 400,
+    SPONSOR_FLOOR_PER_REP: 30,
+    /** Club operations (travel, admin, content, housing): BASE + PER_REP x reputation per week. */
+    OPERATIONS_BASE: 300,
+    OPERATIONS_PER_REP: 15,
+    /** Starting cash = this many weeks of running costs (wages, staff, upkeep, operations)... */
+    STARTING_RUNWAY_WEEKS: 26,
+    /** ...rounded to this step, never below the minimum. */
+    STARTING_BUDGET_ROUND: 10_000,
+    STARTING_BUDGET_MIN: 100_000,
+    /** AI administration: after this many consecutive insolvent weeks (the managed club's bankruptcy rule). */
+    ADMINISTRATION_WEEKS: 8,
+    ADMINISTRATION_REPUTATION_PENALTY: 10,
+    /**
+     * New owners recapitalise an AI club in administration to this many weeks
+     * of its (cut) running costs; without it a club that only breaks even
+     * stays insolvent forever, re-enters administration every 8 weeks and
+     * forfeits its fixtures (campaign 2026-10-11: 61 insolvent AI clubs, 56
+     * short rosters in season 2). The managed club instead goes bankrupt and
+     * the manager moves to another club.
+     */
+    ADMINISTRATION_RECAPITALISE_WEEKS: 8,
+    /** AI cost control: an AI club losing money with less than this runway lets its highest-paid staff go (one a week). */
+    COST_CONTROL_RUNWAY_WEEKS: 26,
+} as const
+
+/**
+ * AI club economy (Phase 4.6). Money pressure is for the managed club; AI
+ * clubs are run by prudent owners so the world stays healthy and
+ * competitive. Campaign 2026-10-11 (6 careers x 2 seasons) before this:
+ * ~47 administrations per career in season 2 (13 clubs twice or three
+ * times), AI rosters down to 3 players, the median wage of a contract an AI
+ * club signed $2,094/week against $330 for the snapshot contracts it let
+ * lapse, and top clubs filling barely half their sponsor slots.
+ *
+ * An AI club commits to a new recurring cost (a signing, a raise, staff,
+ * facilities, training) only while its weekly net after the cost keeps
+ * SURPLUS_SHARE of income in hand, and answers a deficit the way the
+ * competent managed policy does: bench first, then staff, a facility
+ * level, then an overpaid starter for a cheaper free agent
+ * (engine/ai/club-budget.ts).
+ */
+export const AI_ECONOMY_TUNING = {
+    /** Share of weekly income an AI club keeps as surplus when it takes on a new recurring cost. */
+    SURPLUS_SHARE: 0.05,
+    /** A transfer fee leaves at least this many weeks of running costs in the bank. */
+    FEE_RESERVE_WEEKS: 12,
+    /**
+     * Beyond the bench, cost control cuts (staff, a facility level, an
+     * overpaid starter; one step a week) while the deficit leaves less
+     * runway than this, or the club is in debt...
+     */
+    CUT_RUNWAY_WEEKS: 52,
+    /** ...a starter swap at most once per this many weeks per club... */
+    SWAP_EVERY_WEEKS: 2,
+    /** ...and only for a replacement asking at most this share of the starter's wage. */
+    SWAP_MAX_WAGE_SHARE: 0.6,
+    /** Emergency (below five players) and trialist contracts. */
+    EMERGENCY_CONTRACT_WEEKS: 26,
+    /** Trialist from the local scene when free agency is empty: skill range and age range. */
+    TRIALIST_SKILL: [42, 52] as const,
+    TRIALIST_AGE: [18, 22] as const,
+} as const
+
+/** Weekly running costs the starting runway is measured against. */
+export function clubOperationsCost(reputation: number): number {
+    const rep = Math.max(0, Math.min(100, Number.isFinite(reputation) ? reputation : 50))
+    return Math.round(CLUB_ECONOMY_TUNING.OPERATIONS_BASE + CLUB_ECONOMY_TUNING.OPERATIONS_PER_REP * rep)
+}
+
+export function sponsorIncomeFloor(reputation: number): number {
+    const rep = Math.max(0, Math.min(100, Number.isFinite(reputation) ? reputation : 50))
+    return Math.round(CLUB_ECONOMY_TUNING.SPONSOR_FLOOR_BASE + CLUB_ECONOMY_TUNING.SPONSOR_FLOOR_PER_REP * rep)
+}
+
+/** League central payment for a division level (undefined = not in the league). */
+export function leagueCentralPayment(level: number | undefined): number {
+    if (!level || !Number.isFinite(level) || level < 1) return LEAGUE_TUNING.CENTRAL_PAYMENT_FALLBACK
+    const table = LEAGUE_TUNING.CENTRAL_PAYMENT_BY_LEVEL
+    return table[Math.min(table.length, Math.floor(level)) - 1]
+}
+
+/**
+ * Board objectives and confidence (Phase 4.4). Confidence moves every week
+ * with a named cause (results, league position against the objective,
+ * finances) and at two reviews (mid-season after split 1, season end).
+ * Consequences are telegraphed: a warning under WARN_BELOW, a final warning
+ * (on notice) under NOTICE_BELOW, and dismissal at SACK_AT_OR_BELOW only
+ * while on notice. A dismissed manager goes to the job market.
+ */
+export const BOARD_TUNING = {
+    NEW_BOARD_CONFIDENCE: 60,
+    /** Weekly movement is clamped so one bad week never decides a career. */
+    WEEKLY_MAX_MOVE: 5,
+    RESULT_WIN: 0.8,
+    RESULT_LOSS: -0.8,
+    /** Elo gap that makes a result an upset or an expected outcome. */
+    UPSET_ELO_GAP: 100,
+    UPSET_WIN: 1.5,
+    EXPECTED_LOSS: -1.5,
+    EXPECTED_WIN: 0.3,
+    UPSET_LOSS: -0.3,
+    TITLE: 4,
+    TITLE_S_TIER: 8,
+    /** League table vs objective, once LEAGUE_MIN_PLAYED matches of the split are played. */
+    LEAGUE_ON_TRACK: 0.3,
+    LEAGUE_BEHIND: -0.6,
+    LEAGUE_MIN_PLAYED: 3,
+    /** Weekly finance pressure by state. */
+    FINANCE_RISK: -1,
+    FINANCE_CRISIS: -2,
+    FINANCE_INSOLVENT: -3,
+    /** Reviews. */
+    REVIEW_LEAGUE_EXCEEDED: 10,
+    REVIEW_LEAGUE_MET: 6,
+    REVIEW_LEAGUE_MISSED: -6,
+    REVIEW_LEAGUE_FAILED: -12,
+    REVIEW_RANK_EXCEEDED: 10,
+    REVIEW_RANK_MET: 6,
+    REVIEW_RANK_MISSED: -6,
+    REVIEW_RANK_FAILED: -12,
+    REVIEW_FINANCE_MET: 4,
+    REVIEW_FINANCE_MISSED: -8,
+    /** Finance objective: end the season with at least max(SHARE x season-start cash, WEEKS x running costs). */
+    FINANCE_CASH_SHARE: 0.5,
+    FINANCE_MIN_WEEKS_OF_COSTS: 8,
+    /** Consequences. */
+    WARN_BELOW: 40,
+    NOTICE_BELOW: 25,
+    SACK_AT_OR_BELOW: 10,
+    /** Confidence that clears warnings. */
+    RECOVERED_AT: 50,
+    /** No warnings or dismissal in the first weeks of a tenure. */
+    TENURE_GRACE_WEEKS: 8,
+    HISTORY_LENGTH: 16,
+    /** Job offers a dismissed manager receives. */
+    DISMISSAL_OFFERS: 3,
+} as const
+
+/**
+ * World ranking (Phase 4.8). Elo is the ranking: world rank = Elo order, the
+ * league tier is the rank band at the last season end. The previous model
+ * gave the winner and the loser different K-factors (by rank, an upset bonus,
+ * margin bonuses for the winner only) so every match created points (pool
+ * mean 1366 -> 1427 -> 1484 over two seasons), counted "calibration" matches
+ * from a match log the league trims to four weeks (so most clubs stayed on
+ * the volatile K = 32 forever), and set tiers from absolute Elo, so the S tier
+ * grew from 10 clubs to 83 after week one and ~132 by the end of season two
+ * (campaign evidence phase4-8-rankings-before.json). Now:
+ *  - one K per match, by importance (league < qualifier < event tier <
+ *    playoffs; friendlies are unrated), and the same points move from loser
+ *    to winner, so the pool never inflates;
+ *  - margin of victory scales K a little, damped when the favourite wins big
+ *    (it already expected to);
+ *  - a new club's first matches move faster (provisional K, shared by both
+ *    sides so the exchange stays zero-sum);
+ *  - between seasons every rating moves REGRESSION toward the pool mean
+ *    (order preserving, so no rank changes at the rollover);
+ *  - tiers by rank bands at season end.
+ */
+export const RANKING_TUNING = {
+    /** K by match importance. FRIENDLY (preseason friendlies, scrims) is unrated. */
+    K: {
+        FRIENDLY: 0,
+        LEAGUE: 8,
+        QUALIFIER: 10,
+        C_TIER: 10,
+        B_TIER: 12,
+        A_TIER: 16,
+        S_TIER: 20,
+    } as Record<string, number>,
+    /** Playoff (elimination bracket) matches of an event weigh this much more. */
+    PLAYOFF_MULTIPLIER: 1.25,
+    /** Margin of victory: up to +MOV_MAX of K at MOV_FULL_ROUND_DIFF rounds per map. */
+    MOV_MAX: 0.25,
+    MOV_FULL_ROUND_DIFF: 10,
+    /** Autocorrelation damping of the margin bonus: SCALE / (SCALE + favourite's Elo edge / 1000). */
+    MOV_DAMPING_SCALE: 2.2,
+    /** Clubs with fewer rated matches than this get a provisional K (new orgs only). */
+    PROVISIONAL_MATCHES: 20,
+    PROVISIONAL_MULTIPLIER: 2,
+    /** No rating falls below this; the exchange is clamped so it stays zero-sum. */
+    FLOOR: 600,
+    /** Share of the distance to the pool mean removed at every season end. */
+    REGRESSION: 0.1,
+    /**
+     * League tiers by world-rank band at season end, as cumulative shares of
+     * the clubs (rounded): in the 198-club world S = ranks 1-16, A = 17-48,
+     * B = 49-111, C = 112 and below.
+     */
+    TIER_BANDS: [
+        { tier: "S_TIER", share: 0.08 },
+        { tier: "A_TIER", share: 0.24 },
+        { tier: "B_TIER", share: 0.56 },
+    ] as const,
+} as const
+
 /** Tournament entry for the managed club. */
 export const REGISTRATION_TUNING = {
     /** Open qualifiers are entered automatically (same eligibility and double-entry rules as the Register button). */
     AUTO_REGISTER_OPEN_QUALIFIERS: true,
 } as const
 
-/** Hall of Fame: a few inductions per season, not every long career. */
+/**
+ * Hall of Fame: a few inductions per season, not every long career. Every
+ * criterion reads a real career number (Phase 5.1): official maps, the
+ * rounds-weighted rating, official kills, titles won on the roster, Majors
+ * and season awards. Career matches include a player's pre-career record.
+ */
 export const HALL_OF_FAME_TUNING = {
     /** Each of these counts as one achievement; two are needed. */
-    MVP_AWARDS: 15,
     CAREER_KILLS: 2_500,
     CAREER_MATCHES: 350,
     CAREER_RATING: 1.15,
-    /** Rating counts only over a real career. */
-    RATING_MIN_MATCHES: 150,
+    /** Rating counts only over a real career (official maps). */
+    RATING_MIN_MAPS: 250,
+    CAREER_TITLES: 6,
+    TOP20_PLACEMENTS: 3,
     /** Any one of these alone inducts. */
     AUTO_MAJOR_WINS: 2,
+    AUTO_SEASON_MVPS: 2,
     AUTO_RATING: 1.2,
     ACHIEVEMENTS_REQUIRED: 2,
+} as const
+
+/**
+ * Records & season awards (Phase 5.1). A map's competition weight is the
+ * Phase 4.8 rating K of its competition relative to an S-tier event
+ * (RANKING_TUNING.K), so a league map counts 0.4 and a Major map 1.0; league
+ * maps are further scaled by the division the club plays in.
+ */
+export const RECORDS_TUNING = {
+    /** League map weight by division level (index = level - 1; the last value applies deeper). */
+    LEAGUE_DIVISION_FACTOR: [1, 0.75, 0.55, 0.4] as const,
+    /** Official maps needed to be ranked for season awards (lowered to half the busiest player's maps in a short season). */
+    AWARD_MIN_MAPS: 20,
+    /** Season lines kept per player (older seasons stay in the career totals). */
+    SEASON_LINES_CAP: 12,
+    /** Closed seasons kept in the record book. */
+    HONOURS_CAP: 30,
+    /** Reputation changes kept on the manager. */
+    REPUTATION_LOG_CAP: 24,
+    /** Manager stints kept. */
+    STINTS_CAP: 40,
 } as const
 
 /** Round economy: saving has value, so buying every round is not automatically best. */
@@ -188,4 +500,264 @@ export const ROUND_ECONOMY_TUNING = {
      * saving was under-rewarded. Now $1,400 + $500 per consecutive loss.
      */
     LOSS_BONUS_LADDER: [1400, 1900, 2400, 2900, 3400] as const,
+} as const
+
+/**
+ * Personalities and the dressing room (Phase 5.2, engine/personality.ts and
+ * engine/processors/dressing-room.ts). The same rules for every club; the UI
+ * (ARCHETYPE_INFO, squad and player screens, negotiation) quotes these
+ * values, so copy and engine cannot drift.
+ */
+export const PERSONALITY_TUNING = {
+    // ── playstyle traits (derived once from attributes and role) ──
+    /** Entry fragger: (entry + reaction) / 2, or (reaction + creativity) / 2 without an entry stat. */
+    TRAIT_AGGRESSIVE_MIN: 62,
+    /** AWPer who holds rather than improvises: creativity below this. */
+    TRAIT_PASSIVE_AWP_MAX_CREATIVITY: 50,
+    /** Support anchor: teamwork at least this and creativity below TRAIT_PASSIVE_ANCHOR_MAX_CREATIVITY. */
+    TRAIT_PASSIVE_ANCHOR_TEAMWORK: 75,
+    TRAIT_PASSIVE_ANCHOR_MAX_CREATIVITY: 40,
+    /** Clutch at least this, stress resistance at least this - 5. */
+    TRAIT_CLUTCHER_MIN: 82,
+    /** Trading at least this. */
+    TRAIT_TRADER_MIN: 72,
+    /** Without a trading stat (snapshot players): (teamwork + reaction) / 2 at least this, not an AWPer. */
+    TRAIT_TRADER_PROXY_MIN: 68,
+
+    // ── result reactions (× the tier/derby/psychologist morale delta) ──
+    RESULT_HOTHEAD: 1.5,
+    RESULT_QUIET: 0.75,
+    RESULT_SHOWMAN_WIN: 1.25,
+    RESULT_PROFESSIONAL_LOSS: 0.75,
+
+    // ── playing time ──
+    /** Official starts in a row that make a player a regular starter. */
+    REGULAR_STARTS: 3,
+    /** Official matches in a row a regular can sit out (fit) before he minds. */
+    BENCH_MATCHES: 3,
+    BENCH_MORALE_PER_WEEK: 3,
+    BENCH_MORALE_FLOOR: 20,
+    /** Ambitious, Showman. */
+    BENCH_FACTOR_HIGH: 1.5,
+    /** Loyal, Quiet. */
+    BENCH_FACTOR_LOW: 0.5,
+
+    // ── wage fairness (Ambitious, Mercenary) ──
+    /** Unhappy when his wage is under this share of a lower-rated teammate's. */
+    WAGE_FAIRNESS_SHARE: 0.6,
+    /** "Lower-rated": at least this many overall points below him. */
+    WAGE_FAIRNESS_MIN_GAP: 3,
+    WAGE_MORALE_PER_WEEK: 2,
+    WAGE_MORALE_FLOOR: 30,
+
+    // ── transfer requests (managed club; Ambitious, Mercenary) ──
+    UNHAPPY_MORALE: 40,
+    REQUEST_AFTER_WEEKS: 4,
+    REQUEST_COOLDOWN_WEEKS: 16,
+    REQUESTS_PER_SEASON: 2,
+    REQUEST_ACCEPT_MORALE: 10,
+    REQUEST_PROMISE_MORALE: 5,
+    REQUEST_REFUSE_MORALE: -10,
+    REQUEST_REFUSE_LOYALTY: -5,
+
+    // ── promises ──
+    PROMISE_START_WEEKS: 8,
+    /** A "you'll start" promise breaks after this many official matches in a row sat out while fit. */
+    PROMISE_START_BENCH_LIMIT: 2,
+    PROMISE_COMPETE_WEEKS: 26,
+    /** World-ranking places climbed that keep a "we'll compete for titles" promise (a trophy also does). */
+    PROMISE_COMPETE_RANK_GAIN: 10,
+    PROMISE_KEPT_MORALE: 10,
+    PROMISE_KEPT_LOYALTY: 5,
+    PROMISE_BROKEN_MORALE: -20,
+    PROMISE_BROKEN_LOYALTY: -15,
+
+    // ── training and mentors ──
+    TRAINING_PROFESSIONAL: 1.1,
+    /** Hothead, Showman. */
+    TRAINING_DISTRACTED: 0.95,
+    MENTOR_TRAINING: 1.25,
+    MENTOR_MIN_AGE: 27,
+    MENTEE_MAX_AGE: 21,
+
+    // ── captain: share of a defeat's morale loss spared for the lineup he plays in ──
+    /** leader stat / this = percent spared (leader 80 → 20%). */
+    CAPTAIN_LEADER_DIVISOR: 4,
+    CAPTAIN_LEADER_BONUS: 0.1,
+    CAPTAIN_MAX_SHIELD: 0.35,
+
+    // ── contracts (manager negotiation, AI signings and renewals) ──
+    WAGE_LOYAL: 0.9,
+    WAGE_MERCENARY: 1.1,
+    /** Ambitious joining a club AMBITIOUS_GAP+ league tiers below his level. */
+    WAGE_AMBITIOUS_BELOW: 1.15,
+    AMBITIOUS_GAP: 2,
+    /** A player's level on the league-tier scale by overall rating (S / A / B, else C). */
+    LEVEL_S_OVR: 62,
+    LEVEL_A_OVR: 57,
+    LEVEL_B_OVR: 50,
+    LENGTH_LOYAL: 1.3,
+    LENGTH_MERCENARY: 0.75,
+    /** Share of the usual renewal raise (+10% → Loyal +5%, Mercenary +20%). */
+    RENEWAL_RAISE_LOYAL: 0.5,
+    RENEWAL_RAISE_MERCENARY: 2,
+    /** Rejecting a club's bid for a Mercenary. */
+    MERCENARY_BID_REJECT_MORALE: -6,
+
+    // ── amicability (how easy-going he is; Phase 5 fix) ──
+    /**
+     * The snapshot gave every player 70. Snapshot players now get the base of
+     * their archetype plus a triangular id-hash spread of ± AMICABILITY_SPREAD
+     * (engine/personality.ts deriveAmicability): about 8% fall under the
+     * rift's 35 and 14% under synergy's 40 (pair clash), under 1% under 20.
+     */
+    AMICABILITY_BASE: { PROFESSIONAL: 62, AMBITIOUS: 54, LOYAL: 72, MERCENARY: 48, HOTHEAD: 40, LEADER: 72, SHOWMAN: 66, QUIET: 52 },
+    AMICABILITY_SPREAD: 35,
+    AMICABILITY_MIN: 5,
+    AMICABILITY_MAX: 99,
+} as const
+
+/**
+ * Phase 5.3 storylines and press conferences (engine/storylines/). Every
+ * number a storyline choice or press answer applies lives here, and the
+ * decision copy reads it from here, so the stated effect is the applied one.
+ */
+export const STORY_TUNING = {
+    // ── caps ──
+    /** Active arcs involving the managed club at once. */
+    MAX_ACTIVE_MANAGED: 2,
+    /** Most arcs of a kind the managed club starts in one season (kinds not listed: no cap). */
+    MAX_PER_SEASON: { CONTRACT_STANDOFF: 2, RIFT: 2 } as Partial<Record<string, number>>,
+    /** Resolved arcs kept in the save (player logs, cooldowns), newest first. */
+    KEEP_RESOLVED: 30,
+    /** Beat lines kept per arc. */
+    LOG_LENGTH: 8,
+    /** A decision beat waits (up to this many weeks) while MAX_OPEN_DECISIONS answers are already open. */
+    DECISION_WAIT_WEEKS: 3,
+    /** Weeks to answer a storyline decision. */
+    DECISION_WINDOW: 2,
+
+    // ── form: official map ratings at the managed club, newest last ──
+    FORM_WINDOW: 8,
+
+    // ── contract standoff ──
+    /**
+     * Window: his final year (weeks left). Phase 5 fix: it was 6-12 weeks
+     * among the top three, which no prime-age opening deal reached in season 1
+     * (0 standoffs in the 3-seed campaign).
+     */
+    STANDOFF_MIN_WEEKS: 6,
+    STANDOFF_MAX_WEEKS: 52,
+    /** Top-N players by overall rating at the club (the starting-five calibre). */
+    STANDOFF_TOP_N: 5,
+    /** Wage he asks: the usual renewal wage (Phase 5.2, by archetype) times this. */
+    STANDOFF_PREMIUM: 1.1,
+    STANDOFF_EXTENSION_WEEKS: 52,
+    /** Weeks of the raise the club must hold in the bank (the Renew button's gate). */
+    STANDOFF_RUNWAY_WEEKS: 26,
+    STANDOFF_OFFER_MORALE: 5,
+    STANDOFF_OFFER_LOYALTY: 3,
+    /** "Wait": still unrenewed this many weeks before his deal ends, he hands in a transfer request... */
+    STANDOFF_REQUEST_BEFORE_END: 3,
+    /** ...or this many weeks after the talks open, whichever is sooner. */
+    STANDOFF_PATIENCE_WEEKS: 8,
+    /** A listed player not sold within this many weeks ends the story. */
+    LISTED_RESOLVE_WEEKS: 8,
+
+    // ── rising star ──
+    RISING_MAX_AGE: 21,
+    RISING_MIN_MAPS: 6,
+    RISING_RATING: 1.15,
+    RISING_PROMISE_MORALE: 4,
+    RISING_PROMISE_LOYALTY: 3,
+    RISING_QUIET_RESOLVE_WEEKS: 6,
+
+    // ── slump ──
+    SLUMP_MAPS: 5,
+    SLUMP_RATING: 0.9,
+    /** ...and at least this far under his career rating (a 0.85 player at 0.85 is not in a slump). */
+    SLUMP_BELOW_CAREER: 0.1,
+    SLUMP_BACK_MORALE: 6,
+    SLUMP_BENCH_MORALE: -3,
+    SLUMP_REST_FATIGUE: -10,
+    SLUMP_REST_MORALE: 3,
+    /** Back in form: this average over the last RECOVERY_MAPS maps, all played since the slump began. */
+    RECOVERY_MAPS: 3,
+    RECOVERY_RATING: 1.0,
+    /** Out of the side: official matches in a row on the bench. */
+    DROPPED_BENCHED: 3,
+    SLUMP_MAX_WEEKS: 8,
+
+    // ── rivalry ──
+    /** Meetings before the biggest rival counts as a rivalry. */
+    RIVAL_MIN_MEETINGS: 3,
+    /** Weeks ahead of the fixture the build-up may start. */
+    RIVAL_LOOKAHEAD: 1,
+
+    // ── veteran's last dance ──
+    LAST_DANCE_MIN_AGE: 31,
+    /** Season-end retirement chance (engine/processors/event-processor.ts) that makes it a story. */
+    LAST_DANCE_MIN_CHANCE: 0.1,
+    /** Weeks of the season the hint can come (the retirement check runs in week 52). */
+    LAST_DANCE_FROM_WEEK: 28,
+    LAST_DANCE_TO_WEEK: 46,
+    /** Persuaded: this season's retirement chance is multiplied by this. */
+    PERSUADE_RETIREMENT_FACTOR: 0.5,
+    PERSUADE_MORALE: 5,
+    PERSUADE_LOYALTY: 5,
+
+    // ── dressing-room rift ──
+    /** Two starters this unfriendly (amicability) clash after a bad run. */
+    RIFT_AMICABILITY: 35,
+    RIFT_SIDE_WITH: 8,
+    RIFT_SIDE_AGAINST: -6,
+    RIFT_CLEAR_MORALE: 4,
+    RIFT_CLEAR_CHEMISTRY: -2,
+    RIFT_RESOLVE_WEEKS: 3,
+
+    // ── giant-killer run ──
+    GIANT_WINDOW_WEEKS: 3,
+    /** "Ranked much higher": at least this many world-ranking places above the winner... */
+    GIANT_RANK_GAP: 15,
+    /** ...and at least this share of the winner's rank (#150 must beat #90 or better). */
+    GIANT_RANK_SHARE: 0.4,
+    /** Another club's run only makes news when both beaten clubs are in this top. */
+    GIANT_AI_MAX_OPP_RANK: 20,
+    /** The managed club's run: followers gained and board confidence, applied once. */
+    GIANT_FANS: 2000,
+    GIANT_BOARD: 2,
+    GIANT_RESOLVE_WEEKS: 3,
+
+    // ── board under pressure ──
+    BOARD_PRESSURE_BELOW: 45,
+    BOARD_ULTIMATUM_AFTER_WEEKS: 2,
+    BOARD_MAX_WEEKS: 20,
+
+    // ── cooldowns: weeks since the club's last arc of the kind, and since the subject's last one ──
+    COOLDOWN_KIND: {
+        CONTRACT_STANDOFF: 10, RISING_STAR: 8, SLUMP: 8, RIVALRY: 4,
+        LAST_DANCE: 4, RIFT: 8, GIANT_KILLER: 8, BOARD_PRESSURE: 12,
+    },
+    COOLDOWN_SUBJECT: {
+        CONTRACT_STANDOFF: 26, RISING_STAR: 52, SLUMP: 12, RIVALRY: 6,
+        LAST_DANCE: 52, RIFT: 16, GIANT_KILLER: 13, BOARD_PRESSURE: 16,
+    },
+
+    // ── press conferences ──
+    PRESS_BOLD_MORALE: 3,
+    PRESS_BOLD_FANS: 1000,
+    PRESS_BOLD_BOARD: -1,
+    PRESS_MEASURED_BOARD: 1,
+    PRESS_PLAYER_BACK_MORALE: 4,
+    PRESS_PLAYER_CRITICISE_MORALE: -4,
+    PRESS_PLAYER_CRITICISE_BOARD: 1,
+    PRESS_PLAYER_STAY_LOYALTY: 2,
+    PRESS_TEAM_MORALE: 1,
+    PRESS_FORM_FANS: 500,
+    /** A question about a player in form needs this rating over his last SLUMP_MAPS maps. */
+    PRESS_STAR_RATING: 1.1,
+    /** League decider: this many league rounds or fewer left for the club. */
+    PRESS_DECIDER_ROUNDS: 2,
+    /** Weeks between press conferences, finals excepted (a top club met a top-10 side most weeks: 27 a season). */
+    PRESS_MIN_WEEKS_BETWEEN: 4,
 } as const

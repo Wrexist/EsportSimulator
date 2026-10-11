@@ -1,8 +1,8 @@
 /**
- * Save → load must not change a career. The long-career campaign found two
+ * Save → load must not change a career. The long-career campaign found
  * load-time rewrites that made a reloaded career diverge from the
- * uninterrupted one: FPL titles/prizes re-added from history on every load,
- * and roles/field defaults applied only on load (never after the weekly tick).
+ * uninterrupted one: roles/field defaults applied only on load (never after
+ * the weekly tick). (FPL, whose titles were re-added on every load, was cut.)
  */
 import { useGameStore } from '@/store/game-store'
 import { saveManager } from '@/engine'
@@ -25,41 +25,10 @@ function fixture(): GameSave {
     return save
 }
 
-test('reloading a save does not re-award past FPL championships or prize money', async () => {
-    const save = fixture()
-    const champion = save.players[0].id
-    save.fplData = {
-        playerStats: { [champion]: { playerId: champion, fplChampionships: 1, totalFPLEarnings: 5000 } },
-        seasonHistory: [{ id: 's1', seasonNumber: 1, startWeek: 1, endWeek: 52, isActive: false, prizePool: 5000, champion,
-            leaderboard: [{ playerId: champion, points: 10, matchesPlayed: 4, winRate: 1 }], rewards: [{ placement: 1, prize: 5000, xpBonus: 0, prestigeBonus: 0 }] }],
-    } as never
-    jest.spyOn(saveManager, 'loadGame').mockResolvedValue({ save: structuredClone(save) })
-    await useGameStore.getState().loadGame(save.saveId)
-    await useGameStore.getState().loadGame(save.saveId)
-    const stats = useGameStore.getState().fplData!.playerStats[champion] as unknown as { fplChampionships: number; totalFPLEarnings: number }
-    expect(stats.fplChampionships).toBe(1)
-    expect(stats.totalFPLEarnings).toBe(5000)
-})
-
-test('legacy FPL stats without the fields are still backfilled once from history', async () => {
-    const save = fixture()
-    const champion = save.players[0].id
-    save.fplData = {
-        playerStats: { [champion]: { playerId: champion } },
-        seasonHistory: [{ id: 's1', seasonNumber: 1, startWeek: 1, endWeek: 52, isActive: false, prizePool: 5000, champion,
-            leaderboard: [{ playerId: champion, points: 10, matchesPlayed: 4, winRate: 1 }], rewards: [{ placement: 1, prize: 5000, xpBonus: 0, prestigeBonus: 0 }] }],
-    } as never
-    jest.spyOn(saveManager, 'loadGame').mockResolvedValue({ save: structuredClone(save) })
-    await useGameStore.getState().loadGame(save.saveId)
-    const stats = useGameStore.getState().fplData!.playerStats[champion] as unknown as { fplChampionships: number; totalFPLEarnings: number }
-    expect(stats.fplChampionships).toBe(1)
-    expect(stats.totalFPLEarnings).toBe(5000)
-})
-
 test('the weekly commit applies the same role reconciliation and field defaults as loadGame', async () => {
     await Promise.resolve()
     const save = fixture()
-    useGameStore.setState({ ...initial, ...structuredClone(save), fplData: undefined, isLoading: false, isInitialized: true, _completedMatchIds: new Set() } as never)
+    useGameStore.setState({ ...initial, ...structuredClone(save), league: undefined, isLoading: false, isInitialized: true, _completedMatchIds: new Set() } as never)
     jest.spyOn(saveManager, 'saveGame').mockResolvedValue({ success: true })
     jest.mocked(weekProcessorBridge.processWeek).mockReset().mockImplementation(async input => {
         const processed = structuredClone(input)
@@ -88,7 +57,7 @@ test('a fixture against an opponent who cannot field five does not block the wee
     save.timeMode = 'WEEKLY'
     const match = save.scheduledMatches[0]
     const opponentId = match.awayTeamId
-    useGameStore.setState({ ...initial, ...structuredClone(save), fplData: undefined, isLoading: false, isInitialized: true, _completedMatchIds: new Set() } as never)
+    useGameStore.setState({ ...initial, ...structuredClone(save), league: undefined, isLoading: false, isInitialized: true, _completedMatchIds: new Set() } as never)
     jest.spyOn(saveManager, 'saveGame').mockResolvedValue({ success: true })
     jest.mocked(weekProcessorBridge.processWeek).mockReset().mockImplementation(async input => {
         const processed = structuredClone(input)

@@ -9,6 +9,25 @@
  */
 
 import type { BracketMatchSaveData, CompletedMatchSaveData } from "../save-types"
+import { deriveSeed } from "../rng"
+
+/**
+ * Match seed for a bracket match created mid-career (playoffs): hashed from
+ * the save's RNG state, the current week and the match id. Fixed seeds
+ * (101/102/201/...) gave the same pairing the same winner every season.
+ */
+export function bracketMatchSeed(save: { lastRngSeed?: number; currentWeek: number }, matchId: string): number {
+    return deriveSeed(save.lastRngSeed ?? 1, save.currentWeek, matchId)
+}
+
+/**
+ * Match seed for a bracket match spawned from a parent result (double-elim
+ * lower bracket). Hashing the parent seed with the child id replaces
+ * `parent + 1`, whose round streams overlapped the parent's.
+ */
+export function childBracketSeed(parentSeed: number | undefined, matchId: string): number {
+    return deriveSeed(parentSeed ?? 0, matchId)
+}
 
 /**
  * Deterministic numeric ID for tiebreaking. Returns the first run of digits

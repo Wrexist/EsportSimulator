@@ -180,6 +180,9 @@ describe("applyWeeklyActivity — TEAM_BONDING & MEDIA_CAMPAIGN", () => {
         expect(p.morale).toBe(65) // 50 + 15
         expect(p.fatigue).toBe(25) // 30 - 5
         expect(p.xp).toBe(0)
+        // The advertised "synergy" lands as team chemistry (was never applied).
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((save.teams[0] as any).chemistry).toBe(55) // default 50 + 5
     })
 
     test("MEDIA_CAMPAIGN: reputation +5 on the team, fatigue +5 on players", () => {

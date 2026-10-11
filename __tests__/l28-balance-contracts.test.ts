@@ -5,12 +5,16 @@ import { recruitmentSalary } from '@/engine/recruitment'
 import { EconomyEngine } from '@/engine/economy-engine'
 import { balanceIssues, distribution } from '../scripts/launch/balance-metrics'
 import { nonfinitePaths } from '../scripts/launch/balance-metrics'
-import { generateAnnualTop20 } from '@/engine/pro-awards-engine'
+import { buildAnnualAwards } from '@/engine/pro-awards-engine'
+import { closeSeason } from '@/engine/season-honours'
 import { FinanceProcessor } from '@/engine/processors/finance-processor'
 
 function scout(budget = 5_000_000) {
     const save = createLaunchFixture('first-week', 28001), team = save.teams[1]
     team.budget = budget
+    // Phase 4.6: an AI club takes on a new wage only within its weekly
+    // budget, so the scouting club carries a sponsor deal.
+    team.sponsors = [{ id: 'backer', name: 'Backer', tier: 'STANDARD', weeklyPayout: 60_000, remainingWeeks: 52 } as never]
     const before = save.players.length
     // Fixed independent seeds until the existing 5% roll succeeds.
     for (let seed = 1; seed <= 2000 && save.players.length === before; seed++) AIManager.processAcademyScouting(save, team, new SeededRNG(seed))
@@ -52,19 +56,26 @@ test('balance audit catches free seniors, duplicate ownership and nonfinite cash
 test('annual awards remain finite and reproducible for short player IDs', () => {
     const save = createLaunchFixture('first-week', 28001)
     save.players[0].id = 'x'
-    const awards = generateAnnualTop20(save, save.playerTeamId)
+    save.teams[0].rosterIds[0] = 'x'
+    save.currentWeek = 53
+    // Real season lines (Phase 5.1): awards rank only what was played.
+    save.players.forEach((p, i) => { p.seasonLines = [{ season: 1, clubId: save.teams[Math.min(2, Math.floor(i / 5))].id, maps: 30, rounds: 660, kills: 450 + i, deaths: 440, adr: 75, rating: 1 + i / 100, impact: i * 6.6 }] })
+    const a = structuredClone(save), b = structuredClone(save)
+    const awards = buildAnnualAwards(a, closeSeason(a, 1)!, a.playerTeamId!)
     expect(nonfinitePaths(awards)).toEqual([])
-    expect(generateAnnualTop20(save, save.playerTeamId)).toEqual(awards)
+    expect(buildAnnualAwards(b, closeSeason(b, 1)!, b.playerTeamId!)).toEqual(awards)
 })
 
-test('recorded awards KPR divides kills by rounds, including series and overtime', () => {
+test('recorded awards KPR divides season kills by season rounds', () => {
     const save = createLaunchFixture('first-week', 28001), player = save.players[0]
-    save.completedMatches = Array.from({ length: 10 }, (_, i) => ({ ...save.scheduledMatches[0], id: `award_${i}`, week: 1,
-        result: { playerStats: { [player.id]: { kills: 30, rating: 1.2, adr: 80, kast: 70, mapsPlayed: 2 } },
-            maps: [{ homeScore: 13, awayScore: 7 }, { finalScore: { team1: 16, team2: 14 } }] }
-    } as never))
-    const entry = generateAnnualTop20(save, save.playerTeamId).top20.find(p => p.playerId === player.id)!
+    save.currentWeek = 53
+    player.seasonLines = [
+        { season: 1, clubId: save.teams[0].id, maps: 20, rounds: 400, kills: 300, deaths: 280, adr: 80, rating: 1.2, impact: 40 },
+        { season: 1, clubId: save.teams[1].id, maps: 10, rounds: 100, kills: 0, deaths: 70, adr: 50, rating: 0.8, impact: -10 },
+    ]
+    const entry = buildAnnualAwards(save, closeSeason(save, 1)!, save.playerTeamId!).top20.find(p => p.playerId === player.id)!
     expect(entry.kpr).toBe(.6)
+    expect(entry.mapsPlayed).toBe(30)
 })
 
 test('AI season-end retirement terminates wages and records the retirement week', () => {

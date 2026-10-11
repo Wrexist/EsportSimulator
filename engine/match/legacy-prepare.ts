@@ -10,8 +10,7 @@
 
 import type { CustomTactics, Match, Player, Team, MatchManagementRecord, MatchResult } from '@/types'
 import { simulationEngineV2 } from '../match-simulation'
-import { applyPreMatchTalents } from './apply-talents'
-import { buildRuntimeStaff } from './live-staff-adapter'
+import { buildMatchStaff } from './live-staff-adapter'
 import type { LegacySeriesContext } from './legacy-series'
 
 interface StaffSource { id: string; name: string; level: number; salaryPerWeek: number; role: string; unlockedTalentIds?: string[] }
@@ -43,11 +42,7 @@ export function prepareLegacySeries(input: {
     const awayPlayers = input.awayPlayers.slice(0, 5).map(p => structuredClone(p)) as Player[]
     const homeStaffData = input.staff.filter(s => input.homeTeam.staffIds?.includes(s.id))
     const awayStaffData = input.staff.filter(s => input.awayTeam.staffIds?.includes(s.id))
-    const { homeAntiStrat, awayAntiStrat } = applyPreMatchTalents(homePlayers, awayPlayers, homeStaffData, awayStaffData)
-    const homeStaff = buildRuntimeStaff(homeStaffData)
-    const awayStaff = buildRuntimeStaff(awayStaffData)
-    if (homeAntiStrat > 0 && awayStaff.coach) awayStaff.coach.tacticBonus = Math.round(awayStaff.coach.tacticBonus * (1 - homeAntiStrat))
-    if (awayAntiStrat > 0 && homeStaff.coach) homeStaff.coach.tacticBonus = Math.round(homeStaff.coach.tacticBonus * (1 - awayAntiStrat))
+    const { homeStaff, awayStaff } = buildMatchStaff(homePlayers, awayPlayers, homeStaffData, awayStaffData)
     const match = { ...input.match, seed: normalizeMatchSeed(input.match.seed, input.match.id) } as unknown as Match
     return simulationEngineV2.createSeriesContext(
         match, input.homeTeam as unknown as Team, input.awayTeam as unknown as Team, homePlayers, awayPlayers,

@@ -14,11 +14,13 @@ import { LeagueEngine } from "./league-engine"
 import { STAFF_EFFECTS } from "@/types"
 import { QualificationEngine } from "./tournament-qualification"
 import { getTournamentMVP } from "./tournament-stats"
+import { recordOfficialMatch } from "./official-stats"
 import { getSeasonFromWeek, resolveTournamentIdentity } from "./circuit-engine"
 import { buildSaveIndexes, buildBracketIndex, type SaveIndexes } from "@/store/indexes"
 import type { TournamentDefinition } from "@/data/tournament-calendar"
 import {
     stableTeamIdNumber,
+    bracketMatchSeed,
     resolveCompletedWinner as resolveCompletedWinnerFn,
     normalizeStage as normalizeStageFn,
     getBracketRoundNumber as getBracketRoundNumberFn,
@@ -59,6 +61,13 @@ function getMatchAnalyzer(): typeof MatchAnalyzer {
         _MatchAnalyzer = require("./match-analyzer").MatchAnalyzer
     }
     return _MatchAnalyzer!
+}
+
+/** Winner's net rounds over a series (the rating's margin-of-victory input). */
+function roundDifferential(result: { maps?: Array<{ homeScore?: number; awayScore?: number }> }, homeWon: boolean): number {
+    let home = 0, away = 0
+    for (const m of result.maps ?? []) { home += m.homeScore || 0; away += m.awayScore || 0 }
+    return homeWon ? home - away : away - home
 }
 
 /** Get coach tactical bonus for a team from save data */
@@ -497,7 +506,7 @@ export class TournamentManager {
 
                 const homeTeamStaff = (save.staff || []).filter(s => s.teamId === homeTeam.id)
                 const awayTeamStaff = (save.staff || []).filter(s => s.teamId === awayTeam.id)
-                const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam), homeTeamStaff, awayTeamStaff)
+                const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam), homeTeamStaff, awayTeamStaff, save.playerTeamId)
 
                 // Mark as complete
                 bracketMatch.isCompleted = true
@@ -512,13 +521,15 @@ export class TournamentManager {
                     analysis: MatchAnalyzer.analyze(matchForSim, result, homeTeam.name, awayTeam.name, homePlayers, awayPlayers)
                 }
                 save.completedMatches.push(completedMatch)
+                recordOfficialMatch(save, completedMatch, result, { player: id => idx.playerIndex.get(id), team: id => idx.teamIndex.get(id), tournamentTier: tournament.tier })
 
                 // Remove from scheduled if present
                 save.scheduledMatches = save.scheduledMatches.filter(m => m.id !== bracketMatch.id)
 
                 // Update ELO
                 const scoreDiff = Math.abs(result.homeScore - result.awayScore)
-                LeagueEngine.updateEloAfterMatch(save, bracketMatch.winnerId, bracketMatch.loserId!, scoreDiff, tournament.tier, undefined, undefined)
+                LeagueEngine.updateEloAfterMatch(save, bracketMatch.winnerId, bracketMatch.loserId!, scoreDiff, tournament.tier, undefined, undefined,
+                    roundDifferential(result, homeWon), { tournamentId: tournament.id, stage: bracketMatch.stage, maps: result.maps?.length ?? 0 })
 
                 // Process progression (assigns winner to next round)
                 this.routeRepairedProgression(save, tournament, bracketMatch, bracketMatch.winnerId, bracketMatch.loserId)
@@ -591,7 +602,7 @@ export class TournamentManager {
 
             const homeTeamStaff = (save.staff || []).filter(s => s.teamId === homeTeam.id)
             const awayTeamStaff = (save.staff || []).filter(s => s.teamId === awayTeam.id)
-            const result = matchEngine.simulateMatch(match, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam), homeTeamStaff, awayTeamStaff)
+            const result = matchEngine.simulateMatch(match, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam), homeTeamStaff, awayTeamStaff, save.playerTeamId)
 
             const completedMatch: CompletedMatchSaveData = {
                 ...match,
@@ -600,6 +611,7 @@ export class TournamentManager {
             }
 
             save.completedMatches.push(completedMatch)
+            recordOfficialMatch(save, completedMatch, result, { player: id => idx.playerIndex.get(id), team: id => idx.teamIndex.get(id), tournamentTier: tournament.tier })
             save.scheduledMatches = save.scheduledMatches.filter(m => m.id !== match.id)
 
             const winnerId = result.homeScore > result.awayScore ? homeTeam.id : awayTeam.id
@@ -629,18 +641,16 @@ export class TournamentManager {
                 updateForm(winnerId, "W")
                 updateForm(loserId, "L")
 
-                // Calculate matches played
-                const getMatchesPlayed = (tid: string) =>
-                    save.completedMatches.filter(m => m.homeTeamId === tid || m.awayTeamId === tid).length
-
                 LeagueEngine.updateEloAfterMatch(
                     save,
                     winnerId,
                     loserId,
                     scoreDiff,
                     tournament.tier,
-                    getMatchesPlayed(winnerId),
-                    getMatchesPlayed(loserId)
+                    undefined,
+                    undefined,
+                    roundDifferential(result, winnerId === homeTeam.id),
+                    { tournamentId: tournament.id, stage: match.stage, maps: result.maps?.length ?? 0 },
                 )
             }
         }
@@ -755,7 +765,7 @@ export class TournamentManager {
 
         const homeTeamStaff = (save.staff || []).filter(s => s.teamId === homeTeam.id)
         const awayTeamStaff = (save.staff || []).filter(s => s.teamId === awayTeam.id)
-        const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam), homeTeamStaff, awayTeamStaff)
+        const result = matchEngine.simulateMatch(matchForSim, homeTeam, awayTeam, homePlayers, awayPlayers, rng, getCoachTacticalBonus(save, homeTeam), getCoachTacticalBonus(save, awayTeam), homeTeamStaff, awayTeamStaff, save.playerTeamId)
 
         // Mark bracket match as complete
         bracketMatch.isCompleted = true
@@ -770,6 +780,7 @@ export class TournamentManager {
             analysis: MatchAnalyzer.analyze(matchForSim, result, homeTeam.name, awayTeam.name, homePlayers, awayPlayers)
         }
         save.completedMatches.push(completedMatch)
+        recordOfficialMatch(save, completedMatch, result, { player: id => idx.playerIndex.get(id), team: id => idx.teamIndex.get(id), tournamentTier: tournament.tier })
 
         // Remove from scheduled if it was there
         save.scheduledMatches = save.scheduledMatches.filter(m => m.id !== bracketMatch.id)
@@ -783,7 +794,9 @@ export class TournamentManager {
             scoreDiff,
             tournament.tier,
             undefined,
-            undefined
+            undefined,
+            roundDifferential(result, homeWon),
+            { tournamentId: tournament.id, stage: bracketMatch.stage, maps: result.maps?.length ?? 0 },
         )
 
         // Process this match's progression (will add winner to next round)
@@ -1129,22 +1142,25 @@ export class TournamentManager {
         // matches regardless of how long the group stage took (the old
         // endWeek-1 offset could land in the past).
         const startWeek = save.currentWeek + 1
+        // Hashed per career/week/match so the same pairing in a later season
+        // gets a fresh stream (fixed 101/102/201/... repeated the winner).
+        const seedFor = (matchId: string) => bracketMatchSeed(save, matchId)
 
-        const qf1: BracketMatchSaveData = { id: `${tournament.id}_qf_1`, tournamentId: tournament.id, stage: "Quarter-final 1", homeTeamId: pA.second, awayTeamId: pB.third, isCompleted: false, week: startWeek, format: "BO3", seed: 101, sourceMatchIds: [] }
-        const qf2: BracketMatchSaveData = { id: `${tournament.id}_qf_2`, tournamentId: tournament.id, stage: "Quarter-final 2", homeTeamId: pB.second, awayTeamId: pA.third, isCompleted: false, week: startWeek, format: "BO3", seed: 102, sourceMatchIds: [] }
+        const qf1: BracketMatchSaveData = { id: `${tournament.id}_qf_1`, tournamentId: tournament.id, stage: "Quarter-final 1", homeTeamId: pA.second, awayTeamId: pB.third, isCompleted: false, week: startWeek, format: "BO3", seed: seedFor(`${tournament.id}_qf_1`), sourceMatchIds: [] }
+        const qf2: BracketMatchSaveData = { id: `${tournament.id}_qf_2`, tournamentId: tournament.id, stage: "Quarter-final 2", homeTeamId: pB.second, awayTeamId: pA.third, isCompleted: false, week: startWeek, format: "BO3", seed: seedFor(`${tournament.id}_qf_2`), sourceMatchIds: [] }
 
         this.addBracketMatch(tournament, qf1)
         this.addBracketMatch(tournament, qf2)
         this.scheduleBracketMatch(save, qf1)
         this.scheduleBracketMatch(save, qf2)
 
-        const sf1: BracketMatchSaveData = { id: `${tournament.id}_sf_1`, tournamentId: tournament.id, stage: "Semi-final 1", awayTeamId: pB.first, isCompleted: false, week: startWeek + 1, format: "BO3", seed: 201, sourceMatchIds: [qf1.id] }
-        const sf2: BracketMatchSaveData = { id: `${tournament.id}_sf_2`, tournamentId: tournament.id, stage: "Semi-final 2", awayTeamId: pA.first, isCompleted: false, week: startWeek + 1, format: "BO3", seed: 202, sourceMatchIds: [qf2.id] }
+        const sf1: BracketMatchSaveData = { id: `${tournament.id}_sf_1`, tournamentId: tournament.id, stage: "Semi-final 1", awayTeamId: pB.first, isCompleted: false, week: startWeek + 1, format: "BO3", seed: seedFor(`${tournament.id}_sf_1`), sourceMatchIds: [qf1.id] }
+        const sf2: BracketMatchSaveData = { id: `${tournament.id}_sf_2`, tournamentId: tournament.id, stage: "Semi-final 2", awayTeamId: pA.first, isCompleted: false, week: startWeek + 1, format: "BO3", seed: seedFor(`${tournament.id}_sf_2`), sourceMatchIds: [qf2.id] }
         this.addBracketMatch(tournament, sf1)
         this.addBracketMatch(tournament, sf2)
 
-        this.addBracketMatch(tournament, { id: `${tournament.id}_grand_final`, tournamentId: tournament.id, stage: "Grand Final", isCompleted: false, week: startWeek + 2, format: "BO5", seed: 301, sourceMatchIds: [sf1.id, sf2.id] })
-        this.addBracketMatch(tournament, { id: `${tournament.id}_3rd_place_decider`, tournamentId: tournament.id, stage: "3rd Place Decider", isCompleted: false, week: startWeek + 2, format: "BO3", seed: 302, sourceMatchIds: [sf1.id, sf2.id] })
+        this.addBracketMatch(tournament, { id: `${tournament.id}_grand_final`, tournamentId: tournament.id, stage: "Grand Final", isCompleted: false, week: startWeek + 2, format: "BO5", seed: seedFor(`${tournament.id}_grand_final`), sourceMatchIds: [sf1.id, sf2.id] })
+        this.addBracketMatch(tournament, { id: `${tournament.id}_3rd_place_decider`, tournamentId: tournament.id, stage: "3rd Place Decider", isCompleted: false, week: startWeek + 2, format: "BO3", seed: seedFor(`${tournament.id}_3rd_place_decider`), sourceMatchIds: [sf1.id, sf2.id] })
     }
 
     private static setupGenericBracket(

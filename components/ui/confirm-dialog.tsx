@@ -100,10 +100,10 @@ export function ConfirmDialog({
                     <div className="flex items-center gap-3">
                         {Icon && (
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${destructive
-                                    ? 'bg-red-500/20 border border-red-500/50'
-                                    : 'bg-amber-500/20 border border-amber-500/50'
+                                    ? 'bg-negative/15 border border-negative/50'
+                                    : 'bg-caution/15 border border-caution/50'
                                 }`}>
-                                <Icon className={`w-5 h-5 ${destructive ? 'text-red-500' : 'text-amber-500'}`} />
+                                <Icon className={`w-5 h-5 ${destructive ? 'text-negative' : 'text-caution'}`} />
                             </div>
                         )}
                         <AlertDialogTitle className="text-xl">{title}</AlertDialogTitle>
@@ -115,7 +115,7 @@ export function ConfirmDialog({
                 {error && (
                     <div
                         role="alert"
-                        className="mt-2 p-3 rounded-md border border-red-500/40 bg-red-500/10 text-sm text-red-300"
+                        className="mt-2 rounded-md border border-negative/40 bg-negative/10 p-3 text-sm text-negative"
                     >
                         {error}
                     </div>
@@ -130,7 +130,7 @@ export function ConfirmDialog({
                             handleConfirm()
                         }}
                         disabled={loading}
-                        className={destructive ? 'bg-red-600 hover:bg-red-700' : ''}
+                        className={destructive ? 'border-negative bg-negative text-ink hover:bg-negative/90' : ''}
                     >
                         {loading ? 'Processing...' : confirmText}
                     </AlertDialogAction>

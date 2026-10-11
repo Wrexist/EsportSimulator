@@ -1,46 +1,32 @@
 "use client"
 
 import { loadCareerDraft, saveCareerDraft, clearCareerDraft } from '@/lib/new-career-draft'
-import { useEffect, useState, useMemo, useRef } from "react"
+import { useEffect, useState, useMemo, useRef, type KeyboardEvent } from "react"
+import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
-import { LoadingState } from "@/components/ui/loading"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import Image from "next/image"
-import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
-import {
-    PlayCircle,
-    Search,
-    Shield,
-    X,
-    User,
-    ChevronRight,
-    Sparkles,
-    ArrowLeft,
-    Lock,
-    Briefcase
-} from "lucide-react"
-import { toast } from "@/lib/toast"
 import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
+import { CountryFlag } from "@/components/ui/CountryFlag"
+import { Panel } from "@/src/components/ui/Panel"
+import { RatingChip } from "@/src/components/ui/RatingChip"
+import { RoleTag } from "@/src/components/ui/RoleTag"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { ArrowLeft, ChevronRight, Loader2, Lock, Search, X } from "lucide-react"
+import { toast } from "@/lib/toast"
 import { ManagerProgression, ManagerTier, TEAM_REP_TIERS, TIER_THRESHOLDS } from "@/engine/manager-progression"
 import { loadCareerProfile, recordNewCampaign } from "@/engine/manager-career-profile"
-import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { calculateInitialPrestige } from "@/data/snapshot-loader"
-import {
-    calculateTeamTier,
-    getDisplayPlayerTier,
-    getTierStyle,
-    TierLevel
-} from "@/engine/tier-system"
-import { CountryFlag } from "@/components/ui/CountryFlag"
+import { calculateTeamTier, type TierLevel } from "@/engine/tier-system"
 import { resolvePlayerRole } from "@/engine/role-determination"
-import { pressable } from "@/lib/accessibility"
 import { describeClubChallenge } from "@/lib/club-expectations"
 import { formatCurrency } from "@/lib/utils-extended"
 
@@ -77,6 +63,16 @@ interface RankedTeam extends SnapshotTeam {
     calculatedTier: TierLevel
 }
 
+type TierFilter = "ALL" | TierLevel
+
+const TIER_LABEL: Record<TierLevel, string> = {
+    ELITE: "Elite",
+    PRO: "Pro",
+    SEMI_PRO: "Semi-pro",
+    AMATEUR: "Amateur",
+}
+const TIER_FILTERS: TierFilter[] = ["ALL", "ELITE", "PRO", "SEMI_PRO", "AMATEUR"]
+
 // Evaluate a snapshot player with computed prestigeScore (matches game initialization)
 function evaluateSnapshotPlayer(player: SnapshotPlayer, team?: SnapshotTeam) {
     const prestigeScore = calculateInitialPrestige(
@@ -88,6 +84,24 @@ function evaluateSnapshotPlayer(player: SnapshotPlayer, team?: SnapshotTeam) {
 
 // Onboarding Steps
 type OnboardingStep = "welcome" | "team-select"
+
+/** Full-bleed arena art behind an ink gradient (shared with the main menu look). */
+function KeyArt() {
+    return (
+        <>
+            <Image
+                src="/esport-ui-assets/backgrounds/club-overview-hq.webp"
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                className="pointer-events-none select-none object-cover object-center opacity-70 saturate-[0.7]"
+            />
+            <div aria-hidden="true" className="absolute inset-0 bg-linear-to-r from-ink from-30% via-ink/85 via-55% to-ink/25" />
+            <div aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-ink via-transparent via-40% to-ink/50" />
+        </>
+    )
+}
 
 export default function TeamSelectionPage() {
     const router = useRouter()
@@ -105,7 +119,7 @@ export default function TeamSelectionPage() {
     const [players, setPlayers] = useState<SnapshotPlayer[]>([])
     const [selectedTeam, setSelectedTeam] = useState<RankedTeam | null>(null)
     const [searchTerm, setSearchTerm] = useState("")
-    const [selectedTier, setSelectedTier] = useState<string>("ALL")
+    const [selectedTier, setSelectedTier] = useState<TierFilter>("ALL")
     const [isDataLoading, setIsDataLoading] = useState(true)
     const [isStarting, setIsStarting] = useState(false)
 
@@ -173,77 +187,12 @@ export default function TeamSelectionPage() {
             }))
     }, [teams])
 
-    // Filter teams
-    const filteredTeams = useMemo(() => {
-        const result = rankedTeams
-            .filter(t => {
-                const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase())
-                const matchesTier = selectedTier === "ALL" || t.calculatedTier === selectedTier
-                return matchesSearch && matchesTier
-            })
-
-        // Sort: Unlocked teams first, then by Ranking
-        return result.sort((a, b) => {
-            const isLockedA = !sandboxMode && !ManagerProgression.isTeamUnlocked(a.reputation, managerLevel)
-            const isLockedB = !sandboxMode && !ManagerProgression.isTeamUnlocked(b.reputation, managerLevel)
-
-            if (isLockedA !== isLockedB) {
-                return isLockedA ? 1 : -1 // Locked (true) goes to bottom
-            }
-
-            return a.worldRanking - b.worldRanking
-        })
-    }, [rankedTeams, searchTerm, selectedTier, managerLevel, sandboxMode])
-
-    // Get roster for selected team with evaluations
-    const selectedRoster = useMemo(() => {
-        if (!selectedTeam) return []
-        return players
-            .filter(p => selectedTeam.rosterIds.includes(p.id))
-            .map(p => {
-                const evaluation = evaluateSnapshotPlayer(p, selectedTeam)
-                return {
-                    ...p,
-                    evaluation,
-                    playerTier: getDisplayPlayerTier(evaluation.overallRating, selectedTeam?.calculatedTier as TierLevel)
-                }
-            })
-            .sort((a, b) => b.evaluation.overallRating - a.evaluation.overallRating)
-    }, [selectedTeam, players])
-
-    // O(1) player lookup so the per-team rating/value below scan their
-    // own rosterIds (~5 ids) instead of filtering the full ~1000-player
-    // snapshot for every team in the picker grid.
+    // O(1) player lookup so per-team numbers scan their own rosterIds (~5 ids)
+    // instead of filtering the full ~1000-player snapshot for every team.
     const playersById = useMemo(
         () => new Map(players.map(p => [p.id, p])),
         [players],
     )
-
-    // Calculate team value
-    const getTeamValue = (team: SnapshotTeam) => {
-        return team.rosterIds.reduce((sum, id) => {
-            const player = playersById.get(id)
-            if (!player) return sum
-            return sum + evaluateSnapshotPlayer(player, team).transferValue
-        }, 0)
-    }
-
-    // Calculate team overall rating
-    const getTeamRating = (team: SnapshotTeam) => {
-        const ids = team.rosterIds
-        if (!ids?.length) return 0
-        let sum = 0
-        let n = 0
-        for (const id of ids) {
-            const player = playersById.get(id)
-            if (player) {
-                sum += evaluateSnapshotPlayer(player, team).overallRating
-                n++
-            }
-        }
-        const avgRating = n === 0 ? 0 : sum / n
-        return Math.round(avgRating)
-    }
 
     // Calculate actual starting budget (mirrors game-store initialization logic)
     // Teams with < 5 players get bonus funds to fill roster
@@ -259,15 +208,12 @@ export default function TeamSelectionPage() {
         // Check for incomplete roster and inject funds
         if (team.rosterIds.length < 5) {
             const missingCount = 5 - team.rosterIds.length
-            const teammates = players.filter(p => team.rosterIds.includes(p.id))
+            const teammates = team.rosterIds.map(id => playersById.get(id)).filter((p): p is SnapshotPlayer => !!p)
 
             // Calculate the MINIMUM value player on the team (that's who they'd realistically replace with)
             let targetValue = 150000 // Bare minimum fallback
             if (teammates.length > 0) {
-                const values = teammates.map(p => {
-                    const evaluation = evaluateSnapshotPlayer(p, team as SnapshotTeam)
-                    return evaluation.transferValue
-                }).sort((a, b) => a - b)
+                const values = teammates.map(p => evaluateSnapshotPlayer(p, team as SnapshotTeam).transferValue).sort((a, b) => a - b)
 
                 // Use the lowest-valued player as the target (you'd buy similar or slightly worse)
                 targetValue = values[0]
@@ -283,31 +229,96 @@ export default function TeamSelectionPage() {
             }
 
             // Injection: Target Value × Missing Count (no extra buffer - tight budget is more realistic)
-            const injection = Math.round(targetValue * missingCount)
-            calculatedBudget += injection
+            calculatedBudget += Math.round(targetValue * missingCount)
         }
 
         // Return the higher of calculated or static value
         return Math.max(calculatedBudget, team.startingBudget || 0)
     }
 
-    // Handle continue from welcome step
-    const handleContinueToTeamSelect = () => {
+    // Per-club numbers for the picker table, computed once per data load.
+    const teamStats = useMemo(() => {
+        const map = new Map<string, { ovr: number; budget: number; value: number }>()
+        for (const team of rankedTeams) {
+            let sum = 0, n = 0, value = 0
+            for (const id of team.rosterIds || []) {
+                const player = playersById.get(id)
+                if (!player) continue
+                const evaluation = evaluateSnapshotPlayer(player, team)
+                sum += evaluation.overallRating
+                value += evaluation.transferValue
+                n++
+            }
+            map.set(team.id, { ovr: n === 0 ? 0 : Math.round(sum / n), budget: getCalculatedBudget(team), value })
+        }
+        return map
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- getCalculatedBudget only reads playersById
+    }, [rankedTeams, playersById])
+
+    const isLocked = (team: SnapshotTeam) => !sandboxMode && !ManagerProgression.isTeamUnlocked(team.reputation, managerLevel)
+
+    // Filter teams
+    const filteredTeams = useMemo(() => {
+        const term = searchTerm.trim().toLowerCase()
+        const result = rankedTeams.filter(t => {
+            const matchesSearch = !term || t.name.toLowerCase().includes(term) || t.shortName?.toLowerCase().includes(term)
+            const matchesTier = selectedTier === "ALL" || t.calculatedTier === selectedTier
+            return matchesSearch && matchesTier
+        })
+
+        // Sort: Unlocked teams first, then by Ranking
+        return result.sort((a, b) => {
+            const lockedA = !sandboxMode && !ManagerProgression.isTeamUnlocked(a.reputation, managerLevel)
+            const lockedB = !sandboxMode && !ManagerProgression.isTeamUnlocked(b.reputation, managerLevel)
+            if (lockedA !== lockedB) return lockedA ? 1 : -1
+            return a.worldRanking - b.worldRanking
+        })
+    }, [rankedTeams, searchTerm, selectedTier, managerLevel, sandboxMode])
+
+    // Get roster for selected team with evaluations
+    const selectedRoster = useMemo(() => {
+        if (!selectedTeam) return []
+        return selectedTeam.rosterIds
+            .map(id => playersById.get(id))
+            .filter((p): p is SnapshotPlayer => !!p)
+            .map(p => ({ ...p, evaluation: evaluateSnapshotPlayer(p, selectedTeam) }))
+            .sort((a, b) => b.evaluation.overallRating - a.evaluation.overallRating)
+    }, [selectedTeam, playersById])
+
+    const tierCounts = useMemo(() => {
+        const counts: Record<TierFilter, number> = { ALL: rankedTeams.length, ELITE: 0, PRO: 0, SEMI_PRO: 0, AMATEUR: 0 }
+        for (const t of rankedTeams) counts[t.calculatedTier]++
+        return counts
+    }, [rankedTeams])
+
+    const validateManagerName = () => {
         if (!managerName.trim()) {
-            setManagerNameError("Please enter your manager name")
-            return
+            setManagerNameError("Enter your manager name")
+            return false
         }
         if (managerName.trim().length < 2) {
             setManagerNameError("Name must be at least 2 characters")
-            return
+            return false
         }
         setManagerNameError("")
-        setCurrentStep("team-select")
+        return true
+    }
+
+    // Handle continue from welcome step
+    const handleContinueToTeamSelect = () => {
+        if (validateManagerName()) setCurrentStep("team-select")
+    }
+
+    const handleCreateOwnTeam = () => {
+        if (!validateManagerName()) return
+        // Store manager name in the draft for the create-team page
+        saveCareerDraft({ managerName: managerName.trim() })
+        router.push("/new-game/create-team")
     }
 
     const handleStartGame = async () => {
         if (!selectedTeam || isStarting || startingRef.current) return
-        if (managerName.trim().length < 2 || (!sandboxMode && !ManagerProgression.isTeamUnlocked(selectedTeam.reputation, managerLevel))) {
+        if (managerName.trim().length < 2 || isLocked(selectedTeam)) {
             toast.error('Review your manager name and club eligibility before starting.'); return
         }
         startingRef.current = true
@@ -330,609 +341,317 @@ export default function TeamSelectionPage() {
         }
     }
 
+    // One-shot restore of the draft's club; otherwise preselect the best open club
+    // so the detail pane is never empty.
     useEffect(() => {
+        if (selectedTeam || rankedTeams.length === 0) return
         const teamId = loadCareerDraft()?.teamId
-        if (teamId && !selectedTeam) setSelectedTeam(rankedTeams.find(t => t.id === teamId) || null)
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot draft restore when teams load; re-running on selectedTeam would re-select the draft team after the user clears it
+        const draftTeam = teamId ? rankedTeams.find(t => t.id === teamId) : undefined
+        setSelectedTeam(draftTeam || filteredTeams.find(t => !isLocked(t)) || null)
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot when teams load; re-running on selectedTeam would re-select after the user clears it
     }, [rankedTeams])
 
-    if (dataError) return <div className="mx-auto max-w-lg p-8 text-slate-200"><h1 className="text-xl">Game data could not load</h1><p className="my-3">Your setup draft is kept. Retry loading the local game data.</p><Button onClick={() => window.location.reload()}>Retry</Button></div>
+    if (dataError) {
+        return (
+            <div className="flex min-h-dvh items-center justify-center bg-ink p-8">
+                <Panel className="w-full max-w-md" title="Game data could not load">
+                    <p className="text-sm text-ink-2">Your setup draft is kept. Retry loading the local game data.</p>
+                    <Button className="mt-4" onClick={() => window.location.reload()}>Retry</Button>
+                </Panel>
+            </div>
+        )
+    }
 
     // Loading state
     if (isDataLoading) {
         return (
-            <LoadingState message="Loading Teams…" size="lg" fullScreen />
+            <div className="flex min-h-dvh items-center justify-center gap-3 bg-ink text-sm text-ink-3" role="status">
+                <Loader2 size={16} className="animate-spin" /> Loading clubs…
+            </div>
         )
     }
 
-    const tierCounts = {
-        ELITE: rankedTeams.filter(t => t.calculatedTier === "ELITE").length,
-        PRO: rankedTeams.filter(t => t.calculatedTier === "PRO").length,
-        SEMI_PRO: rankedTeams.filter(t => t.calculatedTier === "SEMI_PRO").length,
-    }
-
-    // ============ STEP 1: WELCOME & MANAGER NAME ============
+    // ============ STEP 1: MANAGER NAME + PATH ============
     if (currentStep === "welcome") {
         return (
-            <div className="min-h-screen relative flex items-center justify-center overflow-hidden">
-                {/* Background gradient */}
-                <div className="absolute inset-0 bg-linear-to-br/srgb from-primary/10 via-transparent to-cyan-500/10 pointer-events-none" />
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[150px] pointer-events-none" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[150px] pointer-events-none" />
+            <div className="relative flex min-h-dvh overflow-hidden bg-ink">
+                <KeyArt />
+                <div className="relative z-10 flex min-h-dvh w-full max-w-[560px] flex-col px-16 py-14 animate-in fade-in duration-200">
+                    <Link href="/main-menu" className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
+                        <ArrowLeft size={16} /> Main menu
+                    </Link>
 
-                {/* Back to Main Menu Button */}
-                <motion.button
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 }}
-                    onClick={() => router.push("/main-menu")}
-                    className="absolute top-6 left-6 flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all text-white/60 hover:text-white group z-20"
-                >
-                    <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
-                    <span className="text-xs font-medium">Back</span>
-                </motion.button>
+                    <div className="my-auto w-full max-w-[420px] py-12">
+                        <ScreenHeader eyebrow="Step 1 of 2" title="New career" subtitle="Name your manager, then take over a club or found your own." />
 
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="w-full max-w-lg mx-auto px-6"
-                >
-                    <div className="glass-panel p-8 md:p-12 border-white/10 text-center relative overflow-hidden">
-                        {/* Decorative elements */}
-                        <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/30 rounded-full blur-[80px] pointer-events-none" />
-
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                            className="w-20 h-20 mx-auto mb-6 flex items-center justify-center p-0 overflow-visible"
-                        >
-                            <Image src="/logo.png" alt="Icon" width={80} height={80} className="object-contain w-full h-full drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" onError={(e) => { (e.target as HTMLImageElement).src = '/team_placeholder.webp' }} />
-                        </motion.div>
-
-                        {/* Welcome Text */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                        >
-                            <h1 className="text-3xl md:text-4xl font-normal text-white mb-2">
-                                Welcome, Manager
-                            </h1>
-                            <p className="text-muted-foreground mb-8">
-                                Your journey to esports glory begins here
-                            </p>
-                        </motion.div>
-
-                        {/* Manager Name Input */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                            className="space-y-4 mb-8"
-                        >
-                            <div className="text-left">
-                                <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
-                                    What should we call you?
-                                </label>
-                                <div className="relative">
-                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                                    <Input
-                                        type="text"
-                                        placeholder="Enter your name..."
-                                        value={managerName}
-                                        maxLength={32}
-                                        onChange={(e) => {
-                                            setManagerName(e.target.value)
-                                            if (managerNameError) setManagerNameError("")
-                                        }}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter") handleContinueToTeamSelect()
-                                        }}
-                                        className={cn(
-                                            "pl-12 h-14 text-lg bg-white/5 border-white/10 rounded-xl focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all",
-                                            managerNameError && "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
-                                        )}
-                                        autoFocus
-                                    />
-                                </div>
-                                {managerNameError && (
-                                    <motion.p
-                                        initial={{ opacity: 0, y: -5 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className="text-red-400 text-xs mt-2"
-                                    >
-                                        {managerNameError}
-                                    </motion.p>
-                                )}
-                            </div>
-                        </motion.div>
-
-                        {/* Continue Button */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
-                            className="space-y-3"
-                        >
-                            <Button
-                                onClick={handleContinueToTeamSelect}
-                                className="w-full h-14 bg-white text-black hover:bg-white/90 font-normal rounded-xl text-lg shadow-[0_10px_40px_rgba(255,255,255,0.2)] hover:shadow-[0_15px_50px_rgba(255,255,255,0.3)] transition-all"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <Shield size={20} />
-                                    Choose Existing Team
-                                    <ChevronRight size={20} />
-                                </div>
-                            </Button>
-
-                            <div className="flex items-center gap-3 text-muted-foreground">
-                                <div className="flex-1 h-px bg-white/10" />
-                                <span className="text-xs uppercase tracking-widest">or</span>
-                                <div className="flex-1 h-px bg-white/10" />
-                            </div>
-
-                            <Button
-                                onClick={() => {
-                                    if (!managerName.trim()) {
-                                        setManagerNameError("Please enter your manager name")
-                                        return
-                                    }
-                                    if (managerName.trim().length < 2) {
-                                        setManagerNameError("Name must be at least 2 characters")
-                                        return
-                                    }
-                                    // Store manager name in localStorage for the create-team page
-                                    saveCareerDraft({ managerName: managerName.trim() })
-                                    router.push("/new-game/create-team")
+                        <div className="mt-8 space-y-2">
+                            <label htmlFor="manager-name" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Manager name</label>
+                            <Input
+                                id="manager-name"
+                                type="text"
+                                placeholder="Your name"
+                                value={managerName}
+                                maxLength={32}
+                                aria-invalid={!!managerNameError || undefined}
+                                aria-describedby={managerNameError ? "manager-name-error" : undefined}
+                                onChange={(e) => {
+                                    setManagerName(e.target.value)
+                                    if (managerNameError) setManagerNameError("")
                                 }}
-                                variant="outline"
-                                className="w-full h-14 border-primary/30 hover:bg-primary/10 hover:border-primary/50 font-normal rounded-xl text-lg transition-all group"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <Sparkles size={20} className="text-primary group-hover:animate-pulse" />
-                                    Create Your Own Team
-                                    <ChevronRight size={20} />
-                                </div>
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") handleContinueToTeamSelect()
+                                }}
+                                className="h-12 text-base"
+                                autoFocus
+                            />
+                            {managerNameError && <p id="manager-name-error" className="text-xs font-medium text-negative">{managerNameError}</p>}
+                        </div>
+
+                        <div className="mt-8 space-y-2">
+                            <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between px-4 py-3 text-left">
+                                <span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">Choose existing team</span>
+                                    <span className="mt-1 block text-[13px] font-medium">Take over a ranked club and its roster</span>
+                                </span>
+                                <ChevronRight />
                             </Button>
-                        </motion.div>
-
-                        {/* Features preview */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.7 }}
-                            className="mt-8 pt-8 border-t border-white/5"
-                        >
-                            <div className="flex justify-center gap-8 text-center">
-                                <div>
-                                    <p className="text-2xl font-normal text-white">{rankedTeams.length}</p>
-                                    <p className="text-[10px] text-muted-foreground font-bold uppercase">Teams</p>
-                                </div>
-                                <div className="h-10 w-px bg-white/10" />
-                                <div>
-                                    <p className="text-2xl font-normal text-white">{players.length}</p>
-                                    <p className="text-[10px] text-muted-foreground font-bold uppercase">Players</p>
-                                </div>
-                                <div className="h-10 w-px bg-white/10" />
-                                <div>
-                                    <p className="text-2xl font-normal text-amber-400">{tierCounts.ELITE}</p>
-                                    <p className="text-[10px] text-muted-foreground font-bold uppercase">Elite</p>
-                                </div>
-                            </div>
-                        </motion.div>
+                            <Button onClick={handleCreateOwnTeam} variant="outline" className="h-auto w-full justify-between px-4 py-3 text-left">
+                                <span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">Create your own team</span>
+                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">Start at the bottom with an empty roster</span>
+                                </span>
+                                <ChevronRight />
+                            </Button>
+                        </div>
                     </div>
-
-                    {/* Subtle hint */}
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 0.5 }}
-                        transition={{ delay: 1 }}
-                        className="text-center text-xs text-muted-foreground mt-6"
-                    >
-                        <Sparkles size={12} className="inline mr-1" />
-                        Build your legacy in competitive esports
-                    </motion.p>
-                </motion.div>
+                </div>
             </div>
         )
     }
 
     // ============ STEP 2: TEAM SELECTION ============
+    const selectedStats = selectedTeam ? teamStats.get(selectedTeam.id) : undefined
+    const selectedLocked = selectedTeam ? isLocked(selectedTeam) : false
+    const challenge = selectedTeam && selectedStats
+        ? describeClubChallenge({ worldRanking: selectedTeam.worldRanking, reputation: selectedTeam.reputation, starters: selectedRoster.length, budget: selectedStats.budget })
+        : null
+
+    const onRowKeyDown = (team: RankedTeam) => (e: KeyboardEvent<HTMLTableRowElement>) => {
+        if (e.target !== e.currentTarget) return
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedTeam(team) }
+    }
 
     return (
-        <div className="min-h-screen relative selection:bg-cyan-500/30">
-            <div className="max-w-7xl mx-auto p-6 relative z-10 w-full">
-                {/* Header with Back Button */}
-                <div className="mb-6">
-                    <div className="flex items-start gap-6 mb-4">
-                        <div className="flex items-center gap-2 shrink-0">
-                            <button
-                                onClick={() => setCurrentStep("welcome")}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-muted-foreground hover:text-white group"
-                            >
-                                <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
-                                <span className="text-xs font-bold uppercase tracking-wider">Back</span>
-                            </button>
-                            <button
-                                onClick={() => router.push("/main-menu")}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:bg-red-500/10 hover:border-red-500/20 transition-all text-muted-foreground hover:text-red-400 group"
-                            >
-                                <X size={16} className="group-hover:rotate-90 transition-transform" />
-                                <span className="text-xs font-bold uppercase tracking-wider">Cancel</span>
-                            </button>
+        <div className="mx-auto flex h-dvh w-full max-w-[1680px] flex-col gap-5 bg-ink px-8 py-6">
+            <ScreenHeader
+                eyebrow="New career · Step 2 of 2"
+                title="Choose your club"
+                subtitle={sandboxMode
+                    ? <>Manager {managerName}. Sandbox is on, so every club is open.</>
+                    : <>Manager {managerName}, level {managerLevel}. Clubs under reputation {TEAM_REP_TIERS.TIER_2_MIN_REP} are open; {TEAM_REP_TIERS.TIER_2_MIN_REP}+ needs level {TIER_THRESHOLDS[ManagerTier.CHALLENGER]}, {TEAM_REP_TIERS.TIER_1_MIN_REP}+ needs level {TIER_THRESHOLDS[ManagerTier.ELITE]}. Levels carry over between careers.</>}
+                aside={
+                    <>
+                        <Button variant="ghost" onClick={() => setCurrentStep("welcome")} className="gap-2">
+                            <ArrowLeft size={16} /> Back
+                        </Button>
+                        <Button variant="outline" onClick={() => router.push("/main-menu")} className="gap-2">
+                            <X size={16} /> Cancel
+                        </Button>
+                    </>
+                }
+            />
+
+            <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_460px]">
+                {/* Club list */}
+                <Panel padded={false} className="flex min-h-0 flex-col overflow-hidden" bodyClassName="flex min-h-0 flex-1 flex-col">
+                    <div className="flex flex-wrap items-end gap-x-4 border-b border-line px-4 pt-2">
+                        <div className="relative mb-2 w-64">
+                            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" size={15} />
+                            <Input
+                                placeholder="Search clubs"
+                                aria-label="Search clubs"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="h-9 pl-9 text-sm"
+                            />
                         </div>
-                        <div>
-                            <h1 className="text-3xl font-normal text-white tracking-tight">
-                                Choose Your Team, <span className="text-primary">{managerName}</span>
-                            </h1>
-                            <p className="text-muted-foreground text-sm">
-                                <span className="text-amber-400 font-bold uppercase">Career mode:</span> {sandboxMode
-                                    ? <>Sandbox is on, so every club is open.</>
-                                    : <>You are manager level <span className="text-white font-bold">{managerLevel}</span>. Clubs with reputation under {TEAM_REP_TIERS.TIER_2_MIN_REP} are open; reputation {TEAM_REP_TIERS.TIER_2_MIN_REP}+ needs level {TIER_THRESHOLDS[ManagerTier.CHALLENGER]} and {TEAM_REP_TIERS.TIER_1_MIN_REP}+ needs level {TIER_THRESHOLDS[ManagerTier.ELITE]}. Levels carry over between careers.</>}
-                            </p>
-                        </div>
+                        <Tabs value={selectedTier} onValueChange={(v) => setSelectedTier(v as TierFilter)}>
+                            <TabsList aria-label="Filter by tier" className="border-b-0!">
+                                {TIER_FILTERS.map(tier => (
+                                    <TabsTrigger key={tier} value={tier}>
+                                        {tier === "ALL" ? "All" : TIER_LABEL[tier]}
+                                        <span className="tabular-nums text-ink-3">{tierCounts[tier]}</span>
+                                    </TabsTrigger>
+                                ))}
+                            </TabsList>
+                        </Tabs>
+                        <label className="mb-2.5 ml-auto flex items-center gap-2 text-sm text-ink-2">
+                            <Switch checked={sandboxMode} onCheckedChange={setSandboxMode} aria-describedby="sandbox-hint" />
+                            Sandbox
+                            <span id="sandbox-hint" className="sr-only">Opens every club. Match simulation is unchanged.</span>
+                        </label>
                     </div>
-                </div>
-            </div>
 
-            {/* Filters */}
-            <div className="flex flex-wrap gap-3 mb-6">
-                <div className="relative flex-1 min-w-[200px]">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-                    <Input
-                        placeholder="Search teams..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-11 h-10 bg-white/5 border-white/10 rounded-lg text-sm"
-                    />
-                </div>
-                <div className="flex gap-2">
-                    {(["ALL", "ELITE", "PRO", "SEMI_PRO"] as const).map(tier => {
-                        const tierStyle = tier !== "ALL" ? getTierStyle(tier) : null
-                        const count = tier !== "ALL" ? tierCounts[tier] : rankedTeams.length
-
-                        // Check if this entire tier is locked
-                        // A tier is locked if it's not ALL, and every team in it provides a locked status
-                        let isTierLocked = false
-                        let requiredLevel = 0
-
-                        if (tier !== "ALL" && !sandboxMode) {
-                            const teamsInTier = rankedTeams.filter(t => t.calculatedTier === tier)
-                            // If we have teams, check if ALL of them are locked
-                            if (teamsInTier.length > 0) {
-                                const allLocked = teamsInTier.every(t => !ManagerProgression.isTeamUnlocked(t.reputation, managerLevel))
-                                if (allLocked) {
-                                    isTierLocked = true
-                                    // Estimate required level from the first team (they should share a tier threshold)
-                                    requiredLevel = ManagerProgression.getRequiredLevel(teamsInTier[0].reputation)
-                                }
-                            }
-                        }
-
-                        return (
-                            <button
-                                key={tier}
-                                onClick={() => setSelectedTier(tier)}
-                                className={cn(
-                                    "px-3 py-2 rounded-lg text-[10px] font-normal uppercase tracking-wider border transition-all flex items-center gap-2",
-                                    selectedTier === tier
-                                        ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.3)]"
-                                        : isTierLocked
-                                            ? "bg-white/5 border-white/5 text-muted-foreground opacity-70 hover:opacity-100 hover:bg-white/10" // Locked style
-                                            : tier !== "ALL"
-                                                ? `${tierStyle?.bgColor} ${tierStyle?.borderColor} ${tierStyle?.color}`
-                                                : "bg-white/5 border-white/10 text-muted-foreground hover:border-white/20"
-                                )}
-                            >
-                                {isTierLocked && <Lock size={10} className="mr-0.5" />}
-                                {tier === "ALL" ? "All" : tierStyle?.label}
-                                <span className="opacity-60">({count})</span>
-                                {isTierLocked && requiredLevel > 0 && (
-                                    <span className="ml-1 px-1.5 py-0.5 rounded bg-black/40 text-[8px] font-bold text-white/50 border border-white/5">
-                                        LVL {requiredLevel}
-                                    </span>
-                                )}
-                            </button>
-                        )
-                    })}
-                </div>
-            </div>
-
-            <p className="mb-3 text-sm text-slate-400">{draftSaved ? 'Setup is saved on this device until you create the career.' : 'Setup could not be saved on this device. Keep this page open until you finish.'} Club access depends on your career level; sandbox unlocks club choice without changing match difficulty.</p>
-            {/* Sandbox Mode Toggle */}
-            <div className="flex justify-end mb-4">
-                <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
-                    <div className="text-right">
-                        <p className="text-[10px] uppercase font-normal tracking-widest text-muted-foreground">Sandbox Mode</p>
-                        <p className="text-xs font-bold text-white">{sandboxMode ? "Unlocks Active" : "Career Mode"}</p>
-                    </div>
-                    <Switch
-                        checked={sandboxMode}
-                        onCheckedChange={setSandboxMode}
-                        className="data-[state=checked]:bg-primary"
-                    />
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-                {/* Team Grid - 3 columns */}
-                <div className="lg:col-span-3 h-[calc(100vh-220px)] overflow-y-auto pr-2 custom-scrollbar">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {filteredTeams.map((team) => {
-                            const tierStyle = getTierStyle(team.calculatedTier)
-                            const isLocked = !sandboxMode && !ManagerProgression.isTeamUnlocked(team.reputation, managerLevel)
-                            const requiredLevel = ManagerProgression.getRequiredLevel(team.reputation)
-
-                            return (
-                                <div
-                                    key={team.id}
-                                    {...pressable(() => setSelectedTeam(team), { disabled: isLocked, pressed: selectedTeam?.id === team.id })}
-                                    className={cn(
-                                        "glass-panel p-4 cursor-pointer border-white/5 relative overflow-hidden",
-                                        "transition-[border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-0.5",
-                                        selectedTeam?.id === team.id && "border-primary ring-2 ring-primary/30",
-                                        isLocked && "opacity-60 grayscale cursor-not-allowed hover:translate-y-0"
-                                    )}
-                                >
-                                    {/* Lock Overlay */}
-                                    {isLocked && (
-                                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px]">
-                                            <div className="bg-black/80 p-3 rounded-full border border-white/10 mb-2">
-                                                <Lock className="text-white/70" size={24} />
-                                            </div>
-                                            <p className="text-[10px] font-normal text-white uppercase tracking-widest">Locked</p>
-                                            <div className="flex items-center gap-1.5 mt-1 bg-white/10 px-2 py-1 rounded text-[9px] font-bold text-primary-foreground">
-                                                <Briefcase size={10} />
-                                                MANAGER LVL {requiredLevel}
-                                            </div>
-                                            <p className="mt-1 text-[10px] text-white/70">You are level {managerLevel}. Sandbox unlocks it.</p>
-                                        </div>
-                                    )}
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                                            <TeamLogoImage
-                                                src={team.logoPath}
-                                                alt={team.name}
-                                                size={40}
-                                            />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="font-bold text-white text-sm truncate">{team.name}</h3>
-                                            <div className="flex items-center gap-2 mt-0.5">
-                                                <Badge size="xs" className={cn("uppercase font-normal", tierStyle.bgColor, tierStyle.borderColor, tierStyle.color)}>
-                                                    {tierStyle.shortLabel}
-                                                </Badge>
-                                                <span className="text-[10px] text-muted-foreground">#{team.worldRanking}</span>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-xl font-normal text-white">{getTeamRating(team)}</p>
-                                            <p className="text-[8px] text-muted-foreground font-bold">OVR</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Player thumbnails with Names and Badge */}
-                                    <div className="flex justify-between gap-1">
-                                        {(team.rosterIds || []).slice(0, 5).map((id) => {
-                                            const player = players.find(p => p.id === id)
-                                            // Calculate simple tier for badge
-                                            let badgeColor = "bg-gray-500"
-                                            let badgeText = "UNK"
-                                            if (player) {
-                                                const pTier = getDisplayPlayerTier(evaluateSnapshotPlayer(player, team).overallRating, team.calculatedTier as TierLevel)
-                                                if (pTier === "ELITE") { badgeColor = "bg-emerald-500"; badgeText = "E" }
-                                                else if (pTier === "PRO") { badgeColor = "bg-blue-500"; badgeText = "P" }
-                                                else { badgeColor = "bg-amber-500"; badgeText = "S" }
-                                            }
-
-                                            return (
-                                                <div key={id} className="flex flex-col items-center gap-1 flex-1 min-w-0">
-                                                    <div
-                                                        className="w-full aspect-square rounded-lg bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden relative"
-                                                        title={player?.nickname}
-                                                    >
-                                                        <PlayerPortrait
-                                                            src={player?.portraitPath} seed={player?.id}
-                                                            alt={player?.nickname || "Unknown"}
-                                                            fill
-                                                        />
-                                                        {/* Tier Badge Overlay */}
-                                                        <div className={cn("absolute top-0 right-0 w-3 h-3 flex items-center justify-center text-[6px] font-normal text-white rounded-bl-md", badgeColor)}>
-                                                            {badgeText}
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-1 max-w-full">
-                                                        <span className="text-[9px] font-bold text-white/80 truncate">
-                                                            {player?.nickname || "Unknown"}
-                                                        </span>
-                                                        {player && (
-                                                            <CountryFlag country={player.nationality} size={8} />
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
-
-                {/* Selected Team Detail - 2 columns */}
-                <div className="lg:col-span-2">
-                    <AnimatePresence mode="wait">
-                        {selectedTeam ? (
-                            <motion.div
-                                key={selectedTeam.id}
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="glass-panel p-6 border-primary/20"
-                            >
-                                {/* Team Header */}
-                                <div className="flex items-center justify-between mb-6">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden">
-                                            <TeamLogoImage
-                                                src={selectedTeam.logoPath}
-                                                alt={selectedTeam.name}
-                                                size={56}
-                                            />
-                                        </div>
-                                        <div>
-                                            <h2 className="text-xl font-normal text-white">{selectedTeam.name}</h2>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <Badge className={cn("text-[10px]", getTierStyle(selectedTeam.calculatedTier).bgColor, getTierStyle(selectedTeam.calculatedTier).borderColor, getTierStyle(selectedTeam.calculatedTier).color)}>
-                                                    {getTierStyle(selectedTeam.calculatedTier).label}
-                                                </Badge>
-                                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                                    <CountryFlag country={selectedTeam.region} size={10} /> {selectedTeam.region}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button onClick={() => setSelectedTeam(null)} className="p-2 hover:bg-white/5 active:bg-white/10 active:scale-90 rounded-lg transition-all">
-                                        <X size={18} className="text-muted-foreground" />
-                                    </button>
-                                </div>
-
-                                {/* Team Stats */}
-                                <div className="grid grid-cols-4 gap-3 mb-6">
-                                    <div className="text-center p-3 bg-white/5 rounded-xl">
-                                        <p className="text-2xl font-normal text-white">#{selectedTeam.worldRanking}</p>
-                                        <p className="text-[8px] text-muted-foreground font-bold uppercase">World Rank</p>
-                                    </div>
-                                    <div className="text-center p-3 bg-white/5 rounded-xl">
-                                        <p className="text-2xl font-normal text-white">{getTeamRating(selectedTeam)}</p>
-                                        <p className="text-[8px] text-muted-foreground font-bold uppercase">Overall</p>
-                                    </div>
-                                    <div className="text-center p-3 bg-white/5 rounded-xl relative">
-                                        <p className="text-2xl font-normal text-emerald-400">{formatCurrency(getCalculatedBudget(selectedTeam))}</p>
-                                        <p className="text-[8px] text-muted-foreground font-bold uppercase">Budget</p>
-                                        {selectedTeam.rosterIds.length < 5 && (
-                                            <Badge className="absolute -top-2 -right-2 text-[7px] px-1 py-0 bg-amber-500/80 text-black border-none">
-                                                +{5 - selectedTeam.rosterIds.length} NEEDED
-                                            </Badge>
-                                        )}
-                                    </div>
-                                    <div className="text-center p-3 bg-white/5 rounded-xl">
-                                        <p className="text-2xl font-normal text-emerald-400">{formatCurrency(getTeamValue(selectedTeam))}</p>
-                                        <p className="text-[8px] text-muted-foreground font-bold uppercase">Value</p>
-                                    </div>
-                                </div>
-
-                                {/* Honest expectations before committing (L22.3) */}
-                                {(() => {
-                                    const challenge = describeClubChallenge({ worldRanking: selectedTeam.worldRanking, reputation: selectedTeam.reputation, starters: selectedRoster.length, budget: getCalculatedBudget(selectedTeam) })
+                    <div className="min-h-0 flex-1 overflow-y-auto">
+                        <table data-slot="table" className="w-full border-collapse text-left">
+                            <thead data-slot="table-header" className="sticky top-0 z-10">
+                                <tr className="border-b border-line">
+                                    <th data-slot="table-head" className="w-16 pl-4 text-right">Rank</th>
+                                    <th data-slot="table-head" className="pl-4">Club</th>
+                                    <th data-slot="table-head" className="px-3">Region</th>
+                                    <th data-slot="table-head" className="px-3">Tier</th>
+                                    <th data-slot="table-head" className="px-3 text-center">OVR</th>
+                                    <th data-slot="table-head" className="px-3 text-right">Budget</th>
+                                    <th data-slot="table-head" className="w-28 pr-4 text-right"><span className="sr-only">Access</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredTeams.map(team => {
+                                    const stats = teamStats.get(team.id)
+                                    const locked = isLocked(team)
+                                    const selected = selectedTeam?.id === team.id
                                     return (
-                                        <section aria-labelledby="club-expectations-title" className="mb-6 rounded-xl border border-white/10 bg-white/5 p-4">
-                                            <div className="flex items-center justify-between gap-3">
-                                                <h3 id="club-expectations-title" className="text-xs font-normal uppercase tracking-widest text-muted-foreground">What to expect</h3>
-                                                <span className="text-xs font-medium text-amber-300">{challenge.level}</span>
-                                            </div>
-                                            <p className="mt-2 text-sm text-white">Expected board target: {challenge.boardLabel}, finish the season ranked #{challenge.rankTarget} or better{challenge.trophyTarget > 0 ? ` and win ${challenge.trophyTarget} trophy` : ''}.</p>
-                                            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-slate-300">
-                                                {challenge.notes.map(note => <li key={note}>{note}</li>)}
-                                            </ul>
-                                            <p className="mt-2 text-[11px] text-muted-foreground">Budget is the estimated starting cash. The board sets its exact target from your standing when the first week is processed.</p>
-                                        </section>
+                                        <tr
+                                            key={team.id}
+                                            data-slot="table-row"
+                                            data-state={selected ? "selected" : undefined}
+                                            tabIndex={0}
+                                            aria-current={selected || undefined}
+                                            onClick={() => setSelectedTeam(team)}
+                                            onKeyDown={onRowKeyDown(team)}
+                                            className={cn("h-12 cursor-pointer border-b border-line outline-none transition-colors focus-visible:bg-hover", locked && "text-ink-3")}
+                                        >
+                                            <td className="w-16 pl-4 text-right text-xs font-semibold tabular-nums text-ink-3">#{team.worldRanking}</td>
+                                            <td className="py-1.5 pl-4 pr-3">
+                                                <div className={cn("flex min-w-0 items-center gap-3", locked && "opacity-60")}>
+                                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-raised">
+                                                        <TeamLogoImage src={team.logoPath} alt={team.name} size={26} />
+                                                    </span>
+                                                    <h3 className={cn("truncate text-sm font-semibold", selected ? "text-gold" : "text-ink-1")}>{team.name}</h3>
+                                                    <span className="text-xs text-ink-3">{team.shortName}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 text-xs font-semibold text-ink-2">{team.region}</td>
+                                            <td className="px-3 text-sm text-ink-2">{TIER_LABEL[team.calculatedTier]}</td>
+                                            <td className="px-3 text-center"><RatingChip value={stats?.ovr ?? 0} size="sm" /></td>
+                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(stats?.budget ?? 0)}</td>
+                                            <td className="w-28 pr-4 text-right text-xs text-ink-3">
+                                                {locked && (
+                                                    <span className="inline-flex items-center gap-1"><Lock size={12} /> Level {ManagerProgression.getRequiredLevel(team.reputation)}</span>
+                                                )}
+                                            </td>
+                                        </tr>
                                     )
-                                })()}
+                                })}
+                                {filteredTeams.length === 0 && (
+                                    <tr><td colSpan={7} className="px-4 py-6 text-sm text-ink-3">No clubs match “{searchTerm}”.</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                    <p className="border-t border-line px-4 py-2 text-xs text-ink-3">
+                        {filteredTeams.length} clubs · {draftSaved ? "Setup is saved on this device until you start." : "Setup could not be saved on this device. Keep this page open until you finish."}
+                    </p>
+                </Panel>
 
-                                {/* Roster with larger images */}
-                                <h3 className="text-xs font-normal text-muted-foreground uppercase tracking-widest mb-3">
-                                    Active Roster ({selectedRoster.length})
-                                </h3>
-                                <div className="space-y-2 mb-6">
-                                    {selectedRoster.map(player => {
-                                        const playerTierStyle = getTierStyle(player.playerTier)
-                                        return (
-                                            <div
-                                                key={player.id}
-                                                className="flex items-center gap-4 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors"
-                                            >
-                                                {/* Larger player image */}
-                                                <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                                                    <PlayerPortrait
-                                                        src={player.portraitPath} seed={player.id}
-                                                        alt={player.nickname}
-                                                        size={56}
-                                                    />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2">
-                                                        <p className="font-bold text-white">{player.nickname}</p>
-                                                        <Badge size="xs" className={cn(playerTierStyle.bgColor, playerTierStyle.borderColor, playerTierStyle.color)}>
-                                                            {playerTierStyle.shortLabel}
-                                                        </Badge>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
-                                                        <span>{resolvePlayerRole(player as any)}</span>
-                                                        <span>•</span>
-                                                        <span>{player.age} y/o</span>
-                                                        <span>•</span>
-                                                        <CountryFlag country={player.nationality} showName={true} size={12} className="text-[10px]" />
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-xl font-normal text-white">{player.evaluation.overallRating}</p>
-                                                    <p className="text-[8px] text-muted-foreground font-bold">OVR</p>
-                                                </div>
-                                            </div>
-                                        )
-                                    })}
+                {/* Selected club */}
+                <Panel padded={false} as="aside" className="flex min-h-0 flex-col overflow-hidden" bodyClassName="flex min-h-0 flex-1 flex-col">
+                    {selectedTeam && selectedStats ? (
+                        <>
+                            <div className="min-h-0 flex-1 overflow-y-auto">
+                                <div className="flex items-center gap-4 border-b border-line p-5">
+                                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-line bg-raised">
+                                        <TeamLogoImage src={selectedTeam.logoPath} alt={selectedTeam.name} size={52} />
+                                    </span>
+                                    <div className="min-w-0">
+                                        <h2 className="truncate font-display text-[32px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1">{selectedTeam.name}</h2>
+                                        <p className="mt-1.5 text-sm text-ink-3">
+                                            {selectedTeam.region} · {TIER_LABEL[selectedTeam.calculatedTier]} · {selectedTeam.shortName}
+                                        </p>
+                                    </div>
                                 </div>
 
-                                {/* Start Button */}
+                                <dl className="grid grid-cols-4 divide-x divide-line border-b border-line">
+                                    {[
+                                        { label: "Rank", value: `#${selectedTeam.worldRanking}` },
+                                        { label: "OVR", value: <RatingChip value={selectedStats.ovr} size="md" bare className="min-w-0 px-0 text-2xl" /> },
+                                        { label: "Budget", value: formatCurrency(selectedStats.budget) },
+                                        { label: "Value", value: formatCurrency(selectedStats.value) },
+                                    ].map(kpi => (
+                                        <div key={kpi.label} className="px-4 py-3">
+                                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{kpi.label}</dt>
+                                            <dd className="mt-1 font-display text-2xl font-bold leading-none tabular-nums text-ink-1">{kpi.value}</dd>
+                                        </div>
+                                    ))}
+                                </dl>
+
+                                <section aria-labelledby="club-roster-title">
+                                    <div className="flex items-center justify-between px-5 pb-2 pt-4">
+                                        <h3 id="club-roster-title" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Roster</h3>
+                                        <span className={cn("text-xs tabular-nums", selectedRoster.length < 5 ? "text-caution" : "text-ink-3")}>
+                                            {selectedRoster.length} / 5{selectedRoster.length < 5 ? ` · sign ${5 - selectedRoster.length} before your first match` : ""}
+                                        </span>
+                                    </div>
+                                    <table data-slot="table" className="w-full border-collapse text-left">
+                                        <tbody>
+                                            {selectedRoster.map(player => (
+                                                <tr key={player.id} className="h-12 border-t border-line">
+                                                    <td className="py-1.5 pl-5 pr-3">
+                                                        <div className="flex min-w-0 items-center gap-3">
+                                                            <span className="h-9 w-9 shrink-0 overflow-hidden rounded bg-raised">
+                                                                <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={36} />
+                                                            </span>
+                                                            <div className="min-w-0">
+                                                                <p className="truncate text-sm font-semibold text-ink-1">{player.nickname}</p>
+                                                                <div className="flex items-center gap-1.5 text-xs text-ink-3">
+                                                                    <CountryFlag country={player.nationality} size={12} /> {player.age}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-3"><RoleTag role={resolvePlayerRole(player as any)} /></td>
+                                                    <td className="pr-5 text-right"><RatingChip value={player.evaluation.overallRating} size="sm" /></td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </section>
+
+                                {challenge && (
+                                    <section aria-labelledby="club-expectations-title" className="mx-5 my-4 rounded-md border border-line bg-shell p-4">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <h3 id="club-expectations-title" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">What to expect</h3>
+                                            <span className="text-xs font-semibold text-ink-2">{challenge.level}</span>
+                                        </div>
+                                        <p className="mt-2 text-sm text-ink-1">Board target: {challenge.boardLabel}, finish the season ranked #{challenge.rankTarget} or better{challenge.trophyTarget > 0 ? ` and win ${challenge.trophyTarget} trophy` : ''}.</p>
+                                        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-ink-2">
+                                            {challenge.notes.map(note => <li key={note}>{note}</li>)}
+                                        </ul>
+                                        <p className="mt-2 text-xs text-ink-3">Budget is the estimated starting cash. The board sets its exact target from your standing when the first week is processed.</p>
+                                    </section>
+                                )}
+                            </div>
+
+                            <div className="border-t border-line p-4">
+                                {selectedLocked && (
+                                    <p className="mb-3 flex items-center gap-2 text-xs text-ink-3">
+                                        <Lock size={12} /> Needs manager level {ManagerProgression.getRequiredLevel(selectedTeam.reputation)} (you are {managerLevel}). Sandbox opens every club.
+                                    </p>
+                                )}
                                 <Button
                                     onClick={handleStartGame}
-                                    disabled={isStarting || (!sandboxMode && !ManagerProgression.isTeamUnlocked(selectedTeam.reputation, managerLevel))}
-                                    className="w-full h-14 bg-white text-black hover:bg-white/90 font-normal rounded-xl text-lg shadow-[0_10px_30px_rgba(255,255,255,0.15)]"
+                                    disabled={isStarting || selectedLocked}
+                                    aria-busy={isStarting || undefined}
+                                    className="h-12 w-full font-display text-xl font-bold tracking-[0.04em]"
                                 >
-                                    {isStarting ? "INITIALIZING..." : (
-                                        <div className="flex items-center gap-3">
-                                            <PlayCircle size={22} />
-                                            START CAREER
-                                        </div>
-                                    )}
+                                    {isStarting ? <><Loader2 className="animate-spin" /> Starting…</> : "START CAREER"}
                                 </Button>
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="glass-panel p-12 text-center border-dashed border-white/10 h-full flex flex-col items-center justify-center"
-                            >
-                                <Shield size={48} className="mx-auto mb-4 text-white/10" />
-                                <h3 className="font-normal text-white uppercase mb-2">Select a Team</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    Click on any team to view their roster
-                                </p>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </div>
-
-            {/* Stats Footer */}
-            <div className="flex justify-center gap-8 mt-6 text-center">
-                <div>
-                    <p className="text-2xl font-normal text-white">{rankedTeams.length}</p>
-                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Teams</p>
-                </div>
-                <div className="h-10 w-px bg-white/10" />
-                <div>
-                    <p className="text-2xl font-normal text-white">{players.length}</p>
-                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Players</p>
-                </div>
-                <div className="h-10 w-px bg-white/10" />
-                <div>
-                    <p className="text-2xl font-normal text-amber-400">{tierCounts.ELITE}</p>
-                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Elite Teams</p>
-                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <p className="p-5 text-sm text-ink-3">Select a club to see its roster, budget and board expectations.</p>
+                    )}
+                </Panel>
             </div>
         </div>
     )

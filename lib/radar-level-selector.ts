@@ -1,47 +1,43 @@
-import type { RadarBombState, RadarKillLine, RadarPlayerDot } from "@/lib/radar-position-engine"
+import type { RadarScene } from "@/lib/radar-scene"
 
 type RadarLevel = "upper" | "lower"
 
-interface ResolveRadarLevelInput {
-    isDualLevel: boolean
-    currentLevel: RadarLevel
-    currentTime?: number
-    bombState?: RadarBombState
-    killLines?: RadarKillLine[]
-    radarDots?: RadarPlayerDot[]
-}
+/** Seconds a kill keeps the radar on its floor. */
+const RECENT_KILL_SECONDS = 2
 
-export function resolveAutoRadarLevel(input: ResolveRadarLevelInput): RadarLevel {
-    if (!input.isDualLevel) return "upper"
+/**
+ * Floor a two-level radar should show in "auto": the bomb's floor while it is
+ * being planted / planted / defused, else the floor of the most recent kill
+ * (within 2 s), else where most living players are; ties keep the current
+ * floor. Single-level maps always show "upper". Reads a sampled scene, so it
+ * works the same for round scripts and snapshots, and allocates nothing.
+ */
+export function sceneAutoFloor(scene: RadarScene, current: RadarLevel, dualLevel: boolean): RadarLevel {
+    if (!dualLevel) return "upper"
+    const bomb = scene.bomb
+    if (bomb.hasPos && (bomb.phase === "planting" || bomb.phase === "planted" || bomb.phase === "defusing")) return bomb.floor
 
-    if (
-        input.bombState?.planted
-        && !input.bombState.defused
-        && !input.bombState.exploded
-        && input.bombState.level
-    ) {
-        return input.bombState.level
+    let recentAge = Infinity
+    let recentFloor: RadarLevel | null = null
+    for (let i = 0; i < scene.deathCount; i++) {
+        const d = scene.deaths[i]
+        if (d.age <= RECENT_KILL_SECONDS && d.age < recentAge) { recentAge = d.age; recentFloor = d.floor }
     }
-
-    const now = typeof input.currentTime === "number" ? input.currentTime : undefined
-    const recentKillLines = (input.killLines || [])
-        .filter(line => !!line.level)
-        .filter(line => (now == null ? true : now - line.time <= 2))
-        .sort((a, b) => b.time - a.time)
-
-    if (recentKillLines.length > 0 && recentKillLines[0].level) {
-        return recentKillLines[0].level
+    for (let i = 0; i < scene.tracerCount; i++) {
+        const tr = scene.tracers[i]
+        if (tr.age <= RECENT_KILL_SECONDS && tr.age < recentAge) { recentAge = tr.age; recentFloor = tr.floor }
     }
+    if (recentFloor) return recentFloor
 
-    let upperAlive = 0
-    let lowerAlive = 0
-    for (const dot of input.radarDots || []) {
-        if (!dot.isAlive || !dot.level) continue
-        if (dot.level === "lower") lowerAlive++
-        else upperAlive++
+    let upper = 0
+    let lower = 0
+    for (let i = 0; i < scene.playerCount; i++) {
+        const p = scene.players[i]
+        if (!p.alive) continue
+        if (p.floor === "lower") lower++
+        else upper++
     }
-
-    if (lowerAlive > upperAlive) return "lower"
-    if (upperAlive > lowerAlive) return "upper"
-    return input.currentLevel
+    if (lower > upper) return "lower"
+    if (upper > lower) return "upper"
+    return current
 }

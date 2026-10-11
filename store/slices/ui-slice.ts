@@ -22,7 +22,7 @@ import { gameCalendarDate } from "@/lib/game-calendar"
  * Immer draft graph and lose mutations.
  */
 
-import type { UIActions, SliceCreator } from "@/store/types"
+import type { UIActions, SliceCreator, StoreState } from "@/store/types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { toastSoundFor } from "@/lib/audio-feedback"
 import { soundManager } from "@/lib/sound-manager"
@@ -44,6 +44,15 @@ const LOW_PRIORITY_TOASTS = new Set(["info", "xp_gain"])
 let toastIdCounter = 0
 const nextToastId = (): string =>
     `toast_${Date.now().toString(36)}_${(toastIdCounter++).toString(36)}`
+
+/**
+ * A decision the manager made on a modal is saved at once: otherwise a reload
+ * before the next week tick brings the decided modal back.
+ */
+function persistDecision(get: () => StoreState): void {
+    const s = get()
+    if (s.isInitialized && s.saveId) void s.saveGame?.()?.catch(() => { /* surfaced by saveGame */ })
+}
 
 export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
     // === Setters ===
@@ -78,17 +87,14 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         state.pendingCelebration = null
     }),
 
-    dismissWeekReveal: () => set((state) => {
-        state.weekReveal = null
-    }),
-
-    clearPendingSeasonRecap: () => set((state) => {
-        state.pendingSeasonRecap = null
-    }),
-
-    clearLegendPick: () => set((state) => {
-        state.pendingLegendPick = null
-    }),
+    // Declining the legend pick is final (the offer is keyed once per title).
+    clearLegendPick: () => {
+        if (!get().pendingLegendPick) return
+        set((state) => {
+            state.pendingLegendPick = null
+        })
+        persistDecision(get)
+    },
 
     setWeeklyActivity: (type) => { set((state) => {
         const activity = WEEKLY_ACTIVITIES[type]
@@ -99,9 +105,10 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
     }); if (get().isInitialized && get().selectedWeeklyActivity === type) void get().saveGame?.() },
 
     selectLegend: (legendId: string) => {
+        if (!get().pendingLegendPick) return
         // Refuse a signing the club can't carry (the modal disables it too);
         // the pick stays open so the manager can choose another or decline.
-        const quote = get().pendingLegendPick ? quoteLegendSigning(get(), legendId) : null
+        const quote = quoteLegendSigning(get(), legendId)
         if (quote && !quote.affordable) {
             get().addToast({ message: `Can't afford this legend: ${formatCurrency(quote.salary, "$", false)}/week would leave ${quote.runwayWeeks} weeks of cash (need ${LEGEND_MIN_RUNWAY_WEEKS}).`, type: "warning" })
             return
@@ -149,6 +156,7 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         // Clear the pick modal trigger.
         state.pendingLegendPick = null
         })
+        if (!get().pendingLegendPick) persistDecision(get)
     },
 
     // === Getters ===

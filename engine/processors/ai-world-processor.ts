@@ -21,6 +21,7 @@ import { SeededRNG } from "../rng"
 import { AIManager } from "../ai-manager"
 import { StaffGenerator } from "../staff-generator"
 import { generateProspect } from "../prospect-generator"
+import { ensurePersonality } from "../personality"
 import { PlayerRole } from "@/types/enums"
 import { logger } from "@/lib/logger"
 import { processFreeAgentMarket, freeAgentScoutingFactor, hashRoll } from "./free-agent-market"
@@ -183,6 +184,8 @@ function generateYouthIntake(save: GameSave, playerTeamId: string, rng: SeededRN
                 xpToNextLevel: 1000,
                 level: 1,
             }
+            // Phase 5.2: the intake keeps the type he rolled as his archetype.
+            ensurePersonality(newProspect, identity.archetype)
 
             save.players.push(newProspect)
 

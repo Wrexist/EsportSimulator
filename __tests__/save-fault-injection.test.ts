@@ -741,7 +741,9 @@ const NON_CAREER_STORE_KEYS = [
     // new-game setup inputs and a static shop catalogue
     "selectedRegions", "availableEquipment",
     // transient UI / runtime
-    "weekReveal", "weekProgress", "toasts", "isLoading", "error", "lastLoadError", "isInitialized", "_hasHydrated",
+    "weekProgress", "toasts", "isLoading", "error", "lastLoadError", "isInitialized", "_hasHydrated",
+    // Continue run + weekly report UI (the reports themselves are saved as weekReports)
+    "continueRun", "advanceStop", "advanceSeenKeys", "weekReportOpen", "weekReportToast",
     // indexes rebuilt on hydration
     "_teamIndex", "_playerIndex", "_contractByPlayerIndex", "_staffIndex", "_completedMatchIds",
 ]
@@ -758,12 +760,26 @@ function sentinelCareer(): GameSave {
     tactics.FULL.ct.primaryWeaponId = "rt-weapon"
     return Object.assign(save, {
         saveId: "save_roundtrip_sentinel",
+        weekReports: {
+            tracker: {
+                week: 9, teamId: team,
+                baseline: { teamId: team, week: 9, budget: 1000, reputation: 50, chemistry: 50, elo: 1500, worldRanking: 3, board: 38, players: [], contracts: {}, ledger: [] },
+                changes: [{ kind: "morale", subjectId: player, label: "Morale", delta: 5, cause: { type: "match", label: "Beat RT 2–0" } }],
+            },
+            history: [{
+                v: 1, week: 8, teamId: team, headline: "RT week.",
+                changes: [{ kind: "money", subjectId: team, label: "Player salaries", delta: -100, cause: { type: "salary", label: "Player wages" } }],
+                matches: [], warnings: [], names: { [player]: "RT" },
+                kpis: { budget: [1, 2], rank: [3, 3], elo: [1500, 1500], board: [38, 38], chemistry: [50, 50], morale: [60, 60], reputation: [50, 50] },
+            }],
+        },
         lastRngSeed: 987654,
         lastCommittedWeekTick: 9,
         currentDay: 3,
         selectedWeeklyActivity: "BOOTCAMP",
         firstSession: { version: 2, status: "active", reviewed: ["squad"], baseline: { week: 8, lastResultId: null, rosterIds: [player] } },
         customTactics: tactics,
+        autoTactics: true,
         watchlistedPlayerIds: [player],
         activeMatchId: "rt-match",
         activeMatchState: { matchId: "rt-match", gameState: { round: 4 }, simState: { currentRound: 4 }, homeRoster: [], awayRoster: [], logs: ["rt-log"], originalHomePlayers: [], originalAwayPlayers: [], matchResult: { score: "3-1" }, roundTime: 40, bombTime: 0, isBombPlanted: false, isWaitingForStrategy: true },
@@ -784,10 +800,11 @@ function sentinelCareer(): GameSave {
         transferHistory: [{ id: "rt-transfer", playerId: player, week: 6 }],
         legendaryPlayers: [],
         pendingCelebration: { type: "rt-celebration" },
-        pendingSeasonRecap: 1,
         pendingLegendPick: { tournamentName: "rt-major" },
         signedLegendIds: ["rt-legend"],
         activelyPlayingLegendIds: ["rt-active-legend"],
+        momentQueue: [{ key: "rt-moment", kind: "welcome", week: 8, teamId: team }],
+        seenMomentKeys: ["rt-seen-moment"],
         academyPlayers: [{ id: "rt-prospect", nickname: "Kid" }],
         academyMatchHistory: [{ id: "rt-academy-match" }],
         academyRoster: { IGL: "rt-prospect", Entry: null, AWPer: null, Support: null, Rifler: null },
@@ -795,7 +812,7 @@ function sentinelCareer(): GameSave {
         academyWeeklyReports: [{ week: 8, summary: "rt" }],
         academyScoutingMissions: [{ id: "rt-academy-scout" }],
         academyPendingProspects: ["rt-pending"],
-        fplData: { season: 1, gameweek: 3, playerStats: {}, seasonHistory: [], nonProPlayers: [], fplStandings: [], fplCStandings: [] },
+        league: { version: 1, history: [{ id: "rt-split", season: 1, split: 1, divisions: [] }] },
         careerStats: { seasons: [], totalSeasons: 1, totalMatches: 20, totalWins: 12, totalLosses: 8, totalTournamentWins: 1, totalPrizeMoney: 5000, peakWorldRanking: 3, peakElo: 1700, teamsManaged: [team], lastUpdatedWeek: 9 },
         boardState: { teamId: team, confidence: 38, seasonExpectation: "CONTEND", expectationSetSeason: 1, lastReviewedSeason: 0, onNotice: true, lastPulseWeek: 8 },
         socialFeed: [{ id: "rt-post", week: 8, user: { name: "n", handle: "h", avatar: "a" }, content: "rt", timestamp: "now", likes: 1, retweets: 0, replies: 0 }],
@@ -848,9 +865,9 @@ describe("durable state round-trips through buildSaveSnapshot → disk → fresh
         await useGameStore.getState().loadGame(other.saveId)
         const otherExpected = snapshotJson()
         await useGameStore.getState().loadGame(seeded.saveId)
-        expect(useGameStore.getState()).toMatchObject({ fplData: seeded.fplData, careerStats: seeded.careerStats, boardState: seeded.boardState })
+        expect(useGameStore.getState()).toMatchObject({ league: seeded.league, careerStats: seeded.careerStats, boardState: seeded.boardState })
         await useGameStore.getState().loadGame(other.saveId)
-        for (const key of ["fplData", "careerStats", "boardState", "socialFeed", "activeScoutingMission", "gameOverReason"] as const) {
+        for (const key of ["league", "careerStats", "boardState", "socialFeed", "activeScoutingMission", "gameOverReason"] as const) {
             expect({ key, value: useGameStore.getState()[key] ?? null }).toEqual({ key, value: null })
         }
         const switched = snapshotJson()

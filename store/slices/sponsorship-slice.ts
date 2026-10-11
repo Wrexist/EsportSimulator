@@ -29,7 +29,7 @@ export const createSponsorshipSlice: SliceCreator<SponsorshipActions> = (set) =>
             // the same week are stable (same seed + same week = same set).
             const rng = new SeededRNG(state.lastRngSeed + state.currentWeek * 7919)
             state.sponsorOffers = SponsorGenerator.generateVariedOffers(team, state.currentWeek, rng,
-                EconomyEngine.weeklyWageBill(team, state.contracts, state.staff || [], state.currentWeek + 1))
+                EconomyEngine.sponsorCostBase(team, state.contracts, state.staff || [], state.currentWeek + 1))
             state.declinedSponsorOfferIds = []
         })
     },

@@ -13,6 +13,9 @@
  */
 
 import { FinanceProcessor } from "@/engine/processors/finance-processor"
+import { EquipmentManager } from "@/engine/equipment-manager"
+import { clubOperationsCost, leagueCentralPayment } from "@/lib/balance-tuning"
+import { moneyCause } from "@/lib/week-changes"
 import type { GameSave, TeamSaveData, PlayerSaveData, ContractSaveData, StaffSaveData } from "@/engine/save-types"
 
 function makeTeam(overrides: Partial<TeamSaveData> = {}): TeamSaveData {
@@ -69,7 +72,7 @@ function makeSave(team: TeamSaveData, playerTeamId = "t1", overrides: Partial<Ga
 }
 
 describe("FinanceProcessor.processFinance", () => {
-    test("stable team with no expenses stays STABLE and budget grows", () => {
+    test("stable team with no wages stays STABLE and budget grows", () => {
         const team = makeTeam({ budget: 200_000, reputation: 80, fanbase: 50_000 })
         const save = makeSave(team)
 
@@ -79,7 +82,8 @@ describe("FinanceProcessor.processFinance", () => {
         expect(team.financialState).toBe("STABLE")
         expect(team.budget).toBeGreaterThan(before)
         expect(result.income).toBeGreaterThan(0)
-        expect(result.expenses).toBe(0)
+        // Club operations are the only running cost without wages (Phase 4.4).
+        expect(result.expenses).toBe(clubOperationsCost(80))
     })
 
     test("equipment weekly cost is deducted from the player team budget", () => {
@@ -115,7 +119,9 @@ describe("FinanceProcessor.processFinance", () => {
 
         // Pre-fix the equipment team's weeklyNet stayed at the pre-equipment
         // value, reading $1000 too high; now it's exactly its upkeep lower.
-        expect(baselineTeam.weeklyNet - equipTeam.weeklyNet).toBe(1000)
+        // Phase 4.4 gear parity: an AI club without gear pays for the implicit
+        // gear it plays with, so owned gear replaces that upkeep.
+        expect(baselineTeam.weeklyNet - equipTeam.weeklyNet).toBe(1000 - EquipmentManager.implicitWeeklyCost(baselineTeam))
     })
 
     test("AI team equipment cost is deducted but NOT logged to ledger", () => {
@@ -135,14 +141,14 @@ describe("FinanceProcessor.processFinance", () => {
         // Ledger is for the player team only.
         expect(saveWithEquip.financeLedger.length).toBe(0)
         // The equipment cost lands on the AI team's budget — the only
-        // difference between the two saves should be exactly the $1000
-        // weekly cost.
-        expect(baselineTeam.budget - aiTeam.budget).toBe(1000)
+        // difference between the two saves is the $1000 weekly cost minus the
+        // implicit-gear upkeep it replaces (Phase 4.4 gear parity).
+        expect(baselineTeam.budget - aiTeam.budget).toBe(1000 - EquipmentManager.implicitWeeklyCost(baselineTeam))
     })
 
     test("budget warning event emits when state degrades from STABLE", () => {
-        // LEAGUE_REVENUE_SHARE alone is $15k/week + ~$3.5k sponsor floor for
-        // rep 10. To force a deficit, salaries need to be > $18,500/week.
+        // Wages of $27k/week dwarf the league payment and base partner income
+        // of a reputation-10 club, so the week runs a deficit.
         const team = makeTeam({
             id: "t1",
             budget: 20_000, // small budget so runway is short
@@ -172,25 +178,33 @@ describe("FinanceProcessor.processFinance", () => {
         expect(warnings.length).toBe(1)
     })
 
-    test("league revenue share is written to the player ledger (reconciles with budget)", () => {
-        const team = makeTeam({ id: "t1", budget: 200_000, reputation: 60, fanbase: 5_000 })
+    test("league central payment and club operations are written to the player ledger (reconciles with budget)", () => {
+        const team = makeTeam({ id: "t1", budget: 200_000, reputation: 60, fanbase: 5_000, leagueDivisionLevel: 2 })
         const save = makeSave(team)
+        const before = team.budget
 
         FinanceProcessor.processFinance(save, "t1")
 
         const leagueRow = save.financeLedger.find(e => e.id.includes("inc_league"))
         expect(leagueRow).toBeDefined()
         expect(leagueRow!.type).toBe("INCOME")
-        expect(leagueRow!.amount).toBe(15_000)
+        expect(leagueRow!.amount).toBe(leagueCentralPayment(2))
+        expect(leagueRow!.description).toContain("League central payment")
+        const ops = save.financeLedger.find(e => e.id.startsWith("exp_ops_"))
+        expect(ops).toMatchObject({ type: "EXPENSE", amount: clubOperationsCost(60), description: "Club operations (travel, admin, content)" })
+        // The weekly report names both lines with a cause.
+        expect(moneyCause(ops!.category, ops!.description).label).toBe("Club operations")
+        expect(moneyCause(leagueRow!.category, leagueRow!.description).label).toBe("League")
+        // Every movement has a row: rows reconcile with the budget change.
+        const net = save.financeLedger.reduce((s, e) => s + (e.type === "INCOME" ? e.amount : -e.amount), 0)
+        expect(net).toBeCloseTo(team.budget - before, 6)
 
         // The ledger income entries must sum to exactly the reported income —
         // previously the $15k league share inflated the budget without a row.
         const income = save.financeLedger
             .filter(e => e.type === "INCOME")
             .reduce((s, e) => s + e.amount, 0)
-        // Income entries (sponsor floor + fanbase + league share) now include
-        // the league share, so the sum covers the full reported income.
-        expect(income).toBeGreaterThanOrEqual(15_000)
+        expect(income).toBeGreaterThanOrEqual(leagueCentralPayment(2))
     })
 
     test("equipment-driven insolvency feeds the consecutive-insolvency bankruptcy gate", () => {

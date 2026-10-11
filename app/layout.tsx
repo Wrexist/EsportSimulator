@@ -1,25 +1,14 @@
 import { SkipToContent } from '@/lib/accessibility'
 import type { Metadata, Viewport } from 'next'
-import localFont from 'next/font/local'
 import { ConsoleToTerminal } from '@/components/console-to-terminal'
+import './fonts.css'
 import './globals.css'
 import './premium-ui.css'
-
-// Self-hosted Archivo Black (was next/font/google). Bundling the woff2 keeps the
-// production build fully offline — no build-time fetch to fonts.gstatic.com, which
-// is blocked on restricted/corporate networks and breaks `next build`.
-const archivoBlack = localFont({
-  src: './fonts/archivo-black-latin-400-normal.woff2',
-  weight: '400',
-  style: 'normal',
-  display: 'swap',
-  variable: '--font-archivo',
-});
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0e1217',
+  themeColor: '#07090c',
 }
 
 export const metadata: Metadata = {
@@ -43,7 +32,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${archivoBlack.variable} font-sans antialiased bg-[#0e1217] text-foreground`}>
+      <body className="font-sans antialiased bg-background text-foreground">
         <SkipToContent />
         <ColorblindFilters />
         <ErrorBoundary>

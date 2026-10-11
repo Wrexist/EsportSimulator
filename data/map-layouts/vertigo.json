@@ -6,7 +6,6 @@
     "upper": "de_vertigo_radar_psd_1",
     "lower": "de_vertigo_lower_radar_psd_2"
   },
-  "bSiteLevel": "lower",
   "tSpawn": [
     {
       "x": 38,

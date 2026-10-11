@@ -2,15 +2,12 @@
 
 import { loadCareerDraft, saveCareerDraft, clearCareerDraft } from '@/lib/new-career-draft'
 import { useState, useEffect, useRef } from "react"
-import type { LucideIcon } from "lucide-react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { debug } from "@/lib/debug-logger"
-import { motion, AnimatePresence } from "framer-motion"
-import { HelpTooltip } from "@/components/ui/stat-tooltip"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import {
     AlertDialog,
     AlertDialogContent,
@@ -21,20 +18,7 @@ import {
     AlertDialogCancel,
     AlertDialogAction,
 } from "@/components/ui/alert-dialog"
-import {
-    ArrowLeft,
-    ArrowRight,
-    Check,
-    Shield,
-    MapPin,
-    Palette,
-    Trophy,
-    PlayCircle,
-    Sparkles,
-    Star,
-    AlertCircle,
-    Gamepad2,
-} from "lucide-react"
+import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import { toast } from "@/lib/toast"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -50,17 +34,42 @@ import { RosterBuilderModal } from "@/components/onboarding/RosterBuilderModal"
 import { customClubStartingCash, describeClubChallenge } from "@/lib/club-expectations"
 import { ImageUploader } from "@/components/ui/ImageUploader"
 import { formatCurrency } from "@/lib/utils-extended"
+import { Panel } from "@/src/components/ui/Panel"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 
 // Wizard steps
 type WizardStep = "name" | "region" | "colors" | "difficulty" | "review"
 
-const STEPS: { id: WizardStep; label: string; icon: LucideIcon }[] = [
-    { id: "name", label: "Team Name", icon: Shield },
-    { id: "region", label: "Region", icon: MapPin },
-    { id: "colors", label: "Colors", icon: Palette },
-    { id: "difficulty", label: "Difficulty", icon: Trophy },
-    { id: "review", label: "Review", icon: Check },
+const STEPS: { id: WizardStep; label: string; title: string; subtitle: string }[] = [
+    { id: "name", label: "Name", title: "Name your club", subtitle: "Your manager name, the club name and a 2–5 letter tag." },
+    { id: "region", label: "Region", title: "Home region", subtitle: "Decides which regional qualifier you are entered into first." },
+    { id: "colors", label: "Colours", title: "Club colours", subtitle: "Pick a colour pair, or upload your own logo." },
+    { id: "difficulty", label: "Difficulty", title: "Difficulty", subtitle: "Sets starting cash, reputation and recurring income. Match simulation is the same on every difficulty." },
+    { id: "review", label: "Review", title: "Review", subtitle: "Check everything before the club is founded." },
 ]
+
+// Club region -> regional qualifier it enters first (engine/processors/auto-registration-processor.ts).
+const QUALIFIER_FOR: Record<TeamRegion, string> = {
+    EU: "Europe", CIS: "Europe", NA: "North America", SA: "North America", ASIA: "Asia", OCEANIA: "Asia",
+}
+
+const fieldLabel = "block text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3"
+
+/** The club's crest preview: the uploaded logo, or the tag on its colour pair. */
+function CrestPreview({ team, size }: { team: CustomTeamData; size: number }) {
+    if (team.logoData) {
+        // eslint-disable-next-line @next/next/no-img-element -- user-uploaded logo data URL; next/image adds nothing with images.unoptimized
+        return <img src={team.logoData} alt={team.name || "Team logo"} className="rounded-lg object-contain" style={{ width: size, height: size }} />
+    }
+    return (
+        <div
+            className="flex items-center justify-center rounded-lg font-display font-bold text-ink-1"
+            style={{ width: size, height: size, fontSize: size * 0.36, background: `linear-gradient(135deg, ${team.primaryColor} 0%, ${team.secondaryColor} 100%)` }}
+        >
+            {team.shortName.slice(0, 3) || "TAG"}
+        </div>
+    )
+}
 
 export default function CreateTeamPage() {
     const router = useRouter()
@@ -126,8 +135,8 @@ export default function CreateTeamPage() {
     // hideChrome page).
     const [showExitConfirm, setShowExitConfirm] = useState(false)
 
-    // Current step index
     const currentStepIndex = STEPS.findIndex(s => s.id === currentStep)
+    const step = STEPS[currentStepIndex]
 
     // Validate current step
     const validateStep = (): boolean => {
@@ -136,45 +145,34 @@ export default function CreateTeamPage() {
         switch (currentStep) {
             case "name":
                 if (!managerName.trim()) {
-                    newErrors.managerName = "Please enter your manager name"
+                    newErrors.managerName = "Enter your manager name"
                 } else if (managerName.trim().length < 2) {
                     newErrors.managerName = "Name must be at least 2 characters"
                 }
                 if (!teamData.name.trim()) {
-                    newErrors.teamName = "Please enter a team name"
+                    newErrors.teamName = "Enter a team name"
                 } else if (teamData.name.trim().length < 2) {
                     newErrors.teamName = "Team name must be at least 2 characters"
                 } else {
                     // Check if team name is already taken (inline to avoid circular deps)
                     const normalizedName = teamData.name.trim().toLowerCase()
-                    const nameExists = teams.some(t => t.name?.toLowerCase() === normalizedName)
-                    if (nameExists) {
+                    if (teams.some(t => t.name?.toLowerCase() === normalizedName)) {
                         newErrors.teamName = "This team name is already taken"
                     }
                 }
                 if (!teamData.shortName.trim()) {
-                    newErrors.shortName = "Please enter a team tag"
+                    newErrors.shortName = "Enter a team tag"
                 } else if (teamData.shortName.length < 2 || teamData.shortName.length > 5) {
-                    newErrors.shortName = "Tag must be 2-5 characters"
-                } else {
-                    // Check if team tag is unique
-                    const tagExists = teams.some(t =>
-                        t.shortName?.toUpperCase() === teamData.shortName.toUpperCase()
-                    )
-                    if (tagExists) {
-                        newErrors.shortName = "This team tag is already in use"
-                    }
+                    newErrors.shortName = "Tag must be 2–5 characters"
+                } else if (teams.some(t => t.shortName?.toUpperCase() === teamData.shortName.toUpperCase())) {
+                    newErrors.shortName = "This team tag is already in use"
                 }
                 break
             case "region":
-                if (!teamData.region) {
-                    newErrors.region = "Please select a region"
-                }
+                if (!teamData.region) newErrors.region = "Select a region"
                 break
             case "difficulty":
-                if (!teamData.difficulty) {
-                    newErrors.difficulty = "Please select a difficulty"
-                }
+                if (!teamData.difficulty) newErrors.difficulty = "Select a difficulty"
                 break
         }
 
@@ -182,25 +180,18 @@ export default function CreateTeamPage() {
         return Object.keys(newErrors).length === 0
     }
 
-    // Navigate to next step
     const goNext = () => {
         if (!validateStep()) return
-
         const nextIndex = currentStepIndex + 1
-        if (nextIndex < STEPS.length) {
-            setCurrentStep(STEPS[nextIndex].id)
-        }
+        if (nextIndex < STEPS.length) setCurrentStep(STEPS[nextIndex].id)
     }
 
-    // Navigate to previous step
     const goPrev = () => {
         const prevIndex = currentStepIndex - 1
         if (prevIndex >= 0) {
             setCurrentStep(STEPS[prevIndex].id)
         } else {
-            // Going back to new-game page - confirm if there's unsaved data.
-            // Uses an in-app dialog: window.confirm is suppressed in sandboxed
-            // Electron and would make this (the only) exit appear dead.
+            // Back to new-game; confirm in-app (window.confirm is suppressed in sandboxed Electron).
             if (hasUnsavedChanges) {
                 setShowExitConfirm(true)
                 return
@@ -209,10 +200,9 @@ export default function CreateTeamPage() {
         }
     }
 
-    // Get difficulty settings
     const difficultySettings = DIFFICULTY_SETTINGS[teamData.difficulty]
+    const startingCash = customClubStartingCash(difficultySettings.startingBudget)
 
-    // Handle team creation
     const handleCreateTeam = async () => {
         if (isCreating || creatingRef.current) return
         if (managerName.trim().length < 2 || teamData.name.trim().length < 2 || teamData.shortName.trim().length < 2) { setCurrentStep('name'); return }
@@ -220,16 +210,12 @@ export default function CreateTeamPage() {
         setIsCreating(true)
 
         try {
-            // Initialize custom team through game store
             await initializeCustomTeam(managerName.trim(), teamData)
 
-            // Check store error state (initializeCustomTeam sets error instead of throwing)
+            // initializeCustomTeam sets error instead of throwing
             const storeError = getStoreError()
             if (storeError) {
-                toast.error("Failed to create team", {
-                    description: storeError,
-                    duration: 8000,
-                })
+                toast.error("Failed to create team", { description: storeError, duration: 8000 })
                 creatingRef.current = false
                 setIsCreating(false)
                 return
@@ -238,548 +224,293 @@ export default function CreateTeamPage() {
             clearCareerDraft()
             setShowRosterBuilder(true)
         } catch (err) {
-            // Fallback for unexpected errors
             const msg = err instanceof Error ? err.message : "An unexpected error occurred"
             debug.error("Failed to create team:", err)
-            toast.error("Failed to create team", {
-                description: msg,
-                duration: 8000,
-            })
+            toast.error("Failed to create team", { description: msg, duration: 8000 })
             creatingRef.current = false
             setIsCreating(false)
         }
     }
 
-    // Handle roster builder completion
     const handleRosterComplete = () => {
         setShowRosterBuilder(false)
         router.push("/")
     }
 
-    // Render step content
+    const renderError = (key: string) => errors[key] ? <p className="text-xs font-medium text-negative">{errors[key]}</p> : null
+
     const renderStepContent = () => {
         switch (currentStep) {
             case "name":
                 return (
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="space-y-6"
-                    >
-                        <div className="text-center mb-8">
-                            <h2 className="text-2xl font-normal text-white mb-2">Create Your Team</h2>
-                            <p className="text-muted-foreground">Give your organization a name and identity</p>
-                        </div>
-
-                        {/* Manager Name */}
+                    <div className="space-y-5">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                                Manager Name
-                            </label>
+                            <label htmlFor="ct-manager" className={fieldLabel}>Manager name</label>
                             <Input
+                                id="ct-manager"
                                 type="text"
-                                placeholder="Your name..."
+                                placeholder="Your name"
                                 value={managerName}
+                                aria-invalid={!!errors.managerName || undefined}
                                 onChange={(e) => {
                                     setManagerName(e.target.value)
                                     if (errors.managerName) setErrors({ ...errors, managerName: "" })
                                 }}
-                                className={cn(
-                                    "h-12 bg-white/5 border-white/10 rounded-xl",
-                                    errors.managerName && "border-red-500/50"
-                                )}
+                                className="h-11"
                             />
-                            {errors.managerName && (
-                                <p className="text-red-400 text-xs flex items-center gap-1">
-                                    <AlertCircle size={12} />
-                                    {errors.managerName}
-                                </p>
-                            )}
+                            {renderError("managerName")}
                         </div>
-
-                        {/* Team Name */}
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                                Team Name
-                            </label>
+                            <label htmlFor="ct-team" className={fieldLabel}>Team name</label>
                             <Input
+                                id="ct-team"
                                 type="text"
-                                placeholder="e.g., Team Phoenix"
+                                placeholder="e.g. Team Phoenix"
                                 value={teamData.name}
+                                aria-invalid={!!errors.teamName || undefined}
                                 onChange={(e) => {
                                     setTeamData({ ...teamData, name: e.target.value })
                                     if (errors.teamName) setErrors({ ...errors, teamName: "" })
                                 }}
-                                className={cn(
-                                    "h-12 bg-white/5 border-white/10 rounded-xl",
-                                    errors.teamName && "border-red-500/50"
-                                )}
+                                className="h-11"
                             />
-                            {errors.teamName && (
-                                <p className="text-red-400 text-xs flex items-center gap-1">
-                                    <AlertCircle size={12} />
-                                    {errors.teamName}
-                                </p>
-                            )}
+                            {renderError("teamName")}
                         </div>
-
-                        {/* Team Tag */}
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                                Team Tag (2-5 characters)
-                            </label>
+                            <label htmlFor="ct-tag" className={fieldLabel}>Team tag (2–5 characters)</label>
                             <Input
+                                id="ct-tag"
                                 type="text"
-                                placeholder="e.g., PHX"
+                                placeholder="e.g. PHX"
                                 value={teamData.shortName}
+                                aria-invalid={!!errors.shortName || undefined}
                                 onChange={(e) => {
                                     const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5)
                                     setTeamData({ ...teamData, shortName: value })
                                     if (errors.shortName) setErrors({ ...errors, shortName: "" })
                                 }}
                                 maxLength={5}
-                                className={cn(
-                                    "h-12 bg-white/5 border-white/10 rounded-xl uppercase font-mono text-lg tracking-widest",
-                                    errors.shortName && "border-red-500/50"
-                                )}
+                                className="h-11 w-40 font-mono uppercase tracking-[0.2em]"
                             />
-                            {errors.shortName && (
-                                <p className="text-red-400 text-xs flex items-center gap-1">
-                                    <AlertCircle size={12} />
-                                    {errors.shortName}
-                                </p>
-                            )}
+                            {renderError("shortName")}
                         </div>
-
-                        {/* Preview */}
-                        {teamData.name && teamData.shortName && (
-                            <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-                                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Preview</p>
-                                <div className="flex items-center gap-3">
-                                    <div
-                                        className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold"
-                                        style={{ backgroundColor: teamData.primaryColor + "30", color: teamData.primaryColor }}
-                                    >
-                                        {teamData.shortName.slice(0, 2)}
-                                    </div>
-                                    <div>
-                                        <p className="text-white font-bold">{teamData.name}</p>
-                                        <p className="text-muted-foreground text-sm">[{teamData.shortName}]</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </motion.div>
+                    </div>
                 )
 
             case "region":
                 return (
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="space-y-6"
-                    >
-                        <div className="text-center mb-8">
-                            <h2 className="text-2xl font-normal text-white mb-2">Select Your Region</h2>
-                            <p className="text-muted-foreground">Choose where your team will be based</p>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                            {(Object.entries(REGION_INFO) as [TeamRegion, typeof REGION_INFO[TeamRegion]][]).map(([key, info]) => (
-                                <button
-                                    key={key}
-                                    onClick={() => setTeamData({ ...teamData, region: key })}
-                                    className={cn(
-                                        "p-4 rounded-xl border transition-all text-left",
-                                        teamData.region === key
-                                            ? "bg-primary/10 border-primary text-white"
-                                            : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
-                                    )}
-                                >
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <span className="text-2xl">{getRegionEmoji(key)}</span>
-                                        <div>
-                                            <p className="font-bold text-white">{info.label}</p>
-                                            <p className="text-xs text-muted-foreground">{key}</p>
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground">{info.description}</p>
-                                </button>
-                            ))}
-                        </div>
-                    </motion.div>
+                    <ul className="divide-y divide-line rounded-md border border-line" role="radiogroup" aria-label="Home region">
+                        {(Object.entries(REGION_INFO) as [TeamRegion, typeof REGION_INFO[TeamRegion]][]).map(([key, info]) => {
+                            const selected = teamData.region === key
+                            return (
+                                <li key={key}>
+                                    <button
+                                        type="button"
+                                        role="radio"
+                                        aria-checked={selected}
+                                        onClick={() => setTeamData({ ...teamData, region: key })}
+                                        className={cn("flex w-full items-center gap-3 border-l-2 px-4 py-3 text-left transition-colors", selected ? "border-gold bg-hover" : "border-transparent hover:bg-raised")}
+                                    >
+                                        <span className="w-16 text-xs font-semibold text-ink-3">{key}</span>
+                                        <span className="min-w-0 flex-1">
+                                            <span className="block text-sm font-semibold text-ink-1">{info.label}</span>
+                                            <span className="block text-xs text-ink-3">Enters the {QUALIFIER_FOR[key]} regional qualifier first</span>
+                                        </span>
+                                        {selected && <Check size={16} className="text-gold" />}
+                                    </button>
+                                </li>
+                            )
+                        })}
+                    </ul>
                 )
 
             case "colors":
                 return (
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="space-y-6"
-                    >
-                        <div className="text-center mb-8">
-                            <h2 className="text-2xl font-normal text-white mb-2">Team Colors</h2>
-                            <p className="text-muted-foreground">Choose your team&apos;s brand colors</p>
-                        </div>
-
-                        <div className="grid grid-cols-6 gap-3">
-                            {PRESET_COLORS.map((colors, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setTeamData({
-                                        ...teamData,
-                                        logoIndex: index,
-                                        primaryColor: colors.primary,
-                                        secondaryColor: colors.secondary
-                                    })}
-                                    className={cn(
-                                        "aspect-square rounded-xl border-2 transition-all relative overflow-hidden",
-                                        teamData.logoIndex === index
-                                            ? "border-white scale-110 shadow-lg"
-                                            : "border-transparent hover:border-white/30"
-                                    )}
-                                    style={{
-                                        background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`
-                                    }}
-                                >
-                                    {teamData.logoIndex === index && (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                            <Check className="text-white" size={20} />
-                                        </div>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Custom Logo Upload */}
-                        <div className="border-t border-white/10 pt-6">
-                            <div className="text-center mb-4">
-                                <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-1">Custom Logo (Optional)</h3>
-                                <p className="text-xs text-muted-foreground">Upload your own team logo</p>
+                    <div className="space-y-6">
+                        <div>
+                            <p className={cn(fieldLabel, "mb-2")}>Colour pair</p>
+                            <div className="grid grid-cols-6 gap-2" role="radiogroup" aria-label="Colour pair">
+                                {PRESET_COLORS.map((colors, index) => {
+                                    const selected = teamData.logoIndex === index
+                                    return (
+                                        <button
+                                            key={index}
+                                            type="button"
+                                            role="radio"
+                                            aria-checked={selected}
+                                            aria-label={`Colour pair ${index + 1}`}
+                                            onClick={() => setTeamData({ ...teamData, logoIndex: index, primaryColor: colors.primary, secondaryColor: colors.secondary })}
+                                            className={cn("relative aspect-square rounded-md border-2 transition-colors", selected ? "border-gold" : "border-transparent hover:border-line-strong")}
+                                            style={{ background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)` }}
+                                        >
+                                            {selected && <Check className="absolute inset-0 m-auto text-ink-1" size={18} />}
+                                        </button>
+                                    )
+                                })}
                             </div>
+                        </div>
+                        <div>
+                            <p className={cn(fieldLabel, "mb-2")}>Custom logo (optional)</p>
                             <ImageUploader
                                 value={teamData.logoData}
                                 onChange={(logoData) => setTeamData({ ...teamData, logoData })}
                                 maxSize={200}
                             />
                         </div>
-
-                        {/* Preview */}
-                        <div className="p-6 bg-white/5 rounded-xl border border-white/10 text-center">
-                            {teamData.logoData ? (
-                                // eslint-disable-next-line @next/next/no-img-element -- user-uploaded logo data URL; next/image adds nothing with images.unoptimized
-                                <img
-                                    src={teamData.logoData}
-                                    alt="Team logo"
-                                    className="w-20 h-20 rounded-2xl mx-auto mb-4 object-contain shadow-lg border-2"
-                                    style={{ borderColor: teamData.primaryColor }}
-                                />
-                            ) : (
-                                <div
-                                    className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl font-bold shadow-lg"
-                                    style={{
-                                        background: `linear-gradient(135deg, ${teamData.primaryColor} 0%, ${teamData.secondaryColor} 100%)`,
-                                        color: "white"
-                                    }}
-                                >
-                                    {teamData.shortName.slice(0, 2) || "??"}
-                                </div>
-                            )}
-                            <p className="text-white font-bold">{teamData.name || "Team Name"}</p>
-                            <p className="text-muted-foreground text-sm">[{teamData.shortName || "TAG"}]</p>
-                        </div>
-                    </motion.div>
+                    </div>
                 )
 
             case "difficulty":
                 return (
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="space-y-6"
-                    >
-                        <div className="text-center mb-8">
-                            <h2 className="text-2xl font-normal text-white mb-2">Select Difficulty</h2>
-                            <p className="text-muted-foreground">Sets starting cash, reputation and recurring income. Match simulation is the same on every difficulty.</p>
-                            {/* Explain the three tile stats at the commitment moment (E6).
-                                Tooltips live here, outside the difficulty <button>s, so we
-                                don't nest interactive triggers inside a button. */}
-                            <div className="flex items-center justify-center gap-4 mt-3 text-[11px] text-muted-foreground">
-                                <span className="inline-flex items-center gap-1">
-                                    Budget
-                                    <HelpTooltip size={12} content="Your starting cash — it funds player salaries, transfer fees, and facility upgrades. Harder difficulties start you with less." />
-                                </span>
-                                <span className="inline-flex items-center gap-1">
-                                    Reputation
-                                    <HelpTooltip size={12} content="Your org's standing in the scene. Higher reputation attracts better players and stronger sponsor offers." />
-                                </span>
-                                <span className="inline-flex items-center gap-1">
-                                    Income
-                                    <HelpTooltip size={12} content="A multiplier on recurring sponsor and merchandise income — Tournament prizes are handled separately. Below 1.0× on harder difficulties." />
-                                </span>
-                            </div>
-                        </div>
-
-                        <p className="text-xs text-slate-400">{draftSaved ? 'Setup saved on this device. Uploaded logos over 500 KB need to be selected again after reload.' : 'Setup could not be saved. Keep this page open until you finish.'}</p>
-                        <div className="space-y-3">
-                            {(Object.entries(DIFFICULTY_SETTINGS) as [GameDifficulty, typeof DIFFICULTY_SETTINGS[GameDifficulty]][]).map(([key, settings]) => (
-                                <button
-                                    key={key}
-                                    onClick={() => setTeamData({ ...teamData, difficulty: key })}
-                                    aria-pressed={teamData.difficulty === key}
-                                    className={cn(
-                                        "w-full p-4 rounded-xl border transition-all text-left",
-                                        teamData.difficulty === key
-                                            ? "bg-primary/10 border-primary"
-                                            : "bg-white/5 border-white/10 hover:bg-white/10"
-                                    )}
-                                >
-                    <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center gap-3">
-                                            <DifficultyIcon difficulty={key} />
-                                            <div>
-                                                <p className="font-bold text-white">{settings.label}</p>
-                                                <p className="text-xs text-muted-foreground">{settings.description}</p>
-                                            </div>
-                                        </div>
-                                        {teamData.difficulty === key && (
-                                            <Check className="text-primary" size={20} />
-                                        )}
-                                    </div>
-                                    <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/5">
-                                        <div className="text-center">
-                                            <p className="text-lg font-bold text-emerald-400">{formatCurrency(customClubStartingCash(settings.startingBudget))}</p>
-                                            <p className="text-[10px] text-muted-foreground uppercase">Starting cash</p>
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-lg font-bold text-blue-400">{settings.startingReputation}</p>
-                                            <p className="text-[10px] text-muted-foreground uppercase">Reputation</p>
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-lg font-bold text-amber-400">{settings.incomeMultiplier}x</p>
-                                            <p className="text-[10px] text-muted-foreground uppercase">Income</p>
-                                        </div>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </motion.div>
+                    <div className="space-y-3">
+                        <p className="text-xs text-ink-3">{draftSaved ? 'Setup is saved on this device. Uploaded logos over 500 KB need to be picked again after a reload.' : 'Setup could not be saved. Keep this page open until you finish.'}</p>
+                        <ul className="divide-y divide-line rounded-md border border-line" role="radiogroup" aria-label="Difficulty">
+                            {(Object.entries(DIFFICULTY_SETTINGS) as [GameDifficulty, typeof DIFFICULTY_SETTINGS[GameDifficulty]][]).map(([key, settings]) => {
+                                const selected = teamData.difficulty === key
+                                return (
+                                    <li key={key}>
+                                        <button
+                                            type="button"
+                                            role="radio"
+                                            aria-checked={selected}
+                                            onClick={() => setTeamData({ ...teamData, difficulty: key })}
+                                            className={cn("flex w-full items-start gap-4 border-l-2 px-4 py-3 text-left transition-colors", selected ? "border-gold bg-hover" : "border-transparent hover:bg-raised")}
+                                        >
+                                            <span className="min-w-0 flex-1">
+                                                <span className="block text-sm font-semibold text-ink-1">{settings.label}</span>
+                                                <span className="block text-xs text-ink-3">{settings.description}</span>
+                                            </span>
+                                            <dl className="grid shrink-0 grid-cols-3 gap-4 text-right">
+                                                <div><dt className="text-[11px] text-ink-3">Cash</dt><dd className="text-sm font-semibold tabular-nums text-ink-1">{formatCurrency(customClubStartingCash(settings.startingBudget))}</dd></div>
+                                                <div><dt className="text-[11px] text-ink-3">Rep</dt><dd className="text-sm font-semibold tabular-nums text-ink-1">{settings.startingReputation}</dd></div>
+                                                <div><dt className="text-[11px] text-ink-3">Income</dt><dd className="text-sm font-semibold tabular-nums text-ink-1">{settings.incomeMultiplier}×</dd></div>
+                                            </dl>
+                                        </button>
+                                    </li>
+                                )
+                            })}
+                        </ul>
+                        <p className="text-xs text-ink-3">Income multiplies recurring sponsor and merchandise income; tournament prizes are handled separately.</p>
+                    </div>
                 )
 
-            case "review":
+            case "review": {
+                // Custom clubs enter the world ranking at #150 (initializeCustomTeam).
+                const challenge = describeClubChallenge({ worldRanking: 150, reputation: difficultySettings.startingReputation, starters: 0, budget: startingCash, custom: true })
                 return (
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="space-y-6"
-                    >
-                        <div className="text-center mb-8">
-                            <h2 className="text-2xl font-normal text-white mb-2">Review Your Team</h2>
-                            <p className="text-muted-foreground">Confirm your choices before starting</p>
-                        </div>
-
-                        {/* Team Preview Card */}
-                        <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
-                            <div className="flex items-center gap-4 mb-6">
-                                {teamData.logoData ? (
-                                    // eslint-disable-next-line @next/next/no-img-element -- user-uploaded logo data URL; next/image adds nothing with images.unoptimized
-                                    <img
-                                        src={teamData.logoData}
-                                        alt={teamData.name}
-                                        className="w-20 h-20 rounded-2xl object-contain shadow-lg border-2"
-                                        style={{ borderColor: teamData.primaryColor }}
-                                    />
-                                ) : (
-                                    <div
-                                        className="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-bold shadow-lg"
-                                        style={{
-                                            background: `linear-gradient(135deg, ${teamData.primaryColor} 0%, ${teamData.secondaryColor} 100%)`,
-                                            color: "white"
-                                        }}
-                                    >
-                                        {teamData.shortName.slice(0, 2)}
-                                    </div>
-                                )}
-                                <div>
-                                    <h3 className="text-xl font-bold text-white">{teamData.name}</h3>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <Badge variant="outline" className="text-xs">
-                                            [{teamData.shortName}]
-                                        </Badge>
-                                        <Badge variant="outline" className="text-xs">
-                                            {REGION_INFO[teamData.region].label}
-                                        </Badge>
-                                    </div>
+                    <div className="space-y-4">
+                        <dl className="divide-y divide-line rounded-md border border-line text-sm">
+                            {[
+                                ["Manager", managerName],
+                                ["Club", `${teamData.name} [${teamData.shortName}]`],
+                                ["Region", REGION_INFO[teamData.region].label],
+                                ["Difficulty", difficultySettings.label],
+                                ["Starting cash", formatCurrency(startingCash, "$", false)],
+                                ["Reputation", difficultySettings.startingReputation],
+                            ].map(([label, value]) => (
+                                <div key={label as string} className="flex justify-between px-4 py-2">
+                                    <dt className="text-ink-3">{label}</dt>
+                                    <dd className="font-semibold text-ink-1">{value}</dd>
                                 </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 bg-white/5 rounded-xl">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Manager</p>
-                                    <p className="text-white font-bold">{managerName}</p>
-                                </div>
-                                <div className="p-4 bg-white/5 rounded-xl">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Difficulty</p>
-                                    <p className="text-white font-bold">{difficultySettings.label}</p>
-                                </div>
-                                <div className="p-4 bg-white/5 rounded-xl">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Starting cash</p>
-                                    <p className="text-emerald-400 font-bold">{formatCurrency(customClubStartingCash(difficultySettings.startingBudget))}</p>
-                                </div>
-                                <div className="p-4 bg-white/5 rounded-xl">
-                                    <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Reputation</p>
-                                    <p className="text-blue-400 font-bold">{difficultySettings.startingReputation}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {(() => {
-                            // Custom clubs enter the world ranking at #150 (initializeCustomTeam).
-                            const challenge = describeClubChallenge({ worldRanking: 150, reputation: difficultySettings.startingReputation, starters: 0, budget: customClubStartingCash(difficultySettings.startingBudget), custom: true })
-                            return (
-                                <section aria-labelledby="custom-expectations-title" className="p-4 bg-white/5 border border-white/10 rounded-xl">
-                                    <h3 id="custom-expectations-title" className="text-xs uppercase tracking-widest text-muted-foreground">What to expect</h3>
-                                    <p className="mt-2 text-sm text-white">Expected board target: {challenge.boardLabel}, finish the season ranked #{challenge.rankTarget} or better.</p>
-                                    <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-slate-300">
-                                        {challenge.notes.map(note => <li key={note}>{note}</li>)}
-                                    </ul>
-                                </section>
-                            )
-                        })()}
-
-                        {/* Warning */}
-                        <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex gap-3">
-                            <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={18} />
-                            <div className="text-sm">
-                                <p className="text-amber-500 font-bold">Starting from scratch</p>
-                                <p className="text-muted-foreground">
-                                    You begin with an empty roster. Choose affordable starters in the roster builder, or continue recruiting through Transfers. Five available players are required for a match.
-                                </p>
-                            </div>
-                        </div>
-                    </motion.div>
+                            ))}
+                        </dl>
+                        <section aria-labelledby="custom-expectations-title" className="rounded-md border border-line bg-shell p-4">
+                            <h3 id="custom-expectations-title" className={fieldLabel}>What to expect</h3>
+                            <p className="mt-2 text-sm text-ink-1">Board target: {challenge.boardLabel}, finish the season ranked #{challenge.rankTarget} or better.</p>
+                            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-ink-2">
+                                {challenge.notes.map(note => <li key={note}>{note}</li>)}
+                            </ul>
+                        </section>
+                        <p className="text-sm text-ink-2">
+                            <span className="font-semibold text-caution">Empty roster. </span>
+                            Pick affordable starters in the roster builder next, or recruit through Transfers. A match needs five available players.
+                        </p>
+                    </div>
                 )
+            }
         }
     }
 
     return (
-        <div className="min-h-screen relative flex flex-col">
-            {/* Roster Builder Modal */}
+        <div className="relative min-h-dvh overflow-hidden bg-ink">
             <RosterBuilderModal
                 isOpen={showRosterBuilder}
                 onComplete={handleRosterComplete}
-                teamColors={{
-                    primary: teamData.primaryColor,
-                    secondary: teamData.secondaryColor
-                }}
+                teamColors={{ primary: teamData.primaryColor, secondary: teamData.secondaryColor }}
             />
 
-            {/* Background */}
-            <div className="absolute inset-0 bg-linear-to-br/srgb from-primary/10 via-transparent to-cyan-500/10 pointer-events-none" />
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[150px] pointer-events-none" />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[150px] pointer-events-none" />
+            <Image
+                src="/esport-ui-assets/backgrounds/club-campus-dusk.webp"
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                className="pointer-events-none select-none object-cover object-center opacity-50 saturate-[0.7]"
+            />
+            <div aria-hidden="true" className="absolute inset-0 bg-linear-to-r from-ink from-35% via-ink/90 via-60% to-ink/40" />
 
-            {/* Progress Bar */}
-            <div className="relative z-10 p-6">
-                <div className="max-w-2xl mx-auto">
-                    <div className="flex items-center justify-between mb-2">
-                        {STEPS.map((step, index) => {
-                            const Icon = step.icon
+            <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1240px] gap-12 px-12 py-10">
+                <div className="flex w-full max-w-[620px] flex-col gap-6">
+                    <button type="button" onClick={goPrev} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
+                        <ArrowLeft size={16} /> {currentStepIndex === 0 ? "New career" : STEPS[currentStepIndex - 1].label}
+                    </button>
+
+                    <ScreenHeader eyebrow={`Create your own team · Step ${currentStepIndex + 1} of ${STEPS.length}`} title={step.title} subtitle={step.subtitle} />
+
+                    {/* Stepper */}
+                    <ol className="grid grid-cols-5 gap-2" aria-label="Steps">
+                        {STEPS.map((s, index) => {
                             const isActive = index === currentStepIndex
                             const isComplete = index < currentStepIndex
-
                             return (
-                                <div key={step.id} className="flex items-center">
-                                    <div
-                                        className={cn(
-                                            "w-10 h-10 rounded-full flex items-center justify-center transition-all",
-                                            isComplete && "bg-primary text-white",
-                                            isActive && "bg-primary/20 border-2 border-primary text-primary",
-                                            !isActive && !isComplete && "bg-white/5 border border-white/10 text-muted-foreground"
-                                        )}
-                                    >
-                                        {isComplete ? <Check size={16} /> : <Icon size={16} />}
-                                    </div>
-                                    {index < STEPS.length - 1 && (
-                                        <div
-                                            className={cn(
-                                                "w-16 h-0.5 mx-2",
-                                                index < currentStepIndex ? "bg-primary" : "bg-white/10"
-                                            )}
-                                        />
-                                    )}
-                                </div>
+                                <li key={s.id} aria-current={isActive ? "step" : undefined}>
+                                    <span className={cn("block h-1 rounded-full", isActive ? "bg-gold" : isComplete ? "bg-ink-2" : "bg-hover")} />
+                                    <span className={cn("mt-1.5 flex items-center gap-1 text-xs", isActive ? "font-semibold text-ink-1" : "text-ink-3")}>
+                                        {isComplete && <Check size={12} />} {s.label}
+                                    </span>
+                                </li>
                             )
                         })}
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                        {STEPS.map((step, index) => (
-                            <span
-                                key={step.id}
-                                className={cn(
-                                    "text-center",
-                                    index === 0 && "text-left",
-                                    index === STEPS.length - 1 && "text-right"
-                                )}
-                            >
-                                {step.label}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-            </div>
+                    </ol>
 
-            {/* Content */}
-            <div className="flex-1 relative z-10 flex items-center justify-center p-6">
-                <div className="w-full max-w-xl">
-                    <div className="glass-panel p-8 border-white/10">
-                        <AnimatePresence mode="wait">
-                            {renderStepContent()}
-                        </AnimatePresence>
-                    </div>
+                    <Panel>{renderStepContent()}</Panel>
 
-                    {/* Navigation Buttons */}
-                    <div className="flex justify-between mt-6">
-                        <Button
-                            variant="outline"
-                            onClick={goPrev}
-                            className="gap-2 border-white/10 hover:bg-white/5"
-                        >
-                            <ArrowLeft size={16} />
-                            {currentStepIndex === 0 ? "Cancel" : "Back"}
+                    <div className="flex justify-between">
+                        <Button variant="outline" onClick={goPrev} className="gap-2">
+                            <ArrowLeft size={16} /> {currentStepIndex === 0 ? "Cancel" : "Back"}
                         </Button>
-
                         {currentStep === "review" ? (
-                            <Button
-                                onClick={handleCreateTeam}
-                                disabled={isCreating}
-                                className="gap-2 bg-white text-black hover:bg-white/90"
-                            >
-                                {isCreating ? (
-                                    <>Creating...</>
-                                ) : (
-                                    <>
-                                        <PlayCircle size={16} />
-                                        Create Team & Start
-                                    </>
-                                )}
+                            <Button onClick={handleCreateTeam} disabled={isCreating} aria-busy={isCreating || undefined} className="gap-2 px-5">
+                                {isCreating ? "Creating…" : "Create team and start"}
                             </Button>
                         ) : (
-                            <Button
-                                onClick={goNext}
-                                className="gap-2 bg-white text-black hover:bg-white/90"
-                            >
-                                Continue
-                                <ArrowRight size={16} />
+                            <Button onClick={goNext} className="gap-2 px-5">
+                                Continue <ArrowRight size={16} />
                             </Button>
                         )}
                     </div>
                 </div>
+
+                {/* Live preview */}
+                <aside className="hidden flex-1 items-start pt-[104px] lg:flex" aria-label="Club preview">
+                    <div className="sticky top-10 w-full max-w-[380px] rounded-[10px] border border-line-strong bg-panel p-6">
+                        <p className={fieldLabel}>Preview</p>
+                        <div className="mt-4 flex items-center gap-4">
+                            <CrestPreview team={teamData} size={88} />
+                            <div className="min-w-0">
+                                <p className="truncate font-display text-3xl font-bold uppercase leading-none text-ink-1">{teamData.name || "Your club"}</p>
+                                <p className="mt-1.5 text-sm text-ink-3">{teamData.shortName || "TAG"} · {REGION_INFO[teamData.region].label}</p>
+                            </div>
+                        </div>
+                        <dl className="mt-6 divide-y divide-line border-y border-line text-sm">
+                            <div className="flex justify-between py-2"><dt className="text-ink-3">Manager</dt><dd className="font-semibold text-ink-1">{managerName || "—"}</dd></div>
+                            <div className="flex justify-between py-2"><dt className="text-ink-3">Difficulty</dt><dd className="font-semibold text-ink-1">{difficultySettings.label}</dd></div>
+                            <div className="flex justify-between py-2"><dt className="text-ink-3">Starting cash</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(startingCash)}</dd></div>
+                            <div className="flex justify-between py-2"><dt className="text-ink-3">World rank</dt><dd className="font-semibold tabular-nums text-ink-1">#150</dd></div>
+                        </dl>
+                        <p className="mt-3 text-xs text-ink-3">New clubs start in the C-tier circuit with an empty roster.</p>
+                    </div>
+                </aside>
             </div>
 
             <AlertDialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
@@ -792,35 +523,12 @@ export default function CreateTeamPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Keep editing</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => router.push("/new-game")}>
-                            Discard &amp; go back
+                        <AlertDialogAction onClick={() => router.push("/new-game")} className="bg-gold text-gold-on hover:bg-gold-hover">
+                            Go back
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
         </div>
     )
-}
-
-// Helper components
-function DifficultyIcon({ difficulty }: { difficulty: GameDifficulty }) {
-    const icons: Record<GameDifficulty, React.ReactNode> = {
-        story: <Sparkles className="text-emerald-400" size={24} />,
-        normal: <Gamepad2 className="text-blue-400" size={24} />,
-        hard: <Trophy className="text-amber-400" size={24} />,
-        impossible: <Star className="text-red-400" size={24} />,
-    }
-    return <>{icons[difficulty]}</>
-}
-
-function getRegionEmoji(region: TeamRegion): string {
-    const emojis: Record<TeamRegion, string> = {
-        EU: "🇪🇺",
-        NA: "🇺🇸",
-        SA: "🇧🇷",
-        ASIA: "🇨🇳",
-        CIS: "🇷🇺",
-        OCEANIA: "🇦🇺",
-    }
-    return emojis[region]
 }

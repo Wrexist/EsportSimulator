@@ -2,6 +2,7 @@ import type { GameSave, PlayerSaveData, StaffSaveData, TeamSaveData } from "./sa
 import { evaluatePlayer } from "./player-evaluation"
 import { EconomyEngine } from "./economy-engine"
 import { FREE_AGENT_TUNING } from "@/lib/balance-tuning"
+import { archetypeWageFactor, getArchetype } from "./personality"
 
 export function recruitmentRole(role?: string): string {
     const key = (role || "RIFLER").toUpperCase()
@@ -39,12 +40,15 @@ export function buyerReputationFactor(buyer?: Pick<TeamSaveData, "reputation">):
 
 /**
  * Opening wage expectation, shared by human and AI negotiations. Decays the
- * longer a free agent stays unsigned and scales with the buyer's reputation
- * when the buyer is known.
+ * longer a free agent stays unsigned, scales with the buyer's reputation
+ * when the buyer is known, and with his archetype (Phase 5.2: Loyal asks
+ * less, Mercenary more, Ambitious a premium to join a club far below his level).
  */
-export function recruitmentSalary(player: PlayerSaveData, currentWeek: number, buyer?: Pick<TeamSaveData, "reputation">): number {
-    const base = evaluatePlayer(player, undefined, undefined, currentWeek).transferValue / 100
-    return Math.max(MIN_ASKING_WAGE, Math.round(base * freeAgentWageFactor(player, currentWeek) * buyerReputationFactor(buyer)))
+export function recruitmentSalary(player: PlayerSaveData, currentWeek: number, buyer?: Pick<TeamSaveData, "reputation"> & Partial<Pick<TeamSaveData, "leagueTier">>): number {
+    const evaluation = evaluatePlayer(player, undefined, undefined, currentWeek)
+    const base = evaluation.transferValue / 100
+    const personality = archetypeWageFactor(getArchetype(player), evaluation.overallRating, buyer)
+    return Math.max(MIN_ASKING_WAGE, Math.round(base * freeAgentWageFactor(player, currentWeek) * buyerReputationFactor(buyer) * personality))
 }
 
 export function employedScout(staff: StaffSaveData[], team: TeamSaveData | undefined, week: number): StaffSaveData | undefined {
@@ -61,7 +65,7 @@ export function employedScout(staff: StaffSaveData[], team: TeamSaveData | undef
  */
 export function recruitmentBudget(save: Pick<GameSave, "players" | "contracts" | "staff" | "currentWeek" | "academyPlayers"> & { playerTeamId: string | null }, team: TeamSaveData, options: { quorum?: boolean } = {}) {
     const academyCount = team.id === save.playerTeamId ? (save.academyPlayers || []).length : (team.youthAcademyIds || []).length + (team.managementState?.academyPlayers || []).length
-    const report = EconomyEngine.processWeeklyFinances(team, save.players, save.contracts, save.staff || [], save.currentWeek + 1, academyCount)
+    const report = EconomyEngine.processWeeklyFinances(team, save.players, save.contracts, save.staff || [], save.currentWeek + 1, academyCount, { implicitGear: team.id !== save.playerTeamId })
     return (salary: number, fee = 0): boolean => Number.isSafeInteger(salary) && salary > 0 && Number.isSafeInteger(fee) && fee >= 0
         && Number.isFinite(team.budget) && (team.budget - fee >= Math.max(0, salary - report.net) * 26
             || (!!options.quorum && fee === 0 && salary <= Math.max(report.net, FREE_AGENT_TUNING.QUORUM_WAGE_ALLOWANCE)))
@@ -70,7 +74,7 @@ export function recruitmentBudget(save: Pick<GameSave, "players" | "contracts" |
 /** Optional infrastructure must pay its ongoing costs without speculative future winnings. */
 export function affordableInvestment(save: GameSave, projectedTeam: TeamSaveData, fee: number, addedWeeklyCost = 0): boolean {
     const academyCount = projectedTeam.id === save.playerTeamId ? (save.academyPlayers || []).length : (projectedTeam.youthAcademyIds || []).length + (projectedTeam.managementState?.academyPlayers || []).length
-    const report = EconomyEngine.processWeeklyFinances(projectedTeam, save.players, save.contracts, save.staff || [], save.currentWeek + 1, academyCount)
+    const report = EconomyEngine.processWeeklyFinances(projectedTeam, save.players, save.contracts, save.staff || [], save.currentWeek + 1, academyCount, { implicitGear: projectedTeam.id !== save.playerTeamId })
     const trainingCost = (projectedTeam.activeRoleTraining || []).reduce((sum, session) => sum + session.weeklyCost, 0)
     return Number.isSafeInteger(fee) && fee >= 0 && Number.isFinite(addedWeeklyCost) && addedWeeklyCost >= 0
         && projectedTeam.budget >= fee && report.net - trainingCost - addedWeeklyCost >= 0

@@ -21,6 +21,29 @@ export interface MatchEvent {
     isTrade?: boolean
     isFlashAssist?: boolean
     side?: "ct" | "t"
+    /**
+     * Display only, from the round script (never read by the resolver or the
+     * script builder): bombsite of a PLANT / DEFUSE / EXPLODE.
+     */
+    site?: "A" | "B"
+    /** Display only: where a KILL happened ("A site", "Mid", …), from the round script. */
+    location?: string
+    /**
+     * script-v1: baked round-map zone the event happened in (route id such as
+     * "t-a-main", hold id such as "mid-1", or "A" / "B" on a site). The round
+     * script places the fight there.
+     */
+    zone?: string
+    /** script-v1 KILL: damage the killer dealt with the kill (the victim's remaining HP). */
+    damage?: number
+    /**
+     * script-v1 KILL (reporting only): HP the killer lost in this duel (the
+     * loser's shots before dying). Absent = none, or a round recorded before
+     * per-hit data (then no grenade carries `hit` either).
+     */
+    chip?: number
+    /** script-v1 KILL: the round's first kill. */
+    isOpening?: boolean
 }
 
 export type MatchEventType = "KILL" | "PLANT" | "DEFUSE" | "ROUND_END" | "SAVE" | "CLUTCH"
@@ -29,7 +52,8 @@ export type MatchEventType = "KILL" | "PLANT" | "DEFUSE" | "ROUND_END" | "SAVE" 
  * Match model with complete simulation data
  */
 export interface Match {
-    engineVersion?: 'legacy-v2'
+    /** Engine the match is played on (engine/match/engine-version.ts); unset = the default for new matches. */
+    engineVersion?: 'legacy-v2' | 'script-v1'
     mapStartingSides?: Record<string, string>
     id: string
     homeTeamId: string
@@ -151,6 +175,22 @@ export interface RoundResult {
     buys?: { home: string; away: string }
     /** Managed team's call for this round, if any. */
     managerCall?: { strategy?: string; regroup?: boolean }
+    /** script-v1: the round's plan (T strategy and site, CT setup, whether the CTs read it, execute time). */
+    plan?: {
+        tStrategy: 'default' | 'execute' | 'rush' | 'split' | 'fake' | 'eco'
+        site: 'A' | 'B'
+        ctSetup: '2-1-2' | 'stack-A' | 'stack-B' | 'aggressive'
+        read?: 'right' | 'wrong' | 'none'
+        execAt?: number
+    }
+    /** script-v1: damage dealt this round by player id (kills + chip + grenades). */
+    damage?: Record<string, number>
+    /**
+     * script-v1: grenades thrown (thrower, kind, baked utility spot id, site).
+     * A damaging grenade (HE / molotov) also names the player it hurt (`hit`)
+     * and the HP it took (`dmg`) — reporting only, absent on older rounds.
+     */
+    utility?: { t: number; playerId: string; kind: 'smoke' | 'flash' | 'molotov' | 'he'; spot: string; site: 'A' | 'B'; hit?: string; dmg?: number }[]
 }
 
 /** Manager decisions recorded with a result (own team only; no hidden opponent data). */
@@ -175,7 +215,7 @@ export interface MatchManagementRecord {
 export interface MatchResult {
     /** Match-time participants, so later transfers do not rewrite the report. */
     lineups?: Record<string, string[]>
-    engineVersion?: 'legacy-v2' | 'spatial-round-v1'
+    engineVersion?: 'legacy-v2' | 'spatial-round-v1' | 'script-v1'
     winnerId: string | null // ID of the winning team
     homeScore: number // Maps won by home team
     awayScore: number // Maps won by away team

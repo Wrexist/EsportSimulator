@@ -418,3 +418,68 @@ describe("L15 contract transaction boundaries", () => {
         expect(h.state().contracts[0]).toEqual(contract)
     })
 })
+
+describe("releasePlayer — the manager's paid release (roster cap dead end)", () => {
+    // Eternal Flame starts with nine senior players: over the cap of seven.
+    const nine = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"]
+    function overCap() {
+        return makeHarness(makeBaseState({
+            lastRngSeed: 7,
+            teams: [makeTeam("player", { rosterIds: [...nine], budget: 500_000, chemistry: 60 } as Partial<TeamSaveData>), makeTeam("ai", { rosterIds: ["a1", "a2", "a3", "a4", "a5", "a6"] })],
+            players: [...nine, "a1", "a2", "a3", "a4", "a5", "a6", "fa"].map(id => makePlayer(id)),
+            contracts: [
+                ...nine.map(id => ({ playerId: id, teamId: "player", salaryPerWeek: 2_000, startWeek: 1, endWeek: 30, buyout: 0 })),
+                { playerId: "a1", teamId: "ai", salaryPerWeek: 1_000, startWeek: 1, endWeek: 60, buyout: 0 },
+            ] as ContractSaveData[],
+        }))
+    }
+
+    test("signing is refused over the cap with a message that says what to do", () => {
+        const h = overCap()
+        const slice = createTransferContractSlice(h.set, h.get)
+        const r = slice.transferPlayer("fa", null, "player", 0, { salaryPerWeek: 500, startWeek: 10, endWeek: 62, buyout: 0 })
+        expect(r.success).toBe(false)
+        expect(r.message).toMatch(/9 senior players, and the limit is 7/)
+        expect(r.message).toMatch(/Release or sell 3 players/)
+    })
+
+    test("pays the rest of the contract, frees the player, and opens a slot once under the cap", () => {
+        const h = overCap()
+        const slice = createTransferContractSlice(h.set, h.get)
+        for (const id of ["p9", "p8", "p7"]) {
+            const r = slice.releasePlayer(id)
+            expect(r.success).toBe(true)
+            // 20 weeks left (week 10 → 30) at $2,000.
+            expect(r.message).toContain("Paid $40,000")
+        }
+        const s = h.state()
+        const team = s.teams.find(t => t.id === "player")!
+        expect(team.rosterIds).toEqual(["p1", "p2", "p3", "p4", "p5", "p6"])
+        expect(team.budget).toBe(500_000 - 3 * 40_000)
+        expect(s.contracts.some(c => ["p7", "p8", "p9"].includes(c.playerId))).toBe(false)
+        expect(s.financeLedger.filter(e => e.category === "WAGES_PLAYER" && e.amount === 40_000)).toHaveLength(3)
+        expect(s.transferHistory.filter(t => t.type === "RELEASE")).toHaveLength(3)
+        expect(team.chemistry).toBe(30) // −10 per roster change
+        // Now a signing fits.
+        expect(slice.transferPlayer("fa", null, "player", 0, { salaryPerWeek: 500, startWeek: 10, endWeek: 62, buyout: 0 }).success).toBe(true)
+    })
+
+    test("refuses what the club can't pay, below a starting five, and other clubs' players", () => {
+        const poor = overCap()
+        poor.set(draft => { draft.teams[0].budget = 39_999 })
+        const r = createTransferContractSlice(poor.set, poor.get).releasePlayer("p9")
+        expect(r.success).toBe(false)
+        expect(r.message).toContain("costs $40,000 (20 weeks at $2,000/wk)")
+        expect(poor.state().teams[0].rosterIds).toContain("p9")
+
+        const five = overCap()
+        five.set(draft => { draft.teams[0].rosterIds = ["p1", "p2", "p3", "p4", "p5"] })
+        expect(createTransferContractSlice(five.set, five.get).releasePlayer("p5").success).toBe(false)
+
+        const ai = overCap()
+        const before = ai.state()
+        expect(createTransferContractSlice(ai.set, ai.get).releasePlayer("a1").success).toBe(false)
+        expect(ai.state().teams).toBe(before.teams)
+        expect(ai.state().contracts).toBe(before.contracts)
+    })
+})

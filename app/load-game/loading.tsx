@@ -1,16 +1,13 @@
-// Streaming skeleton for the save-game picker — mirrors the list layout.
+// Streaming skeleton for the save list — header line, then table rows.
 
 export default function LoadGameLoading() {
     return (
-        <div className="max-w-3xl mx-auto p-6 space-y-6">
-            <div className="h-8 w-40 rounded-lg bg-white/4 animate-pulse" />
-            <div className="space-y-3">
-                {Array.from({ length: 5 }).map((_, i) => (
-                    <div
-                        key={i}
-                        className="h-20 rounded-xl bg-white/2 border border-white/5 animate-pulse"
-                        style={{ animationDelay: `${i * 40}ms` }}
-                    />
+        <div className="mx-auto max-w-[1280px] space-y-5" aria-busy="true">
+            <div className="h-10 w-48 animate-pulse rounded-md bg-panel" />
+            <div className="overflow-hidden rounded-lg border border-line bg-panel">
+                <div className="h-9 border-b border-line bg-raised" />
+                {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="h-16 border-b border-line last:border-b-0" />
                 ))}
             </div>
         </div>

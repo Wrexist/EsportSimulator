@@ -2,7 +2,9 @@
  * Equipment Manager
  * Equipment Shop system for team gear upgrades
  * 
- * Equipment contributes a bounded team-strength modifier during legacy career matches.
+ * Equipment contributes a bounded team-strength modifier during legacy career
+ * matches: up to +8% for a full elite set (STRENGTH_CAP). AI clubs get implicit,
+ * reputation-scaled gear (implicitStrengthBonus) since saves give them none.
  * Higher tier equipment = better bonuses but higher weekly cost.
  */
 
@@ -288,12 +290,37 @@ export class EquipmentManager {
         })
     }
 
+    /**
+     * Ceiling on gear's team-strength bonus: a full elite set (5 x 8 + PC 5
+     * = 45 points) is +8%. It used to be 1/80 per point, so six items were
+     * +56% - more than a 20-point skill gap - while AI clubs owned nothing.
+     */
+    static readonly STRENGTH_CAP = 0.08
+    /** Gear points in a full elite set (5 slots at 8, PC at 5). */
+    static readonly MAX_GEAR_POINTS = 45
+
+    /** Strength fraction one item adds (UI: "+x% team strength from this slot"). */
+    static itemStrengthBonus(item: { type: string; bonus?: { value: number } }): number {
+        const maximum = item.type === 'PC' ? 5 : 8
+        const rating = Number.isFinite(item.bonus?.value) ? Math.max(0, Math.min(maximum, item.bonus!.value)) : 0
+        return rating * this.STRENGTH_CAP / this.MAX_GEAR_POINTS
+    }
+
     static strengthBonus(team: { equipment?: EquipmentItem[] }): number {
-        return this.activeEquipment(team).reduce((sum, item) => {
-            const maximum = item.type === 'PC' ? 5 : 8
-            const rating = Number.isFinite(item.bonus?.value) ? Math.max(0, Math.min(maximum, item.bonus.value)) : 0
-            return sum + rating / 80
-        }, 0)
+        const total = this.activeEquipment(team).reduce((sum, item) => sum + this.itemStrengthBonus(item), 0)
+        return Math.min(this.STRENGTH_CAP, total)
+    }
+
+    /**
+     * Gear an AI club is assumed to own (saves keep `equipment: []` for AI
+     * teams). Scales with reputation (20 -> 0, 100 -> 75% of the cap: about
+     * +6% for an elite club, +3% mid-table, +1% academy) so a fully equipped
+     * player team keeps a real but modest edge.
+     */
+    static implicitStrengthBonus(team: { reputation?: number }): number {
+        const reputation = Number.isFinite(team.reputation) ? team.reputation! : 50
+        const scale = Math.max(0, Math.min(1, (reputation - 20) / 80))
+        return this.STRENGTH_CAP * 0.75 * scale
     }
     /**
      * Get all available equipment for purchase
@@ -339,6 +366,20 @@ export class EquipmentManager {
         })
 
         return bonuses
+    }
+
+    /**
+     * Weekly upkeep of the implicit gear an AI club plays with
+     * (implicitStrengthBonus), priced at the mid catalog set's cost per point
+     * of strength: an AI club pays for the edge it gets, like the managed
+     * club pays for gear it buys (Phase 4.4 gear parity). About $2.3k/week
+     * for an elite club, $1.1k mid-table, $0.3k for an academy.
+     */
+    static implicitWeeklyCost(team: { reputation?: number }): number {
+        const mid = EQUIPMENT_CATALOG.filter(item => item.tier === 2)
+        const strength = mid.reduce((sum, item) => sum + this.itemStrengthBonus(item), 0)
+        const cost = mid.reduce((sum, item) => sum + item.weeklyCost, 0)
+        return strength > 0 ? Math.round(this.implicitStrengthBonus(team) * cost / strength) : 0
     }
 
     /**

@@ -2,40 +2,37 @@
 
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
 
-import React, { useState, useEffect, useMemo, useRef } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { motion } from "framer-motion"
-import {
-    Calendar as CalendarIcon,
-    ChevronRight,
-    ChevronLeft,
-    Trophy,
-    Plane,
-    Clock,
-    Plus,
-    Lock
-} from "lucide-react"
+import { ChevronRight, ChevronLeft, Plus, Trophy, Plane, Megaphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { getDynamicTournamentName } from "@/lib/utils-extended"
-import { Badge } from "@/components/ui/badge"
+import { Panel } from "@/src/components/ui/Panel"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { BookScrimModal } from "@/components/schedule/BookScrimModal"
 import { BookBootcampModal } from "@/components/schedule/BookBootcampModal"
 import { BookMarketingModal } from "@/components/schedule/BookMarketingModal"
+import { BookStaffMeetingModal } from "@/components/schedule/BookStaffMeetingModal"
 import { ActivityPickerModal } from "@/components/schedule/ActivityPickerModal"
 import { TournamentDetailsModal } from "@/components/schedule/TournamentDetailsModal"
 import { ScheduleMatchCard } from "@/components/schedule/ScheduleMatchCard"
 import { ScheduleActivityCard } from "@/components/schedule/ScheduleActivityCard"
 import { TeamMatchPopup } from "@/components/schedule/TeamMatchPopup"
-import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
-import {
-    FULL_TOURNAMENT_CALENDAR
-} from "@/data/tournament-calendar"
+import { leagueStageLabel } from "@/components/league/league-view"
+import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 
 import { WEEKS_PER_YEAR } from "@/lib/constants"
-const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+
+/** Weeks shown at once: one row per week, seven day columns. */
+const VISIBLE_WEEKS = 6
+/** Prev/next jump; keeps two rows of overlap for context. */
+const PAGE_STEP = 4
+
+const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier" }
 
 // Helper for projected matches type
 interface ProjectedMatch {
@@ -46,6 +43,9 @@ interface ProjectedMatch {
   tournamentId: string
   reason?: string
 }
+
+/** First visible week index: the previous week stays in view for context. */
+const defaultOffset = (currentWeek: number) => Math.max(0, currentWeek - 2)
 
 export default function SchedulePage() {
   const {
@@ -60,7 +60,8 @@ export default function SchedulePage() {
     players,
     playerTeamId,
     tournamentQualifications,
-    tournaments
+    tournaments,
+    hydrated,
   } = useGameStore(useShallow(state => ({
     currentWeek: state.currentWeek,
     currentDay: state.currentDay,
@@ -74,15 +75,17 @@ export default function SchedulePage() {
     playerTeamId: state.playerTeamId,
     tournamentQualifications: state.tournamentQualifications,
     tournaments: state.tournaments,
+    hydrated: state._hasHydrated,
   })))
   const router = useRouter()
-  const [viewOffset, setViewOffset] = useState(0)
+  const [viewOffset, setViewOffset] = useState(() => defaultOffset(currentWeek))
 
   // Modal States
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const [isScrimModalOpen, setIsScrimModalOpen] = useState(false)
   const [isBootcampModalOpen, setIsBootcampModal] = useState(false)
   const [isMarketingModalOpen, setIsMarketingModalOpen] = useState(false)
+  const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false)
   const [selectedWeek, setSelectedWeek] = useState<number>(currentWeek)
   const [selectedDay, setSelectedDay] = useState<number>(0)
 
@@ -97,8 +100,6 @@ export default function SchedulePage() {
     : null
 
   // O(1) seriesId -> status lookup for the player's tournament qualifications.
-  // Was a linear scan of `tournamentQualifications` per call, hit ~90×/render
-  // from the per-week loop (9 visible weeks × ~10 tournaments).
   type TournamentStatus = NonNullable<typeof tournamentQualifications[number]["status"]>
   const statusBySeriesId = useMemo(() => {
     const map = new Map<string, TournamentStatus>()
@@ -113,18 +114,14 @@ export default function SchedulePage() {
   const getTournamentStatus = (tournamentId: string): TournamentStatus | undefined =>
     statusBySeriesId.get(tournamentId.replace(/_s\d+$/, ""))
 
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  // Render range: Always render up to one year ahead of the current week, but
-  // keep at least two full years visible so historical context isn't cut off.
+  // Always reach one year past the current week, never less than two seasons.
   const TOTAL_WEEKS_TO_RENDER = Math.max(WEEKS_PER_YEAR * 2, currentWeek + WEEKS_PER_YEAR)
+  const maxOffset = Math.max(0, TOTAL_WEEKS_TO_RENDER - VISIBLE_WEEKS)
 
-  // Center view on current week initially
+  // Follow the calendar when the week advances.
   useEffect(() => {
-    const targetOffset = Math.max(0, currentWeek - 1)
-    setViewOffset(targetOffset)
+    setViewOffset(defaultOffset(currentWeek))
   }, [currentWeek])
-
 
   const handleOpenPicker = (week: number, day: number) => {
     setSelectedWeek(week)
@@ -137,36 +134,19 @@ export default function SchedulePage() {
     if (type === "SCRIM") setIsScrimModalOpen(true)
     if (type === "BOOTCAMP") setIsBootcampModal(true)
     if (type === "MARKETING") setIsMarketingModalOpen(true)
-    if (type === "MEETING") {
-      router.push("/schedule/staff-meeting")
-    }
+    if (type === "MEETING") setIsMeetingModalOpen(true)
   }
 
-  const handleOpenTournament = (tournamentId: string) => {
-    setSelectedTournamentId(tournamentId)
-  }
+  const dateFor = (week: number, dayIndex: number) => gameCalendarDate(gameStartDate, week, dayIndex)
+  const dayLabel = (week: number, dayIndex: number) => formatGameCalendarDate(dateFor(week, dayIndex), { weekday: "short", month: "short", day: "numeric" })
 
-  const getDateForDay = (week: number, dayIndex: number) => {
-    return formatGameCalendarDate(gameCalendarDate(gameStartDate, week, dayIndex), { month: 'short', day: 'numeric' })
-  }
+  // Week day 0 is the career's start weekday; every week has the same order.
+  const weekdayHeaders = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => formatGameCalendarDate(gameCalendarDate(gameStartDate, 1, i), { weekday: "short" })),
+    [gameStartDate],
+  )
 
-  // Get the player's team
   const playerTeam = teams.find(t => t.id === playerTeamId)
-
-  // Region to flag emoji mapping
-  const regionToFlag = (region?: string): string => {
-    const flags: Record<string, string> = {
-      "EU": "🇪🇺",
-      "NA": "🇺🇸",
-      "SA": "🇧🇷",
-      "CIS": "🇷🇺",
-      "ASIA": "🇨🇳",
-      "OCEANIA": "🇦🇺",
-      "MENA": "🇸🇦",
-      "INTERNATIONAL": "🌍"
-    }
-    return flags[region || ""] || "🌍"
-  }
 
   // --- PROJECTED MATCH LOGIC ---
   const getProjectedMatches = (): ProjectedMatch[] => {
@@ -210,7 +190,7 @@ export default function SchedulePage() {
           week: match.week,
           tournamentId: instance.id,
           tournamentName: definition?.shortName || instance.shortName || instance.name,
-          stage: match.stage || instance.currentStage || "Next Stage",
+          stage: match.stage || instance.currentStage || "Next stage",
           reason: "Forecast"
         })
       })
@@ -236,7 +216,7 @@ export default function SchedulePage() {
           week,
           tournamentId: instance.id,
           tournamentName: definition?.shortName || instance.shortName || instance.name,
-          stage: instance.currentStage || "Upcoming Stage",
+          stage: instance.currentStage || "Upcoming stage",
           reason: "Forecast"
         })
       }
@@ -247,17 +227,13 @@ export default function SchedulePage() {
       .slice(0, 60)
   }
 
-  // Memoize the projected-match build — the function scans tournaments,
-  // their playoff brackets, and stage windows; runs every render otherwise.
+  // Memoize the projected-match build — it scans tournaments, brackets and stage windows.
   const projectedMatches = useMemo(
     () => getProjectedMatches(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [scheduledMatches, completedMatches, tournaments, currentWeek, playerTeamId],
   )
 
-  // Hoist the deduped-scheduled view used by the per-week column loop. The
-  // loop is virtualized to ~9 visible weeks, but every column was rebuilding
-  // these from scratch.
   const completedIdSet = useMemo(
     () => new Set(completedMatches.map(m => m.id)),
     [completedMatches],
@@ -279,516 +255,265 @@ export default function SchedulePage() {
     return t.startWeek > currentCalendarWeek
   }).sort((a, b) => a.startWeek - b.startWeek)
 
-  // Calculate current year/week for display
   const currentYear = Math.ceil(currentWeek / WEEKS_PER_YEAR)
   const currentWeekInYear = (currentWeek - 1) % WEEKS_PER_YEAR + 1
-  const currentDayLabel = formatGameCalendarDate(gameCalendarDate(gameStartDate, currentWeek, currentDay), { weekday: "short" }).toUpperCase()
+  const daily = timeMode === "HYBRID_DAILY"
 
+  const isMatchDue = (match: { week: number; day?: number }) =>
+    match.week < currentWeek || (match.week === currentWeek && (!daily || (match.day ?? 6) <= currentDay))
+
+  const visibleWeeks = Array.from({ length: VISIBLE_WEEKS }, (_, i) => viewOffset + i + 1).filter(w => w <= TOTAL_WEEKS_TO_RENDER)
+  const firstVisible = visibleWeeks[0]
+  const lastVisible = visibleWeeks[visibleWeeks.length - 1]
+  const rangeLabel = firstVisible && lastVisible
+    ? `${formatGameCalendarDate(dateFor(firstVisible, 0), { month: "short", day: "numeric" })} – ${formatGameCalendarDate(dateFor(lastVisible, 6), { month: "short", day: "numeric", year: "numeric" })}`
+    : ""
+
+  // The store rehydrates after a full load; don't draw a week-0 calendar meanwhile.
+  if (!hydrated || !playerTeam) {
+    return <p className="py-16 text-center text-sm text-ink-3" role="status">Loading calendar…</p>
+  }
 
   return (
-    <div className="space-y-6 h-full flex flex-col">
-      {/* Header */}
-      <div className="flex justify-between items-end shrink-0">
-        <div className="flex items-center gap-6">
-          {/* Team Logo & Info */}
-          {playerTeam && (
-            <div className="flex items-center gap-4">
-              {/* Team Logo */}
-              <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
-                <TeamLogoDisplay team={playerTeam} size={48} />
-              </div>
+    <div className="space-y-4 pb-10">
+      <ScreenHeader
+        eyebrow={`Season ${currentYear} · Week ${currentWeekInYear}${daily ? ` · ${dayLabel(currentWeek, currentDay)}` : ""}`}
+        title="Calendar"
+        subtitle={<>The season week by week: matches, scrims and bookings. Pick an empty day to book something; plan this week in the <Link href="/week" className="font-semibold text-ink-1 underline underline-offset-2">week plan</Link>.</>}
+        aside={
+          <>
+            <Button variant="outline" onClick={() => handleOpenPicker(currentWeek, daily ? currentDay : 0)} className="gap-1.5">
+              <Plus size={15} /> Book activity
+            </Button>
+          </>
+        }
+      />
 
-              {/* Team Name & Region */}
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{regionToFlag(playerTeam.region)}</span>
-                  <h2 className="text-xl font-normal uppercase tracking-tight text-white">{playerTeam.name}</h2>
-                </div>
-                <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">
-                  {playerTeam.region || "INTERNATIONAL"} • #{playerTeam.worldRanking || "—"}
-                </p>
-              </div>
-            </div>
-          )}
-
-          <div className="h-12 w-px bg-white/10" />
-
-          <div>
-            <h1 className="page-title mb-2 flex items-center gap-3">
-              <CalendarIcon className="text-primary" size={32} />
-              Schedule
-            </h1>
-            <p className="text-muted-foreground uppercase tracking-widest text-xs font-bold">
-              Year {currentYear} | Week {currentWeekInYear}{timeMode === "HYBRID_DAILY" ? ` | ${currentDayLabel} (Day ${currentDay + 1}/7)` : ""}
+      {/* Notices: roster gap and registered events */}
+      {((playerTeam && (playerTeam.rosterIds?.length || 0) < 5) || upcomingRegisteredTournaments.length > 0) && (
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+          {playerTeam && (playerTeam.rosterIds?.length || 0) < 5 && (
+            <p className="text-caution">
+              You need five players to compete.{" "}
+              <Link href="/transfers" className="font-semibold underline underline-offset-2">Go to transfers</Link>
             </p>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Upcoming Registered Tournaments Banner */}
-      {upcomingRegisteredTournaments.length > 0 && (
-        <div className="shrink-0 flex items-center gap-3 px-4 py-2.5 rounded-xl bg-amber-500/5 border border-amber-500/15">
-          <Trophy size={16} className="text-amber-400 shrink-0" />
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-amber-300 uppercase tracking-wider font-bold">Upcoming:</span>
-            {upcomingRegisteredTournaments.slice(0, 3).map(t => {
-              const weeksUntil = t.startWeek - currentCalendarWeek
-              return (
+          )}
+          {upcomingRegisteredTournaments.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Registered</span>
+              {upcomingRegisteredTournaments.slice(0, 4).map(t => (
                 <button
                   key={t.id}
-                  onClick={() => handleOpenTournament(t.id)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:bg-amber-500/10 hover:border-amber-500/30 transition-all text-xs"
+                  type="button"
+                  onClick={() => setSelectedTournamentId(t.id)}
+                  className="inline-flex items-center gap-2 rounded-sm border border-line bg-panel px-2.5 py-1 text-xs transition-colors hover:bg-raised"
                 >
-                  <span className="text-white/80 font-medium">{t.shortName}</span>
-                  <span className="bg-amber-500/20 text-amber-300 text-[9px] font-bold px-1.5 py-0.5 rounded">
-                    W{t.startWeek} ({weeksUntil}w)
-                  </span>
+                  <Trophy size={12} className="text-ink-3" />
+                  <span className="font-semibold text-ink-1">{t.shortName}</span>
+                  <span className="tabular-nums text-ink-3">Week {t.startWeek} · in {t.startWeek - currentCalendarWeek}w</span>
                 </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <Panel
+        padded={false}
+        className="overflow-hidden"
+        title={rangeLabel}
+        actions={
+          <>
+            <Button variant="outline" size="icon-sm" aria-label="Earlier weeks" onClick={() => setViewOffset(v => Math.max(0, v - PAGE_STEP))} disabled={viewOffset <= 0}>
+              <ChevronLeft size={16} />
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setViewOffset(defaultOffset(currentWeek))}>This week</Button>
+            <Button variant="outline" size="icon-sm" aria-label="Later weeks" onClick={() => setViewOffset(v => Math.min(maxOffset, v + PAGE_STEP))} disabled={viewOffset >= maxOffset}>
+              <ChevronRight size={16} />
+            </Button>
+          </>
+        }
+      >
+        <table data-slot="table" className="w-full table-fixed border-collapse text-left">
+          <thead data-slot="table-header">
+            <tr className="border-b border-line">
+              <th data-slot="table-head" className="w-[200px] pl-4">Week</th>
+              {weekdayHeaders.map((d, i) => (
+                <th key={i} data-slot="table-head" className="border-l border-line px-3">{d}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {visibleWeeks.map(weekNum => {
+              const isPast = weekNum < currentWeek
+              const isCurrent = weekNum === currentWeek
+              const displayYear = Math.ceil(weekNum / WEEKS_PER_YEAR)
+              const displayWeek = (weekNum - 1) % WEEKS_PER_YEAR + 1
+              const calendarWeek = displayWeek
+
+              const matches = allMatchesForLookup.filter(m =>
+                m.week === weekNum &&
+                (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
               )
-            })}
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              const firstTournament = upcomingRegisteredTournaments[0]
-              const yearOffset = Math.floor((currentWeek - 1) / WEEKS_PER_YEAR) * WEEKS_PER_YEAR
-              setViewOffset(Math.max(0, firstTournament.startWeek - 1 + yearOffset))
-            }}
-            className="text-[10px] text-amber-400 hover:text-amber-300 uppercase tracking-wider ml-auto px-2 h-7"
-          >
-            Jump to Next <ChevronRight size={12} />
-          </Button>
-        </div>
-      )}
+              const projected = projectedMatches.filter(p => p.week === weekNum)
 
-      {/* Roster Warning */}
-      {playerTeam && (playerTeam.rosterIds?.length || 0) < 5 && (
-        <div className="shrink-0 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3">
-          <Clock size={16} className="text-amber-400 shrink-0" />
-          <p className="text-sm text-amber-200/80">
-            You need at least <strong className="text-amber-300">5 players</strong> to compete in matches.
-            {" "}
-            <button
-              className="underline text-amber-300 hover:text-amber-200 transition-colors"
-              onClick={() => router.push("/transfers")}
-            >
-              Go to Transfers
-            </button>
-          </p>
-        </div>
-      )}
-
-      {/* Main Timeline Area with External Controls */}
-      <div className="flex-1 flex items-center gap-4">
-        {/* Left Arrow */}
-        <div className="shrink-0 z-30">
-          <Button
-            size="icon"
-            variant="outline"
-            aria-label="Previous week"
-            onClick={() => setViewOffset(Math.max(0, viewOffset - 1))}
-            disabled={viewOffset <= 0}
-            className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors shadow-xl"
-          >
-            <ChevronLeft size={24} />
-          </Button>
-        </div>
-
-        {/* Timeline Container */}
-        <div className="flex-1 glass-panel border-white/5 relative overflow-hidden flex flex-col p-0 h-full">
-          {/* Timeline Grid */}
-          <div className="flex-1 flex overflow-x-hidden relative h-full" ref={containerRef}>
-            <motion.div
-              className="flex h-full"
-              animate={{ x: -viewOffset * 320 }} // Wider columns for detailed view
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
-              {Array.from({ length: TOTAL_WEEKS_TO_RENDER }).map((_, idx) => {
-                const weekNum = idx + 1
-
-                // Virtualization: only render weeks within viewport window
-                const RENDER_BUFFER = 4
-                if (idx < viewOffset - RENDER_BUFFER || idx > viewOffset + RENDER_BUFFER) {
-                  return <div key={weekNum} className="shrink-0" style={{ width: 320 }} />
-                }
-
-                const isPast = weekNum < currentWeek
-                const isCurrent = weekNum === currentWeek
-
-                // Display Logic
-                const displayYear = Math.ceil(weekNum / WEEKS_PER_YEAR)
-                const displayWeek = (weekNum - 1) % WEEKS_PER_YEAR + 1
-
-                // Get events/activities for this week. The deduped union is
-                // hoisted via useMemo above; this column-level filter is now
-                // O(matches) only, no Set rebuild per column.
-                const matches = allMatchesForLookup.filter(m =>
-                  m.week === weekNum &&
+              // Static calendar is 1-52; later seasons map back onto it.
+              const activeTournaments = FULL_TOURNAMENT_CALENDAR.filter(t =>
+                calendarWeek >= t.startWeek && calendarWeek < t.startWeek + t.duration
+              )
+              const participatingTournaments = activeTournaments.filter(t => {
+                const status = getTournamentStatus(t.id)
+                const seasonalIdPattern = new RegExp(`^${t.id}_s\\d+$`)
+                const hasMatches = scheduledMatches.some(m =>
+                  (m.tournamentId === t.id || (m.tournamentId && seasonalIdPattern.test(m.tournamentId))) &&
                   (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
                 )
+                return status === "QUALIFIED" || status === "REGISTERED" || status === "INVITED" || hasMatches
+              })
+              const upcomingIndicator = participatingTournaments.length === 0
+                ? FULL_TOURNAMENT_CALENDAR.find(t => {
+                    const status = getTournamentStatus(t.id)
+                    if (!(status === "QUALIFIED" || status === "REGISTERED" || status === "INVITED")) return false
+                    const weeksUntilStart = t.startWeek - calendarWeek
+                    return weeksUntilStart > 0 && weeksUntilStart <= 4
+                  })
+                : undefined
 
-                const projected = projectedMatches.filter(p => p.week === weekNum)
+              // Week-long blocks: bootcamps/retreats take the team away; campaigns run alongside.
+              const weekBlocks = (scheduledActivities || []).filter(a =>
+                a.duration > 0 && weekNum >= a.week && weekNum < a.week + a.duration
+              )
+              const awayBlock = weekBlocks.find(a => a.type === "BOOTCAMP" || a.type === "TRAVEL" || a.type === "REST")
 
-                // Active tournaments for this week
-                // FIX: Tournament Calendar is static 1-52.
-                // We need to map future years back to 1-52 cycle for static definitions
-                const calendarWeek = (weekNum - 1) % WEEKS_PER_YEAR + 1
-
-                const activeTournaments = FULL_TOURNAMENT_CALENDAR.filter(t =>
-                  calendarWeek >= t.startWeek && calendarWeek < t.startWeek + t.duration
-                )
-
-                // Filter for tournaments the USER is participating in
-                const participatingTournaments = activeTournaments.filter(t => {
-                  const status = getTournamentStatus(t.id)
-                  // Also check if we have any matches for this tournament ID (including seasonal variants)
-                  const seasonalIdPattern = new RegExp(`^${t.id}_s\\d+$`)
-                  const hasMatches = scheduledMatches.some(m =>
-                    (m.tournamentId === t.id || (m.tournamentId && seasonalIdPattern.test(m.tournamentId))) &&
-                    (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-                  )
-
-                  return status === "QUALIFIED" || status === "REGISTERED" || status === "INVITED" || hasMatches
-                })
-
-                // Upcoming tournament indicators (within 4 weeks before start)
-                const upcomingTournamentIndicators = participatingTournaments.length === 0
-                  ? FULL_TOURNAMENT_CALENDAR.filter(t => {
-                      const status = getTournamentStatus(t.id)
-                      if (!(status === "QUALIFIED" || status === "REGISTERED" || status === "INVITED")) return false
-                      const weeksUntilStart = t.startWeek - calendarWeek
-                      return weeksUntilStart > 0 && weeksUntilStart <= 4
-                    })
-                  : []
-
-                // Check for week-long activities (Bootcamps/Travel)
-                const weekActivity = (scheduledActivities || []).find(a =>
-                  weekNum >= a.week && weekNum < a.week + a.duration &&
-                  (a.type === "BOOTCAMP" || a.type === "TRAVEL" || a.type === "REST")
-                )
-
-                return (
-                  <div
-                    key={weekNum}
-                    className={cn(
-                      "w-[320px] h-full border-r border-white/5 flex flex-col relative shrink-0 transition-colors",
-                      isCurrent ? "bg-primary/5" : isPast ? "bg-black/40" : ""
-                    )}
-                  >
-                    {/* Current Week Pulse Animation */}
-                    {isCurrent && (
-                      <motion.div
-                        className="absolute inset-0 border-2 border-primary/20 rounded-lg pointer-events-none z-10"
-                        animate={{
-                          borderColor: ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0.1)']
-                        }}
-                        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                      />
-                    )}
-                    {/* Week Header - Fixed Height for Alignment */}
-                    <div className={cn(
-                      "h-[80px] p-3 border-b border-white/5 transition-colors relative z-10 shrink-0 flex flex-col",
-                      participatingTournaments.length > 0
-                        ? "bg-linear-to-b/srgb from-amber-500/15 via-amber-500/5 to-transparent border-amber-500/30 shadow-lg shadow-amber-500/5"
-                        : upcomingTournamentIndicators.length > 0
-                          ? "bg-linear-to-b/srgb from-amber-500/5 via-transparent to-transparent border-amber-500/10"
-                          : isCurrent ? "bg-primary/20 border-primary/30" : "bg-black/20"
-                    )}>
-                      <div className="flex items-center justify-center gap-2">
-                        <span className={cn(
-                          "text-sm font-normal uppercase tracking-widest text-center",
-                          participatingTournaments.length > 0 ? "text-amber-300" : isCurrent ? "text-primary" : "text-muted-foreground"
-                        )}>
-                          Week {displayWeek} <span className="text-[9px] opacity-50 ml-1">Y{displayYear}</span>
-                        </span>
-                        {isCurrent && (
-                          <Badge className="bg-primary text-black text-[8px] font-normal uppercase h-4 px-1">
-                            CURRENT
-                          </Badge>
-                        )}
-                      </div>
-
-                      {/* Tournament Indicator in Header */}
-                      <div className="flex-1 flex flex-col justify-center mt-1">
-                        {participatingTournaments.length > 0 ? (
-                          participatingTournaments.slice(0, 1).map(t => {
-                            const tierColors: Record<string, string> = {
-                              "S_TIER": "from-amber-500/30 to-amber-600/20 border-amber-400/40 text-amber-200",
-                              "A_TIER": "from-violet-500/30 to-violet-600/20 border-violet-400/40 text-violet-200",
-                              "B_TIER": "from-cyan-500/30 to-cyan-600/20 border-cyan-400/40 text-cyan-200",
-                              "C_TIER": "from-emerald-500/30 to-emerald-600/20 border-emerald-400/40 text-emerald-200",
-                            }
-                            const colorClass = tierColors[t.tier] || tierColors["C_TIER"]
-                            return (
-                              <button
-                                key={t.id}
-                                onClick={() => handleOpenTournament(t.id)}
-                                className={cn(
-                                  "w-full text-[10px] uppercase font-normal px-2 py-1.5 rounded-lg",
-                                  "bg-linear-to-r/srgb border shadow-lg",
-                    "hover:-translate-y-0.5 hover:shadow-glass-soft transition-all",
-                                  "flex items-center justify-between gap-2",
-                                  colorClass
-                                )}
-                              >
-                                <span className="truncate">{t.shortName}</span>
-                                <Trophy size={12} className="shrink-0 opacity-80" />
-                              </button>
-                            )
-                          })
-                        ) : upcomingTournamentIndicators.length > 0 ? (
-                          upcomingTournamentIndicators.slice(0, 1).map(t => {
-                            const weeksUntil = t.startWeek - calendarWeek
-                            return (
-                              <button
-                                key={t.id}
-                                onClick={() => handleOpenTournament(t.id)}
-                                className="w-full text-[10px] uppercase font-normal px-2 py-1.5 rounded-lg bg-white/5 border border-dashed border-white/15 hover:border-amber-500/30 hover:bg-amber-500/5 transition-all flex items-center justify-between gap-2 text-white/40"
-                              >
-                                <span className="truncate">{t.shortName} in {weeksUntil}w</span>
-                                <Clock size={10} className="shrink-0 opacity-50" />
-                              </button>
-                            )
-                          })
-                        ) : (
-                          <div className="h-6" /> /* Spacer for alignment */
-                        )}
-                      </div>
+              return (
+                <tr key={weekNum} className={cn("border-b border-line align-top last:border-b-0", isPast && "bg-shell/60")}>
+                  <th scope="row" className={cn("px-4 py-3 text-left font-normal", isCurrent && "bg-hover/40")}>
+                    <div className="flex items-baseline gap-2">
+                      <span className={cn("font-display text-xl font-bold uppercase leading-none", isCurrent ? "text-gold" : isPast ? "text-ink-3" : "text-ink-1")}>Week {displayWeek}</span>
+                      <span className="text-xs text-ink-3">{isCurrent ? "This week" : `S${displayYear}`}</span>
                     </div>
-
-                    {/* Daily Grid */}
-                    <div className="flex-1 flex flex-col overflow-y-auto custom-scrollbar relative">
-
-                      {/* Tournament Background Overlay with Shimmer (if active) */}
-                      {participatingTournaments.length > 0 && (
-                        <>
-                          <div className="absolute inset-0 bg-linear-to-b/srgb from-amber-500/3 via-transparent to-transparent pointer-events-none" />
-                          <div className="absolute inset-0 animate-schedule-shimmer pointer-events-none" />
-                        </>
+                    <div className="mt-2 space-y-1">
+                      {participatingTournaments.slice(0, 1).map(t => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setSelectedTournamentId(t.id)}
+                          className="flex w-full items-center gap-1.5 rounded-sm bg-raised px-2 py-1 text-left text-xs transition-colors hover:bg-hover"
+                        >
+                          <Trophy size={12} className="shrink-0 text-gold" />
+                          <span className="truncate font-semibold text-ink-1">{getDynamicTournamentName(t.shortName || t.name, weekNum)}</span>
+                          <span className="ml-auto shrink-0 text-[11px] text-ink-3">{TIER_LABEL[t.tier] ?? t.tier}</span>
+                        </button>
+                      ))}
+                      {upcomingIndicator && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTournamentId(upcomingIndicator.id)}
+                          className="flex w-full items-center gap-1.5 rounded-sm border border-dashed border-line-strong px-2 py-1 text-left text-xs text-ink-3 transition-colors hover:text-ink-1"
+                        >
+                          <Trophy size={12} className="shrink-0" />
+                          <span className="truncate">{upcomingIndicator.shortName} in {upcomingIndicator.startWeek - calendarWeek}w</span>
+                        </button>
                       )}
-
-                      {/* Activity Overlay */}
-                      {weekActivity && (
-                        <div className="absolute inset-0 z-20 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center border-l-4 border-orange-500">
-                          <Plane size={32} className="text-orange-400 mb-2" />
-                          <h3 className="text-lg font-normal uppercase text-white mb-1">{weekActivity.type}</h3>
-                          <div className="text-xs uppercase tracking-wider font-bold text-orange-400 mb-4">{weekActivity.name}</div>
-                          <p className="text-xs text-white/60">Team is currently away provided focused training.</p>
+                      {weekBlocks.map(a => (
+                        <div key={a.id} className="flex items-center gap-1.5 rounded-sm border border-line bg-shell px-2 py-1 text-xs text-ink-2" title={a.description}>
+                          {a.type === "MARKETING" ? <Megaphone size={12} className="shrink-0 text-ink-3" /> : <Plane size={12} className="shrink-0 text-ink-3" />}
+                          <span className="truncate">{a.name || a.type}</span>
                         </div>
-                      )}
-
-                      {DAYS.map((dayName, dayIndex) => {
-                        const dayDate = getDateForDay(weekNum, dayIndex)
-
-                        // Find matches for this specific day
-                        // Fallback: If match has no day (legacy), assign based on match index
-                        const dayMatches = matches.filter((m, idx) => {
-                          if (m.day !== undefined) return m.day === dayIndex
-                          // Legacy fallback: Distribute matches without day evenly
-                          if (m.isScrim) {
-                            // Scrims default to Wednesday (2) or Thursday (3)
-                            const scrimDay = idx % 2 === 0 ? 3 : 4
-                            return dayIndex === scrimDay
-                          }
-                          // Tournament/league matches: Distribute across Sat/Sun based on index
-                          const matchDayOffset = idx % 2 === 0 ? 5 : 6 // Alternate Sat/Sun
-                          return dayIndex === matchDayOffset
-                        })
-
-                        // Check for projected match on this day (Default to Saturday if no real matches)
-                        const dayProjected = projected.filter(() => {
-                          // Very simple logic: put projected matches on Saturday if no real matches
-                          return dayIndex === 5 && dayMatches.length === 0
-                        })
-
-                        // Find specific activities for this day
-                        const dayActivities = (scheduledActivities || []).filter(a =>
-                          a.week === weekNum && a.day === dayIndex && a.duration === 0
-                        )
-
-                        const isPastDayInCurrentWeek =
-                          timeMode === "HYBRID_DAILY" &&
-                          isCurrent &&
-                          dayIndex < currentDay
-
-                        const isTodayInCurrentWeek =
-                          timeMode === "HYBRID_DAILY" &&
-                          isCurrent &&
-                          dayIndex === currentDay
-
-                        const hasMatchOrActivity = dayMatches.length > 0 || dayProjected.length > 0 || dayActivities.length > 0
-                        const hasItems = hasMatchOrActivity
-
-                        const primaryMatch = dayMatches[0]
-                        const isScrimDay = primaryMatch?.isScrim
-                        const isMatchDay = primaryMatch && !primaryMatch.isScrim
-                        const isTournamentWeek = participatingTournaments.length > 0
-
-                        return (
-                          <div key={formatGameCalendarDate(gameCalendarDate(gameStartDate, weekNum, dayIndex), { weekday: "short" }).toUpperCase()} className={cn(
-                            "border-b border-white/5 flex group/day transition-all",
-                            "min-h-[56px]",
-                            isPastDayInCurrentWeek && "opacity-70",
-                            isTodayInCurrentWeek && "bg-primary/6 border-primary/20",
-                            isTournamentWeek ? "bg-amber-500/3" :
-                              isScrimDay ? "bg-purple-500/5 border-purple-500/10" :
-                                isMatchDay ? "bg-emerald-500/5 border-emerald-500/10" :
-                                  isCurrent && !isPast ? "hover:bg-white/5" : ""
-                          )}>
-                            {/* Day Label Column */}
-                            <div className={cn(
-                              "w-[60px] border-r border-white/5 py-3 px-2 flex flex-col items-center justify-center transition-colors",
-                              isTournamentWeek ? "bg-amber-500/10 text-amber-200" :
-                                isScrimDay ? "bg-purple-500/10 text-purple-200" :
-                                  isMatchDay ? "bg-emerald-500/10 text-emerald-200" :
-                                    "bg-black/20"
-                            )}>
-                              <span className={cn(
-                                "text-xs font-semibold uppercase tracking-wider",
-                                hasMatchOrActivity ? "text-white" : "text-muted-foreground"
-                              )}>{formatGameCalendarDate(gameCalendarDate(gameStartDate, weekNum, dayIndex), { weekday: "short" }).toUpperCase()}</span>
-                              <span className={cn(
-                                "text-xs tabular-nums mt-0.5",
-                                hasMatchOrActivity ? "text-white/70" : "text-white/30"
-                              )}>{dayDate.split(" ")[1]}</span>
-                              {isPastDayInCurrentWeek && (
-                                <Lock size={11} className="text-white/40 mt-1" />
-                              )}
-                              {isTodayInCurrentWeek && (
-                                <Badge className="mt-1 h-4 px-1 text-[8px] font-bold uppercase tracking-wide bg-primary text-black">
-                                  TODAY
-                                </Badge>
-                              )}
-                            </div>
-
-                            {/* Content Column */}
-                            <div className="flex-1 p-2 relative flex flex-col justify-center">
-                              {/* Booking button - Allow on all empty non-past days */}
-                              {!hasItems && !isPast && !weekActivity && !isPastDayInCurrentWeek && (
-                                <div className="absolute inset-0 opacity-0 group-hover/day:opacity-100 flex items-center justify-center pointer-events-none p-2 transition-all duration-300 z-30">
-                                  <button
-                                    onClick={() => handleOpenPicker(weekNum, dayIndex)}
-                                    className="pointer-events-auto w-full h-full rounded-lg border border-dashed border-white/10 hover:border-primary/50 bg-black/20 hover:bg-primary/5 text-muted-foreground hover:text-primary flex flex-col items-center justify-center gap-2 transition-all duration-300 group/btn"
-                                  >
-                                    <div className="w-8 h-8 rounded-full bg-white/5 group-hover/btn:bg-primary/20 flex items-center justify-center transition-colors">
-                                      <Plus size={16} className="opacity-50 group-hover/btn:opacity-100 transition-all" />
-                                    </div>
-                                    <span className="text-[9px] uppercase tracking-widest font-bold opacity-0 group-hover/btn:opacity-100 transform translate-y-2 group-hover/btn:translate-y-0 transition-all">
-                                      Add Event
-                                    </span>
-                                  </button>
-                                </div>
-                              )}
-
-                              <div className="flex flex-col gap-1.5">
-                                {dayMatches.map((match, matchIndex) => {
-                                  // Look up tournament name from calendar
-                                  const tournamentDef = match.tournamentId
-                                    ? FULL_TOURNAMENT_CALENDAR.find(t =>
-                                      match.tournamentId === t.id || match.tournamentId?.startsWith(`${t.id}_`)
-                                    )
-                                    : null
-
-                                  const isLockedByDay =
-                                    timeMode === "HYBRID_DAILY" &&
-                                    isCurrent &&
-                                    (match.day ?? dayIndex) > currentDay &&
-                                    !match.result
-
-                                  return (
-                                    <motion.div
-                                      key={match.id}
-                                      initial={{ opacity: 0, x: -10 }}
-                                      animate={{ opacity: 1, x: 0 }}
-                                      transition={{ delay: matchIndex * 0.05, duration: 0.2 }}
-                                    >
-                                      <ScheduleMatchCard
-                                        match={match as any}
-                                        teams={teams as any}
-                                        playerTeamId={playerTeamId || ""}
-                                        isScrim={match.isScrim}
-                                        tournamentName={tournamentDef ? getDynamicTournamentName(tournamentDef.shortName || tournamentDef.name, currentWeek) : undefined}
-                                        isCurrentWeek={isCurrent}
-                                        isLocked={isLockedByDay}
-                                        onClick={() => {
-                                          if (isLockedByDay) return
-                                          // Open popup if match is not yet played, otherwise navigate to result
-                                          if (!match.result && !match.isScrim) {
-                                            setSelectedMatchForPopup(match)
-                                          }
-                                        }}
-                                      />
-                                    </motion.div>
-                                  )
-                                })}
-
-                                {dayActivities.map((activity, actIndex) => (
-                                  <motion.div
-                                    key={activity.id}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: (dayMatches.length + actIndex) * 0.05, duration: 0.2 }}
-                                  >
-                                    <ScheduleActivityCard activity={activity} />
-                                  </motion.div>
-                                ))}
-
-                                {dayProjected.map((proj, projIndex) => (
-                                  <motion.div
-                                    key={proj.id}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: (dayMatches.length + dayActivities.length + projIndex) * 0.05, duration: 0.2 }}
-                                  >
-                                    <ScheduleMatchCard
-                                      teams={teams as any}
-                                      playerTeamId={playerTeamId || ""}
-                                      projected={{
-                                        stage: proj.stage,
-                                        tournamentName: proj.tournamentName,
-                                        tournamentId: proj.tournamentId,
-                                        week: proj.week,
-                                        reason: proj.reason
-                                      }}
-                                    />
-                                  </motion.div>
-                                ))}
-
-                                {/* Tournament Banner for context if no matches but tournament active */}
-                                {!hasItems && participatingTournaments.length > 0 && dayIndex === 6 && (
-                                  <div className="text-[9px] text-center text-muted-foreground uppercase tracking-widest opacity-50 py-2">
-                                    {participatingTournaments[0].shortName} Week
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
+                      ))}
+                      {projected.slice(0, 2).map(proj => (
+                        <ScheduleMatchCard
+                          key={proj.id}
+                          teams={teams as any}
+                          playerTeamId={playerTeamId || ""}
+                          projected={{ stage: proj.stage, tournamentName: proj.tournamentName, tournamentId: proj.tournamentId, week: proj.week, reason: proj.reason }}
+                        />
+                      ))}
+                      {projected.length > 2 && <p className="px-1 text-[11px] text-ink-3">+{projected.length - 2} more forecast</p>}
                     </div>
-                  </div>
-                )
-              })}
-            </motion.div>
-          </div>
-        </div>
+                  </th>
 
-        {/* Right Arrow */}
-        <div className="shrink-0 z-30">
-          <Button
-            size="icon"
-            variant="outline"
-            aria-label="Next week"
-            onClick={() => setViewOffset(Math.min(TOTAL_WEEKS_TO_RENDER - 1, viewOffset + 1))}
-            disabled={viewOffset >= TOTAL_WEEKS_TO_RENDER - 1}
-            className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors shadow-xl"
-          >
-            <ChevronRight size={24} />
-          </Button>
-        </div>
-      </div>
+                  {weekdayHeaders.map((_, dayIndex) => {
+                    // Matches without a day (legacy saves) keep their old spread: scrims mid-week, others at the weekend.
+                    const dayMatches = matches.filter((m, idx) => {
+                      if (m.day !== undefined) return m.day === dayIndex
+                      if (m.isScrim) return dayIndex === (idx % 2 === 0 ? 3 : 4)
+                      return dayIndex === (idx % 2 === 0 ? 5 : 6)
+                    })
+                    const dayActivities = (scheduledActivities || []).filter(a =>
+                      a.week === weekNum && a.day === dayIndex && a.duration === 0
+                    )
+                    const isPastDay = isPast || (isCurrent && daily && dayIndex < currentDay)
+                    const isToday = isCurrent && (daily ? dayIndex === currentDay : false)
+                    const hasItems = dayMatches.length > 0 || dayActivities.length > 0
+                    const canBook = !hasItems && !isPastDay && !awayBlock
+                    const date = dateFor(weekNum, dayIndex)
+
+                    return (
+                      <td
+                        key={dayIndex}
+                        className={cn(
+                          "group relative h-[104px] border-l border-line p-1.5 align-top",
+                          isToday && "bg-hover/40",
+                          awayBlock && !isPastDay && "bg-raised/30",
+                        )}
+                      >
+                        {isToday && <span aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 bg-gold" />}
+                        <div className="flex items-center justify-between px-1 pb-1">
+                          <span className={cn("text-xs tabular-nums", isToday ? "font-semibold text-ink-1" : isPastDay ? "text-ink-3/70" : "text-ink-3")}>
+                            {formatGameCalendarDate(date, { month: "short", day: "numeric" })}
+                          </span>
+                          {isToday && <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">Today</span>}
+                        </div>
+                        <div className={cn("space-y-1", isPastDay && !hasItems && "opacity-60")}>
+                          {dayMatches.map(match => {
+                            const tournamentDef = match.tournamentId
+                              ? FULL_TOURNAMENT_CALENDAR.find(t =>
+                                match.tournamentId === t.id || match.tournamentId?.startsWith(`${t.id}_`)
+                              )
+                              : null
+                            return (
+                              <ScheduleMatchCard
+                                key={match.id}
+                                match={match as any}
+                                teams={teams as any}
+                                playerTeamId={playerTeamId || ""}
+                                isScrim={match.isScrim}
+                                tournamentName={leagueStageLabel(match) ?? (tournamentDef ? getDynamicTournamentName(tournamentDef.shortName || tournamentDef.name, currentWeek) : undefined)}
+                                isCurrentWeek={isCurrent}
+                                onClick={() => {
+                                  if (match.result) router.push(`/match/${match.id}/result`)
+                                  else setSelectedMatchForPopup(match)
+                                }}
+                              />
+                            )
+                          })}
+                          {dayActivities.map(activity => (
+                            <ScheduleActivityCard key={activity.id} activity={activity} />
+                          ))}
+                          {awayBlock && !hasItems && !isPastDay && (
+                            <p className="px-1 text-[11px] text-ink-3">Away · {awayBlock.type === "REST" ? "retreat" : "bootcamp"}</p>
+                          )}
+                        </div>
+                        {canBook && (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenPicker(weekNum, dayIndex)}
+                            aria-label={`Book activity on ${dayLabel(weekNum, dayIndex)}`}
+                            className="absolute inset-x-1.5 bottom-1.5 flex h-7 items-center justify-center gap-1 rounded-sm border border-dashed border-line-strong text-xs text-ink-3 opacity-0 transition-opacity hover:text-ink-1 focus-visible:opacity-100 group-hover:opacity-100"
+                          >
+                            <Plus size={12} /> Book
+                          </button>
+                        )}
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </Panel>
 
       {selectedTournament && (
         <TournamentDetailsModal
@@ -804,6 +529,7 @@ export default function SchedulePage() {
         isOpen={isPickerOpen}
         onClose={() => setIsPickerOpen(false)}
         week={selectedWeek}
+        dayLabel={dayLabel(selectedWeek, selectedDay)}
         onSelectType={handleActivitySelect}
       />
 
@@ -826,6 +552,13 @@ export default function SchedulePage() {
         week={selectedWeek}
       />
 
+      <BookStaffMeetingModal
+        isOpen={isMeetingModalOpen}
+        onClose={() => setIsMeetingModalOpen(false)}
+        week={selectedWeek}
+        initialDay={selectedDay}
+      />
+
       {/* Match Popup */}
       {selectedMatchForPopup && (() => {
         const opponentId = selectedMatchForPopup.homeTeamId === playerTeamId
@@ -833,7 +566,7 @@ export default function SchedulePage() {
           : selectedMatchForPopup.homeTeamId
         const opponent = teams.find(t => t.id === opponentId)
         const opponentRoster = opponent
-          ? players.filter(p => opponent.rosterIds?.includes(p.id))
+          ? (opponent.rosterIds || []).map(id => players.find(p => p.id === id)).filter((p): p is typeof players[number] => !!p)
           : []
         const tournamentDef = selectedMatchForPopup.tournamentId
           ? FULL_TOURNAMENT_CALENDAR.find(t =>
@@ -854,10 +587,11 @@ export default function SchedulePage() {
             currentWeek={currentWeek}
             completedMatches={completedMatches}
             playerTeamId={playerTeamId ?? undefined}
+            isDue={isMatchDue(selectedMatchForPopup)}
+            dateLabel={dayLabel(selectedMatchForPopup.week, selectedMatchForPopup.day ?? 6)}
           />
         )
       })()}
     </div>
   )
 }
-

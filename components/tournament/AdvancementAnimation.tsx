@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trophy, ChevronRight, Sparkles, Medal } from "lucide-react"
+import { Trophy, ChevronRight, Medal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { soundManager } from "@/lib/sound-manager"
@@ -57,7 +57,8 @@ export function AdvancementAnimation({
             setPhase("celebrate")
             // Sound + confetti land together with the celebrate phase.
             if (typeof window !== "undefined") {
-                soundManager.play(isChampionship ? "victory" : "tournamentAdvance")
+                // The match result already played its victory cue (once per match).
+                soundManager.play("tournamentAdvance")
             }
             // Fire confetti with better positioning (above fold)
             fireConfetti({
@@ -65,8 +66,8 @@ export function AdvancementAnimation({
                 spread: 100,
                 origin: { x: 0.5, y: 0.35 },
                 colors: isChampionship
-                    ? ["#f59e0b", "#fbbf24", "#fcd34d", "#ffffff"]
-                    : ["#10b981", "#3b82f6", "#8b5cf6", "#ffffff"],
+                    ? ["#F2B53A", "#FFC85C", "#F2F4F7"]
+                    : ["#3DD68C", "#F2B53A", "#F2F4F7"],
                 gravity: 0.8,
                 scalar: 1.2
             })
@@ -110,7 +111,7 @@ export function AdvancementAnimation({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/60 backdrop-blur-xs cursor-pointer"
+                    className="fixed inset-0 z-modal flex cursor-pointer items-center justify-center bg-ink/95"
                     onClick={onComplete}
                     ref={dialogRef} tabIndex={-1}
                     role="dialog"
@@ -122,34 +123,6 @@ export function AdvancementAnimation({
                     }}
                 >
                     <span id="advancement-skip-hint" className="sr-only">Press Enter or Escape to continue.</span>
-                    {/* Animated Background */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        {/* Primary glow */}
-                        <motion.div
-                            className={cn(
-                                "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[120px]",
-                                isAdvancingToFinals || isChampionship ? "bg-amber-500/25" : "bg-emerald-500/15"
-                            )}
-                            animate={{
-                                scale: [1, 1.2, 1],
-                                opacity: [0.4, 0.6, 0.4]
-                            }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        />
-                        {/* Secondary accent glow */}
-                        <motion.div
-                            className={cn(
-                                "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full blur-[80px]",
-                                isAdvancingToFinals || isChampionship ? "bg-yellow-400/20" : "bg-cyan-500/10"
-                            )}
-                            animate={{
-                                scale: [1.2, 1, 1.2],
-                                opacity: [0.3, 0.5, 0.3]
-                            }}
-                            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                        />
-                    </div>
-
                     <div className="relative flex flex-col items-center gap-6 max-w-3xl px-8">
                         {/* Tournament Badge */}
                         {tournamentName && (
@@ -158,15 +131,15 @@ export function AdvancementAnimation({
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
                                 className={cn(
-                                    "px-6 py-2 rounded-full border backdrop-blur-xs",
+                                    "px-3 py-1 rounded-sm border ",
                                     isAdvancingToFinals || isChampionship
-                                        ? "bg-amber-500/10 border-amber-500/30"
-                                        : "bg-emerald-500/10 border-emerald-500/30"
+                                        ? "bg-gold/[0.06] border-gold/40"
+                                        : "bg-positive/10 border-positive/40"
                                 )}
                             >
                                 <p className={cn(
-                                    "text-sm font-bold uppercase tracking-[0.2em]",
-                                    isAdvancingToFinals || isChampionship ? "text-amber-400" : "text-emerald-400"
+                                    "text-sm font-bold uppercase tracking-[0.08em]",
+                                    isAdvancingToFinals || isChampionship ? "text-gold" : "text-positive"
                                 )}>
                                     {tournamentName}
                                 </p>
@@ -182,26 +155,17 @@ export function AdvancementAnimation({
                             }}
                             transition={{ duration: 0.5, type: "spring" }}
                             className={cn(
-                                "relative w-24 h-24 rounded-2xl flex items-center justify-center shadow-2xl",
+                                "relative w-24 h-24 rounded-lg flex items-center justify-center ",
                                 isAdvancingToFinals || isChampionship
-                                    ? "bg-linear-to-br/srgb from-amber-500/20 to-amber-600/20 border-2 border-amber-500/40"
-                                    : "bg-linear-to-br/srgb from-emerald-500/20 to-cyan-500/20 border-2 border-emerald-500/40"
+                                    ? "bg-raised border-2 border-gold/40"
+                                    : "bg-raised border-2 border-positive/40"
                             )}
                         >
                             {teamLogo ? (
                                 <Image src={teamLogo} alt={teamName} width={64} height={64} className="w-16 h-16 object-contain" unoptimized />
                             ) : (
-                                <span className="text-3xl font-bold text-white">{teamName?.[0] || "?"}</span>
+                                <span className="text-3xl font-bold text-ink-1">{teamName?.[0] || "?"}</span>
                             )}
-                            {/* Pulse ring */}
-                            <motion.div
-                                className={cn(
-                                    "absolute inset-0 rounded-2xl border-2",
-                                    isAdvancingToFinals || isChampionship ? "border-amber-400" : "border-emerald-400"
-                                )}
-                                animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                            />
                         </motion.div>
 
                         {/* Team Name */}
@@ -209,7 +173,7 @@ export function AdvancementAnimation({
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.3 }}
-                            className="text-2xl font-bold text-white uppercase tracking-wide"
+                            className="font-display text-3xl font-bold uppercase text-ink-1"
                         >
                             {teamName}
                         </motion.h3>
@@ -230,21 +194,19 @@ export function AdvancementAnimation({
                                 transition={{ duration: 0.4 }}
                                 className="text-center min-w-[140px]"
                             >
-                                <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Completed</p>
-                                <p className="text-white/60 text-lg font-semibold">{formatStage(fromStage)}</p>
+                                <p className="text-ink-3 text-[11px] font-bold uppercase tracking-[0.08em] mb-1">Completed</p>
+                                <p className="text-ink-2 text-lg font-semibold">{formatStage(fromStage)}</p>
                             </motion.div>
 
                             {/* Arrow Path */}
                             <div className="relative w-32 flex items-center justify-center">
                                 {/* Track */}
-                                <div className="absolute w-full h-0.5 bg-white/10 rounded-full" />
+                                <div className="absolute w-full h-0.5 bg-hover rounded-full" />
                                 {/* Progress */}
                                 <motion.div
                                     className={cn(
                                         "absolute left-0 h-0.5 rounded-full",
-                                        isAdvancingToFinals || isChampionship
-                                            ? "bg-linear-to-r/srgb from-amber-500 to-yellow-400"
-                                            : "bg-linear-to-r/srgb from-emerald-500 to-cyan-400"
+                                        isAdvancingToFinals || isChampionship ? "bg-gold" : "bg-positive"
                                     )}
                                     initial={{ width: "0%" }}
                                     animate={{
@@ -263,7 +225,7 @@ export function AdvancementAnimation({
                                 >
                                     <ChevronRight className={cn(
                                         "w-6 h-6",
-                                        isAdvancingToFinals || isChampionship ? "text-amber-400" : "text-emerald-400"
+                                        isAdvancingToFinals || isChampionship ? "text-gold" : "text-positive"
                                     )} />
                                 </motion.div>
                             </div>
@@ -279,12 +241,12 @@ export function AdvancementAnimation({
                                 className="text-center min-w-[140px]"
                             >
                                 <p className={cn(
-                                    "text-[10px] font-bold uppercase tracking-[0.2em] mb-1",
-                                    isAdvancingToFinals || isChampionship ? "text-amber-400/70" : "text-emerald-400/70"
+                                    "text-[11px] font-bold uppercase tracking-[0.08em] mb-1",
+                                    isAdvancingToFinals || isChampionship ? "text-gold/70" : "text-positive/70"
                                 )}>Next Stage</p>
                                 <p className={cn(
                                     "text-xl font-bold",
-                                    isAdvancingToFinals || isChampionship ? "text-amber-400" : "text-emerald-400"
+                                    isAdvancingToFinals || isChampionship ? "text-gold" : "text-positive"
                                 )}>
                                     {formatStage(toStage)}
                                 </p>
@@ -304,22 +266,20 @@ export function AdvancementAnimation({
                         >
                             <div className="flex items-center justify-center gap-4 mb-3">
                                 {isAdvancingToFinals || isChampionship ? (
-                                    <Trophy className="w-8 h-8 text-amber-400" />
+                                    <Trophy className="w-8 h-8 text-gold" />
                                 ) : (
-                                    <Medal className="w-8 h-8 text-emerald-400" />
+                                    <Medal className="w-8 h-8 text-positive" />
                                 )}
                                 <h2 className={cn(
-                                    "text-4xl font-black uppercase tracking-tight",
-                                    isAdvancingToFinals || isChampionship
-                                        ? "bg-linear-to-r/srgb from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent"
-                                        : "bg-linear-to-r/srgb from-emerald-300 via-cyan-200 to-emerald-300 bg-clip-text text-transparent"
+                                    "font-display text-5xl font-extrabold uppercase leading-none",
+                                    isAdvancingToFinals || isChampionship ? "text-gold" : "text-ink-1"
                                 )}>
-                                    {isAdvancingToFinals || isChampionship ? "FINALS BOUND!" : "ADVANCING!"}
+                                    {isAdvancingToFinals || isChampionship ? "Into the final" : "Advancing"}
                                 </h2>
                                 {isAdvancingToFinals || isChampionship ? (
-                                    <Trophy className="w-8 h-8 text-amber-400" />
+                                    <Trophy className="w-8 h-8 text-gold" />
                                 ) : (
-                                    <Medal className="w-8 h-8 text-emerald-400" />
+                                    <Medal className="w-8 h-8 text-positive" />
                                 )}
                             </div>
 
@@ -327,40 +287,12 @@ export function AdvancementAnimation({
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.8 }}
-                                className="text-white/30 text-xs mt-8 uppercase tracking-widest"
+                                className="mt-8 text-xs text-ink-3"
                             >
                                 Click anywhere to continue
                             </motion.p>
                         </motion.div>
 
-                        {/* Decorative sparkles during celebration */}
-                        {phase === "celebrate" && (
-                            <>
-                                {[...Array(6)].map((_, i) => (
-                                    <motion.div
-                                        key={i}
-                                        className="absolute"
-                                        style={{
-                                            top: `${20 + ((i * 37 + 13) % 60)}%`,
-                                            left: `${10 + ((i * 53 + 7) % 80)}%`
-                                        }}
-                                        initial={{ opacity: 0, scale: 0 }}
-                                        animate={{ opacity: [0, 1, 0], scale: [0, 1, 0] }}
-                                        transition={{
-                                            duration: 1.5,
-                                            delay: 0.2 + i * 0.15,
-                                            repeat: Infinity,
-                                            repeatDelay: 1
-                                        }}
-                                    >
-                                        <Sparkles className={cn(
-                                            "w-5 h-5",
-                                            isAdvancingToFinals || isChampionship ? "text-amber-400/60" : "text-emerald-400/60"
-                                        )} />
-                                    </motion.div>
-                                ))}
-                            </>
-                        )}
                     </div>
                 </motion.div>
             )}

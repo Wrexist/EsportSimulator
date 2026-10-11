@@ -1,6 +1,8 @@
 import { GameSave, HallOfFameEntry } from "./save-types"
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
 import { SeededRNG } from "./rng"
+import { runwaySummary } from "./season/club-finances"
+import { formatCurrency } from "@/lib/utils-extended"
 
 /**
  * Legend Events Manager
@@ -15,6 +17,14 @@ export class LegendEventsManager {
     // Probability constants
     private static readonly MENTORSHIP_CHANCE = 0.02 // 2% per week
     private static readonly COACH_OPPORTUNITY_CHANCE = 0.005 // 0.5% per week (very rare)
+    static readonly COACH_SALARY = 15000
+    /**
+     * A legend only offers to coach a club that can carry the wage: after
+     * hiring, the club must either still make money or have at least this
+     * many weeks of cash at the new weekly loss. Without it a small club's
+     * competent "yes" was a bankruptcy a few months later.
+     */
+    static readonly COACH_MIN_RUNWAY_WEEKS = 26
 
     /**
      * Process potential legend events each week
@@ -80,8 +90,9 @@ export class LegendEventsManager {
                 playerName: player.nickname,
                 benefit: "+1 Skill Point, +15 Morale"
             },
+            // A message: the benefit is already applied, there is nothing to
+            // decide (a lone "Incredible!" button read as a pending decision).
             acknowledged: false,
-            choices: [{ id: "ack", text: "Incredible!", effects: {} }]
         })
     }
 
@@ -93,8 +104,19 @@ export class LegendEventsManager {
         // Pick a random legend
         const legend = FOUNDING_LEGENDS[Math.floor(rng.next() * FOUNDING_LEGENDS.length)]
 
+        const team = save.teams.find(t => t.id === playerTeamId)
+        if (!team) return
+        const salary = this.COACH_SALARY
+        const money = runwaySummary(save, team)
+        const netAfter = money.weeklyNet - salary
+        const runwayAfter = netAfter < 0 ? Math.max(0, money.cash) / -netAfter : Infinity
+        if (runwayAfter < this.COACH_MIN_RUNWAY_WEEKS) return
+
         // Create event with choice
-        const coachBody = `${legend.name} is considering coming out of retirement as a coach! They're interested in joining your organization.`
+        const cost = netAfter >= 0
+            ? `The wage is ${formatCurrency(salary, "$", false)} a week; the club would still make ${formatCurrency(netAfter, "$", false)} a week.`
+            : `The wage is ${formatCurrency(salary, "$", false)} a week; the club would lose ${formatCurrency(-netAfter, "$", false)} a week (cash lasts about ${Math.floor(runwayAfter)} weeks).`
+        const coachBody = `${legend.name} is considering coming out of retirement as a coach! They're interested in joining your organization. ${cost}`
         save.eventsLog.push({
             id: `legend_coach_opportunity_${save.currentWeek}_${legend.id}`,
             type: "CONTRACT_OFFER",
@@ -108,12 +130,12 @@ export class LegendEventsManager {
                 legendId: legend.id,
                 legendName: legend.name,
                 legendPortrait: legend.portraitPath,
-                salaryCost: 15000, // High salary for a legend coach
+                salaryCost: salary, // High salary for a legend coach
                 benefitDescription: "+5% team skill gain, +10 Chemistry, Prestige boost"
             },
             acknowledged: false,
             choices: [
-                { id: "hire", text: `Hire as Coach ($15,000/week)`, effects: { money: 0 } },
+                { id: "hire", text: `Hire as Coach (${formatCurrency(salary, "$", false)}/week)`, effects: { money: 0 } },
                 { id: "decline", text: "Decline respectfully", effects: { money: 0 } }
             ]
         })

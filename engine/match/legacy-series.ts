@@ -12,7 +12,9 @@
  * Every path now drives `playLegacyRound`, a pure step over a serializable
  * state (`SimState` + recorded map results). Rules applied by the step:
  *
- *   - Round RNG = createMatchRNG(seed + mapIndex * 1000 + round).
+ *   - Round RNG = createMatchRNG(legacyRoundSeed(seed, matchId, mapIndex, round)),
+ *     a hash, so adjacent seeds (or two matches saved with the same seed)
+ *     never share a round stream.
  *   - Starting sides come from `resolveHomeStartsCT` (forced veto side or a
  *     seed/map hash), never from a shared stream.
  *   - Pistol rounds (1 and 13) are PISTOL for both teams; overtime rounds are
@@ -20,7 +22,10 @@
  *     its economy style thresholds.
  *   - Manager decisions only touch the managed team: a buy call
  *     (ECO/FORCE/SEMIBUY/FULL/DOUBLE AWP) and a regroup (tactical timeout)
- *     that subtracts at most two losses from that team's tilt calculation.
+ *     worth a small round-win edge while that team is on a losing streak.
+ *   - No streak/momentum/tilt bonuses: streaks act through the economy only.
+ *     The momentum score is still tracked (winner +1, eco win +3, clutch +2)
+ *     for display, but no longer moves round odds.
  *   - Halftime (after round 12), overtime entry (12-12) and every overtime
  *     half swap sides, reset economies and clear streaks/momentum. Overtime
  *     sets are MR3 to 16/19/22; after a third tied set the next decided
@@ -45,19 +50,33 @@ import type {
     Team,
 } from '@/types'
 import { EconomyManager } from '../economy-manager'
-import { createMatchRNG, type SeededRNG } from '../rng'
+import { createMatchRNG, deriveSeed, type SeededRNG } from '../rng'
 import { applyRoundEconomy, getMapsToWinForFormat, resolveHomeStartsCT } from '@/lib/live-match-utils'
-import { managedLoadout, regroupLossStreak, restoreTimeoutState, spendTimeout, type TimeoutState } from './manager-controls'
-import { determineMapMVP, determineMVP, generateMatchStats } from './match-stats'
+import { managedLoadout, regroupEdge, restoreTimeoutState, spendTimeout, type TimeoutState } from './manager-controls'
+import { determineMapMVP, determineMVP, generateMatchStats, generateScriptMatchStats } from './match-stats'
 import type { BuyStrategy } from './buy-phase'
 import type { PlayerSimulationState } from './round-outcome'
-import { LEGACY_MATCH_ENGINE } from './live-checkpoint'
+import { LEGACY_ENGINE_VERSION, SCRIPT_ENGINE_VERSION, type EngineVersion } from './engine-version'
+import type { ScriptRoundExtra, ScriptSeries } from './round-sim'
+import { applyScriptRoundEconomy, ECON_OVERTIME_START_CASH, ECON_START_LOSS_LEVEL } from './round-sim/economy'
 
 export type ManagerStrategy = 'ECO' | 'FORCE' | 'SEMIBUY' | 'FULL' | 'DOUBLE AWP'
 export const MANAGER_STRATEGIES: readonly ManagerStrategy[] = ['ECO', 'FORCE', 'SEMIBUY', 'FULL', 'DOUBLE AWP']
 export const LEGACY_SERIES_RULES = 2 as const
+/**
+ * Per-round stream: hashed from the match seed, match id, map index and
+ * round. The old `seed + mapIndex * 1000 + round` overlapped (seed N round 2
+ * == seed N+1 round 1; double-elim children used parent seed + 1) and every
+ * scrim (seed 0) replayed the same rounds.
+ */
+export function legacyRoundSeed(seed: number, matchId: string, mapIndex: number, round: number): number {
+    return deriveSeed(seed, matchId, 'round', mapIndex, round)
+}
+
 /** Dedicated stream for post-series statistics so they never depend on how many rounds were stepped. */
-export const LEGACY_STATS_SEED_OFFSET = 7_777_777
+export function legacyStatsSeed(seed: number, matchId: string): number {
+    return deriveSeed(seed, matchId, 'stats')
+}
 
 type StaffBundle = { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist }
 
@@ -73,7 +92,23 @@ export interface LegacyRoundEngine {
         currentCTTeamId?: string, currentTTeamId?: string, customTactics?: CustomTactics,
         homeMomentumScore?: number, awayMomentumScore?: number, homeStaff?: StaffBundle, awayStaff?: StaffBundle,
         mapId?: MapId, matchStage?: string, cachedHomeStressRes?: number, cachedAwayStressRes?: number, cachedPlayerMap?: Map<string, Player>,
-    ): { winner: 'HOME' | 'AWAY'; winType: RoundResult['winType']; kills: RoundResult['kills']; deaths: NonNullable<RoundResult['deaths']>; events: NonNullable<RoundResult['events']> }
+        homeRegroupEdge?: number, awayRegroupEdge?: number,
+        /** script-v1 per-series data (legacy-v2 ignores it). */
+        extra?: ScriptRoundExtra,
+    ): LegacyRoundOutcome
+}
+
+export interface LegacyRoundOutcome {
+    winner: 'HOME' | 'AWAY'
+    winType: RoundResult['winType']
+    kills: RoundResult['kills']
+    deaths: NonNullable<RoundResult['deaths']>
+    events: NonNullable<RoundResult['events']>
+    /** script-v1 additive data. */
+    plan?: RoundResult['plan']
+    damage?: RoundResult['damage']
+    utility?: RoundResult['utility']
+    utilityUsed?: Record<string, string[]>
 }
 
 export interface LegacySeriesSide {
@@ -84,11 +119,21 @@ export interface LegacySeriesSide {
     strength: number
     mapStrengths: Map<MapId, number>
     stressRes: number
+    /** Inputs of the non-player edge (kept so a context can be re-targeted to another engine). */
+    counterMod?: number
+    mentalPrep?: boolean
+    implicitGear?: boolean
 }
 
 export interface LegacySeriesContext {
     engine: LegacyRoundEngine
+    /** Rules the stepper applies (economy, overtime money, stats); unset = legacy-v2. */
+    engineVersion?: EngineVersion
+    /** script-v1 per-series data (profiles, IGL quality, team edge, day form). */
+    script?: ScriptSeries
     seed: number
+    /** Match id; mixed into every round seed. */
+    matchId?: string
     format: string
     maps: MapId[]
     mapStartingSides?: Record<string, string>
@@ -226,7 +271,15 @@ function mapStartSim(ctx: LegacySeriesContext, mapIndex: number, homeSeries: num
         homeRounds: 0, awayRounds: 0, currentMapIndex: mapIndex, currentRound: 1,
         homeSeriesScore: homeSeries, awaySeriesScore: awaySeries,
         isOvertime: false, currentOTSet: 0, homeStartsCT, homeMomentumScore: 0, awayMomentumScore: 0,
+        ...(isScript(ctx) ? { homeLossLevel: ECON_START_LOSS_LEVEL, awayLossLevel: ECON_START_LOSS_LEVEL } : {}),
     }
+}
+
+const isScript = (ctx: LegacySeriesContext) => ctx.engineVersion === SCRIPT_ENGINE_VERSION
+
+/** Overtime start money: $10,000 (legacy-v2) or the $12,500 (script-v1). */
+function overtimeCash(ctx: LegacySeriesContext): number {
+    return isScript(ctx) ? ECON_OVERTIME_START_CASH : 10000
 }
 
 export function createLegacySeriesState(ctx: LegacySeriesContext): LegacySeriesState {
@@ -240,6 +293,7 @@ function swapSides(ctx: LegacySeriesContext, sim: LegacySimState, cash: number):
     sim.awayEconomy = freshEconomy(ctx.away.players, !sim.homeStartsCT, cash)
     sim.homeWinStreak = sim.awayWinStreak = sim.homeLossStreak = sim.awayLossStreak = 0
     sim.homeMomentumScore = sim.awayMomentumScore = 0
+    if (isScript(ctx)) sim.homeLossLevel = sim.awayLossLevel = ECON_START_LOSS_LEVEL
 }
 
 /**
@@ -267,7 +321,7 @@ export function applyLegacyTransition(ctx: LegacySeriesContext, sim: LegacySimSt
     if (!sim.isOvertime && sim.homeRounds === 12 && sim.awayRounds === 12) {
         sim.isOvertime = true
         sim.currentOTSet = 1
-        swapSides(ctx, sim, 10000)
+        swapSides(ctx, sim, overtimeCash(ctx))
         return 'OVERTIME'
     }
     if (!sim.isOvertime && sim.currentRound === 13) {
@@ -276,7 +330,7 @@ export function applyLegacyTransition(ctx: LegacySeriesContext, sim: LegacySimSt
     }
     if (sim.isOvertime && sim.currentRound > 25 && (sim.currentRound - 25) % 3 === 0) {
         if ((sim.currentRound - 25) % 6 === 0) sim.currentOTSet = Math.max(1, sim.currentOTSet) + 1
-        swapSides(ctx, sim, 10000)
+        swapSides(ctx, sim, overtimeCash(ctx))
         return 'OVERTIME_SWITCH'
     }
     return 'NONE'
@@ -310,7 +364,7 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     if (!mapId) throw Error('Round requested for a map outside the series')
     const roundNum = sim.currentRound
     const homeIsCT = sim.homeStartsCT
-    const rng = createMatchRNG(ctx.seed + mapIndex * 1000 + roundNum)
+    const rng = createMatchRNG(legacyRoundSeed(ctx.seed, ctx.matchId ?? '', mapIndex, roundNum))
 
     const hEcon = cloneEconomy(home.players, sim.homeEconomy, homeIsCT)
     const aEcon = cloneEconomy(away.players, sim.awayEconomy, !homeIsCT)
@@ -338,10 +392,11 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     const r = ctx.engine.simulateRound(
         rng, home.players, away.players, home.strength, away.strength,
         home.mapStrengths.get(mapId) || 50, away.mapStrengths.get(mapId) || 50, homeIsCT,
-        sim.homeWinStreak, sim.awayWinStreak,
-        regroupLossStreak(sim.homeLossStreak, regroupHome), regroupLossStreak(sim.awayLossStreak, regroupAway),
+        sim.homeWinStreak, sim.awayWinStreak, sim.homeLossStreak, sim.awayLossStreak,
         roundNum, hEcon, aEcon, homeStrategy, awayStrategy, ctx.isHighPressure, home.team, away.team, ctId, tId, tactics,
         sim.homeMomentumScore, sim.awayMomentumScore, home.staff, away.staff, mapId, ctx.matchStage, home.stressRes, away.stressRes, ctx.playerMap,
+        regroupEdge(sim.homeLossStreak, regroupHome), regroupEdge(sim.awayLossStreak, regroupAway),
+        ctx.script ? { series: ctx.script, mapIndex } : undefined,
     )
     const homeWon = r.winner === 'HOME'
 
@@ -364,19 +419,36 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
         events: r.events,
         buys: { home: homeStrategy, away: awayStrategy },
         ...(managerCall ? { managerCall } : {}),
+        ...(r.plan ? { plan: r.plan } : {}),
+        ...(r.damage ? { damage: r.damage } : {}),
+        ...(r.utility?.length ? { utility: r.utility } : {}),
     }
 
-    // Economy (shared helper also covered by live-match-utils tests).
-    const applied = applyRoundEconomy({
-        homeEconomy: hEcon, awayEconomy: aEcon,
-        roundResult: { winner: r.winner, winType: r.winType, kills: r.kills, deaths: r.deaths },
-        homeIsCT, homeLossStreakBefore: sim.homeLossStreak, awayLossStreakBefore: sim.awayLossStreak,
-        homePlayerIds: home.players.map(p => p.id), awayPlayerIds: away.players.map(p => p.id),
-    })
-    sim.homeEconomy = cloneEconomy(home.players, applied.homeEconomy as Record<string, PlayerSimulationState>, homeIsCT)
-    sim.awayEconomy = cloneEconomy(away.players, applied.awayEconomy as Record<string, PlayerSimulationState>, !homeIsCT)
+    if (isScript(ctx)) {
+        // Round economy: loss-bonus levels, plant/defuse rewards, kill rewards per weapon, grenades consumed.
+        const applied = applyScriptRoundEconomy({
+            homeEconomy: hEcon, awayEconomy: aEcon, winner: r.winner, winType: r.winType, events: r.events, homeIsCT,
+            homeLossLevel: sim.homeLossLevel ?? ECON_START_LOSS_LEVEL, awayLossLevel: sim.awayLossLevel ?? ECON_START_LOSS_LEVEL,
+            utilityUsed: r.utilityUsed,
+        })
+        sim.homeEconomy = cloneEconomy(home.players, applied.homeEconomy, homeIsCT)
+        sim.awayEconomy = cloneEconomy(away.players, applied.awayEconomy, !homeIsCT)
+        sim.homeLossLevel = applied.homeLossLevel
+        sim.awayLossLevel = applied.awayLossLevel
+    } else {
+        // Economy (shared helper also covered by live-match-utils tests).
+        const applied = applyRoundEconomy({
+            homeEconomy: hEcon, awayEconomy: aEcon,
+            roundResult: { winner: r.winner, winType: r.winType, kills: r.kills, deaths: r.deaths },
+            homeIsCT, homeLossStreakBefore: sim.homeLossStreak, awayLossStreakBefore: sim.awayLossStreak,
+            homePlayerIds: home.players.map(p => p.id), awayPlayerIds: away.players.map(p => p.id),
+        })
+        sim.homeEconomy = cloneEconomy(home.players, applied.homeEconomy as Record<string, PlayerSimulationState>, homeIsCT)
+        sim.awayEconomy = cloneEconomy(away.players, applied.awayEconomy as Record<string, PlayerSimulationState>, !homeIsCT)
+    }
 
-    // Momentum: winner +1, eco win +3, clutch +2 (cap 10); loser resets.
+    // Momentum score (display only, no effect on round odds): winner +1,
+    // eco win +3, clutch +2 (cap 10); loser resets.
     const clutch = r.events.some(e => e.type === 'CLUTCH') ? 2 : 0
     const winnerStrategy = homeWon ? homeStrategy : awayStrategy
     const gain = 1 + (winnerStrategy === 'ECO' ? 3 : 0) + clutch
@@ -456,9 +528,11 @@ export function finalizeLegacySeries(ctx: LegacySeriesContext, state: LegacySeri
     const homeScore = state.sim.homeSeriesScore
     const awayScore = state.sim.awaySeriesScore
     const homeWon = homeScore > awayScore
-    const playerStats: Record<string, PlayerMatchStats> = generateMatchStats(createMatchRNG(ctx.seed + LEGACY_STATS_SEED_OFFSET), ctx.home.players, ctx.away.players, played, homeWon)
+    const playerStats: Record<string, PlayerMatchStats> = isScript(ctx)
+        ? generateScriptMatchStats(ctx.home.players, ctx.away.players, played)
+        : generateMatchStats(createMatchRNG(legacyStatsSeed(ctx.seed, ctx.matchId ?? '')), ctx.home.players, ctx.away.players, played, homeWon)
     return {
-        engineVersion: LEGACY_MATCH_ENGINE,
+        engineVersion: ctx.engineVersion ?? LEGACY_ENGINE_VERSION,
         lineups: { [ctx.home.team.id]: ctx.home.players.map(p => p.id), [ctx.away.team.id]: ctx.away.players.map(p => p.id) },
         homeScore, awayScore, maps: played,
         mvpPlayerId: determineMVP(playerStats, homeWon ? ctx.home.players : ctx.away.players),

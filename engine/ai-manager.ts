@@ -29,8 +29,11 @@ import {
 } from "./ai/transfer-market"
 import { logger } from "@/lib/logger"
 import { recalculateTeamSynergy } from "./processors/team-synergy-recalc"
-import { recruitmentBudget, recruitmentSalary } from "./recruitment"
+import { recruitmentSalary } from "./recruitment"
+import { ensurePersonality } from "./personality"
+import { aiCanCommit, aiClubBudget } from "./ai/club-budget"
 import { freeAgentsBySkill, renewExpiringContracts, upgradeFromFreeAgency } from "./ai/squad-maintenance"
+import { applyTierBands, refreshWorldRankings as refreshWorldRankingsFn, tiersAreBanded } from "./world-ranking"
 
 /**
  * AI Manager
@@ -240,6 +243,13 @@ export class AIManager {
         // Skip if in financial trouble
         if (team.financialState === "CRISIS" || team.financialState === "INSOLVENT" || team.financialState === "RISK") return
 
+        // Phase 4.4: role training is optional spend ($5k/week for 8 weeks per
+        // player), so it follows the same rule as AI facilities and staff: the
+        // weekly net must cover it on top of sessions already running. Before,
+        // a $100k balance was enough, which emptied small clubs once league
+        // income stopped covering everything.
+        if (!aiCanCommit(team, aiClubBudget(save, team), TrainingManager.ROLE_TRAINING_COST)) return
+
         // Slot check
         if ((team.trainingSlotsUsed || 0) >= (team.maxTrainingSlots || 10)) return
 
@@ -310,24 +320,9 @@ export class AIManager {
     // NOTE: updateElo() removed - use LeagueEngine.updateEloAfterMatch() instead
 
     static refreshWorldRankings(save: GameSave) {
-        // Sort teams by Elo with stable tiebreaker (reputation, then numeric ID)
-        const sortedTeams = [...save.teams].sort((a, b) => {
-            if (b.elo !== a.elo) return b.elo - a.elo
-            // Null-safe reputation tiebreaker — mirrors LeagueEngine.refreshWorldRankings
-            // so the two ranking paths can't diverge on teams with undefined reputation.
-            if ((b.reputation || 0) !== (a.reputation || 0)) return (b.reputation || 0) - (a.reputation || 0)
-            const aNum = parseInt(a.id.replace(/\D/g, ''), 10) || 0
-            const bNum = parseInt(b.id.replace(/\D/g, ''), 10) || 0
-            return aNum - bNum
-        })
-        sortedTeams.forEach((team, index) => {
-            team.worldRanking = index + 1
-            // Career-best (lowest) rank ever held — only improves, so the player
-            // sees a climb rather than the volatile weekly re-sort (C8).
-            if (team.peakWorldRanking === undefined || team.worldRanking < team.peakWorldRanking) {
-                team.peakWorldRanking = team.worldRanking
-            }
-        })
+        // One ranking rule for every caller (engine/world-ranking.ts): Elo,
+        // then reputation, then club number; records peaks and rankedElo.
+        refreshWorldRankingsFn(save)
     }
 
     static processAcademyScouting(save: GameSave, team: TeamSaveData, rng: SeededRNG, chanceFactor = 1) {
@@ -414,6 +409,8 @@ export class AIManager {
                 // fall back to a random 60-90 ceiling for legacy/missing data.
                 potential: s?.potential ?? rng.int(60, 90),
             }
+            // Phase 5.2: the scouted prospect keeps the type he rolled as his archetype.
+            ensurePersonality(prospectPlayer, prospect.archetype)
             // Commit the prospect AFTER prospect generation has succeeded —
             // the previous flow wrapped the push + penalty inside the same
             // catch as prospect-generation, so a throw from
@@ -421,7 +418,8 @@ export class AIManager {
             // committed but the team chemistry penalty unapplied, putting
             // the save in an inconsistent state.
             const salary = recruitmentSalary(prospectPlayer, save.currentWeek, team)
-            if (!recruitmentBudget(save, team)(salary)) return
+            // Phase 4.6: a scouted prospect joins only within the club's budget.
+            if (!aiCanCommit(team, aiClubBudget(save, team), salary)) return
             prospectPlayer.salary = salary
             save.players.push(prospectPlayer)
             team.rosterIds.push(playerId)
@@ -495,33 +493,18 @@ export class AIManager {
     }
 
     static initializeTeamData(save: GameSave) {
-        // Initial Rank Refresh to establish world rankings
-        this.refreshWorldRankings(save)
-
-        // Only force-assign divisions if we are in week 1 (starting state)
-        // or if they are missing entirely
-        const isInitialWeek = save.currentWeek === 1
-
         save.teams.forEach(team => {
             // Initialize Elo (Phase 19)
             if (team.elo === undefined) team.elo = 1000
-
-            // Initialize Division based on world ranking (Ladder Divisions S/A/B)
-            // S_TIER: 1-10, A_TIER: 11-40, B_TIER: 41+. C_TIER is the entry
-            // division: it isn't rank-seeded here (the field is dominated by
-            // established orgs), it's where new player orgs start (team-creator
-            // seeds C_TIER) and where season-end relegates sub-950-Elo teams.
-            // Preserve an explicit C_TIER so this initial pass can't silently
-            // promote a fresh org out of the entry tier on week one.
-            if ((isInitialWeek || !team.leagueTier) && team.leagueTier !== "C_TIER") {
-                if ((team.worldRanking || 999) <= 10) {
-                    team.leagueTier = "S_TIER"
-                } else if ((team.worldRanking || 999) <= 40) {
-                    team.leagueTier = "A_TIER"
-                } else {
-                    team.leagueTier = "B_TIER"
-                }
-            }
         })
+
+        // Initial Rank Refresh to establish world rankings
+        this.refreshWorldRankings(save)
+
+        // League tiers are world-rank bands (Phase 4.8): a new career (and an
+        // older save whose tiers came from Elo thresholds) is banded by the
+        // current ranking; a banded save is left alone, so a reload never
+        // moves a club mid-season. Season end re-bands (LeagueEngine).
+        if (!tiersAreBanded(save)) applyTierBands(save)
     }
 }

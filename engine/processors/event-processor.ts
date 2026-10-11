@@ -1,9 +1,9 @@
-import { GameSave, WeekTickState, PlayerSaveData, HallOfFameEntry } from "../save-types"
+import { GameSave, WeekTickState, PlayerSaveData } from "../save-types"
 import { SeededRNG } from "../rng"
 import { EventType, Team, InjuryType } from "@/types"
 import { SaveManager } from "../save-manager"
-import { hallOfFameAchievements, qualifiesForHallOfFame } from "../hall-of-fame-manager"
-import { HALL_OF_FAME_TUNING } from "@/lib/balance-tuning"
+import { hallOfFameAchievements, hallOfFameEntry, qualifiesForHallOfFame } from "../hall-of-fame-manager"
+import { retirementChance } from "../retirement-chance"
 
 const INJURY_BASE_CHANCE = 0.002
 const FATIGUE_INJURY_MULTIPLIER = 0.002
@@ -21,47 +21,19 @@ export class EventProcessor {
         const playerTeam = save.teams.find(t => t.id === playerTeamId)
 
         // Build lookup maps for O(1) access inside loops
-        const contractMap = new Map<string, typeof save.contracts[0]>()
-        save.contracts.forEach(c => contractMap.set(c.playerId, c))
         const playerMap = new Map<string, PlayerSaveData>()
         save.players.forEach(p => playerMap.set(p.id, p))
         const generatedEventIdSet = new Set(transaction.generatedEventIds)
 
-        // 1-3. Combined single pass over rosterIds for contract warnings, morale, and fatigue
+        // 1-2. Single pass over rosterIds for morale and fatigue. Expiring
+        // contracts are one message per contract from processContractExpiry
+        // (the old weekly "Discuss renewal" choice renewed nothing; Phase 4.9).
         if (playerTeam) {
             for (const pid of playerTeam.rosterIds) {
-                // 1. Contract expiration warnings
-                const contract = contractMap.get(pid)
-                if (contract) {
-                    const weeksLeft = contract.endWeek - save.currentWeek
-                    if (weeksLeft > 0 && weeksLeft <= 4) {
-                        const eventId = `contract_${contract.playerId}_${save.currentWeek}`
-                        if (!generatedEventIdSet.has(eventId)) {
-                            save.eventsLog.push({
-                                id: eventId,
-                                type: EventType.CONTRACT,
-                                week: save.currentWeek,
-                                data: {
-                                    playerId: contract.playerId,
-                                    weeksLeft,
-                                    action: "EXPIRING",
-                                },
-                                acknowledged: false,
-                                choices: [
-                                    { id: "renew", text: "Discuss Renewal", effects: { morale: 5 } },
-                                    { id: "release", text: "Plan Release", effects: { morale: -5, loyalty: -10 } }
-                                ]
-                            })
-                            await saveManager.recordEventGenerated(transaction, eventId)
-                            eventsGenerated++
-                        }
-                    }
-                }
-
                 const player = playerMap.get(pid)
                 if (!player) continue
 
-                // 2. Low morale warnings
+                // 1. Low morale warnings
                 if (player.morale < 30 && rng.bool(0.3)) {
                     const eventId = `morale_${player.id}_${save.currentWeek}`
                     if (!generatedEventIdSet.has(eventId)) {
@@ -76,7 +48,7 @@ export class EventProcessor {
                             },
                             acknowledged: false,
                             choices: [
-                                { id: "talk", text: "Team Meeting (Morale +10)", effects: { morale: 10 } },
+                                { id: "talk", text: "One-on-One Talk (Morale +10)", effects: { morale: 10 } },
                                 { id: "bonus", text: "Performance Bonus (Money -5k, Loyalty +5)", effects: { money: -5000, loyalty: 5 } },
                                 { id: "ignore", text: "Ignore", effects: { loyalty: -5, morale: -5 } }
                             ]
@@ -86,7 +58,7 @@ export class EventProcessor {
                     }
                 }
 
-                // 3. High Fatigue Checks
+                // 2. High Fatigue Checks
                 if (player.fatigue > 80 && rng.bool(0.5)) {
                     const eventId = `fatigue_${player.id}_${save.currentWeek}`
                     if (!generatedEventIdSet.has(eventId)) {
@@ -98,7 +70,7 @@ export class EventProcessor {
                             acknowledged: false,
                             choices: [
                                 { id: "rest", text: "Light Training (Morale +5)", effects: { morale: 5 } },
-                                { id: "push", text: "Push Harder (Loyalty -5)", effects: { loyalty: -5, morale: -5 } }
+                                { id: "push", text: "Push Harder (Loyalty -5, Morale -5)", effects: { loyalty: -5, morale: -5 } }
                             ]
                         })
                         await saveManager.recordEventGenerated(transaction, eventId)
@@ -142,7 +114,7 @@ export class EventProcessor {
                         acknowledged: false,
                         choices: [
                             { id: "celebrate", text: "Team Dinner (Money -1k, Rep +2)", effects: { money: -1000, reputation: 2 } },
-                            { id: "focus", text: "Stay Focused (Tactics Bonus)", effects: { reputation: 1 } }
+                            { id: "focus", text: "Stay Focused (Rep +1)", effects: { reputation: 1 } }
                         ]
                     })
                     await saveManager.recordEventGenerated(transaction, eventId)
@@ -161,7 +133,7 @@ export class EventProcessor {
                         acknowledged: false,
                         choices: [
                             { id: "crisis", text: "Crisis Meeting (Morale +5, Money -500)", effects: { money: -500, morale: 5 } },
-                            { id: "shakeup", text: "Roster Shakeup Warning (Morale -2, Hunger +10)", effects: { morale: -2 } }
+                            { id: "shakeup", text: "Roster Shakeup Warning (Morale -2)", effects: { morale: -2 } }
                         ]
                     })
                     await saveManager.recordEventGenerated(transaction, eventId)
@@ -181,9 +153,9 @@ export class EventProcessor {
                     data: { hype: playerTeam.merchHype || 10 },
                     acknowledged: false,
                     choices: [
-                        { id: "fan_meet", text: "Host Fan Meetup (Money -2k, Rep +5, Hype +10)", effects: { money: -2000, reputation: 5 } },
-                        { id: "social_post", text: "Social Media Campaign (Hype +5)", effects: { reputation: 1 } },
-                        { id: "ignore_fans", text: "Focus purely on practice", effects: { morale: 2 } }
+                        { id: "fan_meet", text: "Host Fan Meetup (Money -2k, Rep +5)", effects: { money: -2000, reputation: 5 } },
+                        { id: "social_post", text: "Social Media Campaign (Rep +1)", effects: { reputation: 1 } },
+                        { id: "ignore_fans", text: "Focus purely on practice (Morale +2)", effects: { morale: 2 } }
                     ]
                 })
                 await saveManager.recordEventGenerated(transaction, eventId)
@@ -202,8 +174,8 @@ export class EventProcessor {
                     data: { currentSponsors: playerTeam.sponsors?.length || 0 },
                     acknowledged: false,
                     choices: [
-                        { id: "negotiate", text: "Negotiate Performance Bonus (Rep -5, Bonus Chance)", effects: { reputation: -5 } },
-                        { id: "status_quo", text: "Standard Progress Report", effects: { reputation: 2 } }
+                        { id: "negotiate", text: "Negotiate Performance Bonus (Rep -5)", effects: { reputation: -5 } },
+                        { id: "status_quo", text: "Standard Progress Report (Rep +2)", effects: { reputation: 2 } }
                     ]
                 })
                 await saveManager.recordEventGenerated(transaction, eventId)
@@ -225,7 +197,7 @@ export class EventProcessor {
             if (player.injury) {
                 player.injury.weeksRemaining = Math.max(0, player.injury.weeksRemaining - 1)
                 if (player.injury.weeksRemaining <= 0) {
-                    save.eventsLog.push({
+                    if (playerTeamMap.get(player.id)?.id === save.playerTeamId) save.eventsLog.push({
                         id: `recovery_${player.id}_${save.currentWeek}`,
                         type: EventType.INJURY,
                         week: save.currentWeek,
@@ -315,7 +287,10 @@ export class EventProcessor {
                     isRecovering: true
                 }
 
-                save.eventsLog.unshift({
+                // Inbox message only for the manager's own players; every
+                // injury is still reported in the news feed below.
+                const injuredTeam = playerTeamMap.get(player.id)
+                if (injuredTeam?.id === save.playerTeamId) save.eventsLog.unshift({
                     id: `injury_${player.id}_${save.currentWeek}`,
                     type: EventType.INJURY,
                     week: save.currentWeek,
@@ -331,7 +306,7 @@ export class EventProcessor {
                 })
 
                 if (save.newsFeed) {
-                    const playerTeam = playerTeamMap.get(player.id)
+                    const playerTeam = injuredTeam
                     save.newsFeed.unshift({
                         id: `news_inj_${save.currentWeek}_${player.id}`,
                         title: `${player.nickname} sidelined with ${injuryName}`,
@@ -400,29 +375,12 @@ export class EventProcessor {
                 player.legendaryAchievements = achievements
                 legends.push(player.id)
 
-                // Write-through to hallOfFame so legends appear in HoF display.
-                // Dedup against BOTH the player.id scheme (HallOfFameManager,
-                // player-lifecycle path) and the legacy hof_ scheme so a legendary
-                // retiree processed by both paths isn't inducted twice.
+                // Write-through to hallOfFame so legends appear in HoF display
+                // (the one induction path, Phase 5.1). Dedup also against the
+                // legacy hof_ id scheme of older saves.
                 if (!save.hallOfFame) save.hallOfFame = []
                 if (!save.hallOfFame.some(h => h.id === player.id || h.id === `hof_${player.id}`)) {
-                    const reasons: HallOfFameEntry['inductionReasons'] = []
-                    if (player.majorWins && player.majorWins >= 1) reasons.push({ type: 'CHAMPION', label: `${player.majorWins}x Major Champion`, icon: 'Trophy' })
-                    if (player.avgRating >= HALL_OF_FAME_TUNING.CAREER_RATING && player.matchesPlayed >= HALL_OF_FAME_TUNING.RATING_MIN_MATCHES) reasons.push({ type: 'MVP', label: `${player.avgRating.toFixed(2)} Career Rating`, icon: 'Star' })
-                    if (player.matchesPlayed >= HALL_OF_FAME_TUNING.CAREER_MATCHES) reasons.push({ type: 'LONGEVITY', label: `${player.matchesPlayed}+ Matches`, icon: 'Clock' })
-                    if (player.totalKills && player.totalKills >= HALL_OF_FAME_TUNING.CAREER_KILLS) reasons.push({ type: 'IMPACT', label: `${player.totalKills}+ Career Kills`, icon: 'Crosshair' })
-                    if ((player.totalMVPs || 0) >= HALL_OF_FAME_TUNING.MVP_AWARDS) reasons.push({ type: 'MVP', label: `${player.totalMVPs}x Tournament MVP`, icon: 'Star' })
-                    save.hallOfFame.push({
-                        id: player.id,
-                        name: player.nickname,
-                        portraitPath: player.portraitPath || '',
-                        eraStart: Math.max(1, Math.ceil(save.currentWeek / 52) - Math.floor(player.age / 3)),
-                        eraEnd: Math.ceil(save.currentWeek / 52),
-                        primaryRole: player.role || 'RIFLER',
-                        category: 'INDUCTED',
-                        inductionReasons: reasons.length > 0 ? reasons : [{ type: 'IMPACT', label: 'Career Achievement', icon: 'Award' }],
-                        nationality: player.nationality || '',
-                    })
+                    save.hallOfFame.push(hallOfFameEntry(player, save.currentWeek, lastTeamId))
                 }
             }
 
@@ -523,13 +481,7 @@ export class EventProcessor {
 
             // Probabilistic retirement from age 32+
             if (player.age >= 32) {
-                const ageOverThreshold = player.age - 31
-                let retirementChance = 0.05 * ageOverThreshold
-                if (player.skill < 60) retirementChance += 0.1
-                if (player.form < 40) retirementChance += 0.1
-                if (player.health < 50) retirementChance += 0.15
-
-                if (rng.bool(retirementChance)) {
+                if (rng.bool(retirementChance(player, save.currentWeek))) {
                     retirePlayer(player)
                 }
             }
@@ -581,6 +533,15 @@ export class EventProcessor {
                     team.rosterIds = team.rosterIds.filter(id => id !== player.id)
                 }
                 save.contracts = save.contracts.filter(c => c.playerId !== player.id)
+            }
+
+            // Same Hall of Fame judgement as a season-end retirement.
+            if (qualifiesForHallOfFame(player)) {
+                player.isLegendary = true
+                player.legendaryAchievements = hallOfFameAchievements(player)
+                legends.push(player.id)
+                if (!save.hallOfFame) save.hallOfFame = []
+                if (!save.hallOfFame.some(h => h.id === player.id || h.id === `hof_${player.id}`)) save.hallOfFame.push(hallOfFameEntry(player, save.currentWeek, lastTeamId))
             }
 
             // Never the manager's player (excluded above): news feed only,

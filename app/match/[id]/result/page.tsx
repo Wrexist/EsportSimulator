@@ -8,29 +8,34 @@ import { useGameStore } from "@/store/game-store"
 import { LoadingState } from "@/components/ui/loading"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Home, Trophy, Swords, Calendar, Clock, ArrowRight } from "lucide-react"
+import { Home, Trophy, Swords, Calendar, ArrowRight, ListOrdered } from "lucide-react"
+import { leagueStageLabel } from "@/components/league/league-view"
 import { CompletedMatchSaveData, PlayerSaveData } from "@/engine"
 import { PlayerMatchStats, MapResult, MatchResult } from "@/types"
 import { motion } from "framer-motion"
 import { formatGameCalendarDate } from "@/lib/game-calendar"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { cn } from "@/lib/utils"
-import { formatRole, formatCurrency } from "@/lib/utils-extended"
+import { formatCurrency } from "@/lib/utils-extended"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { fireConfetti, preloadConfetti } from "@/lib/confetti-lazy"
-import { soundManager } from "@/lib/sound-manager"
+import { markOutcomeCue, playMatchOutcomeCue } from "@/lib/match-outcome-sound"
 import { AdvancementAnimation } from "@/components/tournament/AdvancementAnimation"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { TournamentMatchContext } from "@/components/tournament/TournamentMatchContext"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
-import { DefeatOverlay } from "@/components/match/DefeatOverlay"
+import { MAP_NAMES } from "@/data/map-pool"
+import { Panel } from "@/src/components/ui/Panel"
+import { RoleTag } from "@/src/components/ui/RoleTag"
+import { TierTag } from "@/src/components/ui/TierTag"
+
+// Confetti in the v2 palette: trophy gold, white, win green.
+const CONFETTI_COLORS = ['#F2B53A', '#F2F4F7', '#3DD68C']
 
 
 export default function MatchResultPage() {
     const { id } = useParams<{ id: string }>()
     const router = useRouter()
-    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments, scheduledMatches, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
+    const { completedMatches, teams, players, getDateForWeek, clearActiveMatchState, playerTeamId, tournaments, scheduledMatches, currentWeek, currentDay, timeMode, financeLedger } = useGameStore(useShallow(state => ({
         completedMatches: state.completedMatches,
         teams: state.teams,
         players: state.players,
@@ -42,6 +47,7 @@ export default function MatchResultPage() {
         currentWeek: state.currentWeek,
         currentDay: state.currentDay,
         timeMode: state.timeMode,
+        financeLedger: state.financeLedger,
     })))
     const [match, setMatch] = useState<CompletedMatchSaveData | null>(null)
     const [activeTab, setActiveTab] = useState<"overview" | "analysis">("overview")
@@ -82,8 +88,12 @@ export default function MatchResultPage() {
 
         const isPlayerHome = match.homeTeamId === playerTeamId
         const isPlayerAway = match.awayTeamId === playerTeamId
+        if (!isPlayerHome && !isPlayerAway) return
         const homeWon = match.result.homeScore > match.result.awayScore
         const playerWon = (isPlayerHome && homeWon) || (isPlayerAway && !homeWon)
+        // A title won by this match has its own full-screen moment (sound and
+        // confetti included); the result screen stays quiet under it.
+        const titleMoment = useGameStore.getState().momentQueue.some(m => m.kind === "title" && m.matchId === match.id)
 
         // Track scheduled work so cleanup can cancel it on unmount and the
         // RAF / timeout don't keep firing canvas-confetti against an
@@ -92,14 +102,12 @@ export default function MatchResultPage() {
         let initialDelayTimer: ReturnType<typeof setTimeout> | undefined
         let rafId: number | undefined
 
-        // Sound cue lands the moment the result reveal kicks in, regardless
-        // of confetti loading state. Sound manager guards against missing
-        // AudioContext on SSR / muted profiles.
-        if (typeof window !== "undefined") {
-            soundManager.play(playerWon ? "victory" : "defeat")
-        }
+        // The victory / defeat cue plays once per match: the live screen
+        // played it already unless the match was simulated instantly.
+        if (titleMoment) markOutcomeCue(match.id)
+        else playMatchOutcomeCue(match.id, playerWon)
 
-        if (playerWon) {
+        if (playerWon && !titleMoment) {
             confettiTriggered.current = true
 
             // Preload then fire the burst — keeps canvas-confetti out of the
@@ -116,14 +124,14 @@ export default function MatchResultPage() {
                         angle: 60,
                         spread: 55,
                         origin: { x: 0, y: 0.7 },
-                        colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24']
+                        colors: CONFETTI_COLORS
                     })
                     fireConfetti({
                         particleCount: 3,
                         angle: 120,
                         spread: 55,
                         origin: { x: 1, y: 0.7 },
-                        colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24']
+                        colors: CONFETTI_COLORS
                     })
 
                     if (Date.now() < end) {
@@ -135,7 +143,7 @@ export default function MatchResultPage() {
                     particleCount: 100,
                     spread: 70,
                     origin: { y: 0.6 },
-                    colors: ['#10b981', '#22d3ee', '#3b82f6', '#fbbf24', '#ffffff']
+                    colors: CONFETTI_COLORS
                 })
 
                 initialDelayTimer = setTimeout(frame, 250)
@@ -251,24 +259,24 @@ export default function MatchResultPage() {
     // the simulation was refused); say so instead of "not found".
     const stillScheduled = !match && scheduledMatches.some(m => m.id === id)
     if (!match) return (
-        <div className="min-h-screen bg-[#0e1217] flex items-center justify-center">
+        <div className="flex min-h-[60vh] items-center justify-center">
             {notFound || stillScheduled ? (
-                <div role="alert" className="text-center max-w-sm px-6">
-                    <p className="text-white text-lg font-bold uppercase tracking-widest mb-2">{stillScheduled ? "Match Not Played Yet" : "Match Not Found"}</p>
-                    <p className="text-muted-foreground text-sm mb-6">
+                <div role="alert" className="max-w-sm px-6 text-center">
+                    <p className="font-display text-3xl font-bold uppercase text-ink-1">{stillScheduled ? "Match not played yet" : "Match not found"}</p>
+                    <p className="mb-6 mt-2 text-sm text-ink-3">
                         {stillScheduled
                             ? "This match has no result yet. Return to match prep to play it; if it can't be played, advancing the week resolves it."
                             : <>This match result isn&apos;t available — it may belong to a different save or has aged out of match history.</>}
                     </p>
                     <div className="flex justify-center gap-3">
                         {stillScheduled && (
-                            <Button variant="play" onClick={() => router.push(`/match/${id}/tactics`)}>Back to Match Prep</Button>
+                            <Button onClick={() => router.push(`/match/${id}/tactics`)}>Back to match prep</Button>
                         )}
-                        <Button variant={stillScheduled ? "outline" : "play"} onClick={() => router.push("/schedule")}>Back to Schedule</Button>
+                        <Button variant={stillScheduled ? "outline" : "default"} onClick={() => router.push("/schedule")}>Back to schedule</Button>
                     </div>
                 </div>
             ) : (
-                <LoadingState message="Loading Match Data…" size="lg" />
+                <LoadingState message="Loading match data…" size="lg" />
             )}
         </div>
     )
@@ -277,18 +285,17 @@ export default function MatchResultPage() {
     const homeWon = result.homeScore > result.awayScore
     const matchDate = getDateForWeek(match.week)
     matchDate.setUTCDate(matchDate.getUTCDate() + (match.day ?? 0))
-    const getPlayer = (id: string) => playersById.get(id)
-    const mvpPlayer = getPlayer(result.mvpPlayerId)
+    const getPlayer = (pid: string) => playersById.get(pid)
 
-    // Compute outcome for the brief defeat-vignette moment that mirrors the
-    // victory confetti. Mirrors the win check in the confetti effect above.
-    const playerLostThisMatch = (() => {
-        const isPlayerHome = match.homeTeamId === playerTeamId
-        const isPlayerAway = match.awayTeamId === playerTeamId
-        const homeWon = match.result.homeScore > match.result.awayScore
-        const playerWon = (isPlayerHome && homeWon) || (isPlayerAway && !homeWon)
-        return (isPlayerHome || isPlayerAway) && !playerWon
-    })()
+    const isPlayerHome = match.homeTeamId === playerTeamId
+    const isPlayerAway = match.awayTeamId === playerTeamId
+    const isPlayerMatch = isPlayerHome || isPlayerAway
+    const playerWon = (isPlayerHome && homeWon) || (isPlayerAway && !homeWon)
+    const ownTeam = isPlayerAway ? awayTeam : homeTeam
+    const otherTeam = isPlayerAway ? homeTeam : awayTeam
+    const ownStats = isPlayerAway ? awayStats : homeStats
+    const otherStats = isPlayerAway ? homeStats : awayStats
+    const winnerTeam = homeWon ? homeTeam : awayTeam
 
     // Next scheduled player match — surface a forward CTA so the loop self-propels
     // instead of dead-ending on the result screen. The match just finished is already
@@ -305,303 +312,255 @@ export default function MatchResultPage() {
             || nextPlayerMatch.week < currentWeek
             || (nextPlayerMatch.day ?? 6) <= currentDay)
 
+    // Score shown in the headline: rounds for a single map, maps for a series.
+    const playedMaps = result.maps.filter(m => m.finalScore.team1 + m.finalScore.team2 > 0)
+    const isBO1 = (String(match.format).toUpperCase() === "BO1" || (result.homeScore + result.awayScore === 1 && result.maps.length === 1)) && result.maps.length > 0
+    const hScore = isBO1 ? result.maps[0].finalScore.team1 : result.homeScore
+    const aScore = isBO1 ? result.maps[0].finalScore.team2 : result.awayScore
+
+    // Competition framing and tournament outcome.
+    // A league fixture is named by its stage ("Europe Division 3 · Round 5").
+    const leagueStage = leagueStageLabel(match)
+    const isTournament = !leagueStage && !!match.tournamentId && match.tournamentId !== "SCRIM"
+    const liveTournament = isTournament ? tournaments?.find(t => t.id === match.tournamentId) : undefined
+    const tournamentDef = isTournament ? FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId!.replace(/_s\d+$/, '') || t.id === match.tournamentId) : undefined
+    const competitionName = leagueStage ?? (isTournament ? (tournamentDef?.name || liveTournament?.name || "Tournament") : match.tournamentId === "SCRIM" ? "Scrim" : "Friendly")
+    let tournamentLine: string | null = null
+    if (isPlayerMatch && leagueStage) tournamentLine = playerWon ? "3 league points" : "No league points"
+    if (isPlayerMatch && liveTournament?.playoffBracket) {
+        const bracketMatch = liveTournament.playoffBracket.find(m => m.id === match.id)
+        if (bracketMatch) {
+            const stageLower = bracketMatch.stage?.toLowerCase() || ""
+            const isFinal = stageLower.includes("final") && !stageLower.includes("semi") && !stageLower.includes("quarter")
+            const next = liveTournament.playoffBracket.find(m => m.sourceMatchIds?.includes(match.id))
+            if (playerWon && isFinal) tournamentLine = "Tournament champions"
+            else if (playerWon && next) tournamentLine = `Advanced to ${next.stage || "the next round"}`
+            else if (!playerWon && tournamentDef?.format === "bracket") tournamentLine = "Eliminated"
+        }
+    }
+
+    // Rewards and changes for the managed team.
+    const ownSide = isPlayerAway ? "away" : "home"
+    const elo = match.eloChange?.[ownSide]
+    const rankDelta = match.rankingChange?.[ownSide]
+    const ownLineupIds = resultLineup(result, ownTeam?.id, ownTeam?.rosterIds)
+    const xpEarned = ownLineupIds.reduce((s, pid) => s + (result.xpGains?.[pid] || 0), 0)
+    const moneyLines = financeLedger.filter(e => e.teamId === playerTeamId && e.id.includes(match.id))
+    const moneyNet = moneyLines.reduce((s, e) => s + (e.type === "INCOME" ? e.amount : -e.amount), 0)
+
+    const headline = isPlayerMatch ? (playerWon ? "Victory" : "Defeat") : `${winnerTeam?.name ?? "Winner"} win`
+    const headlineTone = isPlayerMatch ? (playerWon ? "text-positive" : "text-negative") : "text-ink-1"
+    const best = (stats: PlayerMatchStats[]) => stats.length ? stats.reduce((a, b) => (b.rating > a.rating ? b : a)) : undefined
+    const ownMvp = best(isPlayerMatch ? ownStats : homeStats)
+    const otherMvp = best(isPlayerMatch ? otherStats : awayStats)
+
+    const crest = (team: typeof homeTeam, align: "left" | "right", won: boolean) => (
+        <div className={cn("flex min-w-0 flex-1 items-center gap-5", align === "right" && "flex-row-reverse text-right")}>
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border border-line bg-raised">
+                <TeamLogoImage src={team?.logoPath} alt={team?.name || ""} size={60} team={team} />
+            </div>
+            <div className="min-w-0">
+                <p className={cn("truncate font-display text-[36px] font-bold uppercase leading-none", won ? "text-ink-1" : "text-ink-2")}>{team?.name}</p>
+                <p className={cn("mt-2 flex items-center gap-2 text-sm text-ink-3", align === "right" && "justify-end")}>
+                    World <span className="font-semibold tabular-nums text-ink-2">#{team?.worldRanking || "—"}</span>
+                </p>
+            </div>
+        </div>
+    )
+
     return (
-        <div className="premium-route text-white p-0 pb-20 space-y-8">
-            <DefeatOverlay active={playerLostThisMatch} />
-            {/* Header / Nav */}
-            <div className="max-w-7xl mx-auto flex items-center gap-4">
-                {nextPlayerMatch ? (
-                    nextMatchPlayableNow ? (
-                        <Button
-                            variant="play"
-                            onClick={() => router.push(`/match/${nextPlayerMatch.id}/tactics`)}
-                            className="h-11 px-6"
-                        >
-                            <Swords size={18} className="mr-2" /> Play Next Match
+        <div className="mx-auto max-w-[1600px] space-y-4 pb-16">
+            {/* Actions */}
+            <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-1">
+                    <Button variant="ghost" onClick={() => router.push("/")} className="h-9 gap-1.5 px-3 text-sm">
+                        <Home size={15} aria-hidden="true" /> Back to dashboard
+                    </Button>
+                    <Button variant="ghost" onClick={() => router.push("/schedule")} className="h-9 gap-1.5 px-3 text-sm">
+                        <Calendar size={15} aria-hidden="true" /> Schedule
+                    </Button>
+                    {isTournament && (
+                        <Button variant="ghost" onClick={() => router.push(`/tournaments/${match.tournamentId}`)} className="h-9 gap-1.5 px-3 text-sm">
+                            <Trophy size={15} aria-hidden="true" /> Tournament
                         </Button>
-                    ) : (
-                        <Button
-                            variant="play"
-                            onClick={() => router.push("/")}
-                            className="h-11 px-6"
-                        >
-                            Continue <ArrowRight size={18} className="ml-2" />
+                    )}
+                    {leagueStage && (
+                        <Button variant="ghost" onClick={() => router.push("/league")} className="h-9 gap-1.5 px-3 text-sm">
+                            <ListOrdered size={15} aria-hidden="true" /> League table
                         </Button>
-                    )
-                ) : null}
-                <Button
-                    variant="ghost"
-                    onClick={() => router.push("/")}
-                    className="text-muted-foreground hover:text-white hover:bg-white/5"
-                >
-                    <Home size={18} className="mr-2" /> Back to Dashboard
-                </Button>
-
-                <Button
-                    variant="ghost"
-                    onClick={() => router.push("/schedule")}
-                    className="text-muted-foreground hover:text-white hover:bg-white/5"
-                >
-                    <Calendar size={16} className="mr-2" /> Schedule
-                </Button>
-
-                {match.tournamentId && match.tournamentId !== "SCRIM" && (
-                    <Button
-                        variant="outline"
-                        onClick={() => router.push(`/tournaments/${match.tournamentId}`)}
-                        className="border-amber-500/20 text-amber-500 hover:bg-amber-500/10 hover:text-amber-400"
-                    >
-                        <Trophy size={16} className="mr-2" /> Go to Tournament
+                    )}
+                </div>
+                {/* The top bar's gold CONTINUE / Play match is this view's one
+                    primary action; the page offers the same step as a secondary. */}
+                {nextPlayerMatch && nextMatchPlayableNow ? (
+                    <Button variant="outline" onClick={() => router.push(`/match/${nextPlayerMatch.id}/tactics`)} className="h-10 gap-2 px-5">
+                        <Swords size={16} aria-hidden="true" /> Play next match
+                    </Button>
+                ) : (
+                    <Button variant="outline" onClick={() => router.push("/")} className="h-10 gap-2 px-5">
+                        Done <ArrowRight size={16} aria-hidden="true" />
                     </Button>
                 )}
             </div>
 
-            {/* Tournament Context - Post-match */}
-            {match.tournamentId && match.tournamentId !== "SCRIM" && (() => {
-                const liveTournament = tournaments?.find(t => t.id === match.tournamentId)
-                const baseId = match.tournamentId.replace(/_s\d+$/, '')
-                const tournamentDef = FULL_TOURNAMENT_CALENDAR.find(t => t.id === baseId || t.id === match.tournamentId)
-
-                const isPlayerHome = match.homeTeamId === playerTeamId
-                const isPlayerAway = match.awayTeamId === playerTeamId
-                const isPlayerMatch = isPlayerHome || isPlayerAway
-                const playerWon = isPlayerMatch && ((isPlayerHome && homeWon) || (isPlayerAway && !homeWon))
-
-                let advanced: boolean | undefined
-                let nextStageName: string | undefined
-                let isChampion = false
-
-                if (liveTournament?.playoffBracket) {
-                    const currentBracketMatch = liveTournament.playoffBracket.find(m => m.id === match.id)
-                    if (currentBracketMatch) {
-                        const stageLower = currentBracketMatch.stage?.toLowerCase() || ""
-                        const isFinal = stageLower.includes("grand final") ||
-                            stageLower === "final" || stageLower === "finals" ||
-                            (stageLower.includes("final") && !stageLower.includes("semi") && !stageLower.includes("quarter"))
-
-                        if (playerWon && isFinal) {
-                            isChampion = true
-                            advanced = true
-                        } else {
-                            const nextMatch = liveTournament.playoffBracket.find(m =>
-                                m.sourceMatchIds?.includes(match.id)
-                            )
-                            if (playerWon && nextMatch) {
-                                advanced = true
-                                nextStageName = nextMatch.stage || undefined
-                            } else if (!playerWon && tournamentDef?.format === "bracket") {
-                                advanced = false
-                            }
-                        }
-                    }
-                }
-
-                const outcome = isPlayerMatch ? {
-                    won: !!playerWon,
-                    advanced,
-                    nextStageName,
-                    isChampion
-                } : undefined
-
-                return (
-                    <div className="max-w-7xl mx-auto">
-                        <TournamentMatchContext
-                            tournamentName={tournamentDef?.name || liveTournament?.name || "Tournament"}
-                            tournamentLogo={tournamentDef?.logoPath}
-                            tournamentTier={tournamentDef?.tier || liveTournament?.tier}
-                            currentStage={match.stage || undefined}
-                            matchFormat={match.format}
-                            prizePool={tournamentDef?.prizePool}
-                            isElimination={tournamentDef?.format === "bracket"}
-                            nextStage={nextStageName}
-                            outcome={outcome}
-                            className="rounded-xl"
-                        />
-                    </div>
-                )
-            })()}
-
-            {/* HERO SECTION */}
-            <div className="max-w-7xl mx-auto">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="glass-panel rounded-xl p-12 relative overflow-hidden border-white/5"
-                >
-                    {/* Background Glows */}
-                    <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                        <div className="absolute top-0 left-8 right-8 h-px bg-linear-to-r/srgb from-transparent via-cyan-200/30 to-transparent" />
-                    </div>
-
-                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-
-                        {/* HOME TEAM */}
-                        <div className="flex flex-col items-center gap-6 flex-1">
-                            <div className="w-32 h-32 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-glass-soft relative group">
-                                <TeamLogoImage
-                                    src={homeTeam?.logoPath}
-                                    alt={homeTeam?.name || "Home"}
-                                    size={80}
-                                    team={homeTeam}
-                                />
-                                {homeWon && (
-                                    <div className="absolute -top-4 -right-4 bg-emerald-500 text-black font-normal text-xs px-3 py-1 rounded-full shadow-lg border-2 border-[#0e1217]">
-                                        WINNER
-                                    </div>
-                                )}
-                            </div>
-                            <div className="text-center">
-                                <h2 className="text-3xl font-normal tracking-tight">{homeTeam?.name}</h2>
-                                <div className="flex items-center justify-center gap-3 mt-1">
-                                    <span className="text-xs font-bold text-white/40 tracking-widest uppercase">
-                                        #{homeTeam?.worldRanking || "-"} World
-                                    </span>
-                                    {match.rankingChange && match.rankingChange.home !== 0 && (
-                                        <Badge variant="outline" className={cn("text-[10px] border-white/10 h-5 px-1.5", match.rankingChange.home > 0 ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10")}>
-                                            {match.rankingChange.home > 0 ? "▲" : "▼"}{Math.abs(match.rankingChange.home)}
-                                        </Badge>
-                                    )}
-                                    {match.eloChange && (
-                                        <Badge variant="outline" className={cn("text-[10px] border-white/10 h-5 px-1.5", match.eloChange.home >= 0 ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10")}>
-                                            {match.eloChange.home > 0 ? "+" : ""}{match.eloChange.home} ELO
-                                        </Badge>
-                                    )}
-                                </div>
-                                <p className="text-xs font-bold text-muted-foreground tracking-widest uppercase mt-2">HOME</p>
-                            </div>
+            {/* Beat 1: the result */}
+            <section className="overflow-hidden rounded-[10px] border border-line bg-panel" aria-labelledby="result-headline">
+                <div className="flex items-center justify-between gap-4 border-b border-line bg-shell px-8 py-2.5 text-xs text-ink-3">
+                    <span className="flex items-center gap-2">
+                        {isTournament && <TierTag tier={tournamentDef?.tier || liveTournament?.tier} />}
+                        {leagueStage && <span className="inline-flex items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">League</span>}
+                        <span className="font-semibold text-ink-2">{competitionName}</span>
+                        {match.stage && !leagueStage && <><span aria-hidden="true">·</span><span>{match.stage}</span></>}
+                        <span aria-hidden="true">·</span><span>{String(match.format || "BO1").toUpperCase()}</span>
+                    </span>
+                    <span className="flex items-center gap-1.5"><Calendar size={12} aria-hidden="true" />{formatGameCalendarDate(matchDate, { month: "short", day: "numeric", year: "numeric" })}</span>
+                </div>
+                <div className="flex items-center gap-8 px-8 py-8">
+                    {crest(homeTeam, "left", homeWon)}
+                    <div className="flex w-[420px] shrink-0 flex-col items-center text-center">
+                        <motion.h1
+                            id="result-headline"
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.35, ease: "easeOut" }}
+                            className={cn("font-display text-[88px] font-extrabold uppercase leading-[0.85]", headlineTone)}
+                        >
+                            {headline}
+                        </motion.h1>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.25, delay: 0.3 }}
+                            className="mt-4 flex items-center gap-5 font-display font-bold leading-none tabular-nums"
+                        >
+                            <span className={cn("text-[64px]", hScore >= aScore ? "text-ink-1" : "text-ink-3")}>{hScore}</span>
+                            <span className="text-3xl text-ink-3" aria-hidden="true">–</span>
+                            <span className={cn("text-[64px]", aScore >= hScore ? "text-ink-1" : "text-ink-3")}>{aScore}</span>
+                        </motion.div>
+                        <div className="mt-3 flex flex-wrap justify-center gap-2">
+                            {playedMaps.map((m, idx) => (
+                                <span key={idx} className="inline-flex items-center gap-2 rounded-sm border border-line px-2 py-1 text-xs">
+                                    <span className="font-semibold uppercase tracking-[0.06em] text-ink-2">{MAP_NAMES[m.map] ?? m.map}</span>
+                                    <span className="tabular-nums text-ink-1">{m.finalScore.team1}–{m.finalScore.team2}</span>
+                                </span>
+                            ))}
                         </div>
-
-                        {/* SCOREBOARD CENTER */}
-                        <div className="flex flex-col items-center gap-6">
-                            <Badge variant="outline" className="bg-white/5 border-white/10 text-muted-foreground px-4 py-1.5 rounded-full text-[10px] font-normal uppercase tracking-[0.2em] mb-4">
-                                {match.format} SERIES {match.stage ? `• ${match.stage}` : `• WEEK ${match.week}`}
-                            </Badge>
-
-                            {/* Score Display Logic: Round score for BO1, Map score for others */}
-                            {(() => {
-                                // Require a real map record before reading maps[0] — a
-                                // malformed/legacy BO1 with an empty maps array would crash
-                                // the route; fall back to the series score instead.
-                                const isBO1 = (match.format === "bo1" || (result.homeScore + result.awayScore === 1 && result.maps.length === 1)) && result.maps.length > 0;
-                                const hScore = isBO1 ? result.maps[0].finalScore.team1 : result.homeScore;
-                                const aScore = isBO1 ? result.maps[0].finalScore.team2 : result.awayScore;
-
-                                return (
-                                    <div className="flex items-center gap-8">
-                                        <span className={cn("text-7xl font-normal tracking-tighter", hScore >= aScore ? "liquid-text" : "text-white/30")}>
-                                            {hScore}
-                                        </span>
-                                        <div className="h-12 w-px bg-white/10 rotate-12" />
-                                        <span className={cn("text-7xl font-normal tracking-tighter", aScore >= hScore ? "liquid-text" : "text-white/30")}>
-                                            {aScore}
-                                        </span>
-                                    </div>
-                                );
-                            })()}
-
-                            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                                <Calendar size={12} />
-                                <span>{formatGameCalendarDate(matchDate, { month: "short", day: "numeric", year: "numeric" })}</span>
-                            </div>
-                        </div>
-
-                        {/* AWAY TEAM */}
-                        <div className="flex flex-col items-center gap-6 flex-1">
-                            <div className="w-32 h-32 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-glass-soft relative group">
-                                <TeamLogoImage
-                                    src={awayTeam?.logoPath}
-                                    alt={awayTeam?.name || "Away"}
-                                    size={80}
-                                    team={awayTeam}
-                                />
-                                {!homeWon && (
-                                    <div className="absolute -top-4 -right-4 bg-emerald-500 text-black font-normal text-xs px-3 py-1 rounded-full shadow-lg border-2 border-[#0e1217]">
-                                        WINNER
-                                    </div>
-                                )}
-                            </div>
-                            <div className="text-center">
-                                <h2 className="text-3xl font-normal tracking-tight">{awayTeam?.name}</h2>
-                                <div className="flex items-center justify-center gap-3 mt-1">
-                                    <span className="text-xs font-bold text-white/40 tracking-widest uppercase">
-                                        #{awayTeam?.worldRanking || "-"} World
-                                    </span>
-                                    {match.rankingChange && match.rankingChange.away !== 0 && (
-                                        <Badge variant="outline" className={cn("text-[10px] border-white/10 h-5 px-1.5", match.rankingChange.away > 0 ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10")}>
-                                            {match.rankingChange.away > 0 ? "▲" : "▼"}{Math.abs(match.rankingChange.away)}
-                                        </Badge>
-                                    )}
-                                    {match.eloChange && (
-                                        <Badge variant="outline" className={cn("text-[10px] border-white/10 h-5 px-1.5", match.eloChange.away >= 0 ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10")}>
-                                            {match.eloChange.away > 0 ? "+" : ""}{match.eloChange.away} ELO
-                                        </Badge>
-                                    )}
-                                </div>
-                                <p className="text-xs font-bold text-muted-foreground tracking-widest uppercase mt-2">AWAY</p>
-                            </div>
-                        </div>
-
+                        {tournamentLine && <p className={cn("mt-3 text-sm font-semibold", tournamentLine === "Eliminated" ? "text-negative" : tournamentLine === "No league points" ? "text-ink-3" : tournamentLine === "Tournament champions" ? "text-gold" : "text-positive")}>{tournamentLine}</p>}
                     </div>
+                    {crest(awayTeam, "right", !homeWon)}
+                </div>
+            </section>
 
-                    {/* MAP RESULTS FOOTER */}
-                    <div className="mt-12 flex justify-center gap-4">
-                        {result.maps.filter(m => m.finalScore.team1 + m.finalScore.team2 > 0).map((m, idx) => (
-                            <div key={idx} className="flex flex-col items-center gap-2 p-3 rounded-lg bg-white/5 border border-white/10 min-w-[120px]">
-                                <span className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground">{m.map}</span>
-                                <div className="flex items-center gap-2 font-sans font-bold text-lg">
-                                    <span className={m.finalScore.team1 > m.finalScore.team2 ? "text-emerald-400" : "text-white/50"}>{m.finalScore.team1}</span>
-                                    <span className="text-white/20">:</span>
-                                    <span className={m.finalScore.team2 > m.finalScore.team1 ? "text-emerald-400" : "text-white/50"}>{m.finalScore.team2}</span>
+            {/* Beat 2: who did what */}
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+                <Panel title="Scoreboard" padded={false} className="overflow-hidden" actions={<span className="text-xs text-ink-3">Sorted by rating</span>}>
+                    {[{ team: homeTeam, stats: homeStats, won: homeWon }, { team: awayTeam, stats: awayStats, won: !homeWon }].map(({ team, stats, won }) => (
+                        <PlayerStatsTable key={team?.id ?? String(won)} team={team} won={won} stats={stats} playersById={playersById} result={result} mvpId={result.mvpPlayerId} />
+                    ))}
+                </Panel>
+
+                <aside className="min-w-0 space-y-4">
+                    <Panel title="Standouts" padded={false}>
+                        <div className="divide-y divide-line">
+                            {ownMvp && <MvpCard label={isPlayerMatch ? "Your MVP" : `${homeTeam?.name} MVP`} stat={ownMvp} player={getPlayer(ownMvp.playerId)} isMatchMvp={ownMvp.playerId === result.mvpPlayerId} />}
+                            {otherMvp && <MvpCard label={isPlayerMatch ? "Opponent MVP" : `${awayTeam?.name} MVP`} stat={otherMvp} player={getPlayer(otherMvp.playerId)} isMatchMvp={otherMvp.playerId === result.mvpPlayerId} />}
+                        </div>
+                    </Panel>
+
+                    {isPlayerMatch && (
+                        <Panel title="Rewards and changes" padded={false}>
+                            <dl className="divide-y divide-line text-sm">
+                                <div className="flex items-center justify-between px-4 py-2.5">
+                                    <dt className="text-ink-3">Elo</dt>
+                                    <dd className={cn("font-semibold tabular-nums", elo == null ? "text-ink-3" : elo >= 0 ? "text-positive" : "text-negative")}>{elo == null ? "—" : `${elo > 0 ? "+" : ""}${elo}`}</dd>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </motion.div>
+                                <div className="flex items-center justify-between px-4 py-2.5">
+                                    <dt className="text-ink-3">World ranking</dt>
+                                    <dd className="flex items-center gap-2 tabular-nums">
+                                        <span className="font-semibold text-ink-1">#{ownTeam?.worldRanking || "—"}</span>
+                                        {!!rankDelta && <span className={rankDelta > 0 ? "text-positive" : "text-negative"}>{rankDelta > 0 ? "▲" : "▼"}{Math.abs(rankDelta)}</span>}
+                                    </dd>
+                                </div>
+                                <div className="flex items-center justify-between px-4 py-2.5">
+                                    <dt className="text-ink-3">Player XP</dt>
+                                    <dd className="font-semibold tabular-nums text-ink-1">+{xpEarned.toLocaleString("en-US")}</dd>
+                                </div>
+                                <div className="px-4 py-2.5">
+                                    <div className="flex items-center justify-between">
+                                        <dt className="text-ink-3">Money for this match</dt>
+                                        <dd className={cn("font-semibold tabular-nums", moneyNet > 0 ? "text-positive" : moneyNet < 0 ? "text-ink-1" : "text-ink-3")}>
+                                            {moneyLines.length ? `${moneyNet > 0 ? "+" : moneyNet < 0 ? "−" : ""}${formatCurrency(Math.abs(moneyNet), "$", false)}` : "—"}
+                                        </dd>
+                                    </div>
+                                    {moneyLines.length > 0 && (
+                                        <ul className="mt-1.5 space-y-0.5 text-xs text-ink-3">
+                                            {moneyLines.map(e => (
+                                                <li key={e.id} className="flex justify-between gap-3">
+                                                    <span className="truncate">{e.description.replace(/: [a-z0-9_-]+$/i, "")}</span>
+                                                    <span className="tabular-nums">{e.type === "INCOME" ? "+" : "−"}{formatCurrency(e.amount, "$", false)}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                    {moneyLines.length === 0 && <p className="mt-1 text-xs text-ink-3">No prep costs or bonuses. {leagueStage ? "League prize money is paid when the split ends." : "Prize money is paid when the event ends."}</p>}
+                                </div>
+                            </dl>
+                        </Panel>
+                    )}
+                </aside>
             </div>
 
-            {playerTeamId && [match.homeTeamId, match.awayTeamId].includes(playerTeamId) && (() => {
-                const isHome = playerTeamId === match.homeTeamId
-                const ownTeam = isHome ? homeTeam : awayTeam
-                const otherTeam = isHome ? awayTeam : homeTeam
+            {isPlayerMatch && (() => {
                 const insights = buildMatchInsights({
                     result,
-                    teamId: playerTeamId,
-                    isHome,
+                    teamId: playerTeamId!,
+                    isHome: isPlayerHome,
                     ownLineup: resultLineup(result, ownTeam?.id, ownTeam?.rosterIds),
                     opponentLineup: resultLineup(result, otherTeam?.id, otherTeam?.rosterIds),
                     nextMatchId: nextPlayerMatch?.id,
                 })
                 const name = (pid?: string) => (pid && (playersById.get(pid)?.nickname || playersById.get(pid)?.name)) || "Former player"
                 const standout = (label: string, s?: { playerId: string; rating: number; kills: number; deaths: number }) => s && (
-                    <li>{label}: <span className="text-white">{name(s.playerId)}</span> {s.rating.toFixed(2)} rating, {s.kills}-{s.deaths}</li>
+                    <li>{label}: <span className="font-semibold text-ink-1">{name(s.playerId)}</span> <span className="tabular-nums">{s.rating.toFixed(2)}</span> rating, <span className="tabular-nums">{s.kills}–{s.deaths}</span></li>
                 )
+                const card = "rounded-lg border border-line bg-panel p-4"
                 return (
-                    <section className="max-w-7xl mx-auto mb-5 rounded-xl border border-white/10 bg-white/3 p-4" aria-labelledby="match-decided-heading">
-                        <h2 id="match-decided-heading" className="text-xs font-bold uppercase tracking-widest text-slate-300">What decided the match</h2>
-                        <p className="mt-1 text-sm text-slate-200">{insights.headline}</p>
-                        <div className="mt-3 grid gap-4 md:grid-cols-3 text-xs text-slate-300">
-                            <div>
-                                <h3 className="mb-1 font-bold uppercase tracking-widest text-slate-400">Key rounds</h3>
-                                <ul className="space-y-1">
+                    <section aria-labelledby="match-decided-heading" className="space-y-3">
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                            <h2 id="match-decided-heading" className="font-display text-2xl font-bold uppercase text-ink-1">What decided the match</h2>
+                            <p className="text-xs text-ink-3">Built from the recorded rounds, the public scoreboard and visible buys; review prompts, not proof of cause.</p>
+                        </div>
+                        <p className="text-sm text-ink-2">{insights.headline}</p>
+                        <div className="grid gap-3 md:grid-cols-3">
+                            <div className={card}>
+                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Key rounds</h3>
+                                <ul className="space-y-1.5 text-sm text-ink-2">
                                     {insights.keyRounds.map(k => (
-                                        <li key={`${k.map}-${k.round}-${k.label}`}>
-                                            <span className={k.won ? "text-emerald-400" : "text-red-400"}>{k.won ? "Won" : "Lost"}</span> · {k.map} R{k.round}: {k.label}
+                                        <li key={`${k.map}-${k.round}-${k.label}`} className="flex gap-2">
+                                            <span className={cn("w-9 shrink-0 font-semibold", k.won ? "text-positive" : "text-negative")}>{k.won ? "Won" : "Lost"}</span>
+                                            <span><span className="tabular-nums text-ink-3">{MAP_NAMES[k.map] ?? k.map} R{k.round}</span> · {k.label}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
-                            <div>
-                                <h3 className="mb-1 font-bold uppercase tracking-widest text-slate-400">Economy</h3>
-                                <ul className="space-y-1">
+                            <div className={card}>
+                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Economy</h3>
+                                <ul className="space-y-1.5 text-sm text-ink-2">
                                     {insights.economy.buys.map(b => (
-                                        <li key={b.buy}>{b.buy.toLowerCase()} buys: {b.won}/{b.played} won ({buyWinRate(b)}%)</li>
+                                        <li key={b.buy} className="flex justify-between gap-3">
+                                            <span className="capitalize">{b.buy.toLowerCase()} buys</span>
+                                            <span className="tabular-nums">{b.won}/{b.played} won <span className="text-ink-3">({buyWinRate(b)}%)</span></span>
+                                        </li>
                                     ))}
-                                    <li>Average spend per player per round: {formatCurrency(insights.economy.avgSpend, "$", false)}</li>
+                                    <li className="flex justify-between gap-3 border-t border-line pt-1.5">
+                                        <span>Avg spend per player per round</span>
+                                        <span className="tabular-nums">{formatCurrency(insights.economy.avgSpend, "$", false)}</span>
+                                    </li>
                                 </ul>
                             </div>
-                            <div>
-                                <h3 className="mb-1 font-bold uppercase tracking-widest text-slate-400">Players and plan</h3>
-                                <ul className="space-y-1">
+                            <div className={card}>
+                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Players and plan</h3>
+                                <ul className="space-y-1.5 text-sm text-ink-2">
                                     {standout("Your best", insights.standouts.best)}
                                     {standout("Struggled", insights.standouts.struggled)}
                                     {standout("Opponent top performer", insights.standouts.opponentBest)}
@@ -609,243 +568,78 @@ export default function MatchResultPage() {
                                 </ul>
                             </div>
                         </div>
-                        <p className="mt-3 text-sm text-slate-200">{matchFollowup(isHome ? homeStats : awayStats)}</p>
-                        {!result.lineups && <p className="mt-1 text-xs text-slate-400">Older report: player grouping uses current rosters.</p>}
-                        <div className="mt-3 flex flex-wrap gap-2">
-                            {insights.actions.map(a => (
-                                <button key={a.href + a.label} title={a.reason} aria-label={`${a.label}: ${a.reason}`} onClick={() => router.push(a.href)} className="rounded-lg border border-white/15 px-3 py-2 text-xs text-slate-200 hover:bg-white/10 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-emerald-400">{a.label}</button>
-                            ))}
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                            <p className="text-sm text-ink-2">{matchFollowup(isPlayerHome ? homeStats : awayStats)}</p>
+                            {!result.lineups && <p className="text-xs text-ink-3">Older report: player grouping uses current rosters.</p>}
+                            <div className="ml-auto flex flex-wrap gap-2">
+                                {insights.actions.map(a => (
+                                    <Button key={a.href + a.label} variant="outline" size="sm" title={a.reason} aria-label={`${a.label}: ${a.reason}`} onClick={() => router.push(a.href)} className="h-8 text-xs">{a.label}</Button>
+                                ))}
+                            </div>
                         </div>
-                        <p className="mt-2 text-[11px] text-slate-500">Built from the recorded rounds, the public scoreboard and visible buys; review prompts, not proof of cause.</p>
                     </section>
                 )
             })()}
 
-            {/* TAB NAVIGATION */}
-            <div className="max-w-7xl mx-auto mb-6">
-                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-                    <TabsList className="bg-white/5 border border-white/10">
-                        <TabsTrigger value="overview" className="data-[state=active]:bg-white/10">Overview</TabsTrigger>
-                        <TabsTrigger value="analysis" className="data-[state=active]:bg-white/10">Analysis</TabsTrigger>
-                    </TabsList>
-                </Tabs>
-            </div>
+            {/* Detail */}
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+                <TabsList>
+                    <TabsTrigger value="overview">Round history</TabsTrigger>
+                    <TabsTrigger value="analysis">Analysis</TabsTrigger>
+                </TabsList>
+            </Tabs>
 
-            {/* STATS & MVP LAYOUT (Overview Tab) */}
-            {activeTab === "overview" && <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                {/* LEFT COL: MVP */}
-                <div className="space-y-8">
-                    {mvpPlayer && (
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="glass-panel p-8 rounded-xl border-amber-500/20 bg-amber-500/5 relative overflow-hidden"
-                        >
-                            <div className="absolute top-0 right-0 p-4 opacity-20">
-                                <Trophy size={120} className="text-amber-500" />
-                            </div>
-
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/50 hover:bg-amber-500/30">MATCH MVP</Badge>
-                                </div>
-
-                                <div className="flex items-center gap-6 mb-6">
-                                    <div className="w-20 h-20 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center overflow-hidden">
-                                        <PlayerPortrait
-                                            src={mvpPlayer.portraitPath} seed={mvpPlayer.id}
-                                            alt={mvpPlayer.nickname}
-                                            size={80}
-                                        />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-2xl font-normal text-white">{mvpPlayer.nickname}</h3>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <CountryFlag country={mvpPlayer.nationality} size={12} showName />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="p-3 bg-black/20 rounded-lg border border-white/5">
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Rating</p>
-                                        <p className="text-2xl font-normal text-amber-400">{result.playerStats[mvpPlayer.id]?.rating?.toFixed(2) ?? "—"}</p>
-                                    </div>
-                                    <div className="p-3 bg-black/20 rounded-lg border border-white/5">
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">K/D Diff</p>
-                                        <p className="text-2xl font-normal text-white">
-                                            {result.playerStats[mvpPlayer.id] ?
-                                                (result.playerStats[mvpPlayer.id].kills - result.playerStats[mvpPlayer.id].deaths > 0 ? "+" : "") +
-                                                (result.playerStats[mvpPlayer.id].kills - result.playerStats[mvpPlayer.id].deaths)
-                                                : 0}
-                                        </p>
-                                    </div>
-                                    <div className="p-3 bg-black/20 rounded-lg border border-white/5">
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">ADR</p>
-                                        <p className="text-xl font-bold text-white">{Math.round(result.playerStats[mvpPlayer.id]?.adr || 0)}</p>
-                                    </div>
-                                    <div className="p-3 bg-black/20 rounded-lg border border-white/5">
-                                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Kills</p>
-                                        <p className="text-xl font-bold text-white">{result.playerStats[mvpPlayer.id]?.kills || 0}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Round History - All Maps with Running Score */}
-                    {result.maps.length > 0 && (
-                        <div className="space-y-4">
-                            {result.maps.filter(m => m.finalScore.team1 + m.finalScore.team2 > 0).map((mapResult, mapIndex) => {
-                                let homeScore = 0
-                                let awayScore = 0
-
-                                return (
-                                    <div key={mapIndex} className="glass-panel p-6 rounded-xl border-white/5">
-                                        {/* Map Header */}
-                                        <div className="flex items-center justify-between mb-4">
-                                            <h3 className="text-sm font-normal text-white uppercase tracking-widest flex items-center gap-2">
-                                                <Clock size={14} className="text-primary" />
-                                                {mapResult.map}
-                                                <Badge variant="outline" className="text-[10px] border-white/10 ml-2">
-                                                    Map {mapIndex + 1}
-                                                </Badge>
-                                            </h3>
-                                            <div className="flex items-center gap-2 text-lg font-normal">
-                                                <span className={(mapResult.homeScore ?? mapResult.finalScore.team1) > (mapResult.awayScore ?? mapResult.finalScore.team2) ? "text-emerald-400" : "text-white/50"}>
-                                                    {mapResult.homeScore ?? mapResult.finalScore.team1}
-                                                </span>
-                                                <span className="text-white/20">:</span>
-                                                <span className={(mapResult.awayScore ?? mapResult.finalScore.team2) > (mapResult.homeScore ?? mapResult.finalScore.team1) ? "text-emerald-400" : "text-white/50"}>
-                                                    {mapResult.awayScore ?? mapResult.finalScore.team2}
-                                                </span>
+            {activeTab === "overview" && (
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    {playedMaps.map((mapResult, mapIndex) => {
+                        let runHome = 0
+                        let runAway = 0
+                        const mHome = mapResult.homeScore ?? mapResult.finalScore.team1
+                        const mAway = mapResult.awayScore ?? mapResult.finalScore.team2
+                        return (
+                            <Panel
+                                key={mapIndex}
+                                title={<><span className="text-ink-3">Map {mapIndex + 1} ·</span> {MAP_NAMES[mapResult.map] ?? mapResult.map}</>}
+                                actions={<span className="font-display text-2xl font-bold tabular-nums text-ink-1">{mHome}<span className="mx-1 text-ink-3">–</span>{mAway}</span>}
+                            >
+                                <div className="flex flex-wrap items-end gap-[3px]">
+                                    {mapResult.rounds.map((round) => {
+                                        let homeWonLegacy = false
+                                        if (!round.winningTeamId) homeWonLegacy = round.roundNumber <= 12 ? round.winner === "ct" : round.winner === "t"
+                                        const homeWin = round.winningTeamId ? round.winningTeamId === match.homeTeamId : homeWonLegacy
+                                        if (homeWin) runHome++
+                                        else runAway++
+                                        const sideFill = round.winner === "ct" ? "bg-side-ct" : "bg-side-t"
+                                        return (
+                                            <div
+                                                key={round.roundNumber}
+                                                className={cn("flex flex-col items-center gap-[3px]", (round.roundNumber === 13 || (round.roundNumber > 24 && (round.roundNumber - 25) % 6 === 0)) && "ml-2")}
+                                                title={`Round ${round.roundNumber}: ${homeWin ? homeTeam?.name : awayTeam?.name} (${round.winner.toUpperCase()}, ${String(round.winType).toLowerCase().replace(/_/g, " ")}) · ${runHome}–${runAway}`}
+                                            >
+                                                <span className={cn("h-3 w-3.5 rounded-[2px]", homeWin ? sideFill : "bg-hover")} />
+                                                <span className={cn("h-3 w-3.5 rounded-[2px]", !homeWin ? sideFill : "bg-hover")} />
+                                                <span className="text-[11px] tabular-nums leading-none text-ink-3">{round.roundNumber % 3 === 1 ? round.roundNumber : " "}</span>
                                             </div>
-                                        </div>
-
-                                        {/* Round-by-round visualization */}
-                                        <div className="flex flex-wrap gap-1 items-end">
-                                            {mapResult.rounds.map((round) => {
-                                                const isHomeWin = round.winningTeamId === match.homeTeamId
-                                                let homeWonLegacy = false
-                                                if (!round.winningTeamId) {
-                                                    if (round.roundNumber <= 12) {
-                                                        homeWonLegacy = round.winner === "ct"
-                                                    } else {
-                                                        homeWonLegacy = round.winner === "t"
-                                                    }
-                                                }
-                                                const actuallyHomeWin = round.winningTeamId ? isHomeWin : homeWonLegacy
-
-                                                // Update running score
-                                                if (actuallyHomeWin) homeScore++
-                                                else awayScore++
-
-                                                // Current running score for tooltip
-                                                const currentScore = `${homeScore}-${awayScore}`
-
-                                                return (
-                                                    <div key={round.roundNumber} className="flex flex-col items-center">
-                                                        {/* Half-time indicator */}
-                                                        {round.roundNumber === 13 && (
-                                                            <div className="text-[8px] text-amber-400/60 mb-1 font-normal tracking-wider">
-                                                                HALF
-                                                            </div>
-                                                        )}
-
-                                                        {/* Round block */}
-                                                        <div
-                                                            className={cn(
-                                                                "w-6 h-8 rounded-md flex items-center justify-center text-[9px] font-bold border transition-all hover:-translate-y-0.5 cursor-default",
-                                                                actuallyHomeWin
-                                                                    ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
-                                                                    : "bg-red-500/20 border-red-500/40 text-red-400",
-                                                                round.roundNumber === 13 && "ml-3" // Half-time spacer
-                                                            )}
-                                                            title={`Round ${round.roundNumber}: ${actuallyHomeWin ? homeTeam?.name : awayTeam?.name} wins (${round.winType}) | Score: ${currentScore}`}
-                                                        >
-                                                            {round.roundNumber}
-                                                        </div>
-
-                                                        {/* Running score under each round */}
-                                                        <div className="text-[8px] text-white/50 mt-0.5 font-sans">
-                                                            {currentScore}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-
-                                        {/* Legend */}
-                                        <div className="flex justify-between mt-4 pt-3 border-t border-white/5 text-[10px] font-bold text-muted-foreground">
-                                            <span className="flex items-center gap-2">
-                                                <div className="w-3 h-3 bg-emerald-500/30 border border-emerald-500/50 rounded" />
-                                                {homeTeam?.name || "Home"}
-                                                <span className="text-emerald-400 font-normal">
-                                                    ({mapResult.homeScore ?? mapResult.finalScore.team1} rounds)
-                                                </span>
-                                            </span>
-                                            <span className="flex items-center gap-2">
-                                                <span className="text-red-400 font-normal">
-                                                    ({mapResult.awayScore ?? mapResult.finalScore.team2} rounds)
-                                                </span>
-                                                {awayTeam?.name || "Away"}
-                                                <div className="w-3 h-3 bg-red-500/30 border border-red-500/50 rounded" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    )}
+                                        )
+                                    })}
+                                </div>
+                                <div className="mt-3 flex justify-between border-t border-line pt-2 text-xs text-ink-3">
+                                    <span>Top row: {homeTeam?.name || "Home"}</span>
+                                    <span className="flex items-center gap-3">
+                                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-[1px] bg-side-ct" />CT win</span>
+                                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-[1px] bg-side-t" />T win</span>
+                                    </span>
+                                    <span>Bottom row: {awayTeam?.name || "Away"}</span>
+                                </div>
+                            </Panel>
+                        )
+                    })}
                 </div>
-
-                {/* RIGHT COL: SCOREBOARD */}
-                <div className="lg:col-span-2 space-y-8">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="glass-panel p-8 rounded-xl border-white/5 bg-black/20"
-                    >
-                        <h3 className="text-lg font-normal text-white mb-6 flex items-center gap-3">
-                            <Swords size={20} className="text-primary" />
-                            COMBAT STATISTICS
-                        </h3>
-
-                        {/* HOME TABLE */}
-                        <div className="mb-8">
-                            <div className="flex items-center justify-between mb-4 px-2">
-                                <h4 className="font-bold text-white flex items-center gap-2">
-                                    <span className={cn("w-2 h-2 rounded-full", homeWon ? "bg-emerald-500" : "bg-red-500")} />
-                                    {homeTeam?.name}
-                                </h4>
-                                <Badge variant="outline" className="border-white/10 text-xs">{result.homeScore}</Badge>
-                            </div>
-                            <PlayerStatsTable stats={homeStats} players={players} result={result} />
-                        </div>
-
-                        {/* AWAY TABLE */}
-                        <div>
-                            <div className="flex items-center justify-between mb-4 px-2">
-                                <h4 className="font-bold text-white flex items-center gap-2">
-                                    <span className={cn("w-2 h-2 rounded-full", !homeWon ? "bg-emerald-500" : "bg-red-500")} />
-                                    {awayTeam?.name}
-                                </h4>
-                                <Badge variant="outline" className="border-white/10 text-xs">{result.awayScore}</Badge>
-                            </div>
-                            <PlayerStatsTable stats={awayStats} players={players} result={result} />
-                        </div>
-
-                    </motion.div>
-                </div>
-
-            </div>}
+            )}
 
             {/* ANALYSIS TAB */}
             {activeTab === "analysis" && (
-                <div className="max-w-7xl mx-auto space-y-8">
+                <div className="space-y-4">
                     {/* Map Selector (for multi-map matches) */}
                     {result.maps.length > 1 && (
                         <div className="flex gap-2">
@@ -853,69 +647,44 @@ export default function MatchResultPage() {
                                 <button
                                     key={i}
                                     onClick={() => setSelectedMapIndex(i)}
+                                    aria-pressed={selectedMapIndex === i}
                                     className={cn(
-                                        "px-4 py-2 rounded-xl text-sm font-bold uppercase tracking-wider transition-all border",
-                                        selectedMapIndex === i
-                                            ? "bg-primary/20 border-primary/40 text-primary"
-                                            : "bg-white/5 border-white/10 text-white/40 hover:text-white"
+                                        "rounded-[4px] border px-3 py-1.5 text-sm font-semibold transition-colors duration-150",
+                                        selectedMapIndex === i ? "border-gold bg-gold/[0.06] text-ink-1" : "border-line bg-raised text-ink-3 hover:text-ink-1",
                                     )}
                                 >
-                                    {m.map} ({m.finalScore?.team1}-{m.finalScore?.team2})
+                                    {MAP_NAMES[m.map] ?? m.map} <span className="tabular-nums">{m.finalScore?.team1}–{m.finalScore?.team2}</span>
                                 </button>
                             ))}
                         </div>
                     )}
 
-                    {/* Opening Duels & KAST */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         {/* Opening Duels */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="glass-panel p-6 rounded-xl"
-                        >
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-6">Opening Duels</h3>
+                        <Panel title="Opening duels" actions={<span className="text-xs text-ink-3">First kills / first deaths</span>}>
                             {[homeTeam, awayTeam].map((team, teamIdx) => {
                                 if (!team) return null
                                 const teamStats = Object.values(result.playerStats || {})
                                     .filter((s: any) => resultLineup(result, team.id, team.rosterIds).includes(s.playerId))
-                                    .sort((a: any, b: any) => {
-                                        const aRatio = (a.firstKills || 0) - (a.firstDeaths || 0)
-                                        const bRatio = (b.firstKills || 0) - (b.firstDeaths || 0)
-                                        return bRatio - aRatio
-                                    })
+                                    .sort((a: any, b: any) => ((b.firstKills || 0) - (b.firstDeaths || 0)) - ((a.firstKills || 0) - (a.firstDeaths || 0)))
                                 return (
-                                    <div key={team.id} className={teamIdx > 0 ? "mt-4 pt-4 border-t border-white/5" : ""}>
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <TeamLogoImage src={team.logoPath} alt={team.name} team={team} size={16} className="rounded-sm" />
-                                            <span className="text-[10px] font-bold uppercase tracking-wider text-white/30">{team.name}</span>
-                                        </div>
-                                        <div className="space-y-2">
+                                    <div key={team.id} className={teamIdx > 0 ? "mt-4 border-t border-line pt-4" : ""}>
+                                        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{team.name}</p>
+                                        <div className="space-y-1.5">
                                             {teamStats.map((stat: any) => {
                                                 const player = playersById.get(stat.playerId)
                                                 if (!player) return null
                                                 const fk = stat.firstKills || 0
                                                 const fd = stat.firstDeaths || 0
                                                 const total = fk + fd
-                                                const pct = total > 0 ? Math.round((fk / total) * 100) : 0
-                                                const diff = fk - fd
+                                                const pctWon = total > 0 ? Math.round((fk / total) * 100) : 0
                                                 return (
-                                                    <div key={stat.playerId} className="flex items-center gap-3">
-                                                        <span className="text-xs font-bold text-white w-24 truncate">{player.nickname}</span>
-                                                        <div className="flex-1 h-6 rounded-lg bg-white/5 overflow-hidden relative">
-                                                            <div
-                                                                className={cn(
-                                                                    "h-full rounded-lg",
-                                                                    diff > 0 ? "bg-linear-to-r/srgb from-emerald-500/70 to-emerald-400/40" :
-                                                                    diff < 0 ? "bg-linear-to-r/srgb from-red-500/50 to-red-400/30" :
-                                                                    "bg-linear-to-r/srgb from-white/20 to-white/10"
-                                                                )}
-                                                                style={{ width: `${Math.max(pct, 8)}%` }}
-                                                            />
-                                                            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-xs">
-                                                                {fk}FK / {fd}FD ({pct}%)
-                                                            </span>
+                                                    <div key={stat.playerId} className="grid grid-cols-[120px_minmax(0,1fr)_96px] items-center gap-3 text-sm">
+                                                        <span className="truncate font-semibold text-ink-1">{player.nickname}</span>
+                                                        <div className="h-1.5 overflow-hidden rounded-full bg-hover">
+                                                            <div className={cn("h-full rounded-full", fk > fd ? "bg-positive" : fk < fd ? "bg-ink-3" : "bg-ink-2")} style={{ width: `${Math.max(pctWon, 4)}%` }} />
                                                         </div>
+                                                        <span className="text-right text-xs tabular-nums text-ink-2">{fk} / {fd} <span className="text-ink-3">({pctWon}%)</span></span>
                                                     </div>
                                                 )
                                             })}
@@ -923,51 +692,32 @@ export default function MatchResultPage() {
                                     </div>
                                 )
                             })}
-                        </motion.div>
+                        </Panel>
 
                         {/* KAST & Clutches */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="glass-panel p-6 rounded-xl"
-                        >
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-6">KAST % & Clutches</h3>
+                        <Panel title="KAST and clutches" actions={<span className="text-xs text-ink-3">Rounds with a kill, assist, survival or trade</span>}>
                             {[homeTeam, awayTeam].map((team, teamIdx) => {
                                 if (!team) return null
                                 const teamStats = Object.values(result.playerStats || {})
                                     .filter((s: any) => resultLineup(result, team.id, team.rosterIds).includes(s.playerId))
                                     .sort((a: any, b: any) => (b.kast || 0) - (a.kast || 0))
                                 return (
-                                    <div key={team.id} className={teamIdx > 0 ? "mt-4 pt-4 border-t border-white/5" : ""}>
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <TeamLogoImage src={team.logoPath} alt={team.name} team={team} size={16} className="rounded-sm" />
-                                            <span className="text-[10px] font-bold uppercase tracking-wider text-white/30">{team.name}</span>
-                                        </div>
-                                        <div className="space-y-2">
+                                    <div key={team.id} className={teamIdx > 0 ? "mt-4 border-t border-line pt-4" : ""}>
+                                        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{team.name}</p>
+                                        <div className="space-y-1.5">
                                             {teamStats.map((stat: any) => {
                                                 const player = playersById.get(stat.playerId)
                                                 if (!player) return null
                                                 const kast = stat.kast || 0
                                                 const clutches = stat.clutches || 0
                                                 return (
-                                                    <div key={stat.playerId} className="flex items-center gap-3">
-                                                        <span className="text-xs font-bold text-white w-24 truncate">{player.nickname}</span>
-                                                        <div className="flex-1 h-6 rounded-lg bg-white/5 overflow-hidden">
-                                                            <div
-                                                                className={cn(
-                                                                    "h-full rounded-lg",
-                                                                    kast >= 80 ? "bg-linear-to-r/srgb from-emerald-500/70 to-emerald-400/40" :
-                                                                    kast >= 60 ? "bg-linear-to-r/srgb from-sky-500/60 to-sky-400/30" :
-                                                                    "bg-linear-to-r/srgb from-white/20 to-white/10"
-                                                                )}
-                                                                style={{ width: `${kast}%` }}
-                                                            />
+                                                    <div key={stat.playerId} className="grid grid-cols-[120px_minmax(0,1fr)_56px_80px] items-center gap-3 text-sm">
+                                                        <span className="truncate font-semibold text-ink-1">{player.nickname}</span>
+                                                        <div className="h-1.5 overflow-hidden rounded-full bg-hover">
+                                                            <div className={cn("h-full rounded-full", kast >= 75 ? "bg-positive" : "bg-ink-2")} style={{ width: `${kast}%` }} />
                                                         </div>
-                                                        <span className="text-[11px] font-bold text-white/70 w-14 text-right tabular-nums">{kast.toFixed(2)}%</span>
-                                                        {clutches > 0 && (
-                                                            <Badge className="bg-amber-500/20 text-amber-400 text-[10px] border border-amber-500/20">{clutches} clutch{clutches > 1 ? "es" : ""}</Badge>
-                                                        )}
+                                                        <span className="text-right text-xs tabular-nums text-ink-2">{Math.round(kast)}%</span>
+                                                        <span className="text-right text-xs text-ink-3">{clutches > 0 ? `${clutches} clutch${clutches > 1 ? "es" : ""}` : ""}</span>
                                                     </div>
                                                 )
                                             })}
@@ -975,7 +725,7 @@ export default function MatchResultPage() {
                                     </div>
                                 )
                             })}
-                        </motion.div>
+                        </Panel>
                     </div>
 
                     {/* Economy Per Round */}
@@ -992,100 +742,36 @@ export default function MatchResultPage() {
                             if (teamPlayers.length === 0) return 0
                             return teamPlayers.reduce((sum: number, e: any) => sum + (e.spent || 0) + (e.remaining || 0), 0) / teamPlayers.length
                         }
-
-                        const getBarColor = (avgMoney: number, roundIdx: number) => {
-                            if (roundIdx === 0 || roundIdx === 12) return "bg-amber-400"
-                            if (avgMoney < 2000) return "bg-red-400"
-                            if (avgMoney < 4500) return "bg-orange-400"
-                            return "bg-emerald-400"
-                        }
-
                         const maxMoney = 16000
-
+                        const bars = (teamId: string, flip: boolean) => (
+                            <div className={cn("flex h-20 gap-[3px]", flip ? "items-start" : "items-end")}>
+                                {rounds.map((round: any, i: number) => {
+                                    const avgMoney = getTeamEconomy(round, teamId)
+                                    const height = Math.max(4, Math.min(100, (avgMoney / maxMoney) * 100))
+                                    const won = round.winningTeamId === teamId
+                                    return (
+                                        <div
+                                            key={i}
+                                            className={cn("flex-1", flip ? "rounded-b-[2px]" : "rounded-t-[2px]", won ? "bg-ink-1" : "bg-ink-3/50")}
+                                            style={{ height: `${height}%` }}
+                                            title={`R${i + 1}: ${formatCurrency(Math.round(avgMoney), "$", false)} avg${won ? " · won" : ""}`}
+                                        />
+                                    )
+                                })}
+                            </div>
+                        )
                         return (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="glass-panel p-6 rounded-xl"
-                            >
-                                <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-6">
-                                    Round Economy — {selectedMap.map}
-                                </h3>
-
-                                {/* Home Team Economy */}
-                                <div className="mb-6">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <TeamLogoImage src={homeTeam?.logoPath} alt={homeTeam?.name || ""} team={homeTeam} size={14} className="rounded-sm" />
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-white/30">{homeTeam?.name}</span>
-                                    </div>
-                                    <div className="flex items-end gap-[3px] h-24">
-                                        {rounds.map((round: any, i: number) => {
-                                            const avgMoney = getTeamEconomy(round, match.homeTeamId)
-                                            const height = Math.max(4, Math.min(100, (avgMoney / maxMoney) * 100))
-                                            const isWinner = round.winningTeamId === match.homeTeamId
-                                            return (
-                                                <div key={i} className="flex-1 flex flex-col items-center group relative">
-                                                    <div className="hidden group-hover:flex absolute -top-8 bg-black/90 border border-white/10 rounded-md px-2 py-1 z-10 whitespace-nowrap">
-                                                        <span className="text-[9px] text-white/80">R{i + 1}: {formatCurrency(Math.round(avgMoney), "$", false)}</span>
-                                                    </div>
-                                                    {isWinner && <div className="w-1 h-1 rounded-full bg-emerald-400 mb-1" />}
-                                                    {!isWinner && <div className="w-1 h-1 mb-1" />}
-                                                    <div
-                                                        className={cn("w-full rounded-t-sm", getBarColor(avgMoney, i), avgMoney > 0 ? "opacity-70" : "opacity-20")}
-                                                        style={{ height: `${height}%` }}
-                                                    />
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Round Numbers */}
-                                <div className="flex gap-[3px] mb-2">
+                            <Panel title={`Round economy · ${MAP_NAMES[selectedMap.map] ?? selectedMap.map}`} actions={<span className="text-xs text-ink-3">Average money per player at round start · bright = round won</span>}>
+                                <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{homeTeam?.name}</p>
+                                {bars(match.homeTeamId, false)}
+                                <div className="my-1 flex gap-[3px]">
                                     {rounds.map((_: any, i: number) => (
-                                        <div key={i} className="flex-1 text-center">
-                                            <span className="text-[7px] text-white/25">{i + 1}</span>
-                                        </div>
+                                        <span key={i} className="flex-1 text-center text-[11px] tabular-nums text-ink-3">{(i + 1) % 3 === 1 ? i + 1 : ""}</span>
                                     ))}
                                 </div>
-
-                                {/* Away Team Economy (inverted) */}
-                                <div className="mb-4">
-                                    <div className="flex items-start gap-[3px] h-24">
-                                        {rounds.map((round: any, i: number) => {
-                                            const avgMoney = getTeamEconomy(round, match.awayTeamId)
-                                            const height = Math.max(4, Math.min(100, (avgMoney / maxMoney) * 100))
-                                            const isWinner = round.winningTeamId === match.awayTeamId
-                                            return (
-                                                <div key={i} className="flex-1 flex flex-col items-center group relative">
-                                                    <div
-                                                        className={cn("w-full rounded-b-sm", getBarColor(avgMoney, i), avgMoney > 0 ? "opacity-70" : "opacity-20")}
-                                                        style={{ height: `${height}%` }}
-                                                    />
-                                                    {isWinner && <div className="w-1 h-1 rounded-full bg-emerald-400 mt-1" />}
-                                                    {!isWinner && <div className="w-1 h-1 mt-1" />}
-                                                    <div className="hidden group-hover:flex absolute -bottom-8 bg-black/90 border border-white/10 rounded-md px-2 py-1 z-10 whitespace-nowrap">
-                                                        <span className="text-[9px] text-white/80">R{i + 1}: {formatCurrency(Math.round(avgMoney), "$", false)}</span>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <TeamLogoImage src={awayTeam?.logoPath} alt={awayTeam?.name || ""} team={awayTeam} size={14} className="rounded-sm" />
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-white/30">{awayTeam?.name}</span>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4 text-[9px] text-white/40 border-t border-white/5 pt-3">
-                                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-amber-400" /> Pistol</span>
-                                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-400" /> Eco</span>
-                                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-orange-400" /> Force</span>
-                                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-emerald-400" /> Full Buy</span>
-                                    <span className="flex items-center gap-1 ml-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Round Win</span>
-                                </div>
-                            </motion.div>
+                                {bars(match.awayTeamId, true)}
+                                <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{awayTeam?.name}</p>
+                            </Panel>
                         )
                     })()}
                 </div>
@@ -1108,96 +794,91 @@ export default function MatchResultPage() {
     )
 }
 
-function PlayerStatsTable({ stats, players, result }: { stats: PlayerMatchStats[], players: PlayerSaveData[], result: MatchResult }) {
-    // Local lookup map — was previously a reference to `playersById` defined
-    // inside MatchResultPage which is out of scope here. Build it from the
-    // `players` prop so this component is self-contained.
-    const playersById = new Map(players.map(p => [p.id, p]))
+function MvpCard({ label, stat, player, isMatchMvp }: { label: string; stat: PlayerMatchStats; player?: PlayerSaveData; isMatchMvp: boolean }) {
     return (
-        <div className="relative overflow-x-auto rounded-xl border border-white/5">
-            <table className="w-full text-sm text-left">
-                <thead className="text-xs text-muted-foreground uppercase bg-white/5">
-                    <tr>
-                        <th className="px-4 py-3 font-bold tracking-wider">Player</th>
-                        <th className="px-4 py-3 text-center font-bold tracking-wider">K / D / A</th>
-                        <th className="px-4 py-3 text-center font-bold tracking-wider">Diff</th>
-                        <th className="px-4 py-3 text-center font-bold tracking-wider">ADR</th>
-                        <th className="px-4 py-3 text-center font-bold tracking-wider">XP Gain</th>
-                        <th className="px-4 py-3 text-center font-bold tracking-wider">Rating</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                    {stats.map((stat) => {
-                        const player = playersById.get(stat.playerId)
-                        const diff = stat.kills - stat.deaths
-                        const ratingColor = stat.rating >= 1.25 ? "text-emerald-400" : stat.rating < 0.9 ? "text-red-400" : "text-white/80"
-
-                        return (
-                            <tr key={stat.playerId} className="bg-white/2 hover:bg-white/6 transition-colors">
-                                <td className="px-4 py-3 font-medium text-white flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center overflow-hidden relative">
-                                        <PlayerPortrait
-                                            src={player?.portraitPath} seed={player?.id}
-                                            alt={player?.nickname || "Player"}
-                                            size={32}
-                                        />
-                                        {player && (
-                                            <div className="absolute bottom-0 left-0 w-full h-1 bg-black/40">
-                                                <div
-                                                    className="h-full bg-emerald-500"
-                                                    style={{ width: `${Math.min(100, ((player.xp || 0) / (player.xpToNextLevel || 1000)) * 100)}%` }}
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <div className="leading-none mb-0.5 flex items-center gap-2">
-                                            {player?.nickname}
-                                            <Badge variant="outline" className="text-[8px] h-3.5 px-1 py-0 min-w-[20px] bg-white/5 border-white/10 text-muted-foreground flex items-center justify-center">
-                                                Lvl {player?.level || 1}
-                                            </Badge>
-                                        </div>
-                                        <div className="text-[9px] text-muted-foreground flex items-center gap-1">
-                                            <CountryFlag country={player?.nationality || ""} size={9} />
-                                            {formatRole(player?.role)}
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="px-4 py-3 text-center font-sans text-muted-foreground">
-                                    <span className="text-white">{stat.kills}</span> / <span className="text-red-400/80">{stat.deaths}</span> / {stat.assists}
-                                </td>
-                                <td className="px-4 py-3 text-center font-bold">
-                                    <span className={diff > 0 ? "text-emerald-400" : diff < 0 ? "text-red-400" : "text-muted-foreground"}>
-                                        {diff > 0 ? "+" : ""}{diff}
-                                    </span>
-                                </td>
-                                <td className="px-4 py-3 text-center text-white/80">
-                                    {Math.round(stat.adr)}
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                    <div className="flex flex-col items-center w-24">
-                                        <span className="text-emerald-400 font-bold">+{result.xpGains?.[stat.playerId] || 0} XP</span>
-
-                                        {/* XP Progress Bar */}
-                                        <div className="w-full h-1.5 bg-white/10 rounded-full mt-1 overflow-hidden relative group/xp">
-                                            <div
-                                                className="h-full bg-emerald-500 rounded-full"
-                                                style={{ width: `${Math.min(100, ((player?.xp || 0) / (player?.xpToNextLevel || 1000)) * 100)}%` }}
-                                            />
-                                        </div>
-                                        <span className="text-[8px] text-muted-foreground font-sans mt-0.5">
-                                            {player?.xp || 0} / {player?.xpToNextLevel || 1000}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td className={cn("px-4 py-3 text-center font-normal", ratingColor)}>
-                                    {stat.rating.toFixed(2)}
-                                </td>
-                            </tr>
-                        )
-                    })}
-                </tbody>
-            </table>
+        <div className="flex items-center gap-4 p-4">
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-raised">
+                <PlayerPortrait src={player?.portraitPath} seed={player?.id} alt={player?.nickname || "Player"} size={64} />
+            </div>
+            <div className="min-w-0 flex-1">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
+                    {label}
+                    {isMatchMvp && <span className="inline-flex items-center gap-1 text-gold"><Trophy size={11} aria-hidden="true" /> Match MVP</span>}
+                </p>
+                <p className="truncate font-display text-[26px] font-bold uppercase leading-tight text-ink-1">{player?.nickname ?? "Former player"}</p>
+                <p className="text-xs tabular-nums text-ink-3">
+                    {stat.kills}–{stat.deaths} · {Math.round(stat.adr)} ADR{typeof stat.kast === "number" ? ` · ${Math.round(stat.kast)}% KAST` : ""}
+                </p>
+            </div>
+            <div className="text-right">
+                <p className="font-display text-[32px] font-bold leading-none tabular-nums text-ink-1">{stat.rating.toFixed(2)}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Rating</p>
+            </div>
         </div>
+    )
+}
+
+/** Match rating (≈1.00 average): bright above 1.15, quiet below 0.85; red is kept for real problems. */
+const matchRatingTone = (r: number) => r >= 1.15 ? "text-positive" : r < 0.85 ? "text-ink-3" : "text-ink-1"
+
+function PlayerStatsTable({ team, won, stats, playersById, result, mvpId }: {
+    team: { id: string; name: string; logoPath?: string } | undefined
+    won: boolean
+    stats: PlayerMatchStats[]
+    playersById: Map<string, PlayerSaveData>
+    result: MatchResult
+    mvpId: string
+}) {
+    return (
+        <table data-slot="table" className="w-full border-collapse text-left">
+            <thead data-slot="table-header">
+                <tr className="border-y border-line first:border-t-0">
+                    <th data-slot="table-head" className="pl-4">
+                        <span className="flex items-center gap-2 normal-case tracking-normal">
+                            <TeamLogoImage src={team?.logoPath} alt="" team={team as any} size={18} />
+                            <span className="font-display text-base font-bold uppercase text-ink-1">{team?.name}</span>
+                            <span className={cn("text-[11px] font-semibold uppercase tracking-[0.06em]", won ? "text-positive" : "text-ink-3")}>{won ? "Won" : "Lost"}</span>
+                        </span>
+                    </th>
+                    <th data-slot="table-head" className="px-2 text-right">K</th>
+                    <th data-slot="table-head" className="px-2 text-right">D</th>
+                    <th data-slot="table-head" className="px-2 text-right">A</th>
+                    <th data-slot="table-head" className="px-2 text-right">+/−</th>
+                    <th data-slot="table-head" className="px-2 text-right">ADR</th>
+                    <th data-slot="table-head" className="px-2 text-right">KAST</th>
+                    <th data-slot="table-head" className="px-2 text-right">XP</th>
+                    <th data-slot="table-head" className="pr-4 text-right">Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {stats.map((stat) => {
+                    const player = playersById.get(stat.playerId)
+                    const diff = stat.kills - stat.deaths
+                    return (
+                        <tr key={stat.playerId} data-slot="table-row" className="h-11 border-b border-line">
+                            <td className="py-1.5 pl-4 pr-2">
+                                <div className="flex min-w-0 items-center gap-2.5">
+                                    <div className="h-8 w-8 shrink-0 overflow-hidden rounded bg-raised">
+                                        <PlayerPortrait src={player?.portraitPath} seed={player?.id} alt={player?.nickname || "Player"} size={32} />
+                                    </div>
+                                    <CountryFlag country={player?.nationality || ""} size={14} />
+                                    <span className="truncate text-sm font-semibold text-ink-1">{player?.nickname ?? "Former player"}</span>
+                                    {stat.playerId === mvpId && <Trophy size={13} className="shrink-0 text-gold" aria-label="Match MVP" />}
+                                    <RoleTag role={player?.role} className="ml-1" />
+                                </div>
+                            </td>
+                            <td className="px-2 text-right text-sm font-semibold tabular-nums text-ink-1">{stat.kills}</td>
+                            <td className="px-2 text-right text-sm tabular-nums text-ink-2">{stat.deaths}</td>
+                            <td className="px-2 text-right text-sm tabular-nums text-ink-2">{stat.assists}</td>
+                            <td className={cn("px-2 text-right text-sm tabular-nums", diff > 0 ? "text-positive" : diff < 0 ? "text-ink-3" : "text-ink-2")}>{diff > 0 ? "+" : ""}{diff}</td>
+                            <td className="px-2 text-right text-sm tabular-nums text-ink-2">{Math.round(stat.adr)}</td>
+                            <td className="px-2 text-right text-sm tabular-nums text-ink-2">{typeof stat.kast === "number" ? `${Math.round(stat.kast)}%` : "—"}</td>
+                            <td className="px-2 text-right text-xs tabular-nums text-ink-3">+{result.xpGains?.[stat.playerId] || 0}</td>
+                            <td className={cn("pr-4 text-right font-display text-lg font-bold tabular-nums", matchRatingTone(stat.rating))}>{stat.rating.toFixed(2)}</td>
+                        </tr>
+                    )
+                })}
+            </tbody>
+        </table>
     )
 }

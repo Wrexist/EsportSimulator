@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react'
-import { motion } from 'framer-motion'
 import {
     Lock,
     Unlock,
@@ -78,182 +77,114 @@ interface TalentTreeProps {
     availablePoints: number
     onUnlock: (talentId: string) => void
     readonly?: boolean
+    /** Horizontal distance between grid columns; narrower for side panels. */
+    spacingX?: number
 }
 
-export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock, readonly = false }: TalentTreeProps) {
-    // Spacing constants for extreme compactness
-    const SPACING_X = 90
-    const SPACING_Y = 120
-    const NODE_WIDTH = 70
+const DEFAULT_SPACING_X = 112
+const SPACING_Y = 104
+const NODE = 52
 
-    // 1. Calculate Canvas Size
+/**
+ * TalentTree — talent nodes on a quiet grid. Owned nodes read solid, nodes you
+ * can buy now get a gold outline (the one call to action), the rest stay dim.
+ */
+export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock, readonly = false, spacingX: SPACING_X = DEFAULT_SPACING_X }: TalentTreeProps) {
     const bounds = useMemo(() => {
         let maxX = 0, maxY = 0
         nodes.forEach(n => {
             if (n.position.x > maxX) maxX = n.position.x
             if (n.position.y > maxY) maxY = n.position.y
         })
-        return {
-            width: (maxX + 1) * SPACING_X,
-            height: (maxY + 1) * SPACING_Y + 40 // Extra padding for labels
-        }
-    }, [nodes])
+        return { width: maxX * SPACING_X + NODE + 56, height: maxY * SPACING_Y + NODE + 40 }
+    }, [nodes, SPACING_X])
 
-    // 2. Render Lines
-    const renderConnections = () => {
-        return nodes.map(node => {
-            return node.requirements.map(reqId => {
-                const parent = nodes.find(n => n.id === reqId)
-                if (!parent) return null
-
-                const isUnlocked = unlockedIds.includes(node.id)
-                const isUnlockable = unlockedIds.includes(parent.id)
-
-                const x1 = parent.position.x * SPACING_X + (NODE_WIDTH / 2)
-                const y1 = parent.position.y * SPACING_Y + 60 // Centerish of parent
-                const x2 = node.position.x * SPACING_X + (NODE_WIDTH / 2)
-                const y2 = node.position.y * SPACING_Y // Top of node
-
-                return (
-                    <g key={`conn-${parent.id}-${node.id}`}>
-                        {/* Glow effect for unlocked paths */}
-                        {isUnlocked && (
-                            <motion.path
-                                d={`M ${x1} ${y1} C ${x1} ${(y1 + y2) / 2}, ${x2} ${(y1 + y2) / 2}, ${x2} ${y2}`}
-                                fill="none"
-                                stroke="rgba(var(--primary), 0.5)"
-                                strokeWidth="4"
-                                className="blur-xs"
-                                initial={{ pathLength: 0 }}
-                                animate={{ pathLength: 1 }}
-                                transition={{ duration: 1 }}
-                            />
-                        )}
-                        <motion.path
-                            d={`M ${x1} ${y1} C ${x1} ${(y1 + y2) / 2}, ${x2} ${(y1 + y2) / 2}, ${x2} ${y2}`}
-                            fill="none"
-                            strokeWidth="2"
-                            className={cn(
-                                "transition-all duration-500",
-                                isUnlocked ? "stroke-primary" : isUnlockable ? "stroke-white/40" : "stroke-white/10"
-                            )}
-                            strokeDasharray={!isUnlocked && isUnlockable ? "5,5" : "none"}
-                            initial={{ pathLength: 0 }}
-                            animate={{ pathLength: 1 }}
-                            transition={{ duration: 1, delay: 0.2 }}
-                        />
-                    </g>
-                )
-            })
-        })
-    }
+    const center = (n: TalentNode) => ({ x: n.position.x * SPACING_X + 28 + NODE / 2, y: n.position.y * SPACING_Y + NODE / 2 })
 
     return (
-        <div className="relative overflow-auto p-4 flex justify-center min-h-[350px] w-full">
-            <div className="relative" style={{ width: bounds.width, height: bounds.height }}>
-                <svg className="absolute inset-0 pointer-events-none overflow-visible z-0">
-                    {renderConnections()}
+        <div className="flex w-full justify-center overflow-x-auto px-4 py-5">
+            <div className="relative shrink-0" style={{ width: bounds.width, height: bounds.height }}>
+                <svg className="pointer-events-none absolute inset-0 overflow-visible" width={bounds.width} height={bounds.height} aria-hidden="true">
+                    {nodes.flatMap(node => node.requirements.map(reqId => {
+                        const parent = nodes.find(n => n.id === reqId)
+                        if (!parent) return null
+                        const a = center(parent), b = center(node)
+                        const owned = unlockedIds.includes(node.id)
+                        const open = unlockedIds.includes(parent.id)
+                        return (
+                            <path
+                                key={`${parent.id}-${node.id}`}
+                                d={`M ${a.x} ${a.y + NODE / 2} C ${a.x} ${(a.y + b.y) / 2}, ${b.x} ${(a.y + b.y) / 2}, ${b.x} ${b.y - NODE / 2}`}
+                                fill="none"
+                                strokeWidth={owned ? 1.5 : 1}
+                                strokeDasharray={!owned && open ? "4 4" : undefined}
+                                className={owned ? "stroke-ink-2" : open ? "stroke-line-strong" : "stroke-line"}
+                            />
+                        )
+                    }))}
                 </svg>
 
                 {nodes.map(node => {
                     const isUnlocked = unlockedIds.includes(node.id)
                     const requirementsMet = node.requirements.every(req => unlockedIds.includes(req))
                     const canUnlock = !isUnlocked && requirementsMet && availablePoints >= node.cost && !readonly
-
                     const Icon = TALENT_ICON_MAP[node.icon] ?? Star
+                    const status = isUnlocked ? "Owned"
+                        : !requirementsMet ? "Needs the talent above"
+                            : availablePoints < node.cost ? `Needs ${node.cost} point${node.cost > 1 ? "s" : ""}`
+                                : readonly ? "Available" : "Click to unlock"
 
                     return (
                         <div
                             key={node.id}
-                            className="absolute flex flex-col items-center z-10"
-                            style={{
-                                left: node.position.x * SPACING_X,
-                                top: node.position.y * SPACING_Y,
-                                width: NODE_WIDTH
-                            }}
+                            className="absolute flex flex-col items-center"
+                            style={{ left: node.position.x * SPACING_X, top: node.position.y * SPACING_Y, width: NODE + 56 }}
                         >
                             <TooltipProvider>
-                                <Tooltip delayDuration={0}>
+                                <Tooltip delayDuration={100}>
                                     <TooltipTrigger asChild>
                                         <button
+                                            type="button"
                                             onClick={() => canUnlock && onUnlock(node.id)}
-                                            disabled={!canUnlock && !isUnlocked}
+                                            aria-disabled={!canUnlock}
+                                            aria-label={`${node.name}: ${node.description} ${status}.`}
                                             className={cn(
-                                                "w-16 h-16 rounded-2xl border flex flex-col items-center justify-center transition-[background-color,border-color,color,box-shadow,transform] duration-100 ease-out relative group z-10 select-none touch-manipulation will-change-transform active:scale-[0.96] active:duration-0",
+                                                "relative flex items-center justify-center rounded-md border transition-colors duration-150",
                                                 isUnlocked
-                                                    ? "bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)] backdrop-blur-md"
+                                                    ? "border-line-strong bg-hover text-ink-1"
                                                     : canUnlock
-                                                        ? "bg-white/10 border-white/40 text-white hover:scale-105 hover:bg-white/20 hover:border-primary hover:text-white cursor-pointer hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] backdrop-blur-xs"
-                                                        : "bg-black/60 border-white/5 text-white/20 grayscale"
+                                                        ? "cursor-pointer border-gold bg-raised text-ink-1 hover:bg-hover"
+                                                        : "cursor-default border-line bg-shell text-ink-3",
                                             )}
+                                            style={{ width: NODE, height: NODE }}
                                         >
-                                            <div className={cn(
-                                                "p-2.5 rounded-full transition-colors duration-100 ease-out shadow-inner",
-                                                isUnlocked ? "bg-primary text-black" : "bg-white/5"
-                                            )}>
-                                                <Icon size={isUnlocked ? 18 : 16} />
-                                            </div>
-
-                                            {/* Cost Badge */}
-                                            {!isUnlocked && (
-                                                <div className={cn(
-                                                    "absolute -bottom-2 px-1.5 py-0.5 rounded-full text-[8px] font-normal border shadow-lg z-20",
-                                                    canUnlock ? "bg-black border-primary text-primary" : "bg-black border-white/10 text-white/30"
+                                            <Icon size={20} />
+                                            {isUnlocked ? (
+                                                <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-positive text-ink">
+                                                    <Check size={10} strokeWidth={3} />
+                                                </span>
+                                            ) : (
+                                                <span className={cn(
+                                                    "absolute -bottom-2 rounded-sm border px-1 text-[11px] font-semibold leading-4 tabular-nums",
+                                                    canUnlock ? "border-gold bg-panel text-gold" : "border-line bg-panel text-ink-3",
                                                 )}>
-                                                    {node.cost} TP
-                                                </div>
-                                            )}
-
-                                            {/* Checkmark */}
-                                            {isUnlocked && (
-                                                <div className="absolute -top-1.5 -right-1.5 bg-primary text-black rounded-full p-0.5 border border-black shadow-lg z-20">
-                                                    <Check size={8} strokeWidth={4} />
-                                                </div>
+                                                    {node.cost}
+                                                </span>
                                             )}
                                         </button>
                                     </TooltipTrigger>
-                                    <TooltipContent className="max-w-[200px] bg-black/80 backdrop-blur-xl border-white/10 p-3 shadow-2xl rounded-xl" sideOffset={5}>
-                                        <div className="space-y-1.5">
-                                            <div className="flex items-start justify-between gap-2">
-                                                <p className="font-normal text-xs text-white uppercase tracking-wider">{node.name}</p>
-                                            </div>
-
-                                            <p className="text-[10px] text-white/70 leading-relaxed">{node.description}</p>
-
-                                            <div className="pt-1.5 border-t border-white/10 mt-1.5">
-                                                {!isUnlocked && !requirementsMet && (
-                                                    <p className="text-[9px] text-red-400 flex items-center gap-1 font-bold uppercase tracking-wide">
-                                                        <Lock size={8} /> Needs Requirements
-                                                    </p>
-                                                )}
-                                                {!isUnlocked && requirementsMet && availablePoints < node.cost && (
-                                                    <p className="text-[9px] text-amber-400 flex items-center gap-1 font-bold uppercase tracking-wide">
-                                                        <Lock size={8} /> Need {node.cost} TP
-                                                    </p>
-                                                )}
-                                                {!isUnlocked && requirementsMet && availablePoints >= node.cost && (
-                                                    <p className="text-[9px] text-emerald-400 flex items-center gap-1 font-bold uppercase tracking-wide">
-                                                        <Unlock size={8} /> Click to Unlock
-                                                    </p>
-                                                )}
-                                                {isUnlocked && (
-                                                    <p className="text-[9px] text-primary flex items-center gap-1 font-bold uppercase tracking-wide">
-                                                        <Check size={8} /> Unlocked
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
+                                    <TooltipContent className="max-w-[220px] p-3" sideOffset={6}>
+                                        <p className="text-sm font-semibold text-ink-1">{node.name}</p>
+                                        <p className="mt-1 text-xs leading-relaxed text-ink-2">{node.description}</p>
+                                        <p className={cn("mt-2 flex items-center gap-1 text-xs font-semibold", isUnlocked ? "text-positive" : canUnlock ? "text-gold" : "text-ink-3")}>
+                                            {isUnlocked ? <Check size={11} /> : canUnlock ? <Unlock size={11} /> : <Lock size={11} />} {status}
+                                        </p>
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
-
-                            {/* Node Name Label */}
-                            <div className={cn(
-                                "mt-2 text-[9px] font-bold text-center uppercase tracking-wide leading-tight px-0.5 transition-colors duration-100 ease-out",
-                                isUnlocked ? "text-white" : "text-white/20"
-                            )}>
+                            <span className={cn("mt-3 text-center text-xs leading-tight", isUnlocked ? "font-semibold text-ink-1" : "text-ink-3")}>
                                 {node.name}
-                            </div>
+                            </span>
                         </div>
                     )
                 })}

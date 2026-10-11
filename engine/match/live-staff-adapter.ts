@@ -12,6 +12,7 @@
  */
 
 import { createCoach, createAnalyst, createPsychologist } from "@/types"
+import { applyPreMatchTalents } from "./apply-talents"
 
 interface StaffSource {
     id: string
@@ -19,6 +20,7 @@ interface StaffSource {
     level: number
     salaryPerWeek: number
     role: string
+    unlockedTalentIds?: string[]
 }
 
 export interface RuntimeTeamStaff {
@@ -48,4 +50,25 @@ export function buildRuntimeStaff(staffData: StaffSource[]): RuntimeTeamStaff {
             ? createPsychologist(psychData.id, psychData.name, psychData.level, psychData.salaryPerWeek)
             : undefined,
     }
+}
+
+/**
+ * Both teams' match-day staff: pre-match talents (morale floor, timeout
+ * morale) applied to the rosters in place, runtime staff built, and each
+ * side's anti_strat talent cutting the opponent coach's tactic bonus.
+ * Shared by the managed path (prepareLegacySeries) and the AI path
+ * (MatchEngine.simulateMatch) so staff are worth the same in both.
+ */
+export function buildMatchStaff(
+    homePlayers: { morale: number }[],
+    awayPlayers: { morale: number }[],
+    homeStaffData: StaffSource[],
+    awayStaffData: StaffSource[],
+): { homeStaff: RuntimeTeamStaff; awayStaff: RuntimeTeamStaff; homeAntiStrat: number; awayAntiStrat: number } {
+    const { homeAntiStrat, awayAntiStrat } = applyPreMatchTalents(homePlayers, awayPlayers, homeStaffData, awayStaffData)
+    const homeStaff = buildRuntimeStaff(homeStaffData)
+    const awayStaff = buildRuntimeStaff(awayStaffData)
+    if (homeAntiStrat > 0 && awayStaff.coach) awayStaff.coach.tacticBonus = Math.round(awayStaff.coach.tacticBonus * (1 - homeAntiStrat))
+    if (awayAntiStrat > 0 && homeStaff.coach) homeStaff.coach.tacticBonus = Math.round(homeStaff.coach.tacticBonus * (1 - awayAntiStrat))
+    return { homeStaff, awayStaff, homeAntiStrat, awayAntiStrat }
 }

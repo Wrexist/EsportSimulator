@@ -1,649 +1,320 @@
 "use client"
 
-import React, { useState } from "react"
-import { useGameStore } from "@/store/game-store"
-import { useShallow } from "zustand/react/shallow"
-import { useCurrentTeam } from "@/hooks/useCurrentTeam"
-import { PlayerPortrait } from "@/components/ui/asset-images"
-import {
-    Dumbbell,
-    Brain,
-    Zap,
-    Target,
-    Shield,
-    Coffee,
-    LucideIcon,
-    Swords,
-    Crosshair,
-    User,
-    Users,
-    LayoutGrid,
-    Coins,
-    Wind,
-    // New drill icons (data/drills.json expansion)
-    Trophy,
-    Megaphone,
-    Activity,
-    Search,
-    Flame,
-    Moon,
-    Video,
-    Bomb,
-} from "lucide-react"
-
-/**
- * Drill iconName → lucide component. Keep this in sync with the
- * iconName values in data/drills.json. Defaults to Target so a typo
- * doesn't blank the card.
- */
-const DRILL_ICONS: Record<string, LucideIcon> = {
-    Target,
-    Wind,
-    Crosshair,
-    Zap,
-    Trophy,
-    Brain,
-    Megaphone,
-    Activity,
-    Users,
-    Search,
-    Flame,
-    Moon,
-    Video,
-    Bomb,
-    Swords,
-}
+import React, { useCallback, useMemo, useState } from "react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger
-} from "@/components/ui/select"
-import { cn } from "@/lib/utils"
-import { formatRole, formatCurrency } from "@/lib/utils-extended"
-import { toast } from "@/lib/toast"
-import { TrainingFocus, CustomTactics } from "@/types"
 import dynamic from "next/dynamic"
+import { useRouter } from "next/navigation"
+import { ArrowUpRight, Crosshair, Repeat2 } from "lucide-react"
+import { useShallow } from "zustand/react/shallow"
+import { useGameStore } from "@/store/game-store"
+import { useCurrentTeam } from "@/hooks/useCurrentTeam"
+import { DrillManager } from "@/engine/drill-manager"
+import type { PlayerSaveData } from "@/engine/save-types"
+import type { CustomTactics } from "@/types"
+import { cn } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils-extended"
+import { toast } from "@/lib/toast"
+import { Button } from "@/components/ui/button"
+import { PlayerPortrait } from "@/components/ui/asset-images"
+import { Panel } from "@/src/components/ui/Panel"
+import { RoleTag } from "@/src/components/ui/RoleTag"
+import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { Meter } from "@/src/components/ui/Meter"
+import { FOCUS_OPTIONS, drillStatLabel, trainingModifiers } from "@/components/training/weekly-training"
+
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
 const WeaponTrainingModal = dynamic(() => import("@/components/training/WeaponTrainingModal").then(m => m.WeaponTrainingModal), { ssr: false })
 const TacticalLoadoutEditor = dynamic(() => import("@/components/match/TacticalLoadoutEditor").then(m => m.TacticalLoadoutEditor), { ssr: false })
-import { motion, AnimatePresence } from "framer-motion"
-import { DrillManager, ActiveDrill } from "@/engine/drill-manager"
-import { useMemo, useRef, useEffect, useCallback } from "react"
-import { pressable } from "@/lib/accessibility"
 
-// Helper for Focus Icons
-const getFocusIcon = (focus: string | undefined): LucideIcon => {
-  switch (focus) {
-    case TrainingFocus.AIM: return Crosshair
-    case TrainingFocus.TACTICS: return Brain
-    case TrainingFocus.TEAMPLAY: return Users
-    case TrainingFocus.REST: return Coffee
-    default: return User
-  }
+/** Team drills refuse to run when an eligible player is at or above this fatigue (team-drills-slice). */
+const EXHAUSTION_THRESHOLD = 90
+const STRATEGIES = ["ECO", "FORCE", "SEMIBUY", "FULL", "DOUBLE AWP"] as const
+
+function fatigueTone(fatigue: number) {
+    if (fatigue >= EXHAUSTION_THRESHOLD) return "negative" as const
+    if (fatigue >= 60) return "caution" as const
+    return "neutral" as const
 }
 
+/**
+ * Week hub → Training tab: what runs outside the weekly update — team drills
+ * (apply at once, use a slot), individual programmes (role retraining, paid
+ * weapon drills) and the buy loadouts. Each player's weekly focus is set in
+ * the week plan.
+ */
 export default function TrainingPage() {
-  const { players, playerTeamId, staff, startRoleTraining, cancelRoleTraining, setPlayerTrainingFocus, runTeamDrill, customTactics, updateCustomTactic } = useGameStore(useShallow(state => ({
-    players: state.players,
-    playerTeamId: state.playerTeamId,
-    staff: state.staff,
-    startRoleTraining: state.startRoleTraining,
-    cancelRoleTraining: state.cancelRoleTraining,
-    setPlayerTrainingFocus: state.setPlayerTrainingFocus,
-    runTeamDrill: state.runTeamDrill,
-    customTactics: state.customTactics,
-    updateCustomTactic: state.updateCustomTactic,
-  })))
-  const playerTeam = useCurrentTeam()
-  const [selectedDrill, setSelectedDrill] = useState("recoil_master")
-  const [trainingPlayer, setTrainingPlayer] = useState<any>(null)
-  const [weaponTrainingPlayer, setWeaponTrainingPlayer] = useState<any>(null)
-  const [isEditingTactics, setIsEditingTactics] = useState(false)
-  const [editingStrategy, setEditingStrategy] = useState<keyof CustomTactics>("FULL")
-  const [editingSide, setEditingSide] = useState<"ct" | "t">("ct")
+    const { players, staff, currentWeek, cancelRoleTraining, startRoleTraining, runTeamDrill, customTactics, updateCustomTactic, activeMatchId } = useGameStore(useShallow(state => ({
+        players: state.players,
+        staff: state.staff,
+        currentWeek: state.currentWeek,
+        startRoleTraining: state.startRoleTraining,
+        cancelRoleTraining: state.cancelRoleTraining,
+        runTeamDrill: state.runTeamDrill,
+        customTactics: state.customTactics,
+        updateCustomTactic: state.updateCustomTactic,
+        activeMatchId: state.activeMatchId,
+    })))
+    const team = useCurrentTeam()
+    const router = useRouter()
+    const drills = DrillManager.getDrills()
+    const [selectedDrill, setSelectedDrill] = useState(drills[0]?.id ?? "")
+    const [trainingPlayer, setTrainingPlayer] = useState<PlayerSaveData | null>(null)
+    const [weaponTrainingPlayer, setWeaponTrainingPlayer] = useState<PlayerSaveData | null>(null)
+    const [editing, setEditing] = useState<{ strategy: keyof CustomTactics; side: "ct" | "t" } | null>(null)
 
-  // Active Drill State
-  const [activeRun, setActiveRun] = useState<{
-    drill: ActiveDrill
-    stepIndex: number
-    logs: string[]
-    progress: number
-    completed: boolean
-  } | null>(null)
+    // Roster order, like Squad. Memoized: the global players list is ~1000 entries.
+    const roster = useMemo(() => {
+        const byId = new Map(players.map(p => [p.id, p]))
+        return (team?.rosterIds || []).map(id => byId.get(id)).filter((p): p is PlayerSaveData => !!p && !p.isRetired)
+    }, [players, team?.rosterIds])
+    const mods = useMemo(() => trainingModifiers(team ?? undefined, staff, currentWeek), [team, staff, currentWeek])
+    const roleTraining = useMemo(() => team?.activeRoleTraining || [], [team?.activeRoleTraining])
+    const inRoleTraining = useCallback((id: string) => roleTraining.some(t => t.playerId === id), [roleTraining])
 
-  const terminalEndRef = useRef<HTMLDivElement>(null)
+    const slotsUsed = team?.trainingSlotsUsed || 0
+    const slotsMax = team?.maxTrainingSlots || 10
+    const slotsLeft = Math.max(0, slotsMax - slotsUsed)
+    const drillPlayers = roster.filter(p => !inRoleTraining(p.id))
+    const exhausted = drillPlayers.find(p => (p.fatigue || 0) >= EXHAUSTION_THRESHOLD)
+    const drill = drills.find(d => d.id === selectedDrill)
+    const drillBlock = !drill ? "Pick a drill"
+        : activeMatchId ? "Finish the active match first"
+            : slotsLeft === 0 ? "No drill slots left this week"
+                : drillPlayers.length === 0 ? "Nobody available — everyone is retraining"
+                    : exhausted && drill.fatigueCost > 0 ? `${exhausted.nickname} is exhausted (fatigue ${Math.round(exhausted.fatigue)}); pick a recovery drill`
+                        : null
 
-  // Memoized — both filters scan global ~1000-player and ~150-staff lists
-  // every render. Page state (selectedDrill, trainingPlayer, activeRun) is
-  // toggled frequently while running a drill.
-  const teamPlayers = useMemo(
-    () => players.filter(p => playerTeam?.rosterIds.includes(p.id)),
-    [players, playerTeam?.rosterIds],
-  )
-  const activeStaff = useMemo(
-    () => staff.filter(s => s.teamId === playerTeamId),
-    [staff, playerTeamId],
-  )
-  const coach = useMemo(() => activeStaff.find(s => s.role === "coach"), [activeStaff])
-  const drillCompleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const handleDrillComplete = useCallback((drill: ActiveDrill) => {
-    setActiveRun(prev => prev ? ({ ...prev, completed: true, logs: [...prev.logs, "TRAINING SESSION COMPLETE.", "CALCULATING GAINS..."] }) : null)
-
-    // Actual store update (delayed for animation)
-    if (drillCompleteTimerRef.current) clearTimeout(drillCompleteTimerRef.current)
-    drillCompleteTimerRef.current = setTimeout(() => {
-      const result = runTeamDrill(drill.id, drill.rewards.map(r => ({ stat: r.stat, amount: r.value })), drill.fatigueCost)
-      if (result.success) {
-        toast.success("Training Complete", { description: result.message })
-      } else {
-        toast.error("Training Failed", { description: result.message })
-      }
-      setActiveRun(null)
-      drillCompleteTimerRef.current = null
-    }, 2000)
-  }, [runTeamDrill])
-
-  // Scroll to bottom of terminal
-  useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [activeRun?.logs])
-
-  // Drill Simulation Loop
-  useEffect(() => {
-    if (!activeRun || activeRun.completed) return
-
-    const timer = setTimeout(() => {
-      const { drill, stepIndex, logs } = activeRun
-
-      if (stepIndex >= drill.steps.length) {
-        // Drill Complete
-        handleDrillComplete(drill)
-        return
-      }
-
-      const currentStep = drill.steps[stepIndex]
-      // Simulate step based on average team skill
-      const avgSkill = teamPlayers.length > 0
-        ? Math.round(teamPlayers.reduce((sum, p) => sum + (p.skill || 70), 0) / teamPlayers.length)
-        : 70
-      const result = DrillManager.simulateStep(currentStep, avgSkill)
-
-      const newLogs = [...logs, `STEP ${stepIndex + 1}: ${currentStep.message}`, `> ${result.log}`]
-      if (result.success) newLogs.push(`> STATUS: COMPLETED`)
-
-      setActiveRun({
-        ...activeRun,
-        stepIndex: stepIndex + 1,
-        logs: newLogs,
-        progress: ((stepIndex + 1) / drill.steps.length) * 100
-      })
-
-    }, 1500) // Delay between steps
-
-    return () => clearTimeout(timer)
-  }, [activeRun, teamPlayers, handleDrillComplete])
-
-  const startDrill = () => {
-    const drill = DrillManager.getDrills().find(d => d.id === selectedDrill)
-    if (!drill) return
-
-    setActiveRun({
-      drill,
-      stepIndex: 0,
-      logs: [`INITIALIZING ${drill.name.toUpperCase()}...`, "LOADING MAP ASSETS...", "CONNECTING TO SERVER..."],
-      progress: 0,
-      completed: false
-    })
-  }
-
-  // Clean up drill complete timer on unmount
-  useEffect(() => {
-    return () => {
-      if (drillCompleteTimerRef.current) clearTimeout(drillCompleteTimerRef.current)
+    const runDrill = () => {
+        if (!drill || drillBlock) return
+        const result = runTeamDrill(drill.id, drill.rewards.map(r => ({ stat: r.stat, amount: r.value })), drill.fatigueCost)
+        if (result.success) toast.success(drill.name, { description: `${drillPlayers.length} players trained. +50 XP each.` })
+        else toast.error("Drill not run", { description: result.message })
     }
-  }, [])
 
-  // Empty roster state
-  if (teamPlayers.length === 0) {
+    if (!team) {
+        // The career store rehydrates after a full navigation.
+        return <div role="status" className="mx-auto max-w-[1600px] py-10 text-sm text-ink-3">Loading squad…</div>
+    }
+
+    if (roster.length === 0) {
+        return (
+            <div className="mx-auto max-w-[1600px] space-y-6">
+                <ScreenHeader eyebrow="Week · Training" title="Training" />
+                <Panel>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-sm text-ink-3">No players to train yet.</p>
+                        <Button variant="outline" size="sm" asChild><Link href="/transfers">Browse transfers</Link></Button>
+                    </div>
+                </Panel>
+            </div>
+        )
+    }
+
+    const gainPct = Math.round((mods.general - 1) * 100)
+
     return (
-      <div className="p-8 max-w-7xl mx-auto pb-20">
-        <div className="text-center py-20 glass-panel border-dashed border-white/10">
-          <Dumbbell size={40} className="text-muted-foreground/30 mx-auto mb-4" />
-          <p className="text-muted-foreground font-medium">No players to train</p>
-          <p className="text-sm text-muted-foreground/60 mt-2">Sign players via Transfers to start training</p>
-          <Link href="/transfers">
-            <Button variant="outline" size="sm" className="mt-5">
-              Browse Transfers
-            </Button>
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="premium-route space-y-6 max-w-7xl mx-auto pb-8">
-      {/* Role Training Modal */}
-      {trainingPlayer && (
-        <RoleTrainingModal
-          player={trainingPlayer}
-          isOpen={!!trainingPlayer}
-          onClose={() => setTrainingPlayer(null)}
-          onStartTraining={(role) => {
-            const result = startRoleTraining(trainingPlayer.id, role)
-            if (result.success) {
-              setTrainingPlayer(null)
-              toast.success("Role Training Started", { description: result.message })
-            } else {
-              toast.error("Failed to start", { description: result.message })
-            }
-          }}
-          currentBudget={playerTeam?.budget || 0}
-          trainingSlotsUsed={(playerTeam as any)?.trainingSlotsUsed || 0}
-          maxTrainingSlots={(playerTeam as any)?.maxTrainingSlots || 10}
-        />
-      )}
-
-      {/* Weapon Training Modal */}
-      {weaponTrainingPlayer && (
-        <WeaponTrainingModal
-          player={weaponTrainingPlayer}
-          isOpen={!!weaponTrainingPlayer}
-          onClose={() => setWeaponTrainingPlayer(null)}
-        />
-      )}
-
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h1 className="page-title mb-2">Performance Center</h1>
-          <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">Develop your squad, one session at a time.</p>
-        </div>
-
-        <div className="flex gap-4">
-          <div
-            className="glass-panel px-6 py-3 border-primary/20 bg-primary/5 flex items-center gap-4"
-            title="Max training slots scale with Manager Level: +1 every 5 levels (10 baseline, 14 at L20)"
-          >
-            <div>
-              <p className="text-[10px] font-normal uppercase text-muted-foreground">Training Slots</p>
-              <p className="text-sm font-normal text-white">{playerTeam?.trainingSlotsUsed || 0} / {playerTeam?.maxTrainingSlots || 10}</p>
-            </div>
-          </div>
-
-          <div className="glass-panel px-6 py-3 border-primary/20 bg-primary/5 flex items-center gap-4">
-            <Zap className="text-primary" size={20} />
-            <div>
-              <p className="text-[10px] font-normal uppercase text-muted-foreground">Coaching</p>
-              <p className="text-sm font-normal text-white">{coach ? "Weekly development support" : "No coach assigned"}</p>
-            </div>
-          </div>
-
-          {(playerTeam as any)?.activeRoleTraining?.length > 0 && (
-            <div className="glass-panel px-6 py-3 border-rose-500/20 bg-rose-500/5 flex items-center gap-4">
-              <Coins className="text-rose-400" size={20} />
-              <div>
-                <p className="text-[10px] font-normal uppercase text-muted-foreground">Training Cost</p>
-                <p className="text-sm font-normal text-rose-400">{formatCurrency(-(((playerTeam as any)?.activeRoleTraining?.length || 0) * 5000), "$", false)}/wk</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <p className="text-sm text-muted-foreground">Each drill uses one weekly slot and applies the listed effects immediately. Technical gains stop at potential; health and morale can recover to 100. Role trainees sit out team drills. Recovery drills remain available when players are exhausted. Coach bonuses apply to weekly development.</p>
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-
-        {/* LEFT COLUMN: Team Drills - Sticky */}
-        <div className="space-y-6 xl:sticky xl:top-8 xl:self-start">
-          <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
-            <LayoutGrid size={16} className="text-primary" /> Active Drill Module
-          </h3>
-
-          {!activeRun ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {DrillManager.getDrills().map((drill) => (
-                <div
-                  key={drill.id}
-                  {...pressable(() => setSelectedDrill(drill.id), { pressed: selectedDrill === drill.id })}
-                  className={cn(
-                    "glass-panel p-6 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 group",
-                    selectedDrill === drill.id
-                      ? "border-emerald-400/60 bg-emerald-500/10 ring-1 ring-emerald-400/30"
-                      : "border-white/5 hover:border-white/20"
-                  )}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-0.5">
-                      <div className="w-full h-full bg-neutral-950 rounded-[inherit] flex items-center justify-center">
-                        {(() => {
-                            const Icon = DRILL_ICONS[drill.iconName] ?? Target
-                            return <Icon className="text-rose-400" />
-                        })()}
-                      </div>
-                    </div>
-                    <Badge size="xs" className="bg-white/10 text-muted-foreground uppercase font-normal">
-                      Authentic Pro FPS
-                    </Badge>
-                  </div>
-
-                  <h4 className="text-lg font-normal text-white uppercase tracking-tight mb-1">{drill.name}</h4>
-                  <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-3">{drill.focus}</p>
-                  <p className="text-xs text-muted-foreground mb-4 line-clamp-2">{drill.description}</p>
-
-                  <div className="flex justify-between items-center pt-4 border-t border-white/5">
-                    <span className={cn("text-[10px] font-normal uppercase text-rose-400")}>
-                      {drill.fatigueCost > 0 ? "+" : ""}{drill.fatigueCost} Fatigue
-                    </span>
-                    <div className="flex gap-1">
-                      {drill.rewards.map((g: any) => (
-                        <Badge key={g.stat} size="xs" className="font-bold text-emerald-400 bg-white/5 border-none">
-                          +{g.value} {g.stat}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <Button
-                className="col-span-1 md:col-span-2 py-6 text-base font-normal uppercase tracking-[0.2em] shadow-xl shadow-primary/10 rounded-xl"
-                onClick={startDrill}
-                disabled={!selectedDrill}
-              >
-                Start training
-              </Button>
-            </div>
-          ) : (
-            <div className="glass-panel p-6 border-primary/20 bg-black/40 relative overflow-hidden">
-              {/* Scanlines Effect */}
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 pointer-events-none bg-size-[100%_2px,3px_100%]" />
-
-              <div className="relative z-10 space-y-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h4 className="text-2xl font-normal text-white uppercase tracking-tighter animate-pulse">{activeRun.drill.name}</h4>
-                    <p className="text-xs font-sans text-primary">Training in progress...</p>
-                  </div>
-                  <Badge variant="outline" className="animate-spin-slow border-primary text-primary h-8 w-8 rounded-full p-0 flex items-center justify-center">
-                    <Zap size={14} />
-                  </Badge>
-                </div>
-
-                {/* Terminal Output */}
-                <div className="h-48 bg-black/80 rounded-lg border border-white/10 p-4 font-sans text-xs overflow-y-auto custom-scrollbar space-y-1 shadow-inner">
-                  {activeRun.logs.map((log: string, i: number) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className={cn(
-                        "flex gap-2",
-                        log.includes("COMPLETE") ? "text-emerald-400 font-bold" :
-                          log.includes("PERFECT") ? "text-amber-400" :
-                            "text-muted-foreground"
-                      )}
-                    >
-                      <span className="text-white/20">[{new Date().toLocaleTimeString().split(' ')[0]}]</span>
-                      <span>{log}</span>
-                    </motion.div>
-                  ))}
-                  <div ref={terminalEndRef} />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs uppercase font-bold text-muted-foreground">
-                    <span>Progress</span>
-                    <span>{(activeRun.progress).toFixed(0)}%</span>
-                  </div>
-                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full bg-primary"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${activeRun.progress}%` }}
-                      transition={{ duration: 0.4, ease: "easeOut" }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* RIGHT COLUMN: Individual Focus */}
-        <div className="space-y-6">
-          <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
-            <User size={16} className="text-primary" /> Player Development
-          </h3>
-
-          {!playerTeam?.activeRoleTraining?.length && (
-            <div className="flex items-center justify-center min-h-[30vh]">
-              <div className="text-center space-y-2">
-                <p className="text-muted-foreground text-sm">No active training sessions. Set up player training from the schedule.</p>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-3">
-            {teamPlayers.map(player => {
-              const activeTraining = playerTeam?.activeRoleTraining?.find(t => t.playerId === player.id)
-              const Icon = getFocusIcon(player.trainingFocus)
-              const condition = Math.max(0, 100 - (player.fatigue || 0))
-
-              return (
-                <div
-                  key={player.id}
-                  className="glass-panel p-4 group hover:border-white/20 transition-all duration-300"
-                >
-                  <div className="flex items-center gap-4">
-                    {/* Portrait */}
-                    <div className="relative">
-                      <div className="w-14 h-14 rounded-xl bg-linear-to-br/srgb from-white/10 to-transparent border border-white/10 overflow-hidden">
-                        <PlayerPortrait
-                          src={player.portraitPath} seed={player.id}
-                          alt={player.nickname}
-                          size={56}
-                        />
-                      </div>
-                      {/* Level Badge */}
-                      <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[9px] font-normal px-1.5 py-0.5 rounded-full">
-                        {player.level || 1}
-                      </div>
-                    </div>
-
-                    {/* Player Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-bold text-white truncate">{player.nickname}</h4>
-                        <span className="text-[10px] text-white/40 uppercase font-bold">{formatRole(player.role)}</span>
-                        {activeTraining && (
-                          <Badge size="xs" className="bg-purple-500/20 text-purple-400 border-purple-500/30 h-4">
-                            Training {activeTraining.targetRole}
-                          </Badge>
-                        )}
-                      </div>
-
-                      {/* Condition Bar */}
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 max-w-[120px]">
-                          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div
-                              className={cn(
-                                "h-full rounded-full transition-all duration-500",
-                                condition > 70 ? "bg-linear-to-r/srgb from-emerald-500 to-emerald-400" :
-                                  condition > 40 ? "bg-linear-to-r/srgb from-amber-500 to-amber-400" :
-                                    "bg-linear-to-r/srgb from-rose-500 to-rose-400"
-                              )}
-                              style={{ width: `${condition}%` }}
-                            />
-                          </div>
-                        </div>
-                        <span className="text-[10px] text-white/50 font-medium">{condition}%</span>
-                      </div>
-
-                      {/* XP Progress */}
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <div className="flex-1 max-w-[120px]">
-                          <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-linear-to-r/srgb from-amber-500/60 to-amber-400/60 rounded-full transition-all duration-500"
-                              style={{ width: `${Math.min(100, ((player.xp || 0) / (player.xpToNextLevel || 1000)) * 100)}%` }}
-                            />
-                          </div>
-                        </div>
-                        <span className="text-[9px] text-white/30 font-sans">{player.xp || 0}/{player.xpToNextLevel || 1000} XP</span>
-                      </div>
-                    </div>
-
-                    {/* Training Focus Selector */}
-                    <div className="hidden sm:block">
-                      <Select
-                        value={player.trainingFocus || "BALANCED"}
-                        onValueChange={(val) => setPlayerTrainingFocus(player.id, val)}
-                      >
-                        <SelectTrigger className="h-9 w-[130px] text-xs bg-white/5 border-white/10 text-white rounded-xl">
-                          <div className="flex items-center gap-2">
-                            <Icon size={14} className="text-primary" />
-                            <span className="truncate">{player.trainingFocus || "Balanced"}</span>
-                          </div>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="BALANCED">Balanced</SelectItem>
-                          <SelectItem value={TrainingFocus.AIM}>Aim & Mechanics</SelectItem>
-                          <SelectItem value={TrainingFocus.TACTICS}>Tactics & IGL</SelectItem>
-                          <SelectItem value={TrainingFocus.TEAMPLAY}>Teamplay & Util</SelectItem>
-                          <SelectItem value={TrainingFocus.REST}>Rest & Recovery</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-9 w-9 p-0 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed"
-                        onClick={() => setWeaponTrainingPlayer(player)}
-                        disabled={!!player.injury}
-                        title={player.injury ? `Injured: ${player.injury.type}` : "Specialist Training"}
-                      >
-                        <Crosshair size={16} />
-                      </Button>
-
-                      {activeTraining ? (
-                        <button
-                          className="h-9 px-3 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center gap-1.5 hover:bg-red-500/10 hover:border-red-500/30 transition-colors group cursor-pointer"
-                          title="Click to cancel training"
-                          onClick={() => {
-                            cancelRoleTraining(player.id)
-                            toast.success("Role training cancelled", { description: `${player.nickname} is no longer training` })
-                          }}
-                        >
-                          <span className="text-[10px] font-bold text-purple-400 group-hover:text-red-400 transition-colors">
-                            {activeTraining.weeksCompleted}/{activeTraining.totalWeeks}
-                          </span>
-                          <span className="text-[9px] text-red-400 hidden group-hover:inline">✕</span>
-                        </button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-9 w-9 p-0 rounded-xl bg-white/5 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
-                          onClick={() => setTrainingPlayer(player)}
-                          disabled={!!player.injury}
-                          title={player.injury ? `Injured: ${player.injury.type}` : "Train Role"}
-                        >
-                          <Swords size={16} />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-      </div>
-
-      {/* LOADOUT MANAGER SECTION */}
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
-            <Shield size={16} className="text-primary" /> Loadout Manager
-          </h3>
-          <p className="text-xs text-white/40 mt-1">Customize your team&apos;s buy strategy and weapon loadouts for each economy situation</p>
-        </div>
-        <div className="glass-panel p-6">
-          <p className="text-xs text-white/60 mb-4 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-blue-400"></span>
-            CT Side = Defense roles
-            <span className="w-2 h-2 rounded-full bg-orange-400 ml-4"></span>
-            T Side = Attack roles
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {(["ECO", "FORCE", "SEMIBUY", "FULL", "DOUBLE AWP"] as const).map((strat) => (
-              <div key={strat} className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full h-16 flex flex-col gap-1 border-white/10 hover:bg-white/10"
-                  onClick={() => {
-                    setEditingStrategy(strat)
-                    setEditingSide("ct")
-                    setIsEditingTactics(true)
-                  }}
-                >
-                  <span className="font-normal text-xs uppercase">{strat}</span>
-                  <span className="text-[9px] text-white/40">CT Side</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full h-16 flex flex-col gap-1 border-white/10 hover:bg-orange-500/10"
-                  onClick={() => {
-                    setEditingStrategy(strat)
-                    setEditingSide("t")
-                    setIsEditingTactics(true)
-                  }}
-                >
-                  <span className="font-normal text-xs uppercase">{strat}</span>
-                  <span className="text-[9px] text-orange-400">T Side</span>
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* TACTICS EDITOR MODAL */}
-      <AnimatePresence>
-        {isEditingTactics && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
-          >
-            <TacticalLoadoutEditor
-              side={editingSide}
-              strategyId={editingStrategy}
-              config={customTactics[editingStrategy][editingSide]}
-              playerIds={teamPlayers.map(p => p.id)}
-              playerNames={teamPlayers.map(p => p.nickname)}
-              playerImages={teamPlayers.map(p => p.portraitPath || "")}
-              onSave={(newConfig) => {
-                updateCustomTactic(editingStrategy, editingSide, newConfig)
-                setIsEditingTactics(false)
-                toast.success("Tactics Updated", { description: `${editingStrategy} (${editingSide.toUpperCase()}) loadout saved.` })
-              }}
-              onClose={() => setIsEditingTactics(false)}
+        <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
+            <ScreenHeader
+                eyebrow={`Week ${((currentWeek - 1) % 52) + 1} · Training`}
+                title="Training"
+                subtitle={<>Drills apply right away and use a slot. Each player&apos;s weekly focus is set in the <Link href="/week#training-focus" className="font-semibold text-ink-1 underline underline-offset-2">week plan</Link>.</>}
+                aside={
+                    <KpiStrip>
+                        <Kpi label="Drill slots left" value={slotsLeft} hint={`of ${slotsMax} this week`} />
+                        <Kpi label="Training bonus" value={`+${gainPct}%`} hint="Coach and training facility" />
+                        <Kpi label="Retraining" value={roleTraining.length} hint={roleTraining.length ? `${formatCurrency(roleTraining.reduce((s, t) => s + (t.weeklyCost || 0), 0), "$", false)} / wk` : "No one"} />
+                    </KpiStrip>
+                }
             />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div >
-  )
+
+            <Panel
+                title="Team drills"
+                actions={
+                    <div className="flex items-center gap-3">
+                        {drillBlock && drill && <span className="hidden text-xs text-caution md:inline">{drillBlock}</span>}
+                        <Button size="sm" className="h-8 px-4" onClick={runDrill} disabled={!!drillBlock} title={drillBlock ?? undefined}>
+                            {drill ? `Run ${drill.name}` : "Run drill"}
+                        </Button>
+                    </div>
+                }
+            >
+                <p className="mb-3 text-sm text-ink-3">
+                    A drill applies at once to the {drillPlayers.length} players not retraining: listed gains, the fatigue shown and +50 XP. Weapon drills also add mastery XP.
+                </p>
+                <div role="radiogroup" aria-label="Team drills" className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                    {drills.map(d => {
+                        const selected = d.id === selectedDrill
+                        return (
+                            <button
+                                key={d.id}
+                                type="button"
+                                role="radio"
+                                aria-checked={selected}
+                                onClick={() => setSelectedDrill(d.id)}
+                                className={cn(
+                                    "rounded-md border px-3 py-2.5 text-left transition-colors duration-150",
+                                    selected ? "border-gold bg-hover" : "border-line bg-raised hover:border-line-strong",
+                                )}
+                            >
+                                <span className="flex items-baseline justify-between gap-2">
+                                    <span className="truncate text-sm font-semibold text-ink-1">{d.name}</span>
+                                    <span className={cn("shrink-0 text-xs tabular-nums", d.fatigueCost < 0 ? "text-positive" : "text-ink-3")}>
+                                        {d.fatigueCost > 0 ? `+${d.fatigueCost}` : d.fatigueCost === 0 ? "±0" : `−${Math.abs(d.fatigueCost)}`} fatigue
+                                    </span>
+                                </span>
+                                <span className="mt-1.5 flex flex-wrap gap-1">
+                                    {d.rewards.map(r => (
+                                        <span key={r.stat} className="rounded-sm bg-shell px-1.5 py-0.5 text-xs text-ink-2">
+                                            +{r.value} {drillStatLabel(r.stat)}
+                                        </span>
+                                    ))}
+                                </span>
+                            </button>
+                        )
+                    })}
+                </div>
+                {drill && <p className="mt-3 text-sm text-ink-3"><span className="font-semibold text-ink-2">{drill.name}.</span> {drill.description}</p>}
+            </Panel>
+
+            <Panel
+                title="Individual programmes"
+                actions={<Link href="/week#training-focus" className="inline-flex items-center gap-1 text-xs font-semibold text-ink-3 hover:text-ink-1">Weekly focus <ArrowUpRight size={12} /></Link>}
+                padded={false}
+            >
+                <div className="overflow-x-auto">
+                    <table data-slot="table" className="w-full min-w-[920px] border-collapse text-left">
+                        <thead data-slot="table-header">
+                            <tr className="border-b border-line">
+                                <th data-slot="table-head" className="pl-4">Player</th>
+                                <th data-slot="table-head" className="px-3">Role</th>
+                                <th data-slot="table-head" className="px-3">Fatigue</th>
+                                <th data-slot="table-head" className="px-3">This week</th>
+                                <th data-slot="table-head" className="pr-4 text-right"><span className="sr-only">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {roster.map(p => {
+                                const retraining = roleTraining.find(t => t.playerId === p.id)
+                                const fatigue = Math.round(p.fatigue || 0)
+                                const focusLabel = FOCUS_OPTIONS.find(o => o.value === (p.trainingFocus || "BALANCED"))?.label ?? "Club default (aim)"
+                                return (
+                                    <tr key={p.id} data-slot="table-row" className="h-14 border-b border-line last:border-0">
+                                        <td className="py-2 pl-4 pr-3">
+                                            <button type="button" onClick={() => router.push(`/player/${p.id}`)} className="group flex min-w-0 items-center gap-3 text-left">
+                                                <span className="h-9 w-9 shrink-0 overflow-hidden rounded bg-raised">
+                                                    <PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} size={36} />
+                                                </span>
+                                                <span className="min-w-0">
+                                                    <span className="block truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{p.nickname}</span>
+                                                    <span className="block text-xs text-ink-3">Lvl {p.level || 1} · potential {p.potential}</span>
+                                                </span>
+                                            </button>
+                                        </td>
+                                        <td className="px-3"><RoleTag role={p.role} /></td>
+                                        <td className="px-3"><Meter value={fatigue} label="Fatigue" tone={fatigueTone(fatigue)} /></td>
+                                        <td className="px-3 text-sm">
+                                            {retraining
+                                                ? <span className="text-ink-2">Retraining to {retraining.targetRole.toUpperCase()} · {retraining.weeksCompleted}/{retraining.totalWeeks} wks · {formatCurrency(retraining.weeklyCost || 0, "$", false)}/wk</span>
+                                                : <span className="text-ink-3">Weekly focus: <span className="text-ink-2">{focusLabel}</span></span>}
+                                        </td>
+                                        <td className="pr-4">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Button size="sm" variant="outline" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => setWeaponTrainingPlayer(p)} disabled={!!p.injury}
+                                                    title={p.injury ? `Injured: ${p.injury.type}` : "Paid weapon drills"}>
+                                                    <Crosshair size={13} /> Weapons
+                                                </Button>
+                                                {retraining ? (
+                                                    <Button size="sm" variant="ghost" className="h-8 px-2.5 text-xs" onClick={() => { cancelRoleTraining(p.id); toast.success("Role training cancelled", { description: `${p.nickname} is back in team training. 50% of what was paid is refunded.` }) }}>
+                                                        Stop retraining
+                                                    </Button>
+                                                ) : (
+                                                    <Button size="sm" variant="outline" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => setTrainingPlayer(p)} disabled={!!p.injury || !!p.secondaryRole}
+                                                        title={p.secondaryRole ? "Already plays two roles" : p.injury ? `Injured: ${p.injury.type}` : "8-week role retraining"}>
+                                                        <Repeat2 size={13} /> Retrain
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+                <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
+                    Role retraining takes 8 weeks, is paid every week and skips the weekly focus while it runs. Weapon drills are paid per session and add weapon mastery.
+                </p>
+            </Panel>
+
+            <Panel title="Buy loadouts" actions={<span className="text-xs text-ink-3">Used by the match engine&apos;s buy phase</span>} padded={false}>
+                <table data-slot="table" className="w-full border-collapse text-left">
+                    <thead data-slot="table-header">
+                        <tr className="border-b border-line">
+                            <th data-slot="table-head" className="pl-4">Buy</th>
+                            <th data-slot="table-head" className="px-3"><span className="text-side-ct">CT</span> side</th>
+                            <th data-slot="table-head" className="pr-4"><span className="text-side-t">T</span> side</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {STRATEGIES.map(strat => (
+                            <tr key={strat} data-slot="table-row" className="h-12 border-b border-line last:border-0">
+                                <td className="pl-4 text-sm font-semibold text-ink-1">{strat === "SEMIBUY" ? "Semi-buy" : strat === "DOUBLE AWP" ? "Double AWP" : strat.charAt(0) + strat.slice(1).toLowerCase()}</td>
+                                {(["ct", "t"] as const).map(side => (
+                                    <td key={side} className={side === "ct" ? "px-3" : "pr-4"}>
+                                        <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={() => setEditing({ strategy: strat, side })}>
+                                            Edit {side.toUpperCase()} loadout
+                                        </Button>
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </Panel>
+
+            {trainingPlayer && (
+                <RoleTrainingModal
+                    player={trainingPlayer}
+                    isOpen={!!trainingPlayer}
+                    onClose={() => setTrainingPlayer(null)}
+                    onStartTraining={role => {
+                        const result = startRoleTraining(trainingPlayer.id, role)
+                        if (result.success) {
+                            setTrainingPlayer(null)
+                            toast.success("Role training started", { description: result.message })
+                        } else {
+                            toast.error("Could not start", { description: result.message })
+                        }
+                    }}
+                    currentBudget={team.budget || 0}
+                    trainingSlotsUsed={slotsUsed}
+                    maxTrainingSlots={slotsMax}
+                />
+            )}
+
+            {weaponTrainingPlayer && (
+                <WeaponTrainingModal player={weaponTrainingPlayer} isOpen={!!weaponTrainingPlayer} onClose={() => setWeaponTrainingPlayer(null)} />
+            )}
+
+            {editing && (
+                <div className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-ink/80 p-4">
+                    <TacticalLoadoutEditor
+                        side={editing.side}
+                        strategyId={editing.strategy}
+                        config={customTactics[editing.strategy][editing.side]}
+                        playerIds={roster.map(p => p.id)}
+                        playerNames={roster.map(p => p.nickname)}
+                        playerImages={roster.map(p => p.portraitPath || "")}
+                        onSave={newConfig => {
+                            updateCustomTactic(editing.strategy, editing.side, newConfig)
+                            toast.success("Loadout saved", { description: `${editing.strategy} (${editing.side.toUpperCase()})` })
+                            setEditing(null)
+                        }}
+                        onClose={() => setEditing(null)}
+                    />
+                </div>
+            )}
+        </div>
+    )
 }

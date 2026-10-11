@@ -101,7 +101,6 @@ async function run() {
         ["sponsorships_brand-tradeoffs", "/sponsorships"],
         ["career_legacy-track", "/career"],
         ["rankings_elo-tooltip", "/rankings"],
-        ["fpl_intro", "/fpl"],
         ["trophies_cabinet", "/trophies"],
     ]
     for (const [slug, route] of routes) {

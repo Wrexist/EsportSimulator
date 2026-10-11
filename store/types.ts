@@ -32,7 +32,7 @@ import type {
 } from "@/engine/save-types"
 import type { EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WeeklyActivityType } from "@/types"
 import type { AcademyPlayer, AcademyMatchResult, AcademyWeeklyReport, AcademyScoutingMission, AcademyTrainingFocus, ScoutingTier } from "@/types/academy"
-import type { FPLSaveData } from "@/types/fpl"
+
 import type { CustomTeamData } from "@/types/team-creator"
 import type { MatchResult } from "@/types"
 
@@ -75,6 +75,8 @@ export interface MatchState {
   activeMatchState: ActiveMatchState | null
   physicalMatchPreview?: import('@/engine/spatial/career-round-journal').PhysicalCareerJournal | null
   customTactics: CustomTactics
+  /** Live match: the decision card confirms the engine's call by itself (saved with the career). */
+  autoTactics: boolean
 }
 
 export interface TournamentState {
@@ -113,20 +115,6 @@ export interface AcademyState {
   academyPendingProspects: string[]
 }
 
-export interface WeekRevealItem {
-  id: string
-  kind: "match" | "event" | "summary"
-  tone: "win" | "loss" | "neutral"
-  title: string
-  detail?: string
-}
-
-export interface WeekRevealData {
-  week: number
-  headline: string
-  items: WeekRevealItem[]
-}
-
 /** Stages advanceWeek actually passes through, in order (L27.A2 truthful progress). */
 export type WeekProgressPhase = "preparing" | "simulating" | "applying" | "saving"
 
@@ -135,20 +123,20 @@ export interface UIState {
   availableEquipment: EquipmentItem[]
   toasts: { id: string; message: string; type: "level_up" | "xp_gain" | "achievement" | "info" | "warning" | "error"; duration?: number }[]
   pendingCelebration: CelebrationData | null
-  weekReveal: WeekRevealData | null
   /** Current real stage of a week advance (transient, never saved). */
   weekProgress: WeekProgressPhase | null
-  pendingSeasonRecap: number | null
   pendingLegendPick: LegendPickData | null
   legendaryPlayers: PlayerSaveData[]
   hallOfFame: HallOfFameEntry[]
   signedLegendIds: string[]
   activelyPlayingLegendIds: string[]
   selectedWeeklyActivity: WeeklyActivityType | null
-  fplData?: FPLSaveData
+  league?: import("@/engine/save-types").LeagueState
   boardState?: import("@/engine/save-types").BoardState
   socialFeed?: import("@/engine/save-types").SocialPost[]
   careerStats?: import("@/engine/save-types").CareerStats
+  recordBook?: import("@/engine/records-types").RecordBook
+  storylines?: import("@/engine/storylines/types").StoryArc[]
 }
 
 export interface SettingsState {
@@ -157,10 +145,7 @@ export interface SettingsState {
   tutorialCompleted: boolean
   showTutorialOnNewGame: boolean
   manualTutorialTrigger: number
-  soundEnabled: boolean
   resolution: string
-  masterVolume: number
-  musicVolume: number
   gameSpeed: "normal" | "fast" | "very-fast"
   difficulty: "easy" | "normal" | "hard" | "legendary"
   autoSave: boolean
@@ -203,6 +188,9 @@ export interface EntitiesActions {
   updateTeamBudget: (teamId: string, amount: number) => void
   swapRosterPositions: (teamId: string, index1: number, index2: number) => void
   promotePlayer: (playerId: string) => void
+  setCaptain: (playerId: string | null) => { success: boolean; message: string }
+  assignMentor: (mentorId: string, menteeId: string) => { success: boolean; message: string }
+  endMentorship: (menteeId: string) => void
   refreshStaffMarket: () => void
   hireStaff: (staffId: string, terms?: { salary: number, duration: number, signingBonus: number }) => { success: boolean; message: string }
   renewStaffContract: (staffId: string, salary: number, duration: number) => { success: boolean; message: string }
@@ -220,6 +208,7 @@ export interface EntitiesActions {
   unlistPlayerForTransfer: (playerId: string) => void
   acceptTransferOffer: (eventId: string) => void
   renewContract: (playerId: string) => void
+  releasePlayer: (playerId: string) => { success: boolean; message: string }
   startRoleTraining: (playerId: string, targetRole: Role) => { success: boolean, message: string }
   cancelRoleTraining: (playerId: string) => void
   unlockStaffTalent: (staffId: string, talentId: string) => void
@@ -240,6 +229,7 @@ export interface MatchActions extends PhysicalPreviewActions {
   updateActiveMatchState: (state: ActiveMatchState) => void
   clearActiveMatchState: () => void
   updateCustomTactic: (id: keyof CustomTactics, side: "ct" | "t", strategy: TacticalStrategy) => void
+  setAutoTactics: (on: boolean) => void
 }
 
 export interface TournamentActions {
@@ -253,6 +243,8 @@ export interface EventsActions {
   acknowledgeEvent: (eventId: string) => void
   markAllEventsAsRead: () => void
   resolveEventChoice: (eventId: string, choiceId: string) => void
+  /** Phase 5.3: answer a press conference (question id → answer id); skipped questions change nothing. */
+  answerPressConference: (eventId: string, answers: Record<string, string>) => { ok: boolean; message: string }
   addNewsItem: (item: Omit<NewsFeedItem, "id" | "week">) => void
   acceptJobOffer: (eventId: string) => { success: boolean; message: string }
   declineJobOffer: (eventId: string) => void
@@ -294,8 +286,6 @@ export interface UIActions {
   addToast: (toast: { message: string; type: "level_up" | "xp_gain" | "achievement" | "info" | "warning" | "error"; duration?: number }) => void
   removeToast: (id: string) => void
   clearCelebration: () => void
-  dismissWeekReveal: () => void
-  clearPendingSeasonRecap: () => void
   selectLegend: (legendId: string) => void
   clearLegendPick: () => void
   setWeeklyActivity: (type: WeeklyActivityType) => void
@@ -315,10 +305,7 @@ export interface SettingsActions {
   completeTutorial: () => void
   triggerTutorial: () => void
   setShowTutorialOnNewGame: (enabled: boolean) => void
-  setSoundEnabled: (enabled: boolean) => void
   setResolution: (res: string) => void
-  setMasterVolume: (vol: number) => void
-  setMusicVolume: (vol: number) => void
   setGameSpeed: (speed: "normal" | "fast" | "very-fast") => void
   setTimeMode: (mode: "WEEKLY" | "HYBRID_DAILY") => void
   setDifficulty: (difficulty: "easy" | "normal" | "hard" | "legendary") => void
@@ -339,9 +326,9 @@ export interface DebugActions {
   debugTriggerJobOffer: () => void
   debugFastForward: (weeks: number) => void
   debugTriggerCelebration: () => void
+  debugTriggerMoment: (kind: import("@/engine/moments").MomentKind, opts?: { major?: boolean }) => void
   debugTriggerInjury: (playerId?: string) => void
   debugTriggerLegendPick: () => void
-  debugTriggerSeasonRecap: () => void
   debugTriggerRetirement: () => void
   debugBoostPlayerSkill: (playerId?: string, amount?: number) => void
   debugMaxAllSkills: () => void

@@ -176,8 +176,8 @@ export const ECONOMY_CONSTANTS = {
     FACILITY_BASE_COST: 500,
     /** Income per follower per week (legacy fans*7 fallback). */
     BASE_FAN_INCOME_PER_FAN: 0.0015,
-    /** Weekly stability income that every team receives. */
-    LEAGUE_REVENUE_SHARE: 15000,
+    // LEAGUE_REVENUE_SHARE (a flat $15,000 a week for every club) was replaced
+    // by the regional league central payment by division (LEAGUE_TUNING).
     /** Reputation floor multiplier applied to sponsor income. */
     SPONSOR_REP_FACTOR_BASE: 0.7,
     /** Reputation range multiplier applied to sponsor income. */
@@ -294,14 +294,6 @@ export const ARRAY_CAPS = {
     hallOfFame: 500,
     /** Placement-history entries kept inside each per-team circuitPoints entry. */
     circuitPointResults: 60,
-    /**
-     * FPL pick-up match records (fplData.matchHistory). Write-only history:
-     * no simulation or UI code reads it (rankings live in playerStats/
-     * standings). ~28 records/week; uncapped it reached 24 MB of a 44 MB
-     * save by season 10 and pushed saves past the 32 MiB storage limit (L27).
-     * 500 keeps roughly the last 18 weeks.
-     */
-    fplMatchHistory: 500,
 } as const
 
 // ============================================
@@ -313,16 +305,6 @@ export const MATCH_BALANCE = {
     T_SIDE_ADVANTAGE: 0.02,
     /** Per-side win-probability modifier for CT side on standard maps. */
     CT_SIDE_ADVANTAGE: 0.03,
-    /** Weight applied to recent round momentum in win probability. */
-    MOMENTUM_WEIGHT: 0.02,
-    /** Window of rounds considered for momentum. */
-    MOMENTUM_MAX_ROUNDS: 5,
-    /** Number of consecutive lost rounds before tilt penalty triggers. */
-    TILT_THRESHOLD: 3,
-    /** Per-side win-probability penalty when a team is tilting. */
-    TILT_PENALTY: 0.03,
-    /** Baseline probability for a clutch event to occur in 1vX rounds. */
-    CLUTCH_BASE_CHANCE: 0.05,
     /** Win-probability bonus when the team's playstyle counters opponent's. */
     PLAYSTYLE_COUNTER_BONUS: 0.04,
     /** Win-probability penalty when the team's playstyle is countered. */

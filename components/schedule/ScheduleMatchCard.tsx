@@ -2,8 +2,7 @@
 
 import React, { memo } from "react"
 import { useRouter } from "next/navigation"
-import { Badge } from "@/components/ui/badge"
-import { Trophy, CalendarClock, Lock } from "lucide-react"
+import { Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { MatchSaveData, CompletedMatchSaveData, TeamSaveData } from "@/engine/save-types"
@@ -14,8 +13,8 @@ interface ScheduleMatchCardProps {
     teams: TeamSaveData[]
     playerTeamId: string
     isScrim?: boolean
-    tournamentName?: string // Add tournament name prop
-    isCurrentWeek?: boolean // New prop to show live indicator
+    tournamentName?: string
+    isCurrentWeek?: boolean
     isLocked?: boolean
     onClick?: () => void // Optional custom click handler
     projected?: {
@@ -24,186 +23,94 @@ interface ScheduleMatchCardProps {
         tournamentId: string
         week: number
         isConfimed?: boolean
-        reason?: string // e.g. "If qualified"
+        reason?: string // e.g. "Forecast"
     }
 }
 
+/** Score from the player's side: round score for a BO1, map score otherwise. */
+function playerScore(match: MatchSaveData, playerTeamId: string): string | null {
+    if (!match.result) return null
+    const isHome = match.homeTeamId === playerTeamId
+    const maps = (match as CompletedMatchSaveData).result.maps
+    if (maps && maps.length === 1 && maps[0]?.finalScore) {
+        const fs = maps[0].finalScore
+        return isHome ? `${fs.team1}–${fs.team2}` : `${fs.team2}–${fs.team1}`
+    }
+    return isHome ? `${match.result.homeScore}–${match.result.awayScore}` : `${match.result.awayScore}–${match.result.homeScore}`
+}
+
+/**
+ * Calendar chip for a fixture (design system v2). Official matches read
+ * strongest (raised, crest, competition); scrims are quieter; forecasts are
+ * dashed. Results carry a W/L edge and the score from the player's side.
+ */
 export const ScheduleMatchCard = memo(function ScheduleMatchCard({
     match,
     teams,
     playerTeamId,
     isScrim,
     tournamentName,
-    isCurrentWeek,
     isLocked,
     onClick,
     projected
 }: ScheduleMatchCardProps) {
     const router = useRouter()
-    // Helper to truncate long names - increased from 14 to 18
-    const truncateName = (name: string, maxLen: number = 18) => {
-        if (name.length <= maxLen) return name
-        return name.slice(0, maxLen).trim() + "..."
-    }
 
-    // 1. Handle Real Match
     if (match) {
+        const involvesPlayer = match.homeTeamId === playerTeamId || match.awayTeamId === playerTeamId
         const opponentId = match.homeTeamId === playerTeamId ? match.awayTeamId : match.homeTeamId
         const opponent = teams.find(t => t.id === opponentId)
-        const isWin = match.result && ((match.homeTeamId === playerTeamId && match.result.homeScore > match.result.awayScore) || (match.awayTeamId === playerTeamId && match.result.awayScore > match.result.homeScore))
-        const isLoss = match.result && !isWin
-        const isUpcoming = !match.result && isCurrentWeek
-
-        // Display text: Use tournament name if available, otherwise fall back to stage
-        const displayStage = tournamentName || match.stage || "Match"
-        const displayName = truncateName(opponent?.name || "Unknown")
+        const isHome = match.homeTeamId === playerTeamId
+        const r = match.result
+        const won = !!r && (r.winnerId ? r.winnerId === playerTeamId : isHome ? r.homeScore > r.awayScore : r.awayScore > r.homeScore)
+        // Fixtures between two other clubs (tournament lists) read "A vs B" with a neutral score.
+        const score = involvesPlayer ? playerScore(match, playerTeamId) : r ? `${r.homeScore}–${r.awayScore}` : null
+        const label = isScrim ? "Scrim" : tournamentName || match.stage || "Match"
+        const opponentName = involvesPlayer
+            ? opponent?.name || "Unknown"
+            : `${opponent?.name || "TBD"} vs ${teams.find(t => t.id === match.awayTeamId)?.name || "TBD"}`
 
         return (
             <div
                 {...pressable(() => {
-                    if (onClick) {
-                        onClick()
-                    } else if (match?.result) {
-                        router.push(`/match/${match.id}/result`)
-                    } else {
-                        router.push("/")
-                    }
-                }, { disabled: isLocked })}
+                    if (onClick) onClick()
+                    else if (match.result) router.push(`/match/${match.id}/result`)
+                }, { disabled: isLocked, label: `${involvesPlayer ? `${isScrim ? "Scrim" : "Match"} vs ` : ""}${opponentName}${score ? `, ${involvesPlayer ? (won ? "won " : "lost ") : ""}${score}` : ""}` })}
+                title={`${involvesPlayer ? "vs " : ""}${opponentName} · ${label}`}
                 className={cn(
-                    "px-4 py-2.5 rounded-xl text-left flex flex-col justify-center relative cursor-pointer transition-[background-color,border-color,transform] duration-75 ease-out w-full group/match border min-h-[52px] will-change-transform select-none touch-manipulation hover:-translate-y-px hover:scale-[1.01] active:scale-[0.98] active:translate-y-0 active:duration-0",
-                    isLocked && "opacity-60 cursor-not-allowed hover:scale-100 hover:translate-y-0 active:scale-100",
-                    isWin
-                        ? "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/20 hover:border-emerald-500/40"
-                        : isLoss
-                            ? "bg-red-500/10 hover:bg-red-500/20 border-red-500/20 hover:border-red-500/40"
-                            : isScrim
-                                ? "bg-purple-500/5 hover:bg-purple-500/10 border-purple-500/10 hover:border-purple-500/30"
-                                : "bg-emerald-500/5 hover:bg-emerald-500/10 border-emerald-500/10 hover:border-emerald-500/30"
-                )}>
-                {/* Live/Upcoming Match Indicator */}
-                {isUpcoming && !isScrim && (
-                    <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    "flex w-full min-w-0 cursor-pointer select-none items-center gap-2 rounded-sm border-l-2 px-2 py-1.5 text-left transition-colors",
+                    isScrim ? "bg-shell hover:bg-raised" : "bg-raised hover:bg-hover",
+                    match.result && involvesPlayer ? (won ? "border-positive" : "border-negative") : isScrim ? "border-line-strong" : "border-ink-2",
+                    isLocked && "cursor-default hover:bg-raised",
                 )}
-
-                <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 overflow-hidden">
-                        <Badge variant="outline" className={cn(
-                            "text-[10px] px-2 py-0.5 border-none font-medium backdrop-blur-md shadow-xs shrink-0",
-                            isScrim ? "bg-purple-500/20 text-purple-200" : "bg-emerald-500/20 text-emerald-100"
-                        )}>
-                            {isScrim ? "SCRIM" : "MATCH"}
-                        </Badge>
-                        <div className="flex flex-col min-w-0">
-                            {/* title attr surfaces the full opponent name on hover when
-                                the 18-char truncation hides it. */}
-                            <span
-                                className={cn(
-                                    "text-sm font-medium tracking-tight leading-none",
-                                    isScrim ? "text-purple-100" : "text-emerald-50"
-                                )}
-                                title={opponent?.name ? `VS ${opponent.name}` : undefined}
-                            >
-                                VS {displayName}
-                            </span>
-                            {!isScrim && (
-                                <span
-                                    className="text-xs text-muted-foreground truncate uppercase tracking-wider mt-0.5"
-                                    title={displayStage}
-                                >
-                                    {displayStage}
-                                </span>
-                            )}
-                        </div>
-
-                    </div>
-
-                    {match.result ? (() => {
-                        const completedMatch = match as CompletedMatchSaveData
-                        const maps = completedMatch.result.maps
-                        const isBO1 = maps && maps.length === 1
-                        const homeScore = match.result.homeScore
-                        const awayScore = match.result.awayScore
-
-                        // For BO1, show the round score prominently
-                        if (isBO1 && maps?.[0]?.finalScore) {
-                            const roundScore = maps[0].finalScore
-                            const playerIsHome = match.homeTeamId === playerTeamId
-                            const playerRounds = playerIsHome ? roundScore.team1 : roundScore.team2
-                            const opponentRounds = playerIsHome ? roundScore.team2 : roundScore.team1
-
-                            return (
-                                <span className={cn(
-                                    "text-base font-bold tabular-nums shrink-0",
-                                    isWin ? "text-green-400" : "text-red-400"
-                                )}>
-                                    {playerRounds}-{opponentRounds}
-                                </span>
-                            )
-                        }
-
-                        // For BO3/BO5, show map score
-                        return (
-                            <span className={cn(
-                                "text-lg font-semibold shadow-black/50 drop-shadow-md tabular-nums shrink-0",
-                                isWin ? "text-green-400" : "text-red-400"
-                            )}>
-                                {homeScore}-{awayScore}
-                            </span>
-                        )
-                    })() : isLocked ? (
-                        // Lock icon bumped from /50 → /70 so the 14px glyph
-                        // clears WCAG AA on the bg-black/30 tile.
-                        <div className="w-8 h-8 rounded-lg bg-black/30 flex items-center justify-center shrink-0 border border-white/5" title="Match locked">
-                            <Lock size={14} className="text-white/70" aria-label="Locked" />
-                        </div>
-                    ) : (
-                        // Show opponent logo for upcoming playable matches
-                        <div className="w-8 h-8 rounded-lg bg-black/30 flex items-center justify-center shrink-0 border border-white/5 overflow-hidden">
-                            <TeamLogoDisplay team={opponent} size={28} className="opacity-80 group-hover/match:opacity-100 transition-opacity" />
-                        </div>
-                    )}
-                </div>
+            >
+                <TeamLogoDisplay team={opponent} size={18} className="shrink-0" />
+                <span className="min-w-0 flex-1">
+                    <span className={cn("block truncate text-xs font-semibold leading-tight", isScrim ? "text-ink-2" : "text-ink-1")}>{opponentName}</span>
+                    <span className="block truncate text-[11px] leading-tight text-ink-3">{label}</span>
+                </span>
+                {score ? (
+                    <span className={cn("shrink-0 font-display text-sm font-bold tabular-nums", !involvesPlayer ? "text-ink-1" : won ? "text-positive" : "text-negative")}>{score}</span>
+                ) : isLocked ? (
+                    <Lock size={12} className="shrink-0 text-ink-3" aria-hidden="true" />
+                ) : (
+                    <span className="shrink-0 text-[11px] font-semibold text-ink-3">{match.format}</span>
+                )}
             </div>
         )
     }
 
-    // 2. Handle Projected Match
     if (projected) {
         return (
             <div
-                className={cn(
-                    // bg lifted from /[0.02] → /[0.06] so the projected card
-                    // is distinct from the panel beneath without losing the
-                    // dashed-border "tentative" cue.
-                    "px-4 py-2.5 rounded-xl text-left flex flex-col justify-center relative cursor-pointer transition-[background-color,border-color,transform] duration-75 ease-out w-full group/match border border-dashed min-h-[52px] will-change-transform select-none touch-manipulation hover:-translate-y-px hover:scale-[1.01] active:scale-[0.98] active:translate-y-0 active:duration-0",
-                    "bg-amber-500/6 hover:bg-amber-500/10 border-amber-500/30 hover:border-amber-500/50"
-                )}
+                title={`${projected.tournamentName} · ${projected.stage} · opponent not drawn yet`}
+                className="flex w-full min-w-0 items-center gap-2 rounded-sm border border-dashed border-line-strong px-2 py-1.5 text-left"
             >
-                <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 overflow-hidden">
-                        <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-none font-medium backdrop-blur-md shadow-xs shrink-0 bg-amber-500/10 text-amber-200">
-                            UPCOMING
-                        </Badge>
-                        <div className="flex flex-col min-w-0">
-                            <span className="text-sm font-medium truncate tracking-tight leading-none text-amber-100/70 italic">
-                                VS TBD
-                            </span>
-                            <span className="text-xs text-amber-500/60 truncate uppercase tracking-wider flex items-center gap-1.5 mt-0.5">
-                                <Trophy size={10} />
-                                {projected.stage}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col items-end">
-                        {projected.reason && (
-                            <span className="text-[10px] font-bold text-amber-500/40 uppercase tracking-widest mb-0.5">
-                                {projected.reason}
-                            </span>
-                        )}
-                        <CalendarClock size={16} className="text-amber-500/40 group-hover/match:text-amber-500/80 transition-colors" />
-                    </div>
-                </div>
+                <span className="min-w-0 flex-1">
+                    <span className="block truncate text-xs font-semibold leading-tight text-ink-2">{projected.tournamentName}</span>
+                    <span className="block truncate text-[11px] leading-tight text-ink-3">{projected.stage} · TBD</span>
+                </span>
+                {projected.reason && <span className="shrink-0 text-[11px] text-ink-3">{projected.reason}</span>}
             </div>
         )
     }

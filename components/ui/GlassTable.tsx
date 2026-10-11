@@ -16,7 +16,7 @@ export function GlassTable({
     ...props
 }: React.ComponentProps<typeof Table>) {
     return (
-        <div className="glass-card min-w-0 rounded-lg overflow-hidden border-white/5 bg-black/20">
+        <div className="min-w-0 overflow-hidden rounded-lg border border-line bg-panel">
             <Table className={cn("border-collapse", className)} {...props}>
                 {children}
             </Table>
@@ -27,7 +27,7 @@ export function GlassTable({
 export function GlassTableHeader({ className, ...props }: React.ComponentProps<typeof TableHeader>) {
     return (
         <TableHeader
-            className={cn("bg-white/3 [&_tr]:border-b-white/10", className)}
+            className={cn("bg-raised [&_tr]:border-b-line", className)}
             {...props}
         />
     )
@@ -50,7 +50,7 @@ export function GlassTableRow({ className, ...props }: React.ComponentProps<type
         <tr
             data-slot="table-row"
             className={cn(
-                "border-b-white/5 group transition-colors duration-75 ease-out hover:bg-white/4.5",
+                "border-b-line group transition-colors duration-75 ease-out hover:bg-raised",
                 (props as any).onClick ? "cursor-pointer" : "cursor-default",
                 className
             )}
@@ -64,8 +64,8 @@ export function GlassTableCell({ className, isHeader, ...props }: React.Componen
     return (
         <Component
             className={cn(
-                "p-3 text-sm font-medium text-white/90 align-middle",
-                isHeader && "text-[10px] font-normal text-muted-foreground uppercase tracking-[0.2em]",
+                "p-3 text-sm font-medium text-ink-1 align-middle",
+                isHeader && "text-[11px] font-normal text-muted-foreground uppercase tracking-[0.2em]",
                 className
             )}
             {...props}
@@ -82,10 +82,10 @@ export function GlassStatCell({
     max?: number,
     className?: string
 }) {
-    let colorClass = "text-red-400"
-    if (value >= 85) colorClass = "text-emerald-400"
-    else if (value >= 75) colorClass = "text-blue-400"
-    else if (value >= 60) colorClass = "text-amber-400"
+    let colorClass = "text-negative"
+    if (value >= 85) colorClass = "text-positive"
+    else if (value >= 75) colorClass = "text-ink-2"
+    else if (value >= 60) colorClass = "text-caution"
 
     return (
         <GlassTableCell className={cn("font-normal font-mono text-center", colorClass, className)}>

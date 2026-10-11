@@ -251,71 +251,73 @@
     --glass-blur-lg: 28px;
     --glass-blur-xl: 40px;
 
-    /* Liquid glass — mirrors src/design/tokens semantics */
-    --glass-bg-base: rgba(17, 26, 43, 0.78);
-    --glass-bg-raised: rgba(22, 33, 53, 0.58);
-    --glass-bg-dense: rgba(20, 29, 46, 0.68);
-    --glass-bg-ultrathin: rgba(255, 255, 255, 0.045);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    /* Design system v2 — "Broadcast Graphite + Trophy Gold".
+       The former glass material is now solid: tints are opaque graphite,
+       shine/edge are transparent and blur is zero, so every .glass-* /
+       .liquid-* surface renders as a flat panel with a 1px line. */
+    --glass-bg-base: #12161c;
+    --glass-bg-raised: #12161c;
+    --glass-bg-dense: #12161c;
+    --glass-bg-ultrathin: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.075);
     --glass-border-hover: rgba(255, 255, 255, 0.16);
-    --glass-edge: rgba(255, 255, 255, 0.12);
-    --glass-shine: rgba(255, 255, 255, 0.085);
-    --glass-blur: 22px;
-    --glass-saturate: 150%;
+    --glass-edge: transparent;
+    --glass-shine: transparent;
+    --glass-blur: 0px;
+    --glass-saturate: 100%;
     --motion-fast: 120ms;
     --motion-base: 180ms;
     --motion-slow: 280ms;
     --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
-    --accent-glass: rgba(34, 211, 238, 0.14);
+    --accent-glass: rgba(242, 181, 58, 0.12);
 
-    /* ── Text-on-glass opacity tiers ──────────────────────────────────
-       4 tiers only. Stop introducing white/15, white/35, white/55 etc.
-       Floor at /50 keeps everything at or above WCAG AA on glass panels. */
-    --text-primary:    rgba(255, 255, 255, 0.96);  /* headings, titles, scores */
-    --text-secondary:  rgba(255, 255, 255, 0.72);  /* body, player names, values */
-    --text-tertiary:   rgba(255, 255, 255, 0.50);  /* labels, metadata, timestamps */
-    --text-decorative: rgba(255, 255, 255, 0.30);  /* dividers, hairline icons */
+    /* ── Text tiers ───────────────────────────────────────────────────
+       4 tiers only. Tertiary stays at or above 4.5:1 on panel. */
+    --text-primary:    #f2f4f7;  /* headings, titles, scores */
+    --text-secondary:  #aeb6c2;  /* body, player names, values */
+    --text-tertiary:   #808a99;  /* labels, metadata, timestamps */
+    --text-decorative: rgba(255, 255, 255, 0.24);  /* dividers, hairline icons */
 
     /* ── Radius scale ─────────────────────────────────────────────────
-       Use these named tokens instead of raw rounded-{md|lg|xl|2xl|3xl}
-       so elevation hierarchy is consistent. */
-    --radius-chip:   0.375rem;  /* badges, status pills */
-    --radius-card:   0.75rem;   /* buttons, list rows, small cards */
-    --radius-panel:  1rem;      /* main panels */
-    --radius-hero:   1.5rem;    /* heroes, big modals */
+       Crisp corners: tags 3px, controls 4px, panels 8px, heroes 10px. */
+    --radius-chip:   0.1875rem;
+    --radius-card:   0.25rem;
+    --radius-panel:  0.5rem;
+    --radius-hero:   0.625rem;
 
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 216 26% 4%;          /* ink    #07090c */
+    --foreground: 216 22% 96%;         /* text1  #f2f4f7 */
+    --card: 214 22% 9%;                /* panel  #12161c */
+    --card-foreground: 216 22% 96%;
+    --popover: 216 21% 12%;            /* raised #181d25 */
+    --popover-foreground: 216 22% 96%;
+    /* Selection controls (switch, radio, checkbox, slider) read gold in v2. */
+    --primary: 40 88% 59%;             /* gold   #f2b53a */
+    --primary-foreground: 30 37% 6%;   /* on-gold #15100a */
+    --secondary: 216 21% 12%;
+    --secondary-foreground: 216 22% 96%;
+    --muted: 216 21% 12%;
+    --muted-foreground: 216 10% 55%;   /* text3  #808a99 */
+    --accent: 216 21% 16%;             /* hover  #212833 */
+    --accent-foreground: 216 22% 96%;
+    --destructive: 352 54% 49%;
+    --destructive-foreground: 216 22% 96%;
+    --border: 216 14% 15%;
+    --input: 216 14% 15%;
+    --ring: 40 88% 59%;                /* gold   #f2b53a */
+    --chart-1: 40 88% 59%;
+    --chart-2: 151 65% 54%;
+    --chart-3: 213 100% 68%;
+    --chart-4: 23 100% 62%;
+    --chart-5: 270 70% 70%;
+    --sidebar-background: 216 22% 7%;
+    --sidebar-foreground: 216 22% 96%;
+    --sidebar-primary: 40 88% 59%;
+    --sidebar-primary-foreground: 30 37% 6%;
+    --sidebar-accent: 216 21% 12%;
+    --sidebar-accent-foreground: 216 22% 96%;
+    --sidebar-border: 216 14% 15%;
+    --sidebar-ring: 40 88% 59%;
   }
 
   /* Onyx theme variant — a deeper, blacker glass tint. Overrides only the
@@ -323,14 +325,9 @@
      crystal ↔ onyx toggle in the top bar produces a real, visible change.
      `.onyx` is applied to <html> and to the app shell by GameShell. */
   .onyx {
-    --glass-bg-base: rgba(2, 3, 5, 0.86);
-    --glass-bg-raised: rgba(4, 6, 9, 0.82);
-    --glass-bg-dense: rgba(5, 7, 10, 0.74);
-    --glass-bg-ultrathin: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.075);
-    --glass-border-hover: rgba(255, 255, 255, 0.13);
-    --glass-edge: rgba(255, 255, 255, 0.08);
-    --glass-shine: rgba(255, 255, 255, 0.055);
+    --glass-bg-base: #0f1217;
+    --glass-bg-raised: #0f1217;
+    --glass-bg-dense: #0f1217;
   }
 }
 
@@ -341,6 +338,7 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
@@ -387,121 +385,74 @@
     background: #a5e2ff;
     box-shadow: 0 0 8px #a5e2ff;
   }
-  .dashboard .dashboard-title { font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -.045em; }
-  .dashboard .dashboard-eyebrow { color: #a9bfd6; font-size: 11px; font-weight: 500; letter-spacing: .12em; }
-  .dashboard [data-slot="card"] { border-radius: 22px; }
+  .dashboard .dashboard-title { font-family: var(--font-display); font-size: clamp(2rem, 3vw, 2.75rem); font-weight: 700; letter-spacing: .005em; text-transform: uppercase; }
+  .dashboard .dashboard-eyebrow { color: #f2b53a; font-size: 11px; font-weight: 600; letter-spacing: .08em; }
+  .dashboard [data-slot="card"] { border-radius: 8px; }
   .dashboard [data-slot="card-title"] { font-weight: 500; letter-spacing: -.015em; text-transform: none; }
   .dashboard .dashboard-hero {
-    background: radial-gradient(ellipse at 95% 0%, rgba(143, 180, 237, .14), transparent 65%), linear-gradient(135deg, rgba(195, 223, 255, .09), transparent 65%), rgba(19, 30, 48, .64);
-    border: 1px solid rgba(205, 225, 255, .17);
-    box-shadow: inset 0 1px 0 rgba(233, 246, 255, .18), 0 18px 50px -38px #000;
+    background: #12161c;
+    border: 1px solid rgba(255, 255, 255, .14);
+    box-shadow: none;
   }
   @supports not (backdrop-filter: blur(1px)) {
-    html .game-sidebar, html .game-topbar, html .glass-panel, html .liquid-panel { background: #172338; }
+    html .game-sidebar, html .game-topbar, html .glass-panel, html .liquid-panel { background: #12161c; }
   }
   @media (prefers-reduced-transparency: reduce) {
-    html .game-sidebar, html .game-topbar, html .glass-panel, html .glass-card, html .liquid-panel { background: #172338; backdrop-filter: none; }
+    html .game-sidebar, html .game-topbar, html .glass-panel, html .glass-card, html .liquid-panel { background: #12161c; backdrop-filter: none; }
   }
-  .glass-panel {
-    position: relative;
-    background:
-      linear-gradient(135deg, var(--glass-shine), rgba(255, 255, 255, 0.035) 46%, rgba(255, 255, 255, 0.02)),
-      var(--glass-bg-raised);
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-    border: 1px solid var(--glass-border);
-    box-shadow:
-      inset 0 1px 0 var(--glass-edge),
-      0 18px 45px -28px rgba(0, 0, 0, 0.72);
-    transition:
-      opacity var(--motion-base) var(--motion-ease),
-      background-color var(--motion-base) var(--motion-ease),
-      border-color var(--motion-base) var(--motion-ease),
-      box-shadow var(--motion-base) var(--motion-ease);
-  }
-
-  .glass-panel:hover {
-    border-color: var(--glass-border-hover);
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.05) 48%, rgba(255, 255, 255, 0.025)),
-      var(--glass-bg-raised);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      0 22px 52px -30px rgba(0, 0, 0, 0.78);
-  }
-
-  /* Dense dashboards / tables — default 8px radius via component (`rounded-md`) */
-  .glass-card {
-    background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.022)),
-      var(--glass-bg-dense);
-    backdrop-filter: none;
-    border: 1px solid rgba(255, 255, 255, 0.085);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 14px 34px -26px rgba(0, 0, 0, 0.72);
-    transition:
-      background-color var(--motion-base) var(--motion-ease),
-      border-color var(--motion-base) var(--motion-ease),
-      box-shadow var(--motion-base) var(--motion-ease);
-  }
-
-  .glass-card:hover {
-    background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.095), rgba(255, 255, 255, 0.035)),
-      rgba(12, 16, 22, 0.62);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.11), 0 16px 38px -28px rgba(0, 0, 0, 0.78);
-  }
-
+  /* Solid panel material (v2). Class names are kept from the glass era so
+     every screen picks up the new surface without per-page edits. */
+  .glass-panel,
   .glass-panel-dark,
   .liquid-panel {
     position: relative;
-    background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.028)),
-      var(--glass-bg-base);
-    backdrop-filter: blur(24px) saturate(155%);
+    background: var(--glass-bg-raised);
     border: 1px solid var(--glass-border);
-    box-shadow:
-      inset 0 1px 0 var(--glass-edge),
-      0 22px 58px -36px rgba(0, 0, 0, 0.82);
+    box-shadow: none;
+    transition:
+      opacity var(--motion-base) var(--motion-ease),
+      background-color var(--motion-base) var(--motion-ease),
+      border-color var(--motion-base) var(--motion-ease);
   }
+  .glass-panel:hover { border-color: var(--glass-border); }
 
-  /* Shell bars — floating frosted control layer */
+  /* Dense dashboards / tables */
+  .glass-card {
+    background: var(--glass-bg-dense);
+    border: 1px solid var(--glass-border);
+    box-shadow: none;
+    transition:
+      background-color var(--motion-base) var(--motion-ease),
+      border-color var(--motion-base) var(--motion-ease);
+  }
+  .glass-card:hover { border-color: var(--glass-border); }
+
+  /* Shell bars */
   .liquid-chrome {
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.028)),
-      rgba(5, 8, 13, 0.72);
-    backdrop-filter: blur(28px) saturate(160%);
-    border-color: rgba(255, 255, 255, 0.11);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 14px 44px -32px rgba(0, 0, 0, 0.78);
+    background: #0d1015;
+    border-color: rgba(255, 255, 255, 0.075);
+    box-shadow: none;
   }
 
   .liquid-button {
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.045)),
-      rgba(255, 255, 255, 0.045);
-    border: 1px solid rgba(255, 255, 255, 0.11);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 8px 22px -18px rgba(0, 0, 0, 0.65);
+    background: #181d25;
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    box-shadow: none;
   }
 
-  /* Static light fields give the glass something to refract without a
-     full-screen animated filter competing with simulation rendering. */
+  /* App background: ink with a faint warm stage light from above. */
   .liquid-app-bg {
     background:
-      radial-gradient(ellipse at 12% 0%, #192b3e 0%, transparent 55%),
-      #0c1420;
+      radial-gradient(ellipse 1400px 420px at 50% -180px, rgba(242, 181, 58, 0.06), transparent 70%),
+      #07090c;
   }
-  .liquid-app-bg.onyx {
-    background: radial-gradient(ellipse at 10% 0%, #1b2839, transparent 48%), #090e17;
-  }
+  .liquid-app-bg.onyx { background: #07090c; }
 
-  /* Profiles use quiet, opaque data surfaces; glass stays on shell controls. */
   .player-profile .glass-panel {
-    background: #172231;
-    border: 1px solid rgba(192, 210, 228, .1);
-    border-radius: 12px;
+    background: #12161c;
+    border: 1px solid rgba(255, 255, 255, .075);
+    border-radius: 8px;
     box-shadow: none;
-    backdrop-filter: none;
   }
   .player-profile .profile-summary > div {
     min-width: 0;
@@ -585,7 +536,9 @@
   .glass-panel.cursor-pointer:hover,
   .glass-panel-dark.cursor-pointer:hover,
   .liquid-panel.cursor-pointer:hover {
-    transform: translateY(-2px);
+    border-color: var(--glass-border-hover);
+    background-color: #181d25;
+    transform: none;
     translate: var(--tw-v3-transform-reset, none);
     scale: var(--tw-v3-transform-reset, none);
     rotate: var(--tw-v3-transform-reset, none);
@@ -785,10 +738,11 @@
     outline: none;
   }
 
+  /* Design system v2: focus is a crisp 2px gold ring, no glow. */
   button:focus-visible {
-    outline: 2px solid var(--color-cyan-400) !important;
+    outline: 2px solid var(--gold, #f2b53a) !important;
     outline-offset: 2px;
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35) !important;
+    box-shadow: none !important;
   }
 
   button:active {
@@ -801,7 +755,7 @@
   }
 
   .tab-button:focus-visible {
-    outline: 2px solid var(--color-cyan-400) !important;
+    outline: 2px solid var(--gold, #f2b53a) !important;
     outline-offset: -2px;
     /* Inner focus for tabs */
     box-shadow: none !important;
@@ -839,15 +793,13 @@
   *::-webkit-scrollbar-thumb { background: rgba(183, 204, 234, .22); border-radius: 8px; }
 
   /* Custom Focus Styles
-     High-contrast double-ring (solid outline + soft outer glow) so focus is
-     visible on every background the UI uses: glass panels, dark backdrops,
-     bright accent chips, and the Steam Deck handheld screen in varied
-     lighting. `:focus-visible` (not `:focus`) keeps the ring off for mouse
-     clicks, showing it only for keyboard/gamepad traversal. */
+     Design system v2: a crisp 2px gold ring (9.9:1 on a panel), no glow, so
+     focus is visible on every surface and on the Steam Deck screen.
+     `:focus-visible` (not `:focus`) keeps the ring off for mouse clicks,
+     showing it only for keyboard/gamepad traversal. */
   :focus-visible {
-    outline: 2px solid var(--color-cyan-400);
+    outline: 2px solid var(--gold, #f2b53a);
     outline-offset: 2px;
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35);
     border-radius: inherit;
   }
 
@@ -859,27 +811,24 @@
   [role="option"]:focus-visible,
   [role="tab"]:focus-visible,
   [tabindex]:focus-visible {
-    outline: 2px solid var(--color-cyan-400);
+    outline: 2px solid var(--gold, #f2b53a);
     outline-offset: 2px;
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35);
   }
 
-  /* Higher-contrast focus ring inside dialogs/modals/popovers. Steam Deck's
-     small bright screen washed out the standard 1px-glow + 25%-opacity ring
-     when stacked over the dialog backdrop, making gamepad navigation hard to
-     follow. Target Radix slot data-attributes so this applies app-wide
-     without per-component edits. */
+  /* Heavier focus ring inside dialogs/modals/popovers: the Steam Deck's small
+     bright screen washed out a thin ring over the dialog backdrop, making
+     gamepad navigation hard to follow. A 1px dark separation ring keeps the
+     gold readable (no glow). Target Radix slot data-attributes so this
+     applies app-wide without per-component edits. */
   [data-slot="alert-dialog-content"] :focus-visible,
   [data-slot="dialog-content"] :focus-visible,
   [data-slot="popover-content"] :focus-visible,
   [data-slot="dropdown-menu-content"] :focus-visible,
   [data-slot="select-content"] :focus-visible,
   [data-slot="command-input"]:focus-visible {
-    outline: 3px solid var(--color-cyan-300);
+    outline: 3px solid var(--gold, #f2b53a);
     outline-offset: 3px;
-    box-shadow:
-      0 0 0 1px rgba(0, 0, 0, 0.6),
-      0 0 0 5px rgba(103, 232, 249, 0.45);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
   }
 
   /* Reduce motion for users who prefer it (OS-level or in-game setting) */
@@ -920,7 +869,7 @@
   html,
   body {
     overflow-x: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--font-sans);
     font-variant-numeric: tabular-nums;
   }
 
@@ -1085,11 +1034,13 @@
 
   /* Shared management-route heading. Avoid full hero typography above dense controls. */
   .page-title {
-    font-size: clamp(1.5rem, 2vw, 1.875rem);
-    font-weight: 600;
-    line-height: 1.25;
-    letter-spacing: -0.025em;
-    color: #f1f5f9;
+    font-family: var(--font-display);
+    font-size: clamp(1.875rem, 2.4vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0.005em;
+    text-transform: uppercase;
+    color: #f2f4f7;
     overflow-wrap: anywhere;
   }
 

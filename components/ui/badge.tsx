@@ -5,24 +5,24 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const badgeVariants = cva(
-  'inline-flex items-center justify-center rounded-md border font-medium w-fit whitespace-nowrap shrink-0 gap-1 [&>svg]:pointer-events-none focus-visible:border-cyan-300 focus-visible:ring-cyan-300/25 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,background-color,border-color,box-shadow] duration-200 overflow-hidden',
+  'inline-flex items-center justify-center rounded-md border font-medium w-fit whitespace-nowrap shrink-0 gap-1 [&>svg]:pointer-events-none focus-visible:border-gold focus-visible:ring-gold/25 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,background-color,border-color,box-shadow] duration-200 overflow-hidden',
   {
     variants: {
       variant: {
         default:
-          'border-cyan-300/20 bg-cyan-300/[0.14] text-cyan-100 shadow-glass-soft [a&]:hover:bg-cyan-300/20',
+          'border-gold/20 bg-gold/15 text-gold [a&]:hover:bg-gold/20',
         secondary:
-          'border-white/10 bg-white/7.5 text-white/75 [a&]:hover:bg-white/11',
+          'border-line bg-hover text-ink-2 [a&]:hover:bg-hover',
         destructive:
-          'border-red-400/25 bg-red-500/16 text-red-100 [a&]:hover:bg-red-500/22 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
+          'border-negative/30 bg-negative/16 text-negative [a&]:hover:bg-negative/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
         outline:
-          'border-white/10 bg-white/[0.035] text-white/70 [a&]:hover:bg-white/8 [a&]:hover:text-white',
+          'border-line bg-raised text-ink-2 [a&]:hover:bg-hover [a&]:hover:text-ink-1',
       },
       size: {
         default: 'px-2 py-0.5 text-xs [&>svg]:size-3',
         // Micro badge for dense rows (tier chips, stat tags) — replaces the
-        // inline `text-[8px] px-1.5 py-0` one-offs scattered across screens.
-        xs: 'px-1.5 py-0 text-[8px] [&>svg]:size-2.5',
+        // inline `text-[11px] px-1.5 py-0` one-offs scattered across screens.
+        xs: 'px-1.5 py-0 text-[11px] [&>svg]:size-2.5',
       },
     },
     defaultVariants: {

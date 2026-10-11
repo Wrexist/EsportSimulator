@@ -305,7 +305,6 @@ async function run() {
             await sleep(700)
             await act(page, btn("BUY"), 700)
         }],
-        ["48_fpl", "/fpl", async () => { await act(page, btn("FPL Challenger"), 800); await sleep(900); await act(page, btn("FPL Pro"), 600) }],
         ["49_create_team", "/new-game/create-team", async () => { await sleep(600) }],
     ]
     for (const [name, route, action] of interactions) {
@@ -416,7 +415,7 @@ async function run() {
 
             // Manual veto steering toward Sandstone; the veto screen shows
             // licensed-looking map art, so it isn't recorded.
-            await page.getByRole("button", { name: "Start Manual Veto", exact: true }).click()
+            await page.getByRole("button", { name: "Start veto", exact: true }).click()
             await page.waitForURL(/\/veto/, { timeout: 60_000 })
             for (let i = 0; i < 120; i++) {
                 if (/\/tactics/.test(page.url())) break
@@ -440,7 +439,7 @@ async function run() {
             }
             await page.waitForURL(/\/tactics/, { timeout: 60_000 })
             await settle(page, 3000)
-            await page.getByRole("button", { name: "START GAME", exact: true }).click()
+            await page.getByRole("button", { name: "Start match", exact: true }).click()
             await page.waitForURL(/\/live/, { timeout: 120_000 })
             await page.getByText(/RND \d+/).first().waitFor({ timeout: 120_000 })
             await settle(page, 1500)

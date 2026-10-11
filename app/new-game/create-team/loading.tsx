@@ -1,5 +1,6 @@
-import { PageSkeleton } from "@/components/ui/skeletons"
+import { LoadingSplash } from "@/components/brand/LoadingSplash"
 
+// Branded splash while the team creator chunk loads.
 export default function Loading() {
-    return <PageSkeleton title="Create Team" />
+    return <LoadingSplash label="Preparing team creator" />
 }

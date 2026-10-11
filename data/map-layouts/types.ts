@@ -1,6 +1,8 @@
 /**
- * Per-map layout schema authored via /dev/map-builder and consumed by
- * lib/map-radar-data.ts + lib/radar-position-engine.ts.
+ * Per-map layout schema authored via /dev/map-builder. The round script uses
+ * these only as a fallback RoundMap for maps without a baked
+ * data/round-maps file (`roundMapFor`); their site labels are not
+ * authoritative (see data/round-maps/index.ts).
  *
  * Coordinates are radar-normalized (0–100, top-left origin) — same space the
  * runtime uses for player dots. This lets the builder render directly over

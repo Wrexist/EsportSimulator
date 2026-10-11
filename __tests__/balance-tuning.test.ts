@@ -108,9 +108,12 @@ describe('sponsors scale with reputation and the wage bill', () => {
         const best3 = [...a].sort((x, y) => y.weeklyPayout - x.weeklyPayout).slice(0, 3)
         const income = EconomyEngine.calculateSponsorIncome({ ...team, sponsors: best3 })
         expect(income).toBeLessThanOrEqual(wage * 1.03)
-        // A low-reputation club keeps ordinary offers (the wage floor protects lean payrolls).
+        // A low-reputation club still gets real offers, sized to its costs (the base floor protects lean payrolls).
         const small = SponsorGenerator.generateVariedOffers({ ...team, reputation: 20 }, 10, new SeededRNG(9), 3_000)
-        expect(small.every(o => o.weeklyPayout >= SPONSOR_TUNING.BASE_RANGE_LOW[0])).toBe(true)
+        const smallCap = SPONSOR_TUNING.MAX_SHARE_OF_WAGE_BILL * sponsorWageBase(3_000, 20)
+        expect(smallCap).toBeGreaterThan(3_000 * SPONSOR_TUNING.MAX_SHARE_OF_WAGE_BILL)
+        expect(small.length).toBeGreaterThan(0)
+        expect(small.every(o => o.weeklyPayout > 0 && o.weeklyPayout * EconomyEngine.sponsorReputationFactor(20) <= smallCap + 1)).toBe(true)
     })
 })
 
@@ -135,7 +138,7 @@ describe('free-agent market', () => {
             const save = createLaunchFixture('first-week', 41006)
             const extra = Array.from({ length: 200 }, (_, i) => ({ ...structuredClone(save.players.find(p => p.id === 'qa_free_agent')!), id: `fa_${i}`, age: 20 + (i % 15) }))
             save.players.push(...extra)
-            save.players.push({ ...structuredClone(extra[0]), id: 'fa_legend', isLegendary: true }, { ...structuredClone(extra[0]), id: 'fpl_nonpro_1_1_1' })
+            save.players.push({ ...structuredClone(extra[0]), id: 'fa_legend', isLegendary: true })
             save.currentWeek = 10
             processFreeAgentMarket(save)
             expect(save.players.find(p => p.id === 'fa_0')!.freeAgentSinceWeek).toBe(10)
@@ -157,7 +160,6 @@ describe('free-agent market', () => {
         const retired = a.save.players.filter(p => p.isRetired)
         expect(retired.length).toBeGreaterThan(50)
         expect(a.save.players.find(p => p.id === 'fa_legend')!.isRetired).toBeFalsy()
-        expect(a.save.players.find(p => p.id === 'fpl_nonpro_1_1_1')!.isRetired).toBeFalsy()
         expect(freeAgentRetirementChance(30, 52)).toBeGreaterThan(freeAgentRetirementChance(24, 52))
         expect(freeAgentRetirementChance(18, 52)).toBeLessThan(freeAgentRetirementChance(24, 52))
 
@@ -177,6 +179,7 @@ describe('AI squad maintenance uses the human rules', () => {
         save.currentWeek = 100
         const team = save.teams[1]
         team.budget = 1_000_000
+        team.sponsors = [{ id: 'qa_sponsor', name: 'QA Partner', tier: 'STANDARD', weeklyPayout: 100_000 } as never] // Phase 4.4: cash-positive, so the raise is sustainable
         const c = save.contracts.find(x => x.teamId === team.id)!
         c.endWeek = 102
         c.salaryPerWeek = 1000
@@ -212,6 +215,7 @@ describe('AI squad maintenance uses the human rules', () => {
         const save = createLaunchFixture('first-week', 41010)
         const team = save.teams[1]
         team.budget = 5_000_000
+        team.sponsors = [{ id: 'qa_sponsor', name: 'QA Partner', tier: 'STANDARD', weeklyPayout: 100_000 } as never] // Phase 4.4: cash-positive, so a new wage is sustainable
         team.financialState = 'STABLE'
         for (const id of team.rosterIds) save.players.find(p => p.id === id)!.skill = 50
         const star = save.players.find(p => p.id === 'qa_free_agent')!
@@ -312,7 +316,8 @@ describe('balance pass 2', () => {
         const run = async (managedConfig: boolean) => {
             const save = createLaunchFixture('first-week', 42001)
             save.scheduledMatches = []
-            for (const p of save.players) Object.assign(p, { rifle: 40, potential: 80, productivity: 80 })
+            // One archetype for everyone (Phase 5.2 training modifiers aside), so only the regimen differs.
+            for (const p of save.players) Object.assign(p, { rifle: 40, potential: 80, productivity: 80, personality: { archetype: "QUIET" } })
             const processor = new AtomicWeekProcessor(new SaveManager(new FixtureStorage()))
             const focus = new Map(managedConfig ? [[save.playerTeamId!, { focus: TrainingFocus.AIM, intensity: AI_SQUAD_TUNING.TRAINING_INTENSITY }]] : [])
             expect((await processor.processWeek(save, { playerTeamId: save.playerTeamId!, trainingFocus: focus }, new SeededRNG(5))).success).toBe(true)
@@ -336,6 +341,19 @@ describe('balance pass 2', () => {
         expect(ends(7)).toEqual(a)
         expect(new Set(a.map(w => (w - 1) % 52)).size).toBeGreaterThan(5)
         expect(Math.min(...a)).toBeGreaterThanOrEqual(1 + AI_SQUAD_TUNING.INITIAL_CONTRACT_MIN_WEEKS)
+    })
+
+    test('Phase 5 fix: opening deals have already run part of their length, so prime-age deals also end in season 1', () => {
+        const loader = new (SnapshotLoaderClass as never as new () => { generateContracts: (...a: unknown[]) => Array<{ endWeek: number }> })()
+        // Age 25: two- or three-year deals. Before the fix none ended before week 79.
+        const players = Array.from({ length: 300 }, (_, i) => ({ id: `s${i}`, age: 25, tier: 'PRO', skill: 60 }))
+        const ends = loader.generateContracts(players, [{ id: 't', rosterIds: players.map(p => p.id) }], 1, new SeededRNG(11)).map(c => c.endWeek)
+        const share = (f: (w: number) => boolean) => ends.filter(f).length / ends.length
+        expect(share(w => w <= 52)).toBeGreaterThan(0.1)
+        // Deals reaching their final year within season 1 (end by week 104): most, not all.
+        expect(share(w => w <= 104)).toBeGreaterThan(0.4)
+        expect(share(w => w <= 104)).toBeLessThan(0.9)
+        expect(Math.max(...ends)).toBeLessThanOrEqual(1 + 3 * 52 + AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS)
     })
 
     test('free-agent retirement and AI scouting respond to pool size', () => {

@@ -57,7 +57,7 @@ export function LoadingState({
         <div
             className={cn(
                 'premium-loading flex flex-col items-center justify-center gap-4',
-                fullScreen ? 'min-h-screen liquid-app-bg' : 'p-12',
+                fullScreen ? 'min-h-screen bg-ink' : 'p-12',
                 className,
             )}
             role="status"
@@ -67,9 +67,9 @@ export function LoadingState({
             {/* motion-safe: gates the spin on prefers-reduced-motion: no-preference.
                 Users who set reduce-motion get a static dimmer icon, which is
                 still readable via the aria-live message. */}
-            <Loader2 className={cn(sizeMap[size], 'motion-safe:animate-spin text-cyan-200 motion-reduce:opacity-50')} aria-hidden="true" />
+            <Loader2 className={cn(sizeMap[size], 'motion-safe:animate-spin text-gold motion-reduce:opacity-50')} aria-hidden="true" />
             {displayMessage && (
-                <p className="text-sm text-white/55">{displayMessage}</p>
+                <p className="text-sm text-ink-2">{displayMessage}</p>
             )}
         </div>
     )

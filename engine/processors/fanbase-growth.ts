@@ -66,12 +66,16 @@ export function processFanbaseGrowth(save: GameSave, _rng: SeededRNG): void {
             weeklyGrowth += rankingBonus
         }
 
-        // Marketing campaigns: each active campaign contributes its
-        // `followersPerWeek` value while inside its `duration` window.
+        // Marketing campaigns: each campaign contributes its `followersPerWeek`
+        // for every week it ran. The tick runs after the week counter moved
+        // on, so it settles the week that just ended (currentWeek - 1). Using
+        // currentWeek paid a campaign one week early and never paid a
+        // one-week campaign booked for the current week.
+        const settledWeek = save.currentWeek - 1
         const activeMarketing = save.scheduledActivities?.filter(a =>
             a.type === "MARKETING" &&
-            save.currentWeek >= a.week &&
-            save.currentWeek < a.week + a.duration &&
+            settledWeek >= a.week &&
+            settledWeek < a.week + a.duration &&
             typeof (a.data as { followersPerWeek?: number } | undefined)?.followersPerWeek === "number"
         ) ?? []
         for (const campaign of activeMarketing) {

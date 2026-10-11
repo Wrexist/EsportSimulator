@@ -3,15 +3,13 @@
 import React, { useState } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
-import { motion } from "framer-motion"
-import { X, Megaphone, Share2, Handshake, Sparkles, Coins, CalendarClock } from "lucide-react"
+import { Share2, Handshake, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
-import { Badge } from "@/components/ui/badge"
 import { toast } from "@/lib/toast"
-import { useFocusTrap } from "@/lib/accessibility"
-
+import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
+import { ScheduleDialog } from "./ScheduleDialog"
+
 interface BookMarketingModalProps {
     isOpen: boolean
     onClose: () => void
@@ -20,36 +18,30 @@ interface BookMarketingModalProps {
 
 type MarketingType = "SOCIAL" | "SPONSORSHIP" | "INFLUENCER"
 
+// followersPerWeek is added by the fanbase-growth processor at the update that
+// ends each week the campaign runs (a one-week campaign pays once, at the end
+// of its week); the booking is paid once, up front.
 const MARKETING_OPTIONS = {
     SOCIAL: {
         name: "Social Media Push",
-        description: "Ramp up content creation across TikTok, X, and YouTube. Builds steady organic follower growth.",
+        description: "Ramp up content creation across your social channels.",
         costPerWeek: 2000,
         followersPerWeek: 800,
         icon: Share2,
-        color: "text-cyan-400",
-        bg: "bg-cyan-500/10",
-        border: "border-cyan-500/20",
     },
     SPONSORSHIP: {
         name: "Sponsorship Drive",
-        description: "Partner with brands for co-promotional campaigns. Higher cost but stronger reach.",
+        description: "Co-promotional campaigns with partner brands.",
         costPerWeek: 5000,
         followersPerWeek: 2000,
         icon: Handshake,
-        color: "text-emerald-400",
-        bg: "bg-emerald-500/10",
-        border: "border-emerald-500/20",
     },
     INFLUENCER: {
         name: "Influencer Collab Tour",
-        description: "Collaborate with gaming influencers and streamers. Maximum exposure but expensive.",
+        description: "Collaborations with gaming creators and streamers.",
         costPerWeek: 10000,
         followersPerWeek: 4000,
         icon: Sparkles,
-        color: "text-amber-400",
-        bg: "bg-amber-500/10",
-        border: "border-amber-500/20",
     },
 }
 
@@ -64,9 +56,10 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
     const selectedOption = MARKETING_OPTIONS[selectedType]
     const totalCost = selectedOption.costPerWeek * duration
     const totalFollowerGain = selectedOption.followersPerWeek * duration
+    const affordable = totalCost <= budget
 
     const handleConfirm = () => {
-        if (budget < totalCost) return
+        if (!affordable) return
 
         const result = scheduleActivity({
             id: `marketing_${week}_${selectedType}_${duration}`,
@@ -86,8 +79,8 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
         })
 
         if (result.success) {
-            toast.success(`${selectedOption.name} scheduled!`, {
-                description: `${duration} week${duration > 1 ? "s" : ""} · +${totalFollowerGain.toLocaleString()} projected followers`,
+            toast.success(`${selectedOption.name} scheduled`, {
+                description: `${duration} week${duration > 1 ? "s" : ""} · +${totalFollowerGain.toLocaleString("en-US")} followers`,
             })
             onClose()
         } else {
@@ -95,138 +88,80 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
         }
     }
 
-    const dialogRef = useFocusTrap(isOpen, onClose)
-
-    if (!isOpen) return null
-
     return (
-        <div className="fixed inset-0 z-dropdown flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                ref={dialogRef} tabIndex={-1}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title-book-marketing"
-                className="glass-panel w-full max-w-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto p-6 shadow-2xl border-white/10"
-            >
-                <div className="flex justify-between items-center mb-6">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-                            <Megaphone size={20} />
-                        </div>
-                        <div>
-                            <h2 id="modal-title-book-marketing" className="text-xl font-normal uppercase tracking-tighter text-white">Marketing Campaign</h2>
-                            <p className="text-xs text-muted-foreground uppercase tracking-widest">Week {week}</p>
-                        </div>
-                    </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 active:bg-white/15 active:scale-90 rounded-full transition-all" aria-label="Close dialog">
-                        <X size={18} className="text-white/50 hover:text-white" />
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    {/* Left: Campaign Options */}
-                    <div className="space-y-3">
-                        <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Campaign Type</p>
-                        {(Object.keys(MARKETING_OPTIONS) as MarketingType[]).map(type => {
-                            const opt = MARKETING_OPTIONS[type]
-                            const Icon = opt.icon
-                            const isSelected = selectedType === type
-                            return (
-                                <button
-                                    key={type}
-                                    onClick={() => setSelectedType(type)}
-                                    className={`w-full p-3 rounded-lg border text-left transition-all ${isSelected ? `${opt.bg} ${opt.border} ring-1 ring-white/10` : "bg-black/30 border-white/5 hover:bg-white/5"}`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-8 h-8 rounded-md ${opt.bg} flex items-center justify-center ${opt.color}`}>
-                                            <Icon size={16} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="text-sm font-medium text-white">{opt.name}</h4>
-                                            <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{opt.description}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-3 mt-2 text-[10px]">
-                                        <span className="text-muted-foreground"><Coins size={10} className="inline mr-1" />{formatCurrency(opt.costPerWeek, "$", false)}/wk</span>
-                                        <span className="text-emerald-400">+{opt.followersPerWeek.toLocaleString()} followers/wk</span>
-                                    </div>
-                                </button>
-                            )
-                        })}
-                    </div>
-
-                    {/* Right: Duration & Summary */}
-                    <div className="space-y-4">
-                        <div>
-                            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Duration</p>
-                            <div className="flex items-center gap-4">
-                                <Slider
-                                    value={[duration]}
-                                    onValueChange={([v]) => setDuration(v)}
-                                    min={1}
-                                    max={4}
-                                    step={1}
-                                    className="flex-1"
-                                />
-                                <Badge variant="secondary" className="text-xs min-w-[60px] justify-center">
-                                    <CalendarClock size={12} className="mr-1" />
-                                    {duration}w
-                                </Badge>
-                            </div>
-                        </div>
-
-                        <div className="bg-black/30 rounded-lg p-4 space-y-3">
-                            <p className="text-xs text-muted-foreground uppercase tracking-widest">Summary</p>
-                            <div className="space-y-2 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Campaign</span>
-                                    <span className="text-white font-medium">{selectedOption.name}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Duration</span>
-                                    <span className="text-white">{duration} week{duration > 1 ? "s" : ""}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Total Cost</span>
-                                    <span className={totalCost > budget ? "text-red-400" : "text-amber-400"}>
-                                        {formatCurrency(totalCost, "$", false)}
+        <ScheduleDialog
+            isOpen={isOpen}
+            onClose={onClose}
+            titleId="modal-title-book-marketing"
+            title="Marketing campaign"
+            subtitle={`Starts week ${week} · each week it runs adds its followers at that week's update`}
+            className="max-w-2xl"
+            footer={
+                <>
+                    {!affordable && <p role="alert" className="mr-auto text-xs font-medium text-negative">Not enough funds ({formatCurrency(budget, "$", false)} available).</p>}
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleConfirm} disabled={!affordable}>Launch for {formatCurrency(totalCost, "$", false)}</Button>
+                </>
+            }
+        >
+            <ul className="divide-y divide-line">
+                {(Object.keys(MARKETING_OPTIONS) as MarketingType[]).map(type => {
+                    const opt = MARKETING_OPTIONS[type]
+                    const Icon = opt.icon
+                    const isSelected = selectedType === type
+                    return (
+                        <li key={type}>
+                            <button
+                                type="button"
+                                aria-pressed={isSelected}
+                                onClick={() => setSelectedType(type)}
+                                className={cn(
+                                    "flex w-full items-start gap-4 border-l-2 px-6 py-3.5 text-left transition-colors",
+                                    isSelected ? "border-gold bg-hover" : "border-transparent hover:bg-raised",
+                                )}
+                            >
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-raised text-ink-2"><Icon size={17} /></span>
+                                <span className="min-w-0 flex-1">
+                                    <span className="flex items-baseline justify-between gap-3">
+                                        <span className="text-sm font-semibold text-ink-1">{opt.name}</span>
+                                        <span className="shrink-0 text-xs tabular-nums text-ink-2">{formatCurrency(opt.costPerWeek, "$", false)} / wk</span>
                                     </span>
-                                </div>
-                                <div className="border-t border-white/5 pt-2 flex justify-between">
-                                    <span className="text-muted-foreground">Projected Gain</span>
-                                    <span className="text-emerald-400 font-medium">+{totalFollowerGain.toLocaleString()} followers</span>
-                                </div>
-                                <div className="flex justify-between text-xs">
-                                    <span className="text-muted-foreground">Current Followers</span>
-                                    <span className="text-white/60">{currentFollowers.toLocaleString()}</span>
-                                </div>
-                            </div>
-                        </div>
+                                    <span className="block text-xs text-ink-3">{opt.description}</span>
+                                    <span className="mt-1 block text-xs text-positive">+{opt.followersPerWeek.toLocaleString("en-US")} followers / wk</span>
+                                </span>
+                            </button>
+                        </li>
+                    )
+                })}
+            </ul>
 
-                        {totalCost > budget && (
-                            <p className="text-xs text-red-400">Insufficient budget ({formatCurrency(budget, "$", false)} available)</p>
-                        )}
+            <div className="grid grid-cols-1 gap-6 border-t border-line px-6 py-5 sm:grid-cols-2">
+                <div>
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Duration</p>
+                    <div className="grid grid-cols-4 gap-1.5" role="radiogroup" aria-label="Duration in weeks">
+                        {[1, 2, 3, 4].map(w => (
+                            <button
+                                key={w}
+                                type="button"
+                                role="radio"
+                                aria-checked={duration === w}
+                                onClick={() => setDuration(w)}
+                                className={cn(
+                                    "h-10 rounded-md border text-sm font-semibold tabular-nums transition-colors",
+                                    duration === w ? "border-gold bg-hover text-ink-1" : "border-line bg-shell text-ink-2 hover:bg-raised",
+                                )}
+                            >
+                                {w}w
+                            </button>
+                        ))}
                     </div>
                 </div>
-
-                {/* Footer */}
-                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5">
-                    <Button variant="ghost" onClick={onClose} className="hover:bg-white/5">
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleConfirm}
-                        disabled={totalCost > budget}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white border-none"
-                    >
-                        <Megaphone size={14} className="mr-2" />
-                        Launch Campaign
-                    </Button>
-                </div>
-            </motion.div>
-        </div>
+                <dl className="divide-y divide-line rounded-md border border-line text-sm">
+                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Followers now</dt><dd className="tabular-nums text-ink-1">{currentFollowers.toLocaleString("en-US")}</dd></div>
+                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Campaign adds</dt><dd className="tabular-nums text-positive">+{totalFollowerGain.toLocaleString("en-US")}</dd></div>
+                    <div className="flex justify-between px-3 py-2"><dt className="font-semibold text-ink-2">Paid when booked</dt><dd className={cn("font-semibold tabular-nums", affordable ? "text-ink-1" : "text-negative")}>{formatCurrency(totalCost, "$", false)}</dd></div>
+                </dl>
+            </div>
+        </ScheduleDialog>
     )
 }

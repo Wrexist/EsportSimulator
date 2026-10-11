@@ -20,14 +20,14 @@ import {
 const GAME_VERSION = "1.0.0"
 
 const CATEGORIES = [
-  { value: "gameplay", label: "Gameplay", color: "text-amber-400" },
-  { value: "ui", label: "UI / Visual", color: "text-blue-400" },
-  { value: "match-engine", label: "Match Engine", color: "text-red-400" },
-  { value: "transfers", label: "Transfers", color: "text-green-400" },
-  { value: "economy", label: "Economy", color: "text-yellow-400" },
-  { value: "save-load", label: "Save / Load", color: "text-purple-400" },
-  { value: "performance", label: "Performance", color: "text-orange-400" },
-  { value: "other", label: "Other", color: "text-gray-400" },
+  { value: "gameplay", label: "Gameplay", color: "text-ink-2" },
+  { value: "ui", label: "UI / Visual", color: "text-ink-2" },
+  { value: "match-engine", label: "Match Engine", color: "text-ink-2" },
+  { value: "transfers", label: "Transfers", color: "text-ink-2" },
+  { value: "economy", label: "Economy", color: "text-ink-2" },
+  { value: "save-load", label: "Save / Load", color: "text-ink-2" },
+  { value: "performance", label: "Performance", color: "text-ink-2" },
+  { value: "other", label: "Other", color: "text-ink-2" },
 ] as const
 
 type Category = typeof CATEGORIES[number]["value"]
@@ -103,7 +103,7 @@ function collectDebugInfo(pathname: string | null) {
 function formatReport(form: BugReportForm, debug: ReturnType<typeof collectDebugInfo>): string {
   const lines: string[] = [
     "========================================",
-    "BUG REPORT - Esports Manager Simulator",
+    "BUG REPORT - Esports Manager: FPS",
     "========================================",
     "",
     `Category: ${CATEGORIES.find(c => c.value === form.category)?.label || form.category}`,
@@ -260,30 +260,30 @@ export function BugReportButton() {
       {/* Floating Bug Button */}
       <button
         onClick={handleOpen}
-        className="fixed bottom-6 right-6 z-devtools group transition-transform duration-75 ease-out will-change-transform hover:scale-110 active:scale-95 active:duration-0 select-none touch-manipulation"
-        title="Report a Bug"
+        className="fixed bottom-6 right-6 z-devtools group select-none touch-manipulation"
+        title="Report a bug"
+        aria-label="Report a bug"
       >
-        <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg shadow-black/30 hover:bg-white/15 hover:border-white/30 transition-colors cursor-pointer">
-          <Bug className="w-5 h-5 text-red-400 group-hover:text-red-300 transition-colors" />
-          <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500 border border-[#080a0e] animate-pulse" />
+        <div className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded border border-line-strong bg-raised text-ink-2 transition-colors group-hover:bg-hover group-hover:text-ink-1">
+          <Bug className="h-[18px] w-[18px]" aria-hidden="true" />
         </div>
 
         {/* Hover tooltip */}
-        <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg bg-black/80 backdrop-blur-xs border border-white/10 text-xs text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          Report a Bug
+        <div className="pointer-events-none absolute bottom-full right-0 mb-2 whitespace-nowrap rounded border border-line-strong bg-raised px-2.5 py-1.5 text-xs text-ink-1 opacity-0 transition-opacity group-hover:opacity-100">
+          Report a bug
         </div>
       </button>
 
       {/* Bug Report Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
-          className="bg-[#0e1217]/95 backdrop-blur-xl border-white/10 max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0"
+          className="bg-panel border-line max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0"
           onPaste={handleScreenshotPaste}
         >
           {/* Header */}
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/5 shrink-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-line shrink-0">
             <DialogTitle className="flex items-center gap-3 text-lg font-normal">
-              <div className="p-2 rounded-xl bg-red-500/10 text-red-400">
+              <div className="rounded-md bg-negative/10 p-2 text-negative">
                 <Bug className="h-5 w-5" />
               </div>
               Report a Bug
@@ -297,30 +297,30 @@ export function BugReportButton() {
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
             {/* Category */}
             <div>
-              <label className="block text-sm font-bold text-white mb-1.5">
-                Category <span className="text-red-400">*</span>
+              <label className="block text-sm font-bold text-ink-1 mb-1.5">
+                Category <span className="text-negative">*</span>
               </label>
               <select
                 value={form.category}
                 onChange={e => updateField("category", e.target.value as Category)}
-                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out ${
-                  errors.category ? "border-red-500/50" : "border-white/10"
+                className={`w-full bg-raised border rounded-lg px-3 py-2.5 text-sm text-ink-1 focus:outline-hidden focus:ring-2 focus:ring-negative/30 focus:border-negative/50 transition-[border-color,box-shadow] duration-100 ease-out ${
+                  errors.category ? "border-negative/50" : "border-line"
                 }`}
               >
-                <option value="" className="bg-[#1a1f2e]">Select a category...</option>
+                <option value="" className="bg-panel">Select a category...</option>
                 {CATEGORIES.map(cat => (
-                  <option key={cat.value} value={cat.value} className="bg-[#1a1f2e]">
+                  <option key={cat.value} value={cat.value} className="bg-panel">
                     {cat.label}
                   </option>
                 ))}
               </select>
-              {errors.category && <p className="text-xs text-red-400 mt-1">{errors.category}</p>}
+              {errors.category && <p className="text-xs text-negative mt-1">{errors.category}</p>}
             </div>
 
             {/* Title */}
             <div>
-              <label className="block text-sm font-bold text-white mb-1.5">
-                Title <span className="text-red-400">*</span>
+              <label className="block text-sm font-bold text-ink-1 mb-1.5">
+                Title <span className="text-negative">*</span>
               </label>
               <input
                 type="text"
@@ -328,60 +328,60 @@ export function BugReportButton() {
                 onChange={e => updateField("title", e.target.value)}
                 placeholder="Brief summary of the issue..."
                 maxLength={120}
-                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-hidden focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out ${
-                  errors.title ? "border-red-500/50" : "border-white/10"
+                className={`w-full bg-raised border rounded-lg px-3 py-2.5 text-sm text-ink-1 placeholder:text-ink-3 focus:outline-hidden focus:ring-2 focus:ring-negative/30 focus:border-negative/50 transition-[border-color,box-shadow] duration-100 ease-out ${
+                  errors.title ? "border-negative/50" : "border-line"
                 }`}
               />
-              {errors.title && <p className="text-xs text-red-400 mt-1">{errors.title}</p>}
+              {errors.title && <p className="text-xs text-negative mt-1">{errors.title}</p>}
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-bold text-white mb-1.5">
-                Description <span className="text-red-400">*</span>
+              <label className="block text-sm font-bold text-ink-1 mb-1.5">
+                Description <span className="text-negative">*</span>
               </label>
               <textarea
                 value={form.description}
                 onChange={e => updateField("description", e.target.value)}
                 placeholder="What happened? What did you expect to happen?"
                 rows={4}
-                className={`w-full bg-white/5 border rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-hidden focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none ${
-                  errors.description ? "border-red-500/50" : "border-white/10"
+                className={`w-full bg-raised border rounded-lg px-3 py-2.5 text-sm text-ink-1 placeholder:text-ink-3 focus:outline-hidden focus:ring-2 focus:ring-negative/30 focus:border-negative/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none ${
+                  errors.description ? "border-negative/50" : "border-line"
                 }`}
               />
-              {errors.description && <p className="text-xs text-red-400 mt-1">{errors.description}</p>}
+              {errors.description && <p className="text-xs text-negative mt-1">{errors.description}</p>}
             </div>
 
             {/* Steps to Reproduce */}
             <div>
-              <label className="block text-sm font-bold text-white mb-1.5">
-                Steps to Reproduce <span className="text-white/30 font-normal">(optional)</span>
+              <label className="block text-sm font-bold text-ink-1 mb-1.5">
+                Steps to Reproduce <span className="text-ink-3 font-normal">(optional)</span>
               </label>
               <textarea
                 value={form.steps}
                 onChange={e => updateField("steps", e.target.value)}
                 placeholder={"1. Go to...\n2. Click on...\n3. Notice that..."}
                 rows={3}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-hidden focus:ring-2 focus:ring-red-500/30 focus:border-red-500/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none"
+                className="w-full bg-raised border border-line rounded-lg px-3 py-2.5 text-sm text-ink-1 placeholder:text-ink-3 focus:outline-hidden focus:ring-2 focus:ring-negative/30 focus:border-negative/50 transition-[border-color,box-shadow] duration-100 ease-out resize-none"
               />
             </div>
 
             {/* Screenshot */}
             <div>
-              <label className="block text-sm font-bold text-white mb-1.5">
-                Screenshot <span className="text-white/30 font-normal">(optional)</span>
+              <label className="block text-sm font-bold text-ink-1 mb-1.5">
+                Screenshot <span className="text-ink-3 font-normal">(optional)</span>
               </label>
               {form.screenshot ? (
-                <div className="relative group rounded-lg overflow-hidden border border-white/10 bg-white/5">
+                <div className="relative group rounded-lg overflow-hidden border border-line bg-raised">
                   {/* eslint-disable-next-line @next/next/no-img-element -- user-captured screenshot data URL */}
                   <img
                     src={form.screenshot}
                     alt="Bug screenshot"
-                    className="w-full max-h-48 object-contain bg-black/30"
+                    className="w-full max-h-48 object-contain bg-shell"
                   />
                   <button
                     onClick={() => updateField("screenshot", null)}
-                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 backdrop-blur-xs border border-white/10 text-white/60 hover:text-white hover:bg-red-500/30 transition-colors duration-100 ease-out active:scale-95 active:duration-0"
+                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-ink/90 border border-line text-ink-2 hover:text-ink-1 hover:bg-negative/20 transition-colors duration-100 ease-out active:scale-95 active:duration-0"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -389,12 +389,12 @@ export function BugReportButton() {
               ) : (
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex flex-col items-center gap-2 p-6 rounded-lg border-2 border-dashed border-white/10 bg-white/2 hover:border-white/20 hover:bg-white/4 transition-colors duration-100 ease-out cursor-pointer active:scale-[0.99] active:duration-0"
+                  className="w-full flex flex-col items-center gap-2 p-6 rounded-lg border-2 border-dashed border-line bg-raised hover:border-line-strong hover:bg-raised transition-colors duration-100 ease-out cursor-pointer active:scale-[0.99] active:duration-0"
                 >
-                  <ImagePlus className="w-6 h-6 text-white/30" />
+                  <ImagePlus className="w-6 h-6 text-ink-3" />
                   <div className="text-center">
-                    <p className="text-sm text-white/50">Click to browse or <span className="text-red-400/70">Ctrl+V</span> to paste</p>
-                    <p className="text-xs text-white/25 mt-0.5">PNG, JPG, or GIF</p>
+                    <p className="text-sm text-ink-2">Click to browse or <span className="text-negative">Ctrl+V</span> to paste</p>
+                    <p className="text-xs text-ink-3 mt-0.5">PNG, JPG, or GIF</p>
                   </div>
                 </button>
               )}
@@ -409,18 +409,18 @@ export function BugReportButton() {
 
             {/* Debug Info (Collapsible) */}
             {debugInfo && (
-              <div className="rounded-lg border border-white/5 overflow-hidden">
+              <div className="rounded-lg border border-line overflow-hidden">
                 <button
                   onClick={() => setShowDebug(prev => !prev)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white/2 hover:bg-white/4 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3 bg-raised hover:bg-raised transition-colors"
                 >
-                  <span className="text-xs font-bold text-white/50 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-ink-2 uppercase tracking-wider">
                     Debug Info (auto-captured)
                   </span>
                   {showDebug ? (
-                    <ChevronUp className="w-4 h-4 text-white/30" />
+                    <ChevronUp className="w-4 h-4 text-ink-3" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-white/30" />
+                    <ChevronDown className="w-4 h-4 text-ink-3" />
                   )}
                 </button>
                 <AnimatePresence>
@@ -432,23 +432,23 @@ export function BugReportButton() {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="px-4 py-3 bg-black/20 border-t border-white/5 space-y-1 font-mono text-xs text-white/40">
-                        <p>Game Version: <span className="text-white/60">{debugInfo.gameVersion}</span></p>
-                        <p>Save ID: <span className="text-white/60">{debugInfo.saveId}</span></p>
-                        <p>Week: <span className="text-white/60">{debugInfo.currentWeek}</span></p>
-                        <p>Difficulty: <span className="text-white/60">{debugInfo.difficulty}</span></p>
-                        <p>Team: <span className="text-white/60">{debugInfo.teamName} ({debugInfo.teamId})</span></p>
-                        <p>Manager: <span className="text-white/60">{debugInfo.managerName} (Rep: {debugInfo.managerRep})</span></p>
-                        <p>Route: <span className="text-white/60">{debugInfo.route}</span></p>
-                        <p>Platform: <span className="text-white/60">{debugInfo.platform}</span></p>
-                        <p>Electron: <span className="text-white/60">{debugInfo.electron ? "Yes" : "No"}</span></p>
-                        <p>Resolution: <span className="text-white/60">{debugInfo.resolution}</span></p>
-                        <p>Memory: <span className="text-white/60">{debugInfo.memory}</span></p>
+                      <div className="px-4 py-3 bg-shell border-t border-line space-y-1 font-mono text-xs text-ink-3">
+                        <p>Game Version: <span className="text-ink-2">{debugInfo.gameVersion}</span></p>
+                        <p>Save ID: <span className="text-ink-2">{debugInfo.saveId}</span></p>
+                        <p>Week: <span className="text-ink-2">{debugInfo.currentWeek}</span></p>
+                        <p>Difficulty: <span className="text-ink-2">{debugInfo.difficulty}</span></p>
+                        <p>Team: <span className="text-ink-2">{debugInfo.teamName} ({debugInfo.teamId})</span></p>
+                        <p>Manager: <span className="text-ink-2">{debugInfo.managerName} (Rep: {debugInfo.managerRep})</span></p>
+                        <p>Route: <span className="text-ink-2">{debugInfo.route}</span></p>
+                        <p>Platform: <span className="text-ink-2">{debugInfo.platform}</span></p>
+                        <p>Electron: <span className="text-ink-2">{debugInfo.electron ? "Yes" : "No"}</span></p>
+                        <p>Resolution: <span className="text-ink-2">{debugInfo.resolution}</span></p>
+                        <p>Memory: <span className="text-ink-2">{debugInfo.memory}</span></p>
                         {debugInfo.recentErrors.length > 0 && (
-                          <div className="mt-2 pt-2 border-t border-white/5">
-                            <p className="text-white/50 font-bold mb-1">Recent Errors ({debugInfo.recentErrors.length}):</p>
+                          <div className="mt-2 pt-2 border-t border-line">
+                            <p className="text-ink-2 font-bold mb-1">Recent Errors ({debugInfo.recentErrors.length}):</p>
                             {debugInfo.recentErrors.map((e, i) => (
-                              <p key={i} className="text-red-400/60 truncate">- {e.message}</p>
+                              <p key={i} className="text-negative truncate">- {e.message}</p>
                             ))}
                           </div>
                         )}
@@ -461,16 +461,16 @@ export function BugReportButton() {
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-white/5 shrink-0">
+          <div className="px-6 py-4 border-t border-line shrink-0">
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/20 text-red-400 border border-red-500/20 hover:bg-red-500/30 hover:border-red-500/30 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-100 ease-out text-sm font-bold active:scale-[0.98] active:duration-0"
+              className="flex w-full items-center justify-center gap-2 rounded border border-gold bg-gold px-4 py-3 text-sm font-bold text-gold-on transition-colors duration-100 ease-out hover:border-gold-hover hover:bg-gold-hover disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Clipboard className="w-4 h-4" />
               {submitting ? "Copying..." : "Copy Report to Clipboard"}
             </button>
-            <p className="text-center text-xs text-white/25 mt-2">
+            <p className="text-center text-xs text-ink-3 mt-2">
               Report will be copied to your clipboard. Paste it in Discord or GitHub Issues.
             </p>
           </div>

@@ -6,6 +6,7 @@
  */
 
 import type { GameSave, CareerStats, SeasonSummary } from "./save-types"
+import { clubBestPlayer } from "./season-honours"
 
 const WEEKS_PER_SEASON = 52
 
@@ -77,16 +78,10 @@ export function computeSeasonSummary(save: GameSave): SeasonSummary {
     .filter(e => e.type === "EXPENSE")
     .reduce((sum, e) => sum + e.amount, 0)
 
-  // Find MVP (best avg rating among roster players)
-  const rosterPlayers = save.players.filter(p =>
-    (playerTeam.rosterIds || []).includes(p.id)
-  )
-  let mvpPlayer = rosterPlayers[0]
-  for (const p of rosterPlayers) {
-    if (p.avgRating > (mvpPlayer?.avgRating || 0)) {
-      mvpPlayer = p
-    }
-  }
+  // Club MVP: the best season score among the club's players this season
+  // (official maps only, at least 30% of the busiest player's maps). None
+  // when the club has not played an official map yet.
+  const mvpPlayer = clubBestPlayer(save, seasonNumber, playerTeam.id)?.player
 
   return {
     seasonNumber,
@@ -120,16 +115,16 @@ export function updateCareerStats(save: GameSave): CareerStats {
   const existing = save.careerStats || createEmptyCareerStats()
   const seasonSummary = computeSeasonSummary(save)
 
-  // Check if this season was already recorded
-  const alreadyRecorded = existing.seasons.some(s => s.seasonNumber === seasonSummary.seasonNumber && s.teamId === seasonSummary.teamId && s.startWeek === seasonSummary.startWeek)
-  if (alreadyRecorded) {
-    return existing
-  }
+  // A summary for the same (season, club, start) is replaced by the fresh
+  // one: older saves carry a zero placeholder for the season in progress
+  // (migrateCareerStats at the first tick), which used to freeze the
+  // season's record at 0-0 and leave it without an MVP.
+  const sameStint = (s: SeasonSummary) => s.seasonNumber === seasonSummary.seasonNumber && s.teamId === seasonSummary.teamId && s.startWeek === seasonSummary.startWeek
 
   const playerTeam = save.teams.find(t => t.id === save.playerTeamId)
 
   // Append season summary
-  const seasons = [...existing.seasons, seasonSummary]
+  const seasons = [...existing.seasons.filter(s => !sameStint(s)), seasonSummary]
 
   // Update aggregates
   const totalSeasons = new Set(seasons.map(s => s.seasonNumber)).size
@@ -236,7 +231,9 @@ export function migrateCareerStats(save: GameSave): CareerStats {
       (m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId)
     )
 
-    if (seasonMatches.length === 0 && s < totalSeasons) continue
+    // The season in progress is summarised when it ends (updateCareerStats), not here.
+    if (s === totalSeasons) continue
+    if (seasonMatches.length === 0) continue
 
     let wins = 0
     let losses = 0

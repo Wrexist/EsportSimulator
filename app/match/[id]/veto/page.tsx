@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, useMemo } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Ban, Check, ArrowLeft } from "lucide-react"
 import { MapId } from "@/types/enums" // Fixed import
@@ -12,6 +11,9 @@ import { Player } from "@/types"
 import { MatchSaveData, TeamSaveData } from "@/engine/save-types"
 import { MAP_NAMES, ACTIVE_MAP_POOL } from "@/data/map-pool"
 import { simulationEngineV2, SeededRNG } from "@/engine"
+import { buildProfile, callQuality } from "@/engine/match/round-sim/profile"
+import { tacticalWeight } from "@/engine/match/round-sim"
+import { TUNING } from "@/engine/match/round-sim/tuning"
 import Image from "next/image"
 import { SideEmblem } from "@/components/match/SideEmblem"
 import { motion, AnimatePresence } from "framer-motion"
@@ -19,6 +21,7 @@ import { useFocusTrap } from "@/lib/accessibility"
 import { cn, deterministicSeed } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
+import { leagueStageLabel } from "@/components/league/league-view"
 
 // Map Wallpaper Paths
 const MAP_WALLPAPERS: Record<string, string> = {
@@ -61,6 +64,23 @@ function computeTeamMapStats(
     return stats
 }
 
+
+function TeamSide({ team, rating, active, isUser, align }: { team: TeamSaveData; rating: number; active: boolean; isUser: boolean; align: "left" | "right" }) {
+    return (
+        <div className={cn("flex min-w-0 flex-1 items-center gap-4", align === "right" && "flex-row-reverse text-right")}>
+            <div className={cn("flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border bg-raised transition-colors duration-150", active ? "border-gold" : "border-line")}>
+                <TeamLogoDisplay team={team} size={48} />
+            </div>
+            <div className="min-w-0">
+                <h2 className="truncate font-display text-[32px] font-bold uppercase leading-none text-ink-1">{team.name}</h2>
+                <p className={cn("mt-1.5 flex items-center gap-2 text-xs text-ink-3", align === "right" && "justify-end")}>
+                    <span>Avg skill <span className="font-semibold tabular-nums text-ink-2">{rating.toFixed(1)}</span></span>
+                    {isUser && <span className="rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-2">You</span>}
+                </p>
+            </div>
+        </div>
+    )
+}
 
 export default function VetoPage({ params: _initialParams }: { params: Promise<{ id: string }> }) {
     const params = useParams()
@@ -207,7 +227,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         if (!isUserTeam && !processingRef.current) {
             // AI TURN
             setIsAiTurn(true)
-            setStatus(`${currentTurn.team === "home" ? homeTeam.name : awayTeam.name} is thinking...`)
+            setStatus(`${currentTurn.team === "home" ? homeTeam.name : awayTeam.name} is choosing…`)
             processingRef.current = true
 
             setTimeout(() => {
@@ -215,7 +235,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
             }, 1000)
         } else if (isUserTeam) {
             setIsAiTurn(false)
-            setStatus(`Your turn to ${currentTurn.action.replace("_", " ")}`)
+            setStatus(`Your turn to ${currentTurn.action.replace("_", " ").toLowerCase()}`)
 
             // If it's a side pick or decider pick, we might need a specific UI trigger
             if (currentTurn.action === "SIDE_PICK") {
@@ -350,17 +370,17 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
 
     if (!match || !homeTeam || !awayTeam) {
         return (
-            <div className="min-h-[70vh] flex items-center justify-center p-8">
-                <div className="max-w-md w-full text-center space-y-6">
-                    <div className="mx-auto w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                        <Ban className="w-7 h-7 text-white/30" />
+            <div className="flex min-h-[70vh] items-center justify-center p-8">
+                <div className="w-full max-w-md space-y-5 text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg border border-line bg-panel">
+                        <Ban className="h-6 w-6 text-ink-3" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-bold uppercase tracking-wide text-white mb-1">Veto Unavailable</h2>
-                        <p className="text-sm text-muted-foreground">{status || "This match can't be found or has already been played."}</p>
+                        <h2 className="font-display text-3xl font-bold uppercase text-ink-1">Veto unavailable</h2>
+                        <p className="mt-1 text-sm text-ink-3">{status || "This match can't be found or has already been played."}</p>
                     </div>
-                    <Button variant="outline" onClick={() => router.push("/")} className="uppercase tracking-wider">
-                        <ArrowLeft size={16} className="mr-2" /> Back to Dashboard
+                    <Button variant="outline" onClick={() => router.push("/")}>
+                        <ArrowLeft size={16} /> Back to dashboard
                     </Button>
                 </div>
             </div>
@@ -369,293 +389,198 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
 
     const turnIndex = Math.min(vetoHistory.length, vetoSequence.length - 1)
     const currentTurn = vetoSequence[turnIndex] || { team: "home", action: "WAIT" }
+    const vetoDone = vetoSequence.length > 0 && vetoHistory.length >= vetoSequence.length
 
-    // Helper to calculate team rating
+    // Average skill on the 0–10 scale the old header used.
     const getTeamRating = (teamPlayers: Player[]) => {
         if (!teamPlayers.length) return 5.0
-        // Scale 0-100 skill to 0-10 displayed rating
         return (teamPlayers.reduce((sum, p) => sum + p.skill, 0) / teamPlayers.length) / 10
     }
 
-    const homeRatingNum = getTeamRating(homePlayersList)
-    const awayRatingNum = getTeamRating(awayPlayersList)
+    // What a map is actually worth in the match engine (script-v1): the
+    // better IGL (tactics 60% + leadership 40%) reads the other team's plan
+    // more often, and tactical maps (Nuke, Overpass) weigh that read more than
+    // aim maps (Mirage, Sandstone) — round-sim/simulate.ts choosePlan.
+    const userIsHome = homeTeam.id === playerTeamId
+    const homeCall = callQuality(homePlayersList.slice(0, 5).map(buildProfile))
+    const awayCall = callQuality(awayPlayersList.slice(0, 5).map(buildProfile))
+    const roundEdge = (mapId: MapId) => {
+        const diff = TUNING.READ_IGL * ((homeCall - awayCall) / 50) * tacticalWeight(mapId)
+        return Math.max(-20, Math.min(20, (userIsHome ? diff : -diff) * 100))
+    }
+    const teamName = (side: string) => side === "home" ? homeTeam.name : side === "away" ? awayTeam.name : "Decider"
+    const actionLabel = (action: string) => action === "SIDE_PICK" ? "Side" : action === "DECIDER" ? "Decider" : action === "BAN" ? "Ban" : action === "PICK" ? "Pick" : action
+    const isUserTurn = !vetoDone && !isAiTurn && currentTurn.team !== "auto" && (currentTurn.team === "home" ? homeTeam.id : awayTeam.id) === playerTeamId
+
+    const tournament = (() => {
+        if (!match.tournamentId || leagueStageLabel(match)) return null
+        const baseId = match.tournamentId.split("_s")[0]
+        return FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId || t.id === baseId) || null
+    })()
 
     return (
-        <div className="premium-route text-white p-0 overflow-hidden relative">
-            {/* Ambient Background Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/5 blur-[120px] pointer-events-none" />
-
+        <div className="mx-auto max-w-[1600px] space-y-4 pb-12">
             {/* Escape hatch: a required multi-step flow must always have a way
                 out, so a stalled veto sequence can never trap the player. */}
-            <button
-                onClick={() => router.push(`/match/${id}/tactics`)}
-                className="absolute top-5 left-5 z-30 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-white/70 hover:text-white transition-colors"
-            >
-                <ArrowLeft size={14} /> Back to HQ
-            </button>
-
-            {/* Header / Team Comparison */}
-            <div className="max-w-7xl mx-auto mb-6 [@media(min-height:800px)]:mb-12 relative z-10">
-                <div className="flex justify-between items-center gap-8">
-                    {/* Home Team */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex flex-col items-center w-1/3 group"
-                    >
-                        <div className={cn(
-                            "w-32 h-32 rounded-[40px] bg-white/5 border-2 flex items-center justify-center p-6 mb-6 transition-[border-color,transform,box-shadow] duration-200 shadow-2xl relative overflow-hidden",
-                            currentTurn.team === "home"
-                                ? "border-primary shadow-primary/20 scale-110 active-team-glow"
-                                : "border-white/10 grayscale group-hover:grayscale-0"
-                        )}>
-                            <TeamLogoDisplay team={homeTeam} size={80} className="relative z-10" />
-                            {currentTurn.team === "home" && (
-                                <div className="absolute inset-0 bg-primary/20 animate-pulse" />
-                            )}
-                        </div>
-                        <h2 className="text-3xl font-normal tracking-tight mb-2 uppercase text-center">{homeTeam.name}</h2>
-                        <div className="flex items-center gap-3">
-                            <Badge className="bg-primary/20 text-primary border-primary/20 text-[10px] font-normal uppercase tracking-widest px-3 py-1">
-                                RATING: {homeRatingNum.toFixed(1)}
-                            </Badge>
-                            {currentTurn.team === "home" && (
-                                <Badge className="bg-emerald-500 text-black border-none text-[10px] font-normal uppercase tracking-widest px-3 py-1 animate-bounce">
-                                    ACTIVE
-                                </Badge>
-                            )}
-                        </div>
-                    </motion.div>
-
-                    {/* VS Center */}
-                    <div className="flex flex-col items-center w-1/3">
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className="bg-white/5 border border-white/10 rounded-full px-8 py-3 mb-6 backdrop-blur-xl"
-                        >
-                            <span className="text-4xl font-normal text-white/40 italic">VS</span>
-                        </motion.div>
-                        <div className="text-center">
-                            <p className="text-[10px] font-normal uppercase text-primary tracking-[0.4em] mb-2">MATCH CONTROL</p>
-                            <h3 className="text-sm font-bold text-white/80 uppercase tracking-widest px-6 py-2 bg-white/5 rounded-full border border-white/10 backdrop-blur-md">
-                                {status}
-                            </h3>
-                        </div>
-
-                        {/* Match Details */}
-                        {match && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="mt-8 w-full max-w-sm"
-                            >
-                                {(() => {
-                                    // Try to find tournament definition. match.tournamentId might include season suffix e.g. _s1
-                                    if (!match.tournamentId) return null
-                                    const baseId = match.tournamentId.split("_s")[0]
-                                    const tournament = FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId || t.id === baseId)
-
-                                    if (!tournament) return null
-
-                                    return (
-                                        <div className="glass-panel p-4 border-white/5 bg-black/20 backdrop-blur-md rounded-2xl">
-                                            <table className="w-full text-sm">
-                                                <tbody>
-                                                    <tr className="border-b border-white/5">
-                                                        <td className="py-2 text-white/40 font-normal text-[10px] uppercase tracking-widest">Tournament</td>
-                                                        <td className="py-2 text-right font-bold text-white truncate max-w-[150px]">{tournament.name}</td>
-                                                    </tr>
-                                                    <tr className="border-b border-white/5">
-                                                        <td className="py-2 text-white/40 font-normal text-[10px] uppercase tracking-widest">Stage</td>
-                                                        <td className="py-2 text-right font-bold text-primary">{match.stage}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="py-2 text-white/40 font-normal text-[10px] uppercase tracking-widest">Format</td>
-                                                        <td className="py-2 text-right font-bold text-white">{match.format || "BO1"}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    )
-                                })()}
-                            </motion.div>
-                        )}
-                    </div>
-
-                    {/* Away Team */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex flex-col items-center w-1/3 group"
-                    >
-                        <div className={cn(
-                            "w-32 h-32 rounded-[40px] bg-white/5 border-2 flex items-center justify-center p-6 mb-6 transition-[border-color,transform,box-shadow] duration-200 shadow-2xl relative overflow-hidden",
-                            currentTurn.team === "away"
-                                ? "border-primary shadow-primary/20 scale-110 active-team-glow"
-                                : "border-white/10 grayscale group-hover:grayscale-0"
-                        )}>
-                            <TeamLogoDisplay team={awayTeam} size={80} className="relative z-10" />
-                            {currentTurn.team === "away" && (
-                                <div className="absolute inset-0 bg-primary/20 animate-pulse" />
-                            )}
-                        </div>
-                        <h2 className="text-3xl font-normal tracking-tight mb-2 uppercase text-center">{awayTeam.name}</h2>
-                        <div className="flex items-center gap-3">
-                            <Badge className="bg-primary/20 text-primary border-primary/20 text-[10px] font-normal uppercase tracking-widest px-3 py-1">
-                                RATING: {awayRatingNum.toFixed(1)}
-                            </Badge>
-                            {currentTurn.team === "away" && (
-                                <Badge className="bg-emerald-500 text-black border-none text-[10px] font-normal uppercase tracking-widest px-3 py-1 animate-bounce">
-                                    ACTIVE
-                                </Badge>
-                            )}
-                        </div>
-                    </motion.div>
-                </div>
+            <div className="flex items-center justify-between">
+                <button
+                    onClick={() => router.push(`/match/${id}/tactics`)}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-3 transition-colors hover:text-ink-1"
+                >
+                    <ArrowLeft size={15} aria-hidden="true" /> Match day
+                </button>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
+                    {leagueStageLabel(match) ?? (tournament ? `${tournament.name}${match.stage ? ` · ${match.stage}` : ""}` : "Map veto")}
+                </p>
             </div>
 
-            {/* Map Grid */}
-            <div className="max-w-7xl mx-auto px-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {[...ACTIVE_MAP_POOL].map((mapId, idx) => {
-                        const isAvailable = availableMaps.includes(mapId)
-                        const actionLog = vetoHistory.find(v => v.mapId === mapId)
-                        const isBanned = actionLog?.action === "BAN"
-                        const isPicked = actionLog?.action === "PICK" || actionLog?.action === "DECIDER"
-                        const canInteract = isAvailable && !isAiTurn && currentTurn.team !== "auto"
-                        const hStats = homeMapStats[mapId] || { wins: 0, losses: 0 }
-                        const aStats = awayMapStats[mapId] || { wins: 0, losses: 0 }
+            {/* Header: teams + turn */}
+            <section className="rounded-[10px] border border-line bg-panel">
+                <div className="flex items-center gap-8 px-8 py-5">
+                    <TeamSide team={homeTeam} isUser={homeTeam.id === playerTeamId} rating={getTeamRating(homePlayersList)} active={!vetoDone && currentTurn.team === "home"} align="left" />
+                    <div className="flex w-[340px] shrink-0 flex-col items-center text-center">
+                        <h1 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Map veto · {(match.format || "BO3").toUpperCase()}</h1>
+                        <h3
+                            aria-live="polite"
+                            className={cn("mt-1.5 font-display text-[28px] font-bold uppercase leading-none", isUserTurn ? "text-gold" : "text-ink-1")}
+                        >
+                            {vetoDone ? "Veto complete" : status}
+                        </h3>
+                        <p className="mt-1.5 text-xs text-ink-3">
+                            {vetoDone ? "Heading back to match day…" : isUserTurn ? (currentTurn.action === "SIDE_PICK" ? "Choose your starting side." : `Click a map to ${currentTurn.action === "BAN" ? "remove it" : "play it"}.`) : `Step ${turnIndex + 1} of ${vetoSequence.length}`}
+                        </p>
+                    </div>
+                    <TeamSide team={awayTeam} isUser={awayTeam.id === playerTeamId} rating={getTeamRating(awayPlayersList)} active={!vetoDone && currentTurn.team === "away"} align="right" />
+                </div>
 
+                {/* Sequence */}
+                <ol className="flex border-t border-line" aria-label="Veto order">
+                    {vetoSequence.map((step, idx) => {
+                        const done = idx < vetoHistory.length
+                        const current = idx === vetoHistory.length
+                        const entry = vetoHistory[idx]
                         return (
-                            <motion.div
-                                key={mapId}
-                                initial={{ opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.025, duration: 0.18, ease: "easeOut" }}
+                            <li
+                                key={idx}
+                                aria-current={current ? "step" : undefined}
                                 className={cn(
-                                    "relative h-48 [@media(min-height:800px)]:h-64 rounded-[22px] overflow-hidden border transition-[border-color,opacity,transform,box-shadow] duration-150 group shadow-2xl",
-                                    canInteract ? "border-white/10 hover:border-primary/50 cursor-pointer hover:-translate-y-1 hover:shadow-primary/20" : "border-white/10",
-                                    isPicked && "border-emerald-500 shadow-emerald-500/20 ring-4 ring-emerald-500/20",
-                                    isBanned && "border-rose-400/40 grayscale shadow-none"
+                                    "min-w-0 flex-1 border-r border-line px-3 py-2 last:border-r-0",
+                                    current && "bg-raised shadow-[inset_0_-2px_0_var(--gold)]",
                                 )}
-                                role="button"
-                                tabIndex={canInteract ? 0 : -1}
-                                aria-label={`${MAP_NAMES[mapId] ?? mapId}: ${isBanned ? "banned" : isPicked ? "selected" : canInteract ? "select map" : "waiting for opponent"}`}
-                                aria-disabled={!canInteract}
-                                onKeyDown={event => {
-                                    if (event.target !== event.currentTarget || !canInteract) return
-                                    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); handleUserAction(mapId) }
-                                }}
-                                onClick={() => canInteract && handleUserAction(mapId)}
                             >
-                                {/* Map Wallpaper */}
-                                <Image
-                                    src={MAP_WALLPAPERS[mapId] || "/maps/sandstone.png"}
-                                    alt={mapId}
-                                    fill
-                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                                />
-
-                                {/* Glass Overlay */}
-                                <div className="absolute inset-0 bg-linear-to-t/srgb from-black/90 via-black/20 to-transparent" />
-
-                                {/* Map Info & Status */}
-                                <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
-                                    <div className="flex justify-between items-start">
-                                        <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
-                                            <h4 className="text-sm font-normal text-white uppercase tracking-wider">{MAP_NAMES[mapId]}</h4>
-                                            {(hStats.wins + hStats.losses + aStats.wins + aStats.losses > 0) && (
-                                                <div className="flex gap-2 mt-0.5">
-                                                    <span className="text-[9px] text-blue-400 font-bold" title={`${homeTeam!.name} record on this map`}><span className="sr-only">{homeTeam!.name} </span>{hStats.wins}W-{hStats.losses}L</span>
-                                                    <span className="text-[9px] text-white/20">|</span>
-                                                    <span className="text-[9px] text-purple-400 font-bold" title={`${awayTeam!.name} record on this map`}><span className="sr-only">{awayTeam!.name} </span>{aStats.wins}W-{aStats.losses}L</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="flex gap-2">
-                                            {isPicked && mapStartingSides[mapId] && (
-                                                <div className="flex gap-1 items-center bg-black/40 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10">
-                                                    <SideEmblem side={mapStartingSides[mapId] === homeTeam!.id ? "CT" : "T"} className="h-5 w-5" />
-                                                    <span className="text-[10px] font-bold text-white/60">VS</span>
-                                                    <SideEmblem side={mapStartingSides[mapId] === homeTeam!.id ? "T" : "CT"} className="h-5 w-5" />
-                                                </div>
-                                            )}
-                                            {isBanned && (
-                                                <div className="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center shadow-lg shadow-rose-500/40">
-                                                    <Ban size={20} className="text-white" />
-                                                </div>
-                                            )}
-                                            {isPicked && (
-                                                <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/40">
-                                                    <Check size={20} className="text-black" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {actionLog && (
-                                        <motion.div
-                                            initial={{ scale: 0.8, opacity: 0 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            className={cn(
-                                                "px-4 py-2 rounded-2xl backdrop-blur-xl border font-normal text-[10px] uppercase tracking-[0.2em] self-start inline-flex items-center gap-2",
-                                                isBanned ? "bg-rose-500/20 border-rose-500/40 text-rose-400" : "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
-                                            )}
-                                        >
-                                            <div className={cn("w-1.5 h-1.5 rounded-full", isBanned ? "bg-rose-400" : "bg-emerald-400")} />
-                                            {actionLog.team === "auto" ? "DECIDER" : `${(actionLog.team === "home" ? homeTeam!.name : awayTeam!.name).toUpperCase()} ${actionLog.action}`}
-                                        </motion.div>
-                                    )}
-
-                                    {!actionLog && canInteract && (
-                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-primary/20 backdrop-blur-xl border border-primary/40 rounded-2xl p-3 flex items-center justify-center gap-2">
-                                            <span className="text-[10px] font-normal text-white uppercase tracking-widest">{currentTurn.action} THIS MAP</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Banned/Picked Texture Overlay */}
-                                {isBanned && (
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                        <div className="text-rose-500/20 font-normal text-8xl rotate-12 border-8 border-rose-500/20 px-8 py-2 rounded-3xl">BANNED</div>
-                                    </div>
-                                )}
-                            </motion.div>
+                                <p className={cn("text-[11px] font-semibold uppercase tracking-[0.06em]", current ? "text-gold" : done ? "text-ink-3" : "text-ink-3/70")}>
+                                    {actionLabel(step.action)}
+                                </p>
+                                <p className={cn("truncate text-xs", done ? "text-ink-1" : current ? "text-ink-2" : "text-ink-3")}>
+                                    {done && entry?.mapId && step.action !== "SIDE_PICK" ? MAP_NAMES[entry.mapId] : teamName(step.team)}
+                                </p>
+                            </li>
                         )
                     })}
-                </div>
-            </div>
+                </ol>
+            </section>
 
-            {/* Turn Progress Indicator */}
-            {/* Turn Progress Indicator */}
-            <div className="mt-16 flex flex-col items-center gap-6 relative z-10">
-                <div className="flex justify-center gap-3">
-                    {vetoSequence.map((step, idx) => (
-                        <div key={idx} className="flex flex-col items-center gap-2">
-                            <div
+            {/* Map pool */}
+            <div className="grid grid-cols-4 gap-3 xl:grid-cols-7">
+                {[...ACTIVE_MAP_POOL].map((mapId) => {
+                    const isAvailable = availableMaps.includes(mapId)
+                    const actionLog = vetoHistory.find(v => v.mapId === mapId && v.action !== "SIDE_PICK")
+                    const isBanned = actionLog?.action === "BAN"
+                    const isPicked = actionLog?.action === "PICK" || actionLog?.action === "DECIDER"
+                    const canInteract = isAvailable && !isAiTurn && currentTurn.team !== "auto"
+                    const hStats = homeMapStats[mapId] || { wins: 0, losses: 0 }
+                    const aStats = awayMapStats[mapId] || { wins: 0, losses: 0 }
+                    const hasRecord = hStats.wins + hStats.losses + aStats.wins + aStats.losses > 0
+                    const edge = roundEdge(mapId)
+                    const ctTeamId = mapStartingSides[mapId]
+                    const pickedBy = actionLog?.team === "auto" ? "Decider" : actionLog ? `${actionLabel(actionLog.action)} · ${teamName(actionLog.team)}` : null
+
+                    return (
+                        <div
+                            key={mapId}
+                            className={cn(
+                                "group relative flex h-[clamp(240px,calc(100dvh-480px),460px)] flex-col justify-between overflow-hidden rounded-lg border bg-shell transition-colors duration-150",
+                                canInteract ? "cursor-pointer border-line hover:border-line-strong" : "border-line",
+                                isPicked && "border-2 border-gold",
+                            )}
+                            role="button"
+                            tabIndex={canInteract ? 0 : -1}
+                            aria-label={`${MAP_NAMES[mapId] ?? mapId}: ${isBanned ? "banned" : isPicked ? "selected" : canInteract ? "select map" : "waiting for opponent"}`}
+                            aria-disabled={!canInteract}
+                            onKeyDown={event => {
+                                if (event.target !== event.currentTarget || !canInteract) return
+                                if (event.key === "Enter" || event.key === " ") { event.preventDefault(); handleUserAction(mapId) }
+                            }}
+                            onClick={() => canInteract && handleUserAction(mapId)}
+                        >
+                            <Image
+                                src={MAP_WALLPAPERS[mapId] || "/maps/sandstone.png"}
+                                alt=""
+                                fill
+                                sizes="240px"
                                 className={cn(
-                                    "h-1.5 w-16 rounded-full transition-all duration-500",
-                                    idx < vetoHistory.length ? "bg-white/20" :
-                                        idx === vetoHistory.length ? "bg-primary w-20 shadow-[0_0_15px_rgba(59,130,246,0.6)]" : "bg-white/5",
-                                    "thumb-animation"
+                                    "object-cover transition-opacity duration-150",
+                                    isBanned ? "opacity-15 grayscale" : isPicked ? "opacity-55" : canInteract ? "opacity-35 group-hover:opacity-50" : "opacity-30",
                                 )}
                             />
-                            <span className={cn(
-                                "text-[8px] font-normal uppercase tracking-widest transition-opacity",
-                                idx === vetoHistory.length ? "opacity-100 text-primary" : "opacity-0"
-                            )}>
-                                {step.action.replace("_", " ")} {step.team?.toUpperCase()}
-                            </span>
-                        </div>
-                    ))}
-                </div>
+                            <div className="absolute inset-0 bg-linear-to-t/srgb from-ink via-ink/60 to-transparent" aria-hidden="true" />
 
-                <div className="px-6 py-2 rounded-full border border-white/5 bg-white/2 text-white/40 text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">
-                    {match?.format || "BO3"} Series • Match ID: {id?.substring(0, 12)}...
-                </div>
+                            {/* Top: state */}
+                            <div className="relative flex items-start justify-between gap-2 p-3">
+                                {pickedBy ? (
+                                    <span className={cn(
+                                        "inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em]",
+                                        isBanned ? "bg-ink/80 text-ink-3" : "bg-gold text-gold-on",
+                                    )}>
+                                        {isBanned ? <Ban size={11} aria-hidden="true" /> : <Check size={11} aria-hidden="true" />}
+                                        <span className="truncate">{pickedBy}</span>
+                                    </span>
+                                ) : <span />}
+                            </div>
+
+                            {/* Bottom: name, side, numbers */}
+                            <div className="relative space-y-2 p-3">
+                                {isPicked && ctTeamId && (
+                                    <div className="flex items-center gap-1.5 text-xs font-semibold">
+                                        <SideEmblem side={ctTeamId === playerTeamId ? "CT" : "T"} className="h-4 w-4" />
+                                        <span className={ctTeamId === playerTeamId ? "text-side-ct" : "text-side-t"}>
+                                            You start {ctTeamId === playerTeamId ? "CT" : "T"}
+                                        </span>
+                                    </div>
+                                )}
+                                <h4 className={cn("font-display text-[30px] font-bold uppercase leading-none", isBanned ? "text-ink-3 line-through decoration-2" : "text-ink-1")}>
+                                    {MAP_NAMES[mapId]}
+                                </h4>
+                                {!isBanned && (
+                                    <dl className="space-y-0.5 text-[11px] text-ink-3">
+                                        <div className="flex justify-between gap-2" title="How much more often (percentage points) your IGL reads their plan on this map than theirs reads yours: tactics and leadership, weighted by how tactical the map is.">
+                                            <dt>Your read edge</dt>
+                                            <dd className="tabular-nums text-ink-2">{edge >= 0 ? "+" : "−"}{Math.abs(edge).toFixed(1)}%</dd>
+                                        </div>
+                                        <div className="flex justify-between gap-2" title="Past results on this map. History only; it does not change the odds.">
+                                            <dt>Record</dt>
+                                            <dd className="tabular-nums text-ink-2">
+                                                {hasRecord ? <>{hStats.wins}–{hStats.losses} <span className="text-ink-3">/</span> {aStats.wins}–{aStats.losses}</> : "—"}
+                                                <span className="sr-only"> ({homeTeam.name} / {awayTeam.name})</span>
+                                            </dd>
+                                        </div>
+                                    </dl>
+                                )}
+                                {!actionLog && canInteract && (
+                                    <p className="text-xs font-semibold text-ink-2 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+                                        {currentTurn.action === "BAN" ? "Ban this map" : "Pick this map"}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )
+                })}
             </div>
+
+            <p className="text-xs text-ink-3">
+                The engine adds the map-strength gap to every round (the edge shown). It moves by tenths of a percent from map to map, so the veto barely changes the odds.
+                Records are past results ({homeTeam.name} / {awayTeam.name}) and don&apos;t affect the match.
+            </p>
 
             {/* Side Selection Overlay */}
             <AnimatePresence>
@@ -664,69 +589,44 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/85 backdrop-blur-md p-6"
+                        transition={{ duration: 0.15 }}
+                        className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-ink/85 p-6"
                     >
-                        <div ref={sideDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="modal-title-side-selection" className="max-w-2xl w-full max-h-full overflow-y-auto text-center">
-                            <motion.div
-                                initial={{ y: 50, scale: 0.9 }}
-                                animate={{ y: 0, scale: 1 }}
-                                className="mb-6"
-                            >
-                                <span className="text-primary font-normal uppercase tracking-[0.5em] text-xs mb-4 block">Side Selection</span>
-                                <h2 id="modal-title-side-selection" className="text-5xl font-normal uppercase mb-4 tracking-tighter">Choose Your Side</h2>
-                                <p className="text-white/40 font-bold uppercase tracking-widest text-sm">
-                                    Map: {MAP_NAMES[showSideSelection || ""]}
-                                </p>
-                            </motion.div>
+                        <div ref={sideDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="modal-title-side-selection" className="max-h-full w-full max-w-2xl overflow-y-auto rounded-[10px] border border-line-strong bg-panel p-6 text-center">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{MAP_NAMES[showSideSelection || ""]}</p>
+                            <h2 id="modal-title-side-selection" className="mt-1 font-display text-4xl font-bold uppercase text-ink-1">Choose your side</h2>
+                            <p className="mt-1 text-sm text-ink-3">You play the first half on this side, then switch.</p>
 
-                            <div className="grid grid-cols-2 gap-8">
-                                {/* CT CHOICE */}
-                                <motion.button type="button"
-                                    whileHover={{ y: -2 }}
-                                    whileTap={{ scale: 0.95 }}
+                            <div className="mt-6 grid grid-cols-2 gap-4">
+                                <button
+                                    type="button"
                                     onClick={() => handleSideSelection(currentTurn.team as "home" | "away", showSideSelection, "CT")}
-                                    className="relative aspect-4/3 rounded-2xl bg-linear-to-br/srgb from-blue-500/20 to-blue-900/40 border-2 border-blue-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+                                    className="flex flex-col items-center gap-3 rounded-lg border border-line bg-raised p-6 transition-colors duration-150 hover:border-side-ct hover:bg-hover"
                                 >
-                                    <div className="w-32 h-32 relative">
-                                        <SideEmblem side="CT" className="w-full h-full" />
-                                    </div>
-                                    <div className="text-center">
-                                        <h3 className="text-3xl font-normal text-blue-400 uppercase tracking-tight">Counter-Terrorist</h3>
-                                        <p className="text-blue-100/40 font-normal uppercase text-[10px] tracking-[0.3em] mt-1">Start Defending</p>
-                                    </div>
-                                </motion.button>
-
-                                {/* T CHOICE */}
-                                <motion.button type="button"
-                                    whileHover={{ y: -2 }}
-                                    whileTap={{ scale: 0.95 }}
+                                    <span className="font-display text-5xl font-bold leading-none text-side-ct">CT</span>
+                                    <SideEmblem side="CT" className="h-16 w-16" />
+                                    <span>
+                                        <span className="block text-base font-semibold text-ink-1">Counter-Terrorist</span>
+                                        <span className="block text-xs text-ink-3">Start on defence</span>
+                                    </span>
+                                </button>
+                                <button
+                                    type="button"
                                     onClick={() => handleSideSelection(currentTurn.team as "home" | "away", showSideSelection, "T")}
-                                    className="relative aspect-4/3 rounded-2xl bg-linear-to-br/srgb from-orange-500/20 to-orange-900/40 border-2 border-orange-500/30 flex flex-col items-center justify-center gap-6 cursor-pointer group hover:border-orange-500 hover:shadow-lg transition-all duration-200"
+                                    className="flex flex-col items-center gap-3 rounded-lg border border-line bg-raised p-6 transition-colors duration-150 hover:border-side-t hover:bg-hover"
                                 >
-                                    <div className="w-32 h-32 relative">
-                                        <SideEmblem side="T" className="w-full h-full" />
-                                    </div>
-                                    <div className="text-center">
-                                        <h3 className="text-3xl font-normal text-orange-400 uppercase tracking-tight">Terrorist</h3>
-                                        <p className="text-orange-100/40 font-normal uppercase text-[10px] tracking-[0.3em] mt-1">Start Attacking</p>
-                                    </div>
-                                </motion.button>
+                                    <span className="font-display text-5xl font-bold leading-none text-side-t">T</span>
+                                    <SideEmblem side="T" className="h-16 w-16" />
+                                    <span>
+                                        <span className="block text-base font-semibold text-ink-1">Terrorist</span>
+                                        <span className="block text-xs text-ink-3">Start on attack</span>
+                                    </span>
+                                </button>
                             </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* Active Team Glow Styles */}
-            <style jsx global>{`
-                .active-team-glow {
-                    animation: activeTeamGlow 3s infinite alternate;
-                }
-                @keyframes activeTeamGlow {
-                    0% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.1), inset 0 0 10px rgba(59, 130, 246, 0.1); }
-                    100% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.3), inset 0 0 20px rgba(59, 130, 246, 0.2); }
-                }
-            `}</style>
         </div>
     )
 }

@@ -35,7 +35,8 @@ import type { EventType } from "../../types"
 import { getPlayerIndex } from "./player-index"
 import { aiRoll } from "./rng-helpers"
 
-import { recruitmentBudget, recruitmentRole, recruitmentSalary } from "../recruitment"
+import { recruitmentRole, recruitmentSalary } from "../recruitment"
+import { aiCommitCheck } from "./club-budget"
 import { evaluatePlayer } from "../player-evaluation"
 import { applyRosterChangePenalty } from "../chemistry-engine"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
@@ -166,7 +167,9 @@ export function processAITransferMarket(
 
     aiTeams.forEach(aiTeam => {
         if (aiTeam.budget < POACHER_MIN_BUDGET || aiTeam.rosterIds.length >= MAX_ROSTER_SIZE) return
-        const canAfford = recruitmentBudget(save, aiTeam)
+        // Phase 4.6: bids respect the AI club's budget (wage within its
+        // weekly surplus, fee within its cash reserve).
+        const canAfford = aiCommitCheck(save, aiTeam)
         let offersMade = 0
 
         // Pre-compute the AI team's role coverage once for role-fit weighting.
@@ -295,7 +298,7 @@ export function processAIToAITransfers(
         if (transferCount >= MAX_AI_TRANSFERS_PER_WEEK) break
         if (rng.next() > 0.05) continue // 5% per team per week
 
-        const canAfford = recruitmentBudget(save, buyer)
+        const canAfford = aiCommitCheck(save, buyer)
         const candidates = availablePlayers.filter(ap => ap.team.id !== buyer.id && ap.team.rosterIds.length > 5
             && ap.team.rosterIds.includes(ap.player.id) && !ap.player.isRetired)
             .map(ap => {

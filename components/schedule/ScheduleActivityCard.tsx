@@ -1,77 +1,45 @@
 "use client"
 
 import React, { memo } from "react"
-import { Badge } from "@/components/ui/badge"
-import { Coffee, Plane, Users, Briefcase, Megaphone } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Coffee, Plane, Dumbbell, Briefcase, Megaphone, CalendarClock } from "lucide-react"
 import { ActivitySaveData } from "@/engine/save-types"
+
+const ICON: Partial<Record<ActivitySaveData["type"], typeof Coffee>> = {
+    REST: Coffee,
+    BOOTCAMP: Dumbbell,
+    TRAVEL: Plane,
+    MEDIA: Briefcase,
+    STAFF_MEETING: Briefcase,
+    MARKETING: Megaphone,
+}
+
+const TYPE_LABEL: Partial<Record<ActivitySaveData["type"], string>> = {
+    REST: "Rest",
+    BOOTCAMP: "Bootcamp",
+    TRAVEL: "Bootcamp abroad",
+    MEDIA: "Media",
+    STAFF_MEETING: "Staff meeting",
+    MARKETING: "Marketing",
+}
 
 interface ScheduleActivityCardProps {
     activity: ActivitySaveData
 }
 
+/** Calendar chip for a booked activity: quiet, icon + name + kind. */
 export const ScheduleActivityCard = memo(function ScheduleActivityCard({ activity }: ScheduleActivityCardProps) {
-    const isRest = activity.type === "REST"
-    const isBootcamp = activity.type === "BOOTCAMP"
-    const isTravel = activity.type === "TRAVEL"
-    const isMedia = activity.type === "MEDIA"
-    const isMarketing = activity.type === "MARKETING"
-
-    const getIcon = () => {
-        if (isRest) return <Coffee size={14} />
-        if (isBootcamp) return <Users size={14} />
-        if (isTravel) return <Plane size={14} />
-        if (isMedia) return <Briefcase size={14} />
-        if (isMarketing) return <Megaphone size={14} />
-        return null
-    }
-
-    const getColorClass = () => {
-        if (isRest) return "bg-blue-500/10 text-blue-200 border-blue-500/20"
-        if (isBootcamp) return "bg-orange-500/10 text-orange-200 border-orange-500/20"
-        if (isTravel) return "bg-emerald-500/10 text-emerald-200 border-emerald-500/20"
-        if (isMarketing) return "bg-emerald-500/10 text-emerald-200 border-emerald-500/20"
-        return "bg-white/5 text-white/70 border-white/10"
-    }
-
-    const getBadgeColor = () => {
-        if (isRest) return "bg-blue-500/20 text-blue-200"
-        if (isBootcamp) return "bg-orange-500/20 text-orange-200"
-        if (isTravel) return "bg-emerald-500/20 text-emerald-200"
-        if (isMarketing) return "bg-emerald-500/20 text-emerald-200"
-        return "bg-white/10 text-white/70"
-    }
-
+    const Icon = ICON[activity.type] ?? CalendarClock
+    const kind = TYPE_LABEL[activity.type] ?? activity.type
     return (
         <div
-            className={cn(
-                "px-3 py-2 rounded-xl text-left flex flex-col justify-center relative border h-12 transition-all",
-                getColorClass()
-            )}>
-            <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 overflow-hidden">
-                    <Badge variant="outline" className={cn(
-                        "text-[8px] px-1 py-0 border-none font-normal backdrop-blur-md shadow-xs shrink-0",
-                        getBadgeColor()
-                    )}>
-                        {activity.type}
-                    </Badge>
-                    <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-normal tracking-tight leading-none uppercase">
-                            {activity.name}
-                        </span>
-                        {activity.description && (
-                            <span className="text-[8px] text-white/50 truncate uppercase tracking-wider mt-0.5">
-                                {activity.description}
-                            </span>
-                        )}
-                    </div>
-                </div>
-
-                <div className="w-6 h-6 rounded-lg bg-black/30 flex items-center justify-center shrink-0 border border-white/5 opacity-60">
-                    {getIcon()}
-                </div>
-            </div>
+            title={[activity.name, activity.description].filter(Boolean).join(" · ")}
+            className="flex w-full min-w-0 items-center gap-2 rounded-sm border border-line bg-shell px-2 py-1.5"
+        >
+            <Icon size={13} className="shrink-0 text-ink-3" aria-hidden="true" />
+            <span className="min-w-0 flex-1">
+                <span className="block truncate text-xs font-semibold leading-tight text-ink-2">{activity.name || kind}</span>
+                <span className="block truncate text-[11px] leading-tight text-ink-3">{kind}</span>
+            </span>
         </div>
     )
 })

@@ -37,13 +37,15 @@
   ],
   "exclude": [
     "node_modules",
+    ".claude",
+    "marketing",
     "SteamBuild",
+    "tmp",
     "__tests__",
     "docs",
     "remotion",
     "trailer",
     "verify-*.ts",
-    "scripts/generate-radar-nav-data.ts",
     "scripts/extract-map-layouts.mjs"
   ]
 }

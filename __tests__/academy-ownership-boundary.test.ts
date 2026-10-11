@@ -186,10 +186,13 @@ describe("signFreeAgent — academy-held players are not free agents", () => {
         })
 
         signFreeAgent(ai, save, true) // emergency: affordability waived
-        // No signable free agent exists → the AI roster is unchanged, and none
-        // of the academy prospects were poached despite their sky-high scores.
-        expect(ai.rosterIds).toEqual(["r1", "r2", "r3", "r4"])
-        expect(save.contracts.length).toBe(0)
+        // No signable free agent exists → none of the academy prospects are
+        // poached despite their sky-high scores. Phase 4.6: the club fields a
+        // trialist from the local scene instead (five is a hard invariant).
+        expect(ai.rosterIds.slice(0, 4)).toEqual(["r1", "r2", "r3", "r4"])
+        expect(ai.rosterIds).toHaveLength(5)
+        expect(ai.rosterIds[4]).toMatch(/^trialist_ai_1_/)
+        for (const id of ["enrolled_1", "pending_1", "youth_x"]) expect(save.contracts.some(c => c.playerId === id)).toBe(false)
     })
 
     test("a genuine free agent is still signed when one exists", () => {

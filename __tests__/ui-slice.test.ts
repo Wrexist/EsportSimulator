@@ -2,7 +2,7 @@
  * Tests for the UI slice — focused on the non-trivial paths.
  *
  * Trivial setters (setTheme, addToast/removeToast, clearCelebration,
- * clearPendingSeasonRecap, clearLegendPick, setWeeklyActivity) get
+ * clearLegendPick, setWeeklyActivity) get
  * single happy-path pins. The real value is in:
  *
  *   - selectLegend: pulls a legend out of save.players, reactivates,
@@ -117,16 +117,12 @@ describe("trivial setters", () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             pendingCelebration: { type: "TROPHY", payload: {} } as any,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            pendingSeasonRecap: { season: 1 } as any,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             pendingLegendPick: { candidates: ["a"] } as any,
         }))
         const slice = createUISlice(h.set, h.get)
         slice.clearCelebration()
-        slice.clearPendingSeasonRecap()
         slice.clearLegendPick()
         expect(h.state().pendingCelebration).toBeNull()
-        expect(h.state().pendingSeasonRecap).toBeNull()
         expect(h.state().pendingLegendPick).toBeNull()
     })
 })

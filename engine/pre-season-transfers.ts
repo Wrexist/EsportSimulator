@@ -78,7 +78,6 @@ export class PreSeasonTransferProcessor {
                     !rosteredIds.has(pl.id) &&
                     !pl.isRetired &&
                     pl.tier !== "LEGENDARY" &&
-                    !pl.id.startsWith('fpl_nonpro_') &&
                     !pl.id.startsWith('prospect_')
                 )
 

@@ -24,7 +24,6 @@ import {
     AcademyWeeklyReport,
     AcademyScoutingMission
 } from "@/types/academy"
-import { FPLSaveData } from "@/types/fpl"
 import { logger } from "@/lib/logger"
 
 // ===== VERSION CONSTANTS =====
@@ -32,7 +31,7 @@ import { logger } from "@/lib/logger"
 /**
  * Current save version - increment when schema changes
  */
-export const CURRENT_SAVE_VERSION = 7
+export const CURRENT_SAVE_VERSION = 10
 
 /**
  * Minimum supported save version for migration
@@ -70,6 +69,10 @@ export interface GameSave {
     // === GAME OVER STATE ===
     gameOverReason?: string // "BANKRUPTCY" if team dissolved
     gameOverWeek?: number   // Week when game ended
+
+    // === WEEKLY REPORT (Phase 4.1) ===
+    /** Last four weekly reports (changes with causes) + this week's baseline. Compact, bounded. */
+    weekReports?: import("@/lib/week-report").WeekReportsState | null
 
     // === SESSION TRACKING ===
     lastPlayedAt?: string // ISO date of last save for offline recovery
@@ -138,12 +141,22 @@ export interface GameSave {
     // === TRANSFER HISTORY SYSTEM ===
     transferHistory: TransferRecord[]
 
+    // === LIVE MATCH ===
+    /** The live match's auto-tactics switch (the decision card confirms the engine's call). Absent = off. */
+    autoTactics?: boolean
+
     // === UI CELEBRATIONS ===
     pendingCelebration?: CelebrationData | null
-    pendingSeasonRecap?: number | null // Year number if a recap is pending
+    // (pendingSeasonRecap, older saves: replaced by the season-review moment, Phase 5.4b; ignored on load.)
     pendingLegendPick?: LegendPickData | null // Major win legend selection
     signedLegendIds?: string[] // Track signed legends to prevent duplicates
     activelyPlayingLegendIds?: string[] // Legend IDs whose active counterparts are still in game
+
+    // === MOMENTS (Phase 5.4a) ===
+    /** Full-screen moments waiting to be shown, oldest first (engine/moments.ts). */
+    momentQueue?: import("./moments").Moment[]
+    /** Keys of moments already delivered (shown, intro played, legend offered); bounded. */
+    seenMomentKeys?: string[]
 
     // === PHASE 70: YOUTH ACADEMY ===
     academyPlayers: AcademyPlayer[]
@@ -154,11 +167,17 @@ export interface GameSave {
     academyScoutingMissions: AcademyScoutingMission[]
     academyPendingProspects: string[]
 
-    // === PHASE 80: FPL SYSTEM ===
-    fplData?: FPLSaveData // Individual player ranking system
+    // === REGIONAL LEAGUE (Phase 4.4) ===
+    league?: LeagueState
 
     // === CROSS-SEASON CAREER STATISTICS ===
     careerStats?: CareerStats
+
+    // === RECORDS, SEASON HONOURS (Phase 5.1) ===
+    recordBook?: import("./records-types").RecordBook
+
+    // === STORYLINES (Phase 5.3): active arcs and recent resolved ones ===
+    storylines?: import("./storylines/types").StoryArc[]
 
     // === BOARD EXPECTATIONS & CONFIDENCE ===
     boardState?: BoardState
@@ -201,8 +220,136 @@ export interface BoardState {
     expectationSetSeason: number
     lastReviewedSeason: number
     onNotice: boolean
-    /** Week of the last quarterly mid-season pulse (idempotency guard). */
+    /** Week of the last quarterly mid-season pulse (idempotency guard; legacy). */
     lastPulseWeek?: number
+
+    // --- Phase 4.4: objectives that matter ---
+    /** This season's objectives (league finish, world ranking, budget discipline). */
+    objectives?: BoardObjective[]
+    /** Season the objectives were set for. */
+    objectivesSeason?: number
+    /** 0 = none, 1 = warned, 2 = final warning (on notice). Resets when confidence recovers. */
+    warnings?: number
+    /** Week of the last weekly confidence update (idempotency guard). */
+    lastWeeklyUpdateWeek?: number
+    /** Recent confidence moves with their causes, newest first (bounded). */
+    history?: BoardMove[]
+    /** Most recent formal review (mid-season or season end). */
+    lastReview?: BoardReviewRecord
+    /** Club cash when the objectives were set (budget-discipline baseline). */
+    seasonStartCash?: number
+}
+
+/** A board objective for the current season. */
+export interface BoardObjective {
+    id: "league" | "ranking" | "finance"
+    label: string
+    /** league: max table position; ranking: max world ranking; finance: min cash at season end. */
+    target: number
+    /** Live progress in the same unit as target (table position, world ranking, cash). */
+    current?: number
+    status?: "ON_TRACK" | "AT_RISK" | "MET" | "MISSED"
+    /** league objectives: the division they refer to. */
+    divisionId?: string
+}
+
+/** One weekly (or review) movement of board confidence. */
+export interface BoardMove {
+    week: number
+    delta: number
+    cause: string
+}
+
+export interface BoardReviewRecord {
+    week: number
+    kind: "MID_SEASON" | "SEASON"
+    delta: number
+    confidence: number
+    summary: string
+}
+
+// ===== REGIONAL LEAGUE (Phase 4.4) =====
+
+export type LeagueRegion = "EUROPE" | "CIS" | "AMERICAS" | "ASIA_PACIFIC"
+
+/** One league fixture. `id` is also the scheduled/completed match id. */
+export interface LeagueFixture {
+    id: string
+    home: string
+    away: string
+    round: number
+    week: number
+    result?: {
+        winnerId: string
+        homeMaps: number
+        awayMaps: number
+        homeRounds: number
+        awayRounds: number
+        forfeit?: boolean
+    }
+}
+
+export interface LeagueStanding {
+    teamId: string
+    played: number
+    wins: number
+    losses: number
+    points: number
+    mapDiff: number
+    roundDiff: number
+}
+
+export interface LeagueDivision {
+    id: string
+    region: LeagueRegion
+    /** 1 = top division of the region. */
+    level: number
+    name: string
+    /** SINGLE round robin for divisions of busy international clubs, DOUBLE otherwise. */
+    format: "SINGLE" | "DOUBLE"
+    teamIds: string[]
+    fixtures: LeagueFixture[]
+    /** Sorted table (points, head-to-head, map and round difference). */
+    standings: LeagueStanding[]
+    completed?: boolean
+    championId?: string
+    promoted?: string[]
+    relegated?: string[]
+}
+
+export interface LeagueSplit {
+    id: string
+    season: number
+    split: 1 | 2
+    firstWeek: number
+    lastWeek: number
+    divisions: LeagueDivision[]
+    completed?: boolean
+}
+
+/** Compact record of a finished split (tables only). */
+export interface LeagueSplitSummary {
+    id: string
+    season: number
+    split: 1 | 2
+    divisions: Array<{
+        id: string
+        name: string
+        region: LeagueRegion
+        level: number
+        /** Final order: [teamId, points, wins, losses]. */
+        table: Array<[string, number, number, number]>
+        championId?: string
+        promoted?: string[]
+        relegated?: string[]
+    }>
+}
+
+export interface LeagueState {
+    version: 1
+    current?: LeagueSplit
+    /** Newest last; bounded (LEAGUE_TUNING.HISTORY_SPLITS). */
+    history: LeagueSplitSummary[]
 }
 
 /**
@@ -368,6 +515,8 @@ export interface ScoutedPlayerEntry {
  */
 export interface TeamSaveData {
     managementState?: import("./club-management").ClubManagementState
+    /** Phase 5.2: captain, mentors, transfer-request weeks. */
+    dressingRoom?: DressingRoomState
 
     id: string
     name: string
@@ -395,6 +544,10 @@ export interface TeamSaveData {
     startingLeagueTier?: string
     worldRanking?: number // Phase 19: Calculated 1-30 rank
     peakWorldRanking?: number // Career-best (lowest) world ranking ever held — only improves (C8)
+    /** Elo at the last world-ranking refresh; splits the next rank change into own and other results (Phase 4.8). */
+    rankedElo?: number
+    /** Rated results so far, tracked only for new clubs (provisional K while under RANKING_TUNING.PROVISIONAL_MATCHES). */
+    ratedMatches?: number
     // Phase 17: Tactical Mastery
     synergyMatrix?: Record<string, number> // key: "id1_id2", value: 0-100
 
@@ -407,6 +560,16 @@ export interface TeamSaveData {
     weeklyActivityWeek?: number // One weekly focus reward/cost per team and week, including after reload.
     consecutiveInsolventWeeks?: number // Tracks insolvency duration for game-over trigger
     _prevFinancialState?: "STABLE" | "TIGHT" | "RISK" | "CRISIS" | "INSOLVENT" // Tracks previous state for change detection
+    /** Regional league division the club plays in this split (Phase 4.4). Drives the league central payment. */
+    leagueDivisionId?: string
+    /** 1 = top division of its region. */
+    leagueDivisionLevel?: number
+    /** AI clubs only: times the club went into administration (8 insolvent weeks, the managed club's bankruptcy rule). */
+    administrations?: number
+    /** AI clubs only (Phase 4.6): week the club last swapped an overpaid starter for a cheaper free agent. */
+    aiWageSwapWeek?: number
+    /** AI clubs only (Phase 4.6): week of the last administration. */
+    lastAdministrationWeek?: number
 
     // === PHASE 18: THE EMPIRE ===
     facilities?: FacilitySaveData[]
@@ -598,7 +761,9 @@ export interface PlayerSaveData {
 
     // Career
     matchesPlayed: number
+    /** Official rounds (Phase 5.1: incremented per official map; legends carry a pre-career total). */
     roundsPlayed: number
+    /** Rounds-weighted average map rating over roundsPlayed (Phase 5.1). */
     avgRating: number
     headshots?: number
     clutchSuccessRate: number
@@ -623,11 +788,30 @@ export interface PlayerSaveData {
     careerTeams?: string[]
 
     // Career totals for Hall of Fame
+    /** Official-match kills/deaths (Phase 5.1: friendlies excluded). */
     totalKills?: number
     totalDeaths?: number
     totalHeadshots?: number
+    /** Match MVP awards (highest rating on the winning side). */
     totalMVPs?: number
+    /** Majors won on the roster (Phase 5.1: from real tournament results). */
     majorWins?: number
+
+    // Phase 5.1: official-match record (engine/official-stats.ts)
+    /** Official maps played in this career. */
+    mapsPlayed?: number
+    totalAssists?: number
+    totalDamage?: number
+    /** Titles won on a club's roster in this career. */
+    careerTrophies?: number
+    /** First season with an official map in this career. */
+    debutSeason?: number
+    seasonTally?: import("./records-types").PlayerSeasonTally
+    /** Closed season lines, oldest first (capped). */
+    seasonLines?: import("./records-types").PlayerSeasonLine[]
+    honours?: import("./records-types").PlayerHonour[]
+    bestMapRating?: import("./records-types").PersonalBest
+    mostMapKills?: import("./records-types").PersonalBest
 
     // Phase 7: Transfer Market
     forSale?: boolean
@@ -653,6 +837,67 @@ export interface PlayerSaveData {
     // Phase 70: Youth Academy
     isAcademyGraduate?: boolean
     enrolledWeek?: number
+
+    // Phase 5.2: personality (archetype + dressing-room state). Every player
+    // has one from save v9; optional so older records and fixtures type-check
+    // (engine/personality.ts getArchetype derives it on the fly).
+    personality?: PlayerPersonality
+
+    // Phase 5.3: last official map ratings at the managed club (storylines, press).
+    formWindow?: import("./storylines/types").FormWindow
+}
+
+/** Phase 5.2 archetypes (engine/personality.ts ARCHETYPE_INFO). */
+export type PersonalityArchetype =
+    | "PROFESSIONAL" | "AMBITIOUS" | "LOYAL" | "MERCENARY"
+    | "HOTHEAD" | "LEADER" | "SHOWMAN" | "QUIET"
+
+export type PromiseKind = "START" | "COMPETE"
+
+/** A promise the manager made to a player (engine/personality.ts recordPromise). */
+export interface PlayerPromise {
+    kind: PromiseKind
+    /** Club that made it; the promise lapses if he leaves. */
+    teamId: string
+    madeWeek: number
+    deadlineWeek: number
+    /** COMPETE: the club's world rank when made. */
+    baselineRank?: number
+    /** START: official matches in a row he has sat out (fit) since the promise. */
+    benchedRun?: number
+}
+
+/** Official appearances at his current club (morale v2 playing time). */
+export interface PlayerAppearances {
+    teamId: string
+    /** Official starts in a row. */
+    starts: number
+    /** Official matches in a row sat out while fit. */
+    benched: number
+    /** Started REGULAR_STARTS in a row at this club: expects to play. */
+    regular: boolean
+}
+
+export interface PlayerPersonality {
+    archetype: PersonalityArchetype
+    apps?: PlayerAppearances
+    /** Consecutive weeks below the unhappy morale line (managed club). */
+    unhappyWeeks?: number
+    /** Week of his last transfer request. */
+    lastRequestWeek?: number
+    promise?: PlayerPromise
+    lastPromise?: { kind: PromiseKind; outcome: "KEPT" | "BROKEN"; week: number }
+    /** Phase 5.3: season in which the manager persuaded him to play on (retirement chance × STORY_TUNING.PERSUADE_RETIREMENT_FACTOR). */
+    persuadedSeason?: number
+}
+
+/** Phase 5.2: the managed club's captain and mentors (AI clubs use the default captain). */
+export interface DressingRoomState {
+    /** Manager's pick; absent = highest leader stat on the roster. */
+    captainId?: string
+    mentorships?: Array<{ mentorId: string; menteeId: string; sinceWeek: number }>
+    /** Weeks of this club's transfer requests (season cap). */
+    requestWeeks?: number[]
 }
 
 /**
@@ -790,7 +1035,7 @@ export interface TournamentStandingSaveData {
  * Match data for save (scheduled)
  */
 export interface MatchSaveData {
-    engineVersion?: 'legacy-v2'
+    engineVersion?: 'legacy-v2' | 'script-v1'
     id: string
     homeTeamId: string
     awayTeamId: string
@@ -1423,6 +1668,18 @@ export interface HallOfFameEntry {
         icon: string // Lucide icon name
     }[]
     nationality: string
+    /** Phase 5.1: the career that earned the induction (in-game official matches). */
+    career?: {
+        maps: number
+        rating: number
+        kills: number
+        trophies: number
+        majors: number
+        seasonMvps: number
+        top20: number
+        matches: number
+        lastClubId?: string
+    }
 }
 
 /**
@@ -1436,12 +1693,21 @@ export interface ManagerDetails {
     careerWins: number
     careerLosses: number
     championships: number
+    /** @deprecated Never written; not shown anywhere. */
     totalKills?: number
+    /** @deprecated Never written; not shown anywhere. */
     totalHS?: number
     careerMatches?: number
+    /** @deprecated Never written; not shown anywhere. */
     maxBudget?: number
+    /** Phase 5.1: clubs managed in this career, oldest first. */
+    stints?: import("./records-types").ManagerStint[]
+    /** Phase 5.1: recent reputation changes with their causes, newest last (capped). */
+    reputationLog?: import("./records-types").ReputationChange[]
     /** Week of the most recent accepted job change — gates the signing-bonus
      *  cooldown so serial job-hopping can't farm signing bonuses. */
     lastJobChangeWeek?: number
     tenureStartWeek?: number
+    /** Times the manager was dismissed (sacked or the club folded) and found a new job. */
+    dismissals?: number
 }

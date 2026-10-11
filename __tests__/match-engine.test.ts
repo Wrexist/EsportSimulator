@@ -14,6 +14,7 @@
 import { matchEngine } from "@/engine/match-engine"
 import { SeededRNG } from "@/engine/rng"
 import type { MatchSaveData, TeamSaveData, PlayerSaveData, StaffSaveData } from "@/engine/save-types"
+import { DEFAULT_ENGINE_VERSION } from "@/engine/match/engine-version"
 
 function makeMatch(overrides: Partial<MatchSaveData> = {}): MatchSaveData {
     return {
@@ -158,6 +159,22 @@ describe("MatchEngine.simulateMatch", () => {
         expect(r.homeScore + r.awayScore).toBeGreaterThan(0)
     })
 
+    test("AI path counts staff once, at the managed-path scale (no x10 synthetic coach)", () => {
+        const coach = { id: "c5", teamId: "home", name: "Coach", role: "coach", level: 5, salaryPerWeek: 0, unlockedTalentIds: [] } as unknown as StaffSaveData
+        const run = (seed: number, homeBonus: number, staff: StaffSaveData[]) =>
+            matchEngine.simulateMatch(makeMatch({ seed }), makeTeam("home"), makeTeam("away"), makeRoster("home"), makeRoster("away"), new SeededRNG(1), homeBonus, 0, staff, [])
+        let coachMatters = false
+        for (const seed of [4242, 17, 99, 2024, 31337]) {
+            const realCoach = run(seed, 0, [coach])
+            // A legacy bonus is in Coach.tacticBonus units: 10 == a level-5 coach.
+            expect(run(seed, 10, [])).toEqual(realCoach)
+            // A real coach is never stacked with the caller's bonus.
+            expect(run(seed, 10, [coach])).toEqual(realCoach)
+            if (JSON.stringify(run(seed, 0, []).maps) !== JSON.stringify(realCoach.maps)) coachMatters = true
+        }
+        expect(coachMatters).toBe(true)
+    })
+
     test("morale_floor talent doesn't crash on rosters with low morale", () => {
         const match = makeMatch()
         const home = makeTeam("home")
@@ -204,7 +221,7 @@ test('saved Nuke/Sandstone map and starting side survive the weekly adapter inde
         const run = (seed: number) => matchEngine.simulateMatch(match, makeTeam('home'), makeTeam('away'), makeRoster('home'), makeRoster('away'), new SeededRNG(seed))
         const a = run(1), b = run(9000)
         expect(a).toEqual(b)
-        expect(a.engineVersion).toBe('legacy-v2')
+        expect(a.engineVersion).toBe(DEFAULT_ENGINE_VERSION)
         expect(a.maps[0].map).toBe(map)
         expect(a.maps[0].rounds[0].ctTeam).toBe('away')
     }

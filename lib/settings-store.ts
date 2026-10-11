@@ -9,7 +9,22 @@ export type Resolution = '1920x1080' | '1600x900' | '1280x720' | '1024x768'
 export type GameSpeed = 'normal' | 'fast' | 'very-fast'
 export type Difficulty = 'easy' | 'normal' | 'hard' | 'legendary'
 export type RenderingMode = 'performance' | 'compatibility'
+/** Live match playback: key moments at speed, quiet stretches fast-forwarded; or every second. */
+export type LivePacing = 'moments' | 'full'
 const boundedVolume = (value: number) => Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0
+/** Phase 5: music plays by default at a modest level. */
+export const DEFAULT_MUSIC_VOLUME = 45
+/** Persisted settings version; v1 moved the old music default (0) to DEFAULT_MUSIC_VOLUME. */
+export const SETTINGS_VERSION = 1
+
+/** One-time migration of stored device settings from an older version. */
+export function migrateSettings(persisted: unknown, version: number): unknown {
+    if (!persisted || typeof persisted !== 'object') return persisted
+    const stored = { ...(persisted as Record<string, unknown>) }
+    // v0 shipped music off (0) by default; nobody could tell a chosen 0 from the default.
+    if (version < 1 && (stored.musicVolume === 0 || stored.musicVolume === undefined)) stored.musicVolume = DEFAULT_MUSIC_VOLUME
+    return stored
+}
 
 interface GameSettings {
     // Display
@@ -23,10 +38,15 @@ interface GameSettings {
     reducedMotion: boolean
     uiScale: number // 80-120, default 100
 
-    // Audio
+    // Audio (the only audio settings; the game store keeps none)
+    soundEnabled: boolean
+    soundPreferenceSet: boolean
     masterVolume: number
     musicVolume: number
     sfxVolume: number
+    uiSounds: boolean
+    hoverSounds: boolean
+    muteWhenUnfocused: boolean
 
     // Game
     autoSave: boolean
@@ -34,6 +54,7 @@ interface GameSettings {
     adoptLegacyAutoSave: (enabled?: boolean) => void
     autoSaveInterval: number // minutes
     gameSpeed: GameSpeed
+    livePacing: LivePacing
     notifications: boolean
     difficulty: Difficulty
     language: string
@@ -47,9 +68,16 @@ interface GameSettings {
     setMasterVolume: (vol: number) => void
     setMusicVolume: (vol: number) => void
     setSfxVolume: (vol: number) => void
+    setSoundEnabled: (enabled: boolean) => void
+    /** Adopt the pre-Phase-5 game-store sound switch once, unless this store already has one. */
+    adoptLegacySoundEnabled: (enabled?: boolean) => void
+    setUiSounds: (enabled: boolean) => void
+    setHoverSounds: (enabled: boolean) => void
+    setMuteWhenUnfocused: (enabled: boolean) => void
     setAutoSave: (enabled: boolean) => void
     setAutoSaveInterval: (interval: number) => void
     setGameSpeed: (speed: GameSpeed) => void
+    setLivePacing: (pacing: LivePacing) => void
     setNotifications: (enabled: boolean) => void
     setDifficulty: (diff: Difficulty) => void
     setLanguage: (lang: string) => void
@@ -69,13 +97,19 @@ export const useSettingsStore = create<GameSettings>()(
             adoptLegacyColorVision: mode => { if (!get().colorVisionPreferenceSet) set({ colorVisionMode: normalizeColorVision(mode), colorVisionPreferenceSet: true }) },
             reducedMotion: false,
             uiScale: 100,
+            soundEnabled: true,
+            soundPreferenceSet: false,
             masterVolume: 80,
-            musicVolume: 0,
+            musicVolume: DEFAULT_MUSIC_VOLUME,
             sfxVolume: 80,
+            uiSounds: true,
+            hoverSounds: false,
+            muteWhenUnfocused: true,
             autoSave: true,
             autoSavePreferenceSet: false,
             autoSaveInterval: 10,
             gameSpeed: 'normal',
+            livePacing: 'moments',
             notifications: true,
             difficulty: 'normal',
             language: 'en',
@@ -106,6 +140,13 @@ export const useSettingsStore = create<GameSettings>()(
             setMasterVolume: (vol) => set({ masterVolume: boundedVolume(vol) }),
             setMusicVolume: (vol) => set({ musicVolume: boundedVolume(vol) }),
             setSfxVolume: (vol) => set({ sfxVolume: boundedVolume(vol) }),
+            setSoundEnabled: (enabled) => set({ soundEnabled: enabled, soundPreferenceSet: true }),
+            adoptLegacySoundEnabled: (enabled) => {
+                if (!get().soundPreferenceSet && typeof enabled === 'boolean') set({ soundEnabled: enabled, soundPreferenceSet: true })
+            },
+            setUiSounds: (enabled) => set({ uiSounds: enabled }),
+            setHoverSounds: (enabled) => set({ hoverSounds: enabled }),
+            setMuteWhenUnfocused: (enabled) => set({ muteWhenUnfocused: enabled }),
             setAutoSave: (enabled) => set({ autoSave: enabled, autoSavePreferenceSet: true }),
             adoptLegacyAutoSave: (enabled) => {
                 if (!get().autoSavePreferenceSet) {
@@ -114,6 +155,7 @@ export const useSettingsStore = create<GameSettings>()(
             },
             setAutoSaveInterval: (interval) => set({ autoSaveInterval: Number.isFinite(interval) ? Math.max(1, Math.min(30, interval)) : 10 }),
             setGameSpeed: (speed) => set({ gameSpeed: speed }),
+            setLivePacing: (pacing) => set({ livePacing: pacing === 'full' ? 'full' : 'moments' }),
             setNotifications: (enabled) => set({ notifications: enabled }),
             setDifficulty: (diff) => set({ difficulty: diff }),
             setLanguage: (_lang) => set({ language: SUPPORTED_UI_LANGUAGE }),
@@ -184,6 +226,8 @@ export const useSettingsStore = create<GameSettings>()(
         }),
         {
             name: 'game-settings',
+            version: SETTINGS_VERSION,
+            migrate: (persisted, version) => migrateSettings(persisted, version) as GameSettings,
             merge: (persisted, current) => {
                 const stored = persisted as Partial<GameSettings> | undefined
                 return {
@@ -195,6 +239,7 @@ export const useSettingsStore = create<GameSettings>()(
                     autoSave: typeof stored?.autoSave === 'boolean' ? stored.autoSave : current.autoSave,
                     autoSaveInterval: typeof stored?.autoSaveInterval === 'number' && Number.isFinite(stored.autoSaveInterval) ? Math.max(1, Math.min(30, stored.autoSaveInterval)) : 10,
                     gameSpeed: ['normal', 'fast', 'very-fast'].includes(stored?.gameSpeed ?? '') ? stored!.gameSpeed! : current.gameSpeed,
+                    livePacing: stored?.livePacing === 'full' ? 'full' : 'moments',
                     notifications: typeof stored?.notifications === 'boolean' ? stored.notifications : current.notifications,
                     difficulty: ['easy', 'normal', 'hard', 'legendary'].includes(stored?.difficulty ?? '') ? stored!.difficulty! : current.difficulty,
                     language: SUPPORTED_UI_LANGUAGE,
@@ -203,6 +248,11 @@ export const useSettingsStore = create<GameSettings>()(
                     masterVolume: boundedVolume(stored?.masterVolume ?? current.masterVolume),
                     musicVolume: boundedVolume(stored?.musicVolume ?? current.musicVolume),
                     sfxVolume: boundedVolume(stored?.sfxVolume ?? current.sfxVolume),
+                    soundEnabled: typeof stored?.soundEnabled === 'boolean' ? stored.soundEnabled : current.soundEnabled,
+                    soundPreferenceSet: typeof stored?.soundEnabled === 'boolean',
+                    uiSounds: typeof stored?.uiSounds === 'boolean' ? stored.uiSounds : current.uiSounds,
+                    hoverSounds: typeof stored?.hoverSounds === 'boolean' ? stored.hoverSounds : current.hoverSounds,
+                    muteWhenUnfocused: typeof stored?.muteWhenUnfocused === 'boolean' ? stored.muteWhenUnfocused : current.muteWhenUnfocused,
                     uiScale: typeof stored?.uiScale === 'number' && Number.isFinite(stored.uiScale) ? Math.max(80, Math.min(120, stored.uiScale)) : 100,
                     // A value already stored by this settings surface wins over
                     // the deprecated game-store preference, including false.

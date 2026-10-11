@@ -2,19 +2,26 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trophy, Star, Crown, Zap } from "lucide-react"
+import { Trophy, Star, Crown } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { RatingChip } from "@/src/components/ui/RatingChip"
+import { RoleTag } from "@/src/components/ui/RoleTag"
 import { cn } from "@/lib/utils"
-import { formatCurrency, formatRole } from "@/lib/utils-extended"
+import { formatCurrency } from "@/lib/utils-extended"
 import { fireConfetti } from "@/lib/confetti-lazy"
+import { soundManager } from "@/lib/sound-manager"
 import type { LegendPickData } from "@/engine/save-types"
 import { panelTransition } from "@/lib/motion"
 import { useFocusTrap } from "@/lib/accessibility"
 import { LEGEND_CONTRACT_WEEKS, LEGEND_MIN_RUNWAY_WEEKS, quoteLegendSigning } from "@/lib/legend-signing"
+import { departuresToSign, SENIOR_ROSTER_MAX } from "@/engine/roster-rules"
+
+/** Trophy gold, its hover tint and the primary text colour (design system v2). */
+const CONFETTI_GOLD = ["#F2B53A", "#FFC85C", "#F2F4F7"]
 
 interface LegendPickModalProps {
     data: LegendPickData
@@ -50,13 +57,15 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
 
     useEffect(() => {
         setMounted(true)
-        // Golden confetti for the Major win legend reward
+        // The legend pick follows the title moment: its own cue (Phase 5.4a).
+        soundManager.play("award")
+        // Gold confetti for the Major win legend reward
         const burst = () => {
             fireConfetti({
                 particleCount: 80,
                 spread: 100,
                 origin: { y: 0.3 },
-                colors: ["#FFD700", "#FFA500", "#FF8C00", "#DAA520", "#B8860B"],
+                colors: CONFETTI_GOLD,
                 ticks: 80,
             })
         }
@@ -68,6 +77,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
     const handleConfirm = () => {
         if (!selectedId || !canSign) return
         setConfirmed(true)
+        soundManager.play("signing")
         // Big celebration confetti
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {
@@ -75,7 +85,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                     particleCount: 120,
                     spread: 160,
                     origin: { x: 0.5, y: 0.4 },
-                    colors: ["#FFD700", "#FFA500", "#FFFFFF", "#00FF88"],
+                    colors: CONFETTI_GOLD,
                     ticks: 100,
                 })
             }, i * 300)
@@ -85,17 +95,16 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
 
     if (!mounted) return null
 
+    const selectedName = candidates.find(c => c.id === selectedId)?.nickname
+
     return (
         <AnimatePresence>
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-celebration flex items-center justify-center bg-black/58 backdrop-blur-md"
+                className="fixed inset-0 z-celebration flex items-center justify-center bg-ink/95"
             >
-                <div className="absolute inset-0 liquid-app-bg opacity-70 pointer-events-none" />
-                <div className="absolute inset-0 liquid-noise pointer-events-none" />
-
                 <motion.div
                     variants={panelTransition}
                     initial="initial"
@@ -105,188 +114,148 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="modal-title-legend-pick"
-                    className="relative z-10 w-full max-w-5xl mx-4 py-4 max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain"
+                    className="relative z-10 mx-4 max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-y-auto overscroll-contain py-4"
                 >
                     {/* Header */}
                     <motion.div
-                        initial={{ y: -20, opacity: 0 }}
+                        initial={{ y: -12, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="text-center mb-4 [@media(min-height:800px)]:mb-8"
+                        className="mb-4 text-center [@media(min-height:800px)]:mb-8"
                     >
-                        <div className="flex items-center justify-center gap-3 mb-3">
-                            <Trophy className="text-amber-400" size={28} />
-                            <h1 className="text-sm font-bold uppercase tracking-[0.3em] text-amber-400/80">
-                                Major Champion Reward
-                            </h1>
-                            <Trophy className="text-amber-400" size={28} />
-                        </div>
-                        <h2 id="modal-title-legend-pick" className="text-4xl font-bold text-white uppercase tracking-tight">
-                            Choose Your Legend
+                        <p className="flex items-center justify-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">
+                            <Trophy size={14} aria-hidden="true" /> Major champion reward
+                        </p>
+                        <h2 id="modal-title-legend-pick" className="mt-2 font-display text-5xl font-bold uppercase leading-none text-ink-1">
+                            Choose your legend
                         </h2>
-                        <p className="text-white/40 mt-2 text-sm">
-                            {data.tournamentName} — Select a legend to join your roster
+                        <p className="mt-2 text-sm text-ink-3">
+                            {data.tournamentName} — select a legend to join your roster
                         </p>
                     </motion.div>
 
-                    {/* Legend Cards */}
+                    {/* Legend cards */}
                     {!confirmed && (
-                        <div className="grid grid-cols-3 gap-6 mb-4 [@media(min-height:800px)]:mb-8">
-                            {candidates.map((legend, i) => (
-                                <motion.div
-                                    key={legend.id}
-                                    initial={{ y: 60, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.4 + i * 0.15, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                >
-                                    <button
-                                        onClick={() => setSelectedId(legend.id)}
-                                        aria-pressed={selectedId === legend.id}
-                                        className={cn(
-                                            "w-full text-left rounded-xl transition-[border-color,box-shadow] duration-100 ease-out overflow-hidden group relative glass-card active:scale-[0.99] active:duration-0",
-                                            selectedId === legend.id
-                                                ? "border-amber-300/40 shadow-glass-soft ring-1 ring-amber-300/25"
-                                                : "border-white/10 hover:border-white/25"
-                                        )}
+                        <div className="mb-4 grid grid-cols-3 gap-4 [@media(min-height:800px)]:mb-8">
+                            {candidates.map((legend, i) => {
+                                const selected = selectedId === legend.id
+                                return (
+                                    <motion.div
+                                        key={legend.id}
+                                        initial={{ y: 24, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 0.4 + i * 0.12, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                                     >
-                                        {/* Card background glow on select */}
-                                        {selectedId === legend.id && (
-                                            <div className="absolute inset-0 bg-linear-to-b/srgb from-amber-300/8 to-transparent pointer-events-none" />
-                                        )}
-
-                                        {/* Portrait area */}
-                                        <div className="relative h-36 [@media(min-height:800px)]:h-48 bg-linear-to-b/srgb from-white/3 to-transparent flex items-center justify-center">
-                                            <div className="w-28 h-28 rounded-xl bg-white/5 overflow-hidden shadow-2xl">
-                                                <PlayerPortrait src={legend.portraitPath} seed={legend.id} alt={legend.nickname} size={112} variant="hero" />
-                                            </div>
-                                            {/* Skill badge */}
-                                            <div className="absolute top-4 right-4">
-                                                <div className={cn(
-                                                    "w-12 h-12 rounded-lg flex items-center justify-center text-lg font-black",
-                                                    legend.skill >= 96 ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" :
-                                                    legend.skill >= 92 ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" :
-                                                    "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                                                )}>
-                                                    {legend.skill}
+                                        <button
+                                            onClick={() => setSelectedId(legend.id)}
+                                            aria-pressed={selected}
+                                            className={cn(
+                                                "relative w-full overflow-hidden rounded-lg border bg-panel text-left transition-colors duration-100 ease-out",
+                                                selected ? "border-gold" : "border-line hover:border-line-strong",
+                                            )}
+                                        >
+                                            {/* Portrait */}
+                                            <div className="relative flex h-36 items-center justify-center border-b border-line bg-shell [@media(min-height:800px)]:h-48">
+                                                <div className="h-28 w-28 overflow-hidden rounded-md bg-raised">
+                                                    <PlayerPortrait src={legend.portraitPath} seed={legend.id} alt={legend.nickname} size={112} variant="hero" />
                                                 </div>
-                                            </div>
-                                            {/* Legend crown */}
-                                            <div className="absolute top-4 left-4">
-                                                <Crown className="text-amber-400/60" size={20} />
-                                            </div>
-                                        </div>
-
-                                        {/* Info area */}
-                                        <div className="p-5 bg-black/20 relative z-10">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <h3 className="text-xl font-bold text-white">{legend.nickname}</h3>
-                                                <CountryFlag country={legend.nationality} />
-                                            </div>
-                                            <p className="text-white/40 text-xs mb-3">{legend.name}</p>
-
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[10px]">
-                                                    {formatRole(legend.role)}
-                                                </Badge>
-                                                <Badge className="bg-white/10 text-white/60 border-white/10 text-[10px]">
-                                                    {legend.majorWins || 0}x Major
-                                                </Badge>
+                                                <RatingChip value={legend.skill} size="lg" className="absolute right-4 top-4" title={`Skill ${legend.skill}`} />
+                                                <Crown className="absolute left-4 top-4 text-gold" size={18} aria-hidden="true" />
                                             </div>
 
-                                            {/* Achievements */}
-                                            <div className="space-y-1.5">
-                                                {(legend.legendaryAchievements || []).slice(0, 3).map((ach: string, j: number) => (
-                                                    <div key={j} className="flex items-center gap-2 text-[11px] text-white/50">
-                                                        <Star size={10} className="text-amber-400/60 shrink-0" />
-                                                        <span className="truncate">{ach}</span>
+                                            {/* Info */}
+                                            <div className="p-5">
+                                                <div className="mb-1 flex items-center gap-2">
+                                                    <h3 className="text-xl font-bold text-ink-1">{legend.nickname}</h3>
+                                                    <CountryFlag country={legend.nationality} />
+                                                </div>
+                                                <p className="mb-3 text-xs text-ink-3">{legend.name}</p>
+
+                                                <div className="mb-3 flex items-center gap-2">
+                                                    <RoleTag role={legend.role} />
+                                                    <span className="rounded-sm border border-line px-1.5 py-0.5 text-[11px] font-semibold text-ink-2">
+                                                        {legend.majorWins || 0}× Major
+                                                    </span>
+                                                </div>
+
+                                                {/* Achievements */}
+                                                <ul className="space-y-1.5">
+                                                    {(legend.legendaryAchievements || []).slice(0, 3).map((ach: string, j: number) => (
+                                                        <li key={j} className="flex items-center gap-2 text-xs text-ink-2">
+                                                            <Star size={11} className="shrink-0 text-gold" aria-hidden="true" />
+                                                            <span className="truncate">{ach}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+
+                                                {/* Key stats */}
+                                                <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-line pt-3 text-center">
+                                                    <div>
+                                                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Matches</dt>
+                                                        <dd className="text-sm font-bold tabular-nums text-ink-1">{(legend.matchesPlayed || 0).toLocaleString()}</dd>
                                                     </div>
-                                                ))}
+                                                    <div>
+                                                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Rating</dt>
+                                                        <dd className="text-sm font-bold tabular-nums text-ink-1">{(legend.avgRating || 0).toFixed(2)}</dd>
+                                                    </div>
+                                                    <div>
+                                                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">MVPs</dt>
+                                                        <dd className="text-sm font-bold tabular-nums text-ink-1">{legend.totalMVPs || 0}</dd>
+                                                    </div>
+                                                </dl>
                                             </div>
 
-                                            {/* Key stats row */}
-                                            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/5">
-                                                <div className="text-center">
-                                                    <div className="text-[10px] text-white/30 uppercase">Matches</div>
-                                                    <div className="text-sm font-bold text-white/80">{(legend.matchesPlayed || 0).toLocaleString()}</div>
-                                                </div>
-                                                <div className="text-center">
-                                                    <div className="text-[10px] text-white/30 uppercase">Rating</div>
-                                                    <div className="text-sm font-bold text-amber-400">{(legend.avgRating || 0).toFixed(2)}</div>
-                                                </div>
-                                                <div className="text-center">
-                                                    <div className="text-[10px] text-white/30 uppercase">MVPs</div>
-                                                    <div className="text-sm font-bold text-white/80">{legend.totalMVPs || 0}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Selected indicator */}
-                                        {selectedId === legend.id && (
-                                            <motion.div
-                                                initial={{ scaleX: 0 }}
-                                                animate={{ scaleX: 1 }}
-                                                className="h-1 bg-linear-to-r/srgb from-amber-500 via-yellow-400 to-amber-500"
-                                            />
-                                        )}
-                                    </button>
-                                </motion.div>
-                            ))}
+                                            {/* Selected indicator */}
+                                            {selected && <div aria-hidden="true" className="h-1 bg-gold" />}
+                                        </button>
+                                    </motion.div>
+                                )
+                            })}
                         </div>
                     )}
 
                     {/* Confirmed state */}
                     {confirmed && selectedId && (
                         <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className="text-center py-16"
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="py-16 text-center"
                         >
-                            <div className="w-24 h-24 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto mb-6">
-                                <Zap size={48} className="text-amber-400" />
+                            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-lg border border-gold/50 bg-gold/10">
+                                <Crown size={40} className="text-gold" aria-hidden="true" />
                             </div>
-                            <h2 className="text-3xl font-bold text-white mb-2">
-                                {candidates.find(c => c.id === selectedId)?.nickname} joins your team!
+                            <h2 className="mb-2 font-display text-4xl font-bold uppercase text-ink-1">
+                                {selectedName} joins your team
                             </h2>
-                            <p className="text-white/40">A legend returns to the stage...</p>
+                            <p className="text-ink-3">A legend returns to the stage.</p>
                         </motion.div>
                     )}
 
-                    {/* Confirm button */}
+                    {/* Confirm */}
                     {!confirmed && (
                         <motion.div
-                            initial={{ y: 20, opacity: 0 }}
+                            initial={{ y: 12, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.8 }}
                             className="text-center"
                         >
                             {quote && (
-                                <p role="status" className={cn("mb-3 text-sm", quote.affordable ? "text-white/60" : "text-amber-300")}>
+                                <p role="status" className={cn("mb-3 text-sm", quote.affordable ? "text-ink-2" : "text-caution")}>
                                     Wage {formatCurrency(quote.salary, "$", false)}/week for {LEGEND_CONTRACT_WEEKS / 52} years.{" "}
                                     {quote.weeklyNet >= 0
                                         ? "Your club stays cash-positive."
                                         : `Cash lasts about ${quote.runwayWeeks} weeks at the new rate.`}
                                     {!quote.affordable && ` You need at least ${LEGEND_MIN_RUNWAY_WEEKS} weeks of cover to sign.`}
+                                    {quote.overCap && ` Signing him takes your squad to ${quote.rosterAfter}/${SENIOR_ROSTER_MAX}: to sign anyone else, first release or sell ${departuresToSign(quote.rosterAfter) === 1 ? "one player" : `${departuresToSign(quote.rosterAfter)} players`}.`}
                                 </p>
                             )}
                             <div className="flex flex-wrap items-center justify-center gap-3">
-                                <button
-                                    onClick={handleConfirm}
-                                    disabled={!canSign}
-                                    className={cn(
-                                        "px-12 py-4 rounded-lg text-lg font-bold uppercase tracking-wider transition-colors duration-100 ease-out select-none touch-manipulation will-change-transform active:scale-[0.97] active:duration-0",
-                                        canSign
-                                            ? "bg-amber-300 text-black hover:bg-amber-200 shadow-glass-soft"
-                                            : "bg-white/5 text-white/40 cursor-not-allowed"
-                                    )}
-                                >
-                                    {selectedId ? `Sign ${candidates.find(c => c.id === selectedId)?.nickname}` : "Select a Legend"}
-                                </button>
-                                <button
-                                    onClick={clearLegendPick}
-                                    className="px-6 py-4 rounded-lg text-sm font-bold uppercase tracking-wider border border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
-                                >
+                                <Button size="lg" onClick={handleConfirm} disabled={!canSign} className="h-12 min-w-[260px] px-10 text-base">
+                                    {selectedId ? `Sign ${selectedName}` : "Select a legend"}
+                                </Button>
+                                <Button size="lg" variant="outline" onClick={clearLegendPick} className="h-12 px-6">
                                     Decline
-                                </button>
+                                </Button>
                             </div>
                         </motion.div>
                     )}

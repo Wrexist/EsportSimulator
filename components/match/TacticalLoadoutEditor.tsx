@@ -201,7 +201,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
     }
 
     return (
-        <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${strategyId} ${side.toUpperCase()} loadout editor`} tabIndex={-1} className="glass-panel flex flex-col h-full max-h-[calc(100dvh-112px)] w-full max-w-[1400px] text-white rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+        <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${strategyId} ${side.toUpperCase()} loadout editor`} tabIndex={-1} className="flex flex-col h-full max-h-[calc(100dvh-112px)] w-full max-w-[1400px] text-ink-1 rounded-[10px] border border-line-strong bg-panel overflow-hidden">
             <style jsx global>{`
                 .custom-scrollbar [data-radix-scroll-area-viewport]::-webkit-scrollbar {
                     width: 6px;
@@ -232,11 +232,11 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
             `}</style>
 
             {/* Header */}
-            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-linear-to-r/srgb from-white/5 to-transparent">
+            <div className="p-6 border-b border-line flex items-center justify-between bg-shell">
                 <div className="flex items-center gap-6">
                     <div className={cn(
-                        "p-4 rounded-2xl flex items-center justify-center shadow-lg",
-                        side === "ct" ? "bg-blue-500/20 text-blue-400 shadow-blue-500/10" : "bg-orange-500/20 text-orange-400 shadow-orange-500/10"
+                        "p-4 rounded-[4px] flex items-center justify-center ",
+                        side === "ct" ? "bg-side-ct/15 text-side-ct" : "bg-side-t/15 text-side-t"
                     )}>
                         {side === "ct" ? <Shield className="w-8 h-8" /> : <Sword className="w-8 h-8" />}
                     </div>
@@ -247,31 +247,31 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                 value={strategyName}
                                 onChange={(e) => setStrategyName(e.target.value)}
                                 placeholder={`${strategyId} LOADOUT`}
-                                className="bg-transparent border-none text-3xl font-normal uppercase tracking-tight leading-none text-white focus:outline-hidden focus:ring-0 placeholder:text-white/50 w-full"
+                                className="w-full rounded-sm border-none bg-transparent font-display text-3xl font-bold uppercase leading-none text-ink-1 placeholder:text-ink-3"
                             />
                         </div>
-                        <p className="text-muted-foreground text-[10px] font-normal uppercase tracking-widest mt-2 flex items-center gap-2">
+                        <p className="mt-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
                             <span>{strategyId} ({side.toUpperCase()})</span>
                             <span className="opacity-30">•</span>
-                            <span className={cn(selectedPlayer !== null ? "text-white" : "opacity-50")}>
+                            <span className={cn(selectedPlayer !== null ? "text-ink-1" : "text-ink-3")}>
                                 {selectedPlayer !== null ? `Editing ${playerNames[selectedPlayer]}` : "Select a player to configure"}
                             </span>
                             <span className="opacity-30">•</span>
-                            <span className="text-blue-400 capitalize flex items-center gap-1">
+                            <span className="flex items-center gap-1 capitalize text-ink-1">
                                 <Info className="w-3 h-3" />
                                 Hover player for Copy/Paste
                             </span>
                         </p>
                     </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close loadout editor" className="rounded-full hover:bg-white/10 h-10 w-10">
-                    <X className="w-6 h-6 text-white/50" />
+                <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close loadout editor" className="h-10 w-10">
+                    <X className="w-6 h-6 text-ink-3" />
                 </Button>
             </div>
 
             <div className="flex flex-1 min-h-0">
                 {/* Player List (Left Sidebar) */}
-                <div className="w-64 xl:w-80 shrink-0 border-r border-white/5 p-5 space-y-2.5 overflow-y-auto bg-black/20 custom-scrollbar">
+                <div className="w-64 xl:w-80 shrink-0 border-r border-line p-5 space-y-2.5 overflow-y-auto bg-shell custom-scrollbar">
                     {loadouts.map((loadout, idx) => {
                         const cost = getLoadoutCost(loadout)
                         const isSelected = selectedPlayer === idx
@@ -284,10 +284,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                             <div
                                 key={idx}
                                 className={cn(
-                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color] duration-100 ease-out text-left group relative select-none touch-manipulation",
+                                    "w-full p-4 rounded-md border transition-[border-color,background-color] duration-100 ease-out text-left group relative select-none touch-manipulation",
                                     isSelected
-                                        ? (side === "ct" ? "bg-blue-500/20 border-blue-500/40" : "bg-orange-500/20 border-orange-500/40")
-                                        : "bg-white/2 border-white/5 hover:bg-white/5"
+                                        ? (side === "ct" ? "bg-side-ct/10 border-side-ct/60" : "bg-side-t/10 border-side-t/60")
+                                        : "bg-raised border-line hover:bg-hover"
                                 )}
                             >
                                 <button
@@ -296,10 +296,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                 >
                                     {/* Player Image or Fallback */}
                                     <div className={cn(
-                                        "w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden shadow-lg",
-                                        loadout.roleHint === "AWPER" ? "bg-amber-500/20" :
-                                            loadout.roleHint === "IGL" ? "bg-purple-500/20" :
-                                                "bg-white/10"
+                                        "w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden ",
+                                        loadout.roleHint === "AWPER" ? "bg-hover" :
+                                            loadout.roleHint === "IGL" ? "bg-hover" :
+                                                "bg-hover"
                                     )}>
                                         <PlayerPortrait
                                             src={playerImages[idx]} seed={playerIds[idx]}
@@ -310,16 +310,16 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="font-normal text-sm truncate">{playerNames[idx]}</div>
-                                        <div className="text-[10px] text-white/40 truncate mt-0.5 font-medium">
+                                        <div className="text-[11px] text-ink-3 truncate mt-0.5 font-medium">
                                             {loadoutParts.join(" • ") || "No Loadout"}
                                         </div>
                                     </div>
                                     {playerCash[idx] != null ? (
-                                        <div className={cn("font-bold text-xs px-2 py-1 rounded-lg", playerCash[idx] - cost >= 0 ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10")}>
+                                        <div className={cn("font-bold text-xs px-2 py-1 rounded-lg", playerCash[idx] - cost >= 0 ? "text-ink-1 bg-hover" : "text-negative bg-negative/10")}>
                                             {formatCurrency((playerCash[idx] - cost), "$", false)}
                                         </div>
                                     ) : (
-                                        <div className="text-white/40 font-bold text-xs bg-white/5 px-2 py-1 rounded-lg">{formatCurrency(-cost, "$", false)}</div>
+                                        <div className="text-ink-3 font-bold text-xs bg-raised px-2 py-1 rounded-lg">{formatCurrency(-cost, "$", false)}</div>
                                     )}
                                 </button>
 
@@ -327,15 +327,15 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                 <div className="absolute right-2 top-2 hidden group-hover:flex gap-1">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleCopy(idx); }}
-                                        className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 transition-colors"
+                                        className="p-1.5 rounded-lg bg-hover hover:bg-hover text-ink-2 transition-colors"
                                         title="Copy Loadout"
                                     >
-                                        {copiedIndex === idx ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                        {copiedIndex === idx ? <Check className="w-3.5 h-3.5 text-positive" /> : <Copy className="w-3.5 h-3.5" />}
                                     </button>
                                     {clipboard && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handlePaste(idx); }}
-                                            className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 transition-colors"
+                                            className="p-1.5 rounded-lg bg-hover hover:bg-hover text-ink-2 transition-colors"
                                             title="Paste Loadout"
                                         >
                                             <ClipboardPaste className="w-3.5 h-3.5" />
@@ -346,19 +346,19 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                         )
                     })}
 
-                    <div className="pt-6 border-t border-white/5 mt-6">
+                    <div className="pt-6 border-t border-line mt-6">
                         {teamBudget != null ? (
                             <>
-                                <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-1">Remaining Budget</div>
-                                <div className={cn("text-2xl font-normal", teamBudget - totalCost < 0 ? "text-red-400" : "text-emerald-400")}>
+                                <div className="text-[11px] font-bold text-ink-3 uppercase tracking-wider mb-1">Remaining Budget</div>
+                                <div className={cn("text-2xl font-normal", teamBudget - totalCost < 0 ? "text-negative" : "text-ink-1")}>
                                     {formatCurrency((teamBudget - totalCost), "$", false)}
                                 </div>
-                                <div className="text-[10px] text-white/30 mt-1">Cost: {formatCurrency(totalCost, "$", false)}</div>
+                                <div className="text-[11px] text-ink-3 mt-1">Cost: {formatCurrency(totalCost, "$", false)}</div>
                             </>
                         ) : (
                             <>
-                                <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-1">Total Team Cost</div>
-                                <div className="text-2xl font-normal text-white/50">
+                                <div className="text-[11px] font-bold text-ink-3 uppercase tracking-wider mb-1">Total Team Cost</div>
+                                <div className="text-2xl font-normal text-ink-3">
                                     {formatCurrency(totalCost, "$", false)}
                                 </div>
                             </>
@@ -372,7 +372,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                         <div className="grid grid-cols-3 xl:grid-cols-5 gap-3 xl:gap-6">
                             {/* 1. Equipment */}
                             <div className="space-y-4">
-                                <h3 className="text-xs font-normal text-white/30 uppercase tracking-[0.2em] px-2 mb-4">1 Equipment</h3>
+                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">1 Equipment</h3>
                                 <div className="space-y-3">
                                     {equipOptions.map(opt => {
                                         const isSelected = opt.tier ? currentLoadout.armorTier === opt.tier : (opt.special === "KIT" ? currentLoadout.hasKit : false)
@@ -383,10 +383,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={opt.id}
                                                 onClick={() => opt.tier ? handleSelectArmor(opt.tier) : (opt.special === "KIT" ? handleToggleKit() : null)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-3 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
+                                                    "w-full p-4 rounded-md border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-3 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
-                                                        ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-lg shadow-emerald-500/10"
-                                                        : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
+                                                        ? "bg-gold/[0.06] border-gold text-ink-1"
+                                                        : "bg-raised border-line text-ink-3 hover:bg-hover"
                                                 )}
                                             >
                                                 <div className="w-16 h-16 relative shrink-0 flex items-center justify-center">
@@ -395,15 +395,15 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                             src={opt.image}
                                                             alt={opt.name}
                                                             fill
-                                                            className="object-contain drop-shadow-2xl transition-transform duration-300 group-hover:scale-110"
+                                                            className="object-contain"
                                                         />
                                                     )}
                                                 </div>
                                                 <div className="w-full">
-                                                    <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{opt.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(opt.price, "$", false)}</div>
+                                                    <div className="font-normal text-[11px] leading-tight mb-1 truncate px-1">{opt.name.toUpperCase()}</div>
+                                                    <div className="text-[11px] font-bold text-ink-3">{formatCurrency(opt.price, "$", false)}</div>
                                                 </div>
-                                                {isSelected && <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />}
+                                                {isSelected && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-gold" />}
                                             </button>
                                         )
                                     })}
@@ -412,7 +412,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
 
                             {/* 2. Pistols */}
                             <div className="space-y-4">
-                                <h3 className="text-xs font-normal text-white/30 uppercase tracking-[0.2em] px-2 mb-4">2 Pistols</h3>
+                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">2 Pistols</h3>
                                 <div className="space-y-3">
                                     {getWeaponsInCategory(WeaponType.PISTOL).map(w => {
                                         const isSelected = currentLoadout.secondaryWeaponId === w.id
@@ -425,10 +425,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={w.id}
                                                 onClick={() => handleSelectWeapon(w.id, false)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
+                                                    "w-full p-4 rounded-md border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
-                                                        ? "bg-blue-500/20 border-blue-500/40 text-blue-400 shadow-lg shadow-blue-500/10"
-                                                        : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
+                                                        ? "bg-gold/[0.06] border-gold text-ink-1"
+                                                        : "bg-raised border-line text-ink-3 hover:bg-hover"
                                                 )}
                                             >
                                                 <div className="w-24 h-12 relative shrink-0 flex items-center justify-center my-1">
@@ -437,17 +437,17 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                             src={icon}
                                                             alt={w.name}
                                                             fill
-                                                            className="object-contain drop-shadow-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-2"
+                                                            className="object-contain"
                                                         />
                                                     ) : (
-                                                        <span className="text-[8px] opacity-20 font-normal">IMG</span>
+                                                        <span className="text-[11px] text-ink-3">IMG</span>
                                                     )}
                                                 </div>
                                                 <div className="w-full">
-                                                    <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
+                                                    <div className="font-normal text-[11px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
+                                                    <div className="text-[11px] font-bold text-ink-3">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
-                                                {isSelected && <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]" />}
+                                                {isSelected && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-gold" />}
                                             </button>
                                         )
                                     })}
@@ -456,7 +456,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
 
                             {/* 3. Mid-Tier */}
                             <div className="space-y-4">
-                                <h3 className="text-xs font-normal text-white/30 uppercase tracking-[0.2em] px-2 mb-4">3 Mid-Tier</h3>
+                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">3 Mid-Tier</h3>
                                 <div className="space-y-3">
                                     {getWeaponsInCategory([WeaponType.SMG, WeaponType.SHOTGUN]).map(w => {
                                         const isSelected = currentLoadout.primaryWeaponId === w.id
@@ -469,10 +469,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={w.id}
                                                 onClick={() => handleSelectWeapon(w.id, true)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
+                                                    "w-full p-4 rounded-md border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
-                                                        ? (side === "ct" ? "bg-blue-500/20 border-blue-500/40 text-blue-400" : "bg-orange-500/20 border-orange-500/40 text-orange-400")
-                                                        : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
+                                                        ? "bg-gold/[0.06] border-gold text-ink-1"
+                                                        : "bg-raised border-line text-ink-3 hover:bg-hover"
                                                 )}
                                             >
                                                 <div className="w-24 h-12 relative shrink-0 flex items-center justify-center my-1">
@@ -481,17 +481,17 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                             src={icon}
                                                             alt={w.name}
                                                             fill
-                                                            className="object-contain drop-shadow-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-2"
+                                                            className="object-contain"
                                                         />
                                                     ) : (
-                                                        <span className="text-[8px] opacity-20 font-normal">IMG</span>
+                                                        <span className="text-[11px] text-ink-3">IMG</span>
                                                     )}
                                                 </div>
                                                 <div className="w-full">
-                                                    <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
+                                                    <div className="font-normal text-[11px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
+                                                    <div className="text-[11px] font-bold text-ink-3">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
-                                                {isSelected && <div className={cn("absolute top-3 right-3 w-2 h-2 rounded-full", side === "ct" ? "bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]" : "bg-orange-400 shadow-[0_0_10px_rgba(251,146,60,0.5)]")} />}
+                                                {isSelected && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-gold" />}
                                             </button>
                                         )
                                     })}
@@ -500,7 +500,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
 
                             {/* 4. Rifles */}
                             <div className="space-y-4">
-                                <h3 className="text-xs font-normal text-white/30 uppercase tracking-[0.2em] px-2 mb-4">4 Rifles</h3>
+                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">4 Rifles</h3>
                                 <div className="space-y-3">
                                     {getWeaponsInCategory([WeaponType.RIFLE, WeaponType.SNIPER]).map(w => {
                                         const isSelected = currentLoadout.primaryWeaponId === w.id
@@ -513,10 +513,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={w.id}
                                                 onClick={() => handleSelectWeapon(w.id, true)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
+                                                    "w-full p-4 rounded-md border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
-                                                        ? (side === "ct" ? "bg-blue-500/20 border-blue-500/40 text-blue-400" : "bg-orange-500/20 border-orange-500/40 text-orange-400")
-                                                        : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"
+                                                        ? "bg-gold/[0.06] border-gold text-ink-1"
+                                                        : "bg-raised border-line text-ink-3 hover:bg-hover"
                                                 )}
                                             >
                                                 <div className="w-24 h-12 relative shrink-0 flex items-center justify-center my-1">
@@ -525,17 +525,17 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                             src={icon}
                                                             alt={w.name}
                                                             fill
-                                                            className="object-contain drop-shadow-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-2"
+                                                            className="object-contain"
                                                         />
                                                     ) : (
-                                                        <span className="text-[8px] opacity-20 font-normal">IMG</span>
+                                                        <span className="text-[11px] text-ink-3">IMG</span>
                                                     )}
                                                 </div>
                                                 <div className="w-full">
-                                                    <div className="font-normal text-[10px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[10px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
+                                                    <div className="font-normal text-[11px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
+                                                    <div className="text-[11px] font-bold text-ink-3">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
-                                                {isSelected && <div className={cn("absolute top-3 right-3 w-2 h-2 rounded-full", side === "ct" ? "bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]" : "bg-orange-400 shadow-[0_0_10px_rgba(251,146,60,0.5)]")} />}
+                                                {isSelected && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-gold" />}
                                             </button>
                                         )
                                     })}
@@ -544,7 +544,8 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
 
                             {/* 5. Grenades */}
                             <div className="space-y-4">
-                                <h3 className="text-xs font-normal text-white/30 uppercase tracking-[0.2em] px-2 mb-4">5 Grenades</h3>
+                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-1">5 Grenades</h3>
+                                <p className="px-2 mb-4 text-[11px] text-ink-3">None picked: the player buys a grenade set for his role with the money left. Picked: exactly these.</p>
                                 <div className="grid grid-cols-2 gap-3">
                                     {Object.entries(GRENADES).map(([id, icon]) => {
                                         const isSelected = currentLoadout.utility?.includes(id)
@@ -556,10 +557,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={id}
                                                 onClick={() => handleToggleGrenade(id)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow] duration-100 ease-out text-center relative group min-h-[120px] flex flex-col justify-between select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
+                                                    "w-full p-4 rounded-md border transition-[border-color,background-color,box-shadow] duration-100 ease-out text-center relative group min-h-[120px] flex flex-col justify-between select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
-                                                        ? "bg-purple-500/20 border-purple-500/40 text-purple-300 shadow-lg shadow-purple-500/10"
-                                                        : "bg-white/5 border-white/5 text-white/30 hover:bg-white/10"
+                                                        ? "bg-gold/[0.06] border-gold text-ink-1"
+                                                        : "bg-raised border-line text-ink-3 hover:bg-hover"
                                                 )}
                                             >
                                                 <div className="w-16 h-16 mx-auto relative flex items-center justify-center mt-2">
@@ -567,14 +568,14 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                         src={icon}
                                                         alt={id}
                                                         fill
-                                                        className="object-contain drop-shadow-2xl transition-transform duration-300 group-hover:scale-125"
+                                                        className="object-contain"
                                                     />
                                                 </div>
                                                 <div className="w-full mt-2">
-                                                    <div className="text-[10px] font-normal uppercase tracking-wider">{id}</div>
-                                                    <div className="text-[9px] opacity-60 font-bold">{formatCurrency(price, "$", false)}</div>
+                                                    <div className="text-[11px] font-normal uppercase tracking-wider">{id}</div>
+                                                    <div className="text-[11px] font-bold text-ink-3">{formatCurrency(price, "$", false)}</div>
                                                 </div>
-                                                {isSelected && <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_10px_rgba(192,132,252,0.5)]" />}
+                                                {isSelected && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-gold" />}
                                             </button>
                                         )
                                     })}
@@ -582,7 +583,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                             </div>
                         </div>
                     ) : (
-                        <div className="flex items-center justify-center h-full text-white/30">
+                        <div className="flex items-center justify-center h-full text-ink-3">
                             <div className="text-center">
                                 <User className="w-12 h-12 mx-auto mb-4 opacity-30" />
                                 <div className="text-sm font-bold">Select a player to configure their loadout</div>
@@ -593,10 +594,10 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-white/5 bg-black/40 flex items-center justify-between">
+            <div className="p-6 border-t border-line bg-shell flex items-center justify-between">
                 <div>
                     {teamBudget !== undefined && (
-                        <div className="text-[10px] font-bold text-white/50">
+                        <div className="text-[11px] font-bold text-ink-3">
                             Team Budget: {formatCurrency(teamBudget, "$", false)}
                         </div>
                     )}
@@ -606,25 +607,19 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                         <Button
                             variant="outline"
                             onClick={handlePasteToAll}
-                            className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white/70 font-normal text-[10px] uppercase h-9 px-4 flex items-center gap-2"
+                            className="rounded-[4px] border-line-strong bg-raised hover:bg-hover text-ink-2 font-normal text-[11px] uppercase h-9 px-4 flex items-center gap-2"
                         >
                             <ClipboardPaste className="w-3.5 h-3.5" />
                             Paste to All
                         </Button>
                     )}
-                    <div className="flex gap-3 border-l border-white/10 pl-4">
-                        <Button variant="ghost" onClick={onClose} className="rounded-2xl px-8 hover:bg-white/5 font-normal text-xs uppercase h-10">
+                    <div className="flex gap-3 border-l border-line-strong pl-4">
+                        <Button variant="ghost" onClick={onClose} className="h-10 px-6 text-sm">
                             Cancel
                         </Button>
-                        <Button
-                            onClick={handleSave}
-                            className={cn(
-                                "rounded-2xl px-10 font-normal text-xs uppercase flex items-center gap-2 h-10",
-                                side === "ct" ? "bg-blue-500 hover:bg-blue-600" : "bg-orange-500 hover:bg-orange-600"
-                            )}
-                        >
+                        <Button onClick={handleSave} className="h-10 gap-2 px-6 text-sm">
                             <Save className="w-4 h-4" />
-                            Apply Loadouts
+                            Apply loadouts
                         </Button>
                     </div>
                 </div>

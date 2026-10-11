@@ -1,0 +1,30 @@
+# ESM_PERF_TRACE_STEPS=1 npx tsx scripts/perf-baseline.ts --matches=20 (Phase 5.1, 2026-10-11); summary lines only
+[perf] matches=20 weeks=52 warmup=10
+[perf] running 20 single-match sims (bo3, random team pairs)…
+[perf] running single weekly tick…
+[perf] running 52 weeks (full-season proxy)…
+  week 10/52: 562ms (matches=62)
+  week 20/52: 639ms (matches=111)
+  week 30/52: 1107ms (matches=110)
+  week 40/52: 906ms (matches=92)
+  week 50/52: 485ms (matches=0)
+  week 52/52: 797ms (matches=81)
+[perf] --- summary ---
+[perf] step.1_training count=54 total=212.5ms avg=3.94ms min=1.80ms max=9.50ms
+[perf] step.2_fatigue count=54 total=140.0ms avg=2.59ms min=0.91ms max=6.17ms
+[perf] step.3_injuries count=54 total=26.3ms avg=0.49ms min=0.18ms max=1.05ms
+[perf] step.4_finance count=54 total=218.2ms avg=4.04ms min=2.21ms max=9.14ms
+[perf] step.5_tournaments count=54 total=631.2ms avg=11.69ms min=0.14ms max=37.58ms
+[perf] step.6_matches count=54 total=27218.3ms avg=504.04ms min=0.19ms max=1250.81ms
+[perf] step.7_standings count=54 total=208.7ms avg=3.86ms min=1.09ms max=12.93ms
+[perf] step.8_events count=54 total=43.3ms avg=0.80ms min=0.25ms max=2.41ms
+[perf] step.9_worldAI count=54 total=3570.1ms avg=66.11ms min=35.38ms max=256.30ms
+[perf] step.10_restDays count=54 total=105.3ms avg=1.95ms min=0.94ms max=5.25ms
+[perf] step.11_finalize count=54 total=13.8ms avg=0.25ms min=0.09ms max=0.72ms
+[perf] step.12_narrative count=54 total=67.9ms avg=1.26ms min=0.26ms max=10.18ms
+[perf] step.13_finalSave count=54 total=15587.7ms avg=288.66ms min=61.59ms max=462.06ms
+[perf] records.officialMatch count=4921 total=1033.5ms avg=0.21ms min=0.08ms max=3.06ms
+# Untraced perf-baseline runs on the same machine while other agents were running (noisy; the single-match control does not touch Phase 5.1 code):
+#   before (55bb67e4): single match avg 7.57 ms, weekly tick (single) 544.2 ms, full season (52 ticks) 63.26 s
+#   after:             single match avg 8.67 ms, weekly tick (single) 800.9 ms, full season (52 ticks) 43.36 s
+# The traced share above is the direct measure: records.officialMatch total / sum of step.* totals.

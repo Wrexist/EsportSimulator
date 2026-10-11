@@ -1,843 +1,412 @@
 "use client"
 
-import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
-import React, { useMemo, useState } from "react"
-import { ErrorBoundary } from "@/components/ui/error-boundary"
-import { useGameStore } from "@/store/game-store"
+import React, { Fragment, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
+import { ChevronDown, ChevronRight } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    AreaChart,
-    Area,
-    Cell,
-    RadarChart,
-    Radar,
-    PolarGrid,
-    PolarAngleAxis,
-    PolarRadiusAxis
+    Bar, BarChart, CartesianGrid, LabelList, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts"
-import {
-    Activity,
-    TrendingUp,
-    TrendingDown,
-    DollarSign,
-    Zap,
-    Users,
-    Trophy,
-    Target,
-    BarChart3,
-    Map as MapIcon,
-    History as HistoryIcon,
-    Swords,
-    ChevronRight,
-    ChevronDown
-} from "lucide-react"
-import { PlayerPortrait } from "@/components/ui/asset-images"
-import { CountryFlag } from "@/components/ui/CountryFlag"
-import {
-    GlassTable,
-    GlassTableHeader,
-    GlassTableHead,
-    GlassTableRow,
-    GlassTableCell,
-    GlassStatCell
-} from "@/components/ui/GlassTable"
-import { Badge } from "@/components/ui/badge"
+import { useGameStore } from "@/store/game-store"
+import type { CompletedMatchSaveData, PlayerSaveData } from "@/engine/save-types"
 import { cn } from "@/lib/utils"
-import { clutchRateFraction, formatRole } from "@/lib/utils-extended"
-import { motion, AnimatePresence } from "framer-motion"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { PlayerPortrait } from "@/components/ui/asset-images"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
-import { pressable } from "@/lib/accessibility"
+import { Panel } from "@/src/components/ui/Panel"
+import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { RoleTag } from "@/src/components/ui/RoleTag"
+import { Sparkline } from "@/src/components/ui/Sparkline"
 
-// Hoisted: pure lookup, no closure. Was being re-created every render.
-function getIntensityStyle(intensity: string) {
-    switch (intensity) {
-        case "FIERCE": return "text-red-400 bg-red-500/20 border-red-500/30"
-        case "HEATED": return "text-orange-400 bg-orange-500/20 border-orange-500/30"
-        case "NEUTRAL": return "text-yellow-400 bg-yellow-500/20 border-yellow-500/30"
-        default: return "text-emerald-400 bg-emerald-500/20 border-emerald-500/30"
-    }
+/** Chart styling from the v2 tokens (app/premium-ui.css custom properties). */
+const AXIS = { stroke: "var(--border-subtle)", tick: { fill: "var(--text-muted)", fontSize: 11 }, axisLine: false, tickLine: false } as const
+const TOOLTIP = {
+    contentStyle: { background: "var(--surface-800)", border: "1px solid var(--border-strong)", borderRadius: 6, color: "var(--text-strong)", fontSize: 12 },
+    labelStyle: { color: "var(--text-muted)" },
+    cursor: { fill: "rgba(255,255,255,0.03)" },
+}
+
+interface PlayerLine {
+    player: PlayerSaveData
+    matches: number
+    maps: number
+    kills: number
+    deaths: number
+    adrSum: number
+    ratingSum: number
+    clutches: number
+    ratings: number[]
+}
+
+function ourSide(match: CompletedMatchSaveData, teamId: string | null) {
+    return match.homeTeamId === teamId
+}
+
+function won(match: CompletedMatchSaveData, teamId: string | null) {
+    const home = ourSide(match, teamId)
+    return home ? match.result.homeScore > match.result.awayScore : match.result.awayScore > match.result.homeScore
+}
+
+function mapScore(m: CompletedMatchSaveData["result"]["maps"][number]) {
+    const home = (m as { homeScore?: number }).homeScore ?? m.finalScore?.team1 ?? 0
+    const away = (m as { awayScore?: number }).awayScore ?? m.finalScore?.team2 ?? 0
+    return { home, away }
 }
 
 export default function StatsPage() {
-    const { players, teams, playerTeamId, completedMatches, contracts } = useGameStore(useShallow(state => ({
+    const { players, teams, playerTeamId, completedMatches, currentWeek } = useGameStore(useShallow(state => ({
         players: state.players,
         teams: state.teams,
         playerTeamId: state.playerTeamId,
         completedMatches: state.completedMatches,
-        contracts: state.contracts,
+        currentWeek: state.currentWeek,
     })))
-    const [activeTab, setActiveTab] = useState<"ANALYTICS" | "RESULTS" | "TROPHIES" | "RIVALRIES">("ANALYTICS")
-    const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null)
+    const router = useRouter()
+    const [expanded, setExpanded] = useState<string | null>(null)
 
-    const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
-    // Memoize so the dependent useMemos (statsWithEIR, teamDNA) don't recompute
-    // every render off a fresh array identity.
-    const teamPlayers = useMemo(
-        () => players.filter(p => playerTeam?.rosterIds.includes(p.id)),
-        [players, playerTeam]
-    )
+    const team = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+    const teamById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
 
-    // Calculate EIR (Economy Impact Rating) = (Rating * 1000) / Salary
-    const statsWithEIR = useMemo(() => {
-        return teamPlayers.map(p => {
-            const contract = contracts.find(c => c.playerId === p.id)
-            const salary = contract?.salaryPerWeek || 2000
-            const eir = ((p.avgRating || 1.1) * 1000) / salary
+    const teamMatches = useMemo(() => completedMatches
+        .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
+        .sort((a, b) => (b.week || 0) - (a.week || 0)),
+    [completedMatches, playerTeamId])
 
-            // Build real form trend from last 7 completed matches this player participated in
-            const recentRatings: number[] = []
-            for (let i = completedMatches.length - 1; i >= 0 && recentRatings.length < 7; i--) {
-                const m = completedMatches[i]
-                const ps = m.result?.playerStats?.[p.id]
-                if (ps) {
-                    recentRatings.unshift(ps.rating)
-                }
+    const record = useMemo(() => {
+        let w = 0, mapW = 0, mapL = 0
+        for (const m of teamMatches) {
+            if (won(m, playerTeamId)) w++
+            const home = ourSide(m, playerTeamId)
+            for (const map of m.result.maps || []) {
+                const s = mapScore(map)
+                const mapWon = map.winner ? map.winner === playerTeamId : home ? s.home > s.away : s.away > s.home
+                if (mapWon) mapW++; else mapL++
             }
-            // Normalize ratings to 0-1 range (Pro ratings typically 0-2.0)
-            const formTrend = recentRatings.map(r => Math.min(1, r / 2.0))
-
-            return {
-                ...p,
-                eir: eir.toFixed(2),
-                formTrend
-            }
-        })
-    }, [teamPlayers, contracts, completedMatches])
-
-    // Get team's matches
-    const teamMatches = useMemo(() => {
-        return completedMatches
-            .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-            .sort((a, b) => (b.week || 0) - (a.week || 0))
-    }, [completedMatches, playerTeamId])
-
-    // Calculate real win rate
-    const winStats = useMemo(() => {
-        const wins = teamMatches.filter(m => {
-            const isHome = m.homeTeamId === playerTeamId
-            return isHome ? m.result.homeScore > m.result.awayScore : m.result.awayScore > m.result.homeScore
-        }).length
-        const total = teamMatches.length
-        return {
-            wins,
-            losses: total - wins,
-            winRate: total > 0 ? Math.round((wins / total) * 100) : 0
         }
+        return { w, l: teamMatches.length - w, mapW, mapL, rate: teamMatches.length ? Math.round((w / teamMatches.length) * 100) : 0 }
     }, [teamMatches, playerTeamId])
 
-    // Chart Data: Real Performance Trend from last 6 matches
-    const performanceData = useMemo(() => {
-        const recentMatches = teamMatches.slice(0, 6).reverse()
-        if (recentMatches.length === 0) {
-            return []
-        }
-
-        let cumulativeWins = 0
-        return recentMatches.map((match, idx) => {
-            const isHome = match.homeTeamId === playerTeamId
-            const won = isHome ? match.result.homeScore > match.result.awayScore : match.result.awayScore > match.result.homeScore
-            if (won) cumulativeWins++
-
-            const pStats = Object.values(match.result.playerStats || {})
-            const teamPStats = pStats.filter(ps => playerTeam?.rosterIds.includes(ps.playerId))
-            const avgRating = teamPStats.length > 0
-                ? teamPStats.reduce((sum, ps) => sum + ps.rating, 0) / teamPStats.length
-                : 1.0
-
-            return {
-                week: `W${match.week}`,
-                rating: parseFloat(avgRating.toFixed(2)),
-                winRate: Math.round((cumulativeWins / (idx + 1)) * 100)
+    // Per-player lines from this club's matches only (oldest → newest for the trend).
+    const lines = useMemo(() => {
+        const byId = new Map(players.map(p => [p.id, p]))
+        const roster = (team?.rosterIds || []).map(id => byId.get(id)).filter((p): p is PlayerSaveData => !!p)
+        const acc = new Map<string, PlayerLine>(roster.map(p => [p.id, { player: p, matches: 0, maps: 0, kills: 0, deaths: 0, adrSum: 0, ratingSum: 0, clutches: 0, ratings: [] }]))
+        for (const m of [...teamMatches].reverse()) {
+            for (const [pid, st] of Object.entries(m.result.playerStats || {})) {
+                const line = acc.get(pid)
+                if (!line) continue
+                line.matches++
+                line.maps += m.result.maps?.length || 1
+                line.kills += st.kills || 0
+                line.deaths += st.deaths || 0
+                line.adrSum += st.adr || 0
+                line.ratingSum += st.rating || 0
+                line.clutches += st.clutches || 0
+                line.ratings.push(st.rating || 0)
             }
-        })
-    }, [teamMatches, playerTeamId, playerTeam])
+        }
+        return [...acc.values()]
+    }, [players, team, teamMatches])
 
-    // Map Mastery Data
-    const mapStats = useMemo(() => {
-        const stats: Record<string, { played: number, wins: number }> = {}
+    const trend = useMemo(() => teamMatches.slice(0, 12).reverse().map(m => {
+        const own = (m.result.lineups?.[playerTeamId ?? ""] ?? team?.rosterIds ?? [])
+        const stats = Object.entries(m.result.playerStats || {}).filter(([pid]) => own.includes(pid)).map(([, s]) => s.rating || 0)
+        return { week: `W${m.week}`, rating: stats.length ? Number((stats.reduce((a, b) => a + b, 0) / stats.length).toFixed(2)) : null }
+    }), [teamMatches, playerTeamId, team])
 
-        teamMatches.forEach(match => {
-            const isHome = match.homeTeamId === playerTeamId
-            match.result.maps.forEach(mapResult => {
-                if (!stats[mapResult.map]) stats[mapResult.map] = { played: 0, wins: 0 }
-                stats[mapResult.map].played++
-
-                const homeWon = mapResult.finalScore.team1 > mapResult.finalScore.team2
-                const weWon = isHome ? homeWon : !homeWon
-
-                if (weWon) stats[mapResult.map].wins++
-            })
-        })
-
-        return Object.entries(stats)
-            .map(([map, data]) => ({
-                subject: map,
-                A: Math.round((data.wins / data.played) * 100),
-                fullMark: 100,
-                played: data.played
-            }))
-            .sort((a, b) => b.A - a.A)
-            .slice(0, 6)
+    const maps = useMemo(() => {
+        const acc: Record<string, { played: number; wins: number }> = {}
+        for (const m of teamMatches) {
+            const home = ourSide(m, playerTeamId)
+            for (const map of m.result.maps || []) {
+                const key = String(map.map)
+                acc[key] ??= { played: 0, wins: 0 }
+                acc[key].played++
+                const s = mapScore(map)
+                if (map.winner ? map.winner === playerTeamId : home ? s.home > s.away : s.away > s.home) acc[key].wins++
+            }
+        }
+        return Object.entries(acc).map(([map, d]) => ({ map, played: d.played, wins: d.wins, rate: Math.round((d.wins / d.played) * 100), record: `${d.wins}/${d.played}` }))
+            .sort((a, b) => b.played - a.played || b.rate - a.rate)
     }, [teamMatches, playerTeamId])
 
-    // Team DNA (Average Attributes)
-    const teamDNA = useMemo(() => {
-        const validPlayers = teamPlayers
-        if (validPlayers.length === 0) return []
+    const rivalries = useMemo(() => [...(team?.rivalries || [])]
+        .sort((a, b) => b.matchesPlayed - a.matchesPlayed)
+        .map(r => ({ ...r, opponent: teamById.get(r.opponentTeamId) })), [team, teamById])
 
-        const totals = validPlayers.reduce((acc, p) => ({
-            aim: acc.aim + ((p.rifle + p.awp + p.pistol) / 3),
-            utility: acc.utility + p.grenades,
-            tactics: acc.tactics + ((p.tactic + p.leader) / 2),
-            clutch: acc.clutch + p.clutch,
-            mental: acc.mental + ((p.morale + p.stressResistance) / 2),
-            mech: acc.mech + ((p.reaction + p.eyesight) / 2)
-        }), { aim: 0, utility: 0, tactics: 0, clutch: 0, mental: 0, mech: 0 })
-
-        const count = validPlayers.length
-        return [
-            { subject: "Aim", A: Math.round(totals.aim / count), fullMark: 100 },
-            { subject: "Utility", A: Math.round(totals.utility / count), fullMark: 100 },
-            { subject: "Tactics", A: Math.round(totals.tactics / count), fullMark: 100 },
-            { subject: "Clutch", A: Math.round(totals.clutch / count), fullMark: 100 },
-            { subject: "Mental", A: Math.round(totals.mental / count), fullMark: 100 },
-            { subject: "Mech", A: Math.round(totals.mech / count), fullMark: 100 },
-        ]
-    }, [teamPlayers])
-
-    // Recent match results for history
-    const recentMatches = teamMatches.slice(0, 20)
-
-    // O(1) team lookup for the results table — was teams.find() twice per row
-    // (O(rows × teams)) on every render of the tab.
-    const teamById = useMemo(() => {
-        const m = new Map<string, typeof teams[number]>()
-        for (const t of teams) m.set(t.id, t)
-        return m
-    }, [teams])
-
-    // Get rivalries. Build a teamsById index once so the rivalry list does an
-    // O(1) lookup per row instead of O(teams) on every map iteration.
-    const rivalries = useMemo(() => {
-        if (!playerTeam?.rivalries) return []
-        const teamsById = new Map(teams.map(t => [t.id, t]))
-        return [...playerTeam.rivalries]
-            .sort((a, b) => b.matchesPlayed - a.matchesPlayed)
-            .map(r => ({
-                ...r,
-                opponentTeam: teamsById.get(r.opponentTeamId)
-            }))
-    }, [playerTeam, teams])
-
-    const tabs = [
-        { id: "ANALYTICS", label: "Analytics", icon: BarChart3 },
-        { id: "RESULTS", label: "Results", icon: HistoryIcon },
-        { id: "TROPHIES", label: "Trophies", icon: Trophy },
-        { id: "RIVALRIES", label: "Rivalries", icon: Swords },
-    ]
+    if (!team) {
+        return <div role="status" className="mx-auto max-w-[1600px] py-10 text-sm text-ink-3">Loading statistics…</div>
+    }
 
     return (
         <ErrorBoundary section="Statistics">
-        <div className="premium-route space-y-6 max-w-7xl mx-auto pb-8">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div>
-                    <h1 className="page-title mb-2">Team Stats</h1>
-                    <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">Analytics, results, trophies, and rivalries</p>
-                </div>
+            <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
+                <ScreenHeader
+                    eyebrow={`Season ${Math.ceil(currentWeek / 52)} · Statistics`}
+                    title="Statistics"
+                    subtitle="Every number here comes from matches your club has played."
+                    aside={
+                        <KpiStrip>
+                            <Kpi label="Record" value={`${record.w}–${record.l}`} hint={`${record.rate}% won`} />
+                            <Kpi label="Maps" value={`${record.mapW}–${record.mapL}`} />
+                            <Kpi label="World rank" value={team.worldRanking ? `#${team.worldRanking}` : "—"} />
+                            <Kpi label="Elo" value={Math.round(team.elo || 1000)} />
+                        </KpiStrip>
+                    }
+                />
 
-                {/* Record Summary */}
-                <div className="flex items-center gap-6 glass-panel px-6 py-4">
-                    <div className="text-center">
-                        <p className="text-2xl font-normal text-emerald-400">{winStats.wins}</p>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Wins</p>
-                    </div>
-                    <div className="h-10 w-px bg-white/10" />
-                    <div className="text-center">
-                        <p className="text-2xl font-normal text-rose-400">{winStats.losses}</p>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Losses</p>
-                    </div>
-                    <div className="h-10 w-px bg-white/10" />
-                    <div className="text-center">
-                        <p className="text-2xl font-normal text-primary">{winStats.winRate}%</p>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Win Rate</p>
-                    </div>
-                </div>
-            </div>
+                <Tabs defaultValue="players">
+                    <TabsList>
+                        <TabsTrigger value="players">Players</TabsTrigger>
+                        <TabsTrigger value="results">Results</TabsTrigger>
+                        <TabsTrigger value="trophies">Trophies</TabsTrigger>
+                        <TabsTrigger value="rivalries">Rivalries</TabsTrigger>
+                    </TabsList>
 
-            {/* Tabs */}
-            <div className="flex gap-2">
-                {tabs.map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id as any)}
-                        className={cn(
-                            "flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm uppercase tracking-wider transition-all",
-                            activeTab === tab.id
-                                ? "bg-primary text-[#0e1217]"
-                                : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-                        )}
-                    >
-                        <tab.icon size={16} />
-                        {tab.label}
-                    </button>
-                ))}
-            </div>
-
-            {/* Content */}
-            <AnimatePresence mode="wait">
-                {/* Analytics Tab */}
-                {activeTab === "ANALYTICS" && (
-                    <motion.div
-                        key="analytics"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="space-y-8"
-                    >
-                        {teamMatches.length === 0 ? (
-                            <div className="flex items-center justify-center min-h-[30vh]" role="status" aria-live="polite">
-                                <div className="text-center space-y-1 max-w-sm">
-                                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">
-                                        No demos to analyze
-                                    </p>
-                                    <p className="text-sm text-white/55 leading-relaxed">
-                                        Play a few matches and the stat lab will fill up with k/d, ADR, and clutch breakdowns.
-                                    </p>
-                                </div>
-                            </div>
-                        ) : (
-                        <>
-                        {/* Top Level KPIs */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            <div className="glass-panel p-6 border-primary/20 bg-primary/5">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="p-2 rounded-xl bg-primary/20">
-                                        <BarChart3 className="text-primary" size={20} />
-                                    </div>
-                                    <Badge className="bg-primary/20 text-primary uppercase text-[10px]">
-                                        {playerTeam?.leagueTier?.replace("_", "-") || "League"}
-                                    </Badge>
-                                </div>
-                                <p className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground mb-1">World Ranking</p>
-                                <p className="text-3xl font-normal text-white">#{playerTeam?.worldRanking || "-"}</p>
-                                <p className="text-xs text-muted-foreground font-bold mt-2 flex items-center gap-1">
-                                    Elo: {playerTeam?.elo || 1000}
-                                </p>
-                            </div>
-
-                            <div className="glass-panel p-6 border-emerald-500/20 bg-emerald-500/5">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="p-2 rounded-xl bg-emerald-500/20">
-                                        <Trophy className="text-emerald-500" size={20} />
-                                    </div>
-                                </div>
-                                <p className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground mb-1">Win Rate</p>
-                                <p className="text-3xl font-normal text-emerald-400">{winStats.winRate}%</p>
-                                <p className="text-xs text-muted-foreground font-bold mt-2">{winStats.wins}W - {winStats.losses}L</p>
-                            </div>
-
-                            <div className="glass-panel p-6 border-blue-500/20 bg-blue-500/5">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="p-2 rounded-xl bg-blue-500/20">
-                                        <Target className="text-blue-500" size={20} />
-                                    </div>
-                                </div>
-                                <p className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground mb-1">Total Matches</p>
-                                <p className="text-3xl font-normal text-white">{teamMatches.length}</p>
-                                <p className="text-xs text-blue-400 font-bold mt-2">Career Total</p>
-                            </div>
-
-                            <div className="glass-panel p-6 border-amber-500/20 bg-amber-500/5">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="p-2 rounded-xl bg-amber-500/20">
-                                        <DollarSign className="text-amber-500" size={20} />
-                                    </div>
-                                </div>
-                                <p className="text-[10px] font-normal uppercase tracking-widest text-muted-foreground mb-1">EIR Efficiency</p>
-                                <p className="text-3xl font-normal text-amber-400">
-                                    {statsWithEIR.length > 0
-                                        ? (statsWithEIR.reduce((sum, p) => sum + parseFloat(p.eir), 0) / statsWithEIR.length).toFixed(2)
-                                        : "-"}
-                                </p>
-                                <p className="text-xs text-amber-400 font-bold mt-2">Team Average</p>
-                            </div>
-                        </div>
-
-                        {/* Deep Player Stats Table */}
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-normal uppercase tracking-widest text-white flex items-center gap-2">
-                                <Users size={16} className="text-primary" /> Roster Deep Insights
-                            </h3>
-                            <GlassTable>
-                                <GlassTableHeader>
-                                    <GlassTableRow>
-                                        <GlassTableHead>Player</GlassTableHead>
-                                        <GlassTableHead className="text-center">Matches</GlassTableHead>
-                                        <GlassTableHead className="text-center">Avg Rating</GlassTableHead>
-                                        <GlassTableHead className="text-center text-emerald-400">EIR</GlassTableHead>
-                                        <GlassTableHead className="text-center">Headshots</GlassTableHead>
-                                        <GlassTableHead className="text-center">Clutch %</GlassTableHead>
-                                        <GlassTableHead className="text-right">Form Trend</GlassTableHead>
-                                    </GlassTableRow>
-                                </GlassTableHeader>
-                                <tbody>
-                                    {statsWithEIR.length === 0 && (
-                                        <tr>
-                                            <td colSpan={7} className="text-center py-12">
-                                                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mb-1">
-                                                    Scoreboard empty
-                                                </p>
-                                                <p className="text-xs text-white/55">
-                                                    Play a few matches to populate per-player ratings.
-                                                </p>
-                                            </td>
+                    <TabsContent value="players" className="mt-3 space-y-4">
+                        <Panel title="Player performance" actions={<span className="text-xs text-ink-3">Current roster · matches for {team.name}</span>} padded={false}>
+                            <div className="overflow-x-auto">
+                                <table data-slot="table" className="w-full min-w-[980px] border-collapse text-left">
+                                    <thead data-slot="table-header">
+                                        <tr className="border-b border-line">
+                                            <th data-slot="table-head" className="pl-4">Player</th>
+                                            <th data-slot="table-head" className="px-3">Role</th>
+                                            <th data-slot="table-head" className="px-3 text-right">Matches</th>
+                                            <th data-slot="table-head" className="px-3 text-right">Maps</th>
+                                            <th data-slot="table-head" className="px-3 text-right">K–D</th>
+                                            <th data-slot="table-head" className="px-3 text-right">K/D</th>
+                                            <th data-slot="table-head" className="px-3 text-right">ADR</th>
+                                            <th data-slot="table-head" className="px-3 text-right">Rating</th>
+                                            <th data-slot="table-head" className="px-3 text-right">Clutches</th>
+                                            <th data-slot="table-head" className="pl-6 pr-4">Last ratings</th>
                                         </tr>
-                                    )}
-                                    {statsWithEIR.map((player) => (
-                                        <GlassTableRow key={player.id}>
-                                            <GlassTableCell>
-                                                <div className="flex items-center gap-4">
-                                                    <div className="relative">
-                                                        <PlayerPortrait src={player.portraitPath} seed={player.id}
-                                                            alt={player.nickname} size={40} className="border-2 border-white/10" />
-                                                        <div className="absolute -bottom-1 -right-1 shadow-md">
-                                                            <CountryFlag country={player.nationality} size={16} />
+                                    </thead>
+                                    <tbody>
+                                        {lines.map(l => {
+                                            const has = l.matches > 0
+                                            const rating = has ? l.ratingSum / l.matches : null
+                                            return (
+                                                <tr key={l.player.id} data-slot="table-row" tabIndex={0} onClick={() => router.push(`/player/${l.player.id}`)}
+                                                    onKeyDown={e => { if (e.key === "Enter") router.push(`/player/${l.player.id}`) }}
+                                                    aria-label={`${l.player.nickname}, open profile`}
+                                                    className="group h-14 cursor-pointer border-b border-line outline-none focus-visible:bg-hover">
+                                                    <td className="py-2 pl-4 pr-3">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="h-9 w-9 shrink-0 overflow-hidden rounded bg-raised"><PlayerPortrait src={l.player.portraitPath} seed={l.player.id} alt={l.player.nickname} size={36} /></span>
+                                                            <span className="truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{l.player.nickname}</span>
                                                         </div>
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-bold text-white uppercase text-base tracking-wide">{player.nickname}</p>
-                                                        <p className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">{formatRole(player.role)}</p>
-                                                    </div>
-                                                </div>
-                                            </GlassTableCell>
-                                            <GlassTableCell className="text-center font-sans">{player.matchesPlayed}</GlassTableCell>
-                                            <GlassStatCell value={Math.round((player.avgRating || 1.1) * 70)} max={140} />
-                                            <GlassTableCell className="text-center font-sans font-normal text-emerald-400">{player.eir}</GlassTableCell>
-                                            <GlassTableCell className="text-center font-sans text-amber-400">{player.headshots || 0}</GlassTableCell>
-                                            <GlassTableCell className="text-center font-sans">{(clutchRateFraction(player.clutchSuccessRate) * 100).toFixed(0)}%</GlassTableCell>
-                                            <GlassTableCell className="text-right">
-                                                <div className="flex items-end justify-end gap-0.5 h-6">
-                                                    {player.formTrend.length > 0 ? player.formTrend.map((v: number, i: number) => (
-                                                        <div
-                                                            key={i}
-                                                            className={cn(
-                                                                "w-1 rounded-t-sm",
-                                                                i === player.formTrend.length - 1 ? "bg-primary" : "bg-white/10"
-                                                            )}
-                                                            style={{ height: `${Math.max(5, v * 100)}%` }}
-                                                        />
-                                                    )) : (
-                                                        <span className="text-[9px] text-white/20">—</span>
-                                                    )}
-                                                </div>
-                                            </GlassTableCell>
-                                        </GlassTableRow>
-                                    ))}
-                                </tbody>
-                            </GlassTable>
-                        </div>
-
-                        {/* Main Charts Row */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            {/* Performance Trend */}
-                            <div className="glass-panel p-8 min-h-[400px]">
-                                <h3 className="text-sm font-normal uppercase tracking-widest text-white mb-8 flex items-center gap-2">
-                                    <TrendingUp size={16} className="text-primary" /> Performance Momentum
-                                </h3>
-                                <div className="h-[300px] w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={performanceData}>
-                                            <defs>
-                                                <linearGradient id="colorRating" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                            <XAxis dataKey="week" stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
-                                            <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} domain={[0.8, 1.4]} />
-                                            <Tooltip
-                                                contentStyle={{ backgroundColor: "#000", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }}
-                                                itemStyle={{ fontSize: "12px", fontWeight: "bold" }}
-                                            />
-                                            <Area type="monotone" dataKey="rating" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRating)" />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
-                                </div>
+                                                    </td>
+                                                    <td className="px-3"><RoleTag role={l.player.role} /></td>
+                                                    <td className="px-3 text-right text-sm tabular-nums text-ink-2">{l.matches}</td>
+                                                    <td className="px-3 text-right text-sm tabular-nums text-ink-2">{has ? l.maps : "—"}</td>
+                                                    <td className="px-3 text-right text-sm tabular-nums text-ink-2">{has ? `${l.kills}–${l.deaths}` : "—"}</td>
+                                                    <td className="px-3 text-right text-sm tabular-nums text-ink-1">{has ? (l.deaths ? (l.kills / l.deaths).toFixed(2) : l.kills.toFixed(2)) : "—"}</td>
+                                                    <td className="px-3 text-right text-sm tabular-nums text-ink-1">{has ? Math.round(l.adrSum / l.matches) : "—"}</td>
+                                                    <td className={cn("px-3 text-right text-sm font-semibold tabular-nums", rating != null && rating >= 1.2 ? "text-positive" : "text-ink-1")}>{rating != null ? rating.toFixed(2) : "—"}</td>
+                                                    <td className="px-3 text-right text-sm tabular-nums text-ink-2">{has ? l.clutches : "—"}</td>
+                                                    <td className="pl-6 pr-4">
+                                                        {l.ratings.length > 1
+                                                            ? <Sparkline values={l.ratings.slice(-8)} baseline={1} width={96} height={24} label={`${l.player.nickname} last ${Math.min(8, l.ratings.length)} ratings`} />
+                                                            : <span className="text-sm text-ink-3">—</span>}
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </table>
                             </div>
+                            {teamMatches.length === 0 && <p className="border-t border-line px-4 py-3 text-sm text-ink-3">No matches yet. Stats fill in after your first official match or scrim.</p>}
+                        </Panel>
 
-                            {/* Efficiency Chart */}
-                            <div className="glass-panel p-8 min-h-[400px]">
-                                <h3 className="text-sm font-normal uppercase tracking-widest text-white mb-8 flex items-center gap-2">
-                                    <Zap size={16} className="text-emerald-400" /> Economic Efficiency (EIR)
-                                </h3>
-                                <div className="h-[300px] w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={statsWithEIR}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                            <XAxis dataKey="nickname" stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
-                                            <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
-                                            <Tooltip
-                                                cursor={{ fill: "rgba(255,255,255,0.05)" }}
-                                                contentStyle={{ backgroundColor: "#000", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }}
-                                            />
-                                            <Bar dataKey="eir" radius={[4, 4, 0, 0]}>
-                                                {statsWithEIR.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={parseFloat(entry.eir) > 0.6 ? "#10b981" : "#34d399"} fillOpacity={0.8} />
-                                                ))}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
+                        {teamMatches.length > 0 && (
+                            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                                <Panel title="Team rating" actions={<span className="text-xs text-ink-3">Average player rating, last {trend.length} matches</span>}>
+                                    <div className="h-[240px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart data={trend} margin={{ top: 8, right: 12, left: -16, bottom: 0 }}>
+                                                <CartesianGrid stroke="var(--border-subtle)" vertical={false} />
+                                                <XAxis dataKey="week" {...AXIS} />
+                                                <YAxis domain={[0.6, 1.6]} {...AXIS} />
+                                                <ReferenceLine y={1} stroke="var(--border-strong)" strokeDasharray="3 3" />
+                                                <Tooltip {...TOOLTIP} />
+                                                <Line type="monotone" dataKey="rating" name="Rating" stroke="var(--gold)" strokeWidth={2} dot={{ r: 2.5, fill: "var(--gold)", strokeWidth: 0 }} isAnimationActive={false} connectNulls />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </Panel>
+                                <Panel title="Maps" actions={<span className="text-xs text-ink-3">Win rate by map</span>}>
+                                    <div className="h-[240px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={maps} layout="vertical" margin={{ top: 4, right: 40, left: 8, bottom: 0 }}>
+                                                <CartesianGrid stroke="var(--border-subtle)" horizontal={false} />
+                                                <XAxis type="number" domain={[0, 100]} unit="%" {...AXIS} />
+                                                <YAxis type="category" dataKey="map" width={84} {...AXIS} tick={{ fill: "var(--text)", fontSize: 12 }} />
+                                                <ReferenceLine x={50} stroke="var(--border-strong)" strokeDasharray="3 3" />
+                                                <Tooltip {...TOOLTIP} formatter={(v: number, _n, item) => [`${v}% (${item?.payload?.wins}/${item?.payload?.played})`, "Won"]} />
+                                                <Bar dataKey="rate" name="Win rate" fill="var(--text)" fillOpacity={0.55} radius={[0, 3, 3, 0]} barSize={14} isAnimationActive={false}>
+                                                    <LabelList dataKey="record" position="right" fill="var(--text-muted)" fontSize={11} />
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </Panel>
                             </div>
-                        </div>
-
-                        {/* Second Row: Deep Analysis */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {/* Map Mastery */}
-                            <div className="glass-panel p-8 min-h-[400px]">
-                                <h3 className="text-sm font-normal uppercase tracking-widest text-white mb-8 flex items-center gap-2">
-                                    <MapIcon size={16} className="text-amber-400" /> Map Mastery (Win %)
-                                </h3>
-                                <div className="h-[300px] w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={mapStats} layout="vertical" margin={{ left: 20 }}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
-                                            <XAxis type="number" domain={[0, 100]} stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
-                                            <YAxis dataKey="subject" type="category" stroke="rgba(255,255,255,0.8)" fontSize={11} fontWeight="bold" width={80} axisLine={false} tickLine={false} />
-                                            <Tooltip
-                                                cursor={{ fill: "rgba(255,255,255,0.05)" }}
-                                                contentStyle={{ backgroundColor: "#000", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }}
-                                                formatter={(value: number) => [`${value}%`, "Win Rate"]}
-                                            />
-                                            <Bar dataKey="A" radius={[0, 4, 4, 0]}>
-                                                {mapStats.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.A > 50 ? "#10b981" : "#ef4444"} fillOpacity={0.8} />
-                                                ))}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </div>
-
-                            {/* Team DNA */}
-                            <div className="glass-panel p-8 min-h-[400px]">
-                                <h3 className="text-sm font-normal uppercase tracking-widest text-white mb-8 flex items-center gap-2">
-                                    <Activity size={16} className="text-purple-400" /> Team DNA
-                                </h3>
-                                <div className="h-[300px] w-full flex items-center justify-center">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={teamDNA}>
-                                            <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                                            <PolarAngleAxis dataKey="subject" tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 10, fontWeight: "bold" }} />
-                                            <PolarRadiusAxis angle={30} domain={[0, 20]} tick={false} axisLine={false} />
-                                            <Radar
-                                                name="Team Average"
-                                                dataKey="A"
-                                                stroke="#a855f7"
-                                                strokeWidth={3}
-                                                fill="#a855f7"
-                                                fillOpacity={0.3}
-                                            />
-                                            <Tooltip
-                                                contentStyle={{ backgroundColor: "#000", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }}
-                                            />
-                                        </RadarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </div>
-                        </div>
-                        </>
                         )}
-                    </motion.div>
-                )}
+                    </TabsContent>
 
-                {/* Results Tab */}
-                {activeTab === "RESULTS" && (
-                    <motion.div
-                        key="results"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="space-y-4"
-                    >
-                        {recentMatches.length === 0 ? (
-                            <div className="glass-panel p-12 text-center">
-                                <HistoryIcon size={48} className="mx-auto mb-4 text-white/20" />
-                                <p className="text-muted-foreground">No matches played yet</p>
-                            </div>
-                        ) : (
-                            recentMatches.map((match, idx) => {
-                                const isHome = match.homeTeamId === playerTeamId
-                                const homeTeam = teamById.get(match.homeTeamId)
-                                const awayTeam = teamById.get(match.awayTeamId)
-                                const opponent = isHome ? awayTeam : homeTeam
-                                const homeWon = match.result.homeScore > match.result.awayScore
-                                const won = (isHome && homeWon) || (!isHome && !homeWon)
-                                const score = isHome
-                                    ? `${match.result.homeScore} - ${match.result.awayScore}`
-                                    : `${match.result.awayScore} - ${match.result.homeScore}`
-
-                                return (
-                                    <motion.div
-                                        key={match.id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: idx * 0.05 }}
-                                        className={cn(
-                                            "glass-panel overflow-hidden transition-all duration-300 border-l-4 cursor-pointer hover:bg-white/5",
-                                            won ? "border-l-emerald-500" : "border-l-rose-500",
-                                            expandedMatchId === match.id ? "bg-white/5" : ""
-                                        )}
-                                        {...pressable(() => setExpandedMatchId(expandedMatchId === match.id ? null : match.id), { expanded: expandedMatchId === match.id })}
-                                    >
-                                        <div className="p-4 flex items-center gap-4">
-                                            <div className={cn(
-                                                "w-10 h-10 rounded-xl flex items-center justify-center font-normal",
-                                                won ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
-                                            )}>
-                                                {won ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
-                                            </div>
-
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={cn(
-                                                        "font-bold uppercase text-sm",
-                                                        won ? "text-emerald-400" : "text-rose-400"
-                                                    )}>
-                                                        {won ? "WIN" : "LOSS"}
-                                                    </span>
-                                                    <span className="text-white/50">vs</span>
-                                                    <span className="font-bold text-white">{opponent?.name}</span>
-                                                </div>
-                                                <p className="text-xs text-muted-foreground">
-                                                    Week {match.week} • {match.stage || "League Match"}
-                                                </p>
-                                            </div>
-
-                                            <div className="text-right">
-                                                <p className="text-xl font-sans font-bold text-white">{score}</p>
-                                                {/* Map Details - Showing detailed scores */}
-                                                {match.result.maps && match.result.maps.length > 0 && (
-                                                    <div className="flex flex-col items-end gap-0.5 mt-1">
-                                                        {match.result.maps.map((m: any, i: number) => {
-                                                            const home = m.homeScore ?? m.finalScore?.team1 ?? 0
-                                                            const away = m.awayScore ?? m.finalScore?.team2 ?? 0
-                                                            const mapName = typeof m.map === 'string' ? m.map : (m.mapName || `Map ${i + 1}`)
-                                                            return (
-                                                                <span key={i} className="text-[10px] text-muted-foreground uppercase">
-                                                                    {mapName} {home}-{away}
+                    <TabsContent value="results" className="mt-3">
+                        <Panel title="Results" actions={<span className="text-xs text-ink-3">{teamMatches.length} played · select a row for the breakdown</span>} padded={false}>
+                            {teamMatches.length === 0 ? (
+                                <p className="px-4 py-5 text-sm text-ink-3">No matches played yet.</p>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table data-slot="table" className="w-full min-w-[900px] border-collapse text-left">
+                                        <thead data-slot="table-header">
+                                            <tr className="border-b border-line">
+                                                <th data-slot="table-head" className="w-8 pl-4"><span className="sr-only">Expand</span></th>
+                                                <th data-slot="table-head" className="px-3">Week</th>
+                                                <th data-slot="table-head" className="px-3">Opponent</th>
+                                                <th data-slot="table-head" className="px-3">Event</th>
+                                                <th data-slot="table-head" className="px-3 text-center">Result</th>
+                                                <th data-slot="table-head" className="px-3">Maps</th>
+                                                <th data-slot="table-head" className="pr-4 text-right">Side</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {teamMatches.slice(0, 30).map(m => {
+                                                const home = ourSide(m, playerTeamId)
+                                                const opp = teamById.get(home ? m.awayTeamId : m.homeTeamId)
+                                                const w = won(m, playerTeamId)
+                                                const isOpen = expanded === m.id
+                                                return (
+                                                    <Fragment key={m.id}>
+                                                        <tr data-slot="table-row" data-state={isOpen ? "selected" : undefined} tabIndex={0} aria-expanded={isOpen}
+                                                            onClick={() => setExpanded(isOpen ? null : m.id)}
+                                                            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded(isOpen ? null : m.id) } }}
+                                                            className="h-12 cursor-pointer border-b border-line outline-none focus-visible:bg-hover">
+                                                            <td className="pl-4 text-ink-3">{isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</td>
+                                                            <td className="px-3 text-sm tabular-nums text-ink-2">W{m.week}</td>
+                                                            <td className="px-3">
+                                                                <span className="flex items-center gap-2 text-sm font-semibold text-ink-1">
+                                                                    {opp && <TeamLogoDisplay team={opp} size={20} />}{opp?.name ?? "Unknown"}
                                                                 </span>
-                                                            )
-                                                        })}
-                                                    </div>
-                                                )}
-                                                <div className="flex items-center justify-end gap-1 text-[10px] text-muted-foreground uppercase mt-1">
-                                                    {isHome ? "Home" : "Away"}
-                                                    {expandedMatchId === match.id ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Match Analysis Details */}
-                                        <AnimatePresence>
-                                            {expandedMatchId === match.id && match.analysis && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: "auto", opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    transition={{ duration: 0.2, ease: "easeOut" }}
-                                                    className="px-4 pb-4 border-t border-white/5 bg-black/20"
-                                                >
-                                                    <div className="pt-4 space-y-4">
-                                                        <div className="flex items-start gap-3">
-                                                            <div className="p-2 rounded bg-primary/10 text-primary">
-                                                                <Activity size={16} />
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-sm font-medium text-white">Match Analysis</p>
-                                                                <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                                                                    {match.analysis.summary}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="grid grid-cols-2 gap-4">
-                                                            <div className="bg-white/5 rounded p-3">
-                                                                <p className="text-[10px] uppercase font-bold text-emerald-400 mb-1">Winning Factor</p>
-                                                                <p className="text-xs text-white">{match.analysis.winningFactor}</p>
-                                                            </div>
-                                                            <div className="bg-white/5 rounded p-3">
-                                                                <p className="text-[10px] uppercase font-bold text-rose-400 mb-1">Losing Factor</p>
-                                                                <p className="text-xs text-white">{match.analysis.losingFactor}</p>
-                                                            </div>
-                                                        </div>
-
-                                                        <div>
-                                                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2">Team Performance Ratings</p>
-                                                            <div className="grid grid-cols-4 gap-2">
-                                                                <div className="bg-white/5 rounded p-2 text-center">
-                                                                    <p className="text-xs font-bold text-white">{match.analysis.teamPerformance.aimRating}</p>
-                                                                    <p className="text-[9px] uppercase text-muted-foreground flex items-center justify-center gap-1">
-                                                                        <Target size={8} /> Aim
-                                                                    </p>
-                                                                </div>
-                                                                <div className="bg-white/5 rounded p-2 text-center">
-                                                                    <p className="text-xs font-bold text-white">{match.analysis.teamPerformance.tradingRating}</p>
-                                                                    <p className="text-[9px] uppercase text-muted-foreground flex items-center justify-center gap-1">
-                                                                        <Users size={8} /> Trades
-                                                                    </p>
-                                                                </div>
-                                                                <div className="bg-white/5 rounded p-2 text-center">
-                                                                    <p className="text-xs font-bold text-white">{match.analysis.teamPerformance.economyRating}</p>
-                                                                    <p className="text-[9px] uppercase text-muted-foreground flex items-center justify-center gap-1">
-                                                                        <Zap size={8} /> Eco
-                                                                    </p>
-                                                                </div>
-                                                                <div className="bg-white/5 rounded p-2 text-center">
-                                                                    <p className="text-xs font-bold text-white">{match.analysis.teamPerformance.utilityRating}</p>
-                                                                    <p className="text-[9px] uppercase text-muted-foreground flex items-center justify-center gap-1">
-                                                                        <Activity size={8} /> Util
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div>
-                                                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2">Round History (Map 1)</p>
-                                                            <div className="flex gap-1 flex-wrap">
-                                                                {match.result?.maps?.[0]?.rounds?.map((round: any, rIdx: number) => {
-                                                                    const map = match.result.maps[0]
-                                                                    // ctStartTeamId is the canonical engine field; the older
-                                                                    // ctStartTeam shape was the never-emitted game.ts MapResult.
-                                                                    const isHomeCT = rIdx < 12
-                                                                        ? map.ctStartTeamId === match.homeTeamId
-                                                                        : map.ctStartTeamId !== match.homeTeamId
-
-                                                                    const homeWonRound = (isHomeCT && round.winningSide === 'CT') || (!isHomeCT && round.winningSide === 'T')
-                                                                    const userIsHome = match.homeTeamId === playerTeamId
-                                                                    const userWon = userIsHome ? homeWonRound : !homeWonRound
-
-                                                                    return (
-                                                                        <div
-                                                                            key={rIdx}
-                                                                            className={cn(
-                                                                                "h-8 flex-1 min-w-[10px] rounded-sm relative group",
-                                                                                userWon ? "bg-emerald-500/40 hover:bg-emerald-500" : "bg-rose-500/40 hover:bg-rose-500"
-                                                                            )}
-                                                                        >
-                                                                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-black text-white text-[10px] px-2 py-1 rounded whitespace-nowrap z-10 pointer-events-none">
-                                                                                Round {rIdx + 1}: {userWon ? "WON" : "LOST"} ({round.winType})
-                                                                            </div>
-                                                                        </div>
-                                                                    )
+                                                            </td>
+                                                            <td className="px-3 text-sm text-ink-3">{m.isScrim ? "Scrim" : m.stage || "League match"}</td>
+                                                            <td className="px-3 text-center text-sm tabular-nums">
+                                                                <span className={cn("mr-2 font-semibold", w ? "text-positive" : "text-ink-3")}>{w ? "W" : "L"}</span>
+                                                                <span className="text-ink-1">{home ? m.result.homeScore : m.result.awayScore}–{home ? m.result.awayScore : m.result.homeScore}</span>
+                                                            </td>
+                                                            <td className="px-3 text-sm tabular-nums text-ink-3">
+                                                                {(m.result.maps || []).map((map, i) => {
+                                                                    const s = mapScore(map)
+                                                                    return <span key={i} className="mr-3 whitespace-nowrap">{String(map.map)} {home ? s.home : s.away}–{home ? s.away : s.home}</span>
                                                                 })}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </motion.div>
-                                )
-                            })
-                        )}
-                    </motion.div>
-                )}
+                                                            </td>
+                                                            <td className="pr-4 text-right text-sm text-ink-3">{home ? "Home" : "Away"}</td>
+                                                        </tr>
+                                                        {isOpen && (
+                                                            <tr className="border-b border-line bg-shell">
+                                                                <td colSpan={7} className="px-4 py-4">
+                                                                    <MatchBreakdown match={m} teamId={playerTeamId} />
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </Fragment>
+                                                )
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </Panel>
+                    </TabsContent>
 
-                {/* Trophy Case Tab */}
-                {activeTab === "TROPHIES" && (
-                    <motion.div
-                        key="trophies"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                    >
-                        <TrophyCabinet trophies={(playerTeam?.trophies || []) as any} title="Team Trophy Case" />
-                    </motion.div>
-                )}
+                    <TabsContent value="trophies" className="mt-3">
+                        <TrophyCabinet trophies={(team.trophies || []) as never} title="Trophy cabinet" />
+                    </TabsContent>
 
-                {/* Rivalries Tab */}
-                {activeTab === "RIVALRIES" && (
-                    <motion.div
-                        key="rivalries"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="space-y-4"
-                    >
-                        {rivalries.length === 0 ? (
-                            <div className="glass-panel p-12 text-center">
-                                <Swords size={48} className="mx-auto mb-4 text-white/20" />
-                                <p className="text-muted-foreground">Play more matches to develop rivalries with other teams</p>
-                            </div>
-                        ) : (
-                            rivalries.map((rivalry, idx) => {
-                                const winRate = rivalry.matchesPlayed > 0
-                                    ? Math.round((rivalry.wins / rivalry.matchesPlayed) * 100)
-                                    : 0
-
-                                return (
-                                    <motion.div
-                                        key={rivalry.opponentTeamId}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: idx * 0.05 }}
-                                        className="glass-panel p-4 flex items-center gap-4"
-                                    >
-                                        <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
-                                            <TeamLogoDisplay team={rivalry.opponentTeam} size={40} />
-                                        </div>
-
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-bold text-white">{rivalry.opponentTeam?.name}</span>
-                                                <Badge className={cn("text-[10px]", getIntensityStyle(rivalry.intensity))}>
-                                                    {rivalry.intensity}
-                                                </Badge>
-                                            </div>
-                                            <p className="text-xs text-muted-foreground">
-                                                Last played: Week {rivalry.lastPlayed}
-                                            </p>
-                                        </div>
-
-                                        <div className="flex items-center gap-6 text-center">
-                                            <div>
-                                                <p className="text-lg font-bold text-white">{rivalry.matchesPlayed}</p>
-                                                <p className="text-[10px] text-muted-foreground uppercase">Matches</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-lg font-bold text-emerald-400">{rivalry.wins}</p>
-                                                <p className="text-[10px] text-muted-foreground uppercase">Wins</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-lg font-bold text-rose-400">{rivalry.losses}</p>
-                                                <p className="text-[10px] text-muted-foreground uppercase">Losses</p>
-                                            </div>
-                                            <div>
-                                                <p className={cn(
-                                                    "text-lg font-bold",
-                                                    winRate >= 50 ? "text-emerald-400" : "text-rose-400"
-                                                )}>{winRate}%</p>
-                                                <p className="text-[10px] text-muted-foreground uppercase">Win%</p>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )
-                            })
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div >
+                    <TabsContent value="rivalries" className="mt-3">
+                        <Panel title="Rivalries" padded={false}>
+                            {rivalries.length === 0 ? (
+                                <p className="px-4 py-5 text-sm text-ink-3">Rivalries form after you meet the same clubs a few times.</p>
+                            ) : (
+                                <table data-slot="table" className="w-full border-collapse text-left">
+                                    <thead data-slot="table-header">
+                                        <tr className="border-b border-line">
+                                            <th data-slot="table-head" className="pl-4">Opponent</th>
+                                            <th data-slot="table-head" className="px-3">Intensity</th>
+                                            <th data-slot="table-head" className="px-3 text-right">Played</th>
+                                            <th data-slot="table-head" className="px-3 text-right">W–L</th>
+                                            <th data-slot="table-head" className="px-3 text-right">Win %</th>
+                                            <th data-slot="table-head" className="pr-4 text-right">Last met</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {rivalries.map(r => (
+                                            <tr key={r.opponentTeamId} data-slot="table-row" className="h-12 border-b border-line last:border-0">
+                                                <td className="pl-4">
+                                                    <span className="flex items-center gap-2 text-sm font-semibold text-ink-1">
+                                                        {r.opponent && <TeamLogoDisplay team={r.opponent} size={22} />}{r.opponent?.name ?? "Unknown"}
+                                                    </span>
+                                                </td>
+                                                <td className="px-3 text-sm capitalize text-ink-2">{r.intensity.toLowerCase()}</td>
+                                                <td className="px-3 text-right text-sm tabular-nums text-ink-2">{r.matchesPlayed}</td>
+                                                <td className="px-3 text-right text-sm tabular-nums text-ink-1">{r.wins}–{r.losses}</td>
+                                                <td className="px-3 text-right text-sm tabular-nums text-ink-1">{r.matchesPlayed ? Math.round((r.wins / r.matchesPlayed) * 100) : 0}%</td>
+                                                <td className="pr-4 text-right text-sm tabular-nums text-ink-3">W{r.lastPlayed}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </Panel>
+                    </TabsContent>
+                </Tabs>
+            </div>
         </ErrorBoundary>
+    )
+}
+
+function MatchBreakdown({ match, teamId }: { match: CompletedMatchSaveData; teamId: string | null }) {
+    const firstMap = match.result.maps?.[0]
+    return (
+        <div className="space-y-4">
+            {match.analysis ? (
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                    <div className="lg:col-span-1">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Summary</p>
+                        <p className="mt-1 text-sm text-ink-2">{match.analysis.summary}</p>
+                    </div>
+                    <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Winning factor</p>
+                        <p className="mt-1 text-sm text-ink-2">{match.analysis.winningFactor}</p>
+                    </div>
+                    <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Losing factor</p>
+                        <p className="mt-1 text-sm text-ink-2">{match.analysis.losingFactor}</p>
+                    </div>
+                </div>
+            ) : <p className="text-sm text-ink-3">No written analysis for this match.</p>}
+
+            {firstMap?.rounds?.length ? (
+                <div>
+                    <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Rounds · {String(firstMap.map)}</p>
+                    <div className="flex flex-wrap gap-0.5" aria-label="Round results, first map">
+                        {firstMap.rounds.map((round, i) => {
+                            // The round stores the winning side and that round's side assignment.
+                            const winnerId = round.winningTeamId ?? (round.winner === "ct" ? round.ctTeam : round.tTeam)
+                            const weWon = winnerId === teamId
+                            return (
+                                <span key={i} title={`Round ${i + 1}: ${weWon ? "won" : "lost"}${round.winType ? ` (${String(round.winType).toLowerCase().replace(/_/g, " ")})` : ""}`}
+                                    className={cn("h-5 w-2.5 rounded-sm", weWon ? "bg-positive/70" : "bg-hover")} />
+                            )
+                        })}
+                    </div>
+                </div>
+            ) : null}
+        </div>
     )
 }

@@ -103,9 +103,12 @@ export class EventsManager {
     }
 
     // ---------- 3. TRANSFER RUMOR (5% chance) ----------
+    // A rumour is wire news, not a bid: no offer exists, so it goes to the
+    // news feed instead of the inbox, where it read as an offer with an
+    // Accept button that could only fail (Phase 4.9).
     if (rng.bool(0.05) && playerTeam.rosterIds.length > 0) {
-      const eventId = `transfer_rumor_${week}`
-      if (!save.eventsLog.some(e => e.id === eventId)) {
+      const newsId = `news_rumor_${week}`
+      if (!save.newsFeed?.some(n => n.id === newsId)) {
         // Pick a random player from the roster
         const targetPid = playerTeam.rosterIds[Math.floor(rng.next() * playerTeam.rosterIds.length)]
         const targetPlayer = save.players.find(p => p.id === targetPid)
@@ -117,23 +120,17 @@ export class EventsManager {
           ? interestedTeams[Math.floor(rng.next() * interestedTeams.length)]
           : null
 
-        if (targetPlayer && interestedTeam) {
-          save.eventsLog.push({
-            id: eventId,
-            type: EventType.TRANSFER_OFFER,
+        if (targetPlayer && interestedTeam && save.newsFeed) {
+          save.newsFeed.unshift({
+            id: newsId,
+            title: `Rumour: ${interestedTeam.name} watching ${targetPlayer.nickname}`,
+            content: `Reports suggest ${interestedTeam.name} is interested in signing ${targetPlayer.nickname}. No formal offer has been made yet.`,
+            category: "TRANSFER",
+            playerId: targetPid,
+            teamId: interestedTeam.id,
             week,
-            acknowledged: false,
-            data: {
-              title: "Transfer Rumor",
-              message: `Reports suggest ${interestedTeam.name} is interested in signing ${targetPlayer.nickname}. No formal offer has been made yet.`,
-              severity: "warning",
-              playerId: targetPid,
-              teamId: interestedTeam.id,
-              teamName: interestedTeam.name,
-              playerName: targetPlayer.nickname,
-              offerAmount: Math.round((targetPlayer.skill * 100 + (targetPlayer.potential ?? 50) * 150) * (targetPlayer.tier === "ELITE" ? 50 : targetPlayer.tier === "PRO" ? 20 : 5)),
-            },
           })
+          if (save.newsFeed.length > 50) save.newsFeed.pop()
           generated++
         }
       }
@@ -237,7 +234,7 @@ export class EventsManager {
           acknowledged: false,
           data: {
             title: `${brand} Equipment Deal`,
-            message: `${brand} is offering your team a ${discount}% discount on new peripherals. This could give your players a slight edge and boost team morale.`,
+            message: `${brand} is offering your team a ${discount}% discount on new peripherals. Accepting boosts team morale.`,
             severity: "info",
             brand,
             discount,

@@ -17,14 +17,14 @@
  */
 
 import type { EventsActions, SliceCreator } from "@/store/types"
-import type { GameSave, TeamSaveData } from "@/engine/save-types"
+import type { GameSave } from "@/engine/save-types"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
+import { applyChoiceEffects, type ChoiceEffects, type ChoiceTarget } from "@/engine/event-choice"
+import { answerPressConference, type PressTarget } from "@/engine/storylines/press"
+import { getArchetype } from "@/engine/personality"
+import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { generateSocialPosts } from "@/lib/social-generator"
-import {
-    nextDeterministicId,
-    parseBoundedInt,
-    MAX_TRANSFER_FEE,
-} from "@/store/utils/helpers"
+import { nextDeterministicId } from "@/store/utils/helpers"
 
 import { formatCurrency } from "@/lib/utils-extended"
 const NEWS_FEED_CAP = 50
@@ -64,73 +64,26 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
             if (event.type === "JOB_OFFER") return
             if (typeof event.data.deadlineWeek === 'number' && state.currentWeek > event.data.deadlineWeek) return
             if (event.data.playerId && !state.teams.find(t => t.id === state.playerTeamId)?.rosterIds.includes(String(event.data.playerId))) return
-            if (event.data.teamId && event.data.teamId !== state.playerTeamId) return
+            if (event.type === "TRANSFER_OFFER") {
+                // Accepting a bid goes through acceptTransferOffer (fee, contract,
+                // roster move); only the effect-free "reject" resolves here. The
+                // own-club guard below would block it: a bid's teamId is the
+                // bidding club, which made Reject a dead button.
+                if (choiceId !== "reject") return
+            } else if (event.data.teamId && event.data.teamId !== state.playerTeamId) return
 
-            // Apply standard effect bundle (morale / money / loyalty / reputation)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by event type
-            const runtimeEvent = event as any
-            if (runtimeEvent.choices) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const choice = runtimeEvent.choices.find((c: any) => c.id === choiceId)
+            // Apply the standard effect bundle (engine/event-choice.ts — the
+            // same code applies an unanswered decision's default). A team
+            // event (no playerId) moves the whole roster; an unaffordable
+            // answer is refused and the event stays open.
+            if (event.choices) {
+                const choice = event.choices.find(c => c.id === choiceId)
                 if (!choice || !choice.effects) return
-
-                const { morale, money, loyalty, reputation, fatigue, chemistry } = choice.effects
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const playerId = (event.data as any).playerId
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const teamId = (event.data as any).teamId || state.playerTeamId
-
-                let resolvedTeam: TeamSaveData | undefined
-                let normalizedMoney = 0
-
-                if (teamId && (money || reputation || chemistry)) {
-                    resolvedTeam = state.teams.find(t => t.id === teamId)
-                    if (!resolvedTeam) return
-
-                    const moneyValidation = parseBoundedInt(
-                        money || 0,
-                        "Event money effect",
-                        -MAX_TRANSFER_FEE,
-                        MAX_TRANSFER_FEE,
-                    )
-                    if (!moneyValidation.ok) return
-                    normalizedMoney = moneyValidation.value
-
-                    // Refuse choices that would overdraw — keep the event
-                    // unresolved so the player can pick a different branch.
-                    if (normalizedMoney < 0 && resolvedTeam.budget < Math.abs(normalizedMoney)) {
-                        return
-                    }
-                }
-
-                if (playerId && (morale || loyalty || fatigue)) {
-                    const player = state.players.find(p => p.id === playerId)
-                    if (player) {
-                        if (morale) player.morale = Math.max(0, Math.min(100, player.morale + morale))
-                        if (fatigue) player.fatigue = Math.max(0, Math.min(100, player.fatigue + Math.max(-10, Math.min(10, fatigue))))
-                        if (loyalty) player.loyalty = Math.max(0, Math.min(100, player.loyalty + loyalty))
-                    }
-                }
-
-                if (resolvedTeam) {
-                    if (chemistry) resolvedTeam.chemistry = Math.max(0, Math.min(100, (resolvedTeam.chemistry ?? 50) + Math.max(-5, Math.min(5, chemistry))))
-                    if (normalizedMoney !== 0) {
-                        resolvedTeam.budget += normalizedMoney
-                        state.financeLedger.push({
-                            id: nextDeterministicId(state, "fin_event", eventId),
-                            week: state.currentWeek,
-                            teamId: resolvedTeam.id,
-                            type: normalizedMoney > 0 ? "INCOME" : "EXPENSE",
-                            category: "OTHER",
-                            amount: Math.abs(normalizedMoney),
-                            description: choice.text || "Event resolution",
-                            balance: resolvedTeam.budget,
-                        })
-                    }
-                    if (reputation) {
-                        resolvedTeam.reputation = Math.max(0, Math.min(100, resolvedTeam.reputation + reputation))
-                    }
-                }
+                const applied = applyChoiceEffects(state as unknown as ChoiceTarget, event, choice.effects as ChoiceEffects, {
+                    id: () => nextDeterministicId(state, "fin_event", eventId),
+                    description: choice.text || "Event resolution",
+                })
+                if (!applied) return
             }
 
             // Legend-Coach Hire — special-case event handler that replaces
@@ -175,10 +128,15 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                         unlockedTalentIds: [],
                     }
                     if (existingCoachIdx >= 0) {
+                        const replacedId = state.staff[existingCoachIdx].id
+                        team.staffIds = team.staffIds.filter(id => id !== replacedId)
                         state.staff[existingCoachIdx] = legendCoach
                     } else {
                         state.staff.push(legendCoach)
                     }
+                    // Weekly wages are paid from team.staffIds (EconomyEngine);
+                    // without this the legend's salary was never charged.
+                    if (!team.staffIds.includes(legendCoach.id)) team.staffIds.push(legendCoach.id)
                     // Deduct first week's salary up-front and boost team buffs.
                     team.budget -= salaryCost
                     state.financeLedger.push({
@@ -196,12 +154,34 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                 }
             }
 
+            // Phase 5.2: a Mercenary follows the money — turning a bid down costs him morale.
+            if (event.type === "TRANSFER_OFFER" && choiceId === "reject") {
+                const bidFor = state.players.find(p => p.id === String(event.data.playerId ?? ""))
+                if (bidFor && getArchetype(bidFor) === "MERCENARY") {
+                    bidFor.morale = Math.max(0, Math.min(100, bidFor.morale + PERSONALITY_TUNING.MERCENARY_BID_REJECT_MORALE))
+                }
+            }
+
             event.selectedChoiceId = choiceId
+            // When it was settled: a settled family stays quiet for a few
+            // weeks (engine/decision-deadlines.ts cooldowns).
+            event.data.resolvedWeek = state.currentWeek
             event.acknowledged = true
             if (!state.acknowledgedEventIds.includes(eventId)) {
                 state.acknowledgedEventIds.push(eventId)
             }
         })
+    },
+
+    // Phase 5.3: every chosen answer applies through the shared effect code
+    // (engine/event-choice.ts); refused once the match has been played.
+    answerPressConference: (eventId, answers) => {
+        let result = { ok: false, message: "Press conference not found." }
+        set((state) => {
+            const r = answerPressConference(state as unknown as PressTarget, eventId, answers)
+            result = { ok: r.ok, message: r.message }
+        })
+        return result
     },
 
     addNewsItem: (item) => set((state) => {

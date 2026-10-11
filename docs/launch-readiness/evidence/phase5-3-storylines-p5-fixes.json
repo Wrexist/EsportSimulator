@@ -1,0 +1,730 @@
+{
+  "generated": "2026-10-11T15:32:23.982Z",
+  "label": "p5-fixes",
+  "stream": "Phase 5.3 storylines & press conferences",
+  "driver": "long-career-campaign.ts (real useGameStore coordinator, full snapshot world, competent policy: answers inbox decisions with its usual rule and faces the press with the first answer to each question), one season per seed, final save kept with --dump-final.",
+  "seeds": 3,
+  "aggregate": {
+    "managedStorylinesPerSeason": [
+      12,
+      7,
+      9
+    ],
+    "managedStorylinesNamingPlayersOrClubs": [
+      11,
+      6,
+      9
+    ],
+    "otherClubStorylinesPerSeason": [
+      10,
+      17,
+      12
+    ],
+    "storylineDecisionsPerSeason": [
+      7,
+      4,
+      6
+    ],
+    "pressConferencesPerSeason": [
+      7,
+      1,
+      9
+    ],
+    "pressAnswered": [
+      7,
+      1,
+      9
+    ],
+    "kindsSeenManaged": [
+      "BOARD_PRESSURE",
+      "CONTRACT_STANDOFF",
+      "GIANT_KILLER",
+      "LAST_DANCE",
+      "RISING_STAR",
+      "RIVALRY",
+      "SLUMP"
+    ],
+    "kindsSeenAll": [
+      "BOARD_PRESSURE",
+      "CONTRACT_STANDOFF",
+      "GIANT_KILLER",
+      "LAST_DANCE",
+      "RISING_STAR",
+      "RIVALRY",
+      "SLUMP"
+    ],
+    "inboxDecisionsInFinalLog": [
+      42,
+      42,
+      44
+    ],
+    "managedRivalries": [
+      12,
+      13,
+      63
+    ],
+    "storiesWithUnknownPlayerOrClub": 0,
+    "aiAdministrations": [
+      0,
+      0,
+      0
+    ],
+    "failures": [
+      [],
+      [],
+      []
+    ]
+  },
+  "inboxNoise": null,
+  "performance": null,
+  "calibration": null,
+  "perSeed": [
+    {
+      "seed": 1,
+      "tier": "top",
+      "club": "Natus Vincera",
+      "ticks": 52,
+      "finalWeek": 53,
+      "failures": [],
+      "storylines": {
+        "arcsManaged": 12,
+        "arcsOtherClubs": 10,
+        "arcsManagedByKind": {
+          "CONTRACT_STANDOFF": 2,
+          "SLUMP": 5,
+          "RISING_STAR": 1,
+          "BOARD_PRESSURE": 1,
+          "RIVALRY": 2,
+          "GIANT_KILLER": 1
+        },
+        "arcsOtherByKind": {
+          "GIANT_KILLER": 10
+        },
+        "managedWithPlayers": 8,
+        "managedWithResults": 3,
+        "outcomes": {
+          "CONTRACT_STANDOFF:RENEWED": 2,
+          "SLUMP:RECOVERED": 3,
+          "RISING_STAR:KEPT": 1,
+          "BOARD_PRESSURE:LEFT": 1,
+          "RIVALRY:LOST": 1,
+          "SLUMP:MANAGER_LEFT": 1,
+          "GIANT_KILLER:ENDED": 1,
+          "RIVALRY:WON": 1,
+          "SLUMP:ACTIVE": 1
+        },
+        "decisions": 7,
+        "decisionsByKind": {
+          "CONTRACT_STANDOFF": 2,
+          "SLUMP": 4,
+          "RISING_STAR": 1
+        },
+        "decisionChoices": {
+          "CONTRACT_STANDOFF:offer": 2,
+          "SLUMP:back": 4,
+          "RISING_STAR:promise": 1
+        },
+        "pressConferences": 7,
+        "pressByReason": {
+          "TOP10": 3,
+          "FINAL": 2,
+          "DERBY": 2
+        },
+        "pressAnswered": 7,
+        "pressQuestions": 19,
+        "sampleLines": [
+          {
+            "kind": "CONTRACT_STANDOFF",
+            "outcome": "RENEWED",
+            "team": "team_8_natusvincera",
+            "log": [
+              "w2: w0nder's agent goes public with 32 weeks left on the deal and no new terms.",
+              "w3: w0nder's agent asks $16,880 a week (+21%) as talks open.",
+              "w4: You offer $16,880 a week.",
+              "w4: w0nder has signed a new deal at Natus Vincera worth $16,880 a week, running to Week 86."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "team_8_natusvincera",
+            "log": [
+              "w9: mekazze rated 0.47 over his last 5 maps.",
+              "w10: The press asks whether mekazze keeps his place.",
+              "w11: You back mekazze in public and promise he starts.",
+              "w12: mekazze is back in form, rated 1.22 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "RISING_STAR",
+            "outcome": "KEPT",
+            "team": "team_8_natusvincera",
+            "log": [
+              "w13: w0nder rated 1.23 over his last 8 maps at 21.",
+              "w14: Market value $9,930,000; no higher-ranked club could pay it.",
+              "w15: You promise w0nder a starting place.",
+              "w16: You told the press, \"He's not for sale.\"",
+              "w22: w0nder stayed in the side over the 8 weeks, as promised."
+            ]
+          },
+          {
+            "kind": "BOARD_PRESSURE",
+            "outcome": "LEFT",
+            "team": "team_8_natusvincera",
+            "log": [
+              "w17: Board confidence down to 43/100.",
+              "w19: The board demands that the club finish 8th or better in Europe Division 1 (11th against a target of 8th).",
+              "w27: You told the press, \"Judge me at the end of the season.\"",
+              "w35: campaign-1 leaves Natus Vincera for Lest Bullet before the board decides."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "team_8_natusvincera",
+            "log": [
+              "w25: b1tt rated 0.75 over his last 5 maps.",
+              "w26: The press asks whether b1tt keeps his place.",
+              "w27: You back b1tt in public and promise he starts.",
+              "w27: b1tt is back in form, rated 1.31 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "RIVALRY",
+            "outcome": "LOST",
+            "team": "team_8_natusvincera",
+            "log": [
+              "w29: Natus Vincera trails 1–2 against Futura before meeting 4 in Week 29.",
+              "w30: Natus Vincera lost to Futura 1–2, Krebeni the MVP (1.25)."
+            ]
+          }
+        ],
+        "otherSample": [
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "log": [
+              "w11: THONDER dOWNUNDER beat Phaze (#9) 2–1 and Heroiq (#10) 3–0.",
+              "w12: THONDER dOWNUNDER's run goes on with a 13–7 win over M81 in Northern Major EU RMR."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "log": [
+              "w14: RID Canids beat Legacia (#16) 13–8 and TYLOU (#17) 13–9.",
+              "w15: RID Canids's run goes on with a 13–9 win over BISTIA in Americas Division 1."
+            ]
+          }
+        ]
+      },
+      "finalSave": {
+        "storylinesKept": 22,
+        "managedKept": 12,
+        "arcsWithUnknownPlayer": 0,
+        "arcsWithUnknownClub": 0,
+        "decisionEventsInLog": 42,
+        "decisionEventsByKind": {
+          "STORYLINE": 7,
+          "FAN": 5,
+          "PRESS": 7,
+          "MEDIA": 1,
+          "MORALE": 2,
+          "CAREER_UPDATE": 4,
+          "SPONSOR": 5,
+          "CONTRACT_OFFER": 1,
+          "win_streak": 3,
+          "loss_streak": 2,
+          "INJURY": 5
+        },
+        "managedRivalries": 12,
+        "biggestRival": {
+          "club": "Onderground",
+          "meetings": 4,
+          "intensity": "NEUTRAL",
+          "record": "3-1"
+        },
+        "storyNews": 26,
+        "sample": [
+          {
+            "kind": "SLUMP",
+            "outcome": "ACTIVE",
+            "log": [
+              "w48: B1NGU rated 0.71 over his last 5 maps.",
+              "w49: The press asks whether B1NGU keeps his place.",
+              "w50: You back B1NGU in public and promise he starts."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "log": [
+              "w40: flyyng rated 0.72 over his last 5 maps.",
+              "w41: The press asks whether flyyng keeps his place.",
+              "w42: You back flyyng in public and promise he starts.",
+              "w48: flyyng is back in form, rated 1.04 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "RIVALRY",
+            "outcome": "WON",
+            "log": [
+              "w38: Lest Bullet leads 2–1 against Onderground before meeting 4 in Week 39.",
+              "w40: Lest Bullet beat Onderground 13–8, johcaN the MVP (1.53)."
+            ]
+          },
+          {
+            "kind": "CONTRACT_STANDOFF",
+            "outcome": "RENEWED",
+            "log": [
+              "w36: flyyng's agent goes public with 52 weeks left on the deal and no new terms.",
+              "w37: flyyng's agent asks $330 a week (+32%) as talks open.",
+              "w38: You offer $330 a week.",
+              "w38: flyyng has signed a new deal at Lest Bullet worth $330 a week, running to Week 140."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "ENDED",
+            "log": [
+              "w35: Lest Bullet beat Chenge The Game (#90) 16–12 and Iruption (#110) 13–2.",
+              "w36: Lest Bullet's run ends with a 8–13 defeat to Ruoster in Asia-Pacific Division 2."
+            ]
+          }
+        ]
+      },
+      "aiAdministrations": {
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      "tickMsMedian": 3354.5
+    },
+    {
+      "seed": 2,
+      "tier": "mid",
+      "club": "Floxo",
+      "ticks": 52,
+      "finalWeek": 53,
+      "failures": [],
+      "storylines": {
+        "arcsManaged": 7,
+        "arcsOtherClubs": 17,
+        "arcsManagedByKind": {
+          "CONTRACT_STANDOFF": 1,
+          "SLUMP": 3,
+          "BOARD_PRESSURE": 1,
+          "RISING_STAR": 1,
+          "RIVALRY": 1
+        },
+        "arcsOtherByKind": {
+          "GIANT_KILLER": 17
+        },
+        "managedWithPlayers": 5,
+        "managedWithResults": 1,
+        "outcomes": {
+          "CONTRACT_STANDOFF:RENEWED": 1,
+          "SLUMP:FADED": 2,
+          "BOARD_PRESSURE:LEFT": 1,
+          "RISING_STAR:KEPT": 1,
+          "SLUMP:RECOVERED": 1,
+          "RIVALRY:LOST": 1
+        },
+        "decisions": 4,
+        "decisionsByKind": {
+          "CONTRACT_STANDOFF": 1,
+          "SLUMP": 2,
+          "RISING_STAR": 1
+        },
+        "decisionChoices": {
+          "CONTRACT_STANDOFF:offer": 1,
+          "SLUMP:back": 2,
+          "RISING_STAR:promise": 1
+        },
+        "pressConferences": 1,
+        "pressByReason": {
+          "DECIDER": 1
+        },
+        "pressAnswered": 1,
+        "pressQuestions": 3,
+        "sampleLines": [
+          {
+            "kind": "CONTRACT_STANDOFF",
+            "outcome": "RENEWED",
+            "team": "team_66_fluxion",
+            "log": [
+              "w2: dicenty's agent goes public with 31 weeks left on the deal and no new terms.",
+              "w3: dicenty's agent asks $330 a week (+32%) as talks open.",
+              "w4: You offer $330 a week.",
+              "w4: dicenty has signed a new deal at Floxo worth $330 a week, running to Week 85."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "FADED",
+            "team": "team_66_fluxion",
+            "log": [
+              "w9: ixit rated 0.42 over his last 5 maps.",
+              "w11: The press asks whether ixit keeps his place.",
+              "w12: You back ixit in public and promise he starts.",
+              "w17: ixit's slump goes on, rated 0.71 over his last 5 official maps."
+            ]
+          },
+          {
+            "kind": "BOARD_PRESSURE",
+            "outcome": "LEFT",
+            "team": "team_66_fluxion",
+            "log": [
+              "w12: Board confidence down to 44/100.",
+              "w14: The board demands that the club finish 7th or better in Americas Division 2 (10th against a target of 7th).",
+              "w23: campaign-2 leaves Floxo for IGOISTO before the board decides."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "FADED",
+            "team": "team_66_fluxion",
+            "log": [
+              "w17: kyi rated 0.57 over his last 5 maps.",
+              "w21: The club lets kyi's slump run its course."
+            ]
+          },
+          {
+            "kind": "RISING_STAR",
+            "outcome": "KEPT",
+            "team": "managed",
+            "log": [
+              "w29: sh1siido rated 1.56 over his last 6 maps at 18.",
+              "w30: Market value $2,010,000; 2 higher-ranked clubs could pay it.",
+              "w31: You promise sh1siido a starting place.",
+              "w38: sh1siido stayed in the side over the 8 weeks, as promised."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "managed",
+            "log": [
+              "w33: jew1ko rated 0.73 over his last 5 maps.",
+              "w34: The press asks whether jew1ko keeps his place.",
+              "w35: You back jew1ko in public and promise he starts.",
+              "w40: jew1ko is back in form, rated 1.13 over his last 3 official maps."
+            ]
+          }
+        ],
+        "otherSample": [
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "log": [
+              "w7: Diep Cross beat Spiryt (#5) 13–5 and Futura (#15) 13–7.",
+              "w8: Diep Cross's run goes on with a 13–5 win over Chenge The Game in Asia-Pacific Division 2."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "ENDED",
+            "log": [
+              "w8: Wyldcard beat Mouze (#8) 2–0 and Ninjas in Nightwear (#14) 13–8.",
+              "w9: Wyldcard's run ends with a 11–13 defeat to Geimin Gladiators in Americas Division 2."
+            ]
+          }
+        ]
+      },
+      "finalSave": {
+        "storylinesKept": 24,
+        "managedKept": 7,
+        "arcsWithUnknownPlayer": 0,
+        "arcsWithUnknownClub": 0,
+        "decisionEventsInLog": 42,
+        "decisionEventsByKind": {
+          "FAN": 5,
+          "MORALE": 18,
+          "STORYLINE": 4,
+          "SPONSOR": 2,
+          "CAREER_UPDATE": 3,
+          "win_streak": 7,
+          "loss_streak": 2,
+          "PRESS": 1
+        },
+        "managedRivalries": 13,
+        "biggestRival": {
+          "club": "ELLINNERS",
+          "meetings": 4,
+          "intensity": "NEUTRAL",
+          "record": "3-1"
+        },
+        "storyNews": 26,
+        "sample": [
+          {
+            "kind": "RIVALRY",
+            "outcome": "LOST",
+            "log": [
+              "w38: IGOISTO leads 3–0 against ELLINNERS before meeting 4 in Week 39.",
+              "w40: IGOISTO lost to ELLINNERS 11–13, boster the MVP (1.43)."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "log": [
+              "w33: jew1ko rated 0.73 over his last 5 maps.",
+              "w34: The press asks whether jew1ko keeps his place.",
+              "w35: You back jew1ko in public and promise he starts.",
+              "w40: jew1ko is back in form, rated 1.13 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "RISING_STAR",
+            "outcome": "KEPT",
+            "log": [
+              "w29: sh1siido rated 1.56 over his last 6 maps at 18.",
+              "w30: Market value $2,010,000; 2 higher-ranked clubs could pay it.",
+              "w31: You promise sh1siido a starting place.",
+              "w38: sh1siido stayed in the side over the 8 weeks, as promised."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "FADED",
+            "log": [
+              "w17: kyi rated 0.57 over his last 5 maps.",
+              "w21: The club lets kyi's slump run its course."
+            ]
+          },
+          {
+            "kind": "BOARD_PRESSURE",
+            "outcome": "LEFT",
+            "log": [
+              "w12: Board confidence down to 44/100.",
+              "w14: The board demands that the club finish 7th or better in Americas Division 2 (10th against a target of 7th).",
+              "w23: campaign-2 leaves Floxo for IGOISTO before the board decides."
+            ]
+          }
+        ]
+      },
+      "aiAdministrations": {
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      "tickMsMedian": 3389.5
+    },
+    {
+      "seed": 3,
+      "tier": "low",
+      "club": "LEG",
+      "ticks": 52,
+      "finalWeek": 53,
+      "failures": [],
+      "storylines": {
+        "arcsManaged": 9,
+        "arcsOtherClubs": 12,
+        "arcsManagedByKind": {
+          "SLUMP": 5,
+          "GIANT_KILLER": 2,
+          "LAST_DANCE": 1,
+          "RISING_STAR": 1
+        },
+        "arcsOtherByKind": {
+          "GIANT_KILLER": 12
+        },
+        "managedWithPlayers": 7,
+        "managedWithResults": 2,
+        "outcomes": {
+          "SLUMP:RECOVERED": 5,
+          "GIANT_KILLER:CONTINUES": 2,
+          "LAST_DANCE:LEFT": 1,
+          "RISING_STAR:FADED": 1
+        },
+        "decisions": 6,
+        "decisionsByKind": {
+          "SLUMP": 5,
+          "LAST_DANCE": 1
+        },
+        "decisionChoices": {
+          "SLUMP:back": 5,
+          "LAST_DANCE:persuade": 1
+        },
+        "pressConferences": 9,
+        "pressByReason": {
+          "FINAL": 7,
+          "DECIDER": 1,
+          "TOP10": 1
+        },
+        "pressAnswered": 9,
+        "pressQuestions": 27,
+        "sampleLines": [
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "managed",
+            "log": [
+              "w7: Sendman rated 0.85 over his last 5 maps.",
+              "w8: The press asks whether Sendman keeps his place.",
+              "w9: You back Sendman in public and promise he starts.",
+              "w9: Sendman is back in form, rated 1.22 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "team": "managed",
+            "log": [
+              "w12: LEG beat 100 Rogues (#9) 2–1 and lus kogutos (#71) 13–3.",
+              "w13: LEG's run goes on with a 2–0 win over K27x in Northern Major Asia RMR."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "managed",
+            "log": [
+              "w15: Wulffe rated 0.88 over his last 5 maps.",
+              "w16: The press asks whether Wulffe keeps his place.",
+              "w17: You back Wulffe in public and promise he starts.",
+              "w17: Wulffe is back in form, rated 1.66 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "team": "managed",
+            "log": [
+              "w27: LEG beat Futura (#3) 2–0 and Uramond (#22) 3–2.",
+              "w28: LEG's run goes on with a 2–1 win over Paravision in Summer Open Colone Open Qualifier."
+            ]
+          },
+          {
+            "kind": "LAST_DANCE",
+            "outcome": "LEFT",
+            "team": "managed",
+            "log": [
+              "w28: djey, 32, hints at retiring (15% chance at season end).",
+              "w29: djey asks for time to think.",
+              "w30: You persuade djey to give it another go.",
+              "w41: djey has left LEG."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "team": "managed",
+            "log": [
+              "w30: kmrnx rated 0.89 over his last 5 maps.",
+              "w31: The press asks whether kmrnx keeps his place.",
+              "w31: You told the press, \"I trust him to come good.\"",
+              "w32: You back kmrnx in public and promise he starts.",
+              "w32: kmrnx is back in form, rated 1.27 over his last 3 official maps."
+            ]
+          }
+        ],
+        "otherSample": [
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "log": [
+              "w3: BetBloom beat Paravision (#5) 13–9 and Spiryt (#7) 13–4.",
+              "w4: BetBloom's run goes on with a 13–3 win over B9 in CIS Division 1."
+            ]
+          },
+          {
+            "kind": "GIANT_KILLER",
+            "outcome": "CONTINUES",
+            "log": [
+              "w6: BISTIA beat The Mongalz (#14) 13–7 and NRGX (#20) 13–7.",
+              "w7: BISTIA's run goes on with a 13–3 win over Natus Vincera in Epic Arena Premier Season 48."
+            ]
+          }
+        ]
+      },
+      "finalSave": {
+        "storylinesKept": 21,
+        "managedKept": 9,
+        "arcsWithUnknownPlayer": 0,
+        "arcsWithUnknownClub": 0,
+        "decisionEventsInLog": 44,
+        "decisionEventsByKind": {
+          "win_streak": 6,
+          "FAN": 5,
+          "CAREER_UPDATE": 6,
+          "MORALE": 3,
+          "STORYLINE": 6,
+          "MEDIA": 5,
+          "PRESS": 9,
+          "SPONSOR": 1,
+          "INJURY": 3
+        },
+        "managedRivalries": 63,
+        "biggestRival": {
+          "club": "SpurtsBetExpert",
+          "meetings": 4,
+          "intensity": "NEUTRAL",
+          "record": "3-1"
+        },
+        "storyNews": 16,
+        "sample": [
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "log": [
+              "w47: kmrnx rated 0.82 over his last 5 maps.",
+              "w47: You told the press, \"I trust him to come good.\"",
+              "w50: The press asks whether kmrnx keeps his place.",
+              "w51: You back kmrnx in public and promise he starts.",
+              "w51: kmrnx is back in form, rated 1.21 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "RISING_STAR",
+            "outcome": "FADED",
+            "log": [
+              "w45: syph0x rated 1.16 over his last 8 maps at 17.",
+              "w48: You told the press, \"He's not for sale.\"",
+              "w49: The talk around syph0x dies down."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "log": [
+              "w39: Sendman rated 0.82 over his last 5 maps.",
+              "w39: You told the press, \"I trust him to come good.\"",
+              "w40: The press asks whether Sendman keeps his place.",
+              "w41: You back Sendman in public and promise he starts.",
+              "w41: Sendman is back in form, rated 1.00 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "SLUMP",
+            "outcome": "RECOVERED",
+            "log": [
+              "w30: kmrnx rated 0.89 over his last 5 maps.",
+              "w31: The press asks whether kmrnx keeps his place.",
+              "w31: You told the press, \"I trust him to come good.\"",
+              "w32: You back kmrnx in public and promise he starts.",
+              "w32: kmrnx is back in form, rated 1.27 over his last 3 official maps."
+            ]
+          },
+          {
+            "kind": "LAST_DANCE",
+            "outcome": "LEFT",
+            "log": [
+              "w28: djey, 32, hints at retiring (15% chance at season end).",
+              "w29: djey asks for time to think.",
+              "w30: You persuade djey to give it another go.",
+              "w41: djey has left LEG."
+            ]
+          }
+        ]
+      },
+      "aiAdministrations": {
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      "tickMsMedian": 3667
+    }
+  ],
+  "notes": "Phase 5 fixes (stream 5.8a). Same seeds, tiers and policy as phase5-3-storylines-after.json, where contract standoffs did not trigger. Cause: opening snapshot deals of players aged 20-30 ran 78-183 weeks (none reached the old 6-12-week window in season 1; 10 of 594 top-3 players worldwide had a deal ending by week 64, 3 of them Ambitious/Mercenary), the managed club is never auto-renewed (AI renewals apply to AI clubs only), and 28% of top-3 players are Ambitious or Mercenary. Fix: opening deals have already run a seeded share of their length; the trigger is the final year (6-52 weeks left) of a top-five player, at most 2 a season, kind cooldown 10 weeks; waiting ends in a transfer request after 8 weeks. Result: contract standoffs per managed season [2, 1, 0] (seed 3's starters include no Ambitious/Mercenary player with a deal in its final year). Amicability spread (save v10): rifts per managed season [0, 0, 0] (before [0, 2, 0]); AI administrations 0."
+}

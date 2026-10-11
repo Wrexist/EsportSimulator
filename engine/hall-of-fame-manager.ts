@@ -1,132 +1,85 @@
-import { GameSave, PlayerSaveData, HallOfFameEntry } from "./save-types"
+import type { HallOfFameEntry, PlayerSaveData } from "./save-types"
 import { HALL_OF_FAME_TUNING as HOF } from "@/lib/balance-tuning"
 
-type CareerTotals = Pick<PlayerSaveData, "majorWins" | "totalMVPs" | "totalKills" | "avgRating" | "matchesPlayed">
-
 /**
- * Career achievements that count toward Hall of Fame induction / legendary
- * status at retirement (HALL_OF_FAME_TUNING). Shared by the season-end
- * retirement pass and the age-38 legend check.
+ * Hall of Fame (Phase 5.1: one path, real career numbers).
+ *
+ * At retirement (and the age-38 legend check) a career is judged on what the
+ * engine recorded: official maps and the rounds-weighted rating, official
+ * kills, titles won on a club's roster, Majors, season awards (season MVP,
+ * Top 20 placements) and career matches (which include a player's
+ * pre-career record). Two achievements induct; a few standout careers induct
+ * on one (HALL_OF_FAME_TUNING).
+ *
+ * The induction itself is written by EventProcessor.processRetirements /
+ * processMidSeasonRetirements through hallOfFameEntry().
  */
-export function hallOfFameAchievements(player: CareerTotals): string[] {
-    const achievements: string[] = []
+
+export type CareerTotals = Pick<PlayerSaveData, "majorWins" | "totalKills" | "avgRating" | "matchesPlayed">
+    & Partial<Pick<PlayerSaveData, "mapsPlayed" | "careerTrophies" | "honours" | "totalMVPs">>
+
+type Reason = HallOfFameEntry["inductionReasons"][number]
+
+const seasonMvps = (p: CareerTotals) => (p.honours ?? []).filter(h => h.award === "MVP").length
+const top20Placements = (p: CareerTotals) => (p.honours ?? []).filter(h => h.award === "TOP20").length
+const ratedCareer = (p: CareerTotals) => (p.mapsPlayed ?? 0) >= HOF.RATING_MIN_MAPS
+
+/** Each achievement with its Hall of Fame badge. */
+export function hallOfFameReasons(player: CareerTotals): Reason[] {
+    const reasons: Reason[] = []
+    const majors = player.majorWins || 0
+    const titles = player.careerTrophies || 0
+    const mvps = seasonMvps(player)
+    const top20 = top20Placements(player)
     const matches = player.matchesPlayed || 0
-    if ((player.majorWins || 0) >= 1) achievements.push(`${player.majorWins}x Major Champion`)
-    if ((player.totalMVPs || 0) >= HOF.MVP_AWARDS) achievements.push(`${player.totalMVPs}x Tournament MVP`)
-    if ((player.totalKills || 0) >= HOF.CAREER_KILLS) achievements.push(`${player.totalKills}+ Career Kills`)
-    if ((player.avgRating || 0) >= HOF.CAREER_RATING && matches >= HOF.RATING_MIN_MATCHES) achievements.push(`${player.avgRating.toFixed(2)} Career Rating`)
-    if (matches >= HOF.CAREER_MATCHES) achievements.push(`${matches}+ Matches Veteran`)
-    return achievements
+    if (majors >= 1) reasons.push({ type: "CHAMPION", label: `${majors}x Major champion`, icon: "Trophy" })
+    if (titles >= HOF.CAREER_TITLES) reasons.push({ type: "CHAMPION", label: `${titles} titles`, icon: "Award" })
+    if (mvps >= 1) reasons.push({ type: "MVP", label: mvps === 1 ? "Season MVP" : `${mvps}x Season MVP`, icon: "Crown" })
+    if (top20 >= HOF.TOP20_PLACEMENTS) reasons.push({ type: "IMPACT", label: `${top20}x Top 20`, icon: "Star" })
+    if ((player.avgRating || 0) >= HOF.CAREER_RATING && ratedCareer(player)) reasons.push({ type: "MVP", label: `${player.avgRating.toFixed(2)} rating over ${player.mapsPlayed} maps`, icon: "Activity" })
+    if ((player.totalKills || 0) >= HOF.CAREER_KILLS) reasons.push({ type: "IMPACT", label: `${player.totalKills} official kills`, icon: "Crosshair" })
+    if (matches >= HOF.CAREER_MATCHES) reasons.push({ type: "LONGEVITY", label: `${matches} career matches`, icon: "Clock" })
+    return reasons
 }
 
-/** Two achievements, or a standalone multi-Major / elite-rating career. */
+/** Achievement labels (also stored on legendary players). */
+export function hallOfFameAchievements(player: CareerTotals): string[] {
+    return hallOfFameReasons(player).map(r => r.label)
+}
+
+/** Two achievements, or a standalone multi-Major, multi-MVP or elite-rating career. */
 export function qualifiesForHallOfFame(player: CareerTotals): boolean {
-    return hallOfFameAchievements(player).length >= HOF.ACHIEVEMENTS_REQUIRED
+    return hallOfFameReasons(player).length >= HOF.ACHIEVEMENTS_REQUIRED
         || (player.majorWins || 0) >= HOF.AUTO_MAJOR_WINS
-        || ((player.avgRating || 0) >= HOF.AUTO_RATING && (player.matchesPlayed || 0) >= HOF.RATING_MIN_MATCHES)
+        || seasonMvps(player) >= HOF.AUTO_SEASON_MVPS
+        || ((player.avgRating || 0) >= HOF.AUTO_RATING && ratedCareer(player))
 }
 
-/**
- * Hall of Fame Manager
- * Phase 23: Hall of Fame
- * 
- * Handles eligibility checks and induction for retiring players.
- */
-export class HallOfFameManager {
-
-    // Thresholds
-    private static readonly MIN_CAREER_SEASONS = 6
-    private static readonly MIN_MATCHES_PLAYED = 100
-    private static readonly ELITE_PRO_RANK = 3 // Top 3 rank required for "Iconic" path
-    private static readonly MIN_KILLS_LONGEVITY = 1000
-
-    /**
-     * Check if a player qualifies for the Hall of Fame upon retirement.
-     * Returns the entry object if qualified, null otherwise.
-     */
-    static checkEligibility(player: PlayerSaveData, currentYear: number): HallOfFameEntry | null {
-        // 1. Mandatory Eligibility
-        const careerLength = currentYear - (player.proHistory?.[0]?.year || currentYear) // Estimate from history start?
-        // Or assume age - 16? Better: Use matchesPlayed as proxy if history is short.
-
-        // Let's use Matches Played + Age or direct tracking if available.
-        // For now, rely on matchesPlayed.
-        if ((player.matchesPlayed || 0) < this.MIN_MATCHES_PLAYED) return null
-
-        const reasons: HallOfFameEntry['inductionReasons'] = []
-
-        // 2. Paths to Greatness
-
-        // A) Championship Path
-        if ((player.majorWins || 0) >= 1) {
-            reasons.push({ type: "CHAMPION", label: `${player.majorWins}x Major Champion`, icon: "Trophy" })
-        }
-        // Tier 1 wins check (Assume majors are subset? Need better stat tracking for generic tourneys later)
-
-        // B) Individual Greatness Path
-        if ((player.totalMVPs || 0) >= 2) {
-            reasons.push({ type: "MVP", label: `${player.totalMVPs}x MVP Awards`, icon: "Star" })
-        }
-        // High Peak Rank
-        const bestRank = Math.min(...(player.proHistory?.map(h => h.rank) || [999]))
-        if (bestRank <= this.ELITE_PRO_RANK) {
-            reasons.push({ type: "IMPACT", label: `Peaked at World #${bestRank}`, icon: "Crown" })
-        }
-
-        // C) Longevity Path
-        if ((player.totalKills || 0) >= this.MIN_KILLS_LONGEVITY && (player.avgRating || 0) >= 1.10) {
-            reasons.push({ type: "LONGEVITY", label: "1000+ Kills & Elite Consistency", icon: "Activity" })
-        }
-
-        // 3. Induction Threshold (Need at least 2 significant achievements)
-        // Wait, User said "ANY TWO of the following".
-        // Major Champion (already pushed)
-        // Multiple MVPs (already pushed)
-        // Elite Pro Rank (already pushed)
-        // Longevity (already pushed)
-
-        if (reasons.length >= 2) {
-            // Construct Entry
-            return {
-                id: player.id,
-                name: player.name,
-                portraitPath: player.portraitPath,
-                eraStart: (currentYear - Math.floor((player.matchesPlayed || 0) / 50)), // Rough estimate
-                eraEnd: currentYear,
-                primaryRole: player.role,
-                category: "INDUCTED",
-                inductionReasons: reasons,
-                nationality: player.nationality
-            }
-        }
-
-        return null
-    }
-
-    /**
-     * Process a retiring player.
-     * If eligible, adds to Hall of Fame.
-     */
-    static processRetirement(save: GameSave, player: PlayerSaveData) {
-        if (!player.isRetired) return
-
-        // Check if already in HoF (avoid duplicates)
-        if (save.hallOfFame.some(h => h.id === player.id)) return
-
-        const currentYear = new Date(save.gameStartDate).getFullYear() + Math.floor(save.currentWeek / 52)
-        const entry = this.checkEligibility(player, currentYear)
-
-        if (entry) {
-            save.hallOfFame.push(entry)
-            // Send Notification? "Player X has been inducted into the Hall of Fame!"
-            save.eventsLog.push({
-                id: `hof_induct_${player.id}_${save.currentWeek}`,
-                type: "NEWS", // generic
-                week: save.currentWeek,
-                data: { text: `${player.name} has been inducted into the Hall of Fame!` },
-                acknowledged: false,
-                choices: [{ id: "ack", text: "Respect", effects: {} }]
-            })
-        }
+/** The Hall of Fame entry for a qualifying player (with the career that earned it). */
+export function hallOfFameEntry(player: PlayerSaveData, currentWeek: number, lastClubId?: string): HallOfFameEntry {
+    const season = Math.max(1, Math.ceil(currentWeek / 52))
+    const reasons = hallOfFameReasons(player)
+    const seasons = (player.seasonLines ?? []).map(l => l.season)
+    return {
+        id: player.id,
+        name: player.nickname,
+        portraitPath: player.portraitPath || "",
+        eraStart: seasons.length ? Math.min(...seasons) : (player.debutSeason ?? season),
+        eraEnd: season,
+        primaryRole: player.role || "RIFLER",
+        category: "INDUCTED",
+        inductionReasons: reasons.length ? reasons : [{ type: "IMPACT", label: "Career achievement", icon: "Award" }],
+        nationality: player.nationality || "",
+        career: {
+            maps: player.mapsPlayed ?? 0,
+            rating: Math.round((player.avgRating || 0) * 100) / 100,
+            kills: player.totalKills ?? 0,
+            trophies: player.careerTrophies ?? 0,
+            majors: player.majorWins ?? 0,
+            seasonMvps: seasonMvps(player),
+            top20: top20Placements(player),
+            matches: player.matchesPlayed || 0,
+            ...(lastClubId ? { lastClubId } : {}),
+        },
     }
 }

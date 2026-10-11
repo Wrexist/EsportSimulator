@@ -4,11 +4,13 @@
  * Builds flavor news items each tick covering:
  *   1. Monthly power rankings (every 4 weeks, week > 1)
  *   2. Big-match preview for player-team finals this week
- *   3. Yearly season recap flag (sets pendingSeasonRecap)
- *   4. Post-match headlines for completed matches from last week (max 2)
- *   5. Transfer rumors (15% per week, week > 4, expiring contracts)
- *   6. Rivalry storylines for Top-10 vs Top-10 matchups (50% chance)
- *   7. Player milestone celebrations (10% chance per week, 500/1000/2500 kill marks)
+ *   3. Post-match headlines for completed matches from last week (max 2)
+ *   4. Transfer rumors (15% per week, week > 4, expiring contracts)
+ *   5. Rivalry storylines for Top-10 vs Top-10 matchups (50% chance)
+ *   6. Player milestone celebrations (10% chance per week, 500/1000/2500 kill marks)
+ *
+ * The season recap is the season review moment, queued when the week tick
+ * closes the season (atomic-week-processor, Phase 5.4b).
  *
  * All randomness is fed through the supplied SeededRNG so the news stream
  * is deterministic and replayable.
@@ -19,6 +21,8 @@
 import type { GameSave } from "../save-types"
 import type { SeededRNG } from "../rng"
 import type { SaveIndexes } from "@/store/indexes"
+import { getMatchTone } from "@/lib/match-stakes"
+import { finalPreview } from "../storylines/narrative"
 
 export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: SaveIndexes): void {
     // 1. Monthly Power Rankings
@@ -41,20 +45,24 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
     // 2. Big Match Preview (Finals)
     const playerTeam = idx?.teamIndex.get(save.playerTeamId) ?? save.teams.find(t => t.id === save.playerTeamId)
     if (playerTeam) {
+        // A final (not a semi- or quarter-final) of the managed club this week.
         const finalsMatch = save.scheduledMatches.find(m =>
             (m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId) &&
             m.week === save.currentWeek &&
-            m.tournamentId && !m.isScrim &&
-            (m.stage?.toLowerCase().includes('final') || m.id.toLowerCase().includes('final'))
+            m.tournamentId && !m.isScrim && !m.tournamentId.startsWith("league_") &&
+            getMatchTone(m.stage ?? undefined, true) === "championship"
         )
 
-        if (finalsMatch) {
+        if (finalsMatch && !save.newsFeed.some(n => n.id === `match_preview_${finalsMatch.id}`)) {
             const tournament = idx?.tournamentIndex.get(finalsMatch.tournamentId!)
                 ?? save.tournaments.find(t => t.id === finalsMatch.tournamentId)
+            // Phase 5.3: the line comes from the club's active storyline (or
+            // its real form), not a canned quote.
+            const preview = finalPreview(save, playerTeam, finalsMatch, tournament?.name || "event")
             save.newsFeed.unshift({
                 id: `match_preview_${finalsMatch.id}`,
-                title: `Grand Final Alert: ${playerTeam.name} Path to Glory`,
-                content: `The world watches as ${playerTeam.name} prepares for the ${tournament?.name || 'Grand Final'}. "We are ready to leave everything on the server," says the team manager.`,
+                title: preview.title,
+                content: preview.content,
                 category: "MATCH",
                 teamId: playerTeam.id,
                 week: save.currentWeek,
@@ -63,15 +71,7 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         }
     }
 
-    // 3. Yearly Season Recap flag
-    if (save.currentWeek > 1 && (save.currentWeek - 1) % 52 === 0) {
-        const lastYear = Math.floor((save.currentWeek - 1) / 52)
-        if (lastYear > 0) {
-            save.pendingSeasonRecap = lastYear
-        }
-    }
-
-    // 4. Post-Match Headlines (last week's completed matches, max 2)
+    // 3. Post-Match Headlines (last week's completed matches, max 2)
     const recentMatches = save.completedMatches.filter(m => m.week === save.currentWeek - 1)
     for (const match of recentMatches.slice(0, 2)) {
         const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
@@ -116,7 +116,7 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         }
     }
 
-    // 5. Transfer Rumors (15% per week, week > 4, expiring contracts)
+    // 4. Transfer Rumors (15% per week, week > 4, expiring contracts)
     if (rng.next() < 0.15 && save.currentWeek > 4) {
         const allPlayers = save.players.filter(p => {
             const contract = idx?.contractIndex.get(p.id) ?? save.contracts.find(c => c.playerId === p.id)
@@ -137,7 +137,10 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
                 // Title pool expanded from 3 → 12. Each branches on the
                 // player's profile (form, role, age) so the headline
                 // matches the story instead of always reading the same.
-                const isHotForm = (player.avgRating ?? 1.0) >= 1.15
+                // Hot form = this season's official rating (Phase 5.1), over enough maps to mean something.
+                const season = player.seasonTally
+                const seasonRating = season && season.rounds > 0 && season.maps >= 10 ? season.ratingSum / season.rounds : 0
+                const isHotForm = seasonRating >= 1.15
                 const isVeteran = player.age >= 28
                 const isStar = (player.totalMVPs ?? 0) >= 5 || (player.majorWins ?? 0) >= 1
 
@@ -175,12 +178,12 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
                 ]
                 if (isHotForm) {
                     contentTemplates.push(
-                        `${player.nickname}'s career-best ${player.avgRating?.toFixed(2)} rating has triggered interest from across the league. ${rumoredTeam.name} are believed to be at the front of the queue.`,
+                        `${player.nickname}'s ${seasonRating.toFixed(2)} rating over ${season?.maps ?? 0} maps this season has triggered interest from across the league. ${rumoredTeam.name} are believed to be at the front of the queue.`,
                     )
                 }
                 if (isStar) {
                     contentTemplates.push(
-                        `A move for ${player.nickname} — ${(player.majorWins ?? 0)}× Major champion and ${(player.totalMVPs ?? 0)}× tournament MVP — would be the headline transfer of the off-season. ${rumoredTeam.name} have been credited with the interest.`,
+                        `A move for ${player.nickname} — ${(player.majorWins ?? 0)}× Major champion and ${(player.totalMVPs ?? 0)}× match MVP — would be the headline transfer of the off-season. ${rumoredTeam.name} have been credited with the interest.`,
                     )
                 }
 
@@ -202,7 +205,7 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         }
     }
 
-    // 6. Rivalry Storylines (Top-10 vs Top-10, 50% chance)
+    // 5. Rivalry Storylines (Top-10 vs Top-10, 50% chance)
     const topTeamIds = new Set([...save.teams].sort((a, b) => b.elo - a.elo).slice(0, 10).map(t => t.id))
     const upcomingRivalry = save.scheduledMatches.find(m => {
         if (m.week !== save.currentWeek || m.isScrim) return false
@@ -235,7 +238,7 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         }
     }
 
-    // 7. Player Milestones (10% per week)
+    // 6. Player Milestones (10% per week)
     if (playerTeam && rng.next() < 0.1) {
         const roster = save.players.filter(p => playerTeam.rosterIds.includes(p.id))
         for (const player of roster) {

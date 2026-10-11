@@ -21,7 +21,7 @@ import { StaffGenerator } from "../staff-generator"
 import { SponsorGenerator } from "../economy-manager"
 import { EconomyEngine } from "../economy-engine"
 import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
-import { affordableInvestment } from "../recruitment"
+import { aiCanCommit, aiClubBudget } from "./club-budget"
 import { aiRoll, hashTeamId } from "./rng-helpers"
 
 /**
@@ -59,7 +59,7 @@ export function manageStaff(team: TeamSaveData, save: GameSave, rng: SeededRNG) 
 
     // Sign-on fee = 2 weeks' salary (matches the player-team default).
     const signOnFee = newStaff.salaryPerWeek * 2
-    if (!affordableInvestment(save, team, signOnFee, newStaff.salaryPerWeek)) return
+    if (!aiCanCommit(team, aiClubBudget(save, team), newStaff.salaryPerWeek, signOnFee)) return
 
     team.budget -= signOnFee
     save.staff.push(newStaff)
@@ -83,52 +83,52 @@ export function manageStaff(team: TeamSaveData, save: GameSave, rng: SeededRNG) 
  * any financial trouble.
  */
 export function manageSponsors(team: TeamSaveData, save: GameSave, rng: SeededRNG): void {
-    // Pass 2: AI clubs fill sponsor slots like the managed club (3 slots, frequent
-    // look at offers) instead of 2 slots at 5% a week, which left indebted
-    // clubs without sponsor income for ~20 weeks at a time.
-    if (aiRoll(rng) > AI_SQUAD_TUNING.SPONSOR_LOOK_CHANCE) return
+    // Pass 2: AI clubs fill sponsor slots like the managed club (3 slots).
+    // Phase 4.6: an AI club with an open slot it is eligible for looks at
+    // offers every week, as the managed club can from the Sponsorships
+    // screen. At a 25% weekly look a lapsed deal stayed unsigned for ~4
+    // weeks and top AI clubs averaged 1.5-2 of their 3 deals (campaign
+    // 2026-10-11), while the managed top club kept all three.
     const MAX_AI_SPONSORS = AI_SQUAD_TUNING.MAX_SPONSORS
     if (!team.sponsors) team.sponsors = []
     if (team.sponsors.length >= MAX_AI_SPONSORS) return
-
+    const ranking = team.worldRanking || 999
     const ownedTiers = new Set(team.sponsors.map(s => s.tier))
+    // PREMIUM needs Top-30; ELITE needs Top-10 OR S_TIER trophy/participation.
+    const eliteEligible = () => {
+        if (ranking <= 10 || (team.trophies || []).some(t => t.tier === "S_TIER")) return true
+        const majors = new Set(save.tournaments.filter(t => t.tier === "S_TIER").map(t => t.id))
+        return majors.size > 0 && save.completedMatches.some(m => (m.homeTeamId === team.id || m.awayTeamId === team.id) && !!m.tournamentId && majors.has(m.tournamentId))
+    }
+    const open = (["STANDARD", "PREMIUM", "ELITE"] as const).filter(tier => !ownedTiers.has(tier)
+        && (tier === "STANDARD" || (tier === "PREMIUM" ? ranking <= 30 : eliteEligible())))
+    if (!open.length) return
+    if (AI_SQUAD_TUNING.SPONSOR_LOOK_CHANCE < 1 && aiRoll(rng) > AI_SQUAD_TUNING.SPONSOR_LOOK_CHANCE) return
 
     const offers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, rng,
-        EconomyEngine.weeklyWageBill(team, save.contracts, save.staff || [], save.currentWeek + 1))
-    if (offers.length === 0) return
-
-    const ranking = team.worldRanking || 999
-
-    // PREMIUM needs Top-30; ELITE needs Top-10 OR S_TIER trophy/participation.
-    const eligible = offers.filter(offer => {
-        if (ownedTiers.has(offer.tier)) return false
-        if (offer.tier === "PREMIUM" && ranking > 30) return false
-        if (offer.tier === "ELITE") {
-            const hasMajorTrophy = (team.trophies || []).some(t => t.tier === "S_TIER")
-            const hasMajorParticipation = save.completedMatches.some(match => {
-                if (match.homeTeamId !== team.id && match.awayTeamId !== team.id) return false
-                if (!match.tournamentId) return false
-                const tournament = save.tournaments.find(t => t.id === match.tournamentId)
-                return tournament?.tier === "S_TIER"
-            })
-            const isTopRanked = ranking <= 10
-            if (!hasMajorTrophy && !hasMajorParticipation && !isTopRanked) return false
-        }
-        return true
-    })
+        EconomyEngine.sponsorCostBase(team, save.contracts, save.staff || [], save.currentWeek + 1))
+    const eligible = offers.filter(offer => (open as readonly string[]).includes(offer.tier))
     if (eligible.length === 0) return
 
     const tierRank = { ELITE: 3, PREMIUM: 2, STANDARD: 1 } as const
-    eligible.sort((a, b) => (tierRank[b.tier] || 0) - (tierRank[a.tier] || 0))
-    const picked = eligible[0]
+    eligible.sort((a, b) => (tierRank[b.tier] || 0) - (tierRank[a.tier] || 0) || b.weeklyPayout - a.weeklyPayout)
 
-    team.sponsors.push({
-        ...picked,
-        signedWeek: save.currentWeek,
-        followerCheckpoint: team.followers || 0,
-        lastProcessedWeek: undefined,
-        remainingWeeks: Math.max(1, Math.floor(picked.remainingWeeks || 0)),
-    })
+    // Phase 4.4: fill every open eligible slot in one look (one deal per
+    // tier), as the managed club can from the Sponsorships screen. Signing a
+    // single deal per look left AI clubs a slot or two short for months,
+    // which the new economy (sponsors sized to running costs) turned into a
+    // structural deficit for top AI clubs.
+    for (const picked of eligible) {
+        if (team.sponsors.length >= MAX_AI_SPONSORS) break
+        if (team.sponsors.some(s => s.tier === picked.tier)) continue
+        team.sponsors.push({
+            ...picked,
+            signedWeek: save.currentWeek,
+            followerCheckpoint: team.followers || 0,
+            lastProcessedWeek: undefined,
+            remainingWeeks: Math.max(1, Math.floor(picked.remainingWeeks || 0)),
+        })
+    }
 }
 
 /**
@@ -152,7 +152,11 @@ export function manageFacilities(team: TeamSaveData, save: GameSave, rng: Seeded
 
     // Pass 1: build any missing facility type.
     const missingType = FACILITY_TYPES.find(t => !team.facilities!.some(f => f.type === t))
-    if (missingType && affordableInvestment(save, { ...team, facilities: [...team.facilities, { id: "projected", type: missingType, level: 1, monthlyCost: 2000, description: "" }] }, BUILD_COST)) {
+    const fits = (projected: TeamSaveData, cost: number) => {
+        const before = aiClubBudget(save, team), after = aiClubBudget(save, projected)
+        return aiCanCommit(team, before, Math.max(0, before.net - after.net), cost)
+    }
+    if (missingType && fits({ ...team, facilities: [...team.facilities, { id: "projected", type: missingType, level: 1, monthlyCost: 2000, description: "" }] }, BUILD_COST)) {
         team.budget -= BUILD_COST
         team.facilities.push({
             id: `fac_ai_${team.id}_${missingType}_${save.currentWeek}`,
@@ -185,7 +189,7 @@ export function manageFacilities(team: TeamSaveData, save: GameSave, rng: Seeded
     if (!target) return
 
     const upgradeCost = target.level * UPGRADE_BASE_COST
-    if (!affordableInvestment(save, { ...team, facilities: team.facilities.map(f => f === target ? { ...f, level: f.level + 1 } : f) }, upgradeCost)) return
+    if (!fits({ ...team, facilities: team.facilities.map(f => f === target ? { ...f, level: f.level + 1 } : f) }, upgradeCost)) return
 
     team.budget -= upgradeCost
     target.level += 1
@@ -212,7 +216,7 @@ export function manageAcademy(team: TeamSaveData, save: GameSave, rng: SeededRNG
     // lapses the upkeep (up to $40k/week) left low-reputation AI clubs in a
     // permanent deficit that also blocked every free-agent signing. Shed one
     // level per week (no refund) while the club cannot cover its running costs.
-    if (team.academyFacility && team.academyFacility.level > 0 && !affordableInvestment(save, team, 0)) {
+    if (team.academyFacility && team.academyFacility.level > 0 && aiClubBudget(save, team).net < 0) {
         team.academyFacility = { ...team.academyFacility, level: team.academyFacility.level - 1, lastUpgradeWeek: save.currentWeek }
         return
     }
@@ -228,10 +232,14 @@ export function manageAcademy(team: TeamSaveData, save: GameSave, rng: SeededRNG
     }
     const MAX_ACADEMY_LEVEL = 5
 
+    const fits = (projected: TeamSaveData, cost: number) => {
+        const before = aiClubBudget(save, team), after = aiClubBudget(save, projected)
+        return aiCanCommit(team, before, Math.max(0, before.net - after.net), cost)
+    }
     // Build level 1 if no academy.
     if (!team.academyFacility || team.academyFacility.level === 0) {
         const cost = ACADEMY_LEVEL_BUILD_COSTS[1]
-        if (!affordableInvestment(save, { ...team, academyFacility: { level: 1, builtWeek: save.currentWeek } }, cost)) return
+        if (!fits({ ...team, academyFacility: { level: 1, builtWeek: save.currentWeek } }, cost)) return
         team.budget -= cost
         team.academyFacility = { level: 1, builtWeek: save.currentWeek }
         save.financeLedger.push({
@@ -253,7 +261,7 @@ export function manageAcademy(team: TeamSaveData, save: GameSave, rng: SeededRNG
 
     const nextLevel = currentLevel + 1
     const cost = ACADEMY_LEVEL_BUILD_COSTS[nextLevel]
-    if (!affordableInvestment(save, { ...team, academyFacility: { ...team.academyFacility, level: nextLevel } }, cost)) return
+    if (!fits({ ...team, academyFacility: { ...team.academyFacility, level: nextLevel } }, cost)) return
 
     team.budget -= cost
     team.academyFacility.level = nextLevel

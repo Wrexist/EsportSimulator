@@ -1,345 +1,349 @@
 "use client"
 
-import { useState, useEffect, useMemo, useId, useRef, memo } from "react"
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react"
 import { MapId } from "@/types"
+import type { MatchEvent } from "@/types/match"
 import { cn } from "@/lib/utils"
-import { Map, ChevronUp, Minus, Plus } from "lucide-react"
-import Image from "next/image"
+import { Map, ChevronUp, Minus, Plus, Maximize2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import type { RadarPlayerDot, RadarBombState, RadarKillLine, RadarSmoke } from "@/lib/radar-position-engine"
-import type { Point } from "@/lib/map-radar-data"
+import type { RadarPlayerDot, RadarBombState, RadarKillLine, RadarSmoke, Point, RadarScriptPlayerInfo, RadarArt } from "@/lib/radar-types"
+import type { Floor, RoundMap, RoundScript } from "@/engine/match/round-script-types"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
-import { resolveAutoRadarLevel } from "@/lib/radar-level-selector"
-import { layoutRadarLabels, type RadarLabel } from "@/lib/radar-label-layout"
+import { createRadarScene, prepareRadarScript, sampleRadarScene, sceneAliveCounts, sceneFromSnapshot, type PreparedRadarScript, type RadarScene } from "@/lib/radar-scene"
+import { createRadarClock, clockSetPlayback, clockSetTick } from "@/lib/radar-clock"
+import type { LiveTimeSource } from "@/lib/live-clock"
+import { FREEZE_LABEL_SECONDS } from "@/lib/live-match-pacing"
+import { radarArtFor } from "@/lib/radar-art"
+import { reviewRound, reviewScript, reviewableRounds, type RadarReviewSource } from "@/lib/radar-review"
+import { clampReviewTime, formatRoundClock, scrubberSpan } from "@/lib/radar-scrubber"
+import type { RadarSite } from "@/lib/radar-draw"
+import { roundMapBounds } from "@/lib/radar-view"
+import { RadarCanvas, createRadarFeed, feedLiveTime, type RadarCanvasHandle, type RadarFeed } from "./RadarCanvas"
+import { RadarScrubber } from "./RadarScrubber"
 
-function isFiniteCoord(value: unknown): value is number {
-    return typeof value === "number" && Number.isFinite(value)
-}
-
-function clampRadarCoord(value: number, min = 0, max = 100): number {
-    return Math.max(min, Math.min(max, value))
-}
-
-/** Shortest-arc angle interpolation (radians). */
-function lerpAngle(a: number, b: number, t: number): number {
-    const d = Math.atan2(Math.sin(b - a), Math.cos(b - a))
-    return a + d * t
-}
-
-/**
- * The playback clock ticks once per game-second, so raw dots jump. Glide each
- * living player from its snapshot toward the next tick's snapshot over the
- * tick's wall-clock duration, driven by requestAnimationFrame.
- */
-function useInterpolatedDots(
-    dots: RadarPlayerDot[] | undefined,
-    nextDots: RadarPlayerDot[] | undefined,
-    tickDurationMs: number,
-    isAnimating: boolean,
-): RadarPlayerDot[] | undefined {
-    const [alpha, setAlpha] = useState(0)
-    const tickStart = useRef(0)
-
-    useEffect(() => {
-        tickStart.current = performance.now()
-        setAlpha(0)
-    }, [dots])
-
-    useEffect(() => {
-        if (!isAnimating || !nextDots || !(tickDurationMs > 0)) return
-        let raf = 0
-        const loop = () => {
-            const a = Math.min(1, (performance.now() - tickStart.current) / tickDurationMs)
-            setAlpha(a)
-            if (a < 1) raf = requestAnimationFrame(loop)
-        }
-        raf = requestAnimationFrame(loop)
-        return () => cancelAnimationFrame(raf)
-    }, [dots, nextDots, tickDurationMs, isAnimating])
-
-    return useMemo(() => {
-        if (!dots || !nextDots || alpha <= 0) return dots
-        const next = new globalThis.Map(nextDots.map(d => [d.playerId, d]))
-        return dots.map(dot => {
-            const to = next.get(dot.playerId)
-            if (!to || !dot.isAlive || !to.isAlive || to.level !== dot.level) return dot
-            return {
-                ...dot,
-                x: dot.x + (to.x - dot.x) * alpha,
-                y: dot.y + (to.y - dot.y) * alpha,
-                angle: lerpAngle(dot.angle, to.angle, alpha),
-            }
-        })
-    }, [dots, nextDots, alpha])
-}
-
-const MAP_RADAR_IMAGES: Record<string, { primary: string; secondary?: string }> = {
-    [MapId.SANDSTONE]:    { primary: "/maps/de_sandstone_radar_psd.png" },
-    [MapId.MIRAGE]:   { primary: "/maps/de_mirage_radar_psd.png" },
-    [MapId.INFERNO]:  { primary: "/maps/de_inferno_radar_psd.png" },
-    [MapId.NUKE]:     { primary: "/maps/de_nuke_radar_psd_1.png", secondary: "/maps/de_nuke_lower_radar_psd_2.png" },
-    [MapId.OVERPASS]: { primary: "/maps/de_overpass_radar_psd.png" },
-    [MapId.VERTIGO]:  { primary: "/maps/de_vertigo_radar_psd_1.png", secondary: "/maps/de_vertigo_lower_radar_psd_2.png" },
-    [MapId.ANCIENT]:  { primary: "/maps/de_ancient_radar_psd.png" },
-    [MapId.ANUBIS]:   { primary: "/maps/de_anubis_radar_psd.png" },
-}
+export type { RadarScriptPlayerInfo } from "@/lib/radar-types"
+export type { RadarReviewSource } from "@/lib/radar-review"
 
 interface MapRadarPanelProps {
     currentMapId: MapId
     mapName: string
+    /** Snapshot mode: player dots of the current tick. */
     radarDots?: RadarPlayerDot[]
     /** Snapshot one playback tick ahead; dots glide toward it while animating. */
     nextRadarDots?: RadarPlayerDot[]
+    /** Wall-clock length of one `currentTime` tick (dots glide between ticks) when no `clock` is given. */
     tickDurationMs?: number
     isAnimating?: boolean
+    /**
+     * Continuous round clock (the live match): the radar samples it on every
+     * animation frame, at any pacing speed. Without it the radar glides
+     * between `currentTime` ticks over `tickDurationMs`. Reduced motion steps
+     * once per round second (and at `currentTime`) instead of gliding.
+     */
+    clock?: LiveTimeSource | null
     bombState?: RadarBombState
     currentTime?: number
     killLines?: RadarKillLine[]
     sitePositions?: { a: Point; b: Point }
     smokes?: RadarSmoke[]
+    /** Art override (physical replay); otherwise the baked radar art / fallback images. */
     referenceImages?: { primary: string; secondary?: string }
     positionSource?: 'estimated' | 'physical-replay'
+    /**
+     * Grow the radar to the panel's available height (the parent must give
+     * the panel a definite height). Otherwise the radar is as wide as the panel.
+     */
+    fillHeight?: boolean
+    /** The shown round is decided: no clutch banner, phase reads "ROUND OVER". */
+    roundOver?: boolean
+    /**
+     * Round script of the shown round. When set (and `currentTime` ≥ 0) the
+     * radar draws the script — players sampled every frame, deaths, shot
+     * tracers, grenades and the bomb — instead of the snapshot props above.
+     */
+    script?: RoundScript | null
+    /** Round map of the script: site letters and plant areas come from its bombsites. */
+    roundMap?: RoundMap | null
+    /** Names (and optional weapon / kit) by player id, for script mode. */
+    players?: Readonly<Record<string, RadarScriptPlayerInfo>>
+    /**
+     * Optional: the recorded rounds of this map and the series context. Gives
+     * HP (from the round's KILL damage) and weapons for the live round, and
+     * lets the scrubber review earlier rounds of the map. Without it only the
+     * live round can be reviewed and HP comes from `roundEvents`.
+     */
+    review?: RadarReviewSource | null
+    /** Optional: the live round's events (HP from KILL damage) when `review` is not given. */
+    roundEvents?: readonly MatchEvent[]
+    /**
+     * Content laid over the bottom of the radar view (e.g. the live buy
+     * decision): it sits above the round scrubber and footer and never covers
+     * them, and scrolls when taller than the view. Shown in the panel's flow
+     * when the radar is collapsed. Pass null when there is nothing to show
+     * (the slot then leaves the DOM, fading out).
+     */
+    overlay?: ReactNode
 }
 
-function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime, killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated' }: MapRadarPanelProps) {
+type ReviewUi = { active: boolean; round: number | null; playing: boolean }
+const NO_REVIEW: ReviewUi = { active: false, round: null, playing: false }
+
+function MapRadarPanelComponent({
+    currentMapId, mapName, radarDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime,
+    killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated', fillHeight = false, roundOver = false,
+    script, roundMap, players, review, roundEvents, clock, overlay,
+}: MapRadarPanelProps) {
     const panelId = useId().replace(/:/g, "")
     const [isExpanded, setIsExpanded] = useState(true)
     const [showNames, setShowNames] = useState(true)
+    const [floorMode, setFloorMode] = useState<"auto" | Floor>("auto")
+    const [shownFloor, setShownFloor] = useState<Floor>("upper")
     const [zoom, setZoom] = useState(1)
+    const [canZoomIn, setCanZoomIn] = useState(true)
+    const [reviewUi, setReviewUi] = useState<ReviewUi>(NO_REVIEW)
+    const [reviewSecond, setReviewSecond] = useState(0)
     const staticEffects = useAppReducedMotion()
-    // Reduced motion: dots step once per game tick instead of gliding between
-    // ticks (positions stay exact; only the in-between tween is removed).
-    const radarDots = useInterpolatedDots(tickDots, nextRadarDots, tickDurationMs, isAnimating && !staticEffects)
-    const [radarLevelMode, setRadarLevelMode] = useState<"auto" | "manual">("auto")
-    const [manualRadarLevel, setManualRadarLevel] = useState<"upper" | "lower">("upper")
-    const radarImageData = referenceImages || MAP_RADAR_IMAGES[currentMapId]
-    const isDualLevel = !!radarImageData?.secondary
+    const canvasRef = useRef<RadarCanvasHandle>(null)
+
+    const art: RadarArt | undefined = useMemo(() => referenceImages
+        ? { upper: referenceImages.primary, ...(referenceImages.secondary ? { lower: referenceImages.secondary } : {}) }
+        : radarArtFor(currentMapId), [referenceImages, currentMapId])
+    const isDualLevel = !!art?.lower
+
+    // Script mode: the live match hands over the round script and the clock.
+    const tick = currentTime != null && Number.isFinite(currentTime) ? currentTime : 0
+    const activeScript = script && currentTime != null && currentTime >= 0 ? script : null
+
+    // The live round's recorded result (events and grenade hits → HP, loadouts → weapons / kits).
+    const liveRecord = activeScript ? reviewRound(review, activeScript.round) : undefined
+    const events = liveRecord?.events ?? roundEvents
+    const economy = liveRecord?.playerEconomy
+    const livePrep: PreparedRadarScript | null = useMemo(
+        () => (activeScript ? prepareRadarScript(activeScript, { events, economy, players, round: liveRecord }) : null),
+        [activeScript, events, economy, players, liveRecord],
+    )
+
+    // Review: the live round, or an earlier round rebuilt on demand.
+    const reviewPrep: PreparedRadarScript | null = useMemo(() => {
+        if (!reviewUi.active || reviewUi.round === null) return null
+        if (activeScript && reviewUi.round === activeScript.round) return livePrep
+        if (!review) return null
+        const s = reviewScript(review, currentMapId, reviewUi.round)
+        if (!s) return null
+        const rec = reviewRound(review, reviewUi.round)
+        return prepareRadarScript(s, { events: rec?.events, economy: rec?.playerEconomy, players, round: rec })
+    }, [reviewUi.active, reviewUi.round, activeScript, livePrep, review, currentMapId, players])
+    const reviewingLive = reviewUi.active && !!activeScript && reviewUi.round === activeScript.round
+    const earlierRounds = useMemo(
+        () => reviewableRounds(review).filter(r => !activeScript || r < activeScript.round),
+        [review, activeScript],
+    )
+    // A round that cannot be rebuilt (or a finished live round without history) ends the review.
+    useEffect(() => {
+        if (reviewUi.active && !reviewPrep) setReviewUi(NO_REVIEW)
+    }, [reviewUi.active, reviewPrep])
+
+    // ─── Feed for the canvas (mutated, never React state per frame) ────────
+    const [feedRef] = useState<{ current: RadarFeed }>(() => ({ current: createRadarFeed(createRadarClock(tick, 0)) }))
+    const feed = feedRef.current
 
     useEffect(() => {
-        setManualRadarLevel("upper")
-        setRadarLevelMode("auto")
-        setZoom(1)
+        clockSetTick(feed.clock, tick, performance.now())
+        feed.version++
+    }, [feed, tick])
+    // Reduced motion: dots step once per game tick instead of gliding between ticks.
+    const animate = isAnimating && !staticEffects
+    useEffect(() => {
+        clockSetPlayback(feed.clock, animate && !clock, tickDurationMs, performance.now())
+    }, [feed, animate, tickDurationMs, clock])
+    // The live clock drives the radar directly; reduced motion steps it once
+    // per round second (and at the screen's reveal time, the tick above).
+    useEffect(() => {
+        feed.source = clock ?? null
+        feed.stepped = staticEffects
+        feed.version++
+    }, [feed, clock, staticEffects])
+    // Round over: shot tracers, death bursts and grenade pops finish fading
+    // instead of freezing on the last frame.
+    useEffect(() => {
+        feed.settledAt = roundOver ? performance.now() : -1
+        feed.version++
+    }, [feed, roundOver])
+    useEffect(() => {
+        feed.prep = livePrep
+        feed.snapshot = livePrep ? null : radarDots || killLines || smokes || bombState
+            ? { dots: radarDots, nextDots: nextRadarDots, killLines, smokes, bomb: bombState }
+            : null
+        feed.version++
+    }, [feed, livePrep, radarDots, nextRadarDots, killLines, smokes, bombState])
+    useEffect(() => {
+        const r = feed.review
+        r.active = reviewUi.active && !!reviewPrep
+        r.prep = reviewPrep
+        r.live = reviewingLive
+        r.playing = reviewUi.playing
+        r.lastMs = performance.now()
+        feed.version++
+    }, [feed, reviewUi, reviewPrep, reviewingLive])
+
+    // A new map starts on "auto", live, unzoomed.
+    useEffect(() => {
+        setFloorMode("auto")
+        setReviewUi(NO_REVIEW)
+        canvasRef.current?.resetView()
     }, [currentMapId])
 
-    const resolvedRadarLevel = useMemo(() => (
-        radarLevelMode === "manual"
-            ? manualRadarLevel
-            : resolveAutoRadarLevel({
-                isDualLevel,
-                currentLevel: manualRadarLevel,
-                currentTime,
-                bombState,
-                killLines,
-                radarDots: tickDots,
-            })
-    ), [radarLevelMode, manualRadarLevel, isDualLevel, currentTime, bombState, killLines, tickDots])
-
-    const radarSrc = radarImageData && resolvedRadarLevel === "lower" && radarImageData.secondary
-        ? radarImageData.secondary
-        : radarImageData?.primary
-
-    const safeDots = useMemo(() => (radarDots || [])
-        .filter(dot => isFiniteCoord(dot.x) && isFiniteCoord(dot.y) && isFiniteCoord(dot.angle))
-        .map(dot => ({
-            ...dot,
-            x: clampRadarCoord(dot.x),
-            y: clampRadarCoord(dot.y),
-            angle: dot.angle,
-        })), [radarDots])
-
-    // Filter dots by level for dual-level maps
-    const visibleDots = useMemo(() => safeDots.filter(dot => {
-        if (!isDualLevel || !dot.level) return true
-        return dot.level === resolvedRadarLevel
-    }), [safeDots, isDualLevel, resolvedRadarLevel])
-    // Labels are placed once per playback tick (from the tick snapshot) and
-    // then ride along with their interpolated dot, so they glide instead of
-    // re-running collision layout — and jumping — every frame.
-    const labelOffsets = useRef(new globalThis.Map<string, { dx: number; dy: number }>())
-    const tickLabels = useMemo(() => {
-        const tickVisible = (tickDots || []).filter(dot => (
-            isFiniteCoord(dot.x) && isFiniteCoord(dot.y)
-            && (!isDualLevel || !dot.level || dot.level === resolvedRadarLevel)
-        )).map(dot => ({ ...dot, x: clampRadarCoord(dot.x), y: clampRadarCoord(dot.y) }))
-        const placed = layoutRadarLabels(tickVisible, labelOffsets.current)
-        const offsets = new globalThis.Map<string, { dx: number; dy: number }>()
-        for (const dot of tickVisible) {
-            const label = placed.get(dot.playerId)
-            if (label) offsets.set(dot.playerId, { dx: label.x - dot.x, dy: label.y - dot.y })
-        }
-        labelOffsets.current = offsets
-        return placed
-    }, [tickDots, isDualLevel, resolvedRadarLevel])
-    const labels = useMemo(() => {
-        const moved = new globalThis.Map<string, RadarLabel>()
-        for (const dot of visibleDots) {
-            const label = tickLabels.get(dot.playerId)
-            const offset = labelOffsets.current.get(dot.playerId)
-            if (!label || !offset) continue
-            moved.set(dot.playerId, {
-                ...label,
-                x: clampRadarCoord(dot.x + offset.dx, 1, 99 - label.width),
-                y: clampRadarCoord(dot.y + offset.dy, 1, 99 - label.height),
-            })
-        }
-        return moved
-    }, [visibleDots, tickLabels])
-
-    const visibleKillLines = useMemo(() => (killLines || [])
-        .filter(line => (
-            isFiniteCoord(line.fromX)
-            && isFiniteCoord(line.fromY)
-            && isFiniteCoord(line.toX)
-            && isFiniteCoord(line.toY)
-            && isFiniteCoord(line.time)
-        ))
-        .map(line => ({
-            ...line,
-            fromX: clampRadarCoord(line.fromX),
-            fromY: clampRadarCoord(line.fromY),
-            toX: clampRadarCoord(line.toX),
-            toY: clampRadarCoord(line.toY),
-            time: line.time,
-        }))
-        .filter(line => {
-            if (!isDualLevel) return true
-            if (!line.level) return true
-            return line.level === resolvedRadarLevel
-        }), [killLines, isDualLevel, resolvedRadarLevel])
-
-    const visibleSmokes = useMemo(() => (smokes || [])
-        .filter(smoke => (
-            isFiniteCoord(smoke.x)
-            && isFiniteCoord(smoke.y)
-            && isFiniteCoord(smoke.radius)
-            && isFiniteCoord(smoke.startTime)
-            && isFiniteCoord(smoke.endTime)
-        ))
-        .map(smoke => ({
-            ...smoke,
-            x: clampRadarCoord(smoke.x),
-            y: clampRadarCoord(smoke.y),
-            radius: Math.max(0, smoke.radius),
-            level: smoke.level,
-        }))
-        .filter(smoke => {
-            if (!isDualLevel) return true
-            if (!smoke.level) return true
-            return smoke.level === resolvedRadarLevel
-        }), [smokes, isDualLevel, resolvedRadarLevel])
-
-    // Pre-compute current opacity per kill line. Same motivation as
-    // smokeRenderState: the inline branch ran per kill line per frame
-    // and a busy fight-round can drop 4-6 kill lines simultaneously.
-    const killLineRenderState = useMemo(() => {
-        if (currentTime == null) return [] as Array<{ line: typeof visibleKillLines[number]; fadeOpacity: number }>
-        return visibleKillLines
-            .map(line => {
-                const elapsed = currentTime - line.time
-                if (elapsed < 0) return null
-                const fadeOpacity = Math.max(0, 1 - elapsed / 2)
-                return fadeOpacity > 0 ? { line, fadeOpacity } : null
-            })
-            .filter(Boolean) as Array<{ line: typeof visibleKillLines[number]; fadeOpacity: number }>
-    }, [visibleKillLines, currentTime])
-
-    // Pre-compute current opacity per smoke so the JSX map is a flat
-    // value-pass instead of repeating the fade-in/hold/fade-out branch
-    // per frame per smoke. Was doing 3-7 visible smokes × per-tick math
-    // inside the render loop.
-    const smokeRenderState = useMemo(() => {
-        if (currentTime == null) return []
-        return visibleSmokes.map(smoke => {
-            if (currentTime < smoke.startTime || currentTime > smoke.endTime + 2) return null
-            let opacity = 0.25
-            const fadeInEnd = smoke.startTime + 1
-            const fadeOutStart = smoke.endTime
-            if (currentTime < fadeInEnd) {
-                opacity = 0.25 * ((currentTime - smoke.startTime) / 1)
-            } else if (currentTime > fadeOutStart) {
-                opacity = 0.25 * Math.max(0, 1 - (currentTime - fadeOutStart) / 2)
-            }
-            if (opacity <= 0) return null
-            return { smoke, opacity }
-        }).filter(Boolean) as Array<{ smoke: typeof visibleSmokes[number]; opacity: number }>
-    }, [visibleSmokes, currentTime])
-
-    const safeSitePositions = useMemo(() => sitePositions && isFiniteCoord(sitePositions.a.x) && isFiniteCoord(sitePositions.a.y) && isFiniteCoord(sitePositions.b.x) && isFiniteCoord(sitePositions.b.y)
-        ? {
-            a: { x: clampRadarCoord(sitePositions.a.x), y: clampRadarCoord(sitePositions.a.y) },
-            b: { x: clampRadarCoord(sitePositions.b.x), y: clampRadarCoord(sitePositions.b.y) },
-        }
-        : undefined, [sitePositions])
-
-    const safeBombPosition = useMemo(() => bombState?.position && isFiniteCoord(bombState.position.x) && isFiniteCoord(bombState.position.y)
-        ? { x: clampRadarCoord(bombState.position.x), y: clampRadarCoord(bombState.position.y) }
-        : undefined, [bombState?.position])
-    const bombVisibleOnCurrentLevel = !isDualLevel || !bombState?.level || bombState.level === resolvedRadarLevel
-
-    const ctAlive = safeDots.filter(d => d.side === "ct" && d.isAlive).length
-    const tAlive = safeDots.filter(d => d.side === "t" && d.isAlive).length
-
-    // Clutch detection
-    const clutchText = (() => {
-        if (ctAlive === 1 && tAlive >= 2) return `1v${tAlive} CLUTCH`
-        if (tAlive === 1 && ctAlive >= 2) return `1v${ctAlive} CLUTCH`
+    // ─── Header / footer state at the shown time (per tick, not per frame) ──
+    const shownT = reviewUi.active && reviewPrep ? reviewSecond : tick
+    const headerScene: RadarScene | null = useMemo(() => {
+        const s = createRadarScene()
+        if (reviewUi.active && reviewPrep) return sampleRadarScene(reviewPrep, shownT, s)
+        if (livePrep) return sampleRadarScene(livePrep, tick, s)
+        if (radarDots || bombState) return sceneFromSnapshot({ t: tick, dots: radarDots, bomb: bombState }, s)
         return null
-    })()
-    const clutchSide = ctAlive === 1 && tAlive >= 2 ? "ct" : tAlive === 1 && ctAlive >= 2 ? "t" : null
+    }, [reviewUi.active, reviewPrep, shownT, livePrep, tick, radarDots, bombState])
+    const alive = headerScene ? sceneAliveCounts(headerScene) : { CT: 0, T: 0 }
+    const ctAlive = alive.CT
+    const tAlive = alive.T
+    const shownOver = reviewUi.active ? !reviewingLive || roundOver : roundOver
 
-    // Round phase label
+    // Clutch detection (live rounds only: after the round ends it would
+    // label the end-of-round survivors, e.g. "1v4" after a bomb win).
+    const clutchText = !shownOver && !reviewUi.active
+        ? ctAlive === 1 && tAlive >= 2 ? `1v${tAlive} CLUTCH` : tAlive === 1 && ctAlive >= 2 ? `1v${ctAlive} CLUTCH` : null
+        : null
+    const clutchSide = ctAlive === 1 && tAlive >= 2 ? "ct" : "t"
+
     const roundPhase = (() => {
-        if (bombState?.defused) return { label: "DEFUSED", color: "#5b9bd5" }
-        if (bombState?.exploded) return { label: "ELIMINATED", color: "#ef4444" }
-        if (bombState?.planted) return { label: "BOMB PLANTED", color: "#ef4444", pulse: true }
-        if (positionSource === 'physical-replay') return { label: "REPLAY", color: "#c4d0e2" }
-        if (currentTime != null && currentTime <= 3) return { label: "FREEZE TIME", color: "#60a5fa" }
-        return { label: "LIVE", color: "#4ade80" }
+        const bomb = headerScene?.bomb
+        if (bomb && bomb.phase !== "none") {
+            const site = bomb.site ? ` ${bomb.site}` : ""
+            if (bomb.phase === "defused") return { label: "DEFUSED", color: "#5AA9FF" }
+            if (bomb.phase === "exploded") return { label: "BOMB EXPLODED", color: "#FF8A3D" }
+            if (shownOver && !reviewUi.active) return { label: "ROUND OVER", color: "#AEB6C2" }
+            if (bomb.phase === "defusing") return { label: `DEFUSING${site}`, color: "#5AA9FF" }
+            if (bomb.phase === "planted") return { label: `BOMB PLANTED${site}`, color: "#FF5468" }
+        }
+        if (shownOver && !reviewUi.active) return { label: "ROUND OVER", color: "#AEB6C2" }
+        if (positionSource === 'physical-replay') return { label: "REPLAY", color: "#AEB6C2" }
+        if (!reviewUi.active && currentTime != null && currentTime < FREEZE_LABEL_SECONDS) return { label: "FREEZE TIME", color: "#5AA9FF" }
+        if (reviewUi.active) return null
+        return { label: "LIVE", color: "#3DD68C" }
     })()
 
-    // Defuse progress ring math
-    const DEFUSE_RING_RADIUS = 4.5
-    const defuseCircumference = 2 * Math.PI * DEFUSE_RING_RADIUS
-    const defuseDashOffset = bombState?.defuseProgress != null
-        ? defuseCircumference * (1 - bombState.defuseProgress)
-        : defuseCircumference
+    // Bombsites: the round map's (plant area + letter), else the caller's positions.
+    const sites: RadarSite[] = useMemo(() => {
+        if (roundMap) {
+            return (["A", "B"] as const).map(id => {
+                const site = roundMap.sites[id]
+                return { id, x: site.center.x, y: site.center.y, floor: site.center.floor, polygon: site.polygon }
+            })
+        }
+        const ok = (p: Point | undefined) => !!p && Number.isFinite(p.x) && Number.isFinite(p.y)
+        if (sitePositions && ok(sitePositions.a) && ok(sitePositions.b)) {
+            return [{ id: "A", x: sitePositions.a.x, y: sitePositions.a.y }, { id: "B", x: sitePositions.b.x, y: sitePositions.b.y }]
+        }
+        return []
+    }, [roundMap, sitePositions])
 
-    // Defused checkmark fade (show for 3 seconds after defuse)
-    const defusedFadeOpacity = bombState?.defused && bombState.defuseTime != null && currentTime != null
-        ? Math.max(0, 1 - (currentTime - bombState.defuseTime) / 3)
-        : 0
+    const contentBounds = useMemo(() => roundMapBounds(roundMap), [roundMap])
 
-    if (!radarImageData || !radarSrc) return null
+    // ─── Review actions ────────────────────────────────────────────────────
+    const frameListener = useRef<((t: number, liveT: number) => void) | null>(null)
+    const registerFrame = useCallback((fn: ((t: number, liveT: number) => void) | null) => { frameListener.current = fn }, [])
+    const lastReviewSecond = useRef(-1)
+    const onFrame = useCallback((t: number, liveT: number) => {
+        frameListener.current?.(t, liveT)
+        if (feed.review.active) {
+            const sec = Math.floor(t)
+            if (sec !== lastReviewSecond.current) { lastReviewSecond.current = sec; setReviewSecond(sec) }
+        }
+    }, [feed])
+
+    const onScrub = useCallback((t: number) => {
+        // Scrubbing the live round does not touch the match clock; it is limited to what has happened.
+        const round = reviewUi.active ? reviewUi.round : activeScript?.round ?? null
+        const live = !!activeScript && round === activeScript.round
+        const prep = live ? livePrep : reviewPrep
+        if (!prep || round === null) return
+        const liveT = Math.max(0, feedLiveTime(feed))
+        // A decided live round is fully known: the whole round can be scrubbed.
+        const limited = live && !roundOver
+        feed.review.t = clampReviewTime(t, scrubberSpan(prep, limited ? liveT : undefined), limited ? liveT : undefined)
+        feed.review.active = true
+        feed.review.prep = prep
+        feed.review.live = live
+        feed.review.playing = false
+        feed.version++
+        if (!reviewUi.active || reviewUi.playing || reviewUi.round !== round) setReviewUi({ active: true, round, playing: false })
+    }, [reviewUi, activeScript, livePrep, reviewPrep, feed, roundOver])
+    const onSelectRound = useCallback((round: number | null) => {
+        if (round === null) { setReviewUi(NO_REVIEW); return }
+        feed.review.t = 0
+        lastReviewSecond.current = -1
+        setReviewUi({ active: true, round, playing: true })
+    }, [feed])
+    const onTogglePlay = useCallback(() => {
+        if (!reviewUi.active) {
+            // Replay the live round from its start; it returns to live when it catches up.
+            if (!activeScript) return
+            feed.review.t = 0
+            lastReviewSecond.current = -1
+            setReviewUi({ active: true, round: activeScript.round, playing: true })
+            return
+        }
+        if (!reviewUi.playing && reviewPrep && !reviewingLive && feed.review.t >= reviewPrep.endTime - 0.05) feed.review.t = 0
+        setReviewUi(r => ({ ...r, playing: !r.playing }))
+    }, [reviewUi, reviewPrep, reviewingLive, activeScript, feed])
+    const onBackToLive = useCallback(() => setReviewUi(NO_REVIEW), [])
+    const onReviewEnd = useCallback((caughtUp: boolean) => {
+        if (caughtUp) setReviewUi(NO_REVIEW)
+        else setReviewUi(r => ({ ...r, playing: false }))
+    }, [])
+
+    const onFloorChange = useCallback((f: Floor) => setShownFloor(f), [])
+    const onZoomChange = useCallback((z: number, canIn: boolean) => { setZoom(z); setCanZoomIn(canIn) }, [])
+
+    if (!art) return null
+
+    const scrubberRound = reviewUi.active ? reviewUi.round : activeScript?.round ?? null
+    const scrubberPrep = reviewUi.active ? reviewPrep : livePrep
+    const source = activeScript ? "round-script" : radarDots ? "snapshot" : undefined
+    const floorLabel = isDualLevel ? (shownFloor === "upper" ? "Upper floor" : "Lower floor") : "Single level"
+    const ariaLabel = `${mapName} radar${headerScene ? `: CT ${ctAlive} alive, T ${tAlive} alive` : ""}${roundPhase ? `, ${roundPhase.label.toLowerCase()}` : ""}`
 
     return (
-        <div className="map-radar-panel glass-panel-dark rounded-xl border border-white/5 overflow-hidden">
-            <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 pb-3">
+        <div className={cn("map-radar-panel overflow-hidden rounded-lg border border-line bg-panel", fillHeight && "flex h-full min-h-0 flex-col")}>
+            {/* One compact header row: title, round phase, then view controls. */}
+            <div className="radar-panel-header flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-line px-3 py-1.5">
                 <button type="button" onClick={() => setIsExpanded(!isExpanded)} aria-label={`${mapName} radar`} aria-expanded={isExpanded} aria-controls={panelId}
-                    className="flex min-h-8 items-center gap-2 text-left text-sm font-medium text-slate-100">
-                    <Map size={16} className="text-sky-200" />
-                    <span>{mapName} <span className="text-slate-400 font-normal">radar</span></span>
-                    <ChevronUp size={14} className={cn("text-slate-400 transition-transform", !isExpanded && "rotate-180")} />
+                    className="flex min-h-8 items-center gap-2 text-left text-sm font-semibold text-ink-1">
+                    <Map size={16} className="text-ink-3" />
+                    <span>{mapName} <span className="font-normal text-ink-3">radar</span></span>
+                    <ChevronUp size={14} className={cn("text-ink-3 transition-transform", !isExpanded && "rotate-180")} />
                 </button>
-                {isExpanded && roundPhase && <span className="rounded-full px-2 py-1 text-[10px] font-semibold tracking-wide" style={{backgroundColor: `${roundPhase.color}20`, color: roundPhase.color}}>{roundPhase.label}</span>}
-            </div>
-            {isExpanded && <div className="flex flex-wrap items-center justify-between gap-2 border-y border-white/10 bg-white/2.5 px-4 py-2 mb-3">
-                {isDualLevel && <div role="group" aria-label="Radar floor" className="flex items-center gap-1">
-                    {(["auto", "upper", "lower"] as const).map(level => <button key={level} type="button"
-                        onClick={() => { setRadarLevelMode(level === "auto" ? "auto" : "manual"); if (level !== "auto") setManualRadarLevel(level) }}
-                        aria-pressed={level === "auto" ? radarLevelMode === "auto" : radarLevelMode === "manual" && manualRadarLevel === level}
-                        className={cn("min-h-7 rounded-lg px-2 text-xs capitalize", (level === "auto" ? radarLevelMode === "auto" : radarLevelMode === "manual" && manualRadarLevel === level) ? "bg-white/10 text-white" : "text-slate-400 hover:text-white")}>
-                        {level}
-                    </button>)}
+                {isExpanded && reviewUi.active && <span className="rounded-sm bg-gold/15 px-1.5 py-0.5 text-[11px] font-bold tracking-[0.06em] text-gold">REVIEW · R{scrubberRound ?? "–"} {formatRoundClock(shownT)}</span>}
+                {isExpanded && roundPhase && <span className="rounded-sm px-1.5 py-0.5 text-[11px] font-bold tracking-[0.06em]" style={{ backgroundColor: `${roundPhase.color}20`, color: roundPhase.color }}>{roundPhase.label}</span>}
+                {isExpanded && <div className="ml-auto flex flex-wrap items-center gap-2">
+                    {isDualLevel && <div role="group" aria-label="Radar floor" className="flex items-center gap-1">
+                        {(["auto", "upper", "lower"] as const).map(level => <button key={level} type="button"
+                            onClick={() => setFloorMode(level)}
+                            aria-pressed={floorMode === level}
+                            className={cn("min-h-7 rounded px-2 text-xs capitalize", floorMode === level ? "bg-hover text-ink-1" : "text-ink-3 hover:text-ink-1")}>
+                            {level}
+                        </button>)}
+                    </div>}
+                    <button type="button" aria-pressed={showNames} onClick={() => setShowNames(value => !value)} className="min-h-7 rounded px-2 text-xs text-ink-2 hover:bg-hover hover:text-ink-1">Names {showNames ? "on" : "off"}</button>
+                    <div role="group" aria-label="Radar zoom" className="flex items-center gap-1 text-xs text-ink-2">
+                        <button type="button" aria-label="Zoom radar out" disabled={zoom <= 1.001} onClick={() => canvasRef.current?.zoomBy(1 / 1.5)} className="rounded p-1.5 hover:bg-hover disabled:opacity-40"><Minus size={14} /></button>
+                        <span className="w-9 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
+                        <button type="button" aria-label="Zoom radar in" disabled={!canZoomIn} onClick={() => canvasRef.current?.zoomBy(1.5)} className="rounded p-1.5 hover:bg-hover disabled:opacity-40"><Plus size={14} /></button>
+                        <button type="button" aria-label="Reset radar view" title="Reset view (double-click the radar)" disabled={zoom <= 1.001} onClick={() => canvasRef.current?.resetView()} className="rounded p-1.5 hover:bg-hover disabled:opacity-40"><Maximize2 size={13} /></button>
+                    </div>
                 </div>}
-                {<button type="button" aria-pressed={showNames} onClick={() => setShowNames(value => !value)} className="min-h-7 rounded-lg px-2 text-xs text-slate-300 hover:bg-white/10">Names {showNames ? "on" : "off"}</button>}
-                <div role="group" aria-label="Radar zoom" className="flex items-center gap-1 text-xs text-slate-300">
-                    <button type="button" aria-label="Zoom radar out" disabled={zoom <= 1} onClick={() => setZoom(value => Math.max(1, value - .5))} className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-40"><Minus size={14} /></button>
-                    <span className="w-9 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
-                    <button type="button" aria-label="Zoom radar in" disabled={zoom >= 2} onClick={() => setZoom(value => Math.min(2, value + .5))} className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-40"><Plus size={14} /></button>
-                </div>
-            </div>}
+            </div>
 
-            {/* Collapsible radar image + overlay */}
+            {!isExpanded && overlay != null && <div className="radar-overlay-slot p-3">{overlay}</div>}
             <AnimatePresence initial={false}>
                 {isExpanded && (
                     <motion.div
@@ -348,350 +352,75 @@ function MapRadarPanelComponent({ currentMapId, mapName, radarDots: tickDots, ne
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="overflow-hidden"
+                        className={cn("overflow-hidden", fillHeight && "flex min-h-0 flex-1 flex-col")}
                     >
-                        <div className="px-4 pb-3 flex justify-center">
-                            <div className="radar-canvas-frame relative aspect-square w-full max-w-[520px] mx-auto overflow-auto rounded-lg" role="region" aria-label={`${mapName} radar viewport; scroll to pan when zoomed`} tabIndex={0}>
-                                <div className="relative" style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%` }}>
-                                {/* Radar background image */}
-                                <AnimatePresence mode="sync">
-                                    <motion.div
-                                        key={`${currentMapId}-${resolvedRadarLevel}`}
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 0.9 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="absolute inset-0 rounded-lg overflow-hidden ring-1 ring-white/10"
-                                        style={{ filter: "brightness(1.18) contrast(1.08) saturate(0.65)" }}
-                                    >
-                                        <Image
-                                            src={radarSrc}
-                                            alt={`${mapName} radar`}
-                                            fill
-                                            className="object-contain"
-                                            sizes="(max-height: 800px) 270px, 520px"
-                                            priority
-                                            unoptimized
-                                        />
-                                        {/* inner vignette — sinks the map edges for depth */}
-                                        <div
-                                            className="pointer-events-none absolute inset-0"
-                                            style={{ boxShadow: "inset 0 0 28px 4px rgba(0,0,0,0.45)" }}
-                                        />
-                                    </motion.div>
-                                </AnimatePresence>
-
-                                {/* SVG overlay for player dots + bomb + labels */}
-                                <svg
-                                    viewBox="0 0 100 100"
-                                    className="absolute inset-0 w-full h-full pointer-events-none"
-                                    preserveAspectRatio="xMidYMid meet"
-                                >
-                                    <defs>
-                                        <filter id={`${panelId}-smoke`}>
-                                            <feGaussianBlur stdDeviation="1.2" />
-                                        </filter>
-                                    </defs>
-
-                                    {/* Site Labels (A / B) — subtle background markers */}
-                                    {safeSitePositions && (
-                                        <>
-                                            <text
-                                                x={safeSitePositions.a.x}
-                                                y={safeSitePositions.a.y}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                                fontSize="5"
-                                                fill="white"
-                                                opacity="0.12"
-                                                fontWeight="bold"
-                                                fontFamily="sans-serif"
-                                            >
-                                                A
-                                            </text>
-                                            <text
-                                                x={safeSitePositions.b.x}
-                                                y={safeSitePositions.b.y}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                                fontSize="5"
-                                                fill="white"
-                                                opacity="0.12"
-                                                fontWeight="bold"
-                                                fontFamily="sans-serif"
-                                            >
-                                                B
-                                            </text>
-                                        </>
-                                    )}
-
-                                    {/* Smoke clouds — opacity precomputed in smokeRenderState. */}
-                                    {smokeRenderState.map(({ smoke, opacity }, idx) => (
-                                        <circle
-                                            key={`smoke-${idx}`}
-                                            cx={smoke.x}
-                                            cy={smoke.y}
-                                            r={smoke.radius}
-                                            fill="rgba(180,180,180,0.6)"
-                                            opacity={opacity}
-                                            filter={`url(#${panelId}-smoke)`}
-                                        />
-                                    ))}
-
-                                    {/* Kill flash lines — opacity from killLineRenderState. */}
-                                    {killLineRenderState.map(({ line, fadeOpacity }, idx) => (
-                                        <line
-                                            key={`kill-${idx}`}
-                                            x1={line.fromX}
-                                            y1={line.fromY}
-                                            x2={line.toX}
-                                            y2={line.toY}
-                                            stroke={line.isHeadshot ? "#ff6666" : "#ff3333"}
-                                            strokeWidth={line.isHeadshot ? "0.6" : "0.35"}
-                                            opacity={fadeOpacity * 0.7}
-                                            strokeDasharray={line.isHeadshot ? "none" : "1 0.5"}
-                                        />
-                                    ))}
-
-                                    {/* Headshot marker at victim position */}
-                                    {killLineRenderState.map(({ line, fadeOpacity }, idx) => {
-                                        if (!line.isHeadshot) return null
-                                        return (
-                                            <g key={`hs-${idx}`} opacity={fadeOpacity * 0.8}>
-                                                <circle
-                                                    cx={line.toX} cy={line.toY} r={2.2}
-                                                    fill="none" stroke="#ff4444" strokeWidth="0.4"
-                                                />
-                                                <line x1={line.toX - 1.5} y1={line.toY} x2={line.toX + 1.5} y2={line.toY}
-                                                    stroke="#ff4444" strokeWidth="0.3" />
-                                                <line x1={line.toX} y1={line.toY - 1.5} x2={line.toX} y2={line.toY + 1.5}
-                                                    stroke="#ff4444" strokeWidth="0.3" />
-                                            </g>
-                                        )
-                                    })}
-
-                                    {/* Bomb icon — planted, not yet defused or exploded */}
-                                    {bombVisibleOnCurrentLevel && bombState?.planted && !bombState.defused && !bombState.exploded && safeBombPosition && (
-                                        <g>
-                                            <circle
-                                                cx={safeBombPosition.x}
-                                                cy={safeBombPosition.y}
-                                                r={3}
-                                                fill="rgba(255, 50, 50, 0.4)"
-                                            >
-                                                {!staticEffects && <animate
-                                                    attributeName="r"
-                                                    values="2.5;4;2.5"
-                                                    dur="1.2s"
-                                                    repeatCount="indefinite"
-                                                />}
-                                                {!staticEffects && <animate
-                                                    attributeName="opacity"
-                                                    values="0.4;0.8;0.4"
-                                                    dur="1.2s"
-                                                    repeatCount="indefinite"
-                                                />}
-                                            </circle>
-                                            <text
-                                                x={safeBombPosition.x}
-                                                y={safeBombPosition.y + 0.8}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                                fontSize="2.8"
-                                                fill="#ff4444"
-                                                fontWeight="bold"
-                                                fontFamily="monospace"
-                                            >
-                                                C4
-                                            </text>
-
-                                            {/* Defuse progress ring */}
-                                            {bombState.defuseProgress != null && bombState.defuseProgress > 0 && (
-                                                <circle
-                                                    cx={safeBombPosition.x}
-                                                    cy={safeBombPosition.y}
-                                                    r={DEFUSE_RING_RADIUS}
-                                                    fill="none"
-                                                    stroke="#5b9bd5"
-                                                    strokeWidth="0.8"
-                                                    strokeDasharray={defuseCircumference}
-                                                    strokeDashoffset={defuseDashOffset}
-                                                    strokeLinecap="round"
-                                                    transform={`rotate(-90 ${safeBombPosition.x} ${safeBombPosition.y})`}
-                                                    opacity={0.9}
-                                                />
-                                            )}
-                                        </g>
-                                    )}
-
-                                    {/* Bomb exploded flash */}
-                                    {bombVisibleOnCurrentLevel && bombState?.exploded && safeBombPosition && (
-                                        <circle
-                                            cx={safeBombPosition.x}
-                                            cy={safeBombPosition.y}
-                                            r={6}
-                                            fill="rgba(255, 100, 0, 0.5)"
-                                        >
-                                            {!staticEffects && <animate
-                                                attributeName="r"
-                                                values="3;8;0"
-                                                dur="0.8s"
-                                                fill="freeze"
-                                            />}
-                                            {!staticEffects && <animate
-                                                attributeName="opacity"
-                                                values="0.8;0.3;0"
-                                                dur="0.8s"
-                                                fill="freeze"
-                                            />}
-                                        </circle>
-                                    )}
-
-                                    {/* Bomb defused checkmark */}
-                                    {bombVisibleOnCurrentLevel && bombState?.defused && safeBombPosition && defusedFadeOpacity > 0 && (
-                                        <g opacity={defusedFadeOpacity}>
-                                            <circle
-                                                cx={safeBombPosition.x}
-                                                cy={safeBombPosition.y}
-                                                r={3}
-                                                fill="rgba(74, 222, 128, 0.3)"
-                                            />
-                                            <path
-                                                d={`M ${safeBombPosition.x - 1.8} ${safeBombPosition.y + 0.2} L ${safeBombPosition.x - 0.5} ${safeBombPosition.y + 1.5} L ${safeBombPosition.x + 2} ${safeBombPosition.y - 1.2}`}
-                                                fill="none"
-                                                stroke="#4ade80"
-                                                strokeWidth="0.8"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-                                        </g>
-                                    )}
-
-                                    {/* Clutch banner */}
-                                    {clutchText && (
-                                        <g>
-                                            <rect
-                                                x={20} y={3} width={60} height={7}
-                                                rx={3.5}
-                                                fill="rgba(0,0,0,0.6)"
-                                            />
-                                            <text
-                                                x={50} y={7.8}
-                                                textAnchor="middle"
-                                                dominantBaseline="middle"
-                                                fontSize="4"
-                                                fill={clutchSide === "ct" ? "#5b9bd5" : "#e8a838"}
-                                                fontWeight="bold"
-                                                fontFamily="sans-serif"
-                                                letterSpacing="0.5"
-                                            >
-                                                {clutchText}
-                                            </text>
-                                        </g>
-                                    )}
-
-                                    {/* Player dots */}
-                                    {visibleDots.map(dot => {
-                                        const isDeadRecently = !dot.isAlive
-                                            && dot.deathTime !== undefined
-                                            && currentTime !== undefined
-                                            && (currentTime - dot.deathTime) < 4
-
-                                        if (!dot.isAlive && !isDeadRecently) return null
-
-                                        const ctColor = "#5b9bd5"
-                                        const tColor = "#e8a838"
-                                        const color = dot.side === "ct" ? ctColor : tColor
-                                        const label = labels.get(dot.playerId)
-
-                                        // Dead player X marker
-                                        if (!dot.isAlive && isDeadRecently) {
-                                            const elapsed = (currentTime ?? 0) - (dot.deathTime ?? 0)
-                                            const fadeOpacity = Math.max(0, 1 - elapsed / 4)
-                                            return (
-                                                <g key={dot.playerId} opacity={fadeOpacity}>
-                                                    <line
-                                                        x1={dot.x - 1.5} y1={dot.y - 1.5}
-                                                        x2={dot.x + 1.5} y2={dot.y + 1.5}
-                                                        stroke="#ff3333" strokeWidth="0.7"
-                                                    />
-                                                    <line
-                                                        x1={dot.x + 1.5} y1={dot.y - 1.5}
-                                                        x2={dot.x - 1.5} y2={dot.y + 1.5}
-                                                        stroke="#ff3333" strokeWidth="0.7"
-                                                    />
-                                                </g>
-                                            )
-                                        }
-
-                                        // Economy border color
-                                        const ecoStroke = dot.money != null
-                                            ? dot.money >= 4500 ? "white"
-                                              : dot.money >= 2000 ? "#f59e0b"
-                                              : "#ef4444"
-                                            : "white"
-                                        const ecoStrokeWidth = dot.money != null && dot.money < 2000 ? "0.5" : "0.35"
-
-                                        // Facing cone points
-                                        const coneLen = 3.5
-                                        const coneHalf = 0.4 // ~23° half-angle
-                                        const cx1 = dot.x + Math.cos(dot.angle - coneHalf) * coneLen
-                                        const cy1 = dot.y + Math.sin(dot.angle - coneHalf) * coneLen
-                                        const cx2 = dot.x + Math.cos(dot.angle + coneHalf) * coneLen
-                                        const cy2 = dot.y + Math.sin(dot.angle + coneHalf) * coneLen
-
-                                        // Alive player dot with glow + cone + nickname
-                                        return (
-                                            <g key={dot.playerId}>
-                                                {/* Facing direction cone */}
-                                                <path
-                                                    d={`M ${dot.x} ${dot.y} L ${cx1} ${cy1} L ${cx2} ${cy2} Z`}
-                                                    fill={color}
-                                                    opacity={0.12}
-                                                />
-                                                        {/* Shape reinforces side colour: CT = circle, T = diamond. */}
-                                                        {dot.side === "ct" ? (
-                                                            <circle
-                                                                cx={dot.x} cy={dot.y} r={1.5}
-                                                                fill={color}
-                                                                stroke={ecoStroke} strokeWidth={ecoStrokeWidth}
-                                                                data-side-shape="ct-circle"
-                                                            />
-                                                        ) : (
-                                                            <path
-                                                                d={`M ${dot.x} ${dot.y - 1.8} L ${dot.x + 1.8} ${dot.y} L ${dot.x} ${dot.y + 1.8} L ${dot.x - 1.8} ${dot.y} Z`}
-                                                                fill={color}
-                                                                stroke={ecoStroke} strokeWidth={ecoStrokeWidth}
-                                                                data-side-shape="t-diamond"
-                                                            />
-                                                        )}
-                                                        {showNames && label && <g>
-                                                        <line x1={dot.x} y1={dot.y} x2={label.x + label.width / 2} y2={label.y + label.height / 2} stroke={color} strokeWidth=".2" opacity=".4" />
-                                                        <rect x={label.x} y={label.y} width={label.width} height={label.height} rx=".8" fill="#0d1a2d" opacity=".9" />
-                                                        <text
-                                                            x={label.x + .8}
-                                                            y={label.y + 3}
-                                                            fontSize="2.6"
-                                                            fill="white"
-                                                            stroke="#0b1220" strokeWidth="0.7" paintOrder="stroke"
-                                                            opacity={0.95}
-                                                            fontFamily="sans-serif"
-                                                            fontWeight="600"
-                                                            textAnchor="start"
-                                                        >
-                                                            {label.text}
-                                                        </text></g>}
-                                            </g>
-                                        )
-                                    })}
-                                </svg>
-
-                                </div>
+                        {/* The radar view: the canvas frame plus the overlay slot laid over its bottom. */}
+                        <div className={cn("radar-view relative", fillHeight && "flex min-h-0 flex-1 flex-col")}>
+                        {/* fillHeight: the frame is the largest square that fits (container query units). */}
+                        <div className={cn("flex justify-center px-3 py-2", fillHeight && "min-h-0 flex-1 items-center")} style={fillHeight ? { containerType: "size" } : undefined}>
+                            <div className={cn("radar-canvas-frame relative mx-auto aspect-square", !fillHeight && "w-full")}
+                                style={fillHeight ? { width: "min(100cqw, 100cqh)", height: "min(100cqw, 100cqh)" } : undefined}
+                                data-radar-source={source}>
+                                <RadarCanvas
+                                    ref={canvasRef}
+                                    feed={feedRef}
+                                    art={art}
+                                    sites={sites}
+                                    contentBounds={contentBounds}
+                                    dualLevel={isDualLevel}
+                                    floorMode={floorMode}
+                                    showNames={showNames}
+                                    reducedMotion={staticEffects}
+                                    ariaLabel={ariaLabel}
+                                    onFloorChange={onFloorChange}
+                                    onZoomChange={onZoomChange}
+                                    onFrame={onFrame}
+                                    onReviewEnd={onReviewEnd}
+                                />
+                                {clutchText && (
+                                    <div className={cn("pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded bg-ink/80 px-3 py-1 font-display text-lg font-bold tracking-[0.06em]", clutchSide === "ct" ? "text-side-ct" : "text-side-t")}>
+                                        {clutchText}
+                                    </div>
+                                )}
                             </div>
                         </div>
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 px-4 py-3 text-xs text-slate-400">
-                            <span className="flex items-center gap-3"><span className="text-sky-300"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="text-amber-300"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>alive</span></span>
-                            <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : 'Career match positions are estimated from recorded round events.'}>{positionSource === 'physical-replay' ? 'Recorded positions' : 'Estimated positions'} · {isDualLevel ? `${resolvedRadarLevel === "upper" ? "Upper" : "Lower"} floor` : "Single level"}</span>
+                        {/* Mounted only while there is something to show: an empty
+                            scroller over the canvas costs layerization every frame. */}
+                        <AnimatePresence>
+                            {overlay != null && (
+                                <motion.div
+                                    key="radar-overlay"
+                                    initial={false}
+                                    exit={staticEffects ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, y: 10, transition: { duration: 0.16, ease: "easeOut" } }}
+                                    className="radar-overlay-slot pointer-events-none absolute inset-x-3 bottom-2 top-2 z-20 flex flex-col justify-end"
+                                >
+                                    <div className="pointer-events-auto max-h-full min-h-0 overflow-y-auto overscroll-contain rounded-lg">{overlay}</div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        </div>
+                        {livePrep && (
+                            <RadarScrubber
+                                prep={scrubberPrep}
+                                isLiveRound={(!reviewUi.active || reviewingLive) && !roundOver}
+                                liveTick={Math.max(0, tick)}
+                                roundNumber={scrubberRound}
+                                liveRoundNumber={activeScript?.round ?? null}
+                                earlierRounds={earlierRounds}
+                                reviewActive={reviewUi.active}
+                                playing={reviewUi.playing}
+                                registerFrame={registerFrame}
+                                onScrub={onScrub}
+                                onSelectRound={onSelectRound}
+                                onTogglePlay={onTogglePlay}
+                                onBackToLive={onBackToLive}
+                            />
+                        )}
+                        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-line px-3 py-2 text-xs text-ink-3">
+                            <span className="flex items-center gap-3"><span className="font-semibold text-side-ct"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="font-semibold text-side-t"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>alive</span></span>
+                            <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : activeScript ? 'Positions follow the round script: routes, duels, grenades and the bomb are placed to match what happened in the round. Scroll to zoom, drag to pan, click a player to highlight.' : 'Career match positions are estimated from recorded round events.'}>
+                                {positionSource === 'physical-replay' ? 'Recorded positions' : activeScript ? 'Round script' : 'Estimated positions'} · {floorLabel}
+                            </span>
                         </div>
                     </motion.div>
                 )}

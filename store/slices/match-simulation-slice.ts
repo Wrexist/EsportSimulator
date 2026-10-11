@@ -38,10 +38,16 @@ import {
 } from "@/engine"
 import { ManagerProgression } from "@/engine/manager-progression"
 import { applyFormResult, applyMoraleResult } from "@/engine/player-lifecycle"
+import { isOfficialMatch, lineupDefeatShield, playerResultMorale, recordAppearances } from "@/engine/personality"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
 import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mastery"
+import { recordOfficialMatch } from "@/engine/official-stats"
+import { queueDecidedTitle } from "@/engine/processors/standings-processor"
+import { updateRivalries } from "@/engine/history-tracker"
+import { closePressConference } from "@/engine/storylines/press"
 import type { GameSave } from "@/engine/save-types"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
+import { isEngineVersion, LEGACY_ENGINE_VERSION, type EngineVersion } from "@/engine/match/engine-version"
 import { runLegacySeries, finalizeLegacySeries } from "@/engine/match/legacy-series"
 import { checkAchievements } from "@/engine/steam-service"
 import {
@@ -72,7 +78,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
     saveMatchResult: (matchId, result) => {
         set((state) => {
             if (state.completedMatches.some(m => m.id === matchId)) return
-            if (!result || result.engineVersion && result.engineVersion !== 'legacy-v2') return
+            if (!result || result.engineVersion && !isEngineVersion(result.engineVersion)) return
             const matchIndex = state.scheduledMatches.findIndex(m => m.id === matchId)
             if (matchIndex === -1) return
 
@@ -215,7 +221,9 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 mvpPlayerId: fallbackMvp,
                 playerStats: sanitizedPlayerStats,
             }
-            result.engineVersion = 'legacy-v2'
+            // Results without a stamp predate script-v1.
+            const engineVersion: EngineVersion = isEngineVersion(result.engineVersion) ? result.engineVersion : LEGACY_ENGINE_VERSION
+            result.engineVersion = engineVersion
             // Keep the match-time lineup the engine recorded (L21.A2); only derive
             // from the current roster when a result arrives without a valid one.
             const knownPlayers = new Set(state.players.map(p => p.id))
@@ -227,7 +235,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 [homeTeam.id]: recorded(homeTeam.id) ?? getActivePlayersByRosterOrder(homeTeam, state.players).map(p => p.id),
                 [awayTeam.id]: recorded(awayTeam.id) ?? getActivePlayersByRosterOrder(awayTeam, state.players).map(p => p.id),
             }
-            const completedMatch: CompletedMatchSaveData = { ...match, engineVersion: 'legacy-v2', result }
+            const completedMatch: CompletedMatchSaveData = { ...match, engineVersion, result }
 
             // Remove from scheduled list — match is committed below.
             state.scheduledMatches.splice(matchIndex, 1)
@@ -269,21 +277,16 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                     ? (homeRoundsTotal - awayRoundsTotal)
                     : (awayRoundsTotal - homeRoundsTotal)
 
-                const getMatchesPlayed = (teamId: string) =>
-                    state.completedMatches.filter(m => m.homeTeamId === teamId || m.awayTeamId === teamId).length
-                const winnerMatches = getMatchesPlayed(wId)
-                const loserMatches = getMatchesPlayed(lId)
-
                 const eloResult = LeagueEngine.updateEloAfterMatch(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    state as any,
+                    state,
                     wId,
                     lId,
                     scoreDiff,
                     tournamentTier,
-                    winnerMatches,
-                    loserMatches,
+                    undefined,
+                    undefined,
                     roundDiff,
+                    { tournamentId: match.tournamentId, stage: match.stage, maps: result.maps.length },
                 )
 
                 if (eloResult) {
@@ -307,6 +310,20 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             }
 
             state.completedMatches.push(completedMatch)
+            // Phase 5.3: played matches build rivalries too (the week tick's
+            // path already did), and the match's press conference closes.
+            updateRivalries(state as unknown as GameSave, completedMatch)
+            closePressConference(state, matchId)
+
+            // Careers, season tallies and records (Phase 5.1): one shared
+            // path with the week tick's AI matches. Friendlies don't count.
+            {
+                const players = new Map(state.players.map(p => [p.id, p]))
+                recordOfficialMatch(state as unknown as GameSave, completedMatch, result, {
+                    player: id => players.get(id),
+                    team: id => (id === homeTeam.id ? homeTeam : id === awayTeam.id ? awayTeam : state.teams.find(t => t.id === id)),
+                })
+            }
 
             // Sponsor goal progress: per-match "Win Matches" / "Win Tournament maps".
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -367,9 +384,12 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             const matchTournamentTier = (match.tournamentId && match.tournamentId !== "SCRIM")
                 ? state.tournaments.find(t => t.id === match.tournamentId)?.tier
                 : undefined
+            const lookupPlayer = (id: string) => playerMap.get(id)
             const updatePlayerStats = (team: TeamSaveData, won: boolean) => {
                 if (!team || !result.playerStats) return
                 const playedIds = Object.keys(result.playerStats).filter(pid => team.rosterIds.includes(pid))
+                // Phase 5.2: captain's defeat shield for the lineup he played in.
+                const shield = lineupDefeatShield(team, result.lineups?.[team.id] ?? playedIds, lookupPlayer)
                 playedIds.forEach(pid => {
                     const player = playerMap.get(pid)
                     if (!player) return
@@ -388,14 +408,13 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                             default: return won ? 5 : -5
                         }
                     })()
-                    player.morale = applyMoraleResult(player.morale || 50, moraleChange)
+                    player.morale = applyMoraleResult(player.morale || 50, playerResultMorale(player, moraleChange, shield))
                     player.form = applyFormResult(player.form, won)
 
                     const stats = result.playerStats[pid]
                     if (!stats) return
 
-                    player.totalKills = (player.totalKills || 0) + stats.kills
-                    player.totalDeaths = (player.totalDeaths || 0) + stats.deaths
+                    // Kills/deaths/rating totals: recordOfficialMatch above (official matches only).
                     if (result.mvpPlayerId === pid) player.totalMVPs = (player.totalMVPs || 0) + 1
 
                     // XP: base + tournament tier bonus + rating bonus + MVP bonus.
@@ -470,6 +489,11 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             }
             updatePlayerStats(homeTeam, homeWon)
             updatePlayerStats(awayTeam, !homeWon)
+            // Phase 5.2: official appearances (starters / fit players left out).
+            if (isOfficialMatch(match)) {
+                recordAppearances(homeTeam, result.lineups[homeTeam.id] ?? [], lookupPlayer)
+                recordAppearances(awayTeam, result.lineups[awayTeam.id] ?? [], lookupPlayer)
+            }
             // Canonical weapon-category mastery (RIFLE/AWP/PISTOL/SMG XP), the
             // track the match engine reads. The weekly tick applies it to every
             // AI match; matches committed here never did, so managed starters
@@ -542,6 +566,11 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                         }
                     }
                 }
+
+                // A grand final won here decides the title now: queue its
+                // moment for the result screen (Phase 5.4a). The week tick
+                // still pays the prize and adds the trophy, deduped by key.
+                queueDecidedTitle(state as unknown as GameSave, match.tournamentId)
             }
 
             result.xpGains = xpGains
@@ -627,8 +656,11 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
         // Shared preparation + canonical series runner: identical to the live
         // screen's path for the same seed, maps, lineup and decisions (L21/L14).
+        // A match with a live checkpoint keeps the engine it was started on.
+        const checkpoint = get().activeMatchState as { matchId?: string; playback?: { engine?: EngineVersion } } | null
+        const active = checkpoint?.matchId === matchId ? checkpoint.playback?.engine : undefined
         const ctx = prepareLegacySeries({
-            match,
+            match: active ? { ...match, engineVersion: active } : match,
             homeTeam: hTeam,
             awayTeam: aTeam,
             homePlayers: hPlayers,

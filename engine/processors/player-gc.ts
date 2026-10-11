@@ -46,6 +46,8 @@ export function garbageCollectRetiredPlayers(save: GameSave): number {
     for (const id of save.pendingLegendPick?.candidates || []) add(id)
     for (const th of save.transferHistory || []) add(th.playerId)
     for (const s of save.careerStats?.seasons || []) add(s.mvpPlayerId)
+    // A season not yet closed still needs its players for the awards (Phase 5.1).
+    for (const p of players) if (p.seasonTally) add(p.id)
     for (const m of save.completedMatches || []) {
         const r = m.result
         if (!r) continue

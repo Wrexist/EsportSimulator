@@ -85,6 +85,9 @@ export interface Player {
 
   // Phase 17/18
   perks?: string[]
+  traits?: string[]
+  /** Phase 5.2 personality (engine/personality.ts). */
+  personality?: { archetype: import("@/engine/save-types").PersonalityArchetype }
   roleMastery?: Record<string, number>
   availableSkillPoints?: number
   trainingFocus?: string // TrainingFocus enum key
@@ -517,6 +520,9 @@ export interface SimState {
   awayMomentumScore: number
   /** L21 canonical stepper: transitions are applied when a round is computed. */
   rulesVersion?: number
+  /** script-v1 CS2 economy: loss-bonus level per team (0-4 → $1,400-$3,400); a win steps it down one. */
+  homeLossLevel?: number
+  awayLossLevel?: number
   /** Scoreboard and transition of the last computed round, for playback at ROUND_END. */
   lastRound?: {
     mapIndex: number
@@ -548,6 +554,10 @@ export interface LogEntry {
   reward?: number
   playerId?: string // For clutch
   details?: string // For save/clutch
+  /** Bombsite of a PLANT / DEFUSE / EXPLODE row (from the round script). */
+  site?: "A" | "B"
+  /** Where a KILL happened, e.g. "A site" (from the round script). */
+  location?: string
 }
 
 export interface ActiveMatchState {

@@ -1,33 +1,92 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { NewsFeed } from "@/components/dashboard/NewsFeed"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { LoadingState } from "@/components/ui/loading"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { AnimatedNumber } from "@/components/ui/animated-number"
-import { SeasonObjectives } from "@/components/dashboard/SeasonObjectives"
 import { ActionCenter } from "@/components/dashboard/ActionCenter"
 import { GettingStartedChecklist } from "@/components/dashboard/GettingStartedChecklist"
-import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
-import { Calendar, Trophy, TrendingUp, ArrowRight, Zap, Loader2, Wallet, ArrowUpCircle, ArrowDownCircle, Swords, HelpCircle, Skull, DoorOpen } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+import { LastWeekPanel } from "@/components/report/LastWeekPanel"
+import { StorylinesPanel } from "@/components/storylines/StorylinesPanel"
+import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
+import { BoardConfidenceChip } from "@/components/career/BoardConfidence"
+import { graceWeeksLeft } from "@/components/career/board-view"
+import { LeagueSnapshot } from "@/components/league/LeagueSnapshot"
+import { leagueStageLabel } from "@/components/league/league-view"
+import { Button } from "@/components/ui/button"
+import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { PlayerPortrait } from "@/components/ui/asset-images"
+import { Panel } from "@/src/components/ui/Panel"
+import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
+import { Meter } from "@/src/components/ui/Meter"
+import { RatingChip } from "@/src/components/ui/RatingChip"
+import { RoleTag } from "@/src/components/ui/RoleTag"
+import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { FixtureBanner, FormGuide, type FormResult } from "@/src/components/ui/FixtureBanner"
+import { Activity, ArrowUpRight, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
-import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
-import { FULL_TOURNAMENT_CALENDAR, getTierColor, getTierBgColor } from "@/data/tournament-calendar"
-import dynamic from "next/dynamic"
-const SeasonRecapModal = dynamic(() => import("@/components/celebration/SeasonRecapModal").then(m => m.SeasonRecapModal), { ssr: false })
-const ProAwardsModal = dynamic(() => import("@/components/celebration/ProAwardsModal").then(m => m.ProAwardsModal), { ssr: false })
+import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
+import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
 import { EconomyEngine } from "@/engine/economy-engine"
-import { soundManager } from "@/lib/sound-manager"
+import { evaluatePlayer } from "@/engine/player-evaluation"
+import { getBoardSanctionedFee, getTierTargets } from "@/engine/board-expectations"
+import { isLeagueMatchId, ordinal } from "@/engine/season/regional-league"
+import { boardStartTargets } from "@/lib/club-expectations"
+import { playerEnergyPercent } from "@/lib/player-energy"
 import { fixtureBlockReason } from "@/lib/playable-match"
-import type { AnnualAwards } from "@/engine/pro-awards-engine"
+
+const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier" }
+/** Short names for the board's objectives (the full sentence is the row's tooltip and on Club → Board). */
+const OBJECTIVE_SHORT: Record<string, string> = { league: "League finish", ranking: "World ranking", finance: "Cash at season end" }
+
+/** Small link for panel headers. */
+function PanelLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link href={href} className="inline-flex items-center gap-1 rounded-sm text-xs font-semibold text-ink-3 hover:text-ink-1">
+      {children} <ArrowUpRight size={12} />
+    </Link>
+  )
+}
+
+const FINANCE_STATE: Record<string, { label: string; className: string }> = {
+  STABLE: { label: "Stable", className: "text-positive" },
+  TIGHT: { label: "Tight", className: "text-caution" },
+  RISK: { label: "At risk", className: "text-caution" },
+  CRISIS: { label: "Crisis", className: "text-negative" },
+  INSOLVENT: { label: "Insolvent", className: "text-negative" },
+}
+
+type MatchLike = {
+  id: string
+  week: number
+  homeTeamId: string
+  awayTeamId: string
+  isScrim?: boolean
+  tournamentId?: string | null
+  result?: { winnerId?: string; homeScore: number; awayScore: number; maps?: { finalScore?: { team1: number; team2: number } }[] }
+}
+
+/** Score from the player's side: round score for a BO1, map score otherwise. */
+function scoreFor(match: MatchLike, teamId: string): string {
+  const r = match.result
+  if (!r) return "—"
+  const isHome = match.homeTeamId === teamId
+  const maps = r.maps
+  if (maps && maps.length === 1 && maps[0]?.finalScore) {
+    const fs = maps[0].finalScore
+    return isHome ? `${fs.team1}–${fs.team2}` : `${fs.team2}–${fs.team1}`
+  }
+  return isHome ? `${r.homeScore}–${r.awayScore}` : `${r.awayScore}–${r.homeScore}`
+}
+
+function tournamentFor(id?: string | null) {
+  if (!id) return undefined
+  return FULL_TOURNAMENT_CALENDAR.find(t => t.id === id || t.id === id.split('_s')[0] || id.startsWith(`${t.id}_`))
+}
 
 export default function Page() {
   const router = useRouter()
@@ -36,9 +95,9 @@ export default function Page() {
   const {
     isInitialized, playerTeamId, teams, players, contracts,
     scheduledMatches, completedMatches, currentWeek, currentDay, academyCount,
-    timeMode, _hasHydrated, pendingSeasonRecap,
-    gameOverReason, gameOverWeek, tournamentQualifications,
-    financeLedger, staff, storeLoading,
+    timeMode, _hasHydrated,
+    gameOverReason, tournamentQualifications,
+    staff, storeLoading, gameStartDate,
   } = useGameStore(useShallow(s => ({
     isInitialized: s.isInitialized,
     playerTeamId: s.playerTeamId,
@@ -52,53 +111,22 @@ export default function Page() {
     currentDay: s.currentDay,
     timeMode: s.timeMode,
     _hasHydrated: s._hasHydrated,
-    pendingSeasonRecap: s.pendingSeasonRecap,
     gameOverReason: s.gameOverReason,
-    gameOverWeek: s.gameOverWeek,
     tournamentQualifications: s.tournamentQualifications,
-    financeLedger: s.financeLedger,
     staff: s.staff,
     storeLoading: s.isLoading,
+    gameStartDate: s.gameStartDate,
   })))
 
-  // Separate selector for eventsLog to avoid excessive re-renders from the shallow comparison
-  const eventsLog = useGameStore(s => s.eventsLog)
-
-  // Actions are stable references — separate selector avoids re-renders from data changes
-  const simulateInstantMatch = useGameStore(s => s.simulateInstantMatch)
-  const clearPendingSeasonRecap = useGameStore(s => s.clearPendingSeasonRecap)
-  const acknowledgeEvent = useGameStore(s => s.acknowledgeEvent)
   const boardState = useGameStore(s => s.boardState)
+  const league = useGameStore(s => s.league)
+  const tenureStartWeek = useGameStore(s => s.managerDetails?.tenureStartWeek)
 
-  // The annual Pro/Player-of-the-Year ceremony — auto-open it once so the
-  // reveal isn't missed (it used to require noticing + clicking a banner).
-  const proShownRef = useRef<string | null>(null)
+  // The season recap and the awards ceremony are the season review moment
+  // now (components/moments/SeasonReviewMomentView); past reviews replay
+  // from the trophy room and the awards message.
 
-  const [isSimulating, setIsSimulating] = useState(false)
-
-  // Pro Awards Modal State
-  const [proAwards, setProAwards] = useState<AnnualAwards | null>(null)
-  const [isProModalOpen, setIsProModalOpen] = useState(false)
-
-  // Detect unacknowledged Pro award events
-  const latestProEvent = useMemo(() => {
-    return (eventsLog ?? []).find(e =>
-      e.type === "MEDIA" && (e.data as any)?.proAwards && !e.acknowledged
-    )
-  }, [eventsLog])
-
-  // Auto-open the ceremony the first time a new awards event surfaces.
-  useEffect(() => {
-    if (!latestProEvent || proShownRef.current === latestProEvent.id) return
-    const awards = (latestProEvent.data as any)?.proAwards
-    if (awards && Array.isArray(awards.top20) && awards.year) {
-      proShownRef.current = latestProEvent.id
-      setProAwards(awards as AnnualAwards)
-      setIsProModalOpen(true)
-    }
-  }, [latestProEvent])
-
-  // Robust session check: isInitialized is the primary flag, 
+  // Robust session check: isInitialized is the primary flag,
   // but we also check if we have teams and a playerTeamId as a fallback.
   const isSessionActive = isInitialized || (teams.length > 0 && !!playerTeamId)
 
@@ -109,15 +137,23 @@ export default function Page() {
   }, [_hasHydrated, isSessionActive, storeLoading, router])
 
   const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+  const playersById = useMemo(() => new Map(players.map(p => [p.id, p])), [players])
+  const teamsById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
+  const leagueDayById = useMemo(() => new Map(scheduledMatches.filter(m => isLeagueMatchId(m.id)).map(m => [m.id, m.day])), [scheduledMatches])
 
-  // Derived team rating (avg roster skill) — a visible power number so the
-  // team-building loop has felt momentum (AUDIT_UX_2026-06 C6).
-  const teamRating = useMemo(() => {
-    if (!playerTeam) return 0
-    const roster = players.filter(p => playerTeam.rosterIds.includes(p.id))
-    if (roster.length === 0) return 0
-    return Math.round(roster.reduce((s, p) => s + (p.skill || 0), 0) / roster.length)
-  }, [playerTeam, players])
+  // Starting five with the same evaluation the Squad screen uses, so OVR matches everywhere.
+  const starters = useMemo(() => {
+    if (!playerTeam) return []
+    return (playerTeam.rosterIds || []).slice(0, 5)
+      .map(id => playersById.get(id))
+      .filter((p): p is NonNullable<typeof p> => !!p)
+      .map(p => ({ player: p, ovr: evaluatePlayer(p).overallRating }))
+  }, [playerTeam, playersById])
+
+  const teamOvr = useMemo(() => {
+    if (starters.length === 0) return 0
+    return Math.round(starters.reduce((s, x) => s + x.ovr, 0) / starters.length)
+  }, [starters])
 
   const nextMatch = useMemo(() => {
     return scheduledMatches
@@ -128,17 +164,38 @@ export default function Page() {
       })[0]
   }, [scheduledMatches, playerTeamId])
 
-  const tournament = useMemo(() => {
-    if (!nextMatch) return null
-    return FULL_TOURNAMENT_CALENDAR.find(t => t.id === nextMatch.tournamentId || t.id === nextMatch.tournamentId?.split('_s')[0])
-  }, [nextMatch])
+  const opponent = useMemo(() => {
+    if (!nextMatch) return undefined
+    const id = nextMatch.homeTeamId === playerTeamId ? nextMatch.awayTeamId : nextMatch.homeTeamId
+    return teams.find(t => t.id === id)
+  }, [nextMatch, playerTeamId, teams])
+
+  const opponentOvr = useMemo(() => {
+    if (!opponent) return null
+    const roster = (opponent.rosterIds || []).slice(0, 5).map(id => playersById.get(id)).filter((p): p is NonNullable<typeof p> => !!p)
+    if (roster.length === 0) return null
+    return Math.round(roster.reduce((s, p) => s + evaluatePlayer(p).overallRating, 0) / roster.length)
+  }, [opponent, playersById])
+
+  const tournament = useMemo(() => tournamentFor(nextMatch?.tournamentId), [nextMatch])
+
+  // Last five official results (oldest first) for any team.
+  const formFor = useCallback((teamId: string | undefined | null): FormResult[] => {
+    if (!teamId) return []
+    const played = completedMatches.filter(m => !m.isScrim && (m.homeTeamId === teamId || m.awayTeamId === teamId))
+    if (played.length === 0) {
+      const t = teams.find(x => x.id === teamId)
+      return ((t?.recentForm as FormResult[] | undefined) ?? []).slice(-5)
+    }
+    return played.slice(-5).map(m => m.result.winnerId === teamId ? "W" : "L")
+  }, [completedMatches, teams])
 
   const isMatchLive = !!nextMatch
     && nextMatch.week === currentWeek
     && (timeMode === "WEEKLY" || (nextMatch.day ?? 6) <= currentDay)
   // A due fixture the store would refuse to simulate (a side below five
-  // players): never offer Play / Quick-sim for it, explain instead. The week
-  // can still advance; the week tick resolves it by forfeit.
+  // players): never offer Play for it, explain instead. The week can still
+  // advance; the week tick resolves it by forfeit.
   const matchBlockReason = useMemo(() => (
     isMatchLive && nextMatch
       ? fixtureBlockReason({ playerTeamId, scheduledMatches, currentWeek, teams, players }, nextMatch)
@@ -158,582 +215,354 @@ export default function Page() {
       .filter((t): t is NonNullable<typeof t> => !!t && t.startWeek > currentCalendarWeek)
       .sort((a, b) => a.startWeek - b.startWeek)
       .slice(0, 2)
-      .map(t => {
-        const weeksUntil = t.startWeek - currentCalendarWeek
-        return { ...t, weeksUntil }
-      })
+      .map(t => ({ ...t, weeksUntil: t.startWeek - currentCalendarWeek }))
   }, [nextMatch, tournamentQualifications, playerTeamId, currentWeek])
 
-  // Financial Calculations - use the full EconomyEngine for accurate income/expense data
+  // Financial projection for the next weekly settlement (same engine the week tick uses)
   const financialReport = useMemo(() => {
     if (!playerTeam) return null
     return EconomyEngine.processWeeklyFinances(playerTeam, players, contracts, staff, currentWeek + 1, academyCount)
   }, [playerTeam, players, contracts, staff, currentWeek, academyCount])
 
-  const financialData = useMemo(() => {
-    if (!financialReport || !playerTeam) return { budget: 0, expenses: 0, net: 0, income: 0, salaries: 0, facilities: 0, staffWages: 0 }
-    return {
-      budget: playerTeam.budget,
-      expenses: financialReport.expenses.total,
-      income: financialReport.income.total,
-      net: financialReport.net,
-      salaries: financialReport.expenses.playerWages,
-      facilities: financialReport.expenses.facilities + financialReport.expenses.equipment + financialReport.expenses.academy,
-      staffWages: financialReport.expenses.staffWages
-    }
-  }, [financialReport, playerTeam])
+  const recentResults = useMemo(() => {
+    return completedMatches
+      .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
+      .slice(-5)
+      .reverse()
+  }, [completedMatches, playerTeamId])
 
-  const careerStats = useGameStore(s => s.careerStats)
-  const seasonRecapStats = useMemo(() => {
-    if (!playerTeam || !pendingSeasonRecap) return null
-    const summaries = careerStats?.seasons.filter(s => s.seasonNumber === pendingSeasonRecap) || []
-    const startWeek = (pendingSeasonRecap - 1) * 52 + 1, endWeek = pendingSeasonRecap * 52
-    const yearMatches = completedMatches.filter(m => m.week >= startWeek && m.week <= endWeek && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId))
-    const wins = summaries.length ? summaries.reduce((n, s) => n + s.wins, 0) : yearMatches.filter(m => m.result.winnerId === playerTeamId).length
-    const losses = summaries.length ? summaries.reduce((n, s) => n + s.losses, 0) : yearMatches.length - wins
-    return {
-      wins, losses,
-      trophies: summaries.length ? summaries.reduce((n, s) => n + s.trophiesWon.length, 0) : (playerTeam.trophies || []).filter(t => t.week >= startWeek && t.week <= endWeek).length,
-      budgetGrowth: summaries.length ? summaries.reduce((n, s) => n + s.totalIncome - s.totalExpenses, 0) : financeLedger.filter(e => e.teamId === playerTeamId && e.week >= startWeek && e.week <= endWeek).reduce((n, e) => n + (e.type === 'INCOME' ? e.amount : -e.amount), 0),
-      weeksActive: summaries.length ? summaries.reduce((n, s) => n + Math.max(0, s.endWeek - s.startWeek + 1), 0) : 52,
-      bestPlayer: null,
-    }
-  }, [careerStats, playerTeam, completedMatches, playerTeamId, pendingSeasonRecap, financeLedger])
+  const season = Math.ceil(Math.max(1, currentWeek) / 52)
+  const weekInSeason = ((Math.max(1, currentWeek) - 1) % 52) + 1
+  const seasonStartWeek = (season - 1) * 52 + 1
 
-  const handleSimulate = async () => {
-    if (!nextMatch) return
-    setIsSimulating(true)
-    soundManager.play('matchStart')
-    try {
-      // Dashboard Quick-Sim skips the match-day prep flow → small differential (B4).
-      // Only open the result screen when a result was recorded; a refusal
-      // has already explained itself with a toast.
-      if (await simulateInstantMatch(nextMatch.id, { skippedPrep: true })) router.push(`/match/${nextMatch.id}/result`)
-    } finally {
-      setIsSimulating(false)
-    }
-  }
-
+  const seasonRecord = useMemo(() => {
+    const games = completedMatches.filter(m => !m.isScrim && m.week >= seasonStartWeek && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId))
+    const wins = games.filter(m => m.result.winnerId === playerTeamId).length
+    return { wins, losses: games.length - wins }
+  }, [completedMatches, seasonStartWeek, playerTeamId])
 
   if (!_hasHydrated || (storeLoading && !isSessionActive)) {
     return (
-      <LoadingState message="Loading Game Session…" size="lg" fullScreen />
+      <div className="flex min-h-[60vh] items-center justify-center gap-3 text-sm text-ink-3" role="status">
+        <Loader2 size={16} className="animate-spin" /> Loading your career…
+      </div>
     )
   }
 
   // If still not active after hydration, we'll be redirected by useEffect, but show nothing for now
   if (!isSessionActive) return null
 
-  // Game Over overlay
-  if (gameOverReason) {
-    const weeksPlayed = gameOverWeek ?? currentWeek
-    const seasonsPlayed = Math.floor((weeksPlayed - 1) / 52) + 1
-    const totalTrophies = playerTeam?.trophies?.length ?? 0
-    const isSacked = gameOverReason === "SACKED"
+  // Game over: a dismissed manager gets the job market (Phase 4.4).
+  if (gameOverReason) return <DismissalJobMarket />
+
+
+  // ---- Next fixture hero ----
+  const renderHero = () => {
+    if (nextMatch && playerTeam) {
+      const matchDate = gameStartDate
+        ? formatGameCalendarDate(gameCalendarDate(gameStartDate, nextMatch.week, nextMatch.day ?? 6), { weekday: "short", month: "short", day: "numeric" })
+        : null
+      const countdown = (() => {
+        if (isMatchLive) return "Match day"
+        const daily = timeMode === "HYBRID_DAILY"
+        if (daily) {
+          const days = Math.max(0, (nextMatch.week - currentWeek) * 7 + (nextMatch.day ?? 6) - currentDay)
+          return days === 0 ? "Today" : `Match in ${days} day${days === 1 ? "" : "s"}`
+        }
+        const weeks = Math.max(0, nextMatch.week - currentWeek)
+        return weeks === 0 ? "This week" : `Match in ${weeks} week${weeks === 1 ? "" : "s"}`
+      })()
+      const leagueStage = leagueStageLabel(nextMatch)
+      const competitionName = nextMatch.isScrim ? "Scrim" : leagueStage ?? tournament?.name ?? nextMatch.stage ?? "Match"
+      const competition = (
+        <span className="flex min-w-0 items-center gap-2.5">
+          {leagueStage && <span className="shrink-0 rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">League</span>}
+          {!nextMatch.isScrim && tournament?.logoPath && (
+            <Image src={tournament.logoPath} alt="" width={20} height={20} className="h-5 w-5 object-contain" />
+          )}
+          <span className="truncate font-semibold text-ink-1">{competitionName}</span>
+          {!nextMatch.isScrim && tournament && <span className="text-ink-3">{TIER_LABEL[tournament.tier] ?? tournament.tier}</span>}
+          {nextMatch.stage && !nextMatch.isScrim && tournament && <span className="truncate text-ink-3">· {nextMatch.stage}</span>}
+          {nextMatch.isScrim && <span className="text-ink-3">Practice match</span>}
+        </span>
+      )
+      const when = (
+        <span className="flex items-center gap-2">
+          <span className={cn("font-semibold", isMatchLive ? "text-gold" : "text-ink-1")}>{countdown}</span>
+          <span className="text-ink-3">· Week {nextMatch.week}{matchDate ? `, ${matchDate}` : ""}</span>
+        </span>
+      )
+      const action = isMatchLive && matchBlockReason
+        ? <Button asChild variant="outline" className="h-10 px-6"><Link href="/transfers">Find a player</Link></Button>
+        : isMatchLive
+          ? <Button asChild variant="outline" className="h-10 px-6"><Link href={`/match/${nextMatch.id}/tactics`}>Go to match</Link></Button>
+          : <Button asChild variant="outline" className="h-10 px-6"><Link href="/squad">Prepare lineup</Link></Button>
+      const footnote = isMatchLive && matchBlockReason
+        ? <span role="status" className="text-caution">{matchBlockReason}</span>
+        : isMatchLive ? "Veto, tactics and quick sim are on the match screen." : undefined
+      return (
+        <FixtureBanner
+          art="/esport-ui-assets/backgrounds/match-command-arena.webp"
+          competition={competition}
+          when={when}
+          home={{ team: playerTeam, name: playerTeam.name, meta: `World #${playerTeam.worldRanking ?? "—"}`, form: formFor(playerTeamId), ovr: teamOvr }}
+          away={{ team: opponent, name: opponent?.name ?? "TBD", meta: opponent ? `World #${opponent.worldRanking ?? "—"}` : undefined, form: opponent ? formFor(opponent.id) : [], ovr: opponentOvr }}
+          center={
+            <>
+              <span className="font-display text-4xl font-bold uppercase leading-none text-ink-3">VS</span>
+              <span className="mt-1 rounded-sm border border-line-strong px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-2">{nextMatch.format}</span>
+            </>
+          }
+          action={action}
+          footnote={footnote}
+        />
+      )
+    }
+
+    if (upcomingTournaments.length > 0 && playerTeam) {
+      const t = upcomingTournaments[0]
+      return (
+        <FixtureBanner
+          art="/esport-ui-assets/backgrounds/match-command-arena.webp"
+          competition={
+            <span className="flex items-center gap-2.5">
+              {t.logoPath && <Image src={t.logoPath} alt="" width={20} height={20} className="h-5 w-5 object-contain" />}
+              <span className="font-semibold text-ink-1">{t.name}</span>
+              <span className="text-ink-3">{TIER_LABEL[t.tier] ?? t.tier}</span>
+            </span>
+          }
+          when={<span className="font-semibold text-ink-1">Starts in {t.weeksUntil} week{t.weeksUntil === 1 ? "" : "s"}</span>}
+          home={{ team: playerTeam, name: playerTeam.name, meta: `World #${playerTeam.worldRanking ?? "—"}`, form: formFor(playerTeamId), ovr: teamOvr }}
+          away={{ team: null, name: "TBD", meta: "Drawn when the event starts" }}
+          action={<Button asChild variant="outline" className="h-10 px-6"><Link href="/schedule">View schedule</Link></Button>}
+          footnote={upcomingTournaments[1] ? `Then ${upcomingTournaments[1].name} in ${upcomingTournaments[1].weeksUntil} weeks` : undefined}
+        />
+      )
+    }
+
     return (
-      <div className="min-h-[80vh] flex items-center justify-center animate-in fade-in duration-1000">
-        <div className="max-w-lg w-full text-center space-y-8">
-          <div className="mx-auto w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/30">
-            {isSacked ? <DoorOpen className="w-10 h-10 text-red-500" /> : <Skull className="w-10 h-10 text-red-500" />}
-          </div>
+      <Panel className="rounded-[10px] border-line-strong" padded={false}>
+        <div className="flex flex-wrap items-center justify-between gap-6 p-6">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight uppercase text-red-400 mb-2">
-              {isSacked ? "Relieved of Duty" : "Organization Dissolved"}
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              {isSacked
-                ? `After consecutive seasons below the board's expectations, ${playerTeam?.name ?? "your club"} has terminated your contract.`
-                : `After 8 consecutive weeks of insolvency, ${playerTeam?.name ?? "your team"} has been forced to disband.`}
-            </p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Next fixture</p>
+            <p className="mt-1 font-display text-3xl font-bold uppercase leading-none text-ink-1">No match scheduled</p>
+            <p className="mt-2 text-sm text-ink-2">Register for an event or book a scrim to get games on the calendar.</p>
           </div>
-          <Card className="bg-white/2 border-white/5">
-            <CardContent className="pt-6 space-y-3">
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Seasons Managed</span><span className="text-white font-mono">{seasonsPlayed}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Weeks Survived</span><span className="text-white font-mono">{weeksPlayed}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Trophies Won</span><span className="text-white font-mono">{totalTrophies}</span></div>
-              <div className="flex justify-between text-sm"><span className="text-muted-foreground">Final Ranking</span><span className="text-white font-mono">#{playerTeam?.worldRanking ?? "—"}</span></div>
-            </CardContent>
-          </Card>
-          <div className="flex gap-4 justify-center">
-            <Button variant="outline" onClick={() => router.push("/load-game")} className="uppercase tracking-wider">
-              Load Save
-            </Button>
-            <Button variant="destructive" onClick={() => router.push("/main-menu")} className="uppercase tracking-wider">
-              Main Menu
-            </Button>
-          </div>
+          <Button asChild variant="outline" className="h-10 px-6"><Link href="/schedule">Open schedule</Link></Button>
         </div>
-      </div>
+      </Panel>
     )
   }
 
+  // ---- Board / season objective ----
+  const fallbackTargets = boardStartTargets(playerTeam?.worldRanking, playerTeam?.reputation)
+  const expectationTier = boardState?.seasonExpectation ?? fallbackTargets.tier
+  const tierTargets = getTierTargets(expectationTier)
+  const rankTarget = boardState?.rankTarget ?? fallbackTargets.rankTarget
+  const worldRank = playerTeam?.worldRanking ?? 0
+  const trophiesThisSeason = (playerTeam?.trophies ?? []).filter(t => t.week >= seasonStartWeek).length
+  const sanctioned = boardState && playerTeam ? getBoardSanctionedFee(boardState, playerTeam.budget) : null
+  const rankOnTrack = worldRank > 0 && worldRank <= rankTarget
+  // Phase 4.4: the board's real objectives (league finish, ranking, budget).
+  const objectives = boardState?.objectives ?? []
+  const objectiveProgress = (o: (typeof objectives)[number]) => o.current === undefined ? "—"
+    : o.id === "finance" ? formatCurrency(o.current) : o.id === "ranking" ? `#${o.current}` : ordinal(o.current)
+  const objectiveTarget = (o: (typeof objectives)[number]) =>
+    o.id === "finance" ? formatCurrency(o.target) : o.id === "ranking" ? `#${o.target}` : ordinal(o.target)
+
+  const finance = financialReport
+  const financeState = FINANCE_STATE[finance?.state ?? "STABLE"] ?? FINANCE_STATE.STABLE
+
   return (
-    <div className="dashboard space-y-6">
-      {seasonRecapStats && (
-        <SeasonRecapModal
-          isOpen={!!pendingSeasonRecap}
-          onClose={clearPendingSeasonRecap}
-          year={pendingSeasonRecap || 0}
-          stats={seasonRecapStats}
-        />
-      )}
-      <ProAwardsModal
-        isOpen={isProModalOpen}
-        onClose={() => {
-          setIsProModalOpen(false)
-          // Acknowledge so the banner clears and the ceremony won't reopen.
-          if (latestProEvent) acknowledgeEvent(latestProEvent.id)
-        }}
-        awards={proAwards}
-      />
-
-      {/* Pro Awards Banner */}
-      {latestProEvent && !isProModalOpen && (
-        <div className="liquid-panel rounded-lg border-amber-300/20 p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-700">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-              <Trophy size={20} className="text-amber-400" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-amber-300 uppercase tracking-wide">
-                {(latestProEvent.data as any)?.title || "Pro Top 20 Awards"}
-              </p>
-              <p className="text-xs text-amber-400/60">Click to view the ceremony</p>
-            </div>
-          </div>
-          <Button
-            onClick={() => {
-              const awards = (latestProEvent?.data as any)?.proAwards
-              if (awards && Array.isArray(awards.top20) && awards.year) {
-                setProAwards(awards as AnnualAwards)
-                setIsProModalOpen(true)
-              }
-            }}
-            className="bg-amber-500 hover:bg-amber-400 text-black font-bold uppercase tracking-wider text-xs rounded-xl h-10 px-6"
-          >
-            <Trophy size={14} className="mr-2" /> View Ceremony
-          </Button>
-        </div>
-      )}
-
-      {/* Header / Welcome Row */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <div className="flex items-center gap-2 text-primary/80 mb-1">
-            <TrendingUp size={14} />
-            <span className="dashboard-eyebrow uppercase">Your club. Your next move.</span>
-          </div>
-          <h1 className="dashboard-title text-white">Club overview</h1>
-          <p className="mt-2 text-sm text-slate-400">The big picture, with your next decision in focus.</p>
-        </div>
-
-        {playerTeam && (
-          <div className="glass-panel p-4 flex items-center gap-6 border-white/5 rounded-lg">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden shadow-inner">
-                <TeamLogoDisplay team={playerTeam} size={32} />
-              </div>
-              <div>
-                <h3 className="text-lg font-normal text-white uppercase tracking-tight leading-none mb-1">
-                  {playerTeam.name}
-                </h3>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-[11px] px-1.5 py-0 border-white/10 text-white/50 uppercase">
-                    Week {currentWeek}{timeMode === "HYBRID_DAILY" ? ` • Day ${currentDay + 1}` : ""}
-                  </Badge>
-                  <Badge variant="outline" className="text-[11px] px-1.5 py-0 border-emerald-500/20 text-emerald-500 uppercase">
-                    {formatCurrency(playerTeam.budget)}
-                  </Badge>
-                  {teamRating > 0 && (
-                    <Badge variant="outline" className="text-[11px] px-1.5 py-0 border-cyan-500/20 text-cyan-300 uppercase" title="Average roster skill">
-                      OVR {teamRating}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </div>
+    <div className="space-y-5 pb-12">
+      <ScreenHeader
+        eyebrow={`Season ${season} · Week ${weekInSeason}${timeMode === "HYBRID_DAILY" ? ` · Day ${currentDay + 1}` : ""}`}
+        title="Club overview"
+        subtitle={playerTeam ? [playerTeam.name, playerTeam.region].filter(Boolean).join(" · ") : undefined}
+        leading={playerTeam && (
+          <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-line bg-panel">
+            <TeamLogoDisplay team={playerTeam} size={52} />
           </div>
         )}
-      </div>
+        aside={
+          <KpiStrip>
+            <Kpi label="World rank" value={`#${worldRank || "—"}`} />
+            <Kpi label="Team OVR" value={<RatingChip value={teamOvr} size="lg" bare />} />
+            <Kpi label="Season record" value={`${seasonRecord.wins}–${seasonRecord.losses}`} />
+            <Kpi label="Trophies" value={playerTeam?.trophies?.length ?? 0} />
+          </KpiStrip>
+        }
+      />
 
-      <div className="dashboard-layout">
-        {/* Main Column: Next Match & Financials */}
-        <div className="min-w-0 space-y-5">
-          {/* Next Match Card */}
-          {nextMatch ? (
-            <Card className="dashboard-hero overflow-hidden relative group rounded-3xl">
-              <div className="absolute inset-x-6 top-0 h-px bg-linear-to-r/srgb from-transparent via-cyan-200/30 to-transparent" />
-              <CardHeader className="pb-2 relative z-10">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="space-y-3">
-                    <Badge className={cn(
-                      "uppercase tracking-widest text-xs border-none px-4 py-1.5 rounded-full font-bold",
-                      isMatchLive
-                        ? "bg-red-500/85 text-white"
-                        : "bg-primary/20 text-primary"
-                    )}>
-                      {isMatchLive ? "LIVE MATCH" : "Upcoming Match"}
-                    </Badge>
-                    <CardTitle className="text-3xl font-normal tracking-tight uppercase leading-none">Next Match</CardTitle>
-                  </div>
 
-                  {tournament && (
-                    <div className="flex flex-col items-end gap-2 ">
-                      <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-white/5 border border-white/10 backdrop-blur-md">
-                        {tournament.logoPath && (
-                          <div className="w-8 h-8 relative flex items-center justify-center">
-                            <Image src={tournament.logoPath} alt={tournament.name} width={24} height={24} className="object-contain brightness-110" />
-                          </div>
-                        )}
-                        <div className="text-right">
-                          <p className="text-xs font-semibold text-white/90 uppercase tracking-widest leading-none mb-0.5">{tournament.name}</p>
-                          <p className="text-[11px] font-bold text-primary uppercase tracking-[0.2em] leading-none">{tournament.tier.replace('_', ' ')}</p>
-                        </div>
-                      </div>
-                      <span className="text-xs font-bold text-muted-foreground uppercase opacity-60 mr-1">
-                        Week {nextMatch.week}{typeof nextMatch.day === "number" ? ` • Day ${nextMatch.day + 1}` : ""}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="relative z-10 py-8">
-                <div className="match-identity flex items-center justify-between gap-8 mb-10">
-                  <div className="flex-1 text-center space-y-3">
-                    <div className="w-24 h-24 mx-auto rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-2 shadow-glass-soft backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-0.5">
-                      <TeamLogoDisplay team={playerTeam} size={56} />
-                    </div>
-                    <p className="font-normal text-xl uppercase tracking-tight text-white/90">{playerTeam?.name}</p>
-                  </div>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
+        <div className="min-w-0 space-y-4">
+          {renderHero()}
 
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="relative group/vs">
-                      <div className="absolute inset-0 bg-white/20 blur-2xl rounded-full opacity-0 group-hover/vs:opacity-100 transition-opacity duration-700" />
-                      <div className="px-8 py-4 rounded-xl liquid-button font-semibold text-3xl italic text-white transition-all duration-300 flex items-center justify-center relative z-10">
-                        <span>VS</span>
-                      </div>
-                    </div>
-                    <Badge variant="secondary" className="text-xs uppercase font-bold px-4 py-1.5 bg-white/5 border border-white/10 rounded-full backdrop-blur-md">{nextMatch.format}</Badge>
-                  </div>
-
-                  <div className="flex-1 text-center space-y-3">
-                    <div className="w-24 h-24 mx-auto rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-2 shadow-glass-soft backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-0.5">
-                      <TeamLogoDisplay team={teams.find(t => t.id === (nextMatch.homeTeamId === playerTeamId ? nextMatch.awayTeamId : nextMatch.homeTeamId))} size={56} />
-                    </div>
-                    <p className="font-normal text-xl uppercase tracking-tight text-white/90">
-                      {teams.find(t => t.id === (nextMatch.homeTeamId === playerTeamId ? nextMatch.awayTeamId : nextMatch.homeTeamId))?.name || "TBD"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex justify-center items-center gap-5">
-                  {isMatchLive && matchBlockReason ? (
-                    <div className="flex flex-col items-center gap-2 py-2 max-w-md text-center">
-                      <p role="status" className="text-sm text-amber-200">{matchBlockReason}</p>
-                      <Button asChild variant="play"><Link href="/transfers">Find a player <ArrowRight size={16} /></Link></Button>
-                    </div>
-                  ) : isMatchLive ? (
-                    <>
-                      <Button asChild variant="play" className="h-14 px-10 text-xs uppercase tracking-[0.15em]">
-                        <Link href={`/match/${nextMatch.id}/tactics`}>
-                          <Swords size={18} className="mr-3" /> Play Match
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+            {/* Squad status */}
+            <Panel title="Squad status" actions={<PanelLink href="/squad">Squad</PanelLink>} padded={false} className="overflow-hidden">
+              <table data-slot="table" className="w-full border-collapse text-left">
+                <thead data-slot="table-header">
+                  <tr className="border-b border-line">
+                    <th data-slot="table-head" className="pl-4">Starter</th>
+                    <th data-slot="table-head" className="px-2">Role</th>
+                    <th data-slot="table-head" className="px-2 text-center">OVR</th>
+                    <th data-slot="table-head" className="px-2">Morale</th>
+                    <th data-slot="table-head" className="pr-4">Energy</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {starters.map(({ player, ovr }) => (
+                    <tr key={player.id} data-slot="table-row" className="h-12 border-b border-line last:border-b-0">
+                      <td className="py-1.5 pl-4 pr-2">
+                        <Link href={`/player/${player.id}`} className="flex min-w-0 items-center gap-2.5 rounded-sm hover:text-gold">
+                          <span className="h-8 w-8 shrink-0 overflow-hidden rounded bg-raised">
+                            <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={32} />
+                          </span>
+                          <span className="truncate text-sm font-semibold text-ink-1">{player.nickname}</span>
+                          {player.injury && (
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-sm bg-negative/15 px-1.5 py-0.5 text-[11px] font-semibold text-negative">
+                              <Activity size={11} /> {player.injury.weeksRemaining}w
+                            </span>
+                          )}
                         </Link>
-                      </Button>
-
-                      <Button
-                        onClick={handleSimulate}
-                        disabled={isSimulating || storeLoading}
-                        size="icon"
-                        aria-label={isSimulating ? "Simulating match" : "Quick-simulate match"}
-                        title="Quick-simulate (skip live match)"
-                        className="h-14 w-14 border border-white/10 bg-white/5 hover:bg-white/10 rounded-lg shadow-glass-soft backdrop-blur-md group"
-                      >
-                        {isSimulating ? (
-                          <Loader2 size={20} className="animate-spin text-white" aria-hidden="true" />
-                        ) : (
-                          <Zap size={20} className="text-white fill-white transition-transform" aria-hidden="true" />
-                        )}
-                      </Button>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 py-2">
-                      <Button asChild variant="play"><Link href="/squad">Prepare lineup <ArrowRight size={16} /></Link></Button>
-                      <div className="px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white/60 text-sm font-bold uppercase tracking-wider">
-                        Match Starts Week {nextMatch.week}{typeof nextMatch.day === "number" ? ` • Day ${nextMatch.day + 1}` : ""}
-                      </div>
-                      <p className="text-xs text-white/30 uppercase tracking-widest">
-                        {(() => {
-                          const weeksUntil = Math.max(0, nextMatch.week - currentWeek)
-                          if (weeksUntil > 0) {
-                            return `Advance ${weeksUntil} week${weeksUntil > 1 ? 's' : ''} to play`
-                          }
-                          if (timeMode === "HYBRID_DAILY") {
-                            const daysUntil = Math.max(0, (nextMatch.day ?? 6) - currentDay)
-                            return `Advance ${daysUntil} day${daysUntil !== 1 ? 's' : ''} to play`
-                          }
-                          return "Advance to play"
-                        })()}
-                      </p>
-                    </div>
+                      </td>
+                      <td className="px-2"><RoleTag role={player.role} /></td>
+                      <td className="px-2 text-center"><RatingChip value={ovr} size="sm" /></td>
+                      <td className="px-2"><Meter value={player.morale} label="Morale" trackClassName="w-12" /></td>
+                      <td className="pr-4"><Meter value={playerEnergyPercent(player)} label="Energy" trackClassName="w-12" /></td>
+                    </tr>
+                  ))}
+                  {starters.length < 5 && (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-3 text-sm text-caution">
+                        {5 - starters.length} starter{5 - starters.length === 1 ? "" : "s"} missing. You need five players to play a match.{" "}
+                        <Link href="/transfers" className="font-semibold underline underline-offset-2">Find players</Link>
+                      </td>
+                    </tr>
                   )}
-                </div>
-              </CardContent>
-            </Card>
-          ) : upcomingTournaments.length > 0 ? (
-            <Card className="glass-panel overflow-hidden border-white/10 relative rounded-lg">
-              <CardHeader className="pb-2 relative z-10">
-                <div className="space-y-3">
-                  <Badge className="uppercase tracking-widest text-xs border-none px-4 py-1.5 rounded-full font-bold bg-amber-500/20 text-amber-400">
-                    Upcoming Events
-                  </Badge>
-                  <CardTitle className="text-3xl font-normal tracking-tight uppercase leading-none">On The Horizon</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="relative z-10 py-6 space-y-4">
-                {upcomingTournaments.map((t) => (
-                  <div key={t.id} className="flex items-center gap-6 p-5 rounded-lg bg-white/3 border border-white/5 hover:border-white/10 transition-colors">
-                    {/* Player team */}
-                    <div className="flex-1 flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                        <TeamLogoDisplay team={playerTeam} size={36} />
-                      </div>
-                      <p className="font-normal text-sm uppercase tracking-tight text-white/80">{playerTeam?.name}</p>
-                    </div>
+                </tbody>
+              </table>
+            </Panel>
 
-                    {/* VS TBD */}
-                    <div className="flex flex-col items-center gap-1 shrink-0">
-                      <div className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 font-semibold text-lg italic text-white/40">
-                        VS
-                      </div>
-                    </div>
+            <div className="min-w-0 space-y-4">
+            {/* League position (Phase 4.7) */}
+            {playerTeamId && (
+              <LeagueSnapshot league={league} playerTeamId={playerTeamId} teamsById={teamsById} dayById={leagueDayById} gameStartDate={gameStartDate} />
+            )}
 
-                    {/* TBD opponent */}
-                    <div className="flex-1 flex items-center gap-4 justify-end">
-                      <p className="font-normal text-sm uppercase tracking-tight text-white/40">TBD</p>
-                      <div className="w-14 h-14 rounded-lg bg-white/5 border border-dashed border-white/10 flex items-center justify-center shrink-0">
-                        <HelpCircle size={24} className="text-white/15" />
-                      </div>
-                    </div>
-
-                    {/* Tournament info */}
-                    <div className="shrink-0 flex flex-col items-end gap-1.5 pl-4 border-l border-white/5">
-                      <div className="flex items-center gap-2">
-                        {t.logoPath && (
-                          <Image src={t.logoPath} alt={t.name} width={16} height={16} className="object-contain brightness-110" />
-                        )}
-                        <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">{t.shortName}</span>
-                      </div>
-                      <Badge className={cn("text-[11px] uppercase font-bold px-2 py-0 rounded-full border-none", getTierBgColor(t.tier), getTierColor(t.tier))}>
-                        {t.tier.replace('_', ' ')}
-                      </Badge>
-                      <span className="text-xs font-bold text-white/30 uppercase tracking-wider">
-                        In {t.weeksUntil} week{t.weeksUntil !== 1 ? 's' : ''}
-                      </span>
-                    </div>
+            {/* Board objectives; the chip opens Club → Board */}
+            <Panel eyebrow="Board" title={tierTargets.label} actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />} bodyClassName="pt-1">
+              <dl className="divide-y divide-line text-sm">
+                {objectives.length > 0 ? objectives.map(o => (
+                  <div key={o.id} className="flex items-center justify-between gap-3 py-2">
+                    <dt className="min-w-0 truncate text-ink-3" title={o.label}>{OBJECTIVE_SHORT[o.id] ?? o.label}</dt>
+                    <dd className="shrink-0 text-xs tabular-nums">
+                      <span className="text-ink-3">target {objectiveTarget(o)}</span>
+                      <span className={cn("ml-2", o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>now {objectiveProgress(o)}</span>
+                    </dd>
                   </div>
-                ))}
-
-                <p className="text-xs text-white/20 uppercase tracking-widest text-center pt-2">
-                  Opponents drawn at tournament start
+                )) : (
+                  <>
+                    <div className="flex items-center justify-between py-2">
+                      <dt className="text-ink-3">Finish ranked</dt>
+                      <dd className="tabular-nums text-ink-1">
+                        #{rankTarget} or better
+                        <span className={cn("ml-2 text-xs", rankOnTrack ? "text-positive" : "text-ink-3")}>now #{worldRank || "—"}</span>
+                      </dd>
+                    </div>
+                    <div className="flex items-center justify-between py-2">
+                      <dt className="text-ink-3">Trophies</dt>
+                      <dd className="tabular-nums text-ink-1">
+                        {tierTargets.trophyTarget > 0 ? `${trophiesThisSeason} of ${tierTargets.trophyTarget}` : `${trophiesThisSeason} won · none required`}
+                      </dd>
+                    </div>
+                  </>
+                )}
+              </dl>
+              {sanctioned && sanctioned.fraction < 1 && (
+                <p className="mt-3 text-xs text-ink-3">
+                  Transfer fees capped at {Math.round(sanctioned.fraction * 100)}% of funds ({formatCurrency(sanctioned.maxFee)}) until board confidence reaches 70.
                 </p>
-                <div className="flex justify-center">
-                  <Button asChild variant="link" className="text-primary hover:text-white transition-colors uppercase text-xs tracking-widest">
-                    <Link href="/schedule">View Full Schedule <ArrowRight size={14} className="ml-2" /></Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="dashboard-hero relative overflow-hidden p-6 lg:p-8">
-              <div className="flex items-center gap-2 text-sky-200 text-xs font-medium">
-                <Calendar size={15} /> Between matches
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-6">
-                <div className="max-w-sm">
-                  <h2 className="text-2xl lg:text-3xl font-semibold tracking-tight text-white">Make the next match yours.</h2>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-300">Your calendar is clear. Use the time to develop your roster and prepare for the next competition.</p>
-                </div>
-                <div className="hidden sm:flex w-24 h-24 rounded-3xl liquid-button items-center justify-center -rotate-6" aria-hidden="true">
-                  <TeamLogoDisplay team={playerTeam} size={62} />
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-3 pt-2">
-                <Button asChild variant="play" className="h-10 px-5"><Link href="/training">Go to training <ArrowRight size={15} /></Link></Button>
-                <Button asChild variant="outline" className="h-10 px-5"><Link href="/schedule">View schedule</Link></Button>
-              </div>
-            </Card>
-          )}
-
-          {/* Stats Grid */}
-          <div className="dashboard-support grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="glass-card border-white/10 rounded-lg overflow-hidden">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-3">
-                  <div className="p-2 bg-amber-500/10 rounded-xl">
-                    <Trophy size={14} className="text-amber-400" />
-                  </div>
-                  Season Progress
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="space-y-5">
-                  <div className="flex justify-between items-end">
-                    <span className="text-3xl font-normal leading-none text-white tracking-tighter">{(currentWeek / 52 * 100).toFixed(0)}<span className="text-sm text-white/40 ml-1">%</span></span>
-                    <span className="text-[11px] text-muted-foreground uppercase font-semibold tracking-widest opacity-60">Week {currentWeek} / 52</span>
-                  </div>
-                  <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
-                    <div className="h-full bg-linear-to-r/srgb from-cyan-300 to-blue-300 rounded-full" style={{ width: `${(currentWeek / 52 * 100)}%` }} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-card border-white/10 rounded-lg overflow-hidden">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-xl">
-                    <TrendingUp size={14} className="text-primary" />
-                  </div>
-                  Recent Form
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="flex items-center gap-3">
-                  {(() => {
-                    const form = completedMatches
-                      .filter(m => m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)
-                      .slice(-5)
-                      .map(m => m.result.winnerId === playerTeamId ? 'W' : 'L')
-
-                    if (form.length === 0) {
-                      return <div className="text-white/20 text-xs font-bold uppercase tracking-wider">No matches played</div>
-                    }
-
-                    return (
-                      <>
-                        {form.map((result, i) => (
-                          <div key={i} className={cn(
-                            "h-12 w-12 rounded-lg flex items-center justify-center font-semibold text-sm shadow-glass-soft transition-transform hover:-translate-y-0.5 cursor-default",
-                            result === 'W' ? "bg-emerald-500/20 text-emerald-500" : "bg-red-500/20 text-red-400"
-                          )}>
-                            {result}
-                          </div>
-                        ))}
-                        {nextMatch && (
-                          <div className="h-12 w-12 rounded-[1.2rem] bg-white/5 text-white/10 flex items-center justify-center font-semibold text-sm border border-white/5 animate-pulse">?</div>
-                        )}
-                      </>
-                    )
-                  })()}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Financial Hub Card */}
-          <Card className="dashboard-financials glass-card border-white/10 rounded-lg overflow-hidden">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-xs font-bold uppercase tracking-[0.2em] text-white/50 flex items-center gap-3">
-                  <div className="p-2 bg-emerald-500/10 rounded-xl">
-                    <Wallet size={14} className="text-emerald-400" />
-                  </div>
-                  Financial Hub
-                </CardTitle>
-                <Badge variant="outline" className={cn("text-[11px] rounded-full px-3", {
-                  "border-emerald-500/30 text-emerald-400 bg-emerald-500/5": financialReport?.state === "STABLE",
-                  "border-yellow-500/30 text-yellow-400 bg-yellow-500/5": financialReport?.state === "TIGHT",
-                  "border-orange-500/30 text-orange-400 bg-orange-500/5": financialReport?.state === "RISK",
-                  "border-red-500/30 text-red-400 bg-red-500/5": financialReport?.state === "CRISIS" || financialReport?.state === "INSOLVENT",
-                })}>{financialReport?.state || "STABLE"}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="py-6 pt-2">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Available Funds</p>
-                  <div className="flex items-end gap-2">
-                    <AnimatedNumber
-                      value={financialData.budget}
-                      format={(n) => formatCurrency(Math.round(n), "$", Math.abs(n) >= 1_000_000)}
-                      className="text-3xl font-normal text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Weekly Income</p>
-                  <div className="flex items-center gap-2">
-                    <ArrowUpCircle size={16} className="text-emerald-400" />
-                    <span className="text-xl font-normal text-emerald-400/80">{formatSignedCurrency(financialData.income)}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Weekly Net</p>
-                  <div className="flex items-center gap-2">
-                    {financialData.net >= 0 ? (
-                      <ArrowUpCircle size={16} className="text-emerald-400" />
-                    ) : (
-                      <ArrowDownCircle size={16} className="text-red-400" />
-                    )}
-                    <span className={`text-xl font-normal ${financialData.net >= 0 ? "text-emerald-400/80" : "text-red-400/80"}`}>{formatSignedCurrency(financialData.net)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mini Budget Bar */}
-              <div className="finance-breakdown mt-8 pt-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-[11px] text-white/50 uppercase font-semibold tracking-widest mb-1">Salaries</p>
-                  <p className="text-xs text-white/60 font-medium">{formatCurrency(-financialData.salaries)}</p>
-                </div>
-                <div>
-                  <p className="text-[11px] text-white/50 uppercase font-semibold tracking-widest mb-1">Facilities, equipment & academy</p>
-                  <p className="text-xs text-white/60 font-medium">{formatCurrency(-financialData.facilities)}</p>
-                </div>
-                <div className="col-span-2 flex items-center justify-end">
-                  <Button asChild variant="ghost" size="sm" className="text-[11px] uppercase tracking-widest font-semibold text-primary hover:bg-primary/10 rounded-full h-8">
-                    <Link href="/finances">
-                      View Ledger <ArrowRight size={10} className="ml-2" />
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Sidebar Column: Action Center + Weekly Focus + Objectives + News Feed */}
-        <div className="space-y-6">
-          <GettingStartedChecklist />
-          <ActionCenter />
-          <WeeklyFocusWidget />
-          {playerTeam && (
-            <SeasonObjectives
-              worldRanking={playerTeam.worldRanking ?? 0}
-              trophiesThisSeason={playerTeam.trophies?.filter(t => t.week > (currentWeek - 53)).length ?? 0}
-              followers={playerTeam.followers ?? playerTeam.fanbase ?? 0}
-              financialState={playerTeam.financialState}
-              reputation={playerTeam.reputation}
-              boardConfidence={boardState?.confidence}
-              boardExpectation={boardState?.seasonExpectation}
-              boardRankTarget={boardState?.rankTarget}
-              boardOnNotice={boardState?.onNotice}
-            />
-          )}
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-normal uppercase tracking-wider text-white/50">Intelligence Feed</h3>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span className="text-xs font-semibold text-emerald-500/80 uppercase tracking-[0.2em]">Live</span>
+              )}
+            </Panel>
             </div>
           </div>
 
-          <div className="max-h-[max(20rem,calc(100vh-12rem))] overflow-y-auto pr-3 space-y-2">
-            <NewsFeed />
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {/* Finances strip */}
+            <Panel
+              title="Finances"
+              actions={<><span className={cn("text-xs font-semibold", financeState.className)}>{financeState.label}</span><PanelLink href="/finances">Ledger</PanelLink></>}
+              padded={false}
+            >
+              <div className="grid grid-cols-2 divide-x divide-line border-b border-line">
+                <Kpi className="px-4 py-3" label="Funds" value={formatCurrency(playerTeam?.budget ?? 0, "$", Math.abs(playerTeam?.budget ?? 0) >= 1_000_000)} />
+                <Kpi
+                  className="px-4 py-3"
+                  label="Net / week"
+                  value={<span className={(finance?.net ?? 0) < 0 ? "text-negative" : "text-ink-1"}>{formatSignedCurrency(finance?.net ?? 0)}</span>}
+                  hint={finance && finance.net < 0 && Number.isFinite(finance.runwayWeeks) ? `Runway ${finance.runwayWeeks} weeks` : "Projected next settlement"}
+                />
+              </div>
+              <dl className="grid grid-cols-3 divide-x divide-line text-sm">
+                <div className="px-4 py-2.5">
+                  <dt className="text-xs text-ink-3">Income</dt>
+                  <dd className="tabular-nums text-ink-1">{formatSignedCurrency(finance?.income.total ?? 0)}</dd>
+                </div>
+                <div className="px-4 py-2.5">
+                  <dt className="text-xs text-ink-3">Wages</dt>
+                  <dd className="tabular-nums text-ink-1">{formatCurrency(-((finance?.expenses.playerWages ?? 0) + (finance?.expenses.staffWages ?? 0)))}</dd>
+                </div>
+                <div className="px-4 py-2.5">
+                  <dt className="text-xs text-ink-3">Upkeep</dt>
+                  <dd className="tabular-nums text-ink-1">{formatCurrency(-((finance?.expenses.facilities ?? 0) + (finance?.expenses.equipment ?? 0) + (finance?.expenses.academy ?? 0)))}</dd>
+                </div>
+              </dl>
+            </Panel>
+
+            {/* Recent results */}
+            <Panel title="Recent results" actions={<PanelLink href="/schedule">Schedule</PanelLink>} padded={false}>
+              {recentResults.length === 0 ? (
+                <p className="px-4 py-3 text-sm text-ink-3">No matches played yet.</p>
+              ) : (
+                <ul className="divide-y divide-line">
+                  {recentResults.map(m => {
+                    const won = m.result.winnerId === playerTeamId
+                    const oppId = m.homeTeamId === playerTeamId ? m.awayTeamId : m.homeTeamId
+                    const opp = teams.find(t => t.id === oppId)
+                    const comp = m.isScrim ? "Scrim" : leagueStageLabel(m) ?? tournamentFor(m.tournamentId)?.shortName ?? m.stage ?? "Match"
+                    return (
+                      <li key={m.id}>
+                        <Link href={`/match/${m.id}/result`} className="flex h-11 items-center gap-3 px-4 transition-colors hover:bg-raised">
+                          <FormGuide results={[won ? "W" : "L"]} />
+                          <TeamLogoDisplay team={opp} size={22} />
+                          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? "Unknown"}</span>
+                          <span className="hidden truncate text-xs text-ink-3 sm:inline">{comp} · Wk {m.week}</span>
+                          <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{scoreFor(m as MatchLike, playerTeamId || "")}</span>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </Panel>
           </div>
         </div>
+
+        {/* Right rail: decisions first */}
+        <aside className="min-w-0 space-y-4">
+          <GettingStartedChecklist />
+          <ActionCenter />
+          <StorylinesPanel />
+          <LastWeekPanel />
+          <Panel title="News" padded={false}>
+            <div className="max-h-[420px] overflow-y-auto">
+              <NewsFeed limit={8} />
+            </div>
+          </Panel>
+        </aside>
       </div>
     </div>
   )

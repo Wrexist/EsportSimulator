@@ -1,5 +1,6 @@
-import { PageSkeleton } from "@/components/ui/skeletons"
+import { LoadingSplash } from "@/components/brand/LoadingSplash"
 
+// Branded splash while the title screen chunk loads (also the first frame after Electron's boot page).
 export default function Loading() {
-    return <PageSkeleton title="Main Menu" />
+    return <LoadingSplash />
 }

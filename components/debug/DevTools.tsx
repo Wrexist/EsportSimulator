@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect, useCallback, type ReactNode } from "react"
 import { useGameStore } from "@/store/game-store"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
@@ -39,9 +39,61 @@ import {
     ChevronRight
 } from "lucide-react"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
+import { cn } from "@/lib/utils"
 
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
+
+/** Section overline inside a tab (v2: 11px, quiet, no per-tab colour). */
+function Section({ label, tone, children }: { label: string; tone?: "danger"; children: ReactNode }) {
+    return (
+        <section className="space-y-2">
+            <p className={cn("text-[11px] font-semibold uppercase tracking-[0.08em]", tone === "danger" ? "text-negative" : "text-ink-3")}>{label}</p>
+            {children}
+        </section>
+    )
+}
+
+/** One tool action. `selected` marks the current choice in a set (gold = selection). */
+function Tool({ onClick, children, title, selected, tone, className }: {
+    onClick: () => void
+    children: ReactNode
+    title?: string
+    selected?: boolean
+    tone?: "danger"
+    className?: string
+}) {
+    return (
+        <Button
+            size="sm"
+            variant="outline"
+            onClick={onClick}
+            title={title}
+            aria-pressed={selected}
+            className={cn(
+                "h-8 justify-start px-2.5 text-xs font-semibold tabular-nums [&_svg]:text-ink-3",
+                // `!`: premium-ui.css skins every outline button's border and fill.
+                selected && "border-gold! bg-gold/10! text-gold [&_svg]:text-gold",
+                tone === "danger" && "text-negative hover:border-negative/50! [&_svg]:text-negative",
+                className,
+            )}
+        >
+            {children}
+        </Button>
+    )
+}
+
+const FIELD = "h-8 rounded border border-line bg-raised px-3 text-xs tabular-nums text-ink-1 placeholder:text-ink-3 outline-hidden focus-visible:border-gold"
+
+/**
+ * Mounts the dev panel only when dev tools are enabled. The panel subscribes
+ * to the whole store, so in production it must not mount at all (it used to
+ * subscribe and re-render on every store change, then return null).
+ */
 export function DevTools() {
+    return isDevToolsEnabled() ? <DevToolsPanel /> : null
+}
+
+function DevToolsPanel() {
     const devToolsEnabled = isDevToolsEnabled()
     const [isOpen, setIsOpen] = useState(false)
     const [activeTab, setActiveTab] = useState("economy")
@@ -100,387 +152,350 @@ export function DevTools() {
 
     return (
         <>
-            {/* Trigger Button — positioned left of BugReportButton */}
-            <motion.button
+            {/* Trigger — left of the bug-report button, same square as the other corner tools */}
+            <button
+                type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed bottom-6 right-20 z-devtools group"
-                title="Dev Tools (F9)"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.5 }}
+                className={cn(
+                    "fixed bottom-6 right-20 z-devtools flex h-10 w-10 items-center justify-center rounded border bg-raised transition-colors",
+                    isOpen ? "border-gold text-gold" : "border-line-strong text-ink-2 hover:bg-hover hover:text-ink-1",
+                )}
+                title="Dev tools (F9)"
+                aria-label="Dev tools (F9)"
+                aria-expanded={isOpen}
             >
-                <div className={`relative flex items-center justify-center w-12 h-12 rounded-full backdrop-blur-md border shadow-lg transition-all duration-200 ${isOpen
-                    ? "bg-red-500/30 border-red-500/50 shadow-red-500/20"
-                    : "bg-white/10 border-white/20 hover:bg-red-500/20 hover:border-red-500/30"
-                    }`}>
-                    <Terminal className={`w-5 h-5 transition-colors ${isOpen ? "text-red-400" : "text-white/60 group-hover:text-red-400"}`} />
-                    {/* Active indicator dot */}
-                    <span className={`absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-black ${isOpen ? "bg-red-500 animate-pulse" : "bg-emerald-500"}`} />
-                </div>
-                {/* Tooltip */}
-                <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg bg-black/90 text-white text-xs font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/10">
-                    Dev Tools (F9)
-                </div>
-            </motion.button>
+                <Terminal className="h-[18px] w-[18px]" aria-hidden="true" />
+            </button>
 
             {/* Panel */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 50, scale: 0.95 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="fixed bottom-20 right-6 z-devtools w-[480px] max-h-[75vh] bg-black/95 border border-red-500/20 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden backdrop-blur-xl flex flex-col"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
+                        role="dialog"
+                        aria-label="Dev tools"
+                        className="fixed bottom-20 right-6 z-devtools flex max-h-[75vh] w-[480px] flex-col overflow-hidden rounded-[10px] border border-line-strong bg-panel shadow-elev-3"
                     >
                         {/* Header */}
-                        <div className="px-4 py-3 bg-linear-to-r/srgb from-red-950/50 to-black border-b border-red-500/20 flex justify-between items-center shrink-0">
-                            <h3 className="font-mono font-bold text-red-400 flex items-center gap-2 text-sm">
-                                <Terminal size={14} /> DEV TOOLS
-                            </h3>
+                        <div className="flex min-h-11 shrink-0 items-center justify-between gap-3 border-b border-line px-4 py-2">
+                            <div className="min-w-0">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">Developer · F9</p>
+                                <h3 className="flex items-center gap-2 text-sm font-semibold text-ink-1">
+                                    <Terminal size={14} aria-hidden="true" className="text-ink-3" /> Dev tools
+                                </h3>
+                            </div>
                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] text-muted-foreground font-mono bg-white/5 px-2 py-0.5 rounded">
-                                    {gameLoaded ? `W${store.currentWeek}` : "No Game"}
+                                <span className="rounded-sm border border-line px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-ink-2">
+                                    {gameLoaded ? `Week ${store.currentWeek}` : "No game"}
                                 </span>
-                                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} aria-label="Close dev tools" title="Close" className="h-7 w-7 text-muted-foreground hover:text-white">
-                                    <X size={14} aria-hidden="true" />
+                                <Button variant="ghost" size="icon-sm" onClick={() => setIsOpen(false)} aria-label="Close dev tools" title="Close">
+                                    <X size={15} aria-hidden="true" />
                                 </Button>
                             </div>
                         </div>
 
                         {/* Content */}
                         {!gameLoaded ? (
-                            <div className="p-6 text-center space-y-4">
-                                <p className="text-sm text-muted-foreground font-mono">No game loaded</p>
-                                <Button size="sm" variant="destructive" onClick={handleQuickStart} className="font-mono text-xs">
-                                    <Play size={12} className="mr-2" /> Quick Start (Default Team)
-                                </Button>
-                                <Button size="sm" variant="outline" onClick={() => { router.push("/new-game"); setIsOpen(false) }} className="font-mono text-xs ml-2">
-                                    <RefreshCcw size={12} className="mr-2" /> New Game
-                                </Button>
-                                <Button size="sm" variant="outline" onClick={() => { router.push("/load-game"); setIsOpen(false) }} className="font-mono text-xs ml-2">
-                                    Load Game
-                                </Button>
+                            <div className="space-y-4 p-6 text-center">
+                                <p className="text-sm text-ink-2">No game loaded. Start or load a career to use the tools.</p>
+                                <div className="flex flex-wrap justify-center gap-2">
+                                    <Button size="sm" onClick={handleQuickStart}>
+                                        <Play size={13} aria-hidden="true" /> Quick start (default team)
+                                    </Button>
+                                    <Button size="sm" variant="outline" onClick={() => { router.push("/new-game"); setIsOpen(false) }}>
+                                        <RefreshCcw size={13} aria-hidden="true" /> New game
+                                    </Button>
+                                    <Button size="sm" variant="outline" onClick={() => { router.push("/load-game"); setIsOpen(false) }}>
+                                        Load game
+                                    </Button>
+                                </div>
                             </div>
                         ) : (
-                        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-                            <TabsList className="shrink-0 mx-3 mt-3 w-auto bg-white/5 h-8">
-                                <TabsTrigger value="economy" className="text-[11px] gap-1 px-2 data-[state=active]:text-emerald-400">
-                                    <Coins size={11} /> Economy
-                                </TabsTrigger>
-                                <TabsTrigger value="players" className="text-[11px] gap-1 px-2 data-[state=active]:text-violet-400">
-                                    <Flame size={11} /> Players
-                                </TabsTrigger>
-                                <TabsTrigger value="time" className="text-[11px] gap-1 px-2 data-[state=active]:text-amber-400">
-                                    <Clock size={11} /> Time
-                                </TabsTrigger>
-                                <TabsTrigger value="events" className="text-[11px] gap-1 px-2 data-[state=active]:text-pink-400">
-                                    <Trophy size={11} /> Events
-                                </TabsTrigger>
-                                <TabsTrigger value="team" className="text-[11px] gap-1 px-2 data-[state=active]:text-blue-400">
-                                    <Users size={11} /> Team
-                                </TabsTrigger>
-                                <TabsTrigger value="system" className="text-[11px] gap-1 px-2 data-[state=active]:text-slate-400">
-                                    <Settings2 size={11} /> System
-                                </TabsTrigger>
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex min-h-0 flex-1 flex-col gap-0">
+                            <TabsList className="mx-3 mt-2 grid w-auto shrink-0 grid-cols-6">
+                                <TabsTrigger value="economy" className="gap-1 px-1.5! text-xs!"><Coins size={13} aria-hidden="true" /> Economy</TabsTrigger>
+                                <TabsTrigger value="players" className="gap-1 px-1.5! text-xs!"><Flame size={13} aria-hidden="true" /> Players</TabsTrigger>
+                                <TabsTrigger value="time" className="gap-1 px-1.5! text-xs!"><Clock size={13} aria-hidden="true" /> Time</TabsTrigger>
+                                <TabsTrigger value="events" className="gap-1 px-1.5! text-xs!"><Trophy size={13} aria-hidden="true" /> Events</TabsTrigger>
+                                <TabsTrigger value="team" className="gap-1 px-1.5! text-xs!"><Users size={13} aria-hidden="true" /> Team</TabsTrigger>
+                                <TabsTrigger value="system" className="gap-1 px-1.5! text-xs!"><Settings2 size={13} aria-hidden="true" /> System</TabsTrigger>
                             </TabsList>
 
-                            <ScrollArea className="flex-1 min-h-0">
+                            <ScrollArea className="min-h-0 flex-1">
                                 <div className="p-3">
                                     {/* ═══════════ ECONOMY TAB ═══════════ */}
-                                    <TabsContent value="economy" className="space-y-3 mt-0">
-                                        <p className="text-[10px] uppercase font-bold text-emerald-400/80 tracking-widest">Add Funds</p>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugAddFunds(10000); store.addToast({ message: "+$10K", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-emerald-500/20 h-8">
-                                                +$10K
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugAddFunds(50000); store.addToast({ message: "+$50K", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-emerald-500/20 h-8">
-                                                +$50K
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugAddFunds(100000); store.addToast({ message: "+$100K", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-emerald-500/20 h-8">
-                                                +$100K
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugAddFunds(500000); store.addToast({ message: "+$500K", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-emerald-500/20 h-8">
-                                                +$500K
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugAddFunds(1000000); store.addToast({ message: "+$1M", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-emerald-500/20 h-8">
-                                                +$1M
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugAddFunds(10000000); store.addToast({ message: "+$10M", type: "info" }) }} className="font-mono text-[11px] border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-400 h-8">
-                                                <Gift size={11} className="mr-1" /> +$10M
-                                            </Button>
-                                        </div>
+                                    <TabsContent value="economy" className="mt-0 space-y-4">
+                                        <Section label="Add funds">
+                                            <div className="grid grid-cols-3 gap-2">
+                                                <Tool onClick={() => { store.debugAddFunds(10000); store.addToast({ message: "+$10K", type: "info" }) }}>+$10K</Tool>
+                                                <Tool onClick={() => { store.debugAddFunds(50000); store.addToast({ message: "+$50K", type: "info" }) }}>+$50K</Tool>
+                                                <Tool onClick={() => { store.debugAddFunds(100000); store.addToast({ message: "+$100K", type: "info" }) }}>+$100K</Tool>
+                                                <Tool onClick={() => { store.debugAddFunds(500000); store.addToast({ message: "+$500K", type: "info" }) }}>+$500K</Tool>
+                                                <Tool onClick={() => { store.debugAddFunds(1000000); store.addToast({ message: "+$1M", type: "info" }) }}>+$1M</Tool>
+                                                <Tool onClick={() => { store.debugAddFunds(10000000); store.addToast({ message: "+$10M", type: "info" }) }}>
+                                                    <Gift size={13} aria-hidden="true" /> +$10M
+                                                </Tool>
+                                            </div>
+                                        </Section>
 
-                                        <p className="text-[10px] uppercase font-bold text-emerald-400/80 tracking-widest mt-3">Custom Amount</p>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="number"
-                                                value={customAmount}
-                                                onChange={e => setCustomAmount(e.target.value)}
-                                                placeholder="Enter amount..."
-                                                className="flex-1 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white placeholder:text-muted-foreground focus:outline-hidden focus:border-emerald-500/50"
-                                            />
-                                            <Button
-                                                size="sm"
-                                                onClick={() => {
-                                                    const amount = parseInt(customAmount)
-                                                    if (amount > 0) {
-                                                        store.debugAddFunds(amount)
-                                                        store.addToast({ message: formatSignedCurrency(amount, "$", false), type: "info" })
-                                                        setCustomAmount("")
-                                                    }
-                                                }}
-                                                className="h-8 px-4 font-mono text-[11px] bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30"
-                                            >
-                                                Add
-                                            </Button>
-                                        </div>
+                                        <Section label="Custom amount">
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="number"
+                                                    value={customAmount}
+                                                    onChange={e => setCustomAmount(e.target.value)}
+                                                    placeholder="Enter amount"
+                                                    aria-label="Custom amount"
+                                                    className={cn(FIELD, "flex-1")}
+                                                />
+                                                <Tool
+                                                    onClick={() => {
+                                                        const amount = parseInt(customAmount)
+                                                        if (amount > 0) {
+                                                            store.debugAddFunds(amount)
+                                                            store.addToast({ message: formatSignedCurrency(amount, "$", false), type: "info" })
+                                                            setCustomAmount("")
+                                                        }
+                                                    }}
+                                                    className="justify-center px-4"
+                                                >
+                                                    Add
+                                                </Tool>
+                                            </div>
+                                        </Section>
 
-                                        <div className="p-2.5 bg-white/5 rounded-lg border border-white/5 mt-2">
-                                            <p className="text-[10px] text-muted-foreground font-mono">
-                                                Current budget: <span className="text-emerald-400 font-bold">{formatCurrency((myTeam?.budget || 0), "$", false)}</span>
-                                            </p>
-                                        </div>
+                                        <p className="rounded-md border border-line bg-shell px-3 py-2 text-xs text-ink-2">
+                                            Current budget: <span className="font-semibold tabular-nums text-ink-1">{formatCurrency((myTeam?.budget || 0), "$", false)}</span>
+                                        </p>
                                     </TabsContent>
 
                                     {/* ═══════════ PLAYERS TAB ═══════════ */}
-                                    <TabsContent value="players" className="space-y-3 mt-0">
-                                        {/* Player Selector */}
-                                        <p className="text-[10px] uppercase font-bold text-violet-400/80 tracking-widest">Target Player</p>
-                                        <select
-                                            value={targetPlayerId || ""}
-                                            onChange={e => setSelectedPlayerId(e.target.value)}
-                                            className="w-full h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-hidden focus:border-violet-500/50 appearance-none cursor-pointer"
-                                        >
-                                            {rosterPlayers.map((p: any) => (
-                                                <option key={p.id} value={p.id} className="bg-black text-white">
-                                                    {p.nickname || `${p.firstName} ${p.lastName}`} — Skill {p.skill} / Lvl {p.level} / Age {p.age}
-                                                </option>
-                                            ))}
-                                        </select>
+                                    <TabsContent value="players" className="mt-0 space-y-4">
+                                        <Section label="Target player">
+                                            <select
+                                                value={targetPlayerId || ""}
+                                                onChange={e => setSelectedPlayerId(e.target.value)}
+                                                aria-label="Target player"
+                                                className={cn(FIELD, "w-full cursor-pointer")}
+                                            >
+                                                {rosterPlayers.map((p: any) => (
+                                                    <option key={p.id} value={p.id} className="bg-panel text-ink-1">
+                                                        {p.nickname || `${p.firstName} ${p.lastName}`} — Skill {p.skill} / Lvl {p.level} / Age {p.age}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {targetPlayer && (
+                                                <p className="rounded-md border border-line bg-shell px-3 py-2 text-xs tabular-nums text-ink-2">
+                                                    <span className="font-semibold text-ink-1">{targetPlayer.nickname}</span>
+                                                    {" — "}Skill {targetPlayer.skill} · XP {targetPlayer.xp} · Level {targetPlayer.level} · Age {targetPlayer.age}
+                                                    {targetPlayer.injury && <span className="ml-1 font-semibold text-negative">Injured</span>}
+                                                </p>
+                                            )}
+                                        </Section>
 
-                                        {targetPlayer && (
-                                            <div className="p-2.5 bg-violet-500/5 rounded-lg border border-violet-500/10 text-[10px] font-mono text-muted-foreground">
-                                                <span className="text-violet-400 font-bold">{targetPlayer.nickname}</span>
-                                                {" — "}Skill: {targetPlayer.skill} | XP: {targetPlayer.xp} | Level: {targetPlayer.level} | Age: {targetPlayer.age}
-                                                {targetPlayer.injury && <span className="text-red-400 ml-1">[INJURED]</span>}
+                                        <Section label="Boost skill">
+                                            <div className="grid grid-cols-4 gap-2">
+                                                <Tool onClick={() => { store.debugBoostPlayerSkill(targetPlayerId, 5); store.addToast({ message: "+5 Skill", type: "info" }) }}>
+                                                    <TrendingUp size={13} aria-hidden="true" /> +5
+                                                </Tool>
+                                                <Tool onClick={() => { store.debugBoostPlayerSkill(targetPlayerId, 10); store.addToast({ message: "+10 Skill", type: "info" }) }}>+10</Tool>
+                                                <Tool onClick={() => { store.debugBoostPlayerSkill(targetPlayerId, 20); store.addToast({ message: "+20 Skill", type: "info" }) }}>+20</Tool>
+                                                <Tool onClick={() => { store.debugMaxAllSkills(); store.addToast({ message: "All skills → 99", type: "info" }) }}>
+                                                    <Sparkles size={13} aria-hidden="true" /> 99
+                                                </Tool>
                                             </div>
-                                        )}
+                                        </Section>
 
-                                        <p className="text-[10px] uppercase font-bold text-violet-400/80 tracking-widest">Boost Skill</p>
-                                        <div className="grid grid-cols-4 gap-2">
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugBoostPlayerSkill(targetPlayerId, 5); store.addToast({ message: "+5 Skill", type: "info" }) }} className="font-mono text-[11px] border-violet-500/20 hover:bg-violet-500/20 text-violet-400 h-8">
-                                                <TrendingUp size={11} className="mr-1" /> +5
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugBoostPlayerSkill(targetPlayerId, 10); store.addToast({ message: "+10 Skill", type: "info" }) }} className="font-mono text-[11px] border-violet-500/20 hover:bg-violet-500/20 text-violet-400 h-8">
-                                                +10
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugBoostPlayerSkill(targetPlayerId, 20); store.addToast({ message: "+20 Skill", type: "info" }) }} className="font-mono text-[11px] border-violet-500/20 hover:bg-violet-500/20 text-violet-400 h-8">
-                                                +20
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugMaxAllSkills(); store.addToast({ message: "All skills → 99", type: "info" }) }} className="font-mono text-[11px] border-violet-500/30 hover:bg-violet-500/20 text-violet-400 h-8">
-                                                <Sparkles size={11} className="mr-1" /> 99
-                                            </Button>
-                                        </div>
+                                        <Section label="Add XP">
+                                            <div className="grid grid-cols-4 gap-2">
+                                                <Tool onClick={() => { store.debugAddXP(targetPlayerId, 100); store.addToast({ message: "+100 XP", type: "xp_gain" }) }}>+100</Tool>
+                                                <Tool onClick={() => { store.debugAddXP(targetPlayerId, 500); store.addToast({ message: "+500 XP", type: "xp_gain" }) }}>+500</Tool>
+                                                <Tool onClick={() => { store.debugAddXP(targetPlayerId, 2000); store.addToast({ message: "+2000 XP", type: "xp_gain" }) }}>+2K</Tool>
+                                                <Tool onClick={() => { store.debugAddXP(targetPlayerId, 10000); store.addToast({ message: "+10000 XP", type: "xp_gain" }) }}>+10K</Tool>
+                                            </div>
+                                        </Section>
 
-                                        <p className="text-[10px] uppercase font-bold text-violet-400/80 tracking-widest">Add XP</p>
-                                        <div className="grid grid-cols-4 gap-2">
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugAddXP(targetPlayerId, 100); store.addToast({ message: "+100 XP", type: "xp_gain" }) }} className="font-mono text-[11px] border-amber-500/20 hover:bg-amber-500/20 text-amber-400 h-8">
-                                                +100
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugAddXP(targetPlayerId, 500); store.addToast({ message: "+500 XP", type: "xp_gain" }) }} className="font-mono text-[11px] border-amber-500/20 hover:bg-amber-500/20 text-amber-400 h-8">
-                                                +500
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugAddXP(targetPlayerId, 2000); store.addToast({ message: "+2000 XP", type: "xp_gain" }) }} className="font-mono text-[11px] border-amber-500/20 hover:bg-amber-500/20 text-amber-400 h-8">
-                                                +2K
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugAddXP(targetPlayerId, 10000); store.addToast({ message: "+10000 XP", type: "xp_gain" }) }} className="font-mono text-[11px] border-amber-500/30 hover:bg-amber-500/20 text-amber-400 h-8">
-                                                +10K
-                                            </Button>
-                                        </div>
+                                        <Section label="Set age">
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="number"
+                                                    value={customAge}
+                                                    onChange={e => setCustomAge(e.target.value)}
+                                                    min={16}
+                                                    max={50}
+                                                    aria-label="Age"
+                                                    className={cn(FIELD, "w-20")}
+                                                />
+                                                <Tool
+                                                    onClick={() => {
+                                                        const age = parseInt(customAge)
+                                                        if (age >= 16 && age <= 50) {
+                                                            store.debugSetPlayerAge(targetPlayerId, age)
+                                                            store.addToast({ message: `Age → ${age}`, type: "info" })
+                                                        }
+                                                    }}
+                                                >
+                                                    Set age
+                                                </Tool>
+                                                <Tool tone="danger" onClick={() => { store.debugTriggerInjury(targetPlayerId); store.addToast({ message: "Player injured", type: "info" }) }}>
+                                                    <Skull size={13} aria-hidden="true" /> Injure
+                                                </Tool>
+                                            </div>
+                                        </Section>
 
-                                        <p className="text-[10px] uppercase font-bold text-violet-400/80 tracking-widest">Set Age</p>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="number"
-                                                value={customAge}
-                                                onChange={e => setCustomAge(e.target.value)}
-                                                min={16}
-                                                max={50}
-                                                className="w-20 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-hidden focus:border-violet-500/50"
-                                            />
-                                            <Button
-                                                size="sm"
-                                                onClick={() => {
-                                                    const age = parseInt(customAge)
-                                                    if (age >= 16 && age <= 50) {
-                                                        store.debugSetPlayerAge(targetPlayerId, age)
-                                                        store.addToast({ message: `Age → ${age}`, type: "info" })
-                                                    }
-                                                }}
-                                                className="h-8 px-3 font-mono text-[11px] bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/30"
-                                            >
-                                                Set Age
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => { store.debugTriggerInjury(targetPlayerId); store.addToast({ message: "Player injured", type: "info" }) }}
-                                                className="h-8 px-3 font-mono text-[11px] border-red-500/20 hover:bg-red-500/20 text-red-400"
-                                            >
-                                                <Skull size={11} className="mr-1" /> Injure
-                                            </Button>
-                                        </div>
-
-                                        <p className="text-[10px] uppercase font-bold text-violet-400/80 tracking-widest">Team-Wide</p>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugHealAll(); store.addToast({ message: "All healed + energy restored", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-rose-500/20 justify-start h-8">
-                                                <Heart size={11} className="mr-1.5 text-rose-400" /> Heal All
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugMaxMorale(); store.addToast({ message: "Max morale + chemistry", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-purple-500/20 justify-start h-8">
-                                                <Zap size={11} className="mr-1.5 text-purple-400" /> Max Morale
-                                            </Button>
-                                        </div>
+                                        <Section label="Team-wide">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <Tool onClick={() => { store.debugHealAll(); store.addToast({ message: "All healed + energy restored", type: "info" }) }}>
+                                                    <Heart size={13} aria-hidden="true" /> Heal all
+                                                </Tool>
+                                                <Tool onClick={() => { store.debugMaxMorale(); store.addToast({ message: "Max morale + chemistry", type: "info" }) }}>
+                                                    <Zap size={13} aria-hidden="true" /> Max morale
+                                                </Tool>
+                                            </div>
+                                        </Section>
                                     </TabsContent>
 
                                     {/* ═══════════ TIME TAB ═══════════ */}
-                                    <TabsContent value="time" className="space-y-3 mt-0">
-                                        <p className="text-[10px] uppercase font-bold text-amber-400/80 tracking-widest">Advance Weeks</p>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugFastForward(1); store.addToast({ message: "+1 Week", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-amber-500/20 h-8">
-                                                +1W
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugFastForward(4); store.addToast({ message: "+4 Weeks", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-amber-500/20 h-8">
-                                                +4W
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugFastForward(12); store.addToast({ message: "+12 Weeks", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-amber-500/20 h-8">
-                                                +12W
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugFastForward(26); store.addToast({ message: "+26 Weeks", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-amber-500/20 h-8">
-                                                +26W
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugFastForward(52); store.addToast({ message: "+52 Weeks (1 Year)", type: "info" }) }} className="font-mono text-[11px] border-amber-500/30 hover:bg-amber-500/20 text-amber-400 h-8">
-                                                +1Y
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugFastForward(weeksToYearEnd); store.addToast({ message: `+${weeksToYearEnd}W (Year End)`, type: "info" }) }} className="font-mono text-[11px] border-amber-500/30 hover:bg-amber-500/20 text-amber-400 h-8">
-                                                <FastForward size={11} className="mr-1" /> YE ({weeksToYearEnd}W)
-                                            </Button>
-                                        </div>
+                                    <TabsContent value="time" className="mt-0 space-y-4">
+                                        <Section label="Advance weeks">
+                                            <div className="grid grid-cols-3 gap-2">
+                                                <Tool onClick={() => { store.debugFastForward(1); store.addToast({ message: "+1 Week", type: "info" }) }}>+1 week</Tool>
+                                                <Tool onClick={() => { store.debugFastForward(4); store.addToast({ message: "+4 Weeks", type: "info" }) }}>+4 weeks</Tool>
+                                                <Tool onClick={() => { store.debugFastForward(12); store.addToast({ message: "+12 Weeks", type: "info" }) }}>+12 weeks</Tool>
+                                                <Tool onClick={() => { store.debugFastForward(26); store.addToast({ message: "+26 Weeks", type: "info" }) }}>+26 weeks</Tool>
+                                                <Tool onClick={() => { store.debugFastForward(52); store.addToast({ message: "+52 Weeks (1 Year)", type: "info" }) }}>+1 year</Tool>
+                                                <Tool onClick={() => { store.debugFastForward(weeksToYearEnd); store.addToast({ message: `+${weeksToYearEnd}W (Year End)`, type: "info" }) }}>
+                                                    <FastForward size={13} aria-hidden="true" /> Year end ({weeksToYearEnd}w)
+                                                </Tool>
+                                            </div>
+                                        </Section>
 
-                                        <p className="text-[10px] uppercase font-bold text-amber-400/80 tracking-widest mt-3">Game Speed</p>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {(["normal", "fast", "very-fast"] as const).map(speed => (
-                                                <Button
-                                                    key={speed}
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => { store.setGameSpeed(speed); store.addToast({ message: `Speed: ${speed}`, type: "info" }) }}
-                                                    className={`font-mono text-[11px] h-8 ${store.gameSpeed === speed
-                                                        ? "border-amber-500/50 bg-amber-500/20 text-amber-400"
-                                                        : "border-white/10 hover:bg-amber-500/10"
-                                                        }`}
-                                                >
-                                                    {speed === "normal" ? "Normal" : speed === "fast" ? "Fast" : "V.Fast"}
-                                                </Button>
-                                            ))}
-                                        </div>
+                                        <Section label="Game speed">
+                                            <div className="grid grid-cols-3 gap-2">
+                                                {(["normal", "fast", "very-fast"] as const).map(speed => (
+                                                    <Tool
+                                                        key={speed}
+                                                        selected={store.gameSpeed === speed}
+                                                        onClick={() => { store.setGameSpeed(speed); store.addToast({ message: `Speed: ${speed}`, type: "info" }) }}
+                                                        className="justify-center"
+                                                    >
+                                                        {speed === "normal" ? "Normal" : speed === "fast" ? "Fast" : "Very fast"}
+                                                    </Tool>
+                                                ))}
+                                            </div>
+                                        </Section>
 
-                                        <p className="text-[10px] uppercase font-bold text-amber-400/80 tracking-widest mt-3">Time Mode</p>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {(["WEEKLY", "HYBRID_DAILY"] as const).map(mode => (
-                                                <Button
-                                                    key={mode}
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => { store.setTimeMode(mode); store.addToast({ message: `Mode: ${mode}`, type: "info" }) }}
-                                                    className={`font-mono text-[11px] h-8 ${store.timeMode === mode
-                                                        ? "border-amber-500/50 bg-amber-500/20 text-amber-400"
-                                                        : "border-white/10 hover:bg-amber-500/10"
-                                                        }`}
-                                                >
-                                                    {mode === "WEEKLY" ? "Weekly" : "Daily (Hybrid)"}
-                                                </Button>
-                                            ))}
-                                        </div>
+                                        <Section label="Time mode">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {(["WEEKLY", "HYBRID_DAILY"] as const).map(mode => (
+                                                    <Tool
+                                                        key={mode}
+                                                        selected={store.timeMode === mode}
+                                                        onClick={() => { store.setTimeMode(mode); store.addToast({ message: `Mode: ${mode}`, type: "info" }) }}
+                                                        className="justify-center"
+                                                    >
+                                                        {mode === "WEEKLY" ? "Weekly" : "Daily (hybrid)"}
+                                                    </Tool>
+                                                ))}
+                                            </div>
+                                        </Section>
 
-                                        <div className="p-2.5 bg-white/5 rounded-lg border border-white/5 mt-2">
-                                            <p className="text-[10px] text-muted-foreground font-mono">
-                                                Week <span className="text-amber-400 font-bold">{store.currentWeek}</span>
-                                                {" · "}Day <span className="text-white font-bold">{store.currentDay || 1}</span>
-                                                {" · "}<span className="text-white">{store.gameSpeed}</span>
-                                                {" · "}<span className="text-white">{store.timeMode}</span>
-                                            </p>
-                                        </div>
+                                        <p className="rounded-md border border-line bg-shell px-3 py-2 text-xs tabular-nums text-ink-2">
+                                            Week <span className="font-semibold text-ink-1">{store.currentWeek}</span>
+                                            {" · "}Day <span className="font-semibold text-ink-1">{store.currentDay || 1}</span>
+                                            {" · "}<span className="text-ink-1">{store.gameSpeed}</span>
+                                            {" · "}<span className="text-ink-1">{store.timeMode}</span>
+                                        </p>
                                     </TabsContent>
 
                                     {/* ═══════════ EVENTS TAB ═══════════ */}
-                                    <TabsContent value="events" className="space-y-3 mt-0">
-                                        <p className="text-[10px] uppercase font-bold text-pink-400/80 tracking-widest">Trigger Events</p>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugTriggerCelebration(); store.addToast({ message: "Celebration triggered", type: "info" }) }} className="font-mono text-[11px] border-amber-500/20 hover:bg-amber-500/20 justify-start text-amber-400 h-8">
-                                                <Trophy size={11} className="mr-1.5" /> Celebration
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugTriggerLegendPick(); store.addToast({ message: "Legend pick triggered", type: "info" }) }} className="font-mono text-[11px] border-amber-500/20 hover:bg-amber-500/20 justify-start text-amber-400 h-8">
-                                                <Crown size={11} className="mr-1.5" /> Legend Pick
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugTriggerSeasonRecap(); store.addToast({ message: "Season recap triggered", type: "info" }) }} className="font-mono text-[11px] border-blue-500/20 hover:bg-blue-500/20 justify-start text-blue-400 h-8">
-                                                <Star size={11} className="mr-1.5" /> Season Recap
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugTriggerTransferOffer(); store.addToast({ message: "Transfer offer triggered", type: "info" }) }} className="font-mono text-[11px] border-green-500/20 hover:bg-green-500/20 justify-start text-green-400 h-8">
-                                                <Swords size={11} className="mr-1.5" /> Transfer Offer
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugTriggerJobOffer(); store.addToast({ message: "Job offer generated", type: "info" }) }} className="font-mono text-[11px] border-indigo-500/20 hover:bg-indigo-500/20 justify-start text-indigo-400 h-8">
-                                                <Briefcase size={11} className="mr-1.5" /> Job Offer
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugTriggerRetirement(); store.addToast({ message: "Retirement forced", type: "info" }) }} className="font-mono text-[11px] border-red-500/20 hover:bg-red-500/20 justify-start text-red-400 h-8">
-                                                <Skull size={11} className="mr-1.5" /> Retirement
-                                            </Button>
-                                        </div>
+                                    <TabsContent value="events" className="mt-0 space-y-4">
+                                        <Section label="Trigger events">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <Tool onClick={() => { store.debugTriggerCelebration(); store.addToast({ message: "Celebration triggered", type: "info" }) }}>
+                                                    <Trophy size={13} aria-hidden="true" /> Celebration
+                                                </Tool>
+                                                <Tool onClick={() => { store.debugTriggerLegendPick(); store.addToast({ message: "Legend pick triggered", type: "info" }) }}>
+                                                    <Crown size={13} aria-hidden="true" /> Legend pick
+                                                </Tool>
+                                                <Tool onClick={() => store.debugTriggerMoment("season-review")} title="The last closed season of this save (or the season so far), from its real records">
+                                                    <Star size={13} aria-hidden="true" /> Season review
+                                                </Tool>
+                                                <Tool onClick={() => { store.debugTriggerTransferOffer(); store.addToast({ message: "Transfer offer triggered", type: "info" }) }}>
+                                                    <Swords size={13} aria-hidden="true" /> Transfer offer
+                                                </Tool>
+                                                <Tool onClick={() => { store.debugTriggerJobOffer(); store.addToast({ message: "Job offer generated", type: "info" }) }}>
+                                                    <Briefcase size={13} aria-hidden="true" /> Job offer
+                                                </Tool>
+                                                <Tool tone="danger" onClick={() => { store.debugTriggerRetirement(); store.addToast({ message: "Retirement forced", type: "info" }) }}>
+                                                    <Skull size={13} aria-hidden="true" /> Retirement
+                                                </Tool>
+                                            </div>
+                                        </Section>
 
-                                        <p className="text-[10px] uppercase font-bold text-pink-400/80 tracking-widest mt-3">Toast Testers</p>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <Button size="sm" variant="outline" onClick={() => store.addToast({ message: "Player leveled up! +1 Skill Point", type: "level_up" })} className="font-mono text-[11px] border-emerald-500/20 hover:bg-emerald-500/20 justify-start text-emerald-400 h-8">
-                                                <TrendingUp size={11} className="mr-1.5" /> Level Up
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => store.addToast({ message: "+500 XP earned from training", type: "xp_gain" })} className="font-mono text-[11px] border-amber-500/20 hover:bg-amber-500/20 justify-start text-amber-400 h-8">
-                                                <Star size={11} className="mr-1.5" /> XP Gain
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => store.addToast({ message: "Achievement Unlocked: First Win!", type: "achievement" })} className="font-mono text-[11px] border-purple-500/20 hover:bg-purple-500/20 justify-start text-purple-400 h-8">
-                                                <Medal size={11} className="mr-1.5" /> Achievement
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => store.addToast({ message: "System notification test", type: "info" })} className="font-mono text-[11px] border-cyan-500/20 hover:bg-cyan-500/20 justify-start text-cyan-400 h-8">
-                                                <Bell size={11} className="mr-1.5" /> Info
-                                            </Button>
-                                        </div>
+                                        <Section label="Moments (demo data)">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {([
+                                                    ["Title: major", () => store.debugTriggerMoment("title", { major: true })],
+                                                    ["Title: minor", () => store.debugTriggerMoment("title", { major: false })],
+                                                    ["League title", () => store.debugTriggerMoment("league-title")],
+                                                    ["Promotion", () => store.debugTriggerMoment("promotion")],
+                                                    ["Relegation", () => store.debugTriggerMoment("relegation")],
+                                                    ["Signing", () => store.debugTriggerMoment("signing")],
+                                                    ["Welcome", () => store.debugTriggerMoment("welcome")],
+                                                ] as const).map(([label, run]) => (
+                                                    <Tool key={label} onClick={run}>
+                                                        <Trophy size={13} aria-hidden="true" /> {label}
+                                                    </Tool>
+                                                ))}
+                                            </div>
+                                        </Section>
 
-                                        <p className="text-[10px] uppercase font-bold text-pink-400/80 tracking-widest mt-3">Misc</p>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <Button size="sm" variant="outline" onClick={() => { store.triggerTutorial(); store.addToast({ message: "Tutorial triggered", type: "info" }) }} className="font-mono text-[11px] border-pink-500/20 hover:bg-pink-500/20 justify-start text-pink-400 h-8">
-                                                <Sparkles size={11} className="mr-1.5" /> Start Tutorial
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => {
-                                                    try {
-                                                        const { steamService } = require("@/engine/steam-service")
-                                                        steamService.unlockAchievement("FIRST_WIN")
-                                                        store.addToast({ message: "Steam achievement unlocked", type: "achievement" })
-                                                    } catch {
-                                                        store.addToast({ message: "Steam not available", type: "info" })
-                                                    }
-                                                }}
-                                                className="font-mono text-[11px] border-amber-500/20 hover:bg-amber-500/20 justify-start text-amber-400 h-8"
-                                            >
-                                                <Trophy size={11} className="mr-1.5" /> Steam Achv.
-                                            </Button>
-                                        </div>
+                                        <Section label="Toast testers">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <Tool onClick={() => store.addToast({ message: "Player leveled up! +1 Skill Point", type: "level_up" })}>
+                                                    <TrendingUp size={13} aria-hidden="true" /> Level up
+                                                </Tool>
+                                                <Tool onClick={() => store.addToast({ message: "+500 XP earned from training", type: "xp_gain" })}>
+                                                    <Star size={13} aria-hidden="true" /> XP gain
+                                                </Tool>
+                                                <Tool onClick={() => store.addToast({ message: "Achievement Unlocked: First Win!", type: "achievement" })}>
+                                                    <Medal size={13} aria-hidden="true" /> Achievement
+                                                </Tool>
+                                                <Tool onClick={() => store.addToast({ message: "System notification test", type: "info" })}>
+                                                    <Bell size={13} aria-hidden="true" /> Info
+                                                </Tool>
+                                            </div>
+                                        </Section>
+
+                                        <Section label="Misc">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <Tool onClick={() => { store.triggerTutorial(); store.addToast({ message: "Tutorial triggered", type: "info" }) }}>
+                                                    <Sparkles size={13} aria-hidden="true" /> Start tutorial
+                                                </Tool>
+                                                <Tool
+                                                    onClick={() => {
+                                                        try {
+                                                            const { steamService } = require("@/engine/steam-service")
+                                                            steamService.unlockAchievement("FIRST_WIN")
+                                                            store.addToast({ message: "Steam achievement unlocked", type: "achievement" })
+                                                        } catch {
+                                                            store.addToast({ message: "Steam not available", type: "info" })
+                                                        }
+                                                    }}
+                                                >
+                                                    <Trophy size={13} aria-hidden="true" /> Steam achievement
+                                                </Tool>
+                                            </div>
+                                        </Section>
                                     </TabsContent>
 
                                     {/* ═══════════ TEAM TAB ═══════════ */}
-                                    <TabsContent value="team" className="space-y-3 mt-0">
-                                        <p className="text-[10px] uppercase font-bold text-blue-400/80 tracking-widest">Switch Team</p>
-                                        <div className="flex gap-2">
+                                    <TabsContent value="team" className="mt-0 space-y-4">
+                                        <Section label="Switch team">
                                             <select
                                                 value={store.playerTeamId || ""}
                                                 onChange={e => {
@@ -490,176 +505,149 @@ export function DevTools() {
                                                         store.addToast({ message: `Switched to ${team?.name || e.target.value}`, type: "info" })
                                                     }
                                                 }}
-                                                className="flex-1 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-hidden focus:border-blue-500/50 appearance-none cursor-pointer"
+                                                aria-label="Switch team"
+                                                className={cn(FIELD, "w-full cursor-pointer")}
                                             >
                                                 {[...store.teams]
                                                     .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
                                                     .map(t => (
-                                                        <option key={t.id} value={t.id} className="bg-black text-white">
+                                                        <option key={t.id} value={t.id} className="bg-panel text-ink-1">
                                                             {t.name} ({t.tier}) — ELO {t.elo}
                                                         </option>
                                                     ))
                                                 }
                                             </select>
-                                        </div>
+                                        </Section>
 
-                                        <p className="text-[10px] uppercase font-bold text-blue-400/80 tracking-widest mt-3">Qualify for Tournament</p>
-                                        <div className="flex gap-2">
-                                            <select
-                                                id="tournament-select"
-                                                className="flex-1 h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-white focus:outline-hidden focus:border-blue-500/50 appearance-none cursor-pointer"
-                                            >
-                                                {(store.tournaments || [])
-                                                    .filter(t => !t.isCompleted)
-                                                    .slice(0, 20)
-                                                    .map(t => (
-                                                        <option key={t.id} value={t.id} className="bg-black text-white">
-                                                            {t.name} (W{t.startWeek})
-                                                        </option>
-                                                    ))
-                                                }
-                                            </select>
-                                            <Button
-                                                size="sm"
-                                                onClick={() => {
-                                                    const select = document.getElementById("tournament-select") as HTMLSelectElement
-                                                    if (select?.value) {
-                                                        store.qualifyForTournament(select.value, "debug")
-                                                        store.addToast({ message: "Qualified for tournament", type: "info" })
-                                                    }
-                                                }}
-                                                className="h-8 px-3 font-mono text-[11px] bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30"
-                                            >
-                                                Qualify
-                                            </Button>
-                                        </div>
-
-                                        <p className="text-[10px] uppercase font-bold text-blue-400/80 tracking-widest mt-3">Quick Actions</p>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <Button size="sm" variant="destructive" onClick={handleQuickStart} className="font-mono text-[11px] justify-start bg-red-500/20 hover:bg-red-500/40 text-red-200 h-8">
-                                                <Play size={11} className="mr-1.5" /> Restart (Default Team)
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.refreshStaffMarket(); store.addToast({ message: "Staff market refreshed", type: "info" }) }} className="font-mono text-[11px] border-white/10 hover:bg-blue-500/20 justify-start h-8">
-                                                <RefreshCcw size={11} className="mr-1.5" /> Refresh Staff
-                                            </Button>
-                                        </div>
-
-                                        <p className="text-[10px] uppercase font-bold text-blue-400/80 tracking-widest mt-3">Navigate</p>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {[
-                                                { label: "Squad", path: "/squad", icon: <Shield size={11} /> },
-                                                { label: "Desktop", path: "/desktop", icon: <Bell size={11} /> },
-                                                { label: "Finances", path: "/finances", icon: <Coins size={11} /> },
-                                                { label: "Training", path: "/training", icon: <Target size={11} /> },
-                                                { label: "Scouting", path: "/scouting", icon: <Globe size={11} /> },
-                                                { label: "New Game", path: "/new-game", icon: <RefreshCcw size={11} /> },
-                                            ].map(nav => (
-                                                <Button
-                                                    key={nav.path}
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => { router.push(nav.path); setIsOpen(false) }}
-                                                    className="font-mono text-[11px] border-white/10 hover:bg-white/5 justify-start h-8"
+                                        <Section label="Qualify for tournament">
+                                            <div className="flex gap-2">
+                                                <select
+                                                    id="tournament-select"
+                                                    aria-label="Tournament"
+                                                    className={cn(FIELD, "min-w-0 flex-1 cursor-pointer")}
                                                 >
-                                                    <span className="mr-1">{nav.icon}</span> {nav.label}
-                                                </Button>
-                                            ))}
-                                        </div>
+                                                    {(store.tournaments || [])
+                                                        .filter(t => !t.isCompleted)
+                                                        .slice(0, 20)
+                                                        .map(t => (
+                                                            <option key={t.id} value={t.id} className="bg-panel text-ink-1">
+                                                                {t.name} (W{t.startWeek})
+                                                            </option>
+                                                        ))
+                                                    }
+                                                </select>
+                                                <Tool
+                                                    onClick={() => {
+                                                        const select = document.getElementById("tournament-select") as HTMLSelectElement
+                                                        if (select?.value) {
+                                                            store.qualifyForTournament(select.value, "debug")
+                                                            store.addToast({ message: "Qualified for tournament", type: "info" })
+                                                        }
+                                                    }}
+                                                >
+                                                    Qualify
+                                                </Tool>
+                                            </div>
+                                        </Section>
+
+                                        <Section label="Quick actions">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <Tool tone="danger" onClick={handleQuickStart}>
+                                                    <Play size={13} aria-hidden="true" /> Restart (default team)
+                                                </Tool>
+                                                <Tool onClick={() => { store.refreshStaffMarket(); store.addToast({ message: "Staff market refreshed", type: "info" }) }}>
+                                                    <RefreshCcw size={13} aria-hidden="true" /> Refresh staff
+                                                </Tool>
+                                            </div>
+                                        </Section>
+
+                                        <Section label="Navigate">
+                                            <div className="grid grid-cols-3 gap-2">
+                                                {[
+                                                    { label: "Squad", path: "/squad", icon: <Shield size={13} aria-hidden="true" /> },
+                                                    { label: "Inbox", path: "?inbox=all", icon: <Bell size={13} aria-hidden="true" /> },
+                                                    { label: "Finances", path: "/finances", icon: <Coins size={13} aria-hidden="true" /> },
+                                                    { label: "Training", path: "/training", icon: <Target size={13} aria-hidden="true" /> },
+                                                    { label: "Scouting", path: "/scouting", icon: <Globe size={13} aria-hidden="true" /> },
+                                                    { label: "New game", path: "/new-game", icon: <RefreshCcw size={13} aria-hidden="true" /> },
+                                                ].map(nav => (
+                                                    <Tool key={nav.path} onClick={() => { router.push(nav.path); setIsOpen(false) }}>
+                                                        {nav.icon} {nav.label}
+                                                    </Tool>
+                                                ))}
+                                            </div>
+                                        </Section>
                                     </TabsContent>
 
                                     {/* ═══════════ SYSTEM TAB ═══════════ */}
-                                    <TabsContent value="system" className="space-y-3 mt-0">
-                                        <p className="text-[10px] uppercase font-bold text-slate-400/80 tracking-widest">Difficulty</p>
-                                        <div className="grid grid-cols-4 gap-2">
-                                            {(["easy", "normal", "hard", "legendary"] as const).map(diff => (
-                                                <Button
-                                                    key={diff}
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => { store.setDifficulty(diff); store.addToast({ message: `Difficulty: ${diff}`, type: "info" }) }}
-                                                    className={`font-mono text-[11px] h-8 capitalize ${store.difficulty === diff
-                                                        ? "border-cyan-500/50 bg-cyan-500/20 text-cyan-400"
-                                                        : "border-white/10 hover:bg-white/5"
-                                                        }`}
-                                                >
-                                                    {diff}
-                                                </Button>
-                                            ))}
-                                        </div>
+                                    <TabsContent value="system" className="mt-0 space-y-4">
+                                        <Section label="Difficulty">
+                                            <div className="grid grid-cols-4 gap-2">
+                                                {(["easy", "normal", "hard", "legendary"] as const).map(diff => (
+                                                    <Tool
+                                                        key={diff}
+                                                        selected={store.difficulty === diff}
+                                                        onClick={() => { store.setDifficulty(diff); store.addToast({ message: `Difficulty: ${diff}`, type: "info" }) }}
+                                                        className="justify-center capitalize"
+                                                    >
+                                                        {diff}
+                                                    </Tool>
+                                                ))}
+                                            </div>
+                                        </Section>
 
-                                        <p className="text-[10px] uppercase font-bold text-slate-400/80 tracking-widest mt-3">Tools</p>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <Button size="sm" variant="outline" onClick={exportState} className="font-mono text-[11px] border-white/10 hover:bg-white/5 justify-start h-8">
-                                                <Download size={11} className="mr-1.5" /> Export JSON
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { router.push("/dev"); setIsOpen(false) }} className="font-mono text-[11px] border-white/10 hover:bg-white/5 justify-start h-8">
-                                                <Terminal size={11} className="mr-1.5" /> Dev Page
-                                            </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { router.push("/animations"); setIsOpen(false) }} className="font-mono text-[11px] border-cyan-500/20 hover:bg-cyan-500/20 justify-start text-cyan-400 h-8">
-                                                <Zap size={11} className="mr-1.5" /> Animation Lab
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => store.markAllEventsAsRead()}
-                                                className="font-mono text-[11px] border-white/10 hover:bg-white/5 justify-start h-8"
+                                        <Section label="Tools">
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <Tool onClick={exportState}>
+                                                    <Download size={13} aria-hidden="true" /> Export JSON
+                                                </Tool>
+                                                <Tool onClick={() => { router.push("/dev"); setIsOpen(false) }}>
+                                                    <Terminal size={13} aria-hidden="true" /> Dev page
+                                                </Tool>
+                                                <Tool onClick={() => { router.push("/animations"); setIsOpen(false) }}>
+                                                    <Zap size={13} aria-hidden="true" /> Animation lab
+                                                </Tool>
+                                                <Tool onClick={() => store.markAllEventsAsRead()}>
+                                                    <ChevronRight size={13} aria-hidden="true" /> Read all events
+                                                </Tool>
+                                            </div>
+                                        </Section>
+
+                                        <Section label="Danger zone" tone="danger">
+                                            <Tool
+                                                tone="danger"
+                                                onClick={() => {
+                                                    if (nukeConfirm) {
+                                                        store.deleteAllSaves()
+                                                        store.addToast({ message: "All saves nuked!", type: "info" })
+                                                        setNukeConfirm(false)
+                                                    } else {
+                                                        setNukeConfirm(true)
+                                                        setTimeout(() => setNukeConfirm(false), 3000)
+                                                    }
+                                                }}
+                                                className={cn("w-full", nukeConfirm && "border-negative! bg-negative/15!")}
                                             >
-                                                <ChevronRight size={11} className="mr-1.5" /> Read All Events
-                                            </Button>
-                                        </div>
-
-                                        <p className="text-[10px] uppercase font-bold text-red-400/80 tracking-widest mt-3">Danger Zone</p>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => {
-                                                if (nukeConfirm) {
-                                                    store.deleteAllSaves()
-                                                    store.addToast({ message: "All saves nuked!", type: "info" })
-                                                    setNukeConfirm(false)
-                                                } else {
-                                                    setNukeConfirm(true)
-                                                    setTimeout(() => setNukeConfirm(false), 3000)
-                                                }
-                                            }}
-                                            className={`font-mono text-[11px] w-full justify-start h-8 ${nukeConfirm
-                                                ? "border-red-500/50 bg-red-500/30 text-red-300 animate-pulse"
-                                                : "border-red-500/20 hover:bg-red-500/20 text-red-400"
-                                                }`}
-                                        >
-                                            <Trash2 size={11} className="mr-1.5" />
-                                            {nukeConfirm ? "Click again to confirm NUKE ALL SAVES" : "Nuke All Saves"}
-                                        </Button>
+                                                <Trash2 size={13} aria-hidden="true" />
+                                                {nukeConfirm ? "Click again to delete every save" : "Delete all saves"}
+                                            </Tool>
+                                        </Section>
                                     </TabsContent>
                                 </div>
                             </ScrollArea>
                         </Tabs>
                         )}
 
-                        {/* State Footer */}
+                        {/* State footer */}
                         {gameLoaded && (
-                        <div className="px-4 py-2.5 bg-white/5 border-t border-white/5 shrink-0">
-                            <div className="grid grid-cols-3 gap-x-4 gap-y-1 text-[10px] font-mono">
-                                <span className="text-muted-foreground">
-                                    Week: <span className="text-white font-bold">{store.currentWeek}</span>
-                                </span>
-                                <span className="text-muted-foreground">
-                                    Team: <span className="text-white font-bold truncate">{myTeam?.name || "N/A"}</span>
-                                </span>
-                                <span className="text-muted-foreground">
-                                    Budget: <span className="text-emerald-400 font-bold">{formatCurrency((myTeam?.budget || 0), "$", false)}</span>
-                                </span>
-                                <span className="text-muted-foreground">
-                                    Legends: <span className="text-amber-400 font-bold">{(store.signedLegendIds || []).length}/18</span>
-                                </span>
-                                <span className="text-muted-foreground">
-                                    Events: <span className="text-white font-bold">{store.eventsLog?.length || 0}</span>
-                                </span>
-                                <span className="text-muted-foreground">
-                                    Injuries: <span className={`font-bold ${injuredCount > 0 ? "text-red-400" : "text-white"}`}>{injuredCount}</span>
-                                </span>
-                            </div>
-                        </div>
+                        <dl className="grid shrink-0 grid-cols-3 gap-x-4 gap-y-1 border-t border-line bg-shell px-4 py-2.5 text-xs tabular-nums">
+                            <div className="flex min-w-0 gap-1"><dt className="text-ink-3">Week</dt><dd className="font-semibold text-ink-1">{store.currentWeek}</dd></div>
+                            <div className="flex min-w-0 gap-1"><dt className="text-ink-3">Team</dt><dd className="truncate font-semibold text-ink-1">{myTeam?.name || "N/A"}</dd></div>
+                            <div className="flex min-w-0 gap-1"><dt className="text-ink-3">Budget</dt><dd className="font-semibold text-ink-1">{formatCurrency((myTeam?.budget || 0), "$", false)}</dd></div>
+                            <div className="flex min-w-0 gap-1"><dt className="text-ink-3">Legends</dt><dd className="font-semibold text-ink-1">{(store.signedLegendIds || []).length}/18</dd></div>
+                            <div className="flex min-w-0 gap-1"><dt className="text-ink-3">Events</dt><dd className="font-semibold text-ink-1">{store.eventsLog?.length || 0}</dd></div>
+                            <div className="flex min-w-0 gap-1"><dt className="text-ink-3">Injuries</dt><dd className={cn("font-semibold", injuredCount > 0 ? "text-negative" : "text-ink-1")}>{injuredCount}</dd></div>
+                        </dl>
                         )}
                     </motion.div>
                 )}

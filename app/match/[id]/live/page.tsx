@@ -1,273 +1,47 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { useGameStore } from "@/store/game-store"
 
-import { useEffect, useMemo, memo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { LoadingState } from "@/components/ui/loading"
 import { useLiveMatch } from "@/hooks/useLiveMatch"
-import { LiveMatchScoreboard } from "@/components/match/LiveMatchScoreboard"
+import { LiveMatchScoreboard, type ScorebugRound } from "@/components/match/LiveMatchScoreboard"
 import { LiveMatchControlBar } from "@/components/match/LiveMatchControlBar"
 import { MapRadarPanel } from "@/components/match/MapRadarPanel"
-import { CareerPhysicalReplay } from "@/components/match/CareerPhysicalReplay"
 import { DerbyBanner } from "@/components/match/DerbyBanner"
-import { HalfTimeOverlay } from "@/components/match/HalfTimeOverlay"
 import { TacticalLoadoutEditor } from "@/components/match/TacticalLoadoutEditor"
-import { PlayerPortrait } from "@/components/ui/asset-images"
-import { Skull, Swords, Zap as ZapIcon, EyeOff, Settings2, Coins, Search, Shield, Crosshair, Sparkles, Bomb, Trophy } from "lucide-react"
-import { cn } from "@/lib/utils"
-import Image from "next/image"
+import { LiveRosterCard, type RosterCardRowProps } from "@/components/match/live/LiveRosterCard"
+import { LiveFeedPanel } from "@/components/match/live/LiveFeed"
+import { RoundsPanel } from "@/components/match/live/RoundsPanel"
+import { DecisionCard } from "@/components/match/live/DecisionCard"
+import { RoundEndBanner } from "@/components/match/live/RoundEndBanner"
+import { MomentCallout, type MomentCalloutData } from "@/components/match/live/MomentCallout"
+import { IntermissionCard, type HalfStat } from "@/components/match/live/IntermissionCard"
+import { ChevronRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { CustomTactics, MapId, Team } from "@/types"
-import { computeRadarPositions } from "@/lib/radar-position-engine"
-import { MAP_NAMES, getMapAssetName } from "@/data/map-pool"
+import { CustomTactics, LivePlayerState, MapId, Team } from "@/types"
+import { liveRoundMap } from "@/lib/live-round-script"
+import { roundBombTimes } from "@/lib/live-clock"
+import { MAP_NAMES } from "@/data/map-pool"
+import { AUTO_CONFIRM_MS, FAST_FORWARD_LEAD, inMoment } from "@/lib/live-match-pacing"
+import { adrOf, samplePlayer, tallyMatchDamage } from "@/lib/live-match-roster"
+import { previewDecision } from "@/lib/live-match-decision"
+import type { ManagerStrategy } from "@/engine/match/legacy-series"
+import { MatchIntro } from "@/components/match/MatchIntro"
+import { MatchEndBeat } from "@/components/match/MatchEndBeat"
+import { competitionOf } from "@/lib/match-framing"
+import { headToHeadOf, introContextLine } from "@/lib/match-intro"
 
-import { formatCurrency } from "@/lib/utils-extended"
-// Weapon-id → icon path. The mapping object is hoisted so it isn't allocated
-// on every call, and resolved paths are memoized in a module-level cache so
-// the log list doesn't recompute the same string per row per render tick.
-const WEAPON_ICON_MAP: Record<string, string> = {
-    "m4a1s": "weapon_m4a1s.png",
-    "ak47": "weapon_ak47.png",
-    "m4a4": "weapon_m4a4.png",
-    "awp": "weapon_awp.png",
-    "deagle": "weapon_deagle.png",
-    "usp": "weapon_usp.png",
-    "glock": "weapon_glock.png",
-    "p250": "weapon_p250.png",
-    "mac10": "weapon_mac10.png",
-    "mp9": "weapon_mp9.png",
-    "xm1014": "weapon_xm1014.png",
-    "p90": "weapon_p90.png",
-    "famas": "weapon_famas.png",
-    "galilar": "weapon_galil.png",
-    "galil": "weapon_galil.png",
-    "mp7": "weapon_mp7.png",
-    "aug": "weapon_aug.png",
-    "mag7": "weapon_mag7.png",
-    "fiveseven": "weapon_fiveseven.png",
-    "ssg08": "weapon_awp.png",
-    "dualies": "weapon_p250.png",
-    "tec9": "weapon_glock.png",
-    "sg553": "weapon_ak47.png",
-    "knife": "weapon_glock.png",
+declare global {
+    interface Window { __liveCommits?: number }
 }
-const WEAPON_ICON_FALLBACK = "/assets/weapons/weapon_glock.png"
-const weaponIconCache = new Map<string, string>()
-
-const getWeaponIcon = (weaponName: string | undefined): string => {
-    if (!weaponName) return WEAPON_ICON_FALLBACK
-    const cached = weaponIconCache.get(weaponName)
-    if (cached) return cached
-    const normalized = weaponName.toLowerCase().replace(/-/g, "").replace(/\s+/g, "")
-    const mapped = WEAPON_ICON_MAP[normalized] || "weapon_glock.png"
-    const path = `/assets/weapons/${mapped}`
-    weaponIconCache.set(weaponName, path)
-    return path
-}
-
-
-// Memoized log list. Without memo this re-evaluates every per-tick parent
-// render (~30-60Hz from useLiveMatch), iterating the full logs array and
-// recreating ~100+ log-row elements each frame even when nothing changed.
-// React.memo + a stable `logs` reference from useLiveMatch means this
-// re-runs only when a new log entry is appended.
-const LiveLogList = memo(function LiveLogList({ logs }: { logs: any[] }) {
-    return (
-        <div className="space-y-1.5 pb-4">
-            {logs.map((l, i) => {
-                const timeStr = l.time != null ? `[${Math.floor(l.time / 60)}:${(l.time % 60).toString().padStart(2, '0')}]` : ""
-
-                if (l.type === "KILL") {
-                    return (
-                        <div key={i} className={cn(
-                            "p-2 rounded-xl text-[11px] border-l-2 border border-white/5 flex items-center gap-1.5",
-                            l.killerSide === "CT"
-                                ? "bg-blue-500/10 border-l-blue-400/50"
-                                : "bg-orange-500/10 border-l-orange-400/50"
-                        )}>
-                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                            <div className="flex items-center gap-1 shrink-0">
-                                {l.killerImage && (
-                                    <div className="w-5 h-5 rounded overflow-hidden shrink-0">
-                                        <PlayerPortrait src={l.killerImage} alt="" size={20} variant="card" />
-                                    </div>
-                                )}
-                                <span className={cn("font-semibold truncate max-w-[60px]",
-                                    l.killerSide === "CT" ? "text-blue-300/90" : "text-orange-300/90"
-                                )}>{l.killerName}</span>
-                            </div>
-                            {l.assisterName && (
-                                <span className="text-white/30 text-[9px] shrink-0">+ {l.assisterName}</span>
-                            )}
-                            <div className="flex items-center gap-0.5 mx-0.5 shrink-0">
-                                <Image src={getWeaponIcon(l.weapon)} alt="" width={20} height={10} className="h-2.5 w-auto brightness-0 invert opacity-40" unoptimized />
-                                {l.isHeadshot && (
-                                    <Image src="/assets/weapons/headshot.png" alt="HS" width={10} height={10} className="h-2.5 w-2.5 opacity-70" unoptimized />
-                                )}
-                            </div>
-                            <div className="flex items-center gap-1 shrink-0">
-                                <span className="font-semibold text-white/40 truncate max-w-[60px]">{l.victimName}</span>
-                                {l.victimImage && (
-                                    <div className="w-5 h-5 rounded overflow-hidden shrink-0 opacity-50">
-                                        <PlayerPortrait src={l.victimImage} alt="" size={20} variant="card" />
-                                    </div>
-                                )}
-                            </div>
-                            <div className="flex gap-1 ml-auto shrink-0">
-                                {l.isHeadshot && <span className="px-1 py-0.5 rounded text-[7px] font-bold bg-red-500/20 text-red-300">HS</span>}
-                                {l.isTrade && <span className="px-1 py-0.5 rounded text-[7px] font-bold bg-yellow-500/20 text-yellow-300">TRADE</span>}
-                            </div>
-                        </div>
-                    )
-                }
-
-                if (l.type === "PLANT") {
-                    return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-red-500/10 border-l-red-400/50 flex items-center gap-2">
-                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                            <Bomb className="w-3 h-3 text-red-400 shrink-0" />
-                            <span className="text-red-300/80 font-semibold">{l.message}</span>
-                        </div>
-                    )
-                }
-
-                if (l.type === "DEFUSE") {
-                    return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-blue-500/10 border-l-blue-400/50 flex items-center gap-2">
-                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                            <Shield className="w-3 h-3 text-blue-400 shrink-0" />
-                            <span className="text-blue-300/80 font-semibold">{l.message}</span>
-                        </div>
-                    )
-                }
-
-                if (l.type === "EXPLODE") {
-                    return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-orange-600/15 border-l-orange-500/60 flex items-center gap-2">
-                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                            <ZapIcon className="w-3 h-3 text-orange-400 shrink-0" />
-                            <span className="text-orange-300/80 font-semibold">{l.message}</span>
-                        </div>
-                    )
-                }
-
-                if (l.type === "ROUND_END") {
-                    return (
-                        <div key={i} className="p-2.5 rounded-xl text-[11px] border-l-2 border border-white/10 bg-white/8 border-l-white/30 flex items-center gap-2">
-                            <Trophy className="w-3.5 h-3.5 text-white/50 shrink-0" />
-                            <span className="text-white/70 font-bold uppercase tracking-wide">{l.message}</span>
-                        </div>
-                    )
-                }
-
-                if (l.type === "CLUTCH") {
-                    return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 bg-yellow-500/10 border-l-yellow-400/50 flex items-center gap-2">
-                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                            <Sparkles className="w-3 h-3 text-yellow-400 shrink-0" />
-                            <span className="text-yellow-300/80 font-semibold">{l.message}</span>
-                        </div>
-                    )
-                }
-
-                if (l.type === "SAVE") {
-                    return (
-                        <div key={i} className="p-2 rounded-xl text-[11px] border-l-2 border border-white/5 border-l-white/10 flex items-center gap-2">
-                            <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                            <EyeOff className="w-3 h-3 text-white/30 shrink-0" />
-                            <span className="text-white/40">{l.message}</span>
-                        </div>
-                    )
-                }
-
-                if (l.type === "BUY") {
-                    return (
-                        <div key={i} className="p-1.5 rounded-lg text-[10px] border bg-white/2 flex items-center gap-2">
-                            <Coins className="w-3 h-3 text-emerald-400/40 shrink-0" />
-                            <span className="text-white/30 font-medium">{l.message}</span>
-                        </div>
-                    )
-                }
-
-                return (
-                    <div key={i} className="p-2 rounded-xl text-[11px] border border-white/5 bg-black/20 flex items-center gap-2">
-                        <span className="opacity-30 text-[10px] w-7 shrink-0 font-mono">{timeStr}</span>
-                        <span className="text-white/50">{l.message}</span>
-                    </div>
-                )
-            })}
-        </div>
-    )
-})
-
-// Strategy panel constants. Hoisted to module scope so the array and the
-// cost lookup don't reallocate every render of the strategy panel. The
-// icons are JSX nodes (small SVGs) — fine to share as the same reference
-// since they have no state.
-const STRATEGY_OPTIONS = [
-    { id: "ECO", fallback: "Save", icon: <Coins className="w-5 h-5" />, baseColor: "bg-white/5 text-white/50 border-white/10", cost: 0 },
-    { id: "FORCE", fallback: "Force buy", icon: <ZapIcon className="w-5 h-5" />, baseColor: "bg-orange-500/10 text-orange-300 border-orange-500/20", cost: 1800 },
-    { id: "SEMIBUY", fallback: "Half buy", icon: <Search className="w-5 h-5" />, baseColor: "bg-purple-500/10 text-purple-300 border-purple-500/20", cost: 3600 },
-    { id: "FULL", fallback: "Full buy", icon: <Shield className="w-5 h-5" />, baseColor: "bg-blue-500/20 text-blue-400 border-blue-500/40", cost: 4700 },
-    { id: "DOUBLE AWP", fallback: "2xAWP", icon: <Crosshair className="w-5 h-5" />, baseColor: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20", cost: 6500 },
-] as const
-
-// Roster row, memoized on the fields it actually reads. Without React.memo
-// each tick re-renders all 10 rows even when only the timer changed; the
-// PlayerPortrait + image lookups inside add up. Memoizing on the shallow
-// subset of LivePlayerState the row actually displays keeps idle ticks at
-// O(0) row renders.
-interface RosterRowProps {
-    id: string
-    name: string
-    money: number
-    weapon: string | undefined
-    isDead: boolean
-    kills: number
-    deaths: number
-    assists: number
-    portraitPath: string | undefined
-    defaultWeaponLabel: "USP" | "GLOCK"
-    extraClassName?: string
-}
-
-const RosterRow = memo(function RosterRow({
-    id, name, money, weapon, isDead, kills, deaths, assists, portraitPath, defaultWeaponLabel, extraClassName,
-}: RosterRowProps) {
-    return (
-        <div className={cn(
-            "match-roster-row rounded-xl flex items-center gap-2 border transition-colors",
-            isDead ? "bg-black/40 border-white/5 opacity-50" : "bg-white/5 border-white/5",
-            extraClassName,
-        )}>
-            <div className="w-10 h-10 bg-black/30 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-white/5">
-                <PlayerPortrait
-                    src={portraitPath}
-                    seed={id}
-                    alt={name}
-                    size={40}
-                    variant="card"
-                />
-            </div>
-            <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                    <div className="font-normal text-xs uppercase truncate pr-2">{name}</div>
-                    <div className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">{formatCurrency(money, "$", false)}</div>
-                </div>
-                <div className="text-[10px] text-white/40 font-bold truncate mt-0.5">{weapon?.toUpperCase() || defaultWeaponLabel}</div>
-            </div>
-            <div className="text-right shrink-0">
-                <div className="text-xs font-normal">{kills}/{deaths}/{assists}</div>
-                {isDead && <Skull className="w-3 h-3 text-red-500 ml-auto mt-1" aria-hidden="true" />}
-            </div>
-        </div>
-    )
-})
 
 export default function LiveMatchPage() {
     const params = useParams<{ id: string }>()
+    const [endBeatDone, setEndBeatDone] = useState(false)
     const {
         gameState,
         simState,
@@ -278,6 +52,7 @@ export default function LiveMatchPage() {
         isAutoTactics,
         setIsAutoTactics,
         isPlaying,
+        togglePlayback,
         setIsPlaying,
         speed,
         setSpeed,
@@ -291,6 +66,7 @@ export default function LiveMatchPage() {
         originalHomePlayers,
         originalAwayPlayers,
         currentRoundEvents,
+        roundScript,
         roundTime,
         isBombPlanted,
         bombTime,
@@ -301,316 +77,373 @@ export default function LiveMatchPage() {
         isPlayerHome,
         ownEconomy,
         ownIsCT,
-    } = useLiveMatch(params.id)
+        pacingMode,
+        setPacingMode,
+        liveClock,
+        roundView,
+        roundBeat,
+        intermission,
+        decisionHold,
+        setDecisionHold,
+        shownLossLevels,
+        finishedResult,
+        introActive,
+        endIntro,
+    } = useLiveMatch(params.id, { introKey: `intro:${params.id}` })
+    const router = useRouter()
+    // Dev builds count the page's commits on window.__liveCommits (perf tooling).
+    useEffect(() => {
+        if (process.env.NODE_ENV !== "production") window.__liveCommits = (window.__liveCommits ?? 0) + 1
+    })
+    // A loaded career without this fixture (stale link, already resolved):
+    // the hook never initialises, so explain instead of spinning forever.
+    const matchMissing = useGameStore(state => state.teams.length > 0 && !state.scheduledMatches.some(m => m.id === params.id))
 
     // Local UI State for Loadout Editor (UI Concern)
     const [isEditingLoadout, setIsEditingLoadout] = useState(false)
     const [editingSide, setEditingSide] = useState<"ct" | "t">("ct")
     const [editingStrategy, setEditingStrategy] = useState<keyof CustomTactics>("FULL")
 
-    // Half-time overlay trigger — fires on the transition into round 13.
-    // Rising-edge detection so the overlay shows once per match, not
-    // every tick while round === 13.
-    const [showHalfTime, setShowHalfTime] = useState(false)
-    const prevRoundRef = useRef(gameState.round)
+    // Space = pause / resume mid-round, hold / release the auto call between
+    // rounds. Text fields and open dialogs keep their own Space handling.
     useEffect(() => {
-        if (gameState.round === 13 && prevRoundRef.current !== 13 && prevRoundRef.current > 0) {
-            setShowHalfTime(true)
-            const t = setTimeout(() => setShowHalfTime(false), 2400)
-            prevRoundRef.current = gameState.round
-            return () => clearTimeout(t)
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key !== " " || e.repeat || e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return
+            const target = e.target as HTMLElement | null
+            const tag = target?.tagName
+            if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target?.isContentEditable) return
+            if (target?.closest('[role="switch"], [role="slider"], [role="combobox"], [role="textbox"]')) return
+            if (document.querySelector('[role="dialog"], [role="alertdialog"]')) return
+            e.preventDefault()
+            // A focused button would also be clicked by Space on keyup.
+            if (target && target !== document.body) target.blur()
+            togglePlayback()
         }
-        prevRoundRef.current = gameState.round
-    }, [gameState.round])
+        window.addEventListener("keydown", onKeyDown)
+        return () => window.removeEventListener("keydown", onKeyDown)
+    }, [togglePlayback])
 
-    // Compute live radar positions from round events (must be before early return for hooks rules)
+    // Radar (hooks before the early return). The round on screen is described
+    // by its round script, built once per round by useLiveMatch; the radar
+    // samples it on every animation frame at the hook's continuous clock, so
+    // the page only hands over the script and the clock (and re-renders only
+    // when the feed, roster or scorebug change).
     const currentMapId = matchData.current?.result.maps[gameState.currentMapIndex]?.map || MapId.SANDSTONE
+    const roundMap = useMemo(() => liveRoundMap(currentMapId) ?? null, [currentMapId])
+    const radarScript = roundScript && roundScript.mapId === currentMapId && gameState.time >= 0 ? roundScript.script : null
 
-    // Roster identity hash — only changes when player IDs / dead-mask / money
-    // shift, NOT every render. Without this, radar recompute fired on every
-    // useState update of the roster arrays (~60Hz during a live round).
-    const rosterFingerprint = useMemo(() => {
-        return homeRoster.map(p => `${p.id}:${p.isDead ? 1 : 0}:${p.money}`).join("|")
-            + "#" + awayRoster.map(p => `${p.id}:${p.isDead ? 1 : 0}:${p.money}`).join("|")
-    }, [homeRoster, awayRoster])
-
-    const radarData = useMemo(() => {
-        if (!simState || !matchData.current || gameState.time < 0) return null
-        return computeRadarPositions(
-            currentMapId as MapId,
-            gameState.time,
-            currentRoundEvents.current,
-            homeRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            awayRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            roundHomeIsCT,
-            gameState.round,
-            matchData.current.match.seed ?? 0
-        )
-        // Intentionally depend on rosterFingerprint instead of the array
-        // refs so an unchanged roster (most ticks) skips the recompute.
+    // Names, cash, and the round's weapon / kit (from the post-buy loadout;
+    // the roster after a restore) by player id. Rebuilt only when one of those
+    // changes, not on every roster update, so the memoized radar panel is not
+    // re-rendered by unrelated roster changes.
+    const gearOf = (p: LivePlayerState) => roundView?.gear[p.id] ?? { weapon: p.weapon, hasKit: p.hasKit }
+    const radarPlayersKey = [...homeRoster, ...awayRoster].map(p => { const g = gearOf(p); return `${p.id}:${p.name}:${p.money}:${g.weapon}:${g.hasKit ? 1 : 0}` }).join("|")
+    const radarPlayers = useMemo(
+        () => Object.fromEntries([...homeRoster, ...awayRoster].map(p => { const g = gearOf(p); return [p.id, { name: p.name, money: p.money, weapon: g.weapon, hasKit: !!g.hasKit }] })),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gameState.time, gameState.round, currentMapId, simState, roundHomeIsCT, matchData, currentRoundEvents, rosterFingerprint])
+        [radarPlayersKey]
+    )
+    // Recorded rounds of the map on screen: HP / weapons for the live round and
+    // the radar's own review scrubber for earlier rounds (it never shows the
+    // round in flight beyond the playback clock).
+    const reviewRounds = matchData.current?.result.maps[gameState.currentMapIndex]?.rounds
+    const reviewCtx = matchData.current?.ctx
+    const radarReview = useMemo(
+        () => (reviewCtx && reviewRounds ? { ctx: reviewCtx, mapIndex: gameState.currentMapIndex, rounds: reviewRounds } : null),
+        [reviewCtx, reviewRounds, gameState.currentMapIndex]
+    )
+    // The round shown on the radar has been decided (its ROUND_END was played
+    // back): no live clutch banner over the end-of-round positions.
+    const roundEndEvent = currentRoundEvents.current.find(e => e.type === "ROUND_END")
+    const roundOver = gameState.status === "FINISHED" || isWaitingForStrategy
+        || (roundEndEvent != null && gameState.time >= roundEndEvent.time)
+    // The round in flight: the scorebug timer reads the live clock itself.
+    const roundLive = !roundOver && gameState.time >= 0
+    const { plantAt, bombEndAt } = roundBombTimes(currentRoundEvents.current)
+    const scorebugClock = useMemo(
+        () => (roundLive ? { source: liveClock, plantAt, bombEndAt } : null),
+        [roundLive, liveClock, plantAt, bombEndAt]
+    )
 
-    // Positions one game-second ahead. The playback clock ticks once per
-    // game-second, so the radar glides from `radarData` toward this snapshot
-    // over the tick instead of jumping on each tick.
-    const nextRadarData = useMemo(() => {
-        if (!simState || !matchData.current || gameState.time < 0) return null
-        return computeRadarPositions(
-            currentMapId as MapId,
-            gameState.time + 1,
-            currentRoundEvents.current,
-            homeRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            awayRoster.map(p => ({ id: p.id, isDead: p.isDead, nickname: p.name, money: p.money })),
-            roundHomeIsCT,
-            gameState.round,
-            matchData.current.match.seed ?? 0
-        )
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gameState.time, gameState.round, currentMapId, simState, roundHomeIsCT, matchData, currentRoundEvents, rosterFingerprint])
-
-    // Build O(1) lookup maps for original players (used in roster rendering)
     const originalHomeMap = useMemo(() => new Map((originalHomePlayers || []).map(p => [p.id, p])), [originalHomePlayers])
     const originalAwayMap = useMemo(() => new Map((originalAwayPlayers || []).map(p => [p.id, p])), [originalAwayPlayers])
+    const names = useMemo(
+        () => Object.fromEntries([...(originalHomePlayers || []), ...(originalAwayPlayers || [])].map(p => [p.id, p.nickname || p.name])) as Record<string, string>,
+        [originalHomePlayers, originalAwayPlayers]
+    )
 
-    // Stabilize sitePositions identity: `{ a, b }` was being re-created inline in
-    // the MapRadarPanel JSX on every parent render, which busts MapRadarPanel's
-    // React.memo. Now it only gets a new object when a/b actually change.
-    // Deps are deliberately narrowed to the two fields we read rather than
-    // the whole radarData object (which mutates more frequently).
-    const sitePositions = useMemo(
-        () => (radarData ? { a: radarData.aSite, b: radarData.bSite } : undefined),
+    // Revealed rounds of the map on screen (the in-flight round is recorded
+    // before playback reaches its end, so only the first `revealed`).
+    const resultMaps = matchData.current?.result.maps
+    const shownMap = resultMaps?.[gameState.currentMapIndex]
+    const revealed = gameState.homeScore + gameState.awayScore
+    const homeTeamId = matchData.current?.homeTeam.id
+    const shownRoundCount = shownMap?.rounds.length ?? 0
+    const roundHistory: ScorebugRound[] = useMemo(() => {
+        let home = 0, away = 0
+        return (shownMap?.rounds ?? []).slice(0, revealed).map(r => {
+            const winnerId = r.winningTeamId ?? (r.winner === "ct" ? r.ctTeam : r.tTeam)
+            const winner = winnerId === homeTeamId ? "home" as const : "away" as const
+            if (winner === "home") home++
+            else away++
+            return { round: r.roundNumber, winner, side: r.winner, winType: r.winType, homeBuy: r.buys?.home, awayBuy: r.buys?.away, homeScore: home, awayScore: away }
+        })
+        // The map's rounds array is appended to in place; its length is the change signal.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [radarData?.aSite, radarData?.bSite]
+    }, [shownMap, shownRoundCount, revealed, homeTeamId])
+
+    // Damage over the revealed rounds of the match → ADR per player.
+    const damageTally = useMemo(
+        () => tallyMatchDamage(resultMaps ?? [], gameState.currentMapIndex, revealed),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [resultMaps, gameState.currentMapIndex, revealed, gameState.status]
     )
 
-    // Background lives in a fixed-position layer so it stays viewport-sized.
-    // Heavy dark gradient over the map photo keeps panels readable; the map
-    // is a subtle atmospheric backdrop, not the foreground.
-    const backgroundStyle = useMemo(() => ({
-        backgroundImage: `linear-gradient(180deg, rgba(10,14,20,0.92) 0%, rgba(10,14,20,0.78) 55%, rgba(10,14,20,0.96) 100%), url(/maps/${getMapAssetName(currentMapId)}.png)`,
-        backgroundSize: "cover, cover",
-        backgroundPosition: "center, center",
-    }), [currentMapId])
-
-    if (!matchData.current || !simState) return (
-        <LoadingState message="Warming up servers…" size="lg" fullScreen />
+    // Between rounds: the managed team's buy decision, previewed with the
+    // engine's own buy phase (exact per-player costs).
+    const choosingStrategy = isWaitingForStrategy && !roundBeat && gameState.status === "IN_PROGRESS"
+    const preview = useMemo(
+        () => (choosingStrategy && matchData.current && simState ? previewDecision(matchData.current.ctx, simState, customTactics) : null),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [choosingStrategy, simState, customTactics]
     )
+
+    const openLoadoutEditor = useCallback((strategy: ManagerStrategy) => {
+        setEditingStrategy(strategy as keyof CustomTactics)
+        setEditingSide(ownIsCT ? "ct" : "t")
+        setIsEditingLoadout(true)
+        setDecisionHold(true)
+    }, [ownIsCT, setDecisionHold])
+    const toggleHold = useCallback(() => setDecisionHold(h => !h), [setDecisionHold])
+    const pickStrategy = useCallback((strategy: ManagerStrategy) => startNextRound(strategy), [startNextRound])
+
+    // The buy decision sits in the radar's overlay slot, above its scrubber
+    // (null while a round plays: the slot then is not in the DOM at all).
+    // Built here (memoized) so the radar panel's memo holds between renders.
+    const overtimeNote = intermission && (intermission.kind === "overtime" || intermission.kind === "overtime-switch")
+        ? intermission.kind === "overtime" ? "Overtime · MR3 · $12,500 each" : "Overtime · sides switched"
+        : simState?.isOvertime ? "Overtime" : undefined
+    const timeoutDisabled = timeoutsRemaining <= 0 || timeoutActive || !isWaitingForStrategy || gameState.status !== "IN_PROGRESS"
+    const decisionKey = `${gameState.currentMapIndex}-${preview?.round ?? 0}`
+    const decisionOverlay = useMemo(() => (preview
+        ? (
+            <DecisionCard
+                key={`decision-${decisionKey}`}
+                preview={preview}
+                names={names}
+                onPick={pickStrategy}
+                onEditLoadout={openLoadoutEditor}
+                auto={{ on: isAutoTactics, hold: decisionHold, durationMs: AUTO_CONFIRM_MS, onToggleHold: toggleHold, key: `${decisionKey}-${decisionHold}` }}
+                timeout={{ remaining: timeoutsRemaining, active: timeoutActive, disabled: timeoutDisabled, onCall: callTimeout }}
+                overtimeNote={overtimeNote}
+            />
+        )
+        : null
+    ), [preview, decisionKey, names, pickStrategy, openLoadoutEditor, isAutoTactics, decisionHold, toggleHold, timeoutsRemaining, timeoutActive, timeoutDisabled, callTimeout, overtimeNote])
+    const leaveToHub = useCallback(() => router.push(`/match/${params.id}/tactics`), [router, params.id])
+
+    // Match intro (Phase 5.4a): once per match, before the first round of a
+    // fresh start (useLiveMatch decides; a resumed match never shows it). Its
+    // facts: competition, head-to-head from the recorded meetings, and one
+    // true line of context.
+    const introReady = introActive && !!matchData.current && !!simState && originalHomePlayers.length > 0
+    const introData = useMemo(() => {
+        if (!introReady || !matchData.current) return null
+        const { homeTeam, awayTeam, match, canonicalMaps } = matchData.current
+        const st = useGameStore.getState()
+        const competition = competitionOf(match, st.tournaments)
+        const h2h = headToHeadOf(st.completedMatches, homeTeam.id, awayTeam.id)
+        const context = introContextLine({ home: homeTeam, away: awayTeam, playerTeamId: st.playerTeamId, stage: match.stage, competitionName: competition.name, h2h })
+        return { competition, h2h, context, maps: canonicalMaps as string[] }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- built once when the match is ready
+    }, [introReady])
+    const endBeat = useCallback(() => setEndBeatDone(true), [])
+    const pauseForLeave = useCallback(() => setIsPlaying(false), [setIsPlaying])
+
+    if (!matchData.current || !simState) {
+        if (matchMissing) {
+            return (
+                <div role="alert" className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
+                    <p className="font-display text-3xl font-bold uppercase text-ink-1">Match not found</p>
+                    <p className="mb-6 mt-2 max-w-sm text-sm text-ink-3">This match is no longer on your schedule. It may already have been played or resolved when the week advanced.</p>
+                    <Button onClick={() => router.push("/schedule")}>Back to schedule</Button>
+                </div>
+            )
+        }
+        return <LoadingState message="Warming up servers…" size="lg" fullScreen />
+    }
 
     const { homeTeam, awayTeam } = matchData.current
     const mapName = MAP_NAMES[currentMapId] || currentMapId || "Unknown Map"
 
-    // Dynamic Colors based on Side
+    // Side colours follow the round being shown.
     const homeIsCT = roundHomeIsCT
-    // Strategy panel and loadout editor always describe the managed team.
+    // Loadout editor always describes the managed team.
     const ownRoster = isPlayerHome ? homeRoster : awayRoster
     const ownOriginal = isPlayerHome ? originalHomeMap : originalAwayMap
     const ownBudget = Math.floor(Object.values(ownEconomy).reduce((s, p) => s + (p?.cash || 0), 0))
-    const homeBorderClass = homeIsCT ? "border-l-blue-500/30" : "border-l-orange-500/30"
-    const awayBorderClass = !homeIsCT ? "border-r-blue-500/30" : "border-r-orange-500/30"
+
+    // Live state of the round on screen: HP, deaths (with the killer) and
+    // grenades from the round timeline at the playback clock.
+    const inFlight = roundLive
+    const timeline = inFlight && roundView && roundView.key === `${gameState.currentMapIndex}:${gameState.round}` ? roundView.timeline : null
+    const rows = (roster: LivePlayerState[], originals: Map<string, { portraitPath?: string }>, isCT: boolean, economy: Record<string, { utility?: string[] }> | undefined): RosterCardRowProps[] =>
+        roster.slice(0, 5).map(p => {
+            const s = timeline ? samplePlayer(timeline, p.id, gameState.time) : null
+            const dead = p.isDead || !!s?.dead
+            // Between rounds: what survivors carry into the next round.
+            const nades = s ? s.nades : roundOver ? (economy?.[p.id]?.utility ?? []) : []
+            return {
+                id: p.id,
+                name: p.name,
+                portraitPath: originals.get(p.id)?.portraitPath,
+                money: p.money,
+                weapon: p.weapon || (isCT ? "usp" : "glock"),
+                hp: dead ? 0 : s ? s.hp : 100,
+                dead,
+                killerName: dead && s?.killerId ? names[s.killerId] : undefined,
+                killerWeapon: dead ? s?.killerWeapon : undefined,
+                hasArmor: !dead && p.hasArmor,
+                hasHelmet: !dead && p.hasHelmet,
+                hasKit: !dead && isCT && p.hasKit,
+                nades: dead ? "" : nades.join(","),
+                kills: p.kills || 0,
+                assists: p.assists || 0,
+                deaths: p.deaths || 0,
+                adr: adrOf(damageTally, p.id),
+                hpEstimated: !!timeline?.estimatedHp,
+            }
+        })
+    const homeRows = rows(homeRoster, originalHomeMap, homeIsCT, simState.homeEconomy)
+    const awayRows = rows(awayRoster, originalAwayMap, !homeIsCT, simState.awayEconomy)
+    const teamCash = (list: RosterCardRowProps[]) => list.reduce((s, p) => s + (p.money || 0), 0)
+    const aliveCount = (list: RosterCardRowProps[]) => list.filter(p => !p.dead).length
+
+    // Multi-kill callout (3rd / 4th / 5th kill of a player this round).
+    const multi = timeline ? [...timeline.multiKills].reverse().find(k => k.t <= gameState.time) : undefined
+    const homeIds = new Set(homeRoster.map(p => p.id))
+    const callout: MomentCalloutData | null = multi && roundView
+        ? { id: `${roundView.key}:${multi.playerId}:${multi.count}`, playerName: names[multi.playerId] ?? "Player", count: multi.count, side: homeIds.has(multi.playerId) === homeIsCT ? "CT" : "T" }
+        : null
+
+    const fastForward = pacingMode === "moments" && !!roundView && inFlight && !inMoment(roundView.pacing, gameState.time + FAST_FORWARD_LEAD)
+    // Dock play button: mid-round it is playback; between rounds the auto call.
+    const dockPlaying = isWaitingForStrategy ? (isAutoTactics && !decisionHold) : isPlaying
+
+    const breakCard = !roundBeat && intermission && (intermission.kind === "halftime" || intermission.kind === "map-end") ? intermission : null
+    const breakStats: HalfStat[] = breakCard ? (() => {
+        const count = (side: "home" | "away", types: string[]) => roundHistory.filter(r => r.winner === side && types.includes(r.winType ?? "")).length
+        const pistol = roundHistory.find(r => r.round === (breakCard.kind === "halftime" ? 1 : 13))
+        return [
+            ...(pistol ? [{ label: "Pistol round", home: pistol.winner === "home" ? 1 : 0, away: pistol.winner === "away" ? 1 : 0 }] : []),
+            { label: "Eliminations", home: count("home", ["ELIMINATION"]), away: count("away", ["ELIMINATION"]) },
+            { label: "Bomb / defuse", home: count("home", ["BOMB_EXPLODED", "BOMB_DEFUSE"]), away: count("away", ["BOMB_EXPLODED", "BOMB_DEFUSE"]) },
+            { label: "On time", home: count("home", ["TIME"]), away: count("away", ["TIME"]) },
+        ]
+    })() : []
+    const ownKey = isPlayerHome ? "home" : "away"
+    const roundsPanel = <RoundsPanel rounds={roundHistory} mapName={mapName} ownKey={ownKey} homeName={homeTeam.name} awayName={awayTeam.name} />
+    const feedPanel = <LiveFeedPanel logs={logs} />
 
     return (
         <ErrorBoundary section="Live Match">
-        <div className="live-command text-white flex flex-col font-sans select-none relative"
+        <div className="relative flex h-full min-h-0 select-none flex-col gap-2.5 bg-ink font-sans text-ink-1"
             role="main"
             aria-label={`Live match: ${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}`}
         >
-            <div
-                aria-hidden="true"
-                className="fixed inset-0 -z-10 pointer-events-none"
-                style={backgroundStyle}
+            {/* Pre-match derby framing — only renders for HEATED/FIERCE rivalries. */}
+            <DerbyBanner homeTeam={homeTeam} awayTeam={awayTeam} />
+
+            {/* TeamSaveData (engine save shape) → Team (engine runtime
+                shape). Structural overlap is total for the fields the
+                scoreboard reads — cast documented in ARCHITECTURE.md
+                "Known Type-System Debt". */}
+            <LiveMatchScoreboard
+                gameState={gameState}
+                homeTeam={homeTeam as unknown as Team}
+                awayTeam={awayTeam as unknown as Team}
+                matchFormat={matchData.current.match.format}
+                currentMapId={currentMapId}
+                mapName={mapName}
+                homeSeriesScore={gameState.homeSeriesScore}
+                awaySeriesScore={gameState.awaySeriesScore}
+                homeScore={gameState.homeScore}
+                awayScore={gameState.awayScore}
+                roundTime={roundTime}
+                isBombPlanted={isBombPlanted}
+                bombTime={bombTime}
+                homeIsCT={homeIsCT}
+                roundHistory={roundHistory}
+                homeLossLevel={shownLossLevels.home}
+                awayLossLevel={shownLossLevels.away}
+                clock={scorebugClock}
             />
-            <HalfTimeOverlay active={showHalfTime} />
-            <div className="live-command-inner mx-auto w-full flex flex-col flex-1 h-full min-h-0">
 
-                {/* Pre-match derby framing — only renders for HEATED/FIERCE rivalries. */}
-                <DerbyBanner homeTeam={homeTeam} awayTeam={awayTeam} />
+            <LiveMatchControlBar
+                gameState={gameState}
+                isAutoTactics={isAutoTactics}
+                setIsAutoTactics={setIsAutoTactics}
+                isPlaying={dockPlaying}
+                onTogglePlayback={togglePlayback}
+                isWaitingForStrategy={isWaitingForStrategy}
+                betweenRounds={roundOver}
+                speed={speed}
+                setSpeed={setSpeed}
+                pacingMode={pacingMode}
+                setPacingMode={setPacingMode}
+                fastForward={fastForward}
+                onSimulateRound={simulateRoundInstant}
+                onSimulateMatch={simulateMatchInstant}
+                onLeave={gameState.status !== "FINISHED" ? leaveToHub : undefined}
+                onBeforeLeave={pauseForLeave}
+            />
 
-                {/* TeamSaveData (engine save shape) → Team (engine runtime
-                    shape). Structural overlap is total for the fields the
-                    scoreboard reads — cast documented in ARCHITECTURE.md
-                    "Known Type-System Debt". */}
-                <LiveMatchScoreboard
-                    gameState={gameState}
-                    homeTeam={homeTeam as unknown as Team}
-                    awayTeam={awayTeam as unknown as Team}
-                    matchFormat={matchData.current.match.format}
-                    currentMapId={currentMapId}
-                    mapName={mapName}
-                    homeSeriesScore={gameState.homeSeriesScore}
-                    awaySeriesScore={gameState.awaySeriesScore}
-                    homeScore={gameState.homeScore}
-                    awayScore={gameState.awayScore}
-                    roundTime={roundTime}
-                    isBombPlanted={isBombPlanted}
-                    bombTime={bombTime}
-                />
+            {/* Rosters left/right, radar is the hero. */}
+            <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(420px,min(900px,calc(100dvh-196px)))_minmax(0,1fr)]">
+                <div className="flex min-h-0 min-w-0 flex-col gap-3">
+                    <LiveRosterCard teamName={homeTeam.name} isCT={homeIsCT} alive={aliveCount(homeRows)} teamCash={teamCash(homeRows)} players={homeRows} />
+                    {isPlayerHome ? roundsPanel : feedPanel}
+                </div>
 
-                {/* GAME AREA */}
-                <div className="live-match-grid flex-1 min-h-0">
-                    {/* HOME TEAM ROSTER */}
-                    <div className={cn("match-roster glass-panel-dark rounded-xl border-l-4 p-4 overflow-y-auto space-y-2", homeBorderClass)}>
-                        {homeRoster.slice(0, 5).map(p => (
-                            <RosterRow
-                                key={p.id}
-                                id={p.id}
-                                name={p.name}
-                                money={p.money}
-                                weapon={p.weapon}
-                                isDead={p.isDead}
-                                kills={p.kills || 0}
-                                deaths={p.deaths || 0}
-                                assists={p.assists || 0}
-                                portraitPath={originalHomeMap.get(p.id)?.portraitPath}
-                                defaultWeaponLabel="USP"
+                <div className="live-radar-stage relative min-h-[360px] min-w-0">
+                    <MapRadarPanel
+                        currentMapId={currentMapId}
+                        mapName={mapName}
+                        script={radarScript}
+                        roundMap={roundMap}
+                        players={radarPlayers}
+                        review={radarReview}
+                        clock={liveClock}
+                        isAnimating={isPlaying}
+                        currentTime={gameState.time}
+                        roundOver={roundOver}
+                        overlay={decisionOverlay}
+                        fillHeight
+                    />
+                    <MomentCallout callout={callout} />
+                    <AnimatePresence>
+                        {roundBeat && <RoundEndBanner key={roundBeat.id} beat={roundBeat} homeName={homeTeam.name} awayName={awayTeam.name} names={names} />}
+                    </AnimatePresence>
+                    <AnimatePresence>
+                        {breakCard && (
+                            <IntermissionCard
+                                key={`${breakCard.kind}-${breakCard.mapIndex}`}
+                                intermission={breakCard}
+                                homeName={homeTeam.name}
+                                awayName={awayTeam.name}
+                                homeIsCT={homeIsCT}
+                                mapName={MAP_NAMES[matchData.current.canonicalMaps[breakCard.mapIndex]] ?? mapName}
+                                nextMapName={breakCard.nextMapId ? MAP_NAMES[breakCard.nextMapId as MapId] ?? breakCard.nextMapId : undefined}
+                                stats={breakStats}
+                                onContinue={() => startNextRound("PISTOL")}
                             />
-                        ))}
-                    </div>
+                        )}
+                    </AnimatePresence>
+                </div>
 
-                    {/* CONSOLE / CENTER */}
-                    <div className="match-command-center min-w-0 flex flex-col gap-3">
-
-                        <LiveMatchControlBar
-                            gameState={gameState}
-                            isAutoTactics={isAutoTactics}
-                            setIsAutoTactics={setIsAutoTactics}
-                            isPlaying={isPlaying}
-                            setIsPlaying={setIsPlaying}
-                            isWaitingForStrategy={isWaitingForStrategy}
-                            speed={speed}
-                            setSpeed={setSpeed}
-                            onSimulateRound={simulateRoundInstant}
-                            onSimulateMatch={simulateMatchInstant}
-                        />
-
-                        {/* Tactical Timeout (B5) — the live-only lever that gives
-                            playing the match a real edge over quick-sim. */}
-                        <div className="match-timeout flex flex-wrap items-center justify-center gap-3 -mt-1">
-                            <button
-                                onClick={callTimeout}
-                                disabled={timeoutsRemaining <= 0 || timeoutActive || !isWaitingForStrategy || gameState.status !== "IN_PROGRESS"}
-                                title="Between rounds only: regroup — reduces your losing-streak pressure for 2 rounds. Two per series; no benefit without a losing streak."
-                                className="px-4 py-2 rounded-lg border border-amber-400/30 bg-amber-500/10 text-amber-300 text-[11px] font-bold uppercase tracking-wider hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                            >
-                                Tactical Timeout ({timeoutsRemaining})
-                            </button>
-                            {timeoutActive && (
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5 animate-pulse">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> Regrouping — pressure relief active
-                                </span>
-                            )}
-                            <p className="text-xs text-slate-400 max-w-[240px]">Between rounds. Relieves losing-streak pressure for two rounds.</p>
-                        </div>
-
-                        <CareerPhysicalReplay matchId={params.id} onOpen={()=>setIsPlaying(false)} />
-                        <MapRadarPanel
-                            currentMapId={currentMapId}
-                            mapName={mapName}
-                            radarDots={radarData?.dots}
-                            nextRadarDots={nextRadarData?.dots}
-                            tickDurationMs={1000 / Math.max(0.1, speed)}
-                            isAnimating={isPlaying}
-                            bombState={radarData?.bomb}
-                            killLines={radarData?.killLines}
-                            smokes={radarData?.smokes}
-                            sitePositions={sitePositions}
-                            currentTime={gameState.time}
-                        />
-
-                {/* STRATEGY PANEL */}
-                <AnimatePresence>
-                    {isWaitingForStrategy && !isAutoTactics && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 6 }}
-                            className="tactical-decisions glass-panel-dark rounded-xl p-4"
-                        >
-                            <div className="flex items-center justify-between mb-4">
-                                <div>
-                                    <h3 className="text-xl font-normal uppercase">Round {gameState.round} • Select Strategy</h3>
-                                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
-                                        Team Budget: {formatCurrency(ownBudget, "$", false)}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-5 gap-2">
-                                {(() => {
-                                    const avgCash = Math.floor(ownBudget / 5)
-                                    const side = ownIsCT ? "ct" : "t"
-
-                                    return STRATEGY_OPTIONS.map((strat) => {
-                                        const cost = strat.cost
-                                        const canAfford = avgCash >= cost
-
-                                        return (
-                                            <div key={strat.id} className="relative group">
-                                                <Button
-                                                    variant="secondary"
-                                                    onClick={() => canAfford && startNextRound(strat.id as any)}
-                                                    disabled={!canAfford}
-                                                    className={cn(
-                                                        "w-full h-20 rounded-2xl flex flex-col gap-1 border transition-all",
-                                                        canAfford
-                                                            ? strat.baseColor + " hover:ring-2 hover:ring-emerald-500 hover:bg-emerald-500/10 hover:border-emerald-500/50"
-                                                            : "bg-white/5 text-white/20 border-white/5 cursor-not-allowed opacity-40"
-                                                    )}
-                                                >
-                                                    <span className="font-normal text-[11px] leading-tight text-center">{strat.fallback}</span>
-                                                    <div className={cn("text-[10px] font-bold", canAfford ? "text-emerald-400" : "text-red-400")}>
-                                                        {formatCurrency(cost, "$", false)}
-                                                    </div>
-                                                </Button>
-                                                <button
-                                                    aria-label={`Edit ${strat.fallback} loadout`}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setEditingStrategy(strat.id as any);
-                                                        setEditingSide(side as "ct" | "t");
-                                                        setIsEditingLoadout(true);
-                                                    }}
-                                                    className="absolute top-2 right-2 p-1 rounded-lg bg-white/5 hover:bg-white/20 text-white/30 hover:text-white transition-colors"
-                                                >
-                                                    <Settings2 className="w-3 h-3" />
-                                                </button>
-                                            </div>
-                                        )
-                                    })
-                                })()}
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                        {/* LOGS */}
-                        <div className="live-feed-panel glass-panel-dark flex-1 rounded-xl overflow-hidden flex flex-col border border-white/5">
-                            <div className="flex items-center gap-2 mb-4 text-xs font-normal opacity-40 uppercase tracking-widest">
-                                <Swords className="w-4 h-4" /> SERVER LOGS
-                            </div>
-                            <div className="flex-1 pr-2 overflow-y-auto custom-scrollbar h-full min-h-0 relative">
-                                <LiveLogList logs={logs} />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* AWAY TEAM ROSTER */}
-                    <div className={cn("match-roster glass-panel-dark rounded-xl border-r-4 p-4 overflow-y-auto space-y-2", awayBorderClass)}>
-                        {awayRoster.slice(0, 5).map(p => (
-                            <RosterRow
-                                key={p.id}
-                                id={p.id}
-                                name={p.name}
-                                money={p.money}
-                                weapon={p.weapon}
-                                isDead={p.isDead}
-                                kills={p.kills || 0}
-                                deaths={p.deaths || 0}
-                                assists={p.assists || 0}
-                                portraitPath={originalAwayMap.get(p.id)?.portraitPath}
-                                defaultWeaponLabel="GLOCK"
-                            />
-                        ))}
-                    </div>
+                <div className="flex min-h-0 min-w-0 flex-col gap-3">
+                    <LiveRosterCard teamName={awayTeam.name} isCT={!homeIsCT} alive={aliveCount(awayRows)} teamCash={teamCash(awayRows)} players={awayRows} />
+                    {isPlayerHome ? feedPanel : roundsPanel}
                 </div>
             </div>
 
@@ -621,7 +454,8 @@ export default function LiveMatchPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 top-16 z-modal flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
+                        transition={{ duration: 0.15 }}
+                        className="fixed inset-0 z-modal flex items-center justify-center bg-ink/85 p-4"
                     >
                         <TacticalLoadoutEditor
                             side={editingSide}
@@ -642,29 +476,44 @@ export default function LiveMatchPage() {
                 )}
             </AnimatePresence>
 
-            {gameState.status === "FINISHED" && (
-                <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md z-50 px-4">
-                    <Button
-                        onClick={handleFinish}
-                        className="w-full h-16 bg-linear-to-r/srgb from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-normal uppercase tracking-[0.2em] rounded-3xl shadow-lg hover:shadow-emerald-500/20 transition-all transform hover:scale-[1.02]"
-                    >
-                        CONTINUE TO RESULTS
+            <AnimatePresence>
+                {introReady && introData && (
+                    <MatchIntro
+                        key="intro"
+                        matchId={params.id}
+                        homeTeam={homeTeam}
+                        awayTeam={awayTeam}
+                        format={matchData.current.match.format}
+                        competition={introData.competition}
+                        maps={introData.maps}
+                        homePlayers={originalHomePlayers}
+                        awayPlayers={originalAwayPlayers}
+                        h2h={introData.h2h}
+                        context={introData.context}
+                        onDone={endIntro}
+                    />
+                )}
+                {gameState.status === "FINISHED" && finishedResult && !endBeatDone && (
+                    <MatchEndBeat
+                        key="end-beat"
+                        result={finishedResult}
+                        format={matchData.current.match.format}
+                        homeTeam={homeTeam}
+                        awayTeam={awayTeam}
+                        playerTeamId={isPlayerHome ? homeTeam.id : awayTeam.id}
+                        players={[...originalHomePlayers, ...originalAwayPlayers]}
+                        onDone={endBeat}
+                    />
+                )}
+            </AnimatePresence>
+
+            {gameState.status === "FINISHED" && (endBeatDone || !finishedResult) && (
+                <div className="fixed bottom-8 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 px-4">
+                    <Button onClick={handleFinish} className="h-12 w-full text-base">
+                        Continue to results <ChevronRight size={18} aria-hidden="true" />
                     </Button>
                 </div>
             )}
-
-            <style jsx global>{`
-            .custom-scrollbar::-webkit-scrollbar {
-                width: 4px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-track {
-                background: rgba(255, 255, 255, 0.05);
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 2px;
-            }
-        `}</style>
         </div>
         </ErrorBoundary>
     )

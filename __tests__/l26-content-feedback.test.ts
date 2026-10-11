@@ -64,7 +64,8 @@ test('routine information and XP are silent; warnings use a gentler cue', () => 
     expect(toastSoundFor('xp_gain')).toBeNull()
     expect(toastSoundFor('warning')).toBe('notification')
     expect(toastSoundFor('error')).toBe('error')
-    expect(toastSoundFor('achievement')).toBe('success')
+    expect(toastSoundFor('level_up')).toBe('success')
+    expect(toastSoundFor('achievement')).toBe('achievement')
 })
 test('old inbox entries without data retain a readable title', () => {
     expect(getEventTitle({type: 'INJURY'} as GameEventSaveData)).toBe('Medical Report')

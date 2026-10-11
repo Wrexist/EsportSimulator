@@ -9,7 +9,7 @@ import { PlayerTier, StaffType } from "@/types/enums"
 import { TeamSaveData, PlayerSaveData, MatchSaveData, StaffSaveData } from "@/engine/save-types"
 import { SeededRNG } from "@/engine/rng"
 import { SimulationEngineV2 } from "./match-simulation"
-import { applyPreMatchTalents } from "./match/apply-talents"
+import { buildMatchStaff } from "./match/live-staff-adapter"
 import { logger } from "@/lib/logger"
 
 // ===== ADAPTERS: Save types → Frontend types for SimulationEngineV2 delegation =====
@@ -59,8 +59,9 @@ function adaptPlayerSaveToPlayer(p: PlayerSaveData): Player {
         creativity: p.creativity ?? 50,
         clutch: p.clutch ?? 50,
         tactic: p.tactic ?? 50,
-        entry: 50,
-        trading: 50,
+        // Not every save carries entry / trading: same neutral default as the managed path.
+        entry: (p as { entry?: number }).entry ?? 50,
+        trading: (p as { trading?: number }).trading ?? 50,
         // Mental stats
         leader: p.leader ?? 50,
         teamwork: p.teamwork ?? 50,
@@ -132,6 +133,8 @@ export class MatchEngine {
      * @param homePlayers - Array of home team players
      * @param awayPlayers - Array of away team players
      * @param rng - Seeded RNG for deterministic results
+     * @param homeTacticalBonus - Coach-equivalent bonus (Coach.tacticBonus units) used only when the home staff list has no coach
+     * @param awayTacticalBonus - Same for the away team
      */
     public simulateMatch(
         match: MatchSaveData,
@@ -143,7 +146,9 @@ export class MatchEngine {
         homeTacticalBonus: number = 0,
         awayTacticalBonus: number = 0,
         homeTeamStaff?: StaffSaveData[],
-        awayTeamStaff?: StaffSaveData[]
+        awayTeamStaff?: StaffSaveData[],
+        /** The human player's team: it alone plays with only the gear it bought (AI clubs get implicit gear). */
+        playerTeamId?: string,
     ): MatchResult {
       try {
         // Delegate to SimulationEngineV2 for rich simulation (weapon tracking, economy, momentum)
@@ -176,25 +181,26 @@ export class MatchEngine {
             mentalPrep: match.mentalPrep ?? false,
         } as Match
 
-        // Pre-match staff-talent application (morale_floor + timeout_morale
-        // + anti_strat). Centralized in engine/match/apply-talents.ts so
-        // the slice + live-match paths stay in lockstep (H4).
-        const { homeAntiStrat, awayAntiStrat } = applyPreMatchTalents(
+        // Same match-day staff as the managed path (prepareLegacySeries):
+        // talents applied to the rosters, real coach/analyst/psychologist
+        // levels, anti_strat cutting the opponent coach. Staff used to be
+        // dropped here and replaced by a synthetic coach worth tacticBonus x10.
+        const { homeStaff, awayStaff, homeAntiStrat, awayAntiStrat } = buildMatchStaff(
             adaptedHomePlayers, adaptedAwayPlayers,
-            homeTeamStaff, awayTeamStaff,
+            homeTeamStaff ?? [], awayTeamStaff ?? [],
         )
-        awayTacticalBonus *= (1 - homeAntiStrat)
-        homeTacticalBonus *= (1 - awayAntiStrat)
 
-        // Convert tactical bonuses to staff objects
+        // A caller-supplied tactical bonus is in Coach.tacticBonus units
+        // (2 x coach level, i.e. percent team strength). It only stands in
+        // for a coach the staff list doesn't provide, so a real coach is
+        // never counted twice.
         const makeCoach = (bonus: number): Coach => ({
             id: 'ai_coach', name: 'Coach', type: StaffType.COACH,
-            level: Math.ceil(bonus * 5), salary: 0, contractWeeksRemaining: 52,
-            tacticBonus: Math.ceil(bonus * 10), moraleStability: 0.2,
+            level: Math.max(1, Math.min(5, Math.round(bonus / 2))), salary: 0, contractWeeksRemaining: 52,
+            tacticBonus: Math.round(bonus), moraleStability: 0.2,
         })
-
-        const homeStaff = homeTacticalBonus > 0 ? { coach: makeCoach(homeTacticalBonus) } : undefined
-        const awayStaff = awayTacticalBonus > 0 ? { coach: makeCoach(awayTacticalBonus) } : undefined
+        if (!homeStaff.coach && homeTacticalBonus > 0) homeStaff.coach = makeCoach(homeTacticalBonus * (1 - awayAntiStrat))
+        if (!awayStaff.coach && awayTacticalBonus > 0) awayStaff.coach = makeCoach(awayTacticalBonus * (1 - homeAntiStrat))
 
         return simEngineV2.simulateMatch(
             matchObj,
@@ -203,7 +209,10 @@ export class MatchEngine {
             adaptedHomePlayers,
             adaptedAwayPlayers,
             homeStaff,
-            awayStaff
+            awayStaff,
+            undefined,
+            undefined,
+            playerTeamId,
         )
       } catch (error) {
         logger.error('[MatchEngine] simulateMatch failed', error, { matchId: match.id, homeTeam: homeTeam.id, awayTeam: awayTeam.id })

@@ -1,0 +1,338 @@
+{
+  "generated": "2026-10-11T11:52:59.798Z",
+  "label": "p51-before",
+  "out": "before",
+  "driver": "long-career-campaign.ts worker (real useGameStore coordinator, full snapshot world, competent policy), one season (52 ticks, ends in week 53 after the season closed), final save kept with --dump-final.",
+  "seeds": 3,
+  "aggregate": {
+    "regulars": 3004,
+    "regularsWithZeroAvgRating": 3004,
+    "avgRatingMeanPerSeed": [
+      0,
+      0,
+      0
+    ],
+    "avgRatingMeanAcrossSeeds": 0,
+    "managedMvpIsFirstRosterPlayer": [
+      false,
+      false,
+      false
+    ],
+    "managedMvpIsBestClubSeasonRating": [
+      null,
+      null,
+      null
+    ],
+    "worldSeasonMvp": [
+      null,
+      null,
+      null
+    ],
+    "worldSeasonMvpIsManagedFirstRosterPlayer": [
+      null,
+      null,
+      null
+    ],
+    "awardsWithMajorWinsWithoutAMajorClub": 0,
+    "saveLoadRoundTripIdentical": [
+      null,
+      null,
+      null
+    ],
+    "hallOfFameInducted": [
+      0,
+      0,
+      0
+    ],
+    "saveBytes": [
+      11317660,
+      11232437,
+      11983654
+    ]
+  },
+  "performance": null,
+  "perSeed": [
+    {
+      "tag": "seed-1-top",
+      "seed": 1,
+      "tier": "top",
+      "club": "Natus Vincera",
+      "finalWeek": 53,
+      "phase51": false,
+      "determinism": {
+        "saveLoadRoundTripIdentical": null,
+        "failures": []
+      },
+      "regulars": {
+        "definition": "20+ matches gained since the snapshot (no official-map counts before Phase 5.1)",
+        "count": 999,
+        "avgRatingZero": 999,
+        "avgRatingMean": 0,
+        "avgRating": {
+          "n": 999,
+          "finite": 999,
+          "min": 0,
+          "p10": 0,
+          "median": 0,
+          "p90": 0,
+          "max": 0
+        },
+        "seasonRatingMean": null,
+        "roundsPlayedZero": 999,
+        "mapsPlayed": null
+      },
+      "managedClubSeasonMvp": {
+        "club": "Natus Vincera",
+        "seasonRecord": {
+          "matches": 2,
+          "wins": 1,
+          "losses": 1
+        },
+        "mvp": null,
+        "firstRosterPlayer": "b1tt",
+        "isFirstRosterPlayer": false,
+        "clubPlayersBySeasonRating": null
+      },
+      "worldAwards": null,
+      "awardsEvent": {
+        "year": 2,
+        "fields": [
+          "adr",
+          "age",
+          "bigEventWins",
+          "evpCount",
+          "impactRating",
+          "isPlayerTeam",
+          "kast",
+          "kpr",
+          "majorMvps",
+          "majorWins",
+          "mapsPlayed",
+          "mvpCount",
+          "nationality",
+          "nickname",
+          "overallRating",
+          "playerId",
+          "playerName",
+          "portraitPath",
+          "proRating",
+          "rank",
+          "revealDay",
+          "role",
+          "teamId",
+          "teamLogo",
+          "teamName"
+        ],
+        "top20MajorWinsTotal": 0,
+        "top20MajorWinsWithoutAMajorClub": 0,
+        "top20Evps": 40,
+        "first": {
+          "nickname": "dunk",
+          "rating": 1.47,
+          "maps": 128
+        }
+      },
+      "records": null,
+      "hallOfFame": {
+        "inducted": 0,
+        "withCareer": 0
+      },
+      "manager": {
+        "reputation": 2,
+        "reputationLog": null,
+        "stints": []
+      },
+      "saveBytes": 11317660,
+      "recordBookBytes": 0,
+      "nameCheck": true
+    },
+    {
+      "tag": "seed-2-mid",
+      "seed": 2,
+      "tier": "mid",
+      "club": "Floxo",
+      "finalWeek": 53,
+      "phase51": false,
+      "determinism": {
+        "saveLoadRoundTripIdentical": null,
+        "failures": []
+      },
+      "regulars": {
+        "definition": "20+ matches gained since the snapshot (no official-map counts before Phase 5.1)",
+        "count": 999,
+        "avgRatingZero": 999,
+        "avgRatingMean": 0,
+        "avgRating": {
+          "n": 999,
+          "finite": 999,
+          "min": 0,
+          "p10": 0,
+          "median": 0,
+          "p90": 0,
+          "max": 0
+        },
+        "seasonRatingMean": null,
+        "roundsPlayedZero": 999,
+        "mapsPlayed": null
+      },
+      "managedClubSeasonMvp": {
+        "club": "Floxo",
+        "seasonRecord": {
+          "matches": 2,
+          "wins": 0,
+          "losses": 2
+        },
+        "mvp": null,
+        "firstRosterPlayer": "erT",
+        "isFirstRosterPlayer": false,
+        "clubPlayersBySeasonRating": null
+      },
+      "worldAwards": null,
+      "awardsEvent": {
+        "year": 2,
+        "fields": [
+          "adr",
+          "age",
+          "bigEventWins",
+          "evpCount",
+          "impactRating",
+          "isPlayerTeam",
+          "kast",
+          "kpr",
+          "majorMvps",
+          "majorWins",
+          "mapsPlayed",
+          "mvpCount",
+          "nationality",
+          "nickname",
+          "overallRating",
+          "playerId",
+          "playerName",
+          "portraitPath",
+          "proRating",
+          "rank",
+          "revealDay",
+          "role",
+          "teamId",
+          "teamLogo",
+          "teamName"
+        ],
+        "top20MajorWinsTotal": 0,
+        "top20MajorWinsWithoutAMajorClub": 0,
+        "top20Evps": 40,
+        "first": {
+          "nickname": "m0nesi",
+          "rating": 1.47,
+          "maps": 128
+        }
+      },
+      "records": null,
+      "hallOfFame": {
+        "inducted": 0,
+        "withCareer": 0
+      },
+      "manager": {
+        "reputation": 2,
+        "reputationLog": null,
+        "stints": []
+      },
+      "saveBytes": 11232437,
+      "recordBookBytes": 0,
+      "nameCheck": true
+    },
+    {
+      "tag": "seed-3-low",
+      "seed": 3,
+      "tier": "low",
+      "club": "LEG",
+      "finalWeek": 53,
+      "phase51": false,
+      "determinism": {
+        "saveLoadRoundTripIdentical": null,
+        "failures": []
+      },
+      "regulars": {
+        "definition": "20+ matches gained since the snapshot (no official-map counts before Phase 5.1)",
+        "count": 1006,
+        "avgRatingZero": 1006,
+        "avgRatingMean": 0,
+        "avgRating": {
+          "n": 1006,
+          "finite": 1006,
+          "min": 0,
+          "p10": 0,
+          "median": 0,
+          "p90": 0,
+          "max": 0
+        },
+        "seasonRatingMean": null,
+        "roundsPlayedZero": 1006,
+        "mapsPlayed": null
+      },
+      "managedClubSeasonMvp": {
+        "club": "LEG",
+        "seasonRecord": {
+          "matches": 2,
+          "wins": 1,
+          "losses": 1
+        },
+        "mvp": null,
+        "firstRosterPlayer": "cunsti",
+        "isFirstRosterPlayer": false,
+        "clubPlayersBySeasonRating": null
+      },
+      "worldAwards": null,
+      "awardsEvent": {
+        "year": 2,
+        "fields": [
+          "adr",
+          "age",
+          "bigEventWins",
+          "evpCount",
+          "impactRating",
+          "isPlayerTeam",
+          "kast",
+          "kpr",
+          "majorMvps",
+          "majorWins",
+          "mapsPlayed",
+          "mvpCount",
+          "nationality",
+          "nickname",
+          "overallRating",
+          "playerId",
+          "playerName",
+          "portraitPath",
+          "proRating",
+          "rank",
+          "revealDay",
+          "role",
+          "teamId",
+          "teamLogo",
+          "teamName"
+        ],
+        "top20MajorWinsTotal": 0,
+        "top20MajorWinsWithoutAMajorClub": 0,
+        "top20Evps": 40,
+        "first": {
+          "nickname": "m0nesi",
+          "rating": 1.47,
+          "maps": 128
+        }
+      },
+      "records": null,
+      "hallOfFame": {
+        "inducted": 0,
+        "withCareer": 0
+      },
+      "manager": {
+        "reputation": 6,
+        "reputationLog": null,
+        "stints": []
+      },
+      "saveBytes": 11983654,
+      "recordBookBytes": 0,
+      "nameCheck": true
+    }
+  ]
+}

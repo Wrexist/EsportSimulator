@@ -204,7 +204,7 @@ async function main() {
         version: 1, label, scenario, recordedAt: new Date().toISOString(),
         host: { cpu: os.cpus()[0].model, logicalCpus: os.cpus().length, ramBytes: os.totalmem(), os: `${os.type()} ${os.release()}`, node: process.version },
         method: { driver: 'useGameStore.advanceWeek (real coordinator); own fixtures played with simulateInstantMatch first', worker: 'Node has no Web Worker: bridge synchronous fallback; coord.04_compute = worker-thread work in the app', storage: 'in-memory adapter for the timed save; disk cost measured separately', warmupWeeks: warmup, measuredWeeks: weeks, forcedGc: typeof (globalThis as { gc?: unknown }).gc === 'function' },
-        setup, sourceHashes: Object.fromEntries(['store/game-store.ts', 'engine/save-manager.ts', 'engine/atomic-week-processor.ts', 'engine/fpl-engine.ts', 'store/utils/array-pruning.ts'].map(f => [f, sha(fs.readFileSync(path.join(root, f))).slice(0, 16)])),
+        setup, sourceHashes: Object.fromEntries(['store/game-store.ts', 'engine/save-manager.ts', 'engine/atomic-week-processor.ts', 'engine/season/regional-league.ts', 'store/utils/array-pruning.ts'].map(f => [f, sha(fs.readFileSync(path.join(root, f))).slice(0, 16)])),
         summary: {
             weekWallMs: stats(measured.map(r => r.wallMs as number)),
             mainThreadMs: stats(measured.map(r => Object.entries(r.phases as Record<string, number>).filter(([k]) => k.startsWith('coord.') && k !== 'coord.04_compute').reduce((a, [, v]) => a + v, 0))),

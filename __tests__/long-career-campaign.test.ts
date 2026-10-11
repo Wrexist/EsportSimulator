@@ -163,7 +163,9 @@ test('a transfer-listed player draws at most three open AI bids however many clu
     const { processAITransferMarket } = await import('@/engine/ai/transfer-market')
     const save = createLaunchFixture('strong-club') as unknown as GameSave
     const template = save.teams[1]
-    for (let i = 0; i < 40; i++) save.teams.push({ ...structuredClone(template), id: `bidder_${i}`, rosterIds: template.rosterIds.slice(0, 5), budget: 50_000_000, reputation: 100 })
+    // Phase 4.6: a bid's wage must fit the bidder's weekly income, so each bidder carries a deal.
+    for (let i = 0; i < 40; i++) save.teams.push({ ...structuredClone(template), id: `bidder_${i}`, rosterIds: template.rosterIds.slice(0, 5), budget: 50_000_000, reputation: 100,
+        sponsors: [{ id: `qa_${i}`, name: 'QA', tier: 'STANDARD', weeklyPayout: 500_000, remainingWeeks: 52 } as never] })
     const listed = save.players.find(p => p.id === save.teams[0].rosterIds[0])!
     listed.forSale = true
     listed.transferListingPrice = 1
@@ -181,7 +183,14 @@ test('an AI club whose academy upkeep outruns its income sheds academy levels in
     const save = createLaunchFixture('first-week') as unknown as GameSave
     const ai = save.teams[1]
     ai.reputation = 10
+    // Phase 4.4: a deal that covers the club's running costs but not a level-4 academy.
+    const { EconomyEngine } = await import('@/engine/economy-engine')
+    const { calculateWeeklyUpkeep } = await import('@/engine/academy-constants')
     ai.sponsors = []
+    ai.academyFacility = undefined
+    const base = EconomyEngine.processWeeklyFinances(ai, save.players, save.contracts, save.staff, save.currentWeek + 1, 0)
+    const gap = base.expenses.total - base.income.total + calculateWeeklyUpkeep(4, 0) / 2
+    ai.sponsors = [{ id: 'qa_s', name: 'QA', tier: 'STANDARD', weeklyPayout: Math.ceil(gap / EconomyEngine.sponsorReputationFactor(10)) } as never]
     ai.academyFacility = { level: 4, builtWeek: 1 }
     for (let week = 0; week < 6 && (ai.academyFacility?.level ?? 0) > 0; week++) manageAcademy(ai, save, new SeededRNG(week + 1))
     expect(ai.academyFacility!.level).toBeLessThan(4)
@@ -189,16 +198,18 @@ test('an AI club whose academy upkeep outruns its income sheds academy levels in
     expect(affordableInvestment(save, ai, 0)).toBe(true)
     const rich = createLaunchFixture('first-week') as unknown as GameSave
     rich.teams[1].reputation = 100
+    rich.teams[1].sponsors = [{ id: 'qa_s', name: 'QA', tier: 'STANDARD', weeklyPayout: 100_000 } as never]
     rich.teams[1].academyFacility = { level: 1, builtWeek: 1 }
     manageAcademy(rich.teams[1], rich, new SeededRNG(5))
     expect(rich.teams[1].academyFacility!.level).toBeGreaterThanOrEqual(1)
 })
 
-test('an indebted AI club with positive cash flow can still fill its fifth seat from free agency, but never by inventing cash', async () => {
+test('an indebted AI club fills its fifth seat from free agency without inventing cash, on credit when it must', async () => {
     const { manageRoster } = await import('@/engine/ai/roster-management')
-    const build = (reputation: number, wage: number) => {
+    const build = (reputation: number, wage: number, sponsor = 0) => {
         const save = createLaunchFixture('first-week') as unknown as GameSave
         const ai = save.teams[1]
+        ai.sponsors = sponsor ? [{ id: 'qa_s', name: 'QA', tier: 'STANDARD', weeklyPayout: sponsor } as never] : []
         const dropped = ai.rosterIds.pop()!
         save.contracts = save.contracts.filter(c => c.playerId !== dropped)
         save.contracts.filter(c => c.teamId === ai.id).forEach(c => { c.salaryPerWeek = wage })
@@ -207,12 +218,20 @@ test('an indebted AI club with positive cash flow can still fill its fifth seat 
         ai.financialState = 'INSOLVENT' as never
         return { save, ai }
     }
-    const healthy = build(100, 1000)
+    const healthy = build(100, 1000, 20_000) // Phase 4.4: a deal keeps the weekly cash flow positive
     manageRoster(healthy.ai, healthy.save)
     expect(healthy.ai.rosterIds).toHaveLength(5)
     expect(healthy.save.contracts.filter(c => c.teamId === healthy.ai.id && c.endWeek > healthy.save.currentWeek)).toHaveLength(5)
     expect(healthy.ai.budget).toBe(-100_000)
+    // Phase 4.6: five is a hard invariant. A club whose wages outrun its
+    // income signs the cheapest free agent on credit instead of forfeiting.
     const bleeding = build(0, 20_000)
+    const { recruitmentSalary } = await import('@/engine/recruitment')
+    const { signableFreeAgents } = await import('@/engine/ai/club-budget')
+    const cheapest = Math.min(...signableFreeAgents(bleeding.save).map(p => recruitmentSalary(p, bleeding.save.currentWeek, bleeding.ai)))
     manageRoster(bleeding.ai, bleeding.save)
-    expect(bleeding.ai.rosterIds).toHaveLength(4)
+    expect(bleeding.ai.rosterIds).toHaveLength(5)
+    expect(bleeding.ai.budget).toBe(-100_000)
+    const signed = bleeding.save.contracts.find(c => c.teamId === bleeding.ai.id && c.playerId === bleeding.ai.rosterIds[4])!
+    expect(signed.salaryPerWeek).toBe(cheapest)
 })

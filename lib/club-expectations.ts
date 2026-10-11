@@ -31,7 +31,7 @@ export function describeClubChallenge(input: { worldRanking?: number; reputation
     else if (missing > 0) notes.push(`Only ${input.starters} of 5 players. You must sign ${missing} before your first match; the starting cash includes an allowance for that, but wages still come out of it every week.`)
     if (input.budget < 300_000) notes.push('Small budget: a single expensive signing can leave little cash for wages. Free agents and regular training keep costs down.')
     if (tier === 'WIN' || tier === 'CONTEND') notes.push('High expectations: a top club is expected to win now, so there is little room for a slow start.')
-    notes.push('The board reviews each season against these targets. Missing them lowers its confidence. You are put on notice before you can be dismissed, so one bad season does not end a career.')
+    notes.push('The board sets three objectives each season (league finish, world ranking, cash at season end) and its confidence moves every week with results and finances. You get a warning and a final warning before you can be dismissed, and a dismissed manager can take a job at another club.')
     notes.push(input.custom
         ? 'Difficulty sets starting cash, reputation and recurring sponsor/merchandise income. It does not change match simulation.'
         : 'Match simulation is the same for every club. The challenge comes from squad strength, cash and the board targets.')

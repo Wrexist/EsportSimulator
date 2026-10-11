@@ -1,12 +1,10 @@
 /**
  * L27 (Oct 2026) behaviour-preservation checks for the week-tick / save
- * optimizations: single serialization of signed saves, FPL history compaction,
+ * optimizations: single serialization of signed saves,
  * bridge input ownership, and role-filtered free-agent quoting.
  */
 import { serializeSignedSave, saveTextFingerprint, fnv1a64Utf16, SaveManager } from '@/engine/save-manager'
 import { SaveIntegrityManager } from '@/engine/save-integrity'
-import { compactPersistentState } from '@/engine/processors/save-compactor'
-import { ARRAY_CAPS } from '@/lib/constants'
 import { WeekProcessorBridge } from '@/engine/worker/week-processor-client'
 import { computeWeek } from '@/engine/worker/compute-week'
 import { SeededRNG } from '@/engine/rng'
@@ -141,27 +139,6 @@ describe('verified-primary fingerprint (L27.A3: no retained save text)', () => {
     })
 })
 
-describe('FPL match history compaction', () => {
-    const withHistory = (n: number) => {
-        const save = createLaunchFixture('first-week', 27102)
-        save.fplData = { matchHistory: Array.from({ length: n }, (_, i) => ({ id: `m${i}`, week: Math.floor(i / 28) + 1 })) } as unknown as GameSave['fplData']
-        return save
-    }
-    test('keeps exactly the newest records once over the cap', () => {
-        const save = withHistory(ARRAY_CAPS.fplMatchHistory + 137)
-        const newest = save.fplData!.matchHistory.slice(-ARRAY_CAPS.fplMatchHistory)
-        compactPersistentState(save)
-        expect(save.fplData!.matchHistory).toEqual(newest)
-        expect(save.fplData!.matchHistory[0]).toBe(newest[0])
-    })
-    test('leaves a history within the cap untouched', () => {
-        const save = withHistory(ARRAY_CAPS.fplMatchHistory)
-        const before = save.fplData!.matchHistory
-        compactPersistentState(save)
-        expect(save.fplData!.matchHistory).toBe(before)
-    })
-})
-
 describe('week bridge input ownership', () => {
     const save = () => ({ saveId: 'owned', currentWeek: 1 } as GameSave)
     const config = () => ({ playerTeamId: 'team', trainingFocus: new Map() })
@@ -182,6 +159,8 @@ describe('role-filtered free-agent quotes', () => {
         const save = createLaunchFixture('first-week', 27103)
         const team = save.teams[0]
         team.budget = 50_000_000
+        // Phase 4.6: AI wages must fit weekly income, not only cash.
+        team.sponsors = [{ id: 'backer', name: 'Backer', tier: 'STANDARD', weeklyPayout: 500_000, remainingWeeks: 52 } as never]
         const roster = team.rosterIds.slice(0, 5)
         team.rosterIds = [...roster]
         for (const id of roster) save.players.find(p => p.id === id)!.role = 'RIFLER' as never
