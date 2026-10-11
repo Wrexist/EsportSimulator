@@ -25,6 +25,9 @@ function makePlayer(id: string, overrides: Partial<PlayerSaveData> = {}): Player
         totalKills: 0, totalDeaths: 0, totalMVPs: 0,
         salary: 1000, contractWeeks: 52,
         skill: 50, potential: 90, productivity: 60, endurance: 70,
+        // Same archetype for every fixture (no training modifier), so each
+        // test compares only the variable it sets (Phase 5.2).
+        personality: { archetype: "QUIET" },
         ...overrides,
     } as unknown as PlayerSaveData
 }

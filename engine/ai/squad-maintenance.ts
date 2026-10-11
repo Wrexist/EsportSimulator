@@ -22,6 +22,7 @@ import { commitFreeAgentSigning } from "./roster-management"
 import { aiCanCommit, aiClubBudget, releaseAIPlayer } from "./club-budget"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
 import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
+import { renewalSalary } from "../personality"
 
 /** Same value ordering the AI uses to pick who to release. */
 function keepValue(p: PlayerSaveData): number {
@@ -53,7 +54,8 @@ export function renewExpiringContracts(team: TeamSaveData, save: GameSave, playe
         if (weeksLeft <= 0 || weeksLeft > AI_SQUAD_TUNING.RENEW_WINDOW_WEEKS) continue
         const p = players.get(contract.playerId)
         if (!p || (p.age ?? 22) >= AI_SQUAD_TUNING.RENEW_MAX_AGE) continue
-        const newSalary = Math.round(contract.salaryPerWeek * AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER)
+        // Phase 5.2: the raise follows his archetype (Loyal half, Mercenary double).
+        const newSalary = renewalSalary(p, contract.salaryPerWeek)
         if (!Number.isSafeInteger(newSalary) || newSalary < 1) continue
         if (!Number.isFinite(team.budget) || team.budget < (newSalary - contract.salaryPerWeek) * AI_SQUAD_TUNING.RENEWAL_RUNWAY_WEEKS) continue
         budget ??= aiClubBudget(save, team)

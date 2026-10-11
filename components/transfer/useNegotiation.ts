@@ -10,6 +10,10 @@
  * the club's floor is uniform in [0.90, 1.10] x market value and the player's
  * in [0.90, 1.20] x base wage, so an offer's chance is where it sits in that
  * band. They change no outcome.
+ *
+ * Phase 5.2: the player's archetype scales the wage he asks and the length
+ * he wants (engine/personality.ts, the same factor recruitmentSalary uses for
+ * every club); `personalityLines` states it on the negotiation screen.
  */
 
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -20,6 +24,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { SeededRNG } from "@/engine/rng"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
 import { quotePlayerSigning } from "@/engine/finance-forecast"
+import { archetypeWageFactor, contractDemandLines, contractLengthFactor, getArchetype } from "@/engine/personality"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { formatCurrency } from "@/lib/utils-extended"
 
@@ -151,6 +156,8 @@ export function useNegotiation(playerId: string | null, active = true) {
 
         const loyalty = playerSave.loyalty ?? 50
         idealWeeks = Math.round(idealWeeks * (0.8 + (loyalty / 100) * 0.4))
+        // Phase 5.2: Loyal wants a longer deal, Mercenary a shorter one.
+        idealWeeks = Math.round(idealWeeks * contractLengthFactor(getArchetype(playerSave)))
 
         if (evaluation.overallRating >= 85) idealWeeks = Math.round(idealWeeks * 0.8)
         else if (evaluation.overallRating >= 78) idealWeeks = Math.round(idealWeeks * 0.9)
@@ -163,12 +170,16 @@ export function useNegotiation(playerId: string | null, active = true) {
         return { minWeeks, maxWeeks, idealWeeks: Math.max(12, Math.min(156, idealWeeks)) }
     }, [playerSave, evaluation, saveId, currentWeek, playerId, currentTeam?.id, myTeam?.id])
 
+    /** Archetype wage factor for this buyer (Phase 5.2; same rule as recruitmentSalary). */
+    const personalityWage = playerSave && evaluation ? archetypeWageFactor(getArchetype(playerSave), evaluation.overallRating, myTeam) : 1
+    const personalityLines = playerSave && evaluation ? contractDemandLines(getArchetype(playerSave), evaluation.overallRating, myTeam) : []
+
     /** Base weekly wage before the hidden variance (same factors as the acceptance rule). */
     const wageCentre = (duration: number) => {
         if (!playerSave || !evaluation) return 0
         let base = evaluation.transferValue / 150
         if (playerSave.age > 28) base *= 1.1
-        base *= freeAgentWageFactor(playerSave, currentWeek) * buyerReputationFactor(myTeam)
+        base *= freeAgentWageFactor(playerSave, currentWeek) * buyerReputationFactor(myTeam) * personalityWage
         const distFromIdeal = Math.abs(duration - durationPref.idealWeeks) / Math.max(1, durationPref.maxWeeks - durationPref.minWeeks)
         return base * (0.95 + distFromIdeal * 0.10)
     }
@@ -243,7 +254,7 @@ export function useNegotiation(playerId: string | null, active = true) {
         const variance = getNegotiationRng("CONTRACT_THRESHOLD").range(0.9, 1.2)
         let minSalary = baseSalary * variance
         if (playerSave.age > 28) minSalary *= 1.1
-        minSalary *= freeAgentWageFactor(playerSave, currentWeek) * buyerReputationFactor(myTeam)
+        minSalary *= freeAgentWageFactor(playerSave, currentWeek) * buyerReputationFactor(myTeam) * personalityWage
         const distFromIdeal = Math.abs(sanitizedDuration - durationPref.idealWeeks) / Math.max(1, durationPref.maxWeeks - durationPref.minWeeks)
         minSalary *= 0.95 + distFromIdeal * 0.10
         const minimumSalary = Math.round(minSalary)
@@ -306,6 +317,7 @@ export function useNegotiation(playerId: string | null, active = true) {
         durationOffer, setDurationOffer,
         durationPref,
         durationOk,
+        personalityLines,
         negotiationLog,
         failureMessage,
         costPreview,

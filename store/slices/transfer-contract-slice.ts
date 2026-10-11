@@ -32,6 +32,8 @@ import type { GameSave, TeamSaveData } from "@/engine/save-types"
 import { fillAIRosterToFive } from "@/engine/ai/club-budget"
 import { checkAchievements } from "@/engine/steam-service"
 import { academyHeldPlayerIds, recruitmentBudget, recruitmentSalary } from "@/engine/recruitment"
+import { renewalSalary } from "@/engine/personality"
+import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { soundManager } from "@/lib/sound-manager"
 import { applyRosterChangePenalty } from "@/engine/chemistry-engine"
 import { recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
@@ -48,7 +50,6 @@ import { formatCurrency } from "@/lib/utils-extended"
 const MAX_ROSTER_SIZE = 7
 const STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS = 3
 const RENEWAL_RUNWAY_WEEKS = 26
-const RENEWAL_SALARY_MULTIPLIER = 1.1
 const RENEWAL_EXTENSION_WEEKS = 52
 const NEWS_FEED_CAP = 50
 const MAX_FUTURE_WEEK = 100_000
@@ -526,10 +527,11 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return
 
-            // +10% salary, +52 weeks. Require at least 26 weeks of runway
-            // against the *delta* (not the full salary) so renewals aren't
-            // gated by absolute wage levels.
-            const newSalary = Math.round(contract.salaryPerWeek * RENEWAL_SALARY_MULTIPLIER)
+            // +10% salary (Phase 5.2: Loyal +5%, Mercenary +20%), +52 weeks.
+            // Require at least 26 weeks of runway against the *delta* (not the
+            // full salary) so renewals aren't gated by absolute wage levels.
+            const renewing = state.players.find(p => p.id === playerId)
+            const newSalary = renewing ? renewalSalary(renewing, contract.salaryPerWeek) : Math.round(contract.salaryPerWeek * AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER)
             if (!team.rosterIds.includes(playerId)) {
                 toastMsg = "Player is no longer on your roster."
                 toastType = "warning"
