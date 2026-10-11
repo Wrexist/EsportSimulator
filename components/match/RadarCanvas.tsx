@@ -25,6 +25,11 @@ export interface RadarFeed {
     /** Continuous round clock (the live match), sampled every frame; null = the tick clock. */
     source: LiveTimeSource | null
     /**
+     * Reduced motion with a continuous clock: step once per round second, and
+     * at the panel's `currentTime` (the screen's reveal time) in between.
+     */
+    stepped: boolean
+    /**
      * Wall ms (performance.now()) when the shown round was decided, -1 while it
      * plays: transient effects keep fading for up to AFTERGLOW_SECONDS after it
      * instead of freezing on the last frame.
@@ -44,12 +49,14 @@ export interface RadarFeed {
 }
 
 export function createRadarFeed(clock: RadarClock): RadarFeed {
-    return { prep: null, snapshot: null, clock, source: null, settledAt: -1, review: { active: false, prep: null, t: 0, playing: false, live: false, lastMs: 0 }, version: 0 }
+    return { prep: null, snapshot: null, clock, source: null, stepped: false, settledAt: -1, review: { active: false, prep: null, t: 0, playing: false, live: false, lastMs: 0 }, version: 0 }
 }
 
 /** Live round time the feed shows at wall-clock `now`. */
 export function feedLiveTime(feed: RadarFeed, now = performance.now()): number {
-    return feed.source ? feed.source.now(now) : clockTime(feed.clock, now)
+    if (!feed.source) return clockTime(feed.clock, now)
+    const t = feed.source.now(now)
+    return feed.stepped ? Math.max(clockTime(feed.clock, now), Math.floor(t)) : t
 }
 
 /**

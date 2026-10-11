@@ -38,7 +38,7 @@ interface MapRadarPanelProps {
      * Continuous round clock (the live match): the radar samples it on every
      * animation frame, at any pacing speed. Without it the radar glides
      * between `currentTime` ticks over `tickDurationMs`. Reduced motion steps
-     * at `currentTime` either way.
+     * once per round second (and at `currentTime`) instead of gliding.
      */
     clock?: LiveTimeSource | null
     bombState?: RadarBombState
@@ -155,9 +155,11 @@ function MapRadarPanelComponent({
     useEffect(() => {
         clockSetPlayback(feed.clock, animate && !clock, tickDurationMs, performance.now())
     }, [feed, animate, tickDurationMs, clock])
-    // The live clock drives the radar directly (reduced motion: the tick above).
+    // The live clock drives the radar directly; reduced motion steps it once
+    // per round second (and at the screen's reveal time, the tick above).
     useEffect(() => {
-        feed.source = clock && !staticEffects ? clock : null
+        feed.source = clock ?? null
+        feed.stepped = staticEffects
         feed.version++
     }, [feed, clock, staticEffects])
     // Round over: shot tracers, death bursts and grenade pops finish fading

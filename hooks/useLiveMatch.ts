@@ -936,8 +936,10 @@ export function useLiveMatch(id: string) {
     useEffect(() => {
         if (!running) return
         let timer = 0
+        // Without a round view (a restore that could not rebuild it) the events alone.
+        const fallback = roundViewRef.current ? null : [...new Set(currentRoundEvents.current.map(e => e.time))].sort((a, b) => a - b)
         const schedule = () => {
-            const wake = nextWakeAfter(roundViewRef.current?.wakes, uiTimeRef.current)
+            const wake = nextWakeAfter(roundViewRef.current?.wakes ?? fallback ?? undefined, uiTimeRef.current)
             const now = performance.now()
             const due = liveClock.wallAt(wake, now)
             if (!Number.isFinite(due)) return
