@@ -227,7 +227,10 @@ export class TrainingProcessor {
             for (let day = 0; day <= 6; day++) {
                 if (busy.has(day)) continue
                 if (isManaged) {
+                    // A marketing campaign is staff work, not player time:
+                    // it never takes a rest day (it used to cancel all of them).
                     const hasActivity = save.scheduledActivities?.some(a =>
+                        a.type !== "MARKETING" &&
                         a.week === targetWeek &&
                         (a.day === day || (a.duration || 0) > 0)
                     )

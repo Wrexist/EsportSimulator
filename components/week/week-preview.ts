@@ -122,7 +122,8 @@ export function idleDays(teamId: string, week: number, matches: FixtureLike[], a
     const days: number[] = []
     for (let day = 0; day <= 6; day++) {
         if (busy.has(day)) continue
-        const hasActivity = activities.some(a => a.week === week && (a.day === day || (a.duration || 0) > 0))
+        // Marketing is staff work and never takes a rest day (engine: processRestDays).
+        const hasActivity = activities.some(a => a.type !== "MARKETING" && a.week === week && (a.day === day || (a.duration || 0) > 0))
         if (hasActivity) continue
         if (activities.some(a => a.id === `rest_w${week}_d${day}_${teamId}`)) continue
         days.push(day)
@@ -213,20 +214,19 @@ export function buildWeekPreview(input: WeekPreviewInput): WeekPreview {
             if (list.length) effects.push({ source: "bootcamp", activityId: a.id, label: `${a.name || "Bootcamp"}${a.duration > 1 ? ` (week ${week - a.week + 1} of ${a.duration})` : ""}`, effects: list })
         }
     }
-    // Marketing: the fanbase step runs after the week counter moves on, so a
-    // campaign pays for the weeks where (this week + 1) is inside its window.
+    // Marketing: the update at the end of a week the campaign runs adds its
+    // followers for that week (fanbase-growth settles the week that ended).
     for (const a of input.scheduledActivities || []) {
         if (a.type !== "MARKETING") continue
         const perWeek = num((a.data as { followersPerWeek?: number } | undefined)?.followersPerWeek)
-        const inWindow = week + 1 >= a.week && week + 1 < a.week + a.duration
         const runsThisWeek = week >= a.week && week < a.week + a.duration
-        if (!runsThisWeek && !inWindow) continue
-        if (inWindow && perWeek > 0) followers += perWeek
+        if (!runsThisWeek) continue
+        if (perWeek > 0) followers += perWeek
         effects.push({
             source: "marketing",
             activityId: a.id,
             label: a.name || "Marketing campaign",
-            effects: inWindow && perWeek > 0
+            effects: perWeek > 0
                 ? [{ text: `+${perWeek.toLocaleString("en-US")} followers`, good: true }]
                 : [{ text: "no followers counted at this update", good: false }],
         })
