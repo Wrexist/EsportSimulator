@@ -377,7 +377,7 @@ export const BOARD_TUNING = {
  * mean 1366 -> 1427 -> 1484 over two seasons), counted "calibration" matches
  * from a match log the league trims to four weeks (so most clubs stayed on
  * the volatile K = 32 forever), and set tiers from absolute Elo, so the S tier
- * grew from 10 clubs to 83 after week one and ~133 by the end of season two
+ * grew from 10 clubs to 83 after week one and ~132 by the end of season two
  * (campaign evidence phase4-8-rankings-before.json). Now:
  *  - one K per match, by importance (league < qualifier < event tier <
  *    playoffs; friendlies are unrated), and the same points move from loser
