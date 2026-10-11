@@ -11,6 +11,7 @@
 import { isPendingDecisionEvent, getEventTitle } from "@/lib/event-format"
 import { fixtureBlockReason, pendingPlayableMatch, type PlayableMatchState } from "@/lib/playable-match"
 import type { GameEventSaveData } from "@/engine/save-types"
+import { inboxHref } from "@/lib/navigation"
 
 export type StopKind =
     | "match" | "game-over" | "forfeit" | "injury" | "event" | "offer"
@@ -110,14 +111,14 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
             const expires = typeof data.expiresWeek === "number" ? data.expiresWeek : e.week + 2
             if (expires < state.currentWeek) continue
             const amount = typeof data.offerAmount === "number" ? ` ${money(data.offerAmount)}` : ""
-            out.push({ key: `offer:${e.id}`, kind: "offer", reason: `${String(data.teamName ?? "A club")} bid${amount} for ${String(data.playerName ?? "your player")}`, href: "/desktop?app=mail", actionLabel: "Review offer" })
+            out.push({ key: `offer:${e.id}`, kind: "offer", reason: `${String(data.teamName ?? "A club")} bid${amount} for ${String(data.playerName ?? "your player")}`, href: inboxHref("decisions"), actionLabel: "Review offer" })
         } else if (type === "JOB_OFFER") {
             if (typeof data.deadlineWeek === "number" && data.deadlineWeek < state.currentWeek) continue
             const club = data.offeringTeamName ?? data.teamName
             const rank = typeof data.offeringTeamRank === "number" ? ` (#${data.offeringTeamRank})` : ""
-            out.push({ key: `offer:${e.id}`, kind: "offer", reason: `Job offer from ${club ? `${String(club)}${rank}` : "another club"}`, href: "/desktop?app=mail", actionLabel: "Review offer" })
+            out.push({ key: `offer:${e.id}`, kind: "offer", reason: `Job offer from ${club ? `${String(club)}${rank}` : "another club"}`, href: inboxHref("decisions"), actionLabel: "Review offer" })
         } else if (type === "CONTRACT" && data.action === "TRANSFER_OFFER") {
-            out.push({ key: `offer:${e.id}`, kind: "offer", reason: `Transfer offer for ${String(data.playerName ?? playerName(String(data.playerId ?? "")))}`, href: "/desktop?app=mail", actionLabel: "Review offer" })
+            out.push({ key: `offer:${e.id}`, kind: "offer", reason: `Transfer offer for ${String(data.playerName ?? playerName(String(data.playerId ?? "")))}`, href: inboxHref("decisions"), actionLabel: "Review offer" })
         }
     }
 

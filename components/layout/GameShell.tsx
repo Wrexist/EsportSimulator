@@ -318,14 +318,11 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 if (path.includes('/match/') || path.includes('/settings') || path.includes('/credits') || path.includes('/load-game')) return
                 const state = useGameStore.getState()
                 const windowFocused = (window as any).__esimWindowFocused !== false
-                if (state.saveId && !state.isLoading && !hideChrome && windowFocused) {
+                if (state.saveId && !state.isLoading && !state.continueRun && !hideChrome && windowFocused) {
                     e.preventDefault()
                     soundManager.play('weekAdvance')
-                    if (state.timeMode === "HYBRID_DAILY") {
-                        state.advanceDay()
-                    } else {
-                        state.advanceWeek()
-                    }
+                    // Same as the top-bar Continue: run to the next decision.
+                    void state.continueToNextDecision()
                 }
             }
         }
