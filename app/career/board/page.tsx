@@ -150,7 +150,13 @@ export default function BoardPage() {
 
                     <Panel
                         title="Confidence history"
-                        actions={trail.length > 1 && <Sparkline values={trail} min={0} max={100} baseline={T.WARN_BELOW} width={180} height={28} label={`Board confidence over the last ${trail.length - 1} recorded weeks`} />}
+                        actions={trail.length > 1 && (
+                            <span className="flex items-center gap-2 text-xs tabular-nums text-ink-3">
+                                {Math.round(trail[0])}
+                                <Sparkline values={trail} min={Math.max(0, Math.min(...trail) - 4)} max={Math.min(100, Math.max(...trail) + 4)} baseline={T.WARN_BELOW} width={160} height={28} label={`Board confidence over the last ${trail.length - 1} recorded weeks`} />
+                                <span className="text-ink-1">{confidence}</span>
+                            </span>
+                        )}
                         padded={false}
                     >
                         {weeks.length === 0 ? (
