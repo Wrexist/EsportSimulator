@@ -192,6 +192,8 @@
       "!public/assets/Assets.txt",
       "!public/assets/Thecore",
       "!public/map-studio/**/*",
+      "!public/maps/de_*radar_psd*.png",
+      "!public/assets/tournaments/logo_{cct,perfect_world,copenhagen_major,shanghai_major}.*",
       ".next/**/*",
       "!.next/cache/**/*",
       "node_modules/**/*",

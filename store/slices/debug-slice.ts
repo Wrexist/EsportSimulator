@@ -102,7 +102,7 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
             repGain: 25,
             fanGain: 250000,
             week: state.currentWeek,
-            logoPath: "/assets/tournaments/logo_copenhagen_major.png",
+            logoPath: "/assets/tournaments/logo_northern_major_2025.webp",
             trophyPath: "/assets/tournaments/trophy_gold_new.png",
         }
     }),

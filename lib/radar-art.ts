@@ -3,7 +3,10 @@
  *
  * Prefers the baked art manifest (`data/radar-art.json` or `data/radar-art.ts`,
  * mapId → { upper, lower? } image paths in the radar percent frame) when the
- * build has one, and falls back to the overview images in `public/maps`.
+ * build has one, and falls back to the same baked art in `public/radar-art`
+ * (project-made by scripts/bake-radar-art.ts). Valve's radar overviews
+ * (`public/maps/de_*_radar_psd*.png`) are not shipped and never used at
+ * runtime; an unknown map gets no art and the radar draws a neutral panel.
  *
  * The manifest is picked up with webpack's `require.context`, so the app
  * builds and runs whether or not the file exists; under Jest (no
@@ -12,16 +15,16 @@
 
 import type { RadarArt } from "./radar-types"
 
-/** Today's radar images (same frame as the baked round maps). */
+/** Baked project radar art (same frame as the round maps), used when the manifest cannot be read. */
 export const FALLBACK_RADAR_ART: Readonly<Record<string, RadarArt>> = {
-    Sandstone: { upper: "/maps/de_sandstone_radar_psd.png" },
-    Mirage: { upper: "/maps/de_mirage_radar_psd.png" },
-    Inferno: { upper: "/maps/de_inferno_radar_psd.png" },
-    Nuke: { upper: "/maps/de_nuke_radar_psd_1.png", lower: "/maps/de_nuke_lower_radar_psd_2.png" },
-    Overpass: { upper: "/maps/de_overpass_radar_psd.png" },
-    Vertigo: { upper: "/maps/de_vertigo_radar_psd_1.png", lower: "/maps/de_vertigo_lower_radar_psd_2.png" },
-    Ancient: { upper: "/maps/de_ancient_radar_psd.png" },
-    Anubis: { upper: "/maps/de_anubis_radar_psd.png" },
+    Sandstone: { upper: "/radar-art/Sandstone-upper.webp", baked: true },
+    Mirage: { upper: "/radar-art/Mirage-upper.webp", baked: true },
+    Inferno: { upper: "/radar-art/Inferno-upper.webp", baked: true },
+    Nuke: { upper: "/radar-art/Nuke-upper.webp", lower: "/radar-art/Nuke-lower.webp", baked: true },
+    Overpass: { upper: "/radar-art/Overpass-upper.webp", baked: true },
+    Vertigo: { upper: "/radar-art/Vertigo-upper.webp", lower: "/radar-art/Vertigo-lower.webp", baked: true },
+    Ancient: { upper: "/radar-art/Ancient-upper.webp", baked: true },
+    Anubis: { upper: "/radar-art/Anubis-upper.webp", baked: true },
 }
 
 /** "de_mirage", "Mirage", "mirage" → "mirage". */
@@ -93,7 +96,7 @@ function loadManifest(): Record<string, RadarArt> | null {
     return manifest
 }
 
-/** Art for a map: the baked manifest's entry, else the fallback images. */
+/** Art for a map: the baked manifest's entry, else the baked fallback; undefined for an unknown map. */
 export function radarArtFor(mapId: string, manifestOverride?: Record<string, RadarArt> | null): RadarArt | undefined {
     const key = radarArtKey(mapId)
     const baked = (manifestOverride !== undefined ? manifestOverride : loadManifest())?.[key]
