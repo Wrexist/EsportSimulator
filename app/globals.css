@@ -291,8 +291,9 @@
     --card-foreground: 216 22% 96%;
     --popover: 216 21% 12%;            /* raised #181d25 */
     --popover-foreground: 216 22% 96%;
-    --primary: 216 22% 96%;
-    --primary-foreground: 216 26% 4%;
+    /* Selection controls (switch, radio, checkbox, slider) read gold in v2. */
+    --primary: 40 88% 59%;             /* gold   #f2b53a */
+    --primary-foreground: 30 37% 6%;   /* on-gold #15100a */
     --secondary: 216 21% 12%;
     --secondary-foreground: 216 22% 96%;
     --muted: 216 21% 12%;
@@ -737,10 +738,11 @@
     outline: none;
   }
 
+  /* Design system v2: focus is a crisp 2px gold ring, no glow. */
   button:focus-visible {
-    outline: 2px solid var(--color-cyan-400) !important;
+    outline: 2px solid var(--gold, #f2b53a) !important;
     outline-offset: 2px;
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35) !important;
+    box-shadow: none !important;
   }
 
   button:active {
@@ -753,7 +755,7 @@
   }
 
   .tab-button:focus-visible {
-    outline: 2px solid var(--color-cyan-400) !important;
+    outline: 2px solid var(--gold, #f2b53a) !important;
     outline-offset: -2px;
     /* Inner focus for tabs */
     box-shadow: none !important;
@@ -791,15 +793,13 @@
   *::-webkit-scrollbar-thumb { background: rgba(183, 204, 234, .22); border-radius: 8px; }
 
   /* Custom Focus Styles
-     High-contrast double-ring (solid outline + soft outer glow) so focus is
-     visible on every background the UI uses: glass panels, dark backdrops,
-     bright accent chips, and the Steam Deck handheld screen in varied
-     lighting. `:focus-visible` (not `:focus`) keeps the ring off for mouse
-     clicks, showing it only for keyboard/gamepad traversal. */
+     Design system v2: a crisp 2px gold ring (9.9:1 on a panel), no glow, so
+     focus is visible on every surface and on the Steam Deck screen.
+     `:focus-visible` (not `:focus`) keeps the ring off for mouse clicks,
+     showing it only for keyboard/gamepad traversal. */
   :focus-visible {
-    outline: 2px solid var(--color-cyan-400);
+    outline: 2px solid var(--gold, #f2b53a);
     outline-offset: 2px;
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35);
     border-radius: inherit;
   }
 
@@ -811,27 +811,24 @@
   [role="option"]:focus-visible,
   [role="tab"]:focus-visible,
   [tabindex]:focus-visible {
-    outline: 2px solid var(--color-cyan-400);
+    outline: 2px solid var(--gold, #f2b53a);
     outline-offset: 2px;
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35);
   }
 
-  /* Higher-contrast focus ring inside dialogs/modals/popovers. Steam Deck's
-     small bright screen washed out the standard 1px-glow + 25%-opacity ring
-     when stacked over the dialog backdrop, making gamepad navigation hard to
-     follow. Target Radix slot data-attributes so this applies app-wide
-     without per-component edits. */
+  /* Heavier focus ring inside dialogs/modals/popovers: the Steam Deck's small
+     bright screen washed out a thin ring over the dialog backdrop, making
+     gamepad navigation hard to follow. A 1px dark separation ring keeps the
+     gold readable (no glow). Target Radix slot data-attributes so this
+     applies app-wide without per-component edits. */
   [data-slot="alert-dialog-content"] :focus-visible,
   [data-slot="dialog-content"] :focus-visible,
   [data-slot="popover-content"] :focus-visible,
   [data-slot="dropdown-menu-content"] :focus-visible,
   [data-slot="select-content"] :focus-visible,
   [data-slot="command-input"]:focus-visible {
-    outline: 3px solid var(--color-cyan-300);
+    outline: 3px solid var(--gold, #f2b53a);
     outline-offset: 3px;
-    box-shadow:
-      0 0 0 1px rgba(0, 0, 0, 0.6),
-      0 0 0 5px rgba(103, 232, 249, 0.45);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
   }
 
   /* Reduce motion for users who prefer it (OS-level or in-game setting) */
