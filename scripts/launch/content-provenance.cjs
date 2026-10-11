@@ -14,7 +14,9 @@ function walk(base, rel) {
   if (stat.isSymbolicLink()) throw new Error(`Content link needs review: ${rel}`);
   return stat.isDirectory() ? fs.readdirSync(target).sort().flatMap(n => walk(base, `${rel}/${n}`)) : [rel];
 }
+const AUDIO_PACK_SOURCE = 'Project-made: rendered by scripts/audio/render-audio-pack.ts (deterministic synthesis, no samples)';
 function category(p) {
+  if (p.startsWith('public/audio/')) return ['sound', AUDIO_PACK_SOURCE, 'scripts/audio/render-audio-pack.ts'];
   if (p.includes('/drafts/')) return ['user-draft-mixed', 'Owner annotations with imported radar outlines; imported CS2Nades lineups excluded from 1.0 and archived in raw-data/archived-lineups', 'docs/launch-readiness/evidence/L31-OWNER-LINEUP-EXCLUSION-DECISION.json'];
   if (p.includes('/spatial/')) return ['map-geometry', 'https://github.com/pnxenopoulos/awpy-data/releases/tag/2000908', 'docs/audit-2026-09-13/spatial-import.json'];
   if (/map-studio-library/.test(p)) return ['map-reference', 'Radar outlines only; imported CS2Nades lineups excluded from 1.0 and archived in raw-data/archived-lineups', 'docs/launch-readiness/evidence/L31-OWNER-LINEUP-EXCLUSION-DECISION.json'];
@@ -126,4 +128,4 @@ if (require.main === module) {
     console.log(`Inventoried ${files.length} files; all pending item-specific rights review.`);
   } else { try { check(); } catch (error) { console.error(error.message); process.exitCode = 1; } }
 }
-module.exports = {OWNER_DECISIONS, OWNER_DECISION_FILES, inventory, releaseInventory, verify, verifyPackaged, ownerReleaseDecisions, check, checkPackaged};
+module.exports = {AUDIO_PACK_SOURCE, category, OWNER_DECISIONS, OWNER_DECISION_FILES, inventory, releaseInventory, verify, verifyPackaged, ownerReleaseDecisions, check, checkPackaged};
