@@ -1,0 +1,370 @@
+{
+  "version": 1,
+  "stream": "Phase 5 / 5.6 key art",
+  "generator": "scripts/key-art/render-key-art.ts",
+  "note": "Rows for the integrator to merge into L08-content-inventory.json. Bytes are exact (public/** is -text). Disposition stays 'hold' until the owner's release statement for project-made files is recorded.",
+  "totalBytes": 697297,
+  "files": [
+    {
+      "path": "public/key-art/logotype.svg",
+      "sha256": "4a28f79451c76875969bc6ca32990a83d9ce45bd9d40ebb84e6bf1d77fb09e7a",
+      "bytes": 173046,
+      "kind": "logotype",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "components/brand/logotype-geometry.ts",
+        "public/logo.png",
+        "marketing/approved-brand/ESM_LOGO.png",
+        "app/fonts/barlow-condensed-latin-700-normal.woff2",
+        "app/fonts/barlow-condensed-latin-800-normal.woff2"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Embeds the owner's approved trophy logo (docs/launch-readiness/evidence/OWNER-TROPHY-20260920.json) and Barlow Condensed (SIL OFL 1.1, licenses/Barlow-OFL.txt).",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/key-art/season-splash.webp",
+      "sha256": "510c54392bf01fb10c7bdc7753fc3e5e74eb6be9dd9f01e6139eb165f85ec8f7",
+      "bytes": 166880,
+      "kind": "key-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/scene.ts",
+        "public/radar-art/Inferno-upper.webp",
+        "data/round-maps/Inferno.json",
+        "app/fonts/barlow-condensed-latin-600-normal.woff2",
+        "app/fonts/barlow-condensed-latin-700-normal.woff2",
+        "app/fonts/barlow-condensed-latin-800-normal.woff2"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Drawn by code from the project's baked radar art (scripts/bake-radar-art.ts, nav-mesh derived) and round-map data; no third-party or AI imagery.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/key-art/title-stage.webp",
+      "sha256": "ca5e077a8e398f858e2a8e5a876092cb2d58b53852959a01111bf930d6396e47",
+      "bytes": 101636,
+      "kind": "key-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/scene.ts",
+        "public/radar-art/Mirage-upper.webp",
+        "data/round-maps/Mirage.json",
+        "app/fonts/barlow-condensed-latin-600-normal.woff2",
+        "app/fonts/barlow-condensed-latin-700-normal.woff2",
+        "app/fonts/barlow-condensed-latin-800-normal.woff2"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Drawn by code from the project's baked radar art (scripts/bake-radar-art.ts, nav-mesh derived) and round-map data; no third-party or AI imagery.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/key-art/title-table.webp",
+      "sha256": "1955ab5ee3caa6612ffbb5e39b034d7209a40815c995e3d6ff170f49da976949",
+      "bytes": 78542,
+      "kind": "key-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/scene.ts",
+        "public/radar-art/Mirage-upper.webp",
+        "data/round-maps/Mirage.json",
+        "app/fonts/barlow-condensed-latin-600-normal.woff2",
+        "app/fonts/barlow-condensed-latin-700-normal.woff2",
+        "app/fonts/barlow-condensed-latin-800-normal.woff2"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Drawn by code from the project's baked radar art (scripts/bake-radar-art.ts, nav-mesh derived) and round-map data; no third-party or AI imagery.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/a.svg",
+      "sha256": "b3319894aff18a55dc3ec3a92c1acb0e7051ecc999ebb4b52111b132280bbd5e",
+      "bytes": 7604,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/a.webp",
+      "sha256": "463aaedb5a26dfb83552200333d2f5582361d5509b68e70d2577ec8d00a16822",
+      "bytes": 12106,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/award.svg",
+      "sha256": "2e5ca08630f200795a5e1c81d176751c4f7f8824465e45a1110da7dc65216bb9",
+      "bytes": 10887,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/award.webp",
+      "sha256": "b5599a17a1f1b58f96466c60e737bb866b5ac253c7edd21a1c4322726ec0ef23",
+      "bytes": 23084,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/b.svg",
+      "sha256": "80183dbd4a97cee083bfb43efed2648df50699425c725e5cd8bae04d7b840ebd",
+      "bytes": 5964,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/b.webp",
+      "sha256": "82ef1030b9717fbb791d155c26814ac00ee4d156eb5644d8599da49b5db08dfe",
+      "bytes": 10196,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/c.svg",
+      "sha256": "a57e354b369f1f6f1e043c0f83943bffca16cd5bf5652620b85c58c0cc128b0c",
+      "bytes": 5955,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/c.webp",
+      "sha256": "43dbb581afb6037f7e5c43de356a45604838b816483b771fac24c072d5e7d591",
+      "bytes": 8250,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/league.svg",
+      "sha256": "c038ae413601e82f432dafb2f03b4fc525f1126cd1ae4f5d30371dff78413ff3",
+      "bytes": 11845,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/league.webp",
+      "sha256": "63abbbe3c806c76306fe5135e494e2d9621c708baf9193ec2f5e6a7cd7c43216",
+      "bytes": 16716,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/major.svg",
+      "sha256": "7129a074565d9d5d9134724801a42b931f7ddc251a7de1fe84ed2ee96e7b5509",
+      "bytes": 15181,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/major.webp",
+      "sha256": "52d856a1b83599f98eccff8792e629fc3460f72368bbdace086fdc5409572e5e",
+      "bytes": 23916,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/s.svg",
+      "sha256": "3e5db09642c60788e7b2321d532d95dd9c3f19007555630b0352c898c8608836",
+      "bytes": 7661,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    },
+    {
+      "path": "public/trophy-art/s.webp",
+      "sha256": "e05594b8f43d4a617bbd00c0092b6a574d4f5681a88418109c06e603132b2e73",
+      "bytes": 17828,
+      "kind": "trophy-art",
+      "source": "Project-made: scripts/key-art/render-key-art.ts",
+      "generatedBy": "npx tsx scripts/key-art/render-key-art.ts",
+      "inputs": [
+        "scripts/key-art/trophy-svg.ts"
+      ],
+      "evidence": "docs/revamp/PHASE5_PEOPLE_MOMENTS.md",
+      "license": "Project original",
+      "licenseNotes": "Pure SVG drawn by code; no images or fonts.",
+      "permission": null,
+      "attribution": null,
+      "allowedUse": "Game distribution once the owner's release statement covers project-made files (Phase 5 stream 5.7).",
+      "releaseDisposition": "hold",
+      "reviewBasis": "reproduced-from-project-source"
+    }
+  ]
+}
