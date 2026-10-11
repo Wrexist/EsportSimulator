@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { fireConfetti, preloadConfetti } from "@/lib/confetti-lazy"
-import { soundManager } from "@/lib/sound-manager"
+import { markOutcomeCue, playMatchOutcomeCue } from "@/lib/match-outcome-sound"
 import { AdvancementAnimation } from "@/components/tournament/AdvancementAnimation"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
@@ -88,8 +88,12 @@ export default function MatchResultPage() {
 
         const isPlayerHome = match.homeTeamId === playerTeamId
         const isPlayerAway = match.awayTeamId === playerTeamId
+        if (!isPlayerHome && !isPlayerAway) return
         const homeWon = match.result.homeScore > match.result.awayScore
         const playerWon = (isPlayerHome && homeWon) || (isPlayerAway && !homeWon)
+        // A title won by this match has its own full-screen moment (sound and
+        // confetti included); the result screen stays quiet under it.
+        const titleMoment = useGameStore.getState().momentQueue.some(m => m.kind === "title" && m.matchId === match.id)
 
         // Track scheduled work so cleanup can cancel it on unmount and the
         // RAF / timeout don't keep firing canvas-confetti against an
@@ -98,14 +102,12 @@ export default function MatchResultPage() {
         let initialDelayTimer: ReturnType<typeof setTimeout> | undefined
         let rafId: number | undefined
 
-        // Sound cue lands the moment the result reveal kicks in, regardless
-        // of confetti loading state. Keyed per match: the live screen may have
-        // already played it, and a spectated result plays nothing.
-        if (typeof window !== "undefined" && (isPlayerHome || isPlayerAway)) {
-            soundManager.play(playerWon ? "victory" : "defeat", { key: `outcome:${match.id}` })
-        }
+        // The victory / defeat cue plays once per match: the live screen
+        // played it already unless the match was simulated instantly.
+        if (titleMoment) markOutcomeCue(match.id)
+        else playMatchOutcomeCue(match.id, playerWon)
 
-        if (playerWon) {
+        if (playerWon && !titleMoment) {
             confettiTriggered.current = true
 
             // Preload then fire the burst — keeps canvas-confetti out of the

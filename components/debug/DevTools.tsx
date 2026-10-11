@@ -446,6 +446,23 @@ function DevToolsPanel() {
                                             </Button>
                                         </div>
 
+                                        <p className="text-[10px] uppercase font-bold text-pink-400/80 tracking-widest mt-3">Moments (demo data)</p>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {([
+                                                ["Title: major", () => store.debugTriggerMoment("title", { major: true })],
+                                                ["Title: minor", () => store.debugTriggerMoment("title", { major: false })],
+                                                ["League title", () => store.debugTriggerMoment("league-title")],
+                                                ["Promotion", () => store.debugTriggerMoment("promotion")],
+                                                ["Relegation", () => store.debugTriggerMoment("relegation")],
+                                                ["Signing", () => store.debugTriggerMoment("signing")],
+                                                ["Welcome", () => store.debugTriggerMoment("welcome")],
+                                            ] as const).map(([label, run]) => (
+                                                <Button key={label} size="sm" variant="outline" onClick={run} className="font-mono text-[11px] border-amber-500/20 hover:bg-amber-500/20 justify-start text-amber-400 h-8">
+                                                    <Trophy size={11} className="mr-1.5" /> {label}
+                                                </Button>
+                                            ))}
+                                        </div>
+
                                         <p className="text-[10px] uppercase font-bold text-pink-400/80 tracking-widest mt-3">Toast Testers</p>
                                         <div className="grid grid-cols-2 gap-2">
                                             <Button size="sm" variant="outline" onClick={() => store.addToast({ message: "Player leveled up! +1 Skill Point", type: "level_up" })} className="font-mono text-[11px] border-emerald-500/20 hover:bg-emerald-500/20 justify-start text-emerald-400 h-8">

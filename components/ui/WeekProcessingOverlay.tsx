@@ -5,6 +5,7 @@ import { Sparkles } from "lucide-react"
 import type { WeekProgressPhase } from "@/store/types"
 import { WeekReportModal } from "@/components/report/WeekReportModal"
 import { WeekReportToast } from "@/components/report/WeekReportToast"
+import { useMomentPending } from "@/components/moments/moment-state"
 
 /**
  * Full-screen overlay for week advancement, then the weekly report.
@@ -32,6 +33,8 @@ export function WeekProcessingOverlay() {
   const weekProgress = useGameStore(s => s.weekProgress)
   const continueRun = useGameStore(s => s.continueRun)
   const cancelContinue = useGameStore(s => s.cancelContinue)
+  // A moment decided in the week (title, promotion) opens first; the report waits.
+  const momentPending = useMomentPending()
 
   if (isLoading) {
     return (
@@ -128,6 +131,8 @@ export function WeekProcessingOverlay() {
       </div>
     )
   }
+
+  if (momentPending) return null
 
   return (
     <>

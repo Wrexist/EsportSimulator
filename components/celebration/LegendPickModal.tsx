@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { fireConfetti } from "@/lib/confetti-lazy"
+import { soundManager } from "@/lib/sound-manager"
 import type { LegendPickData } from "@/engine/save-types"
 import { panelTransition } from "@/lib/motion"
 import { useFocusTrap } from "@/lib/accessibility"
@@ -50,6 +51,8 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
 
     useEffect(() => {
         setMounted(true)
+        // The legend pick follows the title moment: its own cue (Phase 5.4a).
+        soundManager.play("award")
         // Golden confetti for the Major win legend reward
         const burst = () => {
             fireConfetti({
@@ -68,6 +71,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
     const handleConfirm = () => {
         if (!selectedId || !canSign) return
         setConfirmed(true)
+        soundManager.play("signing")
         // Big celebration confetti
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {

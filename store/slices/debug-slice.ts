@@ -17,6 +17,8 @@ import { SeededRNG, generateSeed } from "@/engine/rng"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
 import { LEGENDARY_PLAYERS } from "@/engine/legendary-players-data"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
+import { queueMoment, type Moment, type MomentHolder, type MomentKind } from "@/engine/moments"
+import { leagueCentralPayment, LEAGUE_TUNING } from "@/lib/balance-tuning"
 import { nextDeterministicId, nextRandom } from "@/store/utils/helpers"
 
 import { formatCurrency } from "@/lib/utils-extended"
@@ -92,19 +94,57 @@ export const createDebugSlice: SliceCreator<DebugActions> = (set, get) => ({
         })
     },
 
-    debugTriggerCelebration: () => set((state) => {
+    debugTriggerCelebration: () => get().debugTriggerMoment("title"),
+
+    // Queue a demo moment of each kind (DevTools; Phase 5.4a visual checks).
+    // Debug payloads only: real moments come from the engine (engine/moments.ts).
+    debugTriggerMoment: (kind: MomentKind, opts?: { major?: boolean }) => set((state) => {
         if (!debugToolsEnabled()) return
-        state.pendingCelebration = {
-            tournamentId: "major_copenhagen",
-            tournamentName: "Copenhagen Major 2025",
-            tier: "S_TIER",
-            prize: 1250000,
-            repGain: 25,
-            fanGain: 250000,
-            week: state.currentWeek,
-            logoPath: "/assets/tournaments/logo_northern_major_2025.webp",
-            trophyPath: "/assets/tournaments/trophy_gold_new.png",
+        const week = state.currentWeek
+        const stamp = `${week}_${(state.toasts?.length ?? 0)}_${Date.now().toString(36)}`
+        const team = state.teams.find(t => t.id === state.playerTeamId)
+        let moment: Moment | null = null
+        if (kind === "title") {
+            const major = opts?.major ?? true
+            moment = {
+                key: `debug:title:${stamp}`, kind, week,
+                tournamentId: major ? "debug_major" : "debug_cup",
+                tournamentName: major ? "Northern Major" : "Nordic Masters Cup",
+                tier: major ? "S_TIER" : "B_TIER", major,
+                prize: major ? 450000 : 40000, prizeBooked: false, repGain: 10,
+                finalOpponentName: state.teams.find(t => t.id !== state.playerTeamId)?.name, finalScore: "2-1", finalStage: "Grand Final",
+                trophyPath: major ? "/assets/tournaments/s_tier_trophy_1.png" : "/assets/tournaments/b_tier_trophy_1.png",
+            }
+        } else if (kind === "league-title") {
+            moment = {
+                key: `debug:league-title:${stamp}`, kind, week, divisionId: "debug_div", divisionName: "Europe Division 2", level: 2,
+                season: 1, split: 1, wins: 15, losses: 3, points: 45,
+                prize: Math.round(LEAGUE_TUNING.SPLIT_PRIZE_POOL_BY_LEVEL[1] * LEAGUE_TUNING.SPLIT_PRIZE_SHARES[0]),
+                repGain: LEAGUE_TUNING.CHAMPION_REPUTATION, trophy: false,
+            }
+        } else if (kind === "promotion" || kind === "relegation") {
+            const up = kind === "promotion"
+            moment = {
+                key: `debug:${kind}:${stamp}`, kind, week, scope: "division", season: 1, split: 1,
+                fromLabel: up ? "Europe Division 2" : "Europe Division 1", toLabel: up ? "Europe Division 1" : "Europe Division 2",
+                centralPayment: { from: leagueCentralPayment(up ? 2 : 1), to: leagueCentralPayment(up ? 1 : 2) },
+                prizePool: { from: LEAGUE_TUNING.SPLIT_PRIZE_POOL_BY_LEVEL[up ? 1 : 0], to: LEAGUE_TUNING.SPLIT_PRIZE_POOL_BY_LEVEL[up ? 0 : 1] },
+                topDivision: up,
+            }
+        } else if (kind === "signing") {
+            const own = new Set(team?.rosterIds ?? [])
+            const clubOf = (id: string) => state.teams.find(t => t.id !== state.playerTeamId && t.rosterIds.includes(id))
+            const player = state.players.find(p => !p.isRetired && !own.has(p.id) && (p.skill ?? 0) >= 85 && !!clubOf(p.id))
+                ?? state.players.find(p => !p.isRetired && !own.has(p.id) && !!clubOf(p.id))
+            if (player) moment = {
+                key: `debug:signing:${stamp}`, kind, week, playerId: player.id, fee: 850000, salaryPerWeek: 12000,
+                contractEndWeek: week + 104, fromTeamName: clubOf(player.id)?.name ?? null,
+                rating: player.skill ?? 80, big: (player.skill ?? 0) >= 85,
+            }
+        } else if (kind === "welcome" && team) {
+            moment = { key: `debug:welcome:${stamp}`, kind, week, teamId: team.id }
         }
+        if (moment) queueMoment(state as unknown as MomentHolder, moment)
     }),
 
     debugTriggerInjury: (playerId) => set((state) => {

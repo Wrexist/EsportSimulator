@@ -97,6 +97,8 @@ export function buildSaveSnapshot(state: SaveSnapshotState): GameSave {
         pendingLegendPick: state.pendingLegendPick,
         signedLegendIds: state.signedLegendIds || [],
         activelyPlayingLegendIds: state.activelyPlayingLegendIds || [],
+        momentQueue: state.momentQueue ?? [],
+        seenMomentKeys: state.seenMomentKeys ?? [],
         gameOverReason: state.gameOverReason ?? undefined,
         gameOverWeek: state.gameOverWeek ?? undefined,
         weekReports: state.weekReports ?? undefined,

@@ -138,14 +138,15 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
         } finally {
             if (get().saveId === saveId) {
                 const end = get()
-                const notice: AdvanceStopNotice | null = stop
+                // A moment explains itself full-screen; no notice under Continue.
+                const notice: AdvanceStopNotice | null = stop && stop.kind !== "moment"
                     ? { key: stop.key, kind: stop.kind, reason: stop.reason, href: stop.href, actionLabel: stop.actionLabel, week: end.currentWeek, day: end.currentDay }
                     : null
                 const covered = stop?.keys ?? (stop ? [stop.key] : [])
                 set(draft => {
                     draft.continueRun = null
                     draft.advanceStop = notice
-                    if (stop && stop.kind !== "match" && stop.kind !== "cancelled" && stop.kind !== "cap" && stop.kind !== "error") {
+                    if (stop && stop.kind !== "moment" && stop.kind !== "match" && stop.kind !== "cancelled" && stop.kind !== "cap" && stop.kind !== "error") {
                         for (const key of covered) if (!draft.advanceSeenKeys.includes(key)) draft.advanceSeenKeys.push(key)
                         if (draft.advanceSeenKeys.length > 200) draft.advanceSeenKeys.splice(0, draft.advanceSeenKeys.length - 200)
                         // A decision or offer stops Continue once per event, for

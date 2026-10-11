@@ -21,6 +21,7 @@ import {
 } from "@/engine/match/legacy-series"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { soundManager } from "@/lib/sound-manager"
+import { playMatchOutcomeCue } from "@/lib/match-outcome-sound"
 import { resolveHomeStartsCT } from "@/lib/live-match-utils"
 import { annotateRoundEvents, buildLiveRoundScript, warmRoundMap, type LiveRoundScript } from "@/lib/live-round-script"
 import { AUTO_CONFIRM_MS, BREAK_CARD_MS, PISTOL_START_MS, ROUND_BEAT_MS, computeRoundPacing, defaultLiveSpeed, type PacingMode, type RoundPacing } from "@/lib/live-match-pacing"
@@ -124,7 +125,36 @@ function makeRoundView(ids: { homePlayerIds: string[]; awayPlayerIds: string[] }
     }
 }
 
-export function useLiveMatch(id: string) {
+export interface LiveMatchOptions {
+    /**
+     * Key of this match's intro (Phase 5.4a). A match that starts fresh (no
+     * checkpoint to resume) and has not played its intro opens with
+     * `introActive`; the pistol round and auto tactics wait until `endIntro`.
+     */
+    introKey?: string
+}
+
+const introSessionKey = (key: string) => `esm:${key}`
+
+/** Has this intro played (saved key, or this session before the next save)? */
+function introPlayed(key: string): boolean {
+    if (useGameStore.getState().seenMomentKeys?.includes(key)) return true
+    try { return typeof sessionStorage !== "undefined" && sessionStorage.getItem(introSessionKey(key)) === "1" } catch { return false }
+}
+
+/** Record the intro as played: saved with the career, and for this session. */
+function markIntroPlayed(key: string): void {
+    useGameStore.getState().markMomentSeen(key)
+    try { sessionStorage.setItem(introSessionKey(key), "1") } catch { /* storage denied: the saved key still holds */ }
+}
+
+export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
+    const introKeyRef = useRef(options.introKey)
+    introKeyRef.current = options.introKey
+    // The intro is decided where the match is set up: only a fresh start shows it.
+    const [introActive, setIntroActive] = useState(false)
+    const holdStart = introActive
+    const endIntro = useCallback(() => setIntroActive(false), [])
     const router = useRouter()
     const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
@@ -481,6 +511,11 @@ export function useLiveMatch(id: string) {
         setGameState(prev => ({ ...prev, status: "IN_PROGRESS", time: -1, isPaused: false }))
         setIsPlaying(false)
         setIsWaitingForStrategy(true)
+        const introKey = introKeyRef.current
+        if (introKey && !introPlayed(introKey)) {
+            markIntroPlayed(introKey)
+            setIntroActive(true)
+        }
     }, [scheduledMatches, teams, players, id, setActiveMatch, staff, router, currentWeek, currentDay, timeMode, customTactics, setRoundScript, setRoundView, liveClock])
 
     // Persistence
@@ -853,7 +888,8 @@ export function useLiveMatch(id: string) {
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
                     const playerWon = (playerIsHomeSide && roundState.homeSeriesScore > roundState.awaySeriesScore) || (playerIsAwaySide && roundState.awaySeriesScore > roundState.homeSeriesScore)
-                    if (playerIsHomeSide || playerIsAwaySide) soundManager.play(playerWon ? "victory" : "defeat", { key: `outcome:${id}` })
+                    // Once per match: the result screen will not repeat it.
+                    if (playerIsHomeSide || playerIsAwaySide) playMatchOutcomeCue(runtime.match.id, playerWon)
                 } else if (transition === "MAP_END") {
                     const nextMapId = runtime.canonicalMaps[roundState.currentMapIndex]
                     uiTimeRef.current = -1
@@ -974,18 +1010,19 @@ export function useLiveMatch(id: string) {
     // the round-end beat) unless the manager holds it.
     const roundBeatShown = roundBeat !== null
     useEffect(() => {
-        if (!isAutoTactics || !isWaitingForStrategy || !simState || gameState.status !== "IN_PROGRESS" || roundBeatShown || decisionHold) return
+        if (!isAutoTactics || !isWaitingForStrategy || !simState || gameState.status !== "IN_PROGRESS" || roundBeatShown || decisionHold || holdStart) return
         if (!simState.isOvertime && (simState.currentRound === 1 || simState.currentRound === 13)) return
         const timer = setTimeout(() => { startNextRound() }, AUTO_CONFIRM_MS)
         return () => clearTimeout(timer)
-    }, [isAutoTactics, isWaitingForStrategy, simState, gameState.status, startNextRound, roundBeatShown, decisionHold])
+    }, [isAutoTactics, isWaitingForStrategy, simState, gameState.status, startNextRound, roundBeatShown, decisionHold, holdStart])
 
     useEffect(() => {
+        if (holdStart) return
         if (gameState.status === "IN_PROGRESS" && isWaitingForStrategy && !roundBeatShown && simState && !simState.isOvertime && (simState.currentRound === 1 || simState.currentRound === 13)) {
             const timer = setTimeout(() => { startNextRound("PISTOL") }, PISTOL_START_MS)
             return () => clearTimeout(timer)
         }
-    }, [gameState.status, isWaitingForStrategy, simState, startNextRound, roundBeatShown])
+    }, [gameState.status, isWaitingForStrategy, simState, startNextRound, roundBeatShown, holdStart])
 
     // --- HANDLERS ---
     const simulateRoundInstant = useCallback(() => {
@@ -1130,7 +1167,7 @@ export function useLiveMatch(id: string) {
 
             const playerIsHome = homeTeam.id === playerTeam?.id
             const playerIsAway = awayTeam.id === playerTeam?.id
-            if (playerIsHome || playerIsAway) soundManager.play(playerIsHome === homeWon ? "victory" : "defeat", { key: `outcome:${id}` })
+            if (playerIsHome || playerIsAway) playMatchOutcomeCue(runtime.match.id, playerIsHome === homeWon)
         } finally {
             silentPlaybackRef.current = false
             isSimulatingRef.current = false
@@ -1168,6 +1205,20 @@ export function useLiveMatch(id: string) {
         clearActiveMatchState()
         router.push(`/match/${id}/result`)
     }, [id, saveMatchResult, clearActiveMatchState, router])
+
+    // The finished series as the result screen will record it (same pure
+    // finaliser handleFinish commits): the end-of-match beat's score and MVP.
+    const finishedResult = useMemo(() => {
+        const runtime = matchData.current
+        const sim = latestSimStateRef.current
+        if (gameState.status !== "FINISHED" || !runtime || !sim) return null
+        try {
+            return finalizeLegacySeries(runtime.ctx, { sim, maps: runtime.result.maps, finished: true })
+        } catch {
+            return null
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- the series is final once status is FINISHED
+    }, [gameState.status, simState])
 
     // Own-team view for the strategy panel and loadout editor (home OR away).
     const ownEconomy = useMemo(() => (simState ? (isPlayerHome ? simState.homeEconomy : simState.awayEconomy) : {}) as Record<string, { cash: number }>, [simState, isPlayerHome])
@@ -1221,5 +1272,8 @@ export function useLiveMatch(id: string) {
         decisionHold,
         setDecisionHold,
         shownLossLevels,
+        finishedResult,
+        introActive,
+        endIntro,
     }
 }
