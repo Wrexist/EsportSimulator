@@ -3,9 +3,10 @@
 import { useEffect } from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { Trophy } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import type { LeagueTitleMoment, TitleMoment } from "@/engine/moments"
+import { isMajorTournament } from "@/engine/official-stats"
+import { trophyArtFor, trophyKindForTournament, type TrophyArtKind } from "@/lib/trophy-art"
 import { useGameStore } from "@/store/game-store"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
@@ -44,8 +45,10 @@ function useTitleConfetti(momentKey: string, scale: "major" | "minor") {
     }, [momentKey, scale, reduce])
 }
 
-function TrophyArt({ src, size, delay = 0 }: { src?: string; size: "major" | "minor"; delay?: number }) {
+/** The project's trophy art (lib/trophy-art): the major cup, the tier cups, the league shield. */
+function TrophyArt({ kind, size, delay = 0 }: { kind: TrophyArtKind; size: "major" | "minor"; delay?: number }) {
     const reduce = useAppReducedMotion()
+    const art = trophyArtFor(kind)
     const box = size === "major" ? "h-[min(34vh,300px)] w-[min(34vh,300px)]" : "h-[min(24vh,200px)] w-[min(24vh,200px)]"
     return (
         <motion.div
@@ -54,13 +57,7 @@ function TrophyArt({ src, size, delay = 0 }: { src?: string; size: "major" | "mi
             transition={{ duration: reduce ? 0 : 0.9, delay: reduce ? 0 : delay, ease: EASE }}
             className={cn("relative shrink-0", box)}
         >
-            {src ? (
-                <Image src={src} alt="" fill sizes="300px" className="object-contain drop-shadow-xl" priority />
-            ) : (
-                <div className="flex h-full w-full items-center justify-center rounded-full border border-gold/50 bg-gold/10">
-                    <Trophy className="h-1/2 w-1/2 text-gold" aria-hidden="true" />
-                </div>
-            )}
+            <Image src={art.src} alt={art.label} fill sizes="300px" className="object-contain drop-shadow-xl" priority />
         </motion.div>
     )
 }
@@ -85,7 +82,7 @@ export function TitleMomentView({ moment, onDismiss }: { moment: TitleMoment; on
     const headlineId = `moment-title-${moment.key}`
     return (
         <MomentFrame momentKey={moment.key} labelledBy={headlineId} sound={moment.major ? "titleWinMajor" : "titleWin"} onDismiss={onDismiss}>
-            <TrophyArt src={moment.trophyPath} size={scale} />
+            <TrophyArt kind={trophyKindForTournament(moment.tier, { major: isMajorTournament(moment.tournamentId) })} size={scale} />
             <motion.div {...reveal(0.35)} className="mt-8 flex items-center gap-3">
                 <MomentOverline>{moment.major ? "Major champions" : "Champions"}</MomentOverline>
                 <TierTag tier={moment.tier} />
@@ -126,7 +123,7 @@ export function LeagueTitleMomentView({ moment, onDismiss }: { moment: LeagueTit
     const headlineId = `moment-league-${moment.key}`
     return (
         <MomentFrame momentKey={moment.key} labelledBy={headlineId} sound="titleWin" onDismiss={onDismiss}>
-            <TrophyArt src={moment.trophy ? "/assets/tournaments/trophy_gold_new.webp" : "/assets/tournaments/trophy_silver_new.webp"} size="minor" />
+            <TrophyArt kind="league" size="minor" />
             <motion.div {...reveal(0.35)} className="mt-8">
                 <MomentOverline>Division champions</MomentOverline>
             </motion.div>

@@ -126,7 +126,6 @@ function buildTitleMoment(
         ...(final ? { matchId: final.id, finalStage: final.stage ?? undefined, finalScore: score } : {}),
         ...(opponent ? { finalOpponentName: opponent.name } : {}),
         ...(tournament.logoPath ? { logoPath: tournament.logoPath } : {}),
-        ...(tournament.trophyPath ? { trophyPath: tournament.trophyPath } : {}),
     }
 }
 
