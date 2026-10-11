@@ -19,6 +19,8 @@
 import type { GameSave } from "../save-types"
 import type { SeededRNG } from "../rng"
 import type { SaveIndexes } from "@/store/indexes"
+import { getMatchTone } from "@/lib/match-stakes"
+import { finalPreview } from "../storylines/narrative"
 
 export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: SaveIndexes): void {
     // 1. Monthly Power Rankings
@@ -41,20 +43,24 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
     // 2. Big Match Preview (Finals)
     const playerTeam = idx?.teamIndex.get(save.playerTeamId) ?? save.teams.find(t => t.id === save.playerTeamId)
     if (playerTeam) {
+        // A final (not a semi- or quarter-final) of the managed club this week.
         const finalsMatch = save.scheduledMatches.find(m =>
             (m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId) &&
             m.week === save.currentWeek &&
-            m.tournamentId && !m.isScrim &&
-            (m.stage?.toLowerCase().includes('final') || m.id.toLowerCase().includes('final'))
+            m.tournamentId && !m.isScrim && !m.tournamentId.startsWith("league_") &&
+            getMatchTone(m.stage ?? undefined, true) === "championship"
         )
 
-        if (finalsMatch) {
+        if (finalsMatch && !save.newsFeed.some(n => n.id === `match_preview_${finalsMatch.id}`)) {
             const tournament = idx?.tournamentIndex.get(finalsMatch.tournamentId!)
                 ?? save.tournaments.find(t => t.id === finalsMatch.tournamentId)
+            // Phase 5.3: the line comes from the club's active storyline (or
+            // its real form), not a canned quote.
+            const preview = finalPreview(save, playerTeam, finalsMatch, tournament?.name || "event")
             save.newsFeed.unshift({
                 id: `match_preview_${finalsMatch.id}`,
-                title: `Grand Final Alert: ${playerTeam.name} Path to Glory`,
-                content: `The world watches as ${playerTeam.name} prepares for the ${tournament?.name || 'Grand Final'}. "We are ready to leave everything on the server," says the team manager.`,
+                title: preview.title,
+                content: preview.content,
                 category: "MATCH",
                 teamId: playerTeam.id,
                 week: save.currentWeek,
