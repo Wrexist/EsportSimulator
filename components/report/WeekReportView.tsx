@@ -12,7 +12,7 @@ import { Activity, AlertTriangle, FileWarning, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { WeekReport } from "@/lib/week-report"
 import { FormGuide } from "@/src/components/ui/FixtureBanner"
-import { formatMoney, moneyLines, playerGroups, resultsLabel, teamRows, type Tone } from "./report-model"
+import { formatMoney, moneyLines, playerGroups, resultsLabel, teamRows, unansweredRows, type Tone } from "./report-model"
 
 const TONE_TEXT: Record<Tone, string> = { up: "text-positive", down: "text-negative", neutral: "text-ink-2" }
 
@@ -57,6 +57,7 @@ export function WeekReportView({ report }: { report: WeekReport }) {
     const players = playerGroups(report)
     const money = moneyLines(report)
     const team = teamRows(report)
+    const unanswered = unansweredRows(report)
     return (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
             {/* Player changes */}
@@ -151,6 +152,21 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                         </dl>
                     )}
                 </section>
+
+                {/* Decisions settled by their stated default */}
+                {unanswered.length > 0 && (
+                    <section className="rounded-lg border border-line bg-panel" aria-label="Unanswered decisions">
+                        <SectionTitle aside={<span className="text-xs text-ink-3">Default applied</span>}>Unanswered</SectionTitle>
+                        <dl className="divide-y divide-line text-[13px]">
+                            {unanswered.map((u, i) => (
+                                <div key={`${u.label}-${i}`} className="flex items-baseline justify-between gap-3 px-4 py-1.5">
+                                    <dt className="min-w-0 truncate text-ink-1">{u.label}</dt>
+                                    <dd className="shrink-0 text-right text-xs text-ink-3">{u.outcome}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </section>
+                )}
 
                 {/* Warnings */}
                 {report.warnings.length > 0 && (

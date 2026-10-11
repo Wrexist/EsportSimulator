@@ -12,7 +12,7 @@
  * career, game over, loading, the forfeit rules of an unplayable fixture).
  */
 
-import { CONTINUE_WEEK_CAP, nextStop, type AdvanceStop, type StopSource } from "@/lib/advance-stops"
+import { CONTINUE_WEEK_CAP, nextStop, stoppedEventIds, type AdvanceStop, type StopSource } from "@/lib/advance-stops"
 import type { WeekReportsState } from "@/lib/week-report"
 
 export interface ContinueRunState {
@@ -148,6 +148,11 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
                     if (stop && stop.kind !== "match" && stop.kind !== "cancelled" && stop.kind !== "cap" && stop.kind !== "error") {
                         for (const key of covered) if (!draft.advanceSeenKeys.includes(key)) draft.advanceSeenKeys.push(key)
                         if (draft.advanceSeenKeys.length > 200) draft.advanceSeenKeys.splice(0, draft.advanceSeenKeys.length - 200)
+                        // A decision or offer stops Continue once per event, for
+                        // good: the mark is saved with the event and survives a
+                        // refresh of the request and a reload (Phase 4.9).
+                        const ids = new Set(stoppedEventIds(covered))
+                        if (ids.size) for (const e of draft.eventsLog) if (ids.has(e.id)) e.data = { ...e.data, continueStopped: true }
                     }
                     if (lastCompletedWeek != null && draft.weekReports?.history.some(r => r.week === lastCompletedWeek)) {
                         draft.weekReportOpen = lastCompletedWeek
