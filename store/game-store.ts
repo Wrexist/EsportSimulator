@@ -504,7 +504,6 @@ export interface GameStoreState extends AdvanceState, MomentsState {
   // UI Celebrations
   pendingCelebration: import("@/engine/save-types").CelebrationData | null
   weekProgress: import("@/store/types").WeekProgressPhase | null
-  pendingSeasonRecap: number | null
   pendingLegendPick: import("@/engine/save-types").LegendPickData | null
   signedLegendIds: string[]
   activelyPlayingLegendIds: string[]
@@ -714,14 +713,12 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
 
   // UI Celebrations
   clearCelebration: () => void
-  clearPendingSeasonRecap: () => void
   selectLegend: (legendId: string) => void
   clearLegendPick: () => void
   debugTriggerCelebration: () => void
   debugTriggerMoment: (kind: import("@/engine/moments").MomentKind, opts?: { major?: boolean }) => void
   debugTriggerInjury: (playerId?: string) => void
   debugTriggerLegendPick: () => void
-  debugTriggerSeasonRecap: () => void
   debugTriggerRetirement: () => void
   debugBoostPlayerSkill: (playerId?: string, amount?: number) => void
   debugMaxAllSkills: () => void
@@ -1084,11 +1081,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       // UI Celebrations
       pendingCelebration: null,
       weekProgress: null,
-      pendingSeasonRecap: null,
       pendingLegendPick: null,
       signedLegendIds: [],
       activelyPlayingLegendIds: [],
-      // clearCelebration / clearPendingSeasonRecap / selectLegend / clearLegendPick
+      // clearCelebration / selectLegend / clearLegendPick
       // moved to store/slices/ui-slice.ts (spread above).
       // First debug actions block (debugTriggerCelebration … debugSetPlayerAge)
       // moved to store/slices/debug-slice.ts (spread above).
@@ -1752,7 +1748,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             gameOverReason: hydratedSave.gameOverReason,
             gameOverWeek: hydratedSave.gameOverWeek,
             pendingCelebration: hydratedSave.pendingCelebration ?? null,
-            pendingSeasonRecap: hydratedSave.pendingSeasonRecap ?? null,
             pendingLegendPick: hydratedSave.pendingLegendPick ?? null,
             momentQueue: restoreMomentQueue(hydratedSave.momentQueue),
             seenMomentKeys: restoreSeenMomentKeys(hydratedSave.seenMomentKeys),

@@ -27,6 +27,5 @@ export function switchClubManagement(save: GameSave, oldTeam: TeamSaveData | und
     for (const role of Object.keys(save.academyRoster)) if (!enrolled.has(save.academyRoster[role] || '')) save.academyRoster[role] = null
     save.playerTeamId = newTeam.id
     save.pendingCelebration = null
-    save.pendingSeasonRecap = null
     save.pendingLegendPick = null
 }

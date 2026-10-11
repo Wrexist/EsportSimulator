@@ -432,8 +432,8 @@ function DevToolsPanel() {
                                             <Button size="sm" variant="outline" onClick={() => { store.debugTriggerLegendPick(); store.addToast({ message: "Legend pick triggered", type: "info" }) }} className="font-mono text-[11px] border-amber-500/20 hover:bg-amber-500/20 justify-start text-amber-400 h-8">
                                                 <Crown size={11} className="mr-1.5" /> Legend Pick
                                             </Button>
-                                            <Button size="sm" variant="outline" onClick={() => { store.debugTriggerSeasonRecap(); store.addToast({ message: "Season recap triggered", type: "info" }) }} className="font-mono text-[11px] border-blue-500/20 hover:bg-blue-500/20 justify-start text-blue-400 h-8">
-                                                <Star size={11} className="mr-1.5" /> Season Recap
+                                            <Button size="sm" variant="outline" onClick={() => store.debugTriggerMoment("season-review")} title="The last closed season of this save (or the season so far), from its real records" className="font-mono text-[11px] border-blue-500/20 hover:bg-blue-500/20 justify-start text-blue-400 h-8">
+                                                <Star size={11} className="mr-1.5" /> Season review
                                             </Button>
                                             <Button size="sm" variant="outline" onClick={() => { store.debugTriggerTransferOffer(); store.addToast({ message: "Transfer offer triggered", type: "info" }) }} className="font-mono text-[11px] border-green-500/20 hover:bg-green-500/20 justify-start text-green-400 h-8">
                                                 <Swords size={11} className="mr-1.5" /> Transfer Offer

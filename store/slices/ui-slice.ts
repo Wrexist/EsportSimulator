@@ -78,10 +78,6 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         state.pendingCelebration = null
     }),
 
-    clearPendingSeasonRecap: () => set((state) => {
-        state.pendingSeasonRecap = null
-    }),
-
     clearLegendPick: () => set((state) => {
         state.pendingLegendPick = null
     }),

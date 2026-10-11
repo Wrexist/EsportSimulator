@@ -118,11 +118,13 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
     item: InboxItem
     ctx: InboxContext
     onBack?: () => void
-    onOpenAwards: (awards: unknown) => void
+    /** Opens the season's review at the awards ceremony. */
+    onOpenAwards: (season: number) => void
 }) {
-    const { budget, acknowledgeEvent } = useGameStore(useShallow(s => ({
+    const { budget, acknowledgeEvent, recordBook } = useGameStore(useShallow(s => ({
         budget: s.teams.find(t => t.id === s.playerTeamId)?.budget ?? 0,
         acknowledgeEvent: s.acknowledgeEvent,
+        recordBook: s.recordBook,
     })))
 
     if (item.source === "news" && item.news) {
@@ -156,6 +158,8 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
     const deadline = item.decision ? answerByWeek(event) : null
     const meta = [weekLabel(event.week, ctx.currentWeek), deadline != null ? `Answer by week ${deadline}` : null].filter(Boolean).join(" · ")
     const playerId = data.playerId != null && ctx.rosterIds.has(String(data.playerId)) ? String(data.playerId) : null
+    // The awards replay from the season's stored honours (kept for the last seasons only).
+    const awardsSeason = event.type === "MEDIA" && isRealAwards(data.proAwards) && recordBook?.honours.some(h => h.season === data.proAwards.year) ? data.proAwards.year as number : null
 
     return (
         <article className="flex h-full min-h-0 flex-col">
@@ -183,8 +187,8 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
                 {item.decision === "transfer_offer" && <TransferOfferDecision event={event} ctx={ctx} />}
                 {item.decision === "job_offer" && <JobOfferDecision event={event} />}
                 {!item.decision && <ResolvedNote event={event} />}
-                {event.type === "MEDIA" && isRealAwards(data.proAwards) && (
-                    <Button variant="outline" onClick={() => onOpenAwards(data.proAwards)}>Open the awards ceremony</Button>
+                {awardsSeason != null && (
+                    <Button variant="outline" onClick={() => onOpenAwards(awardsSeason)}>Open the awards ceremony</Button>
                 )}
                 {item.decision !== "transfer_offer" && <EventLinks event={event} />}
             </div>

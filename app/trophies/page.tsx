@@ -1,9 +1,9 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
+import dynamic from "next/dynamic"
 import Image from "next/image"
 import Link from "next/link"
-import { Trophy } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import { WEEKS_PER_YEAR } from "@/lib/constants"
@@ -12,19 +12,20 @@ import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { Button } from "@/components/ui/button"
+import { trophyArtKind } from "@/components/squad/TrophyCabinet"
 import { cn } from "@/lib/utils"
+import { trophyArtFor, trophyKindForTournament } from "@/lib/trophy-art"
+import { RECORD_LABEL } from "@/lib/season-review-view"
 import { isMajorTournament, isOfficialMatch } from "@/engine/official-stats"
+import { isLeagueMatchId, ordinal } from "@/engine/season/regional-league"
 import { RECORD_KEYS, type RecordEntry, type RecordKey } from "@/engine/records-types"
+
+const SeasonReviewReplay = dynamic(() => import("@/components/moments/season-review/SeasonReviewReplay").then(m => m.SeasonReviewReplay), { ssr: false })
 
 const TIER_ORDER = ["S_TIER", "A_TIER", "B_TIER", "C_TIER"] as const
 const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier" }
 const displayName = (name: string) => name.replace(/\s+\d{4}$/, "")
-const RECORD_LABEL: Record<RecordKey, string> = {
-    bestMapRating: "Best map rating",
-    mostMapKills: "Most kills in a map",
-    biggestWin: "Biggest map win",
-    longestWinStreak: "Longest win streak",
-}
 const weekLabel = (week: number) => `S${Math.ceil(week / WEEKS_PER_YEAR)} W${((week - 1) % WEEKS_PER_YEAR) + 1}`
 const baseId = (id: string) => id.replace(/_s\d+$/, "")
 
@@ -52,11 +53,14 @@ export default function TrophyRoomPage() {
             .map((t, i) => {
                 const cal = FULL_TOURNAMENT_CALENDAR.find(c => c.id === t.tournamentId || c.id === baseId(t.tournamentId || ""))
                 const mvpId = t.mvpId ?? (t.tournamentId ? eventMvp.get(t.tournamentId) : undefined)
+                const tier = t.tier || cal?.tier || "B_TIER"
                 return {
                     key: `${t.tournamentId || "tr"}_${t.week || 0}_${i}`,
                     calId: cal?.id ?? null,
                     name: displayName(t.tournamentName || cal?.name || "Tournament"),
-                    tier: t.tier || cal?.tier || "B_TIER",
+                    tier,
+                    tierLabel: isLeagueMatchId(t.tournamentId) ? "League" : TIER_LABEL[tier] ?? tier,
+                    art: trophyArtFor(trophyArtKind({ tournamentId: t.tournamentId ?? "", tier })),
                     major: isMajorTournament(t.tournamentId),
                     week: t.week || 0,
                     year: Math.floor(startYear + (t.week || 0) / WEEKS_PER_YEAR),
@@ -72,7 +76,7 @@ export default function TrophyRoomPage() {
         for (const t of titles) if (t.calId) wins.set(t.calId, (wins.get(t.calId) ?? 0) + 1)
         return FULL_TOURNAMENT_CALENDAR
             .filter(c => c.tier !== "QUALIFIER")
-            .map(c => ({ id: c.id, name: displayName(c.name), tier: c.tier as string, logo: c.logoPath, won: wins.get(c.id) ?? 0 }))
+            .map(c => ({ id: c.id, name: displayName(c.name), tier: c.tier as string, logo: c.logoPath, art: trophyArtFor(trophyKindForTournament(c.tier, { major: isMajorTournament(c.id) })), won: wins.get(c.id) ?? 0 }))
             .sort((a, b) => TIER_ORDER.indexOf(a.tier as typeof TIER_ORDER[number]) - TIER_ORDER.indexOf(b.tier as typeof TIER_ORDER[number]) || b.won - a.won)
     }, [titles])
 
@@ -107,6 +111,24 @@ export default function TrophyRoomPage() {
     }
     const season = Math.floor((currentWeek - 1) / WEEKS_PER_YEAR) + 1
 
+    // Closed seasons (stored honours), newest first: each replays its season review.
+    const [replaySeason, setReplaySeason] = useState<number | null>(null)
+    const reviews = useMemo(() => [...(recordBook?.honours ?? [])].reverse().map(h => {
+        const uc = h.userClub
+        const pos = uc?.finalLeaguePosition
+        return {
+            season: h.season,
+            club: uc ? teams.find(t => t.id === uc.teamId)?.name : undefined,
+            line: [
+                pos ? `${ordinal(pos.position)} in ${pos.division}` : null,
+                uc ? `${uc.record.wins}–${uc.record.losses}` : null,
+                uc?.trophies.length ? `${uc.trophies.length} title${uc.trophies.length === 1 ? "" : "s"}` : null,
+                uc?.tierMove === "promoted" ? "promoted" : uc?.tierMove === "relegated" ? "relegated" : null,
+            ].filter(Boolean).join(" · "),
+            mvp: h.mvp?.name,
+        }
+    }), [recordBook, teams])
+
     return (
         <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
             <ScreenHeader
@@ -138,11 +160,14 @@ export default function TrophyRoomPage() {
                                 c.won > 0 ? "border-gold/50 bg-gold/5" : "border-line bg-shell",
                             )}
                         >
-                            <div className={cn("relative h-14 w-14", c.won === 0 && "opacity-35 grayscale")}>
-                                {c.logo ? <Image src={c.logo} alt="" fill sizes="56px" className="object-contain" /> : <Trophy className="h-full w-full text-ink-3" />}
+                            <div className={cn("relative h-16 w-16", c.won === 0 && "opacity-30 grayscale")}>
+                                <Image src={c.art.src} alt={c.won > 0 ? c.art.label : ""} fill sizes="64px" className="object-contain" />
                             </div>
-                            <p className={cn("mt-3 line-clamp-2 min-h-[2.5em] text-xs font-semibold leading-tight", c.won > 0 ? "text-ink-1" : "text-ink-3")}>{c.name}</p>
-                            <p className="mt-1 text-[11px] uppercase tracking-[0.06em] text-ink-3">{TIER_LABEL[c.tier] ?? c.tier}</p>
+                            <p className={cn("mt-2 line-clamp-2 min-h-[2.5em] text-xs font-semibold leading-tight", c.won > 0 ? "text-ink-1" : "text-ink-3")}>{c.name}</p>
+                            <p className="mt-1 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.06em] text-ink-3">
+                                {c.logo && <span className="relative h-3.5 w-3.5 shrink-0"><Image src={c.logo} alt="" fill sizes="14px" className="object-contain" /></span>}
+                                {TIER_LABEL[c.tier] ?? c.tier}
+                            </p>
                             <p className={cn("mt-1.5 text-xs font-semibold tabular-nums", c.won > 0 ? "text-gold" : "text-ink-3")}>{c.won > 0 ? `Won ×${c.won}` : "Not won"}</p>
                         </div>
                     ))}
@@ -166,8 +191,13 @@ export default function TrophyRoomPage() {
                                 {titles.map(t => (
                                     <tr key={t.key} data-slot="table-row" className="h-11 border-b border-line">
                                         <td className="pl-4 text-sm tabular-nums text-ink-3">{t.year}</td>
-                                        <td className="px-3 text-sm font-semibold text-gold">{t.name}</td>
-                                        <td className="px-3 text-xs text-ink-2">{TIER_LABEL[t.tier] ?? t.tier}</td>
+                                        <td className="px-3 text-sm font-semibold text-gold">
+                                            <span className="flex items-center gap-2.5">
+                                                <Image src={t.art.src} alt="" width={26} height={26} className="h-[26px] w-[26px] shrink-0 object-contain" />
+                                                {t.name}
+                                            </span>
+                                        </td>
+                                        <td className="px-3 text-xs text-ink-2">{t.tierLabel}</td>
                                         <td className="px-3 text-right text-sm tabular-nums text-ink-2">{t.week}</td>
                                         <td className="pl-3 pr-4 text-sm text-ink-1">{t.mvp ? <Link href={`/player/${t.mvp.id}`} className="hover:text-gold">{t.mvp.nickname}</Link> : <span className="text-ink-3">—</span>}</td>
                                     </tr>
@@ -183,6 +213,22 @@ export default function TrophyRoomPage() {
                 </Panel>
 
                 <div className="min-w-0 space-y-4">
+                <Panel title="Season reviews" padded={false}>
+                    {reviews.length > 0 ? (
+                        <ul className="divide-y divide-line">
+                            {reviews.map(r => (
+                                <li key={r.season} className="flex items-center gap-3 px-4 py-2.5">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-sm font-semibold text-ink-1">Season {r.season}{r.club ? <span className="font-normal text-ink-3"> · {r.club}</span> : null}</p>
+                                        <p className="mt-0.5 truncate text-xs text-ink-3" title={r.line}>{[r.line, r.mvp ? `MVP ${r.mvp}` : null].filter(Boolean).join(" · ") || "No official results"}</p>
+                                    </div>
+                                    <Button variant="outline" size="sm" onClick={() => setReplaySeason(r.season)}>Replay</Button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : <p className="px-4 py-6 text-sm text-ink-3">Each season ends with a review: your season, the awards, the team of the season and its records. Replay them here.</p>}
+                </Panel>
+
                 <Panel title="Club records" padded={false}>
                     {clubRecords && RECORD_KEYS.some(k => clubRecords[k]) ? (
                         <ul className="divide-y divide-line">
@@ -220,6 +266,7 @@ export default function TrophyRoomPage() {
                 </Panel>
                 </div>
             </div>
+            {replaySeason != null && <SeasonReviewReplay season={replaySeason} onClose={() => setReplaySeason(null)} />}
         </div>
     )
 }

@@ -93,7 +93,6 @@ export function buildSaveSnapshot(state: SaveSnapshotState): GameSave {
         difficulty: state.difficulty,
         lastPlayedAt: new Date().toISOString(),
         pendingCelebration: state.pendingCelebration,
-        pendingSeasonRecap: state.pendingSeasonRecap,
         pendingLegendPick: state.pendingLegendPick,
         signedLegendIds: state.signedLegendIds || [],
         activelyPlayingLegendIds: state.activelyPlayingLegendIds || [],

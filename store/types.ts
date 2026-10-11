@@ -123,7 +123,6 @@ export interface UIState {
   pendingCelebration: CelebrationData | null
   /** Current real stage of a week advance (transient, never saved). */
   weekProgress: WeekProgressPhase | null
-  pendingSeasonRecap: number | null
   pendingLegendPick: LegendPickData | null
   legendaryPlayers: PlayerSaveData[]
   hallOfFame: HallOfFameEntry[]
@@ -280,7 +279,6 @@ export interface UIActions {
   addToast: (toast: { message: string; type: "level_up" | "xp_gain" | "achievement" | "info" | "warning" | "error"; duration?: number }) => void
   removeToast: (id: string) => void
   clearCelebration: () => void
-  clearPendingSeasonRecap: () => void
   selectLegend: (legendId: string) => void
   clearLegendPick: () => void
   setWeeklyActivity: (type: WeeklyActivityType) => void
@@ -324,7 +322,6 @@ export interface DebugActions {
   debugTriggerMoment: (kind: import("@/engine/moments").MomentKind, opts?: { major?: boolean }) => void
   debugTriggerInjury: (playerId?: string) => void
   debugTriggerLegendPick: () => void
-  debugTriggerSeasonRecap: () => void
   debugTriggerRetirement: () => void
   debugBoostPlayerSkill: (playerId?: string, amount?: number) => void
   debugMaxAllSkills: () => void

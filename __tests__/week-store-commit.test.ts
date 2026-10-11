@@ -25,14 +25,14 @@ describe("store week commit boundary", () => {
   afterEach(async () => { jest.restoreAllMocks(); await debouncedStorage.flush() })
 
   test("loading an older career cannot inherit another career's commit marker", async () => {
-    useGameStore.setState({ lastCommittedWeekTick: 52, watchlistedPlayerIds: ['other-career'], activeMatchId: 'other-match', pendingSeasonRecap: 5, gameOverReason: 'SACKED' })
+    useGameStore.setState({ lastCommittedWeekTick: 52, watchlistedPlayerIds: ['other-career'], activeMatchId: 'other-match', momentQueue: [{ key: 'season-review:5', kind: 'season-review', week: 261, season: 5, teamId: 'other' }], gameOverReason: 'SACKED' })
     const oldSave = saveManager.createSave("Older career", { teams: [], players: [], contracts: [], staff: [], playerTeamId: "player" })
     jest.spyOn(saveManager, "loadGame").mockResolvedValue({ save: oldSave })
     await useGameStore.getState().loadGame(oldSave.saveId)
     expect(useGameStore.getState().lastCommittedWeekTick).toBeUndefined()
     expect(useGameStore.getState().watchlistedPlayerIds).toEqual([])
     expect(useGameStore.getState().activeMatchId).toBeNull()
-    expect(useGameStore.getState().pendingSeasonRecap).toBeNull()
+    expect(useGameStore.getState().momentQueue).toEqual([])
     expect(useGameStore.getState().gameOverReason).toBeUndefined()
     const write = jest.spyOn(saveManager, "saveGame").mockResolvedValue({ success: true })
     await useGameStore.getState().saveGame()
