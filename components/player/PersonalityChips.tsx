@@ -8,7 +8,7 @@ export function ArchetypeChip({ archetype, className }: { archetype: Personality
     return (
         <span
             title={`${info.label}: ${info.short}\n${info.effects.map(e => `• ${e}`).join("\n")}`}
-            className={cn("inline-flex items-center rounded-sm border border-gold/40 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-gold", className)}
+            className={cn("inline-flex items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold leading-none text-ink-1", className)}
         >
             {info.label}
         </span>

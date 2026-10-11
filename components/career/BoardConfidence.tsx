@@ -59,7 +59,7 @@ export function BoardConfidenceScale({ value, className }: { value: number; clas
                 ))}
                 <span aria-hidden="true" className="absolute -top-1 h-[18px] w-1 -translate-x-1/2 rounded-full bg-ink-1 shadow-[0_0_0_2px_#12161C]" style={{ left: `${c}%` }} />
                 {ticks.map(t => (
-                    <span key={`l${t.at}`} aria-hidden="true" className="absolute top-4 -translate-x-1/2 whitespace-nowrap text-[10px] tabular-nums text-ink-3" style={{ left: `${t.at}%` }}>
+                    <span key={`l${t.at}`} aria-hidden="true" className="absolute top-4 -translate-x-1/2 whitespace-nowrap text-[11px] tabular-nums text-ink-3" style={{ left: `${t.at}%` }}>
                         {t.at}
                     </span>
                 ))}

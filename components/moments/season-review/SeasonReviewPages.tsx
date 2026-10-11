@@ -286,7 +286,7 @@ export function Top20Page({ headingId }: { headingId: string }) {
                         {r.nationality && <CountryFlag country={r.nationality} size={14} />}
                         <span className="truncate text-xs text-ink-3">{r.teamName}</span>
                     </div>
-                    {r.ours && <span className="shrink-0 rounded-sm border border-gold/50 px-1 py-px text-[10px] font-semibold uppercase tracking-[0.06em] text-gold">Yours</span>}
+                    {r.ours && <span className="shrink-0 rounded-sm border border-gold/50 px-1 py-px text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">Yours</span>}
                     <span className="w-14 shrink-0 text-right font-display text-[22px] font-bold leading-none tabular-nums text-ink-1">{rating2(r.rating)}</span>
                 </motion.li>
             ))}
@@ -331,7 +331,7 @@ export function TeamOfSeasonPage({ headingId }: { headingId: string }) {
                             <PlayerPortrait src={p.portraitPath} seed={p.playerId} alt={p.name} fill className="object-cover object-top" />
                             <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-ink/95 to-transparent" />
                             <RoleTag role={p.role} className="absolute left-3 top-3 bg-ink/70" />
-                            {p.ours && <span className="absolute right-3 top-3 rounded-sm border border-gold/60 bg-ink/70 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-gold">Your club</span>}
+                            {p.ours && <span className="absolute right-3 top-3 rounded-sm border border-gold/60 bg-ink/70 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">Your club</span>}
                             <p className="absolute bottom-3 left-3 font-display text-[40px] font-extrabold leading-none tabular-nums text-gold">{rating2(p.rating)}</p>
                         </div>
                         <div className="px-4 pb-4 pt-3 text-left">
@@ -373,7 +373,7 @@ export function RecordsPage({ headingId }: { headingId: string }) {
                             <Card highlight={r.allTime || r.ours} className="h-full">
                                 <div className="flex items-center justify-between gap-2">
                                     <CardLabel>{r.label}</CardLabel>
-                                    {r.allTime && <span className="rounded-sm border border-gold/60 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-gold">All-time record</span>}
+                                    {r.allTime && <span className="rounded-sm border border-gold/60 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">All-time record</span>}
                                 </div>
                                 <p className="mt-2 font-display text-[52px] font-extrabold leading-none tabular-nums text-ink-1">{r.value}</p>
                                 <p className={cn("mt-2 truncate text-base font-semibold", r.ours ? "text-gold" : "text-ink-1")}>{r.holder}{r.holder !== r.teamName ? <span className="font-normal text-ink-3"> · {r.teamName}</span> : null}</p>

@@ -195,7 +195,7 @@ export function SeasonReviewSequence({ view, teams, mode, momentKey, startAt, on
                     </ol>
                     {!last && (
                         <Button variant="ghost" size="sm" onClick={skipToEnd} disabled={!armed} className="text-xs">
-                            Skip to end <kbd className="rounded-sm border border-line-strong px-1 text-[10px] text-ink-3">Esc</kbd>
+                            Skip to end <kbd className="rounded-sm border border-line-strong px-1 text-[11px] text-ink-3">Esc</kbd>
                         </Button>
                     )}
                 </nav>

@@ -390,13 +390,15 @@ export default function MatchResultPage() {
                         </Button>
                     )}
                 </div>
+                {/* The top bar's gold CONTINUE / Play match is this view's one
+                    primary action; the page offers the same step as a secondary. */}
                 {nextPlayerMatch && nextMatchPlayableNow ? (
-                    <Button onClick={() => router.push(`/match/${nextPlayerMatch.id}/tactics`)} className="h-11 gap-2 px-6 text-base">
-                        <Swords size={17} aria-hidden="true" /> Play next match
+                    <Button variant="outline" onClick={() => router.push(`/match/${nextPlayerMatch.id}/tactics`)} className="h-10 gap-2 px-5">
+                        <Swords size={16} aria-hidden="true" /> Play next match
                     </Button>
                 ) : (
-                    <Button onClick={() => router.push("/")} className="h-11 gap-2 px-6 text-base">
-                        Continue <ArrowRight size={17} aria-hidden="true" />
+                    <Button variant="outline" onClick={() => router.push("/")} className="h-10 gap-2 px-5">
+                        Done <ArrowRight size={16} aria-hidden="true" />
                     </Button>
                 )}
             </div>
