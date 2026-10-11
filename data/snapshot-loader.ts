@@ -549,11 +549,15 @@ export class SnapshotLoader {
                     teamId: team.id,
                     salaryPerWeek: contract.salary,
                     startWeek: startWeek,
-                    // Pass 2 (AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS): spread
-                    // expiry across the season instead of every opening contract
-                    // ending on a season boundary in the same week.
-                    endWeek: Math.max(startWeek + AI_SQUAD_TUNING.INITIAL_CONTRACT_MIN_WEEKS,
-                        startWeek + (contract.years * 52) + rng.int(-AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS, AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS)),
+                    // Opening deals were signed before the career began, so each
+                    // has already run a seeded share of its length: the weeks
+                    // left are drawn between INITIAL_CONTRACT_MIN_WEEKS and the
+                    // nominal length + INITIAL_CONTRACT_STAGGER_WEEKS. Before,
+                    // every deal of a player aged 20-30 ran 78+ weeks, so none
+                    // reached its final year in season 1 (no renewals to manage,
+                    // no contract standoffs).
+                    endWeek: startWeek + rng.int(AI_SQUAD_TUNING.INITIAL_CONTRACT_MIN_WEEKS,
+                        contract.years * 52 + AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS),
                     buyout: contract.buyout, // Use calculated buyout from contract formula
                 })
             })

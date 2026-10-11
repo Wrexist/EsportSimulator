@@ -343,6 +343,19 @@ describe('balance pass 2', () => {
         expect(Math.min(...a)).toBeGreaterThanOrEqual(1 + AI_SQUAD_TUNING.INITIAL_CONTRACT_MIN_WEEKS)
     })
 
+    test('Phase 5 fix: opening deals have already run part of their length, so prime-age deals also end in season 1', () => {
+        const loader = new (SnapshotLoaderClass as never as new () => { generateContracts: (...a: unknown[]) => Array<{ endWeek: number }> })()
+        // Age 25: two- or three-year deals. Before the fix none ended before week 79.
+        const players = Array.from({ length: 300 }, (_, i) => ({ id: `s${i}`, age: 25, tier: 'PRO', skill: 60 }))
+        const ends = loader.generateContracts(players, [{ id: 't', rosterIds: players.map(p => p.id) }], 1, new SeededRNG(11)).map(c => c.endWeek)
+        const share = (f: (w: number) => boolean) => ends.filter(f).length / ends.length
+        expect(share(w => w <= 52)).toBeGreaterThan(0.1)
+        // Deals reaching their final year within season 1 (end by week 104): most, not all.
+        expect(share(w => w <= 104)).toBeGreaterThan(0.4)
+        expect(share(w => w <= 104)).toBeLessThan(0.9)
+        expect(Math.max(...ends)).toBeLessThanOrEqual(1 + 3 * 52 + AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS)
+    })
+
     test('free-agent retirement and AI scouting respond to pool size', () => {
         expect(freeAgentPoolFactor(10, 100)).toBe(FREE_AGENT_TUNING.POOL_FACTOR_MIN)
         expect(freeAgentPoolFactor(FREE_AGENT_TUNING.POOL_TARGET_PER_CLUB * 100, 100)).toBe(1)

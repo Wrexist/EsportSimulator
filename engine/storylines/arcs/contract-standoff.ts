@@ -1,12 +1,16 @@
 /**
- * Contract standoff: one of the club's three highest-rated players, Ambitious
- * or Mercenary, with 6–12 weeks left and no new deal.
+ * Contract standoff: one of the club's STANDOFF_TOP_N highest-rated players
+ * (the starting-five calibre), Ambitious or Mercenary, in the final year of
+ * his deal (STANDOFF_MIN_WEEKS-STANDOFF_MAX_WEEKS left) with no new one.
+ * At most MAX_PER_SEASON a season (engine/storylines/index.ts).
  *
  *   0. His agent goes public (news).
  *   1. Talks (decision): offer the stated wage now (a real renewal), wait, or
  *      transfer-list him.
  *   2. Resolution: renewed (any route), he leaves, or, having waited, he hands
- *      in a transfer request (the Phase 5.2 path) in the week the talks named.
+ *      in a transfer request (the Phase 5.2 path) in the week the talks named:
+ *      STANDOFF_PATIENCE_WEEKS after the talks, or STANDOFF_REQUEST_BEFORE_END
+ *      before his deal ends if that is sooner.
  */
 
 import type { ArcCandidate, ArcDefinition, StoryContext } from "../common"
@@ -98,7 +102,7 @@ export const contractStandoff: ArcDefinition = {
             const raise = Math.round((ask / Math.max(1, wage) - 1) * 100)
             const runway = (ask - wage) * S.STANDOFF_RUNWAY_WEEKS
             const newEnd = c.endWeek + S.STANDOFF_EXTENSION_WEEKS
-            const requestWeek = Math.max(ctx.week + S.DECISION_WINDOW + 1, c.endWeek - S.STANDOFF_REQUEST_BEFORE_END)
+            const requestWeek = Math.max(ctx.week + S.DECISION_WINDOW + 1, Math.min(c.endWeek - S.STANDOFF_REQUEST_BEFORE_END, ctx.week + S.STANDOFF_PATIENCE_WEEKS))
             const value = Math.round(evaluatePlayer(p, undefined, undefined, ctx.week).transferValue)
             const raised = raiseDecision(ctx, arc, {
                 title: `Contract talks: ${n}`,
