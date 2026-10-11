@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import type { SeasonReviewMoment } from "@/engine/moments"
 import { useGameStore } from "@/store/game-store"
 import { buildSeasonReviewView } from "@/lib/season-review-view"
@@ -20,7 +20,12 @@ export function SeasonReviewMomentView({ moment, onDismiss }: { moment: SeasonRe
     const acknowledgeEvent = useGameStore(s => s.acknowledgeEvent)
 
     // Nothing recorded for that season (a save from before Phase 5.1): never hold Continue on it.
-    useEffect(() => { if (!view) onDismiss() }, [view, onDismiss])
+    const skipped = useRef(false)
+    useEffect(() => {
+        if (view || skipped.current) return
+        skipped.current = true
+        onDismiss()
+    }, [view, onDismiss])
     if (!view) return null
 
     return (

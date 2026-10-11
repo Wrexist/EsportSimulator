@@ -79,7 +79,7 @@ export function SeasonReviewSequence({ view, teams, mode, momentKey, startAt, on
         else go(pages.length - 1)
     }, [close, go, last, pages.length])
 
-    const dialogRef = useFocusTrap<HTMLDivElement>(true, skipToEnd)
+    const dialogRef = useFocusTrap(true, skipToEnd)
     useMomentOnScreen()
 
     // Open: the review's cue (once per moment), the celebration loop after a
