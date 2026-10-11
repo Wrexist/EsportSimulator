@@ -212,7 +212,8 @@ export default function AcademyPage() {
 
                 <aside className="min-w-0 space-y-4">
                     <Panel
-                        title={`Level ${level} · ${info.name}`}
+                        eyebrow={info.name}
+                        title={`Academy level ${level}`}
                         actions={next ? (
                             <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={team.budget < next.buildCost}
                                 onClick={() => run(s.upgradeAcademy(team.id), "Academy upgraded")}>

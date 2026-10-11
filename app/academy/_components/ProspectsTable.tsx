@@ -111,7 +111,7 @@ export function ProspectsTable({ rows, academyLevel, currentWeek, academyRoster,
                                 <td className="px-3">
                                     <div className="w-[170px]">
                                         <Meter value={prospect.developmentProgress} label="Development progress" tone={prospect.readyForPromotion ? "positive" : "neutral"} showValue={false} trackClassName="w-full" />
-                                        <p className={cn("mt-1 truncate text-xs", prospect.readyForPromotion ? "font-semibold text-positive" : "text-ink-3")}>{readiness(prospect, player)}</p>
+                                        <p title={readiness(prospect, player)} className={cn("mt-1 truncate text-xs", prospect.readyForPromotion ? "font-semibold text-positive" : "text-ink-3")}>{readiness(prospect, player)}</p>
                                         {tired && <p className="text-xs text-caution">Tired: drills give 20% less XP</p>}
                                     </div>
                                 </td>

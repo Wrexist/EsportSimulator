@@ -40,7 +40,7 @@ export function NavigationSearch({ compact = false, disabled }: { compact?: bool
         >
             <Search size={15} className="shrink-0" />
             <span className={compact ? "hidden text-xs 2xl:inline" : "flex-1 text-left text-xs"}>Go to…</span>
-            <kbd className="rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3">Ctrl K</kbd>
+            <kbd className={compact ? "hidden rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3 2xl:inline" : "rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3"}>Ctrl K</kbd>
         </button>
         </DialogTrigger>
             <DialogContent className="overflow-hidden p-0 sm:max-w-lg" showCloseButton={false}>
