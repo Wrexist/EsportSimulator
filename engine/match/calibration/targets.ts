@@ -1,9 +1,9 @@
 /**
- * Pro-CS2 calibration targets for the match engine (Phase 2B, item H).
+ * Pro-level calibration targets for the match engine (Phase 2B, item H).
  *
  * One row per metric the harness (./run.ts) measures. Reference numbers are
  * approximate: the audit's benchmark table (docs/revamp/AUDIT_2026-10-09.md
- * §3a/§7) where it has one, otherwise an estimate from pro CS2 aggregates or a
+ * §3a/§7) where it has one, otherwise an estimate from pro-match aggregates or a
  * design intent (skill curve, agency) that has no pro equivalent. The pass
  * band is what calibration aims for; the warn band is "close, keep an eye on
  * it"; anything outside the warn band fails.
@@ -35,7 +35,7 @@ export interface CalibrationTarget {
     suite: SuiteId
     /** Display unit: '%' values are 0–100. */
     unit: '%' | 'rounds' | '/map' | '/round' | 'x' | 'pts' | 'ms' | 'count' | 'rating'
-    /** Reference shown in the report (pro CS2 where known, else the design intent). */
+    /** Reference shown in the report (pro-match data where known, else the design intent). */
     reference: string
     rule: TargetRule
     source: string
@@ -55,11 +55,11 @@ export const GROUP_LABELS: Record<MetricGroup, string> = {
     performance: 'Performance',
 }
 
-const AUDIT = 'Audit 2026-10-09 §3a/§7 (pro CS2, approx.)'
-const ESTIMATE = 'Estimate from pro CS2 aggregates (approx., unverified)'
+const AUDIT = 'Audit 2026-10-09 §3a/§7 (pro matches, approx.)'
+const ESTIMATE = 'Estimate from pro-match aggregates (approx., unverified)'
 const DESIGN = 'Design target (no pro equivalent)'
 /**
- * Multi-kills from HLTV's published Rating 1.0 averages: KPR 0.679 and the
+ * Multi-kills from published pro Rating 1.0 averages: KPR 0.679 and the
  * multi-kill value RMK = (1K + 4·2K + 9·3K + 16·4K + 25·5K) / rounds = 1.277,
  * i.e. E[k²] per player-round. A beta-binomial over the five kills a player
  * can make that matches both moments puts 4-kill rounds at ≈ 0.90% and aces
@@ -69,7 +69,7 @@ const DESIGN = 'Design target (no pro equivalent)'
  * map (half that per team). The earlier 0.35 / 0.06 per map was per-team
  * scale or less, below even the Poisson bound.
  */
-const MULTIKILL = 'HLTV Rating 1.0 averages (KPR 0.679, RMK 1.277), beta-binomial fit (approx.)'
+const MULTIKILL = 'Pro Rating 1.0 averages (KPR 0.679, RMK 1.277), beta-binomial fit (approx.)'
 /**
  * 1vX situations follow from the other targets: every round in which the
  * losing side is wiped passes through a 1vX for that side, and every clutch

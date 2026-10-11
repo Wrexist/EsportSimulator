@@ -58,7 +58,7 @@ import type { BuyStrategy } from './buy-phase'
 import type { PlayerSimulationState } from './round-outcome'
 import { LEGACY_ENGINE_VERSION, SCRIPT_ENGINE_VERSION, type EngineVersion } from './engine-version'
 import type { ScriptRoundExtra, ScriptSeries } from './round-sim'
-import { applyCs2RoundEconomy, CS2_OVERTIME_START_CASH, CS2_START_LOSS_LEVEL } from './round-sim/economy'
+import { applyScriptRoundEconomy, ECON_OVERTIME_START_CASH, ECON_START_LOSS_LEVEL } from './round-sim/economy'
 
 export type ManagerStrategy = 'ECO' | 'FORCE' | 'SEMIBUY' | 'FULL' | 'DOUBLE AWP'
 export const MANAGER_STRATEGIES: readonly ManagerStrategy[] = ['ECO', 'FORCE', 'SEMIBUY', 'FULL', 'DOUBLE AWP']
@@ -271,15 +271,15 @@ function mapStartSim(ctx: LegacySeriesContext, mapIndex: number, homeSeries: num
         homeRounds: 0, awayRounds: 0, currentMapIndex: mapIndex, currentRound: 1,
         homeSeriesScore: homeSeries, awaySeriesScore: awaySeries,
         isOvertime: false, currentOTSet: 0, homeStartsCT, homeMomentumScore: 0, awayMomentumScore: 0,
-        ...(isScript(ctx) ? { homeLossLevel: CS2_START_LOSS_LEVEL, awayLossLevel: CS2_START_LOSS_LEVEL } : {}),
+        ...(isScript(ctx) ? { homeLossLevel: ECON_START_LOSS_LEVEL, awayLossLevel: ECON_START_LOSS_LEVEL } : {}),
     }
 }
 
 const isScript = (ctx: LegacySeriesContext) => ctx.engineVersion === SCRIPT_ENGINE_VERSION
 
-/** Overtime start money: $10,000 (legacy-v2) or the CS2 $12,500 (script-v1). */
+/** Overtime start money: $10,000 (legacy-v2) or the $12,500 (script-v1). */
 function overtimeCash(ctx: LegacySeriesContext): number {
-    return isScript(ctx) ? CS2_OVERTIME_START_CASH : 10000
+    return isScript(ctx) ? ECON_OVERTIME_START_CASH : 10000
 }
 
 export function createLegacySeriesState(ctx: LegacySeriesContext): LegacySeriesState {
@@ -293,7 +293,7 @@ function swapSides(ctx: LegacySeriesContext, sim: LegacySimState, cash: number):
     sim.awayEconomy = freshEconomy(ctx.away.players, !sim.homeStartsCT, cash)
     sim.homeWinStreak = sim.awayWinStreak = sim.homeLossStreak = sim.awayLossStreak = 0
     sim.homeMomentumScore = sim.awayMomentumScore = 0
-    if (isScript(ctx)) sim.homeLossLevel = sim.awayLossLevel = CS2_START_LOSS_LEVEL
+    if (isScript(ctx)) sim.homeLossLevel = sim.awayLossLevel = ECON_START_LOSS_LEVEL
 }
 
 /**
@@ -425,10 +425,10 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     }
 
     if (isScript(ctx)) {
-        // CS2 economy: loss-bonus levels, plant/defuse rewards, kill rewards per weapon, grenades consumed.
-        const applied = applyCs2RoundEconomy({
+        // Round economy: loss-bonus levels, plant/defuse rewards, kill rewards per weapon, grenades consumed.
+        const applied = applyScriptRoundEconomy({
             homeEconomy: hEcon, awayEconomy: aEcon, winner: r.winner, winType: r.winType, events: r.events, homeIsCT,
-            homeLossLevel: sim.homeLossLevel ?? CS2_START_LOSS_LEVEL, awayLossLevel: sim.awayLossLevel ?? CS2_START_LOSS_LEVEL,
+            homeLossLevel: sim.homeLossLevel ?? ECON_START_LOSS_LEVEL, awayLossLevel: sim.awayLossLevel ?? ECON_START_LOSS_LEVEL,
             utilityUsed: r.utilityUsed,
         })
         sim.homeEconomy = cloneEconomy(home.players, applied.homeEconomy, homeIsCT)

@@ -12,7 +12,7 @@
  * Modules: simulate (round flow, duels, trades, utility, bomb), profile
  * (attributes → duel points), weapons, team-edge (capped non-player
  * factors), zones (baked round-map timings and ids), buy (grenades), economy
- * (CS2 money rules), tuning (all constants).
+ * (competitive money rules), tuning (all constants).
  */
 
 import type { CustomTactics, MapId, Player, Team } from "@/types"
@@ -26,7 +26,7 @@ import { cappedEdge, teamEdgeBreakdown, type StaffBundle, type TeamEdgeBreakdown
 import { TUNING } from "./tuning"
 import { zonesFor } from "./zones"
 
-export { applyCs2RoundEconomy, CS2_OVERTIME_START_CASH, CS2_START_LOSS_LEVEL, lossBonusAt, nextLossLevel } from "./economy"
+export { applyScriptRoundEconomy, ECON_OVERTIME_START_CASH, ECON_START_LOSS_LEVEL, lossBonusAt, nextLossLevel } from "./economy"
 export { teamEdgeBreakdown, type TeamEdgeBreakdown } from "./team-edge"
 export type { SimOutput } from "./simulate"
 

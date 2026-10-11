@@ -1,5 +1,5 @@
 /**
- * CS2 round economy for script-v1 matches (legacy-v2 keeps
+ * Competitive round economy for script-v1 matches (legacy-v2 keeps
  * lib/live-match-utils applyRoundEconomy):
  *
  *   win            $3,250; $3,500 for a bomb explosion or a defuse
@@ -22,27 +22,27 @@ import { ROUND_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import type { PlayerSimulationState } from "../round-outcome"
 import { killRewardFor } from "./weapons"
 
-export const CS2_LOSS_LADDER = ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER
-export const CS2_START_LOSS_LEVEL = 1
-export const CS2_OVERTIME_START_CASH = 12_500
-export const CS2_WIN_REWARD = 3250
-export const CS2_OBJECTIVE_WIN_REWARD = 3500
-export const CS2_PLANT_LOSS_BONUS = 800
-export const CS2_PLANTER_REWARD = 300
-export const CS2_DEFUSER_REWARD = 300
+export const ECON_LOSS_LADDER = ROUND_ECONOMY_TUNING.LOSS_BONUS_LADDER
+export const ECON_START_LOSS_LEVEL = 1
+export const ECON_OVERTIME_START_CASH = 12_500
+export const ECON_WIN_REWARD = 3250
+export const ECON_OBJECTIVE_WIN_REWARD = 3500
+export const ECON_PLANT_LOSS_BONUS = 800
+export const ECON_PLANTER_REWARD = 300
+export const ECON_DEFUSER_REWARD = 300
 
 export function lossBonusAt(level: number): number {
-    return CS2_LOSS_LADDER[Math.max(0, Math.min(CS2_LOSS_LADDER.length - 1, Math.floor(level)))]
+    return ECON_LOSS_LADDER[Math.max(0, Math.min(ECON_LOSS_LADDER.length - 1, Math.floor(level)))]
 }
 
 export function nextLossLevel(level: number, won: boolean): number {
-    const max = CS2_LOSS_LADDER.length - 1
+    const max = ECON_LOSS_LADDER.length - 1
     return won ? Math.max(0, level - 1) : Math.min(max, level + 1)
 }
 
 const clampCash = (v: number) => Math.max(0, Math.min(EconomyManager.MAX_CASH, Math.floor(Number.isFinite(v) ? v : 0)))
 
-export function applyCs2RoundEconomy(input: {
+export function applyScriptRoundEconomy(input: {
     homeEconomy: Record<string, PlayerSimulationState>
     awayEconomy: Record<string, PlayerSimulationState>
     winner: "HOME" | "AWAY"
@@ -89,20 +89,20 @@ export function applyCs2RoundEconomy(input: {
         } else if (e.type === "PLANT") {
             planted = true
             const p = e.playerId ? stateOf(e.playerId) : undefined
-            if (p) p.cash = clampCash(p.cash + CS2_PLANTER_REWARD)
+            if (p) p.cash = clampCash(p.cash + ECON_PLANTER_REWARD)
         } else if (e.type === "DEFUSE") {
             const p = e.playerId ? stateOf(e.playerId) : undefined
-            if (p) p.cash = clampCash(p.cash + CS2_DEFUSER_REWARD)
+            if (p) p.cash = clampCash(p.cash + ECON_DEFUSER_REWARD)
         }
     }
 
-    const winReward = input.winType === "BOMB_EXPLODED" || input.winType === "BOMB_DEFUSE" ? CS2_OBJECTIVE_WIN_REWARD : CS2_WIN_REWARD
+    const winReward = input.winType === "BOMB_EXPLODED" || input.winType === "BOMB_DEFUSE" ? ECON_OBJECTIVE_WIN_REWARD : ECON_WIN_REWARD
     const settle = (team: Record<string, PlayerSimulationState>, won: boolean, level: number, isCT: boolean) => {
         for (const [id, s] of Object.entries(team)) {
             if (won) { s.cash = clampCash(s.cash + winReward); continue }
             // Ts who survive a round lost on time get nothing.
             if (!isCT && input.winType === "TIME" && !dead.has(id)) continue
-            s.cash = clampCash(s.cash + lossBonusAt(level) + (!isCT && planted ? CS2_PLANT_LOSS_BONUS : 0))
+            s.cash = clampCash(s.cash + lossBonusAt(level) + (!isCT && planted ? ECON_PLANT_LOSS_BONUS : 0))
         }
     }
     settle(home, homeWon, input.homeLossLevel, input.homeIsCT)

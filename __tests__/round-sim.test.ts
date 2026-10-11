@@ -9,7 +9,7 @@ import { MatchEngine } from '@/engine/match-engine'
 import { createLegacySeriesState, playLegacyRound, runLegacySeries, finalizeLegacySeries, type LegacyRoundStep, type LegacySeriesContext } from '@/engine/match/legacy-series'
 import { DEFAULT_ENGINE_VERSION, LEGACY_ENGINE_VERSION, SCRIPT_ENGINE_VERSION, resolveEngineVersion } from '@/engine/match/engine-version'
 import { DEFAULT_MATCH_ENGINE, getRoundEngine, isMatchEngineRunnable, withEngine } from '@/engine/match/engine-registry'
-import { applyCs2RoundEconomy, CS2_OVERTIME_START_CASH, lossBonusAt, nextLossLevel } from '@/engine/match/round-sim/economy'
+import { applyScriptRoundEconomy, ECON_OVERTIME_START_CASH, lossBonusAt, nextLossLevel } from '@/engine/match/round-sim/economy'
 import { scriptBuyPhase } from '@/engine/match/round-sim/buy'
 import { cappedEdge, NON_PLAYER_BONUS_CAP, teamEdgeBreakdown } from '@/engine/match/round-sim/team-edge'
 import { killRewardFor, weaponClassOf } from '@/engine/match/round-sim/weapons'
@@ -218,7 +218,7 @@ describe('CS2 economy (script-v1)', () => {
         expect(nextLossLevel(4, false)).toBe(4)
         expect(nextLossLevel(3, true)).toBe(2)
         expect(nextLossLevel(0, true)).toBe(0)
-        expect(CS2_OVERTIME_START_CASH).toBe(12500)
+        expect(ECON_OVERTIME_START_CASH).toBe(12500)
     })
 
     test('win rewards, plant bonus, planter / defuser, kill rewards by weapon, grenades consumed, the dead lose gear', () => {
@@ -228,7 +228,7 @@ describe('CS2 economy (script-v1)', () => {
             { type: 'PLANT', time: 40, playerId: 'a2' },
             { type: 'DEFUSE', time: 60, playerId: 'h2' },
         ]
-        const out = applyCs2RoundEconomy({
+        const out = applyScriptRoundEconomy({
             homeEconomy: econ(H, true), awayEconomy: econ(A, false), winner: 'HOME', winType: 'BOMB_DEFUSE', events, homeIsCT: true,
             homeLossLevel: 2, awayLossLevel: 1, utilityUsed: { h3: ['smoke'] },
         })
@@ -245,7 +245,7 @@ describe('CS2 economy (script-v1)', () => {
     })
 
     test('Ts alive when the clock runs out get no loss bonus', () => {
-        const out = applyCs2RoundEconomy({
+        const out = applyScriptRoundEconomy({
             homeEconomy: econ(H, true), awayEconomy: econ(A, false), winner: 'HOME', winType: 'TIME',
             events: [{ type: 'KILL', time: 30, playerId: 'h0', victimId: 'a0', weapon: 'm4a4' }], homeIsCT: true, homeLossLevel: 0, awayLossLevel: 3,
         })

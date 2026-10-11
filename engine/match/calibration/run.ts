@@ -5,7 +5,7 @@
  *
  * Builds synthetic teams (./fixtures.ts), plays seeded BO1 maps through the
  * PRODUCTION series paths, and scores every metric in ./targets.ts against
- * the pro-CS2 table. Pure and deterministic for a given engine, sample size
+ * the pro-match table. Pure and deterministic for a given engine, sample size
  * and seed (only the timing metric varies). CLI: scripts/calibrate-engine.ts.
  * Fast gate: __tests__/calibration-gate.test.ts.
  *

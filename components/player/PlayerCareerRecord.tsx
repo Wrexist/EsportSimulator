@@ -118,7 +118,7 @@ export function PlayerCareerRecord({ player }: { player: PlayerSaveData }) {
                     </div>
                 ) : <p className="px-4 py-5 text-sm text-ink-3">No official maps in this career yet.</p>}
                 <p className="border-t border-line px-4 py-2.5 text-xs leading-relaxed text-ink-3">
-                    Official league and tournament maps in this career; friendlies don&apos;t count. Rating is the HLTV-style map rating averaged over rounds; MVPs are match MVP awards; titles count every title the club won while he was on its roster. Career matches also include his record before this save.
+                    Official league and tournament maps in this career; friendlies don&apos;t count. Rating is the per-map performance rating (1.00 is an average map) averaged over rounds; MVPs are match MVP awards; titles count every title the club won while he was on its roster. Career matches also include his record before this save.
                 </p>
             </Panel>
         </div>

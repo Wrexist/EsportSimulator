@@ -19,7 +19,7 @@ import type { BuyStrategy } from "@/engine/match/buy-phase"
 import type { PlayerSimulationState } from "@/engine/match/round-outcome"
 import { managedLoadout } from "@/engine/match/manager-controls"
 import { SCRIPT_ENGINE_VERSION } from "@/engine/match/engine-version"
-import { CS2_OVERTIME_START_CASH, CS2_WIN_REWARD, lossBonusAt } from "@/engine/match/round-sim/economy"
+import { ECON_OVERTIME_START_CASH, ECON_WIN_REWARD, lossBonusAt } from "@/engine/match/round-sim/economy"
 import { ROUND_ECONOMY_TUNING } from "@/lib/balance-tuning"
 
 export interface BuyPreviewPlayer {
@@ -168,7 +168,7 @@ export function previewDecision(ctx: LegacySeriesContext, sim: SimState, customT
         round: roundNum, side: ownIsCT ? "CT" : "T", overtime: sim.isOvertime, teamCash, avgCash: Math.floor(avgCash),
         auto: autoCall, style, reason, options,
         ...(lossBonus !== undefined ? { lossBonus, lossLevel } : {}),
-        ...(script ? { winReward: CS2_WIN_REWARD } : {}),
+        ...(script ? { winReward: ECON_WIN_REWARD } : {}),
     }
 }
 
@@ -176,7 +176,7 @@ function recommendReason(a: { auto: BuyStrategy; avgCash: number; style: Economy
     const lines = buyLines(a.style)
     const avgText = `Avg ${money(a.avgCash)}`
     const styleText = a.style === "standard" ? "" : ` (${a.style} economy style)`
-    if (a.overtime) return `Overtime: everyone starts each half with ${money(CS2_OVERTIME_START_CASH)}, so the engine full-buys.`
+    if (a.overtime) return `Overtime: everyone starts each half with ${money(ECON_OVERTIME_START_CASH)}, so the engine full-buys.`
     switch (a.auto) {
         case "ECO": {
             if (a.lossBonus === undefined) return `${avgText} is under the ${money(lines.force)} force-buy line${styleText}.`

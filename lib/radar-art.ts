@@ -27,7 +27,7 @@ export const FALLBACK_RADAR_ART: Readonly<Record<string, RadarArt>> = {
     Anubis: { upper: "/radar-art/Anubis-upper.webp", baked: true },
 }
 
-/** "de_mirage", "Mirage", "mirage" → "mirage". */
+/** Map ids with or without the "de_" prefix, any case → lower-case map name. */
 export function radarArtKey(mapId: string): string {
     return mapId.trim().toLowerCase().replace(/^de_/, "")
 }
