@@ -10,14 +10,16 @@ import { ErrorBoundary } from "./ErrorBoundary"
 import { usePathname, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useSettingsStore } from "@/lib/settings-store"
-import { useEffect, useRef, useState, useCallback } from "react"
+import { Suspense, useEffect, useRef, useState, useCallback } from "react"
 import { useShallow } from "zustand/react/shallow"
 import type { ExitDialogVariant } from "./ExitConfirmDialog"
 import dynamic from "next/dynamic"
 import { soundManager } from "@/lib/sound-manager"
 import { routeMusicScene } from "@/lib/route-audio"
 import { debouncedStorage } from "@/engine/storage-adapter"
-import { NUMBER_KEY_ROUTES } from "@/lib/keyboard-shortcuts"
+import { INBOX_OPEN_KEY, INBOX_TOGGLE_KEY, NUMBER_KEY_ROUTES } from "@/lib/keyboard-shortcuts"
+import { InboxUrlBridge } from "@/components/inbox/InboxUrlBridge"
+import { useInboxDrawer } from "@/components/inbox/inbox-drawer-store"
 import { logger } from "@/lib/logger"
 import { MotionConfig } from "framer-motion"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
@@ -37,6 +39,7 @@ const HelpSystem = dynamic(() => import("../ui/help-system").then(mod => mod.Hel
 // Mounted globally (was previously only on /desktop) so onboarding fires
 // regardless of which page the player lands on after a new game.
 const TutorialOverlay = dynamic(() => import("../ui/TutorialOverlay").then(mod => mod.TutorialOverlay), { ssr: false })
+const InboxDrawer = dynamic(() => import("../inbox/InboxDrawer").then(mod => mod.InboxDrawer), { ssr: false })
 
 const LIVE_MATCH_PATH = /^\/match\/[^/]+\/live\/?$/
 function isLiveMatchPath(path: string | null | undefined): boolean {
@@ -182,7 +185,6 @@ export function GameShell({ children }: { children: React.ReactNode }) {
 
     const isNewGame = pathname === "/new-game" || pathname?.startsWith("/new-game/")
     const isMainMenu = pathname === "/main-menu"
-    const isDesktop = pathname === "/desktop"
     const hideChrome = isNewGame || isMainMenu || pathname === "/map-editor" || pathname?.startsWith("/map-editor/")
     // Match screens (veto, tactics, live, result) own the whole view: the
     // onboarding checklist would sit on top of the result headline.
@@ -192,7 +194,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     const isLiveMatch = isLiveMatchPath(pathname)
 
     const viewCareerId = useGameStore(state => state.saveId)
-    const mainScrollRef = useRouteScroll(viewCareerId, pathname, !hideChrome && !isDesktop)
+    const mainScrollRef = useRouteScroll(viewCareerId, pathname, !hideChrome)
 
     // Global Keyboard Shortcuts (consolidated — TopBar no longer registers its own handlers)
     const router = useRouter()
@@ -245,7 +247,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 void quickSave()
                 return
             }
-            if (onLiveMatch && (e.key === "Escape" || e.key === "F3" || e.key === "F10" || (mod && e.key.toLowerCase() === "l") || (!mod && !e.altKey && /^[1-9]$/.test(e.key)))) return
+            if (onLiveMatch && (e.key === "Escape" || e.key === "F3" || e.key === "F10" || (mod && e.key.toLowerCase() === "l") || (!mod && !e.altKey && (/^[1-9]$/.test(e.key) || e.key.toLowerCase() === INBOX_TOGGLE_KEY)))) return
             // Ctrl/Cmd+L — load screen
             if (mod && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "l") {
                 e.preventDefault()
@@ -288,6 +290,15 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             if (e.key === "?" || (e.key === "/" && e.shiftKey)) {
                 e.preventDefault()
                 setShortcutsOpen(prev => !prev)
+                return
+            }
+
+            // Inbox drawer: I toggles, 2 opens (it replaced the /desktop route).
+            // While the drawer is open it handles I itself (dialog guard above).
+            if (!mod && !e.altKey && !hideChrome && (e.key.toLowerCase() === INBOX_TOGGLE_KEY || (!e.shiftKey && e.key === INBOX_OPEN_KEY))) {
+                e.preventDefault()
+                if (e.key === INBOX_OPEN_KEY) useInboxDrawer.getState().openInbox()
+                else useInboxDrawer.getState().toggle()
                 return
             }
 
@@ -343,7 +354,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                     {/* Short opacity reveal; routing never waits for an exit animation. */}
                     <div
                         key={pathname}
-                        className={hideChrome || isDesktop ? "" : isLiveMatch ? "live-match-page h-full w-full px-4 py-3" : "game-page px-4 py-4 lg:px-6 lg:py-5 pb-8 max-w-[1600px] mx-auto w-full"}
+                        className={hideChrome ? "" : isLiveMatch ? "live-match-page h-full w-full px-4 py-3" : "game-page px-4 py-4 lg:px-6 lg:py-5 pb-8 max-w-[1600px] mx-auto w-full"}
                     >
                         <ErrorBoundary>
                             {!hideChrome && !isMatchRoute && <TutorialOverlay />}
@@ -379,6 +390,12 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                     />
                 )
             }
+            {!hideChrome && !isLiveMatch && (
+                <>
+                    <Suspense fallback={null}><InboxUrlBridge /></Suspense>
+                    <InboxDrawer />
+                </>
+            )}
             {showBugReportButton && !hideChrome && <BugReportButton />}
             {!hideChrome && !isLiveMatch && <HelpSystem />}
             {!pathname?.startsWith("/map-editor") && <DevTools />}

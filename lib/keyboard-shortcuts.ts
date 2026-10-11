@@ -30,7 +30,8 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
         label: "Navigation",
         shortcuts: [
             { keys: ["1"], description: "Home (dashboard)" },
-            { keys: ["2"], description: "Desktop" },
+            { keys: ["2"], description: "Open inbox" },
+            { keys: ["I"], description: "Open / close inbox" },
             { keys: ["3"], description: "Squad" },
             { keys: ["4"], description: "Training" },
             { keys: ["5"], description: "Schedule" },
@@ -57,10 +58,10 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
     },
 ]
 
-// Sidebar-aligned number-key routes. Mirrors the 1-9 entries above.
+// Sidebar-aligned number-key routes. Mirrors the 1-9 entries above; "2" is
+// the inbox drawer (INBOX_OPEN_KEY), which overlays the current screen.
 export const NUMBER_KEY_ROUTES: Record<string, string> = {
     "1": "/",
-    "2": "/desktop",
     "3": "/squad",
     "4": "/training",
     "5": "/schedule",
@@ -69,3 +70,8 @@ export const NUMBER_KEY_ROUTES: Record<string, string> = {
     "8": "/finances",
     "9": "/settings",
 }
+
+/** Opens the inbox drawer (was the `/desktop` route). */
+export const INBOX_OPEN_KEY = "2"
+/** Toggles the inbox drawer (case-insensitive, no modifiers). */
+export const INBOX_TOGGLE_KEY = "i"

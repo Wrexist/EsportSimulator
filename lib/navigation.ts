@@ -47,6 +47,50 @@ export interface NavHub {
     prefixes?: string[]
 }
 
+/**
+ * Inbox drawer (Phase 4.3). The inbox is a drawer over the current screen,
+ * not a page: `?inbox=<tab>` on any route opens it (InboxUrlBridge strips the
+ * param again), so nav links, the search palette and old deep links can all
+ * reach it with a plain href.
+ */
+export const INBOX_TABS = ["all", "decisions", "messages", "news"] as const
+export type InboxTab = typeof INBOX_TABS[number]
+export const INBOX_QUERY_PARAM = "inbox"
+
+/** Relative href: keeps the current screen and opens the drawer on `tab`. */
+export function inboxHref(tab: InboxTab = "all"): string {
+    return `?${INBOX_QUERY_PARAM}=${tab}`
+}
+
+/** `?inbox=` value → tab; unknown values open the All tab, absent → null. */
+export function parseInboxTab(value: string | null | undefined): InboxTab | null {
+    if (value == null) return null
+    return (INBOX_TABS as readonly string[]).includes(value) ? value as InboxTab : "all"
+}
+
+/**
+ * The retired desktop OS (`/desktop?app=…`) → where each "app" lives now.
+ * Mail/News/Social fold into the inbox drawer; the rest were thin copies of
+ * real screens.
+ */
+const DESKTOP_APP_REDIRECTS: Record<string, string> = {
+    mail: `/${inboxHref("all")}`,
+    news: `/${inboxHref("news")}`,
+    social: `/${inboxHref("news")}`,
+    finance: "/finances",
+    market: "/transfers",
+    academy: "/academy",
+    facilities: "/basecamp",
+    calendar: "/schedule",
+    shop: "/equipment",
+}
+
+/** `/desktop?app=<app>` → its new home; no app or an unknown one → Home + inbox. */
+export function desktopRedirectHref(app: string | null | undefined): string {
+    if (app && Object.prototype.hasOwnProperty.call(DESKTOP_APP_REDIRECTS, app)) return DESKTOP_APP_REDIRECTS[app]
+    return DESKTOP_APP_REDIRECTS.mail
+}
+
 export const navHubs: NavHub[] = [
     {
         id: "home",
@@ -54,10 +98,10 @@ export const navHubs: NavHub[] = [
         icon: Home,
         items: [
             { icon: Home, label: "Overview", href: "/" },
-            { icon: Inbox, label: "Inbox", href: "/desktop?app=mail" },
+            { icon: Inbox, label: "Inbox", href: inboxHref() },
             { icon: Calendar, label: "Schedule", href: "/schedule" },
         ],
-        prefixes: ["/schedule/", "/desktop"],
+        prefixes: ["/schedule/"],
     },
     {
         id: "squad",

@@ -152,7 +152,7 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                     {/* Offers — link to the full inbox */}
                     {offerCount > 0 && (
                         <PromptRow
-                            href="/desktop?app=mail"
+                            href="?inbox=decisions"
                             icon={<Mail size={15} />}
                             title={`${offerCount} offer${offerCount > 1 ? "s" : ""} awaiting a response`}
                             detail="Review them in your inbox"
