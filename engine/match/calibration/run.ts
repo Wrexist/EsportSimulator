@@ -56,7 +56,8 @@ import {
     type CalibrationTarget, type EffectStats, type MetricGroup, type Status, type SuiteId,
 } from './targets'
 
-export const CALIBRATION_HARNESS_VERSION = 1
+/** 2: multikill_index added; 4k / ace / 1vX-situation targets corrected (see targets.ts). */
+export const CALIBRATION_HARNESS_VERSION = 2
 
 // ─── Engine selection ──────────────────────────────────────────────────────
 

@@ -19,8 +19,13 @@ export const BURST = 1.08
 /** Share of the theoretical reach a killer may use before its next fight (keeps slack for the duel itself). */
 export const LOOKAHEAD_MARGIN = 0.75
 /** script-v1: a duel more than this far (map-%) from the resolver's zone pays ZONE_PULL per extra map-%. */
-export const ZONE_RADIUS = 5
-export const ZONE_PULL = 2.5
+export const ZONE_RADIUS = 3
+export const ZONE_PULL = 6
+/** script-v1: beyond this the duel is no longer "at" the zone: a wall the movement costs rarely beat. */
+export const ZONE_HARD = 6.5
+export const ZONE_WALL = 80
+/** script-v1: victim spots tried around the resolver's zone (map-%). */
+export const ZONE_SPREAD = 4
 
 // ─── Default motion, legs, sampling of the plan ────────────────────────────
 
@@ -314,22 +319,33 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
     const others = ctx.actors.filter(a => a.side === K.side && a !== K && alive(a, t)).map(a => stateAt(ctx, a, t))
     const matesV = ctx.actors.filter(a => a.side === V.side && a !== V && alive(a, t)).map(a => stateAt(ctx, a, t))
     const matesK = others
-    const bomb = ctx.plantT !== undefined && t >= ctx.plantT ? g.point(ctx.plantNode) : null
-    const trade = kill.trade && ctx.lastDeath && t - ctx.lastDeath.t <= 6 ? g.point(ctx.lastDeath.node) : null
-    // script-v1: the resolver says where this fight happened.
+    // script-v1: the resolver says where this fight happened (and that replaces the bomb / trade guesses).
     const zone = kill.zone ? zonePoint(ctx.map, kill.zone) : undefined
+    const bomb = !zone && ctx.plantT !== undefined && t >= ctx.plantT ? g.point(ctx.plantNode) : null
+    const trade = !zone && kill.trade && ctx.lastDeath && t - ctx.lastDeath.t <= 6 ? g.point(ctx.lastDeath.node) : null
     // Lookahead: the killer's next fight must stay within reach of its opponent.
     const nextKill = ctx.kills.find(x => x.t > t && (x.killerId === K.id || x.victimId === K.id))
     const nextFoe = nextKill ? ctx.byId.get(nextKill.killerId === K.id ? nextKill.victimId : nextKill.killerId) : undefined
     let foeDist: Float64Array | null = null
     let foeBound = Infinity
+    /** Beyond this the next fight cannot be reached at all (not just with little slack): it outweighs the zone. */
+    let foeHard = Infinity
     let foeFixedDist: Float64Array | null = null
     let foeFixedBound = Infinity
-    if (nextKill && nextFoe && nextFoe !== V && nextFoe.side !== K.side) {
+    const nextZone = nextKill?.zone ? zonePoint(ctx.map, nextKill.zone) : undefined
+    if (nextKill && nextZone) {
+        // script-v1: the next fight has a place; stay within reach of it.
+        foeDist = g.distancesTo(g.nearest(nextZone))
+        foeBound = LOOKAHEAD_MARGIN * ctx.v * (nextKill.t - t) + DUEL_MAX
+        foeHard = ctx.v * (nextKill.t - t) + DUEL_MAX + ZONE_SPREAD
+    } else if (nextKill && nextFoe && nextFoe !== V && nextFoe.side !== K.side) {
         const t2 = nextKill.t
         const lastF = nextFoe.anchors[nextFoe.anchors.length - 1]
         foeDist = g.distancesTo(lastF.node)
         foeBound = LOOKAHEAD_MARGIN * (ctx.v * ((t2 - t) + max(0, t2 - freeFrom(lastF))) + DUEL_MAX)
+    }
+    if (nextKill && nextFoe && nextFoe !== V && nextFoe.side !== K.side) {
+        const t2 = nextKill.t
         const f = nextFoe.fixed[0]
         if (f) {
             const radius = t2 <= f.t ? ctx.v * (f.t - t2) : ctx.v * max(0, t2 - freeFrom(f))
@@ -346,12 +362,16 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
         const e = g.dist(v, k)
         if (e < minD || e > DUEL_MAX) return
         let cost = wV * fromV[v] + wK * fromK[k] + 1.5 * abs(e - want)
+        const vx = g.x[v], vy = g.y[v], kx = g.x[k], ky = g.y[k]
+        if (zone && zone.floor === g.floor[v]) {
+            const dz = len((vx + kx) / 2 - zone.x, (vy + ky) / 2 - zone.y)
+            if (dz > ZONE_RADIUS) cost += ZONE_PULL * (dz - ZONE_RADIUS) + (dz > ZONE_HARD ? ZONE_WALL + 10 * (dz - ZONE_HARD) : 0)
+        }
         if (cost >= bestCost) return
         if (!reachV(v) || !reachK(k)) return
         if (walkDist > e * 1.6 + 2) cost += 6
-        if (foeDist && foeDist[k] > foeBound) cost += 30 + 4 * (foeDist[k] - foeBound)
+        if (foeDist && foeDist[k] > foeBound) cost += 30 + 4 * (foeDist[k] - foeBound) + (foeDist[k] > foeHard ? 2 * ZONE_WALL : 0)
         if (foeFixedDist && foeFixedDist[k] > foeFixedBound) cost += 30 + 4 * (foeFixedDist[k] - foeFixedBound)
-        const vx = g.x[v], vy = g.y[v], kx = g.x[k], ky = g.y[k]
         for (const o of others) {
             if (o.floor !== g.floor[v]) continue
             const d = len(o.x - vx, o.y - vy)
@@ -369,10 +389,6 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
             const dt = len(kx - trade.x, ky - trade.y)
             if (dt > 7) cost += dt - 7
         }
-        if (zone && zone.floor === g.floor[v]) {
-            const dz = len((vx + kx) / 2 - zone.x, (vy + ky) / 2 - zone.y)
-            if (dz > ZONE_RADIUS) cost += ZONE_PULL * (dz - ZONE_RADIUS)
-        }
         if (cost < bestCost) {
             bestCost = cost
             best = { v, k }
@@ -380,7 +396,12 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
         }
     }
 
-    // Along the walk between them (victim nearer its own side) ...
+    // script-v1: where the resolver says the fight happened, when both can make it there ...
+    if (zone) {
+        const zn = g.nearest(zone)
+        for (const v of g.around(zn, ZONE_SPREAD)) for (const k of g.around(v, hi)) consider(v, k, g.dist(v, k))
+    }
+    // ... along the walk between them (victim nearer its own side) ...
     const path = g.path(sV.node, sK.node)
     if (path.length > 1) {
         const cum = [0]
@@ -402,6 +423,17 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
             for (const k of g.path(sK.node, target)) for (const v of g.around(k, DUEL_MAX)) consider(v, k, g.dist(v, k))
         }
     }
+    // ... or, when nothing else fits, on the way to a plant / defuse appointment (those are fixed).
+    if (!best) {
+        for (const [A, sA] of [[K, sK], [V, sV]] as const) {
+            const f = A.fixed[0]
+            if (!f) continue
+            for (const n of g.path(sA.node, f.node)) for (const m of g.around(n, DUEL_MAX)) {
+                if (A === K) consider(m, n, g.dist(m, n))
+                else consider(n, m, g.dist(m, n))
+            }
+        }
+    }
     if (best) return best
     return closestApproach(ctx, V, K, t, want, sV, sK)
 }
@@ -421,7 +453,9 @@ export function closestApproach(ctx: Ctx, V: Actor, K: Actor, t: number, want: n
     for (let i = 0; i < path.length; i++) if (reachV(path[i])) vi = i
     let ki = -1
     for (let i = path.length - 1; i >= 0; i--) if (reachK(path[i])) ki = i
-    if (vi < 0 || ki < 0) return { v: vi >= 0 ? path[vi] : sV.node, k: ki >= 0 ? path[ki] : sK.node }
+    // Nothing on the way between them: stay put (the sampled node can sit a little ahead of the walk; the last anchor never does).
+    const stay = (A: Actor, s: State, reach: (n: number) => boolean) => (reach(s.node) ? s.node : A.anchors[A.anchors.length - 1].node)
+    if (vi < 0 || ki < 0) return { v: vi >= 0 ? path[vi] : stay(V, sV, reachV), k: ki >= 0 ? path[ki] : stay(K, sK, reachK) }
     if (ki > vi) return { v: path[vi], k: path[ki] }
     // Both can reach the stretch [ki, vi]: keep about `want` between them inside it.
     const cum = [0]
@@ -447,7 +481,11 @@ export function chooseDefuser(ctx: Ctx, now: number): void {
         if (a.side !== "CT" || !alive(a, td)) continue
         const later = killsAfter(a)
         const s = stateAt(ctx, a, now)
+        // Someone who cannot walk to the bomb in time for the defuse is a poor pick, one who cannot make it at all a last resort.
+        const arrive = now + g.pathDist(s.node, bomb) / ctx.v
+        const late = arrive - (td - (a.player.hasKit ? 5 : 10))
         const cost = hyp(s, bp) + (later.length ? 40 + 2 * (max(...later) - now) : 0) + (a.player.hasKit ? -4 : 0)
+            + (late > 0 ? 20 + 10 * late : 0) + (arrive > td ? 400 : 0)
         if (cost < bestCost) { bestCost = cost; best = a }
     }
     if (!best) return
@@ -476,7 +514,9 @@ export function pickUpBomb(ctx: Ctx, now: number): void {
         const last = a.anchors[a.anchors.length - 1]
         if (last.dead || last.t > now) continue
         const s = stateAt(ctx, a, now)
-        const arrive = now + ctx.g.pathDist(s.node, drop.node) / (ctx.v * PLAN_PACE)
+        // From where they are now, and never sooner than the walk from their last fixed spot allows.
+        const pace = ctx.v * PLAN_PACE
+        const arrive = max(now + ctx.g.pathDist(s.node, drop.node) / pace, freeFrom(last) + ctx.g.pathDist(last.node, drop.node) / pace)
         const nextEvent = a.eventTimes.find(x => x > now) ?? Infinity
         if (arrive + 0.5 >= nextEvent || arrive >= ctx.endTime - 1 || arrive >= a.deathT) continue
         if (!best || arrive < best.t) best = { a, t: arrive }

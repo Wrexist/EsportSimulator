@@ -173,6 +173,9 @@ export class RealismAccumulator {
     private clutch = new Ratio()
     private k4 = 0
     private aces = 0
+    /** Σk and Σk² over player-rounds (players without a kill add 0 to both). */
+    private kSum = 0
+    private k2Sum = 0
     private ctReasons = new Map<string, number>()
     private tReasons = new Map<string, number>()
     private openings = new Map<string, number>()
@@ -241,7 +244,12 @@ export class RealismAccumulator {
             if (e.isHeadshot) this.headshots++
             perPlayer.set(e.playerId!, (perPlayer.get(e.playerId!) ?? 0) + 1)
         }
-        for (const n of perPlayer.values()) { if (n === 4) this.k4++; if (n >= 5) this.aces++ }
+        for (const n of perPlayer.values()) {
+            if (n === 4) this.k4++
+            if (n >= 5) this.aces++
+            this.kSum += n
+            this.k2Sum += n * n
+        }
         if (kills.length) {
             const role = roleOf.get(kills[0].playerId!) ?? 'UNKNOWN'
             this.openings.set(role, (this.openings.get(role) ?? 0) + 1)
@@ -281,6 +289,7 @@ export class RealismAccumulator {
             clutches_won_per_map: perMap(this.clutch.hit),
             k4_per_map: perMap(this.k4),
             ace_per_map: perMap(this.aces),
+            multikill_index: this.kSum ? this.k2Sum / this.kSum : null,
             ct_win_elim: share(this.ctReasons, ctTotal, 'ELIMINATION'),
             ct_win_defuse: share(this.ctReasons, ctTotal, 'BOMB_DEFUSE'),
             ct_win_time: share(this.ctReasons, ctTotal, 'TIME'),

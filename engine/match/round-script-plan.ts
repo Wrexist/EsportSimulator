@@ -92,6 +92,27 @@ export function assignRoles(ctx: Ctx): void {
     ;[...ts].sort((a, b) => LEAD_ORDER[a.job] - LEAD_ORDER[b.job] || a.order - b.order).forEach((a, i) => { a.order = i })
 }
 
+/**
+ * script-v1: each player's first fight before the execute and the baked zone
+ * the resolver put it in, so the plan sends them where they will fight (the
+ * mid CT holds mid, the lurker walks the lurk route, a CT who pushes walks
+ * up that route) instead of detouring to it at the last moment.
+ */
+export function earlyZones(ctx: Ctx): Map<Actor, string> {
+    const out = new Map<Actor, string>()
+    const until = ctx.input.plan?.execAt
+    if (until === undefined) return out
+    for (const k of ctx.kills) {
+        if (k.t > until + 2) break
+        if (!k.zone) continue
+        for (const id of [k.killerId, k.victimId]) {
+            const a = ctx.byId.get(id)
+            if (a && !out.has(a)) out.set(a, k.zone)
+        }
+    }
+    return out
+}
+
 export function tRoutes(ctx: Ctx, site: SiteId): { main?: RoundMapRoute; alt?: RoundMapRoute; split?: RoundMapRoute } {
     const exec = ctx.map.routes.filter(r => r.kind === "t-exec" && r.site === site)
     const main = exec.find(r => /main/.test(r.id)) ?? [...exec].sort((a, b) => a.length - b.length)[0]
@@ -224,6 +245,14 @@ export function buildTPhases(ctx: Ctx): void {
             splitAlt++
         }
         a.route = route
+    }
+    // script-v1: a T whose first fight is on a route walks that route (the lurker the lurk route).
+    for (const [a, zone] of earlyZones(ctx)) {
+        if (a.side !== "T") continue
+        const r = ctx.map.routes.find(x => x.id === zone && (x.kind === "t-exec" || x.kind === "lurk"))
+        if (!r || (r.kind === "lurk" && a === ctx.planter)) continue
+        a.route = r
+        if (r.kind === "lurk") a.job = "lurk"
     }
 
     // Staging spots per route group (and a closer regroup spot for defaults).
@@ -364,13 +393,32 @@ export function buildCtPhases(ctx: Ctx): void {
     const ordered = rng.shuffle(cts.filter(a => a !== awper))
     if (awper) ordered.unshift(awper)
     const free = [...slots]
+    // script-v1: a CT whose first fight is at a hold (the mid player) holds there; one who fights
+    // up a T route before the execute is the one who pushes out.
+    const early = earlyZones(ctx)
+    let pushRoute: RoundMapRoute | undefined
+    let pusher: Actor | undefined
     for (const a of ordered) {
+        const zone = early.get(a)
+        const hold = zone ? ctx.map.holds.find(h => h.id === zone && h.kind !== "retake") : undefined
+        if (hold && !cts.some(b => b.hold === hold)) {
+            a.hold = hold
+            const j = free.indexOf(hold)
+            const k = j >= 0 ? j : free.findIndex(h => h.site === hold.site && h.kind === hold.kind)
+            if (k >= 0) free.splice(k, 1)
+            continue
+        }
+        const route = zone && !pusher ? ctx.map.routes.find(r => r.id === zone && r.kind === "t-exec") : undefined
+        if (route) { pusher = a; pushRoute = route }
+    }
+    for (const a of ordered) {
+        if (a.hold) continue
         let i = 0
         if (a === awper) i = max(0, free.findIndex(h => h.kind === "anchor" || h.kind === "mid"))
         a.hold = free.splice(i, 1)[0] ?? slots[0]
     }
 
-    const aggressor = ctx.ctSetup === "aggressive" ? (cts.find(a => a.role === "entry" && a !== awper) ?? ordered.find(a => a !== awper)) : undefined
+    const aggressor = pusher ?? (ctx.ctSetup === "aggressive" ? (cts.find(a => a.role === "entry" && a !== awper) ?? ordered.find(a => a !== awper)) : undefined)
     const site = g.point(g.siteNodes[S])
     const bomb = ctx.plantT !== undefined ? g.point(ctx.plantNode) : undefined
     const holdNodeOf = (a: Actor) => g.holdNodes.get(a.hold!.id) ?? g.siteNodes[a.hold!.site]
@@ -394,7 +442,7 @@ export function buildCtPhases(ctx: Ctx): void {
         const holdNode = holdNodeOf(a)
         const phases: Phase[] = [{ t: 0, node: a.spawn, pace: RUN_PACE }]
         if (a === aggressor) {
-            const main = tRoutes(ctx, hold.site).main
+            const main = a === pusher ? pushRoute : tRoutes(ctx, hold.site).main
             const chain = main ? chainOf(ctx, main) : null
             const fwd = chain ? nodeAtArc(chain, chain.contactArc - rng.range(5, 10)) : holdNode
             const up = chain ? g.point(nodeAtArc(chain, chain.contactArc - 18)) : hold.watch

@@ -13,19 +13,23 @@
  *   post-plant Ts hold around the bomb, CTs retake with utility on the
  *              clock (40 s bomb, 10 s / 5 s kit defuse) or save
  *   lurk       a lurker catches a rotator from behind, or hunts late
+ *   saves      an outnumbered side (a lone player against two, a pair
+ *              against four), or one the clock has beaten, keeps its guns;
+ *              the winners may catch a saver on the way out (exit kills)
  *   time       no plant by 1:55 is a CT win
  *
  * Every duel is P(A beats B) = logistic((rA - rB) / DUEL_SCALE) with rA from
  * aim (skill + weapon attribute), weapon vs armour, holder/peeker, utility,
- * situation (opening, trade, clutch, lurk), HP, condition, day form and the
- * capped team edge (duel.ts / tuning.ts). The loser dies; the winner may be
+ * situation (opening, trade, clutch, lurk), players alive (relative to the
+ * smaller side; a last player against two or more is isolated), HP,
+ * condition, day form and the capped team edge (tuning.ts). The loser dies; the winner may be
  * chipped, so damage, ADR, assists and KAST come from real numbers.
  *
  * Pure and seeded: same inputs and RNG state → same round.
  */
 
 import type { MatchEvent, RoundResult } from "@/types"
-import type { SeededRNG } from "../../rng"
+import { SeededRNG } from "../../rng"
 import type { BuyStrategy } from "../buy-phase"
 import type { PlayerSimulationState } from "../round-outcome"
 import type { SiteId, UtilityKind } from "../round-script-types"
@@ -35,7 +39,7 @@ import { WEAPON_CLASSES, isSaveWorthy, isSniperClass, weaponClassOf, type Weapon
 import type { MapZones, ZoneSite } from "./zones"
 
 // Math is read once: global lookups are slow inside Jest's sandbox.
-const { exp, max, min, round } = Math
+const { exp, floor, max, min, round } = Math
 
 export type TStrategy = "default" | "execute" | "rush" | "split" | "fake" | "eco"
 export type CtSetup = "2-1-2" | "stack-A" | "stack-B" | "aggressive"
@@ -136,9 +140,10 @@ interface Bomb {
 }
 
 interface Round {
-    rng: SeededRNG
     /** Base of the keyed duel rolls (see duelRoll). */
     rollKey: number
+    /** One independent stream of draws per purpose (see rnd). */
+    draws: Map<number, SeededRNG>
     /** Duels fought so far per pair of players this round. */
     meetings: Map<number, number>
     z: MapZones
@@ -204,6 +209,17 @@ function weaponPts(a: Actor, b: Actor): number {
     return a.spec.power - (b.kevlar ? a.spec.vsKevlar : 0) - (b.helmet ? a.spec.vsHelmet : 0)
 }
 
+/**
+ * The team with more players alive has more angles, information and trades.
+ * What counts is the advantage relative to the smaller side: one extra player
+ * in a 5v4 is map control, in a 2v1 it is a crossfire and a guaranteed trade,
+ * so late man-advantages close out instead of trading down to a 1v1.
+ */
+function numbersPts(mine: number, theirs: number): number {
+    const lead = (mine - theirs) / max(1, min(mine, theirs))
+    return max(-T.NUMBERS_CAP, min(T.NUMBERS_CAP, lead)) * T.NUMBERS_ROUND
+}
+
 /** Situation points every duel shares: last-alive clutch. */
 function commonPts(R: Round, a: Actor): number {
     const mates = a.ct ? R.CT : R.T
@@ -247,9 +263,7 @@ function tradePts(a: Actor): number {
 function duel(R: Round, a: Actor, b: Actor, sa: number, sb: number, zone: string): Actor {
     if (a.lastT > R.t || b.lastT > R.t) R.t = max(a.lastT, b.lastT) + 0.4
     a.lastT = b.lastT = R.t
-    // The team with more players alive has more angles, information and trades.
-    const lead = max(-3, min(3, countAlive(a.ct ? R.CT : R.T) - countAlive(a.ct ? R.T : R.CT))) * T.NUMBERS_ROUND
-    sa += lead
+    sa += numbersPts(countAlive(a.ct ? R.CT : R.T), countAlive(a.ct ? R.T : R.CT))
     // Each kill already made this round costs a little: ammo, reloads, a known position.
     const ra = a.base + weaponPts(a, b) - (100 - a.hp) * T.HP_PENALTY - min(3, a.roundKills) * T.MULTI_KILL + sa
     const rb = b.base + weaponPts(b, a) - (100 - b.hp) * T.HP_PENALTY - min(3, b.roundKills) * T.MULTI_KILL + sb
@@ -298,6 +312,30 @@ function keyedRoll(R: Round, purpose: number, subject: number): number {
     h = Math.imul(h, 0xc2b2ae35)
     h ^= h >>> 16
     return (h >>> 0) / 4294967296
+}
+
+/** Purposes of the round's random draws, each its own stream (subject 4095 of keyedRoll). */
+const P = {
+    plan: 16, jobs: 17, early: 18, flow: 19, util: 20, retakeUtil: 21, pickAtt: 22, pickDef: 23, step: 24,
+    fallback: 25, trade: 26, lurk: 27, late: 28, retake: 29,
+} as const
+
+/** A SeededRNG whose n-th draw is the n-th keyed roll of one purpose. */
+class Draws extends SeededRNG {
+    constructor(private readonly R: Round, private readonly purpose: number) { super(1) }
+    next(): number { return keyedRoll(this.R, this.purpose, 4095) }
+}
+
+/**
+ * The round's random draws, one independent stream per purpose (common random
+ * numbers): one more save roll or trade in a paired run never shifts the
+ * draws that pick the next peeker, time a rotation or land a flash, so a
+ * manager decision changes what it touches and not every later coin.
+ */
+function rnd(R: Round, purpose: number): SeededRNG {
+    let d = R.draws.get(purpose)
+    if (!d) { d = new Draws(R, purpose); R.draws.set(purpose, d) }
+    return d
 }
 
 function hurt(from: Actor, to: Actor, amount: number): void {
@@ -357,6 +395,8 @@ interface Fight {
     zone: string
     entryZone: string
     tEnd: number
+    /** A moving end (a retake's last defuse window shifts when the kit holder dies); overrides tEnd. */
+    end?: () => number
     step: [number, number]
     attTrade: number
     defTrade: number
@@ -404,7 +444,7 @@ function impactWeight(a: Actor, group: readonly Actor[]): number {
 function pickByImpact(R: Round, A: Actor[]): Actor {
     let total = 0
     const w = A.map(a => { const x = impactWeight(a, A); total += x; return x })
-    let r = R.rng.next() * total
+    let r = rnd(R, P.pickAtt).next() * total
     for (let k = 0; k < A.length; k++) { r -= w[k]; if (r < 0) return A[k] }
     return A[A.length - 1]
 }
@@ -420,7 +460,7 @@ function pickHolder(R: Round, D: Actor[]): Actor {
         total += x
         return x
     })
-    let r = R.rng.next() * total
+    let r = rnd(R, P.pickDef).next() * total
     for (let k = 0; k < D.length; k++) { r -= w[k]; if (r < 0) return D[k] }
     return D[D.length - 1]
 }
@@ -434,7 +474,7 @@ function fight(R: Round, F: Fight): FightEnd {
         const D = living(F.def)
         if (!A.length) {
             const nt = nextArrival(F.attQ)
-            if (nt < F.tEnd && D.length) { R.t = max(R.t, nt); continue }
+            if (nt < (F.end?.() ?? F.tEnd) && D.length) { R.t = max(R.t, nt); continue }
             return "def"
         }
         if (!D.length) {
@@ -442,7 +482,7 @@ function fight(R: Round, F: Fight): FightEnd {
             return "att"
         }
         if (duels >= F.maxDuels) return "done"
-        if (R.t >= F.tEnd) return "time"
+        if (R.t >= (F.end?.() ?? F.tEnd)) return "time"
         if (F.stop?.()) return "stop"
         // The front player opens; after that whoever is in position peeks next.
         const a = duels === 0 || A.length === 1 ? A[0] : pickByImpact(R, A)
@@ -464,9 +504,9 @@ function fight(R: Round, F: Fight): FightEnd {
         tradeChain(R, F, w, w === a ? "def" : "att", zone, swing)
         if (F.fallback) {
             const left = living(F.def)
-            if (left.length === 1 && living(F.att).length >= 3 && R.rng.bool(T.FALLBACK)) F.def.splice(F.def.indexOf(left[0]), 1)
+            if (left.length === 1 && living(F.att).length >= 3 && rnd(R, P.fallback).bool(T.FALLBACK)) F.def.splice(F.def.indexOf(left[0]), 1)
         }
-        R.t += R.rng.range(F.step[0], F.step[1])
+        R.t += rnd(R, P.step).range(F.step[0], F.step[1])
     }
     return "time"
 }
@@ -477,13 +517,15 @@ function tradeChain(R: Round, F: Fight, killer: Actor, side: "att" | "def", zone
     let k = killer
     let s = side
     for (let step = 0; step < 3; step++) {
-        if (!k.alive || R.t + 1.8 > F.tEnd) return
+        if (!k.alive || R.t + 1.8 > (F.end?.() ?? F.tEnd)) return
         const pool = living(s === "att" ? F.att : F.def).filter(x => !x.smoked || s === "att")
         if (!pool.length) return
-        const trader = s === "att" ? pool[0] : pool[R.rng.int(0, pool.length - 1)]
-        const pt = p * (0.75 + 0.5 * trader.p.teamwork / 100)
+        const trader = s === "att" ? pool[0] : pool[rnd(R, P.trade).int(0, pool.length - 1)]
+        // The last player alive does not swing blind into two or more: they play for a clutch (or a save).
+        const lone = countAlive(trader.ct ? R.CT : R.T) === 1 && countAlive(trader.ct ? R.T : R.CT) >= 2 ? T.TRADE_LONE : 1
+        const pt = p * lone * (0.75 + 0.5 * trader.p.teamwork / 100)
         if (keyedRoll(R, 4, trader.i * 16 + k.i) >= pt) return
-        R.t += R.rng.range(0.4, 1.8)
+        R.t += rnd(R, P.trade).range(0.4, 1.8)
         const st = tradePts(trader) + commonPts(R, trader) + (s === "def" ? 2 : 0) + (s === "att" ? (F.attPts?.() ?? 0) : 0)
         const sk = -T.EXPOSED + commonPts(R, k)
         const w = duel(R, trader, k, st, sk, zone)
@@ -524,29 +566,29 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
         if (smokes >= maxSmokes || a.smoke <= 0) continue
         const pool = targets()
         if (pool.length <= 0) break
-        const d = pool.find(x => isSniperClass(x.wc)) ?? pool[R.rng.int(0, pool.length - 1)]
+        const d = pool.find(x => isSniperClass(x.wc)) ?? pool[rnd(R, P.util).int(0, pool.length - 1)]
         throwUtil(R, a, "smoke", S, "T", tHit - 4 + 0.3 * smokes)
         // A well-placed smoke takes the angle away; a poor one only half the time.
-        if (R.rng.next() < 0.55 + 0.004 * a.p.grenades) d.smoked = true
+        if (rnd(R, P.util).next() < 0.55 + 0.004 * a.p.grenades) d.smoked = true
         smokes++
     }
     for (const a of throwers) {
         if (a.molotov <= 0 || strategy === "rush") continue
         const pool = targets()
         if (!pool.length) break
-        const d = pool[R.rng.int(0, pool.length - 1)]
+        const d = pool[rnd(R, P.util).int(0, pool.length - 1)]
         throwUtil(R, a, "molotov", S, "T", tHit - 2.5)
         d.flushed = true
-        hurt(a, d, R.rng.int(6, 22))
+        hurt(a, d, rnd(R, P.util).int(6, 22))
         break
     }
     for (const a of throwers) {
-        if (a.he <= 0 || strategy === "rush" && R.rng.next() < 0.5) continue
+        if (a.he <= 0 || strategy === "rush" && rnd(R, P.util).next() < 0.5) continue
         const pool = defenders.filter(d => d.alive)
         if (!pool.length) break
-        const d = pool[R.rng.int(0, pool.length - 1)]
+        const d = pool[rnd(R, P.util).int(0, pool.length - 1)]
         throwUtil(R, a, "he", S, "T", tHit - 1.5)
-        hurt(a, d, min(d.hp - 1, round(R.rng.range(12, 45) * (d.kevlar ? 0.6 : 1))))
+        hurt(a, d, min(d.hp - 1, round(rnd(R, P.util).range(12, 45) * (d.kevlar ? 0.6 : 1))))
         break
     }
     let flashes = 0
@@ -556,8 +598,8 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
             throwUtil(R, a, "flash", S, "T", tHit - 0.8 + 0.25 * flashes)
             flashes++
             if (!pool.length) continue
-            if (R.rng.next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * a.p.grenades) {
-                const d = pool[R.rng.int(0, pool.length - 1)]
+            if (rnd(R, P.util).next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * a.p.grenades) {
+                const d = pool[rnd(R, P.util).int(0, pool.length - 1)]
                 d.blindUntil = tHit + 2.5
                 d.blindBy = a.i
             }
@@ -570,17 +612,17 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
         if (!d.alive) continue
         if (d.molotov > 0 && strategy !== "rush") {
             throwUtil(R, d, "molotov", S, "CT", tHit - 1)
-            delay += R.rng.range(1.5, 4)
-            if (entry && R.rng.next() < 0.4) hurt(d, entry, R.rng.int(8, 24))
-        } else if (d.he > 0 && entry && R.rng.next() < 0.5) {
+            delay += rnd(R, P.util).range(1.5, 4)
+            if (entry && rnd(R, P.util).next() < 0.4) hurt(d, entry, rnd(R, P.util).int(8, 24))
+        } else if (d.he > 0 && entry && rnd(R, P.util).next() < 0.5) {
             throwUtil(R, d, "he", S, "CT", tHit - 0.5)
-            hurt(d, entry, min(entry.hp - 1, round(R.rng.range(10, 40) * (entry.kevlar ? 0.6 : 1))))
-        } else if (d.flash > 0 && entry && R.rng.next() < 0.5) {
+            hurt(d, entry, min(entry.hp - 1, round(rnd(R, P.util).range(10, 40) * (entry.kevlar ? 0.6 : 1))))
+        } else if (d.flash > 0 && entry && rnd(R, P.util).next() < 0.5) {
             throwUtil(R, d, "flash", S, "CT", tHit)
-            if (R.rng.next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * d.p.grenades) { entry.blindUntil = tHit + delay + 2; entry.blindBy = d.i }
-        } else if (d.smoke > 0 && strategy !== "rush" && R.rng.next() < 0.5) {
+            if (rnd(R, P.util).next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * d.p.grenades) { entry.blindUntil = tHit + delay + 2; entry.blindBy = d.i }
+        } else if (d.smoke > 0 && strategy !== "rush" && rnd(R, P.util).next() < 0.5) {
             throwUtil(R, d, "smoke", S, "CT", tHit - 3)
-            delay += R.rng.range(1, 3)
+            delay += rnd(R, P.util).range(1, 3)
         }
     }
     return delay
@@ -594,19 +636,19 @@ function retakeUtility(R: Round, retakers: Actor[], holders: Actor[], t: number)
         if (a.smoke > 0) {
             const pool = holders.filter(h => h.alive && !h.smoked)
             throwUtil(R, a, "smoke", S, "CT", t - 2)
-            if (pool.length > 1 && R.rng.next() < 0.5) pool[R.rng.int(0, pool.length - 1)].smoked = true
+            if (pool.length > 1 && rnd(R, P.retakeUtil).next() < 0.5) pool[rnd(R, P.retakeUtil).int(0, pool.length - 1)].smoked = true
         }
         if (a.molotov > 0) {
             const pool = holders.filter(h => h.alive && !h.flushed)
             throwUtil(R, a, "molotov", S, "CT", t - 1.5)
-            if (pool.length) { const h = pool[R.rng.int(0, pool.length - 1)]; h.flushed = true; hurt(a, h, R.rng.int(6, 25)) }
+            if (pool.length) { const h = pool[rnd(R, P.retakeUtil).int(0, pool.length - 1)]; h.flushed = true; hurt(a, h, rnd(R, P.retakeUtil).int(6, 25)) }
         }
         while (a.flash > 0 && flashes < 3) {
             throwUtil(R, a, "flash", S, "CT", t - 0.5 + 0.3 * flashes)
             flashes++
             const pool = holders.filter(h => h.alive)
-            if (pool.length && R.rng.next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * a.p.grenades) {
-                const h = pool[R.rng.int(0, pool.length - 1)]
+            if (pool.length && rnd(R, P.retakeUtil).next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * a.p.grenades) {
+                const h = pool[rnd(R, P.retakeUtil).int(0, pool.length - 1)]
                 h.blindUntil = t + 2.2
                 h.blindBy = a.i
             }
@@ -650,7 +692,7 @@ export function counterSign(a: string | undefined, b: string | undefined): numbe
 }
 
 function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: SimSide): PlanState {
-    const rng = R.rng
+    const rng = rnd(R, P.plan)
     const tBuy = BUY_OF[tSide.strategy] ?? "full"
     const ctBuy = BUY_OF[ctSide.strategy] ?? "full"
     const tStyle = (tSide.playstyle ?? "").toLowerCase()
@@ -730,7 +772,7 @@ function assignJobs(R: Round, plan: PlanState): { lurker: Actor | null; fakers: 
     R.bomb.carrier = carrier
     let lurker: Actor | null = null
     const lurks = plan.strategy === "default" || plan.strategy === "split" || plan.strategy === "fake" || (plan.strategy === "eco" && !plan.ecoRush)
-    if (lurks && ts.length >= 4 && R.rng.bool(0.7)) {
+    if (lurks && ts.length >= 4 && rnd(R, P.jobs).bool(0.7)) {
         const pool = ts.filter(a => a.job === "pack" && a !== carrier).sort((a, b) => b.p.creativity - a.p.creativity)
         lurker = pool[0] ?? null
         if (lurker) lurker.job = "lurk"
@@ -747,14 +789,14 @@ function assignJobs(R: Round, plan: PlanState): { lurker: Actor | null; fakers: 
     if (plan.setup === "stack-A") Object.assign(counts, { A: 3, B: 1 })
     if (plan.setup === "stack-B") Object.assign(counts, { A: 1, B: 3 })
     const awper = cts.find(a => isSniperClass(a.wc))
-    const order = R.rng.shuffle(cts.filter(a => a !== awper))
+    const order = rnd(R, P.jobs).shuffle(cts.filter(a => a !== awper))
     if (awper) order.unshift(awper)
     const posts: string[] = []
     for (const k of ["mid", "A", "B"] as const) for (let n = 0; n < counts[k]; n++) posts.push(k)
     order.forEach((a, k) => {
         let post = posts[k] ?? "A"
         // The AWPer takes mid or a long anchor.
-        if (a === awper && R.rng.bool(0.3)) post = R.rng.bool(0.5) ? "A" : "B"
+        if (a === awper && rnd(R, P.jobs).bool(0.3)) post = rnd(R, P.jobs).bool(0.5) ? "A" : "B"
         a.post = post
         const holds = post === "mid" ? R.z.midHolds : R.z.sites[post as SiteId].holds
         a.zone = holds.length ? holds[k % holds.length] : post
@@ -766,13 +808,13 @@ function assignJobs(R: Round, plan: PlanState): { lurker: Actor | null; fakers: 
     }
     const aggressor = plan.setup === "aggressive"
         ? (cts.find(a => a.post === "mid" && a !== awper) ?? cts.find(a => a.p.traits & TRAIT_AGGRESSIVE) ?? cts.find(a => a !== awper) ?? null)
-        : (cts.find(a => a.p.traits & TRAIT_AGGRESSIVE && a !== awper && R.rng.bool(0.25)) ?? null)
+        : (cts.find(a => a.p.traits & TRAIT_AGGRESSIVE && a !== awper && rnd(R, P.jobs).bool(0.25)) ?? null)
     // The read moves one player before the hit.
     const S = plan.site
     const O: SiteId = S === "A" ? "B" : "A"
     if (plan.read === "right" && plan.setup !== "stack-A" && plan.setup !== "stack-B") {
         const mover = cts.find(a => a.post === "mid") ?? cts.find(a => a.post === O)
-        if (mover) { mover.post = S; mover.zone = R.S.holds[R.rng.int(0, max(0, R.S.holds.length - 1))] ?? S }
+        if (mover) { mover.post = S; mover.zone = R.S.holds[rnd(R, P.jobs).int(0, max(0, R.S.holds.length - 1))] ?? S }
     } else if (plan.read === "wrong" && plan.setup !== "stack-A" && plan.setup !== "stack-B") {
         const mover = cts.find(a => a.post === "mid") ?? cts.find(a => a.post === S && a !== awper)
         if (mover) { mover.post = O; mover.zone = R.O.holds[0] ?? O }
@@ -792,7 +834,7 @@ export function simulateScriptRound(input: SimInput): SimOutput {
     const T_ = all.filter(a => !a.ct)
     const CT_ = all.filter(a => a.ct)
     const R: Round = {
-        rng: input.rng, rollKey: input.rng.int(1, 0x7ffffffe), meetings: new Map(), z: input.zones, t: 0, all, T: T_, CT: CT_, events: [], firstKill: false, pressure: input.pressure,
+        rollKey: input.rng.int(1, 0x7ffffffe), draws: new Map(), meetings: new Map(), z: input.zones, t: 0, all, T: T_, CT: CT_, events: [], firstKill: false, pressure: input.pressure,
         bomb: { carrier: null, lost: false, planted: false, plantT: 0, planter: null },
         clutch: [null, 0, null, 0], utility: [], S: input.zones.sites.A, O: input.zones.sites.B,
     }
@@ -825,11 +867,9 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
     if (done) return done
 
     // ── 2. A side that lost the early fights badly may save ──
-    const tLeft = countAlive(tAll), ctLeft = countAlive(ctAll)
-    if (tLeft <= 2 && ctLeft >= tLeft + 2 && living(tAll).some(a => isSaveWorthy(a.wc)) && R.rng.bool(0.3 * T.SAVE)) {
+    if (givesUp(R, tAll, countAlive(ctAll), 0, T.SAVE_EARLY)) {
         R.t = max(R.t + 2, plan.execAt - 10)
-        save(R, living(tAll))
-        return { winnerCT: true, winType: "TIME", t: ROUND_TIME }
+        return tSave(R)
     }
 
     // ── 3. Fake: CTs may bite and send a player over ──
@@ -844,7 +884,7 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
             if (f.molotov > 0) throwUtil(R, f, "molotov", O.id, "T", R.t + 1)
         }
         const bite = max(0.25, min(0.8, 0.55 + (plan.read === "right" ? -0.25 : plan.read === "wrong" ? 0.15 : 0)))
-        if (R.rng.bool(bite)) {
+        if (rnd(R, P.flow).bool(bite)) {
             const mover = living(ctAll).find(a => a.post === "mid") ?? living(ctAll).find(a => a.post === S.id)
             if (mover) { mover.post = O.id; mover.zone = O.holds[0] ?? O.id; rotating.add(mover) }
         }
@@ -860,7 +900,7 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
     if (!hitters.length) return lurkerHunt(R, lurker)
     const defenders = living(ctAll).filter(a => a.post === S.id)
     // CTs elsewhere hear the execute (utility, first contact) and start rotating.
-    const info = R.rng.range(T.ROTATE_INFO[0], T.ROTATE_INFO[1])
+    const info = rnd(R, P.flow).range(T.ROTATE_INFO[0], T.ROTATE_INFO[1])
     const rotators: [Actor, number][] = []
     let anchorStays: Actor | null = null
     for (const c of living(ctAll)) {
@@ -868,7 +908,7 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
         if (c.post === "mid") rotators.push([c, execAt + info + S.midTime])
         else if (c.post === O.id) {
             // The far anchor holds until the plant when a T is still unseen.
-            if (!anchorStays && (lurker?.alive || R.rng.bool(0.35))) { anchorStays = c; continue }
+            if (!anchorStays && (lurker?.alive || rnd(R, P.flow).bool(0.35))) { anchorStays = c; continue }
             rotators.push([c, execAt + info + O.rotateTime])
         }
     }
@@ -879,35 +919,41 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
     if (lurker?.alive) lurkPick(R, lurker, rotators, execAt + info)
 
     const split = plan.strategy === "split"
+    // A hit that collapses (a lone T, or two against four) falls back and saves.
+    let tCount = countAlive(tAll)
+    const tGivesUp = () => {
+        const n = countAlive(tAll)
+        if (n === tCount) return false
+        tCount = n
+        return givesUp(R, tAll, countAlive(ctAll), plantUrgency(R), T.SAVE_T)
+    }
     const hit: Fight = {
         att: hitters, def: defenders, attQ: late, defQ: rotators.filter(([a]) => a.alive),
-        zone: S.id, entryZone: split && R.rng.bool(0.5) ? S.split.id : S.main.id,
+        zone: S.id, entryZone: split && rnd(R, P.flow).bool(0.5) ? S.split.id : S.main.id,
         tEnd: LATEST_PLANT_START - 2, step: plan.strategy === "rush" || plan.ecoRush ? T.RUSH_STEP : T.HIT_STEP,
         attTrade: T.TRADE_HIT, defTrade: T.TRADE_HOLD, holdCut: split ? T.SPLIT_HOLD_CUT : 0, maxDuels: 99, fallback: true, tag: "hit",
         // A rush hits before the defence is set (no utility, fast swings).
         attPts: plan.strategy === "rush" || plan.ecoRush ? () => T.RUSH_SPEED : undefined,
+        stop: tGivesUp,
     }
     const res = fight(R, hit)
     for (const d of defenders) { d.smoked = false; d.flushed = false }
     done = elim()
     if (done) return done
     if (res === "def") return lurkerHunt(R, lurker)
-    if (res === "time") {
-        save(R, living(tAll))
-        return { winnerCT: true, winType: "TIME", t: ROUND_TIME }
-    }
+    if (res === "time" || res === "stop") return tSave(R)
 
     // ── 5. Plant ──
     const onSite = living(tAll).filter(a => a !== lurker && (hitters.includes(a) || late.some(([x]) => x === a)))
     if (!onSite.length) return lurkerHunt(R, lurker)
     let planter = R.bomb.carrier && R.bomb.carrier.alive && onSite.includes(R.bomb.carrier) ? R.bomb.carrier : null
-    let walk = R.rng.range(1.2, 3)
+    let walk = rnd(R, P.flow).range(1.2, 3)
     if (!planter) {
         // The bomb was dropped: on the way in (picked up) or lost in an early fight.
         if (R.bomb.lost) return lateRound(R, lurker)
         planter = [...onSite].sort((a, b) => (PLANT_PRIORITY[a.job] ?? 2) - (PLANT_PRIORITY[b.job] ?? 2))[0]
         R.bomb.carrier = planter
-        walk += R.rng.range(1, 3)
+        walk += rnd(R, P.flow).range(1, 3)
     }
     let plantStart = R.t + walk
     if (plantStart > LATEST_PLANT_START) return lateRound(R, lurker)
@@ -931,7 +977,7 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
             planter = next[0]
             R.bomb.carrier = planter
         }
-        plantStart = max(plantStart, R.t + R.rng.range(1, 2.5))
+        plantStart = max(plantStart, R.t + rnd(R, P.flow).range(1, 2.5))
         if (plantStart > LATEST_PLANT_START) return lateRound(R, lurker)
     }
     R.t = plantStart + PLANT_TIME
@@ -953,12 +999,13 @@ function earlyFights(R: Round, plan: PlanState, aggressor: Actor | null): void {
     // Mid control.
     const pMid = st === "rush" ? 0.08 : st === "execute" ? 0.25 : st === "eco" ? (plan.ecoRush ? 0.05 : 0.4) : 0.5
     const midCT = cts.find(a => a.post === "mid" && a !== aggressor)
-    if (midCT && R.rng.bool(pMid)) {
-        const t = z.midTime + R.rng.range(2, 10)
+    if (midCT && rnd(R, P.early).bool(pMid)) {
+        const t = z.midTime + rnd(R, P.early).range(2, 10)
         fights.push({
             t, run: () => {
-                const pool = living(ts).filter(a => a.job !== "lurk" && a.job !== "fake")
-                const taker = (R.rng.bool(0.35) ? pool.find(a => a.job === "entry") : undefined) ?? pool[R.rng.int(0, max(0, pool.length - 1))]
+                // The bomb carrier stays with the pack.
+                const pool = living(ts).filter(a => a.job !== "lurk" && a.job !== "fake" && a !== R.bomb.carrier)
+                const taker = (rnd(R, P.early).bool(0.35) ? pool.find(a => a.job === "entry") : undefined) ?? pool[rnd(R, P.early).int(0, max(0, pool.length - 1))]
                 const mate = living(ts).find(a => a !== taker && (a.job === "support" || a.job === "pack" || a.job === "igl"))
                 if (!taker || !midCT.alive) return
                 const awpTake = taker.job === "awp"
@@ -969,9 +1016,9 @@ function earlyFights(R: Round, plan: PlanState, aggressor: Actor | null): void {
     // The T AWPer holds a long angle for an opening pick.
     const tAwp = ts.find(a => isSniperClass(a.wc))
     const pAwp = st === "default" ? 0.55 : st === "split" || st === "fake" ? 0.4 : st === "execute" ? 0.2 : 0
-    if (tAwp && R.rng.bool(pAwp)) {
+    if (tAwp && rnd(R, P.early).bool(pAwp)) {
         fights.push({
-            t: R.rng.range(14, 34), run: () => {
+            t: rnd(R, P.early).range(14, 34), run: () => {
                 const peeker = living(cts).find(a => a.post !== "mid" && !isSniperClass(a.wc)) ?? living(cts)[0]
                 if (!peeker || !tAwp.alive) return
                 pick(R, [peeker], [tAwp], tAwp.zone || R.S.alt.id, 0.2, T.TRADE_PICK * 0.6)
@@ -979,16 +1026,16 @@ function earlyFights(R: Round, plan: PlanState, aggressor: Actor | null): void {
         })
     }
     // An aggressive CT push up a T route.
-    if (aggressor && R.rng.bool(plan.setup === "aggressive" ? 0.85 : 1)) {
-        const into = R.rng.bool(0.5) ? R.S : R.O
-        const t = min(into.main.contactTime - 2, R.rng.range(10, 20))
+    if (aggressor && rnd(R, P.early).bool(plan.setup === "aggressive" ? 0.85 : 1)) {
+        const into = rnd(R, P.early).bool(0.5) ? R.S : R.O
+        const t = min(into.main.contactTime - 2, rnd(R, P.early).range(10, 20))
         fights.push({
             t, run: () => {
                 if (!aggressor.alive) return
                 const tsThere = living(ts).filter(a => into === R.S ? a.job !== "lurk" && a.job !== "fake" : a.job === "lurk" || a.job === "fake")
-                if (!tsThere.length || R.rng.bool(into === R.S && st === "rush" ? 0.1 : 0.35)) {
+                if (!tsThere.length || rnd(R, P.early).bool(into === R.S && st === "rush" ? 0.1 : 0.35)) {
                     // Info without a fight: the CTs read the plan.
-                    if (into === R.S && plan.read === "none" && R.rng.bool(0.5)) plan.read = "right"
+                    if (into === R.S && plan.read === "none" && rnd(R, P.early).bool(0.5)) plan.read = "right"
                     return
                 }
                 const first = tsThere.find(a => a.job === "entry") ?? tsThere[0]
@@ -1009,7 +1056,7 @@ function earlyFights(R: Round, plan: PlanState, aggressor: Actor | null): void {
         if (!countAlive(ts) || !countAlive(cts)) return
         // A carrier killed on the way: a teammate picks the bomb up, unless the CTs hold the drop.
         if (!R.bomb.carrier && !R.bomb.lost) {
-            if (R.rng.bool(0.15)) R.bomb.lost = true
+            if (rnd(R, P.early).bool(0.15)) R.bomb.lost = true
             else R.bomb.carrier = living(ts).filter(a => a.job !== "lurk" && a.job !== "fake").sort((a, b) => (PLANT_PRIORITY[a.job] ?? 2) - (PLANT_PRIORITY[b.job] ?? 2))[0] ?? null
         }
     }
@@ -1027,18 +1074,21 @@ function pick(R: Round, peekers: Actor[], holders: Actor[], zone: string, attTra
 
 /** The lurker catches the first rotator from behind. */
 function lurkPick(R: Round, lurker: Actor, rotators: [Actor, number][], t: number): void {
-    if (!rotators.length || !R.rng.bool(0.45 + (lurker.p.creativity - 50) * 0.004)) return
+    if (!rotators.length || !rnd(R, P.lurk).bool(0.45 + (lurker.p.creativity - 50) * 0.004)) return
     const entry = rotators.find(([a]) => a.alive && a.post !== "mid") ?? rotators.find(([a]) => a.alive)
     if (!entry) return
     const [victim] = entry
     const saved = R.t
-    R.t = t + R.rng.range(1, 4)
-    const z = R.z.lurk[R.O.id]?.id ?? R.O.main.id
+    R.t = t + rnd(R, P.lurk).range(1, 4)
+    // Caught leaving their post: the fight is where the rotator was holding.
+    const z = victim.zone || (R.z.lurk[R.O.id]?.id ?? R.O.main.id)
     const F: Fight = {
         att: [victim], def: [lurker], attQ: [], defQ: [], zone: z, entryZone: z, tEnd: ROUND_TIME, step: [1, 2],
         attTrade: 0, defTrade: 0, holdCut: 0, maxDuels: 1, defPts: T.LURK + (lurker.p.creativity - 50) * T.LURK_CREATIVITY, tag: "lurk",
     }
     fight(R, F)
+    // A rotator who wins still has the whole rotation ahead of them.
+    if (victim.alive) entry[1] = max(entry[1], R.t + (victim.post === "mid" ? R.S.midTime : R.O.rotateTime))
     // Resolved out of order with the hit; its events carry their own times.
     R.t = saved
 }
@@ -1056,23 +1106,24 @@ function lateRound(R: Round, _lurker: Actor | null): RoundEnd {
     const cts = living(R.CT)
     if (!ts.length) return { winnerCT: true, winType: "ELIMINATION", t: R.t }
     if (!cts.length) return { winnerCT: false, winType: "ELIMINATION", t: R.t }
-    const timeLeft = LATEST_PLANT_START - R.t
-    const hopeless = cts.length >= ts.length + 2 || timeLeft < 8
-    if (hopeless && (ts.some(a => isSaveWorthy(a.wc)) || timeLeft < 8) && R.rng.bool(0.6 * T.SAVE)) {
-        save(R, ts)
-        return { winnerCT: true, winType: "TIME", t: ROUND_TIME }
-    }
-    R.t += R.rng.range(3, 8)
+    if (givesUp(R, R.T, cts.length, plantUrgency(R), T.SAVE_T)) return tSave(R)
+    R.t += rnd(R, P.late).range(3, 8)
+    let tCount = ts.length
     const F: Fight = {
-        att: ts, def: cts, attQ: [], defQ: [], zone: R.S.id, entryZone: R.O.main.id, tEnd: LATEST_PLANT_START - 1,
+        att: ts, def: cts, attQ: [], defQ: [], zone: R.S.id, entryZone: ts[0].zone || R.S.id, tEnd: LATEST_PLANT_START - 1,
         step: [2, 5], attTrade: T.TRADE_HIT * 0.6, defTrade: T.TRADE_HOLD * 0.6, holdCut: 0, maxDuels: 99, tag: "late",
+        stop: () => {
+            const n = countAlive(R.T)
+            if (n === tCount) return false
+            tCount = n
+            return givesUp(R, R.T, countAlive(R.CT), plantUrgency(R), T.SAVE_T)
+        },
     }
-    // The first duel of a late hunt is a flank.
     ts[0].fresh = false
     const res = fight(R, F)
     if (!countAlive(R.T)) return { winnerCT: true, winType: "ELIMINATION", t: R.t }
     if (!countAlive(R.CT)) return { winnerCT: false, winType: "ELIMINATION", t: R.t }
-    void res
+    if (res === "stop") return tSave(R)
     // Out of time without a plant.
     return { winnerCT: true, winType: "TIME", t: ROUND_TIME }
 }
@@ -1082,10 +1133,10 @@ function retake(R: Round, plan: PlanState, lurker: Actor | null, pending: [Actor
     const holders = living(R.T).filter(a => a !== lurker)
     // Everyone not yet at the site comes: pending rotators, the stayed anchor, survivors elsewhere.
     const arrivals: [Actor, number][] = pending.filter(([a]) => a.alive).map(([a, at]) => [a, max(at, plantT + 1)])
-    const info = R.rng.range(1, 3)
+    const info = rnd(R, P.retake).range(1, 3)
     for (const c of living(R.CT)) {
         if (arrivals.some(([a]) => a === c)) continue
-        const at = c.post === "mid" ? plantT + info + R.S.midTime : c.post === R.S.id ? plantT + R.rng.range(1, 4) : plantT + info + R.O.rotateTime
+        const at = c.post === "mid" ? plantT + info + R.S.midTime : c.post === R.S.id ? plantT + rnd(R, P.retake).range(1, 4) : plantT + info + R.O.rotateTime
         arrivals.push([c, at])
     }
     arrivals.sort((a, b) => a[1] - b[1])
@@ -1097,33 +1148,21 @@ function retake(R: Round, plan: PlanState, lurker: Actor | null, pending: [Actor
     const deadline = () => plantT + BOMB_TIME - kitTime() - 3.5
     const ctN = () => countAlive(R.CT)
     const tN = () => countAlive(R.T)
-    const valuable = () => living(R.CT).some(a => isSaveWorthy(a.wc))
-    // Retake or save.
-    const wantsSave = (): boolean => {
-        const c = ctN(), t = tN()
-        if (!c) return false
-        if (!t) return false
-        const adv = c - t
-        if (adv <= -2) return R.rng.bool((valuable() ? 0.6 : 0.3) * T.SAVE)
-        if (adv === -1 && c === 1) return R.rng.bool((valuable() ? 0.35 : 0.15) * T.SAVE)
-        return false
-    }
+    // Retake or save: outnumbered or out of time, the CTs keep their guns.
+    const wantsSave = (): boolean => givesUp(R, R.CT, tN(), max(0, min(1, (T.SAVE_CLOCK_SECONDS - (deadline() - R.t)) / T.SAVE_CLOCK_SECONDS)), T.SAVE_RETAKE)
     if (!countAlive(R.CT)) return { winnerCT: false, winType: "ELIMINATION", t: R.t }
     // Retakers group up a little, but the clock decides.
     let start = arrivals.length ? arrivals[min(arrivals.length - 1, 1)][1] : plantT + 3
     start = min(max(start, plantT + 2), deadline() - 10)
     R.t = max(R.t, start)
-    if (tN() && wantsSave()) {
-        save(R, living(R.CT))
-        return explode(R)
-    }
+    if (tN() && wantsSave()) return ctSave(R)
     const present = arrivals.filter(([, at]) => at <= R.t).map(([a]) => a)
     const later = arrivals.filter(([, at]) => at > R.t)
     retakeUtility(R, present, holders, R.t)
     let lastCT = ctN()
     const F: Fight = {
         att: present, def: holders, attQ: later, defQ: [], zone: R.S.id, entryZone: R.S.retake ?? R.S.id,
-        tEnd: deadline(), step: [1.2, 3], attTrade: T.TRADE_HOLD, defTrade: T.TRADE_HOLD, holdCut: 0, maxDuels: 99,
+        tEnd: deadline(), end: deadline, step: [1.2, 3], attTrade: T.TRADE_HOLD, defTrade: T.TRADE_HOLD, holdCut: 0, maxDuels: 99,
         attPts: () => (R.t > deadline() - 8 ? -T.RUSHED : 0), tag: "retake",
         stop: () => {
             // The kit holder may have died: the deadline moves with the defuse time.
@@ -1142,7 +1181,7 @@ function retake(R: Round, plan: PlanState, lurker: Actor | null, pending: [Actor
         const dur = defuser.kit ? 5 : 10
         // From the last T's death (the fight clock may have run on past it).
         const lastDeath = max(...R.T.map(a => a.deathT))
-        const startDefuse = lastDeath + R.rng.range(0.8, 2.5)
+        const startDefuse = lastDeath + rnd(R, P.retake).range(0.8, 2.5)
         if (startDefuse + dur <= plantT + BOMB_TIME - 0.1) {
             R.t = startDefuse + dur
             R.events.push({ type: "DEFUSE", time: r1(R.t), side: "ct", playerId: defuser.id, site: R.S.id, zone: R.S.id, location: R.S.callout, details: "Bomb has been defused" })
@@ -1150,7 +1189,7 @@ function retake(R: Round, plan: PlanState, lurker: Actor | null, pending: [Actor
         }
         return explode(R)
     }
-    if (res === "stop" || res === "time") save(R, living(R.CT))
+    if (res === "stop" || res === "time") return ctSave(R)
     return explode(R)
 }
 
@@ -1164,6 +1203,72 @@ function explode(R: Round): RoundEnd {
 function save(R: Round, who: Actor[]): void {
     if (!who.length) return
     R.events.push({ type: "SAVE", time: r1(R.t), side: who[0].ct ? "ct" : "t", details: `${who.map(a => a.nick).join(", ")} saving` })
+}
+
+// ─── Saves and exit kills ──────────────────────────────────────────────────
+
+/**
+ * Does a side that is losing the round give it up? An outnumbered side keeps
+ * its guns for the next round instead of taking fights it rarely wins: the
+ * more players down and the fewer left, the likelier (a lone player against
+ * two, a pair against four). The clock (`urgency` 0..1, 1 = cannot win in
+ * time) makes it likelier still. `scale` < 1 while there is time to play
+ * (Ts before a plant, early in the round); a side with nothing worth keeping
+ * saves less.
+ */
+function givesUp(R: Round, side: readonly Actor[], foes: number, urgency: number, scale: number): boolean {
+    const mine = countAlive(side)
+    if (!mine || !foes) return false
+    const down = foes - mine
+    let p = down > 0 ? max(0, T.SAVE_BASE + T.SAVE_PER_DOWN * down - T.SAVE_PER_LEFT * (mine - 1)) * scale : 0
+    if (mine <= foes) p = max(p, urgency * T.SAVE_CLOCK)
+    if (!side.some(a => a.alive && isSaveWorthy(a.wc))) p *= T.SAVE_CHEAP
+    // Keyed by the situation (common random numbers): the same spot gets the same call in a paired run.
+    return p > 0 && keyedRoll(R, 5, (side[0]?.ct ? 64 : 0) + mine * 8 + foes) < min(0.95, p)
+}
+
+/** How much the clock is against Ts who have not planted (0 = time to play, 1 = no time to plant). */
+function plantUrgency(R: Round): number {
+    return max(0, min(1, (T.SAVE_CLOCK_SECONDS - (LATEST_PLANT_START - R.t)) / T.SAVE_CLOCK_SECONDS))
+}
+
+/**
+ * Savers run for it; the winners may catch one on the way out (exit kills).
+ * Only while two or more hunters are alive, so a saver who wins the duel
+ * never wipes the side that has already won the round.
+ */
+function exitHunt(R: Round, savers: readonly Actor[], hunters: readonly Actor[], until: number, chance: number, zone: string): void {
+    const t0 = R.t
+    let t = t0
+    for (const s of savers) {
+        const hs = living(hunters)
+        const room = until - t0 - 2
+        if (hs.length < 2 || !s.alive || room < 3) continue
+        if (keyedRoll(R, 6, s.i) >= chance * min(1, room / T.EXIT_ROOM)) continue
+        R.t = t0 + 2 + keyedRoll(R, 7, s.i) * (min(room, 14) - 2)
+        // Caught near where they were last seen.
+        duel(R, hs[min(hs.length - 1, floor(keyedRoll(R, 8, s.i) * hs.length))], s, T.EXIT_EDGE, 0, s.zone || zone)
+        t = max(t, R.t)
+    }
+    R.t = t
+}
+
+/** Ts give the round up before a plant: they save, CTs may hunt them; the CTs win on time (or by elimination). */
+function tSave(R: Round): RoundEnd {
+    const savers = living(R.T)
+    save(R, savers)
+    exitHunt(R, savers, R.CT, ROUND_TIME, T.EXIT_HUNT_CT, R.S.main.id)
+    if (!countAlive(R.T)) return { winnerCT: true, winType: "ELIMINATION", t: R.t }
+    return { winnerCT: true, winType: "TIME", t: ROUND_TIME }
+}
+
+/** CTs give a planted bomb up: they save, Ts may hunt them; the bomb explodes (or the CTs are wiped). */
+function ctSave(R: Round): RoundEnd {
+    const savers = living(R.CT)
+    save(R, savers)
+    exitHunt(R, savers, R.T, R.bomb.plantT + BOMB_TIME, T.EXIT_HUNT_T, R.S.retake ?? R.S.id)
+    if (!countAlive(R.CT)) return { winnerCT: false, winType: "ELIMINATION", t: R.t }
+    return explode(R)
 }
 
 // ─── Output ────────────────────────────────────────────────────────────────

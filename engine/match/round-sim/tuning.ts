@@ -34,10 +34,36 @@ export const TUNING = {
     SPOTTED_HOLD: 0,
     /** Per player the attackers outnumber (or are outnumbered by) the holders in a fight (max 3). */
     NUMBERS: 0,
-    /** Per player one team has alive over the other in the round (max 3), every duel. */
-    NUMBERS_ROUND: 7,
-    /** Scales every save decision (outnumbered post-plant CTs, hopeless Ts). */
-    SAVE: 0.65,
+    /**
+     * Every duel: per player one team has alive over the other, relative to the
+     * smaller side ((a - b) / min(a, b), capped at ±NUMBERS_CAP): 5v4 +¼, 2v1 +1, 3v1 +2.
+     */
+    NUMBERS_ROUND: 3.2,
+    NUMBERS_CAP: 2,
+    // ── saves (see givesUp in simulate.ts) ──
+    /**
+     * Chance an outnumbered side saves: BASE + PER_DOWN per player down - PER_LEFT
+     * per player left beyond the first (1v2 0.28, 1v3 0.43, 2v3 0.15, 2v4 0.30), times the scale below.
+     */
+    SAVE_BASE: 0.13,
+    SAVE_PER_DOWN: 0.15,
+    SAVE_PER_LEFT: 0.13,
+    /** Save chance when the clock says the round is lost (scaled by urgency). */
+    SAVE_CLOCK: 0.4,
+    /** Seconds before the last moment (plant / defuse) the clock starts to weigh. */
+    SAVE_CLOCK_SECONDS: 12,
+    /** Nothing worth keeping (pistols, SMGs on an eco): saves this much less. */
+    SAVE_CHEAP: 0.5,
+    /** Scale for Ts before a plant (time to play, the plant still wins), early in the round, and CTs on a retake (the bomb clock). */
+    SAVE_T: 0.2,
+    SAVE_EARLY: 0.24,
+    SAVE_RETAKE: 0.9,
+    /** Chance the winners catch a saver on the way out: CTs hunting Ts, Ts (guarding the bomb) hunting CTs. */
+    EXIT_HUNT_CT: 0.4,
+    EXIT_HUNT_T: 0.11,
+    /** Seconds of round left for a full hunt chance; the hunter's edge over a running saver. */
+    EXIT_ROOM: 25,
+    EXIT_EDGE: 10,
     /** Chance a lone site defender facing 3+ attackers falls back to retake. */
     FALLBACK: 0.5,
     /** A blinded player. */
@@ -56,10 +82,15 @@ export const TUNING = {
     TRADING: 0.08,
     /** The player who just won a duel is exposed to the trade. */
     EXPOSED: 4,
-    /** Last alive: clutch per point above 60 and stress resistance per point above 50, + vs 2 or more. */
+    /** Last alive: clutch per point above 60 and stress resistance per point above 50. */
     CLUTCH: 0.08,
     STRESS: 0.04,
-    CLUTCH_ISOLATE: 0,
+    /**
+     * The last player alive against two or more: every angle is theirs to clear
+     * alone while the others crossfire and trade, so late man-advantages close
+     * out instead of trading down to a 1v1 (1v2 clutches ≈ 13%, 1v3 ≈ 2%).
+     */
+    CLUTCH_ISOLATE: -24,
     /** A lurker catching a rotator from behind. */
     LURK: 6,
     LURK_CREATIVITY: 0.08,
@@ -85,12 +116,14 @@ export const TUNING = {
 
     // ── trades ──
     /** Base chance the side that just lost a player trades it (attack / defence / pick). */
-    TRADE_HIT: 0.35,
-    TRADE_HOLD: 0.3,
+    TRADE_HIT: 0.47,
+    TRADE_HOLD: 0.34,
     TRADE_PICK: 0.3,
-    TRADE_DECAY: 0.6,
+    TRADE_DECAY: 0.57,
     /** Extra trade chance per attacker beyond the defenders' number (they swing together). */
     TRADE_PER_EXTRA: 0.15,
+    /** Trade chance kept by the last player alive against two or more. */
+    TRADE_LONE: 0.16,
 
     // ── timing ──
     /** Seconds between new peeks while a site is being taken (clearing angles), and on a rush. */
@@ -117,6 +150,6 @@ export const TUNING = {
 
     // ── side balance ──
     /** CT side bias (points) applied to every CT duel; per-map overrides below. */
-    CT_BIAS: 5,
+    CT_BIAS: 6,
     MAP_CT_BIAS: {} as Record<string, number>,
 }
