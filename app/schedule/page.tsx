@@ -22,6 +22,7 @@ import { TournamentDetailsModal } from "@/components/schedule/TournamentDetailsM
 import { ScheduleMatchCard } from "@/components/schedule/ScheduleMatchCard"
 import { ScheduleActivityCard } from "@/components/schedule/ScheduleActivityCard"
 import { TeamMatchPopup } from "@/components/schedule/TeamMatchPopup"
+import { leagueStageLabel } from "@/components/league/league-view"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 
 import { WEEKS_PER_YEAR } from "@/lib/constants"
@@ -478,7 +479,7 @@ export default function SchedulePage() {
                                 teams={teams as any}
                                 playerTeamId={playerTeamId || ""}
                                 isScrim={match.isScrim}
-                                tournamentName={tournamentDef ? getDynamicTournamentName(tournamentDef.shortName || tournamentDef.name, currentWeek) : undefined}
+                                tournamentName={leagueStageLabel(match) ?? (tournamentDef ? getDynamicTournamentName(tournamentDef.shortName || tournamentDef.name, currentWeek) : undefined)}
                                 isCurrentWeek={isCurrent}
                                 onClick={() => {
                                   if (match.result) router.push(`/match/${match.id}/result`)
