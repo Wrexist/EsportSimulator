@@ -276,20 +276,6 @@ function reviewRecord(lk: Lookups, key: RecordKey, r: RecordEntry, broken: boole
 
 type Loose = Record<string, unknown>
 const isObj = (v: unknown): v is Loose => !!v && typeof v === "object" && !Array.isArray(v)
-function str(o: Loose, keys: string[]): string | undefined {
-    for (const k of keys) {
-        const v = o[k]
-        if (typeof v === "string" && v.trim()) return v.trim()
-    }
-    return undefined
-}
-function num(o: Loose, keys: string[]): number | undefined {
-    for (const k of keys) {
-        const v = o[k]
-        if (typeof v === "number" && Number.isFinite(v)) return v
-    }
-    return undefined
-}
 
 /** How an arc ended, as a tone for its last beat. */
 const OUTCOME_TONE: Record<string, StoryTone> = {
