@@ -1,7 +1,7 @@
 /**
  * Phase 3 radar: the per-frame scene sampler (lib/radar-scene) matches the
- * reference frame (lib/radar-script-frame), derives HP from the round's
- * events, builds trails and allocates nothing once warm.
+ * reference frame (lib/radar-script-frame), shows the round's exact HP (the
+ * roster's model), builds trails and allocates nothing once warm.
  */
 import { performance } from 'node:perf_hooks'
 import { radarScriptFrame } from '@/lib/radar-script-frame'
@@ -9,6 +9,7 @@ import {
     createRadarScene, prepareRadarScript, sampleRadarScene, sceneAliveCounts, sceneFromSnapshot, weaponClassOf,
     HIT_SECONDS, TRAIL_SECONDS, TRACER_SECONDS,
 } from '@/lib/radar-scene'
+import { buildRoundTimeline, samplePlayer } from '@/lib/live-match-roster'
 import { MapId } from '@/types/enums'
 import { playRadarSeries } from './radar-fixtures'
 
@@ -59,33 +60,58 @@ describe('radar scene sampling', () => {
         }
     })
 
-    it('derives HP from KILL damage: chipped at a duel win or an enemy grenade, 0 when dead', () => {
-        expect(prepared.every(p => p.hpKnown)).toBe(true)
-        let chipped = 0
+    it('shows exact HP from the recorded hits: duel chip and grenades, survivors included, 0 when dead', () => {
+        const exact = fixture.live.map((live, i) => prepareRadarScript(live.script, { events: fixture.steps[i].round.events, economy: fixture.steps[i].round.playerEconomy, round: fixture.steps[i].round }))
+        expect(exact.every(p => p.hpKnown && p.hpExact)).toBe(true)
+        let chippedVictims = 0, chippedSurvivors = 0, hitLines = 0
         const scene = createRadarScene()
-        for (const [r, prep] of prepared.entries()) {
+        for (const [r, prep] of exact.entries()) {
             const kills = (fixture.steps[r].round.events ?? []).filter(e => e.type === 'KILL')
             for (const [i, p] of prep.players.entries()) {
+                for (const t of p.hitTimes) {
+                    sampleRadarScene(prep, t + HIT_SECONDS / 2, scene)
+                    if (scene.hits.slice(0, scene.hitCount).some(h => h.tx === scene.players[i].x && h.ty === scene.players[i].y)) hitLines++
+                }
                 if (!Number.isFinite(p.deathT)) {
                     sampleRadarScene(prep, prep.endTime, scene)
-                    expect(scene.players[i].hp).toBe(100)
+                    if (scene.players[i].hp < 100) chippedSurvivors++
+                    expect(scene.players[i].hp).toBeGreaterThan(0)
                     continue
                 }
+                // Just before the fatal hit the victim has exactly the HP the kill took.
                 const kill = kills.find(e => e.victimId === p.id)!
                 sampleRadarScene(prep, p.deathT - 0.001, scene)
-                if (Number.isFinite(p.chipT)) {
-                    chipped++
-                    expect(p.chipHp).toBe(kill.damage)
-                    expect(scene.players[i].hp).toBe(kill.damage)
-                    sampleRadarScene(prep, p.chipT + HIT_SECONDS / 2, scene)
-                    expect(scene.hits.slice(0, scene.hitCount).some(h => h.tx === scene.players[i].x)).toBe(true)
-                } else expect(scene.players[i].hp).toBe(100)
+                expect(scene.players[i].hp).toBe(kill.damage)
+                if (kill.damage! < 100) chippedVictims++
                 sampleRadarScene(prep, p.deathT + 0.001, scene)
                 expect(scene.players[i].hp).toBe(0)
                 expect(scene.players[i].alive).toBe(false)
             }
         }
-        expect(chipped).toBeGreaterThan(0)
+        expect(chippedVictims).toBeGreaterThan(0)
+        expect(chippedSurvivors).toBeGreaterThan(0)
+        expect(hitLines).toBeGreaterThan(0)
+    })
+
+    it('shows the same HP as the roster at every moment (one model)', () => {
+        const scene = createRadarScene()
+        let compared = 0
+        for (const [r, live] of fixture.live.entries()) {
+            const round = fixture.steps[r].round
+            const prep = prepareRadarScript(live.script, { events: round.events, round })
+            const homeIds = fixture.ctx.home.players.map(p => p.id), awayIds = fixture.ctx.away.players.map(p => p.id)
+            const timeline = buildRoundTimeline({ round, homeIds, awayIds })
+            for (let t = 0; t <= prep.endTime; t += 0.25) {
+                sampleRadarScene(prep, t, scene)
+                for (let i = 0; i < scene.playerCount; i++) {
+                    const p = scene.players[i]
+                    expect(p.hp).toBe(samplePlayer(timeline, p.id, t).hp)
+                    expect(p.alive).toBe(!samplePlayer(timeline, p.id, t).dead)
+                    compared++
+                }
+            }
+        }
+        expect(compared).toBeGreaterThan(1000)
     })
 
     it('has no HP ring without KILL damage (legacy rounds)', () => {

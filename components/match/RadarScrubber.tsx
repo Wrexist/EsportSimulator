@@ -14,7 +14,7 @@ export interface RadarScrubberProps {
     prep: PreparedRadarScript | null
     /** The timeline shows the live round: ticks and scrubbing stop at the live time. */
     isLiveRound: boolean
-    /** Live clock in whole game seconds (filters live ticks). */
+    /** Round time the live screen shows (ticks at or before it are revealed, like the feed). */
     liveTick: number
     roundNumber: number | null
     liveRoundNumber: number | null

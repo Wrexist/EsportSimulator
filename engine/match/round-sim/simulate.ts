@@ -273,16 +273,16 @@ function duel(R: Round, a: Actor, b: Actor, sa: number, sb: number, zone: string
     const l = aWins ? b : a
     const pw = aWins ? pa : 1 - pa
     const pairKey = l.i * 16 + w.i
+    let chip = 0
     if (w.hp > 1 && keyedRoll(R, 1, pairKey) < T.CHIP_BASE + T.CHIP_CLOSE * (1 - pw)) {
         const [lo, hi] = l.spec.chip
         const dmg = min(w.hp - 1, round((lo + keyedRoll(R, 2, pairKey) * (hi - lo)) * (w.kevlar ? 0.82 : 1)))
-        hurt(l, w, dmg)
+        chip = hurt(l, w, dmg)
     }
-    kill(R, w, l, zone)
+    kill(R, w, l, zone, chip)
     return w
 }
 
-/** Non-lethal damage (chip, grenades): never below 1 HP. */
 /**
  * The uniform roll that decides a duel, keyed by the round, the two players
  * and how many times they have met this round (common random numbers): a
@@ -338,15 +338,24 @@ function rnd(R: Round, purpose: number): SeededRNG {
     return d
 }
 
-function hurt(from: Actor, to: Actor, amount: number): void {
+/** Non-lethal damage (chip, grenades): never below 1 HP. Returns the HP taken. */
+function hurt(from: Actor, to: Actor, amount: number): number {
     const dmg = min(amount, to.hp - 1)
-    if (dmg <= 0) return
+    if (dmg <= 0) return 0
     from.dealt += dmg
     from.dmgTo[to.i] += dmg
     to.hp -= dmg
+    return dmg
 }
 
-function kill(R: Round, k: Actor, v: Actor, zone: string, util?: "he" | "molotov"): void {
+/** A grenade that hurt someone: record who and how much on its throw (reporting only). */
+function hurtBy(throw_: UtilityThrow, from: Actor, to: Actor, amount: number): void {
+    const dmg = hurt(from, to, amount)
+    if (dmg > 0) { throw_.hit = to.id; throw_.dmg = dmg }
+}
+
+/** `chip`: HP the killer lost in this duel (recorded on the KILL, reporting only). */
+function kill(R: Round, k: Actor, v: Actor, zone: string, chip = 0, util?: "he" | "molotov"): void {
     const t = R.t
     const dmg = v.hp
     k.dealt += dmg
@@ -370,6 +379,7 @@ function kill(R: Round, k: Actor, v: Actor, zone: string, util?: "he" | "molotov
         type: "KILL", time: r1(t), playerId: k.id, victimId: v.id, weapon: util ?? k.weapon,
         isHeadshot: hs, location: R.z.callouts.get(zone) ?? zone, zone, damage: dmg,
     }
+    if (chip > 0) ev.chip = chip
     if (isTrade) ev.isTrade = true
     if (assister) ev.assisterId = assister.id
     if (flashAssist) ev.isFlashAssist = true
@@ -543,14 +553,15 @@ function tradeChain(R: Round, F: Fight, killer: Actor, side: "att" | "def", zone
 
 // ─── Utility ───────────────────────────────────────────────────────────────
 
-function throwUtil(R: Round, a: Actor, kind: UtilityKind, site: SiteId, side: "T" | "CT", t: number): string {
+function throwUtil(R: Round, a: Actor, kind: UtilityKind, site: SiteId, side: "T" | "CT", t: number): UtilityThrow {
     const spots = R.z.sites[site].util[side][kind]
     const used = R.utility.filter(u => u.kind === kind && u.site === site).length
     const spot = spots.length ? spots[used % spots.length] : site
-    R.utility.push({ t: r1(max(0.5, t)), playerId: a.id, kind, spot, site })
+    const entry: UtilityThrow = { t: r1(max(0.5, t)), playerId: a.id, kind, spot, site }
+    R.utility.push(entry)
     a.used.push(kind)
     a[kind]--
-    return spot
+    return entry
 }
 
 /** T utility on the site before the execute; CT utility on the entrance. Returns the execute delay. */
@@ -577,9 +588,9 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
         const pool = targets()
         if (!pool.length) break
         const d = pool[rnd(R, P.util).int(0, pool.length - 1)]
-        throwUtil(R, a, "molotov", S, "T", tHit - 2.5)
+        const molotov = throwUtil(R, a, "molotov", S, "T", tHit - 2.5)
         d.flushed = true
-        hurt(a, d, rnd(R, P.util).int(6, 22))
+        hurtBy(molotov, a, d, rnd(R, P.util).int(6, 22))
         break
     }
     for (const a of throwers) {
@@ -587,8 +598,8 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
         const pool = defenders.filter(d => d.alive)
         if (!pool.length) break
         const d = pool[rnd(R, P.util).int(0, pool.length - 1)]
-        throwUtil(R, a, "he", S, "T", tHit - 1.5)
-        hurt(a, d, min(d.hp - 1, round(rnd(R, P.util).range(12, 45) * (d.kevlar ? 0.6 : 1))))
+        const he = throwUtil(R, a, "he", S, "T", tHit - 1.5)
+        hurtBy(he, a, d, min(d.hp - 1, round(rnd(R, P.util).range(12, 45) * (d.kevlar ? 0.6 : 1))))
         break
     }
     let flashes = 0
@@ -611,12 +622,12 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
     for (const d of defenders) {
         if (!d.alive) continue
         if (d.molotov > 0 && strategy !== "rush") {
-            throwUtil(R, d, "molotov", S, "CT", tHit - 1)
+            const molotov = throwUtil(R, d, "molotov", S, "CT", tHit - 1)
             delay += rnd(R, P.util).range(1.5, 4)
-            if (entry && rnd(R, P.util).next() < 0.4) hurt(d, entry, rnd(R, P.util).int(8, 24))
+            if (entry && rnd(R, P.util).next() < 0.4) hurtBy(molotov, d, entry, rnd(R, P.util).int(8, 24))
         } else if (d.he > 0 && entry && rnd(R, P.util).next() < 0.5) {
-            throwUtil(R, d, "he", S, "CT", tHit - 0.5)
-            hurt(d, entry, min(entry.hp - 1, round(rnd(R, P.util).range(10, 40) * (entry.kevlar ? 0.6 : 1))))
+            const he = throwUtil(R, d, "he", S, "CT", tHit - 0.5)
+            hurtBy(he, d, entry, min(entry.hp - 1, round(rnd(R, P.util).range(10, 40) * (entry.kevlar ? 0.6 : 1))))
         } else if (d.flash > 0 && entry && rnd(R, P.util).next() < 0.5) {
             throwUtil(R, d, "flash", S, "CT", tHit)
             if (rnd(R, P.util).next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * d.p.grenades) { entry.blindUntil = tHit + delay + 2; entry.blindBy = d.i }
@@ -640,8 +651,8 @@ function retakeUtility(R: Round, retakers: Actor[], holders: Actor[], t: number)
         }
         if (a.molotov > 0) {
             const pool = holders.filter(h => h.alive && !h.flushed)
-            throwUtil(R, a, "molotov", S, "CT", t - 1.5)
-            if (pool.length) { const h = pool[rnd(R, P.retakeUtil).int(0, pool.length - 1)]; h.flushed = true; hurt(a, h, rnd(R, P.retakeUtil).int(6, 25)) }
+            const molotov = throwUtil(R, a, "molotov", S, "CT", t - 1.5)
+            if (pool.length) { const h = pool[rnd(R, P.retakeUtil).int(0, pool.length - 1)]; h.flushed = true; hurtBy(molotov, a, h, rnd(R, P.retakeUtil).int(6, 25)) }
         }
         while (a.flash > 0 && flashes < 3) {
             throwUtil(R, a, "flash", S, "CT", t - 0.5 + 0.3 * flashes)
