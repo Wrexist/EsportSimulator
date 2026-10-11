@@ -87,7 +87,7 @@ export const rift: ArcDefinition = {
         const choice = arc.beat >= 2
             ? takeAnswer(ctx, arc, "clear", (ch, byDefault) =>
                 ch === "side_a" ? `You side with ${A}.` : ch === "side_b" ? `You side with ${B}.`
-                    : byDefault ? "Unanswered: the club calls a team meeting." : "You clear the air in a team meeting.")
+                    : byDefault ? "No answer by the deadline, so the club calls a team meeting." : "You clear the air in a team meeting.")
             : null
         const a = stillAt(ctx, ida, arc.teamId), b = stillAt(ctx, idb, arc.teamId)
         if (!a || !b) return resolveArc(arc, ctx.week, "LEFT", `${!a ? A : B} has left ${clubOf(ctx, arc.teamId)}; the rift goes with him.`)
@@ -122,7 +122,7 @@ export const rift: ArcDefinition = {
         if (ctx.week < num(arc, "decidedWeek") + S.RIFT_RESOLVE_WEEKS) return
         const chem = Math.round(ctx.team(arc.teamId)?.chemistry ?? 0)
         const settled = a.morale >= 50 && b.morale >= 50
-        const text = `${settled ? "The rift has settled" : "The rift lingers"}: ${A} morale ${Math.round(a.morale)}, ${B} morale ${Math.round(b.morale)}, team chemistry ${chem}.`
+        const text = `${settled ? "The rift has settled" : "The rift lingers"} (${A} morale ${Math.round(a.morale)}, ${B} morale ${Math.round(b.morale)}, team chemistry ${chem}).`
         storyNews(ctx, arc, "end", settled ? `Calm returns at ${clubOf(ctx, arc.teamId)}` : `${A} and ${B}: still at odds`, text)
         resolveArc(arc, ctx.week, settled ? "SETTLED" : "LINGERS", text)
     },

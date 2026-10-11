@@ -132,7 +132,7 @@ describe("slump", () => {
         form(save, "p1", [0.8, 0.85, 1.1, 1.2, 1.05])
         nextWeek(save)
         expect(arc).toMatchObject({ state: "RESOLVED", outcome: "RECOVERED" })
-        expect(arc.log.at(-1)!.text).toBe("p1 is back in form: rated 1.12 over his last 3 official maps.")
+        expect(arc.log.at(-1)!.text).toBe("p1 is back in form, rated 1.12 over his last 3 official maps.")
     })
 
     test("unanswered, the rest week default applies through the deadline code", () => {
@@ -152,7 +152,7 @@ describe("slump", () => {
         expect(P_(save, "p1").fatigue).toBe(fatigue + S.SLUMP_REST_FATIGUE)
         processStorylines(save)
         expect(arc.choice).toBe("rest")
-        expect(arc.log.some(l => l.text === "Unanswered: p1 gets a rest week.")).toBe(true)
+        expect(arc.log.some(l => l.text === "No answer by the deadline, so p1 gets a rest week.")).toBe(true)
     })
 })
 
@@ -289,7 +289,7 @@ describe("rift", () => {
         expect([P_(save, "p5").morale, P_(save, b).morale]).toEqual([before[0] + S.RIFT_SIDE_WITH, before[1] + S.RIFT_SIDE_AGAINST])
         for (let i = 0; i < S.RIFT_RESOLVE_WEEKS + 1; i++) nextWeek(save)
         expect(arc.state).toBe("RESOLVED")
-        expect(arc.log.at(-1)!.text).toMatch(/team chemistry \d+\.$/)
+        expect(arc.log.at(-1)!.text).toMatch(/^The rift (has settled|lingers) \(p5 morale \d+, p\d morale \d+, team chemistry \d+\)\.$/)
     })
 })
 
@@ -526,7 +526,7 @@ describe("press conferences", () => {
         const q = pressDataOf(e)!.questions[1]
         expect(q).toMatchObject({ topic: "STORY", text: "p1 is rated 0.80 over his last 5 official maps. Does he keep his place?" })
         answerPressConference(save as unknown as PressTarget, e.id, { story: "trust" })
-        expect(arcOf(save, "SLUMP")!.log.at(-1)!.text).toBe('Press conference: "I trust him to come good."')
+        expect(arcOf(save, "SLUMP")!.log.at(-1)!.text).toBe('You told the press, "I trust him to come good."')
 
         const other = finalWeek()
         const e2 = createPressConference(other)!

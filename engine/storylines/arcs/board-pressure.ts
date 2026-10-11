@@ -27,6 +27,12 @@ function standing(o: BoardObjective): string {
             : `${ordinal(o.current)} against a target of ${ordinal(o.target)}`
 }
 
+/** An objective label as a demand: "Finish 7th or better in X" → "finish 7th or better in X". */
+function demand(label: string): string {
+    const text = label.replace(/^Budget discipline:\s*/i, "")
+    return text.charAt(0).toLowerCase() + text.slice(1)
+}
+
 function manager(ctx: StoryContext): string {
     return ctx.save.managerDetails?.name || "the manager"
 }
@@ -75,7 +81,7 @@ export const boardPressure: ArcDefinition = {
         if (!board) return resolveArc(arc, ctx.week, "VOID")
         const c = Math.round(board.confidence)
         if (board.confidence >= B.RECOVERED_AT) {
-            const text = `${manager(ctx)} steadies the ship: board confidence back to ${c}/100.`
+            const text = `${manager(ctx)} steadies the ship, board confidence back to ${c}/100.`
             storyNews(ctx, arc, "end", `${manager(ctx)} survives at ${club}`, text)
             return resolveArc(arc, ctx.week, "SURVIVES", text)
         }
@@ -84,10 +90,10 @@ export const boardPressure: ArcDefinition = {
             const o = behind.find(x => x.id === "league") ?? behind.find(x => x.id === "ranking") ?? behind[0]
             const weeksLeft = 52 - weekOfSeason(ctx.week)
             const text = o
-                ? `The board's message to ${manager(ctx)}: ${o.label.charAt(0).toLowerCase()}${o.label.slice(1)}. ${club} are ${standing(o)}, with ${weeksLeft} weeks of the season left. Confidence: ${c}/100.`
+                ? `The board's message to ${manager(ctx)}: ${demand(o.label)}. ${club} are ${standing(o)}, with ${weeksLeft} weeks of the season left. Confidence: ${c}/100.`
                 : `The board's message to ${manager(ctx)}: results must improve. Confidence: ${c}/100, with ${weeksLeft} weeks of the season left.`
             storyNews(ctx, arc, "b1", `${club} board sets out its demand`, text)
-            logBeat(arc, ctx.week, o ? `Ultimatum: ${o.label} (${standing(o)}).` : "Ultimatum: results must improve.")
+            logBeat(arc, ctx.week, o ? `The board demands that the club ${demand(o.label)} (${standing(o)}).` : "The board demands better results.")
             return nextBeat(arc, ctx.week)
         }
         arc.nextWeek = ctx.week + 1

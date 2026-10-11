@@ -79,12 +79,12 @@ export const lastDance: ArcDefinition = {
             ? takeAnswer(ctx, arc, "respect", (ch, byDefault) =>
                 ch === "persuade" ? `You persuade ${n} to give it another go.`
                     : ch === "mentor" ? `${n} takes ${String(arc.facts.menteeName ?? "a young team-mate")} under his wing.`
-                        : byDefault ? `Unanswered: the club leaves the call to ${n}.` : `You leave the call to ${n}.`)
+                        : byDefault ? `No answer by the deadline, so the call is ${n}'s.` : `You leave the call to ${n}.`)
             : null
         const retiree = ctx.player(id)
         if (retiree?.isRetired) {
             const trophies = retiree.careerTrophies ?? 0
-            const text = `${n} retires at ${retiree.age}: ${retiree.mapsPlayed ?? 0} official maps, career rating ${fmtRating(retiree.avgRating || 0)}${trophies ? `, ${trophies} trophies` : ""}${retiree.isLegendary ? ", and a place in the Hall of Fame" : ""}.`
+            const text = `${n} retires at ${retiree.age} after ${retiree.mapsPlayed ?? 0} official maps (career rating ${fmtRating(retiree.avgRating || 0)}${trophies ? `, ${trophies} trophies` : ""})${retiree.isLegendary ? " and goes into the Hall of Fame" : ""}.`
             storyNews(ctx, arc, "end", `Farewell, ${n}`, text)
             return resolveArc(arc, ctx.week, "RETIRED", text)
         }
@@ -99,7 +99,7 @@ export const lastDance: ArcDefinition = {
                 title: `${n}'s last dance?`,
                 playerId: id,
                 message: `${n} (${p.age}) is thinking about retiring at the end of the season. The season-end check currently gives him a ${from}% chance (it rises with age and falls with skill, form and health).\n\n`
-                    + `Persuade him: morale +${S.PERSUADE_MORALE}, loyalty +${S.PERSUADE_LOYALTY}, and his retirement chance is halved this season (${from}% now, ${to}% after).\n`
+                    + `Persuade him: morale +${S.PERSUADE_MORALE}, loyalty +${S.PERSUADE_LOYALTY}, and his retirement chance this season falls from ${from}% to ${to}% (× ${S.PERSUADE_RETIREMENT_FACTOR}).\n`
                     + (mentee ? `Plan the succession: he mentors ${nameOf(mentee)} (${mentee.age}); ${nameOf(mentee)}'s training gains +${Math.round((P.MENTOR_TRAINING - 1) * 100)}% while both stay. His retirement chance is unchanged.\n` : "")
                     + `Respect his decision: nothing changes.`,
                 choices: [
@@ -124,7 +124,7 @@ export const lastDance: ArcDefinition = {
         if (choice === null) return
         // The retirement check ran earlier this tick in week 52: he is still here.
         if (weekOfSeason(ctx.week) === 52 || ctx.week > arc.startedWeek + 30) {
-            const text = `${n} will play on: another season at ${clubOf(ctx, arc.teamId)}.`
+            const text = `${n} will play another season at ${clubOf(ctx, arc.teamId)}.`
             storyNews(ctx, arc, "end", `${n} plays on`, text)
             resolveArc(arc, ctx.week, "PLAYS_ON", text)
         }

@@ -114,7 +114,8 @@ function matchQuestion(save: GameSave, team: TeamSaveData, opp: TeamSaveData, ma
 
 const playerFx = (id: string, name: string, morale?: number, loyalty?: number): ChoiceEffects["players"] => [{ id, name, ...(morale ? { morale } : {}), ...(loyalty ? { loyalty } : {}) }]
 
-const askedBefore = (arc: StoryArc) => arc.log.some(l => l.text.startsWith("Press conference:"))
+const PRESS_LINE = "You told the press, "
+const askedBefore = (arc: StoryArc) => arc.log.some(l => l.text.startsWith(PRESS_LINE))
 
 /** A question from an active managed storyline (one the press has not asked about yet first). */
 function storyQuestion(save: GameSave, team: TeamSaveData, arcs: readonly StoryArc[]): PressQuestion | null {
@@ -362,7 +363,7 @@ export function answerPressConference(target: PressTarget, eventId: string, answ
         if (applyChoiceEffects(target, pseudo, a.effects, { id: () => `fin_${pseudo.id}`, description: `Press conference: "${a.text}"` })) applied++
         // The story keeps the line once (the press may ask again before a later match).
         const arc = q.arcId ? target.storylines?.find(x => x.id === q.arcId) : undefined
-        const line = `Press conference: "${a.text}"`
+        const line = `${PRESS_LINE}"${a.text}"`
         if (arc && a.id !== NO_COMMENT.id && !arc.log.some(l => l.text === line)) logBeat(arc, target.currentWeek, line)
     }
     e.selectedChoiceId = "answered"

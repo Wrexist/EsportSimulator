@@ -64,7 +64,7 @@ export const rivalry: ArcDefinition = {
         const h2h = headToHead({ wins: Number(arc.facts.wins), losses: Number(arc.facts.losses) })
         storyNews(ctx, arc, "b0", `${club} v ${opp}: the rivalry resumes`,
             `${club} and ${opp} meet for the ${ordinal(Number(arc.facts.meetings) + 1)} time in Week ${arc.facts.matchWeek} (${where}). ${club} ${h2h} in the head-to-head. Rivalry: ${String(arc.facts.intensity).toLowerCase()}.`)
-        logBeat(arc, ctx.week, `Build-up: meeting ${Number(arc.facts.meetings) + 1} with ${opp}, ${club} ${h2h}.`)
+        logBeat(arc, ctx.week, `${club} ${h2h} against ${opp} before meeting ${Number(arc.facts.meetings) + 1} in Week ${arc.facts.matchWeek}.`)
         nextBeat(arc, ctx.week)
     },
 
@@ -94,6 +94,8 @@ export const rivalry: ArcDefinition = {
         const title = won ? `${club} take the derby ${score}` : `${opp} take the derby, ${club} lose ${score}`
         const text = `${club} ${won ? "beat" : "lost to"} ${opp} ${score} in ${competitionName(ctx, done)}.${mvpLine}${h2hLine}`
         storyNews(ctx, arc, "b1", title, text)
-        resolveArc(arc, ctx.week, won ? "WON" : "LOST", text)
+        // The story keeps a one-line version.
+        const line = `${club} ${won ? "beat" : "lost to"} ${opp} ${score}${mvp ? `, ${nameOf(mvp)} the MVP${typeof mvpRating === "number" && Number.isFinite(mvpRating) ? ` (${fmtRating(mvpRating)})` : ""}` : ""}.`
+        resolveArc(arc, ctx.week, won ? "WON" : "LOST", line)
     },
 }

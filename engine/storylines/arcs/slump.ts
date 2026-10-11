@@ -63,7 +63,7 @@ export const slump: ArcDefinition = {
             ? takeAnswer(ctx, arc, "rest", (ch, byDefault) =>
                 ch === "back" ? `You back ${n} in public and promise he starts.`
                     : ch === "bench" ? `${n} drops out of the starting five.`
-                        : byDefault ? `Unanswered: ${n} gets a rest week.` : `${n} gets a rest week.`)
+                        : byDefault ? `No answer by the deadline, so ${n} gets a rest week.` : `${n} gets a rest week.`)
             : null
         const p = stillAt(ctx, id, arc.teamId)
         if (!p) {
@@ -109,19 +109,19 @@ export const slump: ArcDefinition = {
         const since = (p.mapsPlayed ?? 0) - num(arc, "mapsAtStart")
         const recent = formOver(p, arc.teamId, S.RECOVERY_MAPS)
         if (since >= S.RECOVERY_MAPS && recent !== null && recent >= S.RECOVERY_RATING) {
-            const text = `${n} is back in form: rated ${fmtRating(recent)} over his last ${S.RECOVERY_MAPS} official maps.`
+            const text = `${n} is back in form, rated ${fmtRating(recent)} over his last ${S.RECOVERY_MAPS} official maps.`
             storyNews(ctx, arc, "end", `${n} answers his critics`, text)
             return resolveArc(arc, ctx.week, "RECOVERED", text)
         }
         const benched = p.personality?.apps?.teamId === arc.teamId ? p.personality.apps.benched : 0
         if (benched >= S.DROPPED_BENCHED) {
-            const text = `${n} is out of the side: ${benched} official matches in a row on the bench.`
+            const text = `${n} is out of the side after ${benched} official matches in a row on the bench.`
             storyNews(ctx, arc, "end", `${n} loses his place`, text)
             return resolveArc(arc, ctx.week, "DROPPED", text)
         }
         if (ctx.week >= arc.startedWeek + S.SLUMP_MAX_WEEKS) {
             const r = formOver(p, arc.teamId, S.SLUMP_MAPS)
-            const text = r !== null ? `${n}'s slump goes on: rated ${fmtRating(r)} over his last ${S.SLUMP_MAPS} official maps.` : `${n} has played few official maps since the slump began.`
+            const text = r !== null ? `${n}'s slump goes on, rated ${fmtRating(r)} over his last ${S.SLUMP_MAPS} official maps.` : `${n} has played few official maps since the slump began.`
             storyNews(ctx, arc, "end", `No end yet to ${n}'s slump`, text)
             resolveArc(arc, ctx.week, "FADED", text)
         }

@@ -103,7 +103,7 @@ export const giantKiller: ArcDefinition = {
         const won = next.result.winnerId === arc.teamId
         const opp = clubOf(ctx, next.homeTeamId === arc.teamId ? next.awayTeamId : next.homeTeamId)
         const score = sideScore(next.result, next.homeTeamId === arc.teamId)
-        const text = won ? `${club}'s run goes on: ${score} against ${opp} in ${competitionName(ctx, next)}.` : `${club}'s run ends: ${score} against ${opp} in ${competitionName(ctx, next)}.`
+        const text = won ? `${club}'s run goes on with a ${score} win over ${opp} in ${competitionName(ctx, next)}.` : `${club}'s run ends with a ${score} defeat to ${opp} in ${competitionName(ctx, next)}.`
         storyNews(ctx, arc, "b1", won ? `${club} keep rolling` : `${club}'s run comes to an end`, text)
         resolveArc(arc, ctx.week, won ? "CONTINUES" : "ENDED", text)
     },

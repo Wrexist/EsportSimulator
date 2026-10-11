@@ -68,7 +68,7 @@ export const contractStandoff: ArcDefinition = {
         storyNews(ctx, arc, "b0", `${n}'s agent goes public`,
             `${n} has ${weeksLeft} weeks left on his contract at ${clubOf(ctx, arc.teamId)}, which ends in Week ${num(arc, "endWeek")}, and no new deal on the table. `
             + `His agent points to his standing: the club's ${highestText(num(arc, "rank"))}-rated player (OVR ${num(arc, "ovr")}) on ${usd(num(arc, "wage"))} a week. Personality: ${label}.`)
-        logBeat(arc, ctx.week, `${n}'s agent goes public: ${weeksLeft} weeks left, no new terms.`)
+        logBeat(arc, ctx.week, `${n}'s agent goes public with ${weeksLeft} weeks left on the deal and no new terms.`)
         nextBeat(arc, ctx.week)
     },
 
@@ -80,13 +80,13 @@ export const contractStandoff: ArcDefinition = {
             ? takeAnswer(ctx, arc, "wait", (ch, byDefault) =>
                 ch === "offer" ? `You offer ${usd(num(arc, "ask"))} a week.`
                     : ch === "sell" ? `${n} goes on the transfer list at ${usd(num(arc, "value"))}.`
-                        : byDefault ? "Unanswered: the club waits." : "The club waits for him to come round.")
+                        : byDefault ? "No answer by the deadline, so the club waits." : "The club waits for him to come round.")
             : null
         const p = stillAt(ctx, id, arc.teamId)
         if (!p) return left(ctx, arc, id)
         const c = ctx.contract(id, arc.teamId)
         if (c && c.endWeek > num(arc, "endWeek")) {
-            const text = `${n} has signed a new deal at ${clubOf(ctx, arc.teamId)}: ${usd(c.salaryPerWeek)} a week, running to Week ${c.endWeek}.`
+            const text = `${n} has signed a new deal at ${clubOf(ctx, arc.teamId)} worth ${usd(c.salaryPerWeek)} a week, running to Week ${c.endWeek}.`
             storyNews(ctx, arc, "end", `${n} signs a new deal`, `${text} The standoff is over.`)
             return resolveArc(arc, ctx.week, "RENEWED", text)
         }
@@ -121,7 +121,7 @@ export const contractStandoff: ArcDefinition = {
                 return
             }
             Object.assign(arc.facts, { ask, requestWeek, value })
-            logBeat(arc, ctx.week, `Talks open: his agent asks ${usd(ask)} a week (+${raise}%).`)
+            logBeat(arc, ctx.week, `${n}'s agent asks ${usd(ask)} a week (+${raise}%) as talks open.`)
             return nextBeat(arc, ctx.week)
         }
 
@@ -148,7 +148,7 @@ export const contractStandoff: ArcDefinition = {
                 const room = (team.dressingRoom ??= {})
                 room.requestWeeks = [...(room.requestWeeks ?? []).filter(w => seasonOf(w) === seasonOf(ctx.week)), ctx.week]
             }
-            const text = `${n} hands in a transfer request: his deal ends in Week ${c.endWeek} with no new terms.`
+            const text = `${n} hands in a transfer request, his deal ending in Week ${c.endWeek} with no new terms.`
             storyNews(ctx, arc, "end", `${n} asks to leave`, `${text} The club must now accept it, refuse it or make him a promise.`)
             resolveArc(arc, ctx.week, "REQUEST", text)
         }

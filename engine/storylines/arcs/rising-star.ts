@@ -67,7 +67,7 @@ export const risingStar: ArcDefinition = {
             ? takeAnswer(ctx, arc, "quiet", (ch, byDefault) =>
                 ch === "promise" ? `You promise ${n} a starting place.`
                     : ch === "list" ? `${n} goes on the transfer list at ${usd(num(arc, "value"))}.`
-                        : byDefault ? "Unanswered: the club says nothing." : "The club says nothing.")
+                        : byDefault ? "No answer by the deadline, so the club says nothing." : "The club says nothing.")
             : null
         const p = stillAt(ctx, id, arc.teamId)
         if (!p) {
@@ -120,7 +120,7 @@ export const risingStar: ArcDefinition = {
             const last = p.personality?.lastPromise
             if (last && last.kind === "START" && last.week >= decided) {
                 const kept = last.outcome === "KEPT"
-                const text = kept ? `Promise kept: ${n} stayed in the side over the ${P.PROMISE_START_WEEKS} weeks.` : `Promise broken: ${n} sat out ${P.PROMISE_START_BENCH_LIMIT} official matches in a row.`
+                const text = kept ? `${n} stayed in the side over the ${P.PROMISE_START_WEEKS} weeks, as promised.` : `${n} sat out ${P.PROMISE_START_BENCH_LIMIT} official matches in a row, breaking your promise.`
                 storyNews(ctx, arc, "end", kept ? `${n} keeps his place` : `${n} feels let down`, `${text} Morale ${kept ? `+${P.PROMISE_KEPT_MORALE}` : P.PROMISE_BROKEN_MORALE}, loyalty ${kept ? `+${P.PROMISE_KEPT_LOYALTY}` : P.PROMISE_BROKEN_LOYALTY}.`)
                 resolveArc(arc, ctx.week, kept ? "KEPT" : "BROKEN", text)
             } else if (!p.personality?.promise && ctx.week > decided + P.PROMISE_START_WEEKS + 1) {

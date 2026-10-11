@@ -104,7 +104,7 @@ export function processStorylines(save: GameSave): StoryWeekResult {
         const clubGone = arc.managed && (!!save.gameOverReason || arc.teamId !== save.playerTeamId)
         if (arc.state !== "ACTIVE" || (arc.nextWeek > week && !clubGone)) continue
         // The board story tells how it ended; the others close.
-        if (clubGone && arc.kind !== "BOARD_PRESSURE") resolveArc(arc, week, "MANAGER_LEFT", "Story closed: you left the club.")
+        if (clubGone && arc.kind !== "BOARD_PRESSURE") resolveArc(arc, week, "MANAGER_LEFT", "You left the club, which ends the story.")
         else ARC_DEFINITIONS[arc.kind].advance(ctx, arc)
         out.beats++
         // (advance() may have resolved it)
