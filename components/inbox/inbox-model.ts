@@ -17,7 +17,8 @@
  * from the choice's marketing text — the Phase 0 truth rule.
  */
 
-import type { GameEventSaveData, SocialPost } from "@/engine/save-types"
+import type { GameEventSaveData, PromiseKind, SocialPost } from "@/engine/save-types"
+import { PROMISE_LABEL, promiseWindow } from "@/engine/personality"
 import type { InboxTab } from "@/lib/navigation"
 import { getEventTitle, isPendingDecisionEvent, isTransferRumor } from "@/lib/event-format"
 import { DIGEST_TYPE, digestItems, type DigestItem } from "@/lib/inbox-digest"
@@ -394,6 +395,12 @@ export function describeChoice(event: GameEventSaveData, choice: ChoiceLike, bud
     if (chemistry) chips.push({ label: `${signed(chemistry)} chemistry`, tone: chemistry > 0 ? "positive" : "negative" })
     const reputation = num(fx.reputation)
     if (reputation) chips.push({ label: `${signed(reputation)} reputation`, tone: reputation > 0 ? "positive" : "negative" })
+    // Phase 5.2 (engine/event-choice.ts): transfer list, promise.
+    if (fx.transferList) chips.push({ label: "Transfer-listed at market value", tone: "neutral" })
+    if (fx.promise === "START" || fx.promise === "COMPETE") {
+        const kind = fx.promise as PromiseKind
+        chips.push({ label: `Promise “${PROMISE_LABEL[kind].promise}” for ${promiseWindow(kind)} wks`, tone: "neutral" })
+    }
     if (chips.length === 0) chips.push({ label: "No effect", tone: "neutral" })
     return { chips, blockedReason }
 }

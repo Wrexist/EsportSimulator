@@ -9,6 +9,8 @@ import { Meter } from "@/src/components/ui/Meter"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { formatWeeksAsYears, MAX_CONTRACT_WEEKS, MIN_CONTRACT_WEEKS, type NegotiationState } from "./useNegotiation"
+import { ArchetypeChip } from "@/components/player/PersonalityChips"
+import { getArchetype } from "@/engine/personality"
 
 const money = (value: number) => formatCurrency(value, "$", false)
 
@@ -184,6 +186,12 @@ export function DealTerms({ n, onDone }: { n: NegotiationState; onDone?: () => v
                 value={n.wageChance}
                 hint={n.durationOk ? `Their hidden minimum at this length is between ${money(n.wageRange[0])} and ${money(n.wageRange[1])}/wk.` : "Pick a length inside their range first."}
             />
+            {n.playerSave && n.personalityLines.length > 0 && (
+                <div className="flex items-start gap-2 rounded border border-line bg-raised px-3 py-2">
+                    <ArchetypeChip archetype={getArchetype(n.playerSave)} className="mt-0.5 shrink-0" />
+                    <p className="text-xs leading-relaxed text-ink-2">{n.personalityLines.join(" ")}</p>
+                </div>
+            )}
             <dl className="divide-y divide-line">
                 {n.currentTeam && <Row label="Fee due on signing" value={money(n.buyoutOffer)} />}
                 <Row label="Funds after signing" value={money(n.budget - n.buyoutOffer)} tone={n.budget < n.buyoutOffer ? "text-negative" : undefined} />

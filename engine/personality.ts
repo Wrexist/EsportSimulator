@@ -426,7 +426,9 @@ export function promiseVerdict(promise: PlayerPromise, team: Pick<TeamSaveData, 
         return week >= promise.deadlineWeek ? "KEPT" : "OPEN"
     }
     const trophy = (team?.trophies ?? []).some(t => t.week >= promise.madeWeek)
-    const climbed = (team?.worldRanking ?? 999) <= (promise.baselineRank ?? 999) - T.PROMISE_COMPETE_RANK_GAIN
+    // An unranked club (no baseline) can only keep it with a trophy.
+    const baseline = promise.baselineRank ?? 999
+    const climbed = baseline < 999 && (team?.worldRanking ?? 999) <= baseline - T.PROMISE_COMPETE_RANK_GAIN
     if (trophy || climbed) return "KEPT"
     return week >= promise.deadlineWeek ? "BROKEN" : "OPEN"
 }
@@ -472,7 +474,7 @@ export const ARCHETYPE_INFO: Record<PersonalityArchetype, ArchetypeInfo> = {
             `Loses morale ${T.BENCH_FACTOR_HIGH}× as fast when benched.`,
             `Unhappy (−${T.WAGE_MORALE_PER_WEEK} morale a week, down to ${T.WAGE_MORALE_FLOOR}) when paid under ${pct(T.WAGE_FAIRNESS_SHARE)} of a teammate rated ${T.WAGE_FAIRNESS_MIN_GAP}+ lower.`,
             `Asks ${plusPct(T.WAGE_AMBITIOUS_BELOW)} wages to join a club ${T.AMBITIOUS_GAP}+ tiers below his level.`,
-            `May ask to leave after ${T.REQUEST_AFTER_WEEKS} weeks below ${T.UNHAPPY_MORALE} morale.`,
+            `At your club, may hand in a transfer request after ${T.REQUEST_AFTER_WEEKS} weeks below ${T.UNHAPPY_MORALE} morale.`,
         ],
     },
     LOYAL: {
@@ -492,7 +494,7 @@ export const ARCHETYPE_INFO: Record<PersonalityArchetype, ArchetypeInfo> = {
             `Renewal raise is ${T.RENEWAL_RAISE_MERCENARY}× the usual.`,
             `Unhappy (−${T.WAGE_MORALE_PER_WEEK} morale a week, down to ${T.WAGE_MORALE_FLOOR}) when paid under ${pct(T.WAGE_FAIRNESS_SHARE)} of a teammate rated ${T.WAGE_FAIRNESS_MIN_GAP}+ lower.`,
             `Rejecting a bid for him costs ${Math.abs(T.MERCENARY_BID_REJECT_MORALE)} morale.`,
-            `May ask to leave after ${T.REQUEST_AFTER_WEEKS} weeks below ${T.UNHAPPY_MORALE} morale.`,
+            `At your club, may hand in a transfer request after ${T.REQUEST_AFTER_WEEKS} weeks below ${T.UNHAPPY_MORALE} morale.`,
         ],
     },
     HOTHEAD: {
@@ -541,12 +543,13 @@ export const TRAIT_INFO: Record<PlaystyleTrait, { label: string; effect: string 
 /** Contract-demand lines for the negotiation screen (only those that apply). */
 export function contractDemandLines(archetype: PersonalityArchetype, overallRating: number, buyer?: Partial<Pick<TeamSaveData, "leagueTier">> | null): string[] {
     const info = ARCHETYPE_INFO[archetype].label
+    const included = "Already in the wage range and preferred length above."
     switch (archetype) {
-        case "LOYAL": return [`${info}: asks ${plusPct(T.WAGE_LOYAL)} wages and wants a ${plusPct(T.LENGTH_LOYAL)} longer deal.`]
-        case "MERCENARY": return [`${info}: asks ${plusPct(T.WAGE_MERCENARY)} wages and wants a ${pct(1 - T.LENGTH_MERCENARY)} shorter deal.`]
+        case "LOYAL": return [`${info}: asks ${plusPct(T.WAGE_LOYAL)} wages and wants a ${plusPct(T.LENGTH_LOYAL)} longer deal.`, included]
+        case "MERCENARY": return [`${info}: asks ${plusPct(T.WAGE_MERCENARY)} wages and wants a ${pct(1 - T.LENGTH_MERCENARY)} shorter deal.`, included]
         case "AMBITIOUS": return levelGap(overallRating, buyer) >= T.AMBITIOUS_GAP
-            ? [`${info}: your club is ${T.AMBITIOUS_GAP}+ tiers below his level, so he asks ${plusPct(T.WAGE_AMBITIOUS_BELOW)} wages.`]
+            ? [`${info}: your club is ${T.AMBITIOUS_GAP}+ tiers below his level, so he asks ${plusPct(T.WAGE_AMBITIOUS_BELOW)} wages.`, included]
             : [`${info}: no premium — your club is close enough to his level.`]
-        default: return [`${info}: demands are not affected by his personality.`]
+        default: return [`${info}: his personality does not change his demands.`]
     }
 }

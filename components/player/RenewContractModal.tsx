@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { PlayerSaveData } from "@/engine/save-types"
 import { ArrowRight } from "lucide-react"
 import { formatCurrency } from "@/lib/utils-extended"
+import { ARCHETYPE_INFO, getArchetype, renewalSalary } from "@/engine/personality"
 
 interface RenewContractModalProps {
     player: PlayerSaveData
@@ -24,11 +25,13 @@ interface RenewContractModalProps {
     trigger?: React.ReactNode
 }
 
-/** Renewal terms mirror the store: +10% wage, +52 weeks (renewContract). */
+/** Renewal terms mirror the store: the archetype's raise (+10%; Loyal +5%, Mercenary +20%), +52 weeks (renewContract). */
 export function RenewContractModal({ player, currentSalary, currentEndWeek, currentWeek, onConfirm, trigger }: RenewContractModalProps) {
     const [open, setOpen] = React.useState(false)
 
-    const newSalary = Math.round(currentSalary * 1.1)
+    const newSalary = renewalSalary(player, currentSalary)
+    const raisePct = currentSalary > 0 ? Math.round((newSalary / currentSalary - 1) * 100) : 0
+    const archetype = ARCHETYPE_INFO[getArchetype(player)].label
     const weeksRemaining = Math.max(0, currentEndWeek - currentWeek)
     const newWeeksRemaining = weeksRemaining + 52
 
@@ -46,7 +49,7 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
                 <DialogHeader>
                     <DialogTitle>Renew contract</DialogTitle>
                     <DialogDescription className="text-ink-3">
-                        One more year for {player.nickname}, at a 10% raise.
+                        One more year for {player.nickname}, at a {raisePct}% raise ({archetype}{raisePct === 10 ? "" : raisePct < 10 ? ": loyal players take less" : ": he wants more"}).
                     </DialogDescription>
                 </DialogHeader>
 

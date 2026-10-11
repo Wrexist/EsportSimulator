@@ -37,6 +37,9 @@ import { PlayerMatchHistory, usePlayerPerformances } from "./PlayerMatchHistory"
 import { PlayerSignatureMoments } from "./PlayerSignatureMoments"
 import { PlayerAttributes, ATTRIBUTE_FOOTNOTE } from "./PlayerAttributes"
 import { PlayerRadar } from "./PlayerRadar"
+import { PersonalityChips } from "./PersonalityChips"
+import { PersonalityPanel } from "./PersonalityPanel"
+import { ARCHETYPE_INFO, captainId, getArchetype, renewalSalary } from "@/engine/personality"
 
 interface PlayerDetailProps {
     player: PlayerSaveData
@@ -67,12 +70,6 @@ function formatWeeks(weeks: number): string {
     return weeks >= 52 ? `${(weeks / 52).toFixed(1)} yrs` : `${weeks} wks`
 }
 
-const TRAIT_LABEL: Record<string, string> = {
-    AGGRESSIVE: "Aggressive", PASSIVE: "Passive", CLUTCHER: "Clutcher", TRADE_FRAGGER: "Trade fragger",
-    PRODIGY: "Prodigy", GRINDER: "Grinder", NATURAL: "Natural", CLUTCH_GENE: "Clutch gene",
-    TEAM_PLAYER: "Team player", LONE_WOLF: "Lone wolf",
-}
-
 function Fact({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
     return (
         <div className="bg-panel px-3 py-2.5">
@@ -94,8 +91,9 @@ function Row({ label, children, className }: { label: string; children: ReactNod
 function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const {
         contracts, listPlayerForTransfer, unlistPlayerForTransfer, startRoleTraining, cancelRoleTraining,
-        teams, playerTeamId, currentWeek, unlockPlayerTalent, academyPlayers,
+        teams, playerTeamId, currentWeek, unlockPlayerTalent, academyPlayers, allPlayers,
     } = useGameStore(useShallow(state => ({
+        allPlayers: state.players,
         contracts: state.contracts,
         listPlayerForTransfer: state.listPlayerForTransfer,
         unlistPlayerForTransfer: state.unlistPlayerForTransfer,
@@ -130,6 +128,9 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const contract = contracts.find(c => c.playerId === player.id)
     const weeksLeft = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
     const canRenew = isOwnPlayer && !!contract && weeksLeft < 52
+    const renewedWage = contract ? renewalSalary(player, contract.salaryPerWeek) : 0
+    const renewalRaise = contract && contract.salaryPerWeek > 0 ? Math.round((renewedWage / contract.salaryPerWeek - 1) * 100) : 10
+    const isCaptain = !!viewedTeam && captainId(viewedTeam, id => allPlayers.find(p => p.id === id)) === player.id
 
     const performances = usePlayerPerformances(player.id)
     const recentRatings = useMemo(() => performances.slice(0, 10).map(p => p.rating).reverse(), [performances])
@@ -215,13 +216,10 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                             <p className="pt-1 text-xs text-ink-3">Form, morale and energy all feed match strength.</p>
                         </div>
 
-                        {player.traits && player.traits.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5">
-                                {player.traits.map(t => (
-                                    <span key={t} className="rounded-sm bg-raised px-1.5 py-0.5 text-xs text-ink-2">{TRAIT_LABEL[t] ?? t}</span>
-                                ))}
-                            </div>
-                        )}
+                        <div className="flex flex-wrap items-center gap-1.5">
+                            <PersonalityChips player={player} />
+                            {isCaptain && <span title="Captain: when he plays, defeats cost the lineup less morale." className="rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold leading-none text-ink-1">Captain</span>}
+                        </div>
 
                         {(isOwnPlayer || canOffer || isAcademy) && (
                             <div className="flex flex-wrap gap-2 border-t border-line pt-4">
@@ -280,6 +278,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                         </TabsList>
 
                         <TabsContent value="overview" className="mt-3 space-y-4">
+                            <PersonalityPanel player={player} />
                             <Panel title="Attributes" actions={<span className="text-xs text-ink-3">Hover a row for what it does</span>}>
                                 <PlayerAttributes player={player} />
                                 <p className="mt-4 border-t border-line pt-3 text-xs leading-relaxed text-ink-3">{ATTRIBUTE_FOOTNOTE}</p>
@@ -354,13 +353,13 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                 </Panel>
                                 <Panel title="Renewal and sale" padded={false}>
                                     <dl className="divide-y divide-line">
-                                        <Row label="Renewal terms">{contract ? `+52 wks at ${formatCurrency(Math.round(contract.salaryPerWeek * 1.1), "$", false)} / wk` : "—"}</Row>
+                                        <Row label="Renewal terms">{contract ? `+52 wks at ${formatCurrency(renewedWage, "$", false)} / wk` : "—"}</Row>
                                         <Row label="Renewal window" className={canRenew ? "text-ink-1" : "text-ink-3"}>{canRenew ? "Open" : "Final year only"}</Row>
                                         <Row label="Market value">{formatCurrency(evaluation.transferValue)}</Row>
                                         <Row label="Transfer list">{player.forSale ? `Listed at ${formatCurrency(player.transferListingPrice ?? evaluation.transferValue)}` : "Not listed"}</Row>
                                     </dl>
                                     <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
-                                        Renewal adds a year at +10% wage and needs 26 weeks of the raise in the bank. Clubs bid on listed players each week; offers sit near market value.
+                                        Renewal adds a year at +{renewalRaise}% wage ({ARCHETYPE_INFO[getArchetype(player)].label}; the usual raise is 10%) and needs 26 weeks of the raise in the bank. Clubs bid on listed players each week; offers sit near market value.
                                     </p>
                                 </Panel>
                             </div>
