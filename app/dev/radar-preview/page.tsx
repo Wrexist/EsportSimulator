@@ -81,6 +81,8 @@ export default function RadarPreviewPage() {
     const [time, setTime] = useState(0)
     const [playing, setPlaying] = useState(false)
     const [speed, setSpeed] = useState(1)
+    // &h=960 sizes the radar panel like the live screen at 1080p (default 760 px).
+    const [panelHeight, setPanelHeight] = useState(760)
     const map = MAPS[mapIdx]
 
     // ?map=Nuke&round=4&t=40 (capture scripts jump straight to a moment);
@@ -97,6 +99,8 @@ export default function RadarPreviewPage() {
         const s = Number(q.get("speed"))
         if ([1, 2, 4, 8].includes(s)) setSpeed(s)
         if (q.get("play") === "1") setPlaying(true)
+        const h = Number(q.get("h"))
+        if (Number.isFinite(h) && h >= 400 && h <= 2000) setPanelHeight(h)
         if (q.get("flush") === "1") window.__radarPerf = { n: 0, sum: 0, max: 0, samples: [], drawn: 0, skipped: 0, flush: true }
     }, [])
 
@@ -163,7 +167,7 @@ export default function RadarPreviewPage() {
                 {live?.script.utility.length ? ` · utility ${live.script.utility.map(u => `${u.kind}@${u.t}`).join(" ")}` : ""}
             </p>
 
-            <div className="mx-auto h-[760px] max-w-[900px]">
+            <div className="mx-auto max-w-[1100px]" style={{ height: panelHeight }}>
                 <MapRadarPanel
                     currentMapId={map.id}
                     mapName={map.name}

@@ -47,6 +47,8 @@ interface RadarCanvasProps {
     feed: React.MutableRefObject<RadarFeed>
     art: RadarArt | undefined
     sites: RadarSite[]
+    /** Where players can be (round map); the home view frames it. Else the art's opaque area. */
+    contentBounds?: RadarBounds | null
     dualLevel: boolean
     /** "auto" follows the action; otherwise the chosen floor. */
     floorMode: "auto" | Floor
@@ -94,6 +96,16 @@ function RadarCanvasInner(props: RadarCanvasProps, ref: React.ForwardedRef<Radar
         resetView() { setView(homeRef.current) },
         invalidate() { dirtyRef.current = true },
     }), [])
+
+    const imageBoundsRef = useRef<RadarBounds | null>(null)
+    /** Home view from the content bounds (round map) or the art; follows it if the view is at home. */
+    function applyHome() {
+        const box = propsRef.current.contentBounds ?? imageBoundsRef.current
+        if (!box) return
+        const atHome = viewRef.current === homeRef.current
+        homeRef.current = fitView(box)
+        if (atHome) setView(homeRef.current)
+    }
 
     function setView(view: RadarView) {
         if (view === viewRef.current) return
@@ -239,20 +251,20 @@ function RadarCanvasInner(props: RadarCanvasProps, ref: React.ForwardedRef<Radar
     }, [])
 
     // Map art per floor.
-    const upper = props.art?.upper, lower = props.art?.lower
+    const upper = props.art?.upper, lower = props.art?.lower, baked = !!props.art?.baked
     useEffect(() => {
         const r = rendererRef.current
         if (!r) return
+        r.setArtStyle(baked)
         let cancelled = false
         const bounds: Partial<Record<Floor, RadarBounds | null>> = {}
-        // Home view: both floors' art fits the viewport.
+        // Without round-map bounds the home view fits both floors' opaque art.
         const refit = () => {
             const boxes = [bounds.upper, bounds.lower].filter((b): b is RadarBounds => !!b)
-            if (!boxes.length) return
-            const union = boxes.reduce((a, b) => ({ minX: Math.min(a.minX, b.minX), minY: Math.min(a.minY, b.minY), maxX: Math.max(a.maxX, b.maxX), maxY: Math.max(a.maxY, b.maxY) }))
-            const atHome = viewRef.current === homeRef.current
-            homeRef.current = fitView(union)
-            if (atHome) setView(homeRef.current)
+            imageBoundsRef.current = boxes.length
+                ? boxes.reduce((a, b) => ({ minX: Math.min(a.minX, b.minX), minY: Math.min(a.minY, b.minY), maxX: Math.max(a.maxX, b.maxX), maxY: Math.max(a.maxY, b.maxY) }))
+                : null
+            applyHome()
         }
         const load = (floor: Floor, src: string | undefined) => {
             r.setImage(floor, null)
@@ -272,12 +284,19 @@ function RadarCanvasInner(props: RadarCanvasProps, ref: React.ForwardedRef<Radar
         load("lower", lower)
         dirtyRef.current = true
         return () => { cancelled = true }
-    }, [upper, lower])
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- applyHome reads refs only
+    }, [upper, lower, baked])
 
     useEffect(() => {
         rendererRef.current?.setSites(props.sites)
         dirtyRef.current = true
     }, [props.sites])
+
+    const cb = props.contentBounds
+    useEffect(() => {
+        applyHome()
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- applyHome reads refs only
+    }, [cb?.minX, cb?.minY, cb?.maxX, cb?.maxY])
 
     // Wheel zoom (non-passive so the page does not scroll), drag to pan, click to select.
     useEffect(() => {
@@ -360,7 +379,7 @@ function RadarCanvasInner(props: RadarCanvasProps, ref: React.ForwardedRef<Radar
     }
 
     return (
-        <div ref={wrapRef} className="relative h-full w-full overflow-hidden rounded-md bg-[#0A0D12] ring-1 ring-line" data-radar-canvas="">
+        <div ref={wrapRef} className="relative h-full w-full overflow-hidden rounded-md bg-[#0B0E13] ring-1 ring-line" data-radar-canvas="">
             <canvas
                 ref={canvasRef}
                 className="block h-full w-full touch-none select-none outline-none focus-visible:ring-2 focus-visible:ring-gold"

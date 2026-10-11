@@ -97,7 +97,7 @@ function loadManifest(): Record<string, RadarArt> | null {
 export function radarArtFor(mapId: string, manifestOverride?: Record<string, RadarArt> | null): RadarArt | undefined {
     const key = radarArtKey(mapId)
     const baked = (manifestOverride !== undefined ? manifestOverride : loadManifest())?.[key]
-    if (baked) return baked
+    if (baked) return { ...baked, baked: true }
     const fallback = Object.entries(FALLBACK_RADAR_ART).find(([id]) => radarArtKey(id) === key)
     return fallback?.[1]
 }

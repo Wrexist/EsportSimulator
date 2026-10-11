@@ -79,4 +79,6 @@ export interface RadarScriptPlayerInfo {
 export interface RadarArt {
     upper: string
     lower?: string
+    /** Baked radar art (data/radar-art): dark, plant areas already tinted. */
+    baked?: boolean
 }

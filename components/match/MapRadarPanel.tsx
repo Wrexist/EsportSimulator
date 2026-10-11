@@ -15,6 +15,7 @@ import { radarArtFor } from "@/lib/radar-art"
 import { reviewRound, reviewScript, reviewableRounds, type RadarReviewSource } from "@/lib/radar-review"
 import { clampReviewTime, formatRoundClock, scrubberSpan } from "@/lib/radar-scrubber"
 import type { RadarSite } from "@/lib/radar-draw"
+import { roundMapBounds } from "@/lib/radar-view"
 import { RadarCanvas, createRadarFeed, type RadarCanvasHandle, type RadarFeed } from "./RadarCanvas"
 import { RadarScrubber } from "./RadarScrubber"
 
@@ -214,6 +215,8 @@ function MapRadarPanelComponent({
         return []
     }, [roundMap, sitePositions])
 
+    const contentBounds = useMemo(() => roundMapBounds(roundMap), [roundMap])
+
     // ─── Review actions ────────────────────────────────────────────────────
     const frameListener = useRef<((t: number, liveT: number) => void) | null>(null)
     const registerFrame = useCallback((fn: ((t: number, liveT: number) => void) | null) => { frameListener.current = fn }, [])
@@ -329,6 +332,7 @@ function MapRadarPanelComponent({
                                     feed={feedRef}
                                     art={art}
                                     sites={sites}
+                                    contentBounds={contentBounds}
                                     dualLevel={isDualLevel}
                                     floorMode={floorMode}
                                     showNames={showNames}

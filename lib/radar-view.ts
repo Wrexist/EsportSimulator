@@ -4,6 +4,8 @@
  * at zoom 1. Panning is clamped so the map always covers the viewport.
  */
 
+import type { RoundMap } from "@/engine/match/round-script-types"
+
 export const MIN_ZOOM = 1
 /** Beyond ~3× the 1024 px radar art turns soft. */
 export const MAX_ZOOM = 3
@@ -35,11 +37,39 @@ export function clampView(view: RadarView, minZoom = MIN_ZOOM): RadarView {
 export interface RadarBounds { minX: number; minY: number; maxX: number; maxY: number }
 
 /**
+ * Where players can be on a baked round map (routes, holds, spawns, sites and
+ * grenade spots, both floors): the radar's home view frames this instead of
+ * the art's empty outskirts.
+ */
+export function roundMapBounds(map: Pick<RoundMap, "routes" | "holds" | "spawns" | "sites" | "utility"> | null | undefined): RadarBounds | null {
+    if (!map) return null
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    const add = (p: { x: number; y: number }) => {
+        if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return
+        if (p.x < minX) minX = p.x
+        if (p.x > maxX) maxX = p.x
+        if (p.y < minY) minY = p.y
+        if (p.y > maxY) maxY = p.y
+    }
+    for (const r of map.routes ?? []) for (const p of r.points) add(p)
+    for (const h of map.holds ?? []) add(h.at)
+    for (const side of ["T", "CT"] as const) for (const p of map.spawns?.[side] ?? []) add(p)
+    for (const id of ["A", "B"] as const) {
+        const site = map.sites?.[id]
+        if (!site) continue
+        add(site.center)
+        for (const p of site.polygon) add(p)
+    }
+    for (const u of map.utility ?? []) add(u.at)
+    return maxX > minX && maxY > minY ? { minX, minY, maxX, maxY } : null
+}
+
+/**
  * The "home" view: the content box filling the viewport with `margin` map-%
  * around it (radar art has wide empty borders). Never zooms out past 1 or in
  * past 2.
  */
-export function fitView(bounds: RadarBounds | null | undefined, margin = 3): RadarView {
+export function fitView(bounds: RadarBounds | null | undefined, margin = 5): RadarView {
     if (!bounds || !(bounds.maxX > bounds.minX) || !(bounds.maxY > bounds.minY)) return DEFAULT_VIEW
     const w = bounds.maxX - bounds.minX + margin * 2
     const h = bounds.maxY - bounds.minY + margin * 2

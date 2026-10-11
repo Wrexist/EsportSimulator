@@ -19,19 +19,22 @@ describe("radar controls", () => {
         expect(markup).toContain("Names on")
         expect(markup).toContain('aria-label="Zoom radar in"')
         expect(markup).toContain('aria-label="Zoom radar out"')
+        expect(markup).toContain('aria-label="Reset radar view"')
     })
 
-    it("keeps edge coordinates exact and hides future shot lines", () => {
+    it("draws into one canvas with an accessible summary (snapshot mode)", () => {
         const markup = renderToStaticMarkup(React.createElement(MapRadarPanel, {
-            currentMapId: MapId.MIRAGE, mapName: 'Mirage', currentTime: 0,
+            currentMapId: MapId.MIRAGE, mapName: 'Mirage', currentTime: 10,
             radarDots: [{ playerId: 'p', nickname: 'Edge', side: 'ct', isAlive: true, x: 0, y: 100, angle: 0 }],
-            killLines: [{ fromX: 20, fromY: 20, toX: 30, toY: 30, time: 4, isHeadshot: false, weapon: 'rifle' }],
         }))
-        expect(markup).toContain('cx="0" cy="100"')
-        expect(markup).not.toContain('x1="20" y1="20"')
+        expect(markup.match(/<canvas\b/g)).toHaveLength(1)
+        expect(markup).toMatch(/<canvas[^>]*role="img"[^>]*aria-label="Mirage radar: CT 1 alive, T 0 alive, live"/)
+        expect(markup).toContain('data-radar-source="snapshot"')
+        // No script: no round scrubber.
+        expect(markup).not.toContain('role="slider"')
     })
 
-    it("shows a clutch banner only while the round is live, and keeps death markers", () => {
+    it("shows a clutch banner only while the round is live", () => {
         const dots = [
             { playerId: 'c1', nickname: 'Last', side: 'ct' as const, isAlive: true, x: 30, y: 30, angle: 0 },
             { playerId: 'c2', nickname: 'Gone', side: 'ct' as const, isAlive: false, deathTime: 5, x: 40, y: 40, angle: 0 },
@@ -40,11 +43,10 @@ describe("radar controls", () => {
         const render = (roundOver: boolean) => renderToStaticMarkup(React.createElement(MapRadarPanel, { currentMapId: MapId.MIRAGE, mapName: 'Mirage', currentTime: 40, radarDots: dots, roundOver }))
         const live = render(false)
         expect(live).toContain('1v3 CLUTCH')
-        expect(live).toContain('data-death-marker="c2"')
+        expect(live).toMatch(/CT 1<\/span>/)
         const over = render(true)
         expect(over).not.toContain('CLUTCH')
         expect(over).toContain('ROUND OVER')
-        expect(over).toContain('data-death-marker="c2"')
     })
 
     it("omits floor switching on a single-level map", () => {

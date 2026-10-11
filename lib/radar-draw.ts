@@ -77,7 +77,19 @@ export interface RadarFrameOptions {
     selectedId: string | null
 }
 
-interface Sprite { canvas: HTMLCanvasElement; w: number; h: number }
+/** A pre-rendered image; `image` becomes an ImageBitmap once decoded (cheaper to blit than a canvas). */
+interface Sprite { canvas: HTMLCanvasElement; w: number; h: number; image: CanvasImageSource }
+
+function makeSprite(canvas: HTMLCanvasElement, w: number, h: number): Sprite {
+    const sp: Sprite = { canvas, w, h, image: canvas }
+    if (typeof createImageBitmap === "function") createImageBitmap(canvas).then(b => { sp.image = b }).catch(() => { })
+    return sp
+}
+
+function releaseSprites(map: Map<string, Sprite>): void {
+    for (const sp of map.values()) if (typeof ImageBitmap !== "undefined" && sp.image instanceof ImageBitmap) sp.image.close()
+    map.clear()
+}
 
 function makeCanvas(w: number, h: number): HTMLCanvasElement {
     const c = document.createElement("canvas")
@@ -86,8 +98,8 @@ function makeCanvas(w: number, h: number): HTMLCanvasElement {
     return c
 }
 
-function ctx2d(c: HTMLCanvasElement): CanvasRenderingContext2D {
-    const ctx = c.getContext("2d")
+function ctx2d(c: HTMLCanvasElement, opaque = false): CanvasRenderingContext2D {
+    const ctx = (opaque ? c.getContext("2d", { alpha: false }) : c.getContext("2d")) as CanvasRenderingContext2D | null
     if (!ctx) throw new Error("2d context unavailable")
     return ctx
 }
@@ -105,13 +117,14 @@ export class RadarRenderer {
     private base: HTMLCanvasElement | null = null
     private prevBase: HTMLCanvasElement | null = null
     private baseKey = ""
+    private baseBitmap: ImageBitmap | null = null
     private baseFloor: Floor | null = null
     private fadeStart = -Infinity
-    private coneSprites: Partial<Record<Side, Sprite>> = {}
     private smokeSprite: Sprite | null = null
     private fireSprite: Sprite | null = null
     private glyphs: Partial<Record<WeaponClass, Path2D>> = {}
     private labelSprites = new Map<string, Sprite>()
+    private badgeSprites = new Map<string, Sprite>()
     private labelOffsets = new Map<string, { dx: number; dy: number }>()
     private labelPlaced = new Map<string, RadarLabel>()
     private labelLayoutMs = -Infinity
@@ -119,9 +132,27 @@ export class RadarRenderer {
     private labelLayoutKey = ""
     private spriteDpr = 0
 
-    constructor(canvas: HTMLCanvasElement) {
+    /** Darkening over the art (the old bright overviews need it, baked art does not). */
+    private artDim = 0.16
+    /** Outline the plant areas (baked art tints them already). */
+    private siteAreas = true
+
+    /** Offscreen canvases (base layer, sprites); injectable for tests. */
+    private readonly make: (w: number, h: number) => HTMLCanvasElement
+
+    constructor(canvas: HTMLCanvasElement, createCanvas: (w: number, h: number) => HTMLCanvasElement = makeCanvas) {
         this.canvas = canvas
-        this.ctx = ctx2d(canvas)
+        this.make = createCanvas
+        // Opaque: every frame starts with a full blit of the base, so no blending with the page.
+        this.ctx = ctx2d(canvas, true)
+    }
+
+    setArtStyle(baked: boolean): void {
+        const dim = baked ? 0 : 0.16
+        if (dim === this.artDim && this.siteAreas === !baked) return
+        this.artDim = dim
+        this.siteAreas = !baked
+        this.invalidateBase()
     }
 
     /** Sets the CSS size and device-pixel ratio; returns true if the backing store changed. */
@@ -155,8 +186,8 @@ export class RadarRenderer {
 
     /** Fonts finished loading: name plates are re-rendered with the real face. */
     clearSprites(): void {
-        this.labelSprites.clear()
-        this.coneSprites = {}
+        releaseSprites(this.labelSprites)
+        releaseSprites(this.badgeSprites)
         this.smokeSprite = null
         this.fireSprite = null
         this.spriteDpr = this.dpr
@@ -186,7 +217,7 @@ export class RadarRenderer {
 
     private ensureBase(level: Floor, dualLevel: boolean, nowMs: number, reducedMotion: boolean): void {
         const image = this.images[level] ?? this.images.upper
-        const key = `${this.canvas.width}x${this.canvas.height}|${this.view.zoom},${this.view.cx},${this.view.cy}|${level}|${image?.src ?? ""}|${this.sites.length}`
+        const key = `${this.canvas.width}x${this.canvas.height}|${this.view.zoom},${this.view.cx},${this.view.cy}|${level}|${image?.src ?? ""}|${this.sites.length}|${this.artDim}`
         if (key === this.baseKey && this.base) return
         if (this.base && this.baseFloor !== null && this.baseFloor !== level && !reducedMotion) {
             // Keep the previous floor for a short cross-fade.
@@ -196,31 +227,33 @@ export class RadarRenderer {
             this.fadeStart = nowMs
         }
         if (!this.base || this.base.width !== this.canvas.width || this.base.height !== this.canvas.height) {
-            this.base = makeCanvas(this.canvas.width, this.canvas.height)
+            this.base = this.make(this.canvas.width, this.canvas.height)
         }
         this.baseKey = key
         this.baseFloor = level
-        const ctx = ctx2d(this.base)
+        const ctx = ctx2d(this.base, true)
         const { k, ox, oy } = this.tf
         ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0)
         ctx.globalAlpha = 1
-        ctx.fillStyle = "#0A0D12"
+        ctx.fillStyle = "#0B0E13"
         ctx.fillRect(0, 0, this.width, this.height)
         const size = 100 * k
         if (image && image.complete && image.naturalWidth > 0) {
             ctx.imageSmoothingEnabled = true
             ctx.imageSmoothingQuality = "high"
             ctx.drawImage(image, ox, oy, size, size)
-            // Sink the art a little so dots and utility read on top of it.
-            ctx.fillStyle = "rgba(7, 9, 12, 0.16)"
-            ctx.fillRect(ox, oy, size, size)
+            if (this.artDim > 0) {
+                // Sink bright art a little so dots and utility read on top of it.
+                ctx.fillStyle = `rgba(7, 9, 12, ${this.artDim})`
+                ctx.fillRect(ox, oy, size, size)
+            }
         }
         // Bombsites: plant area and letter. Sites on the other floor are faint.
         const s = this.iconScale()
         for (const site of this.sites) {
             const off = dualLevel && site.floor && site.floor !== level
             ctx.globalAlpha = off ? 0.3 : 1
-            if (site.polygon && site.polygon.length > 2) {
+            if (this.siteAreas && site.polygon && site.polygon.length > 2) {
                 ctx.beginPath()
                 site.polygon.forEach((p, i) => (i ? ctx.lineTo(ox + p.x * k, oy + p.y * k) : ctx.moveTo(ox + p.x * k, oy + p.y * k)))
                 ctx.closePath()
@@ -252,36 +285,26 @@ export class RadarRenderer {
         g.addColorStop(1, "rgba(0, 0, 0, 0.42)")
         ctx.fillStyle = g
         ctx.fillRect(0, 0, this.width, this.height)
+
+        // Blitting an immutable bitmap every frame is much cheaper than a
+        // canvas (no per-frame snapshot of the source); until it is ready the
+        // canvas itself is drawn.
+        this.baseBitmap?.close()
+        this.baseBitmap = null
+        if (typeof createImageBitmap === "function") {
+            createImageBitmap(this.base).then(bmp => {
+                if (this.baseKey === key && !this.baseBitmap) this.baseBitmap = bmp
+                else bmp.close()
+            }).catch(() => { })
+        }
     }
 
     // ─── Sprites ───────────────────────────────────────────────────────────
 
-    private cone(side: Side): Sprite {
-        const hit = this.coneSprites[side]
-        if (hit) return hit
-        const L = 128, h = Math.ceil(2 * L * Math.sin(CONE_HALF_ANGLE)) + 4
-        const c = makeCanvas(L, h)
-        const ctx = ctx2d(c)
-        const color = sideColor(side)
-        const g = ctx.createRadialGradient(0, h / 2, 0, 0, h / 2, L)
-        g.addColorStop(0, hexAlpha(color, 0.5))
-        g.addColorStop(0.55, hexAlpha(color, 0.26))
-        g.addColorStop(1, hexAlpha(color, 0))
-        ctx.fillStyle = g
-        ctx.beginPath()
-        ctx.moveTo(0, h / 2)
-        ctx.arc(0, h / 2, L, -CONE_HALF_ANGLE, CONE_HALF_ANGLE)
-        ctx.closePath()
-        ctx.fill()
-        const sprite = { canvas: c, w: L, h }
-        this.coneSprites[side] = sprite
-        return sprite
-    }
-
     private smoke(): Sprite {
         if (this.smokeSprite) return this.smokeSprite
         const S = 128
-        const c = makeCanvas(S, S)
+        const c = this.make(S, S)
         const ctx = ctx2d(c)
         const g = ctx.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2)
         g.addColorStop(0, "rgba(176, 184, 195, 0.86)")
@@ -303,14 +326,14 @@ export class RadarRenderer {
             ctx.fillStyle = b
             ctx.fillRect(x - r, y - r, r * 2, r * 2)
         }
-        this.smokeSprite = { canvas: c, w: S, h: S }
+        this.smokeSprite = makeSprite(c, S, S)
         return this.smokeSprite
     }
 
     private fire(): Sprite {
         if (this.fireSprite) return this.fireSprite
         const S = 128
-        const c = makeCanvas(S, S)
+        const c = this.make(S, S)
         const ctx = ctx2d(c)
         const g = ctx.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2)
         g.addColorStop(0, "rgba(255, 196, 77, 0.78)")
@@ -330,8 +353,25 @@ export class RadarRenderer {
             ctx.fillStyle = b
             ctx.fillRect(x - r, y - r, r * 2, r * 2)
         }
-        this.fireSprite = { canvas: c, w: S, h: S }
+        this.fireSprite = makeSprite(c, S, S)
         return this.fireSprite
+    }
+
+    /** C4 / defuse-kit badge, rendered once per icon scale. */
+    private badge(kind: "c4" | "kit", s: number): Sprite {
+        const key = `${kind}|${s.toFixed(2)}`
+        const hit = this.badgeSprites.get(key)
+        if (hit) return hit
+        const w = 14 * s, h = 11 * s, dpr = this.dpr
+        const c = this.make(w * dpr, h * dpr)
+        const ctx = ctx2d(c)
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        if (kind === "c4") drawC4(ctx, w / 2, h / 2, 0.85 * s)
+        else drawKit(ctx, w / 2, h / 2, s)
+        const sprite = makeSprite(c, w, h)
+        if (this.badgeSprites.size > 16) releaseSprites(this.badgeSprites)
+        this.badgeSprites.set(key, sprite)
+        return sprite
     }
 
     private glyph(cls: WeaponClass): Path2D | null {
@@ -355,7 +395,7 @@ export class RadarRenderer {
         const glyphW = p.weapon ? 20 : 0
         const w = 8 + glyphW + textW + hpW + 7
         const h = LABEL_HEIGHT
-        const c = makeCanvas(w * dpr, h * dpr)
+        const c = this.make(w * dpr, h * dpr)
         const ctx = ctx2d(c)
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
         roundRect(ctx, 0.5, 0.5, w - 1, h - 1, 3)
@@ -387,8 +427,8 @@ export class RadarRenderer {
             ctx.fillStyle = hp <= 25 ? RADAR_COLORS.bomb : RADAR_COLORS.ink2
             ctx.fillText(hpText, x + textW + 6, h / 2 + 0.5)
         }
-        const sprite = { canvas: c, w, h }
-        if (this.labelSprites.size > 200) this.labelSprites.clear()
+        const sprite = makeSprite(c, w, h)
+        if (this.labelSprites.size > 200) releaseSprites(this.labelSprites)
         this.labelSprites.set(key, sprite)
         return sprite
     }
@@ -405,7 +445,9 @@ export class RadarRenderer {
 
         ctx.setTransform(1, 0, 0, 1, 0, 0)
         ctx.globalAlpha = 1
-        if (this.base) ctx.drawImage(this.base, 0, 0)
+        if (this.base) {
+            ctx.drawImage(this.baseBitmap ?? this.base, 0, 0)
+        }
         const fade = (o.nowMs - this.fadeStart) / FLOOR_FADE_MS
         if (this.prevBase && fade < 1) {
             ctx.globalAlpha = 1 - Math.max(0, fade)
@@ -432,7 +474,7 @@ export class RadarRenderer {
             if (u.kind === "smoke") {
                 const sp = this.smoke()
                 ctx.globalAlpha = a
-                ctx.drawImage(sp.canvas, x - R, y - R, R * 2, R * 2)
+                ctx.drawImage(sp.image, x - R, y - R, R * 2, R * 2)
                 ctx.globalAlpha = a * 0.6
                 ctx.lineWidth = 1
                 ctx.strokeStyle = "rgba(226, 231, 237, 0.9)"
@@ -443,7 +485,7 @@ export class RadarRenderer {
                 if (!o.reducedMotion) animating = true
                 const j = o.reducedMotion ? 1 : 1 + 0.03 * Math.sin(o.nowMs / 120 + u.y)
                 ctx.globalAlpha = a * flicker
-                ctx.drawImage(sp.canvas, x - R * j, y - R * j, R * 2 * j, R * 2 * j)
+                ctx.drawImage(sp.image, x - R * j, y - R * j, R * 2 * j, R * 2 * j)
                 ctx.globalAlpha = a * 0.85
                 ctx.setLineDash(DASH_EDGE)
                 ctx.lineWidth = 1.2
@@ -462,28 +504,40 @@ export class RadarRenderer {
         ctx.globalAlpha = 1
 
         // Death markers: an X in the victim's colour, for the rest of the round.
+        // Batched per floor (shown / other) and side: one outline stroke, one colour stroke.
         const xs = 4.6 * s
         for (let i = 0; i < scene.deathCount; i++) {
             const d = scene.deaths[i]
-            const a = floorAlpha(d.floor) * (d.age < 1 ? 1 : 0.85)
-            const x = ox + d.x * k, y = oy + d.y * k
-            if (d.age < 0.6 && !o.reducedMotion) {
-                ctx.globalAlpha = a * (1 - d.age / 0.6)
-                ctx.lineWidth = 1.5
-                ctx.strokeStyle = sideColor(d.side)
-                ctx.beginPath(); ctx.arc(x, y, 6 * s + d.age * 28 * s, 0, TAU); ctx.stroke()
-                animating = true
-            }
-            ctx.globalAlpha = a
-            ctx.beginPath()
-            ctx.moveTo(x - xs, y - xs); ctx.lineTo(x + xs, y + xs)
-            ctx.moveTo(x + xs, y - xs); ctx.lineTo(x - xs, y + xs)
-            ctx.lineWidth = 4.4 * s
-            ctx.strokeStyle = RADAR_COLORS.ink
-            ctx.stroke()
-            ctx.lineWidth = 2.2 * s
+            if (d.age >= 0.6 || o.reducedMotion) continue
+            // Fresh kill: a ring bursting out of the marker.
+            ctx.globalAlpha = floorAlpha(d.floor) * (1 - d.age / 0.6)
+            ctx.lineWidth = 1.5
             ctx.strokeStyle = sideColor(d.side)
-            ctx.stroke()
+            ctx.beginPath(); ctx.arc(ox + d.x * k, oy + d.y * k, 6 * s + d.age * 28 * s, 0, TAU); ctx.stroke()
+            animating = true
+        }
+        for (let pass = 0; pass < (o.dualLevel ? 2 : 1) && scene.deathCount > 0; pass++) {
+            const offPass = o.dualLevel && pass === 0
+            const inPass = (f: Floor) => !o.dualLevel || (f === o.level) !== offPass
+            ctx.globalAlpha = offPass ? OTHER_FLOOR : 0.92
+            for (let side = 0; side < 3; side++) {
+                // side 0 = outline for both, 1 = CT colour, 2 = T colour
+                const want: Side | null = side === 0 ? null : side === 1 ? "CT" : "T"
+                let any = false
+                ctx.beginPath()
+                for (let i = 0; i < scene.deathCount; i++) {
+                    const d = scene.deaths[i]
+                    if (!inPass(d.floor) || (want && d.side !== want)) continue
+                    const x = ox + d.x * k, y = oy + d.y * k
+                    ctx.moveTo(x - xs, y - xs); ctx.lineTo(x + xs, y + xs)
+                    ctx.moveTo(x + xs, y - xs); ctx.lineTo(x - xs, y + xs)
+                    any = true
+                }
+                if (!any) continue
+                ctx.lineWidth = want ? 2.2 * s : 4.4 * s
+                ctx.strokeStyle = want ? sideColor(want) : RADAR_COLORS.ink
+                ctx.stroke()
+            }
         }
         ctx.globalAlpha = 1
 
@@ -491,20 +545,29 @@ export class RadarRenderer {
         this.drawTrails(scene, o, s)
 
         // View cones (on the shown floor only).
+        // Two nested wedges per player (a soft falloff), batched into one fill per side and band.
         const coneLen = Math.max(34, Math.min(120, 7 * k))
-        for (let i = 0; i < scene.playerCount; i++) {
-            const p = scene.players[i]
-            if (!p.alive || floorAlpha(p.floor) < 1) continue
-            const sp = this.cone(p.side)
-            const x = ox + p.x * k, y = oy + p.y * k
-            const cos = Math.cos(p.aim), sin = Math.sin(p.aim)
-            const sc = coneLen / sp.w
-            const d = this.dpr
-            ctx.setTransform(d * cos * sc, d * sin * sc, -d * sin * sc, d * cos * sc, d * x, d * y)
-            ctx.globalAlpha = 0.85
-            ctx.drawImage(sp.canvas, 0, -sp.h / 2)
+        for (let side = 0; side < 2; side++) {
+            const want: Side = side === 0 ? "CT" : "T"
+            ctx.fillStyle = sideColor(want)
+            for (let band = 0; band < 2; band++) {
+                const len = band === 0 ? coneLen : coneLen * 0.55
+                let any = false
+                ctx.beginPath()
+                for (let i = 0; i < scene.playerCount; i++) {
+                    const p = scene.players[i]
+                    if (!p.alive || p.side !== want || floorAlpha(p.floor) < 1) continue
+                    const x = ox + p.x * k, y = oy + p.y * k
+                    ctx.moveTo(x, y)
+                    ctx.arc(x, y, len, p.aim - CONE_HALF_ANGLE, p.aim + CONE_HALF_ANGLE)
+                    ctx.closePath()
+                    any = true
+                }
+                if (!any) continue
+                ctx.globalAlpha = band === 0 ? 0.13 : 0.15
+                ctx.fill()
+            }
         }
-        ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0)
         ctx.globalAlpha = 1
 
         // Shot tracers (killer → victim) and damage-only hits.
@@ -556,12 +619,7 @@ export class RadarRenderer {
         if (this.drawBomb(scene, o, s, floorAlpha)) animating = true
 
         // Players.
-        for (let i = 0; i < scene.playerCount; i++) {
-            const p = scene.players[i]
-            if (!p.alive) continue
-            if (this.drawPlayer(p, scene, o, s, floorAlpha(p.floor))) animating = true
-        }
-        ctx.globalAlpha = 1
+        if (this.drawPlayers(scene, o, s)) animating = true
 
         // Flash / HE pops on top of players.
         for (let i = 0; i < scene.utilityCount; i++) {
@@ -661,67 +719,111 @@ export class RadarRenderer {
         ctx.globalAlpha = 1
     }
 
-    private drawPlayer(p: ScenePlayer, scene: RadarScene, o: RadarFrameOptions, s: number, floorA: number): boolean {
+    /**
+     * Living players: the other floor first (faint, smaller), then the shown
+     * floor. Rings and bodies are batched into one path per style, so a frame
+     * strokes / fills a handful of paths instead of ~50.
+     */
+    private drawPlayers(scene: RadarScene, o: RadarFrameOptions, s: number): boolean {
         const ctx = this.ctx
         const { k, ox, oy } = this.tf
-        const x = ox + p.x * k, y = oy + p.y * k
-        const off = floorA < 1
-        const r = (off ? 5.2 : 6.8) * s
-        const color = sideColor(p.side)
         let animating = false
-        ctx.globalAlpha = floorA
-
-        if (!off && o.selectedId === p.id) {
-            ctx.lineWidth = 2
-            ctx.strokeStyle = RADAR_COLORS.gold
-            ctx.beginPath(); ctx.arc(x, y, r + 7.5 * s, 0, TAU); ctx.stroke()
-        }
-        // HP ring: dark track, white arc (red when low).
-        if (scene.hpKnown && Number.isFinite(p.hp)) {
+        const hp = scene.hpKnown
+        for (let pass = 0; pass < (o.dualLevel ? 2 : 1); pass++) {
+            // pass 0 = shown floor when single level; with two floors pass 0 = other floor.
+            const offPass = o.dualLevel && pass === 0
+            const onPass = (p: ScenePlayer) => p.alive && (!o.dualLevel || (p.floor === o.level) !== offPass)
+            const r = (offPass ? 5.2 : 6.8) * s
             const ringR = r + 3.4 * s
-            ctx.lineWidth = 3 * s
-            ctx.strokeStyle = "rgba(7, 9, 12, 0.75)"
-            ctx.beginPath(); ctx.arc(x, y, ringR, 0, TAU); ctx.stroke()
-            const frac = Math.max(0, Math.min(1, p.hp / 100))
-            if (frac > 0) {
-                ctx.lineWidth = 1.8 * s
-                ctx.strokeStyle = p.hp <= 25 ? RADAR_COLORS.bomb : RADAR_COLORS.ink1
-                ctx.beginPath(); ctx.arc(x, y, ringR, -Math.PI / 2, -Math.PI / 2 + TAU * frac); ctx.stroke()
+            ctx.globalAlpha = offPass ? OTHER_FLOOR : 1
+
+            // Dark backing disc: the outline of the body and the HP track in one fill.
+            const backR = hp ? ringR + 1.5 * s : r * 1.22 + 1.8 * s
+            ctx.beginPath()
+            for (let i = 0; i < scene.playerCount; i++) {
+                const p = scene.players[i]
+                if (!onPass(p)) continue
+                const x = ox + p.x * k, y = oy + p.y * k
+                ctx.moveTo(x + backR, y); ctx.arc(x, y, backR, 0, TAU)
             }
-            if (p.hitAge < 0.45) {
-                ctx.globalAlpha = floorA * (1 - p.hitAge / 0.45)
-                ctx.lineWidth = 2.5 * s
-                ctx.strokeStyle = RADAR_COLORS.bomb
-                ctx.beginPath(); ctx.arc(x, y, ringR + 2 * s, 0, TAU); ctx.stroke()
-                ctx.globalAlpha = floorA
-                animating = true
+            ctx.fillStyle = "rgba(7, 9, 12, 0.82)"
+            ctx.fill()
+            if (hp) {
+                // HP arcs: white, red when low.
+                for (let low = 0; low < 2; low++) {
+                    let any = false
+                    ctx.beginPath()
+                    for (let i = 0; i < scene.playerCount; i++) {
+                        const p = scene.players[i]
+                        if (!onPass(p) || !(p.hp > 0) || (p.hp <= 25) !== (low === 1)) continue
+                        const x = ox + p.x * k, y = oy + p.y * k
+                        ctx.moveTo(x, y - ringR)
+                        ctx.arc(x, y, ringR, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, p.hp / 100))
+                        any = true
+                    }
+                    if (!any) continue
+                    ctx.lineWidth = 1.8 * s
+                    ctx.strokeStyle = low ? RADAR_COLORS.bomb : RADAR_COLORS.ink1
+                    ctx.stroke()
+                }
             }
-        }
-        // Body: CT circle, T diamond (colour-independent side signal).
-        ctx.beginPath()
-        if (p.side === "CT") ctx.arc(x, y, r, 0, TAU)
-        else {
-            const d = r * 1.22
-            ctx.moveTo(x, y - d); ctx.lineTo(x + d, y); ctx.lineTo(x, y + d); ctx.lineTo(x - d, y); ctx.closePath()
-        }
-        ctx.fillStyle = color
-        ctx.fill()
-        ctx.lineWidth = 1.6
-        ctx.strokeStyle = RADAR_COLORS.ink
-        ctx.stroke()
-        // Badges: C4 on the carrier, kit on a CT that has one.
-        const bx = x + r * 0.95, by = y + r * 0.95
-        if (p.hasBomb) drawC4(ctx, bx + 2 * s, by + 1.5 * s, 0.85 * s)
-        else if (p.hasKit) drawKit(ctx, bx + 1.5 * s, by + 1 * s, s)
-        // Planting / defusing progress around the player.
-        if ((p.planting || p.defusing) && p.progress > 0) {
-            const pr = r + 8 * s
-            ctx.lineWidth = 2.6 * s
-            ctx.strokeStyle = "rgba(7, 9, 12, 0.7)"
-            ctx.beginPath(); ctx.arc(x, y, pr, 0, TAU); ctx.stroke()
-            ctx.strokeStyle = p.defusing ? RADAR_COLORS.ct : RADAR_COLORS.bomb
-            ctx.lineWidth = 2.2 * s
-            ctx.beginPath(); ctx.arc(x, y, pr, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, p.progress)); ctx.stroke()
+            // Bodies: CT circle, T diamond (colour-independent side signal).
+            for (let side = 0; side < 2; side++) {
+                const want: Side = side === 0 ? "CT" : "T"
+                let any = false
+                ctx.beginPath()
+                for (let i = 0; i < scene.playerCount; i++) {
+                    const p = scene.players[i]
+                    if (!onPass(p) || p.side !== want) continue
+                    const x = ox + p.x * k, y = oy + p.y * k
+                    if (want === "CT") { ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU) }
+                    else {
+                        const d = r * 1.22
+                        ctx.moveTo(x, y - d); ctx.lineTo(x + d, y); ctx.lineTo(x, y + d); ctx.lineTo(x - d, y); ctx.closePath()
+                    }
+                    any = true
+                }
+                if (!any) continue
+                ctx.fillStyle = sideColor(want)
+                ctx.fill()
+            }
+            // Per-player extras (rare): selection, hit flash, badges, plant / defuse progress.
+            for (let i = 0; i < scene.playerCount; i++) {
+                const p = scene.players[i]
+                if (!onPass(p)) continue
+                const x = ox + p.x * k, y = oy + p.y * k
+                if (!offPass && o.selectedId === p.id) {
+                    ctx.lineWidth = 2
+                    ctx.strokeStyle = RADAR_COLORS.gold
+                    ctx.beginPath(); ctx.arc(x, y, r + 7.5 * s, 0, TAU); ctx.stroke()
+                }
+                if (hp && p.hitAge < 0.45) {
+                    const base = ctx.globalAlpha
+                    ctx.globalAlpha = base * (1 - p.hitAge / 0.45)
+                    ctx.lineWidth = 2.5 * s
+                    ctx.strokeStyle = RADAR_COLORS.bomb
+                    ctx.beginPath(); ctx.arc(x, y, ringR + 2 * s, 0, TAU); ctx.stroke()
+                    ctx.globalAlpha = base
+                    animating = true
+                }
+                if (p.hasBomb || p.hasKit) {
+                    const sp = this.badge(p.hasBomb ? "c4" : "kit", s)
+                    const d = this.dpr
+                    const bx = x + r * 0.95 + (p.hasBomb ? 2 : 1.5) * s, by = y + r * 0.95 + (p.hasBomb ? 1.5 : 1) * s
+                    ctx.setTransform(1, 0, 0, 1, 0, 0)
+                    ctx.drawImage(sp.image, Math.round((bx - sp.w / 2) * d), Math.round((by - sp.h / 2) * d))
+                    ctx.setTransform(d, 0, 0, d, 0, 0)
+                }
+                if ((p.planting || p.defusing) && p.progress > 0) {
+                    const pr = r + 8 * s
+                    ctx.lineWidth = 2.6 * s
+                    ctx.strokeStyle = "rgba(7, 9, 12, 0.7)"
+                    ctx.beginPath(); ctx.arc(x, y, pr, 0, TAU); ctx.stroke()
+                    ctx.strokeStyle = p.defusing ? RADAR_COLORS.ct : RADAR_COLORS.bomb
+                    ctx.lineWidth = 2.2 * s
+                    ctx.beginPath(); ctx.arc(x, y, pr, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, p.progress)); ctx.stroke()
+                }
+            }
         }
         ctx.globalAlpha = 1
         return animating
@@ -905,7 +1007,7 @@ export class RadarRenderer {
                 ctx.globalAlpha = 1
             }
             ctx.setTransform(1, 0, 0, 1, 0, 0)
-            ctx.drawImage(sp.canvas, Math.round(lx * d), Math.round(ly * d))
+            ctx.drawImage(sp.image, Math.round(lx * d), Math.round(ly * d))
         }
         ctx.setTransform(d, 0, 0, d, 0, 0)
     }
@@ -1003,9 +1105,4 @@ function drawKit(ctx: CanvasRenderingContext2D, x: number, y: number, scale: num
     ctx.stroke()
     ctx.fillStyle = RADAR_COLORS.ct
     ctx.fillRect(x - 0.8 * scale, y - h / 2 + 1.2 * scale, 1.6 * scale, h - 2.4 * scale)
-}
-
-function hexAlpha(hex: string, alpha: number): string {
-    const n = parseInt(hex.slice(1), 16)
-    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`
 }
