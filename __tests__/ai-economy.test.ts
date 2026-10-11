@@ -119,7 +119,7 @@ describe("AI budget rule", () => {
 })
 
 describe("AI cost control", () => {
-    test("a club in deficit sheds bench wages first, then staff while its runway is short, then swaps an overpaid starter", () => {
+    test("a club in deficit sheds bench wages first, then staff, a facility level and an overpaid starter while its runway is short", () => {
         const save = world()
         const team = save.teams[15]
         save.players.push(player("bench_a", 50), player("bench_b", 50))
@@ -128,6 +128,7 @@ describe("AI cost control", () => {
             { playerId: "bench_b", teamId: team.id, salaryPerWeek: 6_000, startWeek: 1, endWeek: 200, buyout: 0 })
         save.staff.push({ id: "st1", teamId: team.id, name: "Coach", role: "coach", salaryPerWeek: 5_000 } as never)
         team.staffIds = ["st1"]
+        team.facilities = [{ id: "f1", type: "TRAINING", level: 2, monthlyCost: 4_757, description: "" }]
         // A star on a wage the club cannot carry.
         save.contracts.find(c => c.playerId === team.rosterIds[0])!.salaryPerWeek = 12_000
         team.budget = 60_000
@@ -138,6 +139,10 @@ describe("AI cost control", () => {
         expect(team.rosterIds).toHaveLength(5)
         expect(aiCostControl(save, team)).toBe("staff")
         expect(team.staffIds).toEqual([])
+        expect(aiCostControl(save, team)).toBe("facility")
+        expect(team.facilities).toEqual([expect.objectContaining({ type: "TRAINING", level: 1 })])
+        expect(aiCostControl(save, team)).toBe("facility")
+        expect(team.facilities).toEqual([])
         const star = team.rosterIds[0]
         const wagesBefore = save.contracts.filter(c => c.teamId === team.id).reduce((n, c) => n + c.salaryPerWeek, 0)
         expect(aiCostControl(save, team)).toBe("swap")
@@ -152,6 +157,25 @@ describe("AI cost control", () => {
         expect(aiCostControl(save, team)).toBeNull()
     })
 
+    test("a rich club with a modest deficit keeps its squad; a club in debt cuts even when it breaks even", () => {
+        const save = world()
+        const rich = save.teams[15]
+        save.staff.push({ id: "st_r", teamId: rich.id, name: "Coach", role: "coach", salaryPerWeek: 3_000 } as never)
+        rich.staffIds = ["st_r"]
+        const deficit = -aiClubBudget(save, rich).net
+        expect(deficit).toBeGreaterThan(0)
+        rich.budget = deficit * (AI_ECONOMY_TUNING.CUT_RUNWAY_WEEKS + 10)
+        expect(aiCostControl(save, rich)).toBeNull()
+        expect(rich.staffIds).toEqual(["st_r"])
+        const indebted = save.teams[16]
+        withIncome(indebted, 50_000)
+        save.staff.push({ id: "st_d", teamId: indebted.id, name: "Coach", role: "coach", salaryPerWeek: 3_000 } as never)
+        indebted.staffIds = ["st_d"]
+        indebted.budget = -10_000
+        expect(aiClubBudget(save, indebted).net).toBeGreaterThan(0)
+        expect(aiCostControl(save, indebted)).toBe("staff")
+    })
+
     test("a profitable club changes nothing", () => {
         const save = world()
         const team = save.teams[20]
@@ -161,11 +185,19 @@ describe("AI cost control", () => {
         expect(team).toEqual(before)
     })
 
-    test("a swap needs a meaningfully cheaper free agent", () => {
+    test("with nobody cheap enough in free agency, a trialist on the minimum wage takes the overpaid starter's place", () => {
         const save = world()
         save.players = save.players.filter(p => !p.id.startsWith("fa"))
-        const team = save.teams[25]
-        expect(swapOverpaidStarter(save, team)).toBe(false)
+        const team = save.teams[8]
+        const star = team.rosterIds[0]
+        expect(swapOverpaidStarter(save, team)).toBe(true)
+        expect(team.rosterIds).not.toContain(star)
+        expect(team.rosterIds[0]).toMatch(/^trialist_/)
+        expect(save.contracts.find(c => c.playerId === team.rosterIds[0])!.salaryPerWeek).toBe(200)
+        // Starters already on (near) the minimum are never swapped.
+        const cheap = save.teams[40]
+        for (const c of save.contracts.filter(c => c.teamId === cheap.id)) c.salaryPerWeek = 300
+        expect(swapOverpaidStarter(save, cheap)).toBe(false)
     })
 })
 

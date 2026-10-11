@@ -268,22 +268,25 @@ export const CLUB_ECONOMY_TUNING = {
  * An AI club commits to a new recurring cost (a signing, a raise, staff,
  * facilities, training) only while its weekly net after the cost keeps
  * SURPLUS_SHARE of income in hand, and answers a deficit the way the
- * competent managed policy does: bench first, then staff, then an
- * overpaid starter for a cheaper free agent. engine/ai/club-budget.ts.
+ * competent managed policy does: bench first, then staff, a facility
+ * level, then an overpaid starter for a cheaper free agent
+ * (engine/ai/club-budget.ts).
  */
 export const AI_ECONOMY_TUNING = {
     /** Share of weekly income an AI club keeps as surplus when it takes on a new recurring cost. */
     SURPLUS_SHARE: 0.05,
     /** A transfer fee leaves at least this many weeks of running costs in the bank. */
     FEE_RESERVE_WEEKS: 12,
-    /** Starter swap (overpaid starter for a cheaper free agent) when the deficit leaves less runway than this... */
-    SWAP_RUNWAY_WEEKS: 26,
-    /** ...at most once per this many weeks per club... */
-    SWAP_EVERY_WEEKS: 3,
+    /**
+     * Beyond the bench, cost control cuts (staff, a facility level, an
+     * overpaid starter; one step a week) while the deficit leaves less
+     * runway than this, or the club is in debt...
+     */
+    CUT_RUNWAY_WEEKS: 52,
+    /** ...a starter swap at most once per this many weeks per club... */
+    SWAP_EVERY_WEEKS: 2,
     /** ...and only for a replacement asking at most this share of the starter's wage. */
     SWAP_MAX_WAGE_SHARE: 0.6,
-    /** Staff are let go (one a week) while the club runs a deficit with less runway than this. */
-    STAFF_CUT_RUNWAY_WEEKS: 52,
     /** Emergency (below five players) and trialist contracts. */
     EMERGENCY_CONTRACT_WEEKS: 26,
     /** Trialist from the local scene when free agency is empty: skill range and age range. */

@@ -763,6 +763,7 @@ export function aiEconomyMetrics(t: AIEconomyTracker, s: GameSave) {
         administrationClubs: perClub.size,
         administrationsMaxPerClub: Math.max(0, ...perClub.values()),
         administrationWeeks: t.administrations.map(a => a.week),
+        administrationsList: t.administrations.map(a => `${a.teamId}@${a.week}`),
         minRoster: Number.isFinite(t.minRoster) ? t.minRoster : null,
         shortClubWeeks: t.shortClubWeeks,
         byTier: Object.fromEntries(Object.entries(group(r => r.tier)).sort().map(([k, v]) => [k, summarise(v)])),

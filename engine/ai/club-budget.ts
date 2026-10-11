@@ -142,16 +142,21 @@ export function signAIPlayer(team: TeamSaveData, save: GameSave, player: PlayerS
 // ---------------------------------------------------------------- cost control
 
 /**
- * Weekly cost control for an AI club running a deficit. One step a week:
+ * Weekly cost control for an AI club running a deficit, or in debt. One step
+ * a week:
  *   1. release the highest-paid bench player (beyond five);
  *   2. while the runway is short, let the highest-paid staff member go;
- *   3. while the runway is short, swap the most overpaid starter for a
+ *   3. while the runway is short, close a level of its costliest facility
+ *      (no refund; a level-1 facility closes);
+ *   4. while the runway is short, swap the most overpaid starter for a
  *      cheaper free agent (at most once per SWAP_EVERY_WEEKS).
- * Returns what it did (for tests and the campaign trace).
+ * "Short" is CUT_RUNWAY_WEEKS of the deficit; a club in debt is always
+ * short. Returns what it did (for tests and the campaign trace).
  */
-export function aiCostControl(save: GameSave, team: TeamSaveData, pool?: () => PlayerSaveData[]): "bench" | "staff" | "swap" | null {
+export function aiCostControl(save: GameSave, team: TeamSaveData, pool?: () => PlayerSaveData[]): "bench" | "staff" | "facility" | "swap" | null {
     const budget = aiClubBudget(save, team)
-    if (budget.net >= 0) return null
+    const inDebt = team.budget < 0
+    if (budget.net >= 0 && !inDebt) return null
     // 1. Bench beyond five, highest wage first.
     if (team.rosterIds.length > 5) {
         const players = playersById(save, team.rosterIds)
@@ -163,18 +168,28 @@ export function aiCostControl(save: GameSave, team: TeamSaveData, pool?: () => P
             return "bench"
         }
     }
-    const runway = team.budget > 0 ? team.budget / -budget.net : 0
+    const runway = inDebt || budget.net >= 0 ? 0 : team.budget / -budget.net
+    if (runway >= AI_ECONOMY_TUNING.CUT_RUNWAY_WEEKS) return null
     // 2. Staff, highest-paid first.
-    if (team.staffIds.length && runway < AI_ECONOMY_TUNING.STAFF_CUT_RUNWAY_WEEKS) {
+    if (team.staffIds.length) {
         const staffById = new Map(save.staff.map(s => [s.id, s]))
         const priciest = [...team.staffIds].sort((a, b) => (staffById.get(b)?.salaryPerWeek ?? 0) - (staffById.get(a)?.salaryPerWeek ?? 0) || a.localeCompare(b))[0]
         team.staffIds = team.staffIds.filter(id => id !== priciest)
         save.staff = save.staff.filter(s => !(s.id === priciest && s.teamId === team.id))
         return "staff"
     }
-    // 3. Overpaid starter for a cheaper free agent.
-    if (runway < AI_ECONOMY_TUNING.SWAP_RUNWAY_WEEKS && save.currentWeek - (team.aiWageSwapWeek ?? -999) >= AI_ECONOMY_TUNING.SWAP_EVERY_WEEKS) {
-        if (swapOverpaidStarter(save, team, budget, pool?.())) return "swap"
+    // 3. Facilities: the highest level first (the costliest upkeep).
+    const facility = [...(team.facilities || [])].filter(f => f.level > 0)
+        .sort((a, b) => b.level - a.level || a.type.localeCompare(b.type))[0]
+    if (facility) {
+        team.facilities = facility.level > 1
+            ? team.facilities!.map(f => f === facility ? { ...f, level: f.level - 1, monthlyCost: Math.floor(Math.pow(f.level - 1, 1.25) * 2000) } : f)
+            : team.facilities!.filter(f => f !== facility)
+        return "facility"
+    }
+    // 4. Overpaid starter for a cheaper free agent.
+    if (save.currentWeek - (team.aiWageSwapWeek ?? -999) >= AI_ECONOMY_TUNING.SWAP_EVERY_WEEKS) {
+        if (swapOverpaidStarter(save, team, pool?.())) return "swap"
     }
     return null
 }
@@ -182,20 +197,21 @@ export function aiCostControl(save: GameSave, team: TeamSaveData, pool?: () => P
 /**
  * Replace the starter with the highest wage per unit of value by the best
  * free agent asking at most SWAP_MAX_WAGE_SHARE of that wage (the same role
- * preferred), and release the starter. The replacement takes the starter's
- * lineup slot.
+ * preferred), and release the starter; the replacement takes his lineup
+ * slot. When free agency has nobody that cheap, a trialist from the local
+ * scene on the minimum wage takes the place (campaign 2026-10-11: with the
+ * pool down to ~115 players, nobody asked under ~$1,100 and relegated clubs
+ * drained their cash over a season without being able to cut).
  */
-export function swapOverpaidStarter(save: GameSave, team: TeamSaveData, budget = aiClubBudget(save, team), pool?: PlayerSaveData[]): boolean {
+export function swapOverpaidStarter(save: GameSave, team: TeamSaveData, pool?: PlayerSaveData[]): boolean {
     const players = playersById(save, team.rosterIds)
     const starters = team.rosterIds.slice(0, 5).map(id => players.get(id)).filter((p): p is PlayerSaveData => !!p)
-    const ranked = starters.map(p => ({ p, wage: wageOf(save, team.id, p.id) })).filter(x => x.wage > MIN_ASKING_WAGE)
+    const share = AI_ECONOMY_TUNING.SWAP_MAX_WAGE_SHARE
+    const ranked = starters.map(p => ({ p, wage: wageOf(save, team.id, p.id) })).filter(x => Math.floor(x.wage * share) >= MIN_ASKING_WAGE)
         .sort((a, b) => b.wage / Math.max(20, aiKeepValue(b.p)) - a.wage / Math.max(20, aiKeepValue(a.p)) || a.p.id.localeCompare(b.p.id))
     const target = ranked[0]
     if (!target) return false
-    // The cheapest wage that would close the gap, but never more than the share cap.
-    const closeGap = target.wage + budget.headroom
-    const cap = Math.floor(target.wage * AI_ECONOMY_TUNING.SWAP_MAX_WAGE_SHARE)
-    const maxAsk = Math.max(MIN_ASKING_WAGE, Math.min(cap, Math.max(closeGap, Math.floor(cap / 2))))
+    const maxAsk = Math.floor(target.wage * share)
     const role = recruitmentRole(target.p.role)
     const rostered = new Set(save.teams.flatMap(t => t.rosterIds))
     const candidates = (pool ?? signableFreeAgents(save)).filter(p => !p.isRetired && !rostered.has(p.id))
@@ -206,18 +222,25 @@ export function swapOverpaidStarter(save: GameSave, team: TeamSaveData, budget =
         const score = aiKeepValue(p) + (recruitmentRole(p.role) === role ? 5 : 0)
         if (!best || score > best.score || (score === best.score && p.id < best.p.id)) best = { p, ask, score }
     }
-    if (!best) return false
     const slot = team.rosterIds.indexOf(target.p.id)
-    signAIPlayer(team, save, best.p, best.ask, 52)
+    let incoming: PlayerSaveData
+    if (best) {
+        signAIPlayer(team, save, best.p, best.ask, 52)
+        incoming = best.p
+        if (pool) { const i = pool.indexOf(best.p); if (i >= 0) pool.splice(i, 1) }
+    } else {
+        const prefix = `trialist_${team.id}_${save.currentWeek}_`
+        incoming = createTrialist(save, team, save.players.filter(p => p.id.startsWith(prefix)).length)
+        signAIPlayer(team, save, incoming, MIN_ASKING_WAGE, 52, "trialist_ai")
+    }
     releaseAIPlayer(team, save, target.p, "wage cut")
-    const at = team.rosterIds.indexOf(best.p.id)
+    const at = team.rosterIds.indexOf(incoming.id)
     if (slot >= 0 && at > slot) {
         team.rosterIds.splice(at, 1)
-        team.rosterIds.splice(slot, 0, best.p.id)
+        team.rosterIds.splice(slot, 0, incoming.id)
     }
     recalculateTeamSynergy(team, save.players)
     team.aiWageSwapWeek = save.currentWeek
-    if (pool) { const i = pool.indexOf(best.p); if (i >= 0) pool.splice(i, 1) }
     return true
 }
 

@@ -112,7 +112,7 @@ export function processAIAdministration(save: GameSave, playerTeamId: string): s
         //    before, a club whose five starters cost more than it earned was
         //    recapitalised and went straight back into administration).
         for (let i = 0; i < 5 && aiClubBudget(save, team).headroom < 0; i++) {
-            if (!swapOverpaidStarter(save, team, aiClubBudget(save, team), freeAgents())) break
+            if (!swapOverpaidStarter(save, team, freeAgents())) break
         }
         // 5. The highest earner left is put on the transfer list (sold in a window).
         const top = [...team.rosterIds].sort((a, b) => wage(b) - wage(a) || a.localeCompare(b))[0]
