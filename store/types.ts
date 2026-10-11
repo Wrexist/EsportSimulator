@@ -113,20 +113,6 @@ export interface AcademyState {
   academyPendingProspects: string[]
 }
 
-export interface WeekRevealItem {
-  id: string
-  kind: "match" | "event" | "summary"
-  tone: "win" | "loss" | "neutral"
-  title: string
-  detail?: string
-}
-
-export interface WeekRevealData {
-  week: number
-  headline: string
-  items: WeekRevealItem[]
-}
-
 /** Stages advanceWeek actually passes through, in order (L27.A2 truthful progress). */
 export type WeekProgressPhase = "preparing" | "simulating" | "applying" | "saving"
 
@@ -135,7 +121,6 @@ export interface UIState {
   availableEquipment: EquipmentItem[]
   toasts: { id: string; message: string; type: "level_up" | "xp_gain" | "achievement" | "info" | "warning" | "error"; duration?: number }[]
   pendingCelebration: CelebrationData | null
-  weekReveal: WeekRevealData | null
   /** Current real stage of a week advance (transient, never saved). */
   weekProgress: WeekProgressPhase | null
   pendingSeasonRecap: number | null
@@ -294,7 +279,6 @@ export interface UIActions {
   addToast: (toast: { message: string; type: "level_up" | "xp_gain" | "achievement" | "info" | "warning" | "error"; duration?: number }) => void
   removeToast: (id: string) => void
   clearCelebration: () => void
-  dismissWeekReveal: () => void
   clearPendingSeasonRecap: () => void
   selectLegend: (legendId: string) => void
   clearLegendPick: () => void

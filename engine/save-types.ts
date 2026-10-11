@@ -71,6 +71,10 @@ export interface GameSave {
     gameOverReason?: string // "BANKRUPTCY" if team dissolved
     gameOverWeek?: number   // Week when game ended
 
+    // === WEEKLY REPORT (Phase 4.1) ===
+    /** Last four weekly reports (changes with causes) + this week's baseline. Compact, bounded. */
+    weekReports?: import("@/lib/week-report").WeekReportsState | null
+
     // === SESSION TRACKING ===
     lastPlayedAt?: string // ISO date of last save for offline recovery
 

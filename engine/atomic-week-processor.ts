@@ -79,6 +79,7 @@ import { StaffGenerator } from "./staff-generator"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
 import { processSeasonBoardReview, ensureBoardState, processMidSeasonBoardPulse } from "./board-expectations"
 import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
+import { WeekChangeRecorder, sideScore, type ChangeCause, type ChangeEntry, type CauseResolver } from "@/lib/week-changes"
 
 // ===== TYPES =====
 
@@ -98,6 +99,20 @@ export interface WeekProcessorResult {
         expenses: number
         net: number
     }
+    /**
+     * What changed for the managed club this tick and why, one entry per
+     * (subject, value, cause). Additive and transient: the store folds it
+     * into the weekly report; it is never written to the save as-is.
+     */
+    changes?: ChangeEntry[]
+}
+
+/** Title-ish text of an event, for report causes. */
+function eventCauseLabel(event: GameEventSaveData): string {
+    const d = (event.data ?? {}) as { title?: unknown; headline?: unknown; description?: unknown; message?: unknown }
+    const text = [d.title, d.headline, d.description, d.message].find(v => typeof v === "string" && v.trim()) as string | undefined
+    const clean = (text ?? String(event.type)).replace(/[^\p{L}\p{N}\s.,:;'!?()&+\-–—$%#/]/gu, "").trim()
+    return clean.length > 70 ? `${clean.slice(0, 67)}...` : clean
 }
 
 // ===== DEBUG =====
@@ -242,9 +257,17 @@ export class AtomicWeekProcessor {
             if (save.currentWeek < transaction.weekNumber) {
                 save.currentWeek++
             }
+            // Weekly report: snapshot the managed club between steps and
+            // attribute each movement to the step that caused it. Reads only;
+            // never consumes RNG, so the tick stays deterministic.
+            const changes = new WeekChangeRecorder(config.playerTeamId)
+            changes.begin(save)
+            const mark = (cause: CauseResolver) => changes.mark(save, cause)
+
             // Expired players/staff cannot train, receive wages, or appear in
             // cached match rosters. Build the indexes from the surviving contracts.
             FinanceProcessor.processContractExpiry(save, config.playerTeamId)
+            mark({ type: "contract", label: "Contract expired" })
             idx = buildSaveIndexes(save)
 
             // ===== STEP 1: Training Effects =====
@@ -260,8 +283,10 @@ export class AtomicWeekProcessor {
                         weeklyTraining.set(team.id, { focus: AI_SQUAD_TUNING.TRAINING_FOCUS as TrainingFocus, intensity: AI_SQUAD_TUNING.TRAINING_INTENSITY })
                     }
                 }
+                const trainingCauses = TrainingProcessor.describeCauses(save, config.playerTeamId, weeklyTraining.get(config.playerTeamId), idx)
                 TrainingProcessor.processTraining(save, weeklyTraining, idx)
                 TrainingManager.processWeeklyTraining(save) // Process Role Training
+                mark(e => trainingCauses.get(e.subjectId) ?? { type: "training", label: "Training" })
                 perfTrace.step("step.1_training", __s)
                 await this.saveManager.markStepComplete(transaction, "trainingComplete")
             }
@@ -270,7 +295,17 @@ export class AtomicWeekProcessor {
             if (resumeStep <= 2) {
                 debugLog(`[Week ${save.currentWeek}] Step 2: Fatigue recovery...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                const recoveryCause = TrainingProcessor.describeRecovery(save, config.playerTeamId, idx)
                 TrainingProcessor.processFatigueRecovery(save, rng, idx)
+                mark(e => {
+                    const age = idx.playerIndex.get(e.subjectId)?.age
+                    if (e.kind === "attribute") return e.delta > 0
+                        ? { type: "development", label: `Natural growth${age ? ` (age ${age})` : ""}` }
+                        : { type: "age", label: `Age decline${age ? ` (age ${age})` : ""}` }
+                    if (e.kind === "fatigue" || e.kind === "energy") return recoveryCause
+                    if (e.kind === "morale" || e.kind === "form") return { type: "decay", label: "Drift toward baseline" }
+                    return { type: "other", label: "Weekly update" }
+                })
                 perfTrace.step("step.2_fatigue", __s)
                 await this.saveManager.markStepComplete(transaction, "fatigueRecoveryComplete")
             }
@@ -280,6 +315,9 @@ export class AtomicWeekProcessor {
                 debugLog(`[Week ${save.currentWeek}] Step 3: Injury checks...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 result.injuriesOccurred = EventProcessor.processInjuryChecks(save, rng)
+                mark(e => e.kind === "injury" && e.delta > 0
+                    ? { type: "injury", label: "Weekly injury roll (risk rises with fatigue)" }
+                    : { type: "recovery", label: "Rehab" })
                 perfTrace.step("step.3_injuries", __s)
                 await this.saveManager.markStepComplete(transaction, "injuryChecksComplete")
             }
@@ -289,6 +327,9 @@ export class AtomicWeekProcessor {
                 debugLog(`[Week ${save.currentWeek}] Step 4: Finance...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 result.financeSummary = FinanceProcessor.processFinance(save, config.playerTeamId, eventIdSet, ledgerIdSet)
+                mark(e => e.kind === "morale"
+                    ? { type: "finance", label: "Club finances in crisis" }
+                    : { type: "finance", label: "Weekly settlement" })
                 perfTrace.step("step.4_finance", __s)
                 await this.saveManager.markStepComplete(transaction, "financeComplete")
             }
@@ -299,6 +340,7 @@ export class AtomicWeekProcessor {
                 debugLog(`[Week ${save.currentWeek}] Step 4.5: Tournament Processing...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 this.processTournaments(save, config.playerTeamId, rng, idx, eventIdSet, ledgerIdSet)
+                mark({ type: "world", label: "Tournament updates" })
                 perfTrace.step("step.5_tournaments", __s)
                 await this.saveManager.markStepComplete(transaction, "tournamentProcessingComplete")
             }
@@ -338,7 +380,8 @@ export class AtomicWeekProcessor {
                 }
 
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
-                result.matchesPlayed = await this.processMatches(save, transaction, rng, config.playerTeamId, idx, eventIdSet, ledgerIdSet)
+                result.matchesPlayed = await this.processMatches(save, transaction, rng, config.playerTeamId, idx, eventIdSet, ledgerIdSet, mark)
+                mark({ type: "world", label: "Other results" })
                 perfTrace.step("step.6_matches", __s)
                 await this.saveManager.markStepComplete(transaction, "matchSimulationComplete")
             }
@@ -376,6 +419,10 @@ export class AtomicWeekProcessor {
                     addProAwardsEvent(save, awards)
                 }
 
+                const seasonEnd = LeagueEngine.isSeasonEnd(save.currentWeek)
+                mark(e => e.kind === "ranking"
+                    ? { type: "world", label: seasonEnd ? "Season end: promotion & relegation" : "Weekly ranking update" }
+                    : { type: "world", label: seasonEnd ? "Season end" : "Standings" })
                 perfTrace.step("step.7_standings", __s)
                 await this.saveManager.markStepComplete(transaction, "standingsUpdateComplete")
             }
@@ -384,6 +431,7 @@ export class AtomicWeekProcessor {
             if (resumeStep <= 8) {
                 debugLog(`[Week ${save.currentWeek}] Step 7: Events...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                const eventIdsBefore = new Set(save.eventsLog.map(e => e.id))
                 result.eventsGenerated = await EventProcessor.generateEvents(save, transaction, rng, config.playerTeamId, this.saveManager)
 
                 // Phase 23: Legend Events (Mentorship, Coach Opportunities)
@@ -398,6 +446,17 @@ export class AtomicWeekProcessor {
                 // Phase 60: Job Market - Generate job offers based on performance
                 JobOfferGenerator.processWeeklyJobOffers(save, rng)
 
+                // Name the event that moved a player when one names them.
+                const freshByPlayer = new Map<string, ChangeCause>()
+                let teamEvent: ChangeCause | null = null
+                for (const e of save.eventsLog) {
+                    if (eventIdsBefore.has(e.id)) continue
+                    const pid = (e.data as { playerId?: unknown } | undefined)?.playerId
+                    const cause: ChangeCause = { type: "event", label: eventCauseLabel(e) }
+                    if (typeof pid === "string" && !freshByPlayer.has(pid)) freshByPlayer.set(pid, cause)
+                    else if (!pid && !teamEvent && (e.data as { teamId?: unknown } | undefined)?.teamId === config.playerTeamId) teamEvent = cause
+                }
+                mark(e => freshByPlayer.get(e.subjectId) ?? teamEvent ?? { type: "event", label: "Week events" })
                 perfTrace.step("step.8_events", __s)
                 await this.saveManager.markStepComplete(transaction, "eventGenerationComplete")
             }
@@ -436,6 +495,15 @@ export class AtomicWeekProcessor {
                     }
                 })
 
+                mark(e => {
+                    if (e.kind === "contract" && e.delta < 0) {
+                        return idx.playerIndex.get(e.subjectId)?.isRetired
+                            ? { type: "age", label: "Retired" }
+                            : { type: "transfer", label: "Transfer" }
+                    }
+                    if (e.kind === "reputation") return { type: "world", label: "Fan growth" }
+                    return { type: "world", label: "World update" }
+                })
                 perfTrace.step("step.9_worldAI", __s)
                 await this.saveManager.markStepComplete(transaction, "worldLogicComplete")
             }
@@ -445,6 +513,9 @@ export class AtomicWeekProcessor {
                 debugLog(`[Week ${save.currentWeek}] Step 8: Rest days...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 TrainingProcessor.processRestDays(save, config.playerTeamId)
+                const restPrefix = `rest_w${save.currentWeek - 1}_d`
+                const restDays = save.scheduledActivities.filter(a => a.id.startsWith(restPrefix) && a.id.endsWith(`_${config.playerTeamId}`)).length
+                mark({ type: "recovery", label: restDays > 0 ? `${restDays} rest day${restDays === 1 ? "" : "s"}` : "Rest days" })
                 perfTrace.step("step.10_restDays", __s)
                 await this.saveManager.markStepComplete(transaction, "restDayProcessingComplete")
             }
@@ -473,6 +544,9 @@ export class AtomicWeekProcessor {
                 t.tacticalPrep = 0
                 processWeeklyChemistryGrowth(t, save.currentWeek)
             })
+            mark(e => e.kind === "chemistry"
+                ? { type: "stability", label: "Settled roster" }
+                : { type: "other", label: "End of week" })
 
             // Manager Level Up Check (uses ManagerProgression XP table)
             if (save.managerDetails) {
@@ -533,6 +607,7 @@ export class AtomicWeekProcessor {
             const __sNarrative = perfTrace.stepsEnabled ? perfTrace.now() : 0
             this.generateNarrativeNews(save, rng, idx)
             generateCareerDecision(save)
+            mark({ type: "other", label: "End of week" })
             perfTrace.step("step.12_narrative", __sNarrative)
 
             // === Cross-Season Career Statistics ===
@@ -558,10 +633,12 @@ export class AtomicWeekProcessor {
                 if (gcRemoved > 0) {
                     debug.log(`[Week ${save.currentWeek}] GC reclaimed ${gcRemoved} unreferenced retired player(s)`)
                 }
+                mark({ type: "age", label: "New season" })
 
                 // Board verdict on the season — moves confidence, can sack the
                 // manager (game-over), and posts a review to the news feed.
                 const review = processSeasonBoardReview(save)
+                mark({ type: "board", label: "Season review" })
                 if (review.reviewed && review.newsTitle) {
                     save.newsFeed.unshift({
                         id: `board_review_s${getSeasonNumber(save.currentWeek)}_${save.playerTeamId}`,
@@ -585,6 +662,8 @@ export class AtomicWeekProcessor {
             // Quarterly board pulse (weeks 13/26/39): confidence tracks form
             // mid-season so the war-chest tier isn't frozen for 52 weeks.
             const pulse = processMidSeasonBoardPulse(save)
+            mark({ type: "board", label: "Quarterly board review" })
+            result.changes = changes.result()
             if (pulse.pulsed && pulse.newsTitle) {
                 const pulseNewsId = `board_pulse_w${save.currentWeek}_${save.playerTeamId}`
                 if (!save.newsFeed.some(n => n.id === pulseNewsId)) {
@@ -693,8 +772,20 @@ export class AtomicWeekProcessor {
         playerTeamId: string,
         idx?: SaveIndexes,
         eventIdSet?: Set<string>,
-        ledgerIdSet?: Set<string>
+        ledgerIdSet?: Set<string>,
+        mark?: (cause: CauseResolver) => unknown,
     ): Promise<number> {
+        // Weekly report: a managed-club match gets its own snapshot pair so its
+        // morale/form/fatigue/Elo swing is attributed to that result.
+        const matchCause = (matchId: string): ChangeCause => {
+            const cm = save.completedMatches.find(m => m.id === matchId)
+            const oppId = cm ? (cm.homeTeamId === playerTeamId ? cm.awayTeamId : cm.homeTeamId) : ""
+            const opp = (idx?.teamIndex.get(oppId) ?? save.teams.find(t => t.id === oppId))?.name ?? "opponent"
+            if (!cm?.result) return { type: "match", label: `Match vs ${opp}` }
+            const won = cm.result.winnerId === playerTeamId
+            if (!cm.result.maps?.length) return { type: "match", label: `Forfeit ${won ? "win" : "loss"} vs ${opp}` }
+            return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${sideScore(cm.result, cm.homeTeamId === playerTeamId)}` }
+        }
         const weekMatches = save.scheduledMatches.filter(m => {
             const isPastWeek = m.week < save.currentWeek
             const isCurrentWeek = m.week === save.currentWeek
@@ -753,6 +844,9 @@ export class AtomicWeekProcessor {
             const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
             const awayTeam = idx?.teamIndex.get(match.awayTeamId) ?? save.teams.find(t => t.id === match.awayTeamId)
             if (!homeTeam || !awayTeam) continue
+            const tracksManagedClub = !!mark && (match.homeTeamId === playerTeamId || match.awayTeamId === playerTeamId)
+            if (tracksManagedClub) mark({ type: "world", label: "Other results" })
+            try {
 
             // Select active 5, skipping injured players and pulling from bench.
             // Defensive `|| []` against corrupt/legacy saves where rosterIds
@@ -1115,6 +1209,9 @@ export class AtomicWeekProcessor {
                 // If the match WAS already recorded, a post-result step
                 // (Elo, tournament progression) threw — keep the result and
                 // move on rather than re-forfeiting a duplicate.
+            }
+            } finally {
+                if (tracksManagedClub) mark?.(matchCause(match.id))
             }
         }
 
