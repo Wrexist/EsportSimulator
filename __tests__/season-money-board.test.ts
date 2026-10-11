@@ -174,8 +174,8 @@ describe("FPL removal: save migration v8", () => {
 
     test("drops FPL data, retires the unsigned amateur pool and keeps signed amateurs as ordinary players", () => {
         const migrated = runMigrationLadder(legacy()) as unknown as Record<string, unknown> & GameSave
-        expect(CURRENT_SAVE_VERSION).toBe(8)
-        expect(migrated.saveVersion).toBe(8)
+        // v9 (Phase 5.2) runs after v8; this test pins the v8 step's effects.
+        expect(migrated.saveVersion).toBe(CURRENT_SAVE_VERSION)
         expect("fplData" in migrated).toBe(false)
         const byId = new Map(migrated.players.map(p => [p.id, p as unknown as Record<string, unknown>]))
         expect(byId.get("fpl_nonpro_4_5_6")!.isRetired).toBe(true)

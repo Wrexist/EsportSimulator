@@ -20,7 +20,7 @@ export type CauseType =
     | "training" | "staff" | "event" | "match" | "activity" | "facility"
     | "salary" | "sponsor" | "prize" | "decay" | "recovery" | "development"
     | "age" | "transfer" | "finance" | "board" | "decision" | "academy"
-    | "stability" | "world" | "contract" | "injury" | "other"
+    | "stability" | "world" | "contract" | "injury" | "dressing_room" | "other"
 
 export interface ChangeCause { type: CauseType; label: string }
 

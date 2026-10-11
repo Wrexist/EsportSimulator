@@ -496,3 +496,106 @@ export const ROUND_ECONOMY_TUNING = {
      */
     LOSS_BONUS_LADDER: [1400, 1900, 2400, 2900, 3400] as const,
 } as const
+
+/**
+ * Personalities and the dressing room (Phase 5.2, engine/personality.ts and
+ * engine/processors/dressing-room.ts). The same rules for every club; the UI
+ * (ARCHETYPE_INFO, squad and player screens, negotiation) quotes these
+ * values, so copy and engine cannot drift.
+ */
+export const PERSONALITY_TUNING = {
+    // ── playstyle traits (derived once from attributes and role) ──
+    /** Entry fragger: (entry + reaction) / 2, or (reaction + creativity) / 2 without an entry stat. */
+    TRAIT_AGGRESSIVE_MIN: 62,
+    /** AWPer who holds rather than improvises: creativity below this. */
+    TRAIT_PASSIVE_AWP_MAX_CREATIVITY: 50,
+    /** Support anchor: teamwork at least this and creativity below TRAIT_PASSIVE_ANCHOR_MAX_CREATIVITY. */
+    TRAIT_PASSIVE_ANCHOR_TEAMWORK: 75,
+    TRAIT_PASSIVE_ANCHOR_MAX_CREATIVITY: 40,
+    /** Clutch at least this, stress resistance at least this - 5. */
+    TRAIT_CLUTCHER_MIN: 82,
+    /** Trading at least this. */
+    TRAIT_TRADER_MIN: 72,
+    /** Without a trading stat (snapshot players): (teamwork + reaction) / 2 at least this, not an AWPer. */
+    TRAIT_TRADER_PROXY_MIN: 68,
+
+    // ── result reactions (× the tier/derby/psychologist morale delta) ──
+    RESULT_HOTHEAD: 1.5,
+    RESULT_QUIET: 0.75,
+    RESULT_SHOWMAN_WIN: 1.25,
+    RESULT_PROFESSIONAL_LOSS: 0.75,
+
+    // ── playing time ──
+    /** Official starts in a row that make a player a regular starter. */
+    REGULAR_STARTS: 3,
+    /** Official matches in a row a regular can sit out (fit) before he minds. */
+    BENCH_MATCHES: 3,
+    BENCH_MORALE_PER_WEEK: 3,
+    BENCH_MORALE_FLOOR: 20,
+    /** Ambitious, Showman. */
+    BENCH_FACTOR_HIGH: 1.5,
+    /** Loyal, Quiet. */
+    BENCH_FACTOR_LOW: 0.5,
+
+    // ── wage fairness (Ambitious, Mercenary) ──
+    /** Unhappy when his wage is under this share of a lower-rated teammate's. */
+    WAGE_FAIRNESS_SHARE: 0.6,
+    /** "Lower-rated": at least this many overall points below him. */
+    WAGE_FAIRNESS_MIN_GAP: 3,
+    WAGE_MORALE_PER_WEEK: 2,
+    WAGE_MORALE_FLOOR: 30,
+
+    // ── transfer requests (managed club; Ambitious, Mercenary) ──
+    UNHAPPY_MORALE: 40,
+    REQUEST_AFTER_WEEKS: 4,
+    REQUEST_COOLDOWN_WEEKS: 16,
+    REQUESTS_PER_SEASON: 2,
+    REQUEST_ACCEPT_MORALE: 10,
+    REQUEST_PROMISE_MORALE: 5,
+    REQUEST_REFUSE_MORALE: -10,
+    REQUEST_REFUSE_LOYALTY: -5,
+
+    // ── promises ──
+    PROMISE_START_WEEKS: 8,
+    /** A "you'll start" promise breaks after this many official matches in a row sat out while fit. */
+    PROMISE_START_BENCH_LIMIT: 2,
+    PROMISE_COMPETE_WEEKS: 26,
+    /** World-ranking places climbed that keep a "we'll compete for titles" promise (a trophy also does). */
+    PROMISE_COMPETE_RANK_GAIN: 10,
+    PROMISE_KEPT_MORALE: 10,
+    PROMISE_KEPT_LOYALTY: 5,
+    PROMISE_BROKEN_MORALE: -20,
+    PROMISE_BROKEN_LOYALTY: -15,
+
+    // ── training and mentors ──
+    TRAINING_PROFESSIONAL: 1.1,
+    /** Hothead, Showman. */
+    TRAINING_DISTRACTED: 0.95,
+    MENTOR_TRAINING: 1.25,
+    MENTOR_MIN_AGE: 27,
+    MENTEE_MAX_AGE: 21,
+
+    // ── captain: share of a defeat's morale loss spared for the lineup he plays in ──
+    /** leader stat / this = percent spared (leader 80 → 20%). */
+    CAPTAIN_LEADER_DIVISOR: 4,
+    CAPTAIN_LEADER_BONUS: 0.1,
+    CAPTAIN_MAX_SHIELD: 0.35,
+
+    // ── contracts (manager negotiation, AI signings and renewals) ──
+    WAGE_LOYAL: 0.9,
+    WAGE_MERCENARY: 1.1,
+    /** Ambitious joining a club AMBITIOUS_GAP+ league tiers below his level. */
+    WAGE_AMBITIOUS_BELOW: 1.15,
+    AMBITIOUS_GAP: 2,
+    /** A player's level on the league-tier scale by overall rating (S / A / B, else C). */
+    LEVEL_S_OVR: 62,
+    LEVEL_A_OVR: 57,
+    LEVEL_B_OVR: 50,
+    LENGTH_LOYAL: 1.3,
+    LENGTH_MERCENARY: 0.75,
+    /** Share of the usual renewal raise (+10% → Loyal +5%, Mercenary +20%). */
+    RENEWAL_RAISE_LOYAL: 0.5,
+    RENEWAL_RAISE_MERCENARY: 2,
+    /** Rejecting a club's bid for a Mercenary. */
+    MERCENARY_BID_REJECT_MORALE: -6,
+} as const

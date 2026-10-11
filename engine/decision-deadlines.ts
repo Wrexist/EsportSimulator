@@ -71,6 +71,9 @@ const PREFIX_RULES: Array<[prefix: string, rule: DecisionRule]> = [
     ["streak_win_", rule({ family: "win_streak", label: "Win streak", window: 1, cooldown: 0, defaultChoiceId: "focus", consequence: "tells the squad to stay focused", deferrable: true })],
     ["streak_loss_", rule({ family: "losing_run", label: "Losing run", window: 1, cooldown: 0, defaultChoiceId: "shakeup", consequence: "issues the standard roster shakeup warning", deferrable: true })],
     ["legend_coach_opportunity_", rule({ family: "legend_coach", label: "Legend coach offer", window: 2, cooldown: 0, defaultChoiceId: "decline", consequence: "declines the coaching offer" })],
+    // Phase 5.2: a player's transfer request (engine/processors/dressing-room.ts
+    // spaces them out and caps them per season itself).
+    ["transfer_request_", rule({ family: "transfer_request", label: "Transfer request", window: 2, cooldown: 0, defaultChoiceId: "refuse", consequence: "refuses {name}'s transfer request (his morale and loyalty drop)" })],
 ]
 
 /** Situation decisions (engine/career-decisions.ts) keep their two-week window and eight-week spacing. */

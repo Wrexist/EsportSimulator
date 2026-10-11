@@ -1,4 +1,5 @@
 import type { GameSave } from './save-types'
+import { captainId } from './personality'
 
 /** Small, situation-driven decisions. One open decision and at least eight weeks between them. */
 export function generateCareerDecision(save: GameSave): void {
@@ -22,7 +23,8 @@ export function generateCareerDecision(save: GameSave): void {
         message: 'Heavy fatigue is affecting readiness. Extra recovery reduces fatigue now; a conversation only helps morale.',
         choices: [{ id: 'recovery', text: 'Recovery session: $750, fatigue -10', effects: { money: -750, fatigue: -10 } }, { id: 'talk', text: 'Check in: morale +2', effects: { morale: 2 } }],
     } : recent.length >= 3 && recent.slice(-3).every(m => m.result.winnerId === team.id) ? {
-        key: 'momentum', player: roster[0], title: `${team.name} has momentum`,
+        // Phase 5.2: the captain is the manager's pick (default: highest leader stat), not roster[0].
+        key: 'momentum', player: roster.find(p => p.id === captainId(team, id => roster.find(r => r.id === id))) ?? roster[0], title: `${team.name} has momentum`,
         message: 'Three straight wins give the squad a chance to build trust.',
         choices: [{ id: 'team', text: 'Team session: $1,000, chemistry +3', effects: { money: -1000, chemistry: 3 } }, { id: 'praise', text: 'Praise the captain: morale +2', effects: { morale: 2 } }],
     } : undefined

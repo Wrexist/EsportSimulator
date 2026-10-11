@@ -14,6 +14,8 @@ import { PlayerRole } from "../types/enums"
 import { ScoutingTier } from "../types/academy"
 import { PROSPECT_CONFIG } from "./academy-constants"
 import { SeededRNG, generateSeed } from "./rng"
+import { PROSPECT_TYPE_ARCHETYPE, deriveArchetype, deriveTraits } from "./personality"
+import type { PersonalityArchetype } from "./save-types"
 
 // ===== NAME POOLS BY REGION =====
 
@@ -267,10 +269,11 @@ const ROLE_STAT_WEIGHTS: Record<PlayerRole, (keyof GeneratedStats)[]> = {
     [PlayerRole.RIFLER]: ["rifle", "trading", "entry", "creativity"]
 }
 
-// Personality archetypes that influence mental stats
-type PersonalityArchetype = "PRODIGY" | "GRINDER" | "NATURAL" | "CLUTCH_GENE" | "TEAM_PLAYER" | "LONE_WOLF"
+// Prospect types that shape starting stats. The rolled type is kept as the
+// player's personality archetype (PROSPECT_TYPE_ARCHETYPE, Phase 5.2).
+export type ProspectType = "PRODIGY" | "GRINDER" | "NATURAL" | "CLUTCH_GENE" | "TEAM_PLAYER" | "LONE_WOLF"
 
-const PERSONALITY_EFFECTS: Record<PersonalityArchetype, Partial<GeneratedStats>> = {
+const PERSONALITY_EFFECTS: Record<ProspectType, Partial<GeneratedStats>> = {
     PRODIGY: { skill: 5, creativity: 8, potential: 5, productivity: -3 },
     GRINDER: { productivity: 10, endurance: 5, loyalty: 5, creativity: -3 },
     NATURAL: { skill: 3, reaction: 5, form: 10, morale: 3 },
@@ -280,7 +283,7 @@ const PERSONALITY_EFFECTS: Record<PersonalityArchetype, Partial<GeneratedStats>>
 }
 
 // Generate stats based on age and role
-function generateStats(age: number, role: PlayerRole, tier: ScoutingTier, rng?: SeededRNG): GeneratedStats {
+function generateStats(age: number, role: PlayerRole, tier: ScoutingTier, rng?: SeededRNG): { stats: GeneratedStats; type: ProspectType } {
     const ageConfig = PROSPECT_CONFIG.statRangesByAge[age] || PROSPECT_CONFIG.statRangesByAge[17]
 
     // Tier affects stat quality
@@ -342,8 +345,8 @@ function generateStats(age: number, role: PlayerRole, tier: ScoutingTier, rng?: 
         stats[stat] = Math.min(100, stats[stat] + Math.round(roleBonus))
     })
 
-    // Apply random personality archetype
-    const archetypes: PersonalityArchetype[] = ["PRODIGY", "GRINDER", "NATURAL", "CLUTCH_GENE", "TEAM_PLAYER", "LONE_WOLF"]
+    // Apply a random prospect type (kept as his archetype)
+    const archetypes: ProspectType[] = ["PRODIGY", "GRINDER", "NATURAL", "CLUTCH_GENE", "TEAM_PLAYER", "LONE_WOLF"]
     const personality = pick(archetypes, rng)
     const personalityEffects = PERSONALITY_EFFECTS[personality]
 
@@ -352,7 +355,7 @@ function generateStats(age: number, role: PlayerRole, tier: ScoutingTier, rng?: 
         stats[key] = Math.min(100, Math.max(1, stats[key] + (effect as number)))
     }
 
-    return stats
+    return { stats, type: personality }
 }
 
 // ===== MAIN GENERATOR =====
@@ -368,6 +371,9 @@ export interface GeneratedProspect {
     role: PlayerRole
     stats: GeneratedStats
     portraitPath: string
+    /** The rolled prospect type and the archetype it becomes (Phase 5.2). */
+    prospectType: ProspectType
+    archetype: PersonalityArchetype
 }
 
 /**
@@ -452,7 +458,7 @@ export function generateProspect(
     }
 
     // Generate stats
-    const stats = generateStats(age, role, scoutingTier, rng)
+    const { stats, type } = generateStats(age, role, scoutingTier, rng)
 
     return {
         firstName,
@@ -464,7 +470,9 @@ export function generateProspect(
         region,
         role,
         stats,
-        portraitPath: "/player_placeholder.webp"
+        portraitPath: "/player_placeholder.webp",
+        prospectType: type,
+        archetype: PROSPECT_TYPE_ARCHETYPE[type],
     }
 }
 
@@ -493,8 +501,9 @@ export function generateProspectBatch(count: number, tier: ScoutingTier = "LOCAL
  */
 export function prospectToPlayerData(prospect: GeneratedProspect, gameWeek: number, rng?: SeededRNG): Record<string, unknown> {
     const idSuffix = randomInt(0, 0x7fffffff, rng).toString(36)
+    const id = `prospect_${gameWeek}_${idSuffix}`
     return {
-        id: `prospect_${gameWeek}_${idSuffix}`,
+        id,
         firstName: prospect.firstName,
         lastName: prospect.lastName,
         nickname: prospect.nickname,
@@ -530,6 +539,10 @@ export function prospectToPlayerData(prospect: GeneratedProspect, gameWeek: numb
 
         // Track origin
         isAcademyGraduate: false,
-        enrolledWeek: gameWeek
+        enrolledWeek: gameWeek,
+
+        // Phase 5.2: the rolled type is his archetype; traits from his stats and role.
+        personality: { archetype: prospect.archetype ?? deriveArchetype({ ...prospect.stats, id, age: prospect.age }) },
+        traits: deriveTraits({ ...prospect.stats, id, age: prospect.age, role: prospect.role }),
     }
 }

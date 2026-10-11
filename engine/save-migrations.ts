@@ -19,7 +19,9 @@ import type {
     FinanceLedgerEntry,
     TeamSaveData,
     QualificationStatus,
+    PlayerSaveData,
 } from "./save-types"
+import { assignPersonalities } from "./personality"
 import {
     dedupeQualifications,
     normalizeQualificationStatus,
@@ -338,6 +340,22 @@ export function migrateToV8(save: Record<string, unknown>): Record<string, unkno
 }
 
 /**
+ * v9 (Phase 5.2): every player gets a personality (archetype) and playstyle
+ * traits, derived deterministically from his stats, age, role and a hash of
+ * his id (engine/personality.ts), so the same save always migrates to the
+ * same dressing room. Players that already carry an archetype or a traits
+ * array keep them. Legends in the Hall of Fame pool are included. Captains
+ * and mentors need no backfill: the default captain is derived.
+ */
+export function migrateToV9(save: Record<string, unknown>): Record<string, unknown> {
+    const players = Array.isArray(save.players) ? (save.players as PlayerSaveData[]) : []
+    assignPersonalities(players)
+    const legends = Array.isArray(save.legendaryPlayers) ? (save.legendaryPlayers as PlayerSaveData[]) : []
+    assignPersonalities(legends)
+    return { ...save, players, ...(Array.isArray(save.legendaryPlayers) ? { legendaryPlayers: legends } : {}), saveVersion: 9 }
+}
+
+/**
  * Run the full ladder up to the current version. Each step is no-op
  * if the save already meets its target version.
  *
@@ -359,6 +377,7 @@ export function runMigrationLadder(save: unknown): GameSave {
     if (version < 6) migrated = migrateToV6(migrated)
     if (version < 7) migrated = migrateToV7(migrated)
     if (version < 8) migrated = migrateToV8(migrated)
+    if (version < 9) migrated = migrateToV9(migrated)
 
     return {
         ...migrated,

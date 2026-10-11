@@ -8,6 +8,7 @@ import { facilityLevel, staffDevelopmentEffects } from "../organization-effects"
 import type { SaveIndexes } from "@/store/indexes"
 import { CONDITION_TUNING } from "@/lib/balance-tuning"
 import type { ChangeCause } from "@/lib/week-changes"
+import { ARCHETYPE_INFO, getArchetype, mentorTrainingFactor, trainingFactor } from "../personality"
 
 const FOCUS_LABEL: Record<string, string> = {
     [TrainingFocus.AIM]: "Aim training",
@@ -48,7 +49,16 @@ export class TrainingProcessor {
             if (player?.trainingFocus && player.trainingFocus !== "BALANCED" && Object.values(TrainingFocus).includes(player.trainingFocus as TrainingFocus)) {
                 focus = player.trainingFocus as TrainingFocus
             }
-            const label = [FOCUS_LABEL[focus] ?? "Training", ...(focus === TrainingFocus.REST ? [] : modifiers)].join(" · ")
+            const personal: string[] = []
+            if (player && focus !== TrainingFocus.REST) {
+                const archetype = getArchetype(player)
+                const factor = trainingFactor(archetype)
+                if (Math.abs(factor - 1) > 1e-9) personal.push(`${ARCHETYPE_INFO[archetype].label} ${factor > 1 ? "+" : "−"}${Math.round(Math.abs(factor - 1) * 100)}%`)
+                const lookup = (id: string) => (idx ? idx.playerIndex.get(id) : save.players.find(p => p.id === id))
+                const mentor = mentorTrainingFactor(team, playerId, lookup)
+                if (mentor > 1) personal.push(`mentored +${Math.round((mentor - 1) * 100)}%`)
+            }
+            const label = [FOCUS_LABEL[focus] ?? "Training", ...(focus === TrainingFocus.REST ? [] : modifiers), ...personal].join(" · ")
             causes.set(playerId, { type: "training", label })
         }
         return causes
@@ -87,6 +97,7 @@ export class TrainingProcessor {
             const effects = staffDevelopmentEffects(teamStaff.filter(s => s.contractEndWeek === undefined || s.contractEndWeek > save.currentWeek))
             const coachBonus = effects.trainingMultiplier
             const talentTacticMod = effects.tacticMultiplier
+            const lookup = (id: string) => (idx ? idx.playerIndex.get(id) : save.players.find(p => p.id === id))
 
             team.rosterIds.forEach(playerId => {
                 const player = idx ? idx.playerIndex.get(playerId) : save.players.find(p => p.id === playerId)
@@ -113,6 +124,8 @@ export class TrainingProcessor {
                     player.productivity,
                     player.potential
                 )
+                // Phase 5.2: archetype (Professional +, Hothead/Showman −) and a mentor.
+                const personalFactor = trainingFactor(getArchetype(player)) * mentorTrainingFactor(team, playerId, lookup)
 
                 // Player talent passive bonuses (fatigue reduction, energy recovery)
                 const playerBonuses = getPlayerPassiveBonuses(player.unlockedTalentIds || [])
@@ -122,7 +135,7 @@ export class TrainingProcessor {
                     if (gain && stat in player) {
                         const current = player[stat as keyof PlayerSaveData] as number
 
-                        let finalGain = gain * trainingBonus * coachBonus
+                        let finalGain = gain * trainingBonus * coachBonus * personalFactor
                         if (['tactic', 'leader', 'teamwork'].includes(stat)) {
                             finalGain *= tacticalBonus * talentTacticMod
                         }

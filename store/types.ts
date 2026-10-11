@@ -189,6 +189,9 @@ export interface EntitiesActions {
   updateTeamBudget: (teamId: string, amount: number) => void
   swapRosterPositions: (teamId: string, index1: number, index2: number) => void
   promotePlayer: (playerId: string) => void
+  setCaptain: (playerId: string | null) => { success: boolean; message: string }
+  assignMentor: (mentorId: string, menteeId: string) => { success: boolean; message: string }
+  endMentorship: (menteeId: string) => void
   refreshStaffMarket: () => void
   hireStaff: (staffId: string, terms?: { salary: number, duration: number, signingBonus: number }) => { success: boolean; message: string }
   renewStaffContract: (staffId: string, salary: number, duration: number) => { success: boolean; message: string }

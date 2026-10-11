@@ -17,6 +17,8 @@ import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { choiceLabel, describeChoice, type ChoiceLike, type EffectChip, type InboxContext } from "./inbox-model"
+import { getArchetype } from "@/engine/personality"
+import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { useInboxDrawer } from "./inbox-drawer-store"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
@@ -164,7 +166,14 @@ export function TransferOfferDecision({ event, ctx }: { event: GameEventSaveData
                 blockedReason={acceptBlocked}
                 onClick={accept}
             />
-            <OptionButton label="Reject" chips={[{ label: `${who} stays`, tone: "neutral" }]} onClick={reject} />
+            <OptionButton
+                label="Reject"
+                chips={[
+                    { label: `${who} stays`, tone: "neutral" },
+                    ...(player && getArchetype(player) === "MERCENARY" ? [{ label: `${PERSONALITY_TUNING.MERCENARY_BID_REJECT_MORALE} morale (Mercenary)`, tone: "negative" as const }] : []),
+                ]}
+                onClick={reject}
+            />
             <div className="flex flex-wrap gap-2 pt-1">
                 {data.playerId && <DrawerLink href={`/player/${data.playerId}`}>View {who}</DrawerLink>}
                 <DrawerLink href="/transfers">Transfer market</DrawerLink>

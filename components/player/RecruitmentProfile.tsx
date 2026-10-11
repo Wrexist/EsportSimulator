@@ -16,6 +16,8 @@ import { Panel } from "@/src/components/ui/Panel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { formatCurrency } from "@/lib/utils-extended"
 import { PlayerCareerRecord } from "./PlayerCareerRecord"
+import { PersonalityChips } from "./PersonalityChips"
+import { PersonalityPanel } from "./PersonalityPanel"
 
 const ATTRIBUTES = [
     ["skill", "Aim"], ["rifle", "Rifle"], ["awp", "AWP"], ["pistol", "Pistol"], ["grenades", "Utility"], ["clutch", "Clutch"],
@@ -77,7 +79,7 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
                                 <span className="text-ink-3">·</span>
                                 <span className="tabular-nums">{player.age} yrs</span>
                             </div>
-                            <div className="mt-3"><RoleTag role={player.role} /></div>
+                            <div className="mt-3 flex flex-wrap items-center gap-1.5"><RoleTag role={player.role} /><PersonalityChips player={player} /></div>
                         </div>
                         <div className="shrink-0 text-right">
                             <p className="font-display text-5xl font-bold leading-none tabular-nums text-ink-1">{formatScoutedRating(report.ovrRange)}</p>
@@ -118,6 +120,7 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
             </section>
 
             <div className="min-w-0 space-y-4">
+                <PersonalityPanel player={player} />
                 <Panel
                     title="Scouting report"
                     actions={

@@ -33,6 +33,7 @@ import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { PlayerRole, PlayerTier, TournamentTier, TournamentFormat, MatchFormat } from "@/types"
 
 import { reconcileTeamRoles } from "@/engine/role-reconciler"
+import { ensurePersonality } from "@/engine/personality"
 
 /**
  * Auto-calculate an initial prestige score for players with empty proHistory.
@@ -333,6 +334,12 @@ export class SnapshotLoader {
             const roster = players.filter(p => team.rosterIds.includes(p.id))
             reconcileTeamRoles(roster)
         })
+
+        // Phase 5.2: personalities and traits, after roles are final (traits
+        // read the role). Legends are shared module data: give the save its
+        // own copies rather than mutating LEGENDARY_PLAYERS.
+        const own = new Set(players)
+        save.players = save.players.map(p => ensurePersonality(own.has(p) ? p : { ...p }))
 
         return save
     }

@@ -20,6 +20,8 @@ import type { EventsActions, SliceCreator } from "@/store/types"
 import type { GameSave } from "@/engine/save-types"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
 import { applyChoiceEffects, type ChoiceEffects, type ChoiceTarget } from "@/engine/event-choice"
+import { getArchetype } from "@/engine/personality"
+import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { generateSocialPosts } from "@/lib/social-generator"
 import { nextDeterministicId } from "@/store/utils/helpers"
 
@@ -148,6 +150,14 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
                     })
                     team.chemistry = Math.min(100, (team.chemistry ?? 50) + 10)
                     team.reputation = Math.min(100, team.reputation + 5)
+                }
+            }
+
+            // Phase 5.2: a Mercenary follows the money — turning a bid down costs him morale.
+            if (event.type === "TRANSFER_OFFER" && choiceId === "reject") {
+                const bidFor = state.players.find(p => p.id === String(event.data.playerId ?? ""))
+                if (bidFor && getArchetype(bidFor) === "MERCENARY") {
+                    bidFor.morale = Math.max(0, Math.min(100, bidFor.morale + PERSONALITY_TUNING.MERCENARY_BID_REJECT_MORALE))
                 }
             }
 

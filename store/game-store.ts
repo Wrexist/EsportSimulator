@@ -64,6 +64,7 @@ import { MapId } from "@/types/enums"
 import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
 import { AcademyEngine } from "@/engine/academy-engine"
 import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
+import { deriveTraits, ensurePersonality } from "@/engine/personality"
 import { SCOUTING_COSTS, ACADEMY_LEVELS, DEV_MATCH_CONFIG, isScoutingTierUnlocked, ENERGY_CONFIG, DEVELOPMENT_CONFIG, ACADEMY_DRILLS, SCOUTING_DURATIONS, PENDING_POOL_MAX_SIZE } from "@/engine/academy-constants"
 import { AcademyPlayer, AcademyTrainingFocus, ScoutingTier } from "@/types/academy"
 import { TrainingFocus } from "@/types"
@@ -108,6 +109,7 @@ import { checkMilestones } from "@/engine/milestone-checker"
 import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
+import { createDressingRoomSlice } from "@/store/slices/dressing-room-slice"
 import { createPlayerDevelopmentSlice } from "@/store/slices/player-development-slice"
 import { createStaffManagementSlice } from "@/store/slices/staff-management-slice"
 import { createTeamFacilitiesSlice } from "@/store/slices/team-facilities-slice"
@@ -610,6 +612,10 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions {
   // Squad Management
   swapRosterPositions: (teamId: string, index1: number, index2: number) => void
   promotePlayer: (playerId: string) => void
+  // Dressing room (Phase 5.2)
+  setCaptain: (playerId: string | null) => { success: boolean; message: string }
+  assignMentor: (mentorId: string, menteeId: string) => { success: boolean; message: string }
+  endMentorship: (menteeId: string) => void
 
   // Multi-slot Save System
   listSaves: () => Promise<SaveSlotMetadata[]>
@@ -861,6 +867,8 @@ function applyPlayerFieldDefaults(players: PlayerSaveData[]): void {
     if (p.xpToNextLevel === undefined) p.xpToNextLevel = 1000
     if (p.talentPoints === undefined) p.talentPoints = 0
     if (p.unlockedTalentIds === undefined) p.unlockedTalentIds = []
+    // Phase 5.2 safety net: any player that arrived without a personality.
+    ensurePersonality(p)
   })
 }
 
@@ -929,6 +937,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       ...createTeamSettingsSlice(
         set as Parameters<typeof createTeamSettingsSlice>[0],
         get as Parameters<typeof createTeamSettingsSlice>[1],
+      ),
+      ...createDressingRoomSlice(
+        set as Parameters<typeof createDressingRoomSlice>[0],
+        get as Parameters<typeof createDressingRoomSlice>[1],
       ),
       ...createPlayerDevelopmentSlice(
         set as Parameters<typeof createPlayerDevelopmentSlice>[0],
@@ -1518,7 +1530,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                 roundsPlayed: 0,
                 avgRating: 0,
                 clutchSuccessRate: 0,
-                careerHistory: []
+                careerHistory: [],
+                // Phase 5.2: the rolled prospect type is his archetype.
+                personality: { archetype: prospect.archetype },
+                traits: deriveTraits({ ...prospect.stats, id: prospectPlayerId, role: prospect.role }),
               }
 
               newSave.players.push(prospectPlayer as any)

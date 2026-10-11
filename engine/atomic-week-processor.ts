@@ -65,6 +65,8 @@ import { processMatchWeaponMastery } from "./processors/match-weapon-mastery"
 import { applyMatchManagerXP } from "./processors/match-manager-xp"
 import { settlePlayerContractBonuses } from "./processors/player-contract-bonuses"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
+import { processDressingRoom } from "./processors/dressing-room"
+import { assignPersonalities, isOfficialMatch, lineupDefeatShield, playerResultMorale, recordAppearances } from "./personality"
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
 import { LeagueEngine } from "./league-engine"
@@ -266,6 +268,9 @@ export class AtomicWeekProcessor {
             if (save.currentWeek < transaction.weekNumber) {
                 save.currentWeek++
             }
+            // Phase 5.2 safety net: any player created without a personality
+            // (older code paths, mods) gets his deterministic one now.
+            assignPersonalities(save.players)
             // Weekly report: snapshot the managed club between steps and
             // attribute each movement to the step that caused it. Reads only;
             // never consumes RNG, so the tick stays deterministic.
@@ -483,6 +488,11 @@ export class AtomicWeekProcessor {
                     else if (!pid && !teamEvent && (e.data as { teamId?: unknown } | undefined)?.teamId === config.playerTeamId) teamEvent = cause
                 }
                 mark(e => freshByPlayer.get(e.subjectId) ?? teamEvent ?? { type: "event", label: "Week events" })
+
+                // Phase 5.2 dressing room (morale v2): playing time, wage
+                // fairness, promises, transfer requests. Each driver marks its
+                // own cause ("Benched 3 matches", "Promise kept: started").
+                processDressingRoom(save, config.playerTeamId, mark)
                 perfTrace.step("step.8_events", __s)
                 await this.saveManager.markStepComplete(transaction, "eventGenerationComplete")
             }
@@ -1041,8 +1051,13 @@ export class AtomicWeekProcessor {
             const awayStaff = idx?.staffByTeamId.get(awayTeam.id) ?? save.staff.filter(s => s.teamId === awayTeam.id)
             const homeMoraleDampen = psychologistMoraleDampen(homeStaff)
             const awayMoraleDampen = psychologistMoraleDampen(awayStaff)
+            // Phase 5.2: the captain, when he plays, spares his lineup part of
+            // a defeat's morale; each player's archetype scales his swing.
+            const lookupPlayer = (id: string) => idx?.playerIndex.get(id) ?? save.players.find(p => p.id === id)
+            const homeShield = lineupDefeatShield(homeTeam, homePlayers.map(p => p.id), lookupPlayer)
+            const awayShield = lineupDefeatShield(awayTeam, awayPlayers.map(p => p.id), lookupPlayer)
 
-            const updateStats = (players: typeof save.players, won: boolean, moraleLossDampen: number) => {
+            const updateStats = (players: typeof save.players, won: boolean, moraleLossDampen: number, shield: number) => {
                 players.forEach(p => {
                     const pStat = result.playerStats[p.id]
                     p.matchesPlayed++
@@ -1059,7 +1074,7 @@ export class AtomicWeekProcessor {
 
                     let moraleDelta = getMoraleChange(won) * derbyStakes
                     if (moraleDelta < 0) moraleDelta *= (1 - moraleLossDampen)
-                    p.morale = applyMoraleResult(p.morale, moraleDelta)
+                    p.morale = applyMoraleResult(p.morale, playerResultMorale(p, moraleDelta, shield))
                     p.form = applyFormResult(p.form, won)
 
                     // Phase 6: Skill Point Progression
@@ -1072,8 +1087,13 @@ export class AtomicWeekProcessor {
                 })
             }
 
-            updateStats(homePlayers, homeWon, homeMoraleDampen)
-            updateStats(awayPlayers, !homeWon, awayMoraleDampen)
+            updateStats(homePlayers, homeWon, homeMoraleDampen, homeShield)
+            updateStats(awayPlayers, !homeWon, awayMoraleDampen, awayShield)
+            // Phase 5.2: official appearances (starters / fit players left out).
+            if (isOfficialMatch(match)) {
+                recordAppearances(homeTeam, homePlayers.map(p => p.id), lookupPlayer)
+                recordAppearances(awayTeam, awayPlayers.map(p => p.id), lookupPlayer)
+            }
 
             this.applyMatchSponsorGoalProgress(save, homeTeam, homeWon, result.homeScore, match.id, eventIdSet, ledgerIdSet)
             this.applyMatchSponsorGoalProgress(save, awayTeam, !homeWon, result.awayScore, match.id, eventIdSet, ledgerIdSet)

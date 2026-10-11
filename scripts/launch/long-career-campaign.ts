@@ -470,6 +470,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     const season = newSeasonTracker(snap())
     const aiEconomy = newAIEconomyTracker(snap(), teamId)
     const rankings = newRankingTracker(snap(), teamId)
+    const dressing = newDressingTracker()
     const startRank = playerTeam().worldRanking ?? null
     // --record-results: every official result and a periodic club snapshot
     // (tmp/ only), for replaying rating models offline (Phase 4.8).
@@ -542,6 +543,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         trackSeasonWeek(season, s, teamId)
         trackAIEconomyWeek(aiEconomy, s, teamId, project)
         trackRankingWeek(rankings, s, teamId)
+        trackDressingWeek(dressing, s, teamId)
         if (recordResults) {
             const tiers = new Map(s.tournaments.map(t => [t.id, t.tier]))
             const rows: string[] = []
@@ -564,7 +566,8 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
             wages: wageBillOf(s, t.id, t.rosterIds), staff: t.staffIds.length, spons: (t.sponsors || []).map(x => `${x.tier[0]}${Math.round(x.weeklyPayout)}`).join(','), adm: t.administrations ?? 0, st: t.financialState,
         })).join('\n') + '\n')
         if (get().gameOverReason && recoverFromDismissal()) { lastIds = new Set(get().eventsLog.map(e => e.id)) }
-        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push({ ...seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id), structure: seasonStructureMetrics(season, s, teamId), aiEconomy: aiEconomyMetrics(aiEconomy, s), rankings: rankingMetrics(rankings, s, teamId, strengthOf) })
+        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push({ ...seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id), structure: seasonStructureMetrics(season, s, teamId), aiEconomy: aiEconomyMetrics(aiEconomy, s), rankings: rankingMetrics(rankings, s, teamId, strengthOf), dressingRoom: dressingMetrics(dressing, s, teamId) })
+        if (ticks % 52 === 0) resetDressingTracker(dressing)
         if (ticks % 52 === 0) { Object.assign(seasonOpen, openState(s, playerTeam().budget)); income.clear(); resetSeasonTracker(season, s); resetAIEconomyTracker(aiEconomy, s, teamId); resetRankingTracker(rankings, s, teamId) }
         if (ticks % 26 === 0) process.stdout.write(`${tag} tick ${ticks} week ${s.currentWeek} cash ${Math.round(playerTeam().budget)} failures ${failures.length} avgMs ${Math.round(tickMs.slice(-26).reduce((a, b) => a + b, 0) / 26)}\n`)
     }
@@ -663,6 +666,116 @@ export function seasonStructureMetrics(t: SeasonTracker, s: GameSave, teamId: st
             weeklyNet: team?.weeklyNet ?? null, runwayWeeks: team?.runwayWeeks ?? null, stateWeeks: t.managedStates,
             board: { start: t.board[0] ?? null, min: t.board.length ? Math.min(...t.board) : null, end: t.board.at(-1) ?? null, onNotice: !!board?.onNotice, warnings: board?.warnings ?? null, review: review?.title ?? null, objectives: board?.objectives ?? null },
         },
+    }
+}
+
+// ---------------------------------------------------------------- dressing room (Phase 5.2)
+/**
+ * Personalities and morale v2 (read-only; a save without personalities
+ * reports archetype NONE). Transfer requests are counted once by event id in
+ * the season they arrived; promises by their kept/broken notices.
+ */
+export interface DressingTracker {
+    requests: Map<string, { week: number; choice: string | null }>
+    promises: Map<string, { week: number; kept: boolean }>
+    rosterMorale: number[]
+    unhappyPlayerWeeks: number
+    seasonStartWeek: number | null
+}
+
+type PersonalityLike = { archetype?: string; promise?: { kind?: string } }
+const personalityOf = (p: PlayerSaveData): PersonalityLike | undefined => (p as unknown as { personality?: PersonalityLike }).personality
+
+export function newDressingTracker(): DressingTracker {
+    return { requests: new Map(), promises: new Map(), rosterMorale: [], unhappyPlayerWeeks: 0, seasonStartWeek: null }
+}
+
+export function resetDressingTracker(t: DressingTracker): void {
+    t.rosterMorale = []; t.unhappyPlayerWeeks = 0; t.seasonStartWeek = null
+}
+
+export function trackDressingWeek(t: DressingTracker, s: GameSave, teamId: string): void {
+    t.seasonStartWeek ??= s.currentWeek
+    for (const e of s.eventsLog) {
+        if (e.id.startsWith('transfer_request_')) {
+            const row = t.requests.get(e.id)
+            if (!row) t.requests.set(e.id, { week: e.week, choice: e.selectedChoiceId ?? null })
+            else if (e.selectedChoiceId) row.choice = e.selectedChoiceId
+        } else if ((e.id.startsWith('promise_kept_') || e.id.startsWith('promise_broken_')) && !t.promises.has(e.id)) {
+            t.promises.set(e.id, { week: e.week, kept: e.id.startsWith('promise_kept_') })
+        }
+    }
+    const byId = new Map(s.players.map(p => [p.id, p]))
+    const roster = (s.teams.find(x => x.id === teamId)?.rosterIds ?? []).map(id => byId.get(id)).filter((p): p is PlayerSaveData => !!p)
+    if (roster.length) t.rosterMorale.push(avgOf(roster.map(p => p.morale)))
+    t.unhappyPlayerWeeks += roster.filter(p => p.morale < 40).length
+}
+
+export function dressingMetrics(t: DressingTracker, s: GameSave, teamId: string) {
+    const from = t.seasonStartWeek ?? s.currentWeek - 51
+    const requests = [...t.requests.values()].filter(r => r.week >= from)
+    const promises = [...t.promises.values()].filter(r => r.week >= from)
+    const active = s.players.filter(p => !p.isRetired)
+    const rostered = new Set(s.teams.flatMap(x => x.rosterIds))
+    const archetypes: Record<string, number> = {}
+    const traits: Record<string, number> = {}
+    for (const p of active) {
+        const a = personalityOf(p)?.archetype ?? 'NONE'
+        archetypes[a] = (archetypes[a] ?? 0) + 1
+        for (const tr of p.traits ?? []) traits[tr] = (traits[tr] ?? 0) + 1
+    }
+    const team = s.teams.find(x => x.id === teamId) as (GameSave['teams'][number] & { dressingRoom?: { captainId?: string; mentorships?: unknown[] } }) | undefined
+    const aiMorale = active.filter(p => rostered.has(p.id) && !team?.rosterIds.includes(p.id)).map(p => p.morale)
+    return {
+        transferRequests: requests.length,
+        requestChoices: requests.reduce((m: Record<string, number>, r) => { const k = r.choice ?? 'open'; m[k] = (m[k] ?? 0) + 1; return m }, {}),
+        promisesKept: promises.filter(p => p.kept).length,
+        promisesBroken: promises.filter(p => !p.kept).length,
+        managedRosterMorale: distribution(t.rosterMorale),
+        managedUnhappyPlayerWeeks: t.unhappyPlayerWeeks,
+        aiRosteredMorale: distribution(aiMorale),
+        archetypes,
+        traitShare: active.length ? active.filter(p => (p.traits?.length ?? 0) > 0).length / active.length : 0,
+        traits,
+        captainId: team?.dressingRoom?.captainId ?? null,
+        mentorships: team?.dressingRoom?.mentorships?.length ?? 0,
+    }
+}
+
+/** Phase 5.2 summary: transfer requests per managed club and season, promises, morale. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function dressingRoomSummary(results: any[], seasonsAll: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ss = seasonsAll.filter((s: any) => s.dressingRoom)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sum = (fn: (s: any) => number) => ss.reduce((n: number, s: any) => n + fn(s), 0)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const last = results.map(r => r.seasons.at(-1)?.dressingRoom).filter(Boolean) as any[]
+    const archetypes: Record<string, number> = {}
+    for (const d of last) for (const [k, v] of Object.entries(d.archetypes as Record<string, number>)) archetypes[k] = (archetypes[k] ?? 0) + v
+    return {
+        seasons: ss.length,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        transferRequestsPerClubSeason: distribution(ss.map((s: any) => s.dressingRoom.transferRequests)),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        transferRequestsMaxPerClubSeason: Math.max(0, ...ss.map((s: any) => s.dressingRoom.transferRequests)),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        transferRequestsTotal: sum((s: any) => s.dressingRoom.transferRequests),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        requestChoices: ss.reduce((m: Record<string, number>, s: any) => { for (const [k, v] of Object.entries(s.dressingRoom.requestChoices as Record<string, number>)) m[k] = (m[k] ?? 0) + v; return m }, {}),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        promisesKept: sum((s: any) => s.dressingRoom.promisesKept), promisesBroken: sum((s: any) => s.dressingRoom.promisesBroken),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        managedRosterMoraleMedian: distribution(ss.map((s: any) => s.dressingRoom.managedRosterMorale.median)),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        managedUnhappyPlayerWeeks: distribution(ss.map((s: any) => s.dressingRoom.managedUnhappyPlayerWeeks)),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        aiRosteredMoraleMedian: distribution(ss.map((s: any) => s.dressingRoom.aiRosteredMorale.median)),
+        archetypesFinal: archetypes,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        traitShareFinal: distribution(last.map((d: any) => d.traitShare)),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        aiAdministrationsCareer: results.map((r: any) => r.aiAdministrationsCareer?.total ?? null),
     }
 }
 
@@ -1281,6 +1394,8 @@ function aggregate() {
     ;(summary as any).aiEconomy = aiEconomySummary(results, seasonsAll)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(summary as any).rankings = rankingSummary(results, seasonsAll)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(summary as any).dressingRoom = dressingRoomSummary(results, seasonsAll)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(summary as any).sponsorToWageRatio = distribution(seasonsAll.map((s: any) => (s.managed.ledger['INCOME:SPONSOR'] ?? 0) / Math.max(1, (s.managed.ledger['EXPENSE:WAGES_PLAYER'] ?? 0) + (s.managed.ledger['EXPENSE:WAGES_STAFF'] ?? 0))))
     summary.managedIncomeByCategory = Object.fromEntries(Object.entries(summary.managedIncomeByCategory).map(([k, v]) => [k, distribution(v) as unknown as number[]]))

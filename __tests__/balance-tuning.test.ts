@@ -316,7 +316,8 @@ describe('balance pass 2', () => {
         const run = async (managedConfig: boolean) => {
             const save = createLaunchFixture('first-week', 42001)
             save.scheduledMatches = []
-            for (const p of save.players) Object.assign(p, { rifle: 40, potential: 80, productivity: 80 })
+            // One archetype for everyone (Phase 5.2 training modifiers aside), so only the regimen differs.
+            for (const p of save.players) Object.assign(p, { rifle: 40, potential: 80, productivity: 80, personality: { archetype: "QUIET" } })
             const processor = new AtomicWeekProcessor(new SaveManager(new FixtureStorage()))
             const focus = new Map(managedConfig ? [[save.playerTeamId!, { focus: TrainingFocus.AIM, intensity: AI_SQUAD_TUNING.TRAINING_INTENSITY }]] : [])
             expect((await processor.processWeek(save, { playerTeamId: save.playerTeamId!, trainingFocus: focus }, new SeededRNG(5))).success).toBe(true)

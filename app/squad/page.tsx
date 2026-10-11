@@ -17,6 +17,10 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
+import { DressingRoomPanel } from "@/components/squad/DressingRoomPanel"
+import { PersonalityChips } from "@/components/player/PersonalityChips"
+import { captainId } from "@/engine/personality"
+import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { AlertCircle, ArrowRightLeft, ArrowUpRight, Users, Plus, Star, CheckCircle2, Activity } from "lucide-react"
 import dynamic from "next/dynamic"
 const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix"), { ssr: false })
@@ -41,8 +45,10 @@ function contractTone(weeksLeft: number): string {
 
 type RosterRowProps = {
   player: any
+  teamId: string
   index: number
   slot: number
+  isCaptain: boolean
   isBench: boolean
   isSelected: boolean
   isSwapTarget: boolean
@@ -58,9 +64,11 @@ type RosterRowProps = {
 
 // Module-level + memoized so a row only re-renders when its own props change.
 const RosterRow = memo(function RosterRow({
-  player, index, slot, isBench, isSelected, isSwapTarget, weeksLeft, salary, swapIdle,
+  player, teamId, index, slot, isCaptain, isBench, isSelected, isSwapTarget, weeksLeft, salary, swapIdle,
   onOpen, onSwapInitiate, onSwapExecute, onSwapCancel, onTreatInjury,
 }: RosterRowProps) {
+  const apps = player.personality?.apps
+  const sittingOut = apps?.teamId === teamId && apps.regular && apps.benched >= PERSONALITY_TUNING.BENCH_MATCHES && !player.injury ? apps.benched as number : 0
   const activate = () => {
     if (isSwapTarget) onSwapExecute(index)
     else if (swapIdle) onOpen(player.id)
@@ -92,6 +100,14 @@ const RosterRow = memo(function RosterRow({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{player.nickname}</span>
+              {isCaptain && (
+                <span title="Captain: when he plays, defeats cost the lineup less morale" aria-label="Captain" className="inline-flex h-4 w-4 items-center justify-center rounded-sm border border-gold/60 text-[10px] font-bold leading-none text-gold">C</span>
+              )}
+              {sittingOut > 0 && (
+                <span title={`Regular starter left out of ${sittingOut} official matches: loses morale each week until he plays`} className="rounded-sm bg-caution/15 px-1.5 py-0.5 text-[11px] font-semibold text-caution">
+                  Benched {sittingOut}
+                </span>
+              )}
               {player.injury && (
                 <span className="inline-flex items-center gap-1 rounded-sm bg-negative/15 px-1.5 py-0.5 text-[11px] font-semibold text-negative">
                   <Activity size={11} /> Injured · {player.injury.weeksRemaining}w
@@ -107,6 +123,7 @@ const RosterRow = memo(function RosterRow({
         </div>
       </td>
       <td className="px-3"><RoleTag role={player.role} /></td>
+      <td className="px-3"><PersonalityChips player={player} /></td>
       <td className="px-3 text-center"><RatingChip value={player.evaluation.overallRating} /></td>
       <td className="px-3 text-center text-sm tabular-nums text-ink-2">{player.age}</td>
       <td className="px-3"><Meter value={player.morale} label="Morale" /></td>
@@ -147,7 +164,7 @@ const RosterRow = memo(function RosterRow({
 function SectionRow({ label, hint }: { label: string; hint?: ReactNode }) {
   return (
     <tr className="border-b border-line bg-shell">
-      <td colSpan={11} className="px-4 py-2">
+      <td colSpan={12} className="px-4 py-2">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{label}</span>
           {hint}
@@ -230,6 +247,7 @@ function SquadPageInner() {
 
   const activeRoster = roster.slice(0, 5)
   const benchRoster = roster.slice(5)
+  const captain = captainId(teamData, id => playerById.get(id))
   const teamOvr = activeRoster.length > 0 ? Math.round(activeRoster.reduce((sum, p) => sum + p.evaluation.overallRating, 0) / activeRoster.length) : 0
   const avgAge = activeRoster.length > 0 ? (activeRoster.reduce((sum, p) => sum + (p.age || 0), 0) / activeRoster.length).toFixed(1) : "—"
   const wageBill = roster.reduce((sum, p) => sum + (contractByPlayerId.get(p.id)?.salaryPerWeek ?? 0), 0)
@@ -247,6 +265,8 @@ function SquadPageInner() {
         player={player}
         index={idx}
         slot={slot}
+        teamId={teamData.id}
+        isCaptain={player.id === captain}
         isBench={isBench}
         isSelected={isSelected}
         isSwapTarget={isSwapTarget}
@@ -287,12 +307,13 @@ function SquadPageInner() {
         <div className="min-w-0 space-y-4">
           <Panel padded={false} className="overflow-hidden">
             <div className="overflow-x-auto">
-              <table data-slot="table" className="w-full min-w-[980px] border-collapse text-left">
+              <table data-slot="table" className="w-full min-w-[1120px] border-collapse text-left">
                 <thead data-slot="table-header">
                   <tr className="border-b border-line">
                     <th data-slot="table-head" className="pl-4">#</th>
                     <th data-slot="table-head">Player</th>
                     <th data-slot="table-head" className="px-3">Role</th>
+                    <th data-slot="table-head" className="px-3">Personality</th>
                     <th data-slot="table-head" className="px-3 text-center">OVR</th>
                     <th data-slot="table-head" className="px-3 text-center">Age</th>
                     <th data-slot="table-head" className="px-3">Morale</th>
@@ -313,14 +334,14 @@ function SquadPageInner() {
                   {activeRoster.length > 0
                     ? activeRoster.map((p, i) => renderRow(p, i + 1, false))
                     : (
-                      <tr><td colSpan={11} className="p-6">
+                      <tr><td colSpan={12} className="p-6">
                         <EmptyState icon={Users} title="No active players" description="Sign free agents to build your starting lineup" action={{ label: "Browse transfers", href: "/transfers" }} />
                       </td></tr>
                     )}
                   <SectionRow label="Bench" hint={<span className="text-xs text-ink-3">{benchRoster.length}</span>} />
                   {benchRoster.length > 0
                     ? benchRoster.map((p, i) => renderRow(p, i + 6, true))
-                    : <tr><td colSpan={11} className="px-4 py-5 text-sm text-ink-3">Bench is empty. Sign a sixth player to cover injuries.</td></tr>}
+                    : <tr><td colSpan={12} className="px-4 py-5 text-sm text-ink-3">Bench is empty. Sign a sixth player to cover injuries.</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -330,6 +351,8 @@ function SquadPageInner() {
         </div>
 
         <aside className="min-w-0 space-y-4">
+          <DressingRoomPanel team={teamData} />
+
           <Panel title="Chemistry" padded={false} bodyClassName="p-2">
             <ChemistryMatrix players={activeRoster as any} synergyMatrix={teamData.synergyMatrix} teamChemistry={teamData.chemistry} />
           </Panel>

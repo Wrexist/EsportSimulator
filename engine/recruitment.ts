@@ -2,6 +2,7 @@ import type { GameSave, PlayerSaveData, StaffSaveData, TeamSaveData } from "./sa
 import { evaluatePlayer } from "./player-evaluation"
 import { EconomyEngine } from "./economy-engine"
 import { FREE_AGENT_TUNING } from "@/lib/balance-tuning"
+import { archetypeWageFactor, getArchetype } from "./personality"
 
 export function recruitmentRole(role?: string): string {
     const key = (role || "RIFLER").toUpperCase()
@@ -39,12 +40,15 @@ export function buyerReputationFactor(buyer?: Pick<TeamSaveData, "reputation">):
 
 /**
  * Opening wage expectation, shared by human and AI negotiations. Decays the
- * longer a free agent stays unsigned and scales with the buyer's reputation
- * when the buyer is known.
+ * longer a free agent stays unsigned, scales with the buyer's reputation
+ * when the buyer is known, and with his archetype (Phase 5.2: Loyal asks
+ * less, Mercenary more, Ambitious a premium to join a club far below his level).
  */
-export function recruitmentSalary(player: PlayerSaveData, currentWeek: number, buyer?: Pick<TeamSaveData, "reputation">): number {
-    const base = evaluatePlayer(player, undefined, undefined, currentWeek).transferValue / 100
-    return Math.max(MIN_ASKING_WAGE, Math.round(base * freeAgentWageFactor(player, currentWeek) * buyerReputationFactor(buyer)))
+export function recruitmentSalary(player: PlayerSaveData, currentWeek: number, buyer?: Pick<TeamSaveData, "reputation"> & Partial<Pick<TeamSaveData, "leagueTier">>): number {
+    const evaluation = evaluatePlayer(player, undefined, undefined, currentWeek)
+    const base = evaluation.transferValue / 100
+    const personality = archetypeWageFactor(getArchetype(player), evaluation.overallRating, buyer)
+    return Math.max(MIN_ASKING_WAGE, Math.round(base * freeAgentWageFactor(player, currentWeek) * buyerReputationFactor(buyer) * personality))
 }
 
 export function employedScout(staff: StaffSaveData[], team: TeamSaveData | undefined, week: number): StaffSaveData | undefined {
