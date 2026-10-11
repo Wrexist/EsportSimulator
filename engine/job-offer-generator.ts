@@ -390,9 +390,11 @@ export class JobOfferGenerator {
         save.managerDetails.lastJobChangeWeek = save.currentWeek
         save.managerDetails.tenureStartWeek = save.currentWeek + 1
         if (afterDismissal) {
-            // A fresh start: the career continues at the new club.
-            delete save.gameOverReason
-            delete save.gameOverWeek
+            // A fresh start: the career continues at the new club. Assigned,
+            // not deleted: the store merges the produced state, so a deleted
+            // key would keep its old value there.
+            save.gameOverReason = undefined
+            save.gameOverWeek = undefined
             save.managerDetails.dismissals = (save.managerDetails.dismissals ?? 0) + 1
         }
         ensureBoardState(save)
