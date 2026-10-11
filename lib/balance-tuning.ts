@@ -732,4 +732,6 @@ export const STORY_TUNING = {
     PRESS_STAR_RATING: 1.1,
     /** League decider: this many league rounds or fewer left for the club. */
     PRESS_DECIDER_ROUNDS: 2,
+    /** Weeks between press conferences, finals excepted (a top club met a top-10 side most weeks: 27 a season). */
+    PRESS_MIN_WEEKS_BETWEEN: 4,
 } as const

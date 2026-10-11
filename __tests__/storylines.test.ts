@@ -481,6 +481,20 @@ describe("press conferences", () => {
         expect(bigMatchReason(save, group, "us")?.reason).toBe("TOP10")
     })
 
+    test("a derby or top-10 clash waits PRESS_MIN_WEEKS_BETWEEN weeks after the last press conference; a final never waits", () => {
+        const save = finalWeek()
+        save.eventsLog.push({ id: "press_m_old", type: "PRESS", week: 8, data: {}, acknowledged: true } as unknown as GameSave["eventsLog"][number])
+        expect(createPressConference(save)?.data).toBeDefined()
+        const derby = finalWeek()
+        derby.scheduledMatches[0] = { ...derby.scheduledMatches[0], stage: "Semi-final" }
+        T_(derby, "us").rivalries = [{ opponentTeamId: "them", matchesPlayed: 3, wins: 2, losses: 1, lastPlayed: 8, intensity: "NEUTRAL" }]
+        derby.eventsLog.push({ id: "press_m_old", type: "PRESS", week: 8, data: {}, acknowledged: true } as unknown as GameSave["eventsLog"][number])
+        expect(createPressConference(derby)).toBeNull()
+        derby.eventsLog = derby.eventsLog.filter(e => e.id !== "press_m_old")
+        derby.eventsLog.push({ id: "press_m_old", type: "PRESS", week: 10 - S.PRESS_MIN_WEEKS_BETWEEN, data: {}, acknowledged: true } as unknown as GameSave["eventsLog"][number])
+        expect(createPressConference(derby)).not.toBeNull()
+    })
+
     test("one press conference per match week, 2-3 questions, default 'send no one' with no effect", () => {
         const save = finalWeek()
         const e = createPressConference(save)!

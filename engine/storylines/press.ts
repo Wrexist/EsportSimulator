@@ -284,9 +284,11 @@ export function createPressConference(save: GameSave): GameEventSaveData | null 
     const fixtures = save.scheduledMatches
         .filter(m => m.week === week && (m.homeTeamId === team.id || m.awayTeamId === team.id) && official(m) && !done.has(m.id))
         .sort((a, b) => (a.day ?? 6) - (b.day ?? 6) || a.id.localeCompare(b.id))
+    const lastPress = save.eventsLog.reduce((w, e) => e.id.startsWith(PRESS_PREFIX) ? Math.max(w, e.week) : w, -Infinity)
     for (const match of fixtures) {
         const big = bigMatchReason(save, match, team.id)
         if (!big) continue
+        if (big.reason !== "FINAL" && week - lastPress < S.PRESS_MIN_WEEKS_BETWEEN) continue
         const opp = save.teams.find(t => t.id === (match.homeTeamId === team.id ? match.awayTeamId : match.homeTeamId))!
         const questions: PressQuestion[] = [matchQuestion(save, team, opp, match, big)]
         const second = storyQuestion(save, team, save.storylines ?? []) ?? playerQuestion(save, team)
