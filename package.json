@@ -191,6 +191,7 @@
       "!public/Live match.jpg",
       "!public/assets/Assets.txt",
       "!public/assets/Thecore",
+      "!public/map-studio/**/*",
       ".next/**/*",
       "!.next/cache/**/*",
       "node_modules/**/*",
