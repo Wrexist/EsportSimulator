@@ -411,6 +411,10 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     const seasonOpen = openState(snap(), playerTeam().budget)
 
     const income = new Map<string, number>()
+    // Season structure: official matches per club are counted as they
+    // complete, because the completed-match log is capped and a season-end
+    // scan would undercount busy seasons.
+    const season = newSeasonTracker(snap())
     while (ticks < weeks && !get().gameOverReason) {
         // Mid-campaign save → load round trip through SaveManager + store.loadGame.
         if (ticks === roundTripAt) {
@@ -470,8 +474,9 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         const active = s.players.filter(p => !p.isRetired).length
         if (active < openingActive * BOUNDS.supplyMinRatio || active > openingActive * BOUNDS.supplyMaxRatio) record([{ kind: 'player-supply', week: s.currentWeek, detail: `${active} active vs ${openingActive} at start` }], () => s)
         if (structural.length === 0) lastGood = structuredClone(s)
-        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push(seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id))
-        if (ticks % 52 === 0) { Object.assign(seasonOpen, openState(s, playerTeam().budget)); income.clear() }
+        trackSeasonWeek(season, s, teamId)
+        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push({ ...seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id), structure: seasonStructureMetrics(season, s, teamId) })
+        if (ticks % 52 === 0) { Object.assign(seasonOpen, openState(s, playerTeam().budget)); income.clear(); resetSeasonTracker(season, s) }
         if (ticks % 26 === 0) process.stdout.write(`${tag} tick ${ticks} week ${s.currentWeek} cash ${Math.round(playerTeam().budget)} failures ${failures.length} avgMs ${Math.round(tickMs.slice(-26).reduce((a, b) => a + b, 0) / 26)}\n`)
     }
     const final = snap()
@@ -484,6 +489,83 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     fs.writeFileSync(path.join(outDir, `${tag}.json`), JSON.stringify(result, null, 2))
     if (failures.length) fs.writeFileSync(path.join(outDir, 'failures', `${tag}-final.json.gz`), zlib.gzipSync(JSON.stringify(final)))
     process.stdout.write(`${tag} done ticks ${ticks} terminal ${result.terminal} failures ${failures.length} kinds ${result.failureKinds.join(',')}\n`)
+}
+
+// ---------------------------------------------------------------- season structure
+/**
+ * Per-season accumulators for the season-structure, money and board metrics
+ * (Phase 4.4). Official = any match with a tournament or league id other
+ * than SCRIM (friendlies and scrims are excluded).
+ */
+export interface SeasonTracker {
+    seenIds: Set<string>
+    clubMatches: Map<string, number>
+    tierAtStart: Map<string, string>
+    budgetAtStart: Map<string, number>
+    managedCash: number[]
+    managedStates: Record<string, number>
+    board: number[]
+    aiInsolventWeeks: number
+}
+
+export function newSeasonTracker(s: GameSave): SeasonTracker {
+    const t: SeasonTracker = { seenIds: new Set(s.completedMatches.map(m => m.id)), clubMatches: new Map(), tierAtStart: new Map(), budgetAtStart: new Map(), managedCash: [], managedStates: {}, board: [], aiInsolventWeeks: 0 }
+    resetSeasonTracker(t, s)
+    return t
+}
+
+export function resetSeasonTracker(t: SeasonTracker, s: GameSave): void {
+    t.clubMatches.clear(); t.tierAtStart.clear(); t.budgetAtStart.clear()
+    t.managedCash = []; t.managedStates = {}; t.board = []; t.aiInsolventWeeks = 0
+    for (const team of s.teams) { t.tierAtStart.set(team.id, team.leagueTier ?? 'NONE'); t.budgetAtStart.set(team.id, team.budget) }
+}
+
+export function trackSeasonWeek(t: SeasonTracker, s: GameSave, teamId: string): void {
+    const now = new Set<string>()
+    for (const m of s.completedMatches) {
+        now.add(m.id)
+        if (t.seenIds.has(m.id) || !m.tournamentId || m.tournamentId === 'SCRIM') continue
+        for (const id of [m.homeTeamId, m.awayTeamId]) t.clubMatches.set(id, (t.clubMatches.get(id) ?? 0) + 1)
+    }
+    t.seenIds = now
+    const team = s.teams.find(x => x.id === teamId)
+    if (team) {
+        t.managedCash.push(Math.round(team.budget))
+        const state = team.financialState ?? 'UNKNOWN'
+        t.managedStates[state] = (t.managedStates[state] ?? 0) + 1
+    }
+    if (s.boardState && s.boardState.teamId === teamId) t.board.push(Math.round(s.boardState.confidence))
+    t.aiInsolventWeeks += s.teams.filter(x => x.id !== teamId && x.financialState === 'INSOLVENT').length
+}
+
+export function seasonStructureMetrics(t: SeasonTracker, s: GameSave, teamId: string) {
+    const ai = s.teams.filter(x => x.id !== teamId)
+    const group = <T>(rows: T[], key: (r: T) => string) => rows.reduce((m: Record<string, T[]>, r) => { (m[key(r)] ??= []).push(r); return m }, {})
+    const byTier = group(ai, x => t.tierAtStart.get(x.id) ?? x.leagueTier ?? 'NONE')
+    const byRegion = group(ai, x => x.region ?? 'NONE')
+    const matchesOf = (x: { id: string }) => t.clubMatches.get(x.id) ?? 0
+    const counts = ai.map(matchesOf)
+    const team = s.teams.find(x => x.id === teamId)
+    const board = s.boardState as (GameSave['boardState'] & Record<string, unknown>) | undefined
+    const review = (s.newsFeed || []).find(n => n.id.startsWith(`board_review_s${Math.floor((s.currentWeek - 1) / 52) + 1}_`))
+    return {
+        clubMatches: distribution(counts),
+        clubMatchesByTier: Object.fromEntries(Object.entries(byTier).map(([k, v]) => [k, distribution(v.map(matchesOf))])),
+        clubMatchesByRegion: Object.fromEntries(Object.entries(byRegion).map(([k, v]) => [k, distribution(v.map(matchesOf))])),
+        clubsBelow20: counts.filter(n => n < 20).length, clubsBelow30: counts.filter(n => n < 30).length, clubsAbove45: counts.filter(n => n > 45).length,
+        managedMatches: t.clubMatches.get(teamId) ?? 0,
+        aiBudgetByTier: Object.fromEntries(Object.entries(byTier).map(([k, v]) => [k, distribution(v.map(x => x.budget))])),
+        aiCashDeltaByTier: Object.fromEntries(Object.entries(byTier).map(([k, v]) => [k, distribution(v.map(x => x.budget - (t.budgetAtStart.get(x.id) ?? x.budget)))])),
+        aiWeeklyNetByTier: Object.fromEntries(Object.entries(byTier).map(([k, v]) => [k, distribution(v.map(x => x.weeklyNet ?? NaN))])),
+        aiNegative: ai.filter(x => x.budget < 0).length,
+        aiFinancialStates: ai.reduce((m: Record<string, number>, x) => { const k = x.financialState ?? 'UNKNOWN'; m[k] = (m[k] ?? 0) + 1; return m }, {}),
+        aiInsolventClubWeeks: t.aiInsolventWeeks,
+        managed: {
+            tier: t.tierAtStart.get(teamId), cashStart: t.managedCash[0] ?? null, cashMin: t.managedCash.length ? Math.min(...t.managedCash) : null, cashEnd: team ? Math.round(team.budget) : null,
+            weeklyNet: team?.weeklyNet ?? null, runwayWeeks: team?.runwayWeeks ?? null, stateWeeks: t.managedStates,
+            board: { start: t.board[0] ?? null, min: t.board.length ? Math.min(...t.board) : null, end: t.board.at(-1) ?? null, onNotice: !!board?.onNotice, warnings: board?.warnings ?? null, review: review?.title ?? null, objectives: board?.objectives ?? null },
+        },
+    }
 }
 
 /** Season-open reference for flow metrics (GC removes retired players at season end, so count by id). */
@@ -571,6 +653,44 @@ export function targetMetrics(results: any[]) {
     }
 }
 
+/** Phase 4.4 summary: fixtures per club, money by tier, board outcomes, failure states. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function seasonStructureSummary(results: any[], seasonsAll: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ss = seasonsAll.filter((s: any) => s.structure)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pick = (fn: (s: any) => number) => distribution(ss.map(fn))
+    const leagueTiers = ['S_TIER', 'A_TIER', 'B_TIER', 'C_TIER']
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const maxSeasons = Math.max(0, ...results.map((r: any) => r.seasons.length))
+    return {
+        aiClubMatches: { min: pick(s => s.structure.clubMatches.min), p10: pick(s => s.structure.clubMatches.p10), median: pick(s => s.structure.clubMatches.median), p90: pick(s => s.structure.clubMatches.p90), max: pick(s => s.structure.clubMatches.max) },
+        aiClubMatchesMedianByLeagueTier: Object.fromEntries(leagueTiers.map(t => [t, pick(s => s.structure.clubMatchesByTier[t]?.median ?? NaN)])),
+        aiClubMatchesMinByLeagueTier: Object.fromEntries(leagueTiers.map(t => [t, pick(s => s.structure.clubMatchesByTier[t]?.min ?? NaN)])),
+        clubsBelow20: pick(s => s.structure.clubsBelow20), clubsBelow30: pick(s => s.structure.clubsBelow30), clubsAbove45: pick(s => s.structure.clubsAbove45),
+        managedMatchesByTier: Object.fromEntries(TIERS.map(t => [t, distribution(ss.filter(s => s.tier === t).map(s => s.structure.managedMatches))])),
+        managedCashEndBySeason: Object.fromEntries(TIERS.map(t => [t, Array.from({ length: maxSeasons }, (_, i) => distribution(ss.filter(s => s.tier === t && s.index === i + 1).map(s => s.structure.managed.cashEnd)).median)])),
+        managedCashMinBySeason: Object.fromEntries(TIERS.map(t => [t, Array.from({ length: maxSeasons }, (_, i) => distribution(ss.filter(s => s.tier === t && s.index === i + 1).map(s => s.structure.managed.cashMin)).median)])),
+        managedWeeklyNetEnd: Object.fromEntries(TIERS.map(t => [t, distribution(ss.filter(s => s.tier === t).map(s => s.structure.managed.weeklyNet ?? NaN))])),
+        aiBudgetMedianByLeagueTier: Object.fromEntries(leagueTiers.map(t => [t, pick(s => s.structure.aiBudgetByTier[t]?.median ?? NaN)])),
+        aiCashDeltaMedianByLeagueTier: Object.fromEntries(leagueTiers.map(t => [t, pick(s => s.structure.aiCashDeltaByTier[t]?.median ?? NaN)])),
+        aiNegative: pick(s => s.structure.aiNegative), aiInsolventClubWeeks: pick(s => s.structure.aiInsolventClubWeeks),
+        boardEndByTier: Object.fromEntries(TIERS.map(t => [t, distribution(ss.filter(s => s.tier === t).map(s => s.structure.managed.board.end ?? NaN))])),
+        boardMinByTier: Object.fromEntries(TIERS.map(t => [t, distribution(ss.filter(s => s.tier === t).map(s => s.structure.managed.board.min ?? NaN))])),
+        boardOnNoticeSeasons: ss.filter(s => s.structure.managed.board.onNotice).length,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        boardReviews: ss.reduce((m: Record<string, number>, s: any) => { const k = String(s.structure.managed.board.review ?? 'none').replace(/ (at|with|on|about) .*$/, ''); m[k] = (m[k] ?? 0) + 1; return m }, {}),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        terminal: results.reduce((m: Record<string, number>, r: any) => { const k = `${r.tier}:${r.terminal ?? 'none'}`; m[k] = (m[k] ?? 0) + 1; return m }, {}),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        sackings: results.reduce((n: number, r: any) => n + (r.policy?.sackings ?? 0) + (r.terminal === 'SACKED' ? 1 : 0), 0),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        jobChanges: results.reduce((n: number, r: any) => n + (r.jobChanges?.length ?? 0), 0),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tickMsMedian: distribution(results.map((r: any) => r.tickMs.median)),
+    }
+}
+
 function aggregate() {
     const files = fs.existsSync(outDir) ? fs.readdirSync(outDir).filter(f => /^seed-\d+-\w+\.json$/.test(f)) : []
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -651,6 +771,8 @@ function aggregate() {
         managedIncomeByCategory: seasonsAll.reduce((m: Record<string, number[]>, s: any) => { for (const [k, v] of Object.entries(s.managed.ledger)) (m[k] ??= []).push(v as number); return m }, {}),
         careers: results.map(r => ({ seed: r.seed, tier: r.tier, club: r.club, ticks: r.ticks, terminal: r.terminal, failureKinds: r.failureKinds, finalCash: lastSeason(r)?.managed.cash, policy: r.policy, roundTripIdentical: r.roundTrip?.identical ?? null })),
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(summary as any).seasonStructure = seasonStructureSummary(results, seasonsAll)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(summary as any).sponsorToWageRatio = distribution(seasonsAll.map((s: any) => (s.managed.ledger['INCOME:SPONSOR'] ?? 0) / Math.max(1, (s.managed.ledger['EXPENSE:WAGES_PLAYER'] ?? 0) + (s.managed.ledger['EXPENSE:WAGES_STAFF'] ?? 0))))
     summary.managedIncomeByCategory = Object.fromEntries(Object.entries(summary.managedIncomeByCategory).map(([k, v]) => [k, distribution(v) as unknown as number[]]))
