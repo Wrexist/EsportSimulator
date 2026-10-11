@@ -78,8 +78,9 @@ import { JobOfferGenerator } from "./job-offer-generator"
 import { QualificationEngine, CircuitPointsManager } from "./tournament-qualification"
 import { LEGENDARY_PLAYERS } from "./legendary-players-data"
 import { buildAnnualAwards, shouldTriggerAwards, addProAwardsEvent } from "./pro-awards-engine"
-import { recordOfficialMatch, recordTierMove } from "./official-stats"
+import { honoursFor, recordOfficialMatch, recordTierMove } from "./official-stats"
 import { closeSeason } from "./season-honours"
+import { queueMoment, seasonReviewMoment } from "./moments"
 import { closeStint } from "./manager-timeline"
 import { buildQualificationGraph, isQualificationForTournament } from "./circuit-engine"
 import { ManagerProgression } from "./manager-progression"
@@ -448,6 +449,10 @@ export class AtomicWeekProcessor {
                     debugLog(`[Week ${save.currentWeek}] Closing season ${closing}: honours and Top 20...`)
                     const honours = closeSeason(save, closing)
                     if (honours) addProAwardsEvent(save, buildAnnualAwards(save, honours, config.playerTeamId))
+                    // Phase 5.4b: the season review opens the new season, once,
+                    // after any title or tier-move moment still waiting.
+                    const closed = honours ?? honoursFor(save, closing)
+                    if (closed) queueMoment(save, seasonReviewMoment(closing, save.currentWeek, closed.userClub?.teamId ?? config.playerTeamId))
                 }
 
                 const seasonEnd = LeagueEngine.isSeasonEnd(save.currentWeek)
