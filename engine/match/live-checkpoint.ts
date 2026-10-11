@@ -10,7 +10,14 @@ export interface LivePlaybackCheckpoint {
     /** Engine the match was started on; checkpoints written before script-v1 are legacy-v2 and stay so. */
     engine: EngineVersion
     events: MatchEvent[]
+    /**
+     * Round time played back so far: every event with `time <= processedTime`
+     * has been revealed. Checkpoints without `exactTime` counted whole
+     * seconds (`floor(time) <= processedTime`); restore converts them.
+     */
     processedTime: number
+    /** `processedTime` is exact round time (always set when written or restored now). */
+    exactTime?: true
     maps: string[]
     seed: number
     homeRoster: string[]
@@ -27,19 +34,31 @@ export function restoreLivePlayback(saved: ActiveMatchState): LivePlaybackCheckp
     const round = maps[saved.gameState.currentMapIndex]?.rounds?.find(r => r.roundNumber === saved.gameState.round)
     const events = existing?.events || round?.events || []
     if (existing && (!Number.isInteger(existing.seed) || existing.seed < 0 || existing.seed > 4294967295 || !Array.isArray(existing.maps) || !existing.maps.length || existing.maps.length > 5 || new Set(existing.maps).size !== existing.maps.length || existing.maps.some(m => !Object.values(MapId).includes(m as MapId)))) throw Error('Invalid replay map or seed identity')
-    const processedTime = existing?.processedTime ?? saved.gameState.time ?? -1
-    if (!Array.isArray(events) || events.length > 512 || events.some(e => !e || !['BUY','KILL','PLANT','DEFUSE','EXPLODE','ROUND_END','SAVE','CLUTCH'].includes(e.type) || !Number.isFinite(e.time) || e.time < 0 || e.time > 600) || !Number.isFinite(processedTime) || processedTime < -1 || processedTime > 600) throw Error('Invalid live event checkpoint')
+    const savedTime = existing?.processedTime ?? saved.gameState.time ?? -1
+    if (!Array.isArray(events) || events.length > 512 || events.some(e => !e || !['BUY','KILL','PLANT','DEFUSE','EXPLODE','ROUND_END','SAVE','CLUTCH'].includes(e.type) || !Number.isFinite(e.time) || e.time < 0 || e.time > 600) || !Number.isFinite(savedTime) || savedTime < -1 || savedTime > 600) throw Error('Invalid live event checkpoint')
     if (!saved.isWaitingForStrategy && saved.gameState.status === 'IN_PROGRESS' && !events.some(e => e.type === 'ROUND_END')) throw Error('This older checkpoint is missing its round events. Restore a pre-match recovery save; the round cannot be reconstructed safely.')
-    return { version: 1, engine: existing?.engine ?? LEGACY_MATCH_ENGINE, ...(existing?.saveId !== undefined ? { saveId: existing.saveId } : {}), events: events.map(e => ({ ...e })), processedTime, maps: existing?.maps || maps.map(m => m.map), seed: existing?.seed ?? 0, homeRoster: existing?.homeRoster || saved.homeRoster.map(p => p.id), awayRoster: existing?.awayRoster || saved.awayRoster.map(p => p.id) }
+    const processedTime = existing?.exactTime ? savedTime : exactProcessedTime(events, savedTime)
+    return { version: 1, engine: existing?.engine ?? LEGACY_MATCH_ENGINE, ...(existing?.saveId !== undefined ? { saveId: existing.saveId } : {}), events: events.map(e => ({ ...e })), processedTime, exactTime: true, maps: existing?.maps || maps.map(m => m.map), seed: existing?.seed ?? 0, homeRoster: existing?.homeRoster || saved.homeRoster.map(p => p.id), awayRoster: existing?.awayRoster || saved.awayRoster.map(p => p.id) }
 }
 
-/** Legacy playback groups fractional event timestamps into simulation-second buckets. */
+/**
+ * A whole-second cursor from an older checkpoint (events with
+ * `floor(time) <= t` were played back) as exact round time: the latest such
+ * event's time, so exactly the same events count as played.
+ */
+export function exactProcessedTime(events: readonly MatchEvent[], t: number): number {
+    let out = t
+    for (const e of events) if (Math.floor(e.time) <= t && e.time > out) out = e.time
+    return out
+}
+
+/** Events revealed when playback moves from round time `from` to `to`: `from < time <= to`. */
 export function pendingLiveEvents(events: MatchEvent[], from: number, to: number): MatchEvent[] {
     if (!Number.isFinite(from) || !Number.isFinite(to) || to <= from) return []
-    return events.filter(e => Math.floor(e.time) > from && Math.floor(e.time) <= to).sort((a,b) => a.time - b.time)
+    return events.filter(e => e.time > from && e.time <= to).sort((a,b) => a.time - b.time)
 }
 
 /** A round is "in flight" while its ROUND_END event has not been played back yet. */
 export function roundEndPending(events: MatchEvent[], processedTime: number): boolean {
-    return events.some(e => e.type === 'ROUND_END' && Math.floor(e.time) > processedTime)
+    return events.some(e => e.type === 'ROUND_END' && e.time > processedTime)
 }
