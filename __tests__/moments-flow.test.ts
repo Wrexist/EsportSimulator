@@ -102,12 +102,12 @@ describe("victory / defeat cue", () => {
             expect(playMatchOutcomeCue("m1", true)).toBe(true)
             expect(playMatchOutcomeCue("m1", true)).toBe(false)
             expect(sm.play).toHaveBeenCalledTimes(1)
-            expect(sm.play).toHaveBeenCalledWith("victory")
+            expect(sm.play).toHaveBeenCalledWith("victory", { key: "outcome:m1" })
             markOutcomeCue("m2")
             expect(outcomeCuePlayed("m2")).toBe(true)
             expect(playMatchOutcomeCue("m2", false)).toBe(false)
             expect(playMatchOutcomeCue("m3", false)).toBe(true)
-            expect(sm.play).toHaveBeenLastCalledWith("defeat")
+            expect(sm.play).toHaveBeenLastCalledWith("defeat", { key: "outcome:m3" })
         } finally {
             delete (globalThis as { window?: unknown }).window
         }

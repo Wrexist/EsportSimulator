@@ -9,6 +9,7 @@ import { soundManager } from "@/lib/sound-manager"
 import type { SoundType } from "@/lib/audio-feedback"
 import { cn } from "@/lib/utils"
 import { tokens } from "@/src/design/tokens"
+import { useMomentOnScreen } from "./moment-state"
 
 export type MomentTone = "gold" | "positive" | "negative"
 
@@ -111,6 +112,7 @@ export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actio
         dismissRef.current()
     }
     const dialogRef = useFocusTrap(true, close)
+    useMomentOnScreen()
 
     useEffect(() => {
         playMomentCue(momentKey, sound)
