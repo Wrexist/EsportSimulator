@@ -58,6 +58,29 @@ export const GROUP_LABELS: Record<MetricGroup, string> = {
 const AUDIT = 'Audit 2026-10-09 §3a/§7 (pro CS2, approx.)'
 const ESTIMATE = 'Estimate from pro CS2 aggregates (approx., unverified)'
 const DESIGN = 'Design target (no pro equivalent)'
+/**
+ * Multi-kills from HLTV's published Rating 1.0 averages: KPR 0.679 and the
+ * multi-kill value RMK = (1K + 4·2K + 9·3K + 16·4K + 25·5K) / rounds = 1.277,
+ * i.e. E[k²] per player-round. A beta-binomial over the five kills a player
+ * can make that matches both moments puts 4-kill rounds at ≈ 0.90% and aces
+ * at ≈ 0.12% of player-rounds; a plain Poisson at KPR 0.68–0.70 (no
+ * overdispersion, a lower bound) at ≈ 0.45–0.50% / 0.06–0.07%. At ≈ 21.8
+ * rounds × 10 players per map that is 4k ≈ 1.0–2.0 and aces ≈ 0.13–0.26 per
+ * map (half that per team). The earlier 0.35 / 0.06 per map was per-team
+ * scale or less, below even the Poisson bound.
+ */
+const MULTIKILL = 'HLTV Rating 1.0 averages (KPR 0.679, RMK 1.277), beta-binomial fit (approx.)'
+/**
+ * 1vX situations follow from the other targets: every round in which the
+ * losing side is wiped passes through a 1vX for that side, and every clutch
+ * won is one more. The win-reason targets alone (≈ 65% of CT wins and ≈ 55%
+ * of T wins by elimination, ≈ 25% of CT wins by defuse, nearly all after the
+ * Ts are dead) put a wiped side in ≈ 70% of rounds, ≈ 15.5 per 21.8-round
+ * map; bomb rounds in which the last CT survives (saving or out of time),
+ * lone Ts saving and the ≈ 2 clutches won add ≈ 4 more: ≈ 19–22 per map. The
+ * earlier ≈ 14–18 (pass ≤ 20) sat below what the other targets allow.
+ */
+const SITUATIONS = 'Derived from the win-reason and clutch targets (wipes + lone survivors + clutches won)'
 const RULE = 'Hard rule'
 
 const band = (pass: Band, warn: Band): TargetRule => ({ kind: 'band', pass, warn })
@@ -88,11 +111,12 @@ export const CALIBRATION_TARGETS: readonly CalibrationTarget[] = [
     { id: 'headshot_pct', label: 'Headshot kills', group: 'fights', suite: 'realism', unit: '%', reference: '45–50%', rule: band({ min: 40, max: 54 }, { min: 34, max: 60 }), source: ESTIMATE, approximate: true },
 
     // ── Clutches and multi-kills ────────────────────────────────────────
-    { id: 'clutch_situations_per_map', label: '1vX situations per map', group: 'clutch', suite: 'realism', unit: '/map', reference: '≈ 14–18', rule: band({ min: 11, max: 20 }, { min: 8, max: 23 }), source: ESTIMATE, approximate: true },
+    { id: 'clutch_situations_per_map', label: '1vX situations per map', group: 'clutch', suite: 'realism', unit: '/map', reference: '≈ 19–22', rule: band({ min: 15, max: 23 }, { min: 12, max: 25 }), source: SITUATIONS, approximate: true },
     { id: 'clutch_conversion', label: '1vX situations won', group: 'clutch', suite: 'realism', unit: '%', reference: '≈ 13%', rule: band({ min: 9, max: 18 }, { min: 6, max: 22 }), source: ESTIMATE, approximate: true },
     { id: 'clutches_won_per_map', label: 'Clutches won per map', group: 'clutch', suite: 'realism', unit: '/map', reference: '≈ 2', rule: band({ min: 1.5, max: 2.6 }, { min: 1.0, max: 3.2 }), source: AUDIT, approximate: true },
-    { id: 'k4_per_map', label: '4-kill rounds per map', group: 'clutch', suite: 'realism', unit: '/map', reference: '≈ 0.35', rule: band({ min: 0.25, max: 0.50 }, { min: 0.15, max: 0.65 }), source: ESTIMATE, approximate: true },
-    { id: 'ace_per_map', label: 'Aces per map', group: 'clutch', suite: 'realism', unit: '/map', reference: '≈ 0.06', rule: band({ min: 0.03, max: 0.10 }, { min: 0.015, max: 0.15 }), source: ESTIMATE, approximate: true },
+    { id: 'k4_per_map', label: '4-kill rounds per map', group: 'clutch', suite: 'realism', unit: '/map', reference: '≈ 1.5 (1.0–2.0)', rule: band({ min: 1.0, max: 2.1 }, { min: 0.7, max: 2.5 }), source: MULTIKILL, approximate: true },
+    { id: 'ace_per_map', label: 'Aces per map', group: 'clutch', suite: 'realism', unit: '/map', reference: '≈ 0.2 (0.13–0.26)', rule: band({ min: 0.12, max: 0.30 }, { min: 0.07, max: 0.40 }), source: MULTIKILL, approximate: true },
+    { id: 'multikill_index', label: 'Kill concentration E[k²] ÷ E[k] per player-round', group: 'clutch', suite: 'realism', unit: 'x', reference: '≈ 1.88 (RMK 1.277 ÷ KPR 0.679)', rule: band({ min: 1.76, max: 2.0 }, { min: 1.68, max: 2.1 }), source: MULTIKILL, approximate: true },
 
     // ── Win reasons ─────────────────────────────────────────────────────
     { id: 'ct_win_elim', label: 'CT wins by elimination', group: 'bomb', suite: 'realism', unit: '%', reference: '≈ 65% of CT wins', rule: band({ min: 55, max: 75 }, { min: 48, max: 82 }), source: ESTIMATE, approximate: true },

@@ -151,9 +151,48 @@ describe('rounds decided by what happens', () => {
         expect(trades / kills).toBeLessThan(0.35)
     })
 
+    test('late man-advantages close out: a 2v1 rarely becomes a 1v1, and is won', () => {
+        let states = 0, won = 0, toOneVOne = 0
+        for (const { round } of rounds) {
+            let h = 5, a = 5, seen = false
+            for (const e of (round.events ?? []).filter(x => x.type === 'KILL')) {
+                const before = [h, a]
+                if (e.victimId!.startsWith('H')) h--; else a--
+                if (!seen && Math.max(...before) === 2 && Math.min(...before) === 1) {
+                    seen = true
+                    states++
+                    const pairHome = before[0] === 2
+                    if ((round.winningTeamId === 'H') === pairHome) won++
+                    if (h === 1 && a === 1) toOneVOne++
+                }
+            }
+        }
+        expect(states).toBeGreaterThan(30)
+        expect(won / states).toBeGreaterThan(0.78)
+        expect(toOneVOne / states).toBeLessThan(0.4)
+    })
+
+    test('a side that gives the round up saves; the winners may catch a saver on the way out', () => {
+        let saves = 0, exitKills = 0
+        for (const { round } of rounds) {
+            const ev = round.events ?? []
+            const save = ev.find(e => e.type === 'SAVE')
+            if (!save) continue
+            saves++
+            // Ts save before a plant (the CTs win), CTs save a planted bomb (the Ts win).
+            expect(round.winner).toBe(save.side === 't' ? 'ct' : 't')
+            const savingTeam = save.side === 'ct' ? round.ctTeam : round.tTeam
+            const saverIds = new Set(savingTeam === 'H' ? ['H_0', 'H_1', 'H_2', 'H_3', 'H_4'] : ['A_0', 'A_1', 'A_2', 'A_3', 'A_4'])
+            for (const e of ev) if (e.type === 'KILL' && e.time > save.time && saverIds.has(e.victimId!)) exitKills++
+        }
+        expect(saves).toBeGreaterThan(10)
+        expect(exitKills).toBeGreaterThan(0)
+    })
+
     test('a stronger team wins more rounds; equipment matters', () => {
+        // Ten maps: four BO1 maps leave the round share ±6 points of noise.
         let fav = 0, total = 0
-        for (let s = 0; s < 4; s++) {
+        for (let s = 0; s < 10; s++) {
             const { steps } = series(MapId.MIRAGE, 300 + s, undefined, even(80), even(65))
             for (const st of steps) { total++; if (st.round.winningTeamId === 'H') fav++ }
         }
@@ -325,9 +364,9 @@ describe('the round script shows what the engine decided', () => {
         expect(thrown / recorded).toBeGreaterThan(0.95)
     })
 
-    test('fights happen in range, mostly where the engine put them, and the killer is the nearest enemy', () => {
+    test('fights happen in range, where the engine put them, and the killer is the nearest enemy', () => {
         const dist = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y)
-        let kills = 0, inRange = 0, near = 0, nearest = 0, segments = 0, fast = 0
+        let kills = 0, inRange = 0, near = 0, nearest = 0
         for (const { r, map, script } of built) {
             for (const d of script.deaths) {
                 kills++
@@ -340,17 +379,14 @@ describe('the round script shows what the engine decided', () => {
                 const enemy = pos.filter(p => p.alive && p.side !== victim.side && p.floor === victim.floor).sort((a, b) => dist(a, victim) - dist(b, victim))[0]
                 if (enemy?.id === d.killerId) nearest++
             }
+            // Never faster than the builder's speed limit, not even to make a resolver fight.
             for (const track of Object.values(script.tracks)) for (let i = 1; i < track.length; i++) {
-                const v = dist(track[i], track[i - 1]) / (track[i].t - track[i - 1].t)
-                segments++
-                if (v > map.runSpeed * 1.1 + 1e-6) fast++
-                // A resolver fight the walk cannot quite make is closed with a short burst, never a teleport.
-                expect(v).toBeLessThanOrEqual(map.runSpeed * 1.3)
+                expect(dist(track[i], track[i - 1]) / (track[i].t - track[i - 1].t)).toBeLessThanOrEqual(map.runSpeed * 1.1 + 1e-6)
             }
         }
-        expect(fast / segments).toBeLessThan(0.001)
         expect(inRange / kills).toBeGreaterThan(0.98)
-        expect(near / kills).toBeGreaterThan(0.55)
-        expect(nearest / kills).toBeGreaterThan(0.8)
+        // The radar shows the fight within 8 map-% of the zone the resolver named.
+        expect(near / kills).toBeGreaterThan(0.9)
+        expect(nearest / kills).toBeGreaterThan(0.85)
     })
 })

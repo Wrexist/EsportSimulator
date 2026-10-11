@@ -141,6 +141,8 @@ function shortSource(source: string): string {
     if (source.startsWith('Estimate')) return 'estimate'
     if (source.startsWith('Design')) return 'design'
     if (source.startsWith('Hard')) return 'rule'
+    if (source.startsWith('HLTV')) return 'HLTV'
+    if (source.startsWith('Derived')) return 'derived'
     return 'measured'
 }
 

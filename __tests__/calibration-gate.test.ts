@@ -16,7 +16,7 @@ import { runCalibration, SKILL_GAPS, type CalibrationReport } from '@/engine/mat
 
 const SEED = 20261010
 const GATE_METRICS = [
-    'rounds_per_map', 'ot_rate', 'loser_le3_share', 'kills_per_round', 'trade_share', 'clutches_won_per_map',
+    'rounds_per_map', 'ot_rate', 'loser_le3_share', 'kills_per_round', 'trade_share', 'clutches_won_per_map', 'multikill_index',
     'rating_mean', 'impossible_states', 'fav_win_gap_*', 'fav_curve_max_drop', 'path_parity_*', 'nonplayer_cap_*',
 ]
 
@@ -59,6 +59,9 @@ describe(`calibration gate (${DEFAULT_MATCH_ENGINE})`, () => {
         expect(value('clutches_won_per_map')).toBeGreaterThan(0)
         expect(value('trade_share')).toBeGreaterThan(0)
         expect(value('trade_share')).toBeLessThan(40)
+        // Kills are neither spread like a coin flip nor piled on one player (HLTV: ≈ 1.88).
+        expect(value('multikill_index')).toBeGreaterThan(1.5)
+        expect(value('multikill_index')).toBeLessThan(2.3)
     })
 
     test('the favourite wins more often as the skill gap grows', () => {
