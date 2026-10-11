@@ -40,7 +40,7 @@ export function IncomeBreakdown({ income }: { income: { sponsors: number; fanbas
             rows={[
                 { label: 'Sponsorship payments', amount: income.sponsors },
                 { label: 'Fan income', amount: income.fanbaseBonus },
-                { label: 'League revenue share', amount: income.leagueShare ?? 0 },
+                { label: 'League central payment', amount: income.leagueShare ?? 0 },
             ]}
         />
     )

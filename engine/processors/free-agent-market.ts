@@ -20,8 +20,6 @@ import type { GameSave } from "../save-types"
 import { academyHeldPlayerIds } from "../recruitment"
 import { FREE_AGENT_TUNING } from "@/lib/balance-tuning"
 
-const FPL_NON_PRO_PREFIX = "fpl_nonpro_"
-
 /** Deterministic [0, 1) roll from a string key (FNV-1a + avalanche). */
 export function hashRoll(key: string): number {
     let h = 2166136261
@@ -57,7 +55,7 @@ export function countFreeAgents(save: GameSave): number {
     const contracted = new Set<string>()
     for (const c of save.contracts) if (c.endWeek > save.currentWeek && (c.startWeek ?? 0) <= save.currentWeek) contracted.add(c.playerId)
     let n = 0
-    for (const p of save.players) if (!p.isRetired && !p.id.startsWith(FPL_NON_PRO_PREFIX) && !rostered.has(p.id) && !held.has(p.id) && !contracted.has(p.id)) n++
+    for (const p of save.players) if (!p.isRetired && !rostered.has(p.id) && !held.has(p.id) && !contracted.has(p.id)) n++
     return n
 }
 
@@ -85,7 +83,7 @@ export function processFreeAgentMarket(save: GameSave): { retired: string[] } {
     // is short of POOL_TARGET_PER_CLUB per club and speed up when it is large,
     // so the pool neither bottoms out (seasons 3-4) nor grows without bound.
     let freeCount = 0
-    for (const p of save.players) if (!p.isRetired && !p.id.startsWith(FPL_NON_PRO_PREFIX) && !rostered.has(p.id) && !held.has(p.id) && !contracted.has(p.id)) freeCount++
+    for (const p of save.players) if (!p.isRetired && !rostered.has(p.id) && !held.has(p.id) && !contracted.has(p.id)) freeCount++
     const poolFactor = freeAgentPoolFactor(freeCount, save.teams.length)
 
     const retired: string[] = []
@@ -97,8 +95,8 @@ export function processFreeAgentMarket(save: GameSave): { retired: string[] } {
             continue
         }
         if (p.freeAgentSinceWeek === undefined) { p.freeAgentSinceWeek = week; continue }
-        // Legends never retire; FPL non-pros are an amateur pool the FPL cycle manages.
-        if (p.isLegendary || p.id.startsWith(FPL_NON_PRO_PREFIX)) continue
+        // Legends never retire.
+        if (p.isLegendary) continue
         const chance = freeAgentRetirementChance(p.age ?? 22, week - p.freeAgentSinceWeek, poolFactor) * poolFactor
         if (chance > 0 && hashRoll(`fa_retire:${p.id}:${week}`) < chance) {
             p.isRetired = true

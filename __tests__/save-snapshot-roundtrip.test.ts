@@ -73,10 +73,10 @@ describe("buildSaveSnapshot — stateful optional fields survive the builder", (
         expect(snap.boardState).toEqual(boardState)
     })
 
-    test("fplData round-trips (the sibling stateful field / the pattern to mirror)", () => {
-        const fplData = { season: 2, gameweek: 5 } as unknown as never
-        const snap = buildSaveSnapshot(makeState({ fplData }))
-        expect(snap.fplData).toBe(fplData)
+    test("league round-trips (the sibling stateful field / the pattern to mirror)", () => {
+        const league = { version: 1, history: [] } as unknown as never
+        const snap = buildSaveSnapshot(makeState({ league }))
+        expect(snap.league).toBe(league)
     })
 
     test("absent board state stays undefined (no fabricated default at the boundary)", () => {

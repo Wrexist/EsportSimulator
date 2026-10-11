@@ -1,12 +1,10 @@
 /**
  * L27 (Oct 2026) behaviour-preservation checks for the week-tick / save
- * optimizations: single serialization of signed saves, FPL history compaction,
+ * optimizations: single serialization of signed saves,
  * bridge input ownership, and role-filtered free-agent quoting.
  */
 import { serializeSignedSave, saveTextFingerprint, fnv1a64Utf16, SaveManager } from '@/engine/save-manager'
 import { SaveIntegrityManager } from '@/engine/save-integrity'
-import { compactPersistentState } from '@/engine/processors/save-compactor'
-import { ARRAY_CAPS } from '@/lib/constants'
 import { WeekProcessorBridge } from '@/engine/worker/week-processor-client'
 import { computeWeek } from '@/engine/worker/compute-week'
 import { SeededRNG } from '@/engine/rng'
@@ -138,27 +136,6 @@ describe('verified-primary fingerprint (L27.A3: no retained save text)', () => {
         expect([...store].some(([k, v]) => k.includes('backup') && k.endsWith('_1') && v === damaged)).toBe(false)
         expect([...store].some(([k, v]) => /corrupt/i.test(k) && v === damaged)).toBe(true)
         parse.mockRestore()
-    })
-})
-
-describe('FPL match history compaction', () => {
-    const withHistory = (n: number) => {
-        const save = createLaunchFixture('first-week', 27102)
-        save.fplData = { matchHistory: Array.from({ length: n }, (_, i) => ({ id: `m${i}`, week: Math.floor(i / 28) + 1 })) } as unknown as GameSave['fplData']
-        return save
-    }
-    test('keeps exactly the newest records once over the cap', () => {
-        const save = withHistory(ARRAY_CAPS.fplMatchHistory + 137)
-        const newest = save.fplData!.matchHistory.slice(-ARRAY_CAPS.fplMatchHistory)
-        compactPersistentState(save)
-        expect(save.fplData!.matchHistory).toEqual(newest)
-        expect(save.fplData!.matchHistory[0]).toBe(newest[0])
-    })
-    test('leaves a history within the cap untouched', () => {
-        const save = withHistory(ARRAY_CAPS.fplMatchHistory)
-        const before = save.fplData!.matchHistory
-        compactPersistentState(save)
-        expect(save.fplData!.matchHistory).toBe(before)
     })
 })
 

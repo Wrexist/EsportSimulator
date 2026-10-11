@@ -10,6 +10,7 @@ import { trainingModifiers } from "@/components/training/weekly-training"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 import { TrainingProcessor } from "@/engine/processors/training-processor"
+import { processFanbaseGrowth } from "@/engine/processors/fanbase-growth"
 import { SeededRNG } from "@/engine/rng"
 import { TrainingFocus, WeeklyActivityType } from "@/types"
 import { MEETING_TYPES, consecutiveLosses, meetingActivityId, meetingStatus, type MeetingContext } from "@/components/schedule/staff-meetings"
@@ -129,11 +130,34 @@ describe("rest days mirror processRestDays", () => {
     test("match days and a meeting day are not rest days", () => {
         expect(idleDays("t1", WEEK, [fx("m1", 5)], [meeting("general_strategy", 2)])).toEqual([0, 1, 3, 4, 6])
     })
-    test("a block starting this week (bootcamp, marketing) removes every rest day; one started earlier does not", () => {
-        const starts = { id: "mk", type: "MARKETING", week: WEEK, duration: 2, cost: 0, name: "Push" } as ActivitySaveData
+    test("a bootcamp starting this week removes every rest day; one started earlier does not; marketing never does", () => {
+        const starts = { id: "bc0", type: "BOOTCAMP", week: WEEK, duration: 2, cost: 0, name: "Camp" } as ActivitySaveData
         const earlier = { id: "bc", type: "BOOTCAMP", week: WEEK - 1, duration: 2, cost: 0, name: "Camp" } as ActivitySaveData
+        const marketing = { id: "mk", type: "MARKETING", week: WEEK, duration: 2, cost: 0, name: "Push" } as ActivitySaveData
         expect(idleDays("t1", WEEK, [], [starts])).toEqual([])
         expect(idleDays("t1", WEEK, [], [earlier])).toEqual([0, 1, 2, 3, 4, 5, 6])
+        // A marketing campaign is staff work: it used to cancel every rest day of its first week.
+        expect(idleDays("t1", WEEK, [], [marketing])).toEqual([0, 1, 2, 3, 4, 5, 6])
+    })
+    test("marketing followers: the preview counts this week's campaign and the update pays exactly that", () => {
+        const players = ["a", "b", "c", "d", "e"].map(id => makePlayer(id))
+        const marketing = { id: "mk", type: "MARKETING", week: WEEK, duration: 1, cost: 0, name: "Push", data: { followersPerWeek: 800 } } as ActivitySaveData
+        const save = makeSave(makeTeam(players.map(p => p.id), { reputation: 0, followers: 0 }), players, [marketing])
+        expect(previewFor(save, null).followers).toBe(800)
+        save.currentWeek++
+        processFanbaseGrowth(save, new SeededRNG(1))
+        expect(save.teams[0].followers).toBe(800)
+    })
+    test("same answer as the processor with a marketing campaign starting this week", () => {
+        const players = ["a", "b", "c", "d", "e"].map(id => makePlayer(id))
+        const marketing = { id: "mk", type: "MARKETING", week: WEEK, duration: 1, cost: 0, name: "Push", data: { followersPerWeek: 800 } } as ActivitySaveData
+        const save = makeSave(makeTeam(players.map(p => p.id)), players, [marketing])
+        const predicted = idleDays("t1", WEEK, save.scheduledMatches, save.scheduledActivities)
+        save.currentWeek++
+        TrainingProcessor.processRestDays(save, "t1")
+        const rows = save.scheduledActivities.filter(a => a.id.startsWith(`rest_w${WEEK}_d`)).map(a => a.day)
+        expect(rows).toEqual(predicted)
+        expect(rows).toHaveLength(7)
     })
     test("legacy fixtures without a day keep the old spread (by sorted index: scrims 3/4, others 5/6)", () => {
         // a: index 0, scrim → day 3; b: index 1, official → day 6.

@@ -18,8 +18,9 @@ interface BookMarketingModalProps {
 
 type MarketingType = "SOCIAL" | "SPONSORSHIP" | "INFLUENCER"
 
-// followersPerWeek is added by the fanbase-growth processor for every week
-// the campaign runs; the booking is paid once, up front.
+// followersPerWeek is added by the fanbase-growth processor at the update that
+// ends each week the campaign runs (a one-week campaign pays once, at the end
+// of its week); the booking is paid once, up front.
 const MARKETING_OPTIONS = {
     SOCIAL: {
         name: "Social Media Push",
@@ -93,7 +94,7 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
             onClose={onClose}
             titleId="modal-title-book-marketing"
             title="Marketing campaign"
-            subtitle={`Starts week ${week} · followers are added each week it runs`}
+            subtitle={`Starts week ${week} · each week it runs adds its followers at that week's update`}
             className="max-w-2xl"
             footer={
                 <>

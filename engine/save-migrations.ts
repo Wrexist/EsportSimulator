@@ -281,7 +281,7 @@ export function migrateToV5(save: Record<string, unknown>): Record<string, unkno
 }
 
 /**
- * v6: every new field (fplData, careerStats, gameOverReason, gameOverWeek)
+ * v6: every new field (fplData — removed in v8 —, careerStats, gameOverReason, gameOverWeek)
  * is optional and initialises naturally as undefined — version bump only.
  */
 export function migrateToV6(save: Record<string, unknown>): Record<string, unknown> {
@@ -310,6 +310,34 @@ export function migrateToV7(save: Record<string, unknown>): Record<string, unkno
 }
 
 /**
+ * v8 (Phase 4.4): FPL was cut. Drop `fplData` (up to ~24 MB on long
+ * careers), retire the FPL amateur pool ("fpl_nonpro_*" players) that no club
+ * signed so the season-end GC can reclaim them, and strip the FPL-only player
+ * fields. Signed amateurs stay as ordinary players. The regional league and
+ * board objectives need no backfill: the league is drawn at the next split
+ * window and the board sets objectives on the first tick.
+ */
+export function migrateToV8(save: Record<string, unknown>): Record<string, unknown> {
+    const rest = { ...save }
+    delete rest.fplData
+    const teams = Array.isArray(save.teams) ? (save.teams as TeamSaveData[]) : []
+    const contracts = Array.isArray(save.contracts) ? (save.contracts as Array<{ playerId?: string }>) : []
+    const signed = new Set<string>([...teams.flatMap(t => t?.rosterIds ?? []), ...contracts.map(c => c?.playerId ?? "")])
+    const week = typeof save.currentWeek === "number" ? save.currentWeek : 1
+    const players = Array.isArray(save.players) ? (save.players as Array<Record<string, unknown>>) : []
+    for (const p of players) {
+        if (!p || typeof p.id !== "string") continue
+        delete p.isFPLNonPro
+        delete p.initialFplElo
+        if (p.id.startsWith("fpl_nonpro_") && !signed.has(p.id) && !p.isRetired) {
+            p.isRetired = true
+            p.retirementWeek = week
+        }
+    }
+    return { ...rest, players, saveVersion: 8 }
+}
+
+/**
  * Run the full ladder up to the current version. Each step is no-op
  * if the save already meets its target version.
  *
@@ -330,6 +358,7 @@ export function runMigrationLadder(save: unknown): GameSave {
     if (version < 5) migrated = migrateToV5(migrated)
     if (version < 6) migrated = migrateToV6(migrated)
     if (version < 7) migrated = migrateToV7(migrated)
+    if (version < 8) migrated = migrateToV8(migrated)
 
     return {
         ...migrated,

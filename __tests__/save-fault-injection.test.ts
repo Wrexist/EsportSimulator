@@ -810,7 +810,7 @@ function sentinelCareer(): GameSave {
         academyWeeklyReports: [{ week: 8, summary: "rt" }],
         academyScoutingMissions: [{ id: "rt-academy-scout" }],
         academyPendingProspects: ["rt-pending"],
-        fplData: { season: 1, gameweek: 3, playerStats: {}, seasonHistory: [], nonProPlayers: [], fplStandings: [], fplCStandings: [] },
+        league: { version: 1, history: [{ id: "rt-split", season: 1, split: 1, divisions: [] }] },
         careerStats: { seasons: [], totalSeasons: 1, totalMatches: 20, totalWins: 12, totalLosses: 8, totalTournamentWins: 1, totalPrizeMoney: 5000, peakWorldRanking: 3, peakElo: 1700, teamsManaged: [team], lastUpdatedWeek: 9 },
         boardState: { teamId: team, confidence: 38, seasonExpectation: "CONTEND", expectationSetSeason: 1, lastReviewedSeason: 0, onNotice: true, lastPulseWeek: 8 },
         socialFeed: [{ id: "rt-post", week: 8, user: { name: "n", handle: "h", avatar: "a" }, content: "rt", timestamp: "now", likes: 1, retweets: 0, replies: 0 }],
@@ -863,9 +863,9 @@ describe("durable state round-trips through buildSaveSnapshot → disk → fresh
         await useGameStore.getState().loadGame(other.saveId)
         const otherExpected = snapshotJson()
         await useGameStore.getState().loadGame(seeded.saveId)
-        expect(useGameStore.getState()).toMatchObject({ fplData: seeded.fplData, careerStats: seeded.careerStats, boardState: seeded.boardState })
+        expect(useGameStore.getState()).toMatchObject({ league: seeded.league, careerStats: seeded.careerStats, boardState: seeded.boardState })
         await useGameStore.getState().loadGame(other.saveId)
-        for (const key of ["fplData", "careerStats", "boardState", "socialFeed", "activeScoutingMission", "gameOverReason"] as const) {
+        for (const key of ["league", "careerStats", "boardState", "socialFeed", "activeScoutingMission", "gameOverReason"] as const) {
             expect({ key, value: useGameStore.getState()[key] ?? null }).toEqual({ key, value: null })
         }
         const switched = snapshotJson()

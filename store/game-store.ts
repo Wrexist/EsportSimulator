@@ -54,7 +54,9 @@ import { WeaponMasteryManager, WeaponType } from "@/engine/weapon-mastery-system
 import { PreSeasonTransferProcessor } from "@/engine/pre-season-transfers"
 import { snapshotLoader } from "@/data"
 import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS } from "@/data/tournament-calendar"
-import { evaluatePlayer } from "@/engine/player-evaluation"
+import { initialClubBudget } from "@/engine/season/club-finances"
+import { drawDueLeagueSplit } from "@/engine/season/regional-league"
+import { ensureBoardState } from "@/engine/board-expectations"
 import { weekProcessorBridge } from "@/engine/worker/week-processor-bridge"
 import { Player, Team, Match, GameEvent, MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
 import { MapId } from "@/types/enums"
@@ -97,7 +99,6 @@ import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
 import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 import { buildSaveSnapshot } from "@/store/utils/build-save-snapshot"
 import { useSettingsStore } from "@/lib/settings-store"
-import { applyFplWeek } from "@/engine/processors/fpl-week-processor"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
@@ -536,8 +537,8 @@ export interface GameStoreState extends AdvanceState {
   academyScoutingMissions: import("@/types/academy").AcademyScoutingMission[]
   academyPendingProspects: string[] // List of player IDs scouted but not yet enrolled
 
-  // Phase 80: FPL System
-  fplData?: import("@/types/fpl").FPLSaveData
+  // Phase 4.4: regional league (divisions, fixtures, tables)
+  league?: import("@/engine/save-types").LeagueState
 
   // Board Expectations & Confidence
   boardState?: import("@/engine/save-types").BoardState
@@ -1166,50 +1167,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             if (!t.sponsors) t.sponsors = []
             if (t.merchHype === undefined) t.merchHype = 10
 
-            // Initialize Budget based on Tier/Reputation (0-100 scale)
-            let calculatedBudget = 250000 // Low Tier
-            if (t.reputation > 80) calculatedBudget = 2000000 // Top Tier
-            else if (t.reputation > 50) calculatedBudget = 1000000 // High Tier
-            else if (t.reputation > 0) calculatedBudget = 500000 // Mid Tier
-
-            // Check for incomplete roster and inject funds to ensure they can fill the squad
-            if (t.rosterIds.length < 5) {
-              const missingCount = 5 - t.rosterIds.length
-              const teammates = newSave.players.filter((p: any) => t.rosterIds.includes(p.id))
-
-              // Get world ranking for this team
-              const ranking = t.worldRanking || 50
-
-              // Calculate target value based on MINIMUM valued player (more realistic)
-              let targetValue = 150000 // Bare minimum fallback
-              if (teammates.length > 0) {
-                const values = teammates.map((p: any) => {
-                  const evaluation = evaluatePlayer(p)
-                  return evaluation.transferValue
-                }).sort((a: number, b: number) => a - b)
-
-                // Use the lowest-valued player as the target
-                targetValue = values[0]
-
-                // Apply world ranking modifier - lower ranked teams get budget for cheaper players
-                let rankingModifier = 1.0
-                if (ranking > 100) rankingModifier = 0.4
-                else if (ranking > 50) rankingModifier = 0.6
-                else if (ranking > 20) rankingModifier = 0.8
-
-                targetValue = Math.round(targetValue * rankingModifier)
-              }
-
-              // Injection: Target Value × Missing Count (realistic budget)
-              const injection = Math.round(targetValue * missingCount)
-              calculatedBudget += injection
-            }
-
-            // Apply calculated budget if missing or lower (unless manually set higher in JSON)
-            if (t.startingBudget === undefined || t.startingBudget < calculatedBudget) {
-              t.startingBudget = calculatedBudget
-            }
-            // ALWAYS set current budget to startingBudget (fix for $0 bug)
+            // Phase 4.4: starting cash = 26 weeks of the club's own running
+            // costs (plus the missing starters' wages for an incomplete squad),
+            // so every tier starts with the same runway. Was a flat $250k-$2M
+            // by reputation band that no club could spend down.
+            t.startingBudget = initialClubBudget(newSave, t)
             t.budget = t.startingBudget
           })
 
@@ -1282,30 +1244,16 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             }
           })
 
-          // Phase 80: Initialize FPL System with Non-Pro Players
-          const { generateFPLNonProPlayers } = require("@/engine/fpl-player-generator")
-          const { initializeFPL } = require("@/engine/fpl-engine")
-
-          // Generate non-pro FPL players (streamers, semi-pros, grinders, etc.)
-          const fplGeneratorRng = new SeededRNG(newSave.lastRngSeed ?? generateSeed())
-          const { players: nonProPlayers, metadata: nonProMetadata } = generateFPLNonProPlayers(
-            newSave.currentWeek,
-            fplGeneratorRng
-          )
-
-          // Add non-pro players to the player pool
-          newSave.players.push(...nonProPlayers)
-
-          // Initialize FPL with all players (including non-pros)
-          newSave.fplData = initializeFPL(newSave.players, newSave.currentWeek)
-          if (newSave.fplData) {
-            newSave.fplData.nonProPlayers = nonProMetadata
-          }
-
           // Seed preseason friendlies so Week 1 isn't an empty calendar — gives
           // the player scrims to play immediately and a real "next match" on the
           // dashboard while the first tournaments are still weeks away.
           seedPreseasonFriendlies(newSave, playerTeamId)
+
+          // Regional league: draw split 1 now (after the friendlies, so league
+          // nights avoid them) so the fixture list is there on day one, and set
+          // the board's objectives against it (Phase 4.4).
+          drawDueLeagueSplit(newSave)
+          ensureBoardState(newSave)
 
           // Initial Save
           newSave.firstSession = get().showTutorialOnNewGame ? newFirstSession() : { ...newFirstSession(), status: "dismissed" }
@@ -1502,36 +1450,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // Skip budget recalculation for the custom team (it has its own budget)
             if (t.id === result.teamId) return
 
-            // Recalculate budget based on Tier/Reputation (matching initializeNewGame)
-            let calculatedBudget = 250000
-            if (t.reputation > 80) calculatedBudget = 2000000
-            else if (t.reputation > 50) calculatedBudget = 1000000
-            else if (t.reputation > 0) calculatedBudget = 500000
-
-            // Inject funds for incomplete rosters
-            if (t.rosterIds.length < 5) {
-              const missingCount = 5 - t.rosterIds.length
-              const teammates = newSave.players.filter((p: any) => t.rosterIds.includes(p.id))
-              const ranking = t.worldRanking || 50
-              let targetValue = 150000
-              if (teammates.length > 0) {
-                const values = teammates.map((p: any) => {
-                  const evaluation = evaluatePlayer(p)
-                  return evaluation.transferValue
-                }).sort((a: number, b: number) => a - b)
-                targetValue = values[0]
-                let rankingModifier = 1.0
-                if (ranking > 100) rankingModifier = 0.4
-                else if (ranking > 50) rankingModifier = 0.6
-                else if (ranking > 20) rankingModifier = 0.8
-                targetValue = Math.round(targetValue * rankingModifier)
-              }
-              calculatedBudget += Math.round(targetValue * missingCount)
-            }
-
-            if (t.startingBudget === undefined || t.startingBudget < calculatedBudget) {
-              t.startingBudget = calculatedBudget
-            }
+            // Same runway rule as initializeNewGame (Phase 4.4).
+            t.startingBudget = initialClubBudget(newSave, t)
             t.budget = t.startingBudget
           })
 
@@ -1540,26 +1460,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Reconcile all roles (was missing from custom path!)
           reconcileAllRoles(newSave.teams, newSave.players)
-
-          // Initialize FPL with Non-Pro Players
-          const { generateFPLNonProPlayers } = require("@/engine/fpl-player-generator")
-          const { initializeFPL } = require("@/engine/fpl-engine")
-
-          // Generate non-pro FPL players (streamers, semi-pros, grinders, etc.)
-          const fplGeneratorRng = new SeededRNG(newSave.lastRngSeed ?? generateSeed())
-          const { players: nonProPlayers, metadata: nonProMetadata } = generateFPLNonProPlayers(
-            newSave.currentWeek,
-            fplGeneratorRng
-          )
-
-          // Add non-pro players to the player pool
-          newSave.players.push(...nonProPlayers)
-
-          // Initialize FPL with all players (including non-pros)
-          newSave.fplData = initializeFPL(newSave.players, newSave.currentWeek)
-          if (newSave.fplData) {
-            newSave.fplData.nonProPlayers = nonProMetadata
-          }
 
           // Generate starter academy prospects for custom teams
           try {
@@ -1630,6 +1530,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const transferResult = PreSeasonTransferProcessor.processPreSeasonWindow(newSave, result.teamId)
           newSave.eventsLog.push(...transferResult.events)
           newSave.transferHistory = transferResult.transfers
+
+          // Regional league draw + board objectives (Phase 4.4).
+          drawDueLeagueSplit(newSave)
+          ensureBoardState(newSave)
 
           // Add Welcome Mail for custom team
           newSave.eventsLog.unshift({
@@ -1787,95 +1691,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             if (s.unlockedTalentIds === undefined) s.unlockedTalentIds = []
           })
 
-          // FPL backward compatibility migration
-          if (hydratedSave.fplData) {
-            const { getFPLTier, FPL_CONSTANTS: FC } = require("@/types/fpl")
-            // Add missing fields to FPL player stats. Only stats that predate
-            // these fields are backfilled from season history: running the
-            // backfill on every load re-added each past title and prize, so
-            // every save/reload inflated championships and earnings.
-            const legacyChampionships = new Set<unknown>()
-            const legacyEarnings = new Set<unknown>()
-            Object.values(hydratedSave.fplData.playerStats).forEach((stats: any) => {
-              if (stats.totalFPLEarnings === undefined) { stats.totalFPLEarnings = 0; legacyEarnings.add(stats) }
-              if (stats.fplChampionships === undefined) { stats.fplChampionships = 0; legacyChampionships.add(stats) }
-            })
-            // Retroactively compute championships/earnings from season history
-            if (hydratedSave.fplData.seasonHistory && (legacyChampionships.size || legacyEarnings.size)) {
-              hydratedSave.fplData.seasonHistory.forEach((season: any) => {
-                if (season.champion) {
-                  const stats = hydratedSave.fplData!.playerStats[season.champion]
-                  if (stats && legacyChampionships.has(stats)) (stats as any).fplChampionships = ((stats as any).fplChampionships || 0) + 1
-                }
-                (season.leaderboard || []).slice(0, 3).forEach((entry: any, idx: number) => {
-                  const stats = hydratedSave.fplData!.playerStats[entry.playerId]
-                  const reward = (season.rewards || [])[idx]
-                  if (stats && reward && legacyEarnings.has(stats)) {
-                    (stats as any).totalFPLEarnings = ((stats as any).totalFPLEarnings || 0) + reward.prize
-                  }
-                })
-              })
-            }
-            // Fix empty FPL/FPL_C tiers: use nonProPlayers metadata to infer intended tier
-            const tierCounts = { FPL: 0, FPL_C: 0, HUBS: 0 }
-            Object.values(hydratedSave.fplData.playerStats).forEach((s: any) => {
-              if (tierCounts[s.fplTier as keyof typeof tierCounts] !== undefined) {
-                tierCounts[s.fplTier as keyof typeof tierCounts]++
-              }
-            })
-            if (tierCounts.FPL < 10 || tierCounts.FPL_C < 10) {
-              (hydratedSave.fplData.nonProPlayers || []).forEach((np: any) => {
-                const stats = hydratedSave.fplData!.playerStats[np.playerId]
-                if (!stats) return
-                const player = hydratedSave.players.find((p: any) => p.id === np.playerId)
-                if (player && (player as any).initialFplElo) {
-                  (stats as any).fplElo = (player as any).initialFplElo
-                    ; (stats as any).fplTier = getFPLTier((player as any).initialFplElo)
-                } else if (np.isRecruitableBy === 'TIER_1') {
-                  // Deterministic: hash player ID into a stable ELO offset
-                  const hash1 = np.playerId.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0)
-                    ; (stats as any).fplElo = 2000 + (hash1 % 400)
-                    ; (stats as any).fplTier = 'FPL'
-                } else if (np.isRecruitableBy === 'TIER_2') {
-                  const hash2 = np.playerId.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0)
-                    ; (stats as any).fplElo = 1500 + (hash2 % 499)
-                    ; (stats as any).fplTier = 'FPL_C'
-                }
-              })
-              // Rebuild standings after tier fix
-              try {
-                const fplPlayers = Object.values(hydratedSave.fplData.playerStats)
-                  .filter((s: any) => s.fplTier === 'FPL')
-                  .sort((a: any, b: any) => (b.monthlyPoints || 0) - (a.monthlyPoints || 0) || b.fplElo - a.fplElo)
-                const fplCPlayers = Object.values(hydratedSave.fplData.playerStats)
-                  .filter((s: any) => s.fplTier === 'FPL_C')
-                  .sort((a: any, b: any) => (b.monthlyPoints || 0) - (a.monthlyPoints || 0) || b.fplElo - a.fplElo)
-                hydratedSave.fplData.fplStandings = fplPlayers.map((stats: any, idx: number) => ({
-                  playerId: stats.playerId,
-                  rank: idx + 1,
-                  points: stats.monthlyPoints || 0,
-                  wins: stats.wins || 0,
-                  losses: stats.losses || 0,
-                  matchesPlayed: stats.matchesPlayed || 0,
-                  avgRating: stats.avgRating || 1.0,
-                  isInPromotionZone: false,
-                  isInRelegationZone: idx >= fplPlayers.length - FC.RELEGATION_SLOTS
-                }))
-                hydratedSave.fplData.fplCStandings = fplCPlayers.map((stats: any, idx: number) => ({
-                  playerId: stats.playerId,
-                  rank: idx + 1,
-                  points: stats.monthlyPoints || 0,
-                  wins: stats.wins || 0,
-                  losses: stats.losses || 0,
-                  matchesPlayed: stats.matchesPlayed || 0,
-                  avgRating: stats.avgRating || 1.0,
-                  isInPromotionZone: idx < FC.PROMOTION_SLOTS,
-                  isInRelegationZone: false
-                }))
-              } catch { /* non-critical */ }
-            }
-          }
-
           AIManager.initializeTeamData(hydratedSave)
           reconcileAllRoles(hydratedSave.teams, hydratedSave.players)
 
@@ -1896,7 +1711,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             socialFeed: hydratedSave.socialFeed,
             // Optional slices must be assigned explicitly: the spread above
             // omits absent keys, which would keep the previous career's data.
-            fplData: hydratedSave.fplData,
+            league: hydratedSave.league,
             careerStats: hydratedSave.careerStats,
             activeScoutingMission: hydratedSave.activeScoutingMission,
             gameOverReason: hydratedSave.gameOverReason,
@@ -2094,7 +1909,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         // Yield one macrotask so React can commit the isLoading=true state
         // and the browser can paint the WeekProcessingOverlay BEFORE we start
         // the 10-50ms block of synchronous pre-tick work below (structuredClone
-        // + applyPreTickMutations + applyWeeklyActivity + ... + applyFplWeek).
+        // + applyPreTickMutations + applyWeeklyActivity + ...).
         // Without this yield, the overlay only appears after that work
         // finishes — pressing space feels like a stall before the spinner.
         await new Promise(resolve => setTimeout(resolve, 0))
@@ -2210,21 +2025,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           TournamentManager.simulateWeeklyRegistrationsV2(saveState, state.currentWeek, rng)
           phase("02_preTick")
 
-          // Yield before the FPL update (~1 800 players) so the spinner can
-          // animate at least one frame between the two heaviest sync steps.
-          await new Promise(resolve => setTimeout(resolve, 0))
-          phaseStart = perfTrace.now()
-
-          // Process FPL (Individual Rankings) before the week processor.
-          // Surfaces tier-change events on the inbox; toasts the user on
-          // engine failure since FPL is non-critical to the tick.
-          const fplOk = applyFplWeek(saveState, rng)
-          if (!fplOk) {
-            get().addToast({ message: "FPL rankings update failed this week", type: "warning", duration: 5000 })
-          }
           preTick.mark(saveState, { type: "world", label: "World update" })
           const preTickChanges = preTick.result()
-          phase("03_fpl")
 
           // Run the week off the main thread when possible. The bridge falls
           // back to a synchronous run if the worker can't load (SSR, Electron
@@ -2252,7 +2054,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             const live = get()
             // Keys the old producer read from the merged draft fall back to the
             // live value if the worker result ever omitted them.
-            for (const key of ["completedMatches", "eventsLog", "financeLedger", "playerTeamId", "transferHistory", "newsFeed", "academyMatchHistory", "academyWeeklyReports", "fplData", "timeMode"] as const) {
+            for (const key of ["completedMatches", "eventsLog", "financeLedger", "playerTeamId", "transferHistory", "newsFeed", "academyMatchHistory", "academyWeeklyReports", "league", "timeMode"] as const) {
               if (!(key in committed)) (committed as unknown as Record<string, unknown>)[key] = live[key as keyof typeof live]
             }
             committed.currentDay = committed.timeMode === "HYBRID_DAILY" ? 0 : 6

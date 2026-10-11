@@ -24,7 +24,7 @@ function load(opts: { timeMode?: "WEEKLY" | "HYBRID_DAILY"; match?: { day?: numb
     else save.scheduledMatches = []
     if (opts.roster) save.teams[0].rosterIds = save.teams[0].rosterIds.slice(0, opts.roster)
     useGameStore.setState({
-        ...initial, ...structuredClone(save), fplData: undefined, boardState: undefined,
+        ...initial, ...structuredClone(save), league: undefined, boardState: undefined,
         weekReports: null, continueRun: null, advanceStop: null, advanceSeenKeys: [], weekReportOpen: null, weekReportToast: null,
         isLoading: false, isInitialized: true, _completedMatchIds: new Set(), addToast: jest.fn(),
     } as never)

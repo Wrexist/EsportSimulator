@@ -111,10 +111,8 @@ export default function FinancesPage() {
   const runway = cashRunway(funds, net)
   const season = Math.ceil(currentWeek / 52)
   const repFactor = EconomyEngine.sponsorReputationFactor(team.reputation)
-  const sponsorFloor = team.reputation * 150 + 2000
+  const sponsorFloor = EconomyEngine.sponsorFloor(team.reputation)
   const sponsorsPaid = (team.sponsors ?? []).filter(s => s.remainingWeeks === undefined || s.remainingWeeks > 0)
-  const rawSponsor = sponsorsPaid.reduce((sum, s) => sum + s.weeklyPayout * repFactor, 0)
-  const floorActive = rawSponsor < sponsorFloor
   const merchLevel = team.merchStoreLevel || 1
   const activeLines = team.activeMerchItems ?? []
   const upgradeCost = MERCH_UPGRADE_BASE * Math.pow(2, merchLevel - 1)
@@ -122,13 +120,14 @@ export default function FinancesPage() {
   const recentLedger = [...ledger].reverse().slice(0, 18)
 
   const incomeRows = [
-    { label: "Sponsors", amount: report.income.sponsors, note: floorActive ? "Reputation floor (beats your deals)" : `${sponsorsPaid.length} deal${sponsorsPaid.length === 1 ? "" : "s"} × ${repFactor.toFixed(2)} reputation factor` },
+    { label: "Sponsors", amount: report.income.sponsors, note: `${formatCurrency(sponsorFloor)} base partners${sponsorsPaid.length ? ` + ${sponsorsPaid.length} deal${sponsorsPaid.length === 1 ? "" : "s"} × ${repFactor.toFixed(2)} reputation factor` : " (no deals signed)"}` },
     { label: "Fan & merch income", amount: report.income.fanbase, note: `${(team.followers ?? 0).toLocaleString("en-US")} followers · store level ${merchLevel}` },
-    { label: "League revenue share", amount: report.income.leagueShare, note: "Fixed weekly payment" },
+    { label: "League central payment", amount: report.income.leagueShare, note: team.leagueDivisionLevel ? `Division ${team.leagueDivisionLevel} rate` : "Outside the league this split" },
   ]
   const expenseRows = [
     { label: "Player wages", amount: report.expenses.playerWages, note: `${payroll.rows.length} contracts` },
     { label: "Staff wages", amount: report.expenses.staffWages, note: `${payroll.staffRows.length} staff` },
+    { label: "Club operations", amount: report.expenses.operations, note: "Travel, admin and content; grows with reputation" },
     { label: "Facility upkeep", amount: report.expenses.facilities, note: team.facilities?.length ? `${team.facilities.length} facilities` : "Base campus" },
     { label: "Equipment upkeep", amount: report.expenses.equipment },
     { label: "Academy upkeep", amount: report.expenses.academy },

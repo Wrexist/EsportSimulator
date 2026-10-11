@@ -106,7 +106,7 @@ describe("store weekly report", () => {
         save.currentDay = timeMode === "WEEKLY" ? 6 : 0
         if (!withMatch) save.scheduledMatches = []
         useGameStore.setState({
-            ...initial, ...structuredClone(save), fplData: undefined, boardState: undefined,
+            ...initial, ...structuredClone(save), league: undefined, boardState: undefined,
             weekReports: null, continueRun: null, advanceStop: null, advanceSeenKeys: [], weekReportOpen: null, weekReportToast: null,
             isLoading: false, isInitialized: true, _completedMatchIds: new Set(), addToast: jest.fn(),
         } as never)

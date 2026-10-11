@@ -143,12 +143,12 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
         })
     }, [players, contracts, teams])
 
-    // Real free agents only (no FPL/prospect placeholders), rated once.
+    // Real free agents only (no prospect placeholders), rated once.
     const freeAgents = useMemo(() => {
         if (!playerTeam) return []
         return playersWithTeamInfo
             .filter(p => p.currentTeamId !== playerTeam.id)
-            .filter(p => !p.id.startsWith("fpl_nonpro_") && !p.id.startsWith("prospect_"))
+            .filter(p => !p.id.startsWith("prospect_"))
             .filter(p => p.isFreeAgent)
             .filter(p => !p.isRetired && !p.isLegendary)
             .map(p => ({ ...p, ovr: evaluatePlayer(p).overallRating }))

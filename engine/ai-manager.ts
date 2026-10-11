@@ -29,7 +29,7 @@ import {
 } from "./ai/transfer-market"
 import { logger } from "@/lib/logger"
 import { recalculateTeamSynergy } from "./processors/team-synergy-recalc"
-import { recruitmentBudget, recruitmentSalary } from "./recruitment"
+import { affordableInvestment, recruitmentBudget, recruitmentSalary } from "./recruitment"
 import { freeAgentsBySkill, renewExpiringContracts, upgradeFromFreeAgency } from "./ai/squad-maintenance"
 
 /**
@@ -239,6 +239,13 @@ export class AIManager {
 
         // Skip if in financial trouble
         if (team.financialState === "CRISIS" || team.financialState === "INSOLVENT" || team.financialState === "RISK") return
+
+        // Phase 4.4: role training is optional spend ($5k/week for 8 weeks per
+        // player), so it follows the same rule as AI facilities and staff: the
+        // weekly net must cover it on top of sessions already running. Before,
+        // a $100k balance was enough, which emptied small clubs once league
+        // income stopped covering everything.
+        if (!affordableInvestment(save, team, 0, TrainingManager.ROLE_TRAINING_COST)) return
 
         // Slot check
         if ((team.trainingSlotsUsed || 0) >= (team.maxTrainingSlots || 10)) return

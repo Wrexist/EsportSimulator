@@ -75,7 +75,8 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
         out.push({ key: `match:${playable.id}`, kind: "match", reason: `Play ${teamName(opp)}${playable.format ? ` (${playable.format})` : ""}`, href: `/match/${playable.id}/tactics`, actionLabel: "Play match" })
     }
 
-    if (state.gameOverReason) out.push({ key: `game-over:${state.gameOverReason}`, kind: "game-over", reason: "Your career is over", href: "/" })
+    // Phase 4.4: a dismissed manager is between clubs; Home lists the job offers.
+    if (state.gameOverReason) out.push({ key: `game-over:${state.gameOverReason}`, kind: "game-over", reason: state.gameOverReason === "SACKED" ? "You were dismissed: review your job offers" : "Your club folded: review your job offers", href: "/" })
 
     // A due fixture the store will resolve by forfeit (a side can't field five).
     for (const m of state.scheduledMatches) {

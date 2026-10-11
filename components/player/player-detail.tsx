@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react"
 import Link from "next/link"
-import { Activity, ArrowRightLeft, Crosshair, Star } from "lucide-react"
+import { Activity, ArrowRightLeft, Crosshair } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
@@ -11,7 +11,6 @@ import { getDisplayPlayerTier, getTierStyle, type TierLevel } from "@/engine/tie
 import { getPrestigeLabel } from "@/engine/prestige-system"
 import { PLAYER_TALENT_TREE } from "@/engine/talent-trees"
 import { getMasteryInfo, WEAPON_DISPLAY, WeaponMasteryManager, type WeaponType } from "@/engine/weapon-mastery-system"
-import { getFPLTierName } from "@/types/fpl"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { clutchRateFraction, formatCurrency } from "@/lib/utils-extended"
 import { toast } from "@/lib/toast"
@@ -95,7 +94,7 @@ function Row({ label, children, className }: { label: string; children: ReactNod
 function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const {
         contracts, listPlayerForTransfer, unlistPlayerForTransfer, startRoleTraining, cancelRoleTraining,
-        teams, playerTeamId, currentWeek, unlockPlayerTalent, fplData, academyPlayers,
+        teams, playerTeamId, currentWeek, unlockPlayerTalent, academyPlayers,
     } = useGameStore(useShallow(state => ({
         contracts: state.contracts,
         listPlayerForTransfer: state.listPlayerForTransfer,
@@ -106,7 +105,6 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
         playerTeamId: state.playerTeamId,
         currentWeek: state.currentWeek,
         unlockPlayerTalent: state.unlockPlayerTalent,
-        fplData: state.fplData,
         academyPlayers: state.academyPlayers,
     })))
     const [tab, setTab] = useState("overview")
@@ -138,8 +136,6 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const recentAvg = recentRatings.length ? recentRatings.reduce((s, r) => s + r, 0) / recentRatings.length : null
 
     const mastery = WeaponMasteryManager.getPlayerMastery(player)
-    const fplStats = fplData?.playerStats?.[player.id]
-    const fplChampionships = fplData?.seasonHistory?.filter(s => s.champion === player.id).length || 0
     const kd = (player.totalDeaths ?? 0) > 0 ? (player.totalKills ?? 0) / (player.totalDeaths ?? 1) : null
     const realName = player.name && player.name !== player.nickname ? player.name : null
     const tint = clubTint(viewedTeam, 0.18)
@@ -336,20 +332,6 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                             <Panel title="Match history" padded={false}>
                                 <PlayerMatchHistory playerId={player.id} limit={15} />
                             </Panel>
-                            {fplStats && (
-                                <Panel title="FPL" actions={<span className="text-xs text-ink-3">{getFPLTierName(fplStats.fplTier)}</span>}>
-                                    <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-5">
-                                        <Fact label="Rank">#{fplStats.fplRank || "—"}</Fact>
-                                        <Fact label="Elo">{Math.round(fplStats.fplElo)}</Fact>
-                                        <Fact label="W–L">{fplStats.wins}–{fplStats.losses}</Fact>
-                                        <Fact label="Rating">{fplStats.avgRating?.toFixed(2) || "1.00"}</Fact>
-                                        <Fact label="MVPs">{fplStats.mvpCount}</Fact>
-                                    </dl>
-                                    {fplChampionships > 0 && (
-                                        <p className="mt-3 flex items-center gap-2 text-sm text-ink-2"><Star size={14} className="text-gold" /> {fplChampionships}× FPL champion</p>
-                                    )}
-                                </Panel>
-                            )}
                         </TabsContent>
 
                         <TabsContent value="contract" className="mt-3 space-y-4">

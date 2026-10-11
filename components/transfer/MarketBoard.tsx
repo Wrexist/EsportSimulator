@@ -228,7 +228,6 @@ export function MarketBoard({ mode }: { mode: Mode }) {
         const rows: Row[] = []
         for (const p of players) {
             if (own.has(p.id) || academyIds.has(p.id) || p.isRetired) continue
-            if ((p as { isFPLNonPro?: boolean }).isFPLNonPro || p.id.startsWith("fpl_nonpro_")) continue
             rows.push({
                 player: p,
                 team: teamByPlayer.get(p.id),

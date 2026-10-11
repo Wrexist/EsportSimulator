@@ -85,7 +85,7 @@ export function buildSaveSnapshot(state: SaveSnapshotState): GameSave {
         academyPendingProspects: state.academyPendingProspects || [],
         sponsorOffers: state.sponsorOffers || [],
         declinedSponsorOfferIds: state.declinedSponsorOfferIds || [],
-        fplData: state.fplData,
+        league: state.league,
         boardState: state.boardState,
         socialFeed: state.socialFeed,
         careerStats: state.careerStats,

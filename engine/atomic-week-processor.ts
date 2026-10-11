@@ -77,7 +77,9 @@ import { buildQualificationGraph, isQualificationForTournament } from "./circuit
 import { ManagerProgression } from "./manager-progression"
 import { StaffGenerator } from "./staff-generator"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
-import { processSeasonBoardReview, ensureBoardState, processMidSeasonBoardPulse } from "./board-expectations"
+import { processWeeklyBoard } from "./board-expectations"
+import { drawDueLeagueSplit, processLeagueWeek } from "./season/regional-league"
+import { processAIAdministration } from "./season/club-finances"
 import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
 import { WeekChangeRecorder, sideScore, type ChangeCause, type ChangeEntry, type CauseResolver } from "@/lib/week-changes"
 
@@ -391,6 +393,14 @@ export class AtomicWeekProcessor {
                 debugLog(`[Week ${save.currentWeek}] Step 6: Standings...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 this.updateStandings(save, idx, eventIdSet, ledgerIdSet)
+                mark(e => e.kind === "ranking"
+                    ? { type: "world", label: "Weekly ranking update" }
+                    : { type: "world", label: "Tournament standings" })
+
+                // Regional league: read this week's results into the tables;
+                // a finished division pays its split prizes (Phase 4.4).
+                processLeagueWeek(save, config.playerTeamId, ledgerIdSet, eventIdSet)
+                mark(e => e.kind === "reputation" ? { type: "world", label: "League title" } : { type: "world", label: "League table" })
 
                 // Sync all team league tiers based on current Elo
                 // This ensures teams always have correct S/A/B tier assignment
@@ -466,6 +476,8 @@ export class AtomicWeekProcessor {
                 debugLog(`[Week ${save.currentWeek}] Step 7.5: World Logic (AI / Fans)...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 this.processAIWorldLogic(save, config.playerTeamId, rng)
+                // AI clubs face the managed club's insolvency rule (Phase 4.4).
+                processAIAdministration(save, config.playerTeamId)
                 this.processFanbaseGrowth(save, rng)
                 this.processWeeklySponsorGoals(save, eventIdSet, ledgerIdSet)
                 this.refreshSponsorOffers(save, config.playerTeamId, rng)
@@ -634,49 +646,27 @@ export class AtomicWeekProcessor {
                     debug.log(`[Week ${save.currentWeek}] GC reclaimed ${gcRemoved} unreferenced retired player(s)`)
                 }
                 mark({ type: "age", label: "New season" })
-
-                // Board verdict on the season — moves confidence, can sack the
-                // manager (game-over), and posts a review to the news feed.
-                const review = processSeasonBoardReview(save)
-                mark({ type: "board", label: "Season review" })
-                if (review.reviewed && review.newsTitle) {
-                    save.newsFeed.unshift({
-                        id: `board_review_s${getSeasonNumber(save.currentWeek)}_${save.playerTeamId}`,
-                        title: review.newsTitle,
-                        content: review.newsContent ?? "",
-                        week: save.currentWeek,
-                        category: "FINANCE",
-                        teamId: save.playerTeamId,
-                    })
-                    debug.log(`[Week ${save.currentWeek}] Board review: ${review.outcome}, confidence ${review.confidence}${review.sacked ? " — MANAGER SACKED" : ""}`)
-                }
             } else if (!save.careerStats) {
                 // First-time migration for existing saves
                 save.careerStats = migrateCareerStats(save)
             }
 
-            // Keep board state present every week so the dashboard can always
-            // show the current expectation + confidence (cheap no-op once set).
-            ensureBoardState(save)
-
-            // Quarterly board pulse (weeks 13/26/39): confidence tracks form
-            // mid-season so the war-chest tier isn't frozen for 52 weeks.
-            const pulse = processMidSeasonBoardPulse(save)
-            mark({ type: "board", label: "Quarterly board review" })
-            result.changes = changes.result()
-            if (pulse.pulsed && pulse.newsTitle) {
-                const pulseNewsId = `board_pulse_w${save.currentWeek}_${save.playerTeamId}`
-                if (!save.newsFeed.some(n => n.id === pulseNewsId)) {
-                    save.newsFeed.unshift({
-                        id: pulseNewsId,
-                        title: pulse.newsTitle,
-                        content: pulse.newsContent ?? "",
-                        week: save.currentWeek,
-                        category: "FINANCE",
-                        teamId: save.playerTeamId,
-                    })
-                }
+            // Board (Phase 4.4): objectives, weekly confidence moves with
+            // causes (results, league table vs objective, finances), the
+            // mid-season and season reviews, warnings and dismissal. Each move
+            // goes into the weekly report with its own cause.
+            const board = processWeeklyBoard(save)
+            changes.markItemized(save, board.moves.map(m => ({
+                kind: "board" as const, subjectId: config.playerTeamId, label: "Board confidence", delta: m.delta,
+                cause: { type: "board" as const, label: m.cause },
+            })), e => e.kind === "money" ? { type: "board", label: "Board backing" } : { type: "board", label: board.review ? "Board review" : "Board" })
+            if (board.review?.reviewed) debug.log(`[Week ${save.currentWeek}] Board review: ${board.review.outcome ?? "mid-season"}, confidence ${board.review.confidence}${board.sacked ? " — MANAGER SACKED" : ""}`)
+            // A dismissed manager (sacked, or the club folded) gets the job
+            // market instead of a dead end.
+            if (save.gameOverReason === "SACKED" || save.gameOverReason === "BANKRUPTCY") {
+                JobOfferGenerator.createDismissalOffers(save, new SeededRNG(rng.int(1, 2147483646)))
             }
+            result.changes = changes.result()
 
             // Guard long-running saves against unbounded log growth.
             compactPersistentState(save)
@@ -1285,7 +1275,7 @@ export class AtomicWeekProcessor {
         if (!team) return
         const offerRng = new SeededRNG(rng.int(1, 2147483646))
         save.sponsorOffers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, offerRng,
-            EconomyEngine.weeklyWageBill(team, save.contracts, save.staff || [], save.currentWeek + 1))
+            EconomyEngine.sponsorCostBase(team, save.contracts, save.staff || [], save.currentWeek + 1))
         save.declinedSponsorOfferIds = []
     }
 
@@ -1304,6 +1294,11 @@ export class AtomicWeekProcessor {
 
         // Reset stale future tournament state (Phase M4).
         resetStaleTournamentState(save)
+
+        // Regional league draw at the start of each split (Phase 4.4). Runs
+        // before events start this week so their scheduling sees the league
+        // nights and books other days.
+        drawDueLeagueSplit(save)
 
         // Find tournaments starting this week
         const startingTournaments = FULL_TOURNAMENT_CALENDAR.filter(t => t.startWeek === weekOfSeason)

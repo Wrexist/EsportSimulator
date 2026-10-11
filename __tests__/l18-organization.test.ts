@@ -53,7 +53,8 @@ test('sponsor preview includes the income floor, reputation and difficulty used 
     team.sponsors = []
     const floor = EconomyEngine.calculateSponsorIncome(team)
     team.sponsors = [sponsor()]
-    expect(EconomyEngine.calculateSponsorIncome(team)).toBe(floor)
+    // Phase 4.4: every deal adds to the base partner income (never replaced by it).
+    expect(EconomyEngine.calculateSponsorIncome(team)).toBeGreaterThan(floor)
     team.sponsors[0].weeklyPayout = 25000
     const increased = EconomyEngine.calculateSponsorIncome(team)
     expect(increased).toBeGreaterThan(floor)

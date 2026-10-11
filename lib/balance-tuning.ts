@@ -52,15 +52,17 @@ export const SPONSOR_TUNING = {
     ELITE_MULTIPLIER: 2.2,
     /**
      * One offer's effective weekly income (payout x reputation factor) may not
-     * exceed this share of the club's weekly wage bill (players + staff), with
-     * the wage bill floored at WAGE_BILL_FLOOR so lean small clubs still get
-     * normal offers. Three such sponsors cover at most ~1x the wage bill, so
-     * raising wages never pays for itself through sponsors.
+     * exceed this share of the club's weekly running costs (players + staff +
+     * operations), with the base floored at WAGE_BILL_FLOOR so lean small
+     * clubs still get normal offers. Three such sponsors cover at most ~0.9x
+     * of running costs (Phase 4.4: was 0.34 of a $20k + $1k x rep floor,
+     * which paid a $1.7k/week semi-pro club up to $27k per deal), so raising
+     * wages never pays for itself through sponsors.
      */
-    MAX_SHARE_OF_WAGE_BILL: 0.34,
-    /** Wage-bill floor = BASE + PER_REP x reputation: a famous club with a lean payroll still sells exposure. */
-    WAGE_BILL_FLOOR: 20_000,
-    WAGE_BILL_FLOOR_PER_REP: 1_000,
+    MAX_SHARE_OF_WAGE_BILL: 0.3,
+    /** Base floor = BASE + PER_REP x reputation: a famous club with a lean payroll still sells exposure. */
+    WAGE_BILL_FLOOR: 2_000,
+    WAGE_BILL_FLOOR_PER_REP: 100,
 } as const
 
 /** Wage bill used for the sponsor cap: the actual bill, floored by reputation. */
@@ -146,6 +148,183 @@ export const AI_SQUAD_TUNING = {
     UPGRADE_MAX_QUOTES: 12,
     /** No upgrade signing at or above this roster size. */
     MAX_ROSTER: 7,
+} as const
+
+/**
+ * Regional league (Phase 4.4). Before it, a passive club played a median of
+ * 4 official matches a season (143 of 197 AI clubs under 20; campaign
+ * 2026-10-11 "before"). Every club now plays a weekly league in two splits a
+ * season, in divisions of about ten clubs per region, with promotion and
+ * relegation between splits.
+ *
+ * Fixture target: 30-45 official matches a season for a typical club. A
+ * double round robin of ten is 18 league matches a split (36 a season); with
+ * the open/regional events lower clubs reach, that lands in the band.
+ * Divisions of busy international clubs (median world rank <= 30) play a
+ * single round robin (9 a split) because the circuit already gives them
+ * 25-60 matches. One league round per week at most, on a weekday, so a club
+ * never has two league games in a week and the weekend stays free for events.
+ */
+export const LEAGUE_TUNING = {
+    /** Club region -> league region (small regions share a conference). */
+    REGION_OF: {
+        EU: "EUROPE", MENA: "EUROPE", CIS: "CIS",
+        NA: "AMERICAS", BR: "AMERICAS", SA: "AMERICAS",
+        ASIA: "ASIA_PACIFIC", OCE: "ASIA_PACIFIC", OCEANIA: "ASIA_PACIFIC",
+    } as Record<string, "EUROPE" | "CIS" | "AMERICAS" | "ASIA_PACIFIC">,
+    DEFAULT_REGION: "EUROPE" as const,
+    REGION_NAMES: { EUROPE: "Europe", CIS: "CIS", AMERICAS: "Americas", ASIA_PACIFIC: "Asia-Pacific" } as const,
+    /** Clubs per division (a region of N clubs gets round(N / size) divisions, sized as evenly as possible). */
+    DIVISION_TARGET_SIZE: 10,
+    /** A division whose median world ranking is at most this plays a single round robin. */
+    LIGHT_SCHEDULE_MEDIAN_RANK: 30,
+    /** Week-of-season windows. The split is drawn on drawWeek; rounds are spread over firstWeek..lastWeek. */
+    SPLITS: [
+        { split: 1 as const, drawWeek: 1, firstWeek: 2, lastWeek: 24 },
+        { split: 2 as const, drawWeek: 26, firstWeek: 27, lastWeek: 49 },
+    ],
+    /** A split can be drawn late (old saves, careers started mid-split) while at least this many weeks remain. */
+    LATE_DRAW_MIN_WEEKS: 8,
+    PROMOTED: 2,
+    RELEGATED: 2,
+    MATCH_FORMAT: "BO1" as const,
+    /** Preferred weekdays (0 = Mon). Events prefer Fri-Sun, so league nights stay clear of them. */
+    DAYS_DOUBLE: [1, 2, 0, 3],
+    DAYS_SINGLE: [2, 1, 3, 0],
+    /**
+     * Weekly central distribution by division level (index = level - 1; the
+     * last value applies to every deeper level). Replaces the flat $15,000
+     * "league revenue share" every club received regardless of stature.
+     */
+    CENTRAL_PAYMENT_BY_LEVEL: [8_000, 6_000, 4_500, 3_500, 2_500] as const,
+    /** Paid to clubs outside the league (none normally; old saves until the first draw). */
+    CENTRAL_PAYMENT_FALLBACK: 2_500,
+    /** Split prize pool by division level, paid by final table position. */
+    SPLIT_PRIZE_POOL_BY_LEVEL: [120_000, 60_000, 35_000, 20_000, 12_000] as const,
+    SPLIT_PRIZE_SHARES: [0.40, 0.20, 0.10, 0.10, 0.05, 0.05, 0.05, 0.05] as const,
+    /** Reputation for a division title (top division / any other). */
+    CHAMPION_REPUTATION_TOP: 4,
+    CHAMPION_REPUTATION: 2,
+    /** AI-vs-AI league match records are kept this many weeks; the table keeps the results. */
+    AI_MATCH_RECORD_WEEKS: 4,
+    /** Finished splits kept in league history. */
+    HISTORY_SPLITS: 4,
+} as const
+
+/**
+ * Club economy (Phase 4.4). Before: every club got $15,000/week of league
+ * share plus a sponsor floor of $2,000 + $150 x reputation, so every non-elite
+ * club made $19-23k a week doing nothing and the managed club banked
+ * +$3-5M a season. Now the unconditional income is small, clubs pay for their
+ * operation, and starting cash is a fixed number of weeks of running costs,
+ * so every tier starts with the same runway and has to earn (sponsors,
+ * prizes, league finish) to grow. Same rules for the managed and AI clubs.
+ */
+export const CLUB_ECONOMY_TUNING = {
+    /**
+     * Base partner income (minor partners, platform revenue): BASE + PER_REP x
+     * reputation per week, earned before any signed deal; signed deals add on
+     * top. Was a max() floor of 2,000 + 150 x rep.
+     */
+    SPONSOR_FLOOR_BASE: 400,
+    SPONSOR_FLOOR_PER_REP: 30,
+    /** Club operations (travel, admin, content, housing): BASE + PER_REP x reputation per week. */
+    OPERATIONS_BASE: 300,
+    OPERATIONS_PER_REP: 15,
+    /** Starting cash = this many weeks of running costs (wages, staff, upkeep, operations)... */
+    STARTING_RUNWAY_WEEKS: 26,
+    /** ...rounded to this step, never below the minimum. */
+    STARTING_BUDGET_ROUND: 10_000,
+    STARTING_BUDGET_MIN: 100_000,
+    /** AI administration: after this many consecutive insolvent weeks (the managed club's bankruptcy rule). */
+    ADMINISTRATION_WEEKS: 8,
+    ADMINISTRATION_REPUTATION_PENALTY: 10,
+    /**
+     * New owners recapitalise an AI club in administration to this many weeks
+     * of its (cut) running costs; without it a club that only breaks even
+     * stays insolvent forever, re-enters administration every 8 weeks and
+     * forfeits its fixtures (campaign 2026-10-11: 61 insolvent AI clubs, 56
+     * short rosters in season 2). The managed club instead goes bankrupt and
+     * the manager moves to another club.
+     */
+    ADMINISTRATION_RECAPITALISE_WEEKS: 8,
+    /** AI cost control: an AI club losing money with less than this runway lets its highest-paid staff go (one a week). */
+    COST_CONTROL_RUNWAY_WEEKS: 26,
+} as const
+
+/** Weekly running costs the starting runway is measured against. */
+export function clubOperationsCost(reputation: number): number {
+    const rep = Math.max(0, Math.min(100, Number.isFinite(reputation) ? reputation : 50))
+    return Math.round(CLUB_ECONOMY_TUNING.OPERATIONS_BASE + CLUB_ECONOMY_TUNING.OPERATIONS_PER_REP * rep)
+}
+
+export function sponsorIncomeFloor(reputation: number): number {
+    const rep = Math.max(0, Math.min(100, Number.isFinite(reputation) ? reputation : 50))
+    return Math.round(CLUB_ECONOMY_TUNING.SPONSOR_FLOOR_BASE + CLUB_ECONOMY_TUNING.SPONSOR_FLOOR_PER_REP * rep)
+}
+
+/** League central payment for a division level (undefined = not in the league). */
+export function leagueCentralPayment(level: number | undefined): number {
+    if (!level || !Number.isFinite(level) || level < 1) return LEAGUE_TUNING.CENTRAL_PAYMENT_FALLBACK
+    const table = LEAGUE_TUNING.CENTRAL_PAYMENT_BY_LEVEL
+    return table[Math.min(table.length, Math.floor(level)) - 1]
+}
+
+/**
+ * Board objectives and confidence (Phase 4.4). Confidence moves every week
+ * with a named cause (results, league position against the objective,
+ * finances) and at two reviews (mid-season after split 1, season end).
+ * Consequences are telegraphed: a warning under WARN_BELOW, a final warning
+ * (on notice) under NOTICE_BELOW, and dismissal at SACK_AT_OR_BELOW only
+ * while on notice. A dismissed manager goes to the job market.
+ */
+export const BOARD_TUNING = {
+    NEW_BOARD_CONFIDENCE: 60,
+    /** Weekly movement is clamped so one bad week never decides a career. */
+    WEEKLY_MAX_MOVE: 5,
+    RESULT_WIN: 0.8,
+    RESULT_LOSS: -0.8,
+    /** Elo gap that makes a result an upset or an expected outcome. */
+    UPSET_ELO_GAP: 100,
+    UPSET_WIN: 1.5,
+    EXPECTED_LOSS: -1.5,
+    EXPECTED_WIN: 0.3,
+    UPSET_LOSS: -0.3,
+    TITLE: 4,
+    TITLE_S_TIER: 8,
+    /** League table vs objective, once LEAGUE_MIN_PLAYED matches of the split are played. */
+    LEAGUE_ON_TRACK: 0.3,
+    LEAGUE_BEHIND: -0.6,
+    LEAGUE_MIN_PLAYED: 3,
+    /** Weekly finance pressure by state. */
+    FINANCE_RISK: -1,
+    FINANCE_CRISIS: -2,
+    FINANCE_INSOLVENT: -3,
+    /** Reviews. */
+    REVIEW_LEAGUE_EXCEEDED: 10,
+    REVIEW_LEAGUE_MET: 6,
+    REVIEW_LEAGUE_MISSED: -6,
+    REVIEW_LEAGUE_FAILED: -12,
+    REVIEW_RANK_EXCEEDED: 10,
+    REVIEW_RANK_MET: 6,
+    REVIEW_RANK_MISSED: -6,
+    REVIEW_RANK_FAILED: -12,
+    REVIEW_FINANCE_MET: 4,
+    REVIEW_FINANCE_MISSED: -8,
+    /** Finance objective: end the season with at least max(SHARE x season-start cash, WEEKS x running costs). */
+    FINANCE_CASH_SHARE: 0.5,
+    FINANCE_MIN_WEEKS_OF_COSTS: 8,
+    /** Consequences. */
+    WARN_BELOW: 40,
+    NOTICE_BELOW: 25,
+    SACK_AT_OR_BELOW: 10,
+    /** Confidence that clears warnings. */
+    RECOVERED_AT: 50,
+    /** No warnings or dismissal in the first weeks of a tenure. */
+    TENURE_GRACE_WEEKS: 8,
+    HISTORY_LENGTH: 16,
+    /** Job offers a dismissed manager receives. */
+    DISMISSAL_OFFERS: 3,
 } as const
 
 /** Tournament entry for the managed club. */

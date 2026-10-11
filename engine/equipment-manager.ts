@@ -369,6 +369,20 @@ export class EquipmentManager {
     }
 
     /**
+     * Weekly upkeep of the implicit gear an AI club plays with
+     * (implicitStrengthBonus), priced at the mid catalog set's cost per point
+     * of strength: an AI club pays for the edge it gets, like the managed
+     * club pays for gear it buys (Phase 4.4 gear parity). About $2.3k/week
+     * for an elite club, $1.1k mid-table, $0.3k for an academy.
+     */
+    static implicitWeeklyCost(team: { reputation?: number }): number {
+        const mid = EQUIPMENT_CATALOG.filter(item => item.tier === 2)
+        const strength = mid.reduce((sum, item) => sum + this.itemStrengthBonus(item), 0)
+        const cost = mid.reduce((sum, item) => sum + item.weeklyCost, 0)
+        return strength > 0 ? Math.round(this.implicitStrengthBonus(team) * cost / strength) : 0
+    }
+
+    /**
      * Calculate total weekly equipment cost
      */
     static calculateWeeklyCost(team: TeamSaveData): number {

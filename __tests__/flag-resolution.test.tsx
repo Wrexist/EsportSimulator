@@ -42,7 +42,6 @@ test('every nationality in the game data resolves to an existing flag file or a 
     }
     scanTs('engine/staff-generator.ts', /NATIONALITIES = \[([^\]]+)\]/g)
     scanTs('engine/data-generator.ts', /private static nationalities = \[([^\]]+)\]/g)
-    scanTs('engine/fpl-player-generator.ts', /nationalities:\s*\[([^\]]+)\]/g)
     scanTs('engine/prospect-generator.ts', /nationalities:\s*\[([^\]]+)\]/g)
     scanTs('engine/staff-db.ts', /"nationality":\s*"([^"]+)"/g)
     scanTs('engine/legendary-players-data.ts', /nationality:\s*"([^"]+)"/g)

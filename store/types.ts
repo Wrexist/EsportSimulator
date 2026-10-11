@@ -32,7 +32,7 @@ import type {
 } from "@/engine/save-types"
 import type { EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WeeklyActivityType } from "@/types"
 import type { AcademyPlayer, AcademyMatchResult, AcademyWeeklyReport, AcademyScoutingMission, AcademyTrainingFocus, ScoutingTier } from "@/types/academy"
-import type { FPLSaveData } from "@/types/fpl"
+
 import type { CustomTeamData } from "@/types/team-creator"
 import type { MatchResult } from "@/types"
 
@@ -130,7 +130,7 @@ export interface UIState {
   signedLegendIds: string[]
   activelyPlayingLegendIds: string[]
   selectedWeeklyActivity: WeeklyActivityType | null
-  fplData?: FPLSaveData
+  league?: import("@/engine/save-types").LeagueState
   boardState?: import("@/engine/save-types").BoardState
   socialFeed?: import("@/engine/save-types").SocialPost[]
   careerStats?: import("@/engine/save-types").CareerStats

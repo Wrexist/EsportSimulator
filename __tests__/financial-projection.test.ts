@@ -25,10 +25,12 @@ describe("one projection for dashboard, Finances, and recurring settlement", () 
     expect(finances.weeklyIncome.total).toBe(dashboard.income.total)
     expect(finances.weeklyExpenses.total).toBe(dashboard.expenses.total)
     expect(finances.netCashflow).toBe(dashboard.net)
-    expect(dashboard.income.sponsors).toBe(7600)
+    // Base partner income 400 + 30 x 50 = 1900, plus the deal (Phase 4.4: additive), x0.8 difficulty.
+    expect(dashboard.income.sponsors).toBe(Math.floor((1900 + (sponsored ? 100 : 0)) * 0.8))
     expect(dashboard.expenses.facilities).toBeGreaterThan(0)
     expect(dashboard.expenses.equipment).toBe(500)
-    expect(dashboard.expenses.total).toBe(2000 + dashboard.expenses.facilities + 500)
+    expect(dashboard.expenses.total).toBe(2000 + dashboard.expenses.facilities + 500 + dashboard.expenses.operations)
+    expect(dashboard.expenses.operations).toBe(300 + 15 * 50)
     expect(team.budget).toBe(before) // A preview cannot charge the player.
 
     const settlement = FinanceProcessor.processFinance(save, "player")

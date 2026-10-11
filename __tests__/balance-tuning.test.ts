@@ -108,9 +108,12 @@ describe('sponsors scale with reputation and the wage bill', () => {
         const best3 = [...a].sort((x, y) => y.weeklyPayout - x.weeklyPayout).slice(0, 3)
         const income = EconomyEngine.calculateSponsorIncome({ ...team, sponsors: best3 })
         expect(income).toBeLessThanOrEqual(wage * 1.03)
-        // A low-reputation club keeps ordinary offers (the wage floor protects lean payrolls).
+        // A low-reputation club still gets real offers, sized to its costs (the base floor protects lean payrolls).
         const small = SponsorGenerator.generateVariedOffers({ ...team, reputation: 20 }, 10, new SeededRNG(9), 3_000)
-        expect(small.every(o => o.weeklyPayout >= SPONSOR_TUNING.BASE_RANGE_LOW[0])).toBe(true)
+        const smallCap = SPONSOR_TUNING.MAX_SHARE_OF_WAGE_BILL * sponsorWageBase(3_000, 20)
+        expect(smallCap).toBeGreaterThan(3_000 * SPONSOR_TUNING.MAX_SHARE_OF_WAGE_BILL)
+        expect(small.length).toBeGreaterThan(0)
+        expect(small.every(o => o.weeklyPayout > 0 && o.weeklyPayout * EconomyEngine.sponsorReputationFactor(20) <= smallCap + 1)).toBe(true)
     })
 })
 
@@ -135,7 +138,7 @@ describe('free-agent market', () => {
             const save = createLaunchFixture('first-week', 41006)
             const extra = Array.from({ length: 200 }, (_, i) => ({ ...structuredClone(save.players.find(p => p.id === 'qa_free_agent')!), id: `fa_${i}`, age: 20 + (i % 15) }))
             save.players.push(...extra)
-            save.players.push({ ...structuredClone(extra[0]), id: 'fa_legend', isLegendary: true }, { ...structuredClone(extra[0]), id: 'fpl_nonpro_1_1_1' })
+            save.players.push({ ...structuredClone(extra[0]), id: 'fa_legend', isLegendary: true })
             save.currentWeek = 10
             processFreeAgentMarket(save)
             expect(save.players.find(p => p.id === 'fa_0')!.freeAgentSinceWeek).toBe(10)
@@ -157,7 +160,6 @@ describe('free-agent market', () => {
         const retired = a.save.players.filter(p => p.isRetired)
         expect(retired.length).toBeGreaterThan(50)
         expect(a.save.players.find(p => p.id === 'fa_legend')!.isRetired).toBeFalsy()
-        expect(a.save.players.find(p => p.id === 'fpl_nonpro_1_1_1')!.isRetired).toBeFalsy()
         expect(freeAgentRetirementChance(30, 52)).toBeGreaterThan(freeAgentRetirementChance(24, 52))
         expect(freeAgentRetirementChance(18, 52)).toBeLessThan(freeAgentRetirementChance(24, 52))
 
@@ -177,6 +179,7 @@ describe('AI squad maintenance uses the human rules', () => {
         save.currentWeek = 100
         const team = save.teams[1]
         team.budget = 1_000_000
+        team.sponsors = [{ id: 'qa_sponsor', name: 'QA Partner', tier: 'STANDARD', weeklyPayout: 100_000 } as never] // Phase 4.4: cash-positive, so the raise is sustainable
         const c = save.contracts.find(x => x.teamId === team.id)!
         c.endWeek = 102
         c.salaryPerWeek = 1000
@@ -212,6 +215,7 @@ describe('AI squad maintenance uses the human rules', () => {
         const save = createLaunchFixture('first-week', 41010)
         const team = save.teams[1]
         team.budget = 5_000_000
+        team.sponsors = [{ id: 'qa_sponsor', name: 'QA Partner', tier: 'STANDARD', weeklyPayout: 100_000 } as never] // Phase 4.4: cash-positive, so a new wage is sustainable
         team.financialState = 'STABLE'
         for (const id of team.rosterIds) save.players.find(p => p.id === id)!.skill = 50
         const star = save.players.find(p => p.id === 'qa_free_agent')!
