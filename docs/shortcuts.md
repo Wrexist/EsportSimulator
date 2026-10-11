@@ -16,19 +16,21 @@ Press **F1** or **?** at any time in-game to open this list. On macOS, use **⌘
 
 ## Navigation
 
-| Shortcut | Action                   |
-| -------- | ------------------------ |
-| `1`      | Home (dashboard)         |
-| `2`      | Open inbox               |
-| `I`      | Open / close inbox       |
-| `3`      | Squad                    |
-| `4`      | Training                 |
-| `5`      | Schedule                 |
-| `6`      | Transfers                |
-| `7`      | Tournaments              |
-| `8`      | Finances                 |
-| `9`      | Settings                 |
-| `Esc`    | Go back / close modal    |
+| Shortcut | Action                           |
+| -------- | -------------------------------- |
+| `1`      | Home (dashboard)                 |
+| `2`      | Open inbox                       |
+| `I`      | Open / close inbox               |
+| `3`      | Squad                            |
+| `4`      | Week plan                        |
+| `5`      | Match centre (next match)        |
+| `6`      | Recruitment (transfers)          |
+| `7`      | Competition (tournaments)        |
+| `8`      | Club (finances)                  |
+| `9`      | Settings                         |
+| `Esc`    | Go back / close modal            |
+
+`1` and `3`–`8` follow the seven top-bar hubs in order: Home, Squad, Week, Match, Recruitment, Competition, Club.
 
 ## Gameplay
 

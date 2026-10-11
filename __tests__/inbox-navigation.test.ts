@@ -24,7 +24,8 @@ describe("/desktop redirect map", () => {
         ["academy", "/academy"],
         ["facilities", "/basecamp"],
         ["calendar", "/schedule"],
-        ["shop", "/equipment"],
+        // Phase 4.2: Equipment folded into Facilities → Gear.
+        ["shop", "/basecamp?tab=gear"],
     ])("?app=%s → %s", (app, href) => {
         expect(desktopRedirectHref(app)).toBe(href)
     })

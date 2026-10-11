@@ -19,7 +19,7 @@ import { InboxButton } from "@/components/inbox/InboxButton"
 
 /**
  * Two-row game header (design system v2).
- * Row 1: club identity · six hubs · search · funds · date · advance.
+ * Row 1: club identity · seven hubs · search · funds · date · advance.
  * Row 2: the active hub's sub-tabs.
  */
 export function TopBar() {
