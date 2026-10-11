@@ -52,6 +52,8 @@ export interface LiveRoundView {
     roundNumber: number
     pacing: RoundPacing
     timeline: RoundTimeline
+    /** Post-buy weapon and kit by player id (radar glyphs); absent after a restore. */
+    gear: Readonly<Record<string, { weapon?: string; hasKit?: boolean }>>
 }
 
 /** Round-end beat: who won, how, the MVP and callouts (shown for ROUND_BEAT_MS). */
@@ -101,8 +103,11 @@ interface LiveMatchRuntimeData {
 }
 
 /** Pacing windows and the HP / death / grenade timeline of one round. */
-function makeRoundView(ids: { homePlayerIds: string[]; awayPlayerIds: string[] }, mapIndex: number, round: RoundResult, live: LiveRoundScript | null, events: MatchEvent[], loadouts?: Readonly<Record<string, { utility?: readonly string[] } | undefined>>): LiveRoundView {
+function makeRoundView(ids: { homePlayerIds: string[]; awayPlayerIds: string[] }, mapIndex: number, round: RoundResult, live: LiveRoundScript | null, events: MatchEvent[], loadouts?: Readonly<Record<string, { utility?: readonly string[]; weapon?: string; hasKit?: boolean } | undefined>>): LiveRoundView {
+    const gear: Record<string, { weapon?: string; hasKit?: boolean }> = {}
+    for (const [id, l] of Object.entries(loadouts ?? {})) if (l) gear[id] = { weapon: l.weapon, hasKit: l.hasKit }
     return {
+        gear,
         key: `${mapIndex}:${round.roundNumber}`,
         mapIndex,
         roundNumber: round.roundNumber,

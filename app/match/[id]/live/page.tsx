@@ -114,14 +114,25 @@ export default function LiveMatchPage() {
     const roundMap = useMemo(() => liveRoundMap(currentMapId) ?? null, [currentMapId])
     const radarScript = roundScript && roundScript.mapId === currentMapId && gameState.time >= 0 ? roundScript.script : null
 
-    // Names and cash (economy ring) by player id. Rebuilt only when a name or
-    // a cash value changes, not on every roster update, so the memoized radar
-    // panel is not re-rendered by unrelated roster changes.
-    const radarPlayersKey = [...homeRoster, ...awayRoster].map(p => `${p.id}:${p.name}:${p.money}`).join("|")
+    // Names, cash, and the round's weapon / kit (from the post-buy loadout;
+    // the roster after a restore) by player id. Rebuilt only when one of those
+    // changes, not on every roster update, so the memoized radar panel is not
+    // re-rendered by unrelated roster changes.
+    const gearOf = (p: LivePlayerState) => roundView?.gear[p.id] ?? { weapon: p.weapon, hasKit: p.hasKit }
+    const radarPlayersKey = [...homeRoster, ...awayRoster].map(p => { const g = gearOf(p); return `${p.id}:${p.name}:${p.money}:${g.weapon}:${g.hasKit ? 1 : 0}` }).join("|")
     const radarPlayers = useMemo(
-        () => Object.fromEntries([...homeRoster, ...awayRoster].map(p => [p.id, { name: p.name, money: p.money }])),
+        () => Object.fromEntries([...homeRoster, ...awayRoster].map(p => { const g = gearOf(p); return [p.id, { name: p.name, money: p.money, weapon: g.weapon, hasKit: !!g.hasKit }] })),
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [radarPlayersKey]
+    )
+    // Recorded rounds of the map on screen: HP / weapons for the live round and
+    // the radar's own review scrubber for earlier rounds (it never shows the
+    // round in flight beyond the playback clock).
+    const reviewRounds = matchData.current?.result.maps[gameState.currentMapIndex]?.rounds
+    const reviewCtx = matchData.current?.ctx
+    const radarReview = useMemo(
+        () => (reviewCtx && reviewRounds ? { ctx: reviewCtx, mapIndex: gameState.currentMapIndex, rounds: reviewRounds } : null),
+        [reviewCtx, reviewRounds, gameState.currentMapIndex]
     )
     // The round shown on the radar has been decided (its ROUND_END was played
     // back): no live clutch banner over the end-of-round positions.
@@ -339,6 +350,7 @@ export default function LiveMatchPage() {
                         script={radarScript}
                         roundMap={roundMap}
                         players={radarPlayers}
+                        review={radarReview}
                         tickDurationMs={tickMs}
                         isAnimating={isPlaying}
                         currentTime={gameState.time}

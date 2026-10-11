@@ -1,7 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
-import { Settings2, Pause, Play, Timer } from "lucide-react"
+import { Settings2, Pause, Play, Timer, ChevronDown, ChevronUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { Button } from "@/components/ui/button"
@@ -45,13 +46,15 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
     const sideCT = preview.side === "CT"
     const recommended = preview.options.find(o => o.id === preview.auto)?.id
     const counting = auto.on && !auto.hold
+    // Folded: only the calls (the radar and its round scrubber stay visible).
+    const [folded, setFolded] = useState(false)
     return (
         <motion.section
             initial={reduceMotion ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
             transition={{ duration: 0.16, ease: "easeOut" }}
-            className="tactical-decisions absolute inset-x-3 bottom-3 z-20 overflow-hidden rounded-lg border border-line-strong bg-panel/[0.97] shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
+            className="tactical-decisions absolute inset-x-3 bottom-[76px] z-20 overflow-hidden rounded-lg border border-line-strong bg-panel/[0.97] shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
             aria-label={`Round ${preview.round} buy decision`}
         >
             {auto.on && (
@@ -76,6 +79,16 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                         Team <span className="font-semibold tabular-nums text-ink-1">{money(preview.teamCash)}</span>
                         <span className="mx-1.5">·</span>avg <span className="tabular-nums text-ink-2">{money(preview.avgCash)}</span>
                     </span>
+                    <button
+                        type="button"
+                        onClick={() => setFolded(f => !f)}
+                        aria-expanded={!folded}
+                        className="flex h-7 items-center gap-1 rounded px-1.5 text-xs font-semibold text-ink-3 hover:bg-hover hover:text-ink-1"
+                        title={folded ? "Show what each call buys per player" : "Fold the card to see the radar"}
+                    >
+                        {folded ? <ChevronUp size={14} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}
+                        {folded ? "Players" : "Fold"}
+                    </button>
                     {auto.on && (
                         <button
                             type="button"
@@ -129,7 +142,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                             )
                         })}
                     </div>
-                    {preview.options[0]?.players.map((p, row) => (
+                    {!folded && preview.options[0]?.players.map((p, row) => (
                         <div key={p.id} className="grid grid-cols-[132px_repeat(5,minmax(0,1fr))] border-b border-line last:border-b-0">
                             <div className="flex h-7 min-w-0 items-center gap-1.5 px-2 text-xs">
                                 <span className="min-w-0 truncate font-semibold text-ink-1">{names[p.id] ?? p.id}</span>
