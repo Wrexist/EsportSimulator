@@ -89,24 +89,23 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
             // Default error UI
             return (
-                <div className="flex flex-col items-center justify-center p-8 text-center bg-negative/5 border border-negative/30 rounded-xl min-h-[50vh]">
-                    <div className="w-16 h-16 rounded-full bg-negative/10 flex items-center justify-center mb-6">
-                        <AlertTriangle className="text-red-500" size={32} />
+                <div className="flex min-h-[50vh] flex-col items-center justify-center rounded-lg border border-line-strong bg-panel p-8 text-center">
+                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg border border-negative/40 bg-negative/10">
+                        <AlertTriangle className="text-negative" size={24} aria-hidden="true" />
                     </div>
-                    <h3 className="text-xl font-medium text-ink-1 mb-2">
+                    <h3 className="mb-2 font-display text-2xl font-bold uppercase leading-none text-ink-1">
                         {this.props.section ? `Error in ${this.props.section}` : 'Something went wrong'}
                     </h3>
-                    <p className="text-sm text-muted-foreground mb-2 max-w-md">
+                    <p className="mb-2 max-w-md text-sm text-ink-2">
                         {this.state.error?.message || 'An unexpected error occurred. Please try again.'}
                     </p>
-                    <p className="text-xs text-muted-foreground/70 mb-6 max-w-md">
+                    <p className="mb-6 max-w-md text-xs text-ink-3">
                         Your game data is safe. You can try again, copy the error details for a bug report, or return to the main menu.
                     </p>
                     <div className="flex flex-wrap gap-3 justify-center">
                         <Button
                             onClick={this.handleReset}
                             variant="default"
-                            className="bg-red-500 hover:bg-red-600 text-ink-1 border-none"
                         >
                             <RefreshCw size={14} className="mr-2" />
                             Try Again
@@ -114,11 +113,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         <Button
                             onClick={this.handleCopyDetails}
                             variant="outline"
-                            className="border-line hover:bg-raised"
                         >
                             {this.state.copied ? (
                                 <>
-                                    <Check size={14} className="mr-2 text-green-400" />
+                                    <Check size={14} className="mr-2 text-positive" />
                                     Copied!
                                 </>
                             ) : (
@@ -131,7 +129,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         <Button
                             onClick={this.handleReturnToMenu}
                             variant="ghost"
-                            className="hover:bg-raised"
                         >
                             <Home size={14} className="mr-2" />
                             Return to Main Menu
@@ -157,7 +154,7 @@ export function InlineErrorFallback({
 }) {
     return (
         <div className="flex items-center gap-3 p-3 bg-negative/5 border border-negative/30 rounded-lg text-sm">
-            <AlertTriangle className="text-red-500 shrink-0" size={16} />
+            <AlertTriangle className="shrink-0 text-negative" size={16} aria-hidden="true" />
             <span className="text-negative">{message}</span>
             {onRetry && (
                 <Button

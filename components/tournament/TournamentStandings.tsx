@@ -199,7 +199,7 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                     <div className="flex items-center gap-3 min-w-0">
                                         <Avatar className="w-8 h-8 rounded-md bg-shell border border-line">
                                             <AvatarImage src={team.logoPath} />
-                                            <AvatarFallback className="rounded-md bg-neutral-800 text-[11px]">{team.name.substring(0, 2)}</AvatarFallback>
+                                            <AvatarFallback className="rounded-md bg-raised text-[11px]">{team.name.substring(0, 2)}</AvatarFallback>
                                         </Avatar>
                                         <span className={cn("font-bold truncate", isPlayer ? "text-ink-1" : "text-ink-1")}>
                                             {team.name}
@@ -334,7 +334,7 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                     <div className="flex items-center gap-3 min-w-0">
                                         <Avatar className="w-8 h-8 rounded-md bg-shell border border-line">
                                             <AvatarImage src={team.team?.logoPath} />
-                                            <AvatarFallback className="rounded-md bg-neutral-800 text-[11px]">{team.team?.name.substring(0, 2)}</AvatarFallback>
+                                            <AvatarFallback className="rounded-md bg-raised text-[11px]">{team.team?.name.substring(0, 2)}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex flex-col min-w-0">
                                             <span className={cn("font-bold truncate", isPlayer ? "text-ink-1" : "text-ink-1")}>

@@ -96,7 +96,7 @@ export function RarityTooltip({ rarity }: { rarity: string }) {
     const rarityInfo: Record<string, { description: string; color: string }> = {
         Common: {
             description: 'Standard tier. Most players fall into this category.',
-            color: 'text-gray-400'
+            color: 'text-ink-3'
         },
         Rare: {
             description: 'Above average. Better stats and potential.',
@@ -108,7 +108,7 @@ export function RarityTooltip({ rarity }: { rarity: string }) {
         },
         Legendary: {
             description: 'Top 1% elite talent. Maximum bonuses and potential.',
-            color: 'text-orange-400'
+            color: 'text-ink-1'
         }
     }
 

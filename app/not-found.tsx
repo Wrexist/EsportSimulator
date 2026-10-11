@@ -1,30 +1,23 @@
 "use client"
 
-import { Home, Crosshair } from 'lucide-react'
+import { Home } from 'lucide-react'
 
 export default function NotFound() {
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen liquid-app-bg text-ink-1 p-8 relative overflow-hidden">
-            {/* Decorative crosshair watermark */}
-            <Crosshair
-                className="absolute text-ink-3 pointer-events-none"
-                style={{ width: 520, height: 520 }}
-                aria-hidden="true"
-            />
-
-            <div className="max-w-md text-center relative z-10">
-                <div className="text-8xl font-black text-ink-3 mb-3 tracking-tighter tabular-nums">404</div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-ink-3 mb-3">SIGNAL LOST</p>
-                <h1 className="text-2xl font-bold mb-3 tracking-tight">Off the map.</h1>
-                <p className="text-sm text-ink-2 mb-8 leading-relaxed">
-                    Whatever you were looking for isn&apos;t here. Maybe the page got refactored, maybe it never existed.
+        <div className="flex min-h-[70vh] flex-col items-center justify-center p-8 text-ink-1">
+            <div className="w-full max-w-md rounded-[10px] border border-line-strong bg-panel p-8 text-center">
+                <p className="font-display text-6xl font-bold leading-none tabular-nums text-ink-3">404</p>
+                <p className="mb-2 mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">Page not found</p>
+                <h1 className="mb-3 font-display text-3xl font-bold uppercase leading-none">Off the map</h1>
+                <p className="mb-6 text-sm leading-relaxed text-ink-2">
+                    This screen doesn&apos;t exist. Your career is untouched; head back to the main menu to continue.
                 </p>
                 <a
                     href="/main-menu"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-ink-1 text-black rounded-lg text-xs font-bold uppercase tracking-wider ring-1 ring-line-strong transition-colors"
+                    className="inline-flex h-10 items-center gap-2 rounded border border-gold bg-gold px-5 text-sm font-semibold text-gold-on transition-colors hover:border-gold-hover hover:bg-gold-hover"
                 >
-                    <Home size={14} />
-                    Back to Main Menu
+                    <Home size={15} aria-hidden="true" />
+                    Back to main menu
                 </a>
             </div>
         </div>
