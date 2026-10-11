@@ -19,6 +19,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getTeamFlag } from "@/engine/region-logic"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { LeagueEngine, TIER_DISPLAY, LeagueTier } from "@/engine/league-engine"
+import { seasonEndTierMove } from "@/engine/world-ranking"
 import { CircuitPointsManager } from "@/engine/tournament-qualification"
 import { CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
@@ -35,6 +36,8 @@ type RankingsRowProps = {
     team: any
     posInTier: number
     tierSize: number
+    /** Clubs in the world (tier bands are shares of it). */
+    worldSize: number
     teamFlag: string
     isPlayerTeam: boolean
     revealPlaystyle: boolean
@@ -52,15 +55,18 @@ const RankingsRow = React.memo(function RankingsRow({
     team,
     posInTier,
     tierSize,
+    worldSize,
     teamFlag,
     isPlayerTeam,
     revealPlaystyle,
     onSelect,
 }: RankingsRowProps) {
     const tierStyle = getTierStyle(team.tier)
-    // Real end-of-season rules (LeagueEngine: 3 up, 3 down).
-    const isPromotionZone = posInTier <= 3 && team.leagueTier !== "S_TIER"
-    const isRelegationZone = posInTier > tierSize - 3 && team.leagueTier !== "B_TIER"
+    // Real end-of-season rule: tiers are re-banded by world rank, so the zone
+    // is "ranked inside another tier's band", not a fixed top/bottom three.
+    const move = seasonEndTierMove(team.leagueTier, team.worldRanking, worldSize)
+    const isPromotionZone = move === "up"
+    const isRelegationZone = move === "down"
 
     return (
         <div
@@ -151,6 +157,7 @@ type VirtualizedRankingsListProps = {
     revealPlaystyle: boolean
     posInTierByTeamId: Map<string, { posInTier: number; tierSize: number }>
     teamFlagByTeamId: Map<string, string>
+    worldSize: number
     onSelectTeam: (team: any) => void
 }
 
@@ -160,6 +167,7 @@ const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
     revealPlaystyle,
     posInTierByTeamId,
     teamFlagByTeamId,
+    worldSize,
     onSelectTeam,
 }: VirtualizedRankingsListProps) {
     const parentRef = useRef<HTMLDivElement | null>(null)
@@ -201,6 +209,7 @@ const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
                                     team={team}
                                     posInTier={posMeta?.posInTier ?? 0}
                                     tierSize={posMeta?.tierSize ?? 0}
+                                    worldSize={worldSize}
                                     teamFlag={teamFlagByTeamId.get(team.id) ?? "un"}
                                     isPlayerTeam={team.id === playerTeamId}
                                     revealPlaystyle={revealPlaystyle}
@@ -415,8 +424,8 @@ function RankingsPageInner() {
             tier: team.leagueTier,
             positionInTier,
             totalInTier: tierTeams.length,
-            isPromotionZone: positionInTier <= 3 && team.leagueTier !== "S_TIER",
-            isRelegationZone: positionInTier > tierTeams.length - 3 && team.leagueTier !== "B_TIER",
+            isPromotionZone: seasonEndTierMove(team.leagueTier, team.worldRanking, rankedTeams.length) === "up",
+            isRelegationZone: seasonEndTierMove(team.leagueTier, team.worldRanking, rankedTeams.length) === "down",
             elo: team.elo,
         }
     }, [rankedTeams, playerTeamId])
@@ -494,6 +503,7 @@ function RankingsPageInner() {
                         revealPlaystyle={revealPlaystyle}
                         posInTierByTeamId={rankingMeta.posInTierByTeamId}
                         teamFlagByTeamId={rankingMeta.teamFlagByTeamId}
+                        worldSize={rankedTeams.length}
                         onSelectTeam={setSelectedTeam}
                     />
                 )

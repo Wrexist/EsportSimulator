@@ -235,6 +235,19 @@ export function tierForRank(rank: number, teamCount: number, tuning: RankingTuni
 
 const BAND_TIERS: BandTier[] = ["S_TIER", "A_TIER", "B_TIER", "C_TIER"]
 
+/**
+ * Where a club would move if the season ended now: tiers are re-banded by
+ * world rank at season end, so a club ranked inside a higher band goes up and
+ * one ranked inside a lower band goes down (LeagueEngine.getPromotionZone /
+ * getRelegationZone use the same rule).
+ */
+export function seasonEndTierMove(currentTier: string | undefined, rank: number | undefined, teamCount: number, tuning: RankingTuning = RANKING_TUNING): "up" | "down" | null {
+    const now = BAND_TIERS.indexOf(currentTier as BandTier)
+    if (now < 0 || !teamCount) return null
+    const next = BAND_TIERS.indexOf(tierForRank(rank ?? Number.MAX_SAFE_INTEGER, teamCount, tuning))
+    return next < now ? "up" : next > now ? "down" : null
+}
+
 /** True when every club holds a band tier and each tier holds exactly its band's size. */
 export function tiersAreBanded(save: Pick<GameSave, "teams">, tuning: RankingTuning = RANKING_TUNING): boolean {
     const n = save.teams.length
