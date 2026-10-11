@@ -15,6 +15,9 @@ import {
 } from "./inbox-model"
 import { markEventUnread } from "./inbox-actions"
 import { ChoiceDecision, DrawerLink, JobOfferDecision, TransferOfferDecision } from "./InboxDecision"
+import { PressConferenceDecision, PressConferenceRecord } from "@/components/storylines/PressConference"
+import { StoryContext } from "@/components/storylines/StoryContext"
+import { pressDataOf } from "@/engine/storylines/press-view"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
 type AnyData = Record<string, any>
@@ -178,11 +181,13 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
             />
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-5">
                 <MessageBody text={getEventBody(event, ctx)} />
+                {typeof data.storyArcId === "string" && <StoryContext arcId={data.storyArcId} />}
                 {playerId && <PlayerStrip playerId={playerId} linkLabel={event.type === "CONTRACT" ? "Open contract" : "Profile"} />}
-                {item.decision === "choice" && <ChoiceDecision event={event} budget={budget} />}
+                {item.decision === "choice" && (pressDataOf(event) ? <PressConferenceDecision event={event} /> : <ChoiceDecision event={event} budget={budget} />)}
+                {!item.decision && pressDataOf(event) && <PressConferenceRecord event={event} />}
                 {item.decision === "transfer_offer" && <TransferOfferDecision event={event} ctx={ctx} />}
                 {item.decision === "job_offer" && <JobOfferDecision event={event} />}
-                {!item.decision && <ResolvedNote event={event} />}
+                {!item.decision && !pressDataOf(event) && <ResolvedNote event={event} />}
                 {event.type === "MEDIA" && isRealAwards(data.proAwards) && (
                     <Button variant="outline" onClick={() => onOpenAwards(data.proAwards)}>Open the awards ceremony</Button>
                 )}

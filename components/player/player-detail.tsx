@@ -40,6 +40,7 @@ import { PlayerAttributes, ATTRIBUTE_FOOTNOTE } from "./PlayerAttributes"
 import { PlayerRadar } from "./PlayerRadar"
 import { PersonalityChips } from "./PersonalityChips"
 import { PersonalityPanel } from "./PersonalityPanel"
+import { PlayerStorylines } from "@/components/storylines/PlayerStorylines"
 import { ARCHETYPE_INFO, captainId, getArchetype, renewalSalary } from "@/engine/personality"
 
 interface PlayerDetailProps {
@@ -279,6 +280,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
 
                         <TabsContent value="overview" className="mt-3 space-y-4">
                             <PersonalityPanel player={player} />
+                            <PlayerStorylines playerId={player.id} />
                             <Panel title="Attributes" actions={<span className="text-xs text-ink-3">Hover a row for what it does</span>}>
                                 <PlayerAttributes player={player} />
                                 <p className="mt-4 border-t border-line pt-3 text-xs leading-relaxed text-ink-3">{ATTRIBUTE_FOOTNOTE}</p>

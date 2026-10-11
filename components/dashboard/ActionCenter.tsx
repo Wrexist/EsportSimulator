@@ -25,7 +25,8 @@ import { Button } from "@/components/ui/button"
 import { Panel } from "@/src/components/ui/Panel"
 import { cn } from "@/lib/utils"
 import { getEventTitle, isPendingDecisionEvent } from "@/lib/event-format"
-import { ChevronRight, Mail, Dumbbell, CalendarClock, CheckCircle2 } from "lucide-react"
+import { ChevronRight, Mail, Dumbbell, CalendarClock, CheckCircle2, Mic } from "lucide-react"
+import { describeChoice, type EffectChip } from "@/components/inbox/inbox-model"
 import type { GameEventSaveData } from "@/engine/save-types"
 import { formatSignedCurrency } from "@/lib/utils-extended"
 
@@ -52,6 +53,16 @@ function ChoiceEffects({ effects }: { effects: any }) {
         <span className="flex flex-wrap justify-end gap-x-2 gap-y-0.5">
             {chips.map((c, i) => (
                 <span key={i} className={cn("text-xs font-semibold tabular-nums", c.positive ? "text-positive" : "text-caution")}>{c.label}</span>
+            ))}
+        </span>
+    )
+}
+
+function StoryChips({ chips }: { chips: EffectChip[] }) {
+    return (
+        <span className="flex flex-wrap justify-end gap-x-2 gap-y-0.5">
+            {chips.map((c, i) => (
+                <span key={i} className={cn("text-xs font-semibold tabular-nums", c.tone === "positive" ? "text-positive" : c.tone === "negative" ? "text-caution" : "text-ink-3")}>{c.label}</span>
             ))}
         </span>
     )
@@ -124,8 +135,21 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                 <div className="divide-y divide-line">
                     {/* Inline-resolvable decisions */}
                     {decisions.map(event => {
+                        // Phase 5.3: a press conference has several questions; it is answered on the match screen.
+                        const pressMatch = event.id.startsWith("press_") ? (event.data as { matchId?: string } | undefined)?.matchId : undefined
+                        if (pressMatch) return (
+                            <PromptRow
+                                key={event.id}
+                                href={`/match/${pressMatch}/tactics`}
+                                icon={<Mic size={15} />}
+                                title={getEventTitle(event)}
+                                detail="Optional: answer before the match on the match screen"
+                            />
+                        )
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- choices is a runtime-only field
                         const choices = (event as any).choices as { id: string; text: string; effects: any }[]
+                        // Storyline decisions carry effects beyond the basic four: label them with the inbox model.
+                        const story = event.id.startsWith("story_")
                         return (
                             <div key={event.id} className="space-y-2 px-4 py-3">
                                 <div className="flex items-baseline justify-between gap-3">
@@ -133,17 +157,22 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                                     <span className="shrink-0 text-xs text-ink-3">Week {event.week}</span>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    {choices.map(choice => (
-                                        <Button
-                                            key={choice.id}
-                                            variant="outline"
-                                            onClick={() => resolveEventChoice(event.id, choice.id)}
-                                            className="h-auto w-full justify-between gap-3 whitespace-normal px-3 py-2 text-left"
-                                        >
-                                            <span className="text-[13px] font-semibold">{choice.text}</span>
-                                            <ChoiceEffects effects={choice.effects} />
-                                        </Button>
-                                    ))}
+                                    {choices.map(choice => {
+                                        const outcome = story ? describeChoice(event, choice, playerTeam?.budget ?? 0) : null
+                                        return (
+                                            <Button
+                                                key={choice.id}
+                                                variant="outline"
+                                                onClick={() => resolveEventChoice(event.id, choice.id)}
+                                                disabled={!!outcome?.blockedReason}
+                                                title={outcome?.blockedReason}
+                                                className="h-auto w-full justify-between gap-3 whitespace-normal px-3 py-2 text-left"
+                                            >
+                                                <span className="text-[13px] font-semibold">{choice.text}</span>
+                                                {outcome ? <StoryChips chips={outcome.chips} /> : <ChoiceEffects effects={choice.effects} />}
+                                            </Button>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         )
