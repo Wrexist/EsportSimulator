@@ -221,7 +221,30 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
 
     // ------------------------------------------------ deterministic policy
     const playerTeam = () => get().teams.find(t => t.id === teamId)!
-    const policyStats = { forfeitAdvances: 0, registrations: 0, signings: 0, upgrades: 0, renewals: 0, renewalFailures: 0, sponsorsSigned: 0, choices: 0, jobOffersDeclined: 0, jobChanges: 0, softlocks: 0, preparations: 0, benchReleases: 0 }
+    const policyStats = { forfeitAdvances: 0, registrations: 0, signings: 0, upgrades: 0, renewals: 0, renewalFailures: 0, sponsorsSigned: 0, choices: 0, jobOffersDeclined: 0, jobChanges: 0, softlocks: 0, preparations: 0, benchReleases: 0, sackings: 0, bankruptcies: 0, rehired: 0 }
+    // Phase 4.4: a dismissed manager (sacked, or the club folded) takes the
+    // best dismissal offer and the career continues at the new club.
+    const dismissals: Array<{ week: number; reason: string; from: string; to: string | null }> = []
+    const recoverFromDismissal = (): boolean => {
+        const s = get()
+        if (s.gameOverReason !== 'SACKED' && s.gameOverReason !== 'BANKRUPTCY') return false
+        if (s.gameOverReason === 'SACKED') policyStats.sackings++
+        else policyStats.bankruptcies++
+        const offers = s.eventsLog.filter(e => e.type === 'JOB_OFFER' && e.data?.afterDismissal && !e.selectedChoiceId && !e.data?.isWithdrawn)
+            .sort((a, b) => Number(a.data.offeringTeamRank ?? 999) - Number(b.data.offeringTeamRank ?? 999) || a.id.localeCompare(b.id))
+        const from = teamId, reason = String(s.gameOverReason)
+        for (const offer of offers) {
+            if (get().acceptJobOffer(offer.id).success && !get().gameOverReason) {
+                teamId = get().playerTeamId!
+                policyStats.rehired++
+                jobChanges.push({ week: get().currentWeek, from, to: teamId })
+                dismissals.push({ week: get().currentWeek, reason, from, to: teamId })
+                return true
+            }
+        }
+        dismissals.push({ week: get().currentWeek, reason, from, to: null })
+        return false
+    }
     // Job market: stay loyal unless the board has put the manager on notice,
     // then take the best-ranked offer (exercises real job changes).
     const jobMarket = () => {
@@ -475,6 +498,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         if (active < openingActive * BOUNDS.supplyMinRatio || active > openingActive * BOUNDS.supplyMaxRatio) record([{ kind: 'player-supply', week: s.currentWeek, detail: `${active} active vs ${openingActive} at start` }], () => s)
         if (structural.length === 0) lastGood = structuredClone(s)
         trackSeasonWeek(season, s, teamId)
+        if (get().gameOverReason && recoverFromDismissal()) { lastIds = new Set(get().eventsLog.map(e => e.id)) }
         if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push({ ...seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id), structure: seasonStructureMetrics(season, s, teamId) })
         if (ticks % 52 === 0) { Object.assign(seasonOpen, openState(s, playerTeam().budget)); income.clear(); resetSeasonTracker(season, s) }
         if (ticks % 26 === 0) process.stdout.write(`${tag} tick ${ticks} week ${s.currentWeek} cash ${Math.round(playerTeam().budget)} failures ${failures.length} avgMs ${Math.round(tickMs.slice(-26).reduce((a, b) => a + b, 0) / 26)}\n`)
@@ -483,7 +507,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     const result = {
         seed, tier, policyName, openingActive, club: club.id, clubName: club.name, seasonsRequested: seasons, ticks, finalWeek: final.currentWeek,
         terminal: final.gameOverReason ?? null, failures, failureKinds: [...new Set(failures.map(f => f.kind))],
-        policy: policyStats, jobChanges, roundTrip, inboxPerWeek: distribution(inboxPerWeek), inboxMax: Math.max(0, ...inboxPerWeek), inboxByType,
+        policy: policyStats, jobChanges, dismissals, roundTrip, inboxPerWeek: distribution(inboxPerWeek), inboxMax: Math.max(0, ...inboxPerWeek), inboxByType,
         tickMs: distribution(tickMs), seasons: seasonsOut, finalHash: sha(canonicalWeekState(final)),
     }
     fs.writeFileSync(path.join(outDir, `${tag}.json`), JSON.stringify(result, null, 2))
@@ -547,7 +571,8 @@ export function seasonStructureMetrics(t: SeasonTracker, s: GameSave, teamId: st
     const counts = ai.map(matchesOf)
     const team = s.teams.find(x => x.id === teamId)
     const board = s.boardState as (GameSave['boardState'] & Record<string, unknown>) | undefined
-    const review = (s.newsFeed || []).find(n => n.id.startsWith(`board_review_s${Math.floor((s.currentWeek - 1) / 52) + 1}_`))
+    // Season metrics are taken in the first week of the next season.
+    const review = (s.newsFeed || []).find(n => n.id.startsWith(`board_review_s${Math.floor((s.currentWeek - 2) / 52) + 1}_`))
     return {
         clubMatches: distribution(counts),
         clubMatchesByTier: Object.fromEntries(Object.entries(byTier).map(([k, v]) => [k, distribution(v.map(matchesOf))])),
@@ -560,6 +585,8 @@ export function seasonStructureMetrics(t: SeasonTracker, s: GameSave, teamId: st
         aiNegative: ai.filter(x => x.budget < 0).length,
         aiFinancialStates: ai.reduce((m: Record<string, number>, x) => { const k = x.financialState ?? 'UNKNOWN'; m[k] = (m[k] ?? 0) + 1; return m }, {}),
         aiInsolventClubWeeks: t.aiInsolventWeeks,
+        aiAdministrations: ai.reduce((n, x) => n + ((x as { administrations?: number }).administrations ?? 0), 0),
+        leagueDivisions: s.league?.current?.divisions.length ?? 0,
         managed: {
             tier: t.tierAtStart.get(teamId), cashStart: t.managedCash[0] ?? null, cashMin: t.managedCash.length ? Math.min(...t.managedCash) : null, cashEnd: team ? Math.round(team.budget) : null,
             weeklyNet: team?.weeklyNet ?? null, runwayWeeks: team?.runwayWeeks ?? null, stateWeeks: t.managedStates,
@@ -683,7 +710,13 @@ export function seasonStructureSummary(results: any[], seasonsAll: any[]) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         terminal: results.reduce((m: Record<string, number>, r: any) => { const k = `${r.tier}:${r.terminal ?? 'none'}`; m[k] = (m[k] ?? 0) + 1; return m }, {}),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        sackings: results.reduce((n: number, r: any) => n + (r.policy?.sackings ?? 0) + (r.terminal === 'SACKED' ? 1 : 0), 0),
+        sackings: results.reduce((n: number, r: any) => n + (r.policy?.sackings ?? (r.terminal === 'SACKED' ? 1 : 0)), 0),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        bankruptcies: results.reduce((n: number, r: any) => n + (r.policy?.bankruptcies ?? (r.terminal === 'BANKRUPTCY' ? 1 : 0)), 0),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        rehiredAfterDismissal: results.reduce((n: number, r: any) => n + (r.policy?.rehired ?? 0), 0),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        aiAdministrations: pick(s => s.structure.aiAdministrations ?? NaN),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         jobChanges: results.reduce((n: number, r: any) => n + (r.jobChanges?.length ?? 0), 0),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

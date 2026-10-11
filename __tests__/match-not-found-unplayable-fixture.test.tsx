@@ -40,7 +40,7 @@ function load(opts: { managerPlayers: number }) {
     Object.assign(match, { format: 'BO5', stage: 'Grand Final', maps: undefined, vetoComplete: undefined })
     const team = save.teams.find(t => t.id === save.playerTeamId)!
     team.rosterIds = team.rosterIds.slice(0, opts.managerPlayers)
-    useGameStore.setState({ ...initial, ...structuredClone(save), fplData: undefined, isLoading: false, isInitialized: true, _completedMatchIds: new Set(), addToast: jest.fn() } as never)
+    useGameStore.setState({ ...initial, ...structuredClone(save), league: undefined, isLoading: false, isInitialized: true, _completedMatchIds: new Set(), addToast: jest.fn() } as never)
     return { save, matchId: match.id }
 }
 

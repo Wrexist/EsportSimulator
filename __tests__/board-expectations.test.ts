@@ -1,7 +1,9 @@
 import {
     getBoardSanctionedFee,
-    processMidSeasonBoardPulse,
     deriveExpectationTier,
+    leagueObjective,
+    processWeeklyBoard,
+    weeklyBoardMoves,
     evaluateOutcome,
     confidenceDelta,
     ensureBoardState,
@@ -9,6 +11,11 @@ import {
     trophiesInSeason,
 } from "@/engine/board-expectations"
 import type { GameSave, BoardState } from "@/engine/save-types"
+import { divisionOfTeam, drawDueLeagueSplit, processLeagueWeek } from "@/engine/season/regional-league"
+import { JobOfferGenerator } from "@/engine/job-offer-generator"
+import { SeededRNG } from "@/engine/rng"
+import { BOARD_TUNING, LEAGUE_TUNING } from "@/lib/balance-tuning"
+import { makeWorld, playLeagueWeek } from "./league-fixtures"
 
 function makeSave(over: Partial<GameSave> = {}, boardState?: Partial<BoardState>): GameSave {
     const team = {
@@ -175,60 +182,171 @@ describe("getBoardSanctionedFee — board war-chest", () => {
     })
 })
 
-describe("processMidSeasonBoardPulse — quarterly check-ins", () => {
-    const mkMatch = (id: string, week: number, won: boolean) => ({
-        id, week, homeTeamId: "player", awayTeamId: "rival",
-        result: { homeScore: won ? 2 : 0, awayScore: won ? 0 : 2, winnerId: won ? "player" : "rival", maps: [] },
-    })
-
-    function pulseSave(week: number, wins: number, losses: number, confidence = 60) {
-        const save = makeSave({ currentWeek: week }, { confidence, seasonExpectation: "COMPETE", expectationSetSeason: 1, lastReviewedSeason: 0 })
-        const matches = []
-        for (let i = 0; i < wins; i++) matches.push(mkMatch(`w${i}`, week - 1 - i, true))
-        for (let i = 0; i < losses; i++) matches.push(mkMatch(`l${i}`, week - 1 - wins - i, false))
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(save as any).completedMatches = matches
+describe("weekly board (Phase 4.4): objectives, moves with causes, reviews, warnings, dismissal", () => {
+    const league = (week: number) => {
+        const save = makeWorld({ EU: 30 }, "t_EU_14")
+        save.currentWeek = week
+        drawDueLeagueSplit(save)
         return save
     }
 
-    test("only fires on quarter weeks (13/26/39, season-relative)", () => {
-        expect(processMidSeasonBoardPulse(pulseSave(12, 5, 1)).pulsed).toBe(false)
-        expect(processMidSeasonBoardPulse(pulseSave(13, 5, 1)).pulsed).toBe(true)
-        expect(processMidSeasonBoardPulse(pulseSave(65, 5, 1)).pulsed).toBe(true) // week 13 of season 2
-        expect(processMidSeasonBoardPulse(pulseSave(52, 5, 1)).pulsed).toBe(false) // season review week, not a pulse
+    test("objectives scale with the club: league finish in its division, world ranking, budget discipline", () => {
+        const save = league(1)
+        const board = ensureBoardState(save)
+        expect(board.objectives!.map(o => o.id)).toEqual(["league", "ranking", "finance"])
+        const lo = board.objectives![0]
+        const division = divisionOfTeam(save, save.playerTeamId)!
+        expect(lo.divisionId).toBe(division.id)
+        expect(lo.target).toBeGreaterThanOrEqual(1)
+        expect(lo.target).toBeLessThanOrEqual(division.teamIds.length)
+        expect(lo.label).toContain(division.name)
+        // Finance: keep at least half the opening cash (or 8 weeks of costs).
+        const fo = board.objectives!.find(o => o.id === "finance")!
+        expect(fo.target).toBeLessThanOrEqual(save.teams.find(t => t.id === save.playerTeamId)!.budget)
+        expect(fo.target).toBeGreaterThan(0)
+        // A strong club in a lower division is asked to go up; a weak one to stay up.
+        const strong = leagueObjective(save, division.teamIds[0])!
+        const weak = leagueObjective(save, division.teamIds.at(-1)!)!
+        expect(strong.target).toBeLessThan(weak.target)
     })
 
-    test("hot form (+4), steady (+1), poor (-3), slump (-6); clamped; never sacks", () => {
-        const hot = pulseSave(13, 6, 1)
-        expect(processMidSeasonBoardPulse(hot)).toMatchObject({ pulsed: true, delta: 4, confidence: 64 })
-
-        const steady = pulseSave(13, 4, 4)
-        expect(processMidSeasonBoardPulse(steady)).toMatchObject({ delta: 1, confidence: 61 })
-
-        const poor = pulseSave(13, 3, 5) // 37.5% in [0.25, 0.45)
-        expect(processMidSeasonBoardPulse(poor)).toMatchObject({ delta: -3, confidence: 57 })
-
-        const slump = pulseSave(13, 0, 6, 4) // 0% from confidence 4 → clamps at 0, no sack
-        const res = processMidSeasonBoardPulse(slump)
-        expect(res).toMatchObject({ delta: -6, confidence: 0 })
-        expect(slump.gameOverReason).toBeUndefined()
+    test("each weekly move names its cause: results by opponent strength, the table vs the objective, finances", () => {
+        const save = league(1)
+        const board = ensureBoardState(save)
+        const me = save.teams.find(t => t.id === save.playerTeamId)!
+        const weaker = save.teams.find(t => t.id !== me.id)!
+        weaker.elo = (me.elo ?? 1000) - 2 * BOARD_TUNING.UPSET_ELO_GAP
+        save.currentWeek = 5
+        save.completedMatches.push({ id: "m1", homeTeamId: me.id, awayTeamId: weaker.id, tournamentId: "league_x", stage: null, week: 4, format: "BO1", seed: 1,
+            result: { winnerId: weaker.id, homeScore: 0, awayScore: 1, maps: [] } } as never)
+        me.financialState = "RISK"; me.runwayWeeks = 4
+        const moves = weeklyBoardMoves(save, board, 4)
+        expect(moves).toContainEqual({ week: 5, delta: BOARD_TUNING.EXPECTED_LOSS, cause: `Lost to ${weaker.name}` })
+        expect(moves).toContainEqual({ week: 5, delta: BOARD_TUNING.FINANCE_RISK, cause: "Finances at risk: 4 weeks of runway" })
+        const before = board.confidence
+        const out = processWeeklyBoard(save)
+        expect(out.moves.length).toBeGreaterThan(0)
+        expect(board.confidence).toBeCloseTo(before + out.moves.reduce((s, m) => s + m.delta, 0), 5)
+        expect(board.history![0].cause).toBeTruthy()
+        // Idempotent per week.
+        expect(processWeeklyBoard(save).moves).toEqual([])
     })
 
-    test("idempotent within a week; skips with too few matches", () => {
-        const save = pulseSave(13, 5, 1)
-        processMidSeasonBoardPulse(save)
-        const after = save.boardState!.confidence
-        expect(processMidSeasonBoardPulse(save).pulsed).toBe(false) // same week again
-        expect(save.boardState!.confidence).toBe(after)
-
-        const quiet = pulseSave(13, 1, 1) // only 2 matches < min 3
-        expect(processMidSeasonBoardPulse(quiet).pulsed).toBe(false)
-        expect(quiet.boardState!.confidence).toBe(60) // untouched
+    test("a week's moves are clamped so one week never decides a career", () => {
+        const save = league(1)
+        const board = ensureBoardState(save)
+        const me = save.teams.find(t => t.id === save.playerTeamId)!
+        const weaker = save.teams.filter(t => t.id !== me.id).slice(0, 4)
+        for (const w of weaker) w.elo = (me.elo ?? 1000) - 2 * BOARD_TUNING.UPSET_ELO_GAP
+        weaker.forEach((w, i) => save.completedMatches.push({ id: `m${i}`, homeTeamId: me.id, awayTeamId: w.id, tournamentId: "league_x", stage: null, week: 4, format: "BO1", seed: 1,
+            result: { winnerId: w.id, homeScore: 0, awayScore: 1, maps: [] } } as never))
+        me.financialState = "INSOLVENT"
+        save.currentWeek = 5
+        const total = weeklyBoardMoves(save, board, 4).reduce((s, m) => s + m.delta, 0)
+        expect(total).toBeGreaterThanOrEqual(-BOARD_TUNING.WEEKLY_MAX_MOVE - 0.2)
     })
 
-    test("low-confidence pulse carries the ultimatum warning", () => {
-        const save = pulseSave(13, 0, 6, 25) // → 19 after -6
-        const res = processMidSeasonBoardPulse(save)
-        expect(res.newsContent).toContain("deliver results")
+    test("warning, then final warning (on notice), then dismissal, each telegraphed with an event", () => {
+        const save = league(1)
+        const board = ensureBoardState(save)
+        save.managerDetails.tenureStartWeek = 1
+        save.currentWeek = BOARD_TUNING.TENURE_GRACE_WEEKS + 2
+        board.lastWeeklyUpdateWeek = save.currentWeek - 1
+        board.confidence = BOARD_TUNING.WARN_BELOW - 1
+        processWeeklyBoard(save)
+        expect(board.warnings).toBe(1)
+        expect(board.onNotice).toBe(false)
+        expect(save.eventsLog.some(e => e.id.startsWith("board_warning_"))).toBe(true)
+        save.currentWeek++; board.confidence = BOARD_TUNING.NOTICE_BELOW - 1
+        processWeeklyBoard(save)
+        expect(board.warnings).toBe(2)
+        expect(board.onNotice).toBe(true)
+        expect(save.eventsLog.some(e => e.id.startsWith("board_notice_"))).toBe(true)
+        expect(save.gameOverReason).toBeUndefined()
+        save.currentWeek++; board.confidence = BOARD_TUNING.SACK_AT_OR_BELOW
+        const out = processWeeklyBoard(save)
+        expect(out.sacked).toBe(true)
+        expect(save.gameOverReason).toBe("SACKED")
+        expect(save.eventsLog.some(e => e.id.startsWith("board_sacked_"))).toBe(true)
     })
+
+    test("no warnings or dismissal in the first weeks of a tenure; recovery clears warnings", () => {
+        const save = league(1)
+        const board = ensureBoardState(save)
+        save.currentWeek = 3
+        board.confidence = 5; board.warnings = 2; board.onNotice = true
+        processWeeklyBoard(save)
+        expect(save.gameOverReason).toBeUndefined()
+        save.currentWeek = 30
+        board.confidence = BOARD_TUNING.RECOVERED_AT + 1
+        processWeeklyBoard(save)
+        expect(board.warnings).toBe(0)
+        expect(board.onNotice).toBe(false)
+    })
+
+    test("mid-season review judges split 1 against the league objective, then re-targets split 2", () => {
+        const save = league(1)
+        const board = ensureBoardState(save)
+        const split1 = save.league!.current!
+        const objective = board.objectives!.find(o => o.id === "league")!
+        // Every other club wins: the managed club finishes last.
+        for (let w = split1.firstWeek; w <= split1.lastWeek + 1; w++) {
+            save.currentWeek = w
+            playLeagueWeek(save, w, (h, a) => h === save.playerTeamId || (a !== save.playerTeamId && false))
+            processLeagueWeek(save, save.playerTeamId)
+            board.lastWeeklyUpdateWeek = w
+        }
+        save.currentWeek = LEAGUE_TUNING.SPLITS[1].drawWeek
+        drawDueLeagueSplit(save)
+        const before = board.confidence
+        const out = processWeeklyBoard(save)
+        expect(out.review?.reviewed).toBe(true)
+        expect(out.moves.some(m => m.cause.startsWith("League objective missed"))).toBe(true)
+        expect(board.confidence).toBeLessThan(before)
+        expect(board.lastReview?.kind).toBe("MID_SEASON")
+        const next = board.objectives!.find(o => o.id === "league")!
+        expect(next.divisionId).toBe(divisionOfTeam(save, save.playerTeamId)!.id)
+        expect(next.divisionId).not.toBe(objective.divisionId)
+    })
+})
+
+describe("dismissal → job market (Phase 4.4)", () => {
+    test("a sacked manager gets offers from clubs at or below the old club and continues the career", () => {
+        const save = league(1)
+        ensureBoardState(save)
+        save.gameOverReason = "SACKED"; save.gameOverWeek = save.currentWeek
+        const oldTeam = save.playerTeamId
+        const offers = JobOfferGenerator.createDismissalOffers(save, new SeededRNG(3))
+        expect(offers.length).toBe(BOARD_TUNING.DISMISSAL_OFFERS)
+        const oldRep = save.teams.find(t => t.id === oldTeam)!.reputation
+        for (const o of offers) {
+            expect(o.data.afterDismissal).toBe(true)
+            expect(save.teams.find(t => t.id === o.data.offeringTeamId)!.reputation).toBeLessThanOrEqual(Math.max(30, oldRep))
+        }
+        // Idempotent while open.
+        expect(JobOfferGenerator.createDismissalOffers(save, new SeededRNG(4)).map(o => o.id).sort()).toEqual(offers.map(o => o.id).sort())
+        const res = JobOfferGenerator.acceptJobOffer(save, offers[0].id)
+        expect(res.success).toBe(true)
+        expect(save.gameOverReason).toBeUndefined()
+        expect(save.playerTeamId).toBe(offers[0].data.offeringTeamId)
+        expect(save.managerDetails.dismissals).toBe(1)
+        expect(save.boardState!.teamId).toBe(save.playerTeamId)
+        expect(save.boardState!.confidence).toBe(BOARD_TUNING.NEW_BOARD_CONFIDENCE)
+        // The other offers are withdrawn.
+        expect(offers.slice(1).every(o => o.data.isWithdrawn)).toBe(true)
+    })
+
+    test("ordinary offers still cannot be taken once a career has ended", () => {
+        const save = league(1)
+        save.gameOverReason = "SACKED"
+        save.eventsLog.unshift({ id: "job_offer_x", type: "JOB_OFFER", week: 1, acknowledged: false, data: { offeringTeamId: save.teams[0].id, originTeamId: save.playerTeamId, deadlineWeek: 5, salaryOffer: 1000 } })
+        expect(JobOfferGenerator.acceptJobOffer(save, "job_offer_x").success).toBe(false)
+    })
+
+    function league(week: number) {
+        const save = makeWorld({ EU: 30 }, "t_EU_14")
+        save.currentWeek = week
+        drawDueLeagueSplit(save)
+        return save
+    }
 })

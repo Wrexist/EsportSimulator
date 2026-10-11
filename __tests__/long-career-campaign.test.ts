@@ -181,7 +181,14 @@ test('an AI club whose academy upkeep outruns its income sheds academy levels in
     const save = createLaunchFixture('first-week') as unknown as GameSave
     const ai = save.teams[1]
     ai.reputation = 10
+    // Phase 4.4: a deal that covers the club's running costs but not a level-4 academy.
+    const { EconomyEngine } = await import('@/engine/economy-engine')
+    const { calculateWeeklyUpkeep } = await import('@/engine/academy-constants')
     ai.sponsors = []
+    ai.academyFacility = undefined
+    const base = EconomyEngine.processWeeklyFinances(ai, save.players, save.contracts, save.staff, save.currentWeek + 1, 0)
+    const gap = base.expenses.total - base.income.total + calculateWeeklyUpkeep(4, 0) / 2
+    ai.sponsors = [{ id: 'qa_s', name: 'QA', tier: 'STANDARD', weeklyPayout: Math.ceil(gap / EconomyEngine.sponsorReputationFactor(10)) } as never]
     ai.academyFacility = { level: 4, builtWeek: 1 }
     for (let week = 0; week < 6 && (ai.academyFacility?.level ?? 0) > 0; week++) manageAcademy(ai, save, new SeededRNG(week + 1))
     expect(ai.academyFacility!.level).toBeLessThan(4)
@@ -189,6 +196,7 @@ test('an AI club whose academy upkeep outruns its income sheds academy levels in
     expect(affordableInvestment(save, ai, 0)).toBe(true)
     const rich = createLaunchFixture('first-week') as unknown as GameSave
     rich.teams[1].reputation = 100
+    rich.teams[1].sponsors = [{ id: 'qa_s', name: 'QA', tier: 'STANDARD', weeklyPayout: 100_000 } as never]
     rich.teams[1].academyFacility = { level: 1, builtWeek: 1 }
     manageAcademy(rich.teams[1], rich, new SeededRNG(5))
     expect(rich.teams[1].academyFacility!.level).toBeGreaterThanOrEqual(1)
@@ -196,9 +204,10 @@ test('an AI club whose academy upkeep outruns its income sheds academy levels in
 
 test('an indebted AI club with positive cash flow can still fill its fifth seat from free agency, but never by inventing cash', async () => {
     const { manageRoster } = await import('@/engine/ai/roster-management')
-    const build = (reputation: number, wage: number) => {
+    const build = (reputation: number, wage: number, sponsor = 0) => {
         const save = createLaunchFixture('first-week') as unknown as GameSave
         const ai = save.teams[1]
+        ai.sponsors = sponsor ? [{ id: 'qa_s', name: 'QA', tier: 'STANDARD', weeklyPayout: sponsor } as never] : []
         const dropped = ai.rosterIds.pop()!
         save.contracts = save.contracts.filter(c => c.playerId !== dropped)
         save.contracts.filter(c => c.teamId === ai.id).forEach(c => { c.salaryPerWeek = wage })
@@ -207,7 +216,7 @@ test('an indebted AI club with positive cash flow can still fill its fifth seat 
         ai.financialState = 'INSOLVENT' as never
         return { save, ai }
     }
-    const healthy = build(100, 1000)
+    const healthy = build(100, 1000, 20_000) // Phase 4.4: a deal keeps the weekly cash flow positive
     manageRoster(healthy.ai, healthy.save)
     expect(healthy.ai.rosterIds).toHaveLength(5)
     expect(healthy.save.contracts.filter(c => c.teamId === healthy.ai.id && c.endWeek > healthy.save.currentWeek)).toHaveLength(5)

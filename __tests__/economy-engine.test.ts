@@ -11,6 +11,7 @@
  */
 
 import { EconomyEngine } from "@/engine/economy-engine"
+import { clubOperationsCost, leagueCentralPayment, sponsorIncomeFloor } from "@/lib/balance-tuning"
 import type { TeamSaveData, PlayerSaveData, StaffSaveData, ContractSaveData } from "@/engine/save-types"
 
 function makeTeam(overrides: Partial<TeamSaveData> = {}): TeamSaveData {
@@ -112,11 +113,12 @@ describe("processWeeklyFinances — sponsor income", () => {
         expect(rHigh.income.sponsors).toBeGreaterThan(rLow.income.sponsors)
     })
 
-    test("no sponsors → fallback estimate based on reputation (AI-team safety net)", () => {
+    test("no sponsors → base partner income from reputation (AI-team safety net)", () => {
         const team = makeTeam({ reputation: 40, sponsors: [] })
         const r = EconomyEngine.processWeeklyFinances(team, [], [], [])
-        // Fallback formula: reputation * 150 + 2000 = 8000 (before incomeMultiplier)
-        expect(r.income.sponsors).toBe(8000)
+        // Phase 4.4: 400 + 30 x reputation = 1600 (before incomeMultiplier).
+        expect(r.income.sponsors).toBe(1600)
+        expect(r.income.sponsors).toBe(sponsorIncomeFloor(40))
     })
 
     test("signing a low-payout first sponsor never reduces income below the rep floor", () => {
@@ -127,15 +129,16 @@ describe("processWeeklyFinances — sponsor income", () => {
         const noSponsors = makeTeam({ reputation: 50, sponsors: [] })
         const cheapSponsor = makeTeam({
             reputation: 50,
-            // rep 50 → repFactor 1.0, so payout 3000 → sponsorSum 3000,
-            // well below the rep floor of 50*150+2000 = 9500.
+            // rep 50 → repFactor 1.0, so payout 3000 adds 3000 to the
+            // base partner income of 400 + 30*50 = 1900.
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             sponsors: [{ name: "S", tier: "STANDARD", weeklyPayout: 3000 } as any],
         })
         const rNo = EconomyEngine.processWeeklyFinances(noSponsors, [], [], [])
         const rCheap = EconomyEngine.processWeeklyFinances(cheapSponsor, [], [], [])
-        expect(rNo.income.sponsors).toBe(9500)
-        expect(rCheap.income.sponsors).toBeGreaterThanOrEqual(rNo.income.sponsors)
+        expect(rNo.income.sponsors).toBe(1900)
+        // Deals are additive (Phase 4.4): the first deal always adds its payout.
+        expect(rCheap.income.sponsors).toBe(1900 + 3000)
     })
 
     test("custom-team incomeMultiplier scales sponsor income", () => {
@@ -146,8 +149,8 @@ describe("processWeeklyFinances — sponsor income", () => {
             difficultySettings: { incomeMultiplier: 0.5 } as any,
         })
         const r = EconomyEngine.processWeeklyFinances(team, [], [], [])
-        // Base 8000 * 0.5 = 4000
-        expect(r.income.sponsors).toBe(4000)
+        // Base 1600 * 0.5 = 800
+        expect(r.income.sponsors).toBe(800)
     })
 })
 
@@ -281,7 +284,10 @@ describe("processWeeklyFinances — net + balance math", () => {
         const r = EconomyEngine.processWeeklyFinances(
             team, [], [makeContract("p1", 1000)], []
         )
-        expect(r.expenses.total).toBe(r.expenses.playerWages + r.expenses.staffWages + r.expenses.facilities)
+        expect(r.expenses.total).toBe(r.expenses.playerWages + r.expenses.staffWages + r.expenses.facilities + r.expenses.operations)
+        expect(r.expenses.operations).toBe(clubOperationsCost(20))
+        // Outside the regional league: the fallback central payment.
+        expect(r.income.leagueShare).toBe(leagueCentralPayment(undefined))
         expect(r.income.total).toBe(r.income.sponsors + r.income.fanbase + r.income.leagueShare)
         expect(r.net).toBe(r.income.total - r.expenses.total)
         expect(r.newBalance).toBe(team.budget + r.net)
