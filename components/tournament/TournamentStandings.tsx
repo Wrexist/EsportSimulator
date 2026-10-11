@@ -232,7 +232,7 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                 </div>
                                 <div className="text-center tabular-nums text-xs text-ink-3">—</div>
                                 <div className="text-right">
-                                    <Badge className="bg-gold/[0.06] text-gold/60 border-0 h-5 px-1.5 text-[11px]">
+                                    <Badge className="bg-gold/[0.06] text-gold border-0 h-5 px-1.5 text-[11px]">
                                         Qualifier
                                     </Badge>
                                 </div>
@@ -435,7 +435,7 @@ export default memo(TournamentStandings)
 
 function Badge({ children, className }: { children: React.ReactNode, className?: string }) {
     return (
-        <div className={cn("inline-flex items-center justify-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2", className)}>
+        <div className={cn("inline-flex items-center justify-center rounded-sm border px-2.5 py-0.5 text-xs font-semibold", className)}>
             {children}
         </div>
     )
