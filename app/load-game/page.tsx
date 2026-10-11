@@ -19,7 +19,10 @@ import {
     AlertDialogCancel,
     AlertDialogAction,
 } from "@/components/ui/alert-dialog"
+import Image from "next/image"
 import { TeamLogoImage } from "@/components/ui/asset-images"
+import { trophyArtKind } from "@/components/squad/TrophyCabinet"
+import { trophyArtFor } from "@/lib/trophy-art"
 import { Panel } from "@/src/components/ui/Panel"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { formatCurrency } from "@/lib/utils-extended"
@@ -37,6 +40,25 @@ export default function LoadGamePage() {
 function seasonWeek(week: number | null | undefined) {
     const w = Math.max(1, week || 1)
     return `Season ${Math.ceil(w / 52)} · Week ${((w - 1) % 52) + 1}`
+}
+
+/**
+ * The save summary's last titles, drawn with the project trophy art
+ * (lib/trophy-art) mapped from each title's tournament and tier at render
+ * time. The summary's stored `logoPath` (old tournament PNGs) is not used.
+ */
+function RecentTitles({ trophies }: { trophies: SaveSlotMetadata["trophies"] }) {
+    if (!trophies?.length) return null
+    const recent = trophies.slice(-5)
+    return (
+        <span className="flex items-center gap-0.5" title={recent.map(t => t.tournamentName).join(" · ")}>
+            <span className="sr-only">Recent titles: {recent.map(t => t.tournamentName).join(", ")}</span>
+            {recent.map((t, i) => {
+                const art = trophyArtFor(trophyArtKind(t))
+                return <Image key={`${t.tournamentId}-${t.week}-${i}`} src={art.src} alt="" aria-hidden="true" width={28} height={28} className="h-7 w-7 object-contain" />
+            })}
+        </span>
+    )
 }
 
 const formatDate = (dateStr?: string | null) => {
@@ -250,7 +272,12 @@ function LoadGamePageInner() {
                                             </td>
                                             <td className="px-3 text-sm text-ink-2">{slot.currentWeek ? seasonWeek(slot.currentWeek) : "—"}</td>
                                             <td className="px-3 text-right text-sm tabular-nums text-ink-2">{slot.stats ? `${slot.stats.wins}–${slot.stats.losses}` : "—"}</td>
-                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{slot.stats ? slot.stats.tournamentsWon : "—"}</td>
+                                            <td className="px-3">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <RecentTitles trophies={slot.trophies} />
+                                                    <span className="text-sm tabular-nums text-ink-2">{slot.stats ? slot.stats.tournamentsWon : "—"}</span>
+                                                </div>
+                                            </td>
                                             <td className="px-3 text-right text-sm tabular-nums text-ink-2">{slot.budget !== undefined ? formatCurrency(slot.budget) : "—"}</td>
                                             <td className="px-3 text-sm text-ink-3">{formatDate(slot.updatedAt)}</td>
                                             <td className="w-44 pr-4">

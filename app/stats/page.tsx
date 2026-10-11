@@ -325,9 +325,7 @@ export default function StatsPage() {
                     </TabsContent>
 
                     <TabsContent value="trophies" className="mt-3">
-                        {(team.trophies || []).length > 0
-                            ? <TrophyCabinet trophies={(team.trophies || []) as never} title="Trophy cabinet" />
-                            : <Panel><p className="text-sm text-ink-3">No trophies yet. Titles you win are kept here.</p></Panel>}
+                        <TrophyCabinet trophies={(team.trophies || []) as never} title="Trophy cabinet" />
                     </TabsContent>
 
                     <TabsContent value="rivalries" className="mt-3">

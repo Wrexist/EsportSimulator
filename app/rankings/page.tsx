@@ -8,7 +8,10 @@ import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { HelpTooltip, StatExplanations } from "@/components/ui/stat-tooltip"
-import { Award, ChevronRight, Search, X, ArrowUp, ArrowDown, Trophy } from "lucide-react"
+import Image from "next/image"
+import { Award, ChevronRight, Search, X, ArrowUp, ArrowDown } from "lucide-react"
+import { trophyArtKind } from "@/components/squad/TrophyCabinet"
+import { trophyArtFor } from "@/lib/trophy-art"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { motion, AnimatePresence } from "framer-motion"
@@ -522,7 +525,7 @@ function RankingsPageInner() {
                             <tbody>
                                 {playerTeam.trophies.map((trophy: any, idx: number) => (
                                     <tr key={`${trophy.tournamentId}_${idx}`} data-slot="table-row" className="h-11 border-b border-line last:border-b-0">
-                                        <td className="pl-4"><Trophy size={16} className="text-gold" aria-hidden="true" /></td>
+                                        <td className="pl-4"><Image src={trophyArtFor(trophyArtKind(trophy)).src} alt="" aria-hidden="true" width={28} height={28} className="h-7 w-7 object-contain" /></td>
                                         <td className="text-sm font-semibold text-ink-1">{trophy.tournamentName}</td>
                                         <td className="px-3"><TierTag tier={trophy.tier} /></td>
                                         <td className="pr-4 text-right text-sm tabular-nums text-ink-2">Week {trophy.week}</td>

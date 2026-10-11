@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect, type ReactNode } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { useParams, useRouter } from "next/navigation"
 import Image from "next/image"
+import { trophyArtFor, trophyKindForTournament } from "@/lib/trophy-art"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import type { TournamentDefinition } from "@/data/tournament-calendar"
@@ -483,7 +484,7 @@ export default function TournamentDetailPage() {
                         <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border border-line bg-raised">
                             {definition?.logoPath
                                 ? <Image src={definition.logoPath} alt="" width={64} height={64} className="object-contain" />
-                                : <Trophy className="h-8 w-8 text-ink-3" />}
+                                : <Image src={trophyArtFor(trophyKindForTournament(displayTournament.tier)).src} alt="" width={64} height={64} className="h-16 w-16 object-contain" />}
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2 text-xs text-ink-3">

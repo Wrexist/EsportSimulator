@@ -1,19 +1,13 @@
 "use client"
 
 import React, { memo } from "react"
-import { motion } from "framer-motion"
-import { Trophy, Calendar, Medal } from "lucide-react"
-import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { Trophy } from "lucide-react"
 import { isMajorTournament } from "@/engine/official-stats"
 import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { trophyArtFor, trophyKindForTournament, type TrophyArtKind } from "@/lib/trophy-art"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Panel } from "@/src/components/ui/Panel"
+import { EmptyState } from "@/src/components/ui/EmptyState"
 
 interface TrophyEntry {
     tournamentId: string
@@ -34,104 +28,42 @@ interface TrophyCabinetProps {
     className?: string
 }
 
-function TrophyCabinetInner({ trophies, title = "Trophy Cabinet", className }: TrophyCabinetProps) {
-    // Group trophies by row if needed, or just a grid
+/** The club's won titles on one shelf, each with its project trophy art (lib/trophy-art). */
+function TrophyCabinetInner({ trophies, title = "Trophy cabinet", className }: TrophyCabinetProps) {
     return (
-        <div className={cn("space-y-6", className)}>
-            <div className="flex items-center justify-between">
-                <h3 className="text-sm font-normal uppercase tracking-widest text-ink-1 flex items-center gap-2">
-                    <Trophy size={16} className="text-amber-400" /> {title}
-                </h3>
-                <span className="text-[11px] font-bold text-muted-foreground uppercase">{trophies.length} Trophies</span>
-            </div>
-
-            <div className="relative p-8 rounded-[32px] bg-shell border border-line overflow-hidden">
-                {/* Decorative elements */}
-                <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r/srgb from-transparent via-amber-500/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 w-full h-8 bg-linear-to-t/srgb from-amber-500/5 to-transparent" />
-
-                {trophies.length === 0 ? (
-                    <div className="py-12 flex flex-col items-center justify-center text-center opacity-20">
-                        <Trophy size={48} className="mb-4" />
-                        <p className="text-[11px] font-normal uppercase tracking-[0.2em]">The cabinet is currently empty</p>
-                        <p className="text-[11px] uppercase mt-1">Win tournaments to display your legacy</p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                        <TooltipProvider>
-                            {trophies.map((trophy, idx) => (
-                                // Stable key — the index isn't in the key
-                                // (so re-ordering doesn't bust identity)
-                                // but it IS used to stagger the entrance
-                                // animation delay below.
-                                <Tooltip key={`${trophy.tournamentId}-${trophy.week}`}>
-                                    <TooltipTrigger asChild>
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: idx * 0.1 }}
-                                            className="group relative flex flex-col items-center"
-                                        >
-                                            {/* Reflection/Shadow */}
-                                            <div className="absolute -bottom-2 w-12 h-2 bg-amber-500/20 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                                            {/* Trophy Visual */}
-                                            <div className="relative w-16 h-20 flex items-center justify-center mb-4 transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-110">
-                                                <div className="relative w-full h-full flex items-center justify-center">
-                                                    {/* Project trophy art by tier (lib/trophy-art) */}
-                                                    <Image
-                                                        src={trophyArtFor(trophyArtKind(trophy)).src}
-                                                        alt={trophy.tournamentName}
-                                                        width={64}
-                                                        height={64}
-                                                        className="object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]"
-                                                    />
-                                                    {/* Shine Effect */}
-                                                    <div className="absolute inset-0 bg-linear-to-tr/srgb from-transparent via-ink-1/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-full" />
-                                                </div>
-                                            </div>
-
-                                            {/* Plaque / Label */}
-                                            <div className="w-full text-center">
-                                                <p className="text-[11px] font-normal text-amber-500/80 uppercase tracking-tighter line-clamp-1 mb-0.5">
-                                                    {trophy.tournamentName}
-                                                </p>
-                                                <p className="text-[7px] text-muted-foreground font-bold uppercase">
-                                                    Week {trophy.week}
-                                                </p>
-                                            </div>
-
-                                            {/* The "Shelf" line effect for individual trophies */}
-                                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-8 h-px bg-hover group-hover:bg-amber-500/40 transition-colors" />
-                                        </motion.div>
-                                    </TooltipTrigger>
-                                    <TooltipContent className="bg-raised border-line-strong p-3 rounded-md">
-                                        <div className="space-y-2">
-                                            <p className="text-sm font-normal text-amber-400 uppercase tracking-wide">{trophy.tournamentName}</p>
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2 text-[11px] text-ink-2">
-                                                    <Calendar size={12} />
-                                                    <span>Won in Week {trophy.week}</span>
-                                                </div>
-                                                {trophy.mvpId && (
-                                                    <div className="flex items-center gap-2 text-[11px] text-amber-400">
-                                                        <Medal size={12} />
-                                                        <span>Tournament MVP Awarded</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </TooltipContent>
-                                </Tooltip>
-                            ))}
-                        </TooltipProvider>
-                    </div>
-                )}
-
-                {/* The Glass Shelf Aesthetic */}
-                <div className="absolute bottom-12 left-8 right-8 h-[2px] bg-linear-to-r/srgb from-transparent via-ink-1/10 to-transparent border-t border-line pointer-events-none" />
-            </div>
-        </div>
+        <Panel
+            title={title}
+            actions={<span className="text-xs tabular-nums text-ink-3">{trophies.length} {trophies.length === 1 ? "title" : "titles"}</span>}
+            className={className}
+        >
+            {trophies.length === 0 ? (
+                <EmptyState
+                    icon={Trophy}
+                    framed={false}
+                    title="No titles yet"
+                    description="Every tournament and league title the club wins is shelved here."
+                />
+            ) : (
+                <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                    {trophies.map(trophy => {
+                        const art = trophyArtFor(trophyArtKind(trophy))
+                        return (
+                            <li
+                                key={`${trophy.tournamentId}-${trophy.week}`}
+                                className="flex min-w-0 flex-col items-center rounded-md border border-line bg-raised px-3 pb-3 pt-4 text-center"
+                            >
+                                <Image src={art.src} alt={art.label} width={64} height={64} className="h-16 w-16 object-contain" />
+                                <p className="mt-3 line-clamp-2 text-sm font-semibold leading-snug text-ink-1" title={trophy.tournamentName}>{trophy.tournamentName}</p>
+                                <p className="mt-1 text-xs tabular-nums text-ink-3">
+                                    Week {trophy.week}
+                                    {trophy.mvpId && <span className="text-gold"> · MVP awarded</span>}
+                                </p>
+                            </li>
+                        )
+                    })}
+                </ul>
+            )}
+        </Panel>
     )
 }
 

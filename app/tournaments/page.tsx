@@ -5,6 +5,7 @@ import { useRouteViewState } from "@/hooks/use-route-view-state"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import Image from "next/image"
+import { trophyArtFor, trophyKindForTournament } from "@/lib/trophy-art"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Trophy, Lock, CheckCircle2, ChevronRight, Search, Calendar } from "lucide-react"
@@ -288,7 +289,7 @@ export default function TournamentsPage() {
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-raised">
                             {tournament.logoPath
                                 ? <Image src={tournament.logoPath} alt="" width={36} height={36} className="object-contain" />
-                                : <Trophy size={18} className="text-ink-3" />}
+                                : <Image src={trophyArtFor(trophyKindForTournament(tournament.tier)).src} alt="" width={32} height={32} className="h-8 w-8 object-contain" />}
                         </div>
                         <div className="min-w-0">
                             <p className="truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{name}</p>
@@ -417,6 +418,9 @@ export default function TournamentsPage() {
 
                 <aside className="min-w-0">
                     <Panel title="World ranking" actions={<Link href="/rankings" className="text-xs font-semibold text-ink-3 hover:text-gold">Full table</Link>} padded={false}>
+                        {leaders.length === 0 && (
+                            <p className="px-4 py-4 text-sm text-ink-3">The top ten clubs by Elo appear here once the world&apos;s clubs are loaded.</p>
+                        )}
                         <ol className="divide-y divide-line">
                             {leaders.map((team) => {
                                 const isPlayer = team.id === playerTeam?.id
