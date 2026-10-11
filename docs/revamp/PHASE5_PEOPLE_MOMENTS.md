@@ -27,8 +27,11 @@ Truth rule continues: a personality, storyline choice or press answer may only p
 ## Sound cues (shared contract between 5.4 and 5.5)
 `SoundType` gains: `matchIntro`, `countdown`, `titleWin`, `titleWinMajor`, `promotion`, `relegation`, `signing`, `sale`, `seasonReview`, `award`, `welcome`, `decision`. 5.4 calls `soundManager.play(<id>)`; until 5.5 lands an id may map to the nearest existing synth sound.
 
+## Asset source (owner decision 2026-10-11)
+Project-made: audio is rendered by an in-repo synthesis script and art by in-repo SVG/sharp/Playwright scripts (or derived from the baked radar art). No AI generation, no third-party samples or images. Individual files can be swapped later through the audio manifest / art helpers.
+
 ## Order
-Wave 1 (parallel): 5.1, 5.2, 5.4a, 5.5. Wave 2: 5.3, 5.4b, 5.6. Then 5.7 and a full play-through.
+Wave 1 (parallel): 5.1, 5.2, 5.4a, 5.5, 5.6. Wave 2: 5.3, 5.4b. Then 5.7 and a full play-through.
 
 ## Done when
 - Every player has a personality whose effects are visible and real; the season MVP and records come from real stats.
