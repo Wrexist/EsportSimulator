@@ -38,3 +38,26 @@ Wave 1 (parallel): 5.1, 5.2, 5.4a, 5.5, 5.6. Wave 2: 5.3, 5.4b. Then 5.7 and a f
 - A season produces at least 3 storylines that reference real players and results, and their choices change numbers.
 - Match start, title, promotion, signing and season end each have a moment with sound; no moment fires late or twice.
 - No oscillator beeps remain; the packaging gate passes with the new files.
+
+---
+
+## Status — done except the owner's release statement (2026-10-11)
+
+Branch `claude/revamp-phase-5` (contains Phases 0–4).
+
+| Stream | Result |
+|---|---|
+| 5.1 Records & truth | Every official match (managed and AI) feeds `avgRating`, rounds, K–D–A, damage, season tallies; season lines (12 kept); MVP, team of the season, rookie and Top 20 from real stats, competition-weighted; fabricated Major wins/MVPs/EVPs removed; world, club and season records; one Hall of Fame path; manager reputation log and club timeline. Regulars' mean rating 0.985 (was 0 for everyone). `engine/season-review.ts`. |
+| 5.2 Personalities | 8 archetypes (7–18% each) and playstyle traits (36% of players) on every creation path, save v9. Morale v2 (bench time, wage fairness, promises), transfer requests (≤ 2 per club-season), archetype contract demands for manager and AI, Professional +10% training, captain and mentor with stated effects. Calibration 47/3/0 → 48/2/0. |
+| 5.3 Storylines & press | 8 arc kinds from real state with decisions that apply their stated effects; 8–10 stories per managed season, 7 of 8 kinds seen; press conferences before finals, derbies, top-10 clashes and deciders (at most every 4 weeks, finals excepted); story-led weekly headline and final previews; inbox at week 13 still 4–5 unread. |
+| 5.4a Moments | Persisted moment queue (Continue stops for it); match intro and end-of-match beat; titles on the grand-final result; division titles, promotion/relegation, signing reveal, new-career welcome; victory/defeat once per match. |
+| 5.4b Season review | Full-screen season review (your season, MVP, rookie, Top 20, team of the season, records, story of the season) replaces the recap and awards modals; replay from the trophy room and inbox; project trophy art in every celebration. |
+| 5.5 Audio | Project-made pack (35 SFX/stingers, 4 looping music cues, 6.1 MB, music −16 LUFS), sample-based engine with scenes, crossfade, ducking and a limiter; music on at 45 by default; one sound per event. |
+| 5.6 Key art | Logotype, title-screen stage from the baked radar art, branded loading/boot splash, vector trophies for every tier, season splash (681 KB). Valve radar overviews and 4 real-event logos are out of the build. |
+| 5.7 Release gate | Fonts (byte match to @fontsource 5.3.0, OFL) and 16 new flags (byte match to Flagcdn) recorded. 46 project-made/edited files wait for the owner's release statement: `node scripts/launch/record-revamp-content.cjs --owner-statement "<words>"` (dry run passes `npm run content:verify`). |
+
+Also fixed: a $15k/week legend coach was offered to clubs that could not pay it (bankruptcies in the campaign smoke); it is now offered only with 26+ weeks of runway and states the cost.
+
+Verification: type-check 0 · lint 0 · jest 253 suites / 2,696 tests · live run on the merged branch (new career → welcome → intro → match → end beat → result → signing reveal → forced title/league/tier moments → home, squad, week, league, trophies, settings, inbox): 0 page errors. Screenshots `tmp/phase5/`.
+
+Open: listen-check the audio (`tmp/phase5/audio/preview.html`); contract standoffs did not trigger in the 3-seed season (unit-tested); every snapshot player has amicability 70, so only the Hothead rift fires; old AI trophy PNGs are still referenced by `data/tournaments.json` save summaries.
