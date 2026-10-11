@@ -30,6 +30,16 @@ import { AUTO_CONFIRM_MS, FAST_FORWARD_LEAD, inMoment } from "@/lib/live-match-p
 import { adrOf, samplePlayer, tallyMatchDamage } from "@/lib/live-match-roster"
 import { previewDecision } from "@/lib/live-match-decision"
 import type { ManagerStrategy } from "@/engine/match/legacy-series"
+import { MatchIntro } from "@/components/match/MatchIntro"
+import { MatchEndBeat } from "@/components/match/MatchEndBeat"
+import { competitionOf } from "@/lib/match-framing"
+import { headToHeadOf, introContextLine } from "@/lib/match-intro"
+
+/** Session mark for a played match intro (survives a reload before the next save). */
+const introSessionKey = (key: string) => `esm:${key}`
+function introSeenThisSession(key: string): boolean {
+    try { return typeof sessionStorage !== "undefined" && sessionStorage.getItem(introSessionKey(key)) === "1" } catch { return false }
+}
 
 declare global {
     interface Window { __liveCommits?: number }
@@ -37,6 +47,14 @@ declare global {
 
 export default function LiveMatchPage() {
     const params = useParams<{ id: string }>()
+    // Match intro (Phase 5.4a): once per match, before the first round; never
+    // on a resumed match (its checkpoint exists) or after it played once.
+    const introKey = `intro:${params.id}`
+    const [introPending, setIntroPending] = useState(() => {
+        const s = useGameStore.getState()
+        return s.activeMatchState?.matchId !== params.id && !s.seenMomentKeys.includes(introKey) && !introSeenThisSession(introKey)
+    })
+    const [endBeatDone, setEndBeatDone] = useState(false)
     const {
         gameState,
         simState,
@@ -81,7 +99,8 @@ export default function LiveMatchPage() {
         decisionHold,
         setDecisionHold,
         shownLossLevels,
-    } = useLiveMatch(params.id)
+        finishedResult,
+    } = useLiveMatch(params.id, { holdStart: introPending })
     const router = useRouter()
     // Dev builds count the page's commits on window.__liveCommits (perf tooling).
     useEffect(() => {
@@ -233,6 +252,27 @@ export default function LiveMatchPage() {
         : null
     ), [preview, decisionKey, names, pickStrategy, openLoadoutEditor, isAutoTactics, decisionHold, toggleHold, timeoutsRemaining, timeoutActive, timeoutDisabled, callTimeout, overtimeNote])
     const leaveToHub = useCallback(() => router.push(`/match/${params.id}/tactics`), [router, params.id])
+
+    // Intro facts, once the match is set up: competition, head-to-head from
+    // the recorded meetings, and one true line of context.
+    const introReady = introPending && !!matchData.current && !!simState && originalHomePlayers.length > 0
+    const introData = useMemo(() => {
+        if (!introReady || !matchData.current) return null
+        const { homeTeam, awayTeam, match, canonicalMaps } = matchData.current
+        const st = useGameStore.getState()
+        const competition = competitionOf(match, st.tournaments)
+        const h2h = headToHeadOf(st.completedMatches, homeTeam.id, awayTeam.id)
+        const context = introContextLine({ home: homeTeam, away: awayTeam, playerTeamId: st.playerTeamId, stage: match.stage, competitionName: competition.name, h2h })
+        return { competition, h2h, context, maps: canonicalMaps as string[] }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- built once when the match is ready
+    }, [introReady])
+    useEffect(() => {
+        if (!introReady) return
+        useGameStore.getState().markMomentSeen(introKey)
+        try { sessionStorage.setItem(introSessionKey(introKey), "1") } catch { /* storage denied: the saved key still holds */ }
+    }, [introReady, introKey])
+    const endIntro = useCallback(() => setIntroPending(false), [])
+    const endBeat = useCallback(() => setEndBeatDone(true), [])
     const pauseForLeave = useCallback(() => setIsPlaying(false), [setIsPlaying])
 
     if (!matchData.current || !simState) {
@@ -451,7 +491,38 @@ export default function LiveMatchPage() {
                 )}
             </AnimatePresence>
 
-            {gameState.status === "FINISHED" && (
+            <AnimatePresence>
+                {introReady && introData && (
+                    <MatchIntro
+                        key="intro"
+                        matchId={params.id}
+                        homeTeam={homeTeam}
+                        awayTeam={awayTeam}
+                        format={matchData.current.match.format}
+                        competition={introData.competition}
+                        maps={introData.maps}
+                        homePlayers={originalHomePlayers}
+                        awayPlayers={originalAwayPlayers}
+                        h2h={introData.h2h}
+                        context={introData.context}
+                        onDone={endIntro}
+                    />
+                )}
+                {gameState.status === "FINISHED" && finishedResult && !endBeatDone && (
+                    <MatchEndBeat
+                        key="end-beat"
+                        result={finishedResult}
+                        format={matchData.current.match.format}
+                        homeTeam={homeTeam}
+                        awayTeam={awayTeam}
+                        playerTeamId={isPlayerHome ? homeTeam.id : awayTeam.id}
+                        players={[...originalHomePlayers, ...originalAwayPlayers]}
+                        onDone={endBeat}
+                    />
+                )}
+            </AnimatePresence>
+
+            {gameState.status === "FINISHED" && (endBeatDone || !finishedResult) && (
                 <div className="fixed bottom-8 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 px-4">
                     <Button onClick={handleFinish} className="h-12 w-full text-base">
                         Continue to results <ChevronRight size={18} aria-hidden="true" />

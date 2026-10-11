@@ -125,7 +125,16 @@ function makeRoundView(ids: { homePlayerIds: string[]; awayPlayerIds: string[] }
     }
 }
 
-export function useLiveMatch(id: string) {
+export interface LiveMatchOptions {
+    /**
+     * Hold the first round while the match intro is on screen (Phase 5.4a):
+     * the pistol round and auto tactics wait until it is released.
+     */
+    holdStart?: boolean
+}
+
+export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
+    const holdStart = !!options.holdStart
     const router = useRouter()
     const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
@@ -967,18 +976,19 @@ export function useLiveMatch(id: string) {
     // the round-end beat) unless the manager holds it.
     const roundBeatShown = roundBeat !== null
     useEffect(() => {
-        if (!isAutoTactics || !isWaitingForStrategy || !simState || gameState.status !== "IN_PROGRESS" || roundBeatShown || decisionHold) return
+        if (!isAutoTactics || !isWaitingForStrategy || !simState || gameState.status !== "IN_PROGRESS" || roundBeatShown || decisionHold || holdStart) return
         if (!simState.isOvertime && (simState.currentRound === 1 || simState.currentRound === 13)) return
         const timer = setTimeout(() => { startNextRound() }, AUTO_CONFIRM_MS)
         return () => clearTimeout(timer)
-    }, [isAutoTactics, isWaitingForStrategy, simState, gameState.status, startNextRound, roundBeatShown, decisionHold])
+    }, [isAutoTactics, isWaitingForStrategy, simState, gameState.status, startNextRound, roundBeatShown, decisionHold, holdStart])
 
     useEffect(() => {
+        if (holdStart) return
         if (gameState.status === "IN_PROGRESS" && isWaitingForStrategy && !roundBeatShown && simState && !simState.isOvertime && (simState.currentRound === 1 || simState.currentRound === 13)) {
             const timer = setTimeout(() => { startNextRound("PISTOL") }, PISTOL_START_MS)
             return () => clearTimeout(timer)
         }
-    }, [gameState.status, isWaitingForStrategy, simState, startNextRound, roundBeatShown])
+    }, [gameState.status, isWaitingForStrategy, simState, startNextRound, roundBeatShown, holdStart])
 
     // --- HANDLERS ---
     const simulateRoundInstant = useCallback(() => {
@@ -1162,6 +1172,20 @@ export function useLiveMatch(id: string) {
         router.push(`/match/${id}/result`)
     }, [id, saveMatchResult, clearActiveMatchState, router])
 
+    // The finished series as the result screen will record it (same pure
+    // finaliser handleFinish commits): the end-of-match beat's score and MVP.
+    const finishedResult = useMemo(() => {
+        const runtime = matchData.current
+        const sim = latestSimStateRef.current
+        if (gameState.status !== "FINISHED" || !runtime || !sim) return null
+        try {
+            return finalizeLegacySeries(runtime.ctx, { sim, maps: runtime.result.maps, finished: true })
+        } catch {
+            return null
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- the series is final once status is FINISHED
+    }, [gameState.status, simState])
+
     // Own-team view for the strategy panel and loadout editor (home OR away).
     const ownEconomy = useMemo(() => (simState ? (isPlayerHome ? simState.homeEconomy : simState.awayEconomy) : {}) as Record<string, { cash: number }>, [simState, isPlayerHome])
     const ownIsCT = simState ? (isPlayerHome ? simState.homeStartsCT : !simState.homeStartsCT) : true
@@ -1214,5 +1238,6 @@ export function useLiveMatch(id: string) {
         decisionHold,
         setDecisionHold,
         shownLossLevels,
+        finishedResult,
     }
 }
