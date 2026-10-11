@@ -1,4 +1,6 @@
-// Plain ink while the menu chunk loads: no placeholder title to flash.
+import { LoadingSplash } from "@/components/brand/LoadingSplash"
+
+// Branded splash while the title screen chunk loads (also the first frame after Electron's boot page).
 export default function Loading() {
-    return <div className="min-h-dvh bg-ink" aria-busy="true" />
+    return <LoadingSplash />
 }

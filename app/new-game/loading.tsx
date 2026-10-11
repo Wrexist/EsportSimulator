@@ -1,4 +1,6 @@
-// Plain ink while the career setup chunk loads.
+import { LoadingSplash } from "@/components/brand/LoadingSplash"
+
+// Branded splash while the career setup chunk loads.
 export default function Loading() {
-    return <div className="min-h-dvh bg-ink" aria-busy="true" />
+    return <LoadingSplash label="Preparing career setup" />
 }

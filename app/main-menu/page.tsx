@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -11,6 +10,8 @@ import { Loader2, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import { SettingsModal } from "@/components/settings/SettingsModal"
+import { Logotype } from "@/components/brand/Logotype"
+import { TitleHero } from "@/components/brand/TitleHero"
 
 /** "Season 2 · Week 14" from an absolute career week. */
 function seasonWeekLabel(week: number | null | undefined): string {
@@ -26,7 +27,7 @@ type MenuItemProps = {
     disabled?: boolean
 }
 
-/** A secondary main-menu entry: display type, quiet until hovered or focused. */
+/** A secondary main-menu entry: display type, quiet until hovered or focused (gold edge marks it). */
 function MenuItem({ label, hint, onClick, href, disabled }: MenuItemProps) {
     const inner = (
         <>
@@ -34,7 +35,7 @@ function MenuItem({ label, hint, onClick, href, disabled }: MenuItemProps) {
             {hint && <span className="ml-auto text-xs font-medium normal-case tracking-normal text-ink-3">{hint}</span>}
         </>
     )
-    const className = "h-14 w-full justify-start gap-3 px-4"
+    const className = "relative h-14 w-full justify-start gap-3 px-4 before:absolute before:inset-y-3 before:left-0 before:w-0.5 before:rounded-full before:bg-gold before:opacity-0 before:transition-opacity hover:bg-raised/80 hover:before:opacity-100 focus-visible:before:opacity-100"
     if (href) {
         return <Button asChild variant="ghost" className={className}><Link href={href}>{inner}</Link></Button>
     }
@@ -90,22 +91,14 @@ export default function MainMenuPage() {
 
     return (
         <div className="relative flex min-h-dvh overflow-hidden bg-ink">
-            {/* Key art behind a strong ink gradient: the menu side stays near-solid. */}
-            <Image
-                src="/esport-ui-assets/backgrounds/match-command-arena.webp"
-                alt=""
-                fill
-                priority
-                sizes="100vw"
-                className="pointer-events-none select-none object-cover object-[60%_center] opacity-90 saturate-[0.75]"
-            />
-            <div aria-hidden="true" className="absolute inset-0 bg-linear-to-r from-ink from-20% via-ink/70 via-45% to-ink/0" />
-            <div aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-ink via-ink/0 via-35% to-ink/40" />
+            {/* Project-made key art (public/key-art); the menu side stays near-solid ink. */}
+            <TitleHero />
 
             <div className="relative z-10 flex min-h-dvh w-full max-w-[560px] flex-col px-16 py-14 animate-in fade-in duration-200">
-                <header className="flex items-center gap-4">
-                    <Image src="/logo.png" alt="" width={96} height={96} className="h-24 w-24 object-contain" />
-                    <h1 className="font-display text-[56px] font-bold uppercase leading-[0.9] tracking-[0.01em] text-ink-1">Esports Manager</h1>
+                <header>
+                    <h1>
+                        <Logotype size="hero" subtitle="FPS" label="Esports Manager: FPS" />
+                    </h1>
                 </header>
 
                 <nav aria-label="Main menu" className="mt-auto mb-auto w-full max-w-[400px] space-y-1.5 pt-16">
@@ -147,10 +140,10 @@ export default function MainMenuPage() {
                     {canQuit && <MenuItem label="Quit" onClick={handleQuit} />}
                 </nav>
 
-                <footer className="flex items-center gap-3 text-xs text-ink-3">
-                    <span className="tabular-nums">v{process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}</span>
-                    <span aria-hidden="true">·</span>
-                    <Link href="/credits" className="rounded-sm hover:text-ink-1">Credits</Link>
+                <footer className="flex w-full max-w-[400px] items-center gap-3 border-t border-line pt-4 text-xs text-ink-3">
+                    <span className="font-semibold uppercase tracking-[0.14em]">Version</span>
+                    <span className="tabular-nums text-ink-2">{process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}</span>
+                    <Link href="/credits" className="ml-auto rounded-sm font-semibold uppercase tracking-[0.14em] hover:text-ink-1 focus-visible:text-ink-1 focus-visible:outline-hidden">Credits</Link>
                 </footer>
             </div>
 
