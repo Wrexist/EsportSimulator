@@ -5,6 +5,9 @@ import { motion } from "framer-motion"
 import { Trophy, Calendar, Medal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { isMajorTournament } from "@/engine/official-stats"
+import { isLeagueMatchId } from "@/engine/season/regional-league"
+import { trophyArtFor, trophyKindForTournament, type TrophyArtKind } from "@/lib/trophy-art"
 import {
     Tooltip,
     TooltipContent,
@@ -17,8 +20,12 @@ interface TrophyEntry {
     tournamentName: string
     week: number
     mvpId?: string
-    trophyPath?: string
     tier?: string
+}
+
+/** A won title's art: the major cup, the league shield, else its tier cup. */
+export function trophyArtKind(trophy: Pick<TrophyEntry, "tournamentId" | "tier">): TrophyArtKind {
+    return trophyKindForTournament(trophy.tier, { major: isMajorTournament(trophy.tournamentId), league: isLeagueMatchId(trophy.tournamentId) })
 }
 
 interface TrophyCabinetProps {
@@ -70,24 +77,18 @@ function TrophyCabinetInner({ trophies, title = "Trophy Cabinet", className }: T
 
                                             {/* Trophy Visual */}
                                             <div className="relative w-16 h-20 flex items-center justify-center mb-4 transition-transform duration-500 group-hover:-translate-y-2 group-hover:scale-110">
-                                                {trophy.trophyPath ? (
-                                                    <div className="relative w-full h-full flex items-center justify-center">
-                                                        {/* Trophy Image */}
-                                                        <Image
-                                                            src={trophy.trophyPath}
-                                                            alt={trophy.tournamentName}
-                                                            width={64}
-                                                            height={80}
-                                                            className="object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]"
-                                                        />
-                                                        {/* Shine Effect */}
-                                                        <div className="absolute inset-0 bg-linear-to-tr/srgb from-transparent via-ink-1/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-full" />
-                                                    </div>
-                                                ) : (
-                                                    <div className="w-14 h-14 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
-                                                        <Trophy size={28} />
-                                                    </div>
-                                                )}
+                                                <div className="relative w-full h-full flex items-center justify-center">
+                                                    {/* Project trophy art by tier (lib/trophy-art) */}
+                                                    <Image
+                                                        src={trophyArtFor(trophyArtKind(trophy)).src}
+                                                        alt={trophy.tournamentName}
+                                                        width={64}
+                                                        height={64}
+                                                        className="object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                                                    />
+                                                    {/* Shine Effect */}
+                                                    <div className="absolute inset-0 bg-linear-to-tr/srgb from-transparent via-ink-1/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-full" />
+                                                </div>
                                             </div>
 
                                             {/* Plaque / Label */}

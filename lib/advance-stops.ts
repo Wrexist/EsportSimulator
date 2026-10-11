@@ -59,9 +59,13 @@ export interface StopSource extends PlayableMatchState<MatchLike> {
     pendingCelebration?: Parameters<typeof titleMomentFromCelebration>[0]
 }
 
-/** The moment the MomentHost shows next, if any (the queue, then a legacy celebration). */
+/**
+ * The moment the MomentHost shows next, if any: the queue in order, then a
+ * legacy celebration; a season review always waits for everything else.
+ */
 export function nextMoment(state: Pick<StopSource, "momentQueue" | "pendingCelebration">): Moment | null {
-    return state.momentQueue?.[0] ?? titleMomentFromCelebration(state.pendingCelebration)
+    const queue = state.momentQueue ?? []
+    return queue.find(m => m.kind !== "season-review") ?? titleMomentFromCelebration(state.pendingCelebration) ?? queue[0] ?? null
 }
 
 /** A readable name for a decision event; some carry no title (fan and sponsor requests). */

@@ -1,7 +1,8 @@
 /**
  * Phase 5.1 screens render the recorded truth: the player's career record,
  * the manager's reputation and clubs, the trophy room's club records, the
- * Hall of Fame's career numbers and the awards ceremony (real fields only).
+ * Hall of Fame's career numbers and the season review's pages (real fields
+ * only, project trophy art).
  */
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -10,11 +11,11 @@ import { createLaunchFixture } from '@/scripts/launch/fixtures'
 import { recordOfficialMatch, recordTitle } from '@/engine/official-stats'
 import { closeSeason } from '@/engine/season-honours'
 import { adjustManagerReputation, closeStint, openStint } from '@/engine/manager-timeline'
-import { buildAnnualAwards } from '@/engine/pro-awards-engine'
 import { hallOfFameEntry } from '@/engine/hall-of-fame-manager'
+import { buildSeasonReviewView } from '@/lib/season-review-view'
 import { PlayerCareerRecord } from '@/components/player/PlayerCareerRecord'
 import { ClubTimelinePanel, ReputationPanel } from '@/components/career/ManagerRecord'
-import { ProAwardsModal } from '@/components/celebration/ProAwardsModal'
+import { SeasonReviewSequence } from '@/components/moments/season-review/SeasonReviewSequence'
 import TrophyRoomPage from '@/app/trophies/page'
 import HallOfFamePage from '@/app/hall-of-fame/page'
 import type { GameSave, MatchSaveData, PlayerSaveData } from '@/engine/save-types'
@@ -25,6 +26,8 @@ jest.mock('@/engine/manager-career-profile', () => ({ recordCareerProgress: jest
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn(), prefetch: jest.fn() }), usePathname: () => '/', useParams: () => ({}) }))
 
 const initial = { ...useGameStore.getState() }
+/** A trophy-art image (next/image encodes the path in its URL). */
+const art = (kind: string) => new RegExp(`trophy-art(%2F|/)${kind}\\.webp`)
 
 function map(name: string, home: string[], away: string[], h: number, a: number): MapResult {
     const rounds: RoundResult[] = []
@@ -99,8 +102,14 @@ test('trophy room: Majors are Majors and club records come from the record book'
     expect(html).toContain('Club records')
     expect(html).toContain('Biggest map win')
     expect(html).toContain('13-0')
-    // Two S-tier titles, one Major.
+    // Two S-tier titles, one Major: the major cup and the S-tier cup, never the old PNGs.
     expect(html).toMatch(/Majors<\/p><p[^>]*>1</)
+    expect(html).toMatch(art('major'))
+    expect(html).toMatch(art('s'))
+    expect(html).not.toMatch(/assets\/tournaments\/[a-z_]*trophy/)
+    // Past seasons replay their review.
+    expect(html).toContain('Season reviews')
+    expect(html).toContain('Replay')
 })
 
 test('Hall of Fame shows the inducted career numbers', () => {
@@ -114,11 +123,29 @@ test('Hall of Fame shows the inducted career numbers', () => {
     expect(html).toContain('official maps')
 })
 
-test('awards ceremony renders real season numbers; awards from older saves are not opened', () => {
+test('awards ceremony (season review) renders real season numbers; seasons with no record have no review', () => {
     const { save } = career()
     load(save)
-    const awards = buildAnnualAwards(save, save.recordBook!.honours[0], save.playerTeamId!)
-    const html = renderToStaticMarkup(<ProAwardsModal isOpen onClose={() => {}} awards={awards} />)
-    expect(html).toContain('Season 1')
-    expect(renderToStaticMarkup(<ProAwardsModal isOpen onClose={() => {}} awards={{ year: 2, top20: [{ proRating: 1.3 }] } as never} />)).toBe('')
+    const view = buildSeasonReviewView(save, 1)!
+    const mvp = save.recordBook!.honours[0].mvp!
+    const html = renderToStaticMarkup(<SeasonReviewSequence view={view} teams={save.teams} mode="replay" startAt="mvp" onClose={() => {}} />)
+    expect(html).toContain('Season 1 review')
+    expect(html).toContain('Player of the season')
+    expect(html).toContain(mvp.name)
+    expect(html).toContain(mvp.rating.toFixed(2))
+    expect(html).toContain(`${mvp.kills} kills, ${mvp.deaths} deaths`)
+    expect(html).toMatch(art('award'))
+    expect(buildSeasonReviewView(save, 7)).toBeNull()
+})
+
+test('season review, your season: league finish, record, titles with trophy art, board verdict', () => {
+    const { save } = career()
+    load(save)
+    const html = renderToStaticMarkup(<SeasonReviewSequence view={buildSeasonReviewView(save, 1)!} teams={save.teams} mode="moment" momentKey="season-review:1" onClose={() => {}} />)
+    expect(html).toContain('Your season')
+    expect(html).toContain('29–0')
+    expect(html).toMatch(art('major'))
+    expect(html).toContain('Expectations exceeded')
+    expect(html).toContain('Next: Player of the season')
+    expect(html).not.toContain('/assets/tournaments/')
 })

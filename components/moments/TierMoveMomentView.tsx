@@ -1,13 +1,27 @@
 "use client"
 
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { ArrowDown, ArrowUp } from "lucide-react"
 import type { TierMoveMoment } from "@/engine/moments"
+import { trophyArtFor, trophyKindForTournament, type TrophyArtKind } from "@/lib/trophy-art"
 import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
 import { MomentFacts, MomentFrame, MomentOverline, MomentRule, useReveal, type MomentFact } from "./MomentFrame"
 
 const money = (n: number) => formatCurrency(Math.round(n), "$", false)
+
+/** World-tier label ("S-Tier") to its tier cup; division labels have none. */
+const tierKind = (label: string): TrophyArtKind | null => {
+    const m = /^([SABC])-tier$/i.exec(label.trim())
+    return m ? trophyKindForTournament(m[1]) : null
+}
+
+/** What a promotion puts within reach, drawn small beside its line (lib/trophy-art). */
+function StakeArt({ kind }: { kind: TrophyArtKind }) {
+    const art = trophyArtFor(kind)
+    return <Image src={art.src} alt="" width={44} height={44} className="h-11 w-11 shrink-0 object-contain" />
+}
 
 function Change({ from, to, unit }: { from: number; to: number; unit?: string }) {
     const up = to > from
@@ -66,9 +80,9 @@ export function TierMoveMomentView({ moment, onDismiss }: { moment: TierMoveMome
             )}
             {(moment.topDivision || now.length > 0 || lost.length > 0) && (
                 <motion.ul {...reveal(0.8)} className="mt-6 w-full max-w-3xl space-y-2 text-left text-sm text-ink-2">
-                    {moment.topDivision && <li className="flex gap-2"><span aria-hidden="true" className="text-gold">—</span>The Division 1 champion lifts a trophy for the cabinet.</li>}
-                    {now.length > 0 && <li className="flex gap-2"><span aria-hidden="true" className="text-positive">—</span><span>Now eligible ({moment.toLabel} entry): <span className="text-ink-1">{now.join(", ")}</span></span></li>}
-                    {lost.length > 0 && <li className="flex gap-2"><span aria-hidden="true" className="text-negative">—</span><span>No longer eligible ({moment.fromLabel} entry): <span className="text-ink-1">{lost.join(", ")}</span></span></li>}
+                    {moment.topDivision && <li className="flex items-center gap-3"><StakeArt kind="league" />The Division 1 champion lifts this trophy for the cabinet.</li>}
+                    {now.length > 0 && <li className="flex items-center gap-3">{up && tierKind(moment.toLabel) ? <StakeArt kind={tierKind(moment.toLabel)!} /> : <span aria-hidden="true" className="w-11 shrink-0 text-center text-positive">—</span>}<span>Now eligible ({moment.toLabel} entry): <span className="text-ink-1">{now.join(", ")}</span></span></li>}
+                    {lost.length > 0 && <li className="flex items-center gap-3"><span aria-hidden="true" className="w-11 shrink-0 text-center text-negative">—</span><span>No longer eligible ({moment.fromLabel} entry): <span className="text-ink-1">{lost.join(", ")}</span></span></li>}
                 </motion.ul>
             )}
         </MomentFrame>

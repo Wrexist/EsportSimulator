@@ -17,14 +17,14 @@ import { useGameStore } from "@/store/game-store"
 import { INBOX_TABS, type InboxTab } from "@/lib/navigation"
 import { INBOX_TOGGLE_KEY } from "@/lib/keyboard-shortcuts"
 import { cn } from "@/lib/utils"
-import type { AnnualAwards } from "@/engine/pro-awards-engine"
 import { buildInboxItems, countInbox, itemsForTab, type InboxItem } from "./inbox-model"
 import { selectInboxContext } from "./inbox-store-bindings"
 import { useInboxDrawer } from "./inbox-drawer-store"
 import { InboxList } from "./InboxList"
 import { InboxReadingPane } from "./InboxReadingPane"
 
-const ProAwardsModal = dynamic(() => import("@/components/celebration/ProAwardsModal").then(m => m.ProAwardsModal), { ssr: false })
+// The awards message reopens its season's review at the ceremony.
+const SeasonReviewReplay = dynamic(() => import("@/components/moments/season-review/SeasonReviewReplay").then(m => m.SeasonReviewReplay), { ssr: false })
 
 const TAB_LABEL: Record<InboxTab, string> = { all: "All", decisions: "Decisions", messages: "Messages", news: "News" }
 
@@ -53,7 +53,7 @@ export function InboxDrawer() {
     })))
     const [newsFilter, setNewsFilter] = useState<NewsFilter>("headlines")
     const [showPaneOnNarrow, setShowPaneOnNarrow] = useState(false)
-    const [awards, setAwards] = useState<AnnualAwards | null>(null)
+    const [awardsSeason, setAwardsSeason] = useState<number | null>(null)
     // Row index of the last explicit pick: when that item leaves the tab
     // (a decision gets answered) the pane moves on to its neighbour.
     const [anchorIndex, setAnchorIndex] = useState(0)
@@ -145,7 +145,7 @@ export function InboxDrawer() {
                         item={selected}
                         ctx={ctx}
                         onBack={() => setShowPaneOnNarrow(false)}
-                        onOpenAwards={a => { close(); setAwards(a as AnnualAwards) }}
+                        onOpenAwards={season => { close(); setAwardsSeason(season) }}
                     />
                 )}
             </div>
@@ -207,7 +207,7 @@ export function InboxDrawer() {
                     </Tabs>
                 </SheetContent>
             </Sheet>
-            {awards && <ProAwardsModal isOpen={!!awards} onClose={() => setAwards(null)} awards={awards} />}
+            {awardsSeason != null && <SeasonReviewReplay season={awardsSeason} startAt="mvp" onClose={() => setAwardsSeason(null)} />}
         </>
     )
 }

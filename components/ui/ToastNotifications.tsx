@@ -5,6 +5,7 @@ import { useGameStore } from "@/store/game-store"
 import { X, TrendingUp, Star, Award, Zap, AlertTriangle } from "lucide-react"
 import { memo, useEffect, useCallback } from "react"
 import { liquidSpring, quickEase } from "@/lib/motion"
+import { useMomentOnScreenNow } from "@/components/moments/moment-state"
 
 export interface ToastData {
     id: string
@@ -41,11 +42,14 @@ function getToastStyle(toast: ToastData) {
 export function ToastNotifications() {
     const toasts = useGameStore(state => state.toasts) || []
     const removeToast = useGameStore(state => state.removeToast)
+    // A full-screen moment holds the toasts (they would cover its actions);
+    // they show, with their full time, once it closes.
+    const held = useMomentOnScreenNow()
 
     return (
         <div aria-live="polite" role="status" className="fixed top-16 right-6 z-toast flex flex-col gap-2 pointer-events-none">
             <AnimatePresence>
-                {toasts.map(toast => (
+                {!held && toasts.map(toast => (
                     <ToastItem
                         key={toast.id}
                         toast={toast}

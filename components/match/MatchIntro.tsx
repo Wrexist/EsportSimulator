@@ -51,9 +51,12 @@ function Side({ team, align, reduce }: { team: TeamSaveData; align: "left" | "ri
             <div className="flex h-[min(17vh,160px)] w-[min(17vh,160px)] shrink-0 items-center justify-center rounded-xl border border-line bg-raised">
                 <TeamLogoDisplay team={team} size={120} />
             </div>
-            <p className="mt-5 line-clamp-2 max-w-full break-words font-display text-[clamp(40px,4.4vw,76px)] font-extrabold uppercase leading-[0.88] text-ink-1">{team.name}</p>
-            <div className="mt-3 flex items-center gap-4">
-                <span className="text-sm text-ink-3">World <span className="font-display text-xl font-bold tabular-nums text-ink-1">#{team.worldRanking ?? "—"}</span></span>
+            {/* Two lines are reserved for every name, so both crests, ranks and form rows line up. */}
+            <div className="mt-5 flex min-h-[calc(clamp(40px,4.4vw,76px)*1.76)] max-w-full items-center justify-center">
+                <p className="line-clamp-2 max-w-full break-words font-display text-[clamp(40px,4.4vw,76px)] font-extrabold uppercase leading-[0.88] text-ink-1">{team.name}</p>
+            </div>
+            <div className="mt-3 flex h-7 items-center gap-4">
+                <span className="text-sm text-ink-3">World <span className="font-display text-xl font-bold tabular-nums text-ink-1">{team.worldRanking ? `#${team.worldRanking}` : "—"}</span></span>
                 <FormGuide results={form} emptyLabel="No results yet" />
             </div>
         </motion.div>
@@ -152,9 +155,10 @@ export function MatchIntro(props: MatchIntroProps) {
                 </motion.div>
 
                 {/* Versus */}
-                <div className="mt-10 flex items-center gap-8">
+                <div className="mt-10 flex items-start gap-8">
                     <Side team={homeTeam} align="left" reduce={reduce} />
-                    <div className="flex w-[180px] shrink-0 items-center justify-center" aria-live="polite">
+                    {/* VS and the countdown sit level with the crests (fixed box: no jump between them). */}
+                    <div className="flex h-[min(17vh,160px)] w-[180px] shrink-0 items-center justify-center" aria-live="polite">
                         <AnimatePresence mode="popLayout" initial={false}>
                             {count === null ? (
                                 <motion.span

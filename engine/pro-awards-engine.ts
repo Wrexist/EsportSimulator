@@ -9,8 +9,9 @@
  * the old OVR-based ratings and hash-made Major wins, Major MVPs, EVPs and
  * "big event wins" are gone.
  *
- * Revealed in the awards ceremony (ProAwardsModal) from #20 to #1 at the
- * start of the next season; the inbox event carries the awards object.
+ * Revealed in the season review's awards ceremony (Phase 5.4b,
+ * components/moments/season-review) from #20 to #1 at the start of the next
+ * season; the inbox event carries the awards object and reopens the review.
  */
 
 import type { GameSave } from "./save-types"

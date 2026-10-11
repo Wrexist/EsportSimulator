@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useMemo, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -26,14 +26,11 @@ import { RatingChip } from "@/src/components/ui/RatingChip"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { FixtureBanner, FormGuide, type FormResult } from "@/src/components/ui/FixtureBanner"
-import { Activity, ArrowUpRight, Loader2, Trophy } from "lucide-react"
+import { Activity, ArrowUpRight, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
-import dynamic from "next/dynamic"
-const SeasonRecapModal = dynamic(() => import("@/components/celebration/SeasonRecapModal").then(m => m.SeasonRecapModal), { ssr: false })
-const ProAwardsModal = dynamic(() => import("@/components/celebration/ProAwardsModal").then(m => m.ProAwardsModal), { ssr: false })
 import { EconomyEngine } from "@/engine/economy-engine"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getBoardSanctionedFee, getTierTargets } from "@/engine/board-expectations"
@@ -41,7 +38,6 @@ import { isLeagueMatchId, ordinal } from "@/engine/season/regional-league"
 import { boardStartTargets } from "@/lib/club-expectations"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { fixtureBlockReason } from "@/lib/playable-match"
-import { isRealAwards, type AnnualAwards } from "@/engine/pro-awards-engine"
 
 const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier" }
 /** Short names for the board's objectives (the full sentence is the row's tooltip and on Club → Board). */
@@ -99,9 +95,9 @@ export default function Page() {
   const {
     isInitialized, playerTeamId, teams, players, contracts,
     scheduledMatches, completedMatches, currentWeek, currentDay, academyCount,
-    timeMode, _hasHydrated, pendingSeasonRecap,
+    timeMode, _hasHydrated,
     gameOverReason, tournamentQualifications,
-    financeLedger, staff, storeLoading, gameStartDate,
+    staff, storeLoading, gameStartDate,
   } = useGameStore(useShallow(s => ({
     isInitialized: s.isInitialized,
     playerTeamId: s.playerTeamId,
@@ -115,50 +111,20 @@ export default function Page() {
     currentDay: s.currentDay,
     timeMode: s.timeMode,
     _hasHydrated: s._hasHydrated,
-    pendingSeasonRecap: s.pendingSeasonRecap,
     gameOverReason: s.gameOverReason,
     tournamentQualifications: s.tournamentQualifications,
-    financeLedger: s.financeLedger,
     staff: s.staff,
     storeLoading: s.isLoading,
     gameStartDate: s.gameStartDate,
   })))
 
-  // Separate selector for eventsLog to avoid excessive re-renders from the shallow comparison
-  const eventsLog = useGameStore(s => s.eventsLog)
-
-  // Actions are stable references — separate selector avoids re-renders from data changes
-  const clearPendingSeasonRecap = useGameStore(s => s.clearPendingSeasonRecap)
-  const acknowledgeEvent = useGameStore(s => s.acknowledgeEvent)
   const boardState = useGameStore(s => s.boardState)
   const league = useGameStore(s => s.league)
   const tenureStartWeek = useGameStore(s => s.managerDetails?.tenureStartWeek)
 
-  // The annual Pro/Player-of-the-Year ceremony — auto-open it once so the
-  // reveal isn't missed (it used to require noticing + clicking a banner).
-  const proShownRef = useRef<string | null>(null)
-
-  // Pro Awards Modal State
-  const [proAwards, setProAwards] = useState<AnnualAwards | null>(null)
-  const [isProModalOpen, setIsProModalOpen] = useState(false)
-
-  // Detect unacknowledged Pro award events
-  const latestProEvent = useMemo(() => {
-    return (eventsLog ?? []).find(e =>
-      e.type === "MEDIA" && isRealAwards((e.data as any)?.proAwards) && !e.acknowledged
-    )
-  }, [eventsLog])
-
-  // Auto-open the ceremony the first time a new awards event surfaces.
-  useEffect(() => {
-    if (!latestProEvent || proShownRef.current === latestProEvent.id) return
-    const awards = (latestProEvent.data as any)?.proAwards
-    if (isRealAwards(awards)) {
-      proShownRef.current = latestProEvent.id
-      setProAwards(awards as AnnualAwards)
-      setIsProModalOpen(true)
-    }
-  }, [latestProEvent])
+  // The season recap and the awards ceremony are the season review moment
+  // now (components/moments/SeasonReviewMomentView); past reviews replay
+  // from the trophy room and the awards message.
 
   // Robust session check: isInitialized is the primary flag,
   // but we also check if we have teams and a playerTeamId as a fallback.
@@ -274,29 +240,6 @@ export default function Page() {
     const wins = games.filter(m => m.result.winnerId === playerTeamId).length
     return { wins, losses: games.length - wins }
   }, [completedMatches, seasonStartWeek, playerTeamId])
-
-  const careerStats = useGameStore(s => s.careerStats)
-  const recordBook = useGameStore(s => s.recordBook)
-  const seasonRecapStats = useMemo(() => {
-    if (!playerTeam || !pendingSeasonRecap) return null
-    const summaries = careerStats?.seasons.filter(s => s.seasonNumber === pendingSeasonRecap) || []
-    const startWeek = (pendingSeasonRecap - 1) * 52 + 1, endWeek = pendingSeasonRecap * 52
-    const yearMatches = completedMatches.filter(m => m.week >= startWeek && m.week <= endWeek && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId))
-    const wins = summaries.length ? summaries.reduce((n, s) => n + s.wins, 0) : yearMatches.filter(m => m.result.winnerId === playerTeamId).length
-    const losses = summaries.length ? summaries.reduce((n, s) => n + s.losses, 0) : yearMatches.length - wins
-    return {
-      wins, losses,
-      trophies: summaries.length ? summaries.reduce((n, s) => n + s.trophiesWon.length, 0) : (playerTeam.trophies || []).filter(t => t.week >= startWeek && t.week <= endWeek).length,
-      budgetGrowth: summaries.length ? summaries.reduce((n, s) => n + s.totalIncome - s.totalExpenses, 0) : financeLedger.filter(e => e.teamId === playerTeamId && e.week >= startWeek && e.week <= endWeek).reduce((n, e) => n + (e.type === 'INCOME' ? e.amount : -e.amount), 0),
-      weeksActive: summaries.length ? summaries.reduce((n, s) => n + Math.max(0, s.endWeek - s.startWeek + 1), 0) : 52,
-      // The club's best player of the closed season, from its official maps (Phase 5.1 honours).
-      bestPlayer: (() => {
-        const best = recordBook?.honours.find(h => h.season === pendingSeasonRecap)?.userClub?.bestPlayer
-        if (!best) return null
-        return { nickname: best.name, portraitPath: players.find(p => p.id === best.playerId)?.portraitPath ?? "", rating: best.rating }
-      })(),
-    }
-  }, [careerStats, playerTeam, completedMatches, playerTeamId, pendingSeasonRecap, financeLedger, recordBook, players])
 
   if (!_hasHydrated || (storeLoading && !isSessionActive)) {
     return (
@@ -432,24 +375,6 @@ export default function Page() {
 
   return (
     <div className="space-y-5 pb-12">
-      {seasonRecapStats && (
-        <SeasonRecapModal
-          isOpen={!!pendingSeasonRecap}
-          onClose={clearPendingSeasonRecap}
-          year={pendingSeasonRecap || 0}
-          stats={seasonRecapStats}
-        />
-      )}
-      <ProAwardsModal
-        isOpen={isProModalOpen}
-        onClose={() => {
-          setIsProModalOpen(false)
-          // Acknowledge so the banner clears and the ceremony won't reopen.
-          if (latestProEvent) acknowledgeEvent(latestProEvent.id)
-        }}
-        awards={proAwards}
-      />
-
       <ScreenHeader
         eyebrow={`Season ${season} · Week ${weekInSeason}${timeMode === "HYBRID_DAILY" ? ` · Day ${currentDay + 1}` : ""}`}
         title="Club overview"
@@ -469,32 +394,6 @@ export default function Page() {
         }
       />
 
-      {/* Pro Awards banner */}
-      {latestProEvent && !isProModalOpen && (
-        <Panel padded={false}>
-          <div className="flex items-center justify-between gap-4 px-4 py-3">
-            <div className="flex items-center gap-3">
-              <Trophy size={18} className="text-gold" />
-              <div>
-                <p className="text-sm font-semibold text-ink-1">{(latestProEvent.data as any)?.title || "Pro Top 20 awards"}</p>
-                <p className="text-xs text-ink-3">The annual ceremony is ready.</p>
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => {
-                const awards = (latestProEvent?.data as any)?.proAwards
-                if (isRealAwards(awards)) {
-                  setProAwards(awards as AnnualAwards)
-                  setIsProModalOpen(true)
-                }
-              }}
-            >
-              View ceremony
-            </Button>
-          </div>
-        </Panel>
-      )}
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
         <div className="min-w-0 space-y-4">

@@ -143,7 +143,7 @@ export interface GameSave {
 
     // === UI CELEBRATIONS ===
     pendingCelebration?: CelebrationData | null
-    pendingSeasonRecap?: number | null // Year number if a recap is pending
+    // (pendingSeasonRecap, older saves: replaced by the season-review moment, Phase 5.4b; ignored on load.)
     pendingLegendPick?: LegendPickData | null // Major win legend selection
     signedLegendIds?: string[] // Track signed legends to prevent duplicates
     activelyPlayingLegendIds?: string[] // Legend IDs whose active counterparts are still in game

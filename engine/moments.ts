@@ -1,7 +1,8 @@
 /**
  * Moments (Phase 5 stream 5.4a): the big beats of a career shown full-screen
  * one at a time: a title, a league division title, a promotion or
- * relegation, a signing, the new-career welcome.
+ * relegation, a signing, the new-career welcome, and (5.4b) the season
+ * review that opens the next season.
  *
  * A moment is queued where the fact is decided (the week processor for
  * titles and tier moves, the store for a grand final won on the result
@@ -13,9 +14,12 @@
  * Every number a moment carries is the engine's own (prize booked or the
  * exact share the week tick will pay, reputation, follower gain, the next
  * tier's payments). The UI states nothing else.
+ *
+ * The season review always comes last: a moment decided while a review
+ * waits is queued in front of it, so titles and tier moves are told first.
  */
 
-export type MomentKind = "title" | "league-title" | "promotion" | "relegation" | "signing" | "welcome"
+export type MomentKind = "title" | "league-title" | "promotion" | "relegation" | "signing" | "welcome" | "season-review"
 
 interface MomentBase {
     /** Stable dedupe key, e.g. `title:<tournamentId>`. */
@@ -50,7 +54,6 @@ export interface TitleMoment extends MomentBase {
     finalScore?: string
     finalStage?: string
     logoPath?: string
-    trophyPath?: string
 }
 
 /** A regional league division won by the managed club. */
@@ -114,7 +117,29 @@ export interface WelcomeMoment extends MomentBase {
     teamId: string
 }
 
-export type Moment = TitleMoment | LeagueTitleMoment | TierMoveMoment | SigningMoment | WelcomeMoment
+/**
+ * The closed season told full-screen (Phase 5.4b): the club's season, the
+ * awards, the team of the season, records and the story. Carries only the
+ * season; the screen reads its stored honours (engine/season-review.ts).
+ */
+export interface SeasonReviewMoment extends MomentBase {
+    kind: "season-review"
+    season: number
+    /** Managed club when the season closed. */
+    teamId: string
+}
+
+export type Moment = TitleMoment | LeagueTitleMoment | TierMoveMoment | SigningMoment | WelcomeMoment | SeasonReviewMoment
+
+const MOMENT_KINDS: readonly MomentKind[] = ["title", "league-title", "promotion", "relegation", "signing", "welcome", "season-review"]
+
+/** Dedupe key of a season's review: one per season. */
+export const seasonReviewKey = (season: number) => `season-review:${season}`
+
+/** The review of a closed season (queued by the week tick that closes it). */
+export function seasonReviewMoment(season: number, week: number, teamId: string): SeasonReviewMoment {
+    return { key: seasonReviewKey(season), kind: "season-review", week, season, teamId }
+}
 
 /** Anything that carries a moment queue: the save, the store, a draft. */
 export interface MomentHolder {
@@ -147,7 +172,10 @@ export function markMomentKey(holder: MomentHolder, key: string): void {
 export function queueMoment(holder: MomentHolder, moment: Moment): boolean {
     if (!moment.key || hasMomentKey(holder, moment.key)) return false
     const queue = holder.momentQueue ?? (holder.momentQueue = [])
-    queue.push(moment)
+    // A waiting season review stays last: anything else goes in front of it.
+    const review = moment.kind === "season-review" ? -1 : queue.findIndex(m => m.kind === "season-review")
+    if (review >= 0) queue.splice(review, 0, moment)
+    else queue.push(moment)
     if (queue.length > MOMENT_QUEUE_CAP) {
         // Drop the oldest beyond the cap, but remember them as delivered so a
         // re-run of the deciding code does not queue them again.
@@ -168,13 +196,12 @@ export function dismissMoment(holder: MomentHolder, key: string): void {
 /** A sanitized queue from untrusted save data (older saves have none). */
 export function restoreMomentQueue(raw: unknown): Moment[] {
     if (!Array.isArray(raw)) return []
-    const kinds: MomentKind[] = ["title", "league-title", "promotion", "relegation", "signing", "welcome"]
     const seen = new Set<string>()
     const out: Moment[] = []
     for (const m of raw) {
         if (!m || typeof m !== "object") continue
         const { key, kind } = m as { key?: unknown; kind?: unknown }
-        if (typeof key !== "string" || !key || seen.has(key) || !kinds.includes(kind as MomentKind)) continue
+        if (typeof key !== "string" || !key || seen.has(key) || !MOMENT_KINDS.includes(kind as MomentKind)) continue
         seen.add(key)
         out.push(m as Moment)
     }
@@ -196,12 +223,13 @@ export function momentHeadline(m: Moment): string {
         case "relegation": return `Relegated to ${m.toLabel}`
         case "signing": return "New signing"
         case "welcome": return "Board brief"
+        case "season-review": return `Season ${m.season} review`
     }
 }
 
 /** Legacy `pendingCelebration` (older saves, debug) as a title moment. */
 export function titleMomentFromCelebration(c: {
-    tournamentId?: string; tournamentName?: string; tier?: string; prize?: number; repGain?: number; fanGain?: number; week?: number; logoPath?: string; trophyPath?: string
+    tournamentId?: string; tournamentName?: string; tier?: string; prize?: number; repGain?: number; fanGain?: number; week?: number; logoPath?: string
 } | null | undefined): TitleMoment | null {
     if (!c || typeof c.tournamentName !== "string" || !c.tournamentName) return null
     const tier = typeof c.tier === "string" ? c.tier : "B_TIER"
@@ -220,6 +248,5 @@ export function titleMomentFromCelebration(c: {
         repGain: typeof c.repGain === "number" ? c.repGain : 0,
         fanGain: typeof c.fanGain === "number" ? c.fanGain : undefined,
         logoPath: c.logoPath,
-        trophyPath: c.trophyPath,
     }
 }

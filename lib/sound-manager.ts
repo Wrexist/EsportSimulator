@@ -403,7 +403,8 @@ export class SoundManager {
         if (entry) void this.load(entry.file)
     }
 
-    private endCelebration() {
+    /** Back to the route's scene now (a moment that celebrated was closed). */
+    public endCelebration() {
         this.celebrationTimers.forEach(clearTimeout)
         this.celebrationTimers = []
         if (this.celebrating) { this.celebrating = false; this.requestRefresh() }

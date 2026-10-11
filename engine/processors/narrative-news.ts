@@ -4,11 +4,13 @@
  * Builds flavor news items each tick covering:
  *   1. Monthly power rankings (every 4 weeks, week > 1)
  *   2. Big-match preview for player-team finals this week
- *   3. Yearly season recap flag (sets pendingSeasonRecap)
- *   4. Post-match headlines for completed matches from last week (max 2)
- *   5. Transfer rumors (15% per week, week > 4, expiring contracts)
- *   6. Rivalry storylines for Top-10 vs Top-10 matchups (50% chance)
- *   7. Player milestone celebrations (10% chance per week, 500/1000/2500 kill marks)
+ *   3. Post-match headlines for completed matches from last week (max 2)
+ *   4. Transfer rumors (15% per week, week > 4, expiring contracts)
+ *   5. Rivalry storylines for Top-10 vs Top-10 matchups (50% chance)
+ *   6. Player milestone celebrations (10% chance per week, 500/1000/2500 kill marks)
+ *
+ * The season recap is the season review moment, queued when the week tick
+ * closes the season (atomic-week-processor, Phase 5.4b).
  *
  * All randomness is fed through the supplied SeededRNG so the news stream
  * is deterministic and replayable.
@@ -69,15 +71,7 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         }
     }
 
-    // 3. Yearly Season Recap flag
-    if (save.currentWeek > 1 && (save.currentWeek - 1) % 52 === 0) {
-        const lastYear = Math.floor((save.currentWeek - 1) / 52)
-        if (lastYear > 0) {
-            save.pendingSeasonRecap = lastYear
-        }
-    }
-
-    // 4. Post-Match Headlines (last week's completed matches, max 2)
+    // 3. Post-Match Headlines (last week's completed matches, max 2)
     const recentMatches = save.completedMatches.filter(m => m.week === save.currentWeek - 1)
     for (const match of recentMatches.slice(0, 2)) {
         const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
@@ -122,7 +116,7 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         }
     }
 
-    // 5. Transfer Rumors (15% per week, week > 4, expiring contracts)
+    // 4. Transfer Rumors (15% per week, week > 4, expiring contracts)
     if (rng.next() < 0.15 && save.currentWeek > 4) {
         const allPlayers = save.players.filter(p => {
             const contract = idx?.contractIndex.get(p.id) ?? save.contracts.find(c => c.playerId === p.id)
@@ -211,7 +205,7 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         }
     }
 
-    // 6. Rivalry Storylines (Top-10 vs Top-10, 50% chance)
+    // 5. Rivalry Storylines (Top-10 vs Top-10, 50% chance)
     const topTeamIds = new Set([...save.teams].sort((a, b) => b.elo - a.elo).slice(0, 10).map(t => t.id))
     const upcomingRivalry = save.scheduledMatches.find(m => {
         if (m.week !== save.currentWeek || m.isScrim) return false
@@ -244,7 +238,7 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         }
     }
 
-    // 7. Player Milestones (10% per week)
+    // 6. Player Milestones (10% per week)
     if (playerTeam && rng.next() < 0.1) {
         const roster = save.players.filter(p => playerTeam.rosterIds.includes(p.id))
         for (const player of roster) {

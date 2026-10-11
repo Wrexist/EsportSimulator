@@ -799,7 +799,6 @@ function sentinelCareer(): GameSave {
         transferHistory: [{ id: "rt-transfer", playerId: player, week: 6 }],
         legendaryPlayers: [],
         pendingCelebration: { type: "rt-celebration" },
-        pendingSeasonRecap: 1,
         pendingLegendPick: { tournamentName: "rt-major" },
         signedLegendIds: ["rt-legend"],
         activelyPlayingLegendIds: ["rt-active-legend"],

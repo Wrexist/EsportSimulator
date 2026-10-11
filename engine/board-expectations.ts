@@ -62,11 +62,46 @@ export const REPUTATION_DELTA: Record<BoardOutcome, number> = {
     FAILED: -6,
 }
 
-const REVIEW_VERDICT_LABEL: Record<BoardOutcome, string> = {
+export const REVIEW_VERDICT_LABEL: Record<BoardOutcome, string> = {
     EXCEEDED: "expectations exceeded",
     MET: "expectations met",
     MISSED: "expectations missed",
     FAILED: "expectations failed",
+}
+
+/** The season review's verdict from its total confidence move. */
+export function reviewVerdict(delta: number): BoardOutcome {
+    return delta >= 12 ? "EXCEEDED" : delta >= 0 ? "MET" : delta >= -12 ? "MISSED" : "FAILED"
+}
+
+/** Cause the season review writes to the manager's reputation log. */
+const seasonReviewCause = (season: number, outcome: BoardOutcome) => `Season ${season} board review: ${REVIEW_VERDICT_LABEL[outcome]}`
+
+export interface BoardSeasonVerdict {
+    outcome: BoardOutcome
+    /** Confidence after the review and the review's move (known while it is the board's last review). */
+    confidence?: number
+    delta?: number
+    /** The review's causes, e.g. "Season ranking met: #12 (target #15)". */
+    reasons: string[]
+}
+
+/**
+ * The board's verdict on a closed season, read back from the save: the
+ * board's last review while it is that season's, else the cause the review
+ * wrote to the manager's reputation log. Undefined when the board did not
+ * judge the season (a new manager is given time).
+ */
+export function boardVerdictFor(save: Pick<GameSave, "boardState" | "managerDetails">, season: number): BoardSeasonVerdict | undefined {
+    const last = save.boardState?.lastReview
+    if (last?.kind === "SEASON" && getSeasonNumber(last.week) === season) {
+        return { outcome: reviewVerdict(last.delta), confidence: last.confidence, delta: last.delta, reasons: last.summary ? last.summary.split(". ").map(s => s.trim()).filter(Boolean) : [] }
+    }
+    const log = save.managerDetails?.reputationLog ?? []
+    for (const outcome of Object.keys(REVIEW_VERDICT_LABEL) as BoardOutcome[]) {
+        if (log.some(c => c.cause === seasonReviewCause(season, outcome))) return { outcome, reasons: [] }
+    }
+    return undefined
 }
 
 interface TierTargets {
@@ -557,10 +592,10 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
 
     const wasOnNotice = board.onNotice
     board.confidence = clamp(round1(board.confidence + delta), 0, 100)
-    const verdict: BoardOutcome = delta >= 12 ? "EXCEEDED" : delta >= 0 ? "MET" : delta >= -12 ? "MISSED" : "FAILED"
+    const verdict = reviewVerdict(delta)
 
     // Manager reputation drifts with results.
-    adjustManagerReputation(save, REPUTATION_DELTA[verdict], `Season ${seasonNumber} board review: ${REVIEW_VERDICT_LABEL[verdict]}`)
+    adjustManagerReputation(save, REPUTATION_DELTA[verdict], seasonReviewCause(seasonNumber, verdict))
 
     // Capped, upside-only board backing for over-delivering.
     let rewardBudget = 0
