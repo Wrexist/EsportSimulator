@@ -66,13 +66,23 @@ describe('radar art', () => {
         expect(radarArtKey('de_Mirage')).toBe('mirage')
     })
 
-    it('prefers baked art and falls back to the old overviews', () => {
+    it('prefers the manifest and falls back to the same baked art, never to Valve overviews', () => {
         expect(radarArtFor('Mirage', { mirage: { upper: '/radar-art/Mirage-upper.webp' } })).toEqual({ upper: '/radar-art/Mirage-upper.webp', baked: true })
         expect(radarArtFor('Nuke', {})).toEqual(FALLBACK_RADAR_ART.Nuke)
         expect(radarArtFor('Nuke', null)).toEqual(FALLBACK_RADAR_ART.Nuke)
         expect(radarArtFor('NoSuchMap', null)).toBeUndefined()
         // Under Jest there is no require.context: the loader falls back without throwing.
-        expect(radarArtFor('Mirage')?.upper).toMatch(/\.(png|webp)$/)
+        expect(radarArtFor('Mirage')).toEqual({ upper: '/radar-art/Mirage-upper.webp', baked: true })
+        for (const [id, art] of Object.entries(FALLBACK_RADAR_ART)) {
+            expect(art.baked).toBe(true)
+            for (const url of [art.upper, art.lower].filter((u): u is string => !!u)) {
+                expect(url).toMatch(/^\/radar-art\/[A-Za-z]+-(upper|lower)\.webp$/)
+                expect(url).not.toMatch(/radar_psd/)
+                expect(fs.existsSync(path.join(__dirname, '..', 'public', url))).toBe(true)
+            }
+            // The fallback mirrors the manifest exactly.
+            expect(normalizeRadarArtManifest(manifest)[radarArtKey(id)]).toEqual({ upper: art.upper, ...(art.lower ? { lower: art.lower } : {}) })
+        }
     })
 
     it('ships baked art for every map, both floors on Nuke and Vertigo, and the files exist', () => {
