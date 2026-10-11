@@ -1,0 +1,1404 @@
+{
+  "generated": "2026-10-11",
+  "weeks": 12,
+  "tier": "mid",
+  "driver": "Real useGameStore: initializeNewGame, continueToNextDecision, simulateInstantMatch on match stops; the inbox is never opened.",
+  "summary": {
+    "finalBadge": [
+      48,
+      62,
+      50,
+      50
+    ],
+    "finalOpenDecisions": [
+      9,
+      11,
+      9,
+      13
+    ],
+    "maxOpenDecisions": [
+      9,
+      11,
+      9,
+      13
+    ],
+    "avgNewInboxPerWeek": 4.5,
+    "maxNewInboxPerWeek": 10,
+    "nonMatchStops": [
+      9,
+      10,
+      7,
+      12
+    ]
+  },
+  "results": [
+    {
+      "seed": 1,
+      "club": "team_58_cybershoci",
+      "clubName": "CYBIRSHOKE",
+      "startWeek": 1,
+      "endWeek": 13,
+      "final": {
+        "badge": 48,
+        "openDecisions": 9,
+        "unreadMessages": 39,
+        "unreadNews": 0,
+        "unreadAll": 48
+      },
+      "maxOpenDecisions": 9,
+      "avgNewInboxPerWeek": 4,
+      "maxNewInboxPerWeek": 8,
+      "totals": {
+        "messages": {
+          "TOURNAMENT": 7,
+          "CAREER_UPDATE": 1,
+          "MILESTONE": 2,
+          "INJURY": 11,
+          "FAN": 2,
+          "TOURNAMENT_UPDATE": 2,
+          "PLAYER_LEVEL_UP": 10,
+          "MANAGER_LEVEL_UP": 1,
+          "MEDIA": 4
+        },
+        "decisions": {
+          "SPONSOR": 4,
+          "JOB_OFFER": 2,
+          "MORALE": 3,
+          "FAN": 1
+        },
+        "news": {}
+      },
+      "stopsByKind": {
+        "event": 7,
+        "offer": 2
+      },
+      "stopsByReason": {
+        "event: A sponsor review needs an answer": 4,
+        "event: Internal Morale needs an answer": 1,
+        "offer: Job offer from IGOISTO (#N)": 1,
+        "event: A fan meetup request needs an answer": 1,
+        "event: N decisions need an answer": 1,
+        "offer: Job offer from Gelorys (#N)": 1
+      },
+      "byFamily": {
+        "message:TOURNAMENT:league_draw_league_team_cybershoci": 1,
+        "message:CAREER_UPDATE:evt_welcome_save": 1,
+        "message:MILESTONE:ms_win": 1,
+        "message:INJURY:injury_player_tnk_arielec": 1,
+        "decision:SPONSOR:sponsor_review": 4,
+        "message:FAN:fan_milestone": 2,
+        "message:TOURNAMENT_UPDATE:evt_auto_reg_iem_katowice_open": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_player_cybershoci": 1,
+        "message:INJURY:recovery_player_tnk_arielec": 1,
+        "message:INJURY:injury_player_bad_thuizter": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_cybershoci_gloviinq": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_xfcryc_player_cybershoci_fxenomen": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_cybershoci": 3,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_cybershoci_axlpha": 1,
+        "message:TOURNAMENT:tourney_start_iem_katowice_open": 1,
+        "message:TOURNAMENT:upcoming_match_iem_katowice_open": 2,
+        "message:INJURY:injury_player_ic_blasecinho": 1,
+        "message:MANAGER_LEVEL_UP:mgr_levelup": 1,
+        "decision:JOB_OFFER:job_offer_team_ikoisto": 1,
+        "message:TOURNAMENT_UPDATE:evt_auto_reg_copenhagen_rmr_eu": 1,
+        "message:MEDIA:elim_iem_katowice_open": 1,
+        "decision:MORALE:birthday_player_cybershoci": 2,
+        "message:INJURY:injury_player_muxeen_jzoey": 1,
+        "message:INJURY:recovery_player_ic_blasecinho": 1,
+        "message:MEDIA:trophy_iem_katowice_closed_eu_team_besteayx": 1,
+        "decision:FAN:fan_meet": 1,
+        "message:MILESTONE:ms_kills": 1,
+        "message:INJURY:recovery_player_bad_thuizter": 1,
+        "message:MEDIA:trophy_iem_katowice_open_team_bigkings": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_player_cybershoci_fxenomen": 1,
+        "message:INJURY:recovery_player_muxeen_jzoey": 1,
+        "message:TOURNAMENT:tourney_start_copenhagen_rmr_eu": 1,
+        "decision:MORALE:birthday_player_cybershoci_axlpha": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_player_cybershoci_gloviinq": 1,
+        "message:TOURNAMENT:upcoming_match_copenhagen_rmr_eu_swiss_team_cybershoci_team_bigkings": 1,
+        "decision:JOB_OFFER:job_offer_team_golarysel": 1,
+        "message:INJURY:injury_player_qyezar_nevt": 1,
+        "message:INJURY:injury_player_mb_esports_venomsera": 1,
+        "message:INJURY:injury_player_diipor": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_ckkcmg_player_cybershoci_axlpha": 1,
+        "message:TOURNAMENT:upcoming_match_copenhagen_rmr_eu_swiss_team_cybershoci_team_phantom": 1,
+        "message:MEDIA:trophy_iem_katowice_team_vitalis": 1
+      },
+      "weeks": [
+        {
+          "week": 1,
+          "messages": {
+            "TOURNAMENT": 1,
+            "CAREER_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 0,
+          "badge": 2,
+          "unreadAll": 2,
+          "stops": []
+        },
+        {
+          "week": 2,
+          "messages": {
+            "MILESTONE": 1,
+            "INJURY": 1,
+            "FAN": 1
+          },
+          "decisions": {
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 1,
+          "badge": 5,
+          "unreadAll": 5,
+          "stops": [
+            "event: A sponsor review needs an answer"
+          ]
+        },
+        {
+          "week": 3,
+          "messages": {
+            "TOURNAMENT_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 1,
+          "openDecisions": 1,
+          "badge": 6,
+          "unreadAll": 6,
+          "stops": []
+        },
+        {
+          "week": 4,
+          "messages": {
+            "PLAYER_LEVEL_UP": 1,
+            "INJURY": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 8,
+          "unreadAll": 8,
+          "stops": []
+        },
+        {
+          "week": 5,
+          "messages": {
+            "INJURY": 1,
+            "PLAYER_LEVEL_UP": 3
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 1,
+          "badge": 12,
+          "unreadAll": 12,
+          "stops": []
+        },
+        {
+          "week": 6,
+          "messages": {
+            "PLAYER_LEVEL_UP": 1,
+            "TOURNAMENT": 2
+          },
+          "decisions": {
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 2,
+          "badge": 16,
+          "unreadAll": 16,
+          "stops": [
+            "event: A sponsor review needs an answer"
+          ]
+        },
+        {
+          "week": 7,
+          "messages": {
+            "INJURY": 1,
+            "MANAGER_LEVEL_UP": 1,
+            "TOURNAMENT": 1,
+            "FAN": 1
+          },
+          "decisions": {
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 5,
+          "openDecisions": 3,
+          "badge": 21,
+          "unreadAll": 21,
+          "stops": [
+            "event: A sponsor review needs an answer"
+          ]
+        },
+        {
+          "week": 8,
+          "messages": {
+            "TOURNAMENT_UPDATE": 1,
+            "MEDIA": 1
+          },
+          "decisions": {
+            "JOB_OFFER": 1,
+            "MORALE": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 5,
+          "badge": 25,
+          "unreadAll": 25,
+          "stops": [
+            "event: Internal Morale needs an answer",
+            "offer: Job offer from IGOISTO (#184)"
+          ]
+        },
+        {
+          "week": 9,
+          "messages": {
+            "INJURY": 2,
+            "MEDIA": 1
+          },
+          "decisions": {
+            "FAN": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 6,
+          "badge": 29,
+          "unreadAll": 29,
+          "stops": [
+            "event: A fan meetup request needs an answer"
+          ]
+        },
+        {
+          "week": 10,
+          "messages": {
+            "MILESTONE": 1,
+            "PLAYER_LEVEL_UP": 1,
+            "INJURY": 1,
+            "MEDIA": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 5,
+          "badge": 32,
+          "unreadAll": 32,
+          "stops": []
+        },
+        {
+          "week": 11,
+          "messages": {
+            "PLAYER_LEVEL_UP": 1,
+            "INJURY": 1,
+            "TOURNAMENT": 1
+          },
+          "decisions": {
+            "MORALE": 2
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 5,
+          "openDecisions": 7,
+          "badge": 37,
+          "unreadAll": 37,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 12,
+          "messages": {
+            "PLAYER_LEVEL_UP": 1,
+            "TOURNAMENT": 1
+          },
+          "decisions": {
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 3,
+          "openDecisions": 8,
+          "badge": 40,
+          "unreadAll": 40,
+          "stops": [
+            "event: A sponsor review needs an answer"
+          ]
+        },
+        {
+          "week": 13,
+          "messages": {
+            "INJURY": 3,
+            "PLAYER_LEVEL_UP": 2,
+            "TOURNAMENT": 1,
+            "MEDIA": 1
+          },
+          "decisions": {
+            "JOB_OFFER": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 8,
+          "openDecisions": 9,
+          "badge": 48,
+          "unreadAll": 48,
+          "stops": [
+            "offer: Job offer from Gelorys (#174)"
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "club": "team_66_fluxion",
+      "clubName": "Floxo",
+      "startWeek": 1,
+      "endWeek": 13,
+      "final": {
+        "badge": 62,
+        "openDecisions": 11,
+        "unreadMessages": 51,
+        "unreadNews": 0,
+        "unreadAll": 62
+      },
+      "maxOpenDecisions": 11,
+      "avgNewInboxPerWeek": 5.2,
+      "maxNewInboxPerWeek": 10,
+      "totals": {
+        "messages": {
+          "TOURNAMENT": 13,
+          "CAREER_UPDATE": 1,
+          "FAN": 1,
+          "INJURY": 11,
+          "TOURNAMENT_UPDATE": 3,
+          "PLAYER_LEVEL_UP": 10,
+          "MEDIA": 8,
+          "MILESTONE": 2,
+          "MANAGER_LEVEL_UP": 1
+        },
+        "decisions": {
+          "MORALE": 7,
+          "CAREER_UPDATE": 1,
+          "FAN": 2,
+          "NEWS": 1,
+          "JOB_OFFER": 1,
+          "TRANSFER_OFFER": 1,
+          "SPONSOR": 1
+        },
+        "news": {}
+      },
+      "stopsByKind": {
+        "event": 9,
+        "offer": 1
+      },
+      "stopsByReason": {
+        "event: Internal Morale needs an answer": 3,
+        "event: Career Update needs an answer": 1,
+        "event: A fan meetup request needs an answer": 1,
+        "event: N decisions need an answer": 3,
+        "event: Varden Mentors Floxo needs an answer": 1,
+        "offer: N offers need a response": 1
+      },
+      "byFamily": {
+        "message:TOURNAMENT:league_draw_league_team_fluxion": 1,
+        "message:CAREER_UPDATE:evt_welcome_save_zgiizl": 1,
+        "message:FAN:fan_milestone": 1,
+        "decision:MORALE:birthday_player_fluxion_sewy": 1,
+        "message:INJURY:injury_player_rigaenro_zukar": 1,
+        "message:TOURNAMENT_UPDATE:evt_auto_reg_iem_katowice_open": 1,
+        "message:TOURNAMENT_UPDATE:evt_auto_reg_weplay_academy": 1,
+        "message:INJURY:recovery_player_rigaenro_zukar": 1,
+        "message:INJURY:injury_player_wild_ace_mzhl": 1,
+        "message:TOURNAMENT:tourney_start_iem_katowice_open": 1,
+        "message:TOURNAMENT:upcoming_match_iem_katowice_open": 1,
+        "decision:CAREER_UPDATE:career_decision_team_fluxion_confidence": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_player_fluxion_exxit": 2,
+        "message:MEDIA:elim_iem_katowice_open": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_vfxknd_player_fluxion_lucaosy": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_fsypwn_player_fluxion_cye": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_fluxion_dekenty": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_fluxion_azrt": 1,
+        "message:INJURY:recovery_player_wild_ace_mzhl": 1,
+        "decision:FAN:fan_meet": 2,
+        "message:INJURY:injury_player_zhield": 1,
+        "message:TOURNAMENT_UPDATE:evt_auto_reg_copenhagen_rmr_na": 1,
+        "message:TOURNAMENT:tourney_start_weplay_academy": 1,
+        "message:TOURNAMENT:upcoming_match_weplay_academy_league": 6,
+        "decision:MORALE:morale_player_fluxion_dekenty": 1,
+        "message:INJURY:injury_player_qyezar_caiori": 1,
+        "message:MEDIA:elim_weplay_academy": 4,
+        "message:MEDIA:trophy_iem_katowice_closed_eu_team_goimingladiaturs": 1,
+        "decision:NEWS:legend_mentorship_legend_varden": 1,
+        "decision:JOB_OFFER:job_offer_team_xeydstars": 1,
+        "message:INJURY:recovery_player_zhield": 1,
+        "decision:MORALE:morale_player_fluxion_exxit": 1,
+        "decision:MORALE:morale_player_fluxion_lucaosy": 3,
+        "decision:TRANSFER_OFFER:transfer_rumor": 1,
+        "message:MILESTONE:ms_win": 1,
+        "message:INJURY:injury_player_besteayx_aqt": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_player_fluxion_dekenty": 1,
+        "message:MANAGER_LEVEL_UP:mgr_levelup": 1,
+        "message:TOURNAMENT:tourney_start_copenhagen_rmr_na": 1,
+        "message:MEDIA:trophy_iem_katowice_open_team": 1,
+        "decision:MORALE:morale_player_fluxion_cye": 1,
+        "decision:SPONSOR:sponsor_review": 1,
+        "message:MILESTONE:ms_kills": 1,
+        "message:INJURY:injury_player_hevy_alxk": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_player_fluxion_lucaosy": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_player_fluxion_azrt": 1,
+        "message:INJURY:recovery_player_qyezar_caiori": 1,
+        "message:TOURNAMENT:upcoming_match_copenhagen_rmr_na_swiss_team_team_fluxion": 1,
+        "message:INJURY:injury_player_mb_esports_ztormsyn": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_ugvnio_player_fluxion_cye": 1,
+        "message:TOURNAMENT:upcoming_match_copenhagen_rmr_na_swiss_team_fluxion_team_batm": 1,
+        "message:MEDIA:trophy_iem_katowice_team": 1
+      },
+      "weeks": [
+        {
+          "week": 1,
+          "messages": {
+            "TOURNAMENT": 1,
+            "CAREER_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 0,
+          "badge": 2,
+          "unreadAll": 2,
+          "stops": []
+        },
+        {
+          "week": 2,
+          "messages": {
+            "FAN": 1
+          },
+          "decisions": {
+            "MORALE": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": [
+            "event: Internal Morale needs an answer"
+          ]
+        },
+        {
+          "week": 3,
+          "messages": {
+            "INJURY": 1,
+            "TOURNAMENT_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 6,
+          "unreadAll": 6,
+          "stops": []
+        },
+        {
+          "week": 4,
+          "messages": {},
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 0,
+          "openDecisions": 1,
+          "badge": 6,
+          "unreadAll": 6,
+          "stops": []
+        },
+        {
+          "week": 5,
+          "messages": {
+            "TOURNAMENT_UPDATE": 1,
+            "INJURY": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 8,
+          "unreadAll": 8,
+          "stops": []
+        },
+        {
+          "week": 6,
+          "messages": {
+            "INJURY": 1,
+            "TOURNAMENT": 2
+          },
+          "decisions": {
+            "CAREER_UPDATE": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 2,
+          "badge": 12,
+          "unreadAll": 12,
+          "stops": [
+            "event: Career Update needs an answer"
+          ]
+        },
+        {
+          "week": 7,
+          "messages": {
+            "PLAYER_LEVEL_UP": 5,
+            "MEDIA": 1,
+            "INJURY": 1
+          },
+          "decisions": {
+            "FAN": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 8,
+          "openDecisions": 3,
+          "badge": 20,
+          "unreadAll": 20,
+          "stops": [
+            "event: A fan meetup request needs an answer"
+          ]
+        },
+        {
+          "week": 8,
+          "messages": {
+            "INJURY": 1,
+            "TOURNAMENT_UPDATE": 1,
+            "TOURNAMENT": 2
+          },
+          "decisions": {
+            "MORALE": 1,
+            "FAN": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 6,
+          "openDecisions": 5,
+          "badge": 26,
+          "unreadAll": 26,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 9,
+          "messages": {
+            "INJURY": 1,
+            "MEDIA": 2,
+            "TOURNAMENT": 1
+          },
+          "decisions": {
+            "NEWS": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 5,
+          "openDecisions": 5,
+          "badge": 31,
+          "unreadAll": 31,
+          "stops": [
+            "event: Varden Mentors Floxo needs an answer"
+          ]
+        },
+        {
+          "week": 10,
+          "messages": {
+            "MEDIA": 1,
+            "INJURY": 1,
+            "TOURNAMENT": 1
+          },
+          "decisions": {
+            "JOB_OFFER": 1,
+            "MORALE": 2,
+            "TRANSFER_OFFER": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 7,
+          "openDecisions": 9,
+          "badge": 38,
+          "unreadAll": 38,
+          "stops": [
+            "event: 2 decisions need an answer",
+            "offer: 2 offers need a response"
+          ]
+        },
+        {
+          "week": 11,
+          "messages": {
+            "MILESTONE": 1,
+            "INJURY": 1,
+            "PLAYER_LEVEL_UP": 1,
+            "MANAGER_LEVEL_UP": 1,
+            "TOURNAMENT": 2,
+            "MEDIA": 1
+          },
+          "decisions": {
+            "MORALE": 1,
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 9,
+          "openDecisions": 11,
+          "badge": 46,
+          "unreadAll": 46,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 12,
+          "messages": {
+            "MILESTONE": 1,
+            "INJURY": 2,
+            "PLAYER_LEVEL_UP": 3,
+            "MEDIA": 1,
+            "TOURNAMENT": 2
+          },
+          "decisions": {
+            "MORALE": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 10,
+          "openDecisions": 10,
+          "badge": 55,
+          "unreadAll": 55,
+          "stops": [
+            "event: Internal Morale needs an answer"
+          ]
+        },
+        {
+          "week": 13,
+          "messages": {
+            "INJURY": 1,
+            "MEDIA": 2,
+            "PLAYER_LEVEL_UP": 1,
+            "TOURNAMENT": 2
+          },
+          "decisions": {
+            "MORALE": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 7,
+          "openDecisions": 11,
+          "badge": 62,
+          "unreadAll": 62,
+          "stops": [
+            "event: Internal Morale needs an answer"
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 3,
+      "club": "team_72_rareelement",
+      "clubName": "Rere Atom",
+      "startWeek": 1,
+      "endWeek": 13,
+      "final": {
+        "badge": 50,
+        "openDecisions": 9,
+        "unreadMessages": 41,
+        "unreadNews": 0,
+        "unreadAll": 50
+      },
+      "maxOpenDecisions": 9,
+      "avgNewInboxPerWeek": 4.3,
+      "maxNewInboxPerWeek": 7,
+      "totals": {
+        "messages": {
+          "TOURNAMENT": 6,
+          "CAREER_UPDATE": 1,
+          "FAN": 1,
+          "MILESTONE": 3,
+          "TOURNAMENT_UPDATE": 2,
+          "INJURY": 13,
+          "PLAYER_LEVEL_UP": 10,
+          "MANAGER_LEVEL_UP": 1,
+          "MEDIA": 5
+        },
+        "decisions": {
+          "MEDIA": 2,
+          "win_streak": 1,
+          "CAREER_UPDATE": 1,
+          "FAN": 1,
+          "TRANSFER_OFFER": 1,
+          "MORALE": 1,
+          "CONTRACT_OFFER": 1,
+          "SPONSOR": 2,
+          "loss_streak": 1
+        },
+        "news": {}
+      },
+      "stopsByKind": {
+        "event": 6,
+        "offer": 1
+      },
+      "stopsByReason": {
+        "event: Interview Request: Clutch Weekly needs an answer": 1,
+        "event: N decisions need an answer": 4,
+        "offer: Juhnny Speeds bid $X for Tyger": 1,
+        "event: Interview Request: Pro Power Rankings needs an answer": 1
+      },
+      "byFamily": {
+        "message:TOURNAMENT:league_draw_league_team_rareelement": 1,
+        "message:CAREER_UPDATE:evt_welcome_save": 1,
+        "message:FAN:fan_milestone": 1,
+        "message:MILESTONE:ms_win": 1,
+        "message:TOURNAMENT_UPDATE:evt_auto_reg_rthayk_iem_katowice_open": 1,
+        "decision:MEDIA:media_interview": 2,
+        "message:MILESTONE:ms_streak": 1,
+        "message:INJURY:injury_player_ic_labreenk": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_player_rari_zummer": 2,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_rari_tiqer": 2,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_rari": 1,
+        "decision:win_streak:streak_win": 1,
+        "decision:CAREER_UPDATE:career_decision_team_rareelement_momentum": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_rari_childcinq": 2,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_rari_khenqking": 1,
+        "message:TOURNAMENT:tourney_start_iem_katowice_open": 1,
+        "message:TOURNAMENT:upcoming_match_iem_katowice_open": 2,
+        "message:INJURY:injury_player_namega": 1,
+        "message:INJURY:injury_player_jyxt": 1,
+        "message:MANAGER_LEVEL_UP:mgr_levelup": 1,
+        "message:MILESTONE:ms_kills": 1,
+        "message:INJURY:injury_player_frasehh": 1,
+        "message:TOURNAMENT_UPDATE:evt_auto_reg_copenhagen_rmr_asia": 1,
+        "message:MEDIA:elim_iem_katowice_open": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_player_rari": 1,
+        "message:INJURY:recovery_player_ic_labreenk": 1,
+        "message:INJURY:recovery_player_jyxt": 1,
+        "message:MEDIA:trophy_iem_katowice_closed_eu_team_xpurtsbetexpert": 1,
+        "decision:FAN:fan_meet": 1,
+        "decision:TRANSFER_OFFER:transfer_rumor": 1,
+        "decision:MORALE:birthday_player_rari": 1,
+        "message:INJURY:injury_player_whitebird_nickelbakk": 1,
+        "message:INJURY:injury_player_ligianal_hxf": 1,
+        "message:INJURY:recovery_player_namega": 1,
+        "message:MEDIA:trophy_iem_katowice_open_team_phanatic": 1,
+        "decision:CONTRACT_OFFER:legend_coach_opportunity_legend_mirage": 1,
+        "decision:SPONSOR:equipment_deal": 1,
+        "message:INJURY:recovery_player_ligianal_hxf": 1,
+        "message:TOURNAMENT:tourney_start_copenhagen_rmr_asia": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_inkyfn_player_rari_khenqking": 1,
+        "message:INJURY:recovery_player_frasehh": 1,
+        "message:TOURNAMENT:upcoming_match_copenhagen_rmr_asia": 1,
+        "message:MEDIA:trophy_iem_katowice_team_valiant": 1,
+        "message:INJURY:injury_player_bozz": 1,
+        "message:MEDIA:elim_copenhagen_rmr_asia": 1,
+        "message:INJURY:recovery_player_whitebird_nickelbakk": 1,
+        "decision:loss_streak:streak_loss": 1,
+        "decision:SPONSOR:sponsor_review": 1
+      },
+      "weeks": [
+        {
+          "week": 1,
+          "messages": {
+            "TOURNAMENT": 1,
+            "CAREER_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 0,
+          "badge": 2,
+          "unreadAll": 2,
+          "stops": []
+        },
+        {
+          "week": 2,
+          "messages": {
+            "FAN": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 1,
+          "openDecisions": 0,
+          "badge": 3,
+          "unreadAll": 3,
+          "stops": []
+        },
+        {
+          "week": 3,
+          "messages": {
+            "MILESTONE": 1,
+            "TOURNAMENT_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 0,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": []
+        },
+        {
+          "week": 4,
+          "messages": {},
+          "decisions": {
+            "MEDIA": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 1,
+          "openDecisions": 1,
+          "badge": 5,
+          "unreadAll": 5,
+          "stops": [
+            "event: Interview Request: Clutch Weekly needs an answer"
+          ]
+        },
+        {
+          "week": 5,
+          "messages": {
+            "MILESTONE": 1,
+            "INJURY": 1,
+            "PLAYER_LEVEL_UP": 3
+          },
+          "decisions": {
+            "win_streak": 1,
+            "CAREER_UPDATE": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 7,
+          "openDecisions": 3,
+          "badge": 11,
+          "unreadAll": 11,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 6,
+          "messages": {
+            "PLAYER_LEVEL_UP": 2,
+            "TOURNAMENT": 2
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 3,
+          "badge": 15,
+          "unreadAll": 15,
+          "stops": []
+        },
+        {
+          "week": 7,
+          "messages": {
+            "INJURY": 2,
+            "MANAGER_LEVEL_UP": 1,
+            "TOURNAMENT": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 3,
+          "badge": 19,
+          "unreadAll": 19,
+          "stops": []
+        },
+        {
+          "week": 8,
+          "messages": {
+            "MILESTONE": 1,
+            "INJURY": 1,
+            "TOURNAMENT_UPDATE": 1,
+            "MEDIA": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 2,
+          "badge": 22,
+          "unreadAll": 22,
+          "stops": []
+        },
+        {
+          "week": 9,
+          "messages": {
+            "PLAYER_LEVEL_UP": 1,
+            "INJURY": 2,
+            "MEDIA": 1
+          },
+          "decisions": {
+            "FAN": 1,
+            "TRANSFER_OFFER": 1,
+            "MORALE": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 7,
+          "openDecisions": 5,
+          "badge": 29,
+          "unreadAll": 29,
+          "stops": [
+            "event: 2 decisions need an answer",
+            "offer: Juhnny Speeds bid $68k for Tyger"
+          ]
+        },
+        {
+          "week": 10,
+          "messages": {
+            "INJURY": 3,
+            "MEDIA": 1
+          },
+          "decisions": {
+            "CONTRACT_OFFER": 1,
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 6,
+          "openDecisions": 7,
+          "badge": 35,
+          "unreadAll": 35,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 11,
+          "messages": {
+            "PLAYER_LEVEL_UP": 3,
+            "INJURY": 1,
+            "TOURNAMENT": 1
+          },
+          "decisions": {
+            "MEDIA": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 6,
+          "openDecisions": 7,
+          "badge": 41,
+          "unreadAll": 41,
+          "stops": [
+            "event: Interview Request: Pro Power Rankings needs an answer"
+          ]
+        },
+        {
+          "week": 12,
+          "messages": {
+            "PLAYER_LEVEL_UP": 1,
+            "INJURY": 1,
+            "TOURNAMENT": 1,
+            "MEDIA": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 7,
+          "badge": 45,
+          "unreadAll": 45,
+          "stops": []
+        },
+        {
+          "week": 13,
+          "messages": {
+            "INJURY": 2,
+            "MEDIA": 1
+          },
+          "decisions": {
+            "loss_streak": 1,
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 5,
+          "openDecisions": 9,
+          "badge": 50,
+          "unreadAll": 50,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 4,
+      "club": "team_79_jijyahao",
+      "clubName": "JyJieHao",
+      "startWeek": 1,
+      "endWeek": 13,
+      "final": {
+        "badge": 50,
+        "openDecisions": 13,
+        "unreadMessages": 37,
+        "unreadNews": 0,
+        "unreadAll": 50
+      },
+      "maxOpenDecisions": 13,
+      "avgNewInboxPerWeek": 4.3,
+      "maxNewInboxPerWeek": 8,
+      "totals": {
+        "messages": {
+          "TOURNAMENT": 7,
+          "CAREER_UPDATE": 1,
+          "MILESTONE": 3,
+          "INJURY": 8,
+          "TOURNAMENT_UPDATE": 2,
+          "PLAYER_LEVEL_UP": 10,
+          "MANAGER_LEVEL_UP": 1,
+          "MEDIA": 5
+        },
+        "decisions": {
+          "FAN": 5,
+          "MEDIA": 2,
+          "SPONSOR": 3,
+          "TRANSFER_OFFER": 1,
+          "MORALE": 1,
+          "CAREER_UPDATE": 1,
+          "win_streak": 1,
+          "JOB_OFFER": 1,
+          "loss_streak": 1
+        },
+        "news": {}
+      },
+      "stopsByKind": {
+        "event": 9,
+        "offer": 2,
+        "injury": 1
+      },
+      "stopsByReason": {
+        "event: N decisions need an answer": 4,
+        "event: A sponsor review needs an answer": 1,
+        "offer: BISTIA bid $X for NSEMAS": 1,
+        "event: Interview Request: Clutch Weekly needs an answer": 1,
+        "event: A fan meetup request needs an answer": 2,
+        "offer: Job offer from Lylmix (#N)": 1,
+        "event: Performance needs an answer": 1,
+        "injury: synnopsyy is injured (Back Spasm, N weeks)": 1
+      },
+      "byFamily": {
+        "message:TOURNAMENT:league_draw_league_team_jijyahao": 1,
+        "message:CAREER_UPDATE:evt_welcome_save": 1,
+        "message:MILESTONE:ms_win": 1,
+        "decision:FAN:fan_meet": 5,
+        "decision:MEDIA:media_interview": 2,
+        "message:INJURY:injury_player": 1,
+        "message:TOURNAMENT_UPDATE:evt_auto_reg_iem_katowice_open": 1,
+        "message:INJURY:injury_player_vinjers_zpardauz": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_player_jijyahao": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_jijyahao_boroz": 2,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_jijyahao_bxibu": 2,
+        "message:PLAYER_LEVEL_UP:evt_lvl_jndkup_player_jijyahao": 1,
+        "decision:SPONSOR:sponsor_review": 3,
+        "decision:TRANSFER_OFFER:transfer_rumor": 1,
+        "message:MILESTONE:ms_streak": 1,
+        "message:MANAGER_LEVEL_UP:mgr_levelup": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_jijyahao_sinnopzyy": 1,
+        "message:INJURY:recovery_player_vinjers_zpardauz": 1,
+        "decision:MORALE:birthday_player_jijyahao": 1,
+        "decision:CAREER_UPDATE:career_decision_team_jijyahao_momentum": 1,
+        "message:TOURNAMENT:tourney_start_iem_katowice_open": 1,
+        "message:TOURNAMENT:upcoming_match_iem_katowice_open": 1,
+        "decision:win_streak:streak_win": 1,
+        "message:MEDIA:elim_iem_katowice_open": 1,
+        "message:INJURY:recovery_player": 1,
+        "message:INJURY:injury_player_ance_zchwarz": 1,
+        "message:TOURNAMENT_UPDATE:evt_auto_reg_copenhagen_rmr_eu": 1,
+        "decision:JOB_OFFER:job_offer_team_lilmix": 1,
+        "message:MEDIA:trophy_iem_katowice_closed_eu_team_thundereldawnynder": 1,
+        "message:MILESTONE:ms_kills": 1,
+        "message:INJURY:injury_player_enner_kairne": 1,
+        "message:TOURNAMENT:tourney_start_copenhagen_rmr_eu": 1,
+        "message:TOURNAMENT:upcoming_match_copenhagen_rmr_eu_swiss_team_jijyahao_team_bkkame": 1,
+        "message:MEDIA:trophy_iem_katowice_open_team_falconry": 1,
+        "message:PLAYER_LEVEL_UP:evt_player_levelup_player_jijyahao_sinnopzyy": 1,
+        "message:PLAYER_LEVEL_UP:evt_lvl_player_jijyahao": 2,
+        "message:INJURY:recovery_player_enner_kairne": 1,
+        "message:TOURNAMENT:upcoming_match_copenhagen_rmr_eu_swiss_team_jijyahao_team_coinhunters": 1,
+        "message:MEDIA:trophy_iem_katowice_team_natusvincera": 1,
+        "decision:loss_streak:streak_loss": 1,
+        "message:INJURY:injury_player_jijyahao_sinnopzyy": 1,
+        "message:TOURNAMENT:upcoming_match_copenhagen_rmr_eu_swiss_team_rareelement_team_jijyahao": 1,
+        "message:MEDIA:trophy_copenhagen_rmr_asia_team": 1
+      },
+      "weeks": [
+        {
+          "week": 1,
+          "messages": {
+            "TOURNAMENT": 1,
+            "CAREER_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 0,
+          "badge": 2,
+          "unreadAll": 2,
+          "stops": []
+        },
+        {
+          "week": 2,
+          "messages": {
+            "MILESTONE": 1
+          },
+          "decisions": {
+            "FAN": 1,
+            "MEDIA": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 3,
+          "openDecisions": 2,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 3,
+          "messages": {
+            "INJURY": 1,
+            "TOURNAMENT_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 2,
+          "badge": 6,
+          "unreadAll": 6,
+          "stops": []
+        },
+        {
+          "week": 4,
+          "messages": {
+            "INJURY": 1,
+            "PLAYER_LEVEL_UP": 4
+          },
+          "decisions": {
+            "SPONSOR": 1,
+            "TRANSFER_OFFER": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 7,
+          "openDecisions": 4,
+          "badge": 13,
+          "unreadAll": 13,
+          "stops": [
+            "event: A sponsor review needs an answer",
+            "offer: BISTIA bid $62k for 0SEMAS"
+          ]
+        },
+        {
+          "week": 5,
+          "messages": {
+            "MILESTONE": 1,
+            "MANAGER_LEVEL_UP": 1,
+            "PLAYER_LEVEL_UP": 1,
+            "INJURY": 1
+          },
+          "decisions": {
+            "MORALE": 1,
+            "CAREER_UPDATE": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 6,
+          "openDecisions": 6,
+          "badge": 18,
+          "unreadAll": 18,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 6,
+          "messages": {
+            "TOURNAMENT": 2
+          },
+          "decisions": {
+            "win_streak": 1,
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 7,
+          "badge": 22,
+          "unreadAll": 22,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 7,
+          "messages": {
+            "MEDIA": 1,
+            "INJURY": 1
+          },
+          "decisions": {
+            "MEDIA": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 3,
+          "openDecisions": 8,
+          "badge": 25,
+          "unreadAll": 25,
+          "stops": [
+            "event: Interview Request: Clutch Weekly needs an answer"
+          ]
+        },
+        {
+          "week": 8,
+          "messages": {
+            "INJURY": 1,
+            "TOURNAMENT_UPDATE": 1
+          },
+          "decisions": {
+            "FAN": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 3,
+          "openDecisions": 8,
+          "badge": 28,
+          "unreadAll": 28,
+          "stops": [
+            "event: A fan meetup request needs an answer"
+          ]
+        },
+        {
+          "week": 9,
+          "messages": {
+            "PLAYER_LEVEL_UP": 1
+          },
+          "decisions": {
+            "FAN": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 9,
+          "badge": 30,
+          "unreadAll": 30,
+          "stops": [
+            "event: A fan meetup request needs an answer"
+          ]
+        },
+        {
+          "week": 10,
+          "messages": {
+            "MEDIA": 1
+          },
+          "decisions": {
+            "JOB_OFFER": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 10,
+          "badge": 32,
+          "unreadAll": 32,
+          "stops": [
+            "offer: Job offer from Lylmix (#183)"
+          ]
+        },
+        {
+          "week": 11,
+          "messages": {
+            "MILESTONE": 1,
+            "INJURY": 1,
+            "TOURNAMENT": 2,
+            "MEDIA": 1
+          },
+          "decisions": {
+            "FAN": 1,
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 7,
+          "openDecisions": 12,
+          "badge": 38,
+          "unreadAll": 38,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 12,
+          "messages": {
+            "PLAYER_LEVEL_UP": 4,
+            "INJURY": 1,
+            "TOURNAMENT": 1,
+            "MEDIA": 1
+          },
+          "decisions": {
+            "loss_streak": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 8,
+          "openDecisions": 12,
+          "badge": 46,
+          "unreadAll": 46,
+          "stops": [
+            "event: Performance needs an answer"
+          ]
+        },
+        {
+          "week": 13,
+          "messages": {
+            "INJURY": 1,
+            "TOURNAMENT": 1,
+            "MEDIA": 1
+          },
+          "decisions": {
+            "FAN": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 4,
+          "openDecisions": 13,
+          "badge": 50,
+          "unreadAll": 50,
+          "stops": [
+            "injury: synnopsyy is injured (Back Spasm, 4 weeks)"
+          ]
+        }
+      ]
+    }
+  ]
+}
