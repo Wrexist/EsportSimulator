@@ -99,9 +99,9 @@ export const lastDance: ArcDefinition = {
                 title: `${n}'s last dance?`,
                 playerId: id,
                 message: `${n} (${p.age}) is thinking about retiring at the end of the season. The season-end check currently gives him a ${from}% chance (it rises with age and falls with skill, form and health).\n\n`
-                    + `Persuade him: morale +${S.PERSUADE_MORALE}, loyalty +${S.PERSUADE_LOYALTY}, and his retirement chance this season falls from ${from}% to ${to}% (× ${S.PERSUADE_RETIREMENT_FACTOR}).\n`
-                    + (mentee ? `Plan the succession: he mentors ${nameOf(mentee)} (${mentee.age}); ${nameOf(mentee)}'s training gains +${Math.round((P.MENTOR_TRAINING - 1) * 100)}% while both stay. His retirement chance is unchanged.\n` : "")
-                    + `Respect his decision: nothing changes.`,
+                    + `• Persuade him: morale +${S.PERSUADE_MORALE}, loyalty +${S.PERSUADE_LOYALTY}, and his retirement chance this season falls from ${from}% to ${to}% (× ${S.PERSUADE_RETIREMENT_FACTOR}).\n`
+                    + (mentee ? `• Plan the succession: he mentors ${nameOf(mentee)} (${mentee.age}); ${nameOf(mentee)}'s training gains +${Math.round((P.MENTOR_TRAINING - 1) * 100)}% while both stay. His retirement chance is unchanged.\n` : "")
+                    + `• Respect his decision: nothing changes.`,
                 choices: [
                     { id: "persuade", text: "Persuade him to play on", effects: { persuade: { from, to }, morale: S.PERSUADE_MORALE, loyalty: S.PERSUADE_LOYALTY } },
                     ...(mentee ? [{ id: "mentor", text: `Plan the succession: he mentors ${nameOf(mentee)}`, effects: { mentor: { menteeId: mentee.id, name: nameOf(mentee) } } }] : []),

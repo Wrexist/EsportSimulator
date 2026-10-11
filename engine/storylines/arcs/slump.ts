@@ -83,9 +83,9 @@ export const slump: ArcDefinition = {
                 title: `${n}'s slump`,
                 playerId: id,
                 message: `${n} is rated ${r} over his last ${S.SLUMP_MAPS} official maps (career ${fmtRating(num(arc, "career"))}). The press wants to know if he keeps his place.\n\n`
-                    + `Back him: morale +${S.SLUMP_BACK_MORALE} and your word "${PROMISE_LABEL.START.promise}" for ${P.PROMISE_START_WEEKS} weeks (broken if he sits out ${P.PROMISE_START_BENCH_LIMIT} official matches in a row while fit: morale ${P.PROMISE_BROKEN_MORALE}, loyalty ${P.PROMISE_BROKEN_LOYALTY}).\n`
-                    + (subName ? `Bench him: ${subName} takes his place in the starting five; ${n} loses ${Math.abs(S.SLUMP_BENCH_MORALE)} morale now, and after ${P.BENCH_MATCHES} official matches out a regular starter loses morale every week.\n` : `Bench him: not possible, no fit player outside the starting five.\n`)
-                    + `Rest week: fatigue ${S.SLUMP_REST_FATIGUE}, morale +${S.SLUMP_REST_MORALE}; he keeps his place.`,
+                    + `• Back him: morale +${S.SLUMP_BACK_MORALE} and your word "${PROMISE_LABEL.START.promise}" for ${P.PROMISE_START_WEEKS} weeks (broken if he sits out ${P.PROMISE_START_BENCH_LIMIT} official matches in a row while fit: morale ${P.PROMISE_BROKEN_MORALE}, loyalty ${P.PROMISE_BROKEN_LOYALTY}).\n`
+                    + (subName ? `• Bench him: ${subName} takes his place in the starting five; ${n} loses ${Math.abs(S.SLUMP_BENCH_MORALE)} morale now, and after ${P.BENCH_MATCHES} official matches out a regular starter loses morale every week.\n` : `• Bench him: not possible, no fit player outside the starting five.\n`)
+                    + `• Rest week: fatigue ${S.SLUMP_REST_FATIGUE}, morale +${S.SLUMP_REST_MORALE}; he keeps his place.`,
                 choices: [
                     { id: "back", text: "Back him in public", effects: { promise: "START", morale: S.SLUMP_BACK_MORALE } },
                     ...(subName ? [{ id: "bench", text: `Bench him for ${subName}`, effects: { bench: true, morale: S.SLUMP_BENCH_MORALE } }] : []),

@@ -91,9 +91,9 @@ export const risingStar: ArcDefinition = {
                 title: `${n}'s rise: your call`,
                 playerId: id,
                 message: `${n} (${num(arc, "age")}) is rated ${fmtRating(num(arc, "rating"))} over his last ${num(arc, "maps")} official maps and his market value is ${usd(value)}. ${ableText}\n\n`
-                    + `Promise him a starting place: morale +${S.RISING_PROMISE_MORALE}, loyalty +${S.RISING_PROMISE_LOYALTY}, and your word "${PROMISE_LABEL.START.promise}" for ${P.PROMISE_START_WEEKS} weeks (broken if he sits out ${P.PROMISE_START_BENCH_LIMIT} official matches in a row while fit: morale ${P.PROMISE_BROKEN_MORALE}, loyalty ${P.PROMISE_BROKEN_LOYALTY}).\n`
-                    + `List him: he goes on the transfer list at ${usd(value)}; clubs that can afford him may bid.\n`
-                    + `Say nothing: no change.`,
+                    + `• Promise him a starting place: morale +${S.RISING_PROMISE_MORALE}, loyalty +${S.RISING_PROMISE_LOYALTY}, and your word "${PROMISE_LABEL.START.promise}" for ${P.PROMISE_START_WEEKS} weeks (broken if he sits out ${P.PROMISE_START_BENCH_LIMIT} official matches in a row while fit: morale ${P.PROMISE_BROKEN_MORALE}, loyalty ${P.PROMISE_BROKEN_LOYALTY}).\n`
+                    + `• List him: he goes on the transfer list at ${usd(value)}; clubs that can afford him may bid.\n`
+                    + `• Say nothing: no change.`,
                 choices: [
                     { id: "promise", text: "Promise him a starting place", effects: { promise: "START", morale: S.RISING_PROMISE_MORALE, loyalty: S.RISING_PROMISE_LOYALTY } },
                     { id: "list", text: "Cash in: put him on the transfer list", effects: { transferList: true } },

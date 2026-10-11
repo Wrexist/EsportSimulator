@@ -97,9 +97,9 @@ export const rift: ArcDefinition = {
                 title: `Dressing-room rift: ${A} and ${B}`,
                 playerId: ida,
                 message: `${arc.log[0]?.text ?? `${A} and ${B} are at odds.`}\n\n`
-                    + `Side with ${A}: ${A} morale +${S.RIFT_SIDE_WITH}, ${B} morale ${S.RIFT_SIDE_AGAINST}.\n`
-                    + `Side with ${B}: ${B} morale +${S.RIFT_SIDE_WITH}, ${A} morale ${S.RIFT_SIDE_AGAINST}.\n`
-                    + `Clear the air in a team meeting: team chemistry ${S.RIFT_CLEAR_CHEMISTRY}, both players morale +${S.RIFT_CLEAR_MORALE}.`,
+                    + `• Side with ${A}: ${A} morale +${S.RIFT_SIDE_WITH}, ${B} morale ${S.RIFT_SIDE_AGAINST}.\n`
+                    + `• Side with ${B}: ${B} morale +${S.RIFT_SIDE_WITH}, ${A} morale ${S.RIFT_SIDE_AGAINST}.\n`
+                    + `• Clear the air in a team meeting: team chemistry ${S.RIFT_CLEAR_CHEMISTRY}, both players morale +${S.RIFT_CLEAR_MORALE}.`,
                 choices: [
                     { id: "side_a", text: `Side with ${A}`, effects: { players: [{ id: ida, name: A, morale: S.RIFT_SIDE_WITH }, { id: idb, name: B, morale: S.RIFT_SIDE_AGAINST }] } },
                     { id: "side_b", text: `Side with ${B}`, effects: { players: [{ id: idb, name: B, morale: S.RIFT_SIDE_WITH }, { id: ida, name: A, morale: S.RIFT_SIDE_AGAINST }] } },

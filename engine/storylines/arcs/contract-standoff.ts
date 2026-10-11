@@ -104,9 +104,9 @@ export const contractStandoff: ArcDefinition = {
                 title: `Contract talks: ${n}`,
                 playerId: id,
                 message: `${n} wants a new deal before his contract ends in Week ${c.endWeek} (${c.endWeek - ctx.week} weeks). He earns ${usd(wage)} a week; his agent asks ${usd(ask)} (+${raise}%).\n\n`
-                    + `Offer the deal: ${usd(ask)} a week and ${S.STANDOFF_EXTENSION_WEEKS} more weeks, to Week ${newEnd}; morale +${S.STANDOFF_OFFER_MORALE}, loyalty +${S.STANDOFF_OFFER_LOYALTY}. The club must hold ${usd(runway)}, ${S.STANDOFF_RUNWAY_WEEKS} weeks of the raise.\n`
-                    + `Wait: nothing changes now. If his deal is still unrenewed in Week ${requestWeek}, he hands in a transfer request.\n`
-                    + `Sell: he goes on the transfer list at his market value of ${usd(value)}; clubs that can afford him may bid.`,
+                    + `• Offer the deal: ${usd(ask)} a week and ${S.STANDOFF_EXTENSION_WEEKS} more weeks, to Week ${newEnd}; morale +${S.STANDOFF_OFFER_MORALE}, loyalty +${S.STANDOFF_OFFER_LOYALTY}. The club must hold ${usd(runway)}, ${S.STANDOFF_RUNWAY_WEEKS} weeks of the raise.\n`
+                    + `• Wait: nothing changes now. If his deal is still unrenewed in Week ${requestWeek}, he hands in a transfer request.\n`
+                    + `• Sell: he goes on the transfer list at his market value of ${usd(value)}; clubs that can afford him may bid.`,
                 choices: [
                     { id: "offer", text: `Offer ${usd(ask)} a week to Week ${newEnd}`, effects: { renew: { salary: ask, weeks: S.STANDOFF_EXTENSION_WEEKS, current: wage }, morale: S.STANDOFF_OFFER_MORALE, loyalty: S.STANDOFF_OFFER_LOYALTY } },
                     { id: "wait", text: "Wait for him to come round", effects: { follows: `Transfer request in Week ${requestWeek} if still unrenewed` } },
