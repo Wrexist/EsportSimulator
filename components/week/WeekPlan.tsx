@@ -34,6 +34,8 @@ import { WeekForecast } from "./WeekForecast"
 export function WeekPlan() {
     const s = useGameStore(useShallow(st => ({
         hydrated: st._hasHydrated,
+        // The career reloads from disk after rehydration (isLoading).
+        careerLoading: st.isLoading,
         players: st.players,
         staff: st.staff,
         contracts: st.contracts,
@@ -53,8 +55,9 @@ export function WeekPlan() {
     const [booking, setBooking] = useState<{ kind: BookingKind; week: number; day: number } | null>(null)
 
     // `/week?book=meeting&week=&day=` (old /schedule/staff-meeting links) opens the meeting booking.
+    const careerReady = s.hydrated && !s.careerLoading && !!team
     useEffect(() => {
-        if (!s.hydrated) return
+        if (!careerReady) return
         const params = new URLSearchParams(window.location.search)
         if (params.get("book") !== "meeting") return
         const week = Number(params.get("week"))
@@ -63,9 +66,9 @@ export function WeekPlan() {
         const minDay = daily && validWeek === s.currentWeek ? s.currentDay : 0
         setBooking({ kind: "MEETING", week: validWeek, day: Number.isInteger(day) && day >= 0 && day <= 6 ? Math.max(day, minDay) : minDay })
         window.history.replaceState(window.history.state, "", "/week")
-        // Only on arrival.
+        // Only on arrival, once the career is loaded.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [s.hydrated])
+    }, [careerReady])
 
     const roster = useMemo(() => {
         const byId = new Map(s.players.map(p => [p.id, p]))

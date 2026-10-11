@@ -107,7 +107,7 @@ export function WeekFixtures() {
                         const playable = m.id === playableId
                         return (
                             <li key={m.id} className="flex items-center gap-4 px-4 py-3">
-                                <div className="w-24 shrink-0">
+                                <div className="w-32 shrink-0 whitespace-nowrap">
                                     <p className="text-sm font-semibold text-ink-1">{when(m)}</p>
                                     <p className="text-xs text-ink-3">{m.format}{played ? "" : ` · +${matchFatigue(m.format)} fatigue`}</p>
                                 </div>

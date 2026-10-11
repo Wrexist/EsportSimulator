@@ -114,7 +114,7 @@ export function meetingEffectLabels(e: MeetingEffects): EffectLabel[] {
     if (e.morale) out.push({ label: `+${e.morale} morale`, good: true })
     if (e.xp) out.push({ label: `+${e.xp} XP`, good: true })
     if (e.fatigue) out.push({ label: `${e.fatigue > 0 ? "+" : "−"}${Math.abs(e.fatigue)} fatigue`, good: e.fatigue < 0 })
-    if (e.chemistry) out.push({ label: `+${e.chemistry} chemistry`, good: true })
+    if (e.chemistry) out.push({ label: `+${e.chemistry} team chemistry`, good: true })
     if (e.stressResistance) out.push({ label: `+${e.stressResistance} composure`, good: true })
     if (e.tacticXp) out.push({ label: `+${Math.floor(e.tacticXp / TACTIC_XP_PER_POINT)} tactics`, good: true })
     return out

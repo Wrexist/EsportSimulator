@@ -7,11 +7,11 @@ import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { Panel } from "@/src/components/ui/Panel"
 import type { WeekPreview } from "./week-preview"
 
-function Row({ label, value, tone, hint }: { label: string; value: string; tone?: "up" | "down"; hint?: string }) {
+function Row({ label, value, tone, hint }: { label: string; value: string; tone?: "up" | "down" | "caution"; hint?: string }) {
     return (
         <div className="flex items-baseline justify-between gap-3 px-4 py-1.5 text-sm">
             <dt className="min-w-0 text-ink-3">{label}{hint && <span className="block text-xs text-ink-3/80">{hint}</span>}</dt>
-            <dd className={cn("shrink-0 font-semibold tabular-nums", tone === "up" ? "text-positive" : tone === "down" ? "text-negative" : "text-ink-1")}>{value}</dd>
+            <dd className={cn("shrink-0 font-semibold tabular-nums", tone === "up" ? "text-positive" : tone === "down" ? "text-negative" : tone === "caution" ? "text-caution" : "text-ink-1")}>{value}</dd>
         </div>
     )
 }
@@ -60,8 +60,8 @@ export function WeekForecast({ preview, settlementNet, restDayLabels }: WeekFore
                 <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Squad average</p>
             </div>
             <dl className="pb-2">
-                <Row label="Fatigue" value={`${Math.round(fatigueNow)} → ${Math.round(fatigueEnd)}`} tone={fatigueEnd < fatigueNow - 0.5 ? "up" : fatigueEnd > fatigueNow + 0.5 ? "down" : undefined} />
-                <Row label="Morale" hint="Before match results" value={`${Math.round(moraleNow)} → ${Math.round(moraleEnd)}`} tone={moraleEnd > moraleNow + 0.5 ? "up" : moraleEnd < moraleNow - 0.5 ? "down" : undefined} />
+                <Row label="Fatigue" value={`${Math.round(fatigueNow)} → ${Math.round(fatigueEnd)}`} tone={fatigueEnd < fatigueNow - 0.5 ? "up" : fatigueEnd > fatigueNow + 0.5 ? "caution" : undefined} />
+                <Row label="Morale" hint="Before match results" value={`${Math.round(moraleNow)} → ${Math.round(moraleEnd)}`} tone={moraleEnd > moraleNow + 0.5 ? "up" : moraleEnd < moraleNow - 0.5 ? "caution" : undefined} />
                 <Row label="XP per player" value={`+${xpMin}–${xpMax}`} />
                 <Row label="Rest days" hint={restDayLabels.length ? restDayLabels.join(", ") : "Every day is taken"} value={`${preview.restDays.length} / 7`} />
                 {preview.chemistry !== 0 && <Row label="Chemistry" value={`${preview.chemistry > 0 ? "+" : ""}${preview.chemistry}`} tone={toneOf(preview.chemistry)} />}

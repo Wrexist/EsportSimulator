@@ -27,7 +27,7 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { RatingChip } from "@/src/components/ui/RatingChip"
 import { ProspectsTable } from "./_components/ProspectsTable"
 import {
-    BENCH_XP_SHARE, DRILL_STAT_LABEL, FATIGUE_THRESHOLD, POTENTIAL_REVEAL_WEEKS, PROMOTION_TERMS, SCOUT_TIER_LABEL,
+    BENCH_XP_SHARE, DRILL_STAT_LABEL, POTENTIAL_REVEAL_WEEKS, PROMOTION_PROGRESS, PROMOTION_TERMS, SCOUT_TIER_LABEL,
 } from "./_components/academy-facts"
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -42,6 +42,11 @@ function Fact({ label, value }: { label: string; value: string }) {
     )
 }
 
+/**
+ * Academy (Phase 4.2, simplified): one screen with the prospects, the weekly
+ * drills that develop them, scouting for a new prospect and what the academy
+ * level really does. The weekly academy changes are in the weekly report.
+ */
 export default function AcademyPage() {
     const s = useGameStore(useShallow(state => ({
         academyPlayers: state.academyPlayers,
@@ -61,8 +66,8 @@ export default function AcademyPage() {
         updateAcademyRoster: state.updateAcademyRoster,
         academyTrainingSchedule: state.academyTrainingSchedule,
         updateAcademySchedule: state.updateAcademySchedule,
-        academyWeeklyReports: state.academyWeeklyReports,
         academyScoutingMissions: state.academyScoutingMissions,
+        academyWeeklyReports: state.academyWeeklyReports,
         academyPendingProspects: state.academyPendingProspects,
         discardPendingProspect: state.discardPendingProspect,
         enrollPendingProspect: state.enrollPendingProspect,
@@ -75,7 +80,6 @@ export default function AcademyPage() {
         .filter((r): r is { prospect: typeof r.prospect; player: PlayerSaveData } => !!r.player)
         .sort((a, b) => Number(b.prospect.readyForPromotion) - Number(a.prospect.readyForPromotion) || b.prospect.developmentProgress - a.prospect.developmentProgress),
     [s.academyPlayers, playerById])
-    const graduates = useMemo(() => s.players.filter(p => p.isAcademyGraduate && !p.isRetired), [s.players])
 
     if (!team) {
         return <div role="status" className="mx-auto max-w-[1600px] py-10 text-sm text-ink-3">Loading academy…</div>
@@ -99,10 +103,10 @@ export default function AcademyPage() {
     const starters = s.academyPlayers.filter(p => starterIds.includes(p.id))
     const exhaustedStarters = starters.filter(p => (p.energy ?? 100) < ENERGY_CONFIG.exhaustionLimit)
     const matchBlock = level < DEV_MATCH_CONFIG.minAcademyLevel ? `Needs academy level ${DEV_MATCH_CONFIG.minAcademyLevel}`
-        : starters.length < 5 ? `Set 5 starters in the Lineup column (${starters.length}/5)`
+        : starters.length < 5 ? `Needs 5 starters (${starters.length}/5 in "Plays as")`
             : exhaustedStarters.length ? "A starter is exhausted (under 5 energy)"
                 : team.budget < DEV_MATCH_CONFIG.matchCost ? "Not enough budget" : null
-
+    const lastMatch = s.academyMatchHistory[0]
     const report = s.academyWeeklyReports?.[0]
 
     const run = (result: { success: boolean; message: string }, ok: string) => {
@@ -119,12 +123,13 @@ export default function AcademyPage() {
         const build = ACADEMY_LEVELS[1]
         return (
             <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
-                <ScreenHeader eyebrow="Club · Academy" title="Academy" subtitle="Scout teenagers, develop them through weekly drills and promote the ready ones." />
+                <ScreenHeader eyebrow="Squad · Academy" title="Academy" subtitle="Scout teenagers, develop them through weekly drills and promote the ready ones." />
                 <Panel>
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <p className="text-sm text-ink-2">
                             No academy yet. Building costs <span className="font-semibold text-ink-1">{formatCurrency(build.buildCost, "$", false)}</span> and{" "}
                             <span className="font-semibold text-ink-1">{formatCurrency(build.weeklyCost, "$", false)}/wk</span> plus $700/wk per prospect.
+                            It holds {build.maxProspects} prospects and drills give ×{build.devBonus.toFixed(2)} XP.
                         </p>
                         <Button onClick={() => run(s.buildAcademy(team.id), "Academy built")} disabled={team.budget < build.buildCost}>Build academy</Button>
                     </div>
@@ -136,41 +141,36 @@ export default function AcademyPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={`Club · Academy level ${level}`}
+                eyebrow={`Squad · Academy level ${level}`}
                 title="Academy"
-                subtitle={`${info.name}. Drills run at the weekly update; prospects who reach 85 progress and the minimums can be promoted.`}
+                subtitle={`${info.name}. Drills run at the weekly update; prospects who reach ${PROMOTION_PROGRESS} progress and the minimums can be promoted on ${formatCurrency(PROMOTION_TERMS.salaryPerWeek, "$", false)}/wk.`}
                 aside={
                     <KpiStrip>
                         <Kpi label="Prospects" value={`${s.academyPlayers.length} / ${info.maxProspects}`} />
                         <Kpi label="Ready" value={ready} hint={ready ? "Can be promoted" : "None yet"} />
                         <Kpi label="Upkeep / wk" value={formatCurrency(upkeep, "$", false)} />
-                        <Kpi label="Dev speed" value={`×${info.devBonus.toFixed(2)}`} hint="Drill XP" />
                     </KpiStrip>
                 }
             />
 
-            <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1fr)_420px]">
+            <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1fr)_360px]">
                 <div className="min-w-0 space-y-4">
                     <Panel title="Prospects" actions={<span className="text-xs text-ink-3">Starters get full drill XP, the bench {Math.round(BENCH_XP_SHARE * 100)}%</span>} padded={false}>
                         {rows.length === 0 ? (
-                            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-5">
-                                <p className="text-sm text-ink-3">No prospects yet. Send a scout to find some.</p>
-                            </div>
+                            <p className="px-4 py-5 text-sm text-ink-3">No prospects yet. Send a scout to find one.</p>
                         ) : (
                             <ProspectsTable
                                 rows={rows}
                                 academyLevel={level}
                                 currentWeek={s.currentWeek}
                                 academyRoster={s.academyRoster}
+                                lastWeek={report}
                                 onSetFocus={(id, focus: AcademyTrainingFocus) => s.setProspectTraining(id, focus)}
                                 onSetLineup={setLineup}
                                 onPromote={id => run(s.promoteProspect(id, PROMOTION_TERMS), "Prospect promoted")}
                                 onRelease={id => run(s.releaseProspect(id), "Prospect released")}
                             />
                         )}
-                        <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
-                            Focus shifts a drill&apos;s gains toward those stats; it doesn&apos;t add growth. Gains slow as a stat nears potential. Under {FATIGUE_THRESHOLD} energy, drills give 20% less XP.
-                        </p>
                     </Panel>
 
                     <Panel
@@ -199,60 +199,15 @@ export default function AcademyPage() {
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {drill && <span className="block truncate text-xs text-ink-3">{drill.statFocus.map(st => DRILL_STAT_LABEL[st] ?? st).join(", ")}</span>}
                                     </label>
                                 )
                             })}
                         </div>
-                        <p className="mt-3 text-xs text-ink-3">After the drills, starters recover {ENERGY_CONFIG.starterRecovery} energy and the bench {ENERGY_CONFIG.benchRecovery}.</p>
+                        <p className="mt-3 text-xs text-ink-3">
+                            Prospects only develop through drills: a week of rest days gives no XP. After the drills, starters recover {ENERGY_CONFIG.starterRecovery} energy and the bench {ENERGY_CONFIG.benchRecovery}.
+                            {report ? ` "Last week" in the table is week ${((report.week - 1) % 52) + 1}'s result.` : ""}
+                        </p>
                     </Panel>
-
-                    <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                        <Panel
-                            title="Development match"
-                            actions={
-                                <Button size="sm" className="h-8 px-3 text-xs" disabled={!!matchBlock} title={matchBlock ?? undefined}
-                                    onClick={() => run(s.scheduleDevMatch(), "Match played")}>
-                                    Play · {formatCurrency(DEV_MATCH_CONFIG.matchCost, "$", false)}
-                                </Button>
-                            }
-                            padded={false}
-                        >
-                            <p className="px-4 pt-3 text-sm text-ink-3">{matchBlock ?? `Your 5 starters play another academy: XP and progress for each, −${ENERGY_CONFIG.matchCost} energy.`}</p>
-                            {s.academyMatchHistory.length > 0 ? (
-                                <ul className="mt-2 divide-y divide-line border-t border-line">
-                                    {s.academyMatchHistory.slice(0, 5).map(m => (
-                                        <li key={m.id} className="flex items-center gap-3 px-4 py-2 text-sm">
-                                            <span className={cn("w-4 font-semibold", m.won ? "text-positive" : "text-ink-3")}>{m.won ? "W" : "L"}</span>
-                                            <span className="min-w-0 flex-1 truncate text-ink-2">vs {m.opponentName}</span>
-                                            <span className="tabular-nums text-ink-3">W{m.week}</span>
-                                            <span className="w-12 text-right font-semibold tabular-nums text-ink-1">{m.scoreHome}–{m.scoreAway}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : <p className="px-4 pb-4 pt-1 text-sm text-ink-3">No matches played yet.</p>}
-                        </Panel>
-
-                        <Panel title={report ? `Week ${report.week} report` : "Weekly report"} actions={report ? <span className="text-xs text-ink-3">+{Math.round(report.overallXp)} XP total</span> : null} padded={false}>
-                            {report && report.prospectReports.length > 0 ? (
-                                <ul className="divide-y divide-line">
-                                    {report.prospectReports.map(pr => {
-                                        const gains = Object.entries(pr.statImprovements).filter(([, v]) => (v ?? 0) >= 0.05)
-                                        return (
-                                            <li key={pr.playerId} className="px-4 py-2 text-sm">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="min-w-0 flex-1 truncate font-semibold text-ink-1">{pr.nickname}{pr.isStarter && <span className="ml-2 text-xs font-normal text-ink-3">starter</span>}</span>
-                                                    <span className="tabular-nums text-ink-2">+{pr.xpGained} XP</span>
-                                                    <span className="w-16 text-right tabular-nums text-ink-3">{pr.energyChange >= 0 ? "+" : "−"}{Math.abs(Math.round(pr.energyChange))} nrg</span>
-                                                </div>
-                                                {gains.length > 0 && <p className="mt-0.5 truncate text-xs text-ink-3">{gains.map(([k, v]) => `${DRILL_STAT_LABEL[k] ?? k} +${(v ?? 0).toFixed(1)}`).join(" · ")}</p>}
-                                            </li>
-                                        )
-                                    })}
-                                </ul>
-                            ) : <p className="px-4 py-5 text-sm text-ink-3">The first report arrives after the next weekly update.</p>}
-                        </Panel>
-                    </div>
                 </div>
 
                 <aside className="min-w-0 space-y-4">
@@ -271,12 +226,13 @@ export default function AcademyPage() {
                             <Fact label="Drill XP" value={next ? `×${info.devBonus.toFixed(2)} → ×${next.devBonus.toFixed(2)}` : `×${info.devBonus.toFixed(2)}`} />
                             <Fact label="Base upkeep" value={next ? `${formatCurrency(info.weeklyCost, "$", false)} → ${formatCurrency(next.weeklyCost, "$", false)}/wk` : `${formatCurrency(info.weeklyCost, "$", false)}/wk`} />
                             <Fact label="Potential shown after" value={level >= 5 ? "Enrolment" : `${POTENTIAL_REVEAL_WEEKS[level]} wks${next ? ` → ${level + 1 >= 5 ? "enrolment" : `${POTENTIAL_REVEAL_WEEKS[level + 1]} wks`}` : ""}`} />
+                            <Fact label="Drills available" value={`${ACADEMY_DRILLS.filter(d => d.minLevel <= level).length} of ${ACADEMY_DRILLS.length}`} />
                             <Fact label="Development matches" value={level >= DEV_MATCH_CONFIG.minAcademyLevel ? "Open" : `Level ${DEV_MATCH_CONFIG.minAcademyLevel}`} />
                         </dl>
                         <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">Each prospect also costs $700/wk (stipend and materials).</p>
                     </Panel>
 
-                    <Panel title="Scouting" actions={<span className="text-xs text-ink-3">Review desk {pending.length}/{PENDING_POOL_MAX_SIZE}</span>} padded={false}>
+                    <Panel title="Scout a prospect" actions={<span className="text-xs text-ink-3">Review desk {pending.length}/{PENDING_POOL_MAX_SIZE}</span>} padded={false}>
                         {!scout && (
                             <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
                                 <p className="text-sm text-ink-2">Missions need a hired scout.</p>
@@ -329,21 +285,23 @@ export default function AcademyPage() {
                         )}
                     </Panel>
 
-                    <Panel title="Graduates" actions={<span className="text-xs text-ink-3">{graduates.length}</span>} padded={false}>
-                        {graduates.length > 0 ? (
-                            <ul className="divide-y divide-line">
-                                {graduates.map(p => (
-                                    <li key={p.id}>
-                                        <Link href={`/player/${p.id}`} className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-hover">
-                                            <span className="h-8 w-8 shrink-0 overflow-hidden rounded bg-raised"><PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} size={32} /></span>
-                                            <span className="min-w-0 flex-1 truncate font-semibold text-ink-1">{p.nickname}</span>
-                                            <span className="text-xs text-ink-3">{p.age} yrs</span>
-                                            <RatingChip value={evaluatePlayer(p, undefined, undefined, s.currentWeek).overallRating} size="sm" />
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : <p className="px-4 py-4 text-sm text-ink-3">Promoted prospects are listed here.</p>}
+                    <Panel
+                        title="Development match"
+                        actions={
+                            <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!!matchBlock} title={matchBlock ?? undefined}
+                                onClick={() => run(s.scheduleDevMatch(), "Match played")}>
+                                Play · {formatCurrency(DEV_MATCH_CONFIG.matchCost, "$", false)}
+                            </Button>
+                        }
+                    >
+                        <p className="text-sm text-ink-3">{matchBlock ?? `Your five starters play another academy: XP and progress for each, −${ENERGY_CONFIG.matchCost} energy.`}</p>
+                        {lastMatch && (
+                            <p className="mt-2 text-sm">
+                                <span className={cn("font-semibold", lastMatch.won ? "text-positive" : "text-negative")}>{lastMatch.won ? "W" : "L"}</span>
+                                <span className="text-ink-2"> {lastMatch.scoreHome}–{lastMatch.scoreAway} vs {lastMatch.opponentName}</span>
+                                <span className="text-ink-3"> · week {lastMatch.week}</span>
+                            </p>
+                        )}
                     </Panel>
                 </aside>
             </div>

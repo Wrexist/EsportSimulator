@@ -106,7 +106,7 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
             onClose={onClose}
             titleId="modal-title-book-meeting"
             title="Staff meeting"
-            subtitle={`Week ${((week - 1) % 52) + 1} · one day · paid when booked, effects at the weekly update`}
+            subtitle={`Week ${((week - 1) % 52) + 1} · one day · paid when booked; every roster player gets the effects at the weekly update`}
             className="max-w-2xl"
             footer={
                 <>
@@ -161,7 +161,6 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
                                             <span className={fx.good ? "text-positive" : "text-caution"}>{fx.label}</span>
                                         </span>
                                     ))}
-                                    <span className="text-ink-3"> per player</span>
                                 </p>
                             </div>
                             <span className={cn("w-16 shrink-0 text-right text-sm tabular-nums", affordable ? "text-ink-1" : "text-negative")}>
@@ -175,7 +174,7 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
                                         {affordable ? "Book" : "Can't afford"}
                                     </Button>
                                 ) : (
-                                    <span className="text-xs leading-snug text-ink-3">{status.reason}</span>
+                                    <p className="text-xs leading-snug text-ink-3">{status.reason}</p>
                                 )}
                             </div>
                         </li>

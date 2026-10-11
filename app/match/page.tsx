@@ -7,15 +7,16 @@ import { matchCentreHref } from "./match-centre"
 
 /**
  * Match hub entry (`/match`): the career lives in the client store, so the
- * redirect waits for it to rehydrate, then replaces this route with the live
- * match, the next match's prep, the latest result or the calendar.
+ * redirect waits until the store has rehydrated and the career has finished
+ * loading, then replaces this route with the live match, the next match's
+ * prep, the latest result or the calendar.
  */
 export default function MatchCentreRedirect() {
     const router = useRouter()
-    const hydrated = useGameStore(s => s._hasHydrated)
+    const ready = useGameStore(s => s._hasHydrated && !s.isLoading)
 
     useEffect(() => {
-        if (!hydrated) return
+        if (!ready) return
         const s = useGameStore.getState()
         router.replace(matchCentreHref({
             playerTeamId: s.playerTeamId,
@@ -28,7 +29,7 @@ export default function MatchCentreRedirect() {
             teams: s.teams,
             players: s.players,
         }))
-    }, [hydrated, router])
+    }, [ready, router])
 
     return <p role="status" className="py-16 text-center text-sm text-ink-3">Opening match centre…</p>
 }
