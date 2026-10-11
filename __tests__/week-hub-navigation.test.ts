@@ -27,6 +27,16 @@ describe("seven hubs", () => {
         expect(competition).toEqual(expect.arrayContaining(["/trophies", "/hall-of-fame"]))
     })
 
+    test("Phase 4.7: the league opens Competition; the board is a Club tab", () => {
+        expect(navHubs.find(h => h.id === "competition")!.items.map(i => i.href)).toEqual(["/league", "/tournaments", "/rankings", "/trophies", "/hall-of-fame"])
+        const club = navHubs.find(h => h.id === "club")!.items.map(i => i.href)
+        expect(club[0]).toBe("/finances")
+        expect(club).toContain("/career/board")
+        const board = menuGroups.flatMap(g => g.items).find(i => i.href === "/career/board")!
+        expect(board.keywords).toMatch(/objectives/)
+        expect(board.keywords).toMatch(/confidence/)
+    })
+
     test("the Week hub holds the plan, training and the calendar", () => {
         expect(navHubs.find(h => h.id === "week")!.items.map(i => i.href)).toEqual(["/week", "/training", "/schedule"])
         expect(navHubs.find(h => h.id === "match")!.items[0].href).toBe("/match")
@@ -48,8 +58,9 @@ describe("hubForPath covers every route", () => {
         "/week": "week", "/training": "week", "/schedule": "week", "/schedule/staff-meeting": "week",
         "/match": "match", "/match/m1/tactics": "match", "/match/m1/veto": "match", "/match/m1/live": "match", "/match/m1/result": "match",
         "/transfers": "recruitment", "/scouting": "recruitment",
+        "/league": "competition",
         "/tournaments": "competition", "/tournaments/t1": "competition", "/rankings": "competition", "/trophies": "competition", "/hall-of-fame": "competition",
-        "/finances": "club", "/sponsorships": "club", "/basecamp": "club", "/career": "club", "/equipment": "club",
+        "/finances": "club", "/sponsorships": "club", "/basecamp": "club", "/career": "club", "/career/board": "club", "/equipment": "club",
         "/settings": null, "/main-menu": null, "/new-game": null, "/load-game": null, "/desktop": null, "/credits": null, "/fpl": null,
     }
 

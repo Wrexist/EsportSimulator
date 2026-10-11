@@ -6,9 +6,14 @@
  * key, says why, and passes it on the next press (the manager has seen it and
  * chose to go on). A playable match always blocks: the week cannot advance
  * past it, so Continue turns into "Play match".
+ *
+ * Decisions and offers stop at most once per event, also across a reload:
+ * the stop marks the event (`data.continueStopped`), and a refreshed repeat
+ * keeps that mark. A request past its deadline never stops; the week tick
+ * settles it with its stated default (engine/decision-deadlines.ts).
  */
 
-import { isPendingDecisionEvent, getEventTitle } from "@/lib/event-format"
+import { isPendingDecisionEvent, isTransferRumor, getEventTitle } from "@/lib/event-format"
 import { fixtureBlockReason, pendingPlayableMatch, type PlayableMatchState } from "@/lib/playable-match"
 import type { GameEventSaveData } from "@/engine/save-types"
 import { inboxHref } from "@/lib/navigation"
@@ -99,7 +104,7 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
     for (const e of state.eventsLog) {
         if (e.week < state.currentWeek - 2) continue
         const data = (e.data ?? {}) as Record<string, unknown>
-        if (data.isWithdrawn) continue
+        if (data.isWithdrawn || data.continueStopped) continue
         const type = String(e.type)
         if (isPendingDecisionEvent(e)) {
             if (typeof data.deadlineWeek === "number" && data.deadlineWeek < state.currentWeek) continue
@@ -109,8 +114,10 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
         const resolved = (e as unknown as { selectedChoiceId?: string }).selectedChoiceId !== undefined
         if (resolved) continue
         if (type === "TRANSFER_OFFER") {
+            if (isTransferRumor(e)) continue
+            // acceptTransferOffer treats currentWeek >= expiresWeek as expired.
             const expires = typeof data.expiresWeek === "number" ? data.expiresWeek : e.week + 2
-            if (expires < state.currentWeek) continue
+            if (expires <= state.currentWeek) continue
             const amount = typeof data.offerAmount === "number" ? ` ${money(data.offerAmount)}` : ""
             out.push({ key: `offer:${e.id}`, kind: "offer", reason: `${String(data.teamName ?? "A club")} bid${amount} for ${String(data.playerName ?? "your player")}`, href: inboxHref("decisions"), actionLabel: "Review offer" })
         } else if (type === "JOB_OFFER") {
@@ -146,6 +153,11 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
     }
 
     return out.sort((a, b) => PRIORITY.indexOf(a.kind) - PRIORITY.indexOf(b.kind))
+}
+
+/** Event ids a stop's keys cover (decisions and offers), for `data.continueStopped`. */
+export function stoppedEventIds(keys: readonly string[]): string[] {
+    return keys.filter(k => k.startsWith("event:") || k.startsWith("offer:")).map(k => k.slice(k.indexOf(":") + 1))
 }
 
 /** Several new items of one kind become one stop ("2 decisions need an answer"). */

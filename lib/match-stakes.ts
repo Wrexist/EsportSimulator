@@ -14,6 +14,20 @@ export interface MatchStakes {
 }
 
 /**
+ * Regional league fixtures carry their stage as "<Region> Division <n> ·
+ * Round <r>" (engine/season/regional-league.ts). A league round is not a
+ * bracket: no one advances or goes out, three points change hands.
+ */
+export function isLeagueStage(stage: string | undefined | null): boolean {
+    return !!stage && /\bdivision \d+\s*·\s*round \d+\b/i.test(stage)
+}
+
+export const LEAGUE_STAKES: MatchStakes = {
+    win: "3 points in the division table",
+    loss: "No points from this round",
+}
+
+/**
  * What happens on win / loss, given a bracket stage name + format.
  */
 export function getStakes(
@@ -22,6 +36,8 @@ export function getStakes(
     nextStage?: string,
 ): MatchStakes {
     const stageLower = stage?.toLowerCase() || ""
+
+    if (isLeagueStage(stage)) return { ...LEAGUE_STAKES }
 
     if (stageLower.includes("grand final")
         || (stageLower.includes("final") && !stageLower.includes("semi") && !stageLower.includes("quarter"))) {
@@ -86,11 +102,13 @@ export function getStakes(
  * "elimination" — knockout where a loss ends the run
  * "advancement" — win = move forward, loss = drop but still playing
  * "ladder"      — Swiss / group; outcome shifts standings, no elimination
+ * "league"      — a regional league round; three points, no elimination
  * "regular"     — fallback / unknown stage
  */
-export type MatchTone = "championship" | "elimination" | "advancement" | "ladder" | "regular"
+export type MatchTone = "championship" | "elimination" | "advancement" | "ladder" | "league" | "regular"
 
 export function getMatchTone(stage: string | undefined, isElimination: boolean): MatchTone {
+    if (isLeagueStage(stage)) return "league"
     const s = stage?.toLowerCase() || ""
     if (s.includes("grand final") || (s.includes("final") && !s.includes("semi") && !s.includes("quarter"))) {
         return "championship"
@@ -120,7 +138,9 @@ export function getMatchHeadline(
         case "advancement":
             return `Win to advance; a loss drops you to the losers' bracket.`
         case "ladder":
-            return `${(stage || "").includes("swiss") ? "Swiss round" : "Group stage"} — every result moves the standings.`
+            return `${(stage || "").toLowerCase().includes("swiss") ? "Swiss round" : "Group stage"} — every result moves the standings.`
+        case "league":
+            return `League match — 3 points at stake against ${opponentName}.`
         case "regular":
         default:
             return `Tournament match against ${opponentName}.`

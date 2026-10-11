@@ -5,13 +5,9 @@ export function generateCareerDecision(save: GameSave): void {
     if (save.gameOverReason) return
     const team = save.teams.find(t => t.id === save.playerTeamId)
     if (!team) return
+    // An unanswered one past its deadline was settled with its default at the
+    // start of the tick (engine/decision-deadlines.ts).
     const previous = save.eventsLog.filter(e => e.id.startsWith('career_decision_') && e.data.teamId === team.id)
-    for (const event of previous) {
-        if (!event.selectedChoiceId && Number(event.data.deadlineWeek) < save.currentWeek) {
-            event.data.isWithdrawn = true
-            event.choices = []
-        }
-    }
     if (previous.some(e => e.week > save.currentWeek - 8 || (!e.selectedChoiceId && !e.data.isWithdrawn))) return
     const roster = save.players.filter(p => team.rosterIds.includes(p.id) && !p.isRetired)
     const low = [...roster].sort((a, b) => a.morale - b.morale || a.id.localeCompare(b.id))[0]

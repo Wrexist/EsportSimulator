@@ -313,17 +313,25 @@ export class FinanceProcessor {
         // Build Set of existing event IDs for O(1) duplicate checks
         const existingEventIds = new Set(save.eventsLog.map(e => e.id))
 
-        // Early warning: alert player 4 weeks before contracts expire
+        // Early warning: alert player 4 weeks before contracts expire. One
+        // message per contract, kept current each week, instead of a new one
+        // every week (Phase 4.9).
         const WARNING_WEEKS = 4
+        const eventById = new Map(save.eventsLog.map(e => [e.id, e]))
         for (const member of save.staff) {
             if (member.contractEndWeek === undefined) continue // Old careers without a dated term retain their staff.
             const weeksLeft = member.contractEndWeek - save.currentWeek
             if (member.teamId === playerTeamId && weeksLeft <= WARNING_WEEKS) {
-                const id = `staff_contract_${save.currentWeek}_${member.id}`
-                if (!existingEventIds.has(id)) {
-                    save.eventsLog.unshift({ id, week: save.currentWeek, type: "CONTRACT", acknowledged: false,
-                        data: { staffId: member.id, weeksLeft: Math.max(0, weeksLeft), importance: "HIGH",
-                            description: weeksLeft <= 0 ? `${member.name}'s contract expired. They have left the staff and are available on the market.` : `${member.name}'s staff contract expires in ${weeksLeft} weeks. Renew to keep their services.` } })
+                const id = `staff_contract_${member.id}_${member.contractEndWeek}`
+                const data = { staffId: member.id, weeksLeft: Math.max(0, weeksLeft), importance: "HIGH",
+                    description: weeksLeft <= 0 ? `${member.name}'s contract expired. They have left the staff and are available on the market.` : `${member.name}'s staff contract expires in ${weeksLeft} week${weeksLeft === 1 ? "" : "s"}. Renew to keep their services.` }
+                const existing = eventById.get(id)
+                if (existing) {
+                    // Leaving is news even if the warning was read.
+                    if (weeksLeft <= 0 && Number(existing.data.weeksLeft) > 0) existing.acknowledged = false
+                    existing.data = { ...existing.data, ...data }
+                } else {
+                    save.eventsLog.unshift({ id, week: save.currentWeek, type: "CONTRACT", acknowledged: false, data })
                     existingEventIds.add(id)
                 }
             }
@@ -344,21 +352,17 @@ export class FinanceProcessor {
             const player = save.players.find(p => p.id === contract.playerId)
             if (!player) continue
             const weeksLeft = contract.endWeek - save.currentWeek
-            const warnId = `contract_warn_${save.currentWeek}_${contract.playerId}`
-            // Only push if we haven't already warned this week
-            if (!existingEventIds.has(warnId)) {
-                save.eventsLog.unshift({
-                    id: warnId,
-                    type: "CONTRACT" as EventType,
-                    week: save.currentWeek,
-                    data: {
-                        playerId: player.id,
-                        description: `${player.nickname}'s contract expires in ${weeksLeft} week${weeksLeft !== 1 ? 's' : ''}. Consider renewing.`,
-                        weeksLeft,
-                        importance: weeksLeft <= 1 ? "HIGH" : "MEDIUM"
-                    },
-                    acknowledged: false
-                })
+            const warnId = `contract_warn_${contract.playerId}_${contract.endWeek}`
+            const data = {
+                playerId: player.id,
+                description: `${player.nickname}'s contract expires in ${weeksLeft} week${weeksLeft !== 1 ? 's' : ''}. Consider renewing.`,
+                weeksLeft,
+                importance: weeksLeft <= 1 ? "HIGH" : "MEDIUM"
+            }
+            const existing = eventById.get(warnId)
+            if (existing) existing.data = { ...existing.data, ...data }
+            else if (!existingEventIds.has(warnId)) {
+                save.eventsLog.unshift({ id: warnId, type: "CONTRACT" as EventType, week: save.currentWeek, data, acknowledged: false })
                 existingEventIds.add(warnId)
             }
         }

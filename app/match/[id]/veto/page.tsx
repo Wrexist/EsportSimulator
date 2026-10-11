@@ -21,6 +21,7 @@ import { useFocusTrap } from "@/lib/accessibility"
 import { cn, deterministicSeed } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
+import { leagueStageLabel } from "@/components/league/league-view"
 
 // Map Wallpaper Paths
 const MAP_WALLPAPERS: Record<string, string> = {
@@ -412,7 +413,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
     const isUserTurn = !vetoDone && !isAiTurn && currentTurn.team !== "auto" && (currentTurn.team === "home" ? homeTeam.id : awayTeam.id) === playerTeamId
 
     const tournament = (() => {
-        if (!match.tournamentId) return null
+        if (!match.tournamentId || leagueStageLabel(match)) return null
         const baseId = match.tournamentId.split("_s")[0]
         return FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId || t.id === baseId) || null
     })()
@@ -429,7 +430,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                     <ArrowLeft size={15} aria-hidden="true" /> Match day
                 </button>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
-                    {tournament ? `${tournament.name}${match.stage ? ` · ${match.stage}` : ""}` : "Map veto"}
+                    {leagueStageLabel(match) ?? (tournament ? `${tournament.name}${match.stage ? ` · ${match.stage}` : ""}` : "Map veto")}
                 </p>
             </div>
 

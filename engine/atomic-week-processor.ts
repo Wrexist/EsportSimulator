@@ -1,4 +1,5 @@
 import { generateCareerDecision } from "./career-decisions"
+import { expireDecisions, normalizeDecisions } from "./decision-deadlines"
 /**
  * Atomic Week Processor
  * Phase 5: Transactional week tick with rollback/resume
@@ -268,6 +269,11 @@ export class AtomicWeekProcessor {
             const changes = new WeekChangeRecorder(config.playerTeamId)
             changes.begin(save)
             const mark = (cause: CauseResolver) => changes.mark(save, cause)
+
+            // Unanswered decisions (Phase 4.9): a request whose deadline has
+            // passed gets the default it stated, through the same effects as
+            // answering it by hand; the report names it "Unanswered: …".
+            expireDecisions(save, d => mark({ type: "decision", label: `Unanswered: ${d.label}` }))
 
             // Expired players/staff cannot train, receive wages, or appear in
             // cached match rosters. Build the indexes from the surviving contracts.
@@ -674,6 +680,9 @@ export class AtomicWeekProcessor {
             if (save.gameOverReason === "SACKED" || save.gameOverReason === "BANKRUPTCY") {
                 JobOfferGenerator.createDismissalOffers(save, new SeededRNG(rng.int(1, 2147483646)))
             }
+            // Every open request gets its deadline and default; a repeat of an
+            // open request refreshes it instead of stacking (Phase 4.9).
+            normalizeDecisions(save)
             result.changes = changes.result()
 
             // Guard long-running saves against unbounded log growth.

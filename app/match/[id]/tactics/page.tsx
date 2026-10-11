@@ -23,6 +23,7 @@ import { cn, deterministicSeed } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { formatGameCalendarDate } from "@/lib/game-calendar"
 import { getStakes } from "@/lib/match-stakes"
+import { leagueMatchContext, leagueStageLabel } from "@/components/league/league-view"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
@@ -224,6 +225,7 @@ export default function TacticalHQPage() {
         addToast: state.addToast,
         getDateForWeek: state.getDateForWeek,
     })))
+    const league = useGameStore(state => state.league)
 
     const [isSimulatingVeto, setIsSimulatingVeto] = useState(false)
     const [isQuickSimulating, setIsQuickSimulating] = useState(false)
@@ -528,15 +530,22 @@ export default function TacticalHQPage() {
         })
     const formWins = opponentForm.filter(f => f.won).length
 
-    // Competition framing.
-    const isTournament = !!match.tournamentId && match.tournamentId !== "SCRIM"
+    // Competition framing. A league fixture is named by its stage
+    // ("Europe Division 3 · Round 5") and its stakes are table points.
+    const leagueStage = leagueStageLabel(match)
+    const isTournament = !leagueStage && !!match.tournamentId && match.tournamentId !== "SCRIM"
     const liveTournament = isTournament ? tournaments?.find(t => t.id === match.tournamentId) : undefined
     const tournamentDef = isTournament
         ? FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId!.replace(/_s\d+$/, '') || t.id === match.tournamentId)
         : undefined
-    const competitionName = isTournament ? (tournamentDef?.name || liveTournament?.name || "Tournament") : match.tournamentId === "SCRIM" ? "Scrim" : "Friendly"
+    const competitionName = leagueStage ?? (isTournament ? (tournamentDef?.name || liveTournament?.name || "Tournament") : match.tournamentId === "SCRIM" ? "Scrim" : "Friendly")
+    const tableContext = leagueStage ? leagueMatchContext(league, match, myTeam.id) : null
+    const competitionDetail = leagueStage
+        ? (tableContext ? `Table: ${tableContext}` : "Regional league")
+        : match.stage || (isTournament ? "Tournament match" : "Week " + match.week)
     const nextStage = liveTournament?.playoffBracket?.find(m => m.sourceMatchIds?.includes(match.id))?.stage
-    const stakes = isTournament ? getStakes(match.stage || "", tournamentDef?.format === "bracket", nextStage || undefined) : null
+    const stakes = leagueStage ? getStakes(match.stage || leagueStage, false)
+        : isTournament ? getStakes(match.stage || "", tournamentDef?.format === "bracket", nextStage || undefined) : null
     const matchDate = getDateForWeek(match.week)
     matchDate.setUTCDate(matchDate.getUTCDate() + (match.day ?? 0))
     const dateLabel = formatGameCalendarDate(matchDate, { weekday: "short", month: "short", day: "numeric" })
@@ -591,9 +600,10 @@ export default function TacticalHQPage() {
                     <div className="flex w-[300px] shrink-0 flex-col items-center text-center">
                         <div className="flex items-center gap-2">
                             {isTournament && <TierTag tier={tournamentDef?.tier || liveTournament?.tier} />}
+                            {leagueStage && <span className="inline-flex shrink-0 items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">League</span>}
                             <p className="truncate text-sm font-semibold text-ink-1">{competitionName}</p>
                         </div>
-                        <p className="mt-1 text-xs text-ink-3">{match.stage || (isTournament ? "Tournament match" : "Week " + match.week)}</p>
+                        <p className="mt-1 text-xs text-ink-3">{competitionDetail}</p>
                         <p className="mt-2 font-display text-[56px] font-bold leading-none tabular-nums text-ink-1">{(match.format || "BO3").toUpperCase()}</p>
                         <p className="mt-2 text-xs text-ink-3">{dateLabel} · week {match.week}</p>
                     </div>
