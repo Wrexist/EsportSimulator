@@ -20,6 +20,8 @@ import {
     Handshake,
     GraduationCap,
     UserRound,
+    ListOrdered,
+    Landmark,
     type LucideIcon
 } from "lucide-react"
 
@@ -163,12 +165,15 @@ export const navHubs: NavHub[] = [
         ],
     },
     {
-        // Trophies and the Hall of Fame are the scene's record (every title on
-        // the calendar, players who defined eras), so they sit with tournaments.
+        // The regional league (Phase 4.4) is the weekly competition every club
+        // plays, so it opens the hub. Trophies and the Hall of Fame are the
+        // scene's record (every title on the calendar, players who defined
+        // eras), so they sit with tournaments.
         id: "competition",
         label: "Competition",
         icon: Trophy,
         items: [
+            { icon: ListOrdered, label: "League", href: "/league", keywords: "division table standings promotion relegation split" },
             { icon: Trophy, label: "Tournaments", href: "/tournaments" },
             { icon: Globe, label: "Rankings", href: "/rankings" },
             { icon: Award, label: "Trophies", href: "/trophies", keywords: "cabinet titles legacy" },
@@ -184,6 +189,8 @@ export const navHubs: NavHub[] = [
             { icon: DollarSign, label: "Finances", href: "/finances", keywords: "money budget ledger" },
             { icon: Handshake, label: "Sponsors", href: "/sponsorships" },
             { icon: Building2, label: "Facilities", href: "/basecamp", keywords: "gear equipment basecamp" },
+            // The board employs the manager: objectives, confidence, warnings.
+            { icon: Landmark, label: "Board", href: "/career/board", keywords: "objectives confidence expectations warning notice dismissal job security" },
             { icon: UserRound, label: "Manager", href: "/career", keywords: "career profile saves" },
         ],
         // `/equipment` redirects into Facilities → Gear.

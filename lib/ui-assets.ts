@@ -13,7 +13,7 @@ export const UI_ASSETS = {
 } as const
 
 export function routeAtmosphere(path: string): string {
-    if (/^\/(match|tournaments|rankings|trophies|hall-of-fame)/.test(path)) return UI_ASSETS.arena
+    if (/^\/(match|league|tournaments|rankings|trophies|hall-of-fame)/.test(path)) return UI_ASSETS.arena
     if (/^\/(scouting|transfers|player|staff)/.test(path)) return UI_ASSETS.scouting
     if (/^\/(basecamp|equipment|academy|training)/.test(path)) return UI_ASSETS.campus
     return UI_ASSETS.hq
