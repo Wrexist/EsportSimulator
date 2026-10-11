@@ -36,7 +36,8 @@ import type {
     LeagueState,
     TeamSaveData,
 } from "../save-types"
-import { LEAGUE_TUNING } from "@/lib/balance-tuning"
+import { LEAGUE_TUNING, leagueCentralPayment } from "@/lib/balance-tuning"
+import { queueMoment } from "../moments"
 import { SeededRNG } from "../rng"
 
 export const LEAGUE_ID_PREFIX = "league_"
@@ -468,6 +469,7 @@ function completeDivision(save: GameSave, split: LeagueSplit, div: LeagueDivisio
     const pos = table.findIndex(s => s.teamId === playerTeamId)
     if (pos < 0) return
     const me = table[pos]
+    queueDivisionMoments(save, split, div, playerTeamId, pos, pool)
     const fate = div.promoted?.includes(playerTeamId) ? ` Promoted to Division ${div.level - 1} for the next split.`
         : div.relegated?.includes(playerTeamId) ? ` Relegated to Division ${div.level + 1} for the next split.` : ""
     const prize = (() => {
@@ -495,6 +497,58 @@ function completeDivision(save: GameSave, split: LeagueSplit, div: LeagueDivisio
         week: save.currentWeek,
         category: "TOURNAMENT",
         teamId: playerTeamId,
+    })
+}
+
+/** Split prize pool of a division level (the last value covers every deeper level). */
+function splitPrizePool(level: number): number {
+    const pools = LEAGUE_TUNING.SPLIT_PRIZE_POOL_BY_LEVEL
+    return pools[Math.min(pools.length, Math.max(1, level)) - 1]
+}
+
+/**
+ * Moments for the managed club's finished division (Phase 5.4a): the title
+ * (first place) and a promotion or relegation, with the payments the next
+ * split's division really carries. Each keyed by division, so once.
+ */
+function queueDivisionMoments(save: GameSave, split: LeagueSplit, div: LeagueDivision, id: string, pos: number, pool: number): void {
+    const me = div.standings[pos]
+    if (!me) return
+    if (pos === 0) {
+        const share = LEAGUE_TUNING.SPLIT_PRIZE_SHARES[0]
+        queueMoment(save, {
+            key: `league-title:${div.id}`,
+            kind: "league-title",
+            week: save.currentWeek,
+            divisionId: div.id,
+            divisionName: div.name,
+            level: div.level,
+            season: split.season,
+            split: split.split,
+            wins: me.wins,
+            losses: me.losses,
+            points: me.points,
+            prize: share ? Math.round(pool * share) : 0,
+            repGain: div.level === 1 ? LEAGUE_TUNING.CHAMPION_REPUTATION_TOP : LEAGUE_TUNING.CHAMPION_REPUTATION,
+            trophy: div.level === 1,
+        })
+    }
+    const up = !!div.promoted?.includes(id)
+    const down = !up && !!div.relegated?.includes(id)
+    if (!up && !down) return
+    const toLevel = up ? div.level - 1 : div.level + 1
+    queueMoment(save, {
+        key: `${up ? "promotion" : "relegation"}:${div.id}`,
+        kind: up ? "promotion" : "relegation",
+        scope: "division",
+        week: save.currentWeek,
+        season: split.season,
+        split: split.split,
+        fromLabel: div.name,
+        toLabel: `${LEAGUE_TUNING.REGION_NAMES[div.region]} Division ${toLevel}`,
+        centralPayment: { from: leagueCentralPayment(div.level), to: leagueCentralPayment(toLevel) },
+        prizePool: { from: splitPrizePool(div.level), to: splitPrizePool(toLevel) },
+        topDivision: toLevel === 1,
     })
 }
 

@@ -113,6 +113,8 @@ import { createTeamFacilitiesSlice } from "@/store/slices/team-facilities-slice"
 import { createTransferContractSlice } from "@/store/slices/transfer-contract-slice"
 import { createAcademySlice } from "@/store/slices/academy-slice"
 import { createAdvanceSlice, initialAdvanceState, isContinueStepping, type AdvanceState, type AdvanceActions } from "@/store/slices/advance-slice"
+import { createMomentsSlice, initialMomentsState, type MomentsState, type MomentsActions } from "@/store/slices/moments-slice"
+import { queueMoment, restoreMomentQueue, restoreSeenMomentKeys } from "@/engine/moments"
 import { WeekChangeRecorder, diffClubs, sideScore, snapshotClub, type ChangeCause, type ChangeEntry } from "@/lib/week-changes"
 import { competitionLabel, splitLiveRankEntries } from "@/engine/ranking-report"
 import { buildWeekReport, newTracker, pushWeekReport, sanitizeWeekReports } from "@/lib/week-report"
@@ -412,7 +414,7 @@ const parseBoundedNumber = (
 }
 
 // UI-specific state extensions
-export interface GameStoreState extends AdvanceState {
+export interface GameStoreState extends AdvanceState, MomentsState {
   // Game Data (Mirrors GameSave)
   saveId: string | null
   saveName: string
@@ -562,7 +564,7 @@ export interface GameStoreState extends AdvanceState {
   showBugReportButton: boolean
 }
 
-interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions {
+interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, MomentsActions {
   // Lifecycle
   initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string) => Promise<void>
   initializeCustomTeam: (managerName: string, teamData: import("@/types/team-creator").CustomTeamData) => Promise<void>
@@ -710,6 +712,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions {
   selectLegend: (legendId: string) => void
   clearLegendPick: () => void
   debugTriggerCelebration: () => void
+  debugTriggerMoment: (kind: import("@/engine/moments").MomentKind, opts?: { major?: boolean }) => void
   debugTriggerInjury: (playerId?: string) => void
   debugTriggerLegendPick: () => void
   debugTriggerSeasonRecap: () => void
@@ -846,6 +849,16 @@ function careerAdvanceState(save: GameSave, playerTeamId: string | null, fresh: 
   return { ...initialAdvanceState, weekReports: withTracker(source, !fresh) }
 }
 
+/**
+ * A brand-new career starts with an empty moment queue and the board brief
+ * (Phase 5.4a), shown once on the dashboard after creation.
+ */
+function queueWelcomeMoment(save: GameSave, teamId: string): void {
+  save.momentQueue = []
+  save.seenMomentKeys = []
+  queueMoment(save, { key: `welcome:${save.saveId}`, kind: "welcome", week: save.currentWeek, teamId })
+}
+
 /** Field defaults shared by load hydration and the weekly commit. */
 function applyPlayerFieldDefaults(players: PlayerSaveData[]): void {
   players.forEach(p => {
@@ -952,6 +965,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         get as unknown as Parameters<typeof createAdvanceSlice>[1],
       ),
       ...initialAdvanceState,
+      // Full-screen moments queue (Phase 5.4a).
+      ...createMomentsSlice(
+        set as unknown as Parameters<typeof createMomentsSlice>[0],
+        get as unknown as Parameters<typeof createMomentsSlice>[1],
+      ),
+      ...initialMomentsState,
       // Overrides the slice actions above with change-recording wrappers.
       ...weekRecordedActions(set, get),
 
@@ -1252,6 +1271,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // the board's objectives against it (Phase 4.4).
           drawDueLeagueSplit(newSave)
           ensureBoardState(newSave)
+          queueWelcomeMoment(newSave, playerTeamId)
 
           // Initial Save
           newSave.firstSession = get().showTutorialOnNewGame ? newFirstSession() : { ...newFirstSession(), status: "dismissed" }
@@ -1532,6 +1552,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Regional league draw + board objectives (Phase 4.4).
           drawDueLeagueSplit(newSave)
           ensureBoardState(newSave)
+          queueWelcomeMoment(newSave, result.teamId)
 
           // Add Welcome Mail for custom team
           newSave.eventsLog.unshift({
@@ -1720,6 +1741,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             pendingCelebration: hydratedSave.pendingCelebration ?? null,
             pendingSeasonRecap: hydratedSave.pendingSeasonRecap ?? null,
             pendingLegendPick: hydratedSave.pendingLegendPick ?? null,
+            momentQueue: restoreMomentQueue(hydratedSave.momentQueue),
+            seenMomentKeys: restoreSeenMomentKeys(hydratedSave.seenMomentKeys),
             signedLegendIds: hydratedSave.signedLegendIds ?? [],
             activelyPlayingLegendIds: hydratedSave.activelyPlayingLegendIds ?? [],
             declinedSponsorOfferIds: hydratedSave.declinedSponsorOfferIds ?? [],

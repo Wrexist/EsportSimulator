@@ -148,6 +148,12 @@ export interface GameSave {
     signedLegendIds?: string[] // Track signed legends to prevent duplicates
     activelyPlayingLegendIds?: string[] // Legend IDs whose active counterparts are still in game
 
+    // === MOMENTS (Phase 5.4a) ===
+    /** Full-screen moments waiting to be shown, oldest first (engine/moments.ts). */
+    momentQueue?: import("./moments").Moment[]
+    /** Keys of moments already delivered (shown, intro played, legend offered); bounded. */
+    seenMomentKeys?: string[]
+
     // === PHASE 70: YOUTH ACADEMY ===
     academyPlayers: AcademyPlayer[]
     academyMatchHistory: AcademyMatchResult[]

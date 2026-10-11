@@ -7,6 +7,10 @@
  * chose to go on). A playable match always blocks: the week cannot advance
  * past it, so Continue turns into "Play match".
  *
+ * A queued moment (a title, promotion, signing: engine/moments.ts) blocks
+ * like a match: Continue never advances past a moment the manager has not
+ * seen; the moment shows itself and is dismissed from there (Phase 5.4a).
+ *
  * Decisions and offers stop at most once per event, also across a reload:
  * the stop marks the event (`data.continueStopped`), and a refreshed repeat
  * keeps that mark. A request past its deadline never stops; the week tick
@@ -16,10 +20,11 @@
 import { isPendingDecisionEvent, isTransferRumor, getEventTitle } from "@/lib/event-format"
 import { fixtureBlockReason, pendingPlayableMatch, type PlayableMatchState } from "@/lib/playable-match"
 import type { GameEventSaveData } from "@/engine/save-types"
+import { momentHeadline, titleMomentFromCelebration, type Moment } from "@/engine/moments"
 import { inboxHref } from "@/lib/navigation"
 
 export type StopKind =
-    | "match" | "game-over" | "forfeit" | "injury" | "event" | "offer"
+    | "moment" | "match" | "game-over" | "forfeit" | "injury" | "event" | "offer"
     | "contract" | "board" | "season" | "cap" | "cancelled" | "error"
 
 export interface AdvanceStop {
@@ -34,7 +39,7 @@ export interface AdvanceStop {
 /** Stop after this many completed weeks with nothing needing the manager. */
 export const CONTINUE_WEEK_CAP = 4
 
-const PRIORITY: StopKind[] = ["match", "game-over", "forfeit", "injury", "event", "offer", "contract", "board", "season"]
+const PRIORITY: StopKind[] = ["moment", "match", "game-over", "forfeit", "injury", "event", "offer", "contract", "board", "season"]
 
 /** How many weeks of contract left counts as "expiring" for a stop. */
 export const CONTRACT_STOP_WEEKS = 2
@@ -48,6 +53,15 @@ export interface StopSource extends PlayableMatchState<MatchLike> {
     newsFeed?: Array<{ id: string; title: string; week: number }>
     gameOverReason?: string | null
     players: Array<{ id: string; nickname?: string; isRetired?: boolean; injury?: { name?: string; weeksRemaining?: number } | null }>
+    /** Full-screen moments waiting to be shown (Phase 5.4a). */
+    momentQueue?: Moment[]
+    /** Legacy title celebration (older saves), shown as a moment. */
+    pendingCelebration?: Parameters<typeof titleMomentFromCelebration>[0]
+}
+
+/** The moment the MomentHost shows next, if any (the queue, then a legacy celebration). */
+export function nextMoment(state: Pick<StopSource, "momentQueue" | "pendingCelebration">): Moment | null {
+    return state.momentQueue?.[0] ?? titleMomentFromCelebration(state.pendingCelebration)
 }
 
 /** A readable name for a decision event; some carry no title (fan and sponsor requests). */
@@ -72,6 +86,9 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
     if (!me) return out
     const teamName = (id: string) => state.teams.find(t => t.id === id)?.name ?? "your opponent"
     const playerName = (id: string) => state.players.find(p => p.id === id)?.nickname ?? "A player"
+
+    const moment = nextMoment(state)
+    if (moment) out.push({ key: `moment:${moment.key}`, kind: "moment", reason: momentHeadline(moment), href: "/" })
 
     const completed = new Set(state.completedMatches.map(m => m.id))
     const playable = pendingPlayableMatch(state, completed, { respectDay: true })
@@ -176,7 +193,7 @@ const GROUPED: Partial<Record<StopKind, (n: number) => string>> = {
 export function nextStop(state: StopSource, seen: ReadonlySet<string>): (AdvanceStop & { keys?: string[] }) | null {
     const signals = collectStopSignals(state)
     for (const s of signals) {
-        if (s.kind === "match" || s.kind === "game-over") return s
+        if (s.kind === "moment" || s.kind === "match" || s.kind === "game-over") return s
         if (seen.has(s.key)) continue
         const same = signals.filter(x => x.kind === s.kind && !seen.has(x.key))
         const group = GROUPED[s.kind]

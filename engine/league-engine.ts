@@ -20,6 +20,8 @@
 
 import { GameSave, TeamSaveData } from "./save-types"
 import { EventType } from "@/types"
+import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
+import { queueMoment } from "./moments"
 import {
     applyRatedResult,
     applyTierBands,
@@ -272,6 +274,29 @@ export class LeagueEngine {
                     isRelegation: true,
                 },
                 acknowledged: false,
+            })
+        }
+
+        // Full-screen moment for the managed club's tier move (Phase 5.4a):
+        // the final rank, the new tier's rank band and the league-entry events
+        // each tier gates (tournament-qualification: tier must match).
+        const playerMove = playerPromotion ?? playerRelegation
+        if (playerMove) {
+            const gated = (tier: string) => FULL_TOURNAMENT_CALENDAR.filter(t => t.requiredLeagueTier === tier).map(t => t.name)
+            const label = (tier: LeagueTier) => TIER_DISPLAY[tier]?.label ?? tier
+            const up = !!playerPromotion
+            queueMoment(save, {
+                key: `${up ? "promotion" : "relegation"}:world:${this.getCurrentSeason(save.currentWeek)}`,
+                kind: up ? "promotion" : "relegation",
+                scope: "world",
+                week: save.currentWeek,
+                season: this.getCurrentSeason(save.currentWeek),
+                fromLabel: label(playerMove.from),
+                toLabel: label(playerMove.to),
+                ...(finalRank > 0 ? { worldRank: finalRank } : {}),
+                band: bandOf(playerMove.to),
+                eligibleNow: gated(playerMove.to),
+                eligibleLost: gated(playerMove.from),
             })
         }
 

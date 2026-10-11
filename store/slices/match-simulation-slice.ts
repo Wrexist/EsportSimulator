@@ -40,6 +40,7 @@ import { ManagerProgression } from "@/engine/manager-progression"
 import { applyFormResult, applyMoraleResult } from "@/engine/player-lifecycle"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
 import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mastery"
+import { queueDecidedTitle } from "@/engine/processors/standings-processor"
 import type { GameSave } from "@/engine/save-types"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { isEngineVersion, LEGACY_ENGINE_VERSION, type EngineVersion } from "@/engine/match/engine-version"
@@ -540,6 +541,11 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                         }
                     }
                 }
+
+                // A grand final won here decides the title now: queue its
+                // moment for the result screen (Phase 5.4a). The week tick
+                // still pays the prize and adds the trophy, deduped by key.
+                queueDecidedTitle(state as unknown as GameSave, match.tournamentId)
             }
 
             result.xpGains = xpGains

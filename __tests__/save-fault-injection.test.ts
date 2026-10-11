@@ -803,6 +803,8 @@ function sentinelCareer(): GameSave {
         pendingLegendPick: { tournamentName: "rt-major" },
         signedLegendIds: ["rt-legend"],
         activelyPlayingLegendIds: ["rt-active-legend"],
+        momentQueue: [{ key: "rt-moment", kind: "welcome", week: 8, teamId: team }],
+        seenMomentKeys: ["rt-seen-moment"],
         academyPlayers: [{ id: "rt-prospect", nickname: "Kid" }],
         academyMatchHistory: [{ id: "rt-academy-match" }],
         academyRoster: { IGL: "rt-prospect", Entry: null, AWPer: null, Support: null, Rifler: null },

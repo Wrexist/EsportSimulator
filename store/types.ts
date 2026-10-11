@@ -323,6 +323,7 @@ export interface DebugActions {
   debugTriggerJobOffer: () => void
   debugFastForward: (weeks: number) => void
   debugTriggerCelebration: () => void
+  debugTriggerMoment: (kind: import("@/engine/moments").MomentKind, opts?: { major?: boolean }) => void
   debugTriggerInjury: (playerId?: string) => void
   debugTriggerLegendPick: () => void
   debugTriggerSeasonRecap: () => void
