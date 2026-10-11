@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { Panel } from "@/src/components/ui/Panel"
 import { RatingChip } from "@/src/components/ui/RatingChip"
+import { leagueStageLabel } from "@/components/league/league-view"
 import { matchFatigue } from "./week-preview"
 
 type MatchRow = {
@@ -77,6 +78,9 @@ export function WeekFixtures() {
     }
     const competition = (m: MatchRow) => {
         if (m.isScrim) return "Scrim"
+        // League fixtures: "Europe Division 3 · Round 5" (the stage is the full name).
+        const league = leagueStageLabel(m)
+        if (league) return league
         const t = s.tournaments.find(x => x.id === m.tournamentId)
         return [t?.shortName || t?.name || "Match", m.stage].filter(Boolean).join(" · ")
     }
@@ -91,7 +95,7 @@ export function WeekFixtures() {
             {rows.length === 0 ? (
                 <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4">
                     <p className="text-sm text-ink-3">
-                        No match this week.{next && <> Next: week {((next.week - 1) % 52) + 1} vs <span className="font-semibold text-ink-1">{teamById.get(next.homeTeamId === me ? next.awayTeamId : next.homeTeamId)?.name ?? "TBD"}</span>.</>}
+                        No match this week.{next && <> Next: week {((next.week - 1) % 52) + 1} vs <span className="font-semibold text-ink-1">{teamById.get(next.homeTeamId === me ? next.awayTeamId : next.homeTeamId)?.name ?? "TBD"}</span> ({competition(next)}).</>}
                     </p>
                     {next && <Button asChild size="sm" variant="outline" className="h-8 px-3 text-xs"><Link href={`/match/${next.id}/tactics`}>Scout opponent</Link></Button>}
                 </div>

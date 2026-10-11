@@ -8,7 +8,8 @@ import { useGameStore } from "@/store/game-store"
 import { LoadingState } from "@/components/ui/loading"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
-import { Home, Trophy, Swords, Calendar, ArrowRight } from "lucide-react"
+import { Home, Trophy, Swords, Calendar, ArrowRight, ListOrdered } from "lucide-react"
+import { leagueStageLabel } from "@/components/league/league-view"
 import { CompletedMatchSaveData, PlayerSaveData } from "@/engine"
 import { PlayerMatchStats, MapResult, MatchResult } from "@/types"
 import { motion } from "framer-motion"
@@ -316,11 +317,14 @@ export default function MatchResultPage() {
     const aScore = isBO1 ? result.maps[0].finalScore.team2 : result.awayScore
 
     // Competition framing and tournament outcome.
-    const isTournament = !!match.tournamentId && match.tournamentId !== "SCRIM"
+    // A league fixture is named by its stage ("Europe Division 3 · Round 5").
+    const leagueStage = leagueStageLabel(match)
+    const isTournament = !leagueStage && !!match.tournamentId && match.tournamentId !== "SCRIM"
     const liveTournament = isTournament ? tournaments?.find(t => t.id === match.tournamentId) : undefined
     const tournamentDef = isTournament ? FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId!.replace(/_s\d+$/, '') || t.id === match.tournamentId) : undefined
-    const competitionName = isTournament ? (tournamentDef?.name || liveTournament?.name || "Tournament") : match.tournamentId === "SCRIM" ? "Scrim" : "Friendly"
+    const competitionName = leagueStage ?? (isTournament ? (tournamentDef?.name || liveTournament?.name || "Tournament") : match.tournamentId === "SCRIM" ? "Scrim" : "Friendly")
     let tournamentLine: string | null = null
+    if (isPlayerMatch && leagueStage) tournamentLine = playerWon ? "3 league points" : "No league points"
     if (isPlayerMatch && liveTournament?.playoffBracket) {
         const bracketMatch = liveTournament.playoffBracket.find(m => m.id === match.id)
         if (bracketMatch) {
@@ -378,6 +382,11 @@ export default function MatchResultPage() {
                             <Trophy size={15} aria-hidden="true" /> Tournament
                         </Button>
                     )}
+                    {leagueStage && (
+                        <Button variant="ghost" onClick={() => router.push("/league")} className="h-9 gap-1.5 px-3 text-sm">
+                            <ListOrdered size={15} aria-hidden="true" /> League table
+                        </Button>
+                    )}
                 </div>
                 {nextPlayerMatch && nextMatchPlayableNow ? (
                     <Button onClick={() => router.push(`/match/${nextPlayerMatch.id}/tactics`)} className="h-11 gap-2 px-6 text-base">
@@ -395,8 +404,9 @@ export default function MatchResultPage() {
                 <div className="flex items-center justify-between gap-4 border-b border-line bg-shell px-8 py-2.5 text-xs text-ink-3">
                     <span className="flex items-center gap-2">
                         {isTournament && <TierTag tier={tournamentDef?.tier || liveTournament?.tier} />}
+                        {leagueStage && <span className="inline-flex items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">League</span>}
                         <span className="font-semibold text-ink-2">{competitionName}</span>
-                        {match.stage && <><span aria-hidden="true">·</span><span>{match.stage}</span></>}
+                        {match.stage && !leagueStage && <><span aria-hidden="true">·</span><span>{match.stage}</span></>}
                         <span aria-hidden="true">·</span><span>{String(match.format || "BO1").toUpperCase()}</span>
                     </span>
                     <span className="flex items-center gap-1.5"><Calendar size={12} aria-hidden="true" />{formatGameCalendarDate(matchDate, { month: "short", day: "numeric", year: "numeric" })}</span>
@@ -431,7 +441,7 @@ export default function MatchResultPage() {
                                 </span>
                             ))}
                         </div>
-                        {tournamentLine && <p className={cn("mt-3 text-sm font-semibold", tournamentLine === "Eliminated" ? "text-negative" : tournamentLine === "Tournament champions" ? "text-gold" : "text-positive")}>{tournamentLine}</p>}
+                        {tournamentLine && <p className={cn("mt-3 text-sm font-semibold", tournamentLine === "Eliminated" ? "text-negative" : tournamentLine === "No league points" ? "text-ink-3" : tournamentLine === "Tournament champions" ? "text-gold" : "text-positive")}>{tournamentLine}</p>}
                     </div>
                     {crest(awayTeam, "right", !homeWon)}
                 </div>
@@ -488,7 +498,7 @@ export default function MatchResultPage() {
                                             ))}
                                         </ul>
                                     )}
-                                    {moneyLines.length === 0 && <p className="mt-1 text-xs text-ink-3">No prep costs or bonuses. Prize money is paid when the event ends.</p>}
+                                    {moneyLines.length === 0 && <p className="mt-1 text-xs text-ink-3">No prep costs or bonuses. {leagueStage ? "League prize money is paid when the split ends." : "Prize money is paid when the event ends."}</p>}
                                 </div>
                             </dl>
                         </Panel>

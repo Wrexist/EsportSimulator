@@ -36,7 +36,7 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
             { keys: ["4"], description: "Week plan" },
             { keys: ["5"], description: "Match centre (next match)" },
             { keys: ["6"], description: "Recruitment (transfers)" },
-            { keys: ["7"], description: "Competition (tournaments)" },
+            { keys: ["7"], description: "Competition (league)" },
             { keys: ["8"], description: "Club (finances)" },
             { keys: ["9"], description: "Settings" },
             { keys: ["Esc"], description: "Go back / Close modal" },
@@ -68,7 +68,7 @@ export const NUMBER_KEY_ROUTES: Record<string, string> = {
     "4": "/week",
     "5": "/match",
     "6": "/transfers",
-    "7": "/tournaments",
+    "7": "/league",
     "8": "/finances",
     "9": "/settings",
 }
