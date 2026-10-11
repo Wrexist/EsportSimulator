@@ -9,7 +9,9 @@
  * Engine safe: no store, no React.
  */
 
-import type { FinanceLedgerEntry, GameEventSaveData, PlayerSaveData, TeamSaveData } from "./save-types"
+import type { FinanceLedgerEntry, GameEventSaveData, PlayerSaveData, PromiseKind, TeamSaveData } from "./save-types"
+import { evaluatePlayer } from "./player-evaluation"
+import { recordPromise } from "./personality"
 
 export interface ChoiceEffects {
     morale?: number
@@ -18,6 +20,10 @@ export interface ChoiceEffects {
     reputation?: number
     fatigue?: number
     chemistry?: number
+    /** Phase 5.2: put the event's player on the transfer list at his market value. */
+    transferList?: boolean
+    /** Phase 5.2: record a promise to the event's player (engine/personality.ts). */
+    promise?: PromiseKind
 }
 
 /** The slice of a save (or the store draft) a choice can touch. */
@@ -50,10 +56,18 @@ export function applyChoiceEffects(
     effects: ChoiceEffects | undefined,
     ledger: { id: () => string; description: string },
 ): boolean {
-    const { morale, money, loyalty, reputation, fatigue, chemistry } = (effects ?? {}) as ChoiceEffects
+    const { morale, money, loyalty, reputation, fatigue, chemistry, transferList, promise } = (effects ?? {}) as ChoiceEffects
     const data = (event.data ?? {}) as { playerId?: unknown; teamId?: unknown }
     const playerId = data.playerId != null ? String(data.playerId) : null
     const teamId = (typeof data.teamId === "string" && data.teamId) || target.playerTeamId
+
+    // Listing a player or making him a promise needs him in the managed squad.
+    let subject: PlayerSaveData | undefined
+    if (transferList || promise) {
+        const managed = target.teams.find(t => t.id === target.playerTeamId)
+        subject = playerId && managed?.rosterIds.includes(playerId) ? target.players.find(p => p.id === playerId) : undefined
+        if (!subject) return false
+    }
 
     let team: TeamSaveData | undefined
     let amount = 0
@@ -99,5 +113,11 @@ export function applyChoiceEffects(
         }
         if (reputation) team.reputation = clamp(team.reputation + reputation, 0, 100)
     }
+
+    if (subject && transferList) {
+        subject.forSale = true
+        subject.transferListingPrice = Math.max(0, Math.round(evaluatePlayer(subject, undefined, undefined, target.currentWeek).transferValue))
+    }
+    if (subject && promise) recordPromise(target, subject, promise, target.playerTeamId ?? undefined)
     return true
 }

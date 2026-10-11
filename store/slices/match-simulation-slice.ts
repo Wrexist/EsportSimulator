@@ -38,6 +38,7 @@ import {
 } from "@/engine"
 import { ManagerProgression } from "@/engine/manager-progression"
 import { applyFormResult, applyMoraleResult } from "@/engine/player-lifecycle"
+import { isOfficialMatch, lineupDefeatShield, playerResultMorale, recordAppearances } from "@/engine/personality"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
 import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mastery"
 import type { GameSave } from "@/engine/save-types"
@@ -365,9 +366,12 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             const matchTournamentTier = (match.tournamentId && match.tournamentId !== "SCRIM")
                 ? state.tournaments.find(t => t.id === match.tournamentId)?.tier
                 : undefined
+            const lookupPlayer = (id: string) => playerMap.get(id)
             const updatePlayerStats = (team: TeamSaveData, won: boolean) => {
                 if (!team || !result.playerStats) return
                 const playedIds = Object.keys(result.playerStats).filter(pid => team.rosterIds.includes(pid))
+                // Phase 5.2: captain's defeat shield for the lineup he played in.
+                const shield = lineupDefeatShield(team, result.lineups?.[team.id] ?? playedIds, lookupPlayer)
                 playedIds.forEach(pid => {
                     const player = playerMap.get(pid)
                     if (!player) return
@@ -386,7 +390,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                             default: return won ? 5 : -5
                         }
                     })()
-                    player.morale = applyMoraleResult(player.morale || 50, moraleChange)
+                    player.morale = applyMoraleResult(player.morale || 50, playerResultMorale(player, moraleChange, shield))
                     player.form = applyFormResult(player.form, won)
 
                     const stats = result.playerStats[pid]
@@ -468,6 +472,11 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             }
             updatePlayerStats(homeTeam, homeWon)
             updatePlayerStats(awayTeam, !homeWon)
+            // Phase 5.2: official appearances (starters / fit players left out).
+            if (isOfficialMatch(match)) {
+                recordAppearances(homeTeam, result.lineups[homeTeam.id] ?? [], lookupPlayer)
+                recordAppearances(awayTeam, result.lineups[awayTeam.id] ?? [], lookupPlayer)
+            }
             // Canonical weapon-category mastery (RIFLE/AWP/PISTOL/SMG XP), the
             // track the match engine reads. The weekly tick applies it to every
             // AI match; matches committed here never did, so managed starters
