@@ -75,6 +75,8 @@ export interface MatchState {
   activeMatchState: ActiveMatchState | null
   physicalMatchPreview?: import('@/engine/spatial/career-round-journal').PhysicalCareerJournal | null
   customTactics: CustomTactics
+  /** Live match: the decision card confirms the engine's call by itself (saved with the career). */
+  autoTactics: boolean
 }
 
 export interface TournamentState {
@@ -226,6 +228,7 @@ export interface MatchActions extends PhysicalPreviewActions {
   updateActiveMatchState: (state: ActiveMatchState) => void
   clearActiveMatchState: () => void
   updateCustomTactic: (id: keyof CustomTactics, side: "ct" | "t", strategy: TacticalStrategy) => void
+  setAutoTactics: (on: boolean) => void
 }
 
 export interface TournamentActions {

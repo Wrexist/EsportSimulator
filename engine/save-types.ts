@@ -141,6 +141,10 @@ export interface GameSave {
     // === TRANSFER HISTORY SYSTEM ===
     transferHistory: TransferRecord[]
 
+    // === LIVE MATCH ===
+    /** The live match's auto-tactics switch (the decision card confirms the engine's call). Absent = off. */
+    autoTactics?: boolean
+
     // === UI CELEBRATIONS ===
     pendingCelebration?: CelebrationData | null
     // (pendingSeasonRecap, older saves: replaced by the season-review moment, Phase 5.4b; ignored on load.)

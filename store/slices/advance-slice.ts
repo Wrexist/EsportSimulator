@@ -59,8 +59,10 @@ interface AdvanceHost extends StopSource {
     gameOverReason: string | null
     timeMode: "WEEKLY" | "HYBRID_DAILY"
     currentDay: number
+    isInitialized: boolean
     advanceDay: () => Promise<void>
     advanceWeek: () => Promise<void>
+    saveGame: () => Promise<void>
 }
 
 type Store = AdvanceHost & AdvanceState & AdvanceActions
@@ -97,6 +99,7 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
         const seen = new Set(start.advanceSeenKeys)
         let stop: (AdvanceStop & { keys?: string[] }) | null = null
         let lastCompletedWeek: number | null = null
+        let advanced = false
         try {
             // Hard bound well above the week cap (7 days per week in daily mode).
             for (let step = 0; step < (CONTINUE_WEEK_CAP + 1) * 8; step++) {
@@ -128,6 +131,7 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
                     break
                 }
                 if (movedWeek) lastCompletedWeek = week
+                advanced = true
                 set(draft => {
                     if (!draft.continueRun) return
                     draft.continueRun.daysDone += 1
@@ -143,10 +147,11 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
                     ? { key: stop.key, kind: stop.kind, reason: stop.reason, href: stop.href, actionLabel: stop.actionLabel, week: end.currentWeek, day: end.currentDay }
                     : null
                 const covered = stop?.keys ?? (stop ? [stop.key] : [])
+                const marks = !!stop && stop.kind !== "moment" && stop.kind !== "match" && stop.kind !== "cancelled" && stop.kind !== "cap" && stop.kind !== "error"
                 set(draft => {
                     draft.continueRun = null
                     draft.advanceStop = notice
-                    if (stop && stop.kind !== "moment" && stop.kind !== "match" && stop.kind !== "cancelled" && stop.kind !== "cap" && stop.kind !== "error") {
+                    if (marks) {
                         for (const key of covered) if (!draft.advanceSeenKeys.includes(key)) draft.advanceSeenKeys.push(key)
                         if (draft.advanceSeenKeys.length > 200) draft.advanceSeenKeys.splice(0, draft.advanceSeenKeys.length - 200)
                         // A decision or offer stops Continue once per event, for
@@ -159,6 +164,10 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
                         draft.weekReportOpen = lastCompletedWeek
                     }
                 })
+                // The days the run passed (day steps are not saved one by one)
+                // and the stop marks are saved now, so a reload resumes here.
+                const after = get()
+                if ((advanced || marks) && after.isInitialized && !after.isLoading) void after.saveGame().catch(() => { /* surfaced by saveGame */ })
             }
         }
     },
