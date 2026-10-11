@@ -54,6 +54,9 @@ export function InboxDrawer() {
     const [newsFilter, setNewsFilter] = useState<NewsFilter>("headlines")
     const [showPaneOnNarrow, setShowPaneOnNarrow] = useState(false)
     const [awards, setAwards] = useState<AnnualAwards | null>(null)
+    // Row index of the last explicit pick: when that item leaves the tab
+    // (a decision gets answered) the pane moves on to its neighbour.
+    const [anchorIndex, setAnchorIndex] = useState(0)
 
     // The social timeline is generated lazily (per save + week); merge this
     // week's posts when the drawer opens.
@@ -64,17 +67,19 @@ export function InboxDrawer() {
         [open, hasCareer, eventsLog, newsFeed, socialFeed, ctx],
     )
     const counts = useMemo(() => countInbox(eventsLog ?? [], ctx), [eventsLog, ctx])
+    const anyUnread = useMemo(() => (eventsLog ?? []).some(e => !e.acknowledged), [eventsLog])
     const tabItems = useMemo(() => {
         const list = itemsForTab(items, tab)
         if (tab !== "news") return list.filter(i => i.source !== "social")
         return list.filter(i => (newsFilter === "social") === (i.source === "social"))
     }, [items, tab, newsFilter])
 
-    // Show the explicitly selected item, else the first one on the tab.
-    const selected = tabItems.find(i => i.key === selectedKey) ?? tabItems[0] ?? null
+    // Show the explicitly selected item, else whatever now sits in its row.
+    const selected = tabItems.find(i => i.key === selectedKey) ?? tabItems[Math.min(anchorIndex, tabItems.length - 1)] ?? null
 
     const onSelect = (item: InboxItem) => {
         select(item.key)
+        setAnchorIndex(Math.max(0, tabItems.findIndex(i => i.key === item.key)))
         setShowPaneOnNarrow(true)
         if (item.event && !item.event.acknowledged) acknowledgeEvent(item.event.id)
     }
@@ -112,7 +117,7 @@ export function InboxDrawer() {
                                 key={f}
                                 type="button"
                                 aria-pressed={newsFilter === f}
-                                onClick={() => { setNewsFilter(f); select(null) }}
+                                onClick={() => { setNewsFilter(f); select(null); setAnchorIndex(0) }}
                                 className={cn(
                                     "rounded px-2.5 py-1 text-xs font-semibold capitalize transition-colors",
                                     newsFilter === f ? "bg-raised text-ink-1" : "text-ink-3 hover:text-ink-1",
@@ -134,13 +139,15 @@ export function InboxDrawer() {
                 />
             </div>
             <div className={cn("min-h-0", !showPaneOnNarrow && "max-md:hidden")}>
-                <InboxReadingPane
-                    key={selected?.key ?? "none"}
-                    item={selected}
-                    ctx={ctx}
-                    onBack={() => setShowPaneOnNarrow(false)}
-                    onOpenAwards={a => { close(); setAwards(a as AnnualAwards) }}
-                />
+                {selected && (
+                    <InboxReadingPane
+                        key={selected.key}
+                        item={selected}
+                        ctx={ctx}
+                        onBack={() => setShowPaneOnNarrow(false)}
+                        onOpenAwards={a => { close(); setAwards(a as AnnualAwards) }}
+                    />
+                )}
             </div>
         </div>
     )
@@ -170,13 +177,13 @@ export function InboxDrawer() {
                             variant="ghost"
                             size="sm"
                             onClick={markAllEventsAsRead}
-                            disabled={!hasCareer || counts.unreadMessages + counts.unreadNews === 0}
+                            disabled={!hasCareer || !anyUnread}
                             className="mr-8 text-xs"
                         >
                             <CheckCheck size={14} /> Mark all read
                         </Button>
                     </header>
-                    <Tabs value={tab} onValueChange={v => { setTab(v as InboxTab); setShowPaneOnNarrow(false) }} className="min-h-0 flex-1 gap-0">
+                    <Tabs value={tab} onValueChange={v => { setTab(v as InboxTab); setAnchorIndex(0); setShowPaneOnNarrow(false) }} className="min-h-0 flex-1 gap-0">
                         <TabsList className="w-full px-4">
                             {INBOX_TABS.map(t => (
                                 <TabsTrigger key={t} value={t} className="gap-2">

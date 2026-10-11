@@ -5,7 +5,6 @@ import { useShallow } from "zustand/react/shallow"
 import { ArrowLeft, Mail, MailOpen, Heart, Repeat2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PlayerPortrait } from "@/components/ui/asset-images"
-import { EmptyState } from "@/src/components/ui/EmptyState"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { useGameStore } from "@/store/game-store"
 import type { GameEventSaveData } from "@/engine/save-types"
@@ -36,7 +35,7 @@ function MessageBody({ text }: { text: string }) {
 }
 
 /** Who the message is about, with the numbers the decision touches. */
-function PlayerStrip({ playerId }: { playerId: string }) {
+function PlayerStrip({ playerId, linkLabel }: { playerId: string; linkLabel: string }) {
     const player = useGameStore(s => s.players.find(p => p.id === playerId))
     if (!player) return null
     return (
@@ -53,7 +52,7 @@ function PlayerStrip({ playerId }: { playerId: string }) {
                     <span>Loyalty <span className="font-semibold text-ink-2">{Math.round(player.loyalty ?? 0)}</span></span>
                 </div>
             </div>
-            <DrawerLink href={`/player/${player.id}`}>Profile</DrawerLink>
+            <DrawerLink href={`/player/${player.id}`}>{linkLabel}</DrawerLink>
         </div>
     )
 }
@@ -112,7 +111,7 @@ function PaneHeader({ sender, subject, meta, onBack, actions }: {
 }
 
 export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
-    item: InboxItem | null
+    item: InboxItem
     ctx: InboxContext
     onBack?: () => void
     onOpenAwards: (awards: unknown) => void
@@ -121,10 +120,6 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
         budget: s.teams.find(t => t.id === s.playerTeamId)?.budget ?? 0,
         acknowledgeEvent: s.acknowledgeEvent,
     })))
-
-    if (!item) {
-        return <EmptyState icon={Mail} title="Nothing selected" description="Pick a message on the left to read it here." framed={false} className="h-full" />
-    }
 
     if (item.source === "news" && item.news) {
         return (
@@ -179,7 +174,7 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
             />
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-5">
                 <MessageBody text={getEventBody(event, ctx)} />
-                {playerId && <PlayerStrip playerId={playerId} />}
+                {playerId && <PlayerStrip playerId={playerId} linkLabel={event.type === "CONTRACT" ? "Open contract" : "Profile"} />}
                 {item.decision === "choice" && <ChoiceDecision event={event} budget={budget} />}
                 {item.decision === "transfer_offer" && <TransferOfferDecision event={event} ctx={ctx} />}
                 {item.decision === "job_offer" && <JobOfferDecision event={event} />}

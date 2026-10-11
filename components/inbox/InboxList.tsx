@@ -27,7 +27,7 @@ function Row({ item, selected, currentWeek, onSelect }: {
                 aria-current={selected ? "true" : undefined}
                 onClick={() => onSelect(item)}
                 className={cn(
-                    "flex w-full gap-3 border-b border-line px-4 py-3 text-left transition-colors",
+                    "flex w-full gap-3 border-b border-line px-4 py-3 text-left transition-colors focus-visible:outline-offset-[-2px]!",
                     selected ? "bg-gold/[0.08] shadow-[inset_2px_0_0_var(--gold)]" : "hover:bg-raised",
                 )}
             >

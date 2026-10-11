@@ -155,7 +155,10 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
         case "CONTRACT":
             return num(data.weeksLeft) != null ? `${who}'s contract ends in ${data.weeksLeft} week${data.weeksLeft === 1 ? "" : "s"}` : data.title || `${who}'s contract`
         case "MORALE": return data.title || `${who} is unhappy`
-        case "INJURY": return data.fatigue ? `${who} is close to burnout` : `${who} injured`
+        case "INJURY":
+            if (data.fatigue) return `${who} is close to burnout`
+            if (event.id.startsWith("recovery_")) return `${who} is fit again`
+            return num(data.weeksOut) != null ? `${who} out for ${data.weeksOut} week${data.weeksOut === 1 ? "" : "s"}` : `${who} injured`
         case "win_streak": return `${data.streak ?? 3}-match win streak`
         case "loss_streak": return `${data.streak ?? 3}-match losing run`
         case "TRANSFER_OFFER":
@@ -190,6 +193,11 @@ export function getEventBody(event: GameEventSaveData, ctx: InboxContext): strin
         case "INJURY":
             if (data.fatigue) return `${who} is exhausted (fatigue ${Math.round(data.fatigue)}). Pushing on raises the injury risk.`
             return data.message || data.description || `${who} is injured${data.weeksOut ? ` and out for ${data.weeksOut} week${data.weeksOut === 1 ? "" : "s"}` : ""}.`
+        case "FAN": return data.message || "Fans are asking to see more of the team. Pick how the club responds."
+        case "SPONSOR": {
+            const n = num(data.currentSponsors)
+            return data.message || `Your sponsors want a progress review${n != null ? ` (${n} active deal${n === 1 ? "" : "s"})` : ""}. Pick how to handle it.`
+        }
         case "win_streak": return `The team has won ${data.streak ?? 3} in a row.`
         case "loss_streak": return `The team has lost ${data.streak ?? 3} in a row.`
         case "TRANSFER_OFFER": {
