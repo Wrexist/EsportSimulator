@@ -189,6 +189,12 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     const { academyHeldPlayerIds, recruitmentSalary, recruitmentBudget, affordableInvestment } = await import('../../engine/recruitment')
     const { asyncStorage, debouncedStorage } = await import('../../engine/storage-adapter')
     const { EconomyEngine } = await import('../../engine/economy-engine')
+    const { calculateBaseSkill } = await import('../../engine/player-evaluation')
+    const strengthOf: StrengthOf = (s, team) => {
+        const ratings = team.rosterIds.map(id => s.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => !!p && !p.isRetired)
+            .map(p => calculateBaseSkill(p)).sort((a, b) => b - a).slice(0, 5)
+        return ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0
+    }
     const project: FinanceProjector = (s, team) => {
         const academy = (team.youthAcademyIds || []).length + (team.managementState?.academyPlayers || []).length
         const r = EconomyEngine.processWeeklyFinances(team, s.players, s.contracts, s.staff || [], s.currentWeek, academy, { implicitGear: true })
@@ -461,6 +467,15 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     // scan would undercount busy seasons.
     const season = newSeasonTracker(snap())
     const aiEconomy = newAIEconomyTracker(snap(), teamId)
+    const rankings = newRankingTracker(snap(), teamId)
+    const startRank = playerTeam().worldRanking ?? null
+    // --record-results: every official result and a periodic club snapshot
+    // (tmp/ only), for replaying rating models offline (Phase 4.8).
+    const recordResults = flag('record-results')
+    const recordedIds = new Set(get().completedMatches.map(m => m.id))
+    const recordClubs = (s: GameSave) => fs.appendFileSync(path.join(outDir, `${tag}-clubs.jsonl`), JSON.stringify({ w: s.currentWeek, managed: teamId,
+        clubs: s.teams.map(t => [t.id, Math.round((t.elo ?? 0) * 10) / 10, t.worldRanking ?? 999, Math.round(t.reputation ?? 0), Math.round(strengthOf(s, t) * 10) / 10, t.region ?? '', t.leagueTier ?? '', t.leagueDivisionLevel ?? 0]) }) + '\n')
+    if (recordResults) recordClubs(snap())
     while (ticks < weeks && !get().gameOverReason) {
         // Mid-campaign save → load round trip through SaveManager + store.loadGame.
         if (ticks === roundTripAt) {
@@ -490,6 +505,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
             ticks += first.hashes.length
             lastIds = new Set(get().eventsLog.map(e => e.id))
             syncAIEconomyTracker(aiEconomy, snap())
+            syncRankingTracker(rankings, snap())
             continue
         }
         const t0 = Date.now()
@@ -523,19 +539,36 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         if (structural.length === 0) lastGood = structuredClone(s)
         trackSeasonWeek(season, s, teamId)
         trackAIEconomyWeek(aiEconomy, s, teamId, project)
+        trackRankingWeek(rankings, s, teamId)
+        if (recordResults) {
+            const tiers = new Map(s.tournaments.map(t => [t.id, t.tier]))
+            const rows: string[] = []
+            for (const m of s.completedMatches) {
+                if (recordedIds.has(m.id)) continue
+                recordedIds.add(m.id)
+                const r = m.result
+                if (!r) continue
+                let hr = 0, ar = 0
+                for (const x of r.maps || []) { hr += x.homeScore || 0; ar += x.awayScore || 0 }
+                const kind = !m.tournamentId || m.tournamentId === 'SCRIM' ? 'FRIENDLY' : m.tournamentId.startsWith('league_') ? 'LEAGUE' : (tiers.get(m.tournamentId) ?? 'EVENT')
+                rows.push(JSON.stringify({ w: m.week, d: m.day ?? null, id: m.id, h: m.homeTeamId, a: m.awayTeamId, win: r.winnerId ?? (r.homeScore > r.awayScore ? m.homeTeamId : m.awayTeamId), k: kind, st: m.stage ?? null, hs: r.homeScore, as: r.awayScore, hr, ar, maps: (r.maps || []).length, f: m.format ?? null }))
+            }
+            if (rows.length) fs.appendFileSync(path.join(outDir, `${tag}-results.jsonl`), rows.join('\n') + '\n')
+            if (s.currentWeek % 13 === 1) recordClubs(s)
+        }
         // --trace-ai: one row per AI club per week (debugging aid, tmp/ only).
         if (flag('trace-ai')) fs.appendFileSync(path.join(outDir, `${tag}-ai-trace.jsonl`), s.teams.filter(t => t.id !== teamId).map(t => JSON.stringify({
             w: s.currentWeek, id: t.id, rank: t.worldRanking, rep: Math.round(t.reputation ?? 0), lvl: t.leagueDivisionLevel, cash: Math.round(t.budget), net: t.weeklyNet, roster: t.rosterIds.length,
             wages: wageBillOf(s, t.id, t.rosterIds), staff: t.staffIds.length, spons: (t.sponsors || []).map(x => `${x.tier[0]}${Math.round(x.weeklyPayout)}`).join(','), adm: t.administrations ?? 0, st: t.financialState,
         })).join('\n') + '\n')
         if (get().gameOverReason && recoverFromDismissal()) { lastIds = new Set(get().eventsLog.map(e => e.id)) }
-        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push({ ...seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id), structure: seasonStructureMetrics(season, s, teamId), aiEconomy: aiEconomyMetrics(aiEconomy, s) })
-        if (ticks % 52 === 0) { Object.assign(seasonOpen, openState(s, playerTeam().budget)); income.clear(); resetSeasonTracker(season, s); resetAIEconomyTracker(aiEconomy, s, teamId) }
+        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push({ ...seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id), structure: seasonStructureMetrics(season, s, teamId), aiEconomy: aiEconomyMetrics(aiEconomy, s), rankings: rankingMetrics(rankings, s, teamId, strengthOf) })
+        if (ticks % 52 === 0) { Object.assign(seasonOpen, openState(s, playerTeam().budget)); income.clear(); resetSeasonTracker(season, s); resetAIEconomyTracker(aiEconomy, s, teamId); resetRankingTracker(rankings, s, teamId) }
         if (ticks % 26 === 0) process.stdout.write(`${tag} tick ${ticks} week ${s.currentWeek} cash ${Math.round(playerTeam().budget)} failures ${failures.length} avgMs ${Math.round(tickMs.slice(-26).reduce((a, b) => a + b, 0) / 26)}\n`)
     }
     const final = snap()
     const result = {
-        seed, tier, policyName, openingActive, club: club.id, clubName: club.name, seasonsRequested: seasons, ticks, finalWeek: final.currentWeek,
+        seed, tier, policyName, openingActive, startRank, club: club.id, clubName: club.name, seasonsRequested: seasons, ticks, finalWeek: final.currentWeek,
         terminal: final.gameOverReason ?? null, failures, failureKinds: [...new Set(failures.map(f => f.kind))],
         policy: policyStats, jobChanges, dismissals, roundTrip, inboxPerWeek: distribution(inboxPerWeek), inboxMax: Math.max(0, ...inboxPerWeek), inboxByType,
         tickMs: distribution(tickMs), seasons: seasonsOut, finalHash: sha(canonicalWeekState(final)),
@@ -771,6 +804,218 @@ export function aiEconomyMetrics(t: AIEconomyTracker, s: GameSave) {
         byDivisionLevel: Object.fromEntries(Object.entries(group(r => String(r.level))).sort().map(([k, v]) => [k, summarise(v)])),
         worstClubs: [...rows].sort((a, b) => (a.endBudget - a.startBudget) - (b.endBudget - b.startBudget)).slice(0, 8)
             .map(r => ({ id: r.id, tier: r.tier, region: r.region, level: r.level, cashDelta: round(r.endBudget - r.startBudget), startWages: r.startWages, endWages: r.endWages, administrations: r.administrations, flows: Object.fromEntries(Object.entries(r.flows).map(([k, v]) => [k, round(v)])) })),
+    }
+}
+
+// ---------------------------------------------------------------- rankings (Phase 4.8)
+/** Squad strength of a club (mean of its five best players by the projector's rating). */
+export type StrengthOf = (s: GameSave, team: GameSave['teams'][number]) => number
+
+const SPONSOR_TIERS = ['ELITE', 'PREMIUM', 'STANDARD'] as const
+const LEAGUE_TIER_KEYS = ['S_TIER', 'A_TIER', 'B_TIER', 'C_TIER'] as const
+
+/**
+ * World-ranking stability over a career (Phase 4.8): weekly rank movement of
+ * the clubs that opened the career in the top 20 (AI clubs only), Elo pool
+ * level and spread, league tier counts, sponsor tiers held and premium/elite
+ * eligibility flips (rank crossing 30 or 10), and the managed club's path.
+ */
+export interface RankingTracker {
+    top10: string[]
+    top20: string[]
+    /** AI top 10 at the start of the current season ("over a season" retention). */
+    seasonTop10: string[]
+    lastRank: Map<string, number>
+    /** |rank change| per snapshot top-20 club per week, this season. */
+    weeklyTop20: number[]
+    /** |rank change| per club per week (all clubs), this season. */
+    weeklyAll: number[]
+    top10OutsideTop30Weeks: number
+    start: { elo: ReturnType<typeof eloStats>; tiers: Record<string, number>; sponsorTiers: Map<string, Set<string>>; week: number }
+    tierMin: Record<string, number>
+    tierMax: Record<string, number>
+    premiumFlips: number
+    eliteFlips: number
+    weeks: number
+    managedPath: Array<[number, number]>
+    eloMeanPath: Array<[number, number]>
+}
+
+function eloStats(s: GameSave) {
+    const elos = s.teams.map(t => t.elo ?? NaN).filter(Number.isFinite)
+    const mean = elos.reduce((a, b) => a + b, 0) / Math.max(1, elos.length)
+    const sd = Math.sqrt(elos.reduce((a, b) => a + (b - mean) ** 2, 0) / Math.max(1, elos.length))
+    const d = distribution(elos)
+    const sorted = [...elos].sort((a, b) => b - a)
+    return { mean: Math.round(mean * 10) / 10, sd: Math.round(sd * 10) / 10, min: d.min, p10: d.p10, median: d.median, p90: d.p90, max: d.max, top20Spread: sorted.length >= 20 ? Math.round(sorted[0] - sorted[19]) : null }
+}
+
+function tierCounts(s: GameSave): Record<string, number> {
+    const out: Record<string, number> = Object.fromEntries(LEAGUE_TIER_KEYS.map(k => [k, 0]))
+    for (const t of s.teams) out[t.leagueTier ?? 'NONE'] = (out[t.leagueTier ?? 'NONE'] ?? 0) + 1
+    return out
+}
+
+const sponsorTiersOf = (s: GameSave, teamId: string) => new Map(s.teams.filter(t => t.id !== teamId).map(t => [t.id, new Set((t.sponsors || []).map(x => String(x.tier)))]))
+
+export function newRankingTracker(s: GameSave, teamId: string): RankingTracker {
+    const ai = s.teams.filter(t => t.id !== teamId).sort((a, b) => (a.worldRanking ?? 999) - (b.worldRanking ?? 999) || a.id.localeCompare(b.id))
+    const t: RankingTracker = {
+        top10: ai.slice(0, 10).map(x => x.id), top20: ai.slice(0, 20).map(x => x.id), seasonTop10: [], lastRank: new Map(),
+        weeklyTop20: [], weeklyAll: [], top10OutsideTop30Weeks: 0,
+        start: { elo: eloStats(s), tiers: tierCounts(s), sponsorTiers: sponsorTiersOf(s, teamId), week: s.currentWeek },
+        tierMin: {}, tierMax: {}, premiumFlips: 0, eliteFlips: 0, weeks: 0, managedPath: [], eloMeanPath: [],
+    }
+    resetRankingTracker(t, s, teamId)
+    return t
+}
+
+export function resetRankingTracker(t: RankingTracker, s: GameSave, teamId: string): void {
+    t.weeklyTop20 = []; t.weeklyAll = []; t.top10OutsideTop30Weeks = 0; t.premiumFlips = 0; t.eliteFlips = 0; t.weeks = 0
+    t.seasonTop10 = s.teams.filter(x => x.id !== teamId).sort((a, b) => (a.worldRanking ?? 999) - (b.worldRanking ?? 999) || a.id.localeCompare(b.id)).slice(0, 10).map(x => x.id)
+    t.start = { elo: eloStats(s), tiers: tierCounts(s), sponsorTiers: sponsorTiersOf(s, teamId), week: s.currentWeek }
+    t.tierMin = { ...t.start.tiers }; t.tierMax = { ...t.start.tiers }
+    t.managedPath = []; t.eloMeanPath = []
+    syncRankingTracker(t, s)
+}
+
+/** Weeks the tracker did not see (the save/load round trip): continue from the current ranks. */
+export function syncRankingTracker(t: RankingTracker, s: GameSave): void {
+    t.lastRank = new Map(s.teams.map(x => [x.id, x.worldRanking ?? 999]))
+}
+
+export function trackRankingWeek(t: RankingTracker, s: GameSave, teamId: string): void {
+    const top20 = new Set(t.top20), top10 = new Set(t.top10)
+    for (const team of s.teams) {
+        const now = team.worldRanking ?? 999, before = t.lastRank.get(team.id)
+        if (before === undefined) continue
+        const d = Math.abs(now - before)
+        t.weeklyAll.push(d)
+        if (top20.has(team.id)) t.weeklyTop20.push(d)
+        if (top10.has(team.id) && now > 30) t.top10OutsideTop30Weeks++
+        if (team.id !== teamId) {
+            if ((before <= 30) !== (now <= 30)) t.premiumFlips++
+            if ((before <= 10) !== (now <= 10)) t.eliteFlips++
+        }
+    }
+    const tiers = tierCounts(s)
+    for (const [k, v] of Object.entries(tiers)) { t.tierMin[k] = Math.min(t.tierMin[k] ?? v, v); t.tierMax[k] = Math.max(t.tierMax[k] ?? v, v) }
+    t.weeks++
+    const managed = s.teams.find(x => x.id === teamId)?.worldRanking
+    if (t.weeks % 4 === 0) {
+        if (managed !== undefined) t.managedPath.push([s.currentWeek, managed])
+        t.eloMeanPath.push([s.currentWeek, eloStats(s).mean])
+    }
+    syncRankingTracker(t, s)
+}
+
+function spearman(xs: number[], ys: number[]): number {
+    const rank = (v: number[]) => { const order = v.map((x, i) => [x, i] as const).sort((a, b) => a[0] - b[0]); const r = new Array<number>(v.length); order.forEach(([, i], k) => { r[i] = k }); return r }
+    const a = rank(xs), b = rank(ys), n = xs.length
+    if (n < 3) return NaN
+    const ma = a.reduce((p, q) => p + q, 0) / n, mb = b.reduce((p, q) => p + q, 0) / n
+    let num = 0, da = 0, db = 0
+    for (let i = 0; i < n; i++) { num += (a[i] - ma) * (b[i] - mb); da += (a[i] - ma) ** 2; db += (b[i] - mb) ** 2 }
+    return Math.round(num / Math.sqrt(da * db) * 1000) / 1000
+}
+
+export function rankingMetrics(t: RankingTracker, s: GameSave, teamId: string, strengthOf: StrengthOf) {
+    const byId = new Map(s.teams.map(x => [x.id, x]))
+    const rankOf = (id: string) => byId.get(id)?.worldRanking ?? 999
+    const endSponsors = sponsorTiersOf(s, teamId)
+    const heldBy = (m: Map<string, Set<string>>, tier: string) => [...m.values()].filter(set => set.has(tier)).length
+    const lostPremiumOrElite = t.top20.filter(id => {
+        const a = t.start.sponsorTiers.get(id), b = endSponsors.get(id)
+        const had = !!a && (a.has('ELITE') || a.has('PREMIUM')), has = !!b && (b.has('ELITE') || b.has('PREMIUM'))
+        return had && !has
+    }).length
+    const ai = s.teams.filter(x => x.id !== teamId)
+    const strength = ai.map(x => strengthOf(s, x))
+    const strengthRank = new Map([...ai.map((x, i) => [x.id, strength[i]] as const)].sort((a, b) => b[1] - a[1]).map(([id], i) => [id, i + 1]))
+    const seasonFallers = t.seasonTop10.filter(id => rankOf(id) > 30)
+    return {
+        weeks: t.weeks,
+        weeklyRankChangeTop20: distribution(t.weeklyTop20),
+        weeklyRankChangeAll: distribution(t.weeklyAll),
+        top10EndRanks: t.top10.map(rankOf),
+        top20EndRanks: t.top20.map(rankOf),
+        top10OutsideTop30AtEnd: t.top10.filter(id => rankOf(id) > 30).length,
+        // Retention over this season: the AI top 10 at season start, at season end.
+        seasonTop10EndRanks: t.seasonTop10.map(rankOf),
+        seasonTop10OutsideTop30AtEnd: seasonFallers.length,
+        // ...of which the squad is still top-30 strength (a fall the squad does not explain).
+        seasonTop10FallsWithTop30Squad: seasonFallers.filter(id => (strengthRank.get(id) ?? 999) <= 30).length,
+        top10OutsideTop30Weeks: t.top10OutsideTop30Weeks,
+        top20InTop30AtEnd: t.top20.filter(id => rankOf(id) <= 30).length,
+        elo: { start: t.start.elo, end: eloStats(s), meanPath: t.eloMeanPath },
+        tiers: { start: t.start.tiers, end: tierCounts(s), min: t.tierMin, max: t.tierMax },
+        sponsors: {
+            start: Object.fromEntries(SPONSOR_TIERS.map(k => [k, heldBy(t.start.sponsorTiers, k)])),
+            end: Object.fromEntries(SPONSOR_TIERS.map(k => [k, heldBy(endSponsors, k)])),
+            top20LostPremiumOrElite: lostPremiumOrElite,
+            premiumEligibilityFlipsPerWeek: Math.round(t.premiumFlips / Math.max(1, t.weeks) * 100) / 100,
+            eliteEligibilityFlipsPerWeek: Math.round(t.eliteFlips / Math.max(1, t.weeks) * 100) / 100,
+        },
+        // Spearman between world rank and squad-strength rank (1 = rank order is strength order).
+        rankVsStrength: spearman(ai.map(x => x.worldRanking ?? 999), strength.map(v => -v)),
+        managed: { rank: byId.get(teamId)?.worldRanking ?? null, best: Math.min(...t.managedPath.map(p => p[1]), byId.get(teamId)?.worldRanking ?? 999), path: t.managedPath, tier: byId.get(teamId)?.leagueTier ?? null },
+    }
+}
+
+/** Phase 4.8 summary: ranking volatility, Elo pool, tier counts and sponsor churn per season. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function rankingSummary(results: any[], seasonsAll: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ss = seasonsAll.filter((s: any) => s.rankings)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const maxSeasons = Math.max(0, ...results.map((r: any) => r.seasons.length))
+    const tiers = LEAGUE_TIER_KEYS
+    return {
+        bySeason: Array.from({ length: maxSeasons }, (_, i) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const list = ss.filter((s: any) => s.index === i + 1).map((s: any) => s.rankings)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const pick = (fn: (r: any) => number) => distribution(list.map(fn))
+            return {
+                season: i + 1, careers: list.length,
+                weeklyRankChangeTop20: { median: pick(r => r.weeklyRankChangeTop20.median), p90: pick(r => r.weeklyRankChangeTop20.p90), max: pick(r => r.weeklyRankChangeTop20.max) },
+                weeklyRankChangeAll: { median: pick(r => r.weeklyRankChangeAll.median), p90: pick(r => r.weeklyRankChangeAll.p90) },
+                top10OutsideTop30AtEnd: pick(r => r.top10OutsideTop30AtEnd),
+                seasonTop10OutsideTop30AtEnd: pick(r => r.seasonTop10OutsideTop30AtEnd ?? NaN),
+                seasonTop10FallsWithTop30Squad: pick(r => r.seasonTop10FallsWithTop30Squad ?? NaN),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                seasonTop10EndRanks: distribution(list.flatMap((r: any) => r.seasonTop10EndRanks ?? [])),
+                top10OutsideTop30Weeks: pick(r => r.top10OutsideTop30Weeks),
+                top20InTop30AtEnd: pick(r => r.top20InTop30AtEnd),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                top10EndRanks: distribution(list.flatMap((r: any) => r.top10EndRanks)),
+                eloMean: { start: pick(r => r.elo.start.mean), end: pick(r => r.elo.end.mean) },
+                eloSd: { start: pick(r => r.elo.start.sd), end: pick(r => r.elo.end.sd) },
+                eloMax: { start: pick(r => r.elo.start.max), end: pick(r => r.elo.end.max) },
+                eloMin: { start: pick(r => r.elo.start.min), end: pick(r => r.elo.end.min) },
+                eloTop20Spread: { start: pick(r => r.elo.start.top20Spread), end: pick(r => r.elo.end.top20Spread) },
+                tierCountsStart: Object.fromEntries(tiers.map(k => [k, pick(r => r.tiers.start[k] ?? 0).median])),
+                tierCountsEnd: Object.fromEntries(tiers.map(k => [k, pick(r => r.tiers.end[k] ?? 0).median])),
+                tierCountRangeInSeason: Object.fromEntries(tiers.map(k => [k, [pick(r => r.tiers.min[k] ?? 0).min, pick(r => r.tiers.max[k] ?? 0).max]])),
+                sponsorTiersHeldStart: Object.fromEntries(SPONSOR_TIERS.map(k => [k, pick(r => r.sponsors.start[k]).median])),
+                sponsorTiersHeldEnd: Object.fromEntries(SPONSOR_TIERS.map(k => [k, pick(r => r.sponsors.end[k]).median])),
+                top20LostPremiumOrElite: pick(r => r.sponsors.top20LostPremiumOrElite),
+                premiumEligibilityFlipsPerWeek: pick(r => r.sponsors.premiumEligibilityFlipsPerWeek),
+                eliteEligibilityFlipsPerWeek: pick(r => r.sponsors.eliteEligibilityFlipsPerWeek),
+                rankVsStrength: pick(r => r.rankVsStrength),
+            }
+        }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        managed: results.map((r: any) => ({
+            seed: r.seed, tier: r.tier, club: r.club,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            rankBySeason: r.seasons.map((s: any) => s.rankings?.managed.rank ?? s.managed.ranking),
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            bestBySeason: r.seasons.map((s: any) => s.rankings?.managed.best ?? null),
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            winRateBySeason: r.seasons.map((s: any) => s.managed.matches ? Math.round(s.managed.wins / s.managed.matches * 1000) / 1000 : null),
+            startRank: r.startRank ?? null,
+        })),
     }
 }
 
@@ -1031,6 +1276,8 @@ function aggregate() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(summary as any).aiEconomy = aiEconomySummary(results, seasonsAll)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(summary as any).rankings = rankingSummary(results, seasonsAll)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(summary as any).sponsorToWageRatio = distribution(seasonsAll.map((s: any) => (s.managed.ledger['INCOME:SPONSOR'] ?? 0) / Math.max(1, (s.managed.ledger['EXPENSE:WAGES_PLAYER'] ?? 0) + (s.managed.ledger['EXPENSE:WAGES_STAFF'] ?? 0))))
     summary.managedIncomeByCategory = Object.fromEntries(Object.entries(summary.managedIncomeByCategory).map(([k, v]) => [k, distribution(v) as unknown as number[]]))
     const evidence = path.resolve(root, arg('out', path.join('docs/launch-readiness/evidence', `long-career-${today}.json`)))
@@ -1047,7 +1294,7 @@ async function orchestrate() {
     const cli = path.join(root, 'node_modules/tsx/dist/cli.mjs')
     const runOne = (seed: number) => new Promise<void>(resolve => {
         const log = fs.createWriteStream(path.join(outDir, `seed-${seed}.log`))
-        const child = spawn(process.execPath, ['--max-old-space-size=3072', cli, __filename, '--worker', `--seed=${seed}`, `--seasons=${seasons}`, `--label=${label}`, `--policy=${policyName}`], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
+        const child = spawn(process.execPath, ['--max-old-space-size=3072', cli, __filename, '--worker', `--seed=${seed}`, `--seasons=${seasons}`, `--label=${label}`, `--policy=${policyName}`, ...(flag('record-results') ? ['--record-results'] : [])], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
         child.stdout.on('data', d => { log.write(d); if (/done|tick \d*0[48] /.test(String(d))) process.stdout.write(String(d)) })
         child.stderr.on('data', d => log.write(d))
         child.on('exit', code => { log.end(); if (code) process.stdout.write(`seed ${seed} exited ${code} (see ${path.relative(root, path.join(outDir, `seed-${seed}.log`))})\n`); resolve() })

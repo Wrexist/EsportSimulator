@@ -7,7 +7,7 @@
  * after, and append the attributed entries to the tracker.
  */
 
-import { diffClubs, snapshotClub, type ChangeCause, type ClubSource } from "@/lib/week-changes"
+import { diffClubs, snapshotClub, type ChangeCause, type ChangeEntry, type ClubSource } from "@/lib/week-changes"
 import { appendTrackerChanges, newTracker, type WeekReportsState, type WeekTracker } from "@/lib/week-report"
 
 export interface TrackingState extends ClubSource {
@@ -39,13 +39,15 @@ type SetFn = (partial: Record<string, unknown> | ((draft: TrackingState) => void
 /**
  * Wrap a store action so the managed-club changes it makes are recorded with
  * `causeOf` (evaluated after the action, so it can read the result).
- * Async actions are recorded when their promise settles.
+ * `refine` may rewrite the attributed entries (e.g. split a rank change into
+ * own and other results). Async actions are recorded when their promise settles.
  */
 export function recordWeekChanges<A extends unknown[], R>(
     get: () => TrackingState,
     set: SetFn,
     action: (...args: A) => R,
     causeOf: (state: TrackingState, ...args: A) => ChangeCause | null,
+    refine?: (entries: ChangeEntry[], start: TrackingState, now: TrackingState) => ChangeEntry[],
 ): (...args: A) => R {
     return (...args: A): R => {
         const start = get()
@@ -61,7 +63,8 @@ export function recordWeekChanges<A extends unknown[], R>(
             if (now.playerTeamId !== teamId || now.saveId !== start.saveId) return
             const cause = causeOf(now, ...args)
             if (!cause) return
-            const entries = diffClubs(before, snapshotClub(now, teamId), cause)
+            const diff = diffClubs(before, snapshotClub(now, teamId), cause)
+            const entries = refine ? refine(diff, start, now) : diff
             if (entries.length === 0) return
             set(draft => {
                 const tracker = draft.weekReports?.tracker

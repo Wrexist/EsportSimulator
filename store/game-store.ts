@@ -114,6 +114,7 @@ import { createTransferContractSlice } from "@/store/slices/transfer-contract-sl
 import { createAcademySlice } from "@/store/slices/academy-slice"
 import { createAdvanceSlice, initialAdvanceState, isContinueStepping, type AdvanceState, type AdvanceActions } from "@/store/slices/advance-slice"
 import { WeekChangeRecorder, diffClubs, sideScore, snapshotClub, type ChangeCause, type ChangeEntry } from "@/lib/week-changes"
+import { competitionLabel, splitLiveRankEntries } from "@/engine/ranking-report"
 import { buildWeekReport, newTracker, pushWeekReport, sanitizeWeekReports } from "@/lib/week-report"
 import { recordWeekChanges, withTracker, type TrackingState } from "@/store/utils/week-tracking"
 import { getEventTitle } from "@/lib/event-format"
@@ -217,13 +218,6 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
   const findTeam = (id: string) => localTeams.get(id)
   const findPlayer = (id: string) => localPlayers.get(id)
 
-  // Pre-match games-played per team (for the Elo K-factor calibration window),
-  // taken before this loop's sims so each match reads its true prior count.
-  const matchesPlayedByTeam = new Map<string, number>()
-  for (const cm of state.completedMatches) {
-    matchesPlayedByTeam.set(cm.homeTeamId, (matchesPlayedByTeam.get(cm.homeTeamId) || 0) + 1)
-    matchesPlayedByTeam.set(cm.awayTeamId, (matchesPlayedByTeam.get(cm.awayTeamId) || 0) + 1)
-  }
   const pushForm = (team: TeamSaveData, outcome: "W" | "L" | "D") => {
     if (!team.recentForm) team.recentForm = []
     team.recentForm.push(outcome)
@@ -320,9 +314,10 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
         loserId,
         scoreDiff,
         tournamentTier,
-        matchesPlayedByTeam.get(winnerId) || 0,
-        matchesPlayedByTeam.get(loserId) || 0,
-        roundDiff
+        undefined,
+        undefined,
+        roundDiff,
+        { tournamentId: match.tournamentId, stage: match.stage, maps: result.maps.length },
       )
       if (eloResult) {
         completedMatch.eloChange = {
@@ -331,8 +326,6 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
         }
       }
     }
-    matchesPlayedByTeam.set(homeTeam.id, (matchesPlayedByTeam.get(homeTeam.id) || 0) + 1)
-    matchesPlayedByTeam.set(awayTeam.id, (matchesPlayedByTeam.get(awayTeam.id) || 0) + 1)
 
     if (match.tournamentId && match.tournamentId !== "SCRIM") {
       const winnerId =
@@ -812,7 +805,7 @@ function weekRecordedActions(set: unknown, get: unknown) {
     const isHome = m.homeTeamId === state.playerTeamId
     const opp = state.teams.find(t => t.id === (isHome ? m.awayTeamId : m.homeTeamId))?.name ?? "opponent"
     const won = m.result.winnerId === state.playerTeamId
-    return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${sideScore(m.result, isHome)}` }
+    return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${sideScore(m.result, isHome)}${competitionLabel(state, m)}` }
   }
 
   const sim = slice(createMatchSimulationSlice as never) as ReturnType<typeof createMatchSimulationSlice>
@@ -823,7 +816,10 @@ function weekRecordedActions(set: unknown, get: unknown) {
   const transfers = slice(createTransferContractSlice as never) as ReturnType<typeof createTransferContractSlice>
 
   return {
-    saveMatchResult: recordWeekChanges(g, s, sim.saveMatchResult, (st, matchId: string) => matchCause(st, matchId)),
+    // The ranking refreshes after the managed match: its rank move is split
+    // into this result and other clubs' results since the last refresh.
+    saveMatchResult: recordWeekChanges(g, s, sim.saveMatchResult, (st, matchId: string) => matchCause(st, matchId),
+      (entries, start, now) => now.playerTeamId ? splitLiveRankEntries(entries, store(start), store(now), now.playerTeamId) : entries),
     runTeamDrill: recordWeekChanges(g, s, drills.runTeamDrill, (_st, drillId: string) =>
       ({ type: "training", label: `Drill: ${drillCatalog.find(d => d.id === drillId)?.name ?? "team drill"}` })),
     resolveEventChoice: recordWeekChanges(g, s, events.resolveEventChoice, (st, eventId: string, choiceId: string) => {
