@@ -111,6 +111,17 @@ describe("day within the week (daily mode)", () => {
         expect(store().currentDay).toBe(2)
     })
 
+    test("switching to daily mode is saved with its day cursor", async () => {
+        const save = daily("persist_day_mode")
+        save.timeMode = "WEEKLY"
+        save.currentDay = 6
+        await open(save)
+        store().setTimeMode("HYBRID_DAILY")
+        await reload()
+        expect(store().timeMode).toBe("HYBRID_DAILY")
+        expect(store().currentDay).toBe(0)
+    })
+
     test("skipping to match day is saved", async () => {
         await open(daily("persist_day_matchday", 4))
         await store().advanceToWeekEnd()

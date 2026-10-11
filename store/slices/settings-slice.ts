@@ -78,7 +78,8 @@ export const createSettingsSlice: SliceCreator<SettingsActions> = (set, get) => 
 
   setGameSpeed: (speed) => set({ gameSpeed: speed }),
 
-  setTimeMode: (mode) =>
+  setTimeMode: (mode) => {
+    const changed = get().timeMode !== mode
     set((state) => {
       const wasMode = state.timeMode
       state.timeMode = mode
@@ -88,7 +89,10 @@ export const createSettingsSlice: SliceCreator<SettingsActions> = (set, get) => 
       } else {
         state.currentDay = 6
       }
-    }),
+    })
+    // The mode and its day cursor are career state: saved at once, like a day step.
+    if (changed && get().isInitialized && get().saveId) void get().saveGame?.()?.catch(() => { /* surfaced by saveGame */ })
+  },
 
   setDifficulty: (difficulty) => set({ difficulty }),
 
