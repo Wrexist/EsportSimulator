@@ -7,8 +7,8 @@
  *    tier starts with the same runway in weeks rather than a flat sum that
  *    made small clubs rich and gave nobody a reason to budget.
  *  - AI cost control (Phase 4.6, engine/ai/club-budget.ts): an AI club
- *    running a deficit releases bench wages, then staff, then swaps an
- *    overpaid starter for a cheaper free agent.
+ *    running a deficit or in debt releases bench wages, then staff, closes
+ *    facility levels and swaps an overpaid starter for a cheaper player.
  *  - AI administration: an AI club that stays insolvent for as many weeks as
  *    it takes the managed club to go bankrupt is put into administration. It
  *    sheds its bench and staff, closes its academy, brings its wage bill

@@ -10,10 +10,11 @@
  *    income in hand. Before, signings only needed 26 weeks of cash against
  *    the deficit they created, so clubs knowingly signed into a deficit and
  *    ran out of money in season 2.
- *  - Cost control: a club running a weekly deficit releases its
- *    highest-paid bench player (one a week, as the competent managed policy
- *    does), then lets staff go while its runway is short, then swaps its
- *    most overpaid starter for a cheaper free agent.
+ *  - Cost control: a club running a weekly deficit (or in debt) releases
+ *    its highest-paid bench player (one a week, as the competent managed
+ *    policy does), then, while its runway is under a season, lets staff go,
+ *    closes facility levels and swaps its most overpaid starter for a
+ *    cheaper free agent or a minimum-wage trialist.
  *  - Roster viability is a hard invariant: an AI club below five senior
  *    players signs free agents it can afford, then promotes its own
  *    academy, then signs the cheapest free agents on credit, and as a last
