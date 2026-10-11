@@ -92,7 +92,7 @@ export function TopBar() {
                 {!hideCareerControls && (
                     <Link href="/" className="topbar-club flex min-w-0 shrink-0 items-center gap-2.5 pr-2" aria-label="Club overview">
                         <span className="flex h-9 w-9 items-center justify-center">
-                            {isMounted ? <TeamLogoDisplay team={playerTeam} size={32} /> : <span className="h-8 w-8 rounded bg-white/5" />}
+                            {isMounted ? <TeamLogoDisplay team={playerTeam} size={32} /> : <span className="h-8 w-8 rounded bg-raised" />}
                         </span>
                         <span className="topbar-club-name max-w-[160px] truncate font-display text-[19px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1" title={playerTeam?.name}>
                             {isMounted ? (playerTeam?.name || "No Team") : "Loading..."}

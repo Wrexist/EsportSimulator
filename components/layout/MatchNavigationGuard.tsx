@@ -109,7 +109,7 @@ export function MatchNavigationGuard() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 top-16 z-modal bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
+                    className="fixed inset-0 top-16 z-modal bg-ink/90 flex items-center justify-center p-4"
                 >
                     <motion.div
                         initial={{ scale: 0.9, y: 20 }}
@@ -118,24 +118,22 @@ export function MatchNavigationGuard() {
                         role="alertdialog"
                         aria-modal="true"
                         aria-labelledby="modal-title-match-guard"
-                        className="bg-[#0e1217] border border-white/10 rounded-3xl p-8 max-w-md w-full max-h-[calc(100dvh-6rem)] overflow-y-auto text-center shadow-2xl relative"
+                        className="bg-panel border border-line-strong rounded-[10px] p-8 max-w-md w-full max-h-[calc(100dvh-6rem)] overflow-y-auto text-center relative"
                     >
-                        {/* Ambient Background */}
-                        <div className="absolute top-0 inset-x-0 h-32 bg-red-500/10 blur-3xl pointer-events-none" />
 
-                        <div className="w-16 h-16 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-6">
+                        <div className="w-16 h-16 rounded-lg bg-negative/10 text-negative flex items-center justify-center mx-auto mb-6">
                             <Lock size={32} />
                         </div>
 
-                        <h2 id="modal-title-match-guard" className="text-2xl font-normal text-white mb-2 uppercase tracking-tight">Match in Progress</h2>
-                        <p className="text-muted-foreground mb-8">
+                        <h2 id="modal-title-match-guard" className="font-display text-2xl font-bold text-ink-1 mb-2 uppercase">Match in Progress</h2>
+                        <p className="text-ink-2 mb-8">
                             You cannot leave the match area while a game is active. Please complete the match or simulate the result.
                         </p>
 
                         <Button
                             onClick={handleReturnToMatch}
                             size="lg"
-                            className="w-full h-14 bg-red-500 hover:bg-red-600 text-white font-normal uppercase tracking-widest rounded-xl shadow-lg shadow-red-500/20"
+                            className="w-full h-12"
                         >
                             Return to Match
                         </Button>

@@ -336,7 +336,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         // opacity/colour loops that `reducedMotion="always"` alone leaves
         // running — jumps straight to its final value via skipAnimations.
         <MotionConfig reducedMotion={reducedMotion ? "always" : "user"} skipAnimations={motionReduced}>
-        <div data-route={pathname} data-premium-ui={!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev')} className={`premium-app relative isolate flex h-dvh liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-cyan-500/30 ${theme === "onyx" ? "onyx" : ""}`}>
+        <div data-route={pathname} data-premium-ui={!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev')} className={`premium-app relative isolate flex h-dvh liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-gold/30 ${theme === "onyx" ? "onyx" : ""}`}>
             {/* Static light field behind the floating chrome. */}
             <div className="liquid-aurora" />
             {!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev') && <div aria-hidden="true" className="premium-atmosphere" style={{ backgroundImage: `url("${routeAtmosphere(pathname || '/')}")` }} />}

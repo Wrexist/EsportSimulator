@@ -100,10 +100,10 @@ export function ConfirmDialog({
                     <div className="flex items-center gap-3">
                         {Icon && (
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${destructive
-                                    ? 'bg-red-500/20 border border-red-500/50'
-                                    : 'bg-amber-500/20 border border-amber-500/50'
+                                    ? 'bg-negative/15 border border-negative/50'
+                                    : 'bg-caution/15 border border-caution/50'
                                 }`}>
-                                <Icon className={`w-5 h-5 ${destructive ? 'text-red-500' : 'text-amber-500'}`} />
+                                <Icon className={`w-5 h-5 ${destructive ? 'text-negative' : 'text-caution'}`} />
                             </div>
                         )}
                         <AlertDialogTitle className="text-xl">{title}</AlertDialogTitle>

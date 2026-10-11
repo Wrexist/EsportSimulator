@@ -36,22 +36,22 @@ export function WeekProcessingOverlay() {
   if (isLoading) {
     return (
       <div
-        className="fixed inset-0 z-overlay flex items-center justify-center bg-black/70 backdrop-blur-md"
+        className="fixed inset-0 z-overlay flex items-center justify-center bg-ink/85"
         role="alert"
         aria-live="assertive"
         aria-label="Processing week advancement"
       >
-        <div className="esm-pop flex w-[340px] flex-col items-center gap-6 rounded-2xl liquid-panel p-8">
+        <div className="esm-pop flex w-[340px] flex-col items-center gap-6 rounded-[10px] border border-line-strong bg-panel p-8">
           {/* Rotating ring */}
           <div className="relative h-16 w-16">
             <div className="esm-ring absolute inset-0 rounded-full" />
-            <div className="absolute inset-[6px] rounded-full border border-white/10" />
+            <div className="absolute inset-[6px] rounded-full border border-line" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-cyan-200" />
+              <Sparkles className="h-5 w-5 text-gold" />
             </div>
           </div>
 
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/80">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-ink-1">
             Advancing week
           </p>
 
@@ -62,8 +62,8 @@ export function WeekProcessingOverlay() {
               const state = i < current ? "done" : i === current ? "current" : "pending"
               return (
                 <li key={stage.phase} className="flex items-center gap-3" aria-current={state === "current" ? "step" : undefined}>
-                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${state === "pending" ? "bg-white/20" : "bg-cyan-300"} ${state === "current" ? "esm-stage-dot" : ""}`} />
-                  <span className={`text-xs font-medium ${state === "current" ? "text-white" : state === "done" ? "text-white/60" : "text-white/35"}`}>
+                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${state === "pending" ? "bg-hover" : "bg-gold"} ${state === "current" ? "esm-stage-dot" : ""}`} />
+                  <span className={`text-xs font-medium ${state === "current" ? "text-ink-1" : state === "done" ? "text-ink-2" : "text-ink-3"}`}>
                     {stage.label}{state === "done" ? " (done)" : ""}
                   </span>
                 </li>
@@ -72,20 +72,20 @@ export function WeekProcessingOverlay() {
           </ol>
 
           {/* Indeterminate bar */}
-          <div className="relative h-1 w-full overflow-hidden rounded-full bg-white/6">
-            <div className="esm-bar absolute inset-y-0 w-1/3 rounded-full bg-linear-to-r/srgb from-cyan-400 to-blue-500" />
+          <div className="relative h-1 w-full overflow-hidden rounded-full bg-raised">
+            <div className="esm-bar absolute inset-y-0 w-1/3 rounded-full bg-gold" />
           </div>
 
           {continueRun && (
-            <div className="flex w-full items-center justify-between gap-3 border-t border-white/10 pt-4">
-              <span className="text-xs text-white/60">
+            <div className="flex w-full items-center justify-between gap-3 border-t border-line pt-4">
+              <span className="text-xs text-ink-2">
                 Continuing to your next decision{continueRun.weeksDone > 0 ? ` · ${continueRun.weeksDone} week${continueRun.weeksDone === 1 ? "" : "s"} done` : ""}
               </span>
               <button
                 type="button"
                 onClick={cancelContinue}
                 disabled={continueRun.cancelRequested}
-                className="shrink-0 rounded-md border border-white/15 px-2.5 py-1 text-xs font-semibold text-white/85 hover:bg-white/10 disabled:opacity-50"
+                className="shrink-0 rounded-md border border-line-strong px-2.5 py-1 text-xs font-semibold text-ink-1 hover:bg-hover disabled:opacity-50"
               >
                 {continueRun.cancelRequested ? "Stopping…" : "Stop after this week"}
               </button>

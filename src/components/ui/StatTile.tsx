@@ -25,15 +25,15 @@ const VALUE_CLASS: Record<StatTileSize, string> = {
 }
 
 const TONE_CLASS: Record<StatTileTone, string> = {
-  default: "text-white",
-  success: "text-emerald-400",
-  warning: "text-amber-400",
-  danger: "text-rose-400",
-  brand: "text-primary",
+  default: "text-ink-1",
+  success: "text-positive",
+  warning: "text-caution",
+  danger: "text-negative",
+  brand: "text-gold",
 }
 
 /**
- * StatTile — a small glass-style box showing one metric: value + label.
+ * StatTile — one metric on a v2 panel surface: overline label + display-face value.
  * Replaces the ad-hoc `<div className="glass-panel px-6 py-3 rounded-2xl">...<span>Label</span><span>Value</span></div>` pattern.
  */
 export function StatTile({
@@ -46,19 +46,19 @@ export function StatTile({
   className,
 }: StatTileProps) {
   const labelNode = (
-    <span className="text-[10px] font-normal text-muted-foreground uppercase tracking-widest block">
+    <span className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
       {label}
     </span>
   )
   const valueNode = (
-    <span className={cn("font-normal leading-none tabular-nums", VALUE_CLASS[size], TONE_CLASS[tone])}>
+    <span className={cn("font-display font-bold leading-none tabular-nums", VALUE_CLASS[size], TONE_CLASS[tone])}>
       {value}
     </span>
   )
 
   return (
     <div className={cn(
-      "premium-metric glass-card rounded-lg border-white/5 bg-white/2",
+      "premium-metric rounded-lg border border-line bg-panel",
       size === "sm" && "px-4 py-2",
       size === "md" && "px-6 py-3",
       size === "lg" && "px-8 py-5",
