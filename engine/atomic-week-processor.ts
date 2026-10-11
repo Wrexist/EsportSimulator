@@ -75,7 +75,10 @@ import { TournamentManager } from "./tournament-manager"
 import { JobOfferGenerator } from "./job-offer-generator"
 import { QualificationEngine, CircuitPointsManager } from "./tournament-qualification"
 import { LEGENDARY_PLAYERS } from "./legendary-players-data"
-import { generateAnnualTop20, shouldTriggerAwards, addProAwardsEvent } from "./pro-awards-engine"
+import { buildAnnualAwards, shouldTriggerAwards, addProAwardsEvent } from "./pro-awards-engine"
+import { recordOfficialMatch, recordTierMove } from "./official-stats"
+import { closeSeason } from "./season-honours"
+import { closeStint } from "./manager-timeline"
 import { buildQualificationGraph, isQualificationForTournament } from "./circuit-engine"
 import { ManagerProgression } from "./manager-progression"
 import { StaffGenerator } from "./staff-generator"
@@ -422,7 +425,10 @@ export class AtomicWeekProcessor {
                 // Phase 19: Check for season end and process promotions/relegations
                 if (LeagueEngine.isSeasonEnd(save.currentWeek)) {
                     debugLog(`[Week ${save.currentWeek}] Season End! Processing promotions/relegations...`)
+                    const managedTierBefore = idx.teamIndex.get(config.playerTeamId)?.leagueTier
                     LeagueEngine.processSeasonEnd(save, config.playerTeamId)
+                    const managed = idx.teamIndex.get(config.playerTeamId)
+                    if (managed && managedTierBefore) recordTierMove(save, getSeasonNumber(save.currentWeek), managed.id, managedTierBefore, managed.leagueTier, managed.worldRanking ?? 0)
 
                     // Decay circuit points 25% at season rollover so they don't
                     // accumulate unbounded across seasons (was implemented but
@@ -430,11 +436,13 @@ export class AtomicWeekProcessor {
                     save.circuitPoints = CircuitPointsManager.applySeasonalDecay(save.circuitPoints || [])
                 }
 
-                // Phase 63: Pro Top 20 Awards - Trigger at start of each new year (Week 53, 105, etc.)
+                // Phase 5.1: the first week of a season closes the last one:
+                // season lines, awards and the Top 20 from real official stats.
                 if (shouldTriggerAwards(save.currentWeek)) {
-                    debugLog(`[Week ${save.currentWeek}] Generating Pro Top 20 Awards for Year ${Math.ceil(save.currentWeek / 52)}...`)
-                    const awards = generateAnnualTop20(save, config.playerTeamId)
-                    addProAwardsEvent(save, awards)
+                    const closing = getSeasonNumber(save.currentWeek) - 1
+                    debugLog(`[Week ${save.currentWeek}] Closing season ${closing}: honours and Top 20...`)
+                    const honours = closeSeason(save, closing)
+                    if (honours) addProAwardsEvent(save, buildAnnualAwards(save, honours, config.playerTeamId))
                 }
 
                 const seasonEnd = LeagueEngine.isSeasonEnd(save.currentWeek)
@@ -678,6 +686,8 @@ export class AtomicWeekProcessor {
             // A dismissed manager (sacked, or the club folded) gets the job
             // market instead of a dead end.
             if (save.gameOverReason === "SACKED" || save.gameOverReason === "BANKRUPTCY") {
+                // The manager's spell at the club ends here (Phase 5.1 timeline).
+                closeStint(save, save.gameOverReason === "SACKED" ? "sacked" : "folded")
                 JobOfferGenerator.createDismissalOffers(save, new SeededRNG(rng.int(1, 2147483646)))
             }
             // Every open request gets its deadline and default; a repeat of an
@@ -941,6 +951,16 @@ export class AtomicWeekProcessor {
             save.completedMatches.push(completedMatch)
             removedMatchIds.add(match.id)
 
+            // Phase 5.1: careers, season tallies and records from the full
+            // result (before its rounds were stripped). Friendlies don't count.
+            recordOfficialMatch(save, match, result, {
+                player: id => idx?.playerIndex.get(id) ?? save.players.find(p => p.id === id),
+                team: id => idx?.teamIndex.get(id) ?? save.teams.find(t => t.id === id),
+                tournamentTier: match.tournamentId
+                    ? (idx?.tournamentIndex.get(match.tournamentId) ?? save.tournaments.find(t => t.id === match.tournamentId))?.tier ?? null
+                    : null,
+            })
+
             // Achievement flag detection extracted to
             // processors/match-achievement-flags.ts (Phase M6). Returns
             // comeback + underdog flags written onto the completed match.
@@ -1026,11 +1046,10 @@ export class AtomicWeekProcessor {
                 players.forEach(p => {
                     const pStat = result.playerStats[p.id]
                     p.matchesPlayed++
+                    // Kills/deaths/rating totals: recordOfficialMatch (official matches only).
                     if (pStat) {
                         p.headshots = (p.headshots || 0) + (pStat.headshots || 0)
                         p.totalHeadshots = (p.totalHeadshots || 0) + (pStat.headshots || 0)
-                        p.totalKills = (p.totalKills || 0) + pStat.kills
-                        p.totalDeaths = (p.totalDeaths || 0) + pStat.deaths
                     }
 
                     p.fatigue = Math.min(100, p.fatigue + fatigueCost)

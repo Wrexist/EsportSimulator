@@ -22,12 +22,13 @@
 import type { GameSave, MatchSaveData } from "../save-types"
 import type { MatchResult } from "@/types"
 import { getStaffPassiveBonuses } from "../talent-trees"
+import { adjustManagerReputation } from "../manager-timeline"
 
 const ANALYST_XP_TALENT_CAP = 50 // max +50% from stacked analyst talents
 const WIN_XP_BASE = 100
 const LOSS_XP_BASE = 25
-const WIN_REPUTATION_BONUS = 5
-const LOSS_REPUTATION_PENALTY = 1
+export const WIN_REPUTATION_BONUS = 5
+export const LOSS_REPUTATION_PENALTY = 1
 
 /**
  * Compute the analyst-talent XP multiplier for the player team. Sums
@@ -67,10 +68,12 @@ export function applyMatchManagerXP(
 
     const xpMultiplier = getAnalystXpMultiplier(save, playerTeamId)
 
+    // Only results the week simulates for the manager reach here (a fixture
+    // the manager did not play); the reputation log says so (Phase 5.1).
     if (winnerId === playerTeamId) {
         save.managerDetails.careerWins++
         save.managerDetails.xp += Math.round(WIN_XP_BASE * xpMultiplier)
-        save.managerDetails.reputation = Math.min(100, save.managerDetails.reputation + WIN_REPUTATION_BONUS)
+        adjustManagerReputation(save, WIN_REPUTATION_BONUS, "Auto-played win")
     } else if (match.homeTeamId === playerTeamId || match.awayTeamId === playerTeamId) {
         // Loss OR draw where player participated.
         // (Original code's else-if path actually fires for draws too,
@@ -79,6 +82,6 @@ export function applyMatchManagerXP(
         // attention via a test.)
         save.managerDetails.careerLosses++
         save.managerDetails.xp += Math.round(LOSS_XP_BASE * xpMultiplier)
-        save.managerDetails.reputation = Math.max(0, save.managerDetails.reputation - LOSS_REPUTATION_PENALTY)
+        adjustManagerReputation(save, -LOSS_REPUTATION_PENALTY, "Auto-played loss")
     }
 }

@@ -79,6 +79,13 @@ describe("buildSaveSnapshot — stateful optional fields survive the builder", (
         expect(snap.league).toBe(league)
     })
 
+    test("recordBook round-trips (Phase 5.1 records, open seasons and honours)", () => {
+        const recordBook = { version: 1, world: { biggestWin: { value: 13, teamId: "a", opponentId: "b", week: 4, matchId: "m" } }, clubs: {}, open: [], honours: [] } as unknown as never
+        const snap = JSON.parse(JSON.stringify(buildSaveSnapshot(makeState({ recordBook }))))
+        expect(snap.recordBook).toEqual(recordBook)
+        expect(buildSaveSnapshot(makeState()).recordBook).toBeUndefined()
+    })
+
     test("absent board state stays undefined (no fabricated default at the boundary)", () => {
         const snap = buildSaveSnapshot(makeState())
         expect(snap.boardState).toBeUndefined()

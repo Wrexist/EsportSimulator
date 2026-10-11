@@ -163,6 +163,9 @@ export interface GameSave {
     // === CROSS-SEASON CAREER STATISTICS ===
     careerStats?: CareerStats
 
+    // === RECORDS, SEASON HONOURS (Phase 5.1) ===
+    recordBook?: import("./records-types").RecordBook
+
     // === BOARD EXPECTATIONS & CONFIDENCE ===
     boardState?: BoardState
 
@@ -743,7 +746,9 @@ export interface PlayerSaveData {
 
     // Career
     matchesPlayed: number
+    /** Official rounds (Phase 5.1: incremented per official map; legends carry a pre-career total). */
     roundsPlayed: number
+    /** Rounds-weighted average map rating over roundsPlayed (Phase 5.1). */
     avgRating: number
     headshots?: number
     clutchSuccessRate: number
@@ -768,11 +773,30 @@ export interface PlayerSaveData {
     careerTeams?: string[]
 
     // Career totals for Hall of Fame
+    /** Official-match kills/deaths (Phase 5.1: friendlies excluded). */
     totalKills?: number
     totalDeaths?: number
     totalHeadshots?: number
+    /** Match MVP awards (highest rating on the winning side). */
     totalMVPs?: number
+    /** Majors won on the roster (Phase 5.1: from real tournament results). */
     majorWins?: number
+
+    // Phase 5.1: official-match record (engine/official-stats.ts)
+    /** Official maps played in this career. */
+    mapsPlayed?: number
+    totalAssists?: number
+    totalDamage?: number
+    /** Titles won on a club's roster in this career. */
+    careerTrophies?: number
+    /** First season with an official map in this career. */
+    debutSeason?: number
+    seasonTally?: import("./records-types").PlayerSeasonTally
+    /** Closed season lines, oldest first (capped). */
+    seasonLines?: import("./records-types").PlayerSeasonLine[]
+    honours?: import("./records-types").PlayerHonour[]
+    bestMapRating?: import("./records-types").PersonalBest
+    mostMapKills?: import("./records-types").PersonalBest
 
     // Phase 7: Transfer Market
     forSale?: boolean
@@ -1568,6 +1592,18 @@ export interface HallOfFameEntry {
         icon: string // Lucide icon name
     }[]
     nationality: string
+    /** Phase 5.1: the career that earned the induction (in-game official matches). */
+    career?: {
+        maps: number
+        rating: number
+        kills: number
+        trophies: number
+        majors: number
+        seasonMvps: number
+        top20: number
+        matches: number
+        lastClubId?: string
+    }
 }
 
 /**
@@ -1581,10 +1617,17 @@ export interface ManagerDetails {
     careerWins: number
     careerLosses: number
     championships: number
+    /** @deprecated Never written; not shown anywhere. */
     totalKills?: number
+    /** @deprecated Never written; not shown anywhere. */
     totalHS?: number
     careerMatches?: number
+    /** @deprecated Never written; not shown anywhere. */
     maxBudget?: number
+    /** Phase 5.1: clubs managed in this career, oldest first. */
+    stints?: import("./records-types").ManagerStint[]
+    /** Phase 5.1: recent reputation changes with their causes, newest last (capped). */
+    reputationLog?: import("./records-types").ReputationChange[]
     /** Week of the most recent accepted job change — gates the signing-bonus
      *  cooldown so serial job-hopping can't farm signing bonuses. */
     lastJobChangeWeek?: number

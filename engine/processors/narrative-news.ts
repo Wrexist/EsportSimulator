@@ -137,7 +137,10 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
                 // Title pool expanded from 3 → 12. Each branches on the
                 // player's profile (form, role, age) so the headline
                 // matches the story instead of always reading the same.
-                const isHotForm = (player.avgRating ?? 1.0) >= 1.15
+                // Hot form = this season's official rating (Phase 5.1), over enough maps to mean something.
+                const season = player.seasonTally
+                const seasonRating = season && season.rounds > 0 && season.maps >= 10 ? season.ratingSum / season.rounds : 0
+                const isHotForm = seasonRating >= 1.15
                 const isVeteran = player.age >= 28
                 const isStar = (player.totalMVPs ?? 0) >= 5 || (player.majorWins ?? 0) >= 1
 
@@ -175,12 +178,12 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
                 ]
                 if (isHotForm) {
                     contentTemplates.push(
-                        `${player.nickname}'s career-best ${player.avgRating?.toFixed(2)} rating has triggered interest from across the league. ${rumoredTeam.name} are believed to be at the front of the queue.`,
+                        `${player.nickname}'s ${seasonRating.toFixed(2)} rating over ${season?.maps ?? 0} maps this season has triggered interest from across the league. ${rumoredTeam.name} are believed to be at the front of the queue.`,
                     )
                 }
                 if (isStar) {
                     contentTemplates.push(
-                        `A move for ${player.nickname} — ${(player.majorWins ?? 0)}× Major champion and ${(player.totalMVPs ?? 0)}× tournament MVP — would be the headline transfer of the off-season. ${rumoredTeam.name} have been credited with the interest.`,
+                        `A move for ${player.nickname} — ${(player.majorWins ?? 0)}× Major champion and ${(player.totalMVPs ?? 0)}× match MVP — would be the headline transfer of the off-season. ${rumoredTeam.name} have been credited with the interest.`,
                     )
                 }
 

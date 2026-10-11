@@ -38,6 +38,7 @@ import type {
 } from "../save-types"
 import { LEAGUE_TUNING } from "@/lib/balance-tuning"
 import { SeededRNG } from "../rng"
+import { recordTitle } from "../official-stats"
 
 export const LEAGUE_ID_PREFIX = "league_"
 const BYE = "__bye__"
@@ -460,7 +461,9 @@ function completeDivision(save: GameSave, split: LeagueSplit, div: LeagueDivisio
         if (div.level === 1) {
             champion.trophies ??= []
             if (!champion.trophies.some(t => t.tournamentId === div.id)) {
-                champion.trophies.push({ tournamentId: div.id, tournamentName: `${div.name} S${split.season} Split ${split.split}`, week: save.currentWeek, tier: "B_TIER" })
+                const name = `${div.name} S${split.season} Split ${split.split}`
+                champion.trophies.push({ tournamentId: div.id, tournamentName: name, week: save.currentWeek, tier: "B_TIER" })
+                recordTitle(save, champion, { tournamentId: div.id, name, tier: "LEAGUE", week: save.currentWeek, season: split.season })
             }
         }
     }

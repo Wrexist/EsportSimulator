@@ -27,6 +27,7 @@ import { QualificationEngine } from "../tournament-qualification"
 import { TournamentManager } from "../tournament-manager"
 import { LEGENDARY_PLAYERS } from "../legendary-players-data"
 import { CIRCUIT_POINTS, getTournamentById } from "@/data/tournament-calendar"
+import { recordTitle } from "../official-stats"
 import {
     terminalTournamentWinner,
 } from "./tournament-completion"
@@ -185,7 +186,13 @@ export function updateStandings(
                 week: save.currentWeek,
                 tier: tournament.tier,
                 trophyPath: tournament.trophyPath,
+                ...(tournament.mvpPlayerId ? { mvpId: tournament.mvpPlayerId } : {}),
             })
+            // Phase 5.1: the roster's players (and the manager) win it too.
+            recordTitle(save, winningTeam, {
+                tournamentId: tournament.id, name: tournament.name, tier: tournament.tier, week: save.currentWeek,
+                season: tournament.seasonNumber ?? Math.floor(((tournament.endWeek ?? save.currentWeek) - 1) / 52) + 1,
+            }, id => idx?.playerIndex.get(id) ?? save.players.find(p => p.id === id))
         }
 
         const placements = TournamentManager.calculatePlacements(save, tournament)

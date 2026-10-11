@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { formatRole } from "@/lib/utils-extended"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
-import { AnnualAwards, Top20Player } from "@/engine/pro-awards-engine"
+import { AnnualAwards, Top20Player, isRealAwards } from "@/engine/pro-awards-engine"
 import { panelTransition } from "@/lib/motion"
 import { useFocusTrap, pressable } from "@/lib/accessibility"
 
@@ -48,7 +48,8 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
         }
     }, [isOpen, awards])
 
-    if (!isOpen || !awards) return null
+    // Awards from before Phase 5.1 carried invented numbers; they are not shown.
+    if (!isOpen || !awards || !isRealAwards(awards)) return null
 
     const revealAll = () => {
         setRevealedCount(20)
@@ -108,7 +109,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                 Pro Top 20 Players
                                             </h1>
                                             <p className="text-amber-400/60 text-sm font-medium">
-                                                {awards.year} Annual Rankings
+                                                Season {awards.year} · official maps, weighted by competition
                                             </p>
                                         </div>
                                     </div>
@@ -194,10 +195,10 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                 <div className="text-right shrink-0">
                                                     <p className={cn(
                                                         "text-lg font-bold",
-                                                        player.proRating >= 1.20 ? "text-emerald-400" :
-                                                            player.proRating >= 1.10 ? "text-amber-400" : "text-ink-2"
+                                                        player.rating >= 1.20 ? "text-emerald-400" :
+                                                            player.rating >= 1.10 ? "text-amber-400" : "text-ink-2"
                                                     )}>
-                                                        {player.proRating.toFixed(2)}
+                                                        {player.rating.toFixed(2)}
                                                     </p>
                                                     <p className="text-[11px] text-ink-2 uppercase">Rating</p>
                                                 </div>
@@ -258,16 +259,16 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                             {/* Stats Grid */}
                                             <div className="grid grid-cols-2 gap-2">
                                                 <div className="p-3 rounded-lg bg-raised text-center">
-                                                    <p className="text-2xl font-bold text-emerald-400">{selectedPlayer.proRating.toFixed(2)}</p>
-                                                    <p className="text-[11px] text-ink-3 uppercase">Pro Rating</p>
+                                                    <p className="text-2xl font-bold text-emerald-400">{selectedPlayer.rating.toFixed(2)}</p>
+                                                    <p className="text-[11px] text-ink-3 uppercase">Rating</p>
                                                 </div>
                                                 <div className="p-3 rounded-lg bg-raised text-center">
-                                                    <p className="text-2xl font-bold text-gold">{selectedPlayer.impactRating.toFixed(2)}</p>
-                                                    <p className="text-[11px] text-ink-3 uppercase">Impact</p>
+                                                    <p className="text-2xl font-bold text-gold">{selectedPlayer.score.toFixed(2)}</p>
+                                                    <p className="text-[11px] text-ink-3 uppercase">Weighted</p>
                                                 </div>
                                                 <div className="p-3 rounded-lg bg-raised text-center">
-                                                    <p className="text-xl font-bold text-ink-1">{selectedPlayer.kast.toFixed(1)}%</p>
-                                                    <p className="text-[11px] text-ink-3 uppercase">KAST</p>
+                                                    <p className="text-xl font-bold text-ink-1">{selectedPlayer.kills}–{selectedPlayer.deaths}</p>
+                                                    <p className="text-[11px] text-ink-3 uppercase">K–D</p>
                                                 </div>
                                                 <div className="p-3 rounded-lg bg-raised text-center">
                                                     <p className="text-xl font-bold text-ink-1">{selectedPlayer.adr.toFixed(1)}</p>
@@ -280,37 +281,32 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                 <h3 className="text-[11px] text-ink-3 uppercase tracking-widest font-bold">Achievements</h3>
                                                 <div className="grid grid-cols-3 gap-2">
                                                     <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
-                                                        <Trophy size={16} className="text-amber-400 mx-auto mb-1" />
+                                                        <Star size={16} className="text-amber-400 mx-auto mb-1" />
                                                         <p className="text-lg font-bold text-amber-400">{selectedPlayer.mvpCount}</p>
-                                                        <p className="text-[11px] text-amber-400/60 uppercase">MVPs</p>
+                                                        <p className="text-[11px] text-amber-400/60 uppercase">Match MVPs</p>
                                                     </div>
                                                     <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-center">
-                                                        <Star size={16} className="text-violet-400 mx-auto mb-1" />
-                                                        <p className="text-lg font-bold text-violet-400">{selectedPlayer.evpCount}</p>
-                                                        <p className="text-[11px] text-violet-400/60 uppercase">EVPs</p>
+                                                        <Target size={16} className="text-violet-400 mx-auto mb-1" />
+                                                        <p className="text-lg font-bold text-violet-400">{selectedPlayer.kpr.toFixed(2)}</p>
+                                                        <p className="text-[11px] text-violet-400/60 uppercase">Kills / round</p>
                                                     </div>
                                                     <div className="p-2 rounded-lg bg-gold/10 border border-gold/20 text-center">
-                                                        <Target size={16} className="text-gold mx-auto mb-1" />
-                                                        <p className="text-lg font-bold text-gold">{selectedPlayer.bigEventWins}</p>
+                                                        <Trophy size={16} className="text-gold mx-auto mb-1" />
+                                                        <p className="text-lg font-bold text-gold">{selectedPlayer.titles}</p>
                                                         <p className="text-[11px] text-gold uppercase">Titles</p>
                                                     </div>
                                                 </div>
                                                 {selectedPlayer.majorWins > 0 && (
                                                     <div className="p-3 rounded-lg bg-linear-to-r/srgb from-amber-500/20 to-orange-500/10 border border-amber-500/30 flex items-center gap-3">
                                                         <Crown size={24} className="text-amber-400" />
-                                                        <div>
-                                                            <p className="font-bold text-amber-300">{selectedPlayer.majorWins}x Major Champion</p>
-                                                            {selectedPlayer.majorMvps > 0 && (
-                                                                <p className="text-[11px] text-amber-400/60">{selectedPlayer.majorMvps} Major MVP</p>
-                                                            )}
-                                                        </div>
+                                                        <p className="font-bold text-amber-300">{selectedPlayer.majorWins === 1 ? "Major champion this season" : `${selectedPlayer.majorWins} Majors this season`}</p>
                                                     </div>
                                                 )}
                                             </div>
 
                                             {/* Meta */}
                                             <div className="text-center text-[11px] text-ink-3 space-y-1">
-                                                <p>{selectedPlayer.mapsPlayed} maps played at Big Events</p>
+                                                <p>{selectedPlayer.mapsPlayed} official maps this season</p>
                                                 <p>{selectedPlayer.age} years old • {formatRole(selectedPlayer.role)}</p>
                                             </div>
                                         </motion.div>

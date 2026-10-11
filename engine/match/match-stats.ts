@@ -195,6 +195,62 @@ export function scriptRating(s: { kpr: number; dpr: number; apr: number; adr: nu
 /** A death is traded when the killer dies to the victim's team within this many seconds. */
 const KAST_TRADE_SECONDS = 5
 
+/** Per-player counts from recorded script-v1 rounds (one map or a whole series). */
+export interface ScriptTally {
+    kills: number
+    deaths: number
+    assists: number
+    headshots: number
+    damage: number
+    /** Rounds with a kill, assist, survival or trade. */
+    kast: number
+    clutches: number
+    fk: number
+    fd: number
+}
+
+const emptyTally = (): ScriptTally => ({ kills: 0, deaths: 0, assists: 0, headshots: 0, damage: 0, kast: 0, clutches: 0, fk: 0, fd: 0 })
+
+/** Add one recorded round to the tallies of `ids` (both lineups). */
+function tallyScriptRound(round: RoundResult, ids: readonly string[], acc: Map<string, ScriptTally>): void {
+    const events = round.events ?? []
+    const kills = events.filter(e => e.type === "KILL")
+    const inRound = new Map<string, { k: boolean; a: boolean; died: boolean; traded: boolean }>()
+    for (const id of ids) inRound.set(id, { k: false, a: false, died: false, traded: false })
+    kills.forEach((e, idx) => {
+        const killer = e.playerId ? acc.get(e.playerId) : undefined
+        const victim = e.victimId ? acc.get(e.victimId) : undefined
+        if (killer) { killer.kills++; if (e.isHeadshot) killer.headshots++; if (e.isOpening || idx === 0) killer.fk++ }
+        if (victim) { victim.deaths++; if (e.isOpening || idx === 0) victim.fd++ }
+        if (e.assisterId) { const a = acc.get(e.assisterId); if (a) a.assists++; const r = inRound.get(e.assisterId); if (r) r.a = true }
+        const rk = e.playerId ? inRound.get(e.playerId) : undefined
+        if (rk) rk.k = true
+        const rv = e.victimId ? inRound.get(e.victimId) : undefined
+        if (rv) {
+            rv.died = true
+            rv.traded = kills.some(x => x !== e && x.victimId === e.playerId && x.time >= e.time && x.time - e.time <= KAST_TRADE_SECONDS)
+        }
+    })
+    for (const e of events) if (e.type === "CLUTCH" && e.playerId) { const c = acc.get(e.playerId); if (c) c.clutches++ }
+    for (const [id, dmg] of Object.entries(round.damage ?? {})) { const a = acc.get(id); if (a && Number.isFinite(dmg)) a.damage += dmg }
+    for (const [id, r] of inRound) if (r.k || r.a || !r.died || r.traded) acc.get(id)!.kast++
+}
+
+/** Tallies of `ids` over one map's recorded rounds. */
+export function tallyScriptMap(map: Pick<MapResult, "rounds">, ids: readonly string[]): Map<string, ScriptTally> {
+    const acc = new Map(ids.map(id => [id, emptyTally()]))
+    for (const round of map.rounds) tallyScriptRound(round, ids, acc)
+    return acc
+}
+
+/** ADR, KAST % and rating from a tally over `rounds` rounds (0s when no rounds). */
+export function scriptLine(a: ScriptTally, rounds: number): { adr: number; kast: number; rating: number } {
+    if (!rounds) return { adr: 0, kast: 0, rating: 0 }
+    const adr = Math.round(a.damage / rounds * 10) / 10
+    const kast = Math.round(a.kast / rounds * 1000) / 10
+    return { adr, kast, rating: scriptRating({ kpr: a.kills / rounds, dpr: a.deaths / rounds, apr: a.assists / rounds, adr, kast }) }
+}
+
 /**
  * script-v1 stats: everything from the recorded rounds — ADR from the
  * round's damage table (kills, chip and grenades), KAST with real trades,
@@ -206,47 +262,23 @@ export function generateScriptMatchStats(
     awayPlayers: Player[],
     mapResults: MapResult[],
 ): Record<string, PlayerMatchStats> {
-    const all = [...homePlayers, ...awayPlayers]
-    const acc = new Map(all.map(p => [p.id, { kills: 0, deaths: 0, assists: 0, headshots: 0, damage: 0, kast: 0, clutches: 0, fk: 0, fd: 0 }]))
+    const ids = [...homePlayers, ...awayPlayers].map(p => p.id)
+    const acc = new Map(ids.map(id => [id, emptyTally()]))
     let rounds = 0
     for (const map of mapResults) {
         for (const round of map.rounds) {
             rounds++
-            const events = round.events ?? []
-            const kills = events.filter(e => e.type === "KILL")
-            const inRound = new Map<string, { k: boolean; a: boolean; died: boolean; traded: boolean }>()
-            for (const p of all) inRound.set(p.id, { k: false, a: false, died: false, traded: false })
-            kills.forEach((e, idx) => {
-                const killer = e.playerId ? acc.get(e.playerId) : undefined
-                const victim = e.victimId ? acc.get(e.victimId) : undefined
-                if (killer) { killer.kills++; if (e.isHeadshot) killer.headshots++; if (e.isOpening || idx === 0) killer.fk++ }
-                if (victim) { victim.deaths++; if (e.isOpening || idx === 0) victim.fd++ }
-                if (e.assisterId) { const a = acc.get(e.assisterId); if (a) a.assists++; const r = inRound.get(e.assisterId); if (r) r.a = true }
-                const rk = e.playerId ? inRound.get(e.playerId) : undefined
-                if (rk) rk.k = true
-                const rv = e.victimId ? inRound.get(e.victimId) : undefined
-                if (rv) {
-                    rv.died = true
-                    rv.traded = kills.some(x => x !== e && x.victimId === e.playerId && x.time >= e.time && x.time - e.time <= KAST_TRADE_SECONDS)
-                }
-            })
-            for (const e of events) if (e.type === "CLUTCH" && e.playerId) { const c = acc.get(e.playerId); if (c) c.clutches++ }
-            for (const [id, dmg] of Object.entries(round.damage ?? {})) { const a = acc.get(id); if (a && Number.isFinite(dmg)) a.damage += dmg }
-            for (const [id, r] of inRound) if (r.k || r.a || !r.died || r.traded) acc.get(id)!.kast++
+            tallyScriptRound(round, ids, acc)
         }
     }
     const stats: Record<string, PlayerMatchStats> = {}
-    for (const p of all) {
-        const a = acc.get(p.id)!
-        const n = Math.max(1, rounds)
-        const adr = Math.round(a.damage / n * 10) / 10
-        const kast = Math.round(a.kast / n * 1000) / 10
-        stats[p.id] = {
-            playerId: p.id, matchId: "",
+    for (const id of ids) {
+        const a = acc.get(id)!
+        const line = scriptLine(a, rounds)
+        stats[id] = {
+            playerId: id, matchId: "",
             kills: a.kills, deaths: a.deaths, assists: a.assists, headshots: a.headshots,
-            adr: rounds ? adr : 0,
-            kast: rounds ? kast : 0,
-            rating: rounds ? scriptRating({ kpr: a.kills / n, dpr: a.deaths / n, apr: a.assists / n, adr, kast }) : 0,
+            adr: line.adr, kast: line.kast, rating: line.rating,
             clutches: a.clutches, firstKills: a.fk, firstDeaths: a.fd, mapsPlayed: mapResults.length,
         }
     }

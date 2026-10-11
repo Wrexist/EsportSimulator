@@ -15,18 +15,37 @@ import { HALL_OF_FAME_TUNING as HOF } from "@/lib/balance-tuning"
 import type { HallOfFameEntry, PlayerSaveData } from "@/engine/save-types"
 import { cn } from "@/lib/utils"
 
+/**
+ * The career numbers behind a plaque: the induction snapshot when there is
+ * one (Phase 5.1), else the live player record (legends still playing).
+ * Founding legends predate this world and have no recorded career here.
+ */
+function careerOf(legend: HallOfFameEntry, p: PlayerSaveData | undefined) {
+    if (legend.career) return legend.career
+    if (!p) return undefined
+    return {
+        maps: p.mapsPlayed ?? 0,
+        rating: p.mapsPlayed ? Math.round((p.avgRating || 0) * 100) / 100 : 0,
+        trophies: p.careerTrophies ?? 0,
+        majors: p.majorWins ?? 0,
+    }
+}
+
+const dash = <span className="text-ink-3">—</span>
+
 function LegendsTable({ legends, playerById, activeIds }: { legends: HallOfFameEntry[]; playerById: Map<string, PlayerSaveData>; activeIds: Set<string> }) {
     return (
         <div className="overflow-x-auto">
-            <table data-slot="table" className="w-full min-w-[900px] border-collapse text-left">
+            <table data-slot="table" className="w-full min-w-[980px] border-collapse text-left">
                 <thead data-slot="table-header">
                     <tr className="border-b border-line">
                         <th data-slot="table-head" className="pl-4">Player</th>
                         <th data-slot="table-head" className="px-3">Role</th>
                         <th data-slot="table-head" className="px-3">Era</th>
                         <th data-slot="table-head" className="px-3 text-right">Majors</th>
-                        <th data-slot="table-head" className="px-3 text-right">MVPs</th>
-                        <th data-slot="table-head" className="px-3 text-right">Matches</th>
+                        <th data-slot="table-head" className="px-3 text-right">Titles</th>
+                        <th data-slot="table-head" className="px-3 text-right">Maps</th>
+                        <th data-slot="table-head" className="px-3 text-right">Rating</th>
                         <th data-slot="table-head" className="px-3">Why they&apos;re here</th>
                         <th data-slot="table-head" className="pl-3 pr-4">Status</th>
                     </tr>
@@ -34,7 +53,9 @@ function LegendsTable({ legends, playerById, activeIds }: { legends: HallOfFameE
                 <tbody>
                     {legends.map(legend => {
                         const p = playerById.get(legend.id)
+                        const c = careerOf(legend, p)
                         const active = activeIds.has(legend.id)
+                        const era = legend.category === "INDUCTED" ? `S${legend.eraStart}–${active ? "now" : `S${legend.eraEnd}`}` : `${legend.eraStart}–${active ? "now" : legend.eraEnd}`
                         return (
                             <tr key={legend.id} data-slot="table-row" className="h-14 border-b border-line">
                                 <td className="py-2 pl-4 pr-3">
@@ -52,10 +73,11 @@ function LegendsTable({ legends, playerById, activeIds }: { legends: HallOfFameE
                                     </Link>
                                 </td>
                                 <td className="px-3"><RoleTag role={legend.primaryRole} /></td>
-                                <td className="px-3 text-sm tabular-nums text-ink-2">{legend.eraStart}–{active ? "now" : legend.eraEnd}</td>
-                                <td className={cn("px-3 text-right text-sm tabular-nums", (p?.majorWins ?? 0) > 0 ? "text-gold" : "text-ink-3")}>{p?.majorWins ?? "—"}</td>
-                                <td className="px-3 text-right text-sm tabular-nums text-ink-2">{p?.totalMVPs ?? "—"}</td>
-                                <td className="px-3 text-right text-sm tabular-nums text-ink-2">{p?.matchesPlayed?.toLocaleString("en-US") ?? "—"}</td>
+                                <td className="px-3 text-sm tabular-nums text-ink-2">{era}</td>
+                                <td className={cn("px-3 text-right text-sm tabular-nums", (c?.majors ?? 0) > 0 ? "text-gold" : "text-ink-3")}>{c ? c.majors : dash}</td>
+                                <td className={cn("px-3 text-right text-sm tabular-nums", (c?.trophies ?? 0) > 0 ? "text-gold" : "text-ink-2")}>{c ? c.trophies : dash}</td>
+                                <td className="px-3 text-right text-sm tabular-nums text-ink-2">{c?.maps ? c.maps.toLocaleString("en-US") : dash}</td>
+                                <td className="px-3 text-right text-sm font-semibold tabular-nums text-ink-1">{c?.maps ? c.rating.toFixed(2) : dash}</td>
                                 <td className="px-3">
                                     <span className="flex flex-wrap gap-1">
                                         {legend.inductionReasons.map((r, i) => (
@@ -125,13 +147,18 @@ export default function HallOfFamePage() {
                     <p className="text-sm text-ink-2">At retirement a player is inducted with any two of:</p>
                     <ul className="mt-2 space-y-1.5 text-sm text-ink-1">
                         <li>A Major title</li>
-                        <li>{HOF.MVP_AWARDS}+ tournament MVPs</li>
-                        <li>{HOF.CAREER_KILLS.toLocaleString("en-US")}+ career kills</li>
-                        <li>{HOF.CAREER_MATCHES}+ matches</li>
-                        <li>A {HOF.CAREER_RATING.toFixed(2)}+ rating over {HOF.RATING_MIN_MATCHES}+ matches</li>
+                        <li>{HOF.CAREER_TITLES}+ titles on a club&apos;s roster</li>
+                        <li>A season MVP award</li>
+                        <li>{HOF.TOP20_PLACEMENTS}+ Top 20 placements</li>
+                        <li>A {HOF.CAREER_RATING.toFixed(2)}+ rating over {HOF.RATING_MIN_MAPS}+ official maps</li>
+                        <li>{HOF.CAREER_KILLS.toLocaleString("en-US")}+ official kills</li>
+                        <li>{HOF.CAREER_MATCHES}+ career matches</li>
                     </ul>
                     <p className="mt-3 text-sm text-ink-2">
-                        {HOF.AUTO_MAJOR_WINS}+ Majors, or a {HOF.AUTO_RATING.toFixed(2)}+ rating over {HOF.RATING_MIN_MATCHES}+ matches, gets a player in on its own.
+                        {HOF.AUTO_MAJOR_WINS}+ Majors, {HOF.AUTO_SEASON_MVPS}+ season MVP awards, or a {HOF.AUTO_RATING.toFixed(2)}+ rating over {HOF.RATING_MIN_MAPS}+ official maps gets a player in on its own.
+                    </p>
+                    <p className="mt-3 text-xs text-ink-3">
+                        Maps, rating, kills, titles and awards count official league and tournament matches in this career. Career matches also include a player&apos;s record before it.
                     </p>
                 </Panel>
             </div>

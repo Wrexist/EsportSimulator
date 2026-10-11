@@ -10,6 +10,7 @@ import { GameSave, TeamSaveData, GameEventSaveData, TournamentSaveData } from ".
 import { switchClubManagement } from "./club-management"
 import { ensureBoardState } from "./board-expectations"
 import { updateCareerStats } from "./career-stats"
+import { closeStint, openStint } from "./manager-timeline"
 import { EventType } from "@/types/enums"
 import { SeededRNG, generateSeed } from "./rng"
 
@@ -386,9 +387,12 @@ export class JobOfferGenerator {
         // The move takes effect next week for historical attribution: completed
         // results in the current week still belong to the departing tenure.
         save.careerStats = updateCareerStats(save)
+        // Phase 5.1 timeline: a dismissal already closed the stint; otherwise this is a move.
+        closeStint(save, "moved")
         switchClubManagement(save, oldTeam, newTeam)
         save.managerDetails.lastJobChangeWeek = save.currentWeek
         save.managerDetails.tenureStartWeek = save.currentWeek + 1
+        openStint(save)
         if (afterDismissal) {
             // A fresh start: the career continues at the new club. Assigned,
             // not deleted: the store merges the produced state, so a deleted
