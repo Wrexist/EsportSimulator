@@ -52,7 +52,7 @@ export function PlayerImage({
                     alt={country || ""}
                     width={16}
                     height={12}
-                    className="absolute -bottom-1 -right-1 rounded-sm border border-white/20"
+                    className="absolute -bottom-1 -right-1 rounded-sm border border-line-strong"
                     unoptimized
                 />
             )}

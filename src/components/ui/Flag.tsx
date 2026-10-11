@@ -68,7 +68,7 @@ function RegionGlyph({ label, size, className }: { label: string; size: number; 
   return (
     <div
       className={cn(
-        "inline-flex items-center justify-center rounded-[2px] bg-white/10 text-[9px] font-bold uppercase tracking-wider text-white/70 shrink-0",
+        "inline-flex items-center justify-center rounded-[2px] bg-hover text-[11px] font-bold uppercase tracking-wider text-ink-2 shrink-0",
         className,
       )}
       style={{ width: size, height: Math.round(size * 0.75) }}
@@ -107,7 +107,7 @@ export function Flag({ code, size = 20, showName = false, className }: FlagProps
     return (
       <div className={cn("flex items-center gap-2", className)} title={code}>
         <RegionGlyph label={regionLabel ?? iso2.toUpperCase()} size={safeSize} />
-        {showName && <span className="text-xs font-semibold text-white/80">{code}</span>}
+        {showName && <span className="text-xs font-semibold text-ink-1">{code}</span>}
       </div>
     )
   }
@@ -115,7 +115,7 @@ export function Flag({ code, size = 20, showName = false, className }: FlagProps
   return (
     <div className={cn("flex items-center gap-2", className)} title={code}>
       <div
-        className="relative overflow-hidden rounded-[2px] shadow-xs bg-white/5 shrink-0"
+        className="relative overflow-hidden rounded-[2px] shadow-xs bg-raised shrink-0"
         style={{ width: safeSize, height: Math.round(safeSize * 0.75) }}
       >
         <Image
@@ -128,7 +128,7 @@ export function Flag({ code, size = 20, showName = false, className }: FlagProps
           onError={() => setImgError(true)}
         />
       </div>
-      {showName && <span className="text-xs font-semibold text-white/80">{code}</span>}
+      {showName && <span className="text-xs font-semibold text-ink-1">{code}</span>}
     </div>
   )
 }

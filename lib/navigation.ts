@@ -6,6 +6,7 @@ import {
     Dumbbell,
     Building2,
     Calendar,
+    CalendarCheck,
     Globe,
     Trophy,
     Search,
@@ -13,7 +14,6 @@ import {
     Settings,
     ClipboardList,
     Crown,
-    Package,
     Award,
     Inbox,
     Swords,
@@ -27,6 +27,8 @@ export interface MenuItem {
     icon: LucideIcon
     label: string
     href: string
+    /** Extra search-palette terms (old screen names, synonyms). */
+    keywords?: string
 }
 
 export interface MenuGroup {
@@ -35,7 +37,7 @@ export interface MenuGroup {
 }
 
 /**
- * Top-level navigation: six hubs in the top bar, each with a row of
+ * Top-level navigation: seven hubs in the top bar, each with a row of
  * sub-tabs (Football Manager style). `prefixes` claim detail routes
  * (a player profile belongs to Squad, a tournament page to Competition).
  */
@@ -68,6 +70,20 @@ export function parseInboxTab(value: string | null | undefined): InboxTab | null
     return (INBOX_TABS as readonly string[]).includes(value) ? value as InboxTab : "all"
 }
 
+/** Facilities page tab that holds the equipment catalog (was `/equipment`). */
+export const GEAR_HREF = "/basecamp?tab=gear"
+
+/**
+ * Week plan with the staff-meeting booking open (was `/schedule/staff-meeting`).
+ * Keeps the booked day when the old link carried one.
+ */
+export function staffMeetingHref(week?: number | null, day?: number | null): string {
+    const params = new URLSearchParams({ book: "meeting" })
+    if (week != null && Number.isFinite(week)) params.set("week", String(week))
+    if (day != null && Number.isFinite(day)) params.set("day", String(day))
+    return `/week?${params.toString()}`
+}
+
 /**
  * The retired desktop OS (`/desktop?app=…`) → where each "app" lives now.
  * Mail/News/Social fold into the inbox drawer; the rest were thin copies of
@@ -82,7 +98,7 @@ const DESKTOP_APP_REDIRECTS: Record<string, string> = {
     academy: "/academy",
     facilities: "/basecamp",
     calendar: "/schedule",
-    shop: "/equipment",
+    shop: GEAR_HREF,
 }
 
 /** `/desktop?app=<app>` → its new home; no app or an unknown one → Home + inbox. */
@@ -98,23 +114,44 @@ export const navHubs: NavHub[] = [
         icon: Home,
         items: [
             { icon: Home, label: "Overview", href: "/" },
-            { icon: Inbox, label: "Inbox", href: inboxHref() },
-            { icon: Calendar, label: "Schedule", href: "/schedule" },
+            { icon: Inbox, label: "Inbox", href: inboxHref(), keywords: "mail messages news decisions offers" },
         ],
-        prefixes: ["/schedule/"],
     },
     {
         id: "squad",
         label: "Squad",
         icon: Users,
         items: [
-            { icon: Users, label: "Roster", href: "/squad" },
-            { icon: Dumbbell, label: "Training", href: "/training" },
-            { icon: ClipboardList, label: "Staff", href: "/staff" },
-            { icon: GraduationCap, label: "Academy", href: "/academy" },
+            { icon: Users, label: "Roster", href: "/squad", keywords: "lineup players" },
+            { icon: ClipboardList, label: "Staff", href: "/staff", keywords: "coach analyst psychologist scout" },
+            { icon: GraduationCap, label: "Academy", href: "/academy", keywords: "prospects youth" },
             { icon: BarChart3, label: "Statistics", href: "/stats" },
         ],
         prefixes: ["/player/"],
+    },
+    {
+        // Phase 4.2: one place for the coming week. Training and the season
+        // calendar are tabs of the same hub; a staff meeting is a booking.
+        id: "week",
+        label: "Week",
+        icon: CalendarCheck,
+        items: [
+            { icon: CalendarCheck, label: "Week plan", href: "/week", keywords: "weekly focus bookings scrim bootcamp marketing staff meeting" },
+            { icon: Dumbbell, label: "Training", href: "/training", keywords: "drills retraining weapons loadouts" },
+            { icon: Calendar, label: "Calendar", href: "/schedule", keywords: "schedule season fixtures" },
+        ],
+        prefixes: ["/week/", "/schedule/"],
+    },
+    {
+        // `/match` redirects to the playable match's prep, else the latest
+        // result, else the calendar (app/match/page.tsx).
+        id: "match",
+        label: "Match",
+        icon: Swords,
+        items: [
+            { icon: Swords, label: "Match centre", href: "/match", keywords: "next match tactics veto lineup result" },
+        ],
+        prefixes: ["/match/"],
     },
     {
         id: "recruitment",
@@ -126,36 +163,31 @@ export const navHubs: NavHub[] = [
         ],
     },
     {
+        // Trophies and the Hall of Fame are the scene's record (every title on
+        // the calendar, players who defined eras), so they sit with tournaments.
         id: "competition",
         label: "Competition",
         icon: Trophy,
         items: [
             { icon: Trophy, label: "Tournaments", href: "/tournaments" },
             { icon: Globe, label: "Rankings", href: "/rankings" },
-            { icon: Swords, label: "FPL", href: "/fpl" },
+            { icon: Award, label: "Trophies", href: "/trophies", keywords: "cabinet titles legacy" },
+            { icon: Crown, label: "Hall of Fame", href: "/hall-of-fame", keywords: "legends legacy" },
         ],
-        prefixes: ["/tournaments/", "/match/"],
+        prefixes: ["/tournaments/"],
     },
     {
         id: "club",
         label: "Club",
         icon: Building2,
         items: [
-            { icon: DollarSign, label: "Finances", href: "/finances" },
+            { icon: DollarSign, label: "Finances", href: "/finances", keywords: "money budget ledger" },
             { icon: Handshake, label: "Sponsors", href: "/sponsorships" },
-            { icon: Building2, label: "Facilities", href: "/basecamp" },
-            { icon: Package, label: "Equipment", href: "/equipment" },
-            { icon: UserRound, label: "Manager", href: "/career" },
+            { icon: Building2, label: "Facilities", href: "/basecamp", keywords: "gear equipment basecamp" },
+            { icon: UserRound, label: "Manager", href: "/career", keywords: "career profile saves" },
         ],
-    },
-    {
-        id: "legacy",
-        label: "Legacy",
-        icon: Crown,
-        items: [
-            { icon: Award, label: "Trophies", href: "/trophies" },
-            { icon: Crown, label: "Hall of Fame", href: "/hall-of-fame" },
-        ],
+        // `/equipment` redirects into Facilities → Gear.
+        prefixes: ["/equipment"],
     },
 ]
 

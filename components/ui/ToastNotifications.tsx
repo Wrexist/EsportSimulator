@@ -28,21 +28,21 @@ const TOAST_SOUND: Partial<Record<ToastData["type"], "achievement" | "success" |
 function getToastIcon(toast: ToastData) {
     if (toast.icon) return toast.icon
     switch (toast.type) {
-        case "level_up": return <TrendingUp size={18} className="text-emerald-400" />
-        case "xp_gain": return <Star size={18} className="text-amber-400" />
-        case "achievement": return <Award size={18} className="text-purple-400" />
-        case "warning": return <AlertTriangle size={18} className="text-red-400" />
-        default: return <Zap size={18} className="text-cyan-400" />
+        case "level_up": return <TrendingUp size={18} className="text-positive" />
+        case "xp_gain": return <Star size={18} className="text-gold" />
+        case "achievement": return <Award size={18} className="text-gold" />
+        case "warning": return <AlertTriangle size={18} className="text-negative" />
+        default: return <Zap size={18} className="text-gold" />
     }
 }
 
 function getToastStyle(toast: ToastData) {
     switch (toast.type) {
-        case "level_up": return "border-emerald-300/25"
-        case "xp_gain": return "border-amber-300/25"
-        case "achievement": return "border-violet-300/25"
-        case "warning": return "border-red-300/25"
-        default: return "border-cyan-200/25"
+        case "level_up": return "border-positive/30"
+        case "xp_gain": return "border-gold/30"
+        case "achievement": return "border-gold/40"
+        case "warning": return "border-negative/40"
+        default: return "border-gold/25"
     }
 }
 
@@ -97,16 +97,16 @@ const ToastItem = memo(function ToastItem({
             animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: 18, scale: 0.98, filter: "blur(6px)" }}
             transition={toast.duration ? quickEase : liquidSpring}
-            className={`pointer-events-auto liquid-panel flex items-center gap-3 px-4 py-3 rounded-lg border ${getToastStyle(toast)}`}
+            className={`pointer-events-auto bg-panel flex items-center gap-3 px-4 py-3 rounded-lg border ${getToastStyle(toast)}`}
         >
-            <div className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-hover flex items-center justify-center shrink-0">
                 {getToastIcon(toast)}
             </div>
-            <p className="text-sm font-semibold text-white/90">{toast.message}</p>
+            <p className="text-sm font-semibold text-ink-1">{toast.message}</p>
             <button
                 onClick={onRemove}
                 aria-label="Dismiss notification"
-                className="p-1 rounded-lg hover:bg-white/10 active:bg-white/15 active:scale-90 transition-all text-white/50 hover:text-white"
+                className="p-1 rounded-lg hover:bg-hover active:bg-hover active:scale-90 transition-all text-ink-2 hover:text-ink-1"
             >
                 <X size={14} />
             </button>

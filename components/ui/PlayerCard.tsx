@@ -8,6 +8,7 @@ import {
 import { memo, type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
+import { RATING_TEXT, ratingBand } from "@/src/design/rating"
 import { formatRole, formatCurrency } from "@/lib/utils-extended"
 
 import { Badge } from "@/components/ui/badge"
@@ -112,10 +113,10 @@ const PADDING_CLASS: Record<PlayerCardSize, string> = {
 }
 
 const ACCENT_CLASS = {
-  default: "border-white/10 bg-black/30",
-  danger: "border-red-500/30 bg-red-500/4",
-  success: "border-emerald-500/30 bg-emerald-500/4",
-  brand: "border-primary/40 bg-primary/6",
+  default: "border-line bg-shell",
+  danger: "border-negative/30 bg-negative/4",
+  success: "border-positive/30 bg-positive/5",
+  brand: "border-gold/40 bg-gold/5",
 } as const
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -124,21 +125,20 @@ const ACCENT_CLASS = {
 
 function roleIcon(role: string | undefined, px = 12) {
   switch (role?.toUpperCase()) {
-    case "AWPER": return <Target size={px} className="text-red-400" />
-    case "RIFLER": return <Gamepad2 size={px} className="text-blue-400" />
-    case "IGL": return <TrendingUp size={px} className="text-amber-400" />
-    case "SUPPORT": return <Heart size={px} className="text-emerald-400" />
+    case "AWPER": return <Target size={px} className="text-ink-2" />
+    case "RIFLER": return <Gamepad2 size={px} className="text-ink-2" />
+    case "IGL": return <TrendingUp size={px} className="text-ink-2" />
+    case "SUPPORT": return <Heart size={px} className="text-ink-2" />
     case "ENTRY":
-    case "ENTRY_FRAGGER": return <Zap size={px} className="text-orange-400" />
+    case "ENTRY_FRAGGER": return <Zap size={px} className="text-ink-2" />
     default: return <UserIcon size={px} />
   }
 }
 
+/** Same rating bands as RatingChip (design system v2). */
 function ovrColor(rating: number | undefined) {
-  if (rating === undefined) return "text-white/80"
-  if (rating >= 90) return "text-transparent bg-clip-text bg-linear-to-b/srgb from-amber-300 to-amber-600"
-  if (rating >= 80) return "text-emerald-400"
-  return "text-white/80"
+  if (rating === undefined) return "text-ink-1"
+  return RATING_TEXT[ratingBand(Math.round(rating))]
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -187,14 +187,14 @@ function PlayerCardImpl({
       {...wrapperProps}
       onClick={onClick}
       className={cn(
-        "group relative rounded-2xl border backdrop-blur-md overflow-hidden",
+        "group relative rounded-lg border overflow-hidden",
         "transition-[background-color,border-color,box-shadow,transform] duration-150 ease-out",
         PADDING_CLASS[size],
         ACCENT_CLASS[accent],
-        selected && "border-primary/60 bg-primary/8 scale-[1.01]",
+        selected && "border-gold bg-hover",
         muted && "opacity-60 grayscale",
-        !selected && !muted && "hover:border-white/20 hover:bg-white/4",
-        isReveal && "shadow-2xl",
+        !selected && !muted && "hover:border-line-strong hover:bg-raised",
+        isReveal && "border-line-strong",
         onClick && "cursor-pointer",
         className,
       )}
@@ -206,12 +206,12 @@ function PlayerCardImpl({
         {/* Stable portrait shared with profile and transfer screens. */}
         <div
           className={cn(
-            "relative shrink-0 rounded-lg border overflow-hidden shadow-xl",
+            "relative shrink-0 rounded-md border overflow-hidden",
             accent === "danger"
-              ? "bg-red-500/10 border-red-500/40"
+              ? "bg-negative/10 border-negative/40"
               : selected
-                ? "bg-primary/10 border-primary/60"
-                : "bg-linear-to-br/srgb from-white/10 to-transparent border-white/5",
+                ? "bg-raised border-gold"
+                : "bg-raised border-line",
           )}
           style={{ width: portraitPx, height: portraitPx }}
         >
@@ -225,11 +225,11 @@ function PlayerCardImpl({
           isReveal ? "items-center gap-2" : "gap-1.5 flex-1",
         )}>
           <div className={cn("flex items-center gap-2 flex-wrap", isReveal && "justify-center")}>
-            <span className={cn("font-normal leading-none text-white", NAME_CLASS[size])}>
+            <span className={cn("font-semibold leading-none text-ink-1", NAME_CLASS[size])}>
               {player.nickname}
             </span>
             {tierStyle && (
-              <Badge className={cn("text-[9px] px-2 py-0.5 border-none", tierStyle.bgColor, tierStyle.color)}>
+              <Badge className={cn("text-[11px] px-2 py-0.5 border-none", tierStyle.bgColor, tierStyle.color)}>
                 {tierStyle.shortLabel}
               </Badge>
             )}
@@ -238,13 +238,13 @@ function PlayerCardImpl({
           {!isCompact && (
             <div className={cn("flex items-center gap-3 opacity-90", isReveal && "justify-center")}>
               {player.role && (
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/5">
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-raised border border-line">
                   {roleIcon(player.role, 12)}
-                  <span className="text-[10px] font-bold uppercase tracking-wide text-white/80">
+                  <span className="text-[11px] font-bold uppercase tracking-wide text-ink-1">
                     {formatRole(player.role)}
                   </span>
                   {player.secondaryRole && (
-                    <span className="text-[9px] text-white/40 uppercase">
+                    <span className="text-[11px] text-ink-3 uppercase">
                       +{formatRole(player.secondaryRole)}
                     </span>
                   )}
@@ -254,7 +254,7 @@ function PlayerCardImpl({
                 <CountryFlag country={player.nationality} showName={false} size={16} />
               )}
               {player.name && isReveal && (
-                <span className="text-[11px] text-white/50">{player.name}</span>
+                <span className="text-[11px] text-ink-2">{player.name}</span>
               )}
             </div>
           )}
@@ -262,7 +262,7 @@ function PlayerCardImpl({
           {isCompact && player.role && (
             <div className="flex items-center gap-2 opacity-80">
               {roleIcon(player.role, 10)}
-              <span className="text-[10px] font-bold uppercase tracking-wide text-white/70">
+              <span className="text-[11px] font-bold uppercase tracking-wide text-ink-2">
                 {formatRole(player.role)}
               </span>
               {player.nationality && (
@@ -272,14 +272,14 @@ function PlayerCardImpl({
           )}
 
           {overlays?.contract && (player.salaryPerWeek !== undefined || player.contractYearsLeft !== undefined) && (
-            <div className={cn("flex items-center gap-2 text-[9px] font-medium text-white/40 mt-1", isReveal && "justify-center")}>
+            <div className={cn("flex items-center gap-2 text-[11px] font-medium text-ink-3 mt-1", isReveal && "justify-center")}>
               {player.salaryPerWeek !== undefined && (
-                <span className="text-emerald-400 font-bold">
+                <span className="font-semibold text-ink-1">
                   {formatCurrency(player.salaryPerWeek)}/wk
                 </span>
               )}
               {player.salaryPerWeek !== undefined && player.contractYearsLeft !== undefined && (
-                <span className="w-1 h-1 rounded-full bg-white/20" />
+                <span className="w-1 h-1 rounded-full bg-hover" />
               )}
               {player.contractYearsLeft !== undefined && (
                 <span>{player.contractYearsLeft.toFixed(1)}y left</span>
@@ -309,7 +309,7 @@ function PlayerCardImpl({
             )}>
               {player.overallRating}
             </span>
-            <span className="text-[10px] font-normal text-muted-foreground uppercase mt-1 tracking-[0.2em] opacity-60">
+            <span className="text-[11px] font-normal text-muted-foreground uppercase mt-1 tracking-[0.2em] opacity-60">
               OVR
             </span>
           </div>

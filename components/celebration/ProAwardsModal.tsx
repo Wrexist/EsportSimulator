@@ -66,8 +66,8 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
         if (rank === 2) return "from-gray-300 via-gray-400 to-gray-500"
         if (rank === 3) return "from-amber-600 via-amber-700 to-amber-800"
         if (rank <= 5) return "from-violet-500/50 to-purple-600/50"
-        if (rank <= 10) return "from-cyan-500/30 to-blue-500/30"
-        return "from-white/10 to-white/5"
+        if (rank <= 10) return "from-gold/30 to-gold"
+        return "from-hover to-raised"
     }
 
     return (
@@ -79,7 +79,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 top-16 bg-black/58 backdrop-blur-md z-modal"
+                        className="fixed inset-0 top-16 bg-ink/80 z-modal"
                         onClick={onClose}
                     />
 
@@ -94,17 +94,17 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                         <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="modal-title-pro-awards" className="w-full max-w-5xl max-h-full liquid-panel rounded-xl overflow-hidden flex flex-col">
 
                             {/* Header */}
-                            <div className="p-6 bg-white/[0.035] border-b border-white/10 relative overflow-hidden shrink-0">
+                            <div className="p-6 bg-raised border-b border-line relative overflow-hidden shrink-0">
                                 {/* Sparkle Effects */}
                                 <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r/srgb from-transparent via-amber-200/40 to-transparent pointer-events-none" />
 
                                 <div className="flex items-center justify-between relative z-10">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 rounded-lg border border-amber-200/25 flex items-center justify-center shadow-glass-soft">
+                                        <div className="w-16 h-16 rounded-lg border border-gold/25 flex items-center justify-center">
                                             <Trophy size={32} className="text-amber-200" />
                                         </div>
                                         <div>
-                                            <h1 id="modal-title-pro-awards" className="text-3xl font-bold text-white">
+                                            <h1 id="modal-title-pro-awards" className="text-3xl font-bold text-ink-1">
                                                 Pro Top 20 Players
                                             </h1>
                                             <p className="text-amber-400/60 text-sm font-medium">
@@ -127,7 +127,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                         <button
                                             onClick={onClose}
                                             aria-label="Close awards"
-                                            className="p-2 rounded-lg hover:bg-white/10 active:bg-white/15 active:scale-90 text-white/50 hover:text-white transition-all"
+                                            className="p-2 rounded-lg hover:bg-hover active:bg-hover active:scale-90 text-ink-2 hover:text-ink-1 transition-all"
                                         >
                                             <X size={20} />
                                         </button>
@@ -138,7 +138,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                             {/* Content - Two Column Layout */}
                             <div className="flex-1 flex min-h-0 overflow-hidden">
                                 {/* Left: Player List */}
-                                <div className="flex-1 overflow-y-auto p-4 border-r border-white/5">
+                                <div className="flex-1 overflow-y-auto p-4 border-r border-line">
                                     <div className="space-y-1.5">
                                         {displayedPlayers.map((player, index) => (
                                             <motion.div
@@ -152,8 +152,8 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                     selectedPlayer?.playerId === player.playerId
                                                         ? "bg-linear-to-r/srgb " + getTierColor(player.rank) + " ring-1 ring-amber-500/50"
                                                         : player.rank <= 3
-                                                            ? "bg-linear-to-r/srgb " + getTierColor(player.rank) + " hover:ring-1 hover:ring-white/20"
-                                                            : "bg-white/3 hover:bg-white/6 border border-white/5",
+                                                            ? "bg-linear-to-r/srgb " + getTierColor(player.rank) + " hover:ring-1 hover:ring-line-strong"
+                                                            : "bg-raised hover:bg-raised border border-line",
                                                     player.isPlayerTeam && "ring-2 ring-primary/50"
                                                 )}
                                             >
@@ -161,31 +161,31 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                 <div className={cn(
                                                     "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg shrink-0",
                                                     player.rank === 1
-                                                        ? "bg-linear-to-br/srgb from-amber-500 to-orange-600 text-white shadow-lg"
+                                                        ? "bg-linear-to-br/srgb from-amber-500 to-orange-600 text-ink-1 shadow-lg"
                                                         : player.rank === 2
                                                             ? "bg-linear-to-br/srgb from-gray-300 to-gray-500 text-gray-900"
                                                             : player.rank === 3
                                                                 ? "bg-linear-to-br/srgb from-amber-700 to-amber-900 text-amber-200"
-                                                                : "bg-white/10 text-white/60"
+                                                                : "bg-hover text-ink-2"
                                                 )}>
                                                     {player.rank === 1 ? <Crown size={20} /> : `#${player.rank}`}
                                                 </div>
 
                                                 {/* Player Portrait */}
-                                                <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden shrink-0">
+                                                <div className="w-10 h-10 rounded-lg bg-raised border border-line overflow-hidden shrink-0">
                                                     <PlayerPortrait src={player.portraitPath} seed={player.playerId} alt={player.nickname} size={40} variant="card" />
                                                 </div>
 
                                                 {/* Player Info */}
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="font-bold text-white truncate">{player.nickname}</span>
+                                                        <span className="font-bold text-ink-1 truncate">{player.nickname}</span>
                                                         <CountryFlag country={player.nationality} size={12} />
                                                         {player.isPlayerTeam && (
                                                             <Badge className="text-[7px] px-1 py-0 bg-primary/20 text-primary border-primary/30">YOU</Badge>
                                                         )}
                                                     </div>
-                                                    <div className="flex items-center gap-1.5 text-[10px] text-white/40">
+                                                    <div className="flex items-center gap-1.5 text-[11px] text-ink-3">
                                                         <span className="truncate">{player.teamName}</span>
                                                     </div>
                                                 </div>
@@ -195,11 +195,11 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                     <p className={cn(
                                                         "text-lg font-bold",
                                                         player.proRating >= 1.20 ? "text-emerald-400" :
-                                                            player.proRating >= 1.10 ? "text-amber-400" : "text-white/70"
+                                                            player.proRating >= 1.10 ? "text-amber-400" : "text-ink-2"
                                                     )}>
                                                         {player.proRating.toFixed(2)}
                                                     </p>
-                                                    <p className="text-[8px] text-white/50 uppercase">Rating</p>
+                                                    <p className="text-[11px] text-ink-2 uppercase">Rating</p>
                                                 </div>
                                             </motion.div>
                                         ))}
@@ -221,7 +221,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                 </div>
 
                                 {/* Right: Player Details */}
-                                <div className="w-[360px] shrink-0 p-4 overflow-y-auto bg-black/20">
+                                <div className="w-[360px] shrink-0 p-4 overflow-y-auto bg-shell">
                                     {selectedPlayer ? (
                                         <motion.div
                                             key={selectedPlayer.playerId}
@@ -231,25 +231,25 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                         >
                                             {/* Player Header */}
                                             <div className="text-center">
-                                                <div className="w-24 h-24 rounded-xl bg-white/5 border border-white/10 overflow-hidden mx-auto mb-3">
+                                                <div className="w-24 h-24 rounded-xl bg-raised border border-line overflow-hidden mx-auto mb-3">
                                                     <PlayerPortrait src={selectedPlayer.portraitPath} seed={selectedPlayer.playerId} alt={selectedPlayer.nickname} size={96} variant="hero" />
                                                 </div>
-                                                <h2 className="text-2xl font-bold text-white">{selectedPlayer.nickname}</h2>
+                                                <h2 className="text-2xl font-bold text-ink-1">{selectedPlayer.nickname}</h2>
                                                 <div className="flex items-center justify-center gap-2 mt-1">
                                                     <CountryFlag country={selectedPlayer.nationality} size={14} />
-                                                    <span className="text-white/50 text-sm">{selectedPlayer.playerName}</span>
+                                                    <span className="text-ink-2 text-sm">{selectedPlayer.playerName}</span>
                                                 </div>
                                                 <div className="flex items-center justify-center gap-2 mt-2">
-                                                    <div className="w-5 h-5 rounded bg-white/10 overflow-hidden">
+                                                    <div className="w-5 h-5 rounded bg-hover overflow-hidden">
                                                         <TeamLogoImage src={selectedPlayer.teamLogo} alt={selectedPlayer.teamName} size={20} />
                                                     </div>
-                                                    <span className="text-white/60 text-sm">{selectedPlayer.teamName}</span>
+                                                    <span className="text-ink-2 text-sm">{selectedPlayer.teamName}</span>
                                                 </div>
                                                 <Badge className={cn(
                                                     "mt-3 text-xs",
                                                     selectedPlayer.rank === 1 ? "bg-amber-500/20 text-amber-400 border-amber-500/30" :
                                                         selectedPlayer.rank <= 5 ? "bg-primary/20 text-primary border-primary/30" :
-                                                            "bg-white/10 text-white/60 border-white/10"
+                                                            "bg-hover text-ink-2 border-line"
                                                 )}>
                                                     #{selectedPlayer.rank} in the World
                                                 </Badge>
@@ -257,42 +257,42 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
 
                                             {/* Stats Grid */}
                                             <div className="grid grid-cols-2 gap-2">
-                                                <div className="p-3 rounded-lg bg-white/5 text-center">
+                                                <div className="p-3 rounded-lg bg-raised text-center">
                                                     <p className="text-2xl font-bold text-emerald-400">{selectedPlayer.proRating.toFixed(2)}</p>
-                                                    <p className="text-[9px] text-white/40 uppercase">Pro Rating</p>
+                                                    <p className="text-[11px] text-ink-3 uppercase">Pro Rating</p>
                                                 </div>
-                                                <div className="p-3 rounded-lg bg-white/5 text-center">
-                                                    <p className="text-2xl font-bold text-cyan-400">{selectedPlayer.impactRating.toFixed(2)}</p>
-                                                    <p className="text-[9px] text-white/40 uppercase">Impact</p>
+                                                <div className="p-3 rounded-lg bg-raised text-center">
+                                                    <p className="text-2xl font-bold text-gold">{selectedPlayer.impactRating.toFixed(2)}</p>
+                                                    <p className="text-[11px] text-ink-3 uppercase">Impact</p>
                                                 </div>
-                                                <div className="p-3 rounded-lg bg-white/5 text-center">
-                                                    <p className="text-xl font-bold text-white">{selectedPlayer.kast.toFixed(1)}%</p>
-                                                    <p className="text-[9px] text-white/40 uppercase">KAST</p>
+                                                <div className="p-3 rounded-lg bg-raised text-center">
+                                                    <p className="text-xl font-bold text-ink-1">{selectedPlayer.kast.toFixed(1)}%</p>
+                                                    <p className="text-[11px] text-ink-3 uppercase">KAST</p>
                                                 </div>
-                                                <div className="p-3 rounded-lg bg-white/5 text-center">
-                                                    <p className="text-xl font-bold text-white">{selectedPlayer.adr.toFixed(1)}</p>
-                                                    <p className="text-[9px] text-white/40 uppercase">ADR</p>
+                                                <div className="p-3 rounded-lg bg-raised text-center">
+                                                    <p className="text-xl font-bold text-ink-1">{selectedPlayer.adr.toFixed(1)}</p>
+                                                    <p className="text-[11px] text-ink-3 uppercase">ADR</p>
                                                 </div>
                                             </div>
 
                                             {/* Achievements */}
                                             <div className="space-y-2">
-                                                <h3 className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Achievements</h3>
+                                                <h3 className="text-[11px] text-ink-3 uppercase tracking-widest font-bold">Achievements</h3>
                                                 <div className="grid grid-cols-3 gap-2">
                                                     <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
                                                         <Trophy size={16} className="text-amber-400 mx-auto mb-1" />
                                                         <p className="text-lg font-bold text-amber-400">{selectedPlayer.mvpCount}</p>
-                                                        <p className="text-[8px] text-amber-400/60 uppercase">MVPs</p>
+                                                        <p className="text-[11px] text-amber-400/60 uppercase">MVPs</p>
                                                     </div>
                                                     <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-center">
                                                         <Star size={16} className="text-violet-400 mx-auto mb-1" />
                                                         <p className="text-lg font-bold text-violet-400">{selectedPlayer.evpCount}</p>
-                                                        <p className="text-[8px] text-violet-400/60 uppercase">EVPs</p>
+                                                        <p className="text-[11px] text-violet-400/60 uppercase">EVPs</p>
                                                     </div>
-                                                    <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-center">
-                                                        <Target size={16} className="text-cyan-400 mx-auto mb-1" />
-                                                        <p className="text-lg font-bold text-cyan-400">{selectedPlayer.bigEventWins}</p>
-                                                        <p className="text-[8px] text-cyan-400/60 uppercase">Titles</p>
+                                                    <div className="p-2 rounded-lg bg-gold/10 border border-gold/20 text-center">
+                                                        <Target size={16} className="text-gold mx-auto mb-1" />
+                                                        <p className="text-lg font-bold text-gold">{selectedPlayer.bigEventWins}</p>
+                                                        <p className="text-[11px] text-gold uppercase">Titles</p>
                                                     </div>
                                                 </div>
                                                 {selectedPlayer.majorWins > 0 && (
@@ -301,7 +301,7 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                                         <div>
                                                             <p className="font-bold text-amber-300">{selectedPlayer.majorWins}x Major Champion</p>
                                                             {selectedPlayer.majorMvps > 0 && (
-                                                                <p className="text-[10px] text-amber-400/60">{selectedPlayer.majorMvps} Major MVP</p>
+                                                                <p className="text-[11px] text-amber-400/60">{selectedPlayer.majorMvps} Major MVP</p>
                                                             )}
                                                         </div>
                                                     </div>
@@ -309,13 +309,13 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                                             </div>
 
                                             {/* Meta */}
-                                            <div className="text-center text-[10px] text-white/30 space-y-1">
+                                            <div className="text-center text-[11px] text-ink-3 space-y-1">
                                                 <p>{selectedPlayer.mapsPlayed} maps played at Big Events</p>
                                                 <p>{selectedPlayer.age} years old • {formatRole(selectedPlayer.role)}</p>
                                             </div>
                                         </motion.div>
                                     ) : (
-                                        <div className="h-full flex items-center justify-center text-white/30 text-sm">
+                                        <div className="h-full flex items-center justify-center text-ink-3 text-sm">
                                             <div className="text-center">
                                                 <Users size={40} className="mx-auto mb-3 opacity-30" />
                                                 <p>Select a player to view details</p>
@@ -326,32 +326,32 @@ export function ProAwardsModal({ isOpen, onClose, awards }: ProAwardsModalProps)
                             </div>
 
                             {/* Footer - Special Awards */}
-                            <div className="p-4 bg-black/20 border-t border-white/10 shrink-0">
+                            <div className="p-4 bg-shell border-t border-line shrink-0">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-6 text-sm">
                                         {awards.mvpOfTheYear && revealedCount >= 20 && (
                                             <div className="flex items-center gap-2">
                                                 <Crown size={14} className="text-amber-400" />
-                                                <span className="text-white/50">MVP:</span>
+                                                <span className="text-ink-2">MVP:</span>
                                                 <span className="text-amber-400 font-bold">{awards.mvpOfTheYear.nickname}</span>
                                             </div>
                                         )}
                                         {awards.rookieOfTheYear && revealedCount >= 20 && (
                                             <div className="flex items-center gap-2">
                                                 <Star size={14} className="text-emerald-400" />
-                                                <span className="text-white/50">Rookie:</span>
+                                                <span className="text-ink-2">Rookie:</span>
                                                 <span className="text-emerald-400 font-bold">{awards.rookieOfTheYear.nickname}</span>
                                             </div>
                                         )}
                                         {awards.awperOfTheYear && revealedCount >= 20 && (
                                             <div className="flex items-center gap-2">
-                                                <Crosshair size={14} className="text-cyan-400" />
-                                                <span className="text-white/50">AWPer:</span>
-                                                <span className="text-cyan-400 font-bold">{awards.awperOfTheYear.nickname}</span>
+                                                <Crosshair size={14} className="text-gold" />
+                                                <span className="text-ink-2">AWPer:</span>
+                                                <span className="text-gold font-bold">{awards.awperOfTheYear.nickname}</span>
                                             </div>
                                         )}
                                     </div>
-                                    <Button onClick={onClose} className="bg-white text-black hover:bg-white/90">
+                                    <Button onClick={onClose} className="bg-white text-black hover:bg-ink-1">
                                         Close
                                     </Button>
                                 </div>

@@ -89,11 +89,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
             // Default error UI
             return (
-                <div className="flex flex-col items-center justify-center p-8 text-center bg-red-500/5 border border-red-500/20 rounded-xl min-h-[50vh]">
-                    <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-6">
+                <div className="flex flex-col items-center justify-center p-8 text-center bg-negative/5 border border-negative/30 rounded-xl min-h-[50vh]">
+                    <div className="w-16 h-16 rounded-full bg-negative/10 flex items-center justify-center mb-6">
                         <AlertTriangle className="text-red-500" size={32} />
                     </div>
-                    <h3 className="text-xl font-medium text-white mb-2">
+                    <h3 className="text-xl font-medium text-ink-1 mb-2">
                         {this.props.section ? `Error in ${this.props.section}` : 'Something went wrong'}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-2 max-w-md">
@@ -106,7 +106,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         <Button
                             onClick={this.handleReset}
                             variant="default"
-                            className="bg-red-500 hover:bg-red-600 text-white border-none"
+                            className="bg-red-500 hover:bg-red-600 text-ink-1 border-none"
                         >
                             <RefreshCw size={14} className="mr-2" />
                             Try Again
@@ -114,7 +114,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         <Button
                             onClick={this.handleCopyDetails}
                             variant="outline"
-                            className="border-white/10 hover:bg-white/5"
+                            className="border-line hover:bg-raised"
                         >
                             {this.state.copied ? (
                                 <>
@@ -131,7 +131,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         <Button
                             onClick={this.handleReturnToMenu}
                             variant="ghost"
-                            className="hover:bg-white/5"
+                            className="hover:bg-raised"
                         >
                             <Home size={14} className="mr-2" />
                             Return to Main Menu
@@ -156,15 +156,15 @@ export function InlineErrorFallback({
     onRetry?: () => void
 }) {
     return (
-        <div className="flex items-center gap-3 p-3 bg-red-500/5 border border-red-500/20 rounded-lg text-sm">
+        <div className="flex items-center gap-3 p-3 bg-negative/5 border border-negative/30 rounded-lg text-sm">
             <AlertTriangle className="text-red-500 shrink-0" size={16} />
-            <span className="text-red-400">{message}</span>
+            <span className="text-negative">{message}</span>
             {onRetry && (
                 <Button
                     onClick={onRetry}
                     size="sm"
                     variant="ghost"
-                    className="ml-auto text-red-400 hover:text-red-300 hover:bg-red-500/10 h-7 px-2"
+                    className="ml-auto text-negative hover:text-negative hover:bg-negative/10 h-7 px-2"
                 >
                     <RefreshCw size={12} className="mr-1" />
                     Retry

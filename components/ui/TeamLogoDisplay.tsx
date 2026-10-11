@@ -34,10 +34,10 @@ export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayP
     if (!team) {
         return (
             <div
-                className={cn("rounded-lg bg-white/5 flex items-center justify-center", className)}
+                className={cn("rounded-lg bg-raised flex items-center justify-center", className)}
                 style={{ width: size, height: size }}
             >
-                <span className="text-white/30 font-bold" style={{ fontSize: size * 0.4 }}>?</span>
+                <span className="text-ink-3 font-bold" style={{ fontSize: size * 0.4 }}>?</span>
             </div>
         )
     }

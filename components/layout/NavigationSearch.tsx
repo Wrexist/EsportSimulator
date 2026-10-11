@@ -40,7 +40,7 @@ export function NavigationSearch({ compact = false, disabled }: { compact?: bool
         >
             <Search size={15} className="shrink-0" />
             <span className={compact ? "hidden text-xs 2xl:inline" : "flex-1 text-left text-xs"}>Go to…</span>
-            <kbd className="rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3">Ctrl K</kbd>
+            <kbd className={compact ? "hidden rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3 2xl:inline" : "rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3"}>Ctrl K</kbd>
         </button>
         </DialogTrigger>
             <DialogContent className="overflow-hidden p-0 sm:max-w-lg" showCloseButton={false}>
@@ -49,12 +49,13 @@ export function NavigationSearch({ compact = false, disabled }: { compact?: bool
                 <Command className="bg-transparent">
                     <CommandInput aria-label="Search game screens" placeholder="Where would you like to go?" className="h-14 focus-visible:outline-2! focus-visible:-outline-offset-4! focus-visible:shadow-none!" />
                     <CommandList className="max-h-[min(55vh,420px)] p-2" aria-busy={isPending}>
-                        <CommandEmpty>No screens found. Try squad, finances or training.</CommandEmpty>
+                        <CommandEmpty>No screens found. Try squad, week or finances.</CommandEmpty>
                         {[...menuGroups, { label: "Preferences", items: [settingsItem] }].map(group =>
                             <CommandGroup key={group.label} heading={group.label}>
                                 {group.items.map(item => <CommandItem
                                     key={item.href}
                                     value={`${group.label} ${item.label}`}
+                                    keywords={item.keywords?.split(" ")}
                                     onSelect={() => {
                                         if (disabled) return
                                         startTransition(() => router.push(item.href))

@@ -91,7 +91,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-celebration flex items-center justify-center bg-black/58 backdrop-blur-md"
+                className="fixed inset-0 z-celebration flex items-center justify-center bg-ink/80"
             >
                 <div className="absolute inset-0 liquid-app-bg opacity-70 pointer-events-none" />
                 <div className="absolute inset-0 liquid-noise pointer-events-none" />
@@ -121,10 +121,10 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                             </h1>
                             <Trophy className="text-amber-400" size={28} />
                         </div>
-                        <h2 id="modal-title-legend-pick" className="text-4xl font-bold text-white uppercase tracking-tight">
+                        <h2 id="modal-title-legend-pick" className="text-4xl font-bold text-ink-1 uppercase tracking-tight">
                             Choose Your Legend
                         </h2>
-                        <p className="text-white/40 mt-2 text-sm">
+                        <p className="text-ink-3 mt-2 text-sm">
                             {data.tournamentName} — Select a legend to join your roster
                         </p>
                     </motion.div>
@@ -145,8 +145,8 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                         className={cn(
                                             "w-full text-left rounded-xl transition-[border-color,box-shadow] duration-100 ease-out overflow-hidden group relative glass-card active:scale-[0.99] active:duration-0",
                                             selectedId === legend.id
-                                                ? "border-amber-300/40 shadow-glass-soft ring-1 ring-amber-300/25"
-                                                : "border-white/10 hover:border-white/25"
+                                                ? "border-amber-300/40 ring-1 ring-amber-300/25"
+                                                : "border-line hover:border-line-strong"
                                         )}
                                     >
                                         {/* Card background glow on select */}
@@ -155,8 +155,8 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                         )}
 
                                         {/* Portrait area */}
-                                        <div className="relative h-36 [@media(min-height:800px)]:h-48 bg-linear-to-b/srgb from-white/3 to-transparent flex items-center justify-center">
-                                            <div className="w-28 h-28 rounded-xl bg-white/5 overflow-hidden shadow-2xl">
+                                        <div className="relative h-36 [@media(min-height:800px)]:h-48 bg-linear-to-b/srgb from-raised to-transparent flex items-center justify-center">
+                                            <div className="w-28 h-28 rounded-xl bg-raised overflow-hidden shadow-2xl">
                                                 <PlayerPortrait src={legend.portraitPath} seed={legend.id} alt={legend.nickname} size={112} variant="hero" />
                                             </div>
                                             {/* Skill badge */}
@@ -165,7 +165,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                                     "w-12 h-12 rounded-lg flex items-center justify-center text-lg font-black",
                                                     legend.skill >= 96 ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" :
                                                     legend.skill >= 92 ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" :
-                                                    "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                                                    "bg-raised text-ink-2 border border-line"
                                                 )}>
                                                     {legend.skill}
                                                 </div>
@@ -177,18 +177,18 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                         </div>
 
                                         {/* Info area */}
-                                        <div className="p-5 bg-black/20 relative z-10">
+                                        <div className="p-5 bg-shell relative z-10">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <h3 className="text-xl font-bold text-white">{legend.nickname}</h3>
+                                                <h3 className="text-xl font-bold text-ink-1">{legend.nickname}</h3>
                                                 <CountryFlag country={legend.nationality} />
                                             </div>
-                                            <p className="text-white/40 text-xs mb-3">{legend.name}</p>
+                                            <p className="text-ink-3 text-xs mb-3">{legend.name}</p>
 
                                             <div className="flex items-center gap-2 mb-3">
-                                                <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[10px]">
+                                                <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-[11px]">
                                                     {formatRole(legend.role)}
                                                 </Badge>
-                                                <Badge className="bg-white/10 text-white/60 border-white/10 text-[10px]">
+                                                <Badge className="bg-hover text-ink-2 border-line text-[11px]">
                                                     {legend.majorWins || 0}x Major
                                                 </Badge>
                                             </div>
@@ -196,7 +196,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                             {/* Achievements */}
                                             <div className="space-y-1.5">
                                                 {(legend.legendaryAchievements || []).slice(0, 3).map((ach: string, j: number) => (
-                                                    <div key={j} className="flex items-center gap-2 text-[11px] text-white/50">
+                                                    <div key={j} className="flex items-center gap-2 text-[11px] text-ink-2">
                                                         <Star size={10} className="text-amber-400/60 shrink-0" />
                                                         <span className="truncate">{ach}</span>
                                                     </div>
@@ -204,18 +204,18 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                             </div>
 
                                             {/* Key stats row */}
-                                            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/5">
+                                            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-line">
                                                 <div className="text-center">
-                                                    <div className="text-[10px] text-white/30 uppercase">Matches</div>
-                                                    <div className="text-sm font-bold text-white/80">{(legend.matchesPlayed || 0).toLocaleString()}</div>
+                                                    <div className="text-[11px] text-ink-3 uppercase">Matches</div>
+                                                    <div className="text-sm font-bold text-ink-1">{(legend.matchesPlayed || 0).toLocaleString()}</div>
                                                 </div>
                                                 <div className="text-center">
-                                                    <div className="text-[10px] text-white/30 uppercase">Rating</div>
+                                                    <div className="text-[11px] text-ink-3 uppercase">Rating</div>
                                                     <div className="text-sm font-bold text-amber-400">{(legend.avgRating || 0).toFixed(2)}</div>
                                                 </div>
                                                 <div className="text-center">
-                                                    <div className="text-[10px] text-white/30 uppercase">MVPs</div>
-                                                    <div className="text-sm font-bold text-white/80">{legend.totalMVPs || 0}</div>
+                                                    <div className="text-[11px] text-ink-3 uppercase">MVPs</div>
+                                                    <div className="text-sm font-bold text-ink-1">{legend.totalMVPs || 0}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -244,10 +244,10 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                             <div className="w-24 h-24 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto mb-6">
                                 <Zap size={48} className="text-amber-400" />
                             </div>
-                            <h2 className="text-3xl font-bold text-white mb-2">
+                            <h2 className="text-3xl font-bold text-ink-1 mb-2">
                                 {candidates.find(c => c.id === selectedId)?.nickname} joins your team!
                             </h2>
-                            <p className="text-white/40">A legend returns to the stage...</p>
+                            <p className="text-ink-3">A legend returns to the stage...</p>
                         </motion.div>
                     )}
 
@@ -260,7 +260,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                             className="text-center"
                         >
                             {quote && (
-                                <p role="status" className={cn("mb-3 text-sm", quote.affordable ? "text-white/60" : "text-amber-300")}>
+                                <p role="status" className={cn("mb-3 text-sm", quote.affordable ? "text-ink-2" : "text-amber-300")}>
                                     Wage {formatCurrency(quote.salary, "$", false)}/week for {LEGEND_CONTRACT_WEEKS / 52} years.{" "}
                                     {quote.weeklyNet >= 0
                                         ? "Your club stays cash-positive."
@@ -275,15 +275,15 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                     className={cn(
                                         "px-12 py-4 rounded-lg text-lg font-bold uppercase tracking-wider transition-colors duration-100 ease-out select-none touch-manipulation will-change-transform active:scale-[0.97] active:duration-0",
                                         canSign
-                                            ? "bg-amber-300 text-black hover:bg-amber-200 shadow-glass-soft"
-                                            : "bg-white/5 text-white/40 cursor-not-allowed"
+                                            ? "bg-amber-300 text-black hover:bg-amber-200 "
+                                            : "bg-raised text-ink-3 cursor-not-allowed"
                                     )}
                                 >
                                     {selectedId ? `Sign ${candidates.find(c => c.id === selectedId)?.nickname}` : "Select a Legend"}
                                 </button>
                                 <button
                                     onClick={clearLegendPick}
-                                    className="px-6 py-4 rounded-lg text-sm font-bold uppercase tracking-wider border border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
+                                    className="px-6 py-4 rounded-lg text-sm font-bold uppercase tracking-wider border border-line-strong bg-raised text-ink-1 hover:bg-hover"
                                 >
                                     Decline
                                 </button>

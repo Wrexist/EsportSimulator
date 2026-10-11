@@ -279,7 +279,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                         <Button
                             type="button"
                             onClick={handleSave}
-                            className="flex-1 bg-emerald-600 hover:bg-emerald-500"
+                            className="flex-1"
                         >
                             Use This Logo
                         </Button>

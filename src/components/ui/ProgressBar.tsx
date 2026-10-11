@@ -7,11 +7,11 @@ export type ProgressBarTone = "brand" | "success" | "warning" | "danger" | "neut
 export type ProgressBarSize = "xs" | "sm" | "md"
 
 const TONE_GRADIENT: Record<Exclude<ProgressBarTone, "auto">, string> = {
-  brand: "bg-linear-to-r/srgb from-primary/80 to-primary",
-  success: "bg-linear-to-r/srgb from-emerald-600 to-emerald-400",
-  warning: "bg-linear-to-r/srgb from-amber-600 to-amber-400",
-  danger: "bg-linear-to-r/srgb from-rose-600 to-rose-400",
-  neutral: "bg-linear-to-r/srgb from-white/40 to-white/70",
+  brand: "bg-gold",
+  success: "bg-positive",
+  warning: "bg-caution",
+  danger: "bg-negative",
+  neutral: "bg-ink-2",
 }
 
 const HEIGHT_CLASS: Record<ProgressBarSize, string> = {
@@ -21,7 +21,7 @@ const HEIGHT_CLASS: Record<ProgressBarSize, string> = {
 }
 
 const VALUE_TONE = (v: number) =>
-  v >= 80 ? "text-emerald-400" : v >= 60 ? "text-white/80" : "text-rose-400"
+  v >= 80 ? "text-positive" : v >= 60 ? "text-ink-1" : "text-negative"
 
 function resolveTone(tone: ProgressBarTone, value: number): Exclude<ProgressBarTone, "auto"> {
   if (tone !== "auto") return tone
@@ -66,19 +66,19 @@ export function ProgressBar({
       {(label || showValue) && (
         <div className="flex items-center justify-between px-0.5">
           {label && (
-            <span className="text-[9px] font-normal uppercase tracking-widest text-muted-foreground/60">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
               {label}
             </span>
           )}
           {showValue && (
-            <span className={cn("text-[9px] font-bold tabular-nums", VALUE_TONE(clamped))}>
+            <span className={cn("text-[11px] font-bold tabular-nums", VALUE_TONE(clamped))}>
               {Math.round(clamped)}%
             </span>
           )}
         </div>
       )}
       <div className={cn(
-        "relative w-full rounded-full bg-white/5 overflow-hidden ring-1 ring-white/5",
+        "relative w-full rounded-full bg-hover overflow-hidden",
         HEIGHT_CLASS[size],
       )}>
         <motion.div
@@ -91,8 +91,8 @@ export function ProgressBar({
         >
           {decorative && (
             <>
-              <div className="absolute inset-0 bg-linear-to-b/srgb from-white/40 to-transparent opacity-80" />
-              <div className="absolute inset-0 -translate-x-full group-hover/meter:animate-[shimmer_1s_infinite] bg-linear-to-r/srgb from-transparent via-white/50 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-b/srgb from-ink-1/30 to-transparent opacity-80" />
+              <div className="absolute inset-0 -translate-x-full group-hover/meter:animate-[shimmer_1s_infinite] bg-linear-to-r/srgb from-transparent via-ink-1/40 to-transparent" />
             </>
           )}
         </motion.div>
