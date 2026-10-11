@@ -156,7 +156,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
     const holdStart = introActive
     const endIntro = useCallback(() => setIntroActive(false), [])
     const router = useRouter()
-    const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic, currentWeek, currentDay, timeMode } = useGameStore(useShallow(state => ({
+    const { scheduledMatches, teams, players, staff, getPlayerTeam, customTactics, setActiveMatch, updateActiveMatchState, saveMatchResult, clearActiveMatchState, updateCustomTactic, currentWeek, currentDay, timeMode, isAutoTactics, setIsAutoTactics } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
         teams: state.teams,
         players: state.players,
@@ -171,6 +171,9 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         currentWeek: state.currentWeek,
         currentDay: state.currentDay,
         timeMode: state.timeMode,
+        // Auto tactics is saved with the career, so it survives a reload and the next match.
+        isAutoTactics: state.autoTactics,
+        setIsAutoTactics: state.setAutoTactics,
     })))
     const playerTeam = getPlayerTeam()
 
@@ -209,7 +212,6 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
     // Always one of LIVE_SPEED_PRESETS so the control bar label is exact.
     const [speed, setSpeed] = useState<number>(() => defaultLiveSpeed(pacingMode, gameSpeedSetting))
     const [isPlaying, setIsPlaying] = useState(false)
-    const [isAutoTactics, setIsAutoTactics] = useState(false)
 
     // INTERACTIVITY
     const [isWaitingForStrategy, setIsWaitingForStrategy] = useState(false)
@@ -1184,7 +1186,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         setIsPlaying(false)
         setIsAutoTactics(false)
         soundManager.play("notification")
-    }, [isWaitingForStrategy])
+    }, [isWaitingForStrategy, setIsAutoTactics])
 
     const handleFinish = useCallback(() => {
         const runtime = matchData.current

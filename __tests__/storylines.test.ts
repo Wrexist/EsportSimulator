@@ -206,13 +206,46 @@ describe("contract standoff", () => {
         expect(String(request.data.message)).toContain("His contract ends in Week 20 and no new deal was offered.")
     })
 
-    test("a Quiet player or a deal with 20 weeks left is not a standoff", () => {
+    test("a Quiet player, a deal outside its final year, or a bench player is not a standoff", () => {
         const save = world()
         save.contracts.find(c => c.playerId === "p0")!.endWeek = 18
         expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(save))).toEqual([])
         const later = world(10, { p0: "AMBITIOUS" })
-        later.contracts.find(c => c.playerId === "p0")!.endWeek = 30
+        later.contracts.find(c => c.playerId === "p0")!.endWeek = 10 + S.STANDOFF_MAX_WEEKS + 1
         expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(later))).toEqual([])
+        // p5 is the sixth-rated player: outside the top five.
+        const bench = world(10, { p5: "MERCENARY" })
+        bench.contracts.find(c => c.playerId === "p5")!.endWeek = 20
+        expect(ARC_DEFINITIONS.CONTRACT_STANDOFF.detect(buildContext(bench))).toEqual([])
+    })
+
+    test("Phase 5 fix: the final year of a top-five deal qualifies, and waiting runs out STANDOFF_PATIENCE_WEEKS after the talks", () => {
+        const save = world(10, { p4: "AMBITIOUS" })
+        save.contracts.find(c => c.playerId === "p4")!.endWeek = 10 + 40
+        processStorylines(save)
+        const arc = arcOf(save, "CONTRACT_STANDOFF")!
+        expect(arc.playerIds).toEqual(["p4"])
+        expect(arc.facts.rank).toBe(5)
+        nextWeek(save)
+        const e = eventOf(save, arc)!
+        expect(answer(save, e, "wait")).toBe(true)
+        expect(Number(arc.facts.requestWeek)).toBe(11 + S.STANDOFF_PATIENCE_WEEKS)
+        expect(String(e.data.message)).toContain(`If his deal is still unrenewed in Week ${11 + S.STANDOFF_PATIENCE_WEEKS}, he hands in a transfer request.`)
+        while (save.currentWeek < 11 + S.STANDOFF_PATIENCE_WEEKS) nextWeek(save)
+        expect(arc).toMatchObject({ state: "RESOLVED", outcome: "REQUEST" })
+    })
+
+    test("at most MAX_PER_SEASON standoffs a season, however many deals run down", () => {
+        const save = world(2, { p0: "MERCENARY", p1: "AMBITIOUS", p2: "MERCENARY", p3: "AMBITIOUS" })
+        for (const id of ["p0", "p1", "p2", "p3"]) save.contracts.find(c => c.playerId === id)!.endWeek = 2 + 50
+        let started = 0
+        while (save.currentWeek < 52) {
+            started += processStorylines(save).started.filter(a => a.kind === "CONTRACT_STANDOFF").length
+            // Answer the talks by waiting, so each story resolves and frees its slot.
+            for (const e of save.eventsLog) if (e.id.startsWith("story_contract_standoff") && !e.selectedChoiceId) answer(save, e, "wait")
+            save.currentWeek++
+        }
+        expect(started).toBe(S.MAX_PER_SEASON.CONTRACT_STANDOFF)
     })
 })
 

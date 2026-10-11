@@ -127,7 +127,12 @@ export const AI_SQUAD_TUNING = {
     RENEW_TOP_N: 6,
     /** ...below this age (older players are left to retire or move on). */
     RENEW_MAX_AGE: 33,
-    /** Opening snapshot contracts end within +/- this many weeks of their nominal length (seeded). */
+    /**
+     * Opening snapshot contracts were signed before the career began: weeks
+     * left are drawn (seeded) between MIN and the nominal length + STAGGER.
+     * Phase 5 fix: before, it was the nominal length +/- STAGGER, so no deal
+     * of a player aged 20-30 reached its final year in season 1.
+     */
     INITIAL_CONTRACT_STAGGER_WEEKS: 26,
     INITIAL_CONTRACT_MIN_WEEKS: 26,
     /**
@@ -598,6 +603,18 @@ export const PERSONALITY_TUNING = {
     RENEWAL_RAISE_MERCENARY: 2,
     /** Rejecting a club's bid for a Mercenary. */
     MERCENARY_BID_REJECT_MORALE: -6,
+
+    // ── amicability (how easy-going he is; Phase 5 fix) ──
+    /**
+     * The snapshot gave every player 70. Snapshot players now get the base of
+     * their archetype plus a triangular id-hash spread of ± AMICABILITY_SPREAD
+     * (engine/personality.ts deriveAmicability): about 8% fall under the
+     * rift's 35 and 14% under synergy's 40 (pair clash), under 1% under 20.
+     */
+    AMICABILITY_BASE: { PROFESSIONAL: 62, AMBITIOUS: 54, LOYAL: 72, MERCENARY: 48, HOTHEAD: 40, LEADER: 72, SHOWMAN: 66, QUIET: 52 },
+    AMICABILITY_SPREAD: 35,
+    AMICABILITY_MIN: 5,
+    AMICABILITY_MAX: 99,
 } as const
 
 /**
@@ -609,6 +626,8 @@ export const STORY_TUNING = {
     // ── caps ──
     /** Active arcs involving the managed club at once. */
     MAX_ACTIVE_MANAGED: 2,
+    /** Most arcs of a kind the managed club starts in one season (kinds not listed: no cap). */
+    MAX_PER_SEASON: { CONTRACT_STANDOFF: 2, RIFT: 2 } as Partial<Record<string, number>>,
     /** Resolved arcs kept in the save (player logs, cooldowns), newest first. */
     KEEP_RESOLVED: 30,
     /** Beat lines kept per arc. */
@@ -622,10 +641,15 @@ export const STORY_TUNING = {
     FORM_WINDOW: 8,
 
     // ── contract standoff ──
+    /**
+     * Window: his final year (weeks left). Phase 5 fix: it was 6-12 weeks
+     * among the top three, which no prime-age opening deal reached in season 1
+     * (0 standoffs in the 3-seed campaign).
+     */
     STANDOFF_MIN_WEEKS: 6,
-    STANDOFF_MAX_WEEKS: 12,
-    /** Top-N players by overall rating at the club. */
-    STANDOFF_TOP_N: 3,
+    STANDOFF_MAX_WEEKS: 52,
+    /** Top-N players by overall rating at the club (the starting-five calibre). */
+    STANDOFF_TOP_N: 5,
     /** Wage he asks: the usual renewal wage (Phase 5.2, by archetype) times this. */
     STANDOFF_PREMIUM: 1.1,
     STANDOFF_EXTENSION_WEEKS: 52,
@@ -633,8 +657,10 @@ export const STORY_TUNING = {
     STANDOFF_RUNWAY_WEEKS: 26,
     STANDOFF_OFFER_MORALE: 5,
     STANDOFF_OFFER_LOYALTY: 3,
-    /** "Wait": still unrenewed this many weeks before his deal ends, he hands in a transfer request. */
+    /** "Wait": still unrenewed this many weeks before his deal ends, he hands in a transfer request... */
     STANDOFF_REQUEST_BEFORE_END: 3,
+    /** ...or this many weeks after the talks open, whichever is sooner. */
+    STANDOFF_PATIENCE_WEEKS: 8,
     /** A listed player not sold within this many weeks ends the story. */
     LISTED_RESOLVE_WEEKS: 8,
 
@@ -709,7 +735,7 @@ export const STORY_TUNING = {
 
     // ── cooldowns: weeks since the club's last arc of the kind, and since the subject's last one ──
     COOLDOWN_KIND: {
-        CONTRACT_STANDOFF: 6, RISING_STAR: 8, SLUMP: 8, RIVALRY: 4,
+        CONTRACT_STANDOFF: 10, RISING_STAR: 8, SLUMP: 8, RIVALRY: 4,
         LAST_DANCE: 4, RIFT: 8, GIANT_KILLER: 8, BOARD_PRESSURE: 12,
     },
     COOLDOWN_SUBJECT: {

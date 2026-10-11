@@ -23,11 +23,15 @@
  *   - renewContract — +10% salary, +52 weeks. Requires 26 weeks of
  *     runway against the delta.
  *
+ *   - releasePlayer — the manager releases one of his senior players: the
+ *     rest of the contract is paid at once (engine/roster-rules.ts) and the
+ *     player becomes a free agent. Never below a starting five.
+ *
  *   - promotePlayer — academy → senior roster. Drops the academy entry,
  *     clears any roster-slot mapping, creates a basic contract.
  */
 
-import type { SliceCreator } from "@/store/types"
+import type { SliceCreator, StoreState } from "@/store/types"
 import type { GameSave, TeamSaveData } from "@/engine/save-types"
 import { fillAIRosterToFive } from "@/engine/ai/club-budget"
 import { checkAchievements } from "@/engine/steam-service"
@@ -47,7 +51,8 @@ import {
 } from "@/store/utils/helpers"
 
 import { formatCurrency } from "@/lib/utils-extended"
-const MAX_ROSTER_SIZE = 7
+import { releaseSettlement, SENIOR_ROSTER_MAX, SENIOR_ROSTER_MIN, squadFullMessage } from "@/engine/roster-rules"
+const MAX_ROSTER_SIZE = SENIOR_ROSTER_MAX
 const STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS = 3
 const RENEWAL_RUNWAY_WEEKS = 26
 const RENEWAL_EXTENSION_WEEKS = 52
@@ -71,6 +76,39 @@ export interface TransferContractActions {
     acceptTransferOffer: (eventId: string) => void
     renewContract: (playerId: string) => void
     promotePlayer: (playerId: string) => void
+    releasePlayer: (playerId: string) => { success: boolean; message: string }
+}
+
+/**
+ * Take a player off a club's roster into free agency: contract ended,
+ * listing and role training cleared, synergy recomputed, and the standard
+ * roster-change chemistry penalty. Shared by the free release path of
+ * transferPlayer and the manager's paid release.
+ */
+function releaseToFreeAgency(state: StoreState, team: TeamSaveData, playerId: string): void {
+    team.rosterIds = team.rosterIds.filter(id => id !== playerId)
+    // Released player can't be in active role training.
+    if (team.activeRoleTraining) {
+        const hadTraining = team.activeRoleTraining.some(t => t.playerId === playerId)
+        team.activeRoleTraining = team.activeRoleTraining.filter(t => t.playerId !== playerId)
+        if (hadTraining) {
+            team.trainingSlotsUsed = Math.max(0, (team.trainingSlotsUsed || 0) - 1)
+        }
+    }
+    recalculateTeamSynergy(team, state.players)
+    // A release is a roster change: apply the standard chemistry
+    // penalty + lastRosterChangeWeek bump, consistent with the
+    // trade path and academy promotions. Without this a release
+    // was "free" chemistry-wise and never reset the roster
+    // stability clock (weekly chemistry growth + LOYAL_TEAM).
+    applyRosterChangePenalty(team, state.currentWeek, 1)
+    state.contracts = state.contracts.filter(c => c.playerId !== playerId || c.teamId !== team.id)
+    const releasedPlayer = state.players.find(p => p.id === playerId)
+    if (releasedPlayer) {
+        releasedPlayer.forSale = false
+        releasedPlayer.transferListingPrice = undefined
+        releasedPlayer.weeksOnTransferList = undefined
+    }
 }
 
 export const createTransferContractSlice: SliceCreator<TransferContractActions> = (set, get) => ({
@@ -87,31 +125,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                     result = { success: false, message: "Player is not on the source team's roster." }
                     return
                 }
-                if (sourceTeam) {
-                    sourceTeam.rosterIds = sourceTeam.rosterIds.filter(id => id !== playerId)
-                    // Released player can't be in active role training.
-                    if (sourceTeam.activeRoleTraining) {
-                        const hadTraining = sourceTeam.activeRoleTraining.some(t => t.playerId === playerId)
-                        sourceTeam.activeRoleTraining = sourceTeam.activeRoleTraining.filter(t => t.playerId !== playerId)
-                        if (hadTraining) {
-                            sourceTeam.trainingSlotsUsed = Math.max(0, (sourceTeam.trainingSlotsUsed || 0) - 1)
-                        }
-                    }
-                    recalculateTeamSynergy(sourceTeam, state.players)
-                    // A release is a roster change: apply the standard chemistry
-                    // penalty + lastRosterChangeWeek bump, consistent with the
-                    // trade path and academy promotions. Without this a release
-                    // was "free" chemistry-wise and never reset the roster
-                    // stability clock (weekly chemistry growth + LOYAL_TEAM).
-                    applyRosterChangePenalty(sourceTeam, state.currentWeek, 1)
-                }
-                state.contracts = state.contracts.filter(c => c.playerId !== playerId || c.teamId !== sourceTeam.id)
-                const releasedPlayer = state.players.find(p => p.id === playerId)
-                if (releasedPlayer) {
-                    releasedPlayer.forSale = false
-                    releasedPlayer.transferListingPrice = undefined
-                    releasedPlayer.weeksOnTransferList = undefined
-                }
+                releaseToFreeAgency(state, sourceTeam, playerId)
                 result = { success: true, message: "Player released to free agency" }
                 return
             }
@@ -154,7 +168,12 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 return
             }
             if (toTeam.rosterIds.length >= MAX_ROSTER_SIZE) {
-                result = { success: false, message: `${toTeam.name} roster is full (max ${MAX_ROSTER_SIZE} players)` }
+                result = {
+                    success: false,
+                    message: toTeam.id === state.playerTeamId
+                        ? squadFullMessage(toTeam.rosterIds.length)
+                        : `${toTeam.name} roster is full (max ${MAX_ROSTER_SIZE} players)`,
+                }
                 return
             }
 
@@ -572,6 +591,81 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             get().addToast({ message: toastMsg, type: toastType })
         }
         if (renewed && typeof window !== "undefined") soundManager.play("contractSign")
+    },
+
+    releasePlayer: (playerId) => {
+        let result: { success: boolean; message: string } = { success: false, message: "Player not found." }
+        set((state) => {
+            const team = state.teams.find(t => t.id === state.playerTeamId)
+            const player = state.players.find(p => p.id === playerId)
+            // Only the manager's own senior players (AI clubs manage their own rosters).
+            if (!team || !player || !team.rosterIds.includes(playerId)) {
+                result = { success: false, message: "You can only release players on your own senior roster." }
+                return
+            }
+            if (state.gameOverReason) {
+                result = { success: false, message: "Your organization has been dissolved." }
+                return
+            }
+            if (state.activeMatchId) {
+                result = { success: false, message: "Finish the match in progress first." }
+                return
+            }
+            if (team.rosterIds.length <= SENIOR_ROSTER_MIN) {
+                result = { success: false, message: `You need at least ${SENIOR_ROSTER_MIN} senior players to field a team. Sign a replacement first.` }
+                return
+            }
+            const contract = state.contracts.find(c => c.playerId === playerId && c.teamId === team.id && c.endWeek > state.currentWeek)
+            const cost = releaseSettlement(contract, state.currentWeek)
+            if (!Number.isFinite(team.budget) || team.budget < cost.amount) {
+                result = {
+                    success: false,
+                    message: `Releasing ${player.nickname} costs ${formatCurrency(cost.amount, "$", false)} (${cost.weeksLeft} weeks at ${formatCurrency(cost.wage, "$", false)}/wk); the club has ${formatCurrency(Math.max(0, team.budget || 0), "$", false)}.`,
+                }
+                return
+            }
+
+            team.budget -= cost.amount
+            if (cost.amount > 0) {
+                state.financeLedger.push({
+                    id: nextDeterministicId(state, "fin_release", playerId),
+                    week: state.currentWeek,
+                    teamId: team.id,
+                    type: "EXPENSE",
+                    category: "WAGES_PLAYER",
+                    amount: cost.amount,
+                    description: `Contract settlement: ${player.nickname} (${cost.weeksLeft} weeks)`,
+                    balance: team.budget,
+                })
+            }
+            const chemistryBefore = team.chemistry ?? 50
+            releaseToFreeAgency(state, team, playerId)
+            const chemistryLost = Math.round(chemistryBefore - (team.chemistry ?? 50))
+            state.transferHistory = state.transferHistory || []
+            state.transferHistory.push({
+                id: nextDeterministicId(state, "release", playerId),
+                week: state.currentWeek,
+                type: "RELEASE",
+                playerId,
+                playerName: player.nickname,
+                fromTeamId: team.id,
+                fromTeamName: team.name,
+                toTeamId: null,
+                toTeamName: "Free Agent",
+                fee: 0,
+            })
+            result = {
+                success: true,
+                message: cost.amount > 0
+                    ? `${player.nickname} released. Paid ${formatCurrency(cost.amount, "$", false)}, the rest of his contract; team chemistry −${chemistryLost}.`
+                    : `${player.nickname} released; team chemistry −${chemistryLost}.`,
+            }
+        })
+        if (result.success) {
+            const s = get()
+            if (s.isInitialized && s.saveId) void s.saveGame?.()?.catch(() => { /* surfaced by saveGame */ })
+        }
+        return result
     },
 
     promotePlayer: (playerId) => {

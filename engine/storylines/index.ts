@@ -8,7 +8,8 @@
  *     resolution. A managed arc whose club the manager has left ends quietly.
  *  2. At most one new arc starts (managed stories first), and only while
  *     fewer than MAX_ACTIVE_MANAGED managed arcs are active. A kind waits
- *     COOLDOWN_KIND weeks per club, a subject COOLDOWN_SUBJECT weeks, and a
+ *     COOLDOWN_KIND weeks per club, a subject COOLDOWN_SUBJECT weeks, a kind
+ *     starts at most MAX_PER_SEASON times a season where capped, and a
  *     player is in one story at a time. Other clubs' stories are news only.
  *  3. Resolved arcs beyond KEEP_RESOLVED are dropped.
  *
@@ -19,7 +20,7 @@
 import type { GameSave } from "../save-types"
 import type { StoryArc, StoryArcKind } from "./types"
 import { STORY_TUNING as S } from "@/lib/balance-tuning"
-import { buildContext, resolveArc, type ArcCandidate, type ArcDefinition, type StoryContext } from "./common"
+import { buildContext, resolveArc, seasonOf, type ArcCandidate, type ArcDefinition, type StoryContext } from "./common"
 import { contractStandoff } from "./arcs/contract-standoff"
 import { risingStar } from "./arcs/rising-star"
 import { slump } from "./arcs/slump"
@@ -67,6 +68,8 @@ export function eligible(arcs: readonly StoryArc[], c: ArcCandidate, week: numbe
     }
     if (week - lastWeekOf(arcs, a => a.kind === c.kind && a.teamId === c.teamId) < S.COOLDOWN_KIND[c.kind]) return false
     if (week - lastWeekOf(arcs, a => a.kind === c.kind && a.facts.subject === c.subject, true) < S.COOLDOWN_SUBJECT[c.kind]) return false
+    const cap = S.MAX_PER_SEASON[c.kind]
+    if (cap !== undefined && arcs.filter(a => a.kind === c.kind && a.teamId === c.teamId && seasonOf(a.startedWeek) === seasonOf(week)).length >= cap) return false
     return true
 }
 

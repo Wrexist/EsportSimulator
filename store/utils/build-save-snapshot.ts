@@ -57,6 +57,7 @@ export function buildSaveSnapshot(state: SaveSnapshotState): GameSave {
         firstSession: state.firstSession,
         selectedWeeklyActivity: state.selectedWeeklyActivity ?? null,
         customTactics: state.customTactics,
+        autoTactics: state.autoTactics === true,
         watchlistedPlayerIds: state.watchlistedPlayerIds ?? [],
         activeMatchId: state.activeMatchId ?? null,
         activeMatchState: state.activeMatchState ?? null,

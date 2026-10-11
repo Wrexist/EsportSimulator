@@ -42,6 +42,8 @@ import { PersonalityChips } from "./PersonalityChips"
 import { PersonalityPanel } from "./PersonalityPanel"
 import { PlayerStorylines } from "@/components/storylines/PlayerStorylines"
 import { ARCHETYPE_INFO, captainId, getArchetype, renewalSalary } from "@/engine/personality"
+import { releaseSettlement, RELEASE_CHEMISTRY_COST, SENIOR_ROSTER_MAX, SENIOR_ROSTER_MIN } from "@/engine/roster-rules"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 interface PlayerDetailProps {
     player: PlayerSaveData
@@ -93,7 +95,7 @@ function Row({ label, children, className }: { label: string; children: ReactNod
 function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const {
         contracts, listPlayerForTransfer, unlistPlayerForTransfer, startRoleTraining, cancelRoleTraining,
-        teams, playerTeamId, currentWeek, unlockPlayerTalent, academyPlayers, allPlayers,
+        teams, playerTeamId, currentWeek, unlockPlayerTalent, academyPlayers, allPlayers, activeMatchId,
     } = useGameStore(useShallow(state => ({
         allPlayers: state.players,
         contracts: state.contracts,
@@ -106,6 +108,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
         currentWeek: state.currentWeek,
         unlockPlayerTalent: state.unlockPlayerTalent,
         academyPlayers: state.academyPlayers,
+        activeMatchId: state.activeMatchId,
     })))
     const [tab, setTab] = useState("overview")
     const [trainingModalOpen, setTrainingModalOpen] = useState(false)
@@ -133,6 +136,18 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const renewedWage = contract ? renewalSalary(player, contract.salaryPerWeek) : 0
     const renewalRaise = contract && contract.salaryPerWeek > 0 ? Math.round((renewedWage / contract.salaryPerWeek - 1) * 100) : 10
     const isCaptain = !!viewedTeam && captainId(viewedTeam, id => allPlayers.find(p => p.id === id)) === player.id
+
+    // Release: the rest of his contract is paid now (engine/roster-rules.ts, the store's rule).
+    const squadSize = ownTeam?.rosterIds.length ?? 0
+    const release = releaseSettlement(isOwnPlayer ? contracts.find(c => c.playerId === player.id && c.teamId === ownTeam?.id && c.endWeek > currentWeek) : undefined, currentWeek)
+    const funds = ownTeam?.budget ?? 0
+    const releaseBlock = !isOwnPlayer ? null
+        : activeMatchId ? "Finish the match in progress first"
+            : squadSize <= SENIOR_ROSTER_MIN ? `You need at least ${SENIOR_ROSTER_MIN} senior players; sign a replacement first`
+                : funds < release.amount ? `Costs ${formatCurrency(release.amount, "$", false)}; the club has ${formatCurrency(Math.max(0, funds), "$", false)}`
+                    : null
+    const releaseText = `${release.weeksLeft} weeks left at ${formatCurrency(release.wage, "$", false)}/wk: the club pays the rest of his contract now, ${formatCurrency(release.amount, "$", false)} (funds after: ${formatCurrency(funds - release.amount, "$", false)}). `
+        + `He becomes a free agent any club can sign, team chemistry drops by ${RELEASE_CHEMISTRY_COST} as with any roster change, and your squad goes to ${squadSize - 1}/${SENIOR_ROSTER_MAX}.`
 
     const performances = usePlayerPerformances(player.id)
     const recentRatings = useMemo(() => performances.slice(0, 10).map(p => p.rating).reverse(), [performances])
@@ -260,6 +275,24 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         {player.forSale ? "Unlist" : "Transfer list"}
                                     </Button>
                                 )}
+                                {isOwnPlayer && (releaseBlock ? (
+                                    <Button variant="ghost" className="flex-1" disabled title={releaseBlock}>Release</Button>
+                                ) : (
+                                    <ConfirmDialog
+                                        title={`Release ${player.nickname}?`}
+                                        description={releaseText}
+                                        onConfirm={() => {
+                                            const r = useGameStore.getState().releasePlayer(player.id)
+                                            if (r.success) toast.success(r.message)
+                                            else toast.error(r.message)
+                                        }}
+                                        destructive
+                                        confirmText={`Release · ${formatCurrency(release.amount, "$", false)}`}
+                                        icon="danger"
+                                    >
+                                        <Button variant="ghost" className="flex-1">Release</Button>
+                                    </ConfirmDialog>
+                                ))}
                                 {canOffer && <Button className="flex-1" onClick={() => setNegotiationOpen(true)}>Offer contract</Button>}
                                 {isAcademy && <Button variant="outline" asChild className="flex-1"><Link href="/academy">Open academy</Link></Button>}
                             </div>
@@ -349,6 +382,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         <Row label="Renewal window" className={canRenew ? "text-ink-1" : "text-ink-3"}>{canRenew ? "Open" : "Final year only"}</Row>
                                         <Row label="Market value">{formatCurrency(evaluation.transferValue)}</Row>
                                         <Row label="Transfer list">{player.forSale ? `Listed at ${formatCurrency(player.transferListingPrice ?? evaluation.transferValue)}` : "Not listed"}</Row>
+                                        {isOwnPlayer && <Row label="Release cost">{formatCurrency(release.amount, "$", false)} · rest of contract</Row>}
                                     </dl>
                                     <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
                                         Renewal adds a year at +{renewalRaise}% wage ({ARCHETYPE_INFO[getArchetype(player)].label}; the usual raise is 10%) and needs 26 weeks of the raise in the bank. Clubs bid on listed players each week; offers sit near market value.

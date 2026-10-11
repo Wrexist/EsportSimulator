@@ -31,7 +31,7 @@ import { logger } from "@/lib/logger"
 /**
  * Current save version - increment when schema changes
  */
-export const CURRENT_SAVE_VERSION = 9
+export const CURRENT_SAVE_VERSION = 10
 
 /**
  * Minimum supported save version for migration
@@ -140,6 +140,10 @@ export interface GameSave {
 
     // === TRANSFER HISTORY SYSTEM ===
     transferHistory: TransferRecord[]
+
+    // === LIVE MATCH ===
+    /** The live match's auto-tactics switch (the decision card confirms the engine's call). Absent = off. */
+    autoTactics?: boolean
 
     // === UI CELEBRATIONS ===
     pendingCelebration?: CelebrationData | null

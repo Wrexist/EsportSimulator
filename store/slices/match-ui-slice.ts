@@ -3,13 +3,14 @@
 /**
  * Match-UI slice.
  *
- * Holds the four transient-state actions for the live match shell:
+ * Holds the transient-state actions for the live match shell:
  * which match is "active" (so the route guard can warn the user about
  * leaving mid-match), the running ActiveMatchState the live-match hook
- * mirrors, and per-side custom tactical loadouts.
+ * mirrors, per-side custom tactical loadouts, and the auto-tactics switch
+ * (saved with the career at once, so a reload keeps it).
  *
- * Extracted from game-store.ts. Trivially safe — each action mutates a
- * single state property and reads nothing else.
+ * Extracted from game-store.ts. Each action mutates a single state
+ * property (setAutoTactics then saves the career).
  */
 
 import type { SliceCreator } from "@/store/types"
@@ -20,9 +21,10 @@ export interface MatchUIActions {
     updateActiveMatchState: (state: ActiveMatchState) => void
     clearActiveMatchState: () => void
     updateCustomTactic: (id: keyof CustomTactics, side: "ct" | "t", strategy: TacticalStrategy) => void
+    setAutoTactics: (on: boolean) => void
 }
 
-export const createMatchUISlice: SliceCreator<MatchUIActions> = (set) => ({
+export const createMatchUISlice: SliceCreator<MatchUIActions> = (set, get) => ({
     setActiveMatch: (id) => set({ activeMatchId: id }),
     updateActiveMatchState: (newState) => set(state => {
         if (newState.playback?.saveId !== undefined && newState.playback.saveId !== state.saveId) return
@@ -35,5 +37,11 @@ export const createMatchUISlice: SliceCreator<MatchUIActions> = (set) => ({
             if (!state.customTactics[id]) return
             state.customTactics[id][side] = tactic
         })
+    },
+    setAutoTactics: (on) => {
+        if (get().autoTactics === on) return
+        set({ autoTactics: on })
+        const s = get()
+        if (s.isInitialized && s.saveId) void s.saveGame?.()?.catch(() => { /* surfaced by saveGame */ })
     },
 })

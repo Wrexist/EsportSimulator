@@ -55,6 +55,7 @@ import { runMigrationLadder } from "./save-migrations"
 import { SaveIntegrityManager } from "./save-integrity"
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
 import { evaluatePlayer } from "./player-evaluation"
+import { isMajorTournament } from "./official-stats"
 import { generateSeed } from "./rng"
 import { AsyncStorage, asyncStorage } from "./storage-adapter"
 import { steamService } from "./steam-service"
@@ -909,8 +910,11 @@ export class SaveManager {
                     }
                 }
 
-                // Count major wins from trophies
-                const majorWins = (playerTeam?.trophies || []).filter(t => t.tier === "S_TIER").length
+                // Titles are the club's trophies, as the trophy room counts them.
+                // managerDetails.championships only counts S-tier wins, so a
+                // club with ten titles showed "Titles 0" here.
+                const trophies = playerTeam?.trophies || []
+                const majorWins = trophies.filter(t => isMajorTournament(t.tournamentId)).length
 
                 slots.push({
                     slotId: key,
@@ -931,8 +935,8 @@ export class SaveManager {
                     stats: parsed.managerDetails ? {
                         wins: parsed.managerDetails.careerWins,
                         losses: parsed.managerDetails.careerLosses,
-                        tournamentsWon: parsed.managerDetails.championships,
-                        majorWins: majorWins
+                        tournamentsWon: trophies.length,
+                        majorWins
                     } : undefined,
 
                     topPlayerPreviews,
@@ -944,7 +948,7 @@ export class SaveManager {
                     gameStartDate: parsed.gameStartDate,
 
                     // NEW: Trophy Data (last 5 trophies)
-                    trophies: (playerTeam?.trophies || []).slice(-5).map(t => ({
+                    trophies: trophies.slice(-5).map(t => ({
                         tournamentId: t.tournamentId,
                         tournamentName: t.tournamentName,
                         tier: t.tier || "C_TIER",

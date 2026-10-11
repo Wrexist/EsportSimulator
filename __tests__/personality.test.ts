@@ -149,8 +149,9 @@ describe("save v9 migration", () => {
 
     test("assigns an archetype and traits to every player; keeps existing ones", () => {
         const migrated = runMigrationLadder(legacy()) as GameSave
-        expect(CURRENT_SAVE_VERSION).toBe(9)
-        expect(migrated.saveVersion).toBe(9)
+        // v9 assigns personalities; later steps (v10 amicability) run on top.
+        expect(CURRENT_SAVE_VERSION).toBeGreaterThanOrEqual(9)
+        expect(migrated.saveVersion).toBe(CURRENT_SAVE_VERSION)
         const byId = new Map(migrated.players.map(p => [p.id, p]))
         for (const p of migrated.players) {
             expect(ARCHETYPES).toContain(p.personality?.archetype)

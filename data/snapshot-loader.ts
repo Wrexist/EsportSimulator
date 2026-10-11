@@ -33,7 +33,7 @@ import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { PlayerRole, PlayerTier, TournamentTier, TournamentFormat, MatchFormat } from "@/types"
 
 import { reconcileTeamRoles } from "@/engine/role-reconciler"
-import { ensurePersonality } from "@/engine/personality"
+import { ensurePersonality, spreadPlaceholderAmicability } from "@/engine/personality"
 
 /**
  * Auto-calculate an initial prestige score for players with empty proHistory.
@@ -340,6 +340,9 @@ export class SnapshotLoader {
         // own copies rather than mutating LEGENDARY_PLAYERS.
         const own = new Set(players)
         save.players = save.players.map(p => ensurePersonality(own.has(p) ? p : { ...p }))
+        // The snapshot gives every player amicability 70 (a placeholder): derive
+        // a spread from the archetype and an id hash, as save v10 does.
+        spreadPlaceholderAmicability(save.players)
 
         return save
     }
@@ -546,11 +549,15 @@ export class SnapshotLoader {
                     teamId: team.id,
                     salaryPerWeek: contract.salary,
                     startWeek: startWeek,
-                    // Pass 2 (AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS): spread
-                    // expiry across the season instead of every opening contract
-                    // ending on a season boundary in the same week.
-                    endWeek: Math.max(startWeek + AI_SQUAD_TUNING.INITIAL_CONTRACT_MIN_WEEKS,
-                        startWeek + (contract.years * 52) + rng.int(-AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS, AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS)),
+                    // Opening deals were signed before the career began, so each
+                    // has already run a seeded share of its length: the weeks
+                    // left are drawn between INITIAL_CONTRACT_MIN_WEEKS and the
+                    // nominal length + INITIAL_CONTRACT_STAGGER_WEEKS. Before,
+                    // every deal of a player aged 20-30 ran 78+ weeks, so none
+                    // reached its final year in season 1 (no renewals to manage,
+                    // no contract standoffs).
+                    endWeek: startWeek + rng.int(AI_SQUAD_TUNING.INITIAL_CONTRACT_MIN_WEEKS,
+                        contract.years * 52 + AI_SQUAD_TUNING.INITIAL_CONTRACT_STAGGER_WEEKS),
                     buyout: contract.buyout, // Use calculated buyout from contract formula
                 })
             })

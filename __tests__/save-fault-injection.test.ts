@@ -779,6 +779,7 @@ function sentinelCareer(): GameSave {
         selectedWeeklyActivity: "BOOTCAMP",
         firstSession: { version: 2, status: "active", reviewed: ["squad"], baseline: { week: 8, lastResultId: null, rosterIds: [player] } },
         customTactics: tactics,
+        autoTactics: true,
         watchlistedPlayerIds: [player],
         activeMatchId: "rt-match",
         activeMatchState: { matchId: "rt-match", gameState: { round: 4 }, simState: { currentRound: 4 }, homeRoster: [], awayRoster: [], logs: ["rt-log"], originalHomePlayers: [], originalAwayPlayers: [], matchResult: { score: "3-1" }, roundTime: 40, bombTime: 0, isBombPlanted: false, isWaitingForStrategy: true },

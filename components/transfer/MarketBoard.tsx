@@ -22,6 +22,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
 import { getPlayerRegion, ALL_REGIONS } from "@/engine/scouting-helpers"
 import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
+import { SENIOR_ROSTER_MAX } from "@/engine/roster-rules"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { ScoutedRating } from "./ScoutedRating"
@@ -319,7 +320,12 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                     <KpiStrip>
                         <Kpi label="Funds" value={formatCurrency(myTeam.budget, "$", true)} />
                         <Kpi label="Max fee" value={formatCurrency(sanction.maxFee, "$", true)} hint={sanction.fraction < 1 ? `Board allows ${Math.round(sanction.fraction * 100)}%` : "Board allows all funds"} />
-                        <Kpi label="Squad" value={myTeam.rosterIds.length} />
+                        <Kpi
+                            label="Squad"
+                            value={<span>{myTeam.rosterIds.length}<span className="text-ink-3">/{SENIOR_ROSTER_MAX}</span></span>}
+                            valueClassName={myTeam.rosterIds.length >= SENIOR_ROSTER_MAX ? "text-caution" : undefined}
+                            hint={myTeam.rosterIds.length >= SENIOR_ROSTER_MAX ? <Link href="/squad" className="underline underline-offset-2 hover:text-ink-1">Full: release or sell to sign</Link> : undefined}
+                        />
                         <Kpi label="Listed" value={market.filter(r => r.team && r.player.forSale).length} />
                     </KpiStrip>
                 )}

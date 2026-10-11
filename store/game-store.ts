@@ -489,6 +489,8 @@ export interface GameStoreState extends AdvanceState, MomentsState {
 
   // Phase 39: Customizable Tactical Loadouts
   customTactics: CustomTactics
+  /** Live match: the decision card confirms the engine's call by itself (saved with the career). */
+  autoTactics: boolean
 
   // Phase 56: Staff Market
   marketStaff: StaffSaveData[]
@@ -651,6 +653,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
 
   // Phase 39: Customizable Tactical Loadouts
   updateCustomTactic: (id: keyof CustomTactics, side: "ct" | "t", strategy: TacticalStrategy) => void
+  setAutoTactics: (on: boolean) => void
 
   // Phase 56: Staff Market Actions
   refreshStaffMarket: () => void
@@ -685,6 +688,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   unlistPlayerForTransfer: (playerId: string) => void
   acceptTransferOffer: (eventId: string) => void
   renewContract: (playerId: string) => void
+  releasePlayer: (playerId: string) => { success: boolean; message: string }
 
   // Phase 20: Tournament System
   registerForTournament: (tournamentId: string) => { success: boolean; message: string }
@@ -785,6 +789,17 @@ function hasLoadedCareer(state: Pick<GameStoreState, "saveId" | "playerTeamId">)
   return !!state.saveId && !!state.playerTeamId
 }
 
+/**
+ * A day step in daily mode is saved at once (with that day's AI results), so
+ * a reload resumes on the same day instead of the start of the week. A
+ * Continue run saves once when it stops (advance-slice), not every day.
+ */
+function persistDayCursor(): void {
+  const s = useGameStore.getState()
+  if (!s.saveId || !s.isInitialized || s.isLoading || s.continueRun) return
+  void s.saveGame().catch(() => { /* surfaced by saveGame */ })
+}
+
 function weekBlockingMatch(
   state: Pick<GameStoreState, "playerTeamId" | "scheduledMatches" | "completedMatches" | "currentWeek" | "teams" | "players">,
   completedIds: Set<string> = new Set(state.completedMatches.map(cm => cm.id)),
@@ -842,6 +857,8 @@ function weekRecordedActions(set: unknown, get: unknown) {
     treatInjury: recordWeekChanges(g, s, settings.treatInjury, () => ({ type: "injury", label: "Medical treatment" })),
     performMentalReset: recordWeekChanges(g, s, ops.performMentalReset, () => ({ type: "staff", label: "Mental reset" })),
     renewContract: recordWeekChanges(g, s, transfers.renewContract, () => ({ type: "contract", label: "Contract renewal" })),
+    releasePlayer: recordWeekChanges(g, s, transfers.releasePlayer, (st, playerId: string) =>
+      ({ type: "transfer", label: `Released ${store(st).players.find(p => p.id === playerId)?.nickname ?? "a player"}` })),
     acceptTransferOffer: recordWeekChanges(g, s, transfers.acceptTransferOffer, () => ({ type: "transfer", label: "Transfer offer accepted" })),
   }
 }
@@ -1115,6 +1132,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       // Phase 39/43: Default Tactics with Per-Player Loadouts
       customTactics: createDefaultTactics(),
+      autoTactics: false,
 
       playerTeamId: null,
       isLoading: false,
@@ -1296,6 +1314,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
             recordBook: newSave.recordBook, // explicit: a new career never inherits the last one's records
             storylines: newSave.storylines, // nor its storylines (Phase 5.3)
+            autoTactics: false, // nor its auto-tactics switch
             availableEquipment: initialEquipment,
             playerTeamId: playerTeamId, // We assume the user controls the team they selected
             theme: "crystal", // Default theme for new game
@@ -1609,6 +1628,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
             recordBook: newSave.recordBook,
             storylines: newSave.storylines,
+            autoTactics: false,
             availableEquipment: [
               { id: "mouse_001", name: "Basic Gaming Mouse", type: "MOUSE", weeklyCost: 0, tier: 1, purchasedWeek: 0, bonus: { stat: "skill", value: 1 } },
             ],
@@ -1742,6 +1762,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             tutorialCompleted: restoreFirstSession(hydratedSave.firstSession).status !== "active",
             onboardingCompleted: restoreFirstSession(hydratedSave.firstSession).status === "complete",
             customTactics: hydratedSave.customTactics ?? createDefaultTactics(),
+            autoTactics: hydratedSave.autoTactics === true,
             watchlistedPlayerIds: hydratedSave.watchlistedPlayerIds ?? [],
             activeMatchId: hydratedSave.activeMatchId ?? null,
             activeMatchState: hydratedSave.activeMatchState ?? null,
@@ -1875,6 +1896,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           set(draft => { draft.currentDay = nextDay })
           await new Promise(resolve => setTimeout(resolve, 0))
           set(draft => { simulateDueAIMatchesForDay(draft, nextDay) })
+          persistDayCursor()
           return
         }
 
@@ -1902,6 +1924,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             set(draft => { draft.currentDay = matchDay })
             await new Promise(resolve => setTimeout(resolve, 0))
             set(draft => { simulateDueAIMatchesForDay(draft, matchDay) })
+            persistDayCursor()
             return
           }
           // Already on or past match day — match still unplayed, don't skip
