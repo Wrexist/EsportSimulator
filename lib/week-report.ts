@@ -325,7 +325,8 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     // Phase 5.3: a storyline beat leads ("Slump: …"), then the week's top clause.
     if (report.story) {
         const story = `${report.story.label}: ${report.story.text.replace(/\.$/, "")}`
-        return clauses.length ? `${story}; ${clauses[0]}.` : `${story}.`
+        const first = clauses[0] && /^(Beat|Lost|Won) /.test(clauses[0]) ? clauses[0].charAt(0).toLowerCase() + clauses[0].slice(1) : clauses[0]
+        return first ? `${story}; ${first}.` : `${story}.`
     }
     if (clauses.length === 0) return "A quiet week: nothing on your club changed."
     // Without a match the sentence leads with the week type, so a player's

@@ -22,6 +22,7 @@ import { applyChoiceEffects, type ChoiceEffects, type ChoiceTarget } from "../ev
 import { LEAGUE_TUNING, STORY_TUNING as S } from "@/lib/balance-tuning"
 import { getMatchTone } from "@/lib/match-stakes"
 import { getRivalryBetween, isDerby } from "../history-tracker"
+import { captainId } from "../personality"
 import { divisionOfTeam, isLeagueMatchId, ordinal, tablePosition } from "../season/regional-league"
 import { biggestRival, headToHead } from "./arcs/rivalry"
 import { fmtRating, formOver, logBeat, nameOf } from "./common"
@@ -229,6 +230,22 @@ function playerQuestion(save: GameSave, team: TeamSaveData): PressQuestion | nul
     }
 }
 
+/** Always available: the captain (the manager's pick, else the highest leader stat). */
+function captainQuestion(save: GameSave, team: TeamSaveData): PressQuestion | null {
+    const id = captainId(team, x => save.players.find(p => p.id === x))
+    const p = id ? save.players.find(x => x.id === id) : undefined
+    if (!p) return null
+    const n = nameOf(p)
+    return {
+        id: "player", topic: "PLAYER",
+        text: `${n} captains the side. What do you need from him?`,
+        answers: [
+            { id: "heart", text: "He's the heart of this team.", effects: { players: playerFx(p.id, n, S.PRESS_PLAYER_BACK_MORALE) } },
+            { id: "everyone", text: "Everyone has to step up, not just him.", effects: { morale: S.PRESS_TEAM_MORALE } },
+        ],
+    }
+}
+
 function formQuestion(save: GameSave, team: TeamSaveData): PressQuestion | null {
     const results: boolean[] = []
     for (let i = save.completedMatches.length - 1; i >= 0 && results.length < 5; i--) {
@@ -275,6 +292,9 @@ export function createPressConference(save: GameSave): GameEventSaveData | null 
         if (second) questions.push(second)
         const form = formQuestion(save, team)
         if (form) questions.push(form)
+        // Early in a career there may be no story, form or results yet: ask about the captain.
+        const captain = questions.length < 2 ? captainQuestion(save, team) : null
+        if (captain) questions.push(captain)
         if (questions.length < 2) return null
         const press: PressData = { reason: big.reason, matchId: match.id, opponentId: opp.id, questions: questions.slice(0, 3) }
         const event = {
