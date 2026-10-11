@@ -7,8 +7,63 @@ import { getPlayerPassiveBonuses } from "../talent-trees"
 import { facilityLevel, staffDevelopmentEffects } from "../organization-effects"
 import type { SaveIndexes } from "@/store/indexes"
 import { CONDITION_TUNING } from "@/lib/balance-tuning"
+import type { ChangeCause } from "@/lib/week-changes"
+
+const FOCUS_LABEL: Record<string, string> = {
+    [TrainingFocus.AIM]: "Aim training",
+    [TrainingFocus.TACTICS]: "Tactics training",
+    [TrainingFocus.TEAMPLAY]: "Teamwork training",
+    [TrainingFocus.REST]: "Rest week",
+}
 
 export class TrainingProcessor {
+    /**
+     * Weekly-report causes for one club's training step: the focus each player
+     * actually trained (their own focus, else the club regimen) and the coach /
+     * facility multipliers processTraining applied. Mirrors processTraining.
+     */
+    static describeCauses(
+        save: GameSave,
+        teamId: string,
+        config: { focus: TrainingFocus; intensity: number } | undefined,
+        idx?: SaveIndexes,
+    ): Map<string, ChangeCause> {
+        const causes = new Map<string, ChangeCause>()
+        const team = idx ? idx.teamIndex.get(teamId) : save.teams.find(t => t.id === teamId)
+        if (!team || !config) return causes
+        const facility = facilityLevel(team.facilities?.find(f => f.type === "TRAINING")?.level || 0)
+        const teamStaff = idx?.staffByTeamId.get(teamId) ?? save.staff.filter(s => s.teamId === teamId)
+        const coach = staffDevelopmentEffects(teamStaff.filter(s => s.contractEndWeek === undefined || s.contractEndWeek > save.currentWeek)).trainingMultiplier
+        const modifiers = [
+            coach > 1.001 ? `coach ×${coach.toFixed(2)}` : "",
+            facility > 0 ? `training facility L${facility}` : "",
+        ].filter(Boolean)
+        for (const playerId of team.rosterIds) {
+            if (team.activeRoleTraining?.some(rt => rt.playerId === playerId)) {
+                causes.set(playerId, { type: "training", label: "Role training" })
+                continue
+            }
+            const player = idx ? idx.playerIndex.get(playerId) : save.players.find(p => p.id === playerId)
+            let focus = config.focus
+            if (player?.trainingFocus && player.trainingFocus !== "BALANCED" && Object.values(TrainingFocus).includes(player.trainingFocus as TrainingFocus)) {
+                focus = player.trainingFocus as TrainingFocus
+            }
+            const label = [FOCUS_LABEL[focus] ?? "Training", ...(focus === TrainingFocus.REST ? [] : modifiers)].join(" · ")
+            causes.set(playerId, { type: "training", label })
+        }
+        return causes
+    }
+
+    /** Weekly-report cause for fatigue/energy recovery: base rate plus the bonuses processFatigueRecovery adds. */
+    static describeRecovery(save: GameSave, teamId: string, idx?: SaveIndexes): ChangeCause {
+        const team = idx ? idx.teamIndex.get(teamId) : save.teams.find(t => t.id === teamId)
+        const level = facilityLevel(team?.facilities?.find(f => f.type === "RECOVERY")?.level || 0)
+        const teamStaff = idx?.staffByTeamId.get(teamId) ?? save.staff.filter(s => s.teamId === teamId)
+        const psych = staffDevelopmentEffects(teamStaff.filter(s => s.contractEndWeek === undefined || s.contractEndWeek > save.currentWeek)).recovery
+        const parts = ["Weekly recovery", level > 0 ? `recovery room L${level}` : "", psych > 0 ? "psychologist" : ""].filter(Boolean)
+        return { type: "recovery", label: parts.join(" · ") }
+    }
+
     static processTraining(
         save: GameSave,
         trainingConfigs: Map<string, { focus: TrainingFocus; intensity: number }>,
