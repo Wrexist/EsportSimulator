@@ -578,6 +578,8 @@ export function useLiveMatch(id: string) {
         const sideBefore = currentSimState.homeStartsCT
         const mapIndex = currentSimState.currentMapIndex
         const currentRoundNumber = currentSimState.currentRound
+        // Kickoff cue once per match (shares the countdown's once-per-kickoff gate with the match intro).
+        if (mapIndex === 0 && currentRoundNumber === 1) soundManager.play("matchStart", { key: `kickoff:${id}` })
 
         const step = playLegacyRound(runtime.ctx, { sim: currentSimState, maps: runtime.result.maps, finished: false }, { strategy, regroup: regrouping, customTactics })
 
@@ -654,7 +656,7 @@ export function useLiveMatch(id: string) {
         setIsBombPlanted(false)
         setBombTime(BOMB_SECONDS)
         lastProcessedTime.current = -1
-    }, [customTactics, setRoundScript, setRoundView, liveClock])
+    }, [customTactics, setRoundScript, setRoundView, liveClock, id])
 
     useEffect(() => {
         startNextRoundRef.current = startNextRound
@@ -756,18 +758,25 @@ export function useLiveMatch(id: string) {
                 const planter = playerName(roundScriptRef.current?.script.bomb.plant?.planterId)
                 const message = site ? `Bomb planted at ${site}${planter ? ` by ${planter}` : ""}` : commentaryManager.generate("PLANT", {})
                 setLogs(prev => [{ type: "PLANT", time: nextEvent.time, message, site }, ...prev])
+                if (!silentPlaybackRef.current) soundManager.play("bombPlant")
             } else if (nextEvent.type === "DEFUSE") {
                 const site = nextEvent.site
                 const defuser = playerName(roundScriptRef.current?.script.bomb.defuse?.defuserId)
                 const message = site ? `Bomb defused at ${site}${defuser ? ` by ${defuser}` : ""}` : commentaryManager.generate("DEFUSE", {})
                 setLogs(prev => [{ type: "DEFUSE", time: nextEvent.time, message, site }, ...prev])
+                if (!silentPlaybackRef.current) soundManager.play("bombDefuse")
             } else if (nextEvent.type === "EXPLODE") {
                 const site = nextEvent.site
                 setLogs(prev => [{ type: "EXPLODE", time: nextEvent.time, message: site ? `Bomb exploded at ${site}` : commentaryManager.generate("EXPLODE", {}), site }, ...prev])
+                if (!silentPlaybackRef.current) soundManager.play("bombExplode")
             } else if (nextEvent.type === "CLUTCH") {
                 const playersInRound = [...latestHomeRosterRef.current, ...latestAwayRosterRef.current]
                 const player = playersInRound.find(roundPlayer => roundPlayer.id === nextEvent.playerId)
                 setLogs(prev => [{ type: "CLUTCH", time: nextEvent.time, message: `${player?.name || "Player"} won a ${nextEvent.details} clutch!`, playerId: nextEvent.playerId }, ...prev])
+                // Sting only for the manager's own side.
+                const clutchForHome = latestHomeRosterRef.current.some(p => p.id === nextEvent.playerId)
+                const ownSide = clutchForHome ? runtime.homeTeam.id === playerTeam?.id : runtime.awayTeam.id === playerTeam?.id
+                if (ownSide && !silentPlaybackRef.current) soundManager.play("clutch")
             } else if (nextEvent.type === "SAVE") {
                 setLogs(prev => [{ type: "SAVE", time: nextEvent.time, message: nextEvent.details || "Players saving" }, ...prev])
             } else if (nextEvent.type === "ROUND_END") {
@@ -844,7 +853,7 @@ export function useLiveMatch(id: string) {
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
                     const playerWon = (playerIsHomeSide && roundState.homeSeriesScore > roundState.awaySeriesScore) || (playerIsAwaySide && roundState.awaySeriesScore > roundState.homeSeriesScore)
-                    soundManager.play(playerWon ? "victory" : "defeat")
+                    if (playerIsHomeSide || playerIsAwaySide) soundManager.play(playerWon ? "victory" : "defeat", { key: `outcome:${id}` })
                 } else if (transition === "MAP_END") {
                     const nextMapId = runtime.canonicalMaps[roundState.currentMapIndex]
                     uiTimeRef.current = -1
@@ -886,7 +895,7 @@ export function useLiveMatch(id: string) {
         })
 
         lastProcessedTime.current = currentTime
-    }, [simState, originalHomePlayers, originalAwayPlayers, queueRoundStart, playerTeam])
+    }, [simState, originalHomePlayers, originalAwayPlayers, queueRoundStart, playerTeam, id])
 
     // --- GAME LOOP ---
     // The round plays on a continuous clock (lib/live-clock): key moments at
@@ -1121,12 +1130,12 @@ export function useLiveMatch(id: string) {
 
             const playerIsHome = homeTeam.id === playerTeam?.id
             const playerIsAway = awayTeam.id === playerTeam?.id
-            if (playerIsHome || playerIsAway) soundManager.play(playerIsHome === homeWon ? "victory" : "defeat")
+            if (playerIsHome || playerIsAway) soundManager.play(playerIsHome === homeWon ? "victory" : "defeat", { key: `outcome:${id}` })
         } finally {
             silentPlaybackRef.current = false
             isSimulatingRef.current = false
         }
-    }, [processNextEvent, customTactics, playerTeam, setRoundScript, setRoundView, liveClock])
+    }, [processNextEvent, customTactics, playerTeam, setRoundScript, setRoundView, liveClock, id])
 
     const callTimeout = useCallback(() => {
         const next = spendTimeout({ remaining: timeoutsRemainingRef.current, rounds: timeoutBoostRoundsRef.current }, isWaitingForStrategy, latestGameStateRef.current?.status || '')

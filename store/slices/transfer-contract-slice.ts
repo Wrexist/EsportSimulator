@@ -383,6 +383,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
     },
 
     listPlayerForTransfer: (playerId, price) => {
+        let listed = false
         set((state) => {
             const player = state.players.find(p => p.id === playerId)
             const normalizedPrice = parseBoundedInt(price, "Transfer listing price", 0, MAX_TRANSFER_FEE)
@@ -390,7 +391,9 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
 
             player.forSale = true
             player.transferListingPrice = normalizedPrice.value
+            listed = true
         })
+        if (listed && typeof window !== "undefined") soundManager.play("transfer")
     },
 
     unlistPlayerForTransfer: (playerId) => {
@@ -493,14 +496,16 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
         })
 
         // Audio cue lands after the state commit so the visual roster +
-        // budget changes paint together with the sound.
+        // budget changes paint together with the sound. Selling is a sale,
+        // not a signing.
         if (typeof window !== "undefined") {
-            soundManager.play("contractSign")
+            soundManager.play("sale")
         }
     },
 
     renewContract: (playerId) => {
         let toastMsg = ""
+        let renewed = false
         let toastType: "info" | "warning" = "info"
         set((state) => {
             const contract = state.contracts.find(c => c.playerId === playerId)
@@ -559,10 +564,12 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             // team 26× the delta with no ledger entry.
             toastMsg = "Contract renewed successfully."
             toastType = "info"
+            renewed = true
         })
         if (toastMsg) {
             get().addToast({ message: toastMsg, type: toastType })
         }
+        if (renewed && typeof window !== "undefined") soundManager.play("contractSign")
     },
 
     promotePlayer: (playerId) => {

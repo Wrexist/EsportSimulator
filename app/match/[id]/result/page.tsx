@@ -99,10 +99,10 @@ export default function MatchResultPage() {
         let rafId: number | undefined
 
         // Sound cue lands the moment the result reveal kicks in, regardless
-        // of confetti loading state. Sound manager guards against missing
-        // AudioContext on SSR / muted profiles.
-        if (typeof window !== "undefined") {
-            soundManager.play(playerWon ? "victory" : "defeat")
+        // of confetti loading state. Keyed per match: the live screen may have
+        // already played it, and a spectated result plays nothing.
+        if (typeof window !== "undefined" && (isPlayerHome || isPlayerAway)) {
+            soundManager.play(playerWon ? "victory" : "defeat", { key: `outcome:${match.id}` })
         }
 
         if (playerWon) {

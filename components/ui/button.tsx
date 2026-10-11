@@ -64,6 +64,12 @@ const Button = React.forwardRef<HTMLButtonElement, React.ComponentProps<"button"
       props.onClick?.(e)
     }
 
+    // Hover tick (off unless enabled in Settings → Audio; the manager gates it).
+    const handlePointerEnter = (e: React.PointerEvent<HTMLButtonElement>) => {
+      if (!props.disabled && e.pointerType === 'mouse') soundManager.play('hover')
+      props.onPointerEnter?.(e)
+    }
+
     return (
       <Comp
         data-slot="button"
@@ -72,6 +78,7 @@ const Button = React.forwardRef<HTMLButtonElement, React.ComponentProps<"button"
         ref={ref}
         {...props}
         onPointerDown={handlePointerDown}
+        onPointerEnter={handlePointerEnter}
         onClick={handleClick}
       />
     )
