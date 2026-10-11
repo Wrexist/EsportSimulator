@@ -19,12 +19,14 @@ import { ManagerProgression } from "@/engine/manager-progression"
 import type { SaveSlotMetadata } from "@/engine/save-types"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
+import { stripEmoji } from "@/components/inbox/inbox-model"
 import { formatCurrency } from "@/lib/utils-extended"
 
 function eventText(event: { type: string; data?: unknown }): string {
     const d = (event.data ?? {}) as Record<string, unknown>
     const text = d.description ?? d.message ?? d.text ?? d.title
-    if (typeof text === "string" && text.trim()) return text
+    // Same plain-text rule as the inbox: no emoji headings in UI text.
+    if (typeof text === "string" && text.trim()) return stripEmoji(text).replace(/\s+/g, " ").trim()
     return event.type.replace(/_/g, " ").toLowerCase().replace(/^./, c => c.toUpperCase())
 }
 

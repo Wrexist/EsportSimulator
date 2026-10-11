@@ -25,35 +25,35 @@ export default function Error({
     }, [error])
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen liquid-app-bg text-ink-1 p-8">
-            <div className="max-w-md text-center">
-                <div className="w-20 h-20 rounded-2xl bg-negative/10 border border-negative/30 flex items-center justify-center mx-auto mb-6 shadow-[0_18px_44px_-20px_rgba(239,68,68,0.5)]">
-                    <AlertTriangle className="text-negative" size={36} />
+        <div className="flex min-h-[70vh] flex-col items-center justify-center p-8 text-ink-1">
+            <div className="w-full max-w-md rounded-[10px] border border-line-strong bg-panel p-8 text-center">
+                <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-lg border border-negative/40 bg-negative/10">
+                    <AlertTriangle className="text-negative" size={24} aria-hidden="true" />
                 </div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-negative mb-3">CRITICAL FAULT</p>
-                <h1 className="text-2xl font-bold mb-3 tracking-tight">Match interrupted.</h1>
-                <p className="text-sm text-ink-2 mb-6 leading-relaxed">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-negative">Screen error</p>
+                <h1 className="mb-3 font-display text-3xl font-bold uppercase leading-none">This screen stopped working</h1>
+                <p className="mb-6 text-sm leading-relaxed text-ink-2">
                     Something unexpected happened on this screen. Your saved game data is intact — only the current view is affected.
                 </p>
                 {process.env.NODE_ENV !== 'production' && (
-                    <pre className="bg-shell border border-line rounded-lg p-4 text-left text-xs text-negative mb-6 max-h-32 overflow-y-auto whitespace-pre-wrap font-mono">
+                    <pre className="mb-6 max-h-32 overflow-y-auto whitespace-pre-wrap rounded-md border border-line bg-shell p-4 text-left font-mono text-xs text-negative">
                         {error.message}
                     </pre>
                 )}
-                <div className="flex gap-3 justify-center">
+                <div className="flex justify-center gap-3">
                     <button
                         onClick={reset}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-ink-1 text-black rounded-lg text-xs font-bold uppercase tracking-wider ring-1 ring-line-strong transition-colors"
+                        className="flex h-10 items-center gap-2 rounded border border-gold bg-gold px-5 text-sm font-semibold text-gold-on transition-colors hover:border-gold-hover hover:bg-gold-hover"
                     >
-                        <RefreshCw size={14} />
-                        Try Again
+                        <RefreshCw size={15} aria-hidden="true" />
+                        Try again
                     </button>
                     <a
                         href="/main-menu"
-                        className="flex items-center gap-2 px-5 py-2.5 bg-raised hover:bg-hover border border-line rounded-lg text-xs font-bold uppercase tracking-wider transition-colors"
+                        className="flex h-10 items-center gap-2 rounded border border-line bg-raised px-5 text-sm font-semibold text-ink-1 transition-colors hover:border-line-strong hover:bg-hover"
                     >
-                        <Home size={14} />
-                        Main Menu
+                        <Home size={15} aria-hidden="true" />
+                        Main menu
                     </a>
                 </div>
             </div>

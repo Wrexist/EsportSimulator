@@ -12,7 +12,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useShallow } from "zustand/react/shallow"
 import { ArrowRight, ChevronDown, Loader2, Play, Swords, X } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils"
 
 export function AdvanceControl() {
     const router = useRouter()
+    const pathname = usePathname()
     const {
         timeMode, currentWeek, currentDay, isLoading, gameOverReason, saveId, playerTeamId,
         continueRun, advanceStop,
@@ -81,9 +82,12 @@ export function AdvanceControl() {
             </div>
         )
     } else if (pendingMatchId) {
+        // One gold action per view: on this match's own prep and veto screens
+        // "Start match" is the primary, so this shortcut steps down to outline.
+        const onThisMatch = !!pathname?.startsWith(`/match/${pendingMatchId}/`)
         control = (
             <Button
-                variant="play"
+                variant={onThisMatch ? "outline" : "play"}
                 onClick={() => { dismissAdvanceStop(); router.push(`/match/${pendingMatchId}/tactics`) }}
                 disabled={locked}
                 className="h-10 px-5 shrink-0"

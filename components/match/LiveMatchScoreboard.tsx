@@ -134,7 +134,7 @@ const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName }: 
                 const mark = r ? WIN_TYPE_MARK[r.winType ?? ""] ?? "" : ""
                 const how = r ? WIN_TYPE_LABEL[r.winType ?? ""] ?? "Won" : ""
                 const cell = (mine: boolean) => (
-                    <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded-[2px] text-[9px] font-bold leading-none", mine ? fill : "bg-hover")}>{mine ? mark : ""}</span>
+                    <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded-[2px] text-[11px] font-bold leading-none", mine ? fill : "bg-hover")}>{mine ? mark : ""}</span>
                 )
                 return (
                     <div

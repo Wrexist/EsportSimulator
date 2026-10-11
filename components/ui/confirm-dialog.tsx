@@ -115,7 +115,7 @@ export function ConfirmDialog({
                 {error && (
                     <div
                         role="alert"
-                        className="mt-2 p-3 rounded-md border border-red-500/40 bg-red-500/10 text-sm text-red-300"
+                        className="mt-2 rounded-md border border-negative/40 bg-negative/10 p-3 text-sm text-negative"
                     >
                         {error}
                     </div>
@@ -130,7 +130,7 @@ export function ConfirmDialog({
                             handleConfirm()
                         }}
                         disabled={loading}
-                        className={destructive ? 'bg-red-600 hover:bg-red-700' : ''}
+                        className={destructive ? 'border-negative bg-negative text-ink hover:bg-negative/90' : ''}
                     >
                         {loading ? 'Processing...' : confirmText}
                     </AlertDialogAction>

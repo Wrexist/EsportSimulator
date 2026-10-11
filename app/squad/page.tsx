@@ -102,7 +102,7 @@ const RosterRow = memo(function RosterRow({
             <div className="flex items-center gap-2">
               <span className="truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{player.nickname}</span>
               {isCaptain && (
-                <span title="Captain: when he plays, defeats cost the lineup less morale" aria-label="Captain" className="inline-flex h-4 w-4 items-center justify-center rounded-sm border border-gold/60 text-[10px] font-bold leading-none text-gold">C</span>
+                <span title="Captain: when he plays, defeats cost the lineup less morale" aria-label="Captain" className="inline-flex h-4 w-4 items-center justify-center rounded-sm border border-gold/60 text-[11px] font-bold leading-none text-gold">C</span>
               )}
               {sittingOut > 0 && (
                 <span title={`Regular starter left out of ${sittingOut} official matches: loses morale each week until he plays`} className="rounded-sm bg-caution/15 px-1.5 py-0.5 text-[11px] font-semibold text-caution">

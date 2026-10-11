@@ -66,8 +66,8 @@ export function AdvancementAnimation({
                 spread: 100,
                 origin: { x: 0.5, y: 0.35 },
                 colors: isChampionship
-                    ? ["#f59e0b", "#fbbf24", "#fcd34d", "#ffffff"]
-                    : ["#10b981", "#3b82f6", "#8b5cf6", "#ffffff"],
+                    ? ["#F2B53A", "#FFC85C", "#F2F4F7"]
+                    : ["#3DD68C", "#F2B53A", "#F2F4F7"],
                 gravity: 0.8,
                 scalar: 1.2
             })

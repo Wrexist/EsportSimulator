@@ -10,7 +10,7 @@ import type { WeekPreview } from "./week-preview"
 function Row({ label, value, tone, hint }: { label: string; value: string; tone?: "up" | "down" | "caution"; hint?: string }) {
     return (
         <div className="flex items-baseline justify-between gap-3 px-4 py-1.5 text-sm">
-            <dt className="min-w-0 text-ink-3">{label}{hint && <span className="block text-xs text-ink-3/80">{hint}</span>}</dt>
+            <dt className="min-w-0 text-ink-3">{label}{hint && <span className="block text-xs text-ink-3">{hint}</span>}</dt>
             <dd className={cn("shrink-0 font-semibold tabular-nums", tone === "up" ? "text-positive" : tone === "down" ? "text-negative" : tone === "caution" ? "text-caution" : "text-ink-1")}>{value}</dd>
         </div>
     )

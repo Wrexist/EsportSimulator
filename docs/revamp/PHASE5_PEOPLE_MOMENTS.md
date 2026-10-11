@@ -60,7 +60,7 @@ Also fixed: a $15k/week legend coach was offered to clubs that could not pay it 
 
 Verification: type-check 0 · lint 0 · jest 253 suites / 2,696 tests · live run on the merged branch (new career → welcome → intro → match → end beat → result → signing reveal → forced title/league/tier moments → home, squad, week, league, trophies, settings, inbox): 0 page errors. Screenshots `tmp/phase5/`.
 
-Open: listen-check the audio (`tmp/phase5/audio/preview.html`); contract standoffs did not trigger in the 3-seed season (unit-tested); every snapshot player has amicability 70, so only the Hothead rift fires; old AI trophy PNGs are still referenced by `data/tournaments.json` save summaries.
+Open: listen-check the audio (`tmp/phase5/audio/preview.html`); a legend signed with a full squad takes it over the cap (the pick says so); the dev-only labs keep old styles.
 
 ### Fixes (stream 5.8a, branch `claude/p5-fixes`)
 - **Squad cap:** the manager can release a senior player (rest of the contract paid at once, stated before confirming; never below five). Squad, market board and deal panel show the squad against the cap of 7 and say how many to release or sell. `engine/roster-rules.ts`.
@@ -68,3 +68,6 @@ Open: listen-check the audio (`tmp/phase5/audio/preview.html`); contract standof
 - **Amicability (save v10):** archetype base + id-hash spread instead of 70 for everyone; rifts capped at 2 a season.
 - **Persistence:** the legend-pick decision, auto tactics (`GameSave.autoTactics`), the daily/weekly switch and the day within the week are saved at once.
 - **Load game:** Titles counts the club's trophies.
+
+### 5.8b Visual consistency sweep (2026-10-11, branch `claude/p5-visual`)
+Every reachable route captured before/after at 1920×1080 (`tmp/phase5/visual/`). Fixed: the F9 DevTools panel and the floating help/bug/dev buttons (last old glass/red surfaces, pulses, 10px mono labels); cyan focus rings with glow → crisp gold; white switches/radios → gold selection; cyan week-advance spinner; trophy cabinet, legend pick, error/404/crash screens and the error boundary on v2; project trophy art on the load screen's save summary (mapped from tournament + tier at render time, `trophyPath` ignored), Rankings › Trophies and tournament logo fallbacks; one gold primary per view (top-bar Play match steps down on its own prep screen, result-screen actions are outline); neutral archetype chips; no text under 11px or hover bob in the touched components.

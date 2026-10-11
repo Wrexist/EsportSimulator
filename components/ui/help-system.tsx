@@ -303,12 +303,13 @@ export function HelpSystem() {
                 title="Help & Game Guide"
                 // Stacked above the (conditional) bug-report button at bottom-6
                 // so the two never overlap.
-                className="fixed bottom-24 right-6 rounded-full w-11 h-11 bg-raised hover:bg-hover border border-line shadow-lg z-50"
+                className="fixed bottom-20 right-6 z-50 h-10 w-10 rounded border border-line-strong bg-raised text-ink-2 hover:bg-hover hover:text-ink-1"
             >
+                {/* Not opened yet: a static gold dot instead of an animated halo. */}
                 {showPulse && (
-                    <span className="absolute inset-0 rounded-full bg-gold/40 animate-ping pointer-events-none" aria-hidden="true" />
+                    <span className="pointer-events-none absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-gold" aria-hidden="true" />
                 )}
-                <HelpCircle className="w-5 h-5" aria-hidden="true" />
+                <HelpCircle className="h-[18px] w-[18px]" aria-hidden="true" />
             </Button>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>

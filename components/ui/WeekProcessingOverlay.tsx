@@ -101,7 +101,7 @@ export function WeekProcessingOverlay() {
             animation: esmPop 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
           }
           .esm-ring {
-            background: conic-gradient(from 0deg, transparent 0deg, #22d3ee 90deg, transparent 220deg);
+            background: conic-gradient(from 0deg, transparent 0deg, #f2b53a 90deg, transparent 220deg);
             -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
             mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
             animation: esmSpin 1.1s linear infinite;
@@ -120,8 +120,8 @@ export function WeekProcessingOverlay() {
             to { transform: rotate(360deg); }
           }
           @keyframes esmDot {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
-            12%, 26% { transform: scale(1.6); box-shadow: 0 0 10px 1px rgba(34, 211, 238, 0.6); }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
           }
           @keyframes esmBar {
             0% { transform: translateX(-110%); }

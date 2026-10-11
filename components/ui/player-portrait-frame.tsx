@@ -80,7 +80,7 @@ function PlayerPortraitFrameImpl({
   const baseClass = cn(
     "portrait-realist-frame relative isolate overflow-hidden bg-[#101821] text-white",
     variantClass[variant],
-    !useMotion && interactive && "transition-transform duration-150 ease-out hover:-translate-y-px",
+    !useMotion && interactive && "transition-colors duration-150 ease-out",
     className,
   )
 
@@ -125,7 +125,7 @@ function PlayerPortraitFrameImpl({
       <div
         className={cn(
           baseClass,
-          "transition-transform duration-75 ease-out will-change-transform hover:-translate-y-px hover:scale-[1.015] active:scale-[0.99] active:duration-0"
+          "transition-transform duration-75 ease-out active:scale-[0.99] active:duration-0"
         )}
         style={style}
       >

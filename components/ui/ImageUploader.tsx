@@ -220,7 +220,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                             variant="ghost"
                             size="sm"
                             onClick={handleClear}
-                            className="gap-2 text-red-400 hover:text-red-300"
+                            className="gap-2 text-negative hover:text-negative"
                         >
                             <X size={14} />
                             Remove

@@ -247,13 +247,13 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                 value={strategyName}
                                 onChange={(e) => setStrategyName(e.target.value)}
                                 placeholder={`${strategyId} LOADOUT`}
-                                className="bg-transparent border-none text-3xl font-normal uppercase tracking-tight leading-none text-ink-1 focus:outline-hidden focus:ring-0 placeholder:text-ink-3 w-full"
+                                className="w-full rounded-sm border-none bg-transparent font-display text-3xl font-bold uppercase leading-none text-ink-1 placeholder:text-ink-3"
                             />
                         </div>
-                        <p className="text-ink-3 text-[11px] font-normal uppercase tracking-widest mt-2 flex items-center gap-2">
+                        <p className="mt-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
                             <span>{strategyId} ({side.toUpperCase()})</span>
                             <span className="opacity-30">•</span>
-                            <span className={cn(selectedPlayer !== null ? "text-ink-1" : "opacity-50")}>
+                            <span className={cn(selectedPlayer !== null ? "text-ink-1" : "text-ink-3")}>
                                 {selectedPlayer !== null ? `Editing ${playerNames[selectedPlayer]}` : "Select a player to configure"}
                             </span>
                             <span className="opacity-30">•</span>
@@ -264,7 +264,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                         </p>
                     </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close loadout editor" className="rounded-full hover:bg-hover h-10 w-10">
+                <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close loadout editor" className="h-10 w-10">
                     <X className="w-6 h-6 text-ink-3" />
                 </Button>
             </div>
@@ -284,7 +284,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                             <div
                                 key={idx}
                                 className={cn(
-                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color] duration-100 ease-out text-left group relative select-none touch-manipulation",
+                                    "w-full p-4 rounded-md border transition-[border-color,background-color] duration-100 ease-out text-left group relative select-none touch-manipulation",
                                     isSelected
                                         ? (side === "ct" ? "bg-side-ct/10 border-side-ct/60" : "bg-side-t/10 border-side-t/60")
                                         : "bg-raised border-line hover:bg-hover"
@@ -383,7 +383,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={opt.id}
                                                 onClick={() => opt.tier ? handleSelectArmor(opt.tier) : (opt.special === "KIT" ? handleToggleKit() : null)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-3 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
+                                                    "w-full p-4 rounded-md border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-3 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
                                                         ? "bg-gold/[0.06] border-gold text-ink-1"
                                                         : "bg-raised border-line text-ink-3 hover:bg-hover"
@@ -401,7 +401,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[11px] leading-tight mb-1 truncate px-1">{opt.name.toUpperCase()}</div>
-                                                    <div className="text-[11px] font-bold opacity-60">{formatCurrency(opt.price, "$", false)}</div>
+                                                    <div className="text-[11px] font-bold text-ink-3">{formatCurrency(opt.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-gold" />}
                                             </button>
@@ -425,7 +425,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={w.id}
                                                 onClick={() => handleSelectWeapon(w.id, false)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
+                                                    "w-full p-4 rounded-md border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
                                                         ? "bg-gold/[0.06] border-gold text-ink-1"
                                                         : "bg-raised border-line text-ink-3 hover:bg-hover"
@@ -445,7 +445,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[11px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[11px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
+                                                    <div className="text-[11px] font-bold text-ink-3">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-gold" />}
                                             </button>
@@ -469,7 +469,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={w.id}
                                                 onClick={() => handleSelectWeapon(w.id, true)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
+                                                    "w-full p-4 rounded-md border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
                                                         ? "bg-gold/[0.06] border-gold text-ink-1"
                                                         : "bg-raised border-line text-ink-3 hover:bg-hover"
@@ -489,7 +489,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[11px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[11px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
+                                                    <div className="text-[11px] font-bold text-ink-3">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-gold" />}
                                             </button>
@@ -513,7 +513,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={w.id}
                                                 onClick={() => handleSelectWeapon(w.id, true)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
+                                                    "w-full p-4 rounded-md border transition-[border-color,background-color,box-shadow,transform] duration-100 ease-out text-center relative flex flex-col items-center gap-2 overflow-hidden group select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
                                                         ? "bg-gold/[0.06] border-gold text-ink-1"
                                                         : "bg-raised border-line text-ink-3 hover:bg-hover"
@@ -533,7 +533,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full">
                                                     <div className="font-normal text-[11px] leading-tight mb-1 truncate px-1">{w.name.toUpperCase()}</div>
-                                                    <div className="text-[11px] font-bold opacity-60">{formatCurrency(w.price, "$", false)}</div>
+                                                    <div className="text-[11px] font-bold text-ink-3">{formatCurrency(w.price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-gold" />}
                                             </button>
@@ -557,7 +557,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 key={id}
                                                 onClick={() => handleToggleGrenade(id)}
                                                 className={cn(
-                                                    "w-full p-4 rounded-3xl border transition-[border-color,background-color,box-shadow] duration-100 ease-out text-center relative group min-h-[120px] flex flex-col justify-between select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
+                                                    "w-full p-4 rounded-md border transition-[border-color,background-color,box-shadow] duration-100 ease-out text-center relative group min-h-[120px] flex flex-col justify-between select-none touch-manipulation will-change-transform active:scale-[0.98] active:duration-0",
                                                     isSelected
                                                         ? "bg-gold/[0.06] border-gold text-ink-1"
                                                         : "bg-raised border-line text-ink-3 hover:bg-hover"
@@ -573,7 +573,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                                 </div>
                                                 <div className="w-full mt-2">
                                                     <div className="text-[11px] font-normal uppercase tracking-wider">{id}</div>
-                                                    <div className="text-[11px] opacity-60 font-bold">{formatCurrency(price, "$", false)}</div>
+                                                    <div className="text-[11px] font-bold text-ink-3">{formatCurrency(price, "$", false)}</div>
                                                 </div>
                                                 {isSelected && <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-gold" />}
                                             </button>

@@ -41,42 +41,43 @@ export default function GlobalError({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    backgroundColor: "#0e1217",
-                    color: "#fff",
-                    fontFamily: "system-ui, -apple-system, sans-serif",
+                    backgroundColor: "#07090C",
+                    color: "#F2F4F7",
+                    fontFamily: "\"Inter Variable\", \"Segoe UI\", system-ui, sans-serif",
                 }}
             >
-                <div style={{ maxWidth: 480, textAlign: "center", padding: 24 }}>
+                <div style={{ maxWidth: 480, textAlign: "center", padding: 32, backgroundColor: "#12161C", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 10 }}>
                     <div
                         style={{
-                            width: 80,
-                            height: 80,
-                            borderRadius: "50%",
-                            backgroundColor: "rgba(239, 68, 68, 0.1)",
+                            width: 48,
+                            height: 48,
+                            borderRadius: 6,
+                            border: "1px solid rgba(255, 84, 104, 0.4)",
+                            backgroundColor: "rgba(255, 84, 104, 0.1)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            margin: "0 auto 24px",
+                            margin: "0 auto 20px",
                         }}
                     >
-                        <AlertTriangle color="#ef4444" size={40} />
+                        <AlertTriangle color="#FF5468" size={24} aria-hidden="true" />
                     </div>
                     <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
                         The game crashed
                     </h1>
-                    <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 24 }}>
+                    <p style={{ fontSize: 14, lineHeight: "22px", color: "#AEB6C2", marginBottom: 24 }}>
                         Something went wrong above the React tree. Your save data on disk is safe — restart the app to recover.
                     </p>
                     {process.env.NODE_ENV !== "production" && (
                         <pre
                             style={{
-                                backgroundColor: "rgba(255,255,255,0.05)",
-                                border: "1px solid rgba(255,255,255,0.1)",
+                                backgroundColor: "#0D1015",
+                                border: "1px solid rgba(255,255,255,0.07)",
                                 borderRadius: 8,
                                 padding: 16,
                                 textAlign: "left",
                                 fontSize: 12,
-                                color: "#f87171",
+                                color: "#FF5468",
                                 marginBottom: 24,
                                 maxHeight: 128,
                                 overflowY: "auto",
@@ -93,18 +94,19 @@ export default function GlobalError({
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 8,
-                            padding: "8px 16px",
-                            backgroundColor: "#0891b2",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: 8,
+                            height: 40,
+                            padding: "0 20px",
+                            backgroundColor: "#F2B53A",
+                            color: "#15100A",
+                            border: "1px solid #F2B53A",
+                            borderRadius: 4,
                             fontSize: 14,
-                            fontWeight: 500,
+                            fontWeight: 600,
                             cursor: "pointer",
                         }}
                     >
-                        <RefreshCw size={14} />
-                        Try Again
+                        <RefreshCw size={15} aria-hidden="true" />
+                        Try again
                     </button>
                 </div>
             </body>

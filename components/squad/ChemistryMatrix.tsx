@@ -128,7 +128,7 @@ function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className
                                 initial={{ scale: 0, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.5 }}
-                                className="group relative z-20 h-12 w-12 cursor-default rounded-full border border-line-strong bg-ink p-0.5 transition-transform duration-200 hover:scale-110"
+                                className="group relative z-20 h-12 w-12 cursor-default rounded-full border border-line-strong bg-ink p-0.5 transition-colors duration-150 hover:border-ink-2"
                             >
                                 <div className="w-full h-full rounded-full overflow-hidden relative">
                                     <PlayerPortrait
