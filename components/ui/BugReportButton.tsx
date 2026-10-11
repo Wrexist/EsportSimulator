@@ -260,17 +260,17 @@ export function BugReportButton() {
       {/* Floating Bug Button */}
       <button
         onClick={handleOpen}
-        className="fixed bottom-6 right-6 z-devtools group transition-transform duration-75 ease-out will-change-transform hover:scale-110 active:scale-95 active:duration-0 select-none touch-manipulation"
-        title="Report a Bug"
+        className="fixed bottom-6 right-6 z-devtools group select-none touch-manipulation"
+        title="Report a bug"
+        aria-label="Report a bug"
       >
-        <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-hover border border-line-strong shadow-lg shadow-black/30 hover:bg-hover hover:border-line-strong transition-colors cursor-pointer">
-          <Bug className="w-5 h-5 text-negative group-hover:text-negative transition-colors" />
-          <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500 border border-[#080a0e] animate-pulse" />
+        <div className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded border border-line-strong bg-raised text-ink-2 transition-colors group-hover:bg-hover group-hover:text-ink-1">
+          <Bug className="h-[18px] w-[18px]" aria-hidden="true" />
         </div>
 
         {/* Hover tooltip */}
-        <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg bg-ink/90 border border-line text-xs text-ink-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          Report a Bug
+        <div className="pointer-events-none absolute bottom-full right-0 mb-2 whitespace-nowrap rounded border border-line-strong bg-raised px-2.5 py-1.5 text-xs text-ink-1 opacity-0 transition-opacity group-hover:opacity-100">
+          Report a bug
         </div>
       </button>
 
@@ -283,7 +283,7 @@ export function BugReportButton() {
           {/* Header */}
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-line shrink-0">
             <DialogTitle className="flex items-center gap-3 text-lg font-normal">
-              <div className="p-2 rounded-xl bg-negative/10 text-negative">
+              <div className="rounded-md bg-negative/10 p-2 text-negative">
                 <Bug className="h-5 w-5" />
               </div>
               Report a Bug
@@ -465,7 +465,7 @@ export function BugReportButton() {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-negative/20 text-negative border border-negative/30 hover:bg-negative/20 hover:border-negative/30 hover:text-negative disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-100 ease-out text-sm font-bold active:scale-[0.98] active:duration-0"
+              className="flex w-full items-center justify-center gap-2 rounded border border-gold bg-gold px-4 py-3 text-sm font-bold text-gold-on transition-colors duration-100 ease-out hover:border-gold-hover hover:bg-gold-hover disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Clipboard className="w-4 h-4" />
               {submitting ? "Copying..." : "Copy Report to Clipboard"}
