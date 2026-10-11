@@ -68,6 +68,7 @@ import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-wo
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
 import { LeagueEngine } from "./league-engine"
 import { applyTierBands, tiersAreBanded } from "./world-ranking"
+import { competitionLabel, rankMovementEntries } from "./ranking-report"
 import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
 import { JobOfferGenerator } from "./job-offer-generator"
@@ -476,6 +477,10 @@ export class AtomicWeekProcessor {
             if (resumeStep <= 9) {
                 debugLog(`[Week ${save.currentWeek}] Step 7.5: World Logic (AI / Fans)...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
+                // The world ranking refreshes inside the AI world step; split
+                // the managed club's move into its own results and everyone
+                // else's before it does (Phase 4.8).
+                const rankItems = rankMovementEntries(save, config.playerTeamId)
                 this.processAIWorldLogic(save, config.playerTeamId, rng)
                 // AI clubs face the managed club's insolvency rule (Phase 4.4).
                 processAIAdministration(save, config.playerTeamId)
@@ -510,7 +515,7 @@ export class AtomicWeekProcessor {
                 // Retirements can take an AI club below five: refill now.
                 ensureAIRosterViability(save, config.playerTeamId)
 
-                mark(e => {
+                changes.markItemized(save, rankItems, e => {
                     if (e.kind === "contract" && e.delta < 0) {
                         return idx.playerIndex.get(e.subjectId)?.isRetired
                             ? { type: "age", label: "Retired" }
@@ -776,8 +781,9 @@ export class AtomicWeekProcessor {
             const opp = (idx?.teamIndex.get(oppId) ?? save.teams.find(t => t.id === oppId))?.name ?? "opponent"
             if (!cm?.result) return { type: "match", label: `Match vs ${opp}` }
             const won = cm.result.winnerId === playerTeamId
-            if (!cm.result.maps?.length) return { type: "match", label: `Forfeit ${won ? "win" : "loss"} vs ${opp}` }
-            return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${sideScore(cm.result, cm.homeTeamId === playerTeamId)}` }
+            const where = competitionLabel(save, cm)
+            if (!cm.result.maps?.length) return { type: "match", label: `Forfeit ${won ? "win" : "loss"} vs ${opp}${where}` }
+            return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${sideScore(cm.result, cm.homeTeamId === playerTeamId)}${where}` }
         }
         const weekMatches = save.scheduledMatches.filter(m => {
             const isPastWeek = m.week < save.currentWeek

@@ -13,6 +13,7 @@ import { TrainingFocus } from "@/types"
 import type { GameSave, StaffSaveData } from "@/engine/save-types"
 import type { ChangeEntry } from "@/lib/week-changes"
 import { moneyNet, weekHeadline, WEEK_REPORT_HISTORY } from "@/lib/week-report"
+import { refreshWorldRankings } from "@/engine/world-ranking"
 import { moneyLines, playerGroups, teamRows } from "@/components/report/report-model"
 
 jest.mock("@/engine/worker/week-processor-bridge", () => {
@@ -62,9 +63,26 @@ describe("week processor records changes with causes", () => {
         const won = played.result.winnerId === save.playerTeamId
         const matchEntries = (result.changes ?? []).filter(e => e.cause.type === "match")
         expect(matchEntries.length).toBeGreaterThan(0)
-        expect(matchEntries[0].cause.label).toMatch(new RegExp(`^${won ? "Beat" : "Lost to"} AI Team 1 \\d+–\\d+$`))
+        expect(matchEntries[0].cause.label).toMatch(new RegExp(`^${won ? "Beat" : "Lost to"} AI Team 1 \\d+–\\d+ · Europe Division 1 \\(League\\)$`))
         expect(matchEntries.some(e => e.kind === "morale" && e.subjectId === "p_a1")).toBe(true)
         expect(matchEntries.some(e => e.kind === "ranking" && e.label === "Elo" && (won ? e.delta > 0 : e.delta < 0))).toBe(true)
+    })
+
+    test("the weekly ranking update records the rank move with its cause: the result, the opponent and the competition", async () => {
+        const save = createLaunchFixture("first-week")
+        Object.assign(save.scheduledMatches[0], { tournamentId: "league_s1_p1_europe_d1", stage: "Europe Division 1 · Round 1" })
+        // AI Team 1 (#1) 1510, us (#2) 1508, AI Team 2 (#3) 1506: a win takes
+        // us to #1, a loss drops us to #3 (Phase 4.8).
+        const [me, ai1, ai2] = save.teams
+        me.elo = 1508; ai1.elo = 1510; ai2.elo = 1506
+        refreshWorldRankings(save)
+        const { result, save: after } = await computeWeek(save, config(save), 5)
+        const won = after.completedMatches.find(m => m.id === "qa_match_first-week")!.result.winnerId === save.playerTeamId
+        const rank = (result.changes ?? []).filter(e => e.kind === "ranking" && e.label === "World rank")
+        expect(rank).toHaveLength(1)
+        expect(rank[0]).toMatchObject({ delta: won ? -1 : 1, cause: { type: "match" } })
+        expect(rank[0].cause.label).toMatch(new RegExp(`^Your results: ${won ? "beat" : "lost to"} AI Team 1 · Europe Division 1 \\(League\\), Elo [+−]\\d+$`))
+        expect(after.teams.find(t => t.id === me.id)!.worldRanking).toBe(won ? 1 : 3)
     })
 })
 

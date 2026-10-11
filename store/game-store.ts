@@ -114,6 +114,7 @@ import { createTransferContractSlice } from "@/store/slices/transfer-contract-sl
 import { createAcademySlice } from "@/store/slices/academy-slice"
 import { createAdvanceSlice, initialAdvanceState, isContinueStepping, type AdvanceState, type AdvanceActions } from "@/store/slices/advance-slice"
 import { WeekChangeRecorder, diffClubs, sideScore, snapshotClub, type ChangeCause, type ChangeEntry } from "@/lib/week-changes"
+import { competitionLabel, splitLiveRankEntries } from "@/engine/ranking-report"
 import { buildWeekReport, newTracker, pushWeekReport, sanitizeWeekReports } from "@/lib/week-report"
 import { recordWeekChanges, withTracker, type TrackingState } from "@/store/utils/week-tracking"
 import { getEventTitle } from "@/lib/event-format"
@@ -802,7 +803,7 @@ function weekRecordedActions(set: unknown, get: unknown) {
     const isHome = m.homeTeamId === state.playerTeamId
     const opp = state.teams.find(t => t.id === (isHome ? m.awayTeamId : m.homeTeamId))?.name ?? "opponent"
     const won = m.result.winnerId === state.playerTeamId
-    return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${sideScore(m.result, isHome)}` }
+    return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${sideScore(m.result, isHome)}${competitionLabel(state, m)}` }
   }
 
   const sim = slice(createMatchSimulationSlice as never) as ReturnType<typeof createMatchSimulationSlice>
@@ -813,7 +814,10 @@ function weekRecordedActions(set: unknown, get: unknown) {
   const transfers = slice(createTransferContractSlice as never) as ReturnType<typeof createTransferContractSlice>
 
   return {
-    saveMatchResult: recordWeekChanges(g, s, sim.saveMatchResult, (st, matchId: string) => matchCause(st, matchId)),
+    // The ranking refreshes after the managed match: its rank move is split
+    // into this result and other clubs' results since the last refresh.
+    saveMatchResult: recordWeekChanges(g, s, sim.saveMatchResult, (st, matchId: string) => matchCause(st, matchId),
+      (entries, start, now) => now.playerTeamId ? splitLiveRankEntries(entries, store(start), store(now), now.playerTeamId) : entries),
     runTeamDrill: recordWeekChanges(g, s, drills.runTeamDrill, (_st, drillId: string) =>
       ({ type: "training", label: `Drill: ${drillCatalog.find(d => d.id === drillId)?.name ?? "team drill"}` })),
     resolveEventChoice: recordWeekChanges(g, s, events.resolveEventChoice, (st, eventId: string, choiceId: string) => {

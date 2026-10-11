@@ -8,6 +8,7 @@ import {
     applyRatedResult, applyTierBands, isPlayoffStage, matchImportance, rankMovement, ratingExchange,
     refreshWorldRankings, regressRatingsToMean, tierBandLimits, tierForRank, tiersAreBanded,
 } from "@/engine/world-ranking"
+import { rankMovementEntries, splitLiveRankEntries } from "@/engine/ranking-report"
 import { RANKING_TUNING } from "@/lib/balance-tuning"
 import { SeededRNG } from "@/engine/rng"
 import type { GameSave, TeamSaveData } from "@/engine/save-types"
@@ -139,6 +140,53 @@ describe("rank bands and season end", () => {
         refreshWorldRankings(save)
         regressRatingsToMean(save)
         for (const t of save.teams) expect(rankMovement(save, t.id)).toMatchObject({ own: 0, others: 0 })
+    })
+})
+
+describe("ranking movement causes", () => {
+    const world = () => {
+        const teams = [club("a", 1600), club("b", 1590), club("me", 1580), club("c", 1570), club("d", 1560)]
+        const save = { teams, tournaments: [{ id: "iem_s1", name: "IEM Cologne", tier: "S_TIER" }], completedMatches: [], currentWeek: 10 } as unknown as GameSave
+        refreshWorldRankings(save)
+        return save
+    }
+
+    test("a rank change splits into own results and other clubs' results", () => {
+        const save = world()
+        const me = save.teams.find(t => t.id === "me")!
+        // My win over D in an S-tier playoff takes me past B; C's results take it past me.
+        save.completedMatches.push({ id: "m1", week: 10, homeTeamId: "me", awayTeamId: "d", tournamentId: "iem_s1", stage: "Semi-final 1",
+            result: { winnerId: "me", homeScore: 2, awayScore: 0, maps: [] }, eloChange: { home: 15, away: -15 } } as never)
+        me.elo = 1595
+        save.teams.find(t => t.id === "d")!.elo = 1545
+        save.teams.find(t => t.id === "c")!.elo = 1650
+        const move = rankMovement(save, "me")!
+        expect(move).toMatchObject({ from: 3, to: 3, own: -1, others: 1, passedBy: ["c"] })
+        const entries = rankMovementEntries(save, "me")
+        expect(entries).toHaveLength(2)
+        expect(entries[0]).toMatchObject({ kind: "ranking", label: "World rank", delta: -1, cause: { type: "match" } })
+        expect(entries[0].cause.label).toBe("Your results: beat D · IEM Cologne (S-Tier playoffs), Elo +15")
+        expect(entries[1]).toMatchObject({ delta: 1, cause: { type: "world", label: "Other clubs' results: passed by C" } })
+        // Net zero still shows both causes; nothing moves after the refresh.
+        refreshWorldRankings(save)
+        expect(rankMovementEntries(save, "me")).toEqual([])
+    })
+
+    test("the live match path splits the diff's rank entry the same way", () => {
+        const before = world()
+        const after = structuredClone(before)
+        // My win takes me past B (-1); C and D, day-simmed earlier this week, pass me (+2).
+        after.teams.find(t => t.id === "me")!.elo = 1595
+        after.teams.find(t => t.id === "c")!.elo = 1650
+        after.teams.find(t => t.id === "d")!.elo = 1700
+        refreshWorldRankings(after)
+        const cause = { type: "match" as const, label: "Beat B 2–0 · IEM Cologne (S-Tier playoffs)" }
+        const diff = [{ kind: "ranking" as const, subjectId: "me", label: "World rank", delta: 1, cause }]
+        const split = splitLiveRankEntries(diff, before, after, "me")
+        expect(split).toEqual([
+            { kind: "ranking", subjectId: "me", label: "World rank", delta: -1, cause },
+            { kind: "ranking", subjectId: "me", label: "World rank", delta: 2, cause: { type: "world", label: "Other clubs' results this week: passed by C, D" } },
+        ])
     })
 })
 
