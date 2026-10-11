@@ -28,7 +28,8 @@
  */
 
 import type { SliceCreator } from "@/store/types"
-import type { TeamSaveData } from "@/engine/save-types"
+import type { GameSave, TeamSaveData } from "@/engine/save-types"
+import { fillAIRosterToFive } from "@/engine/ai/club-budget"
 import { checkAchievements } from "@/engine/steam-service"
 import { academyHeldPlayerIds, recruitmentBudget, recruitmentSalary } from "@/engine/recruitment"
 import { soundManager } from "@/lib/sound-manager"
@@ -360,6 +361,11 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             for (const team of recalcTeams) {
                 recalculateTeamSynergy(team, state.players)
                 applyRosterChangePenalty(team, state.currentWeek, 1)
+            }
+            // Roster invariant (Phase 4.6): an AI club that sells its fifth
+            // player replaces him at once, so it never forfeits mid-week.
+            if (fromTeam && fromTeam.id !== state.playerTeamId && fromTeam.rosterIds.length === 4) {
+                fillAIRosterToFive(state as unknown as GameSave, fromTeam)
             }
 
             // Steam: First Transfer achievement (player-team only).

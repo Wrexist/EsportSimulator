@@ -123,22 +123,33 @@ test("expired offers explain failure and do not transfer money or ownership", ()
     expect(h.get().addToast).toHaveBeenCalled()
 })
 
-test("AI affordability includes existing wages and cannot be bypassed by an urgent vacancy", () => {
+test("AI affordability includes existing wages; only an urgent vacancy (below five) signs on credit", () => {
     const save = fixture()
     const team = save.teams[1]
-    team.rosterIds.pop()
+    const dropped = team.rosterIds.pop()!
     save.contracts.push({ playerId: team.rosterIds[0], teamId: team.id, salaryPerWeek: 100000,
         startWeek: 0, endWeek: 104, buyout: 0 })
     const target = save.players.find(p => p.id === "qa_free_agent")!
     expect(recruitmentBudget(save, team)(recruitmentSalary(target, save.currentWeek))).toBe(false)
-    signFreeAgent(team, save, true)
+    // Depth is optional: at five the club cannot add the wage.
+    team.rosterIds.push(dropped)
+    signFreeAgent(team, save)
     expect(team.rosterIds).not.toContain(target.id)
+    // Phase 4.6: below five the roster invariant signs the cheapest free agent
+    // on credit (no fee, no cash invented) rather than forfeiting for months.
+    team.rosterIds.pop()
+    const cash = team.budget
+    signFreeAgent(team, save, true)
+    expect(team.rosterIds).toHaveLength(5)
+    expect(team.budget).toBe(cash)
 })
 
 test("AI sale cannot strip a five-player seller; valid trades conserve cash and ledger both sides", () => {
     const save = fixture()
     const seller = save.teams[1]
-    const buyer = { ...save.teams[0], id: "ai_buyer", rosterIds: [] as string[], budget: 5000000 }
+    // Phase 4.6: an AI buyer needs weekly income for the wage, not only cash.
+    const buyer = { ...save.teams[0], id: "ai_buyer", rosterIds: [] as string[], budget: 5000000,
+        sponsors: [{ id: "backer", name: "Backer", tier: "STANDARD", weeklyPayout: 60_000, remainingWeeks: 52 }] } as typeof save.teams[number]
     save.teams.push(buyer)
     const target = save.players.find(p => p.id === seller.rosterIds[0])!
     target.forSale = true

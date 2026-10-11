@@ -13,7 +13,8 @@ function makeTeam(id: string, overrides: Partial<TeamSaveData> = {}): TeamSaveDa
     return {
         id, name: id, shortName: id.slice(0, 4).toUpperCase(),
         budget: 1_000_000, rosterIds: [], staffIds: [],
-        trophies: [], facilities: [], sponsors: [],
+        // Phase 4.6: AI signings must fit weekly income, not only cash.
+        trophies: [], facilities: [], sponsors: [{ id: "backer", name: "Backer", tier: "STANDARD", weeklyPayout: 60_000, remainingWeeks: 52 }],
         fanbase: 1000, playstyle: "default", reputation: 50,
         region: "EU", facilitiesLevel: 1,
         financialState: "STABLE", weeklyNet: 5000, runwayWeeks: 50, worldRanking: 20,

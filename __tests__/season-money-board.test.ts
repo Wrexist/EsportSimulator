@@ -14,6 +14,7 @@ import { SaveManager } from "@/engine/save-manager"
 import { CURRENT_SAVE_VERSION, type GameSave } from "@/engine/save-types"
 import type { AsyncStorage } from "@/engine/storage-adapter"
 import { makeWorld } from "./league-fixtures"
+import { aiClubBudget } from "@/engine/ai/club-budget"
 
 jest.mock("@/engine/manager-career-profile", () => ({ recordCareerProgress: jest.fn().mockResolvedValue(undefined) }))
 
@@ -100,11 +101,13 @@ describe("AI clubs follow the insolvency rule", () => {
         expect(ai.rosterIds.some(id => save.players.find(p => p.id === id)?.forSale)).toBe(true)
         expect(ai.budget).toBeGreaterThan(0)
         expect(ai.budget).toBeCloseTo(CLUB_ECONOMY_TUNING.ADMINISTRATION_RECAPITALISE_WEEKS * weeklyCosts(save, ai), -1)
-        // Cost control: a loss-making AI club with a short runway lets its priciest staff go.
+        // Cost control (Phase 4.6): an AI club whose staff wages push its
+        // projected week into deficit, with less than a year of runway, lets
+        // its priciest staff member go (no bench to shed first).
         const other = save.teams[2]
         save.staff.push({ id: "st_2", teamId: other.id, name: "A", role: "coach", salaryPerWeek: 3000 } as never, { id: "st_3", teamId: other.id, name: "B", role: "analyst", salaryPerWeek: 1000 } as never)
         other.staffIds = ["st_2", "st_3"]
-        other.weeklyNet = -500; other.runwayWeeks = 10
+        expect(aiClubBudget(save, other).net).toBeLessThan(0)
         processAIAdministration(save, save.playerTeamId)
         expect(other.staffIds).toEqual(["st_3"])
         // The managed club is never put into administration (it goes bankrupt instead).

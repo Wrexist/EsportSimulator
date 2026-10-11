@@ -173,12 +173,30 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     // instantiation) is reproducible from (seed, tier, source).
     let random = mulberry32(seed)
     Math.random = () => random()
+    // generateSeed() (the new game's RNG state, module fallback RNGs) reads
+    // Web Crypto, so two processes running the same seed started from
+    // different worlds and before/after runs were not paired. Route it
+    // through the seeded stream too (Phase 4.6).
+    globalThis.crypto.getRandomValues = (<T extends ArrayBufferView | null>(array: T): T => {
+        const view = array as unknown as { length: number; BYTES_PER_ELEMENT: number; [i: number]: number }
+        for (let i = 0; i < view.length; i++) view[i] = Math.floor(random() * 2 ** (8 * view.BYTES_PER_ELEMENT))
+        return array
+    }) as Crypto['getRandomValues']
     const { useGameStore } = await import('../../store/game-store')
     const { snapshotLoader } = await import('../../data')
     const { buildSaveSnapshot } = await import('../../store/utils/build-save-snapshot')
     const { canonicalWeekState } = await import('../../engine/worker/week-replay')
     const { academyHeldPlayerIds, recruitmentSalary, recruitmentBudget, affordableInvestment } = await import('../../engine/recruitment')
     const { asyncStorage, debouncedStorage } = await import('../../engine/storage-adapter')
+    const { EconomyEngine } = await import('../../engine/economy-engine')
+    const project: FinanceProjector = (s, team) => {
+        const academy = (team.youthAcademyIds || []).length + (team.managementState?.academyPlayers || []).length
+        const r = EconomyEngine.processWeeklyFinances(team, s.players, s.contracts, s.staff || [], s.currentWeek, academy, { implicitGear: true })
+        const { total: _i, ...income } = r.income
+        const { total: _e, ...expenses } = r.expenses
+        void _i; void _e
+        return { income, expenses }
+    }
     type Store = ReturnType<typeof useGameStore.getState>
     const get = (): Store => useGameStore.getState()
     const snap = (): GameSave => buildSaveSnapshot(get() as never) as GameSave
@@ -189,7 +207,11 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     const ranked = [...snapshotLoader.getSnapshot()!.teams].filter(t => t.rosterIds.length >= 5).sort((a, b) => b.reputation - a.reputation || a.id.localeCompare(b.id))
     const band = tier === 'top' ? [0, 10] : tier === 'mid' ? [50, 80] : [130, Math.min(170, ranked.length)]
     const club = ranked[band[0] + (seed * 7) % (band[1] - band[0])]
-    await get().initializeNewGame(`campaign-${seed}`, club.id)
+    // The save id (and ids derived from it, e.g. preseason friendlies) embeds
+    // Date.now(); pin it during creation so a seed replays the same world.
+    const realNow = Date.now
+    Date.now = () => 1_700_000_000_000 + seed
+    try { await get().initializeNewGame(`campaign-${seed}`, club.id) } finally { Date.now = realNow }
     if (get().error || !get().playerTeamId) throw Error(`init failed: ${get().error}`)
     useGameStore.setState({ lastRngSeed: seed })
     let teamId = get().playerTeamId!
@@ -438,6 +460,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     // complete, because the completed-match log is capped and a season-end
     // scan would undercount busy seasons.
     const season = newSeasonTracker(snap())
+    const aiEconomy = newAIEconomyTracker(snap(), teamId)
     while (ticks < weeks && !get().gameOverReason) {
         // Mid-campaign save → load round trip through SaveManager + store.loadGame.
         if (ticks === roundTripAt) {
@@ -466,6 +489,7 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
             roundTrip = { atTick: ticks, weeks: first.hashes.length, identical: first.state === second.state, first: first.hashes, second: second.hashes, differingKeys: firstDiff }
             ticks += first.hashes.length
             lastIds = new Set(get().eventsLog.map(e => e.id))
+            syncAIEconomyTracker(aiEconomy, snap())
             continue
         }
         const t0 = Date.now()
@@ -498,9 +522,15 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         if (active < openingActive * BOUNDS.supplyMinRatio || active > openingActive * BOUNDS.supplyMaxRatio) record([{ kind: 'player-supply', week: s.currentWeek, detail: `${active} active vs ${openingActive} at start` }], () => s)
         if (structural.length === 0) lastGood = structuredClone(s)
         trackSeasonWeek(season, s, teamId)
+        trackAIEconomyWeek(aiEconomy, s, teamId, project)
+        // --trace-ai: one row per AI club per week (debugging aid, tmp/ only).
+        if (flag('trace-ai')) fs.appendFileSync(path.join(outDir, `${tag}-ai-trace.jsonl`), s.teams.filter(t => t.id !== teamId).map(t => JSON.stringify({
+            w: s.currentWeek, id: t.id, rank: t.worldRanking, rep: Math.round(t.reputation ?? 0), lvl: t.leagueDivisionLevel, cash: Math.round(t.budget), net: t.weeklyNet, roster: t.rosterIds.length,
+            wages: wageBillOf(s, t.id, t.rosterIds), staff: t.staffIds.length, spons: (t.sponsors || []).map(x => `${x.tier[0]}${Math.round(x.weeklyPayout)}`).join(','), adm: t.administrations ?? 0, st: t.financialState,
+        })).join('\n') + '\n')
         if (get().gameOverReason && recoverFromDismissal()) { lastIds = new Set(get().eventsLog.map(e => e.id)) }
-        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push({ ...seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id), structure: seasonStructureMetrics(season, s, teamId) })
-        if (ticks % 52 === 0) { Object.assign(seasonOpen, openState(s, playerTeam().budget)); income.clear(); resetSeasonTracker(season, s) }
+        if (ticks % 52 === 0 || get().gameOverReason) seasonsOut.push({ ...seasonMetrics(s, seasonOpen, income, teamId, (w: number) => jobChanges.filter(j => j.week <= w).at(-1)?.to ?? club.id), structure: seasonStructureMetrics(season, s, teamId), aiEconomy: aiEconomyMetrics(aiEconomy, s) })
+        if (ticks % 52 === 0) { Object.assign(seasonOpen, openState(s, playerTeam().budget)); income.clear(); resetSeasonTracker(season, s); resetAIEconomyTracker(aiEconomy, s, teamId) }
         if (ticks % 26 === 0) process.stdout.write(`${tag} tick ${ticks} week ${s.currentWeek} cash ${Math.round(playerTeam().budget)} failures ${failures.length} avgMs ${Math.round(tickMs.slice(-26).reduce((a, b) => a + b, 0) / 26)}\n`)
     }
     const final = snap()
@@ -509,6 +539,10 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
         terminal: final.gameOverReason ?? null, failures, failureKinds: [...new Set(failures.map(f => f.kind))],
         policy: policyStats, jobChanges, dismissals, roundTrip, inboxPerWeek: distribution(inboxPerWeek), inboxMax: Math.max(0, ...inboxPerWeek), inboxByType,
         tickMs: distribution(tickMs), seasons: seasonsOut, finalHash: sha(canonicalWeekState(final)),
+        aiAdministrationsCareer: (() => {
+            const counts = final.teams.filter(t => t.id !== teamId && (t.administrations ?? 0) > 0).map(t => t.administrations ?? 0)
+            return { total: counts.reduce((a, b) => a + b, 0), clubs: counts.length, maxPerClub: Math.max(0, ...counts) }
+        })(),
     }
     fs.writeFileSync(path.join(outDir, `${tag}.json`), JSON.stringify(result, null, 2))
     if (failures.length) fs.writeFileSync(path.join(outDir, 'failures', `${tag}-final.json.gz`), zlib.gzipSync(JSON.stringify(final)))
@@ -592,6 +626,151 @@ export function seasonStructureMetrics(t: SeasonTracker, s: GameSave, teamId: st
             weeklyNet: team?.weeklyNet ?? null, runwayWeeks: team?.runwayWeeks ?? null, stateWeeks: t.managedStates,
             board: { start: t.board[0] ?? null, min: t.board.length ? Math.min(...t.board) : null, end: t.board.at(-1) ?? null, onNotice: !!board?.onNotice, warnings: board?.warnings ?? null, review: review?.title ?? null, objectives: board?.objectives ?? null },
         },
+    }
+}
+
+// ---------------------------------------------------------------- AI economy (Phase 4.6)
+/** Weekly running-cost/income breakdown of one club (EconomyEngine projection). */
+export type FinanceBreakdown = { income: Record<string, number>; expenses: Record<string, number> }
+export type FinanceProjector = (s: GameSave, team: GameSave['teams'][number]) => FinanceBreakdown
+
+interface AITeamSeason {
+    tier: string; region: string; level: number; startBudget: number; startWages: number; startRoster: number
+    flows: Record<string, number>; minRoster: number; shortWeeks: number; insolventWeeks: number
+    /** Cumulative team.administrations seen so far, and this season's count. */
+    adminSeen: number; administrations: number
+}
+
+/**
+ * Per-season AI club economy: where each AI club's money came from and went
+ * (recurring lines from the weekly settlement, one-off lines from new ledger
+ * rows, and the unledgered residual such as an administration
+ * recapitalisation), administrations, and roster viability every week.
+ */
+export interface AIEconomyTracker {
+    teams: Map<string, AITeamSeason>
+    ledgerIds: Set<string>
+    lastBudget: Map<string, number>
+    minRoster: number
+    shortClubWeeks: number
+    administrations: Array<{ week: number; teamId: string }>
+}
+
+const wageBillOf = (s: GameSave, teamId: string, roster: string[]) => {
+    const ids = new Set(roster)
+    return s.contracts.filter(c => c.teamId === teamId && ids.has(c.playerId) && c.endWeek > s.currentWeek).reduce((n, c) => n + c.salaryPerWeek, 0)
+}
+
+export function newAIEconomyTracker(s: GameSave, teamId: string): AIEconomyTracker {
+    const t: AIEconomyTracker = { teams: new Map(), ledgerIds: new Set(s.financeLedger.map(e => e.id)), lastBudget: new Map(), minRoster: Infinity, shortClubWeeks: 0, administrations: [] }
+    resetAIEconomyTracker(t, s, teamId)
+    return t
+}
+
+export function resetAIEconomyTracker(t: AIEconomyTracker, s: GameSave, teamId: string): void {
+    t.teams.clear(); t.minRoster = Infinity; t.shortClubWeeks = 0; t.administrations = []
+    for (const team of s.teams) {
+        t.lastBudget.set(team.id, team.budget)
+        if (team.id === teamId) continue
+        t.teams.set(team.id, {
+            tier: team.leagueTier ?? 'NONE', region: team.region ?? 'NONE', level: team.leagueDivisionLevel ?? 0,
+            startBudget: team.budget, startWages: wageBillOf(s, team.id, team.rosterIds), startRoster: team.rosterIds.length,
+            flows: {}, minRoster: team.rosterIds.length, shortWeeks: 0, insolventWeeks: 0, adminSeen: team.administrations ?? 0, administrations: 0,
+        })
+    }
+}
+
+export function trackAIEconomyWeek(t: AIEconomyTracker, s: GameSave, teamId: string, project: FinanceProjector): void {
+    const fresh = new Map<string, Record<string, number>>()
+    for (const e of s.financeLedger) {
+        if (t.ledgerIds.has(e.id)) continue
+        t.ledgerIds.add(e.id)
+        const rows = fresh.get(e.teamId) ?? {}
+        const key = `${e.type === 'INCOME' ? '+' : '-'}${e.category}`
+        rows[key] = (rows[key] ?? 0) + (e.type === 'INCOME' ? e.amount : -e.amount)
+        fresh.set(e.teamId, rows)
+    }
+    for (const team of s.teams) {
+        const prev = t.lastBudget.get(team.id) ?? team.budget
+        t.lastBudget.set(team.id, team.budget)
+        const row = t.teams.get(team.id)
+        if (!row || team.id === teamId) continue
+        const add = (k: string, v: number) => { row.flows[k] = (row.flows[k] ?? 0) + v }
+        const settled = team.financeSettlement?.week === s.currentWeek ? team.financeSettlement : undefined
+        let explained = 0
+        if (settled) {
+            // Split the settled totals by the current projection's shares.
+            const b = project(s, team)
+            const inc = Object.values(b.income).reduce((a, x) => a + x, 0) || 1
+            const exp = Object.values(b.expenses).reduce((a, x) => a + x, 0) || 1
+            for (const [k, v] of Object.entries(b.income)) add(`+${k}`, settled.income * v / inc)
+            for (const [k, v] of Object.entries(b.expenses)) add(`-${k}`, -settled.expenses * v / exp)
+            explained += settled.income - settled.expenses
+        }
+        for (const [k, v] of Object.entries(fresh.get(team.id) ?? {})) { add(k, v); explained += v }
+        const residual = team.budget - prev - explained
+        if (Math.abs(residual) > 1) add('residual', residual)
+        row.minRoster = Math.min(row.minRoster, team.rosterIds.length)
+        if (team.rosterIds.length < 5) { row.shortWeeks++; t.shortClubWeeks++ }
+        if (team.financialState === 'INSOLVENT') row.insolventWeeks++
+        t.minRoster = Math.min(t.minRoster, team.rosterIds.length)
+        const admins = team.administrations ?? 0
+        for (let i = row.adminSeen; i < admins; i++) { t.administrations.push({ week: s.currentWeek, teamId: team.id }); row.administrations++ }
+        row.adminSeen = Math.max(row.adminSeen, admins)
+    }
+}
+
+/** Weeks the tracker did not see (the save/load round trip): book the cash change as untracked. */
+export function syncAIEconomyTracker(t: AIEconomyTracker, s: GameSave): void {
+    for (const e of s.financeLedger) t.ledgerIds.add(e.id)
+    for (const team of s.teams) {
+        const row = t.teams.get(team.id)
+        if (row) row.flows.untracked = (row.flows.untracked ?? 0) + team.budget - (t.lastBudget.get(team.id) ?? team.budget)
+        t.lastBudget.set(team.id, team.budget)
+    }
+}
+
+const median = (xs: number[]) => distribution(xs).median ?? NaN
+const round = (x: number) => Math.round(x)
+
+/** Season summary of the AI economy (by Elo tier at season start, region and division level). */
+export function aiEconomyMetrics(t: AIEconomyTracker, s: GameSave) {
+    const rows = [...t.teams.entries()].map(([id, r]) => {
+        const team = s.teams.find(x => x.id === id)
+        return { id, ...r, endBudget: team?.budget ?? NaN, endWages: team ? wageBillOf(s, id, team.rosterIds) : NaN, endRoster: team?.rosterIds.length ?? 0 }
+    })
+    const group = (key: (r: typeof rows[number]) => string) => {
+        const out: Record<string, typeof rows> = {}
+        for (const r of rows) (out[key(r)] ??= []).push(r)
+        return out
+    }
+    const flowKeys = [...new Set(rows.flatMap(r => Object.keys(r.flows)))].sort()
+    const summarise = (rs: typeof rows) => ({
+        clubs: rs.length,
+        cashDelta: distribution(rs.map(r => r.endBudget - r.startBudget)),
+        endBudgetMedian: median(rs.map(r => r.endBudget)),
+        wageBillStartMedian: median(rs.map(r => r.startWages)), wageBillEndMedian: median(rs.map(r => r.endWages)),
+        flowsMeanPerClub: Object.fromEntries(flowKeys.map(k => [k, round(rs.reduce((n, r) => n + (r.flows[k] ?? 0), 0) / Math.max(1, rs.length))]).filter(([, v]) => v !== 0)),
+        insolventClubWeeks: rs.reduce((n, r) => n + r.insolventWeeks, 0),
+        administrations: rs.reduce((n, r) => n + r.administrations, 0),
+        shortClubWeeks: rs.reduce((n, r) => n + r.shortWeeks, 0),
+        negativeAtEnd: rs.filter(r => r.endBudget < 0).length,
+    })
+    const perClub = new Map<string, number>()
+    for (const a of t.administrations) perClub.set(a.teamId, (perClub.get(a.teamId) ?? 0) + 1)
+    return {
+        administrations: t.administrations.length,
+        administrationClubs: perClub.size,
+        administrationsMaxPerClub: Math.max(0, ...perClub.values()),
+        administrationWeeks: t.administrations.map(a => a.week),
+        administrationsList: t.administrations.map(a => `${a.teamId}@${a.week}`),
+        minRoster: Number.isFinite(t.minRoster) ? t.minRoster : null,
+        shortClubWeeks: t.shortClubWeeks,
+        byTier: Object.fromEntries(Object.entries(group(r => r.tier)).sort().map(([k, v]) => [k, summarise(v)])),
+        byRegion: Object.fromEntries(Object.entries(group(r => r.region)).sort().map(([k, v]) => [k, summarise(v)])),
+        byDivisionLevel: Object.fromEntries(Object.entries(group(r => String(r.level))).sort().map(([k, v]) => [k, summarise(v)])),
+        worstClubs: [...rows].sort((a, b) => (a.endBudget - a.startBudget) - (b.endBudget - b.startBudget)).slice(0, 8)
+            .map(r => ({ id: r.id, tier: r.tier, region: r.region, level: r.level, cashDelta: round(r.endBudget - r.startBudget), startWages: r.startWages, endWages: r.endWages, administrations: r.administrations, flows: Object.fromEntries(Object.entries(r.flows).map(([k, v]) => [k, round(v)])) })),
     }
 }
 
@@ -724,6 +903,49 @@ export function seasonStructureSummary(results: any[], seasonsAll: any[]) {
     }
 }
 
+/** Phase 4.6 summary: AI club economy and roster viability per season. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function aiEconomySummary(results: any[], seasonsAll: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ss = seasonsAll.filter((s: any) => s.aiEconomy)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const maxSeasons = Math.max(0, ...results.map((r: any) => r.seasons.length))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ofSeason = (i: number) => ss.filter((s: any) => s.index === i)
+    const tiers = ['S_TIER', 'A_TIER', 'B_TIER', 'C_TIER']
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const meanFlows = (list: any[]) => {
+        const acc: Record<string, number> = {}
+        for (const f of list) for (const [k, v] of Object.entries(f ?? {})) acc[k] = (acc[k] ?? 0) + (v as number) / list.length
+        return Object.fromEntries(Object.entries(acc).map(([k, v]) => [k, Math.round(v)]))
+    }
+    return {
+        bySeason: Array.from({ length: maxSeasons }, (_, i) => {
+            const list = ofSeason(i + 1)
+            return {
+                season: i + 1, careers: list.length,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                administrations: distribution(list.map((s: any) => s.aiEconomy.administrations)),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                administrationsMaxPerClub: Math.max(0, ...list.map((s: any) => s.aiEconomy.administrationsMaxPerClub)),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                minRoster: Math.min(...list.map((s: any) => s.aiEconomy.minRoster ?? 99)),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                shortClubWeeks: distribution(list.map((s: any) => s.aiEconomy.shortClubWeeks)),
+                cashDeltaMedianByTier: Object.fromEntries(tiers.map(t => [t, distribution(list.map((s: any) => s.aiEconomy.byTier[t]?.cashDelta.median ?? NaN))])), // eslint-disable-line @typescript-eslint/no-explicit-any
+                wageBillMedianByTier: Object.fromEntries(tiers.map(t => [t, { start: distribution(list.map((s: any) => s.aiEconomy.byTier[t]?.wageBillStartMedian ?? NaN)).median, end: distribution(list.map((s: any) => s.aiEconomy.byTier[t]?.wageBillEndMedian ?? NaN)).median }])), // eslint-disable-line @typescript-eslint/no-explicit-any
+                flowsMeanPerClubByTier: Object.fromEntries(tiers.map(t => [t, meanFlows(list.map((s: any) => s.aiEconomy.byTier[t]?.flowsMeanPerClub).filter(Boolean))])), // eslint-disable-line @typescript-eslint/no-explicit-any
+                cashDeltaMedianByRegion: Object.fromEntries([...new Set(list.flatMap((s: any) => Object.keys(s.aiEconomy.byRegion)))].sort().map(r => [r, distribution(list.map((s: any) => s.aiEconomy.byRegion[r]?.cashDelta.median ?? NaN)).median])), // eslint-disable-line @typescript-eslint/no-explicit-any
+                administrationsByRegion: Object.fromEntries([...new Set(list.flatMap((s: any) => Object.keys(s.aiEconomy.byRegion)))].sort().map(r => [r, list.reduce((n: number, s: any) => n + (s.aiEconomy.byRegion[r]?.administrations ?? 0), 0)])), // eslint-disable-line @typescript-eslint/no-explicit-any
+                administrationsByDivisionLevel: Object.fromEntries([...new Set(list.flatMap((s: any) => Object.keys(s.aiEconomy.byDivisionLevel)))].sort().map(r => [r, list.reduce((n: number, s: any) => n + (s.aiEconomy.byDivisionLevel[r]?.administrations ?? 0), 0)])), // eslint-disable-line @typescript-eslint/no-explicit-any
+                cashDeltaMedianByDivisionLevel: Object.fromEntries([...new Set(list.flatMap((s: any) => Object.keys(s.aiEconomy.byDivisionLevel)))].sort().map(r => [r, distribution(list.map((s: any) => s.aiEconomy.byDivisionLevel[r]?.cashDelta.median ?? NaN)).median])), // eslint-disable-line @typescript-eslint/no-explicit-any
+            }
+        }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        careerAdministrations: results.map((r: any) => ({ seed: r.seed, ...(r.aiAdministrationsCareer ?? {}) })),
+    }
+}
+
 function aggregate() {
     const files = fs.existsSync(outDir) ? fs.readdirSync(outDir).filter(f => /^seed-\d+-\w+\.json$/.test(f)) : []
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -806,6 +1028,8 @@ function aggregate() {
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(summary as any).seasonStructure = seasonStructureSummary(results, seasonsAll)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(summary as any).aiEconomy = aiEconomySummary(results, seasonsAll)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(summary as any).sponsorToWageRatio = distribution(seasonsAll.map((s: any) => (s.managed.ledger['INCOME:SPONSOR'] ?? 0) / Math.max(1, (s.managed.ledger['EXPENSE:WAGES_PLAYER'] ?? 0) + (s.managed.ledger['EXPENSE:WAGES_STAFF'] ?? 0))))
     summary.managedIncomeByCategory = Object.fromEntries(Object.entries(summary.managedIncomeByCategory).map(([k, v]) => [k, distribution(v) as unknown as number[]]))

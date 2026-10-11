@@ -544,6 +544,10 @@ export interface TeamSaveData {
     leagueDivisionLevel?: number
     /** AI clubs only: times the club went into administration (8 insolvent weeks, the managed club's bankruptcy rule). */
     administrations?: number
+    /** AI clubs only (Phase 4.6): week the club last swapped an overpaid starter for a cheaper free agent. */
+    aiWageSwapWeek?: number
+    /** AI clubs only (Phase 4.6): week of the last administration. */
+    lastAdministrationWeek?: number
 
     // === PHASE 18: THE EMPIRE ===
     facilities?: FacilitySaveData[]

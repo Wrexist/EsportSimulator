@@ -30,6 +30,7 @@ import { getPlayerIndex } from "./player-index"
 
 import { academyHeldPlayerIds, recruitmentBudget, recruitmentRole, recruitmentSalary } from "../recruitment"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
+import { aiCommitCheck, fillAIRosterToFive } from "./club-budget"
 
 const MAX_ROSTER_SIZE = 7
 const CRITICAL_ROLE_BUDGET_THRESHOLD = 150_000
@@ -65,6 +66,9 @@ export function scoreSigningCandidate(
 
 /** Sign an affordable free agent; urgent vacancies prefer the lowest wage. */
 export function signFreeAgent(team: TeamSaveData, save: GameSave, emergency = false): void {
+    // Phase 4.6: an urgent vacancy (below five) is the roster invariant's
+    // job: best player the budget allows, else the cheapest on credit.
+    if (emergency && team.rosterIds.length < 5) { fillAIRosterToFive(save, team, undefined, 1); return }
     signFreeAgentWithQuotes(team, save, emergency, new Map())
 }
 
@@ -84,7 +88,10 @@ function signFreeAgentWithQuotes(team: TeamSaveData, save: GameSave, emergency: 
 
     if (freeAgents.length === 0) return
 
-    const canAfford = recruitmentBudget(save, team, { quorum: team.rosterIds.length < 5 })
+    // Phase 4.6: AI offers respect the club's budget (the weekly net keeps its
+    // surplus after the wage), not the 26-week deficit reserve the managed
+    // club's market uses.
+    const canAfford = aiCommitCheck(save, team)
 
     // Build the missing-roles set so the scorer can prefer role-fit hires.
     const playerIndex = getPlayerIndex(save)
@@ -279,25 +286,15 @@ export function releaseWorstPlayer(team: TeamSaveData, save: GameSave): void {
 export function manageRoster(team: TeamSaveData, save: GameSave): void {
     const rosterSize = team.rosterIds.length
 
-    // Fill every vacancy this week if affordable candidates exist. Never invent cash.
+    // Phase 4.6: five players is a hard invariant. Best value the budget
+    // allows, own academy, the cheapest free agent on credit, a trialist.
     if (rosterSize < 5) {
-        const quotes = new Map<PlayerSaveData, number>()
-        while (team.rosterIds.length < 5) {
-            const before = team.rosterIds.length
-            signFreeAgentWithQuotes(team, save, true, quotes)
-            if (team.rosterIds.length === before) break
-        }
-        // Pass 2: still short — promote the club's own academy prospects on a
-        // normal recruitment quote, under the same quorum budget rule.
-        promoteAcademyToQuorum(team, save)
+        fillAIRosterToFive(save, team)
         return
     }
 
-    // Depth is optional. Shed bench wages before an existing deficit consumes the reserve.
-    if (rosterSize > 5 && !recruitmentBudget(save, team)(1)) {
-        releaseWorstPlayer(team, save)
-        return
-    }
+    // Depth is optional: bench wages go while the club runs a deficit
+    // (engine/ai/club-budget.ts aiCostControl, every week).
 
     // 2. Critical role coverage at 5-6 players.
     const inFinancialPressure =
