@@ -239,7 +239,7 @@ export const helpTopics: HelpTopic[] = [
                     <li><strong>Media Campaign</strong> — spends cash for reputation and fans.</li>
                     <li><strong>Bootcamp</strong> — +{weeklyActivityXpBonus(WEEKLY_ACTIVITIES[WeeklyActivityType.BOOTCAMP])} XP per roster player, with cash cost, fatigue and morale penalties.</li>
                 </ul>
-                <p className="text-xs text-muted-foreground">Set it on the dashboard. It resets after weekly settlement, not after each day.</p>
+                <p className="text-xs text-ink-3">Set it in the week plan (Week → Week plan). It resets after weekly settlement, not after each day.</p>
             </div>
         )
     },

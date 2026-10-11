@@ -16,6 +16,7 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { BookScrimModal } from "@/components/schedule/BookScrimModal"
 import { BookBootcampModal } from "@/components/schedule/BookBootcampModal"
 import { BookMarketingModal } from "@/components/schedule/BookMarketingModal"
+import { BookStaffMeetingModal } from "@/components/schedule/BookStaffMeetingModal"
 import { ActivityPickerModal } from "@/components/schedule/ActivityPickerModal"
 import { TournamentDetailsModal } from "@/components/schedule/TournamentDetailsModal"
 import { ScheduleMatchCard } from "@/components/schedule/ScheduleMatchCard"
@@ -83,6 +84,7 @@ export default function SchedulePage() {
   const [isScrimModalOpen, setIsScrimModalOpen] = useState(false)
   const [isBootcampModalOpen, setIsBootcampModal] = useState(false)
   const [isMarketingModalOpen, setIsMarketingModalOpen] = useState(false)
+  const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false)
   const [selectedWeek, setSelectedWeek] = useState<number>(currentWeek)
   const [selectedDay, setSelectedDay] = useState<number>(0)
 
@@ -131,9 +133,7 @@ export default function SchedulePage() {
     if (type === "SCRIM") setIsScrimModalOpen(true)
     if (type === "BOOTCAMP") setIsBootcampModal(true)
     if (type === "MARKETING") setIsMarketingModalOpen(true)
-    if (type === "MEETING") {
-      router.push(`/schedule/staff-meeting?week=${selectedWeek}&day=${selectedDay}`)
-    }
+    if (type === "MEETING") setIsMeetingModalOpen(true)
   }
 
   const dateFor = (week: number, dayIndex: number) => gameCalendarDate(gameStartDate, week, dayIndex)
@@ -270,15 +270,15 @@ export default function SchedulePage() {
 
   // The store rehydrates after a full load; don't draw a week-0 calendar meanwhile.
   if (!hydrated || !playerTeam) {
-    return <p className="py-16 text-center text-sm text-ink-3" role="status">Loading schedule…</p>
+    return <p className="py-16 text-center text-sm text-ink-3" role="status">Loading calendar…</p>
   }
 
   return (
     <div className="space-y-4 pb-10">
       <ScreenHeader
         eyebrow={`Season ${currentYear} · Week ${currentWeekInYear}${daily ? ` · ${dayLabel(currentWeek, currentDay)}` : ""}`}
-        title="Schedule"
-        subtitle="Matches, scrims and booked activities. Pick an empty day to book something."
+        title="Calendar"
+        subtitle={<>The season week by week: matches, scrims and bookings. Pick an empty day to book something; plan this week in the <Link href="/week" className="font-semibold text-ink-1 underline underline-offset-2">week plan</Link>.</>}
         aside={
           <>
             <Button variant="outline" onClick={() => handleOpenPicker(currentWeek, daily ? currentDay : 0)} className="gap-1.5">
@@ -549,6 +549,13 @@ export default function SchedulePage() {
         isOpen={isMarketingModalOpen}
         onClose={() => setIsMarketingModalOpen(false)}
         week={selectedWeek}
+      />
+
+      <BookStaffMeetingModal
+        isOpen={isMeetingModalOpen}
+        onClose={() => setIsMeetingModalOpen(false)}
+        week={selectedWeek}
+        initialDay={selectedDay}
       />
 
       {/* Match Popup */}

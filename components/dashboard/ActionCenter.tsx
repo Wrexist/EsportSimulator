@@ -13,8 +13,8 @@
  *   3. Recurring prompts (unused training slots, weekly focus not set).
  *
  * The match itself is intentionally NOT listed here — the dashboard's next-match
- * hero card already owns that CTA. `children` render under the list (Home puts
- * the weekly focus picker there).
+ * hero card already owns that CTA. `children` render under the list. The
+ * weekly focus itself is picked in the week plan (`/week`, Phase 4.2).
  */
 
 import { useMemo, type ReactNode } from "react"
@@ -171,9 +171,10 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
 
                     {focusNotSet && (
                         <PromptRow
+                            href="/week#weekly-focus"
                             icon={<CalendarClock size={15} />}
-                            title="Set this week's focus"
-                            detail={children ? "Pick one plan below" : "Choose a weekly activity"}
+                            title="Plan this week"
+                            detail="Pick the team focus and bookings in the week plan"
                         />
                     )}
                 </div>

@@ -4,7 +4,7 @@ import React, { useCallback, useMemo, useState } from "react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
-import { Crosshair, Repeat2 } from "lucide-react"
+import { ArrowUpRight, Crosshair, Repeat2 } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
@@ -15,14 +15,13 @@ import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { toast } from "@/lib/toast"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { Panel } from "@/src/components/ui/Panel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { Meter } from "@/src/components/ui/Meter"
-import { FOCUS_OPTIONS, STAT_LABEL, drillStatLabel, trainingModifiers, weeklyPreview, type WeeklyPreview } from "@/components/training/weekly-training"
+import { FOCUS_OPTIONS, drillStatLabel, trainingModifiers } from "@/components/training/weekly-training"
 
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
 const WeaponTrainingModal = dynamic(() => import("@/components/training/WeaponTrainingModal").then(m => m.WeaponTrainingModal), { ssr: false })
@@ -38,40 +37,19 @@ function fatigueTone(fatigue: number) {
     return "neutral" as const
 }
 
-/** "Rifle, AWP +0.42 · Aim +0.21 · Pistol at potential" — stats grouped by equal weekly gain. */
-function GainSummary({ preview }: { preview: WeeklyPreview }) {
-    if (preview.gains.length === 0) {
-        return <span className="text-ink-2">Recovers {Math.abs(preview.fatigue).toFixed(0)} fatigue{preview.morale ? `, +${preview.morale} morale` : ""}</span>
-    }
-    const growing = preview.gains.filter(g => g.amount >= 0.005)
-    const capped = preview.gains.filter(g => g.amount < 0.005).map(g => STAT_LABEL[g.stat] ?? g.stat)
-    if (growing.length === 0) return <span className="text-ink-3">All focus stats at potential — no gains</span>
-    const groups = new Map<string, string[]>()
-    for (const g of growing) {
-        const key = g.amount.toFixed(2)
-        groups.set(key, [...(groups.get(key) || []), STAT_LABEL[g.stat] ?? g.stat])
-    }
-    return (
-        <span className="text-ink-2">
-            {[...groups.entries()].sort((a, b) => Number(b[0]) - Number(a[0])).map(([amount, stats], i) => (
-                <span key={amount}>
-                    {i > 0 && <span className="text-ink-3"> · </span>}
-                    {stats.join(", ")} <span className="font-semibold tabular-nums text-ink-1">+{amount}</span>
-                </span>
-            ))}
-            {capped.length > 0 && <span className="text-ink-3"> · {capped.join(", ")} at potential</span>}
-        </span>
-    )
-}
-
+/**
+ * Week hub → Training tab: what runs outside the weekly update — team drills
+ * (apply at once, use a slot), individual programmes (role retraining, paid
+ * weapon drills) and the buy loadouts. Each player's weekly focus is set in
+ * the week plan.
+ */
 export default function TrainingPage() {
-    const { players, staff, currentWeek, cancelRoleTraining, startRoleTraining, setPlayerTrainingFocus, runTeamDrill, customTactics, updateCustomTactic, activeMatchId } = useGameStore(useShallow(state => ({
+    const { players, staff, currentWeek, cancelRoleTraining, startRoleTraining, runTeamDrill, customTactics, updateCustomTactic, activeMatchId } = useGameStore(useShallow(state => ({
         players: state.players,
         staff: state.staff,
         currentWeek: state.currentWeek,
         startRoleTraining: state.startRoleTraining,
         cancelRoleTraining: state.cancelRoleTraining,
-        setPlayerTrainingFocus: state.setPlayerTrainingFocus,
         runTeamDrill: state.runTeamDrill,
         customTactics: state.customTactics,
         updateCustomTactic: state.updateCustomTactic,
@@ -122,7 +100,7 @@ export default function TrainingPage() {
     if (roster.length === 0) {
         return (
             <div className="mx-auto max-w-[1600px] space-y-6">
-                <ScreenHeader eyebrow="Development" title="Training" />
+                <ScreenHeader eyebrow="Week · Training" title="Training" />
                 <Panel>
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <p className="text-sm text-ink-3">No players to train yet.</p>
@@ -138,110 +116,17 @@ export default function TrainingPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={`Week ${currentWeek} · Development`}
+                eyebrow={`Week ${((currentWeek - 1) % 52) + 1} · Training`}
                 title="Training"
-                subtitle="Weekly focus runs automatically at the end of each week. Team drills apply right away and use a slot."
+                subtitle={<>Drills apply right away and use a slot. Each player&apos;s weekly focus is set in the <Link href="/week#training-focus" className="font-semibold text-ink-1 underline underline-offset-2">week plan</Link>.</>}
                 aside={
                     <KpiStrip>
                         <Kpi label="Drill slots left" value={slotsLeft} hint={`of ${slotsMax} this week`} />
                         <Kpi label="Training bonus" value={`+${gainPct}%`} hint="Coach and training facility" />
-                        <Kpi label="Retraining" value={roleTraining.length} hint={roleTraining.length ? `${formatCurrency(roleTraining.length * 5000, "$", false)} / wk` : "No one"} />
+                        <Kpi label="Retraining" value={roleTraining.length} hint={roleTraining.length ? `${formatCurrency(roleTraining.reduce((s, t) => s + (t.weeklyCost || 0), 0), "$", false)} / wk` : "No one"} />
                     </KpiStrip>
                 }
             />
-
-            <Panel title="This week's plan" actions={<span className="text-xs text-ink-3">Gains stop at each player&apos;s potential</span>} padded={false}>
-                <div className="overflow-x-auto">
-                    <table data-slot="table" className="w-full min-w-[1080px] border-collapse text-left">
-                        <thead data-slot="table-header">
-                            <tr className="border-b border-line">
-                                <th data-slot="table-head" className="pl-4">Player</th>
-                                <th data-slot="table-head" className="px-3">Role</th>
-                                <th data-slot="table-head" className="px-3">Weekly focus</th>
-                                <th data-slot="table-head" className="px-3">Fatigue</th>
-                                <th data-slot="table-head" className="px-3">Expected / week</th>
-                                <th data-slot="table-head" className="pr-4 text-right"><span className="sr-only">Actions</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {roster.map(p => {
-                                const retraining = roleTraining.find(t => t.playerId === p.id)
-                                const preview = weeklyPreview(p, mods)
-                                const fatigue = Math.round(p.fatigue || 0)
-                                return (
-                                    <tr key={p.id} data-slot="table-row" className="h-14 border-b border-line">
-                                        <td className="py-2 pl-4 pr-3">
-                                            <button type="button" onClick={() => router.push(`/player/${p.id}`)} className="group flex min-w-0 items-center gap-3 text-left">
-                                                <span className="h-9 w-9 shrink-0 overflow-hidden rounded bg-raised">
-                                                    <PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} size={36} />
-                                                </span>
-                                                <span className="min-w-0">
-                                                    <span className="block truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{p.nickname}</span>
-                                                    <span className="block text-xs text-ink-3">Lvl {p.level || 1} · potential {p.potential}</span>
-                                                </span>
-                                            </button>
-                                        </td>
-                                        <td className="px-3"><RoleTag role={p.role} /></td>
-                                        <td className="px-3">
-                                            {retraining ? (
-                                                <span className="text-sm text-ink-2">Retraining to {retraining.targetRole.toUpperCase()} · {retraining.weeksCompleted}/{retraining.totalWeeks} wks</span>
-                                            ) : (
-                                                <Select value={p.trainingFocus || "BALANCED"} onValueChange={val => setPlayerTrainingFocus(p.id, val)}>
-                                                    <SelectTrigger className="h-9 w-[200px] text-sm" aria-label={`${p.nickname} weekly focus`}>
-                                                        <SelectValue>{FOCUS_OPTIONS.find(o => o.value === (p.trainingFocus || "BALANCED"))?.label ?? "Club default (aim)"}</SelectValue>
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {FOCUS_OPTIONS.map(o => (
-                                                            <SelectItem key={o.value} value={o.value}>
-                                                                <span className="flex flex-col">
-                                                                    <span>{o.label}</span>
-                                                                    <span className="text-xs text-ink-3">{o.trains}</span>
-                                                                </span>
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            )}
-                                        </td>
-                                        <td className="px-3">
-                                            <div className="flex items-center gap-3">
-                                                <Meter value={fatigue} label="Fatigue" tone={fatigueTone(fatigue)} />
-                                                {!retraining && (
-                                                    <span className="text-xs tabular-nums text-ink-3">{preview.fatigue >= 0 ? "+" : "−"}{Math.abs(preview.fatigue).toFixed(0)}/wk</span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-3 text-sm">
-                                            {retraining ? <span className="text-ink-3">Skips weekly training · −10 energy/wk</span> : <GainSummary preview={preview} />}
-                                        </td>
-                                        <td className="pr-4">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <Button size="sm" variant="outline" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => setWeaponTrainingPlayer(p)} disabled={!!p.injury}
-                                                    title={p.injury ? `Injured: ${p.injury.type}` : "Paid weapon drills"}>
-                                                    <Crosshair size={13} /> Weapons
-                                                </Button>
-                                                {retraining ? (
-                                                    <Button size="sm" variant="ghost" className="h-8 px-2.5 text-xs" onClick={() => { cancelRoleTraining(p.id); toast.success("Role training cancelled", { description: `${p.nickname} is back in team training. 50% of what was paid is refunded.` }) }}>
-                                                        Stop retraining
-                                                    </Button>
-                                                ) : (
-                                                    <Button size="sm" variant="outline" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => setTrainingPlayer(p)} disabled={!!p.injury || !!p.secondaryRole}
-                                                        title={p.secondaryRole ? "Already plays two roles" : p.injury ? `Injured: ${p.injury.type}` : "8-week role retraining"}>
-                                                        <Repeat2 size={13} /> Retrain
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-                <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
-                    Gains include your coach and facilities. Aim is the base of every duel; rifle, AWP and pistol adjust it by weapon. Rest lowers fatigue, which costs duel rating in matches.
-                </p>
-            </Panel>
 
             <Panel
                 title="Team drills"
@@ -290,6 +175,76 @@ export default function TrainingPage() {
                     })}
                 </div>
                 {drill && <p className="mt-3 text-sm text-ink-3"><span className="font-semibold text-ink-2">{drill.name}.</span> {drill.description}</p>}
+            </Panel>
+
+            <Panel
+                title="Individual programmes"
+                actions={<Link href="/week#training-focus" className="inline-flex items-center gap-1 text-xs font-semibold text-ink-3 hover:text-ink-1">Weekly focus <ArrowUpRight size={12} /></Link>}
+                padded={false}
+            >
+                <div className="overflow-x-auto">
+                    <table data-slot="table" className="w-full min-w-[920px] border-collapse text-left">
+                        <thead data-slot="table-header">
+                            <tr className="border-b border-line">
+                                <th data-slot="table-head" className="pl-4">Player</th>
+                                <th data-slot="table-head" className="px-3">Role</th>
+                                <th data-slot="table-head" className="px-3">Fatigue</th>
+                                <th data-slot="table-head" className="px-3">This week</th>
+                                <th data-slot="table-head" className="pr-4 text-right"><span className="sr-only">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {roster.map(p => {
+                                const retraining = roleTraining.find(t => t.playerId === p.id)
+                                const fatigue = Math.round(p.fatigue || 0)
+                                const focusLabel = FOCUS_OPTIONS.find(o => o.value === (p.trainingFocus || "BALANCED"))?.label ?? "Club default (aim)"
+                                return (
+                                    <tr key={p.id} data-slot="table-row" className="h-14 border-b border-line last:border-0">
+                                        <td className="py-2 pl-4 pr-3">
+                                            <button type="button" onClick={() => router.push(`/player/${p.id}`)} className="group flex min-w-0 items-center gap-3 text-left">
+                                                <span className="h-9 w-9 shrink-0 overflow-hidden rounded bg-raised">
+                                                    <PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} size={36} />
+                                                </span>
+                                                <span className="min-w-0">
+                                                    <span className="block truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{p.nickname}</span>
+                                                    <span className="block text-xs text-ink-3">Lvl {p.level || 1} · potential {p.potential}</span>
+                                                </span>
+                                            </button>
+                                        </td>
+                                        <td className="px-3"><RoleTag role={p.role} /></td>
+                                        <td className="px-3"><Meter value={fatigue} label="Fatigue" tone={fatigueTone(fatigue)} /></td>
+                                        <td className="px-3 text-sm">
+                                            {retraining
+                                                ? <span className="text-ink-2">Retraining to {retraining.targetRole.toUpperCase()} · {retraining.weeksCompleted}/{retraining.totalWeeks} wks · {formatCurrency(retraining.weeklyCost || 0, "$", false)}/wk</span>
+                                                : <span className="text-ink-3">Weekly focus: <span className="text-ink-2">{focusLabel}</span></span>}
+                                        </td>
+                                        <td className="pr-4">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Button size="sm" variant="outline" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => setWeaponTrainingPlayer(p)} disabled={!!p.injury}
+                                                    title={p.injury ? `Injured: ${p.injury.type}` : "Paid weapon drills"}>
+                                                    <Crosshair size={13} /> Weapons
+                                                </Button>
+                                                {retraining ? (
+                                                    <Button size="sm" variant="ghost" className="h-8 px-2.5 text-xs" onClick={() => { cancelRoleTraining(p.id); toast.success("Role training cancelled", { description: `${p.nickname} is back in team training. 50% of what was paid is refunded.` }) }}>
+                                                        Stop retraining
+                                                    </Button>
+                                                ) : (
+                                                    <Button size="sm" variant="outline" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => setTrainingPlayer(p)} disabled={!!p.injury || !!p.secondaryRole}
+                                                        title={p.secondaryRole ? "Already plays two roles" : p.injury ? `Injured: ${p.injury.type}` : "8-week role retraining"}>
+                                                        <Repeat2 size={13} /> Retrain
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+                <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
+                    Role retraining takes 8 weeks, is paid every week and skips the weekly focus while it runs. Weapon drills are paid per session and add weapon mastery.
+                </p>
             </Panel>
 
             <Panel title="Buy loadouts" actions={<span className="text-xs text-ink-3">Used by the match engine&apos;s buy phase</span>} padded={false}>

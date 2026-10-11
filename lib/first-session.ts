@@ -178,13 +178,13 @@ export function firstSessionGuidance(state: FirstSessionState, ctx: FirstSession
     }
     if (step === 'decision') {
         const recruit = { href: '/transfers', label: 'Sign a player' }
-        const focus = { href: '/#weekly-focus', label: 'Choose weekly focus' }
-        const training = { href: '/training', label: 'Set training focus' }
+        const focus = { href: '/week#weekly-focus', label: 'Choose weekly focus' }
+        const training = { href: '/week#training-focus', label: 'Set training focus' }
         return {
             ...base,
             detail: missing > 0
                 ? `You are ${missing} player${missing === 1 ? '' : 's'} short. Signing one counts as your decision. You can also pick a weekly focus or a player's training focus.`
-                : 'Pick a weekly focus on Home, set a player\'s training focus, or sign a player. This step completes when you make the choice.',
+                : 'Pick a weekly focus or a player\'s training focus in the week plan, or sign a player. This step completes when you make the choice.',
             action: missing > 0 ? recruit : focus,
             alternatives: missing > 0 ? [focus, training] : [training, recruit],
             help: 'Regular training is free and is a valid choice. Paid weekly plans are charged when the week is processed, and only offered when you have the cash.',
