@@ -44,6 +44,19 @@ export interface StopSource extends PlayableMatchState<MatchLike> {
     players: Array<{ id: string; nickname?: string; isRetired?: boolean; injury?: { name?: string; weeksRemaining?: number } | null }>
 }
 
+/** A readable name for a decision event; some carry no title (fan and sponsor requests). */
+function decisionLabel(e: GameEventSaveData): string {
+    const title = getEventTitle(e)
+    if (title !== "Notification") return title
+    const data = (e.data ?? {}) as Record<string, unknown>
+    const type = String(e.type)
+    if (type === "FAN") return "A fan meetup request"
+    if (type === "SPONSOR") return "A sponsor review"
+    const text = [data.headline, data.description, data.message].find(v => typeof v === "string" && v.trim()) as string | undefined
+    if (text) return text.length > 60 ? `${text.slice(0, 57)}...` : text
+    return "A decision"
+}
+
 const money = (n: number) => n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `$${Math.round(n / 1000)}k` : `$${n}`
 
 /** Every stop signal active in this state, highest priority first. */
@@ -88,7 +101,7 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
         const type = String(e.type)
         if (isPendingDecisionEvent(e)) {
             if (typeof data.deadlineWeek === "number" && data.deadlineWeek < state.currentWeek) continue
-            out.push({ key: `event:${e.id}`, kind: "event", reason: `${getEventTitle(e)} needs an answer`, href: "/", actionLabel: "Decide" })
+            out.push({ key: `event:${e.id}`, kind: "event", reason: `${decisionLabel(e)} needs an answer`, href: "/", actionLabel: "Decide" })
             continue
         }
         const resolved = (e as unknown as { selectedChoiceId?: string }).selectedChoiceId !== undefined
@@ -131,11 +144,28 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
     return out.sort((a, b) => PRIORITY.indexOf(a.kind) - PRIORITY.indexOf(b.kind))
 }
 
-/** The stop Continue should make now: a playable match always, else the first signal not yet seen. */
-export function nextStop(state: StopSource, seen: ReadonlySet<string>): AdvanceStop | null {
-    for (const s of collectStopSignals(state)) {
+/** Several new items of one kind become one stop ("2 decisions need an answer"). */
+const GROUPED: Partial<Record<StopKind, (n: number) => string>> = {
+    event: n => `${n} decisions need an answer`,
+    offer: n => `${n} offers need a response`,
+    injury: n => `${n} players are injured`,
+    contract: n => `${n} contracts end within ${CONTRACT_STOP_WEEKS} weeks`,
+}
+
+/**
+ * The stop Continue should make now: a playable match always, else the first
+ * signal not yet seen (with any other unseen signals of the same kind folded
+ * in; `keys` lists every signal the stop covers).
+ */
+export function nextStop(state: StopSource, seen: ReadonlySet<string>): (AdvanceStop & { keys?: string[] }) | null {
+    const signals = collectStopSignals(state)
+    for (const s of signals) {
         if (s.kind === "match" || s.kind === "game-over") return s
-        if (!seen.has(s.key)) return s
+        if (seen.has(s.key)) continue
+        const same = signals.filter(x => x.kind === s.kind && !seen.has(x.key))
+        const group = GROUPED[s.kind]
+        if (same.length > 1 && group) return { ...s, reason: group(same.length), keys: same.map(x => x.key) }
+        return s
     }
     return null
 }

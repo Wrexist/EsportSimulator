@@ -95,7 +95,7 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
         set({ continueRun: { startedWeek: start.currentWeek, weeksDone: 0, daysDone: 0, cancelRequested: false }, advanceStop: null, weekReportToast: null })
 
         const seen = new Set(start.advanceSeenKeys)
-        let stop: AdvanceStop | null = null
+        let stop: (AdvanceStop & { keys?: string[] }) | null = null
         let lastCompletedWeek: number | null = null
         try {
             // Hard bound well above the week cap (7 days per week in daily mode).
@@ -138,12 +138,15 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
         } finally {
             if (get().saveId === saveId) {
                 const end = get()
-                const notice = stop ? { ...stop, week: end.currentWeek, day: end.currentDay } : null
+                const notice: AdvanceStopNotice | null = stop
+                    ? { key: stop.key, kind: stop.kind, reason: stop.reason, href: stop.href, actionLabel: stop.actionLabel, week: end.currentWeek, day: end.currentDay }
+                    : null
+                const covered = stop?.keys ?? (stop ? [stop.key] : [])
                 set(draft => {
                     draft.continueRun = null
                     draft.advanceStop = notice
-                    if (stop && stop.kind !== "match" && stop.kind !== "cancelled" && stop.kind !== "cap" && stop.kind !== "error" && !draft.advanceSeenKeys.includes(stop.key)) {
-                        draft.advanceSeenKeys.push(stop.key)
+                    if (stop && stop.kind !== "match" && stop.kind !== "cancelled" && stop.kind !== "cap" && stop.kind !== "error") {
+                        for (const key of covered) if (!draft.advanceSeenKeys.includes(key)) draft.advanceSeenKeys.push(key)
                         if (draft.advanceSeenKeys.length > 200) draft.advanceSeenKeys.splice(0, draft.advanceSeenKeys.length - 200)
                     }
                     if (lastCompletedWeek != null && draft.weekReports?.history.some(r => r.week === lastCompletedWeek)) {

@@ -96,6 +96,16 @@ test("season end stops when no board review came with it", () => {
     expect(nextStop(src(save), new Set())).toMatchObject({ kind: "season", reason: "Season 1 is over" })
 })
 
+test("untitled decisions get a readable name; several new ones are one stop", () => {
+    const save = base()
+    save.eventsLog.push({ id: "fan", week: 5, type: "FAN", acknowledged: false, data: { hype: 10 }, choices: [{ id: "a", text: "Host Fan Meetup", effects: { money: -2000 } }] } as never)
+    expect(nextStop(src(save), new Set())).toMatchObject({ kind: "event", reason: "A fan meetup request needs an answer" })
+    save.eventsLog.push({ id: "spon", week: 5, type: "SPONSOR", acknowledged: false, data: {}, choices: [{ id: "b", text: "Negotiate", effects: { reputation: -5 } }] } as never)
+    const grouped = nextStop(src(save), new Set())
+    expect(grouped).toMatchObject({ kind: "event", reason: "2 decisions need an answer", keys: ["event:fan", "event:spon"] })
+    expect(nextStop(src(save), new Set(grouped!.keys))).toBeNull()
+})
+
 test("seen stops pass; the highest-priority unseen one is next", () => {
     const save = base()
     save.players[0].injury = { type: "RSI", name: "Wrist Strain", weeksRemaining: 2 } as never
