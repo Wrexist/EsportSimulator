@@ -21,6 +21,9 @@ interface Upset { loserId: string; matchId: string; score: string; week: number 
 
 const official = (m: { isScrim?: boolean; tournamentId?: string | null }) => !m.isScrim && !!m.tournamentId && m.tournamentId !== "SCRIM"
 
+/** Places above the winner a beaten club must be: GIANT_RANK_GAP, or GIANT_RANK_SHARE of the winner's rank further down the table. */
+const rankGap = (winnerRank: number) => Math.max(S.GIANT_RANK_GAP, Math.ceil(winnerRank * S.GIANT_RANK_SHARE))
+
 function recentUpsets(ctx: StoryContext): Map<string, Upset[]> {
     const out = new Map<string, Upset[]>()
     const from = ctx.week - S.GIANT_WINDOW_WEEKS + 1
@@ -33,7 +36,7 @@ function recentUpsets(ctx: StoryContext): Map<string, Upset[]> {
         const winner = m.result.winnerId
         const loser = winner === m.homeTeamId ? m.awayTeamId : m.homeTeamId
         const wr = ctx.team(winner)?.worldRanking ?? 0, lr = ctx.team(loser)?.worldRanking ?? 0
-        if (wr <= 0 || lr <= 0 || lr > wr - S.GIANT_RANK_GAP) continue
+        if (wr <= 0 || lr <= 0 || lr > wr - rankGap(wr)) continue
         const rows = out.get(winner) ?? []
         if (!rows.some(r => r.loserId === loser)) rows.push({ loserId: loser, matchId: m.id, score: sideScore(m.result, m.homeTeamId === winner), week: m.week })
         out.set(winner, rows)

@@ -649,6 +649,8 @@ export const STORY_TUNING = {
     // ── slump ──
     SLUMP_MAPS: 5,
     SLUMP_RATING: 0.9,
+    /** ...and at least this far under his career rating (a 0.85 player at 0.85 is not in a slump). */
+    SLUMP_BELOW_CAREER: 0.1,
     SLUMP_BACK_MORALE: 6,
     SLUMP_BENCH_MORALE: -3,
     SLUMP_REST_FATIGUE: -10,
@@ -689,8 +691,10 @@ export const STORY_TUNING = {
 
     // ── giant-killer run ──
     GIANT_WINDOW_WEEKS: 3,
-    /** "Ranked much higher": at least this many world-ranking places above the winner. */
+    /** "Ranked much higher": at least this many world-ranking places above the winner... */
     GIANT_RANK_GAP: 15,
+    /** ...and at least this share of the winner's rank (#150 must beat #90 or better). */
+    GIANT_RANK_SHARE: 0.4,
     /** Another club's run only makes news when both beaten clubs are in this top. */
     GIANT_AI_MAX_OPP_RANK: 20,
     /** The managed club's run: followers gained and board confidence, applied once. */
@@ -705,7 +709,7 @@ export const STORY_TUNING = {
 
     // ── cooldowns: weeks since the club's last arc of the kind, and since the subject's last one ──
     COOLDOWN_KIND: {
-        CONTRACT_STANDOFF: 6, RISING_STAR: 8, SLUMP: 4, RIVALRY: 4,
+        CONTRACT_STANDOFF: 6, RISING_STAR: 8, SLUMP: 8, RIVALRY: 4,
         LAST_DANCE: 4, RIFT: 8, GIANT_KILLER: 8, BOARD_PRESSURE: 12,
     },
     COOLDOWN_SUBJECT: {

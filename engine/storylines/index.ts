@@ -100,9 +100,11 @@ export function processStorylines(save: GameSave): StoryWeekResult {
 
     // 1. Beats of active arcs.
     for (const arc of [...arcs]) {
-        if (arc.state !== "ACTIVE" || arc.nextWeek > week) continue
-        const clubGone = arc.managed && arc.kind !== "BOARD_PRESSURE" && (save.gameOverReason || arc.teamId !== save.playerTeamId)
-        if (clubGone) resolveArc(arc, week, "MANAGER_LEFT", "Story closed: you left the club.")
+        // The manager left the club (or was dismissed): settle at once.
+        const clubGone = arc.managed && (!!save.gameOverReason || arc.teamId !== save.playerTeamId)
+        if (arc.state !== "ACTIVE" || (arc.nextWeek > week && !clubGone)) continue
+        // The board story tells how it ended; the others close.
+        if (clubGone && arc.kind !== "BOARD_PRESSURE") resolveArc(arc, week, "MANAGER_LEFT", "Story closed: you left the club.")
         else ARC_DEFINITIONS[arc.kind].advance(ctx, arc)
         out.beats++
         // (advance() may have resolved it)

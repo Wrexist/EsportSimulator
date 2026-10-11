@@ -353,6 +353,33 @@ describe("board under pressure", () => {
         expect(arc).toMatchObject({ state: "RESOLVED", outcome: "SURVIVES" })
         expect(save.eventsLog).toEqual([])
     })
+
+    test("taking another job is not a dismissal; a sacking is", () => {
+        const make = () => {
+            const save = world(20)
+            save.boardState = { teamId: "us", confidence: 30, seasonExpectation: "COMPETE", expectationSetSeason: 1, lastReviewedSeason: 0, onNotice: false, history: [] }
+            processStorylines(save)
+            return save
+        }
+        const moved = make()
+        moved.playerTeamId = "them"
+        nextWeek(moved)
+        expect(arcOf(moved, "BOARD_PRESSURE")).toMatchObject({ outcome: "LEFT" })
+        expect(moved.newsFeed[0].content).toBe("Alex leaves US for THEM before the board decides.")
+        const sacked = make()
+        sacked.gameOverReason = "SACKED"
+        nextWeek(sacked)
+        expect(arcOf(sacked, "BOARD_PRESSURE")).toMatchObject({ outcome: "SACKED" })
+    })
+})
+
+test("a slump must sit well under the player's own career rating", () => {
+    const save = world()
+    form(save, "p1", [0.85, 0.85, 0.85, 0.85, 0.85])
+    P_(save, "p1").avgRating = 0.9
+    expect(ARC_DEFINITIONS.SLUMP.detect(buildContext(save))).toEqual([])
+    P_(save, "p1").avgRating = 0.96
+    expect(ARC_DEFINITIONS.SLUMP.detect(buildContext(save)).map(c => c.subject)).toEqual(["p1"])
 })
 
 // ---------------------------------------------------------------- caps, cooldowns, determinism

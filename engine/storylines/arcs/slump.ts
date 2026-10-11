@@ -37,6 +37,8 @@ export const slump: ArcDefinition = {
             if (p.injury || !five.has(p.id)) continue
             const r = formOver(p, team.id, S.SLUMP_MAPS)
             if (r === null || r >= S.SLUMP_RATING) continue
+            // Well under his own standard, not just under the line.
+            if (p.avgRating && r > p.avgRating - S.SLUMP_BELOW_CAREER) continue
             out.push({
                 kind: "SLUMP", teamId: team.id, managed: true, playerIds: [p.id], clubIds: [], subject: p.id,
                 score: 2 - r, facts: { rating: r, career: Math.round((p.avgRating || 0) * 100) / 100, mapsAtStart: p.mapsPlayed ?? 0 },

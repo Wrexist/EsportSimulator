@@ -60,10 +60,16 @@ export const boardPressure: ArcDefinition = {
 
     advance(ctx, arc) {
         const club = clubOf(ctx, arc.teamId)
-        if (ctx.save.gameOverReason === "SACKED" || ctx.save.playerTeamId !== arc.teamId) {
+        if (ctx.save.gameOverReason === "SACKED") {
             const text = `${manager(ctx)} has been dismissed by ${club}.`
             storyNews(ctx, arc, "end", `${club} part ways with ${manager(ctx)}`, text)
             return resolveArc(arc, ctx.week, "SACKED", text)
+        }
+        if (ctx.save.playerTeamId !== arc.teamId) {
+            // He left before the board decided: a job elsewhere, not a dismissal.
+            const text = `${manager(ctx)} leaves ${club} for ${clubOf(ctx, ctx.save.playerTeamId)} before the board decides.`
+            storyNews(ctx, arc, "end", `${manager(ctx)} walks away from ${club}`, text)
+            return resolveArc(arc, ctx.week, "LEFT", text)
         }
         const board = ctx.save.boardState
         if (!board) return resolveArc(arc, ctx.week, "VOID")
