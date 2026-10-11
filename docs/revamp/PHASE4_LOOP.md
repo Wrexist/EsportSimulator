@@ -29,3 +29,22 @@ Goal: every click is a decision and every change has a visible cause. Fewer, dee
 - A passive season gives every club a regular fixture list; a new player reaches a meaningful decision within 3 clicks of Continue.
 - Every number that changes in a week appears in the report with a cause.
 - No screen promises an effect the engine doesn't apply (continue the truth rule from Phases 0–3).
+
+---
+
+## Status — done (2026-10-11)
+
+Branch `claude/revamp-phase-4` (contains Phases 0–3).
+
+| Stream | Result |
+|---|---|
+| 4.1 Continue & report | Continue runs to the next decision and says why it stopped; weekly report lists every change with its cause (last 4 kept, ~12 KB each). |
+| 4.2 Week plan & nav | `/week` (fixtures, team focus, bookings, per-player training, forecast checked against real processing); 7 hubs; Equipment → Facilities "Gear"; Academy simplified; staff meetings are a booking; v2 style sweep. |
+| 4.3 Inbox drawer | Fake desktop OS removed (−6,400 lines); drawer with Decisions/Messages/News; `/desktop` redirects. |
+| 4.4 Season & money | Regional leagues (2 splits, promotion/relegation): median 40 official matches/club/season (was 4); starting cash = 26 weeks of costs; board objectives + weekly confidence with causes; sacking → job market; FPL removed (save v8 migration). |
+| 4.6 AI economy | 0 administrations over 2–4 seasons (was 312 in 2), AI rosters never below five, AI cash positive per tier. |
+| 4.7 League & board UI | `/league` tables with zones, `/career/board`, league fixture labels everywhere. |
+| 4.8 Rankings | Zero-sum, importance-weighted Elo; rank-band tiers (fixed counts); top-20 weekly move median 1 / p90 ≤ 6. |
+| 4.9 Inbox noise | Decision deadlines with stated defaults; weekly round-up; unread at week 13: 48–62 → 4–7. |
+
+Verification: type-check 0 · lint 0 · jest 240 suites / 2,546 tests · live play-through on the final branch (0 page errors, ~20 s/round in key moments). Evidence: `docs/launch-readiness/evidence/phase4-*.json`, screenshots `tmp/phase4/`.
