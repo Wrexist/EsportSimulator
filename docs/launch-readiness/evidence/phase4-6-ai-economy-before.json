@@ -1,0 +1,3448 @@
+{
+  "generated": "2026-10-11T05:45:37.474Z",
+  "label": "p46-before-d",
+  "driver": "Real useGameStore coordinator (initializeNewGame, advanceToWeekEnd/advanceWeek with worker synchronous fallback, simulateInstantMatch, transferPlayer, renewContract, signSponsor, resolveEventChoice, declineJobOffer, saveGame/loadGame) over the full snapshot world.",
+  "policyName": "competent",
+  "targets": {
+    "worldNumberOneBySeason": [
+      {
+        "season": 1,
+        "careers": 6,
+        "worldNo1": 1
+      },
+      {
+        "season": 2,
+        "careers": 6,
+        "worldNo1": 1
+      }
+    ],
+    "managedSTierTitleShareSeason2Plus": {
+      "n": 6,
+      "finite": 6,
+      "min": 0,
+      "p10": 0,
+      "median": 0,
+      "p90": 0.16666666666666666,
+      "max": 0.16666666666666666
+    },
+    "managedATierTitleShareSeason2Plus": {
+      "n": 6,
+      "finite": 6,
+      "min": 0,
+      "p10": 0,
+      "median": 0,
+      "p90": 0.3333333333333333,
+      "max": 0.4444444444444444
+    },
+    "managedWinRateSeason2Plus": {
+      "n": 6,
+      "finite": 6,
+      "min": 0.26373626373626374,
+      "p10": 0.3844997108155003,
+      "median": 0.5539075286415712,
+      "p90": 0.856,
+      "max": 0.872
+    },
+    "hofInductionsBySeason": [
+      {
+        "season": 1,
+        "n": 6,
+        "finite": 6,
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      {
+        "season": 2,
+        "n": 6,
+        "finite": 6,
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      }
+    ],
+    "aiShortRostersAtSeasonEnd": {
+      "n": 12,
+      "finite": 12,
+      "min": 0,
+      "p10": 0,
+      "median": 0,
+      "p90": 5,
+      "max": 7
+    },
+    "poolRatioFinal": {
+      "n": 6,
+      "finite": 6,
+      "min": 1.0380116959064327,
+      "p10": 1.039108187134503,
+      "median": 1.0416666666666665,
+      "p90": 1.045687134502924,
+      "max": 1.0460526315789473
+    },
+    "newPlayersPerSeason": {
+      "n": 12,
+      "finite": 12,
+      "min": 84,
+      "p10": 90.1,
+      "median": 151,
+      "p90": 222.8,
+      "max": 227
+    },
+    "retiredPerSeason": {
+      "n": 12,
+      "finite": 12,
+      "min": 98,
+      "p10": 104.2,
+      "median": 127,
+      "p90": 145.6,
+      "max": 147
+    },
+    "terminal": {
+      "none": 6
+    },
+    "managedFormGap": {
+      "n": 6,
+      "finite": 6,
+      "min": -20.5,
+      "p10": -19,
+      "median": -12.2,
+      "p90": 10.099999999999998,
+      "max": 24
+    },
+    "managedMoraleGap": {
+      "n": 6,
+      "finite": 6,
+      "min": -28.5,
+      "p10": -25.549999999999997,
+      "median": -3.700000000000003,
+      "p90": 14.70000000000001,
+      "max": 23.80000000000001
+    },
+    "managedSkillGap": {
+      "n": 6,
+      "finite": 6,
+      "min": -7.900000000000006,
+      "p10": -6.500000000000007,
+      "median": -1.2000000000000028,
+      "p90": 10.700000000000003,
+      "max": 11.099999999999994
+    },
+    "seasonCashDelta": {
+      "n": 12,
+      "finite": 12,
+      "min": -360734,
+      "p10": 56099.700000000004,
+      "median": 298231,
+      "p90": 1887061.1,
+      "max": 2394917
+    }
+  },
+  "policy": "Deterministic: register for every eligible event starting within 4 weeks; play own matches by instant sim after match prep (VOD review + counter playstyle; mental reset when squad morale < 40; only above a $250k reserve and with non-negative weekly net); release the weakest bench player while running a weekly deficit; decline job offers unless on board notice (then take the best-ranked offer); monthly swap of the weakest starter for a clearly better free agent the club can afford (same 26-week reserve and non-negative net test as AI upgrades); money-maximising branch on choice events that does not cost morale; renew expiring starters; fill to five from free agency (best affordable for 104 weeks, else cheapest); keep up to three sponsors (best offered, avoiding morale-draining brands).",
+  "bounds": {
+    "maxAbsBudget": 5000000000,
+    "aiSpiralBudget": -20000000,
+    "aiShortRosterWeeks": 6,
+    "maxInboxPerWeek": 60,
+    "tournamentStallWeeks": 3,
+    "supplyMinRatio": 0.6,
+    "supplyMaxRatio": 2.5
+  },
+  "sampleSize": {
+    "careers": 6,
+    "seeds": 6,
+    "weekTicks": 624,
+    "seasonSnapshots": 12,
+    "byTier": {
+      "top": 2,
+      "mid": 2,
+      "low": 2
+    },
+    "completedRequestedSeasons": 6,
+    "seasonsRequested": [
+      2
+    ]
+  },
+  "invariantFailures": {
+    "ai-roster-not-viable": {
+      "seeds": [
+        2,
+        5
+      ],
+      "count": 4,
+      "first": {
+        "kind": "ai-roster-not-viable",
+        "week": 102,
+        "detail": "team_45_nimeses"
+      }
+    }
+  },
+  "roundTrips": [
+    {
+      "seed": 1,
+      "atTick": 73,
+      "identical": true,
+      "differingKeys": null
+    },
+    {
+      "seed": 2,
+      "atTick": 86,
+      "identical": true,
+      "differingKeys": null
+    },
+    {
+      "seed": 3,
+      "atTick": 99,
+      "identical": true,
+      "differingKeys": null
+    },
+    {
+      "seed": 4
+    },
+    {
+      "seed": 5
+    },
+    {
+      "seed": 6
+    }
+  ],
+  "perTier": {
+    "top": {
+      "deadSeasons": 0,
+      "seasons": 4,
+      "careers": 2,
+      "completedAllSeasons": 2,
+      "terminal": {},
+      "finalCash": {
+        "n": 2,
+        "finite": 2,
+        "min": 4222748,
+        "p10": 4363603.1,
+        "median": 4927023.5,
+        "p90": 5490443.9,
+        "max": 5631299
+      },
+      "seasonCashDelta": {
+        "n": 4,
+        "finite": 4,
+        "min": 1579575,
+        "p10": 1592654.4,
+        "median": 1769777.5,
+        "p90": 2251356.5,
+        "max": 2394917
+      },
+      "winRate": {
+        "n": 4,
+        "finite": 4,
+        "min": 0.7209302325581395,
+        "p10": 0.7566511627906977,
+        "median": 0.8504347826086956,
+        "p90": 0.8686608695652174,
+        "max": 0.872
+      },
+      "trophiesPerSeason": {
+        "n": 4,
+        "finite": 4,
+        "min": 9,
+        "p10": 9.6,
+        "median": 12.5,
+        "p90": 15.4,
+        "max": 16
+      },
+      "finalRanking": {
+        "n": 2,
+        "finite": 2,
+        "min": 1,
+        "p10": 1.1,
+        "median": 1.5,
+        "p90": 1.9,
+        "max": 2
+      }
+    },
+    "mid": {
+      "deadSeasons": 0,
+      "seasons": 4,
+      "careers": 2,
+      "completedAllSeasons": 2,
+      "terminal": {},
+      "finalCash": {
+        "n": 2,
+        "finite": 2,
+        "min": 330280,
+        "p10": 335583.6,
+        "median": 356798,
+        "p90": 378012.4,
+        "max": 383316
+      },
+      "seasonCashDelta": {
+        "n": 4,
+        "finite": 4,
+        "min": 48758,
+        "p10": 70783.1,
+        "median": 136658,
+        "p90": 165407.7,
+        "max": 171522
+      },
+      "winRate": {
+        "n": 4,
+        "finite": 4,
+        "min": 0.17857142857142858,
+        "p10": 0.20412087912087912,
+        "median": 0.308338720103426,
+        "p90": 0.5164592760180996,
+        "max": 0.5865384615384616
+      },
+      "trophiesPerSeason": {
+        "n": 4,
+        "finite": 4,
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0.7000000000000002,
+        "max": 1
+      },
+      "finalRanking": {
+        "n": 2,
+        "finite": 2,
+        "min": 16,
+        "p10": 23.4,
+        "median": 53,
+        "p90": 82.60000000000001,
+        "max": 90
+      }
+    },
+    "low": {
+      "deadSeasons": 0,
+      "seasons": 4,
+      "careers": 2,
+      "completedAllSeasons": 2,
+      "terminal": {},
+      "finalCash": {
+        "n": 2,
+        "finite": 2,
+        "min": -108601,
+        "p10": 19333.90000000001,
+        "median": 531073.5,
+        "p90": 1042813.1000000001,
+        "max": 1170748
+      },
+      "seasonCashDelta": {
+        "n": 4,
+        "finite": 4,
+        "min": -360734,
+        "p10": -206873.89999999997,
+        "median": 288536.5,
+        "p90": 565547.6000000001,
+        "max": 625808
+      },
+      "winRate": {
+        "n": 4,
+        "finite": 4,
+        "min": 0.4411764705882353,
+        "p10": 0.46040247678018575,
+        "median": 0.5132698768197088,
+        "p90": 0.6196182728410513,
+        "max": 0.6617647058823529
+      },
+      "trophiesPerSeason": {
+        "n": 4,
+        "finite": 4,
+        "min": 0,
+        "p10": 0,
+        "median": 0.5,
+        "p90": 3.1000000000000005,
+        "max": 4
+      },
+      "finalRanking": {
+        "n": 2,
+        "finite": 2,
+        "min": 25,
+        "p10": 28,
+        "median": 40,
+        "p90": 52,
+        "max": 55
+      }
+    }
+  },
+  "distributions": {
+    "aiBudgetMedian": {
+      "n": 12,
+      "finite": 12,
+      "min": 126238,
+      "p10": 130643.4,
+      "median": 158803,
+      "p90": 177364.5,
+      "max": 178655
+    },
+    "aiBudgetMin": {
+      "n": 12,
+      "finite": 12,
+      "min": -145697,
+      "p10": -125525,
+      "median": -41132.5,
+      "p90": -13291.999999999993,
+      "max": -590
+    },
+    "aiBudgetMax": {
+      "n": 12,
+      "finite": 12,
+      "min": 1879949,
+      "p10": 2063079.3,
+      "median": 2455532,
+      "p90": 3378634.7,
+      "max": 3559569
+    },
+    "aiNegativeCash": {
+      "n": 12,
+      "finite": 12,
+      "min": 1,
+      "p10": 2.1,
+      "median": 6,
+      "p90": 10,
+      "max": 11
+    },
+    "aiCrisis": {
+      "n": 12,
+      "finite": 12,
+      "min": 1,
+      "p10": 1,
+      "median": 3,
+      "p90": 4.9,
+      "max": 9
+    },
+    "aiShortRosters": {
+      "n": 12,
+      "finite": 12,
+      "min": 0,
+      "p10": 0,
+      "median": 0,
+      "p90": 5,
+      "max": 7
+    },
+    "wageMedian": {
+      "n": 12,
+      "finite": 12,
+      "min": 400,
+      "p10": 450,
+      "median": 514,
+      "p90": 604.5,
+      "max": 650
+    },
+    "wageP90": {
+      "n": 12,
+      "finite": 12,
+      "min": 3866.200000000008,
+      "p10": 3990.640000000001,
+      "median": 4331.200000000001,
+      "p90": 4636.840000000004,
+      "max": 4814.800000000008
+    },
+    "wageMax": {
+      "n": 12,
+      "finite": 12,
+      "min": 22650,
+      "p10": 22655,
+      "median": 26328,
+      "p90": 30299.7,
+      "max": 33079
+    },
+    "transferFeeMedian": {
+      "n": 12,
+      "finite": 12,
+      "min": 19500,
+      "p10": 19500,
+      "median": 19500,
+      "p90": 23010,
+      "max": 32786
+    },
+    "transferFeeMax": {
+      "n": 12,
+      "finite": 12,
+      "min": 23400,
+      "p10": 23790,
+      "median": 132600,
+      "p90": 277740,
+      "max": 280000
+    },
+    "transfersPerSeason": {
+      "n": 12,
+      "finite": 12,
+      "min": 128,
+      "p10": 139.2,
+      "median": 146.5,
+      "p90": 158.8,
+      "max": 182
+    },
+    "ovrMedianByAge": {
+      "<=19": {
+        "n": 12,
+        "finite": 12,
+        "min": 55.91929000000004,
+        "p10": 56.21313939999999,
+        "median": 60.05208750000001,
+        "p90": 63.79742849999994,
+        "max": 64.57656
+      },
+      "20-22": {
+        "n": 12,
+        "finite": 12,
+        "min": 58.352000000000174,
+        "p10": 58.35536000000017,
+        "median": 63.244400000000034,
+        "p90": 69,
+        "max": 69
+      },
+      "23-25": {
+        "n": 12,
+        "finite": 12,
+        "min": 55.063999999999965,
+        "p10": 55.063999999999965,
+        "median": 57.5,
+        "p90": 59,
+        "max": 59
+      },
+      "26-28": {
+        "n": 12,
+        "finite": 12,
+        "min": 54,
+        "p10": 54,
+        "median": 54,
+        "p90": 54,
+        "max": 55
+      },
+      "29-31": {
+        "n": 12,
+        "finite": 12,
+        "min": 52,
+        "p10": 52.05,
+        "median": 53,
+        "p90": 55.95,
+        "max": 56
+      },
+      "32+": {
+        "n": 12,
+        "finite": 12,
+        "min": 40,
+        "p10": 40,
+        "median": 45.5,
+        "p90": 51.8,
+        "max": 54
+      }
+    },
+    "ovrMedianByAgeFinalSeason": {
+      "<=19": {
+        "n": 6,
+        "finite": 6,
+        "min": 63.00667499999997,
+        "p10": 63.03376249999991,
+        "median": 63.18570427750003,
+        "p90": 64.21604999999997,
+        "max": 64.57656
+      },
+      "20-22": {
+        "n": 6,
+        "finite": 6,
+        "min": 68,
+        "p10": 68.3481250000001,
+        "median": 69,
+        "p90": 69,
+        "max": 69
+      },
+      "23-25": {
+        "n": 6,
+        "finite": 6,
+        "min": 59,
+        "p10": 59,
+        "median": 59,
+        "p90": 59,
+        "max": 59
+      },
+      "26-28": {
+        "n": 6,
+        "finite": 6,
+        "min": 54,
+        "p10": 54,
+        "median": 54,
+        "p90": 54.5,
+        "max": 55
+      },
+      "29-31": {
+        "n": 6,
+        "finite": 6,
+        "min": 53,
+        "p10": 53.742,
+        "median": 55.5,
+        "p90": 56,
+        "max": 56
+      },
+      "32+": {
+        "n": 6,
+        "finite": 6,
+        "min": 50,
+        "p10": 50,
+        "median": 50,
+        "p90": 53,
+        "max": 54
+      }
+    },
+    "playersActive": {
+      "n": 12,
+      "finite": 12,
+      "min": 1420,
+      "p10": 1423,
+      "median": 1432,
+      "p90": 1447.9,
+      "max": 1451
+    },
+    "freeAgents": {
+      "n": 12,
+      "finite": 12,
+      "min": 186,
+      "p10": 190.1,
+      "median": 206.5,
+      "p90": 232.7,
+      "max": 234
+    },
+    "retiredPerSeason": {
+      "n": 12,
+      "finite": 12,
+      "min": 98,
+      "p10": 104.2,
+      "median": 127,
+      "p90": 145.6,
+      "max": 147
+    },
+    "newPlayersPerSeason": {
+      "n": 12,
+      "finite": 12,
+      "min": 84,
+      "p10": 90.1,
+      "median": 151,
+      "p90": 222.8,
+      "max": 227
+    },
+    "matchesPerSeason": {
+      "n": 12,
+      "finite": 12,
+      "min": 1559,
+      "p10": 1567.2,
+      "median": 1585.5,
+      "p90": 1589.8,
+      "max": 1595
+    },
+    "inboxPerWeekMax": {
+      "n": 6,
+      "finite": 6,
+      "min": 13,
+      "p10": 13,
+      "median": 16,
+      "p90": 20.5,
+      "max": 22
+    },
+    "inboxPerWeekMedian": {
+      "n": 6,
+      "finite": 6,
+      "min": 5.5,
+      "p10": 5.75,
+      "median": 6.5,
+      "p90": 7,
+      "max": 7
+    },
+    "tickMsMedian": {
+      "n": 6,
+      "finite": 6,
+      "min": 1882,
+      "p10": 1923.75,
+      "median": 2073.25,
+      "p90": 2149.25,
+      "max": 2158.5
+    }
+  },
+  "titleSpread": {
+    "S_TIER": {
+      "titles": 72,
+      "distinctWinners": 22,
+      "top5": [
+        [
+          "team_22_valiant",
+          10
+        ],
+        [
+          "team_99_thundereldawnynder",
+          7
+        ],
+        [
+          "team_136_minxkhauze",
+          7
+        ],
+        [
+          "team_5_phantom",
+          7
+        ],
+        [
+          "team_200_ligianal",
+          6
+        ]
+      ],
+      "perSeasonTopShare": {
+        "n": 12,
+        "finite": 12,
+        "min": 0.16666666666666666,
+        "p10": 0.16666666666666666,
+        "median": 0.3333333333333333,
+        "p90": 0.5,
+        "max": 0.6666666666666666
+      }
+    },
+    "A_TIER": {
+      "titles": 108,
+      "distinctWinners": 30,
+      "top5": [
+        [
+          "team_14_fut",
+          13
+        ],
+        [
+          "team_99_thundereldawnynder",
+          10
+        ],
+        [
+          "team_136_minxkhauze",
+          10
+        ],
+        [
+          "team_63_bigkings",
+          9
+        ],
+        [
+          "team_22_valiant",
+          9
+        ]
+      ],
+      "perSeasonTopShare": {
+        "n": 12,
+        "finite": 12,
+        "min": 0.2222222222222222,
+        "p10": 0.2222222222222222,
+        "median": 0.3333333333333333,
+        "p90": 0.4444444444444444,
+        "max": 0.5555555555555556
+      }
+    },
+    "B_TIER": {
+      "titles": 72,
+      "distinctWinners": 37,
+      "top5": [
+        [
+          "team_5_phantom",
+          7
+        ],
+        [
+          "team_136_minxkhauze",
+          5
+        ],
+        [
+          "team_8_natusvincera",
+          4
+        ],
+        [
+          "team_99_thundereldawnynder",
+          4
+        ],
+        [
+          "team_14_fut",
+          4
+        ]
+      ],
+      "perSeasonTopShare": {
+        "n": 12,
+        "finite": 12,
+        "min": 0.16666666666666666,
+        "p10": 0.16666666666666666,
+        "median": 0.16666666666666666,
+        "p90": 0.3333333333333333,
+        "max": 0.3333333333333333
+      }
+    },
+    "C_TIER": {
+      "titles": 84,
+      "distinctWinners": 37,
+      "top5": [
+        [
+          "team_99_thundereldawnynder",
+          11
+        ],
+        [
+          "team_8_natusvincera",
+          6
+        ],
+        [
+          "team_136_minxkhauze",
+          6
+        ],
+        [
+          "team_22_valiant",
+          6
+        ],
+        [
+          "team_10_thenomads",
+          5
+        ]
+      ],
+      "perSeasonTopShare": {
+        "n": 12,
+        "finite": 12,
+        "min": 0.14285714285714285,
+        "p10": 0.14285714285714285,
+        "median": 0.2857142857142857,
+        "p90": 0.42857142857142855,
+        "max": 0.5714285714285714
+      }
+    }
+  },
+  "managedIncomeByCategory": {
+    "EXPENSE:FACILITIES": {
+      "n": 12,
+      "finite": 12,
+      "min": 96083,
+      "p10": 105907.2,
+      "median": 203808.5,
+      "p90": 375133.9,
+      "max": 399046
+    },
+    "INCOME:SPONSOR": {
+      "n": 12,
+      "finite": 12,
+      "min": 176105,
+      "p10": 250601.3,
+      "median": 804835.5,
+      "p90": 2280702,
+      "max": 2509542
+    },
+    "INCOME:OTHER": {
+      "n": 12,
+      "finite": 12,
+      "min": 135380,
+      "p10": 156823.6,
+      "median": 314049.5,
+      "p90": 676805.9,
+      "max": 736742
+    },
+    "EXPENSE:WAGES_PLAYER": {
+      "n": 12,
+      "finite": 12,
+      "min": 92178,
+      "p10": 114124.90000000001,
+      "median": 503036,
+      "p90": 1810855.8,
+      "max": 2112102
+    },
+    "INCOME:PRIZE": {
+      "n": 12,
+      "finite": 12,
+      "min": 8000,
+      "p10": 11310,
+      "median": 223450,
+      "p90": 1283475,
+      "max": 1722400
+    },
+    "EXPENSE:WAGES_STAFF": {
+      "n": 8,
+      "finite": 8,
+      "min": 5000,
+      "p10": 19000,
+      "median": 392500,
+      "p90": 678000,
+      "max": 720000
+    },
+    "EXPENSE:OTHER": {
+      "n": 8,
+      "finite": 8,
+      "min": 500,
+      "p10": 500,
+      "median": 1250,
+      "p90": 2300,
+      "max": 3000
+    }
+  },
+  "careers": [
+    {
+      "seed": 1,
+      "tier": "top",
+      "club": "team_8_natusvincera",
+      "ticks": 104,
+      "terminal": null,
+      "failureKinds": [],
+      "finalCash": 5631299,
+      "policy": {
+        "forfeitAdvances": 0,
+        "registrations": 32,
+        "signings": 0,
+        "upgrades": 5,
+        "renewals": 1,
+        "renewalFailures": 0,
+        "sponsorsSigned": 13,
+        "choices": 127,
+        "jobOffersDeclined": 33,
+        "jobChanges": 0,
+        "softlocks": 0,
+        "preparations": 203,
+        "benchReleases": 0,
+        "sackings": 0,
+        "bankruptcies": 0,
+        "rehired": 0
+      },
+      "roundTripIdentical": true
+    },
+    {
+      "seed": 2,
+      "tier": "mid",
+      "club": "team_66_fluxion",
+      "ticks": 104,
+      "terminal": null,
+      "failureKinds": [
+        "ai-roster-not-viable"
+      ],
+      "finalCash": 330280,
+      "policy": {
+        "forfeitAdvances": 0,
+        "registrations": 19,
+        "signings": 0,
+        "upgrades": 0,
+        "renewals": 0,
+        "renewalFailures": 0,
+        "sponsorsSigned": 6,
+        "choices": 134,
+        "jobOffersDeclined": 12,
+        "jobChanges": 1,
+        "softlocks": 0,
+        "preparations": 79,
+        "benchReleases": 2,
+        "sackings": 0,
+        "bankruptcies": 1,
+        "rehired": 1
+      },
+      "roundTripIdentical": true
+    },
+    {
+      "seed": 3,
+      "tier": "low",
+      "club": "team_144_legor",
+      "ticks": 104,
+      "terminal": null,
+      "failureKinds": [],
+      "finalCash": 1170748,
+      "policy": {
+        "forfeitAdvances": 0,
+        "registrations": 31,
+        "signings": 0,
+        "upgrades": 2,
+        "renewals": 3,
+        "renewalFailures": 0,
+        "sponsorsSigned": 10,
+        "choices": 95,
+        "jobOffersDeclined": 21,
+        "jobChanges": 0,
+        "softlocks": 0,
+        "preparations": 145,
+        "benchReleases": 0,
+        "sackings": 0,
+        "bankruptcies": 0,
+        "rehired": 0
+      },
+      "roundTripIdentical": true
+    },
+    {
+      "seed": 4,
+      "tier": "top",
+      "club": "team_10_thenomads",
+      "ticks": 104,
+      "terminal": null,
+      "failureKinds": [],
+      "finalCash": 4222748,
+      "policy": {
+        "forfeitAdvances": 0,
+        "registrations": 33,
+        "signings": 0,
+        "upgrades": 5,
+        "renewals": 1,
+        "renewalFailures": 0,
+        "sponsorsSigned": 13,
+        "choices": 104,
+        "jobOffersDeclined": 41,
+        "jobChanges": 0,
+        "softlocks": 0,
+        "preparations": 256,
+        "benchReleases": 0,
+        "sackings": 0,
+        "bankruptcies": 0,
+        "rehired": 0
+      },
+      "roundTripIdentical": null
+    },
+    {
+      "seed": 5,
+      "tier": "mid",
+      "club": "team_56_kinone",
+      "ticks": 104,
+      "terminal": null,
+      "failureKinds": [
+        "ai-roster-not-viable"
+      ],
+      "finalCash": 383316,
+      "policy": {
+        "forfeitAdvances": 0,
+        "registrations": 23,
+        "signings": 0,
+        "upgrades": 3,
+        "renewals": 1,
+        "renewalFailures": 0,
+        "sponsorsSigned": 12,
+        "choices": 82,
+        "jobOffersDeclined": 5,
+        "jobChanges": 0,
+        "softlocks": 0,
+        "preparations": 22,
+        "benchReleases": 0,
+        "sackings": 0,
+        "bankruptcies": 0,
+        "rehired": 0
+      },
+      "roundTripIdentical": null
+    },
+    {
+      "seed": 6,
+      "tier": "low",
+      "club": "team_128_aljayx",
+      "ticks": 104,
+      "terminal": null,
+      "failureKinds": [],
+      "finalCash": -108601,
+      "policy": {
+        "forfeitAdvances": 0,
+        "registrations": 19,
+        "signings": 0,
+        "upgrades": 2,
+        "renewals": 0,
+        "renewalFailures": 4,
+        "sponsorsSigned": 9,
+        "choices": 60,
+        "jobOffersDeclined": 14,
+        "jobChanges": 0,
+        "softlocks": 0,
+        "preparations": 5,
+        "benchReleases": 0,
+        "sackings": 0,
+        "bankruptcies": 0,
+        "rehired": 0
+      },
+      "roundTripIdentical": null
+    }
+  ],
+  "seasonStructure": {
+    "aiClubMatches": {
+      "min": {
+        "n": 12,
+        "finite": 12,
+        "min": 18,
+        "p10": 19.2,
+        "median": 22.5,
+        "p90": 27.9,
+        "max": 29
+      },
+      "p10": {
+        "n": 12,
+        "finite": 12,
+        "min": 32,
+        "p10": 32,
+        "median": 32,
+        "p90": 32.96,
+        "max": 34.6
+      },
+      "median": {
+        "n": 12,
+        "finite": 12,
+        "min": 39,
+        "p10": 39.1,
+        "median": 40,
+        "p90": 41,
+        "max": 41
+      },
+      "p90": {
+        "n": 12,
+        "finite": 12,
+        "min": 72.4,
+        "p10": 73.1,
+        "median": 76.7,
+        "p90": 79.58000000000003,
+        "max": 80
+      },
+      "max": {
+        "n": 12,
+        "finite": 12,
+        "min": 121,
+        "p10": 124.1,
+        "median": 129.5,
+        "p90": 137.8,
+        "max": 147
+      }
+    },
+    "aiClubMatchesMedianByLeagueTier": {
+      "S_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": 49.5,
+        "p10": 50,
+        "median": 51.5,
+        "p90": 65.5,
+        "max": 76
+      },
+      "A_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": 36,
+        "p10": 36,
+        "median": 41.75,
+        "p90": 59.85,
+        "max": 61.5
+      },
+      "B_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": 36,
+        "p10": 36,
+        "median": 36.5,
+        "p90": 39.8,
+        "max": 40
+      },
+      "C_TIER": {
+        "n": 12,
+        "finite": 1,
+        "min": 36,
+        "p10": 36,
+        "median": 36,
+        "p90": 36,
+        "max": 36
+      }
+    },
+    "aiClubMatchesMinByLeagueTier": {
+      "S_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": 18,
+        "p10": 19.2,
+        "median": 27.5,
+        "p90": 36.400000000000006,
+        "max": 39
+      },
+      "A_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": 21,
+        "p10": 21.5,
+        "median": 31.5,
+        "p90": 32,
+        "max": 32
+      },
+      "B_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": 24,
+        "p10": 27.4,
+        "median": 32,
+        "p90": 35.6,
+        "max": 36
+      },
+      "C_TIER": {
+        "n": 12,
+        "finite": 1,
+        "min": 36,
+        "p10": 36,
+        "median": 36,
+        "p90": 36,
+        "max": 36
+      }
+    },
+    "clubsBelow20": {
+      "n": 12,
+      "finite": 12,
+      "min": 0,
+      "p10": 0,
+      "median": 0,
+      "p90": 0.9000000000000004,
+      "max": 1
+    },
+    "clubsBelow30": {
+      "n": 12,
+      "finite": 12,
+      "min": 1,
+      "p10": 1,
+      "median": 3,
+      "p90": 5,
+      "max": 7
+    },
+    "clubsAbove45": {
+      "n": 12,
+      "finite": 12,
+      "min": 69,
+      "p10": 69,
+      "median": 74.5,
+      "p90": 83.5,
+      "max": 84
+    },
+    "managedMatchesByTier": {
+      "top": {
+        "n": 4,
+        "finite": 4,
+        "min": 114,
+        "p10": 117.3,
+        "median": 125,
+        "p90": 127.1,
+        "max": 128
+      },
+      "mid": {
+        "n": 4,
+        "finite": 4,
+        "min": 40,
+        "p10": 41.2,
+        "median": 64,
+        "p90": 98,
+        "max": 104
+      },
+      "low": {
+        "n": 4,
+        "finite": 4,
+        "min": 94,
+        "p10": 94.3,
+        "median": 98,
+        "p90": 124.80000000000001,
+        "max": 135
+      }
+    },
+    "managedCashEndBySeason": {
+      "top": [
+        3157246,
+        4927023.5
+      ],
+      "mid": [
+        256848.5,
+        356798
+      ],
+      "low": [
+        498970.5,
+        531073.5
+      ]
+    },
+    "managedCashMinBySeason": {
+      "top": [
+        1171012,
+        3153974
+      ],
+      "mid": [
+        116667,
+        30893.5
+      ],
+      "low": [
+        113193,
+        307927.5
+      ]
+    },
+    "managedWeeklyNetEnd": {
+      "top": {
+        "n": 4,
+        "finite": 4,
+        "min": 5440,
+        "p10": 5794.9,
+        "median": 6834,
+        "p90": 8204.2,
+        "max": 8701
+      },
+      "mid": {
+        "n": 4,
+        "finite": 4,
+        "min": -1239,
+        "p10": -599.0999999999999,
+        "median": 2201,
+        "p90": 3554.2,
+        "max": 3574
+      },
+      "low": {
+        "n": 4,
+        "finite": 4,
+        "min": -16123,
+        "p10": -12696.099999999999,
+        "median": -2202.5,
+        "p90": 3412.100000000001,
+        "max": 4748
+      }
+    },
+    "aiBudgetMedianByLeagueTier": {
+      "S_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": 216068.5,
+        "p10": 221544,
+        "median": 436613.5,
+        "p90": 1117936.6,
+        "max": 1136363.5
+      },
+      "A_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": 81613,
+        "p10": 86401.15,
+        "median": 209935.5,
+        "p90": 418984.2,
+        "max": 452770.5
+      },
+      "B_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": 40225,
+        "p10": 70805.95,
+        "median": 151472.25,
+        "p90": 158932.4,
+        "max": 165822
+      },
+      "C_TIER": {
+        "n": 12,
+        "finite": 1,
+        "min": 79137,
+        "p10": 79137,
+        "median": 79137,
+        "p90": 79137,
+        "max": 79137
+      }
+    },
+    "aiCashDeltaMedianByLeagueTier": {
+      "S_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": -832394,
+        "p10": -428487.45,
+        "median": -101928.75,
+        "p90": -2305.0499999999997,
+        "max": 1792
+      },
+      "A_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": -81651.5,
+        "p10": -31430.75,
+        "median": -17955.75,
+        "p90": 34351.95,
+        "max": 38273
+      },
+      "B_TIER": {
+        "n": 12,
+        "finite": 12,
+        "min": -45217.5,
+        "p10": -35229.299999999996,
+        "median": 8840.5,
+        "p90": 32943.25,
+        "max": 34455
+      },
+      "C_TIER": {
+        "n": 12,
+        "finite": 1,
+        "min": -33339,
+        "p10": -33339,
+        "median": -33339,
+        "p90": -33339,
+        "max": -33339
+      }
+    },
+    "aiNegative": {
+      "n": 12,
+      "finite": 12,
+      "min": 1,
+      "p10": 2.1,
+      "median": 6,
+      "p90": 10,
+      "max": 11
+    },
+    "aiInsolventClubWeeks": {
+      "n": 12,
+      "finite": 12,
+      "min": 18,
+      "p10": 25,
+      "median": 195,
+      "p90": 447.1,
+      "max": 449
+    },
+    "boardEndByTier": {
+      "top": {
+        "n": 4,
+        "finite": 4,
+        "min": 100,
+        "p10": 100,
+        "median": 100,
+        "p90": 100,
+        "max": 100
+      },
+      "mid": {
+        "n": 4,
+        "finite": 4,
+        "min": 39,
+        "p10": 40.5,
+        "median": 54,
+        "p90": 73.8,
+        "max": 78
+      },
+      "low": {
+        "n": 4,
+        "finite": 4,
+        "min": 27,
+        "p10": 43.800000000000004,
+        "median": 91.5,
+        "p90": 100,
+        "max": 100
+      }
+    },
+    "boardMinByTier": {
+      "top": {
+        "n": 4,
+        "finite": 4,
+        "min": 49,
+        "p10": 51.1,
+        "median": 75.5,
+        "p90": 97.1,
+        "max": 98
+      },
+      "mid": {
+        "n": 4,
+        "finite": 4,
+        "min": 16,
+        "p10": 22.900000000000002,
+        "median": 39,
+        "p90": 42.5,
+        "max": 44
+      },
+      "low": {
+        "n": 4,
+        "finite": 4,
+        "min": 27,
+        "p10": 36.6,
+        "median": 59.5,
+        "p90": 76.10000000000001,
+        "max": 83
+      }
+    },
+    "boardOnNoticeSeasons": 0,
+    "boardReviews": {
+      "Board delighted": 7,
+      "none": 1,
+      "Board concerned": 2,
+      "Board furious": 2
+    },
+    "terminal": {
+      "top:none": 2,
+      "mid:none": 2,
+      "low:none": 2
+    },
+    "sackings": 0,
+    "bankruptcies": 1,
+    "rehiredAfterDismissal": 1,
+    "aiAdministrations": {
+      "n": 12,
+      "finite": 12,
+      "min": 1,
+      "p10": 2.1,
+      "median": 24,
+      "p90": 56.9,
+      "max": 58
+    },
+    "jobChanges": 2,
+    "tickMsMedian": {
+      "n": 6,
+      "finite": 6,
+      "min": 1882,
+      "p10": 1923.75,
+      "median": 2073.25,
+      "p90": 2149.25,
+      "max": 2158.5
+    }
+  },
+  "aiEconomy": {
+    "bySeason": [
+      {
+        "season": 1,
+        "careers": 6,
+        "administrations": {
+          "n": 6,
+          "finite": 6,
+          "min": 1,
+          "p10": 1.5,
+          "median": 3,
+          "p90": 5.5,
+          "max": 6
+        },
+        "administrationsMaxPerClub": 1,
+        "minRoster": 4,
+        "shortClubWeeks": {
+          "n": 6,
+          "finite": 6,
+          "min": 0,
+          "p10": 0,
+          "median": 0,
+          "p90": 1,
+          "max": 2
+        },
+        "cashDeltaMedianByTier": {
+          "S_TIER": {
+            "n": 6,
+            "finite": 6,
+            "min": -832394,
+            "p10": -630515.25,
+            "median": -401411.5,
+            "p90": -218631,
+            "max": -194965.5
+          },
+          "A_TIER": {
+            "n": 6,
+            "finite": 6,
+            "min": -81651.5,
+            "p10": -54420.5,
+            "median": 17372.25,
+            "p90": 36366.25,
+            "max": 38273
+          },
+          "B_TIER": {
+            "n": 6,
+            "finite": 6,
+            "min": 21062,
+            "p10": 21721.75,
+            "median": 28857.75,
+            "p90": 33923.5,
+            "max": 34455
+          },
+          "C_TIER": {
+            "n": 6,
+            "finite": 0,
+            "min": null,
+            "p10": null,
+            "median": null,
+            "p90": null,
+            "max": null
+          }
+        },
+        "wageBillMedianByTier": {
+          "S_TIER": {
+            "start": 47350,
+            "end": 54861.5
+          },
+          "A_TIER": {
+            "start": 9950,
+            "end": 16206.75
+          },
+          "B_TIER": {
+            "start": 1650,
+            "end": 5432
+          },
+          "C_TIER": {
+            "start": null,
+            "end": null
+          }
+        },
+        "flowsMeanPerClubByTier": {
+          "S_TIER": {
+            "+PRIZE": 228916,
+            "+SPONSOR": 44471,
+            "+fanbase": 9127,
+            "+leagueShare": 406274,
+            "+sponsors": 1881610,
+            "-FACILITIES": -9833,
+            "-TRANSFER_OUT": -34339,
+            "-WAGES_STAFF": -585,
+            "-academy": -2343,
+            "-equipment": -113760,
+            "-facilities": -47186,
+            "-operations": -89245,
+            "-playerWages": -2732378,
+            "-staffWages": -9901,
+            "residual": 39644,
+            "-TRAINING": -167,
+            "+TRANSFER_IN": 2600
+          },
+          "A_TIER": {
+            "+PRIZE": 145824,
+            "+SPONSOR": 29756,
+            "+TRANSFER_IN": 14965,
+            "+fanbase": 7005,
+            "+leagueShare": 372557,
+            "+sponsors": 575016,
+            "-FACILITIES": -22333,
+            "-TRAINING": -18722,
+            "-TRANSFER_OUT": -18234,
+            "-WAGES_STAFF": -1307,
+            "-academy": -7925,
+            "-equipment": -105984,
+            "-facilities": -47328,
+            "-operations": -85138,
+            "-playerWages": -757150,
+            "-staffWages": -17415,
+            "residual": 5376
+          },
+          "B_TIER": {
+            "+PRIZE": 35308,
+            "+SPONSOR": 8935,
+            "+TRANSFER_IN": 7992,
+            "+fanbase": 2928,
+            "+leagueShare": 214498,
+            "+sponsors": 223663,
+            "-FACILITIES": -25137,
+            "-TRAINING": -9572,
+            "-TRANSFER_OUT": -5396,
+            "-WAGES_STAFF": -353,
+            "-academy": -12220,
+            "-equipment": -50365,
+            "-facilities": -45800,
+            "-operations": -56628,
+            "-playerWages": -238028,
+            "-staffWages": -3136,
+            "residual": 1337
+          },
+          "C_TIER": {}
+        },
+        "cashDeltaMedianByRegion": {
+          "ASIA": 95756.75,
+          "BR": 43159.5,
+          "CIS": 24098,
+          "EU": 1293.75,
+          "MENA": 25282,
+          "NA": 53563,
+          "OCE": 54950.5
+        },
+        "administrationsByRegion": {
+          "ASIA": 1,
+          "BR": 3,
+          "CIS": 3,
+          "EU": 12,
+          "MENA": 1,
+          "NA": 0,
+          "OCE": 0
+        },
+        "administrationsByDivisionLevel": {
+          "1": 6,
+          "2": 3,
+          "3": 1,
+          "4": 2,
+          "5": 3,
+          "6": 2,
+          "7": 2,
+          "8": 1,
+          "9": 0
+        },
+        "cashDeltaMedianByDivisionLevel": {
+          "1": 12199.75,
+          "2": 48651,
+          "3": 55090,
+          "4": 27531.5,
+          "5": 9998.5,
+          "6": 8073.25,
+          "7": -6803.25,
+          "8": -2347.25,
+          "9": 23076.75
+        }
+      },
+      {
+        "season": 2,
+        "careers": 6,
+        "administrations": {
+          "n": 6,
+          "finite": 6,
+          "min": 41,
+          "p10": 42,
+          "median": 51.5,
+          "p90": 52.5,
+          "max": 53
+        },
+        "administrationsMaxPerClub": 3,
+        "minRoster": 3,
+        "shortClubWeeks": {
+          "n": 6,
+          "finite": 6,
+          "min": 1,
+          "p10": 1.5,
+          "median": 14,
+          "p90": 35,
+          "max": 43
+        },
+        "cashDeltaMedianByTier": {
+          "S_TIER": {
+            "n": 6,
+            "finite": 6,
+            "min": -8892,
+            "p10": -7520.75,
+            "median": -3972,
+            "p90": -211.25,
+            "max": 1792
+          },
+          "A_TIER": {
+            "n": 6,
+            "finite": 6,
+            "min": -31902,
+            "p10": -29253.5,
+            "median": -19630.25,
+            "p90": -13907.25,
+            "max": -10261.5
+          },
+          "B_TIER": {
+            "n": 6,
+            "finite": 6,
+            "min": -45217.5,
+            "p10": -40874.75,
+            "median": -18032.5,
+            "p90": -6326,
+            "max": -3381
+          },
+          "C_TIER": {
+            "n": 6,
+            "finite": 1,
+            "min": -33339,
+            "p10": -33339,
+            "median": -33339,
+            "p90": -33339,
+            "max": -33339
+          }
+        },
+        "wageBillMedianByTier": {
+          "S_TIER": {
+            "start": 9661.5,
+            "end": 10530.5
+          },
+          "A_TIER": {
+            "start": 4614,
+            "end": 5315
+          },
+          "B_TIER": {
+            "start": 4370.5,
+            "end": 5083.5
+          },
+          "C_TIER": {
+            "start": 4897,
+            "end": 4397
+          }
+        },
+        "flowsMeanPerClubByTier": {
+          "S_TIER": {
+            "+PRIZE": 98364,
+            "+SPONSOR": 23686,
+            "+TRANSFER_IN": 822,
+            "+fanbase": 9608,
+            "+leagueShare": 290003,
+            "+sponsors": 527741,
+            "-FACILITIES": -17523,
+            "-TRAINING": -15524,
+            "-TRANSFER_OUT": -1098,
+            "-WAGES_STAFF": -818,
+            "-academy": -9314,
+            "-equipment": -75098,
+            "-facilities": -53866,
+            "-operations": -68238,
+            "-playerWages": -692869,
+            "-staffWages": -20221,
+            "residual": 46331,
+            "untracked": 2288
+          },
+          "A_TIER": {
+            "+PRIZE": 7759,
+            "+SPONSOR": 3999,
+            "+TRANSFER_IN": 640,
+            "+fanbase": 4049,
+            "+leagueShare": 176356,
+            "+sponsors": 183069,
+            "-FACILITIES": -6813,
+            "-TRANSFER_OUT": -377,
+            "-WAGES_STAFF": -87,
+            "-academy": -3105,
+            "-equipment": -35951,
+            "-facilities": -49939,
+            "-operations": -48010,
+            "-playerWages": -289510,
+            "-staffWages": -3464,
+            "residual": 36217,
+            "untracked": -959,
+            "-TRAINING": -50
+          },
+          "B_TIER": {
+            "+PRIZE": 1707,
+            "+SPONSOR": 2942,
+            "+fanbase": 2935,
+            "+leagueShare": 147733,
+            "+sponsors": 123853,
+            "-FACILITIES": -4722,
+            "-equipment": -12257,
+            "-facilities": -45894,
+            "-operations": -34981,
+            "-playerWages": -209642,
+            "untracked": -1462,
+            "+TRANSFER_IN": 2113,
+            "-TRANSFER_OUT": -722,
+            "-academy": -941,
+            "residual": 13432
+          },
+          "C_TIER": {
+            "+PRIZE": 600,
+            "+SPONSOR": 2000,
+            "+TRANSFER_IN": 19500,
+            "+fanbase": 3011,
+            "+leagueShare": 121014,
+            "+sponsors": 119259,
+            "-equipment": -9199,
+            "-facilities": -24014,
+            "-operations": -33511,
+            "-playerWages": -229180,
+            "untracked": -2819
+          }
+        },
+        "cashDeltaMedianByRegion": {
+          "ASIA": 28861.25,
+          "BR": -9464,
+          "CIS": -829.5,
+          "EU": -32308.25,
+          "MENA": -9939.75,
+          "NA": 12520,
+          "OCE": 6902.5
+        },
+        "administrationsByRegion": {
+          "ASIA": 16,
+          "BR": 19,
+          "CIS": 54,
+          "EU": 172,
+          "MENA": 14,
+          "NA": 14,
+          "OCE": 3
+        },
+        "administrationsByDivisionLevel": {
+          "1": 17,
+          "2": 62,
+          "3": 50,
+          "4": 39,
+          "5": 46,
+          "6": 24,
+          "7": 22,
+          "8": 19,
+          "9": 13
+        },
+        "cashDeltaMedianByDivisionLevel": {
+          "1": 79768.25,
+          "2": -3563.75,
+          "3": -16605.5,
+          "4": -12331,
+          "5": -30903.5,
+          "6": -34540,
+          "7": -26845,
+          "8": -42889,
+          "9": -25662.5
+        }
+      }
+    ],
+    "careerAdministrations": [
+      {
+        "seed": 1,
+        "total": 42,
+        "clubs": 28,
+        "maxPerClub": 3
+      },
+      {
+        "seed": 2,
+        "total": 57,
+        "clubs": 41,
+        "maxPerClub": 3
+      },
+      {
+        "seed": 3,
+        "total": 46,
+        "clubs": 35,
+        "maxPerClub": 3
+      },
+      {
+        "seed": 4,
+        "total": 58,
+        "clubs": 43,
+        "maxPerClub": 3
+      },
+      {
+        "seed": 5,
+        "total": 53,
+        "clubs": 43,
+        "maxPerClub": 3
+      },
+      {
+        "seed": 6,
+        "total": 56,
+        "clubs": 41,
+        "maxPerClub": 3
+      }
+    ]
+  },
+  "sponsorToWageRatio": {
+    "n": 12,
+    "finite": 12,
+    "min": 0.29738524565248964,
+    "p10": 0.41591620309773203,
+    "median": 1.0478104621383657,
+    "p90": 1.3457577719477838,
+    "max": 2.0304921196526213
+  },
+  "phase": "4.6 before (engine at 92ab8a90)",
+  "note": "Phase 4.6 AI economy. Same 6 seeds (2,3,1 per tier), paired worlds (campaign pins Web Crypto and Date.now at career creation since 92ab8a90). Tick times are with 9 campaign workers in parallel on one machine; see weekProcessing for the isolated timing.",
+  "comparisonTable": {
+    "label": "p46-before-d",
+    "careers": 6,
+    "seasons": 2,
+    "failureKinds": [
+      "ai-roster-not-viable"
+    ],
+    "aiAdministrationsCareer": [
+      {
+        "seed": 1,
+        "total": 42,
+        "clubs": 28,
+        "maxPerClub": 3
+      },
+      {
+        "seed": 2,
+        "total": 57,
+        "clubs": 41,
+        "maxPerClub": 3
+      },
+      {
+        "seed": 3,
+        "total": 46,
+        "clubs": 35,
+        "maxPerClub": 3
+      },
+      {
+        "seed": 4,
+        "total": 58,
+        "clubs": 43,
+        "maxPerClub": 3
+      },
+      {
+        "seed": 5,
+        "total": 53,
+        "clubs": 43,
+        "maxPerClub": 3
+      },
+      {
+        "seed": 6,
+        "total": 56,
+        "clubs": 41,
+        "maxPerClub": 3
+      }
+    ],
+    "tickMsMedian": 2073,
+    "bySeason": [
+      {
+        "season": 1,
+        "aiAdministrations": 20,
+        "aiAdministrationsPerCareer": [
+          1,
+          5,
+          3,
+          6,
+          2,
+          3
+        ],
+        "aiAdministrationsMaxPerClub": 1,
+        "aiMinRoster": 4,
+        "aiShortClubWeeks": 2,
+        "aiInsolventClubWeeks": 212,
+        "aiNegativeCashAtSeasonEnd": 18,
+        "aiCashDeltaMedianByEloTier": {
+          "S_TIER": -401411,
+          "A_TIER": 17372,
+          "B_TIER": 28858
+        },
+        "aiCashDeltaMedianByDivision": {
+          "1": 12200,
+          "2": 48651,
+          "3": 55090,
+          "4": 27532,
+          "5": 9999,
+          "6": 8073,
+          "7": -6803,
+          "8": -2347,
+          "9": 23077
+        },
+        "aiWageBillMedianByEloTier": {
+          "S_TIER": {
+            "start": 47350,
+            "end": 54862
+          },
+          "A_TIER": {
+            "start": 9950,
+            "end": 16207
+          },
+          "B_TIER": {
+            "start": 1650,
+            "end": 5432
+          }
+        },
+        "signedContractWageMedian": 450,
+        "signedContractWageP90": 4148,
+        "freeAgents": 192,
+        "managed": [
+          {
+            "seed": 1,
+            "tier": "top",
+            "cashEnd": 3714917,
+            "cashDelta": 2394917,
+            "cashMin": 1320436,
+            "insolventWeeks": 0,
+            "boardMin": 56,
+            "boardEnd": 100,
+            "review": "Board delighted"
+          },
+          {
+            "seed": 2,
+            "tier": "mid",
+            "cashEnd": 281522,
+            "cashDelta": 171522,
+            "cashMin": 117389,
+            "insolventWeeks": 0,
+            "boardMin": 16,
+            "boardEnd": 64,
+            "review": "none"
+          },
+          {
+            "seed": 3,
+            "tier": "low",
+            "cashEnd": 745808,
+            "cashDelta": 625808,
+            "cashMin": 123522,
+            "insolventWeeks": 0,
+            "boardMin": 60,
+            "boardEnd": 100,
+            "review": "Board delighted"
+          },
+          {
+            "seed": 4,
+            "tier": "top",
+            "cashEnd": 2599575,
+            "cashDelta": 1579575,
+            "cashMin": 1021588,
+            "insolventWeeks": 0,
+            "boardMin": 49,
+            "boardEnd": 100,
+            "review": "Board delighted"
+          },
+          {
+            "seed": 5,
+            "tier": "mid",
+            "cashEnd": 232175,
+            "cashDelta": 122175,
+            "cashMin": 115945,
+            "insolventWeeks": 0,
+            "boardMin": 39,
+            "boardEnd": 39,
+            "review": "Board furious"
+          },
+          {
+            "seed": 6,
+            "tier": "low",
+            "cashEnd": 252133,
+            "cashDelta": 152133,
+            "cashMin": 102864,
+            "insolventWeeks": 0,
+            "boardMin": 59,
+            "boardEnd": 100,
+            "review": "Board delighted"
+          }
+        ]
+      },
+      {
+        "season": 2,
+        "aiAdministrations": 292,
+        "aiAdministrationsPerCareer": [
+          41,
+          52,
+          43,
+          52,
+          51,
+          53
+        ],
+        "aiAdministrationsMaxPerClub": 3,
+        "aiMinRoster": 3,
+        "aiShortClubWeeks": 101,
+        "aiInsolventClubWeeks": 2407,
+        "aiNegativeCashAtSeasonEnd": 55,
+        "aiCashDeltaMedianByEloTier": {
+          "S_TIER": -3972,
+          "A_TIER": -19630,
+          "B_TIER": -18032
+        },
+        "aiCashDeltaMedianByDivision": {
+          "1": 79768,
+          "2": -3564,
+          "3": -16605,
+          "4": -12331,
+          "5": -30903,
+          "6": -34540,
+          "7": -26845,
+          "8": -42889,
+          "9": -25662
+        },
+        "aiWageBillMedianByEloTier": {
+          "S_TIER": {
+            "start": 9662,
+            "end": 10531
+          },
+          "A_TIER": {
+            "start": 4614,
+            "end": 5315
+          },
+          "B_TIER": {
+            "start": 4371,
+            "end": 5084
+          }
+        },
+        "signedContractWageMedian": 596,
+        "signedContractWageP90": 4410,
+        "freeAgents": 227,
+        "managed": [
+          {
+            "seed": 1,
+            "tier": "top",
+            "cashEnd": 5631299,
+            "cashDelta": 1916382,
+            "cashMin": 3700483,
+            "insolventWeeks": 0,
+            "boardMin": 98,
+            "boardEnd": 100,
+            "review": "Board delighted"
+          },
+          {
+            "seed": 2,
+            "tier": "mid",
+            "cashEnd": 330280,
+            "cashDelta": 48758,
+            "cashMin": -48383,
+            "insolventWeeks": 8,
+            "boardMin": 44,
+            "boardEnd": 44,
+            "review": "Board concerned"
+          },
+          {
+            "seed": 3,
+            "tier": "low",
+            "cashEnd": 1170748,
+            "cashDelta": 424940,
+            "cashMin": 724456,
+            "insolventWeeks": 0,
+            "boardMin": 83,
+            "boardEnd": 83,
+            "review": "Board furious"
+          },
+          {
+            "seed": 4,
+            "tier": "top",
+            "cashEnd": 4222748,
+            "cashDelta": 1623173,
+            "cashMin": 2607465,
+            "insolventWeeks": 0,
+            "boardMin": 95,
+            "boardEnd": 100,
+            "review": "Board delighted"
+          },
+          {
+            "seed": 5,
+            "tier": "mid",
+            "cashEnd": 383316,
+            "cashDelta": 151141,
+            "cashMin": 110170,
+            "insolventWeeks": 0,
+            "boardMin": 39,
+            "boardEnd": 78,
+            "review": "Board delighted"
+          },
+          {
+            "seed": 6,
+            "tier": "low",
+            "cashEnd": -108601,
+            "cashDelta": -360734,
+            "cashMin": -108601,
+            "insolventWeeks": 7,
+            "boardMin": 27,
+            "boardEnd": 27,
+            "review": "Board concerned"
+          }
+        ]
+      }
+    ],
+    "managedTerminalEvents": [
+      {
+        "seed": 1,
+        "tier": "top",
+        "sackings": 0,
+        "bankruptcies": 0,
+        "jobChanges": 0,
+        "forfeits": 0
+      },
+      {
+        "seed": 2,
+        "tier": "mid",
+        "sackings": 0,
+        "bankruptcies": 1,
+        "jobChanges": 1,
+        "forfeits": 0
+      },
+      {
+        "seed": 3,
+        "tier": "low",
+        "sackings": 0,
+        "bankruptcies": 0,
+        "jobChanges": 0,
+        "forfeits": 0
+      },
+      {
+        "seed": 4,
+        "tier": "top",
+        "sackings": 0,
+        "bankruptcies": 0,
+        "jobChanges": 0,
+        "forfeits": 0
+      },
+      {
+        "seed": 5,
+        "tier": "mid",
+        "sackings": 0,
+        "bankruptcies": 0,
+        "jobChanges": 0,
+        "forfeits": 0
+      },
+      {
+        "seed": 6,
+        "tier": "low",
+        "sackings": 0,
+        "bankruptcies": 0,
+        "jobChanges": 0,
+        "forfeits": 0
+      }
+    ]
+  },
+  "longRun": {
+    "label": "p46-before-long",
+    "sampleSize": {
+      "careers": 3,
+      "seeds": 3,
+      "weekTicks": 624,
+      "seasonSnapshots": 12,
+      "byTier": {
+        "top": 1,
+        "mid": 1,
+        "low": 1
+      },
+      "completedRequestedSeasons": 3,
+      "seasonsRequested": [
+        4
+      ]
+    },
+    "invariantFailures": {
+      "ai-roster-not-viable": {
+        "seeds": [
+          1,
+          2,
+          3
+        ],
+        "count": 75,
+        "first": {
+          "kind": "ai-roster-not-viable",
+          "week": 112,
+          "detail": "team_79_jijyahao"
+        }
+      }
+    },
+    "aiEconomy": {
+      "bySeason": [
+        {
+          "season": 1,
+          "careers": 3,
+          "administrations": {
+            "n": 3,
+            "finite": 3,
+            "min": 1,
+            "p10": 1.4,
+            "median": 3,
+            "p90": 4.6,
+            "max": 5
+          },
+          "administrationsMaxPerClub": 1,
+          "minRoster": 4,
+          "shortClubWeeks": {
+            "n": 3,
+            "finite": 3,
+            "min": 0,
+            "p10": 0,
+            "median": 0,
+            "p90": 1.6,
+            "max": 2
+          },
+          "cashDeltaMedianByTier": {
+            "S_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": -428636.5,
+              "p10": -418044.6,
+              "median": -375677,
+              "p90": -268972.6,
+              "max": -242296.5
+            },
+            "A_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": -27189.5,
+              "p10": -21479.5,
+              "median": 1360.5,
+              "p90": 26979.300000000003,
+              "max": 33384
+            },
+            "B_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": 22381.5,
+              "p10": 23667.4,
+              "median": 28811,
+              "p90": 33326.2,
+              "max": 34455
+            },
+            "C_TIER": {
+              "n": 3,
+              "finite": 0,
+              "min": null,
+              "p10": null,
+              "median": null,
+              "p90": null,
+              "max": null
+            }
+          },
+          "wageBillMedianByTier": {
+            "S_TIER": {
+              "start": 46950,
+              "end": 53162
+            },
+            "A_TIER": {
+              "start": 10000,
+              "end": 16739
+            },
+            "B_TIER": {
+              "start": 1675,
+              "end": 5150
+            },
+            "C_TIER": {
+              "start": null,
+              "end": null
+            }
+          },
+          "flowsMeanPerClubByTier": {
+            "S_TIER": {
+              "+PRIZE": 226584,
+              "+SPONSOR": 46719,
+              "+fanbase": 9074,
+              "+leagueShare": 405772,
+              "+sponsors": 1858514,
+              "-FACILITIES": -6963,
+              "-TRANSFER_OUT": -28282,
+              "-WAGES_STAFF": -440,
+              "-academy": -1812,
+              "-equipment": -113743,
+              "-facilities": -47710,
+              "-operations": -89242,
+              "-playerWages": -2706971,
+              "-staffWages": -9846,
+              "residual": 43176
+            },
+            "A_TIER": {
+              "+PRIZE": 140316,
+              "+SPONSOR": 29567,
+              "+TRANSFER_IN": 16934,
+              "+fanbase": 6795,
+              "+leagueShare": 372924,
+              "+sponsors": 572006,
+              "-FACILITIES": -21444,
+              "-TRAINING": -18167,
+              "-TRANSFER_OUT": -21513,
+              "-WAGES_STAFF": -1143,
+              "-academy": -8025,
+              "-equipment": -105096,
+              "-facilities": -45634,
+              "-operations": -84696,
+              "-playerWages": -749035,
+              "-staffWages": -13907,
+              "residual": 5606
+            },
+            "B_TIER": {
+              "+PRIZE": 36539,
+              "+SPONSOR": 9301,
+              "+TRANSFER_IN": 8288,
+              "+fanbase": 2941,
+              "+leagueShare": 214281,
+              "+sponsors": 223137,
+              "-FACILITIES": -26343,
+              "-TRAINING": -9726,
+              "-TRANSFER_OUT": -5653,
+              "-WAGES_STAFF": -385,
+              "-academy": -12081,
+              "-equipment": -50155,
+              "-facilities": -46119,
+              "-operations": -56516,
+              "-playerWages": -235842,
+              "-staffWages": -3171,
+              "residual": 1229
+            },
+            "C_TIER": {}
+          },
+          "cashDeltaMedianByRegion": {
+            "ASIA": 97903,
+            "BR": 49086,
+            "CIS": 24250,
+            "EU": 9646,
+            "MENA": 14393,
+            "NA": 46974,
+            "OCE": 67581
+          },
+          "administrationsByRegion": {
+            "ASIA": 1,
+            "BR": 1,
+            "CIS": 2,
+            "EU": 5,
+            "MENA": 0,
+            "NA": 0,
+            "OCE": 0
+          },
+          "administrationsByDivisionLevel": {
+            "1": 3,
+            "2": 2,
+            "3": 0,
+            "4": 1,
+            "5": 2,
+            "6": 0,
+            "7": 1,
+            "8": 0,
+            "9": 0
+          },
+          "cashDeltaMedianByDivisionLevel": {
+            "1": 13353.5,
+            "2": 58379.5,
+            "3": 78873.5,
+            "4": 25754,
+            "5": 9621,
+            "6": -6393,
+            "7": -6953.5,
+            "8": -2323.5,
+            "9": 24802
+          }
+        },
+        {
+          "season": 2,
+          "careers": 3,
+          "administrations": {
+            "n": 3,
+            "finite": 3,
+            "min": 41,
+            "p10": 41.4,
+            "median": 43,
+            "p90": 50.2,
+            "max": 52
+          },
+          "administrationsMaxPerClub": 3,
+          "minRoster": 3,
+          "shortClubWeeks": {
+            "n": 3,
+            "finite": 3,
+            "min": 1,
+            "p10": 1.2,
+            "median": 2,
+            "p90": 34.800000000000004,
+            "max": 43
+          },
+          "cashDeltaMedianByTier": {
+            "S_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": -8892,
+              "p10": -8078.4,
+              "median": -4824,
+              "p90": 468.8000000000002,
+              "max": 1792
+            },
+            "A_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": -26605,
+              "p10": -25464.4,
+              "median": -20902,
+              "p90": -12389.6,
+              "max": -10261.5
+            },
+            "B_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": -36532,
+              "p10": -33926.6,
+              "median": -23505,
+              "p90": -12117.8,
+              "max": -9271
+            },
+            "C_TIER": {
+              "n": 3,
+              "finite": 1,
+              "min": -33339,
+              "p10": -33339,
+              "median": -33339,
+              "p90": -33339,
+              "max": -33339
+            }
+          },
+          "wageBillMedianByTier": {
+            "S_TIER": {
+              "start": 9896,
+              "end": 10774
+            },
+            "A_TIER": {
+              "start": 4522,
+              "end": 5096.5
+            },
+            "B_TIER": {
+              "start": 3533,
+              "end": 4208.5
+            },
+            "C_TIER": {
+              "start": 4897,
+              "end": 4397
+            }
+          },
+          "flowsMeanPerClubByTier": {
+            "S_TIER": {
+              "+PRIZE": 92868,
+              "+SPONSOR": 23133,
+              "+TRANSFER_IN": 755,
+              "+fanbase": 9181,
+              "+leagueShare": 278548,
+              "+sponsors": 513958,
+              "-FACILITIES": -17191,
+              "-TRAINING": -14826,
+              "-TRANSFER_OUT": -1134,
+              "-WAGES_STAFF": -792,
+              "-academy": -9312,
+              "-equipment": -72382,
+              "-facilities": -51188,
+              "-operations": -65642,
+              "-playerWages": -665368,
+              "-staffWages": -20435,
+              "residual": 42582,
+              "untracked": 4576
+            },
+            "A_TIER": {
+              "+PRIZE": 7205,
+              "+SPONSOR": 3656,
+              "+TRANSFER_IN": 684,
+              "+fanbase": 3785,
+              "+leagueShare": 168881,
+              "+sponsors": 166883,
+              "-FACILITIES": -6048,
+              "-TRANSFER_OUT": -267,
+              "-WAGES_STAFF": -56,
+              "-academy": -1970,
+              "-equipment": -33016,
+              "-facilities": -50336,
+              "-operations": -45311,
+              "-playerWages": -263490,
+              "-staffWages": -2960,
+              "residual": 30008,
+              "untracked": -1917,
+              "-TRAINING": -99
+            },
+            "B_TIER": {
+              "+PRIZE": 1392,
+              "+SPONSOR": 3306,
+              "+fanbase": 2788,
+              "+leagueShare": 143453,
+              "+sponsors": 117382,
+              "-FACILITIES": -5556,
+              "-equipment": -12072,
+              "-facilities": -53870,
+              "-operations": -33861,
+              "-playerWages": -179665,
+              "untracked": -2924,
+              "+TRANSFER_IN": 1625,
+              "-TRANSFER_OUT": -1444,
+              "-academy": -390,
+              "residual": 8437
+            },
+            "C_TIER": {
+              "+PRIZE": 600,
+              "+SPONSOR": 2000,
+              "+TRANSFER_IN": 19500,
+              "+fanbase": 3011,
+              "+leagueShare": 121014,
+              "+sponsors": 119259,
+              "-equipment": -9199,
+              "-facilities": -24014,
+              "-operations": -33511,
+              "-playerWages": -229180,
+              "untracked": -2819
+            }
+          },
+          "cashDeltaMedianByRegion": {
+            "ASIA": 31213,
+            "BR": -9236,
+            "CIS": 5639,
+            "EU": -29905,
+            "MENA": -20321.5,
+            "NA": 11699,
+            "OCE": 1070
+          },
+          "administrationsByRegion": {
+            "ASIA": 8,
+            "BR": 5,
+            "CIS": 26,
+            "EU": 81,
+            "MENA": 7,
+            "NA": 8,
+            "OCE": 1
+          },
+          "administrationsByDivisionLevel": {
+            "1": 5,
+            "2": 30,
+            "3": 25,
+            "4": 15,
+            "5": 20,
+            "6": 15,
+            "7": 15,
+            "8": 8,
+            "9": 3
+          },
+          "cashDeltaMedianByDivisionLevel": {
+            "1": 59403.5,
+            "2": 1792,
+            "3": -12974,
+            "4": -9516,
+            "5": -40902,
+            "6": -12520,
+            "7": -29769,
+            "8": -22334.5,
+            "9": -25979.5
+          }
+        },
+        {
+          "season": 3,
+          "careers": 3,
+          "administrations": {
+            "n": 3,
+            "finite": 3,
+            "min": 75,
+            "p10": 75.2,
+            "median": 76,
+            "p90": 81.6,
+            "max": 83
+          },
+          "administrationsMaxPerClub": 3,
+          "minRoster": 1,
+          "shortClubWeeks": {
+            "n": 3,
+            "finite": 3,
+            "min": 1605,
+            "p10": 1620.4,
+            "median": 1682,
+            "p90": 1725.2,
+            "max": 1736
+          },
+          "cashDeltaMedianByTier": {
+            "S_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": -18673,
+              "p10": -16420,
+              "median": -7408,
+              "p90": 14960.400000000001,
+              "max": 20552.5
+            },
+            "A_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": -19052,
+              "p10": -19031.6,
+              "median": -18950,
+              "p90": -18084.4,
+              "max": -17868
+            },
+            "B_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": -62228,
+              "p10": -52988,
+              "median": -16028,
+              "p90": -13166.8,
+              "max": -12451.5
+            },
+            "C_TIER": {
+              "n": 3,
+              "finite": 0,
+              "min": null,
+              "p10": null,
+              "median": null,
+              "p90": null,
+              "max": null
+            }
+          },
+          "wageBillMedianByTier": {
+            "S_TIER": {
+              "start": 8971,
+              "end": 8732
+            },
+            "A_TIER": {
+              "start": 5044,
+              "end": 5064
+            },
+            "B_TIER": {
+              "start": 4200.5,
+              "end": 4222
+            },
+            "C_TIER": {
+              "start": null,
+              "end": null
+            }
+          },
+          "flowsMeanPerClubByTier": {
+            "S_TIER": {
+              "+PRIZE": 89810,
+              "+SPONSOR": 20446,
+              "+TRANSFER_IN": 394,
+              "+fanbase": 14120,
+              "+leagueShare": 288293,
+              "+sponsors": 461061,
+              "-FACILITIES": -17712,
+              "-TRAINING": -11164,
+              "-TRANSFER_OUT": -816,
+              "-WAGES_STAFF": -637,
+              "-academy": -8232,
+              "-equipment": -66508,
+              "-facilities": -71359,
+              "-operations": -64945,
+              "-playerWages": -626342,
+              "-staffWages": -16855,
+              "residual": 53819
+            },
+            "A_TIER": {
+              "+PRIZE": 5818,
+              "+SPONSOR": 2917,
+              "+TRANSFER_IN": 1134,
+              "+fanbase": 6134,
+              "+leagueShare": 175737,
+              "+sponsors": 172279,
+              "-FACILITIES": -4728,
+              "-TRANSFER_OUT": -189,
+              "-WAGES_STAFF": -52,
+              "-academy": -248,
+              "-equipment": -29687,
+              "-facilities": -58935,
+              "-operations": -45026,
+              "-playerWages": -295069,
+              "-staffWages": -1591,
+              "residual": 47691
+            },
+            "B_TIER": {
+              "+PRIZE": 1683,
+              "+SPONSOR": 1817,
+              "+fanbase": 4181,
+              "+leagueShare": 143305,
+              "+sponsors": 138832,
+              "-FACILITIES": -667,
+              "-equipment": -15242,
+              "-facilities": -68198,
+              "-operations": -37513,
+              "-playerWages": -242256,
+              "residual": 56776
+            },
+            "C_TIER": {}
+          },
+          "cashDeltaMedianByRegion": {
+            "ASIA": -4067,
+            "BR": -13800,
+            "CIS": -14291,
+            "EU": -7970,
+            "MENA": -16888.5,
+            "NA": -10774,
+            "OCE": -1709
+          },
+          "administrationsByRegion": {
+            "ASIA": 13,
+            "BR": 17,
+            "CIS": 48,
+            "EU": 122,
+            "MENA": 13,
+            "NA": 18,
+            "OCE": 3
+          },
+          "administrationsByDivisionLevel": {
+            "1": 8,
+            "2": 37,
+            "3": 50,
+            "4": 40,
+            "5": 35,
+            "6": 14,
+            "7": 23,
+            "8": 13,
+            "9": 14
+          },
+          "cashDeltaMedianByDivisionLevel": {
+            "1": 74226,
+            "2": -12605,
+            "3": -18159,
+            "4": -13090,
+            "5": -14291,
+            "6": -9460.5,
+            "7": -13465.5,
+            "8": -19108.5,
+            "9": -18699
+          }
+        },
+        {
+          "season": 4,
+          "careers": 3,
+          "administrations": {
+            "n": 3,
+            "finite": 3,
+            "min": 90,
+            "p10": 90.2,
+            "median": 91,
+            "p90": 95,
+            "max": 96
+          },
+          "administrationsMaxPerClub": 3,
+          "minRoster": 1,
+          "shortClubWeeks": {
+            "n": 3,
+            "finite": 3,
+            "min": 4240,
+            "p10": 4257.4,
+            "median": 4327,
+            "p90": 4449.4,
+            "max": 4480
+          },
+          "cashDeltaMedianByTier": {
+            "S_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": -8684,
+              "p10": -8134.8,
+              "median": -5938,
+              "p90": -3989.2,
+              "max": -3502
+            },
+            "A_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": -18511,
+              "p10": -17652,
+              "median": -14216,
+              "p90": -7017.599999999999,
+              "max": -5218
+            },
+            "B_TIER": {
+              "n": 3,
+              "finite": 3,
+              "min": -8307.5,
+              "p10": -7121,
+              "median": -2375,
+              "p90": -450.5999999999999,
+              "max": 30.5
+            },
+            "C_TIER": {
+              "n": 3,
+              "finite": 1,
+              "min": 828,
+              "p10": 828,
+              "median": 828,
+              "p90": 828,
+              "max": 828
+            }
+          },
+          "wageBillMedianByTier": {
+            "S_TIER": {
+              "start": 8266,
+              "end": 8560
+            },
+            "A_TIER": {
+              "start": 5141,
+              "end": 5107
+            },
+            "B_TIER": {
+              "start": 4376.5,
+              "end": 4140.5
+            },
+            "C_TIER": {
+              "start": 3369,
+              "end": 3601
+            }
+          },
+          "flowsMeanPerClubByTier": {
+            "S_TIER": {
+              "+PRIZE": 80420,
+              "+SPONSOR": 17001,
+              "+TRANSFER_IN": 1705,
+              "+fanbase": 18782,
+              "+leagueShare": 281978,
+              "+sponsors": 416108,
+              "-FACILITIES": -14208,
+              "-TRAINING": -8205,
+              "-TRANSFER_OUT": -1971,
+              "-WAGES_STAFF": -541,
+              "-academy": -4785,
+              "-equipment": -58044,
+              "-facilities": -86345,
+              "-operations": -60239,
+              "-playerWages": -587756,
+              "-staffWages": -14736,
+              "residual": 51579
+            },
+            "A_TIER": {
+              "+PRIZE": 3687,
+              "+SPONSOR": 1398,
+              "+TRANSFER_IN": 713,
+              "+fanbase": 7901,
+              "+leagueShare": 169751,
+              "+sponsors": 156178,
+              "-FACILITIES": -1710,
+              "-WAGES_STAFF": -12,
+              "-equipment": -24179,
+              "-facilities": -59035,
+              "-operations": -41294,
+              "-playerWages": -287535,
+              "-staffWages": -510,
+              "residual": 53200,
+              "-TRANSFER_OUT": -178,
+              "-academy": -356
+            },
+            "B_TIER": {
+              "+fanbase": 8220,
+              "+leagueShare": 135695,
+              "+sponsors": 123051,
+              "-facilities": -86363,
+              "-operations": -31839,
+              "-playerWages": -228197,
+              "residual": 81472,
+              "+PRIZE": 3200,
+              "+TRANSFER_IN": 2275,
+              "-equipment": -14762
+            },
+            "C_TIER": {
+              "+PRIZE": 6000,
+              "+fanbase": 3697,
+              "+leagueShare": 130670,
+              "+sponsors": 92029,
+              "-facilities": -25980,
+              "-operations": -24114,
+              "-playerWages": -181474
+            }
+          },
+          "cashDeltaMedianByRegion": {
+            "ASIA": -23341,
+            "BR": -21812,
+            "CIS": -3340,
+            "EU": -6041,
+            "MENA": -5188,
+            "NA": -12557,
+            "OCE": -13984
+          },
+          "administrationsByRegion": {
+            "ASIA": 12,
+            "BR": 27,
+            "CIS": 59,
+            "EU": 144,
+            "MENA": 13,
+            "NA": 19,
+            "OCE": 3
+          },
+          "administrationsByDivisionLevel": {
+            "1": 10,
+            "2": 34,
+            "3": 51,
+            "4": 62,
+            "5": 43,
+            "6": 22,
+            "7": 17,
+            "8": 16,
+            "9": 22
+          },
+          "cashDeltaMedianByDivisionLevel": {
+            "1": 56054.5,
+            "2": -57913.5,
+            "3": -14367,
+            "4": -11266,
+            "5": -9138,
+            "6": -19408.5,
+            "7": -12662.5,
+            "8": -11282.5,
+            "9": -2610
+          }
+        }
+      ],
+      "careerAdministrations": [
+        {
+          "seed": 1,
+          "total": 213,
+          "clubs": 98,
+          "maxPerClub": 7
+        },
+        {
+          "seed": 2,
+          "total": 225,
+          "clubs": 97,
+          "maxPerClub": 7
+        },
+        {
+          "seed": 3,
+          "total": 219,
+          "clubs": 93,
+          "maxPerClub": 6
+        }
+      ]
+    },
+    "seasonStructure": {
+      "managedCashEndBySeason": {
+        "top": [
+          3714917,
+          5631299,
+          8170560,
+          10952514
+        ],
+        "mid": [
+          281522,
+          330280,
+          257025,
+          1133900
+        ],
+        "low": [
+          745808,
+          1170748,
+          1503940,
+          3736420
+        ]
+      },
+      "boardReviews": {
+        "Board delighted": 7,
+        "none": 2,
+        "Board concerned": 1,
+        "Board furious": 1,
+        "Board satisfied": 1
+      },
+      "terminal": {
+        "top:none": 1,
+        "mid:none": 1,
+        "low:none": 1
+      },
+      "sackings": 0,
+      "bankruptcies": 2,
+      "tickMsMedian": {
+        "n": 3,
+        "finite": 3,
+        "min": 1668.5,
+        "p10": 1691.1,
+        "median": 1781.5,
+        "p90": 1801.9,
+        "max": 1807
+      }
+    },
+    "comparisonTable": {
+      "label": "p46-before-long",
+      "careers": 3,
+      "seasons": 4,
+      "failureKinds": [
+        "ai-roster-not-viable"
+      ],
+      "aiAdministrationsCareer": [
+        {
+          "seed": 1,
+          "total": 213,
+          "clubs": 98,
+          "maxPerClub": 7
+        },
+        {
+          "seed": 2,
+          "total": 225,
+          "clubs": 97,
+          "maxPerClub": 7
+        },
+        {
+          "seed": 3,
+          "total": 219,
+          "clubs": 93,
+          "maxPerClub": 6
+        }
+      ],
+      "tickMsMedian": 1782,
+      "bySeason": [
+        {
+          "season": 1,
+          "aiAdministrations": 9,
+          "aiAdministrationsPerCareer": [
+            1,
+            5,
+            3
+          ],
+          "aiAdministrationsMaxPerClub": 1,
+          "aiMinRoster": 4,
+          "aiShortClubWeeks": 2,
+          "aiInsolventClubWeeks": 103,
+          "aiNegativeCashAtSeasonEnd": 9,
+          "aiCashDeltaMedianByEloTier": {
+            "S_TIER": -375677,
+            "A_TIER": 1361,
+            "B_TIER": 28811
+          },
+          "aiCashDeltaMedianByDivision": {
+            "1": 13354,
+            "2": 58380,
+            "3": 78874,
+            "4": 25754,
+            "5": 9621,
+            "6": -6393,
+            "7": -6953,
+            "8": -2323,
+            "9": 24802
+          },
+          "aiWageBillMedianByEloTier": {
+            "S_TIER": {
+              "start": 46950,
+              "end": 53162
+            },
+            "A_TIER": {
+              "start": 10000,
+              "end": 16739
+            },
+            "B_TIER": {
+              "start": 1675,
+              "end": 5150
+            }
+          },
+          "signedContractWageMedian": 450,
+          "signedContractWageP90": 3990,
+          "freeAgents": 194,
+          "managed": [
+            {
+              "seed": 1,
+              "tier": "top",
+              "cashEnd": 3714917,
+              "cashDelta": 2394917,
+              "cashMin": 1320436,
+              "insolventWeeks": 0,
+              "boardMin": 56,
+              "boardEnd": 100,
+              "review": "Board delighted"
+            },
+            {
+              "seed": 2,
+              "tier": "mid",
+              "cashEnd": 281522,
+              "cashDelta": 171522,
+              "cashMin": 117389,
+              "insolventWeeks": 0,
+              "boardMin": 16,
+              "boardEnd": 64,
+              "review": "none"
+            },
+            {
+              "seed": 3,
+              "tier": "low",
+              "cashEnd": 745808,
+              "cashDelta": 625808,
+              "cashMin": 123522,
+              "insolventWeeks": 0,
+              "boardMin": 60,
+              "boardEnd": 100,
+              "review": "Board delighted"
+            }
+          ]
+        },
+        {
+          "season": 2,
+          "aiAdministrations": 136,
+          "aiAdministrationsPerCareer": [
+            41,
+            52,
+            43
+          ],
+          "aiAdministrationsMaxPerClub": 3,
+          "aiMinRoster": 3,
+          "aiShortClubWeeks": 46,
+          "aiInsolventClubWeeks": 1071,
+          "aiNegativeCashAtSeasonEnd": 29,
+          "aiCashDeltaMedianByEloTier": {
+            "S_TIER": -4824,
+            "A_TIER": -20902,
+            "B_TIER": -23505
+          },
+          "aiCashDeltaMedianByDivision": {
+            "1": 59404,
+            "2": 1792,
+            "3": -12974,
+            "4": -9516,
+            "5": -40902,
+            "6": -12520,
+            "7": -29769,
+            "8": -22334,
+            "9": -25979
+          },
+          "aiWageBillMedianByEloTier": {
+            "S_TIER": {
+              "start": 9896,
+              "end": 10774
+            },
+            "A_TIER": {
+              "start": 4522,
+              "end": 5097
+            },
+            "B_TIER": {
+              "start": 3533,
+              "end": 4209
+            }
+          },
+          "signedContractWageMedian": 600,
+          "signedContractWageP90": 4404,
+          "freeAgents": 223,
+          "managed": [
+            {
+              "seed": 1,
+              "tier": "top",
+              "cashEnd": 5631299,
+              "cashDelta": 1916382,
+              "cashMin": 3700483,
+              "insolventWeeks": 0,
+              "boardMin": 98,
+              "boardEnd": 100,
+              "review": "Board delighted"
+            },
+            {
+              "seed": 2,
+              "tier": "mid",
+              "cashEnd": 330280,
+              "cashDelta": 48758,
+              "cashMin": -48383,
+              "insolventWeeks": 8,
+              "boardMin": 44,
+              "boardEnd": 44,
+              "review": "Board concerned"
+            },
+            {
+              "seed": 3,
+              "tier": "low",
+              "cashEnd": 1170748,
+              "cashDelta": 424940,
+              "cashMin": 724456,
+              "insolventWeeks": 0,
+              "boardMin": 83,
+              "boardEnd": 83,
+              "review": "Board furious"
+            }
+          ]
+        },
+        {
+          "season": 3,
+          "aiAdministrations": 234,
+          "aiAdministrationsPerCareer": [
+            75,
+            76,
+            83
+          ],
+          "aiAdministrationsMaxPerClub": 3,
+          "aiMinRoster": 1,
+          "aiShortClubWeeks": 5023,
+          "aiInsolventClubWeeks": 1914,
+          "aiNegativeCashAtSeasonEnd": 26,
+          "aiCashDeltaMedianByEloTier": {
+            "S_TIER": -7408,
+            "A_TIER": -18950,
+            "B_TIER": -16028
+          },
+          "aiCashDeltaMedianByDivision": {
+            "1": 74226,
+            "2": -12605,
+            "3": -18159,
+            "4": -13090,
+            "5": -14291,
+            "6": -9460,
+            "7": -13465,
+            "8": -19108,
+            "9": -18699
+          },
+          "aiWageBillMedianByEloTier": {
+            "S_TIER": {
+              "start": 8971,
+              "end": 8732
+            },
+            "A_TIER": {
+              "start": 5044,
+              "end": 5064
+            },
+            "B_TIER": {
+              "start": 4201,
+              "end": 4222
+            }
+          },
+          "signedContractWageMedian": 1099,
+          "signedContractWageP90": 4557,
+          "freeAgents": 311,
+          "managed": [
+            {
+              "seed": 1,
+              "tier": "top",
+              "cashEnd": 8170560,
+              "cashDelta": 2539261,
+              "cashMin": 5636742,
+              "insolventWeeks": 0,
+              "boardMin": 95,
+              "boardEnd": 100,
+              "review": "Board delighted"
+            },
+            {
+              "seed": 2,
+              "tier": "mid",
+              "cashEnd": 257025,
+              "cashDelta": -93255,
+              "cashMin": 257025,
+              "insolventWeeks": 0,
+              "boardMin": 58,
+              "boardEnd": 100,
+              "review": "Board delighted"
+            },
+            {
+              "seed": 3,
+              "tier": "low",
+              "cashEnd": 1503940,
+              "cashDelta": 333192,
+              "cashMin": 1173675,
+              "insolventWeeks": 0,
+              "boardMin": 82,
+              "boardEnd": 100,
+              "review": "Board satisfied"
+            }
+          ]
+        },
+        {
+          "season": 4,
+          "aiAdministrations": 277,
+          "aiAdministrationsPerCareer": [
+            96,
+            91,
+            90
+          ],
+          "aiAdministrationsMaxPerClub": 3,
+          "aiMinRoster": 1,
+          "aiShortClubWeeks": 13047,
+          "aiInsolventClubWeeks": 2313,
+          "aiNegativeCashAtSeasonEnd": 31,
+          "aiCashDeltaMedianByEloTier": {
+            "S_TIER": -5938,
+            "A_TIER": -14216,
+            "B_TIER": -2375
+          },
+          "aiCashDeltaMedianByDivision": {
+            "1": 56055,
+            "2": -57913,
+            "3": -14367,
+            "4": -11266,
+            "5": -9138,
+            "6": -19408,
+            "7": -12662,
+            "8": -11282,
+            "9": -2610
+          },
+          "aiWageBillMedianByEloTier": {
+            "S_TIER": {
+              "start": 8266,
+              "end": 8560
+            },
+            "A_TIER": {
+              "start": 5141,
+              "end": 5107
+            },
+            "B_TIER": {
+              "start": 4377,
+              "end": 4141
+            }
+          },
+          "signedContractWageMedian": 1623,
+          "signedContractWageP90": 4856,
+          "freeAgents": 257,
+          "managed": [
+            {
+              "seed": 1,
+              "tier": "top",
+              "cashEnd": 10952514,
+              "cashDelta": 2781954,
+              "cashMin": 8176816,
+              "insolventWeeks": 0,
+              "boardMin": 96,
+              "boardEnd": 100,
+              "review": "Board delighted"
+            },
+            {
+              "seed": 2,
+              "tier": "mid",
+              "cashEnd": 1133900,
+              "cashDelta": 876875,
+              "cashMin": -49194,
+              "insolventWeeks": 8,
+              "boardMin": 52,
+              "boardEnd": 60,
+              "review": "none"
+            },
+            {
+              "seed": 3,
+              "tier": "low",
+              "cashEnd": 3736420,
+              "cashDelta": 2232480,
+              "cashMin": 1517818,
+              "insolventWeeks": 0,
+              "boardMin": 99,
+              "boardEnd": 100,
+              "review": "Board delighted"
+            }
+          ]
+        }
+      ],
+      "managedTerminalEvents": [
+        {
+          "seed": 1,
+          "tier": "top",
+          "sackings": 0,
+          "bankruptcies": 0,
+          "jobChanges": 0,
+          "forfeits": 8
+        },
+        {
+          "seed": 2,
+          "tier": "mid",
+          "sackings": 0,
+          "bankruptcies": 2,
+          "jobChanges": 1,
+          "forfeits": 3
+        },
+        {
+          "seed": 3,
+          "tier": "low",
+          "sackings": 0,
+          "bankruptcies": 0,
+          "jobChanges": 0,
+          "forfeits": 6
+        }
+      ]
+    }
+  },
+  "weekProcessing": {
+    "processWeekMsPerWeek": 82.3,
+    "aiWorldLogicMsPerWeek": 30,
+    "aiAdministrationStepMsPerWeek": 0.2,
+    "campaignTickMsMedian": 1071,
+    "campaignTickMsP90": 1455,
+    "profileCpuSeconds": 67.2,
+    "method": "CPU profile (node --cpu-prof) of one campaign worker, seed 1 (top club), one season, no other load; engine at 92ab8a90 vs this branch. processWeek = AtomicWeekProcessor.processWeek inclusive time per week; the campaign tick also includes the harness (save snapshots, structuredClone, invariant scans)."
+  }
+}
