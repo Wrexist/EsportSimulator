@@ -184,7 +184,7 @@ describe("processWeeklyLegendEvents — news body reaches the UI", () => {
             const v1 = rng.next()
             const v2 = rng.next()
             if (v1 >= 0.02 && v2 < 0.005) {
-                const save = makeSave()
+                const save = makeSave({ teams: [makeTeam("player", { rosterIds: ["p1", "p2"], budget: 2_000_000 })] })
                 LegendEventsManager.processWeeklyLegendEvents(save, "player", new SeededRNG(seed))
                 const evt = save.eventsLog.find(e => e.id.startsWith("legend_coach_opportunity_"))
                 if (!evt) continue
@@ -212,7 +212,7 @@ describe("processWeeklyLegendEvents — Coach Opportunity", () => {
             const v1 = rng.next()
             const v2 = rng.next()
             if (v1 >= 0.02 && v2 < 0.005) {
-                const save = makeSave()
+                const save = makeSave({ teams: [makeTeam("player", { rosterIds: ["p1", "p2"], budget: 2_000_000 })] })
                 LegendEventsManager.processWeeklyLegendEvents(save, "player", new SeededRNG(seed))
                 const evt = save.eventsLog.find(e => e.id.startsWith("legend_coach_opportunity_"))
                 if (!evt) continue
@@ -230,5 +230,31 @@ describe("processWeeklyLegendEvents — Coach Opportunity", () => {
             }
         }
         expect(found).toBe(true)
+    })
+})
+
+describe("processWeeklyLegendEvents — Coach Opportunity affordability", () => {
+    function coachSeed(): number {
+        for (let seed = 1; seed < 50_000; seed++) {
+            const rng = new SeededRNG(seed)
+            if (rng.next() >= 0.02 && rng.next() < 0.005) return seed
+        }
+        throw new Error("No suitable seed in range")
+    }
+
+    test("a club that cannot carry the wage for half a season gets no offer", () => {
+        const save = makeSave({ teams: [makeTeam("player", { rosterIds: ["p1", "p2"], budget: 100_000 })] })
+        LegendEventsManager.processWeeklyLegendEvents(save, "player", new SeededRNG(coachSeed()))
+        expect(save.eventsLog.some(e => e.id.startsWith("legend_coach_opportunity_"))).toBe(false)
+    })
+
+    test("the offer states the weekly cost and what it does to the club's money", () => {
+        const save = makeSave({ teams: [makeTeam("player", { rosterIds: ["p1", "p2"], budget: 2_000_000 })] })
+        LegendEventsManager.processWeeklyLegendEvents(save, "player", new SeededRNG(coachSeed()))
+        const evt = save.eventsLog.find(e => e.id.startsWith("legend_coach_opportunity_"))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const message = (evt as any)?.data?.message as string
+        expect(message).toContain("$15,000 a week")
+        expect(message).toMatch(/would (still make|lose)/)
     })
 })
