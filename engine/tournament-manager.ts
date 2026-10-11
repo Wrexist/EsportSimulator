@@ -14,6 +14,7 @@ import { LeagueEngine } from "./league-engine"
 import { STAFF_EFFECTS } from "@/types"
 import { QualificationEngine } from "./tournament-qualification"
 import { getTournamentMVP } from "./tournament-stats"
+import { recordOfficialMatch } from "./official-stats"
 import { getSeasonFromWeek, resolveTournamentIdentity } from "./circuit-engine"
 import { buildSaveIndexes, buildBracketIndex, type SaveIndexes } from "@/store/indexes"
 import type { TournamentDefinition } from "@/data/tournament-calendar"
@@ -520,6 +521,7 @@ export class TournamentManager {
                     analysis: MatchAnalyzer.analyze(matchForSim, result, homeTeam.name, awayTeam.name, homePlayers, awayPlayers)
                 }
                 save.completedMatches.push(completedMatch)
+                recordOfficialMatch(save, completedMatch, result, { player: id => idx.playerIndex.get(id), team: id => idx.teamIndex.get(id), tournamentTier: tournament.tier })
 
                 // Remove from scheduled if present
                 save.scheduledMatches = save.scheduledMatches.filter(m => m.id !== bracketMatch.id)
@@ -609,6 +611,7 @@ export class TournamentManager {
             }
 
             save.completedMatches.push(completedMatch)
+            recordOfficialMatch(save, completedMatch, result, { player: id => idx.playerIndex.get(id), team: id => idx.teamIndex.get(id), tournamentTier: tournament.tier })
             save.scheduledMatches = save.scheduledMatches.filter(m => m.id !== match.id)
 
             const winnerId = result.homeScore > result.awayScore ? homeTeam.id : awayTeam.id
@@ -777,6 +780,7 @@ export class TournamentManager {
             analysis: MatchAnalyzer.analyze(matchForSim, result, homeTeam.name, awayTeam.name, homePlayers, awayPlayers)
         }
         save.completedMatches.push(completedMatch)
+        recordOfficialMatch(save, completedMatch, result, { player: id => idx.playerIndex.get(id), team: id => idx.teamIndex.get(id), tournamentTier: tournament.tier })
 
         // Remove from scheduled if it was there
         save.scheduledMatches = save.scheduledMatches.filter(m => m.id !== bracketMatch.id)

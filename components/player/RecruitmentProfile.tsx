@@ -15,6 +15,7 @@ import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { Panel } from "@/src/components/ui/Panel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { formatCurrency } from "@/lib/utils-extended"
+import { PlayerCareerRecord } from "./PlayerCareerRecord"
 
 const ATTRIBUTES = [
     ["skill", "Aim"], ["rifle", "Rifle"], ["awp", "AWP"], ["pistol", "Pistol"], ["grenades", "Utility"], ["clutch", "Clutch"],
@@ -161,6 +162,7 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
                         Ranges are estimates. A better scout narrows them and an elite report shows every attribute. Wage and length are settled in negotiation; after signing, pick your starting five in Squad.
                     </p>
                 </Panel>
+                <PlayerCareerRecord player={player} />
                 <p className="text-sm text-ink-3">
                     Looking for more options? <Link href="/scouting" className="font-semibold text-ink-2 hover:text-gold">Open scouting</Link>
                 </p>

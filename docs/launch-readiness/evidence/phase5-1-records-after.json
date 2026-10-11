@@ -1,0 +1,1031 @@
+{
+  "generated": "2026-10-11T11:53:19.392Z",
+  "label": "p51-after",
+  "out": "after",
+  "driver": "long-career-campaign.ts worker (real useGameStore coordinator, full snapshot world, competent policy), one season (52 ticks, ends in week 53 after the season closed), final save kept with --dump-final.",
+  "seeds": 3,
+  "aggregate": {
+    "regulars": 3023,
+    "regularsWithZeroAvgRating": 0,
+    "avgRatingMeanPerSeed": [
+      0.985,
+      0.986,
+      0.984
+    ],
+    "avgRatingMeanAcrossSeeds": 0.985,
+    "managedMvpIsFirstRosterPlayer": [
+      false,
+      false,
+      true
+    ],
+    "managedMvpIsBestClubSeasonRating": [
+      true,
+      true,
+      true
+    ],
+    "worldSeasonMvp": [
+      "dunk",
+      "Zywou",
+      "Zywou"
+    ],
+    "worldSeasonMvpIsManagedFirstRosterPlayer": [
+      false,
+      false,
+      false
+    ],
+    "awardsWithMajorWinsWithoutAMajorClub": 0,
+    "saveLoadRoundTripIdentical": [
+      true,
+      true,
+      true
+    ],
+    "hallOfFameInducted": [
+      0,
+      0,
+      0
+    ],
+    "saveBytes": [
+      11931953,
+      11843117,
+      12327376
+    ]
+  },
+  "performance": {
+    "source": "docs/launch-readiness/evidence/phase5-1-records-perf-steps.txt",
+    "ticks": 54,
+    "tickMs": 48043.3,
+    "recordOfficialMatch": {
+      "count": 4921,
+      "totalMs": 1033.5
+    },
+    "msPerTick": 19.14,
+    "shareOfTickTime": 0.0215,
+    "shareOfMatchStep": 0.038
+  },
+  "perSeed": [
+    {
+      "tag": "seed-1-top",
+      "seed": 1,
+      "tier": "top",
+      "club": "Natus Vincera",
+      "finalWeek": 53,
+      "phase51": true,
+      "determinism": {
+        "saveLoadRoundTripIdentical": true,
+        "failures": []
+      },
+      "regulars": {
+        "definition": "20+ official maps in season 1",
+        "count": 1009,
+        "avgRatingZero": 0,
+        "avgRatingMean": 0.985,
+        "avgRating": {
+          "n": 1009,
+          "finite": 1009,
+          "min": 0.6985,
+          "p10": 0.85856,
+          "median": 0.9733,
+          "p90": 1.13274,
+          "max": 1.5098
+        },
+        "seasonRatingMean": 0.985,
+        "roundsPlayedZero": 0,
+        "mapsPlayed": {
+          "n": 1009,
+          "finite": 1009,
+          "min": 20,
+          "p10": 34,
+          "median": 44,
+          "p90": 94,
+          "max": 160
+        }
+      },
+      "managedClubSeasonMvp": {
+        "club": "Natus Vincera",
+        "seasonRecord": {
+          "matches": 81,
+          "wins": 33,
+          "losses": 48
+        },
+        "mvp": {
+          "id": "player_8_natoz_ixm",
+          "nickname": "iMM",
+          "avgRating": 1.015,
+          "seasonRating": 1.01,
+          "seasonMaps": 106
+        },
+        "firstRosterPlayer": "b1tt",
+        "isFirstRosterPlayer": false,
+        "clubPlayersBySeasonRating": [
+          {
+            "nickname": "AleksiV",
+            "maps": 1,
+            "rating": 1.02
+          },
+          {
+            "nickname": "iMM",
+            "maps": 106,
+            "rating": 1.01
+          },
+          {
+            "nickname": "w0nder",
+            "maps": 106,
+            "rating": 0.99
+          },
+          {
+            "nickname": "nio",
+            "maps": 105,
+            "rating": 0.99
+          },
+          {
+            "nickname": "mekazze",
+            "maps": 106,
+            "rating": 0.88
+          },
+          {
+            "nickname": "b1tt",
+            "maps": 106,
+            "rating": 0.85
+          }
+        ]
+      },
+      "worldAwards": {
+        "minMaps": 20,
+        "ranked": 1009,
+        "mvp": {
+          "name": "dunk",
+          "club": "Spiryt",
+          "rating": 1.32,
+          "score": 1.257,
+          "maps": 160,
+          "titles": 4
+        },
+        "rookie": {
+          "name": "dunk",
+          "age": 19,
+          "rating": 1.32,
+          "maps": 160
+        },
+        "teamOfSeason": [
+          "gr1ksx (AWPER, 1.31)",
+          "Lybraa (IGL, 1.21)",
+          "dunk (ENTRY_FRAGGER, 1.32)",
+          "blemeF (RIFLER, 1.26)",
+          "Breve (SUPPORT, 1.22)"
+        ],
+        "top5": [
+          {
+            "rank": 1,
+            "name": "dunk",
+            "club": "Spiryt",
+            "rating": 1.32,
+            "score": 1.257,
+            "maps": 160,
+            "majors": 0
+          },
+          {
+            "rank": 2,
+            "name": "gr1ksx",
+            "club": "BIGG",
+            "rating": 1.31,
+            "score": 1.231,
+            "maps": 107,
+            "majors": 0
+          },
+          {
+            "rank": 3,
+            "name": "Zywou",
+            "club": "Vitalis",
+            "rating": 1.27,
+            "score": 1.203,
+            "maps": 120,
+            "majors": 0
+          },
+          {
+            "rank": 4,
+            "name": "m0nesi",
+            "club": "Falcone",
+            "rating": 1.27,
+            "score": 1.194,
+            "maps": 121,
+            "majors": 0
+          },
+          {
+            "rank": 5,
+            "name": "Lybraa",
+            "club": "Furiax",
+            "rating": 1.21,
+            "score": 1.182,
+            "maps": 84,
+            "majors": 0
+          }
+        ],
+        "titles": 48,
+        "majorsWon": [
+          "Northern Major 2025 → Furiax",
+          "Eastern Major 2025 → Futura"
+        ],
+        "userClub": {
+          "teamId": "Natus Vincera",
+          "finalLeaguePosition": {
+            "position": 5,
+            "of": 11,
+            "division": "Europe Division 1",
+            "level": 1,
+            "split": 2
+          },
+          "tierMove": "relegated",
+          "tierFrom": "S_TIER",
+          "tierTo": "B_TIER",
+          "trophies": [],
+          "bestPlayer": "iMM",
+          "biggestWin": {
+            "value": 13,
+            "who": "Natus Vincera",
+            "club": "Natus Vincera",
+            "vs": "Fryendly Campers",
+            "week": 23,
+            "map": null,
+            "score": "2-0",
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "worstLoss": {
+            "value": 20,
+            "who": "Natus Vincera",
+            "club": "Natus Vincera",
+            "vs": "Furiax",
+            "week": 36,
+            "map": null,
+            "score": "1-2",
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "record": {
+            "wins": 31,
+            "losses": 47
+          }
+        }
+      },
+      "awardsEvent": {
+        "year": 1,
+        "fields": [
+          "adr",
+          "age",
+          "deaths",
+          "isPlayerTeam",
+          "kills",
+          "kpr",
+          "majorWins",
+          "mapsPlayed",
+          "mvpCount",
+          "nationality",
+          "nickname",
+          "playerId",
+          "playerName",
+          "portraitPath",
+          "rank",
+          "rating",
+          "revealDay",
+          "role",
+          "score",
+          "teamId",
+          "teamLogo",
+          "teamName",
+          "titles"
+        ],
+        "top20MajorWinsTotal": 2,
+        "top20MajorWinsWithoutAMajorClub": 0,
+        "top20Evps": 0,
+        "first": {
+          "nickname": "dunk",
+          "rating": 1.32,
+          "maps": 160
+        }
+      },
+      "records": {
+        "world": {
+          "bestMapRating": {
+            "value": 2.96,
+            "who": "swirzieN",
+            "club": "Myndfreak",
+            "vs": "Lynne Vision",
+            "week": 43,
+            "map": "Vertigo",
+            "score": null,
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "mostMapKills": {
+            "value": 53,
+            "who": "dgtx",
+            "club": "9Zed",
+            "vs": "Futura",
+            "week": 37,
+            "map": "Anubis",
+            "score": null,
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "biggestWin": {
+            "value": 13,
+            "who": "SYNNERS",
+            "club": "SYNNERS",
+            "vs": "500x",
+            "week": 5,
+            "map": "Overpass",
+            "score": "13-0",
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "longestWinStreak": {
+            "value": 21,
+            "who": "Elliance",
+            "club": "Elliance",
+            "vs": "GinOne",
+            "week": 41,
+            "map": null,
+            "score": null,
+            "fromWeek": 30,
+            "endedBy": "Spiryt"
+          }
+        },
+        "clubsWithRecords": 198
+      },
+      "hallOfFame": {
+        "inducted": 0,
+        "withCareer": 0
+      },
+      "manager": {
+        "reputation": 2,
+        "reputationLog": [
+          {
+            "week": 52,
+            "delta": 2,
+            "cause": "Season 1 board review: expectations met"
+          }
+        ],
+        "stints": [
+          {
+            "club": "Natus Vincera",
+            "from": 1,
+            "to": null,
+            "wl": "31-47",
+            "titles": 0,
+            "ended": null
+          }
+        ]
+      },
+      "saveBytes": 11931953,
+      "recordBookBytes": 189167,
+      "nameCheck": true
+    },
+    {
+      "tag": "seed-2-mid",
+      "seed": 2,
+      "tier": "mid",
+      "club": "Floxo",
+      "finalWeek": 53,
+      "phase51": true,
+      "determinism": {
+        "saveLoadRoundTripIdentical": true,
+        "failures": []
+      },
+      "regulars": {
+        "definition": "20+ official maps in season 1",
+        "count": 1007,
+        "avgRatingZero": 0,
+        "avgRatingMean": 0.986,
+        "avgRating": {
+          "n": 1007,
+          "finite": 1007,
+          "min": 0.7077,
+          "p10": 0.8591599999999999,
+          "median": 0.9711,
+          "p90": 1.13438,
+          "max": 1.5633
+        },
+        "seasonRatingMean": 0.986,
+        "roundsPlayedZero": 0,
+        "mapsPlayed": {
+          "n": 1007,
+          "finite": 1007,
+          "min": 20,
+          "p10": 32,
+          "median": 45,
+          "p90": 94,
+          "max": 180
+        }
+      },
+      "managedClubSeasonMvp": {
+        "club": "Floxo",
+        "seasonRecord": {
+          "matches": 70,
+          "wins": 22,
+          "losses": 48
+        },
+        "mvp": {
+          "id": "player_66_fluxion_dekenty",
+          "nickname": "dicenty",
+          "avgRating": 0.979,
+          "seasonRating": 0.98,
+          "seasonMaps": 85
+        },
+        "firstRosterPlayer": "erT",
+        "isFirstRosterPlayer": false,
+        "clubPlayersBySeasonRating": [
+          {
+            "nickname": "dicenty",
+            "maps": 85,
+            "rating": 0.98
+          },
+          {
+            "nickname": "kyi",
+            "maps": 85,
+            "rating": 0.93
+          },
+          {
+            "nickname": "erT",
+            "maps": 85,
+            "rating": 0.9
+          },
+          {
+            "nickname": "Locaozy",
+            "maps": 85,
+            "rating": 0.84
+          },
+          {
+            "nickname": "ixit",
+            "maps": 85,
+            "rating": 0.8
+          }
+        ]
+      },
+      "worldAwards": {
+        "minMaps": 20,
+        "ranked": 1007,
+        "mvp": {
+          "name": "Zywou",
+          "club": "Vitalis",
+          "rating": 1.34,
+          "score": 1.235,
+          "maps": 148,
+          "titles": 3
+        },
+        "rookie": {
+          "name": "dunk",
+          "age": 19,
+          "rating": 1.26,
+          "maps": 180
+        },
+        "teamOfSeason": [
+          "Zywou (AWPER, 1.34)",
+          "w1sily (IGL, 1.39)",
+          "dunk (ENTRY_FRAGGER, 1.26)",
+          "m0nesi (RIFLER, 1.23)",
+          "kl1mx (RIFLER, 1.22)"
+        ],
+        "top5": [
+          {
+            "rank": 1,
+            "name": "Zywou",
+            "club": "Vitalis",
+            "rating": 1.34,
+            "score": 1.235,
+            "maps": 148,
+            "majors": 0
+          },
+          {
+            "rank": 2,
+            "name": "w1sily",
+            "club": "Diep Cross",
+            "rating": 1.39,
+            "score": 1.2,
+            "maps": 105,
+            "majors": 0
+          },
+          {
+            "rank": 3,
+            "name": "dunk",
+            "club": "Spiryt",
+            "rating": 1.26,
+            "score": 1.176,
+            "maps": 180,
+            "majors": 0
+          },
+          {
+            "rank": 4,
+            "name": "Elkaren",
+            "club": "Heroiq",
+            "rating": 1.24,
+            "score": 1.176,
+            "maps": 139,
+            "majors": 0
+          },
+          {
+            "rank": 5,
+            "name": "m0nesi",
+            "club": "Falcone",
+            "rating": 1.23,
+            "score": 1.162,
+            "maps": 120,
+            "majors": 1
+          }
+        ],
+        "titles": 48,
+        "majorsWon": [
+          "Northern Major 2025 → Falcone",
+          "Eastern Major 2025 → Sherks"
+        ],
+        "userClub": {
+          "teamId": "Ligion",
+          "finalLeaguePosition": {
+            "position": 1,
+            "of": 11,
+            "division": "Asia-Pacific Division 2",
+            "level": 2,
+            "split": 2
+          },
+          "tierMove": "none",
+          "tierFrom": "C_TIER",
+          "tierTo": "C_TIER",
+          "trophies": [],
+          "bestPlayer": "hfx",
+          "biggestWin": {
+            "value": 13,
+            "who": "Ligion",
+            "club": "Ligion",
+            "vs": "The Mongalz",
+            "week": 47,
+            "map": "Overpass",
+            "score": "13-0",
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "worstLoss": {
+            "value": 6,
+            "who": "Ligion",
+            "club": "Ligion",
+            "vs": "FingDa",
+            "week": 39,
+            "map": "Ancient",
+            "score": "7-13",
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "record": {
+            "wins": 8,
+            "losses": 2
+          }
+        }
+      },
+      "awardsEvent": {
+        "year": 1,
+        "fields": [
+          "adr",
+          "age",
+          "deaths",
+          "isPlayerTeam",
+          "kills",
+          "kpr",
+          "majorWins",
+          "mapsPlayed",
+          "mvpCount",
+          "nationality",
+          "nickname",
+          "playerId",
+          "playerName",
+          "portraitPath",
+          "rank",
+          "rating",
+          "revealDay",
+          "role",
+          "score",
+          "teamId",
+          "teamLogo",
+          "teamName",
+          "titles"
+        ],
+        "top20MajorWinsTotal": 2,
+        "top20MajorWinsWithoutAMajorClub": 0,
+        "top20Evps": 0,
+        "first": {
+          "nickname": "Zywou",
+          "rating": 1.34,
+          "maps": 148
+        }
+      },
+      "records": {
+        "world": {
+          "bestMapRating": {
+            "value": 3,
+            "who": "Zywou",
+            "club": "Vitalis",
+            "vs": "Phaze",
+            "week": 11,
+            "map": "Overpass",
+            "score": null,
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "mostMapKills": {
+            "value": 52,
+            "who": "Zywou",
+            "club": "Vitalis",
+            "vs": "Sherks",
+            "week": 30,
+            "map": "Vertigo",
+            "score": null,
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "biggestWin": {
+            "value": 13,
+            "who": "BetBloom",
+            "club": "BetBloom",
+            "vs": "B9",
+            "week": 2,
+            "map": "Anubis",
+            "score": "13-0",
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "longestWinStreak": {
+            "value": 18,
+            "who": "Mynsk House",
+            "club": "Mynsk House",
+            "vs": "Orsa",
+            "week": 28,
+            "map": null,
+            "score": null,
+            "fromWeek": 5,
+            "endedBy": "Uxuji"
+          }
+        },
+        "clubsWithRecords": 198
+      },
+      "hallOfFame": {
+        "inducted": 0,
+        "withCareer": 0
+      },
+      "manager": {
+        "reputation": 2,
+        "reputationLog": [
+          {
+            "week": 52,
+            "delta": 2,
+            "cause": "Season 1 board review: expectations met"
+          }
+        ],
+        "stints": [
+          {
+            "club": "Floxo",
+            "from": 1,
+            "to": 37,
+            "wl": "22-45",
+            "titles": 0,
+            "ended": "moved"
+          },
+          {
+            "club": "Ligion",
+            "from": 38,
+            "to": null,
+            "wl": "8-2",
+            "titles": 0,
+            "ended": null
+          }
+        ]
+      },
+      "saveBytes": 11843117,
+      "recordBookBytes": 188867,
+      "nameCheck": true
+    },
+    {
+      "tag": "seed-3-low",
+      "seed": 3,
+      "tier": "low",
+      "club": "LEG",
+      "finalWeek": 53,
+      "phase51": true,
+      "determinism": {
+        "saveLoadRoundTripIdentical": true,
+        "failures": []
+      },
+      "regulars": {
+        "definition": "20+ official maps in season 1",
+        "count": 1007,
+        "avgRatingZero": 0,
+        "avgRatingMean": 0.984,
+        "avgRating": {
+          "n": 1007,
+          "finite": 1007,
+          "min": 0.6995,
+          "p10": 0.85792,
+          "median": 0.9733,
+          "p90": 1.12064,
+          "max": 1.6456
+        },
+        "seasonRatingMean": 0.984,
+        "roundsPlayedZero": 0,
+        "mapsPlayed": {
+          "n": 1007,
+          "finite": 1007,
+          "min": 20,
+          "p10": 32,
+          "median": 41,
+          "p90": 92.39999999999998,
+          "max": 188
+        }
+      },
+      "managedClubSeasonMvp": {
+        "club": "LEG",
+        "seasonRecord": {
+          "matches": 80,
+          "wins": 61,
+          "losses": 19
+        },
+        "mvp": {
+          "id": "player_144_legor_konsti",
+          "nickname": "cunsti",
+          "avgRating": 1.255,
+          "seasonRating": 1.26,
+          "seasonMaps": 118
+        },
+        "firstRosterPlayer": "cunsti",
+        "isFirstRosterPlayer": true,
+        "clubPlayersBySeasonRating": [
+          {
+            "nickname": "cunsti",
+            "maps": 118,
+            "rating": 1.26
+          },
+          {
+            "nickname": "Wulffe",
+            "maps": 118,
+            "rating": 1.11
+          },
+          {
+            "nickname": "kmrnx",
+            "maps": 118,
+            "rating": 1.09
+          },
+          {
+            "nickname": "Sendman",
+            "maps": 118,
+            "rating": 1.07
+          },
+          {
+            "nickname": "djey",
+            "maps": 118,
+            "rating": 0.95
+          }
+        ]
+      },
+      "worldAwards": {
+        "minMaps": 20,
+        "ranked": 1007,
+        "mvp": {
+          "name": "Zywou",
+          "club": "Vitalis",
+          "rating": 1.33,
+          "score": 1.241,
+          "maps": 155,
+          "titles": 2
+        },
+        "rookie": {
+          "name": "dunk",
+          "age": 19,
+          "rating": 1.28,
+          "maps": 178
+        },
+        "teamOfSeason": [
+          "Zywou (AWPER, 1.33)",
+          "Lybraa (IGL, 1.28)",
+          "blemeF (RIFLER, 1.30)",
+          "dunk (ENTRY_FRAGGER, 1.28)",
+          "Lyazz (RIFLER, 1.34)"
+        ],
+        "top5": [
+          {
+            "rank": 1,
+            "name": "Zywou",
+            "club": "Vitalis",
+            "rating": 1.33,
+            "score": 1.241,
+            "maps": 155,
+            "majors": 0
+          },
+          {
+            "rank": 2,
+            "name": "Lybraa",
+            "club": "Mersborne",
+            "rating": 1.28,
+            "score": 1.213,
+            "maps": 112,
+            "majors": 0
+          },
+          {
+            "rank": 3,
+            "name": "blemeF",
+            "club": "BIGG",
+            "rating": 1.3,
+            "score": 1.209,
+            "maps": 185,
+            "majors": 0
+          },
+          {
+            "rank": 4,
+            "name": "dunk",
+            "club": "Spiryt",
+            "rating": 1.28,
+            "score": 1.199,
+            "maps": 178,
+            "majors": 0
+          },
+          {
+            "rank": 5,
+            "name": "gr1ksx",
+            "club": "BIGG",
+            "rating": 1.28,
+            "score": 1.192,
+            "maps": 185,
+            "majors": 0
+          }
+        ],
+        "titles": 48,
+        "majorsWon": [
+          "Northern Major 2025 → Natus Vincera",
+          "Eastern Major 2025 → Phaze"
+        ],
+        "userClub": {
+          "teamId": "LEG",
+          "finalLeaguePosition": {
+            "position": 1,
+            "of": 10,
+            "division": "Americas Division 2",
+            "level": 2,
+            "split": 2
+          },
+          "tierMove": "promoted",
+          "tierFrom": "C_TIER",
+          "tierTo": "A_TIER",
+          "trophies": [
+            {
+              "tournamentId": "weplay_academy_s1",
+              "name": "PlayOn Academy League",
+              "tier": "C_TIER",
+              "teamId": "team_144_legor",
+              "week": 23
+            },
+            {
+              "tournamentId": "gamers8_riyadh_s1",
+              "name": "Gamers Infinity Riyadh 2025",
+              "tier": "C_TIER",
+              "teamId": "team_144_legor",
+              "week": 46
+            }
+          ],
+          "bestPlayer": "cunsti",
+          "biggestWin": {
+            "value": 22,
+            "who": "LEG",
+            "club": "LEG",
+            "vs": "RID Canids",
+            "week": 43,
+            "map": null,
+            "score": "2-0",
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "worstLoss": {
+            "value": 20,
+            "who": "LEG",
+            "club": "LEG",
+            "vs": "Trycked",
+            "week": 37,
+            "map": null,
+            "score": "1-3",
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "record": {
+            "wins": 59,
+            "losses": 18
+          }
+        }
+      },
+      "awardsEvent": {
+        "year": 1,
+        "fields": [
+          "adr",
+          "age",
+          "deaths",
+          "isPlayerTeam",
+          "kills",
+          "kpr",
+          "majorWins",
+          "mapsPlayed",
+          "mvpCount",
+          "nationality",
+          "nickname",
+          "playerId",
+          "playerName",
+          "portraitPath",
+          "rank",
+          "rating",
+          "revealDay",
+          "role",
+          "score",
+          "teamId",
+          "teamLogo",
+          "teamName",
+          "titles"
+        ],
+        "top20MajorWinsTotal": 0,
+        "top20MajorWinsWithoutAMajorClub": 0,
+        "top20Evps": 0,
+        "first": {
+          "nickname": "Zywou",
+          "rating": 1.33,
+          "maps": 155
+        }
+      },
+      "records": {
+        "world": {
+          "bestMapRating": {
+            "value": 3,
+            "who": "WulfY",
+            "club": "Mersborne",
+            "vs": "Auroria",
+            "week": 25,
+            "map": "Overpass",
+            "score": null,
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "mostMapKills": {
+            "value": 48,
+            "who": "jonior2",
+            "club": "SkynRave",
+            "vs": "STETE",
+            "week": 2,
+            "map": "Inferno",
+            "score": null,
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "biggestWin": {
+            "value": 13,
+            "who": "CSDYILIT",
+            "club": "CSDYILIT",
+            "vs": "BYG EQUIPA",
+            "week": 2,
+            "map": "Anubis",
+            "score": "13-0",
+            "fromWeek": null,
+            "endedBy": null
+          },
+          "longestWinStreak": {
+            "value": 26,
+            "who": "THONDER dOWNUNDER",
+            "club": "THONDER dOWNUNDER",
+            "vs": "BIGG",
+            "week": 51,
+            "map": null,
+            "score": null,
+            "fromWeek": 38,
+            "endedBy": null
+          }
+        },
+        "clubsWithRecords": 198
+      },
+      "hallOfFame": {
+        "inducted": 0,
+        "withCareer": 0
+      },
+      "manager": {
+        "reputation": 6,
+        "reputationLog": [
+          {
+            "week": 52,
+            "delta": 6,
+            "cause": "Season 1 board review: expectations exceeded"
+          }
+        ],
+        "stints": [
+          {
+            "club": "LEG",
+            "from": 1,
+            "to": null,
+            "wl": "59-18",
+            "titles": 2,
+            "ended": null
+          }
+        ]
+      },
+      "saveBytes": 12327376,
+      "recordBookBytes": 188664,
+      "nameCheck": true
+    }
+  ]
+}

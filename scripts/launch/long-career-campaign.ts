@@ -12,6 +12,8 @@
  *   npm run campaign:long -- --seeds=30 --seasons=10 --parallel=3
  *   npm run campaign:long -- --worker --seed=1 --seasons=1     (one career)
  *   npm run campaign:long -- --aggregate                       (rebuild summary)
+ *   npm run campaign:long -- --worker --seed=1 --seasons=1 --dump-final
+ *       (also keeps the final save as <tag>-final-save.json.gz; records-evidence.ts reads it)
  *
  * Per-seed results, failing-seed last-good saves and reports go to
  * tmp/long-career/<label>/ (gitignored). The aggregate summary goes to
@@ -579,6 +581,8 @@ async function runCareer(seed: number, tier: Tier, seasons: number) {
     }
     fs.writeFileSync(path.join(outDir, `${tag}.json`), JSON.stringify(result, null, 2))
     if (failures.length) fs.writeFileSync(path.join(outDir, 'failures', `${tag}-final.json.gz`), zlib.gzipSync(JSON.stringify(final)))
+    // --dump-final: keep the final save for offline evidence (records-evidence.ts).
+    if (flag('dump-final')) fs.writeFileSync(path.join(outDir, `${tag}-final-save.json.gz`), zlib.gzipSync(JSON.stringify(final)))
     process.stdout.write(`${tag} done ticks ${ticks} terminal ${result.terminal} failures ${failures.length} kinds ${result.failureKinds.join(',')}\n`)
 }
 
@@ -1294,7 +1298,7 @@ async function orchestrate() {
     const cli = path.join(root, 'node_modules/tsx/dist/cli.mjs')
     const runOne = (seed: number) => new Promise<void>(resolve => {
         const log = fs.createWriteStream(path.join(outDir, `seed-${seed}.log`))
-        const child = spawn(process.execPath, ['--max-old-space-size=3072', cli, __filename, '--worker', `--seed=${seed}`, `--seasons=${seasons}`, `--label=${label}`, `--policy=${policyName}`, ...(flag('record-results') ? ['--record-results'] : [])], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
+        const child = spawn(process.execPath, ['--max-old-space-size=3072', cli, __filename, '--worker', `--seed=${seed}`, `--seasons=${seasons}`, `--label=${label}`, `--policy=${policyName}`, ...(flag('record-results') ? ['--record-results'] : []), ...(flag('dump-final') ? ['--dump-final'] : [])], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
         child.stdout.on('data', d => { log.write(d); if (/done|tick \d*0[48] /.test(String(d))) process.stdout.write(String(d)) })
         child.stderr.on('data', d => log.write(d))
         child.on('exit', code => { log.end(); if (code) process.stdout.write(`seed ${seed} exited ${code} (see ${path.relative(root, path.join(outDir, `seed-${seed}.log`))})\n`); resolve() })

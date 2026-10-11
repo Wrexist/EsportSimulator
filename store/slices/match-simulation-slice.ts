@@ -40,6 +40,7 @@ import { ManagerProgression } from "@/engine/manager-progression"
 import { applyFormResult, applyMoraleResult } from "@/engine/player-lifecycle"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
 import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mastery"
+import { recordOfficialMatch } from "@/engine/official-stats"
 import type { GameSave } from "@/engine/save-types"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { isEngineVersion, LEGACY_ENGINE_VERSION, type EngineVersion } from "@/engine/match/engine-version"
@@ -306,6 +307,16 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
             state.completedMatches.push(completedMatch)
 
+            // Careers, season tallies and records (Phase 5.1): one shared
+            // path with the week tick's AI matches. Friendlies don't count.
+            {
+                const players = new Map(state.players.map(p => [p.id, p]))
+                recordOfficialMatch(state as unknown as GameSave, completedMatch, result, {
+                    player: id => players.get(id),
+                    team: id => (id === homeTeam.id ? homeTeam : id === awayTeam.id ? awayTeam : state.teams.find(t => t.id === id)),
+                })
+            }
+
             // Sponsor goal progress: per-match "Win Matches" / "Win Tournament maps".
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;[homeTeam, awayTeam].forEach(team => {
@@ -392,8 +403,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                     const stats = result.playerStats[pid]
                     if (!stats) return
 
-                    player.totalKills = (player.totalKills || 0) + stats.kills
-                    player.totalDeaths = (player.totalDeaths || 0) + stats.deaths
+                    // Kills/deaths/rating totals: recordOfficialMatch above (official matches only).
                     if (result.mvpPlayerId === pid) player.totalMVPs = (player.totalMVPs || 0) + 1
 
                     // XP: base + tournament tier bonus + rating bonus + MVP bonus.

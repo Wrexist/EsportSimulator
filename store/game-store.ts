@@ -56,6 +56,7 @@ import { snapshotLoader } from "@/data"
 import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { initialClubBudget } from "@/engine/season/club-finances"
 import { drawDueLeagueSplit } from "@/engine/season/regional-league"
+import { recordOfficialMatch } from "@/engine/official-stats"
 import { ensureBoardState } from "@/engine/board-expectations"
 import { weekProcessorBridge } from "@/engine/worker/week-processor-bridge"
 import { Player, Team, Match, GameEvent, MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
@@ -281,6 +282,8 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
     }
     state.completedMatches.push(completedMatch)
     completedIds.add(match.id)
+    // Careers, season tallies and records (Phase 5.1): same as the week tick's AI path.
+    recordOfficialMatch(state as unknown as GameSave, match, result, { player: findPlayer, team: findTeam })
 
     // Elo + recent-form update. The atomic week tick's processMatches normally
     // does this, but these day-simmed AI matches are spliced out of
@@ -539,6 +542,7 @@ export interface GameStoreState extends AdvanceState {
   boardState?: import("@/engine/save-types").BoardState
   socialFeed?: import("@/engine/save-types").SocialPost[]
   careerStats?: import("@/engine/save-types").CareerStats
+  recordBook?: import("@/engine/records-types").RecordBook
 
   // Sponsorship Manager
   sponsorOffers: SponsorSaveData[]
@@ -1264,6 +1268,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             ...newSave,
             ...careerAdvanceState(newSave, playerTeamId, true),
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
+            recordBook: newSave.recordBook, // explicit: a new career never inherits the last one's records
             availableEquipment: initialEquipment,
             playerTeamId: playerTeamId, // We assume the user controls the team they selected
             theme: "crystal", // Default theme for new game
@@ -1571,6 +1576,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             ...newSave,
             ...careerAdvanceState(newSave, result.teamId, true),
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
+            recordBook: newSave.recordBook,
             availableEquipment: [
               { id: "mouse_001", name: "Basic Gaming Mouse", type: "MOUSE", weeklyCost: 0, tier: 1, purchasedWeek: 0, bonus: { stat: "skill", value: 1 } },
             ],
@@ -1714,6 +1720,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             // omits absent keys, which would keep the previous career's data.
             league: hydratedSave.league,
             careerStats: hydratedSave.careerStats,
+            recordBook: hydratedSave.recordBook,
             activeScoutingMission: hydratedSave.activeScoutingMission,
             gameOverReason: hydratedSave.gameOverReason,
             gameOverWeek: hydratedSave.gameOverWeek,

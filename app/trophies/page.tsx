@@ -13,20 +13,31 @@ import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { cn } from "@/lib/utils"
+import { isMajorTournament, isOfficialMatch } from "@/engine/official-stats"
+import { RECORD_KEYS, type RecordEntry, type RecordKey } from "@/engine/records-types"
 
 const TIER_ORDER = ["S_TIER", "A_TIER", "B_TIER", "C_TIER"] as const
 const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier" }
 const displayName = (name: string) => name.replace(/\s+\d{4}$/, "")
+const RECORD_LABEL: Record<RecordKey, string> = {
+    bestMapRating: "Best map rating",
+    mostMapKills: "Most kills in a map",
+    biggestWin: "Biggest map win",
+    longestWinStreak: "Longest win streak",
+}
+const weekLabel = (week: number) => `S${Math.ceil(week / WEEKS_PER_YEAR)} W${((week - 1) % WEEKS_PER_YEAR) + 1}`
 const baseId = (id: string) => id.replace(/_s\d+$/, "")
 
 export default function TrophyRoomPage() {
-    const { teams, playerTeamId, players, completedMatches, gameStartDate, currentWeek } = useGameStore(useShallow(state => ({
+    const { teams, playerTeamId, players, completedMatches, gameStartDate, currentWeek, tournaments, recordBook } = useGameStore(useShallow(state => ({
         teams: state.teams,
         playerTeamId: state.playerTeamId,
         players: state.players,
         completedMatches: state.completedMatches,
         gameStartDate: state.gameStartDate,
         currentWeek: state.currentWeek,
+        tournaments: state.tournaments,
+        recordBook: state.recordBook,
     })))
 
     const team = teams.find(t => t.id === playerTeamId)
@@ -35,21 +46,25 @@ export default function TrophyRoomPage() {
 
     const titles = useMemo(() => {
         const byId = new Map(players.map(p => [p.id, p]))
+        // Tournament MVP: recorded on the trophy (Phase 5.1), else on the event while it is kept.
+        const eventMvp = new Map(tournaments.filter(t => t.mvpPlayerId).map(t => [t.id, t.mvpPlayerId!]))
         return ((team?.trophies || []) as { tournamentId?: string; tournamentName?: string; week?: number; tier?: string; mvpId?: string }[])
             .map((t, i) => {
                 const cal = FULL_TOURNAMENT_CALENDAR.find(c => c.id === t.tournamentId || c.id === baseId(t.tournamentId || ""))
+                const mvpId = t.mvpId ?? (t.tournamentId ? eventMvp.get(t.tournamentId) : undefined)
                 return {
                     key: `${t.tournamentId || "tr"}_${t.week || 0}_${i}`,
                     calId: cal?.id ?? null,
                     name: displayName(t.tournamentName || cal?.name || "Tournament"),
                     tier: t.tier || cal?.tier || "B_TIER",
+                    major: isMajorTournament(t.tournamentId),
                     week: t.week || 0,
                     year: Math.floor(startYear + (t.week || 0) / WEEKS_PER_YEAR),
-                    mvp: t.mvpId ? byId.get(t.mvpId) : undefined,
+                    mvp: mvpId ? byId.get(mvpId) : undefined,
                 }
             })
             .sort((a, b) => b.week - a.week)
-    }, [team?.trophies, players, startYear])
+    }, [team?.trophies, players, startYear, tournaments])
 
     // The cabinet: every title on the calendar, gold only where you've won it.
     const cabinet = useMemo(() => {
@@ -68,6 +83,7 @@ export default function TrophyRoomPage() {
         for (const m of completedMatches) {
             const home = m.homeTeamId === playerTeamId
             if (!home && m.awayTeamId !== playerTeamId) continue
+            if (!isOfficialMatch(m)) continue
             const won = m.result?.winnerId === playerTeamId
             if (won) wins++; else losses++
             const opp = teamMap.get(home ? m.awayTeamId : m.homeTeamId)
@@ -80,7 +96,15 @@ export default function TrophyRoomPage() {
         return { wins, losses, rate: wins + losses > 0 ? Math.round((wins / (wins + losses)) * 100) : 0, rivals }
     }, [completedMatches, playerTeamId, teams])
 
-    const majors = titles.filter(t => t.tier === "S_TIER").length
+    const majors = titles.filter(t => t.major).length
+    const clubRecords = playerTeamId ? recordBook?.clubs[playerTeamId] : undefined
+    const teamName = (id: string) => teams.find(t => t.id === id)?.name ?? "Former club"
+    const recordLine = (key: RecordKey, r: RecordEntry) => {
+        const value = key === "bestMapRating" ? r.value.toFixed(2) : key === "biggestWin" ? r.score ?? `+${r.value}` : key === "longestWinStreak" ? `${r.value} wins` : String(r.value)
+        const who = r.playerName ? `${r.playerName} · ` : ""
+        const when = key === "longestWinStreak" && r.fromWeek ? `${weekLabel(r.fromWeek)}–${weekLabel(r.week)}${r.endedBy ? `, ended by ${teamName(r.endedBy)}` : ", running"}` : weekLabel(r.week)
+        return { value, detail: `${who}vs ${teamName(r.opponentId)}${r.map ? ` · ${r.map}` : ""} · ${when}` }
+    }
     const season = Math.floor((currentWeek - 1) / WEEKS_PER_YEAR) + 1
 
     return (
@@ -98,7 +122,7 @@ export default function TrophyRoomPage() {
                     <KpiStrip>
                         <Kpi label="Titles" value={titles.length} valueClassName={titles.length > 0 ? "text-gold" : undefined} />
                         <Kpi label="Majors" value={majors} valueClassName={majors > 0 ? "text-gold" : undefined} />
-                        <Kpi label="Record" value={<span>{stats.wins}<span className="text-ink-3">–</span>{stats.losses}</span>} />
+                        <Kpi label="Record" value={<span>{stats.wins}<span className="text-ink-3">–</span>{stats.losses}</span>} hint="Recent official matches" />
                         <Kpi label="Win rate" value={`${stats.rate}%`} />
                     </KpiStrip>
                 }
@@ -158,6 +182,29 @@ export default function TrophyRoomPage() {
                     )}
                 </Panel>
 
+                <div className="min-w-0 space-y-4">
+                <Panel title="Club records" padded={false}>
+                    {clubRecords && RECORD_KEYS.some(k => clubRecords[k]) ? (
+                        <ul className="divide-y divide-line">
+                            {RECORD_KEYS.filter(k => clubRecords[k]).map(k => {
+                                const line = recordLine(k, clubRecords[k]!)
+                                return (
+                                    <li key={k} className="px-4 py-2.5">
+                                        <div className="flex items-baseline justify-between gap-3">
+                                            <span className="text-sm text-ink-3">{RECORD_LABEL[k]}</span>
+                                            <span className="text-sm font-semibold tabular-nums text-ink-1">{line.value}</span>
+                                        </div>
+                                        <p className="mt-0.5 truncate text-xs text-ink-3" title={line.detail}>{line.detail}</p>
+                                    </li>
+                                )
+                            })}
+                        </ul>
+                    ) : <p className="px-4 py-6 text-sm text-ink-3">Records start with your first official match.</p>}
+                    {clubRecords?.streak && clubRecords.streak.count > 1 && (
+                        <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">Current run: {clubRecords.streak.count} official wins since {weekLabel(clubRecords.streak.fromWeek)}.</p>
+                    )}
+                </Panel>
+
                 <Panel title="Most-played opponents" padded={false}>
                     {stats.rivals.length > 0 ? (
                         <ul className="divide-y divide-line">
@@ -171,6 +218,7 @@ export default function TrophyRoomPage() {
                         </ul>
                     ) : <p className="px-4 py-6 text-sm text-ink-3">No matches played yet.</p>}
                 </Panel>
+                </div>
             </div>
         </div>
     )

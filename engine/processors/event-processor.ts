@@ -1,9 +1,8 @@
-import { GameSave, WeekTickState, PlayerSaveData, HallOfFameEntry } from "../save-types"
+import { GameSave, WeekTickState, PlayerSaveData } from "../save-types"
 import { SeededRNG } from "../rng"
 import { EventType, Team, InjuryType } from "@/types"
 import { SaveManager } from "../save-manager"
-import { hallOfFameAchievements, qualifiesForHallOfFame } from "../hall-of-fame-manager"
-import { HALL_OF_FAME_TUNING } from "@/lib/balance-tuning"
+import { hallOfFameAchievements, hallOfFameEntry, qualifiesForHallOfFame } from "../hall-of-fame-manager"
 
 const INJURY_BASE_CHANCE = 0.002
 const FATIGUE_INJURY_MULTIPLIER = 0.002
@@ -375,29 +374,12 @@ export class EventProcessor {
                 player.legendaryAchievements = achievements
                 legends.push(player.id)
 
-                // Write-through to hallOfFame so legends appear in HoF display.
-                // Dedup against BOTH the player.id scheme (HallOfFameManager,
-                // player-lifecycle path) and the legacy hof_ scheme so a legendary
-                // retiree processed by both paths isn't inducted twice.
+                // Write-through to hallOfFame so legends appear in HoF display
+                // (the one induction path, Phase 5.1). Dedup also against the
+                // legacy hof_ id scheme of older saves.
                 if (!save.hallOfFame) save.hallOfFame = []
                 if (!save.hallOfFame.some(h => h.id === player.id || h.id === `hof_${player.id}`)) {
-                    const reasons: HallOfFameEntry['inductionReasons'] = []
-                    if (player.majorWins && player.majorWins >= 1) reasons.push({ type: 'CHAMPION', label: `${player.majorWins}x Major Champion`, icon: 'Trophy' })
-                    if (player.avgRating >= HALL_OF_FAME_TUNING.CAREER_RATING && player.matchesPlayed >= HALL_OF_FAME_TUNING.RATING_MIN_MATCHES) reasons.push({ type: 'MVP', label: `${player.avgRating.toFixed(2)} Career Rating`, icon: 'Star' })
-                    if (player.matchesPlayed >= HALL_OF_FAME_TUNING.CAREER_MATCHES) reasons.push({ type: 'LONGEVITY', label: `${player.matchesPlayed}+ Matches`, icon: 'Clock' })
-                    if (player.totalKills && player.totalKills >= HALL_OF_FAME_TUNING.CAREER_KILLS) reasons.push({ type: 'IMPACT', label: `${player.totalKills}+ Career Kills`, icon: 'Crosshair' })
-                    if ((player.totalMVPs || 0) >= HALL_OF_FAME_TUNING.MVP_AWARDS) reasons.push({ type: 'MVP', label: `${player.totalMVPs}x Tournament MVP`, icon: 'Star' })
-                    save.hallOfFame.push({
-                        id: player.id,
-                        name: player.nickname,
-                        portraitPath: player.portraitPath || '',
-                        eraStart: Math.max(1, Math.ceil(save.currentWeek / 52) - Math.floor(player.age / 3)),
-                        eraEnd: Math.ceil(save.currentWeek / 52),
-                        primaryRole: player.role || 'RIFLER',
-                        category: 'INDUCTED',
-                        inductionReasons: reasons.length > 0 ? reasons : [{ type: 'IMPACT', label: 'Career Achievement', icon: 'Award' }],
-                        nationality: player.nationality || '',
-                    })
+                    save.hallOfFame.push(hallOfFameEntry(player, save.currentWeek, lastTeamId))
                 }
             }
 
@@ -556,6 +538,15 @@ export class EventProcessor {
                     team.rosterIds = team.rosterIds.filter(id => id !== player.id)
                 }
                 save.contracts = save.contracts.filter(c => c.playerId !== player.id)
+            }
+
+            // Same Hall of Fame judgement as a season-end retirement.
+            if (qualifiesForHallOfFame(player)) {
+                player.isLegendary = true
+                player.legendaryAchievements = hallOfFameAchievements(player)
+                legends.push(player.id)
+                if (!save.hallOfFame) save.hallOfFame = []
+                if (!save.hallOfFame.some(h => h.id === player.id || h.id === `hof_${player.id}`)) save.hallOfFame.push(hallOfFameEntry(player, save.currentWeek, lastTeamId))
             }
 
             // Never the manager's player (excluded above): news feed only,

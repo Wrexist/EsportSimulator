@@ -12,7 +12,7 @@ import { getPrestigeLabel } from "@/engine/prestige-system"
 import { PLAYER_TALENT_TREE } from "@/engine/talent-trees"
 import { getMasteryInfo, WEAPON_DISPLAY, WeaponMasteryManager, type WeaponType } from "@/engine/weapon-mastery-system"
 import { playerEnergyPercent } from "@/lib/player-energy"
-import { clutchRateFraction, formatCurrency } from "@/lib/utils-extended"
+import { formatCurrency } from "@/lib/utils-extended"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -35,6 +35,7 @@ import { TransferListingModal } from "./TransferListingModal"
 import { RecruitmentProfile } from "./RecruitmentProfile"
 import { PlayerMatchHistory, usePlayerPerformances } from "./PlayerMatchHistory"
 import { PlayerSignatureMoments } from "./PlayerSignatureMoments"
+import { PlayerCareerRecord } from "./PlayerCareerRecord"
 import { PlayerAttributes, ATTRIBUTE_FOOTNOTE } from "./PlayerAttributes"
 import { PlayerRadar } from "./PlayerRadar"
 
@@ -136,7 +137,6 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const recentAvg = recentRatings.length ? recentRatings.reduce((s, r) => s + r, 0) / recentRatings.length : null
 
     const mastery = WeaponMasteryManager.getPlayerMastery(player)
-    const kd = (player.totalDeaths ?? 0) > 0 ? (player.totalKills ?? 0) / (player.totalDeaths ?? 1) : null
     const realName = player.name && player.name !== player.nickname ? player.name : null
     const tint = clubTint(viewedTeam, 0.18)
     const tintLine = clubTint(viewedTeam, 0.7)
@@ -318,17 +318,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                         </TabsContent>
 
                         <TabsContent value="stats" className="mt-3 space-y-4">
-                            <KpiStrip className="w-fit max-w-full flex-wrap">
-                                <Kpi label="Career matches" value={player.matchesPlayed || 0} />
-                                <Kpi label="Rounds" value={player.roundsPlayed ? player.roundsPlayed : "—"} />
-                                <Kpi
-                                    label="Avg rating"
-                                    value={player.avgRating ? player.avgRating.toFixed(2) : performances.length ? (performances.reduce((s, r) => s + r.rating, 0) / performances.length).toFixed(2) : "—"}
-                                    hint={!player.avgRating && performances.length ? `${performances.length} recorded` : undefined}
-                                />
-                                <Kpi label="K/D" value={kd != null ? kd.toFixed(2) : "—"} />
-                                <Kpi label="Clutch rate" value={player.clutchSuccessRate ? `${(clutchRateFraction(player.clutchSuccessRate) * 100).toFixed(0)}%` : "—"} />
-                            </KpiStrip>
+                            <PlayerCareerRecord player={player} />
                             <Panel title="Match history" padded={false}>
                                 <PlayerMatchHistory playerId={player.id} limit={15} />
                             </Panel>

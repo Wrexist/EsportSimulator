@@ -1,7 +1,5 @@
 import { Player, PLAYER_STAT_CONSTRAINTS } from "@/types/player"
 import { calculateProPrestigeScore } from "./prestige-system"
-import { HallOfFameManager } from "./hall-of-fame-manager"
-import { GameSave, PlayerSaveData } from "./save-types"
 import { SeededRNG, generateSeed } from "./rng"
 import { CONDITION_TUNING } from "@/lib/balance-tuning"
 
@@ -208,12 +206,4 @@ export class PlayerLifecycleManager {
         // If proHistory is empty, preserve the initial prestigeScore from snapshot-loader
     }
 
-    /**
-     * Process retirement and Hall of Fame eligibility
-     * Called when a player retires
-     */
-    static processRetirement(save: GameSave, player: PlayerSaveData): void {
-        if (!player.isRetired) return
-        HallOfFameManager.processRetirement(save, player)
-    }
 }

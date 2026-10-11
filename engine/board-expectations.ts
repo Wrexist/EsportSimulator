@@ -23,6 +23,7 @@ import { getSeasonNumber } from "./career-stats"
 import { BOARD_TUNING, LEAGUE_TUNING } from "@/lib/balance-tuning"
 import { EconomyEngine } from "./economy-engine"
 import { divisionOfTeam, ordinal, playedInSplit, tablePosition, weekOfSeason } from "./season/regional-league"
+import { adjustManagerReputation, closeStint } from "./manager-timeline"
 
 export type { BoardExpectationTier, BoardState } from "./save-types"
 export type BoardOutcome = "EXCEEDED" | "MET" | "MISSED" | "FAILED"
@@ -53,11 +54,19 @@ const CONFIDENCE_DELTA: Record<BoardOutcome, number> = {
     FAILED: -28,
 }
 
-const REPUTATION_DELTA: Record<BoardOutcome, number> = {
+/** Manager reputation change per season review verdict (also FAILED on dismissal). */
+export const REPUTATION_DELTA: Record<BoardOutcome, number> = {
     EXCEEDED: 6,
     MET: 2,
     MISSED: -3,
     FAILED: -6,
+}
+
+const REVIEW_VERDICT_LABEL: Record<BoardOutcome, string> = {
+    EXCEEDED: "expectations exceeded",
+    MET: "expectations met",
+    MISSED: "expectations missed",
+    FAILED: "expectations failed",
 }
 
 interface TierTargets {
@@ -434,7 +443,8 @@ function dismiss(save: GameSave, board: BoardState, why: string): void {
     save.gameOverReason = "SACKED"
     save.gameOverWeek = save.currentWeek
     board.onNotice = true
-    if (save.managerDetails) save.managerDetails.reputation = clamp((save.managerDetails.reputation ?? 50) + REPUTATION_DELTA.FAILED, 0, 100)
+    adjustManagerReputation(save, REPUTATION_DELTA.FAILED, `Dismissed by ${team?.name ?? "the club"}`)
+    closeStint(save, "sacked")
     const id = `board_sacked_${save.currentWeek}_${save.playerTeamId}`
     if (!save.eventsLog.some(e => e.id === id)) {
         save.eventsLog.unshift({ id, type: "CAREER_UPDATE", week: save.currentWeek, acknowledged: false,
@@ -550,9 +560,7 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
     const verdict: BoardOutcome = delta >= 12 ? "EXCEEDED" : delta >= 0 ? "MET" : delta >= -12 ? "MISSED" : "FAILED"
 
     // Manager reputation drifts with results.
-    if (save.managerDetails) {
-        save.managerDetails.reputation = clamp((save.managerDetails.reputation ?? 50) + REPUTATION_DELTA[verdict], 0, 100)
-    }
+    adjustManagerReputation(save, REPUTATION_DELTA[verdict], `Season ${seasonNumber} board review: ${REVIEW_VERDICT_LABEL[verdict]}`)
 
     // Capped, upside-only board backing for over-delivering.
     let rewardBudget = 0

@@ -433,19 +433,47 @@ export const REGISTRATION_TUNING = {
     AUTO_REGISTER_OPEN_QUALIFIERS: true,
 } as const
 
-/** Hall of Fame: a few inductions per season, not every long career. */
+/**
+ * Hall of Fame: a few inductions per season, not every long career. Every
+ * criterion reads a real career number (Phase 5.1): official maps, the
+ * rounds-weighted rating, official kills, titles won on the roster, Majors
+ * and season awards. Career matches include a player's pre-career record.
+ */
 export const HALL_OF_FAME_TUNING = {
     /** Each of these counts as one achievement; two are needed. */
-    MVP_AWARDS: 15,
     CAREER_KILLS: 2_500,
     CAREER_MATCHES: 350,
     CAREER_RATING: 1.15,
-    /** Rating counts only over a real career. */
-    RATING_MIN_MATCHES: 150,
+    /** Rating counts only over a real career (official maps). */
+    RATING_MIN_MAPS: 250,
+    CAREER_TITLES: 6,
+    TOP20_PLACEMENTS: 3,
     /** Any one of these alone inducts. */
     AUTO_MAJOR_WINS: 2,
+    AUTO_SEASON_MVPS: 2,
     AUTO_RATING: 1.2,
     ACHIEVEMENTS_REQUIRED: 2,
+} as const
+
+/**
+ * Records & season awards (Phase 5.1). A map's competition weight is the
+ * Phase 4.8 rating K of its competition relative to an S-tier event
+ * (RANKING_TUNING.K), so a league map counts 0.4 and a Major map 1.0; league
+ * maps are further scaled by the division the club plays in.
+ */
+export const RECORDS_TUNING = {
+    /** League map weight by division level (index = level - 1; the last value applies deeper). */
+    LEAGUE_DIVISION_FACTOR: [1, 0.75, 0.55, 0.4] as const,
+    /** Official maps needed to be ranked for season awards (lowered to half the busiest player's maps in a short season). */
+    AWARD_MIN_MAPS: 20,
+    /** Season lines kept per player (older seasons stay in the career totals). */
+    SEASON_LINES_CAP: 12,
+    /** Closed seasons kept in the record book. */
+    HONOURS_CAP: 30,
+    /** Reputation changes kept on the manager. */
+    REPUTATION_LOG_CAP: 24,
+    /** Manager stints kept. */
+    STINTS_CAP: 40,
 } as const
 
 /** Round economy: saving has value, so buying every round is not automatically best. */

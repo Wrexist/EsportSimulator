@@ -40,7 +40,7 @@ import { isLeagueMatchId, ordinal } from "@/engine/season/regional-league"
 import { boardStartTargets } from "@/lib/club-expectations"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { fixtureBlockReason } from "@/lib/playable-match"
-import type { AnnualAwards } from "@/engine/pro-awards-engine"
+import { isRealAwards, type AnnualAwards } from "@/engine/pro-awards-engine"
 
 const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier" }
 /** Short names for the board's objectives (the full sentence is the row's tooltip and on Club → Board). */
@@ -144,7 +144,7 @@ export default function Page() {
   // Detect unacknowledged Pro award events
   const latestProEvent = useMemo(() => {
     return (eventsLog ?? []).find(e =>
-      e.type === "MEDIA" && (e.data as any)?.proAwards && !e.acknowledged
+      e.type === "MEDIA" && isRealAwards((e.data as any)?.proAwards) && !e.acknowledged
     )
   }, [eventsLog])
 
@@ -152,7 +152,7 @@ export default function Page() {
   useEffect(() => {
     if (!latestProEvent || proShownRef.current === latestProEvent.id) return
     const awards = (latestProEvent.data as any)?.proAwards
-    if (awards && Array.isArray(awards.top20) && awards.year) {
+    if (isRealAwards(awards)) {
       proShownRef.current = latestProEvent.id
       setProAwards(awards as AnnualAwards)
       setIsProModalOpen(true)
@@ -275,6 +275,7 @@ export default function Page() {
   }, [completedMatches, seasonStartWeek, playerTeamId])
 
   const careerStats = useGameStore(s => s.careerStats)
+  const recordBook = useGameStore(s => s.recordBook)
   const seasonRecapStats = useMemo(() => {
     if (!playerTeam || !pendingSeasonRecap) return null
     const summaries = careerStats?.seasons.filter(s => s.seasonNumber === pendingSeasonRecap) || []
@@ -287,9 +288,14 @@ export default function Page() {
       trophies: summaries.length ? summaries.reduce((n, s) => n + s.trophiesWon.length, 0) : (playerTeam.trophies || []).filter(t => t.week >= startWeek && t.week <= endWeek).length,
       budgetGrowth: summaries.length ? summaries.reduce((n, s) => n + s.totalIncome - s.totalExpenses, 0) : financeLedger.filter(e => e.teamId === playerTeamId && e.week >= startWeek && e.week <= endWeek).reduce((n, e) => n + (e.type === 'INCOME' ? e.amount : -e.amount), 0),
       weeksActive: summaries.length ? summaries.reduce((n, s) => n + Math.max(0, s.endWeek - s.startWeek + 1), 0) : 52,
-      bestPlayer: null,
+      // The club's best player of the closed season, from its official maps (Phase 5.1 honours).
+      bestPlayer: (() => {
+        const best = recordBook?.honours.find(h => h.season === pendingSeasonRecap)?.userClub?.bestPlayer
+        if (!best) return null
+        return { nickname: best.name, portraitPath: players.find(p => p.id === best.playerId)?.portraitPath ?? "", rating: best.rating }
+      })(),
     }
-  }, [careerStats, playerTeam, completedMatches, playerTeamId, pendingSeasonRecap, financeLedger])
+  }, [careerStats, playerTeam, completedMatches, playerTeamId, pendingSeasonRecap, financeLedger, recordBook, players])
 
   if (!_hasHydrated || (storeLoading && !isSessionActive)) {
     return (
@@ -477,7 +483,7 @@ export default function Page() {
               variant="outline"
               onClick={() => {
                 const awards = (latestProEvent?.data as any)?.proAwards
-                if (awards && Array.isArray(awards.top20) && awards.year) {
+                if (isRealAwards(awards)) {
                   setProAwards(awards as AnnualAwards)
                   setIsProModalOpen(true)
                 }

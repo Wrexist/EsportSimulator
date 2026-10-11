@@ -134,6 +134,7 @@ export interface UIState {
   boardState?: import("@/engine/save-types").BoardState
   socialFeed?: import("@/engine/save-types").SocialPost[]
   careerStats?: import("@/engine/save-types").CareerStats
+  recordBook?: import("@/engine/records-types").RecordBook
 }
 
 export interface SettingsState {

@@ -27,33 +27,45 @@ function deriveMoments(player: PlayerSaveData): Moment[] {
             icon: Trophy,
             title: player.majorWins === 1 ? "Major Champion" : `${player.majorWins}× Major Champion`,
             description: player.majorWins === 1
-                ? "Lifted the S-Tier trophy. The moment that announced their career."
-                : `Multiple S-Tier titles — a name etched into the league's record book.`,
+                ? "Lifted a Major trophy. The moment that announced their career."
+                : `Multiple Major titles — a name etched into the league's record book.`,
             tone: "gold",
+        })
+    }
+
+    const seasonMvps = (player.honours ?? []).filter(h => h.award === "MVP")
+    if (seasonMvps.length > 0) {
+        moments.push({
+            icon: Crown,
+            title: seasonMvps.length === 1 ? `Season MVP (S${seasonMvps[0].season})` : `${seasonMvps.length}× Season MVP`,
+            description: "The best season in the world on official maps, weighted by the stage it was played on.",
+            tone: "violet",
         })
     }
 
     if (player.totalMVPs && player.totalMVPs > 0) {
         moments.push({
             icon: Star,
-            title: player.totalMVPs === 1 ? "Tournament MVP" : `${player.totalMVPs}× Tournament MVP`,
-            description: `Top performer of the event — the floor turned over to them when it mattered.`,
+            title: player.totalMVPs === 1 ? "Match MVP" : `${player.totalMVPs}× Match MVP`,
+            description: `Highest-rated player on the winning side — the floor turned over to them when it mattered.`,
             tone: "violet",
         })
     }
 
-    if (player.avgRating >= 1.25) {
+    // A career rating means something only over a real career of official maps.
+    const ratedCareer = (player.mapsPlayed ?? 0) >= 50
+    if (ratedCareer && player.avgRating >= 1.25) {
         moments.push({
             icon: Flame,
             title: "Elite Form",
-            description: `Career average ${player.avgRating.toFixed(2)} rating — the kind of consistency you build a roster around.`,
+            description: `Career average ${player.avgRating.toFixed(2)} rating over ${player.mapsPlayed} official maps — the kind of consistency you build a roster around.`,
             tone: "rose",
         })
-    } else if (player.avgRating >= 1.15) {
+    } else if (ratedCareer && player.avgRating >= 1.15) {
         moments.push({
             icon: Zap,
             title: "Consistent Top-Half Player",
-            description: `Career average ${player.avgRating.toFixed(2)} rating — reliable starter on any tier-1 team.`,
+            description: `Career average ${player.avgRating.toFixed(2)} rating over ${player.mapsPlayed} official maps — reliable starter on any tier-1 team.`,
             tone: "blue",
         })
     }
