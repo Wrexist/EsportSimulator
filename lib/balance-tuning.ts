@@ -598,6 +598,18 @@ export const PERSONALITY_TUNING = {
     RENEWAL_RAISE_MERCENARY: 2,
     /** Rejecting a club's bid for a Mercenary. */
     MERCENARY_BID_REJECT_MORALE: -6,
+
+    // ── amicability (how easy-going he is; Phase 5 fix) ──
+    /**
+     * The snapshot gave every player 70. Snapshot players now get the base of
+     * their archetype plus a triangular id-hash spread of ± AMICABILITY_SPREAD
+     * (engine/personality.ts deriveAmicability): about 8% fall under the
+     * rift's 35 and 14% under synergy's 40 (pair clash), under 1% under 20.
+     */
+    AMICABILITY_BASE: { PROFESSIONAL: 62, AMBITIOUS: 54, LOYAL: 72, MERCENARY: 48, HOTHEAD: 40, LEADER: 72, SHOWMAN: 66, QUIET: 52 },
+    AMICABILITY_SPREAD: 35,
+    AMICABILITY_MIN: 5,
+    AMICABILITY_MAX: 99,
 } as const
 
 /**

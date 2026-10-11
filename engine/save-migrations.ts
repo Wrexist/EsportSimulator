@@ -21,7 +21,7 @@ import type {
     QualificationStatus,
     PlayerSaveData,
 } from "./save-types"
-import { assignPersonalities } from "./personality"
+import { assignPersonalities, spreadPlaceholderAmicability } from "./personality"
 import {
     dedupeQualifications,
     normalizeQualificationStatus,
@@ -356,6 +356,20 @@ export function migrateToV9(save: Record<string, unknown>): Record<string, unkno
 }
 
 /**
+ * v10 (Phase 5 fixes): the snapshot gave every player amicability 70, so pair
+ * synergy never varied with it and the dressing-room rift's "two cold
+ * starters" never happened. Players still on that placeholder get the value
+ * a new career gives them: their archetype's base plus an id-hash spread
+ * (engine/personality.ts), so the same save always migrates the same way.
+ * Legends keep their own values. Synergy matrices are rebuilt on load.
+ */
+export function migrateToV10(save: Record<string, unknown>): Record<string, unknown> {
+    const players = Array.isArray(save.players) ? (save.players as PlayerSaveData[]) : []
+    spreadPlaceholderAmicability(players)
+    return { ...save, players, saveVersion: 10 }
+}
+
+/**
  * Run the full ladder up to the current version. Each step is no-op
  * if the save already meets its target version.
  *
@@ -378,6 +392,7 @@ export function runMigrationLadder(save: unknown): GameSave {
     if (version < 7) migrated = migrateToV7(migrated)
     if (version < 8) migrated = migrateToV8(migrated)
     if (version < 9) migrated = migrateToV9(migrated)
+    if (version < 10) migrated = migrateToV10(migrated)
 
     return {
         ...migrated,

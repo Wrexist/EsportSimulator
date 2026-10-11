@@ -33,7 +33,7 @@ import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { PlayerRole, PlayerTier, TournamentTier, TournamentFormat, MatchFormat } from "@/types"
 
 import { reconcileTeamRoles } from "@/engine/role-reconciler"
-import { ensurePersonality } from "@/engine/personality"
+import { ensurePersonality, spreadPlaceholderAmicability } from "@/engine/personality"
 
 /**
  * Auto-calculate an initial prestige score for players with empty proHistory.
@@ -340,6 +340,9 @@ export class SnapshotLoader {
         // own copies rather than mutating LEGENDARY_PLAYERS.
         const own = new Set(players)
         save.players = save.players.map(p => ensurePersonality(own.has(p) ? p : { ...p }))
+        // The snapshot gives every player amicability 70 (a placeholder): derive
+        // a spread from the archetype and an id hash, as save v10 does.
+        spreadPlaceholderAmicability(save.players)
 
         return save
     }

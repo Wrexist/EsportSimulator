@@ -174,6 +174,41 @@ export function assignPersonalities(players: PlayerSaveData[]): number {
     return assigned
 }
 
+// ---------------------------------------------------------------- amicability
+
+/** The snapshot gives every player this amicability: a placeholder, not a trait. */
+export const SNAPSHOT_AMICABILITY = 70
+
+/**
+ * Deterministic amicability (how easy-going he is): his archetype's base
+ * plus a triangular id-hash spread (PERSONALITY_TUNING.AMICABILITY_*).
+ * Leaders and Loyal players run warm, Hotheads and Mercenaries cold. Read by
+ * pair synergy (two players under 40 clash, one under 20 sours every pair)
+ * and the dressing-room rift (two starters under 35 after a bad run).
+ */
+export function deriveAmicability(p: Pick<PlayerSaveData, "id"> & Partial<PlayerSaveData>): number {
+    const base = T.AMICABILITY_BASE[getArchetype(p)]
+    const spread = (hash01(`amicability|${p.id}`) + hash01(`amicability-b|${p.id}`) - 1) * T.AMICABILITY_SPREAD
+    return Math.max(T.AMICABILITY_MIN, Math.min(T.AMICABILITY_MAX, Math.round(base + spread)))
+}
+
+/**
+ * Players still on the snapshot placeholder (legends keep their own values)
+ * get a derived amicability. Run after personalities are assigned, so the
+ * archetype it reads is the one he keeps. Idempotent. Returns how many changed.
+ */
+export function spreadPlaceholderAmicability(players: PlayerSaveData[]): number {
+    let changed = 0
+    for (const p of players) {
+        if (!p || typeof p.id !== "string" || p.isLegendary) continue
+        if (typeof p.amicability === "number" && p.amicability !== SNAPSHOT_AMICABILITY) continue
+        const next = deriveAmicability(p)
+        if (next !== p.amicability) changed++
+        p.amicability = next
+    }
+    return changed
+}
+
 /** The player's archetype (derived on the fly for a record that predates v9). */
 export function getArchetype(p: Pick<PlayerSaveData, "id"> & Partial<PlayerSaveData>): PersonalityArchetype {
     const a = p.personality?.archetype
