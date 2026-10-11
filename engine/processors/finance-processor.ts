@@ -51,7 +51,7 @@ export class FinanceProcessor {
             && ledgerIds.has(`inc_league_${save.currentWeek}_${playerTeamId}`)
         const legacyRows = legacySettled ? save.financeLedger.filter(e =>
             e.week === save.currentWeek && e.teamId === playerTeamId &&
-            /^(inc_spon_|inc_fan_|inc_league_|exp_equip_|exp_wage_p_|exp_wage_s_|exp_fac_)/.test(e.id)) : []
+            /^(inc_spon_|inc_fan_|inc_league_|exp_equip_|exp_wage_p_|exp_wage_s_|exp_fac_|exp_ops_)/.test(e.id)) : []
         const pushLedger = (entry: FinanceLedgerEntry): void => {
             if (ledgerIds.has(entry.id)) return
             save.financeLedger.push(entry)
@@ -111,17 +111,17 @@ export class FinanceProcessor {
             // team from healthy into INSOLVENT, and reading report.state here
             // would reset the counter every week so the bankruptcy game-over
             // could never fire for an equipment-driven insolvency.
-            if (team.id === playerTeamId) {
-                if (team.financialState === "INSOLVENT") {
-                    team.consecutiveInsolventWeeks = (team.consecutiveInsolventWeeks ?? 0) + 1
-                    // 8 consecutive weeks of insolvency = team dissolved
-                    if (team.consecutiveInsolventWeeks >= 8) {
-                        save.gameOverReason = "BANKRUPTCY"
-                        save.gameOverWeek = save.currentWeek
-                    }
-                } else {
-                    team.consecutiveInsolventWeeks = 0
+            // Every club counts insolvent weeks (AI clubs go into administration
+            // at the same threshold: engine/season/club-finances.ts).
+            if (team.financialState === "INSOLVENT") {
+                team.consecutiveInsolventWeeks = (team.consecutiveInsolventWeeks ?? 0) + 1
+                // 8 consecutive weeks of insolvency = team dissolved
+                if (team.id === playerTeamId && team.consecutiveInsolventWeeks >= 8) {
+                    save.gameOverReason = "BANKRUPTCY"
+                    save.gameOverWeek = save.currentWeek
                 }
+            } else {
+                team.consecutiveInsolventWeeks = 0
             }
 
             // Generate budget warning events for player team
@@ -186,6 +186,7 @@ export class FinanceProcessor {
                 // ledger sum undershot the actual budget change by $15k/week and
                 // every recorded running balance was internally inconsistent.
                 if (report.income.leagueShare > 0) {
+                    const division = save.league?.current?.divisions.find(d => d.id === team.leagueDivisionId)
                     pushLedger({
                         id: `inc_league_${save.currentWeek}_${team.id}`,
                         week: save.currentWeek,
@@ -193,7 +194,7 @@ export class FinanceProcessor {
                         type: "INCOME",
                         category: "OTHER",
                         amount: report.income.leagueShare,
-                        description: "League revenue share",
+                        description: division ? `League central payment (${division.name})` : "League central payment",
                         balance: team.budget
                     })
                 }
@@ -238,6 +239,18 @@ export class FinanceProcessor {
                         amount: report.expenses.staffWages,
                         description: "Staff salaries",
                         balance: team.budget
+                    })
+                }
+                if (report.expenses.operations > 0) {
+                    pushLedger({
+                        id: `exp_ops_${save.currentWeek}_${team.id}`,
+                        week: save.currentWeek,
+                        teamId: team.id,
+                        type: "EXPENSE",
+                        category: "FACILITIES",
+                        amount: report.expenses.operations,
+                        description: "Club operations (travel, admin, content)",
+                        balance: team.budget,
                     })
                 }
                 if (report.expenses.facilities > 0) {

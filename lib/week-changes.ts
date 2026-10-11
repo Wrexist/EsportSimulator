@@ -145,13 +145,16 @@ export function moneyCause(category: string, description: string): ChangeCause {
     switch (category) {
         case "WAGES_PLAYER": return { type: "salary", label: "Player wages" }
         case "WAGES_STAFF": return { type: "staff", label: "Staff wages" }
-        case "FACILITIES": return /activity/i.test(description) ? { type: "activity", label: "Weekly activity" } : { type: "facility", label: "Upkeep" }
-        case "PRIZE": return { type: "prize", label: "Prize money" }
+        case "FACILITIES": return /activity/i.test(description) ? { type: "activity", label: "Weekly activity" }
+            : /operations/i.test(description) ? { type: "finance", label: "Club operations" }
+            : { type: "facility", label: "Upkeep" }
+        case "PRIZE": return /league|division/i.test(description) ? { type: "prize", label: "League prize money" } : { type: "prize", label: "Prize money" }
         case "SPONSOR": return { type: "sponsor", label: "Sponsors" }
         case "MERCH": return { type: "sponsor", label: "Merchandise" }
         case "TRANSFER_IN": case "TRANSFER_OUT": return { type: "transfer", label: "Transfers" }
         case "TRAINING": return { type: "training", label: "Training" }
-        default: return { type: "other", label: /fan/i.test(description) ? "Fans" : /league/i.test(description) ? "League" : "Other" }
+        default: return /board/i.test(description) ? { type: "board", label: "Board" }
+            : { type: "other", label: /fan/i.test(description) ? "Fans" : /league/i.test(description) ? "League" : "Other" }
     }
 }
 
@@ -304,6 +307,39 @@ export class WeekChangeRecorder {
         if (!this.teamId) return null
         const now = snapshotClub(source, this.teamId)
         if (this.last && now) this.entries.push(...diffClubs(this.last, now, cause))
+        this.last = now
+        return now
+    }
+
+    /**
+     * Like mark(), but `itemized` entries (already split by cause, e.g. the
+     * board's weekly moves) replace the diff for their kind+label; any part of
+     * the real movement they do not explain (clamping) is attributed to `cause`.
+     */
+    markItemized(source: ClubSource, itemized: ChangeEntry[], cause: CauseResolver): ClubSnapshot | null {
+        if (!this.teamId) return null
+        const now = snapshotClub(source, this.teamId)
+        if (this.last && now) {
+            const sums = new Map<string, number>()
+            for (const e of itemized) sums.set(`${e.kind}|${e.label}`, (sums.get(`${e.kind}|${e.label}`) ?? 0) + e.delta)
+            const rest: ChangeEntry[] = []
+            const covered = new Set<string>()
+            for (const e of diffClubs(this.last, now, cause)) {
+                const key = `${e.kind}|${e.label}`
+                if (!sums.has(key)) { rest.push(e); continue }
+                covered.add(key)
+                const residual = e.delta - (sums.get(key) ?? 0)
+                if (Math.abs(residual) > 0.05) rest.push({ ...e, delta: round(residual, 2) })
+            }
+            // Itemized moves whose net cancelled out produce no diff entry; keep them anyway.
+            this.entries.push(...itemized.filter(e => Math.abs(e.delta) > EPS), ...rest)
+            // A value that did not exist before (e.g. the first board of a career) has no diff to reconcile.
+            const comparable = this.last.board != null && now.board != null
+            if (comparable) for (const [key, sum] of sums) if (!covered.has(key) && Math.abs(sum) > 0.05) {
+                const [kind, label] = key.split("|")
+                this.entries.push({ kind: kind as ChangeKind, subjectId: this.teamId, label, delta: round(-sum, 2), cause: { type: "other", label: "Capped at the limit" } })
+            }
+        }
         this.last = now
         return now
     }

@@ -94,7 +94,7 @@ export function manageSponsors(team: TeamSaveData, save: GameSave, rng: SeededRN
     const ownedTiers = new Set(team.sponsors.map(s => s.tier))
 
     const offers = SponsorGenerator.generateVariedOffers(team, save.currentWeek, rng,
-        EconomyEngine.weeklyWageBill(team, save.contracts, save.staff || [], save.currentWeek + 1))
+        EconomyEngine.sponsorCostBase(team, save.contracts, save.staff || [], save.currentWeek + 1))
     if (offers.length === 0) return
 
     const ranking = team.worldRanking || 999

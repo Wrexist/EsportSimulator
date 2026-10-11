@@ -14,6 +14,7 @@
 import type { GameSave } from "../save-types"
 import { ARRAY_CAPS } from "@/lib/constants"
 import { dedupeQualifications } from "../circuit-engine"
+import { compactLeagueMatches } from "../season/regional-league"
 
 /**
  * Trim each persistent array down to its cap.
@@ -54,6 +55,10 @@ export function compactPersistentState(save: GameSave): void {
             .slice(0, ARRAY_CAPS.eventsLog)
     }
 
+    // AI-vs-AI regional league matches: the league table keeps their results,
+    // so their match records only stay a few weeks (Phase 4.4).
+    compactLeagueMatches(save)
+
     if (save.completedMatches.length > ARRAY_CAPS.completedMatches) {
         save.completedMatches = save.completedMatches.slice(-ARRAY_CAPS.completedMatches)
     }
@@ -68,14 +73,6 @@ export function compactPersistentState(save: GameSave): void {
         save.newsFeed = [...save.newsFeed]
             .sort((a, b) => b.week - a.week)
             .slice(0, ARRAY_CAPS.newsFeed)
-    }
-
-    // FPL pick-up match records are appended (~28/week) and never read by
-    // simulation or UI code (rankings live in playerStats/standings). Uncapped
-    // they were 24 MB of a 44 MB season-10 save, beyond the 32 MiB storage
-    // limit (L27). Keep the newest tail; push order means the tail is newest.
-    if (save.fplData?.matchHistory && save.fplData.matchHistory.length > ARRAY_CAPS.fplMatchHistory) {
-        save.fplData.matchHistory = save.fplData.matchHistory.slice(-ARRAY_CAPS.fplMatchHistory)
     }
 
     // circuitPoints is bounded by team count, but each entry's `results` log

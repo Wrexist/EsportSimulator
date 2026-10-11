@@ -24,7 +24,6 @@ import {
     AcademyWeeklyReport,
     AcademyScoutingMission
 } from "@/types/academy"
-import { FPLSaveData } from "@/types/fpl"
 import { logger } from "@/lib/logger"
 
 // ===== VERSION CONSTANTS =====
@@ -32,7 +31,7 @@ import { logger } from "@/lib/logger"
 /**
  * Current save version - increment when schema changes
  */
-export const CURRENT_SAVE_VERSION = 7
+export const CURRENT_SAVE_VERSION = 8
 
 /**
  * Minimum supported save version for migration
@@ -158,8 +157,8 @@ export interface GameSave {
     academyScoutingMissions: AcademyScoutingMission[]
     academyPendingProspects: string[]
 
-    // === PHASE 80: FPL SYSTEM ===
-    fplData?: FPLSaveData // Individual player ranking system
+    // === REGIONAL LEAGUE (Phase 4.4) ===
+    league?: LeagueState
 
     // === CROSS-SEASON CAREER STATISTICS ===
     careerStats?: CareerStats
@@ -205,8 +204,136 @@ export interface BoardState {
     expectationSetSeason: number
     lastReviewedSeason: number
     onNotice: boolean
-    /** Week of the last quarterly mid-season pulse (idempotency guard). */
+    /** Week of the last quarterly mid-season pulse (idempotency guard; legacy). */
     lastPulseWeek?: number
+
+    // --- Phase 4.4: objectives that matter ---
+    /** This season's objectives (league finish, world ranking, budget discipline). */
+    objectives?: BoardObjective[]
+    /** Season the objectives were set for. */
+    objectivesSeason?: number
+    /** 0 = none, 1 = warned, 2 = final warning (on notice). Resets when confidence recovers. */
+    warnings?: number
+    /** Week of the last weekly confidence update (idempotency guard). */
+    lastWeeklyUpdateWeek?: number
+    /** Recent confidence moves with their causes, newest first (bounded). */
+    history?: BoardMove[]
+    /** Most recent formal review (mid-season or season end). */
+    lastReview?: BoardReviewRecord
+    /** Club cash when the objectives were set (budget-discipline baseline). */
+    seasonStartCash?: number
+}
+
+/** A board objective for the current season. */
+export interface BoardObjective {
+    id: "league" | "ranking" | "finance"
+    label: string
+    /** league: max table position; ranking: max world ranking; finance: min cash at season end. */
+    target: number
+    /** Live progress in the same unit as target (table position, world ranking, cash). */
+    current?: number
+    status?: "ON_TRACK" | "AT_RISK" | "MET" | "MISSED"
+    /** league objectives: the division they refer to. */
+    divisionId?: string
+}
+
+/** One weekly (or review) movement of board confidence. */
+export interface BoardMove {
+    week: number
+    delta: number
+    cause: string
+}
+
+export interface BoardReviewRecord {
+    week: number
+    kind: "MID_SEASON" | "SEASON"
+    delta: number
+    confidence: number
+    summary: string
+}
+
+// ===== REGIONAL LEAGUE (Phase 4.4) =====
+
+export type LeagueRegion = "EUROPE" | "CIS" | "AMERICAS" | "ASIA_PACIFIC"
+
+/** One league fixture. `id` is also the scheduled/completed match id. */
+export interface LeagueFixture {
+    id: string
+    home: string
+    away: string
+    round: number
+    week: number
+    result?: {
+        winnerId: string
+        homeMaps: number
+        awayMaps: number
+        homeRounds: number
+        awayRounds: number
+        forfeit?: boolean
+    }
+}
+
+export interface LeagueStanding {
+    teamId: string
+    played: number
+    wins: number
+    losses: number
+    points: number
+    mapDiff: number
+    roundDiff: number
+}
+
+export interface LeagueDivision {
+    id: string
+    region: LeagueRegion
+    /** 1 = top division of the region. */
+    level: number
+    name: string
+    /** SINGLE round robin for divisions of busy international clubs, DOUBLE otherwise. */
+    format: "SINGLE" | "DOUBLE"
+    teamIds: string[]
+    fixtures: LeagueFixture[]
+    /** Sorted table (points, head-to-head, map and round difference). */
+    standings: LeagueStanding[]
+    completed?: boolean
+    championId?: string
+    promoted?: string[]
+    relegated?: string[]
+}
+
+export interface LeagueSplit {
+    id: string
+    season: number
+    split: 1 | 2
+    firstWeek: number
+    lastWeek: number
+    divisions: LeagueDivision[]
+    completed?: boolean
+}
+
+/** Compact record of a finished split (tables only). */
+export interface LeagueSplitSummary {
+    id: string
+    season: number
+    split: 1 | 2
+    divisions: Array<{
+        id: string
+        name: string
+        region: LeagueRegion
+        level: number
+        /** Final order: [teamId, points, wins, losses]. */
+        table: Array<[string, number, number, number]>
+        championId?: string
+        promoted?: string[]
+        relegated?: string[]
+    }>
+}
+
+export interface LeagueState {
+    version: 1
+    current?: LeagueSplit
+    /** Newest last; bounded (LEAGUE_TUNING.HISTORY_SPLITS). */
+    history: LeagueSplitSummary[]
 }
 
 /**
@@ -411,6 +538,12 @@ export interface TeamSaveData {
     weeklyActivityWeek?: number // One weekly focus reward/cost per team and week, including after reload.
     consecutiveInsolventWeeks?: number // Tracks insolvency duration for game-over trigger
     _prevFinancialState?: "STABLE" | "TIGHT" | "RISK" | "CRISIS" | "INSOLVENT" // Tracks previous state for change detection
+    /** Regional league division the club plays in this split (Phase 4.4). Drives the league central payment. */
+    leagueDivisionId?: string
+    /** 1 = top division of its region. */
+    leagueDivisionLevel?: number
+    /** AI clubs only: times the club went into administration (8 insolvent weeks, the managed club's bankruptcy rule). */
+    administrations?: number
 
     // === PHASE 18: THE EMPIRE ===
     facilities?: FacilitySaveData[]
@@ -1448,4 +1581,6 @@ export interface ManagerDetails {
      *  cooldown so serial job-hopping can't farm signing bonuses. */
     lastJobChangeWeek?: number
     tenureStartWeek?: number
+    /** Times the manager was dismissed (sacked or the club folded) and found a new job. */
+    dismissals?: number
 }

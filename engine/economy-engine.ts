@@ -11,11 +11,11 @@ import {
 } from "../lib/constants"
 import { facilityWeeklyCost } from "./organization-effects"
 import { calculateWeeklyUpkeep } from "./academy-constants"
+import { clubOperationsCost, leagueCentralPayment, sponsorIncomeFloor } from "../lib/balance-tuning"
 
 const FACILITY_BASE_COST = ECONOMY_CONSTANTS.FACILITY_BASE_COST
 const FACILITY_COST_EXPONENT = FACILITY_CONSTANTS.COST_EXPONENT
 const BASE_FAN_INCOME_PER_FAN = ECONOMY_CONSTANTS.BASE_FAN_INCOME_PER_FAN
-const LEAGUE_REVENUE_SHARE = ECONOMY_CONSTANTS.LEAGUE_REVENUE_SHARE
 
 export type FinancialState = "STABLE" | "TIGHT" | "RISK" | "CRISIS" | "INSOLVENT"
 
@@ -32,6 +32,8 @@ export interface WeeklyFinancialReport {
         facilities: number
         equipment: number
         academy: number
+        /** Club operations: travel, admin, content (CLUB_ECONOMY_TUNING). */
+        operations: number
         total: number
     }
     net: number
@@ -61,13 +63,15 @@ export class EconomyEngine {
 
         const equipmentUpkeep = EquipmentManager.calculateWeeklyCost(team)
         const academyUpkeep = team.academyFacility?.level ? calculateWeeklyUpkeep(team.academyFacility.level, academyProspectCount) : 0
-        const totalExpenses = playerWages + staffWages + facilitiesUpkeep + equipmentUpkeep + academyUpkeep
+        const operations = this.calculateOperationsCost(team)
+        const totalExpenses = playerWages + staffWages + facilitiesUpkeep + equipmentUpkeep + academyUpkeep + operations
 
         // 2. Calculate Income
         // Note: Prize money is handled separately by MatchEngine/Tournament logic
         const sponsorIncome = this.calculateSponsorIncome(team)
         const fanIncome = this.calculateFanIncome(team)
-        const leagueShare = LEAGUE_REVENUE_SHARE
+        // Regional league central distribution by division level (Phase 4.4).
+        const leagueShare = leagueCentralPayment(team.leagueDivisionLevel)
 
         const totalIncome = sponsorIncome + fanIncome + leagueShare
 
@@ -104,6 +108,7 @@ export class EconomyEngine {
                 facilities: facilitiesUpkeep,
                 equipment: equipmentUpkeep,
                 academy: academyUpkeep,
+                operations,
                 total: totalExpenses
             },
             net,
@@ -113,9 +118,24 @@ export class EconomyEngine {
         }
     }
 
-    /** Weekly player + staff wages payable in `week` (the sponsor wage-share base). */
+    /** Weekly player + staff wages payable in `week`. */
     static weeklyWageBill(team: TeamSaveData, contracts: ContractSaveData[], staff: StaffSaveData[], week?: number): number {
         return this.calculatePlayerWages(team, contracts || [], week) + this.calculateStaffWages(team.staffIds || [], staff || [], week)
+    }
+
+    /** Sponsor cap base: wages plus club operations (the costs a deal is sized against). */
+    static sponsorCostBase(team: TeamSaveData, contracts: ContractSaveData[], staff: StaffSaveData[], week?: number): number {
+        return this.weeklyWageBill(team, contracts, staff, week) + this.calculateOperationsCost(team)
+    }
+
+    /** Weekly club operations cost (travel, admin, content), scaled by reputation. */
+    static calculateOperationsCost(team: Pick<TeamSaveData, "reputation">): number {
+        return clubOperationsCost(team.reputation)
+    }
+
+    /** Weekly sponsor income an unsponsored club still receives (minor partners, platform revenue). */
+    static sponsorFloor(reputation: number): number {
+        return sponsorIncomeFloor(reputation)
     }
 
     /** Sponsor income multiplier from reputation (0.7 at 0 to 1.3 at 100). */
@@ -135,14 +155,13 @@ export class EconomyEngine {
             })
         }
 
-        // Reputation-based safety net, applied as an income FLOOR rather than an
-        // either/or fallback. Previously the code *replaced* the floor with the
-        // raw sponsor sum the moment a team had any sponsor, so signing a first,
-        // low-payout sponsor (worth less than the rep floor) made weekly income
-        // go DOWN. As a floor, income for an unsponsored team is unchanged and
-        // signing a real sponsor can only ever raise it, never lower it.
-        const reputationFloor = (team.reputation * 150) + 2000
-        total = Math.max(total, reputationFloor)
+        // Minor partners and platform revenue every club earns from its
+        // reputation, plus every signed deal on top (Phase 4.4). Additive, so a
+        // signed sponsor always adds its payout: as a max() floor, a club
+        // ranked outside the top 30 (one STANDARD slot) earned nothing from
+        // its only deal once the floor was above the deal. Signing a sponsor
+        // still can only ever raise income, never lower it.
+        total += this.sponsorFloor(team.reputation)
 
         // Apply difficulty multiplier for custom teams
         const incomeMultiplier = team.difficultySettings?.incomeMultiplier ?? 1.0
