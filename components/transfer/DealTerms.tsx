@@ -11,6 +11,7 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { formatWeeksAsYears, MAX_CONTRACT_WEEKS, MIN_CONTRACT_WEEKS, type NegotiationState } from "./useNegotiation"
 import { ArchetypeChip } from "@/components/player/PersonalityChips"
 import { getArchetype } from "@/engine/personality"
+import { SENIOR_ROSTER_MAX, squadFullMessage } from "@/engine/roster-rules"
 
 const money = (value: number) => formatCurrency(value, "$", false)
 
@@ -109,6 +110,20 @@ export function DealTerms({ n, onDone }: { n: NegotiationState; onDone?: () => v
                     <Button variant="outline" className="h-10 flex-1" onClick={n.retry}>Back to offer</Button>
                     {onDone && <Button variant="ghost" className="h-10 flex-1" onClick={onDone}>Close</Button>}
                 </div>
+            </div>
+        )
+    }
+
+    // A full squad can't sign anyone (the store refuses it): say so before any offer.
+    const squadSize = n.myTeam?.rosterIds.length ?? 0
+    if (squadSize >= SENIOR_ROSTER_MAX) {
+        return (
+            <div className="space-y-3">
+                <div role="status" className="flex items-start gap-3 rounded border border-caution/30 bg-caution/5 px-3 py-3">
+                    <CircleAlert size={18} className="mt-0.5 shrink-0 text-caution" />
+                    <p className="text-xs leading-relaxed text-ink-2">{squadFullMessage(squadSize)}</p>
+                </div>
+                <Button variant="outline" className="h-10 w-full" onClick={() => { router.push("/squad"); onDone?.() }}>Go to squad</Button>
             </div>
         )
     }

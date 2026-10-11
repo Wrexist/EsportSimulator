@@ -208,6 +208,7 @@ export interface EntitiesActions {
   unlistPlayerForTransfer: (playerId: string) => void
   acceptTransferOffer: (eventId: string) => void
   renewContract: (playerId: string) => void
+  releasePlayer: (playerId: string) => { success: boolean; message: string }
   startRoleTraining: (playerId: string, targetRole: Role) => { success: boolean, message: string }
   cancelRoleTraining: (playerId: string) => void
   unlockStaffTalent: (staffId: string, talentId: string) => void

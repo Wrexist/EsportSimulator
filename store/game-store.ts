@@ -688,6 +688,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   unlistPlayerForTransfer: (playerId: string) => void
   acceptTransferOffer: (eventId: string) => void
   renewContract: (playerId: string) => void
+  releasePlayer: (playerId: string) => { success: boolean; message: string }
 
   // Phase 20: Tournament System
   registerForTournament: (tournamentId: string) => { success: boolean; message: string }
@@ -856,6 +857,8 @@ function weekRecordedActions(set: unknown, get: unknown) {
     treatInjury: recordWeekChanges(g, s, settings.treatInjury, () => ({ type: "injury", label: "Medical treatment" })),
     performMentalReset: recordWeekChanges(g, s, ops.performMentalReset, () => ({ type: "staff", label: "Mental reset" })),
     renewContract: recordWeekChanges(g, s, transfers.renewContract, () => ({ type: "contract", label: "Contract renewal" })),
+    releasePlayer: recordWeekChanges(g, s, transfers.releasePlayer, (st, playerId: string) =>
+      ({ type: "transfer", label: `Released ${store(st).players.find(p => p.id === playerId)?.nickname ?? "a player"}` })),
     acceptTransferOffer: recordWeekChanges(g, s, transfers.acceptTransferOffer, () => ({ type: "transfer", label: "Transfer offer accepted" })),
   }
 }

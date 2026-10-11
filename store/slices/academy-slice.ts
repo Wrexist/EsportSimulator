@@ -73,8 +73,9 @@ import {
 } from "@/store/utils/helpers"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { SENIOR_ROSTER_MAX, squadFullMessage } from "@/engine/roster-rules"
 const MAX_ACADEMY_LEVEL = 5
-const MAX_ROSTER_SIZE = 7
+const MAX_ROSTER_SIZE = SENIOR_ROSTER_MAX
 const ACADEMY_RNG_SALT = 0xACADE
 const SCOUT_RNG_SALT = 0xACADE // Academy uses a derived seed so main RNG isn't mutated
 const ACADEMY_REPORT_HISTORY_CAP = 10
@@ -466,7 +467,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
             const normalizedLength = lengthValidation.value
 
             if (team.rosterIds.length >= MAX_ROSTER_SIZE) {
-                result = { success: false, message: `Roster is full (max ${MAX_ROSTER_SIZE} players)` }
+                result = { success: false, message: squadFullMessage(team.rosterIds.length) }
                 return
             }
             if (player.isRetired || state.teams.some(t => t.id !== team.id && (t.rosterIds.includes(player.id) || t.youthAcademyIds?.includes(player.id))) || state.contracts.some(c => c.playerId === player.id && c.endWeek > state.currentWeek)) {

@@ -20,6 +20,7 @@ import { TrophyCabinet } from "@/components/squad/TrophyCabinet"
 import { DressingRoomPanel } from "@/components/squad/DressingRoomPanel"
 import { PersonalityChips } from "@/components/player/PersonalityChips"
 import { captainId } from "@/engine/personality"
+import { SENIOR_ROSTER_MAX, squadFullMessage } from "@/engine/roster-rules"
 import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { AlertCircle, ArrowRightLeft, ArrowUpRight, Users, Plus, Star, CheckCircle2, Activity } from "lucide-react"
 import dynamic from "next/dynamic"
@@ -338,10 +339,16 @@ function SquadPageInner() {
                         <EmptyState icon={Users} title="No active players" description="Sign free agents to build your starting lineup" action={{ label: "Browse transfers", href: "/transfers" }} />
                       </td></tr>
                     )}
-                  <SectionRow label="Bench" hint={<span className="text-xs text-ink-3">{benchRoster.length}</span>} />
+                  <SectionRow
+                    label="Bench"
+                    hint={<span className={cn("text-xs tabular-nums", roster.length >= SENIOR_ROSTER_MAX ? "text-caution" : "text-ink-3")}>{benchRoster.length} · squad {roster.length}/{SENIOR_ROSTER_MAX}</span>}
+                  />
                   {benchRoster.length > 0
                     ? benchRoster.map((p, i) => renderRow(p, i + 6, true))
                     : <tr><td colSpan={12} className="px-4 py-5 text-sm text-ink-3">Bench is empty. Sign a sixth player to cover injuries.</td></tr>}
+                  {roster.length >= SENIOR_ROSTER_MAX && (
+                    <tr><td colSpan={12} role="status" className="border-t border-line px-4 py-3 text-xs text-ink-2">{squadFullMessage(roster.length)}</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
