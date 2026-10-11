@@ -14,6 +14,7 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { soundManager } from "@/lib/sound-manager"
 import { ActiveDealsTable, OffersTable, TierTag, type OfferRowState } from "@/components/sponsorships/SponsorTables"
 
 const MAX_SPONSORS = 3
@@ -96,6 +97,7 @@ export default function SponsorshipsPage() {
 
   const handleAccept = (offer: SponsorSaveData) => {
     const result = signSponsor(team.id, { ...offer, signedWeek: currentWeek || 1 })
+    if (result.success) soundManager.play("money")
     if (result.success) toast.success(`${offer.name} signed`, { description: `${offer.remainingWeeks} weeks at ${money(offer.weeklyPayout)}/wk base.` })
     else toast.error("Couldn't sign", { description: result.message })
   }

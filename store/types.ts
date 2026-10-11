@@ -143,10 +143,7 @@ export interface SettingsState {
   tutorialCompleted: boolean
   showTutorialOnNewGame: boolean
   manualTutorialTrigger: number
-  soundEnabled: boolean
   resolution: string
-  masterVolume: number
-  musicVolume: number
   gameSpeed: "normal" | "fast" | "very-fast"
   difficulty: "easy" | "normal" | "hard" | "legendary"
   autoSave: boolean
@@ -303,10 +300,7 @@ export interface SettingsActions {
   completeTutorial: () => void
   triggerTutorial: () => void
   setShowTutorialOnNewGame: (enabled: boolean) => void
-  setSoundEnabled: (enabled: boolean) => void
   setResolution: (res: string) => void
-  setMasterVolume: (vol: number) => void
-  setMusicVolume: (vol: number) => void
   setGameSpeed: (speed: "normal" | "fast" | "very-fast") => void
   setTimeMode: (mode: "WEEKLY" | "HYBRID_DAILY") => void
   setDifficulty: (difficulty: "easy" | "normal" | "hard" | "legendary") => void

@@ -461,7 +461,6 @@ export interface GameStoreState extends AdvanceState {
   tutorialCompleted: boolean
   showTutorialOnNewGame: boolean
   manualTutorialTrigger: number // Timestamp to force trigger tutorial
-  soundEnabled: boolean
 
   // Phase 23: Hall of Fame
   legendaryPlayers: PlayerSaveData[]
@@ -559,8 +558,6 @@ export interface GameStoreState extends AdvanceState {
 
   // Phase 75: Game Settings
   resolution: string
-  masterVolume: number
-  musicVolume: number
   gameSpeed: "normal" | "fast" | "very-fast"
   difficulty: "easy" | "normal" | "hard" | "legendary"
   autoSave: boolean
@@ -632,7 +629,6 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions {
   completeTutorial: () => void
   triggerTutorial: () => void
   setShowTutorialOnNewGame: (enabled: boolean) => void
-  setSoundEnabled: (enabled: boolean) => void
 
   // Phase 3: Career Moves
   switchTeam: (newTeamId: string) => void
@@ -752,8 +748,6 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions {
 
   // Settings Actions
   setResolution: (res: string) => void
-  setMasterVolume: (vol: number) => void
-  setMusicVolume: (vol: number) => void
   setGameSpeed: (speed: "normal" | "fast" | "very-fast") => void
   setTimeMode: (mode: "WEEKLY" | "HYBRID_DAILY") => void
   setDifficulty: (difficulty: "easy" | "normal" | "hard" | "legendary") => void
@@ -1023,7 +1017,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       tutorialCompleted: false,
       showTutorialOnNewGame: true,
       manualTutorialTrigger: 0,
-      soundEnabled: true,
 
       // Phase 23
       legendaryPlayers: [],
@@ -1059,8 +1052,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       // Phase 75: Game Settings
       resolution: "1920x1080",
-      masterVolume: 80,
-      musicVolume: 0,
       gameSpeed: "normal",
       difficulty: "normal",
       autoSave: true,
@@ -2378,8 +2369,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
 
       // completeOnboarding / completeTutorial / triggerTutorial /
-      // setShowTutorialOnNewGame / setSoundEnabled live in
-      // store/slices/settings-slice.ts now (spread above).
+      // setShowTutorialOnNewGame live in store/slices/settings-slice.ts now
+      // (spread above). Audio settings live only in lib/settings-store.ts.
 
       // Helpers
       // getPlayerTeam / getUpcomingMatches / calculateTeamRating moved to
@@ -2446,7 +2437,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
 
 
-      // Settings actions (setResolution / setMasterVolume / setMusicVolume /
+      // Settings actions (setResolution /
       // setGameSpeed / setTimeMode / setDifficulty / setAutoSave /
       // setNotifications / setShowBugReportButton) live in
       // store/slices/settings-slice.ts now (spread above).
@@ -2471,10 +2462,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         tutorialCompleted: state.tutorialCompleted,
         showTutorialOnNewGame: state.showTutorialOnNewGame,
         manualTutorialTrigger: state.manualTutorialTrigger,
-        soundEnabled: state.soundEnabled,
         resolution: state.resolution,
-        masterVolume: state.masterVolume,
-        musicVolume: state.musicVolume,
         gameSpeed: state.gameSpeed,
         difficulty: state.difficulty,
         notifications: state.notifications,
@@ -2485,7 +2473,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         saveId: state.saveId,
       }) as typeof state,
       onRehydrateStorage: () => (state, error) => {
-        if (state && !error) useSettingsStore.getState().adoptLegacyAutoSave(state.autoSave)
+        if (state && !error) {
+          useSettingsStore.getState().adoptLegacyAutoSave(state.autoSave)
+          // Pre-Phase-5 saves kept the sound switch here; the device settings own it now.
+          useSettingsStore.getState().adoptLegacySoundEnabled((state as { soundEnabled?: boolean }).soundEnabled)
+        }
         if (error) {
           logger.error('[Store] Rehydration failed', error)
         }

@@ -4,6 +4,7 @@ import * as React from 'react'
 import * as TabsPrimitive from '@radix-ui/react-tabs'
 
 import { cn } from '@/lib/utils'
+import { soundManager } from '@/lib/sound-manager'
 
 function Tabs({
   className,
@@ -36,11 +37,16 @@ function TabsList({
 
 function TabsTrigger({
   className,
+  onPointerDown,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
   return (
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
+      onPointerDown={(e) => {
+        if (!props.disabled && e.currentTarget.dataset.state !== 'active') soundManager.play('tab')
+        onPointerDown?.(e)
+      }}
       className={cn(
         "data-[state=active]:bg-hover data-[state=active]:text-ink-1 data-[state=active]:border-line text-ink-2 hover:text-ink-1 active:scale-[0.98] active:bg-raised inline-flex h-[calc(100%-1px)] flex-1 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-transparent px-2.5 py-1 text-sm font-medium whitespace-nowrap transition-[color,background-color,transform] duration-75 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,

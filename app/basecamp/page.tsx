@@ -20,6 +20,7 @@ import { FACILITY_EDGE_PER_LEVEL, NON_PLAYER_BONUS_CAP } from "@/engine/match/ro
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
+import { soundManager } from "@/lib/sound-manager"
 import { GearCatalog } from "./_components/GearCatalog"
 import { FACILITY_EDGE_MAX_LEVELS, facilityEdgePct } from "./_components/facility-edge"
 
@@ -94,6 +95,7 @@ export default function BasecampPage() {
 
   const handleUpgrade = (type: FacilityType, label: string) => {
     const result = upgradeFacility(team.id, type)
+    if (result.success) soundManager.play("facilityUpgrade")
     if (result.success) toast.success(`${label} upgraded`, { description: result.message })
     else toast.error("Upgrade failed", { description: result.message })
   }
