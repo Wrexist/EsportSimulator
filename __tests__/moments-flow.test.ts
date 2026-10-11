@@ -107,7 +107,7 @@ describe("victory / defeat cue", () => {
             expect(outcomeCuePlayed("m2")).toBe(true)
             expect(playMatchOutcomeCue("m2", false)).toBe(false)
             expect(playMatchOutcomeCue("m3", false)).toBe(true)
-            expect(sm.play).toHaveBeenLastCalledWith("defeat")
+            expect(sm.play).toHaveBeenLastCalledWith("defeat", { key: "outcome:m3" })
         } finally {
             delete (globalThis as { window?: unknown }).window
         }
