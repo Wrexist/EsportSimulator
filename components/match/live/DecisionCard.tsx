@@ -26,13 +26,17 @@ export interface DecisionCardProps {
     overtimeNote?: string
 }
 
-/** What one call buys for one player: weapon glyph, cost, gear. */
+/**
+ * What one call buys for one player: weapon glyph, cost, gear. A narrow card
+ * (the radar column at 1366 px) keeps the weapon and the cost; the gear is in
+ * the tooltip.
+ */
 function BuyCell({ p, muted }: { p: BuyPreviewOption["players"][number]; muted: boolean }) {
     return (
-        <div className={cn("flex h-7 min-w-0 items-center gap-1.5 px-2", muted && "opacity-50")} title={`${weaponDisplayName(p.weapon)}${p.armor ? (p.helmet ? " · kevlar + helmet" : " · kevlar") : ""}${p.kit ? " · kit" : ""}${p.utility.length ? ` · ${p.utility.join(", ")}` : ""} · ${money(p.cash - p.spend)} left`}>
-            <WeaponGlyph weapon={p.weapon} className="h-2.5 w-7 text-ink-1" />
+        <div className={cn("flex h-7 min-w-0 items-center gap-1.5 px-2 @max-[52rem]:gap-1 @max-[52rem]:px-1.5", muted && "opacity-50")} title={`${weaponDisplayName(p.weapon)}${p.armor ? (p.helmet ? " · kevlar + helmet" : " · kevlar") : ""}${p.kit ? " · kit" : ""}${p.utility.length ? ` · ${p.utility.join(", ")}` : ""} · ${money(p.cash - p.spend)} left`}>
+            <WeaponGlyph weapon={p.weapon} className="h-2.5 w-7 shrink-0 text-ink-1 @max-[52rem]:w-5" />
             <span className={cn("text-xs tabular-nums", p.spend > 0 ? "text-ink-1" : "text-ink-3")}>{p.spend > 0 ? money(p.spend) : "—"}</span>
-            <span className="ml-auto flex shrink-0 items-center gap-0.5 text-ink-3">
+            <span className="ml-auto flex shrink-0 items-center gap-0.5 text-ink-3 @max-[52rem]:hidden">
                 {p.armor && <ArmorGlyph helmet={p.helmet} className="h-2.5 w-2.5" />}
                 {p.kit && <KitGlyph className="h-2.5 w-2.5 text-side-ct" />}
                 {p.utility.length > 0 && <span className="text-[11px] tabular-nums text-ink-2">{p.utility.length}<GrenadeGlyph kind={p.utility[0]} className="ml-px inline h-2.5 w-1.5 align-[-1px]" /></span>}
@@ -54,7 +58,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
             transition={{ duration: 0.16, ease: "easeOut" }}
-            className="tactical-decisions absolute inset-x-3 bottom-[76px] z-20 overflow-hidden rounded-lg border border-line-strong bg-panel/[0.97] shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
+            className="tactical-decisions @container relative w-full overflow-hidden rounded-lg border border-line-strong bg-panel/[0.97] shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
             aria-label={`Round ${preview.round} buy decision`}
         >
             {auto.on && (
@@ -109,7 +113,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
 
                 {/* Calls × players: what each call buys each player, at its real cost. */}
                 <div className="mt-2.5 overflow-hidden rounded-md border border-line">
-                    <div className="grid grid-cols-[132px_repeat(5,minmax(0,1fr))] border-b border-line bg-shell">
+                    <div className="grid grid-cols-[132px_repeat(5,minmax(0,1fr))] border-b border-line bg-shell @max-[52rem]:grid-cols-[124px_repeat(5,minmax(0,1fr))]">
                         <div className="flex items-end px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">Player · cash</div>
                         {preview.options.map(o => {
                             const label = STRATEGY_LABEL[o.id]
@@ -122,19 +126,19 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                                         disabled={!!o.sameAs}
                                         title={o.sameAs ? `Buys the same as ${STRATEGY_LABEL[o.sameAs]}` : `${label}: ${money(o.total)} total`}
                                         className={cn(
-                                            "flex h-[50px] w-full flex-col items-start justify-center gap-0.5 rounded-[4px] border bg-raised pl-2 pr-7 text-left hover:border-gold hover:bg-hover",
+                                            "flex h-[50px] w-full flex-col items-start justify-center gap-0.5 rounded-[4px] border bg-raised pl-2 pr-7 text-left hover:border-gold hover:bg-hover @max-[52rem]:pl-1.5 @max-[52rem]:pr-5",
                                             isRec ? "border-gold/70" : "border-line",
                                         )}
                                     >
-                                        <span className="text-sm font-semibold leading-none text-ink-1">{label}</span>
-                                        <span className="text-xs leading-none tabular-nums text-ink-3">{o.sameAs ? `= ${STRATEGY_LABEL[o.sameAs]}` : o.total > 0 ? `${money(o.total)} total` : "No spend"}</span>
+                                        <span className="whitespace-nowrap text-sm font-semibold leading-none text-ink-1 @max-[52rem]:text-xs">{label}</span>
+                                        <span className="whitespace-nowrap text-xs leading-none tabular-nums text-ink-3">{o.sameAs ? `= ${STRATEGY_LABEL[o.sameAs]}` : o.total > 0 ? <>{money(o.total)}<span className="@max-[52rem]:hidden"> total</span></> : "No spend"}</span>
                                     </Button>
                                     <button
                                         type="button"
                                         aria-label={`Edit ${label} loadout`}
                                         title={`Edit ${label} loadout`}
                                         onClick={e => { e.stopPropagation(); onEditLoadout(o.id) }}
-                                        className="absolute right-2 top-2 rounded p-1 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1"
+                                        className="absolute right-2 top-2 rounded p-1 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1 @max-[52rem]:right-1 @max-[52rem]:top-1"
                                     >
                                         <Settings2 className="h-3.5 w-3.5" />
                                     </button>
@@ -143,7 +147,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                         })}
                     </div>
                     {!folded && preview.options[0]?.players.map((p, row) => (
-                        <div key={p.id} className="grid grid-cols-[132px_repeat(5,minmax(0,1fr))] border-b border-line last:border-b-0">
+                        <div key={p.id} className="grid grid-cols-[132px_repeat(5,minmax(0,1fr))] border-b border-line last:border-b-0 @max-[52rem]:grid-cols-[124px_repeat(5,minmax(0,1fr))]">
                             <div className="flex h-7 min-w-0 items-center gap-1.5 px-2 text-xs">
                                 <span className="min-w-0 truncate font-semibold text-ink-1">{names[p.id] ?? p.id}</span>
                                 <span className="ml-auto shrink-0 tabular-nums text-positive">{money(p.cash)}</span>

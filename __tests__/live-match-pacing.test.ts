@@ -164,8 +164,8 @@ describe('round timeline (roster cards)', () => {
         loadouts: { H2: { utility: ['smoke', 'flash'] }, H1: { utility: ['incendiary'] } },
     })
 
-    it('shows deaths with the killer from the tick that reveals them', () => {
-        expect(samplePlayer(tl, 'H0', 19).dead).toBe(false)
+    it('shows deaths with the killer once the clock reaches the kill (time <= now, as the feed and radar)', () => {
+        expect(samplePlayer(tl, 'H0', 19.99).dead).toBe(false)
         expect(samplePlayer(tl, 'H0', 20)).toMatchObject({ dead: true, killerId: 'A1', killerWeapon: 'm4a4', hp: 0 })
     })
 
@@ -176,9 +176,10 @@ describe('round timeline (roster cards)', () => {
         // A1 won the duel at 20, so its 20 chip lands there.
         expect(samplePlayer(tl, 'A1', 19).hp).toBe(100)
         expect(samplePlayer(tl, 'A1', 20).hp).toBe(80)
-        // A3 never won a duel: its chip is shown just before the death.
-        expect(samplePlayer(tl, 'A3', 30).hp).toBe(100)
-        expect(samplePlayer(tl, 'A3', 31).hp).toBe(90)
+        // A3 never won a duel: its chip is shown just before the death (1.2 s).
+        expect(samplePlayer(tl, 'A3', 31.7).hp).toBe(100)
+        expect(samplePlayer(tl, 'A3', 31.81).hp).toBe(90)
+        expect(tl.exactHp).toBe(false)
     })
 
     it('splits the other team\'s remaining damage over the survivors (team totals match the engine)', () => {

@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react"
 import { MapId } from "@/types"
 import type { MatchEvent } from "@/types/match"
 import { cn } from "@/lib/utils"
@@ -11,12 +11,14 @@ import type { Floor, RoundMap, RoundScript } from "@/engine/match/round-script-t
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { createRadarScene, prepareRadarScript, sampleRadarScene, sceneAliveCounts, sceneFromSnapshot, type PreparedRadarScript, type RadarScene } from "@/lib/radar-scene"
 import { createRadarClock, clockSetPlayback, clockSetTick } from "@/lib/radar-clock"
+import type { LiveTimeSource } from "@/lib/live-clock"
+import { FREEZE_LABEL_SECONDS } from "@/lib/live-match-pacing"
 import { radarArtFor } from "@/lib/radar-art"
 import { reviewRound, reviewScript, reviewableRounds, type RadarReviewSource } from "@/lib/radar-review"
 import { clampReviewTime, formatRoundClock, scrubberSpan } from "@/lib/radar-scrubber"
 import type { RadarSite } from "@/lib/radar-draw"
 import { roundMapBounds } from "@/lib/radar-view"
-import { RadarCanvas, createRadarFeed, type RadarCanvasHandle, type RadarFeed } from "./RadarCanvas"
+import { RadarCanvas, createRadarFeed, feedLiveTime, type RadarCanvasHandle, type RadarFeed } from "./RadarCanvas"
 import { RadarScrubber } from "./RadarScrubber"
 
 export type { RadarScriptPlayerInfo } from "@/lib/radar-types"
@@ -29,8 +31,16 @@ interface MapRadarPanelProps {
     radarDots?: RadarPlayerDot[]
     /** Snapshot one playback tick ahead; dots glide toward it while animating. */
     nextRadarDots?: RadarPlayerDot[]
+    /** Wall-clock length of one `currentTime` tick (dots glide between ticks) when no `clock` is given. */
     tickDurationMs?: number
     isAnimating?: boolean
+    /**
+     * Continuous round clock (the live match): the radar samples it on every
+     * animation frame, at any pacing speed. Without it the radar glides
+     * between `currentTime` ticks over `tickDurationMs`. Reduced motion steps
+     * once per round second (and at `currentTime`) instead of gliding.
+     */
+    clock?: LiveTimeSource | null
     bombState?: RadarBombState
     currentTime?: number
     killLines?: RadarKillLine[]
@@ -65,6 +75,14 @@ interface MapRadarPanelProps {
     review?: RadarReviewSource | null
     /** Optional: the live round's events (HP from KILL damage) when `review` is not given. */
     roundEvents?: readonly MatchEvent[]
+    /**
+     * Content laid over the bottom of the radar view (e.g. the live buy
+     * decision): it sits above the round scrubber and footer and never covers
+     * them, and scrolls when taller than the view. Shown in the panel's flow
+     * when the radar is collapsed. Pass null when there is nothing to show
+     * (the slot then leaves the DOM, fading out).
+     */
+    overlay?: ReactNode
 }
 
 type ReviewUi = { active: boolean; round: number | null; playing: boolean }
@@ -73,7 +91,7 @@ const NO_REVIEW: ReviewUi = { active: false, round: null, playing: false }
 function MapRadarPanelComponent({
     currentMapId, mapName, radarDots, nextRadarDots, tickDurationMs = 1000, isAnimating = false, bombState, currentTime,
     killLines, sitePositions, smokes, referenceImages, positionSource = 'estimated', fillHeight = false, roundOver = false,
-    script, roundMap, players, review, roundEvents,
+    script, roundMap, players, review, roundEvents, clock, overlay,
 }: MapRadarPanelProps) {
     const panelId = useId().replace(/:/g, "")
     const [isExpanded, setIsExpanded] = useState(true)
@@ -96,13 +114,13 @@ function MapRadarPanelComponent({
     const tick = currentTime != null && Number.isFinite(currentTime) ? currentTime : 0
     const activeScript = script && currentTime != null && currentTime >= 0 ? script : null
 
-    // The live round's recorded result (events → HP, loadouts → weapons / kits).
+    // The live round's recorded result (events and grenade hits → HP, loadouts → weapons / kits).
     const liveRecord = activeScript ? reviewRound(review, activeScript.round) : undefined
     const events = liveRecord?.events ?? roundEvents
     const economy = liveRecord?.playerEconomy
     const livePrep: PreparedRadarScript | null = useMemo(
-        () => (activeScript ? prepareRadarScript(activeScript, { events, economy, players }) : null),
-        [activeScript, events, economy, players],
+        () => (activeScript ? prepareRadarScript(activeScript, { events, economy, players, round: liveRecord }) : null),
+        [activeScript, events, economy, players, liveRecord],
     )
 
     // Review: the live round, or an earlier round rebuilt on demand.
@@ -113,7 +131,7 @@ function MapRadarPanelComponent({
         const s = reviewScript(review, currentMapId, reviewUi.round)
         if (!s) return null
         const rec = reviewRound(review, reviewUi.round)
-        return prepareRadarScript(s, { events: rec?.events, economy: rec?.playerEconomy, players })
+        return prepareRadarScript(s, { events: rec?.events, economy: rec?.playerEconomy, players, round: rec })
     }, [reviewUi.active, reviewUi.round, activeScript, livePrep, review, currentMapId, players])
     const reviewingLive = reviewUi.active && !!activeScript && reviewUi.round === activeScript.round
     const earlierRounds = useMemo(
@@ -136,8 +154,21 @@ function MapRadarPanelComponent({
     // Reduced motion: dots step once per game tick instead of gliding between ticks.
     const animate = isAnimating && !staticEffects
     useEffect(() => {
-        clockSetPlayback(feed.clock, animate, tickDurationMs, performance.now())
-    }, [feed, animate, tickDurationMs])
+        clockSetPlayback(feed.clock, animate && !clock, tickDurationMs, performance.now())
+    }, [feed, animate, tickDurationMs, clock])
+    // The live clock drives the radar directly; reduced motion steps it once
+    // per round second (and at the screen's reveal time, the tick above).
+    useEffect(() => {
+        feed.source = clock ?? null
+        feed.stepped = staticEffects
+        feed.version++
+    }, [feed, clock, staticEffects])
+    // Round over: shot tracers, death bursts and grenade pops finish fading
+    // instead of freezing on the last frame.
+    useEffect(() => {
+        feed.settledAt = roundOver ? performance.now() : -1
+        feed.version++
+    }, [feed, roundOver])
     useEffect(() => {
         feed.prep = livePrep
         feed.snapshot = livePrep ? null : radarDots || killLines || smokes || bombState
@@ -195,7 +226,7 @@ function MapRadarPanelComponent({
         }
         if (shownOver && !reviewUi.active) return { label: "ROUND OVER", color: "#AEB6C2" }
         if (positionSource === 'physical-replay') return { label: "REPLAY", color: "#AEB6C2" }
-        if (!reviewUi.active && currentTime != null && currentTime <= 3) return { label: "FREEZE TIME", color: "#5AA9FF" }
+        if (!reviewUi.active && currentTime != null && currentTime < FREEZE_LABEL_SECONDS) return { label: "FREEZE TIME", color: "#5AA9FF" }
         if (reviewUi.active) return null
         return { label: "LIVE", color: "#3DD68C" }
     })()
@@ -235,7 +266,7 @@ function MapRadarPanelComponent({
         const live = !!activeScript && round === activeScript.round
         const prep = live ? livePrep : reviewPrep
         if (!prep || round === null) return
-        const liveT = Math.max(0, feed.clock.tick + feed.clock.alpha)
+        const liveT = Math.max(0, feedLiveTime(feed))
         // A decided live round is fully known: the whole round can be scrubbed.
         const limited = live && !roundOver
         feed.review.t = clampReviewTime(t, scrubberSpan(prep, limited ? liveT : undefined), limited ? liveT : undefined)
@@ -312,6 +343,7 @@ function MapRadarPanelComponent({
                 </div>}
             </div>
 
+            {!isExpanded && overlay != null && <div className="radar-overlay-slot p-3">{overlay}</div>}
             <AnimatePresence initial={false}>
                 {isExpanded && (
                     <motion.div
@@ -322,6 +354,8 @@ function MapRadarPanelComponent({
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
                         className={cn("overflow-hidden", fillHeight && "flex min-h-0 flex-1 flex-col")}
                     >
+                        {/* The radar view: the canvas frame plus the overlay slot laid over its bottom. */}
+                        <div className={cn("radar-view relative", fillHeight && "flex min-h-0 flex-1 flex-col")}>
                         {/* fillHeight: the frame is the largest square that fits (container query units). */}
                         <div className={cn("flex justify-center px-3 py-2", fillHeight && "min-h-0 flex-1 items-center")} style={fillHeight ? { containerType: "size" } : undefined}>
                             <div className={cn("radar-canvas-frame relative mx-auto aspect-square", !fillHeight && "w-full")}
@@ -350,11 +384,26 @@ function MapRadarPanelComponent({
                                 )}
                             </div>
                         </div>
+                        {/* Mounted only while there is something to show: an empty
+                            scroller over the canvas costs layerization every frame. */}
+                        <AnimatePresence>
+                            {overlay != null && (
+                                <motion.div
+                                    key="radar-overlay"
+                                    initial={false}
+                                    exit={staticEffects ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, y: 10, transition: { duration: 0.16, ease: "easeOut" } }}
+                                    className="radar-overlay-slot pointer-events-none absolute inset-x-3 bottom-2 top-2 z-20 flex flex-col justify-end"
+                                >
+                                    <div className="pointer-events-auto max-h-full min-h-0 overflow-y-auto overscroll-contain rounded-lg">{overlay}</div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        </div>
                         {livePrep && (
                             <RadarScrubber
                                 prep={scrubberPrep}
                                 isLiveRound={(!reviewUi.active || reviewingLive) && !roundOver}
-                                liveTick={Math.max(0, Math.floor(tick))}
+                                liveTick={Math.max(0, tick)}
                                 roundNumber={scrubberRound}
                                 liveRoundNumber={activeScript?.round ?? null}
                                 earlierRounds={earlierRounds}

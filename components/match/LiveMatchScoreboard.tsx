@@ -1,5 +1,6 @@
-import { memo } from "react"
+import { memo, useEffect, useState } from "react"
 import { motion } from "framer-motion"
+import { scorebugTime, type LiveTimeSource, type ScorebugTime } from "@/lib/live-clock"
 import { LiveGameState, Team, MapId } from "@/types"
 import { cn } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
@@ -46,7 +47,29 @@ interface LiveMatchScoreboardProps {
     /** script-v1 loss-bonus level (0–4) per team for the round on screen. */
     homeLossLevel?: number
     awayLossLevel?: number
+    /**
+     * The round in flight: the timer follows the live clock on its own (it
+     * re-renders itself when the shown second changes, not the page). Without
+     * it the timer shows `roundTime` / `bombTime`.
+     */
+    clock?: ScorebugClock | null
 }
+
+/** Live clock and the round's bomb times for the scorebug timer. */
+export interface ScorebugClock {
+    source: LiveTimeSource
+    /** PLANT time (the bomb timer takes over once the clock reaches it). */
+    plantAt?: number
+    /** Defuse / explosion time (the bomb timer ends). */
+    bombEndAt?: number
+}
+
+/**
+ * How often the live timer reads the clock. It re-renders only when the shown
+ * second changes (at most 8×/s; fast-forward plays up to 20 round seconds a
+ * second, so it then steps a few seconds at a time), never the page.
+ */
+const TIMER_POLL_MS = 125
 
 const WIN_TYPE_LABEL: Record<string, string> = {
     ELIMINATION: "Elimination", elimination: "Elimination",
@@ -139,8 +162,37 @@ const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName }: 
     )
 })
 
-// Memoized: the live page re-renders every tick; most ticks only change the
-// round timer, and the history strip is memoized on its own.
+function TimerText({ seconds, planted, paused }: { seconds: number; planted: boolean; paused: boolean }) {
+    const isUrgent = !planted && seconds <= 10 && seconds > 0
+    return (
+        <span className={cn(
+            "ml-1 font-display text-[22px] font-bold normal-case leading-none tracking-normal tabular-nums",
+            paused ? "text-ink-3" : planted ? "text-negative" : isUrgent ? "text-caution" : "text-ink-1",
+        )} data-round-timer="">
+            {planted && <span className="mr-1.5 align-middle font-sans text-[11px] font-semibold uppercase tracking-[0.08em]">Bomb</span>}
+            {Math.floor(seconds / 60)}:{(seconds % 60).toString().padStart(2, '0')}
+        </span>
+    )
+}
+
+/** The round timer of the round in flight, read from the live clock (renders on a new second only). */
+function LiveTimer({ clock, paused }: { clock: ScorebugClock; paused: boolean }) {
+    const { source, plantAt, bombEndAt } = clock
+    const [shown, setShown] = useState<ScorebugTime>(() => scorebugTime(Math.max(0, source.now()), plantAt, bombEndAt))
+    useEffect(() => {
+        const read = () => {
+            const next = scorebugTime(Math.max(0, source.now()), plantAt, bombEndAt)
+            setShown(prev => (prev.seconds === next.seconds && prev.planted === next.planted ? prev : next))
+        }
+        read()
+        const timer = window.setInterval(read, TIMER_POLL_MS)
+        return () => window.clearInterval(timer)
+    }, [source, plantAt, bombEndAt])
+    return <TimerText seconds={shown.seconds} planted={shown.planted} paused={paused} />
+}
+
+// Memoized: the live page re-renders when the feed or roster change; the
+// live timer and the history strip update on their own.
 function LiveMatchScoreboardImpl({
     gameState,
     homeTeam,
@@ -159,6 +211,7 @@ function LiveMatchScoreboardImpl({
     roundHistory = [],
     homeLossLevel,
     awayLossLevel,
+    clock,
 }: LiveMatchScoreboardProps) {
     // Display the actual round countdown (1:55 → 0:00). Falls back to the raw
     // game-time tick when no roundTime is provided so existing callers keep
@@ -169,7 +222,6 @@ function LiveMatchScoreboardImpl({
             ? Math.max(0, roundTime)
             : Math.max(0, gameState.time))
     const showTimer = gameState.time >= 0
-    const isUrgent = !isBombPlanted && displaySeconds <= 10 && displaySeconds > 0
     const reduceMotion = useAppReducedMotion()
     const finished = gameState.status === "FINISHED"
     const toWin = mapsToWinForFormat(matchFormat)
@@ -222,15 +274,9 @@ function LiveMatchScoreboardImpl({
                     <span aria-hidden="true">·</span>
                     <span className={finished ? "text-ink-1" : undefined}>{finished ? "Final" : `RND ${gameState.round} / 24`}</span>
                     {!finished && phase && <><span aria-hidden="true">·</span><span className={phase === "Match point" ? "text-ink-1" : undefined}>{phase}</span></>}
-                    {showTimer && !finished && (
-                        <span className={cn(
-                            "ml-1 font-display text-[22px] font-bold normal-case leading-none tracking-normal tabular-nums",
-                            gameState.isPaused ? "text-ink-3" : isBombPlanted ? "text-negative" : isUrgent ? "text-caution" : "text-ink-1",
-                        )}>
-                            {isBombPlanted && <span className="mr-1.5 align-middle font-sans text-[11px] font-semibold uppercase tracking-[0.08em]">Bomb</span>}
-                            {Math.floor(displaySeconds / 60)}:{(displaySeconds % 60).toString().padStart(2, '0')}
-                        </span>
-                    )}
+                    {showTimer && !finished && (clock
+                        ? <LiveTimer clock={clock} paused={!!gameState.isPaused} />
+                        : <TimerText seconds={displaySeconds} planted={!!isBombPlanted} paused={!!gameState.isPaused} />)}
                 </div>
                 <RoundHistory rounds={roundHistory} homeName={homeTeam.name} awayName={awayTeam.name} />
             </div>

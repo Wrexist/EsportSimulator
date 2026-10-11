@@ -2,8 +2,9 @@
  * Radar scene: what the canvas radar draws at one moment.
  *
  * `prepareRadarScript` indexes a round script once per round (players, sorted
- * deaths and grenades, bomb timeline, HP derived from the round's events,
- * weapon classes). `sampleRadarScene` then fills a reusable `RadarScene` for
+ * deaths and grenades, bomb timeline, HP from the round's record via the
+ * shared `roundHp` model so the roster shows the same numbers, weapon
+ * classes). `sampleRadarScene` then fills a reusable `RadarScene` for
  * any time `t` without allocating (pools only grow), so the canvas can call it
  * on every animation frame. `sceneFromSnapshot` fills the same scene from the
  * snapshot props (physical replay rehearsal, tests).
@@ -16,6 +17,7 @@ import { sampleTrack } from "@/engine/match/round-script"
 import type { MatchEvent, RoundResult } from "@/types/match"
 import type { RadarBombState, RadarKillLine, RadarPlayerDot, RadarScriptPlayerInfo, RadarSmoke } from "./radar-types"
 import { PLANT_SECONDS, POP_SECONDS, TRACER_SECONDS, type BombPhase } from "./radar-script-frame"
+import { hpAt, roundHp, type HpStep } from "./round-hp"
 
 export { TRACER_SECONDS, PLANT_SECONDS, POP_SECONDS, type BombPhase }
 
@@ -60,9 +62,10 @@ export interface PreparedPlayer {
     deathT: number
     weapon: WeaponClass | null
     hasKit: boolean
-    /** Derived damage before the fatal hit: HP drops to `chipHp` at `chipT` (Infinity = no chip). */
-    chipT: number
-    chipHp: number
+    /** HP after each change (lib/round-hp), ending with 0 at the death; empty = 100 all round. */
+    hp: readonly HpStep[]
+    /** Times of the player's non-lethal hits, ascending (hit flash on the ring). */
+    hitTimes: readonly number[]
 }
 
 export interface PreparedDeath {
@@ -91,7 +94,7 @@ export interface PreparedUtility {
     flight: number
 }
 
-/** A damage-only hit (chip) derived from the round's events. */
+/** A damage-only hit (chip): from the dying duel loser, or from where a grenade landed. */
 export interface PreparedHit {
     t: number
     player: number
@@ -106,8 +109,10 @@ export interface PreparedRadarScript {
     deaths: PreparedDeath[]
     utility: PreparedUtility[]
     hits: PreparedHit[]
-    /** HP comes from the events (script-v1 KILL `damage`); false = no HP ring. */
+    /** The round has HP data (script-v1); false = no HP ring (legacy-v2). */
     hpKnown: boolean
+    /** Every hit was recorded (exact HP); false = survivors' chip estimated or unknown. */
+    hpExact: boolean
     carriers: { t: number; carrier: number; x: number; y: number; floor: Floor; hasAt: boolean }[]
     plant?: { t: number; site: SiteId; x: number; y: number; floor: Floor; planter: number }
     defuse?: { tStart: number; tEnd: number; defuser: number; success: boolean }
@@ -116,8 +121,10 @@ export interface PreparedRadarScript {
 }
 
 export interface PrepareRadarOptions {
-    /** The round's resolver events (KILL damage → HP, kill weapons). */
+    /** The round's resolver events (KILL damage / chip → HP, kill weapons). */
     events?: readonly MatchEvent[]
+    /** The recorded round: grenade hits and damage totals (HP); else HP from `events` only. */
+    round?: Pick<RoundResult, "damage" | "utility"> | null
     /** Recorded loadouts (weapon, kit) of the round. */
     economy?: RoundResult["playerEconomy"]
     /** Names and optional weapon / kit by player id. */
@@ -136,15 +143,21 @@ export function prepareRadarScript(script: RoundScript, opts: PrepareRadarOption
 
     const economy = new Map((opts.economy ?? []).map(e => [e.playerId, e]))
     const killWeapon = new Map<string, string>()
-    const damageAtDeath = new Map<string, number>()
-    let hpKnown = false
     for (const e of opts.events ?? []) {
         if (e.type !== "KILL") continue
         if (e.playerId && e.weapon && weaponClassOf(e.weapon) && !killWeapon.has(e.playerId)) killWeapon.set(e.playerId, e.weapon)
-        if (e.victimId && typeof e.damage === "number" && Number.isFinite(e.damage)) {
-            hpKnown = true
-            damageAtDeath.set(e.victimId, e.damage)
-        }
+    }
+    // HP: the shared model (roster and radar agree); the script's sides are the lineups.
+    const hp = roundHp({
+        round: { events: opts.events ? [...opts.events] : undefined, damage: opts.round?.damage, utility: opts.round?.utility },
+        homeIds: ids.filter(id => script.sides[id] === "CT"),
+        awayIds: ids.filter(id => script.sides[id] !== "CT"),
+    })
+    const hitTimes = new Map<string, number[]>()
+    for (const h of hp.hits) {
+        const list = hitTimes.get(h.victimId)
+        if (list) list.push(h.t)
+        else hitTimes.set(h.victimId, [h.t])
     }
 
     const players: PreparedPlayer[] = ids.map(id => {
@@ -154,7 +167,7 @@ export function prepareRadarScript(script: RoundScript, opts: PrepareRadarOption
         return {
             id, side, name: info?.name || id, track: script.tracks[id], deathT: deathT.get(id) ?? Infinity,
             weapon, hasKit: side === "CT" && !!(info?.hasKit ?? economy.get(id)?.hasKit),
-            chipT: Infinity, chipHp: 100,
+            hp: hp.steps[id] ?? [], hitTimes: hitTimes.get(id) ?? [],
         }
     })
 
@@ -184,28 +197,20 @@ export function prepareRadarScript(script: RoundScript, opts: PrepareRadarOption
         }
     })
 
-    // HP: a KILL's `damage` is the victim's HP before the fatal hit. Below 100
-    // they were chipped earlier: at their last duel win (the winner of a duel
-    // may be chipped) or by an enemy HE / molotov landing next to them.
+    // Hit lines: a duel chip comes from the loser where they died, a grenade
+    // from where it landed. Estimated chip without a duel has no line.
     const hits: PreparedHit[] = []
-    for (const [i, p] of players.entries()) {
-        const hp = damageAtDeath.get(p.id)
-        if (hp === undefined || !(hp > 0 && hp < 100) || !Number.isFinite(p.deathT)) continue
-        let best: PreparedHit | undefined
-        for (const d of deaths) {
-            if (d.killer !== i || d.t >= p.deathT) continue
-            if (!best || d.t > best.t) best = { t: d.t, player: i, side: d.victimSide, fromX: d.ax, fromY: d.ay, fromFloor: d.afloor }
+    for (const h of hp.hits) {
+        const player = index.get(h.victimId)
+        const attacker = h.attackerId !== undefined ? index.get(h.attackerId) : undefined
+        if (player === undefined || attacker === undefined) continue
+        if (h.source === "duel") {
+            const d = deaths.find(x => x.victim === attacker && Math.abs(x.t - h.t) < 0.05)
+            if (d) hits.push({ t: h.t, player, side: d.victimSide, fromX: d.ax, fromY: d.ay, fromFloor: d.afloor })
+        } else {
+            const u = utility.find(x => x.thrower === attacker && (x.kind === "he" || x.kind === "molotov") && Math.abs(x.t - h.t) < 0.05)
+            if (u) hits.push({ t: h.t, player, side: u.side, fromX: u.x, fromY: u.y, fromFloor: u.floor })
         }
-        for (const u of utility) {
-            if (u.side === p.side || u.t >= p.deathT || (u.kind !== "he" && u.kind !== "molotov")) continue
-            const at = sampleTrack(p.track, u.t)
-            if (dist(at.x, at.y, u.x, u.y) > u.radius + 6) continue
-            if (!best || u.t > best.t) best = { t: u.t, player: i, side: u.side, fromX: u.x, fromY: u.y, fromFloor: u.floor }
-        }
-        if (!best) continue
-        p.chipT = best.t
-        p.chipHp = hp
-        hits.push(best)
     }
     hits.sort((a, b) => a.t - b.t)
 
@@ -217,7 +222,7 @@ export function prepareRadarScript(script: RoundScript, opts: PrepareRadarOption
     }))
 
     return {
-        script, players, index, deaths, utility, hits, hpKnown, carriers,
+        script, players, index, deaths, utility, hits, hpKnown: hp.known, hpExact: hp.exact, carriers,
         ...(bomb.plant ? { plant: { t: bomb.plant.t, site: bomb.plant.site, x: bomb.plant.at.x, y: bomb.plant.at.y, floor: bomb.plant.at.floor, planter: index.get(bomb.plant.planterId) ?? -1 } } : {}),
         ...(bomb.defuse ? { defuse: { tStart: bomb.defuse.tStart, tEnd: bomb.defuse.tEnd, defuser: index.get(bomb.defuse.defuserId) ?? -1, success: bomb.defuse.success } } : {}),
         ...(bomb.explodeAt !== undefined ? { explodeAt: bomb.explodeAt } : {}),
@@ -379,6 +384,16 @@ function fillTrail(track: readonly TrackKey[], t: number, lo: number, p: ScenePl
     p.trailN = n
 }
 
+/** Seconds since the latest hit at or before `t` (Infinity = none yet). */
+function lastHitAge(times: readonly number[], t: number): number {
+    let age = Infinity
+    for (const h of times) {
+        if (h > t) break
+        age = t - h
+    }
+    return age
+}
+
 /** Fills `scene` with everything the radar shows at `t`. No allocation once the pools are warm. */
 export function sampleRadarScene(prep: PreparedRadarScript, t: number, scene: RadarScene): RadarScene {
     scene.t = t
@@ -391,8 +406,8 @@ export function sampleRadarScene(prep: PreparedRadarScript, t: number, scene: Ra
         s.id = p.id; s.side = p.side; s.name = p.name; s.weapon = p.weapon; s.hasKit = p.hasKit
         const lo = sampleTrackInto(p.track, t, s)
         s.alive = t < p.deathT
-        s.hp = !prep.hpKnown ? NaN : !s.alive ? 0 : p.chipT <= t ? p.chipHp : 100
-        s.hitAge = p.chipT <= t ? t - p.chipT : Infinity
+        s.hp = !prep.hpKnown ? NaN : !s.alive ? 0 : hpAt(p.hp, t)
+        s.hitAge = lastHitAge(p.hitTimes, t)
         s.hasBomb = false; s.planting = false; s.defusing = false; s.progress = 0
         if (s.alive) fillTrail(p.track, t, lo, s)
         else s.trailN = 0

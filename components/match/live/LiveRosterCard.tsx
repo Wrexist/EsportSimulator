@@ -67,6 +67,7 @@ const RosterCardRow = memo(function RosterCardRow(p: RosterCardRowProps) {
                             <span
                                 className="relative h-1.5 min-w-10 flex-1 overflow-hidden rounded-full bg-hover"
                                 role="meter" aria-label={`${p.name} health`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p.hp}
+                                data-hp-estimated={p.hpEstimated ? "" : undefined}
                                 title={p.hpEstimated ? "Health (chip damage on survivors is estimated from the round's damage totals)" : "Health"}
                             >
                                 <span className={cn("absolute inset-y-0 left-0 rounded-full transition-[width] duration-300", hpTone(p.hp))} style={{ width: `${Math.max(0, Math.min(100, p.hp))}%` }} />

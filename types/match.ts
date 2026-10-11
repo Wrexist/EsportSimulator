@@ -36,6 +36,12 @@ export interface MatchEvent {
     zone?: string
     /** script-v1 KILL: damage the killer dealt with the kill (the victim's remaining HP). */
     damage?: number
+    /**
+     * script-v1 KILL (reporting only): HP the killer lost in this duel (the
+     * loser's shots before dying). Absent = none, or a round recorded before
+     * per-hit data (then no grenade carries `hit` either).
+     */
+    chip?: number
     /** script-v1 KILL: the round's first kill. */
     isOpening?: boolean
 }
@@ -179,8 +185,12 @@ export interface RoundResult {
     }
     /** script-v1: damage dealt this round by player id (kills + chip + grenades). */
     damage?: Record<string, number>
-    /** script-v1: grenades thrown (thrower, kind, baked utility spot id, site). */
-    utility?: { t: number; playerId: string; kind: 'smoke' | 'flash' | 'molotov' | 'he'; spot: string; site: 'A' | 'B' }[]
+    /**
+     * script-v1: grenades thrown (thrower, kind, baked utility spot id, site).
+     * A damaging grenade (HE / molotov) also names the player it hurt (`hit`)
+     * and the HP it took (`dmg`) — reporting only, absent on older rounds.
+     */
+    utility?: { t: number; playerId: string; kind: 'smoke' | 'flash' | 'molotov' | 'he'; spot: string; site: 'A' | 'B'; hit?: string; dmg?: number }[]
 }
 
 /** Manager decisions recorded with a result (own team only; no hidden opponent data). */

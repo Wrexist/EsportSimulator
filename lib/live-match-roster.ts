@@ -7,20 +7,19 @@
  * grenades thrown) and the post-buy loadouts, then sampled at the playback
  * clock. Display only; nothing here feeds the engine.
  *
- * HP: script-v1 KILL events carry `damage` (the victim's HP when killed),
- * so a victim's earlier chip damage (100 − damage) is exact; it is shown at
- * the victim's last won duel this round (where the engine chips the winner)
- * or just before the death. Survivors' chip is only recorded per round
- * (RoundResult.damage = damage dealt by each player): what the other team
- * dealt beyond 100 per kill is split over the survivors (by duels won) and
- * shown at those duels. Team totals match the engine; the per-player split
- * is an estimate. legacy-v2 rounds carry no damage: HP stays 100 until death.
+ * HP comes from `roundHp` (lib/round-hp.ts), the model the radar uses too:
+ * exact for rounds with per-hit data, estimated for older script-v1 rounds,
+ * 100 until death for legacy-v2 rounds.
+ *
+ * Everything is revealed when the playback clock reaches its time
+ * (`t <= time`), the rule the kill feed and the radar use.
  */
 
 import type { MapResult, MatchEvent, RoundResult } from "@/types"
 import type { RoundScript } from "@/engine/match/round-script-types"
+import { MAX_HP, roundHp, type HpStep } from "./round-hp"
 
-export interface HpStep { t: number; hp: number }
+export type { HpStep } from "./round-hp"
 export interface RoundDeath { t: number; killerId?: string; weapon?: string; headshot?: boolean }
 export interface RoundThrow { t: number; kind: string }
 export interface MultiKill { t: number; playerId: string; count: number }
@@ -34,8 +33,10 @@ export interface RoundTimeline {
     bought: Record<string, string[]>
     /** A player's 3rd, 4th and 5th kill of the round. */
     multiKills: MultiKill[]
-    /** True when survivors' HP is an estimate (script-v1 per-round damage). */
+    /** True when survivors' HP is an estimate (older script-v1 rounds: per-round damage only). */
     estimatedHp: boolean
+    /** True when the round recorded every hit (HP is exact). */
+    exactHp: boolean
 }
 
 export interface RoundTimelineSource {
@@ -46,8 +47,6 @@ export interface RoundTimelineSource {
     loadouts?: Readonly<Record<string, { utility?: readonly string[] } | undefined>>
     script?: Pick<RoundScript, "utility"> | null
 }
-
-const MAX_HP = 100
 
 /** The round's HP / death / grenade timeline. Pure. */
 export function buildRoundTimeline(src: RoundTimelineSource): RoundTimeline {
@@ -66,50 +65,8 @@ export function buildRoundTimeline(src: RoundTimelineSource): RoundTimeline {
         if (list.length >= 3) multiKills.push({ t: k.time, playerId: k.playerId, count: list.length })
     }
 
-    // Chip damage → HP steps.
-    const chips: Record<string, { t: number; dmg: number }[]> = {}
-    const addChip = (id: string, t: number, dmg: number) => { if (dmg > 0) (chips[id] ??= []).push({ t: Math.max(0, t), dmg }) }
-    const lastKillBefore = (id: string, t: number) => {
-        const before = (killTimes[id] ?? []).filter(k => k < t - 0.05)
-        return before.length ? before[before.length - 1] : undefined
-    }
-    let estimatedHp = false
-    for (const k of kills) {
-        if (deaths[k.victimId]?.t !== k.time || typeof k.damage !== "number") continue
-        const chip = MAX_HP - Math.max(0, Math.min(MAX_HP, k.damage))
-        addChip(k.victimId, lastKillBefore(k.victimId, k.time) ?? k.time - 1.2, chip)
-    }
-    const dealt = src.round.damage
-    if (dealt && Object.keys(dealt).length) {
-        const lastKillT = kills.length ? kills[kills.length - 1].time : 0
-        for (const team of ["home", "away"] as const) {
-            const ids = team === "home" ? src.homeIds : src.awayIds
-            const foes = team === "home" ? src.awayIds : src.homeIds
-            const dead = ids.filter(id => deaths[id]).length
-            const rest = foes.reduce((s, id) => s + (dealt[id] ?? 0), 0) - MAX_HP * dead
-            const survivors = ids.filter(id => !deaths[id])
-            if (rest <= 0 || !survivors.length) continue
-            estimatedHp = true
-            // Split by duels won (the engine chips duel winners), at least a share each.
-            const weights = survivors.map(id => (killTimes[id]?.length ?? 0) + 0.5)
-            const total = weights.reduce((s, w) => s + w, 0)
-            survivors.forEach((id, i) => {
-                const share = Math.min(MAX_HP - 1, Math.round(rest * weights[i] / total))
-                const times = killTimes[id]?.length ? killTimes[id] : [lastKillT]
-                const per = Math.floor(share / times.length)
-                times.forEach((t, j) => addChip(id, t, j === times.length - 1 ? share - per * (times.length - 1) : per))
-            })
-        }
-    }
-    const hp: Record<string, HpStep[]> = {}
-    for (const [id, list] of Object.entries(chips)) {
-        let cur = MAX_HP
-        hp[id] = list.sort((a, b) => a.t - b.t).map(c => {
-            cur = Math.max(1, cur - c.dmg)
-            return { t: c.t, hp: cur }
-        })
-    }
-    for (const [id, d] of Object.entries(deaths)) (hp[id] ??= []).push({ t: d.t, hp: 0 })
+    const hpModel = roundHp(src)
+    const hp: Record<string, HpStep[]> = hpModel.steps
 
     // Grenades thrown (engine record, else the script's).
     const throws: Record<string, RoundThrow[]> = {}
@@ -123,13 +80,14 @@ export function buildRoundTimeline(src: RoundTimelineSource): RoundTimeline {
         const u = src.loadouts?.[id]?.utility
         if (u?.length) bought[id] = u.map(normalizeNade)
     }
-    return { hp, deaths, throws, bought, multiKills, estimatedHp }
+    return { hp, deaths, throws, bought, multiKills, estimatedHp: hpModel.estimated, exactHp: hpModel.exact }
 }
 
 const normalizeNade = (kind: string) => (kind === "incendiary" || kind === "fire" || kind === "incgrenade" ? "molotov" : kind === "hegrenade" || kind === "grenade" ? "he" : kind === "flashbang" ? "flash" : kind === "smokegrenade" ? "smoke" : kind)
 
-/** Revealed on the tick that reaches floor(t), like the kill feed. */
-const shown = (t: number, time: number) => Math.floor(t) <= time
+/** Revealed once the playback clock reaches it: the rule the kill feed and the radar share. */
+export const revealed = (t: number, time: number) => t <= time
+const shown = revealed
 
 export interface LivePlayerSample {
     hp: number
@@ -140,7 +98,7 @@ export interface LivePlayerSample {
     nades: string[]
 }
 
-/** One player's state at playback time `time` (whole round seconds). */
+/** One player's state at playback time `time` (round seconds). */
 export function samplePlayer(timeline: RoundTimeline | null, id: string, time: number): LivePlayerSample {
     if (!timeline || time < 0) return { hp: MAX_HP, dead: false, nades: timeline?.bought[id] ?? [] }
     const death = timeline.deaths[id]
