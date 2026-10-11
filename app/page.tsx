@@ -11,6 +11,7 @@ import { ActionCenter } from "@/components/dashboard/ActionCenter"
 import { GettingStartedChecklist } from "@/components/dashboard/GettingStartedChecklist"
 import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
 import { LastWeekPanel } from "@/components/report/LastWeekPanel"
+import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
 import { Button } from "@/components/ui/button"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { PlayerPortrait } from "@/components/ui/asset-images"
@@ -32,6 +33,7 @@ const ProAwardsModal = dynamic(() => import("@/components/celebration/ProAwardsM
 import { EconomyEngine } from "@/engine/economy-engine"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getBoardSanctionedFee, getTierTargets } from "@/engine/board-expectations"
+import { ordinal } from "@/engine/season/regional-league"
 import { boardStartTargets } from "@/lib/club-expectations"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { fixtureBlockReason } from "@/lib/playable-match"
@@ -92,7 +94,7 @@ export default function Page() {
     isInitialized, playerTeamId, teams, players, contracts,
     scheduledMatches, completedMatches, currentWeek, currentDay, academyCount,
     timeMode, _hasHydrated, pendingSeasonRecap,
-    gameOverReason, gameOverWeek, tournamentQualifications,
+    gameOverReason, tournamentQualifications,
     financeLedger, staff, storeLoading, gameStartDate,
   } = useGameStore(useShallow(s => ({
     isInitialized: s.isInitialized,
@@ -109,7 +111,6 @@ export default function Page() {
     _hasHydrated: s._hasHydrated,
     pendingSeasonRecap: s.pendingSeasonRecap,
     gameOverReason: s.gameOverReason,
-    gameOverWeek: s.gameOverWeek,
     tournamentQualifications: s.tournamentQualifications,
     financeLedger: s.financeLedger,
     staff: s.staff,
@@ -292,47 +293,9 @@ export default function Page() {
   // If still not active after hydration, we'll be redirected by useEffect, but show nothing for now
   if (!isSessionActive) return null
 
-  // Game Over
-  if (gameOverReason) {
-    const weeksPlayed = gameOverWeek ?? currentWeek
-    const seasonsPlayed = Math.floor((weeksPlayed - 1) / 52) + 1
-    const totalTrophies = playerTeam?.trophies?.length ?? 0
-    const isSacked = gameOverReason === "SACKED"
-    return (
-      <div className="flex min-h-[75vh] items-center justify-center">
-        <Panel className="w-full max-w-lg rounded-[10px] border-line-strong" padded={false}>
-          <div className="space-y-2 p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-negative">Career over</p>
-            <h1 className="font-display text-4xl font-bold uppercase leading-none text-ink-1">
-              {isSacked ? "Relieved of duty" : "Organization dissolved"}
-            </h1>
-            <p className="text-sm text-ink-2">
-              {isSacked
-                ? `After consecutive seasons below the board's expectations, ${playerTeam?.name ?? "your club"} has terminated your contract.`
-                : `After 8 consecutive weeks of insolvency, ${playerTeam?.name ?? "your team"} has been forced to disband.`}
-            </p>
-          </div>
-          <dl className="divide-y divide-line border-y border-line text-sm">
-            {[
-              ["Seasons managed", seasonsPlayed],
-              ["Weeks survived", weeksPlayed],
-              ["Trophies won", totalTrophies],
-              ["Final ranking", `#${playerTeam?.worldRanking ?? "—"}`],
-            ].map(([label, value]) => (
-              <div key={label} className="flex justify-between px-6 py-2.5">
-                <dt className="text-ink-3">{label}</dt>
-                <dd className="font-semibold tabular-nums text-ink-1">{value}</dd>
-              </div>
-            ))}
-          </dl>
-          <div className="flex justify-end gap-2 p-6">
-            <Button variant="outline" onClick={() => router.push("/load-game")}>Load save</Button>
-            <Button onClick={() => router.push("/main-menu")}>Main menu</Button>
-          </div>
-        </Panel>
-      </div>
-    )
-  }
+  // Game over: a dismissed manager gets the job market (Phase 4.4).
+  if (gameOverReason) return <DismissalJobMarket />
+
 
   // ---- Next fixture hero ----
   const renderHero = () => {
@@ -440,6 +403,10 @@ export default function Page() {
   const confidence = Math.max(0, Math.min(100, Math.round(boardState?.confidence ?? 60)))
   const sanctioned = boardState && playerTeam ? getBoardSanctionedFee(boardState, playerTeam.budget) : null
   const rankOnTrack = worldRank > 0 && worldRank <= rankTarget
+  // Phase 4.4: the board's real objectives (league finish, ranking, budget).
+  const objectives = boardState?.objectives ?? []
+  const objectiveProgress = (o: (typeof objectives)[number]) => o.current === undefined ? "—"
+    : o.id === "finance" ? formatCurrency(o.current) : o.id === "ranking" ? `#${o.current}` : ordinal(o.current)
 
   const finance = financialReport
   const financeState = FINANCE_STATE[finance?.state ?? "STABLE"] ?? FINANCE_STATE.STABLE
@@ -566,7 +533,7 @@ export default function Page() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-base font-semibold text-ink-1">{tierTargets.label}</p>
-                  <p className="mt-0.5 text-xs text-ink-3">{boardState ? "Reviewed by the board at season end." : "The board confirms its target after the first week."}</p>
+                  <p className="mt-0.5 text-xs text-ink-3">{boardState ? "Confidence moves every week; reviews after split 1 and at season end." : "The board confirms its target after the first week."}</p>
                 </div>
                 {boardState?.onNotice && (
                   <span className="inline-flex shrink-0 items-center gap-1 rounded-sm bg-negative/15 px-1.5 py-0.5 text-[11px] font-semibold text-negative">
@@ -575,19 +542,30 @@ export default function Page() {
                 )}
               </div>
               <dl className="mt-4 divide-y divide-line border-y border-line text-sm">
-                <div className="flex items-center justify-between py-2">
-                  <dt className="text-ink-3">Finish ranked</dt>
-                  <dd className="tabular-nums text-ink-1">
-                    #{rankTarget} or better
-                    <span className={cn("ml-2 text-xs", rankOnTrack ? "text-positive" : "text-ink-3")}>now #{worldRank || "—"}</span>
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between py-2">
-                  <dt className="text-ink-3">Trophies</dt>
-                  <dd className="tabular-nums text-ink-1">
-                    {tierTargets.trophyTarget > 0 ? `${trophiesThisSeason} of ${tierTargets.trophyTarget}` : `${trophiesThisSeason} won · none required`}
-                  </dd>
-                </div>
+                {objectives.length > 0 ? objectives.map(o => (
+                  <div key={o.id} className="flex items-center justify-between gap-3 py-2">
+                    <dt className="text-ink-3">{o.label}</dt>
+                    <dd className={cn("shrink-0 text-xs tabular-nums", o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>
+                      now {objectiveProgress(o)}
+                    </dd>
+                  </div>
+                )) : (
+                  <>
+                    <div className="flex items-center justify-between py-2">
+                      <dt className="text-ink-3">Finish ranked</dt>
+                      <dd className="tabular-nums text-ink-1">
+                        #{rankTarget} or better
+                        <span className={cn("ml-2 text-xs", rankOnTrack ? "text-positive" : "text-ink-3")}>now #{worldRank || "—"}</span>
+                      </dd>
+                    </div>
+                    <div className="flex items-center justify-between py-2">
+                      <dt className="text-ink-3">Trophies</dt>
+                      <dd className="tabular-nums text-ink-1">
+                        {tierTargets.trophyTarget > 0 ? `${trophiesThisSeason} of ${tierTargets.trophyTarget}` : `${trophiesThisSeason} won · none required`}
+                      </dd>
+                    </div>
+                  </>
+                )}
                 <div className="flex items-center justify-between py-2">
                   <dt className="text-ink-3">Board confidence</dt>
                   <dd><Meter value={confidence} label="Board confidence" trackClassName="w-24" /></dd>

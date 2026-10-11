@@ -305,7 +305,6 @@ async function run() {
             await sleep(700)
             await act(page, btn("BUY"), 700)
         }],
-        ["48_fpl", "/fpl", async () => { await act(page, btn("FPL Challenger"), 800); await sleep(900); await act(page, btn("FPL Pro"), 600) }],
         ["49_create_team", "/new-game/create-team", async () => { await sleep(600) }],
     ]
     for (const [name, route, action] of interactions) {

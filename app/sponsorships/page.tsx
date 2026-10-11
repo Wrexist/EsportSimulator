@@ -74,7 +74,7 @@ export default function SponsorshipsPage() {
 
   const slotsFull = activeSponsors.length >= MAX_SPONSORS
   const repFactor = EconomyEngine.sponsorReputationFactor(team.reputation)
-  const floor = team.reputation * 150 + 2000
+  const floor = EconomyEngine.sponsorFloor(team.reputation)
   const openBonuses = activeSponsors.flatMap(s => s.goals ?? []).filter(g => !g.isCompleted).reduce((sum, g) => sum + g.bonusPayout, 0)
   const season = Math.ceil(currentWeek / 52)
 
@@ -118,7 +118,7 @@ export default function SponsorshipsPage() {
         subtitle="Three slots, one deal per tier. Goals pay a one-off bonus when reached; missing one costs nothing."
         aside={
           <KpiStrip>
-            <Kpi label="Sponsor income / wk" value={formatCurrency(weeklyIncome, "$", true)} hint={weeklyIncome <= floor ? "Reputation floor" : undefined} />
+            <Kpi label="Sponsor income / wk" value={formatCurrency(weeklyIncome, "$", true)} hint={weeklyIncome <= floor ? "Base partners only" : undefined} />
             <Kpi label="Slots" value={`${activeSponsors.length} / ${MAX_SPONSORS}`} />
             <Kpi label="World rank" value={gates.ranking >= 999 ? "—" : `#${gates.ranking}`} />
             <Kpi label="Open bonuses" value={formatCurrency(openBonuses, "$", true)} />
@@ -164,7 +164,7 @@ export default function SponsorshipsPage() {
           <Panel title="How deals pay">
             <ul className="space-y-3 text-sm text-ink-2">
               <li>Each deal pays its base × your reputation factor (now <span className="tabular-nums text-ink-1">×{repFactor.toFixed(2)}</span>) every week.</li>
-              <li>If all deals together pay less than the reputation floor (<span className="tabular-nums text-ink-1">{money(floor)}</span>/wk), you get the floor instead — so a small deal can add nothing.</li>
+              <li>Every club also earns base partner income from its reputation (<span className="tabular-nums text-ink-1">{money(floor)}</span>/wk). Each signed deal adds its payout on top.</li>
               <li>Brand effects apply every week of the deal: reputation, the whole roster&apos;s morale, followers.</li>
               <li>Goal bonuses are paid once, on the week you reach them. There is no penalty for missing a goal.</li>
               <li>When a deal ends, that brand won&apos;t sign again for {RESIGN_COOLDOWN_WEEKS} weeks.</li>
