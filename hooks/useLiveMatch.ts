@@ -892,7 +892,7 @@ export function useLiveMatch(id: string) {
     // The round plays on a continuous clock (lib/live-clock): key moments at
     // speed, quiet stretches fast-forwarded with an ease, or full rounds at
     // `speed`. The radar samples the clock every animation frame and the
-    // scorebug timer reads it on its own (≤ 4×/s); the page only renders when
+    // scorebug timer reads it on its own (≤ 8×/s); the page only renders when
     // what it shows changes: at each event / HP step / grenade / pacing
     // boundary (the round's `wakes`), revealed when the clock reaches them
     // (time <= now, the rule the radar uses too). The checkpoint stamps the

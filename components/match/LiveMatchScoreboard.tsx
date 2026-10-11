@@ -64,8 +64,12 @@ export interface ScorebugClock {
     bombEndAt?: number
 }
 
-/** How often the live timer reads the clock (it re-renders only when the shown second changes). */
-const TIMER_POLL_MS = 250
+/**
+ * How often the live timer reads the clock. It re-renders only when the shown
+ * second changes (at most 8×/s; fast-forward plays up to 20 round seconds a
+ * second, so it then steps a few seconds at a time), never the page.
+ */
+const TIMER_POLL_MS = 125
 
 const WIN_TYPE_LABEL: Record<string, string> = {
     ELIMINATION: "Elimination", elimination: "Elimination",
@@ -171,7 +175,7 @@ function TimerText({ seconds, planted, paused }: { seconds: number; planted: boo
     )
 }
 
-/** The round timer of the round in flight, read from the live clock (≤ 4×/s, renders on a new second only). */
+/** The round timer of the round in flight, read from the live clock (renders on a new second only). */
 function LiveTimer({ clock, paused }: { clock: ScorebugClock; paused: boolean }) {
     const { source, plantAt, bombEndAt } = clock
     const [shown, setShown] = useState<ScorebugTime>(() => scorebugTime(Math.max(0, source.now()), plantAt, bombEndAt))
