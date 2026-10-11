@@ -113,7 +113,9 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
             out.push({ key: `offer:${e.id}`, kind: "offer", reason: `${String(data.teamName ?? "A club")} bid${amount} for ${String(data.playerName ?? "your player")}`, href: "/desktop?app=mail", actionLabel: "Review offer" })
         } else if (type === "JOB_OFFER") {
             if (typeof data.deadlineWeek === "number" && data.deadlineWeek < state.currentWeek) continue
-            out.push({ key: `offer:${e.id}`, kind: "offer", reason: `Job offer from ${String(data.teamName ?? "another club")}`, href: "/desktop?app=mail", actionLabel: "Review offer" })
+            const club = data.offeringTeamName ?? data.teamName
+            const rank = typeof data.offeringTeamRank === "number" ? ` (#${data.offeringTeamRank})` : ""
+            out.push({ key: `offer:${e.id}`, kind: "offer", reason: `Job offer from ${club ? `${String(club)}${rank}` : "another club"}`, href: "/desktop?app=mail", actionLabel: "Review offer" })
         } else if (type === "CONTRACT" && data.action === "TRANSFER_OFFER") {
             out.push({ key: `offer:${e.id}`, kind: "offer", reason: `Transfer offer for ${String(data.playerName ?? playerName(String(data.playerId ?? "")))}`, href: "/desktop?app=mail", actionLabel: "Review offer" })
         }

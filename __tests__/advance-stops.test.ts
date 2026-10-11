@@ -65,6 +65,12 @@ test("a transfer offer stops with club, amount and player", () => {
     expect(nextStop(src(save), new Set())).toMatchObject({ kind: "offer", reason: "AI Team 2 bid $250k for PlayerA3" })
 })
 
+test("a job offer names the club and its rank", () => {
+    const save = base()
+    save.eventsLog.push({ id: "job1", week: 5, type: "JOB_OFFER", acknowledged: false, data: { offeringTeamName: "Vitalis", offeringTeamRank: 7, deadlineWeek: 6 }, choices: [] } as never)
+    expect(nextStop(src(save), new Set())).toMatchObject({ kind: "offer", reason: "Job offer from Vitalis (#7)" })
+})
+
 test("an expired or answered offer does not stop", () => {
     const save = base()
     save.eventsLog.push({ id: "off1", week: 1, type: "TRANSFER_OFFER", acknowledged: false, data: { teamName: "X", playerName: "Y", expiresWeek: 3 }, choices: [] } as never)
