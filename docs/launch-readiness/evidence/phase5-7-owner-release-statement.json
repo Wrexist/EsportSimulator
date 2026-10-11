@@ -1,0 +1,238 @@
+{
+  "recordedAt": "2026-10-11T16:26:39.501Z",
+  "statement": "I clear the project-made and project-edited revamp content for release.",
+  "decision": "release-project-made-revamp-content",
+  "context": "Phase 5.7. The owner chose project-made assets (2026-10-11). Asked in the revamp session whether to record \"I clear the project-made and project-edited revamp content for release.\" as their statement, covering round maps, radar art, key art, trophy art and the edited game data, the owner answered \"Yes, record it\" (2026-10-11). The statement binds the exact bytes listed below; any later edit needs a new record.",
+  "files": [
+    {
+      "path": "data/round-maps/Ancient.json",
+      "sha256": "db3cce3abbabb9c6ed9ea382f0724a98f170893b7c71d71f504a8560aa72ed9f",
+      "bytes": 34018
+    },
+    {
+      "path": "data/round-maps/Anubis.json",
+      "sha256": "4e41d7c0fdcea4264003e2c375e113f4fb3e7d37baa2dd2e1ecac9658096c15d",
+      "bytes": 37513
+    },
+    {
+      "path": "data/round-maps/Inferno.json",
+      "sha256": "5b86337e33139b7810cf2029443ff350883fd7163ca9ed4d6a64338066c34fd9",
+      "bytes": 44450
+    },
+    {
+      "path": "data/round-maps/Mirage.json",
+      "sha256": "1ea292ce99fe9ef06eb2a2eb42e3ad69b1dc67844571650eead3221ab24af382",
+      "bytes": 37619
+    },
+    {
+      "path": "data/round-maps/Nuke.json",
+      "sha256": "e02e7944566a2e800eeeb30462e99844dd88dbe1c3a847f4a3320e208fcc6523",
+      "bytes": 30608
+    },
+    {
+      "path": "data/round-maps/Overpass.json",
+      "sha256": "eafcba57037f66a178ee5231349f4c6b2d7d9a43bbef5133a29095bdf7ebef6e",
+      "bytes": 39300
+    },
+    {
+      "path": "data/round-maps/Sandstone.json",
+      "sha256": "a55e34d4d90a4a85a718bd81916c93b56d26ee72ef17dbc670992f82e611d4a3",
+      "bytes": 43116
+    },
+    {
+      "path": "data/round-maps/Vertigo.json",
+      "sha256": "9973c64200a59ccc4934dc03385f30a5493c9cc8acdc2a93b1c42a6708e61d5e",
+      "bytes": 46821
+    },
+    {
+      "path": "public/radar-art/Ancient-upper.webp",
+      "sha256": "26773e089c89e5b9364bea6e5f80b4d688d58e99c2598ace8d78d78d44dce250",
+      "bytes": 60634
+    },
+    {
+      "path": "public/radar-art/Anubis-upper.webp",
+      "sha256": "ae2b22b3045d88ce0da02127fac97dafe535f8b538e998a87a841172ebdb8384",
+      "bytes": 77692
+    },
+    {
+      "path": "public/radar-art/Inferno-upper.webp",
+      "sha256": "f1e0ec94bb6560cc3faa6c8f243185ff1ce2bc64ebac2137d94a2805fa4911e7",
+      "bytes": 80558
+    },
+    {
+      "path": "public/radar-art/Mirage-upper.webp",
+      "sha256": "273879cd5ca53060c10b3b4d9cff0fa458a0cba02577fabf551d1e73cdde5763",
+      "bytes": 82394
+    },
+    {
+      "path": "public/radar-art/Nuke-lower.webp",
+      "sha256": "685c2982346e67ac8617a895aa92bff53174aa1e113628cf2731197b865640d0",
+      "bytes": 22826
+    },
+    {
+      "path": "public/radar-art/Nuke-upper.webp",
+      "sha256": "d5541a4bcab454404b38b8483b156790fb744a78456a5d614cb4347836fb97a4",
+      "bytes": 55466
+    },
+    {
+      "path": "public/radar-art/Overpass-upper.webp",
+      "sha256": "be5d62c1a98f63e3dbcb66df110f2839f38d249e61d797e908178e3952902e04",
+      "bytes": 103722
+    },
+    {
+      "path": "public/radar-art/Sandstone-upper.webp",
+      "sha256": "c6fae779fce927af4667e16985928d5e8b565a414b52fc69a10c01c6672d9a2a",
+      "bytes": 89552
+    },
+    {
+      "path": "public/radar-art/Vertigo-lower.webp",
+      "sha256": "80eceb20642f3477393112df3ac4615bc26d66ed6beb8ddff8279a55056928c2",
+      "bytes": 40468
+    },
+    {
+      "path": "public/radar-art/Vertigo-upper.webp",
+      "sha256": "1bf6a6a620a7672182fa10f22a364916fbd59d7f3f14c84c485923e877742744",
+      "bytes": 44744
+    },
+    {
+      "path": "data/radar-art.json",
+      "sha256": "38fc10dc2eff44e789d139fa5e3f17aae493d0e9dba1e1c016112502af442437",
+      "bytes": 608
+    },
+    {
+      "path": "data/round-maps/index.ts",
+      "sha256": "d999ebd84960872c31f43a045adc052a901b315ab64b123789bc021334859ff4",
+      "bytes": 1427
+    },
+    {
+      "path": "public/key-art/logotype.svg",
+      "sha256": "4a28f79451c76875969bc6ca32990a83d9ce45bd9d40ebb84e6bf1d77fb09e7a",
+      "bytes": 173046
+    },
+    {
+      "path": "public/key-art/season-splash.webp",
+      "sha256": "510c54392bf01fb10c7bdc7753fc3e5e74eb6be9dd9f01e6139eb165f85ec8f7",
+      "bytes": 166880
+    },
+    {
+      "path": "public/key-art/title-stage.webp",
+      "sha256": "ca5e077a8e398f858e2a8e5a876092cb2d58b53852959a01111bf930d6396e47",
+      "bytes": 101636
+    },
+    {
+      "path": "public/key-art/title-table.webp",
+      "sha256": "1955ab5ee3caa6612ffbb5e39b034d7209a40815c995e3d6ff170f49da976949",
+      "bytes": 78542
+    },
+    {
+      "path": "public/trophy-art/a.svg",
+      "sha256": "b3319894aff18a55dc3ec3a92c1acb0e7051ecc999ebb4b52111b132280bbd5e",
+      "bytes": 7604
+    },
+    {
+      "path": "public/trophy-art/a.webp",
+      "sha256": "463aaedb5a26dfb83552200333d2f5582361d5509b68e70d2577ec8d00a16822",
+      "bytes": 12106
+    },
+    {
+      "path": "public/trophy-art/award.svg",
+      "sha256": "2e5ca08630f200795a5e1c81d176751c4f7f8824465e45a1110da7dc65216bb9",
+      "bytes": 10887
+    },
+    {
+      "path": "public/trophy-art/award.webp",
+      "sha256": "b5599a17a1f1b58f96466c60e737bb866b5ac253c7edd21a1c4322726ec0ef23",
+      "bytes": 23084
+    },
+    {
+      "path": "public/trophy-art/b.svg",
+      "sha256": "80183dbd4a97cee083bfb43efed2648df50699425c725e5cd8bae04d7b840ebd",
+      "bytes": 5964
+    },
+    {
+      "path": "public/trophy-art/b.webp",
+      "sha256": "82ef1030b9717fbb791d155c26814ac00ee4d156eb5644d8599da49b5db08dfe",
+      "bytes": 10196
+    },
+    {
+      "path": "public/trophy-art/c.svg",
+      "sha256": "a57e354b369f1f6f1e043c0f83943bffca16cd5bf5652620b85c58c0cc128b0c",
+      "bytes": 5955
+    },
+    {
+      "path": "public/trophy-art/c.webp",
+      "sha256": "43dbb581afb6037f7e5c43de356a45604838b816483b771fac24c072d5e7d591",
+      "bytes": 8250
+    },
+    {
+      "path": "public/trophy-art/league.svg",
+      "sha256": "c038ae413601e82f432dafb2f03b4fc525f1126cd1ae4f5d30371dff78413ff3",
+      "bytes": 11845
+    },
+    {
+      "path": "public/trophy-art/league.webp",
+      "sha256": "63abbbe3c806c76306fe5135e494e2d9621c708baf9193ec2f5e6a7cd7c43216",
+      "bytes": 16716
+    },
+    {
+      "path": "public/trophy-art/major.svg",
+      "sha256": "7129a074565d9d5d9134724801a42b931f7ddc251a7de1fe84ed2ee96e7b5509",
+      "bytes": 15181
+    },
+    {
+      "path": "public/trophy-art/major.webp",
+      "sha256": "52d856a1b83599f98eccff8792e629fc3460f72368bbdace086fdc5409572e5e",
+      "bytes": 23916
+    },
+    {
+      "path": "public/trophy-art/s.svg",
+      "sha256": "3e5db09642c60788e7b2321d532d95dd9c3f19007555630b0352c898c8608836",
+      "bytes": 7661
+    },
+    {
+      "path": "public/trophy-art/s.webp",
+      "sha256": "e05594b8f43d4a617bbd00c0092b6a574d4f5681a88418109c06e603132b2e73",
+      "bytes": 17828
+    },
+    {
+      "path": "data/tournaments.json",
+      "sha256": "7be42157dd8212af528eb0097371730edac7b7891e62f2646e7d5632d58a5e1c",
+      "bytes": 30232
+    },
+    {
+      "path": "data/team-identity-catalog.json",
+      "sha256": "3d087b46bfdb2fdc4cf0f654a1f7bc8b0089db0dec6e266273019bc93aaabf2a",
+      "bytes": 60219
+    },
+    {
+      "path": "data/identity-refresh.json",
+      "sha256": "18df604828f01a625589cd733d3d1aee84ffbeddf1e356414f3fb1ac4813c650",
+      "bytes": 189711
+    },
+    {
+      "path": "data/snapshot-loader.ts",
+      "sha256": "46a16b83a57742063efcf87d9bf94cfca7c4c7e37db1a73ca1778e242d133703",
+      "bytes": 25329
+    },
+    {
+      "path": "public/data/snapshot/teams.json",
+      "sha256": "a0bdcbf08ebe3f224cd98f46b630f1711ccd89a334c0f7490ea0213c42809bb5",
+      "bytes": 131962
+    },
+    {
+      "path": "data/map-layouts/types.ts",
+      "sha256": "aeb46ef7de63982e2c0893cc1bd38945e72570c94b0c5251dc6cdaa74976bd7e",
+      "bytes": 2671
+    },
+    {
+      "path": "data/map-layouts/vertigo.json",
+      "sha256": "d1ff04d57d21a39aa3fc3fdcb1631eea79d88a3e75fbcf5437614cd6d9b0fe72",
+      "bytes": 2136
+    },
+    {
+      "path": "NOTICE.md",
+      "sha256": "29a6346911d4d6cdf87eb82861393cc16d4f753a12c8af3ca086078db799307a",
+      "bytes": 4454
+    }
+  ]
+}
