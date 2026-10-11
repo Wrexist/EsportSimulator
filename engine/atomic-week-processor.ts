@@ -80,6 +80,7 @@ import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } f
 import { processWeeklyBoard } from "./board-expectations"
 import { drawDueLeagueSplit, processLeagueWeek } from "./season/regional-league"
 import { processAIAdministration } from "./season/club-finances"
+import { ensureAIRosterViability } from "./ai/club-budget"
 import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
 import { WeekChangeRecorder, sideScore, type ChangeCause, type ChangeEntry, type CauseResolver } from "@/lib/week-changes"
 
@@ -270,6 +271,9 @@ export class AtomicWeekProcessor {
             // cached match rosters. Build the indexes from the surviving contracts.
             FinanceProcessor.processContractExpiry(save, config.playerTeamId)
             mark({ type: "contract", label: "Contract expired" })
+            // Roster invariant (Phase 4.6): an AI club whose contracts just
+            // ran out fills to five before this week's fixtures.
+            ensureAIRosterViability(save, config.playerTeamId)
             idx = buildSaveIndexes(save)
 
             // ===== STEP 1: Training Effects =====
@@ -506,6 +510,8 @@ export class AtomicWeekProcessor {
                         save.legendaryPlayers.push({ ...player })
                     }
                 })
+                // Retirements can take an AI club below five: refill now.
+                ensureAIRosterViability(save, config.playerTeamId)
 
                 mark(e => {
                     if (e.kind === "contract" && e.delta < 0) {

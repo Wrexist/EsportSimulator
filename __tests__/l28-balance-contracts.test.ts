@@ -11,6 +11,9 @@ import { FinanceProcessor } from '@/engine/processors/finance-processor'
 function scout(budget = 5_000_000) {
     const save = createLaunchFixture('first-week', 28001), team = save.teams[1]
     team.budget = budget
+    // Phase 4.6: an AI club takes on a new wage only within its weekly
+    // budget, so the scouting club carries a sponsor deal.
+    team.sponsors = [{ id: 'backer', name: 'Backer', tier: 'STANDARD', weeklyPayout: 60_000, remainingWeeks: 52 } as never]
     const before = save.players.length
     // Fixed independent seeds until the existing 5% roll succeeds.
     for (let seed = 1; seed <= 2000 && save.players.length === before; seed++) AIManager.processAcademyScouting(save, team, new SeededRNG(seed))

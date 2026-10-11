@@ -18,6 +18,12 @@ import { SeededRNG } from "@/engine/rng"
 import type { GameSave, TeamSaveData, PlayerSaveData } from "@/engine/save-types"
 
 const PLAYER_TEAM_ID = "player"
+/**
+ * Phase 4.6: AI signings must fit the club's weekly budget (recurring
+ * income after costs), not just its cash, so clubs that are expected to buy
+ * carry a sponsor deal worth $60k a week.
+ */
+const INCOME = { sponsors: [{ id: "backer", name: "Backer", tier: "STANDARD", weeklyPayout: 60_000, remainingWeeks: 52 }] } as unknown as Partial<TeamSaveData>
 
 function makeTeam(id: string, overrides: Partial<TeamSaveData> = {}): TeamSaveData {
     return {
@@ -105,6 +111,7 @@ describe("AIManager.processWeeklyAI — roster management", () => {
             rosterIds: ["r1", "r2", "r3", "r4", "r5"],
             budget: 500_000, // > 150k threshold
             financialState: "STABLE",
+            ...INCOME,
         })
         const players: PlayerSaveData[] = [
             // All RIFLER — no IGL, no AWPER. Critical role gap.
@@ -192,7 +199,7 @@ describe("AIManager.processWeeklyAI — sign-candidate preferences (observed)", 
         // AI's scoreSigningCandidate weights growth room (potential - skill)
         // and divides by a salary derived from skill. Hold growth-room
         // EQUAL across candidates so the test isolates the skill term.
-        const aiTeam = makeTeam("ai1", { rosterIds: ["p1"], budget: 1_000_000, financialState: "STABLE" })
+        const aiTeam = makeTeam("ai1", { rosterIds: ["p1"], budget: 1_000_000, financialState: "STABLE", ...INCOME })
         const players: PlayerSaveData[] = [
             makePlayer("p1"),
             // Both candidates have identical 10pt growth room. Star has more skill.
@@ -211,7 +218,7 @@ describe("AIManager.processWeeklyAI — sign-candidate preferences (observed)", 
     test("AI signing rewards growth-room: low-skill, high-potential prospect beats high-skill veteran with no headroom", () => {
         // Pins the explicit growth-room contract — this is how AI builds
         // long-term rosters by drafting prospects.
-        const aiTeam = makeTeam("ai1", { rosterIds: ["p1"], budget: 1_000_000, financialState: "STABLE" })
+        const aiTeam = makeTeam("ai1", { rosterIds: ["p1"], budget: 1_000_000, financialState: "STABLE", ...INCOME })
         const players: PlayerSaveData[] = [
             makePlayer("p1"),
             // Veteran: skill 80, capped at 80 (no growth).
@@ -248,7 +255,7 @@ describe("AI transfer economy fairness (Phase 3.3 / 3.4)", () => {
         // 5 players + missing IGL → non-emergency 6th signing (fee applies).
         const aiTeam = makeTeam("ai1", {
             rosterIds: ["r1", "r2", "r3", "r4", "r5"],
-            budget: 500_000, financialState: "STABLE",
+            budget: 500_000, financialState: "STABLE", ...INCOME,
         })
         const players: PlayerSaveData[] = [
             makePlayer("r1", { role: "RIFLER" }),
@@ -273,7 +280,7 @@ describe("AI transfer economy fairness (Phase 3.3 / 3.4)", () => {
         let executed = false
         for (let seed = 1; seed <= 300 && !executed; seed++) {
             const seller = makeTeam("seller", { rosterIds: ["star", "s2", "s3", "s4", "s5", "s6"], budget: 100_000 })
-            const buyer = makeTeam("buyer", { rosterIds: ["b1", "b2", "b3"], budget: 50_000_000 })
+            const buyer = makeTeam("buyer", { rosterIds: ["b1", "b2", "b3"], budget: 50_000_000, ...INCOME })
             const players: PlayerSaveData[] = [
                 makePlayer("star", { skill: 40, forSale: true }),
                 makePlayer("s2"), makePlayer("s3"), makePlayer("s4"), makePlayer("s5"), makePlayer("s6"),
@@ -303,7 +310,7 @@ describe("processAITransferMarket — pending offers don't pile up across weeks"
     function listedSave() {
         const player = makePlayer("star", { skill: 70, potential: 90, forSale: true, transferListingPrice: 10_000 } as any)
         const playerTeam = makeTeam("player", { rosterIds: ["star"] })
-        const aiTeam = makeTeam("ai", { budget: 5_000_000, worldRanking: 5 })
+        const aiTeam = makeTeam("ai", { budget: 5_000_000, worldRanking: 5, ...INCOME })
         return makeSave([playerTeam, aiTeam], [player])
     }
 

@@ -159,6 +159,8 @@ describe('role-filtered free-agent quotes', () => {
         const save = createLaunchFixture('first-week', 27103)
         const team = save.teams[0]
         team.budget = 50_000_000
+        // Phase 4.6: AI wages must fit weekly income, not only cash.
+        team.sponsors = [{ id: 'backer', name: 'Backer', tier: 'STANDARD', weeklyPayout: 500_000, remainingWeeks: 52 } as never]
         const roster = team.rosterIds.slice(0, 5)
         team.rosterIds = [...roster]
         for (const id of roster) save.players.find(p => p.id === id)!.role = 'RIFLER' as never

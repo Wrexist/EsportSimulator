@@ -172,12 +172,14 @@ describe("AIManager.processWeeklyAI", () => {
 
     test("isTransferWindow=false skips roster + transfer-market work", () => {
         // Half-arms a roster swap scenario, then runs OUT of window.
-        // manageRoster and processAITransferMarket should both no-op.
+        // manageRoster and processAITransferMarket should both no-op. The
+        // club fields five (below five the Phase 4.6 roster invariant signs
+        // in any week) and a better free agent is on the market.
         const teams = [
             makeTeam(PLAYER_TEAM_ID),
-            makeTeam("ai1", { budget: 500_000, rosterIds: ["p1", "p2"] }),
+            makeTeam("ai1", { budget: 500_000, rosterIds: ["p1", "p2", "p3", "p4", "p5"] }),
         ]
-        const players = [makePlayer("p1", "ai1"), makePlayer("p2", "ai1")]
+        const players = [...["p1", "p2", "p3", "p4", "p5"].map(id => makePlayer(id, "ai1")), { ...makePlayer("fa", ""), skill: 90 } as PlayerSaveData]
         const save = makeSave(teams, players)
         ;(save as any).transferHistory = []
 

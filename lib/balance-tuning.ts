@@ -130,8 +130,12 @@ export const AI_SQUAD_TUNING = {
     /** Opening snapshot contracts end within +/- this many weeks of their nominal length (seeded). */
     INITIAL_CONTRACT_STAGGER_WEEKS: 26,
     INITIAL_CONTRACT_MIN_WEEKS: 26,
-    /** Pass 2: weekly chance an AI club reviews sponsor offers (was 0.05), and its slot count (was 2; human cap 3). */
-    SPONSOR_LOOK_CHANCE: 0.25,
+    /**
+     * Weekly chance an AI club with an open, eligible sponsor slot reviews
+     * offers, and its slot count (human cap 3). Pass 2: 0.05 -> 0.25;
+     * Phase 4.6: every week (the managed club can look every week too).
+     */
+    SPONSOR_LOOK_CHANCE: 1,
     /** Pass 2: AI academy prospects leave at this age, and an AI academy holds at most this many (season end). */
     ACADEMY_RELEASE_AGE: 20,
     ACADEMY_MAX_PROSPECTS: 3,
@@ -250,6 +254,41 @@ export const CLUB_ECONOMY_TUNING = {
     ADMINISTRATION_RECAPITALISE_WEEKS: 8,
     /** AI cost control: an AI club losing money with less than this runway lets its highest-paid staff go (one a week). */
     COST_CONTROL_RUNWAY_WEEKS: 26,
+} as const
+
+/**
+ * AI club economy (Phase 4.6). Money pressure is for the managed club; AI
+ * clubs are run by prudent owners so the world stays healthy and
+ * competitive. Campaign 2026-10-11 (6 careers x 2 seasons) before this:
+ * ~47 administrations per career in season 2 (13 clubs twice or three
+ * times), AI rosters down to 3 players, the median wage of a contract an AI
+ * club signed $2,094/week against $330 for the snapshot contracts it let
+ * lapse, and top clubs filling barely half their sponsor slots.
+ *
+ * An AI club commits to a new recurring cost (a signing, a raise, staff,
+ * facilities, training) only while its weekly net after the cost keeps
+ * SURPLUS_SHARE of income in hand, and answers a deficit the way the
+ * competent managed policy does: bench first, then staff, then an
+ * overpaid starter for a cheaper free agent. engine/ai/club-budget.ts.
+ */
+export const AI_ECONOMY_TUNING = {
+    /** Share of weekly income an AI club keeps as surplus when it takes on a new recurring cost. */
+    SURPLUS_SHARE: 0.05,
+    /** A transfer fee leaves at least this many weeks of running costs in the bank. */
+    FEE_RESERVE_WEEKS: 12,
+    /** Starter swap (overpaid starter for a cheaper free agent) when the deficit leaves less runway than this... */
+    SWAP_RUNWAY_WEEKS: 26,
+    /** ...at most once per this many weeks per club... */
+    SWAP_EVERY_WEEKS: 3,
+    /** ...and only for a replacement asking at most this share of the starter's wage. */
+    SWAP_MAX_WAGE_SHARE: 0.6,
+    /** Staff are let go (one a week) while the club runs a deficit with less runway than this. */
+    STAFF_CUT_RUNWAY_WEEKS: 52,
+    /** Emergency (below five players) and trialist contracts. */
+    EMERGENCY_CONTRACT_WEEKS: 26,
+    /** Trialist from the local scene when free agency is empty: skill range and age range. */
+    TRIALIST_SKILL: [42, 52] as const,
+    TRIALIST_AGE: [18, 22] as const,
 } as const
 
 /** Weekly running costs the starting runway is measured against. */
