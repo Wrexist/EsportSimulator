@@ -37,6 +37,8 @@
   ],
   "exclude": [
     "node_modules",
+    ".claude",
+    "marketing",
     "SteamBuild",
     "tmp",
     "__tests__",
