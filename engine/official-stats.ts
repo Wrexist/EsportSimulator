@@ -32,6 +32,7 @@ import { scriptLine, tallyScriptMap } from "./match/match-stats"
 import { matchImportance, type MatchImportance } from "./world-ranking"
 import { RANKING_TUNING, RECORDS_TUNING } from "@/lib/balance-tuning"
 import { recordManagedResult, recordManagedTitle } from "./manager-timeline"
+import { perfTrace } from "./perf-trace"
 
 export const WEEKS_PER_SEASON = 52
 
@@ -214,6 +215,13 @@ function updatePersonalBest(p: PlayerSaveData, key: "bestMapRating" | "mostMapKi
  * scrims and forfeits.
  */
 export function recordOfficialMatch(save: GameSave, match: OfficialMatch, result: MatchResult, lookups: OfficialMatchLookups = {}): boolean {
+    const startedAt = perfTrace.stepsEnabled ? perfTrace.now() : 0
+    const recorded = recordMatch(save, match, result, lookups)
+    if (perfTrace.stepsEnabled) perfTrace.step("records.officialMatch", startedAt)
+    return recorded
+}
+
+function recordMatch(save: GameSave, match: OfficialMatch, result: MatchResult, lookups: OfficialMatchLookups): boolean {
     if (match.isScrim || !result) return false
     const tier = lookups.tournamentTier !== undefined
         ? lookups.tournamentTier
