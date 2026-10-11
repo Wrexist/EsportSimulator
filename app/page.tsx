@@ -11,6 +11,10 @@ import { ActionCenter } from "@/components/dashboard/ActionCenter"
 import { GettingStartedChecklist } from "@/components/dashboard/GettingStartedChecklist"
 import { LastWeekPanel } from "@/components/report/LastWeekPanel"
 import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
+import { BoardConfidenceChip } from "@/components/career/BoardConfidence"
+import { graceWeeksLeft } from "@/components/career/board-view"
+import { LeagueSnapshot } from "@/components/league/LeagueSnapshot"
+import { leagueStageLabel } from "@/components/league/league-view"
 import { Button } from "@/components/ui/button"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { PlayerPortrait } from "@/components/ui/asset-images"
@@ -21,7 +25,7 @@ import { RatingChip } from "@/src/components/ui/RatingChip"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { FixtureBanner, FormGuide, type FormResult } from "@/src/components/ui/FixtureBanner"
-import { Activity, AlertTriangle, ArrowUpRight, Loader2, Trophy } from "lucide-react"
+import { Activity, ArrowUpRight, Loader2, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
@@ -32,13 +36,15 @@ const ProAwardsModal = dynamic(() => import("@/components/celebration/ProAwardsM
 import { EconomyEngine } from "@/engine/economy-engine"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getBoardSanctionedFee, getTierTargets } from "@/engine/board-expectations"
-import { ordinal } from "@/engine/season/regional-league"
+import { isLeagueMatchId, ordinal } from "@/engine/season/regional-league"
 import { boardStartTargets } from "@/lib/club-expectations"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { fixtureBlockReason } from "@/lib/playable-match"
 import type { AnnualAwards } from "@/engine/pro-awards-engine"
 
 const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier" }
+/** Short names for the board's objectives (the full sentence is the row's tooltip and on Club → Board). */
+const OBJECTIVE_SHORT: Record<string, string> = { league: "League finish", ranking: "World ranking", finance: "Cash at season end" }
 
 /** Small link for panel headers. */
 function PanelLink({ href, children }: { href: string; children: ReactNode }) {
@@ -124,6 +130,8 @@ export default function Page() {
   const clearPendingSeasonRecap = useGameStore(s => s.clearPendingSeasonRecap)
   const acknowledgeEvent = useGameStore(s => s.acknowledgeEvent)
   const boardState = useGameStore(s => s.boardState)
+  const league = useGameStore(s => s.league)
+  const tenureStartWeek = useGameStore(s => s.managerDetails?.tenureStartWeek)
 
   // The annual Pro/Player-of-the-Year ceremony — auto-open it once so the
   // reveal isn't missed (it used to require noticing + clicking a banner).
@@ -163,6 +171,8 @@ export default function Page() {
 
   const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
   const playersById = useMemo(() => new Map(players.map(p => [p.id, p])), [players])
+  const teamsById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
+  const leagueDayById = useMemo(() => new Map(scheduledMatches.filter(m => isLeagueMatchId(m.id)).map(m => [m.id, m.day])), [scheduledMatches])
 
   // Starting five with the same evaluation the Squad screen uses, so OVR matches everywhere.
   const starters = useMemo(() => {
@@ -312,9 +322,11 @@ export default function Page() {
         const weeks = Math.max(0, nextMatch.week - currentWeek)
         return weeks === 0 ? "This week" : `Match in ${weeks} week${weeks === 1 ? "" : "s"}`
       })()
-      const competitionName = nextMatch.isScrim ? "Scrim" : tournament?.name ?? nextMatch.stage ?? "Match"
+      const leagueStage = leagueStageLabel(nextMatch)
+      const competitionName = nextMatch.isScrim ? "Scrim" : leagueStage ?? tournament?.name ?? nextMatch.stage ?? "Match"
       const competition = (
         <span className="flex min-w-0 items-center gap-2.5">
+          {leagueStage && <span className="shrink-0 rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">League</span>}
           {!nextMatch.isScrim && tournament?.logoPath && (
             <Image src={tournament.logoPath} alt="" width={20} height={20} className="h-5 w-5 object-contain" />
           )}
@@ -399,13 +411,14 @@ export default function Page() {
   const rankTarget = boardState?.rankTarget ?? fallbackTargets.rankTarget
   const worldRank = playerTeam?.worldRanking ?? 0
   const trophiesThisSeason = (playerTeam?.trophies ?? []).filter(t => t.week >= seasonStartWeek).length
-  const confidence = Math.max(0, Math.min(100, Math.round(boardState?.confidence ?? 60)))
   const sanctioned = boardState && playerTeam ? getBoardSanctionedFee(boardState, playerTeam.budget) : null
   const rankOnTrack = worldRank > 0 && worldRank <= rankTarget
   // Phase 4.4: the board's real objectives (league finish, ranking, budget).
   const objectives = boardState?.objectives ?? []
   const objectiveProgress = (o: (typeof objectives)[number]) => o.current === undefined ? "—"
     : o.id === "finance" ? formatCurrency(o.current) : o.id === "ranking" ? `#${o.current}` : ordinal(o.current)
+  const objectiveTarget = (o: (typeof objectives)[number]) =>
+    o.id === "finance" ? formatCurrency(o.target) : o.id === "ranking" ? `#${o.target}` : ordinal(o.target)
 
   const finance = financialReport
   const financeState = FINANCE_STATE[finance?.state ?? "STABLE"] ?? FINANCE_STATE.STABLE
@@ -527,25 +540,22 @@ export default function Page() {
               </table>
             </Panel>
 
-            {/* Season objective (board) */}
-            <Panel title="Season objective">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-base font-semibold text-ink-1">{tierTargets.label}</p>
-                  <p className="mt-0.5 text-xs text-ink-3">{boardState ? "Confidence moves every week; reviews after split 1 and at season end." : "The board confirms its target after the first week."}</p>
-                </div>
-                {boardState?.onNotice && (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-sm bg-negative/15 px-1.5 py-0.5 text-[11px] font-semibold text-negative">
-                    <AlertTriangle size={11} /> On notice
-                  </span>
-                )}
-              </div>
-              <dl className="mt-4 divide-y divide-line border-y border-line text-sm">
+            <div className="min-w-0 space-y-4">
+            {/* League position (Phase 4.7) */}
+            {playerTeamId && (
+              <LeagueSnapshot league={league} playerTeamId={playerTeamId} teamsById={teamsById} dayById={leagueDayById} gameStartDate={gameStartDate} />
+            )}
+
+            {/* Board objectives; the chip opens Club → Board */}
+            <Panel title="Board objectives" actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />}>
+              <p className="text-sm font-semibold text-ink-1">{tierTargets.label}</p>
+              <dl className="mt-3 divide-y divide-line border-y border-line text-sm">
                 {objectives.length > 0 ? objectives.map(o => (
                   <div key={o.id} className="flex items-center justify-between gap-3 py-2">
-                    <dt className="text-ink-3">{o.label}</dt>
-                    <dd className={cn("shrink-0 text-xs tabular-nums", o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>
-                      now {objectiveProgress(o)}
+                    <dt className="min-w-0 truncate text-ink-3" title={o.label}>{OBJECTIVE_SHORT[o.id] ?? o.label}</dt>
+                    <dd className="shrink-0 text-xs tabular-nums">
+                      <span className="text-ink-3">target {objectiveTarget(o)}</span>
+                      <span className={cn("ml-2", o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>now {objectiveProgress(o)}</span>
                     </dd>
                   </div>
                 )) : (
@@ -565,19 +575,6 @@ export default function Page() {
                     </div>
                   </>
                 )}
-                <div className="flex items-center justify-between py-2">
-                  <dt className="text-ink-3">Board confidence</dt>
-                  <dd><Meter value={confidence} label="Board confidence" trackClassName="w-24" /></dd>
-                </div>
-                <div className="flex items-center justify-between py-2">
-                  <dt className="text-ink-3">Season</dt>
-                  <dd className="flex items-center gap-2">
-                    <span className="h-1.5 w-24 overflow-hidden rounded-full bg-hover" aria-hidden="true">
-                      <span className="block h-full rounded-full bg-ink-2" style={{ width: `${Math.round((weekInSeason / 52) * 100)}%` }} />
-                    </span>
-                    <span className="text-xs tabular-nums text-ink-2">Week {weekInSeason} of 52</span>
-                  </dd>
-                </div>
               </dl>
               {sanctioned && sanctioned.fraction < 1 && (
                 <p className="mt-3 text-xs text-ink-3">
@@ -585,6 +582,7 @@ export default function Page() {
                 </p>
               )}
             </Panel>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -629,7 +627,7 @@ export default function Page() {
                     const won = m.result.winnerId === playerTeamId
                     const oppId = m.homeTeamId === playerTeamId ? m.awayTeamId : m.homeTeamId
                     const opp = teams.find(t => t.id === oppId)
-                    const comp = m.isScrim ? "Scrim" : tournamentFor(m.tournamentId)?.shortName ?? m.stage ?? "Match"
+                    const comp = m.isScrim ? "Scrim" : leagueStageLabel(m) ?? tournamentFor(m.tournamentId)?.shortName ?? m.stage ?? "Match"
                     return (
                       <li key={m.id}>
                         <Link href={`/match/${m.id}/result`} className="flex h-11 items-center gap-3 px-4 transition-colors hover:bg-raised">
