@@ -24,8 +24,9 @@ function activityEffects(activity: WeeklyActivity): Effect[] {
 }
 
 /**
- * Weekly focus picker — one plan for the next weekly settlement, as a compact
- * list. `framed={false}` drops the panel so a parent panel can host it.
+ * Team focus picker (the week plan's "weekly focus"): one plan for the next
+ * weekly update, as a compact list. `framed={false}` drops the titled panel
+ * so a parent panel can host it.
  */
 export function WeeklyFocusWidget({ framed = true }: { framed?: boolean }) {
     const selectedActivity = useGameStore(state => state.selectedWeeklyActivity)
@@ -34,11 +35,7 @@ export function WeeklyFocusWidget({ framed = true }: { framed?: boolean }) {
 
     const list = (
         <div id="weekly-focus" className="scroll-mt-24">
-            <div className="flex items-baseline justify-between gap-3 px-4 pb-1 pt-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Weekly focus</p>
-                <p className="text-xs text-ink-3">Applies at the next weekly settlement</p>
-            </div>
-            <ul className="pb-2">
+            <ul className="py-2">
                 {Object.values(WEEKLY_ACTIVITIES).map((activity) => {
                     const isSelected = selectedActivity === activity.type
                     const unaffordable = activity.cost > 0 && activity.cost > budget
@@ -81,8 +78,13 @@ export function WeeklyFocusWidget({ framed = true }: { framed?: boolean }) {
                     )
                 })}
             </ul>
+            <p className="border-t border-line px-4 py-2.5 text-xs leading-relaxed text-ink-3">
+                Charged at the weekly update; the effects reach every roster player. If the cash isn&apos;t there then, the focus is cancelled and nothing is charged.
+            </p>
         </div>
     )
 
-    return framed ? <Panel padded={false} className="h-full">{list}</Panel> : list
+    return framed
+        ? <Panel title="Team focus" eyebrow="At the update" padded={false} className="h-full">{list}</Panel>
+        : list
 }

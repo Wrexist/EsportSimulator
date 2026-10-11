@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { RATING_TEXT, ratingBand } from "@/src/design/rating"
 import { getTierStyle, type TierLevel } from "@/engine/tier-system"
 
 /**
@@ -33,11 +34,9 @@ const NUMBER_CLASS: Record<RatingSize, string> = {
   lg: "text-5xl",
 }
 
+/** Same bands as RatingChip: no red for an ordinary low rating. */
 function defaultColor(value: number): string {
-  if (value >= 90) return "text-transparent bg-clip-text bg-linear-to-b/srgb from-amber-300 to-amber-600"
-  if (value >= 80) return "text-emerald-400"
-  if (value >= 60) return "text-white/80"
-  return "text-rose-400"
+  return RATING_TEXT[ratingBand(Math.round(value))]
 }
 
 export function Rating({
@@ -58,7 +57,7 @@ export function Rating({
         {Math.round(value)}
       </span>
       {label && (
-        <span className="text-[10px] font-normal text-muted-foreground uppercase mt-1 tracking-[0.2em] opacity-60">
+        <span className="text-[11px] font-normal text-muted-foreground uppercase mt-1 tracking-[0.2em] opacity-60">
           {label}
         </span>
       )}
@@ -74,8 +73,8 @@ export function TierBadge({ tier, size = "md", short = false, className }: TierR
     <span
       className={cn(
         "inline-flex items-center rounded px-2 py-0.5 font-bold uppercase tracking-widest",
-        size === "sm" && "text-[9px]",
-        size === "md" && "text-[10px]",
+        size === "sm" && "text-[11px]",
+        size === "md" && "text-[11px]",
         size === "lg" && "text-xs",
         style.bgColor,
         style.color,

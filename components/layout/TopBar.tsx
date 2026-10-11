@@ -19,7 +19,7 @@ import { InboxButton } from "@/components/inbox/InboxButton"
 
 /**
  * Two-row game header (design system v2).
- * Row 1: club identity · six hubs · search · funds · date · advance.
+ * Row 1: club identity · seven hubs · search · funds · date · advance.
  * Row 2: the active hub's sub-tabs.
  */
 export function TopBar() {
@@ -92,9 +92,9 @@ export function TopBar() {
                 {!hideCareerControls && (
                     <Link href="/" className="topbar-club flex min-w-0 shrink-0 items-center gap-2.5 pr-2" aria-label="Club overview">
                         <span className="flex h-9 w-9 items-center justify-center">
-                            {isMounted ? <TeamLogoDisplay team={playerTeam} size={32} /> : <span className="h-8 w-8 rounded bg-white/5" />}
+                            {isMounted ? <TeamLogoDisplay team={playerTeam} size={32} /> : <span className="h-8 w-8 rounded bg-raised" />}
                         </span>
-                        <span className="topbar-club-name max-w-[160px] truncate font-display text-[19px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1" title={playerTeam?.name}>
+                        <span className="topbar-club-name hidden max-w-[160px] truncate font-display 2xl:inline text-[19px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1" title={playerTeam?.name}>
                             {isMounted ? (playerTeam?.name || "No Team") : "Loading..."}
                         </span>
                     </Link>
@@ -110,12 +110,12 @@ export function TopBar() {
                                     href={hub.items[0].href}
                                     aria-current={active ? "page" : undefined}
                                     className={cn(
-                                        "nav-hub relative flex items-center px-3 font-display text-[17px] font-semibold uppercase tracking-[0.03em] transition-colors",
+                                        "nav-hub relative flex items-center px-2 font-display text-[16px] font-semibold uppercase tracking-[0.03em] transition-colors 2xl:px-3 2xl:text-[17px]",
                                         active ? "text-ink-1" : "text-ink-3 hover:text-ink-1"
                                     )}
                                 >
                                     {hub.label}
-                                    {active && <span aria-hidden="true" className="absolute inset-x-3 bottom-0 h-0.5 bg-gold" />}
+                                    {active && <span aria-hidden="true" className="absolute inset-x-2 bottom-0 h-0.5 bg-gold 2xl:inset-x-3" />}
                                 </Link>
                             )
                         })}

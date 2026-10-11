@@ -36,7 +36,7 @@ export const helpTopics: HelpTopic[] = [
                 <p>Team chemistry measures how well your players work together.</p>
                 <div className="space-y-2">
                     <h4 className="font-bold">Calculation:</h4>
-                    <code className="block p-2 bg-black/40 rounded text-xs">
+                    <code className="block p-2 bg-shell rounded text-xs">
                         Review player compatibility, roles and recent roster changes together.
                     </code>
                 </div>
@@ -239,7 +239,7 @@ export const helpTopics: HelpTopic[] = [
                     <li><strong>Media Campaign</strong> — spends cash for reputation and fans.</li>
                     <li><strong>Bootcamp</strong> — +{weeklyActivityXpBonus(WEEKLY_ACTIVITIES[WeeklyActivityType.BOOTCAMP])} XP per roster player, with cash cost, fatigue and morale penalties.</li>
                 </ul>
-                <p className="text-xs text-muted-foreground">Set it on the dashboard. It resets after weekly settlement, not after each day.</p>
+                <p className="text-xs text-ink-3">Set it in the week plan (Week → Week plan). It resets after weekly settlement, not after each day.</p>
             </div>
         )
     },
@@ -303,10 +303,10 @@ export function HelpSystem() {
                 title="Help & Game Guide"
                 // Stacked above the (conditional) bug-report button at bottom-6
                 // so the two never overlap.
-                className="fixed bottom-24 right-6 rounded-full w-11 h-11 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-sm shadow-lg z-50"
+                className="fixed bottom-24 right-6 rounded-full w-11 h-11 bg-raised hover:bg-hover border border-line shadow-lg z-50"
             >
                 {showPulse && (
-                    <span className="absolute inset-0 rounded-full bg-amber-400/40 animate-ping pointer-events-none" aria-hidden="true" />
+                    <span className="absolute inset-0 rounded-full bg-gold/40 animate-ping pointer-events-none" aria-hidden="true" />
                 )}
                 <HelpCircle className="w-5 h-5" aria-hidden="true" />
             </Button>
@@ -354,7 +354,7 @@ export function HelpSystem() {
                                                     <button
                                                         key={topic.id}
                                                         onClick={() => setSelectedTopic(topic.id)}
-                                                        className="w-full glass-panel p-3 text-left hover:bg-white/5 transition-colors flex items-center justify-between group"
+                                                        className="w-full rounded-lg border border-line bg-panel p-3 text-left hover:bg-raised transition-colors flex items-center justify-between group"
                                                     >
                                                         <div>
                                                             <div className="font-medium">{topic.title}</div>
@@ -370,11 +370,11 @@ export function HelpSystem() {
                                     )
                                 })}
 
-                                <div className="mt-8 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                <div className="mt-8 p-4 rounded-lg bg-raised border border-line">
                                     <h4 className="font-bold mb-2">Quick Tips</h4>
                                     <ul className="text-sm space-y-1 text-muted-foreground">
-                                        <li>• Press <kbd className="px-1 rounded bg-white/10">?</kbd> anytime for keyboard shortcuts</li>
-                                        <li>• Replay the first-session guide from <span className="text-white/80 font-medium">Settings → Replay Tutorial Guide</span></li>
+                                        <li>• Press <kbd className="px-1 rounded bg-hover">?</kbd> anytime for keyboard shortcuts</li>
+                                        <li>• Replay the first-session guide from <span className="text-ink-1 font-medium">Settings → Replay Tutorial Guide</span></li>
                                         <li>• Auto-save runs on the interval set in Settings (10 minutes by default); the career also saves after each week</li>
                                     </ul>
                                 </div>
@@ -396,7 +396,7 @@ export function QuickHelp({ topic }: { topic: string }) {
     if (!helpTopic) return null
 
     return (
-        <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+        <div className="p-3 rounded-lg bg-raised border border-line">
             <h4 className="font-bold text-sm mb-2">{helpTopic.title}</h4>
             {helpTopic.content}
         </div>

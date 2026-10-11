@@ -8,7 +8,7 @@ function Table({ className, containerLabel = 'Scrollable table', ...props }: Rea
   return (
     <div
       data-slot="table-container"
-      className="relative w-full min-w-0 overflow-x-auto overscroll-x-contain rounded-sm focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-cyan-300"
+      className="relative w-full min-w-0 overflow-x-auto overscroll-x-contain rounded-sm focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-gold"
       tabIndex={0}
       role="region"
       aria-label={containerLabel}

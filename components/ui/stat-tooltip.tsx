@@ -48,7 +48,7 @@ export function StatTooltip({
                             <p className="text-xs text-muted-foreground">{description}</p>
                         )}
                         {formula && (
-                            <div className="text-xs font-mono text-blue-400 mt-2 pt-2 border-t border-white/10">
+                            <div className="text-xs font-mono text-ink-2 mt-2 pt-2 border-t border-line">
                                 {formula}
                             </div>
                         )}
@@ -100,11 +100,11 @@ export function RarityTooltip({ rarity }: { rarity: string }) {
         },
         Rare: {
             description: 'Above average. Better stats and potential.',
-            color: 'text-blue-400'
+            color: 'text-ink-2'
         },
         Epic: {
             description: 'High quality. Significant bonuses',
-            color: 'text-purple-400'
+            color: 'text-ink-2'
         },
         Legendary: {
             description: 'Top 1% elite talent. Maximum bonuses and potential.',

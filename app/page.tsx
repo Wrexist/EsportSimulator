@@ -9,7 +9,6 @@ import { useShallow } from "zustand/react/shallow"
 import { NewsFeed } from "@/components/dashboard/NewsFeed"
 import { ActionCenter } from "@/components/dashboard/ActionCenter"
 import { GettingStartedChecklist } from "@/components/dashboard/GettingStartedChecklist"
-import { WeeklyFocusWidget } from "@/components/dashboard/WeeklyFocusWidget"
 import { LastWeekPanel } from "@/components/report/LastWeekPanel"
 import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
 import { Button } from "@/components/ui/button"
@@ -652,9 +651,7 @@ export default function Page() {
         {/* Right rail: decisions first */}
         <aside className="min-w-0 space-y-4">
           <GettingStartedChecklist />
-          <ActionCenter>
-            <WeeklyFocusWidget framed={false} />
-          </ActionCenter>
+          <ActionCenter />
           <LastWeekPanel />
           <Panel title="News" padded={false}>
             <div className="max-h-[420px] overflow-y-auto">
