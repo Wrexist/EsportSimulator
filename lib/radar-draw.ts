@@ -118,6 +118,8 @@ export class RadarRenderer {
     private prevBase: HTMLCanvasElement | null = null
     private baseKey = ""
     private baseBitmap: ImageBitmap | null = null
+    /** Wall clock when the current explosion was first drawn (-1 = none). */
+    private blastSeenMs = -1
     private baseFloor: Floor | null = null
     private fadeStart = -Infinity
     private smokeSprite: Sprite | null = null
@@ -831,6 +833,7 @@ export class RadarRenderer {
 
     private drawBomb(scene: RadarScene, o: RadarFrameOptions, s: number, floorAlpha: (f: Floor) => number): boolean {
         const b = scene.bomb
+        if (b.phase !== "exploded") this.blastSeenMs = -1
         if (!b.hasPos || b.phase === "carried" || b.phase === "none") return false
         const ctx = this.ctx
         const { k, ox, oy } = this.tf
@@ -928,10 +931,14 @@ export class RadarRenderer {
             case "exploded": {
                 ctx.fillStyle = "rgba(30, 18, 12, 0.6)"
                 ctx.beginPath(); ctx.arc(x, y, Math.max(10 * s, 2.6 * k), 0, TAU); ctx.fill()
-                if (b.since < 1.4) {
-                    ctx.globalAlpha = a * 0.6 * (1 - b.since / 1.4)
+                // The blast also runs on the wall clock, so a round that stops
+                // right after the explosion does not freeze it mid-way.
+                if (this.blastSeenMs < 0) this.blastSeenMs = o.nowMs
+                const blast = Math.max(b.since, (o.nowMs - this.blastSeenMs) / 1000)
+                if (blast < 1.4 && !o.reducedMotion) {
+                    ctx.globalAlpha = a * 0.6 * (1 - blast / 1.4)
                     ctx.fillStyle = RADAR_COLORS.fire
-                    ctx.beginPath(); ctx.arc(x, y, (3 + b.since * 9) * k, 0, TAU); ctx.fill()
+                    ctx.beginPath(); ctx.arc(x, y, (3 + blast * 9) * k, 0, TAU); ctx.fill()
                     animating = true
                 }
                 ctx.globalAlpha = a * 0.5
