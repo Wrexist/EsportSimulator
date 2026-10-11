@@ -1,76 +1,60 @@
-import { resolveAutoRadarLevel } from "@/lib/radar-level-selector"
+import { sceneAutoFloor } from "@/lib/radar-level-selector"
+import { createRadarScene, sceneFromSnapshot } from "@/lib/radar-scene"
+import type { RadarBombState, RadarKillLine, RadarPlayerDot } from "@/lib/radar-types"
+
+const noBomb: RadarBombState = { planted: false, exploded: false, defused: false }
+
+function scene(t: number, opts: { dots?: RadarPlayerDot[]; killLines?: RadarKillLine[]; bomb?: RadarBombState }) {
+  return sceneFromSnapshot({ t, dots: opts.dots ?? [], killLines: opts.killLines ?? [], bomb: opts.bomb ?? noBomb }, createRadarScene())
+}
 
 describe("radar-level-selector", () => {
   it("prioritizes planted bomb level", () => {
-    const level = resolveAutoRadarLevel({
-      isDualLevel: true,
-      currentLevel: "upper",
-      currentTime: 40,
-      bombState: {
-        planted: true,
-        exploded: false,
-        defused: false,
-        level: "lower",
-      },
-      killLines: [],
-      radarDots: [],
-    })
-    expect(level).toBe("lower")
+    const s = scene(40, { bomb: { planted: true, exploded: false, defused: false, level: "lower", position: { x: 50, y: 50 } } })
+    expect(sceneAutoFloor(s, "upper", true)).toBe("lower")
   })
 
   it("uses recent kill-line level when bomb is not active", () => {
-    const level = resolveAutoRadarLevel({
-      isDualLevel: true,
-      currentLevel: "upper",
-      currentTime: 30.5,
-      bombState: {
-        planted: false,
-        exploded: false,
-        defused: false,
-      },
+    const s = scene(30.5, {
       killLines: [
         { fromX: 10, fromY: 10, toX: 20, toY: 20, time: 20, isHeadshot: false, level: "upper" },
         { fromX: 10, fromY: 10, toX: 20, toY: 20, time: 29.8, isHeadshot: false, level: "lower" },
       ],
-      radarDots: [],
     })
-    expect(level).toBe("lower")
+    expect(sceneAutoFloor(s, "upper", true)).toBe("lower")
+  })
+
+  it("uses a fresh death marker's floor", () => {
+    const s = scene(12, { dots: [{ playerId: "d", nickname: "D", x: 10, y: 10, side: "t", isAlive: false, deathTime: 11, level: "lower", angle: 0 }] })
+    expect(sceneAutoFloor(s, "upper", true)).toBe("lower")
+    const later = scene(20, { dots: [{ playerId: "d", nickname: "D", x: 10, y: 10, side: "t", isAlive: false, deathTime: 11, level: "lower", angle: 0 }] })
+    expect(sceneAutoFloor(later, "upper", true)).toBe("upper")
   })
 
   it("falls back to alive player majority when there is no bomb or recent kill line", () => {
-    const level = resolveAutoRadarLevel({
-      isDualLevel: true,
-      currentLevel: "upper",
-      currentTime: 50,
-      bombState: {
-        planted: false,
-        exploded: false,
-        defused: false,
-      },
-      killLines: [],
-      radarDots: [
+    const s = scene(50, {
+      dots: [
         { playerId: "a", nickname: "A", x: 10, y: 10, side: "ct", isAlive: true, level: "lower", angle: 0 },
         { playerId: "b", nickname: "B", x: 10, y: 10, side: "ct", isAlive: true, level: "lower", angle: 0 },
         { playerId: "c", nickname: "C", x: 10, y: 10, side: "t", isAlive: true, level: "upper", angle: 0 },
       ],
     })
-    expect(level).toBe("lower")
+    expect(sceneAutoFloor(s, "upper", true)).toBe("lower")
+  })
+
+  it("keeps the current floor on a tie", () => {
+    const s = scene(50, {
+      dots: [
+        { playerId: "a", nickname: "A", x: 10, y: 10, side: "ct", isAlive: true, level: "lower", angle: 0 },
+        { playerId: "c", nickname: "C", x: 10, y: 10, side: "t", isAlive: true, level: "upper", angle: 0 },
+      ],
+    })
+    expect(sceneAutoFloor(s, "lower", true)).toBe("lower")
+    expect(sceneAutoFloor(s, "upper", true)).toBe("upper")
   })
 
   it("returns upper for single-level maps", () => {
-    const level = resolveAutoRadarLevel({
-      isDualLevel: false,
-      currentLevel: "lower",
-      currentTime: 10,
-      bombState: {
-        planted: true,
-        exploded: false,
-        defused: false,
-        level: "lower",
-      },
-      killLines: [],
-      radarDots: [],
-    })
-    expect(level).toBe("upper")
+    const s = scene(10, { bomb: { planted: true, exploded: false, defused: false, level: "lower", position: { x: 50, y: 50 } } })
+    expect(sceneAutoFloor(s, "lower", false)).toBe("upper")
   })
 })

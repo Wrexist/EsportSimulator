@@ -1,7 +1,10 @@
 /**
- * Snapshot shapes the radar panel draws when it is fed precomputed frames
- * (the physical replay rehearsal, unit tests). The live match feeds the panel
- * a round script instead (engine/match/round-script-types.ts).
+ * Shapes the radar panel accepts.
+ *
+ * - Snapshot mode: precomputed frames (the physical replay rehearsal, unit
+ *   tests) — `RadarPlayerDot`, `RadarKillLine`, `RadarBombState`, `RadarSmoke`.
+ * - Script mode: the live match hands over a round script
+ *   (engine/match/round-script-types.ts) and the radar samples it itself.
  *
  * Coordinates are radar percent space (0–100, origin top-left).
  */
@@ -24,6 +27,11 @@ export interface RadarPlayerDot {
     level?: RadarLevel
     angle: number
     money?: number
+    /** Optional extras the canvas draws when present. */
+    hp?: number
+    weapon?: string
+    hasBomb?: boolean
+    hasKit?: boolean
 }
 
 export interface RadarKillLine {
@@ -54,4 +62,23 @@ export interface RadarSmoke {
     startTime: number
     endTime: number
     level?: RadarLevel
+}
+
+/** Per-player display info for script mode, by player id. */
+export interface RadarScriptPlayerInfo {
+    name: string
+    /** Cash (kept for callers; the canvas does not draw an economy ring). */
+    money?: number
+    /** Primary weapon id this round ("ak47", "awp", "usp_s", …): picks the weapon glyph. */
+    weapon?: string
+    /** CT defuse kit this round. */
+    hasKit?: boolean
+}
+
+/** Radar base art for one map, in the radar percent frame (0–100 = image edges). */
+export interface RadarArt {
+    upper: string
+    lower?: string
+    /** Baked radar art (data/radar-art): dark, plant areas already tinted. */
+    baked?: boolean
 }
