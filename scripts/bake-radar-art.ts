@@ -48,15 +48,15 @@ const N = OUT * SS // working raster size
 
 /** Design system v2 radar palette. */
 const PALETTE = {
-    low: rgb('#1A2029'), // walkable, lowest ground of the floor
-    high: rgb('#232B36'), // walkable, highest ground of the floor
-    wall: rgb('#3A4554'),
+    low: rgb('#252D39'), // walkable, lowest ground of the floor
+    high: rgb('#344052'), // walkable, highest ground of the floor
+    wall: rgb('#566477'),
     site: rgb('#F2B53A'),
     ct: rgb('#5AA9FF'),
     t: rgb('#FF8A3D'),
     ladder: rgb('#8693A6'),
-    ghost: rgb('#0D1116'), // other floor's footprint on lower-floor images
-    ghostEdge: rgb('#161C24'),
+    ghost: rgb('#11161D'), // other floor's footprint on lower-floor images
+    ghostEdge: rgb('#202833'),
 }
 const ALPHA = { site: 0.12, siteEdge: 0.4, spawn: 0.1, ledge: 0.5, shadow: 0.18, light: 0.06, dark: 0.1 }
 
