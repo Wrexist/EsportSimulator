@@ -193,6 +193,9 @@ describe("fixture labels", () => {
     test("the match header shows both clubs' table places, first team first", () => {
         const { save, own } = world()
         const split = save.league!.current!
+        // Before the first round the order is only the draw.
+        const first = save.scheduledMatches.find(x => x.tournamentId === own.id)!
+        expect(leagueMatchContext(save.league, first, first.homeTeamId)).toBeNull()
         playWeeks(save, split.firstWeek, split.firstWeek + 1)
         const m = save.scheduledMatches.find(x => x.tournamentId === own.id && (x.homeTeamId === save.playerTeamId || x.awayTeamId === save.playerTeamId))!
         const pos = (id: string) => own.standings.findIndex(s => s.teamId === id) + 1

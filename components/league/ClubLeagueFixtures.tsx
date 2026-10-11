@@ -28,7 +28,8 @@ const linkClass = "inline-flex items-center gap-1 text-xs font-semibold text-ink
 /** The managed club's next league fixtures and latest league results. */
 export function ClubLeagueFixtures({ division, teamId, teamsById, dayById, completedIds, gameStartDate, limit = 5 }: ClubLeagueFixturesProps) {
     const { upcoming, played } = clubFixtures(division, teamId)
-    const position = new Map(division.standings.map((s, i) => [s.teamId, i + 1]))
+    // Table places only once a round is in (before that the order is the draw).
+    const position = new Map(division.standings.some(s => s.played > 0) ? division.standings.map((s, i) => [s.teamId, i + 1]) : [])
     const when = (week: number, day: number | undefined) => {
         const wk = `Wk ${((week - 1) % 52) + 1}`
         if (!gameStartDate || day === undefined) return wk

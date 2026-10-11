@@ -498,7 +498,7 @@ export default function MatchResultPage() {
                                             ))}
                                         </ul>
                                     )}
-                                    {moneyLines.length === 0 && <p className="mt-1 text-xs text-ink-3">No prep costs or bonuses. Prize money is paid when the event ends.</p>}
+                                    {moneyLines.length === 0 && <p className="mt-1 text-xs text-ink-3">No prep costs or bonuses. {leagueStage ? "League prize money is paid when the split ends." : "Prize money is paid when the event ends."}</p>}
                                 </div>
                             </dl>
                         </Panel>

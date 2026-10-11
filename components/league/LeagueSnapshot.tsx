@@ -53,10 +53,11 @@ export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameS
     const bottom = bottomLevelOf(split, own.region)
     const rows = leagueTableRows(own, bottom, playerTeamId)
     const me = rows.find(r => r.isPlayer)
+    const started = rows.some(r => r.played > 0)
     const situation = tableSituation(rows, playerTeamId, own.level)
     const next = clubFixtures(own, playerTeamId).upcoming[0]
     const opp = next ? teamsById.get(next.opponentId) : undefined
-    const oppPos = next ? rows.find(r => r.teamId === next.opponentId)?.position : undefined
+    const oppPos = next && started ? rows.find(r => r.teamId === next.opponentId)?.position : undefined
     const day = next ? dayById.get(next.fixture.id) : undefined
     const when = next
         ? (gameStartDate && day !== undefined
@@ -69,7 +70,7 @@ export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameS
         <Panel eyebrow="League" title={own.name} actions={tableLink} className={className}>
             <div className="flex items-center gap-5">
                 <p className="shrink-0 font-display text-[40px] font-bold leading-none tabular-nums text-ink-1">
-                    {me ? ordinal(me.position) : "—"}<span className="text-lg text-ink-3">/{rows.length}</span>
+                    {me && started ? ordinal(me.position) : "—"}<span className="text-lg text-ink-3">/{rows.length}</span>
                 </p>
                 <dl className="grid min-w-0 flex-1 grid-cols-3 gap-3">
                     <div>
@@ -81,7 +82,7 @@ export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameS
                         <dd className="font-display text-xl font-bold tabular-nums text-ink-1">{me ? `${me.wins}–${me.losses}` : "0–0"}</dd>
                     </div>
                     <div>
-                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Rounds</dt>
+                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Round diff</dt>
                         <dd className="font-display text-xl font-bold tabular-nums text-ink-1">{signed(me?.roundDiff ?? 0)}</dd>
                     </div>
                 </dl>

@@ -256,7 +256,8 @@ export function leagueMatchContext(
     firstTeamId: string,
 ): string | null {
     const division = league?.current?.divisions.find(d => d.id === m.tournamentId)
-    if (!division) return null
+    // Before the first round the order is only the draw: no table to speak of.
+    if (!division || division.standings.every(s => s.played === 0)) return null
     const secondTeamId = firstTeamId === m.homeTeamId ? m.awayTeamId : m.homeTeamId
     const at = (id: string) => {
         const i = division.standings.findIndex(s => s.teamId === id)

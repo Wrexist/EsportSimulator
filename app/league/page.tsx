@@ -99,13 +99,15 @@ export default function LeaguePage() {
     const ownBottom = own ? bottomLevelOf(split, own.region) : 1
     const ownRows = own ? leagueTableRows(own, ownBottom, playerTeamId) : []
     const me = ownRows.find(r => r.isPlayer)
+    // Before the first round the order is only the draw (seeding).
+    const started = ownRows.some(r => r.played > 0)
     const situation = own && playerTeamId ? tableSituation(ownRows, playerTeamId, own.level) : null
     const viewingOwn = !!own && viewed.id === own.id
     const level = own?.level ?? playerTeam?.leagueDivisionLevel
     const pools = LEAGUE_TUNING.SPLIT_PRIZE_POOL_BY_LEVEL
     const pool = level ? pools[Math.min(pools.length, level) - 1] : undefined
     const shares = LEAGUE_TUNING.SPLIT_PRIZE_SHARES
-    const prizeNow = pool && me ? Math.round(pool * (shares[me.position - 1] ?? 0)) : 0
+    const prizeNow = pool && me && started ? Math.round(pool * (shares[me.position - 1] ?? 0)) : 0
 
     return (
         <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
@@ -124,8 +126,10 @@ export default function LeaguePage() {
                     <KpiStrip>
                         <Kpi
                             label="Position"
-                            value={<>{ordinal(me.position)}<span className="text-ink-3">/{own.standings.length}</span></>}
-                            hint={situation && <span className={TONE_TEXT[situation.tone]}>{situation.text}</span>}
+                            value={started ? <>{ordinal(me.position)}<span className="text-ink-3">/{own.standings.length}</span></> : "—"}
+                            hint={started
+                                ? situation && <span className={TONE_TEXT[situation.tone]}>{situation.text}</span>
+                                : `Seeded ${ordinal(me.position)} of ${own.standings.length}`}
                         />
                         <Kpi label="Points" value={me.points} hint={`${me.wins}W–${me.losses}L · ${me.played} played`} />
                         <Kpi label="Round diff" value={signed(me.roundDiff)} />
@@ -204,8 +208,8 @@ export default function LeaguePage() {
                                     <dd className="tabular-nums text-ink-1">{formatCurrency(pool, "$", false)}</dd>
                                 </div>
                                 <div className="flex items-center justify-between gap-3 px-4 py-2.5">
-                                    <dt className="text-ink-3">Prize at {me ? ordinal(me.position) : "your place"} now</dt>
-                                    <dd className={cn("tabular-nums", prizeNow > 0 ? "text-ink-1" : "text-ink-3")}>{prizeNow > 0 ? formatCurrency(prizeNow, "$", false) : "None"}</dd>
+                                    <dt className="text-ink-3">Prize at {me && started ? ordinal(me.position) : "your place"} now</dt>
+                                    <dd className={cn("tabular-nums", prizeNow > 0 ? "text-ink-1" : "text-ink-3")}>{prizeNow > 0 ? formatCurrency(prizeNow, "$", false) : started ? "None" : "—"}</dd>
                                 </div>
                             </dl>
                             <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">

@@ -547,9 +547,8 @@ export default function Page() {
             )}
 
             {/* Board objectives; the chip opens Club → Board */}
-            <Panel title="Board objectives" actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />}>
-              <p className="text-sm font-semibold text-ink-1">{tierTargets.label}</p>
-              <dl className="mt-3 divide-y divide-line border-y border-line text-sm">
+            <Panel eyebrow="Board" title={tierTargets.label} actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />} bodyClassName="pt-1">
+              <dl className="divide-y divide-line text-sm">
                 {objectives.length > 0 ? objectives.map(o => (
                   <div key={o.id} className="flex items-center justify-between gap-3 py-2">
                     <dt className="min-w-0 truncate text-ink-3" title={o.label}>{OBJECTIVE_SHORT[o.id] ?? o.label}</dt>
@@ -578,7 +577,7 @@ export default function Page() {
               </dl>
               {sanctioned && sanctioned.fraction < 1 && (
                 <p className="mt-3 text-xs text-ink-3">
-                  Transfer fees capped at {Math.round(sanctioned.fraction * 100)}% of funds ({formatCurrency(sanctioned.maxFee)}) until confidence recovers.
+                  Transfer fees capped at {Math.round(sanctioned.fraction * 100)}% of funds ({formatCurrency(sanctioned.maxFee)}) until board confidence reaches 70.
                 </p>
               )}
             </Panel>
