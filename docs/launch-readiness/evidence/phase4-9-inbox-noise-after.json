@@ -1,0 +1,1261 @@
+{
+  "generated": "2026-10-11",
+  "weeks": 12,
+  "tier": "mid",
+  "driver": "Real useGameStore: initializeNewGame, continueToNextDecision, simulateInstantMatch on match stops; the inbox is never opened.",
+  "summary": {
+    "finalBadge": [
+      4,
+      7,
+      5,
+      5
+    ],
+    "finalOpenDecisions": [
+      1,
+      2,
+      2,
+      1
+    ],
+    "maxOpenDecisions": [
+      2,
+      2,
+      3,
+      2
+    ],
+    "avgNewInboxPerWeek": 1.6,
+    "maxNewInboxPerWeek": 3,
+    "nonMatchStops": [
+      5,
+      7,
+      6,
+      9
+    ]
+  },
+  "results": [
+    {
+      "seed": 1,
+      "club": "team_58_cybershoci",
+      "clubName": "CYBIRSHOKE",
+      "startWeek": 1,
+      "endWeek": 13,
+      "final": {
+        "badge": 4,
+        "openDecisions": 1,
+        "unreadMessages": 3,
+        "unreadNews": 3,
+        "unreadAll": 7
+      },
+      "maxOpenDecisions": 2,
+      "avgNewInboxPerWeek": 1.4,
+      "maxNewInboxPerWeek": 3,
+      "totals": {
+        "messages": {
+          "TOURNAMENT": 1,
+          "CAREER_UPDATE": 1,
+          "DIGEST": 11
+        },
+        "decisions": {
+          "SPONSOR": 1,
+          "JOB_OFFER": 2,
+          "MORALE": 3
+        },
+        "news": {
+          "MEDIA": 3
+        }
+      },
+      "stopsByKind": {
+        "event": 3,
+        "offer": 2
+      },
+      "stopsByReason": {
+        "event: A sponsor review needs an answer": 1,
+        "event: Internal Morale needs an answer": 1,
+        "offer: Job offer from IGOISTO (#N)": 1,
+        "event: N decisions need an answer": 1,
+        "offer: Job offer from Gelorys (#N)": 1
+      },
+      "byFamily": {
+        "message:TOURNAMENT:league_draw_league_team_cybershoci": 1,
+        "message:CAREER_UPDATE:evt_welcome_save": 1,
+        "decision:SPONSOR:sponsor_review": 1,
+        "decision:JOB_OFFER:job_offer_team_ikoisto": 1,
+        "decision:MORALE:birthday_player_cybershoci": 2,
+        "news:MEDIA:trophy_iem_katowice_closed_eu_team_besteayx": 1,
+        "news:MEDIA:trophy_iem_katowice_open_team_bigkings": 1,
+        "decision:MORALE:birthday_player_cybershoci_axlpha": 1,
+        "decision:JOB_OFFER:job_offer_team_golarysel": 1,
+        "news:MEDIA:trophy_iem_katowice_team_vitalis": 1
+      },
+      "weeks": [
+        {
+          "week": 1,
+          "messages": {
+            "TOURNAMENT": 1,
+            "CAREER_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 0,
+          "badge": 2,
+          "unreadAll": 2,
+          "stops": []
+        },
+        {
+          "week": 2,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {
+            "MILESTONE": 1,
+            "FAN": 1
+          },
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": [
+            "event: A sponsor review needs an answer"
+          ]
+        },
+        {
+          "week": 3,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "TOURNAMENT_UPDATE": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": []
+        },
+        {
+          "week": 4,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "PLAYER_LEVEL_UP": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 0,
+          "badge": 3,
+          "unreadAll": 3,
+          "stops": []
+        },
+        {
+          "week": 5,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "PLAYER_LEVEL_UP": 3
+          },
+          "newInbox": 1,
+          "openDecisions": 0,
+          "badge": 3,
+          "unreadAll": 3,
+          "stops": []
+        },
+        {
+          "week": 6,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "PLAYER_LEVEL_UP": 1,
+            "TOURNAMENT": 2
+          },
+          "newInbox": 1,
+          "openDecisions": 0,
+          "badge": 3,
+          "unreadAll": 3,
+          "stops": []
+        },
+        {
+          "week": 7,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "MANAGER_LEVEL_UP": 1,
+            "TOURNAMENT": 1,
+            "FAN": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 0,
+          "badge": 3,
+          "unreadAll": 3,
+          "stops": []
+        },
+        {
+          "week": 8,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "JOB_OFFER": 1,
+            "MORALE": 1
+          },
+          "news": {},
+          "folded": {
+            "TOURNAMENT_UPDATE": 1,
+            "MEDIA": 1
+          },
+          "newInbox": 3,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 5,
+          "stops": [
+            "event: Internal Morale needs an answer",
+            "offer: Job offer from IGOISTO (#184)"
+          ]
+        },
+        {
+          "week": 9,
+          "messages": {},
+          "decisions": {},
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {},
+          "newInbox": 0,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 6,
+          "stops": []
+        },
+        {
+          "week": 10,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {
+            "MILESTONE": 1,
+            "PLAYER_LEVEL_UP": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 0,
+          "badge": 3,
+          "unreadAll": 5,
+          "stops": []
+        },
+        {
+          "week": 11,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "MORALE": 2
+          },
+          "news": {},
+          "folded": {
+            "PLAYER_LEVEL_UP": 1,
+            "TOURNAMENT": 1
+          },
+          "newInbox": 3,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 7,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 12,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "PLAYER_LEVEL_UP": 1,
+            "TOURNAMENT": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 7,
+          "stops": []
+        },
+        {
+          "week": 13,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "JOB_OFFER": 1
+          },
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {
+            "PLAYER_LEVEL_UP": 2,
+            "TOURNAMENT": 1
+          },
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 7,
+          "stops": [
+            "offer: Job offer from Gelorys (#174)"
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "club": "team_66_fluxion",
+      "clubName": "Floxo",
+      "startWeek": 1,
+      "endWeek": 13,
+      "final": {
+        "badge": 7,
+        "openDecisions": 2,
+        "unreadMessages": 5,
+        "unreadNews": 3,
+        "unreadAll": 10
+      },
+      "maxOpenDecisions": 2,
+      "avgNewInboxPerWeek": 1.7,
+      "maxNewInboxPerWeek": 3,
+      "totals": {
+        "messages": {
+          "TOURNAMENT": 1,
+          "CAREER_UPDATE": 1,
+          "DIGEST": 11,
+          "NEWS": 2
+        },
+        "decisions": {
+          "MORALE": 4,
+          "CAREER_UPDATE": 1,
+          "FAN": 1,
+          "JOB_OFFER": 1
+        },
+        "news": {
+          "MEDIA": 3
+        }
+      },
+      "stopsByKind": {
+        "event": 6,
+        "offer": 1
+      },
+      "stopsByReason": {
+        "event: Internal Morale needs an answer": 4,
+        "event: Career Update needs an answer": 1,
+        "event: A fan meetup request needs an answer": 1,
+        "offer: Job offer from Kiyd Stars (#N)": 1
+      },
+      "byFamily": {
+        "message:TOURNAMENT:league_draw_league_team_fluxion": 1,
+        "message:CAREER_UPDATE:evt_welcome_save_zgiizl": 1,
+        "decision:MORALE:birthday_player_fluxion_sewy": 1,
+        "decision:CAREER_UPDATE:career_decision_team_fluxion_confidence": 1,
+        "decision:FAN:fan_meet": 1,
+        "news:MEDIA:trophy_iem_katowice_closed_eu_team_goimingladiaturs": 1,
+        "message:NEWS:legend_mentorship_legend_varden": 1,
+        "decision:JOB_OFFER:job_offer_team_xeydstars": 1,
+        "decision:MORALE:morale_player_fluxion_exxit": 1,
+        "news:MEDIA:trophy_iem_katowice_open_team": 1,
+        "message:NEWS:legend_mentorship_legend_mirage": 1,
+        "decision:MORALE:morale_player_fluxion_dekenty": 1,
+        "news:MEDIA:trophy_iem_katowice_team": 1,
+        "decision:MORALE:morale_player_fluxion_cye": 1
+      },
+      "weeks": [
+        {
+          "week": 1,
+          "messages": {
+            "TOURNAMENT": 1,
+            "CAREER_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 0,
+          "badge": 2,
+          "unreadAll": 2,
+          "stops": []
+        },
+        {
+          "week": 2,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "MORALE": 1
+          },
+          "news": {},
+          "folded": {
+            "FAN": 1
+          },
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": [
+            "event: Internal Morale needs an answer"
+          ]
+        },
+        {
+          "week": 3,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "TOURNAMENT_UPDATE": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": []
+        },
+        {
+          "week": 4,
+          "messages": {},
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 0,
+          "openDecisions": 0,
+          "badge": 3,
+          "unreadAll": 3,
+          "stops": []
+        },
+        {
+          "week": 5,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "TOURNAMENT_UPDATE": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 0,
+          "badge": 3,
+          "unreadAll": 3,
+          "stops": []
+        },
+        {
+          "week": 6,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "CAREER_UPDATE": 1
+          },
+          "news": {},
+          "folded": {
+            "TOURNAMENT": 2
+          },
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": [
+            "event: Career Update needs an answer"
+          ]
+        },
+        {
+          "week": 7,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "FAN": 1
+          },
+          "news": {},
+          "folded": {
+            "PLAYER_LEVEL_UP": 5,
+            "MEDIA": 1
+          },
+          "newInbox": 2,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 5,
+          "stops": [
+            "event: A fan meetup request needs an answer"
+          ]
+        },
+        {
+          "week": 8,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "TOURNAMENT_UPDATE": 1,
+            "TOURNAMENT": 2
+          },
+          "newInbox": 1,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 5,
+          "stops": []
+        },
+        {
+          "week": 9,
+          "messages": {
+            "DIGEST": 1,
+            "NEWS": 1
+          },
+          "decisions": {},
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {
+            "MEDIA": 1,
+            "TOURNAMENT": 1
+          },
+          "newInbox": 2,
+          "openDecisions": 0,
+          "badge": 4,
+          "unreadAll": 5,
+          "stops": []
+        },
+        {
+          "week": 10,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "JOB_OFFER": 1,
+            "MORALE": 1
+          },
+          "news": {},
+          "folded": {
+            "MEDIA": 1,
+            "TOURNAMENT": 1
+          },
+          "newInbox": 3,
+          "openDecisions": 2,
+          "badge": 6,
+          "unreadAll": 7,
+          "stops": [
+            "event: Internal Morale needs an answer",
+            "offer: Job offer from Kiyd Stars (#170)"
+          ]
+        },
+        {
+          "week": 11,
+          "messages": {
+            "DIGEST": 1,
+            "NEWS": 1
+          },
+          "decisions": {},
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {
+            "MILESTONE": 1,
+            "PLAYER_LEVEL_UP": 1,
+            "MANAGER_LEVEL_UP": 1,
+            "TOURNAMENT": 2
+          },
+          "newInbox": 2,
+          "openDecisions": 2,
+          "badge": 7,
+          "unreadAll": 9,
+          "stops": []
+        },
+        {
+          "week": 12,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "MORALE": 1
+          },
+          "news": {},
+          "folded": {
+            "MILESTONE": 1,
+            "PLAYER_LEVEL_UP": 3,
+            "MEDIA": 1,
+            "TOURNAMENT": 2
+          },
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 6,
+          "unreadAll": 8,
+          "stops": [
+            "event: Internal Morale needs an answer"
+          ]
+        },
+        {
+          "week": 13,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "MORALE": 1
+          },
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {
+            "MEDIA": 1,
+            "PLAYER_LEVEL_UP": 1,
+            "TOURNAMENT": 2
+          },
+          "newInbox": 2,
+          "openDecisions": 2,
+          "badge": 7,
+          "unreadAll": 10,
+          "stops": [
+            "event: Internal Morale needs an answer"
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 3,
+      "club": "team_72_rareelement",
+      "clubName": "Rere Atom",
+      "startWeek": 1,
+      "endWeek": 13,
+      "final": {
+        "badge": 5,
+        "openDecisions": 2,
+        "unreadMessages": 3,
+        "unreadNews": 3,
+        "unreadAll": 8
+      },
+      "maxOpenDecisions": 3,
+      "avgNewInboxPerWeek": 1.5,
+      "maxNewInboxPerWeek": 3,
+      "totals": {
+        "messages": {
+          "TOURNAMENT": 1,
+          "CAREER_UPDATE": 1,
+          "DIGEST": 10
+        },
+        "decisions": {
+          "MEDIA": 2,
+          "CAREER_UPDATE": 1,
+          "FAN": 1,
+          "MORALE": 1,
+          "CONTRACT_OFFER": 1,
+          "loss_streak": 1,
+          "SPONSOR": 1
+        },
+        "news": {
+          "MEDIA": 3
+        }
+      },
+      "stopsByKind": {
+        "event": 6
+      },
+      "stopsByReason": {
+        "event: Interview Request: Clutch Weekly needs an answer": 1,
+        "event: Career Update needs an answer": 1,
+        "event: N decisions need an answer": 2,
+        "event: Coaching Offer: Mirage needs an answer": 1,
+        "event: Interview Request: Pro Power Rankings needs an answer": 1
+      },
+      "byFamily": {
+        "message:TOURNAMENT:league_draw_league_team_rareelement": 1,
+        "message:CAREER_UPDATE:evt_welcome_save": 1,
+        "decision:MEDIA:media_interview": 2,
+        "decision:CAREER_UPDATE:career_decision_team_rareelement_momentum": 1,
+        "news:MEDIA:trophy_iem_katowice_closed_eu_team_xpurtsbetexpert": 1,
+        "decision:FAN:fan_meet": 1,
+        "decision:MORALE:birthday_player_rari": 1,
+        "news:MEDIA:trophy_iem_katowice_open_team_phanatic": 1,
+        "decision:CONTRACT_OFFER:legend_coach_opportunity_legend_mirage": 1,
+        "news:MEDIA:trophy_iem_katowice_team_valiant": 1,
+        "decision:loss_streak:streak_loss": 1,
+        "decision:SPONSOR:sponsor_review": 1
+      },
+      "weeks": [
+        {
+          "week": 1,
+          "messages": {
+            "TOURNAMENT": 1,
+            "CAREER_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 0,
+          "badge": 2,
+          "unreadAll": 2,
+          "stops": []
+        },
+        {
+          "week": 2,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "FAN": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 0,
+          "badge": 3,
+          "unreadAll": 3,
+          "stops": []
+        },
+        {
+          "week": 3,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "MILESTONE": 1,
+            "TOURNAMENT_UPDATE": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 0,
+          "badge": 3,
+          "unreadAll": 3,
+          "stops": []
+        },
+        {
+          "week": 4,
+          "messages": {},
+          "decisions": {
+            "MEDIA": 1
+          },
+          "news": {},
+          "folded": {},
+          "newInbox": 1,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": [
+            "event: Interview Request: Clutch Weekly needs an answer"
+          ]
+        },
+        {
+          "week": 5,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "CAREER_UPDATE": 1
+          },
+          "news": {},
+          "folded": {
+            "MILESTONE": 1,
+            "PLAYER_LEVEL_UP": 3
+          },
+          "newInbox": 2,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 5,
+          "stops": [
+            "event: Career Update needs an answer"
+          ]
+        },
+        {
+          "week": 6,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "PLAYER_LEVEL_UP": 2,
+            "TOURNAMENT": 2
+          },
+          "newInbox": 1,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": []
+        },
+        {
+          "week": 7,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "MANAGER_LEVEL_UP": 1,
+            "TOURNAMENT": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": []
+        },
+        {
+          "week": 8,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "MILESTONE": 1,
+            "TOURNAMENT_UPDATE": 1,
+            "MEDIA": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 0,
+          "badge": 3,
+          "unreadAll": 3,
+          "stops": []
+        },
+        {
+          "week": 9,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "FAN": 1,
+            "MORALE": 1
+          },
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {
+            "PLAYER_LEVEL_UP": 1
+          },
+          "newInbox": 3,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 6,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 10,
+          "messages": {},
+          "decisions": {
+            "CONTRACT_OFFER": 1
+          },
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {},
+          "newInbox": 1,
+          "openDecisions": 3,
+          "badge": 6,
+          "unreadAll": 8,
+          "stops": [
+            "event: Coaching Offer: Mirage needs an answer"
+          ]
+        },
+        {
+          "week": 11,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "MEDIA": 1
+          },
+          "news": {},
+          "folded": {
+            "PLAYER_LEVEL_UP": 3,
+            "TOURNAMENT": 1
+          },
+          "newInbox": 2,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 7,
+          "stops": [
+            "event: Interview Request: Pro Power Rankings needs an answer"
+          ]
+        },
+        {
+          "week": 12,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {
+            "PLAYER_LEVEL_UP": 1,
+            "TOURNAMENT": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 8,
+          "stops": []
+        },
+        {
+          "week": 13,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "loss_streak": 1,
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {
+            "MEDIA": 1
+          },
+          "newInbox": 3,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 8,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 4,
+      "club": "team_79_jijyahao",
+      "clubName": "JyJieHao",
+      "startWeek": 1,
+      "endWeek": 13,
+      "final": {
+        "badge": 5,
+        "openDecisions": 1,
+        "unreadMessages": 4,
+        "unreadNews": 4,
+        "unreadAll": 9
+      },
+      "maxOpenDecisions": 2,
+      "avgNewInboxPerWeek": 1.8,
+      "maxNewInboxPerWeek": 3,
+      "totals": {
+        "messages": {
+          "TOURNAMENT": 1,
+          "CAREER_UPDATE": 1,
+          "DIGEST": 11,
+          "INJURY": 1
+        },
+        "decisions": {
+          "FAN": 2,
+          "MEDIA": 1,
+          "SPONSOR": 2,
+          "CAREER_UPDATE": 1,
+          "win_streak": 1,
+          "JOB_OFFER": 1,
+          "loss_streak": 1
+        },
+        "news": {
+          "MEDIA": 4
+        }
+      },
+      "stopsByKind": {
+        "event": 7,
+        "offer": 1,
+        "injury": 1
+      },
+      "stopsByReason": {
+        "event: N decisions need an answer": 1,
+        "event: A sponsor review needs an answer": 2,
+        "event: Career Update needs an answer": 1,
+        "event: Performance needs an answer": 2,
+        "event: A fan meetup request needs an answer": 1,
+        "offer: Job offer from Lylmix (#N)": 1,
+        "injury: synnopsyy is injured (Back Spasm, N weeks)": 1
+      },
+      "byFamily": {
+        "message:TOURNAMENT:league_draw_league_team_jijyahao": 1,
+        "message:CAREER_UPDATE:evt_welcome_save": 1,
+        "decision:FAN:fan_meet": 2,
+        "decision:MEDIA:media_interview": 1,
+        "decision:SPONSOR:sponsor_review": 2,
+        "decision:CAREER_UPDATE:career_decision_team_jijyahao_momentum": 1,
+        "decision:win_streak:streak_win": 1,
+        "decision:JOB_OFFER:job_offer_team_lilmix": 1,
+        "news:MEDIA:trophy_iem_katowice_closed_eu_team_thundereldawnynder": 1,
+        "news:MEDIA:trophy_iem_katowice_open_team_falconry": 1,
+        "news:MEDIA:trophy_iem_katowice_team_natusvincera": 1,
+        "decision:loss_streak:streak_loss": 1,
+        "message:INJURY:injury_player_jijyahao_sinnopzyy": 1,
+        "news:MEDIA:trophy_copenhagen_rmr_asia_team": 1
+      },
+      "weeks": [
+        {
+          "week": 1,
+          "messages": {
+            "TOURNAMENT": 1,
+            "CAREER_UPDATE": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {},
+          "newInbox": 2,
+          "openDecisions": 0,
+          "badge": 2,
+          "unreadAll": 2,
+          "stops": []
+        },
+        {
+          "week": 2,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "FAN": 1,
+            "MEDIA": 1
+          },
+          "news": {},
+          "folded": {
+            "MILESTONE": 1
+          },
+          "newInbox": 3,
+          "openDecisions": 2,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": [
+            "event: 2 decisions need an answer"
+          ]
+        },
+        {
+          "week": 3,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "TOURNAMENT_UPDATE": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 5,
+          "stops": []
+        },
+        {
+          "week": 4,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "SPONSOR": 1
+          },
+          "news": {},
+          "folded": {
+            "PLAYER_LEVEL_UP": 4
+          },
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": [
+            "event: A sponsor review needs an answer"
+          ]
+        },
+        {
+          "week": 5,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "CAREER_UPDATE": 1
+          },
+          "news": {},
+          "folded": {
+            "MILESTONE": 1,
+            "MANAGER_LEVEL_UP": 1,
+            "PLAYER_LEVEL_UP": 1
+          },
+          "newInbox": 2,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 5,
+          "stops": [
+            "event: Career Update needs an answer"
+          ]
+        },
+        {
+          "week": 6,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "win_streak": 1
+          },
+          "news": {},
+          "folded": {
+            "TOURNAMENT": 2
+          },
+          "newInbox": 2,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 5,
+          "stops": [
+            "event: Performance needs an answer"
+          ]
+        },
+        {
+          "week": 7,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "MEDIA": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 5,
+          "stops": []
+        },
+        {
+          "week": 8,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "FAN": 1
+          },
+          "news": {},
+          "folded": {
+            "TOURNAMENT_UPDATE": 1
+          },
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": [
+            "event: A fan meetup request needs an answer"
+          ]
+        },
+        {
+          "week": 9,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {},
+          "folded": {
+            "PLAYER_LEVEL_UP": 1
+          },
+          "newInbox": 1,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 4,
+          "stops": []
+        },
+        {
+          "week": 10,
+          "messages": {},
+          "decisions": {
+            "JOB_OFFER": 1
+          },
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {},
+          "newInbox": 1,
+          "openDecisions": 1,
+          "badge": 4,
+          "unreadAll": 5,
+          "stops": [
+            "offer: Job offer from Lylmix (#183)"
+          ]
+        },
+        {
+          "week": 11,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "SPONSOR": 1
+          },
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {
+            "MILESTONE": 1,
+            "TOURNAMENT": 2
+          },
+          "newInbox": 2,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 7,
+          "stops": [
+            "event: A sponsor review needs an answer"
+          ]
+        },
+        {
+          "week": 12,
+          "messages": {
+            "DIGEST": 1
+          },
+          "decisions": {
+            "loss_streak": 1
+          },
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {
+            "PLAYER_LEVEL_UP": 4,
+            "TOURNAMENT": 1
+          },
+          "newInbox": 2,
+          "openDecisions": 2,
+          "badge": 5,
+          "unreadAll": 8,
+          "stops": [
+            "event: Performance needs an answer"
+          ]
+        },
+        {
+          "week": 13,
+          "messages": {
+            "INJURY": 1,
+            "DIGEST": 1
+          },
+          "decisions": {},
+          "news": {
+            "MEDIA": 1
+          },
+          "folded": {
+            "TOURNAMENT": 1
+          },
+          "newInbox": 2,
+          "openDecisions": 1,
+          "badge": 5,
+          "unreadAll": 9,
+          "stops": [
+            "injury: synnopsyy is injured (Back Spasm, 4 weeks)"
+          ]
+        }
+      ]
+    }
+  ]
+}
