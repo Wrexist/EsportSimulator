@@ -71,8 +71,9 @@ function Tool({ onClick, children, title, selected, tone, className }: {
             aria-pressed={selected}
             className={cn(
                 "h-8 justify-start px-2.5 text-xs font-semibold tabular-nums [&_svg]:text-ink-3",
-                selected && "border-gold bg-gold/10 text-gold hover:border-gold hover:bg-gold/15 [&_svg]:text-gold",
-                tone === "danger" && "text-negative hover:border-negative/50 [&_svg]:text-negative",
+                // `!`: premium-ui.css skins every outline button's border and fill.
+                selected && "border-gold! bg-gold/10! text-gold [&_svg]:text-gold",
+                tone === "danger" && "text-negative hover:border-negative/50! [&_svg]:text-negative",
                 className,
             )}
         >
@@ -625,7 +626,7 @@ function DevToolsPanel() {
                                                         setTimeout(() => setNukeConfirm(false), 3000)
                                                     }
                                                 }}
-                                                className={cn("w-full", nukeConfirm && "border-negative bg-negative/15")}
+                                                className={cn("w-full", nukeConfirm && "border-negative! bg-negative/15!")}
                                             >
                                                 <Trash2 size={13} aria-hidden="true" />
                                                 {nukeConfirm ? "Click again to delete every save" : "Delete all saves"}
