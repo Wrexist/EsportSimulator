@@ -3,7 +3,10 @@
  * audit harness (makePlayer / makeRoster / makeTeam).
  *
  * Every attribute of a player equals their skill, so "skill" is the one knob;
- * morale/form 70, no fatigue, full energy, no traits. Teams have chemistry
+ * morale/form 70, no fatigue, full energy, and the playstyle traits the game
+ * derives for those attributes and role (engine/personality.ts deriveTraits,
+ * Phase 5.2: e.g. an entry of skill 62+ plays AGGRESSIVE, a 72+ rifler
+ * TRADE_FRAGGER, a sub-50 AWPer PASSIVE). Teams have chemistry
  * 60, facilities level 1, no gear and reputation 20 (no implicit AI gear),
  * so a managed team and an AI team of the same skill are equally strong.
  *
@@ -13,6 +16,7 @@
  */
 
 import type { Player } from '@/types'
+import { deriveTraits } from '../../personality'
 
 export const ROLES5 = ['AWPER', 'IGL', 'ENTRY_FRAGGER', 'SUPPORT', 'RIFLER'] as const
 export const ALL_RIFLERS = ['RIFLER', 'RIFLER', 'RIFLER', 'RIFLER', 'RIFLER'] as const
@@ -73,6 +77,7 @@ export interface BuiltSide {
 
 export function makePlayer(id: string, skill: number, role: string): Player {
     const s = skill
+    const traits = deriveTraits({ id, role, skill: s, creativity: s, clutch: s, reaction: s, teamwork: s, entry: s, trading: s, stressResistance: 60 })
     return {
         id, name: id, nickname: id, age: 22, nationality: 'X', portraitPath: '', role, tier: 'PRO',
         skill: s, awp: s, rifle: s, pistol: s, grenades: s, creativity: s, clutch: s, tactic: s, entry: s, trading: s,
@@ -81,7 +86,7 @@ export function makePlayer(id: string, skill: number, role: string): Player {
         form: 70, fatigue: 0, potential: s, energy: 100, maxEnergy: 100,
         matchesPlayed: 0, roundsPlayed: 0, avgRating: 1, clutchSuccessRate: 0,
         contract: { playerId: id, salaryPerWeek: 0, startWeek: 0, endWeek: 52, buyout: 0 },
-        traits: [], perks: [],
+        traits, perks: [],
     } as unknown as Player
 }
 
