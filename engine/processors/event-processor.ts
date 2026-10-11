@@ -21,47 +21,19 @@ export class EventProcessor {
         const playerTeam = save.teams.find(t => t.id === playerTeamId)
 
         // Build lookup maps for O(1) access inside loops
-        const contractMap = new Map<string, typeof save.contracts[0]>()
-        save.contracts.forEach(c => contractMap.set(c.playerId, c))
         const playerMap = new Map<string, PlayerSaveData>()
         save.players.forEach(p => playerMap.set(p.id, p))
         const generatedEventIdSet = new Set(transaction.generatedEventIds)
 
-        // 1-3. Combined single pass over rosterIds for contract warnings, morale, and fatigue
+        // 1-2. Single pass over rosterIds for morale and fatigue. Expiring
+        // contracts are one message per contract from processContractExpiry
+        // (the old weekly "Discuss renewal" choice renewed nothing; Phase 4.9).
         if (playerTeam) {
             for (const pid of playerTeam.rosterIds) {
-                // 1. Contract expiration warnings
-                const contract = contractMap.get(pid)
-                if (contract) {
-                    const weeksLeft = contract.endWeek - save.currentWeek
-                    if (weeksLeft > 0 && weeksLeft <= 4) {
-                        const eventId = `contract_${contract.playerId}_${save.currentWeek}`
-                        if (!generatedEventIdSet.has(eventId)) {
-                            save.eventsLog.push({
-                                id: eventId,
-                                type: EventType.CONTRACT,
-                                week: save.currentWeek,
-                                data: {
-                                    playerId: contract.playerId,
-                                    weeksLeft,
-                                    action: "EXPIRING",
-                                },
-                                acknowledged: false,
-                                choices: [
-                                    { id: "renew", text: "Discuss Renewal", effects: { morale: 5 } },
-                                    { id: "release", text: "Plan Release", effects: { morale: -5, loyalty: -10 } }
-                                ]
-                            })
-                            await saveManager.recordEventGenerated(transaction, eventId)
-                            eventsGenerated++
-                        }
-                    }
-                }
-
                 const player = playerMap.get(pid)
                 if (!player) continue
 
-                // 2. Low morale warnings
+                // 1. Low morale warnings
                 if (player.morale < 30 && rng.bool(0.3)) {
                     const eventId = `morale_${player.id}_${save.currentWeek}`
                     if (!generatedEventIdSet.has(eventId)) {
@@ -86,7 +58,7 @@ export class EventProcessor {
                     }
                 }
 
-                // 3. High Fatigue Checks
+                // 2. High Fatigue Checks
                 if (player.fatigue > 80 && rng.bool(0.5)) {
                     const eventId = `fatigue_${player.id}_${save.currentWeek}`
                     if (!generatedEventIdSet.has(eventId)) {
@@ -225,7 +197,7 @@ export class EventProcessor {
             if (player.injury) {
                 player.injury.weeksRemaining = Math.max(0, player.injury.weeksRemaining - 1)
                 if (player.injury.weeksRemaining <= 0) {
-                    save.eventsLog.push({
+                    if (playerTeamMap.get(player.id)?.id === save.playerTeamId) save.eventsLog.push({
                         id: `recovery_${player.id}_${save.currentWeek}`,
                         type: EventType.INJURY,
                         week: save.currentWeek,
@@ -315,7 +287,10 @@ export class EventProcessor {
                     isRecovering: true
                 }
 
-                save.eventsLog.unshift({
+                // Inbox message only for the manager's own players; every
+                // injury is still reported in the news feed below.
+                const injuredTeam = playerTeamMap.get(player.id)
+                if (injuredTeam?.id === save.playerTeamId) save.eventsLog.unshift({
                     id: `injury_${player.id}_${save.currentWeek}`,
                     type: EventType.INJURY,
                     week: save.currentWeek,
@@ -331,7 +306,7 @@ export class EventProcessor {
                 })
 
                 if (save.newsFeed) {
-                    const playerTeam = playerTeamMap.get(player.id)
+                    const playerTeam = injuredTeam
                     save.newsFeed.unshift({
                         id: `news_inj_${save.currentWeek}_${player.id}`,
                         title: `${player.nickname} sidelined with ${injuryName}`,

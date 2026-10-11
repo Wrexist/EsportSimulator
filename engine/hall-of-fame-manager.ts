@@ -125,7 +125,6 @@ export class HallOfFameManager {
                 week: save.currentWeek,
                 data: { text: `${player.name} has been inducted into the Hall of Fame!` },
                 acknowledged: false,
-                choices: [{ id: "ack", text: "Respect", effects: {} }]
             })
         }
     }
