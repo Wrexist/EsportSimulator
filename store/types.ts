@@ -135,6 +135,7 @@ export interface UIState {
   socialFeed?: import("@/engine/save-types").SocialPost[]
   careerStats?: import("@/engine/save-types").CareerStats
   recordBook?: import("@/engine/records-types").RecordBook
+  storylines?: import("@/engine/storylines/types").StoryArc[]
 }
 
 export interface SettingsState {
@@ -239,6 +240,8 @@ export interface EventsActions {
   acknowledgeEvent: (eventId: string) => void
   markAllEventsAsRead: () => void
   resolveEventChoice: (eventId: string, choiceId: string) => void
+  /** Phase 5.3: answer a press conference (question id → answer id); skipped questions change nothing. */
+  answerPressConference: (eventId: string, answers: Record<string, string>) => { ok: boolean; message: string }
   addNewsItem: (item: Omit<NewsFeedItem, "id" | "week">) => void
   acceptJobOffer: (eventId: string) => { success: boolean; message: string }
   declineJobOffer: (eventId: string) => void

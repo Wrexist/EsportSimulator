@@ -42,6 +42,8 @@ import { isOfficialMatch, lineupDefeatShield, playerResultMorale, recordAppearan
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
 import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mastery"
 import { recordOfficialMatch } from "@/engine/official-stats"
+import { updateRivalries } from "@/engine/history-tracker"
+import { closePressConference } from "@/engine/storylines/press"
 import type { GameSave } from "@/engine/save-types"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { isEngineVersion, LEGACY_ENGINE_VERSION, type EngineVersion } from "@/engine/match/engine-version"
@@ -307,6 +309,10 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             }
 
             state.completedMatches.push(completedMatch)
+            // Phase 5.3: played matches build rivalries too (the week tick's
+            // path already did), and the match's press conference closes.
+            updateRivalries(state as unknown as GameSave, completedMatch)
+            closePressConference(state, matchId)
 
             // Careers, season tallies and records (Phase 5.1): one shared
             // path with the week tick's AI matches. Friendlies don't count.
