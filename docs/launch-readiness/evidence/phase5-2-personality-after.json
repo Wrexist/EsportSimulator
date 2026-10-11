@@ -1,0 +1,325 @@
+{
+  "generated": "2026-10-11T11:56:00.542Z",
+  "label": "after",
+  "stream": "Phase 5.2 personalities & dressing room",
+  "snapshotCareer": {
+    "players": 1368,
+    "archetypes": {
+      "PROFESSIONAL": {
+        "count": 252,
+        "pct": 18.4
+      },
+      "AMBITIOUS": {
+        "count": 225,
+        "pct": 16.4
+      },
+      "LOYAL": {
+        "count": 186,
+        "pct": 13.6
+      },
+      "QUIET": {
+        "count": 180,
+        "pct": 13.2
+      },
+      "MERCENARY": {
+        "count": 171,
+        "pct": 12.5
+      },
+      "SHOWMAN": {
+        "count": 152,
+        "pct": 11.1
+      },
+      "HOTHEAD": {
+        "count": 108,
+        "pct": 7.9
+      },
+      "LEADER": {
+        "count": 94,
+        "pct": 6.9
+      }
+    },
+    "traitShareAtLeastOne": 36.2,
+    "playersWithTwoTraits": 80,
+    "traits": {
+      "AGGRESSIVE": {
+        "count": 120,
+        "pct": 8.8
+      },
+      "PASSIVE": {
+        "count": 157,
+        "pct": 11.5
+      },
+      "TRADE_FRAGGER": {
+        "count": 151,
+        "pct": 11
+      },
+      "CLUTCHER": {
+        "count": 147,
+        "pct": 10.7
+      }
+    },
+    "traitsByRole": {
+      "ENTRY_FRAGGER": {
+        "AGGRESSIVE": 120,
+        "TRADE_FRAGGER": 53,
+        "CLUTCHER": 7
+      },
+      "AWPER": {
+        "PASSIVE": 65,
+        "CLUTCHER": 65
+      },
+      "SUPPORT": {
+        "PASSIVE": 92,
+        "TRADE_FRAGGER": 49,
+        "CLUTCHER": 15
+      },
+      "IGL": {
+        "TRADE_FRAGGER": 43,
+        "CLUTCHER": 34
+      },
+      "RIFLER": {
+        "CLUTCHER": 26,
+        "TRADE_FRAGGER": 6
+      }
+    }
+  },
+  "campaign": {
+    "label": "p52-after",
+    "sampleSize": {
+      "careers": 6,
+      "seeds": 6,
+      "weekTicks": 312,
+      "seasonSnapshots": 6,
+      "byTier": {
+        "top": 2,
+        "mid": 2,
+        "low": 2
+      },
+      "completedRequestedSeasons": 6,
+      "seasonsRequested": [
+        1
+      ]
+    },
+    "policy": "competent",
+    "dressingRoom": {
+      "seasons": 6,
+      "transferRequestsPerClubSeason": {
+        "n": 6,
+        "finite": 6,
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 1.5,
+        "max": 2
+      },
+      "transferRequestsMaxPerClubSeason": 2,
+      "transferRequestsTotal": 3,
+      "requestChoices": {
+        "accept": 3
+      },
+      "promisesKept": 0,
+      "promisesBroken": 0,
+      "managedRosterMoraleMedian": {
+        "n": 6,
+        "finite": 6,
+        "min": 52,
+        "p10": 57.9,
+        "median": 73.3,
+        "p90": 86.325,
+        "max": 88.25
+      },
+      "managedUnhappyPlayerWeeks": {
+        "n": 6,
+        "finite": 6,
+        "min": 0,
+        "p10": 0,
+        "median": 4,
+        "p90": 43,
+        "max": 77
+      },
+      "aiRosteredMoraleMedian": {
+        "n": 6,
+        "finite": 6,
+        "min": 52.51600434119362,
+        "p10": 52.616466288639316,
+        "median": 52.94352038254305,
+        "p90": 53.40399922298606,
+        "max": 53.62899879147116
+      },
+      "archetypesFinal": {
+        "QUIET": 1006,
+        "PROFESSIONAL": 1487,
+        "SHOWMAN": 873,
+        "AMBITIOUS": 1307,
+        "MERCENARY": 978,
+        "LEADER": 491,
+        "HOTHEAD": 560,
+        "LOYAL": 1085
+      },
+      "traitShareFinal": {
+        "n": 6,
+        "finite": 6,
+        "min": 0.34045801526717556,
+        "p10": 0.34075369899161245,
+        "median": 0.34247218629413567,
+        "p90": 0.3450388724834774,
+        "max": 0.34565050038491146
+      },
+      "aiAdministrationsCareer": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        1
+      ]
+    },
+    "aiAdministrationsBySeason": [
+      {
+        "season": 1,
+        "administrations": {
+          "n": 6,
+          "finite": 6,
+          "min": 0,
+          "p10": 0,
+          "median": 0,
+          "p90": 0,
+          "max": 0
+        },
+        "minRoster": 5
+      }
+    ],
+    "aiAdministrationsCareer": [
+      {
+        "seed": 1,
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      {
+        "seed": 2,
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      {
+        "seed": 3,
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      {
+        "seed": 4,
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      {
+        "seed": 5,
+        "total": 1,
+        "clubs": 1,
+        "maxPerClub": 1
+      },
+      {
+        "seed": 6,
+        "total": 1,
+        "clubs": 1,
+        "maxPerClub": 1
+      }
+    ],
+    "invariantFailures": {},
+    "managedWinRate": {
+      "top": {
+        "n": 2,
+        "finite": 2,
+        "min": 0.7142857142857143,
+        "p10": 0.7195812807881774,
+        "median": 0.7407635467980296,
+        "p90": 0.7619458128078818,
+        "max": 0.7672413793103449
+      },
+      "mid": {
+        "n": 2,
+        "finite": 2,
+        "min": 0.22950819672131148,
+        "p10": 0.25655737704918036,
+        "median": 0.36475409836065575,
+        "p90": 0.47295081967213115,
+        "max": 0.5
+      },
+      "low": {
+        "n": 2,
+        "finite": 2,
+        "min": 0.6326530612244898,
+        "p10": 0.645930964978584,
+        "median": 0.6990425799949609,
+        "p90": 0.7521541950113378,
+        "max": 0.7654320987654321
+      }
+    },
+    "tickMsMedian": {
+      "n": 6,
+      "finite": 6,
+      "min": 1382.5,
+      "p10": 1393.25,
+      "median": 1656.25,
+      "p90": 1839,
+      "max": 1896
+    }
+  },
+  "calibration": {
+    "engine": "script-v1",
+    "mapsSimulated": 6100,
+    "statusCounts": {
+      "pass": 48,
+      "warn": 2,
+      "info": 1
+    },
+    "metrics": {
+      "rounds_per_map": {
+        "value": 21.79,
+        "status": "pass"
+      },
+      "ot_rate": {
+        "value": 12.3,
+        "status": "pass"
+      },
+      "kills_per_round": {
+        "value": 6.72,
+        "status": "pass"
+      },
+      "rating_mean": {
+        "value": 0.997,
+        "status": "pass"
+      },
+      "trade_share": {
+        "value": 23.4,
+        "status": "pass"
+      },
+      "clutches_won_per_map": {
+        "value": 2.29,
+        "status": "pass"
+      },
+      "fav_win_gap_3": {
+        "value": 61.5,
+        "status": "pass"
+      },
+      "fav_win_gap_10": {
+        "value": 76.5,
+        "status": "pass"
+      },
+      "impossible_states": {
+        "value": 0,
+        "status": "pass"
+      }
+    }
+  },
+  "perf": {
+    "weeklyTickSingle": "771.7 ms",
+    "fullSeason": "58.39 s",
+    "avgPerWeek": "1.12 s",
+    "medianWeek": "1.18 s",
+    "singleMatchAvg": "8.29 ms"
+  },
+  "notes": "Branch claude/p5-personality. Campaign: same 6 careers (2 per tier) x 1 season, competent policy. Transfer requests 3 in 6 club-seasons (max 2, the season cap), all accepted by the policy; 0 promises (the policy never promises). AI clubs: 0 administrations in the weekly AI-economy tracker, rosters never below 5. The 2 administrations in aiAdministrationsCareer are the MANAGED clubs of seeds 5 and 6 after they went bankrupt (dismissal BANKRUPTCY, manager rehired): staff wages 285k/240k = the policy hiring the RNG legend-coach offer at 15k/week at a small club (the before run hired it once too, for 5 weeks); the offer's week moves once match results diverge. Calibration: fixtures carry the traits the game derives (script-v1, 600 samples): 48 pass / 2 warn / 0 fail (opening_share_entry 39.2% -> 43.7%, warn; ot_rate and loser_le3_share warn -> pass). Perf: shared machine, noisy; the added dressing-room step measures 2.1 ms/week and the personality safety net 0.2 ms/week on the full snapshot world (tmp micro-benchmark)."
+}

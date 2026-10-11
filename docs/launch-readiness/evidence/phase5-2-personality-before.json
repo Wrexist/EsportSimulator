@@ -1,0 +1,236 @@
+{
+  "generated": "2026-10-11T11:49:41.857Z",
+  "label": "before",
+  "stream": "Phase 5.2 personalities & dressing room",
+  "snapshotCareer": null,
+  "campaign": {
+    "label": "p52-before",
+    "sampleSize": {
+      "careers": 6,
+      "seeds": 6,
+      "weekTicks": 312,
+      "seasonSnapshots": 6,
+      "byTier": {
+        "top": 2,
+        "mid": 2,
+        "low": 2
+      },
+      "completedRequestedSeasons": 6,
+      "seasonsRequested": [
+        1
+      ]
+    },
+    "policy": "competent",
+    "dressingRoom": {
+      "seasons": 6,
+      "transferRequestsPerClubSeason": {
+        "n": 6,
+        "finite": 6,
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "transferRequestsMaxPerClubSeason": 0,
+      "transferRequestsTotal": 0,
+      "requestChoices": {},
+      "promisesKept": 0,
+      "promisesBroken": 0,
+      "managedRosterMoraleMedian": {
+        "n": 6,
+        "finite": 6,
+        "min": 32.85,
+        "p10": 43.375,
+        "median": 59.074999999999996,
+        "p90": 80.025,
+        "max": 80.95
+      },
+      "managedUnhappyPlayerWeeks": {
+        "n": 6,
+        "finite": 6,
+        "min": 0,
+        "p10": 0,
+        "median": 29,
+        "p90": 113,
+        "max": 171
+      },
+      "aiRosteredMoraleMedian": {
+        "n": 6,
+        "finite": 6,
+        "min": 50.889336444548434,
+        "p10": 50.89693253816617,
+        "median": 51.416765013804365,
+        "p90": 52.158452167600636,
+        "max": 52.59927651442915
+      },
+      "archetypesFinal": {
+        "NONE": 7796
+      },
+      "traitShareFinal": {
+        "n": 6,
+        "finite": 6,
+        "min": 0,
+        "p10": 0,
+        "median": 0,
+        "p90": 0,
+        "max": 0
+      },
+      "aiAdministrationsCareer": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "aiAdministrationsBySeason": [
+      {
+        "season": 1,
+        "administrations": {
+          "n": 6,
+          "finite": 6,
+          "min": 0,
+          "p10": 0,
+          "median": 0,
+          "p90": 0,
+          "max": 0
+        },
+        "minRoster": 5
+      }
+    ],
+    "aiAdministrationsCareer": [
+      {
+        "seed": 1,
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      {
+        "seed": 2,
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      {
+        "seed": 3,
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      {
+        "seed": 4,
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      {
+        "seed": 5,
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      },
+      {
+        "seed": 6,
+        "total": 0,
+        "clubs": 0,
+        "maxPerClub": 0
+      }
+    ],
+    "invariantFailures": {},
+    "managedWinRate": {
+      "top": {
+        "n": 2,
+        "finite": 2,
+        "min": 0.4050632911392405,
+        "p10": 0.4364994080684819,
+        "median": 0.5622438757854475,
+        "p90": 0.6879883435024132,
+        "max": 0.7194244604316546
+      },
+      "mid": {
+        "n": 2,
+        "finite": 2,
+        "min": 0.2948717948717949,
+        "p10": 0.30500725689404934,
+        "median": 0.34554910498306723,
+        "p90": 0.3860909530720852,
+        "max": 0.39622641509433965
+      },
+      "low": {
+        "n": 2,
+        "finite": 2,
+        "min": 0.4745762711864407,
+        "p10": 0.5096186440677967,
+        "median": 0.6497881355932204,
+        "p90": 0.789957627118644,
+        "max": 0.825
+      }
+    },
+    "tickMsMedian": {
+      "n": 6,
+      "finite": 6,
+      "min": 2010,
+      "p10": 2017.5,
+      "median": 2084,
+      "p90": 2300,
+      "max": 2379
+    }
+  },
+  "calibration": {
+    "engine": "script-v1",
+    "mapsSimulated": 6100,
+    "statusCounts": {
+      "pass": 47,
+      "warn": 3,
+      "info": 1
+    },
+    "metrics": {
+      "rounds_per_map": {
+        "value": 21.68,
+        "status": "pass"
+      },
+      "ot_rate": {
+        "value": 13.3,
+        "status": "warn"
+      },
+      "kills_per_round": {
+        "value": 6.71,
+        "status": "pass"
+      },
+      "rating_mean": {
+        "value": 1,
+        "status": "pass"
+      },
+      "trade_share": {
+        "value": 23.8,
+        "status": "pass"
+      },
+      "clutches_won_per_map": {
+        "value": 2.2,
+        "status": "pass"
+      },
+      "fav_win_gap_3": {
+        "value": 61.5,
+        "status": "pass"
+      },
+      "fav_win_gap_10": {
+        "value": 79.5,
+        "status": "pass"
+      },
+      "impossible_states": {
+        "value": 0,
+        "status": "pass"
+      }
+    }
+  },
+  "perf": {
+    "weeklyTickSingle": "852.2 ms",
+    "fullSeason": "70.71 s",
+    "avgPerWeek": "1.36 s",
+    "medianWeek": "1.37 s",
+    "singleMatchAvg": "13.2 ms"
+  },
+  "notes": "Base engine at 7f687188 (claude/revamp-phase-5 + campaign metrics only): no personality fields, no traits on any player, morale v1 (results, fatigue, events, drift to 50). Campaign: 6 careers (2 per tier) x 1 season, competent policy. Calibration: script-v1, 600 samples, seed 20261010, fixtures without traits. Perf: scripts/perf-baseline.ts, 200 matches + 52 weeks, shared machine (other agents running)."
+}

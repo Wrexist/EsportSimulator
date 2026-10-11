@@ -99,7 +99,9 @@ async function main() {
         generated: new Date().toISOString(),
         label,
         stream: 'Phase 5.2 personalities & dressing room',
-        snapshotCareer: await distribution(),
+        // --no-career: the base engine (before Phase 5.2) had no personalities;
+        // its state is read from the campaign (archetype NONE, 0 traits).
+        snapshotCareer: argv.includes('--no-career') ? null : await distribution(),
         campaign: campaign(arg('campaign')),
         calibration: calibration(arg('calibration')),
         perf: perf(arg('perf')),
