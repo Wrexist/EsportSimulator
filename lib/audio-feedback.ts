@@ -1,4 +1,17 @@
 export type SoundType = 'click' | 'hover' | 'success' | 'notification' | 'error' | 'start' | 'victory' | 'defeat' | 'matchStart' | 'roundWin' | 'roundLose' | 'weekAdvance' | 'transfer' | 'achievement' | 'contractSign' | 'facilityUpgrade' | 'tournamentAdvance'
+    // Phase 5 moments (shared contract with stream 5.5; one sound per event).
+    | 'matchIntro'
+    | 'countdown'
+    | 'titleWin'
+    | 'titleWinMajor'
+    | 'promotion'
+    | 'relegation'
+    | 'signing'
+    | 'sale'
+    | 'seasonReview'
+    | 'award'
+    | 'welcome'
+    | 'decision'
 
 /** Presentation-only rate limit: never suppress the underlying action or visual message. */
 export class AudioFeedbackGate {

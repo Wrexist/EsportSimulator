@@ -21,6 +21,7 @@ import {
 } from "@/engine/match/legacy-series"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { soundManager } from "@/lib/sound-manager"
+import { playMatchOutcomeCue } from "@/lib/match-outcome-sound"
 import { resolveHomeStartsCT } from "@/lib/live-match-utils"
 import { annotateRoundEvents, buildLiveRoundScript, warmRoundMap, type LiveRoundScript } from "@/lib/live-round-script"
 import { AUTO_CONFIRM_MS, BREAK_CARD_MS, PISTOL_START_MS, ROUND_BEAT_MS, computeRoundPacing, defaultLiveSpeed, type PacingMode, type RoundPacing } from "@/lib/live-match-pacing"
@@ -844,7 +845,8 @@ export function useLiveMatch(id: string) {
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
                     const playerWon = (playerIsHomeSide && roundState.homeSeriesScore > roundState.awaySeriesScore) || (playerIsAwaySide && roundState.awaySeriesScore > roundState.homeSeriesScore)
-                    soundManager.play(playerWon ? "victory" : "defeat")
+                    // Once per match: the result screen will not repeat it.
+                    if (playerIsHomeSide || playerIsAwaySide) playMatchOutcomeCue(runtime.match.id, playerWon)
                 } else if (transition === "MAP_END") {
                     const nextMapId = runtime.canonicalMaps[roundState.currentMapIndex]
                     uiTimeRef.current = -1
@@ -1121,7 +1123,7 @@ export function useLiveMatch(id: string) {
 
             const playerIsHome = homeTeam.id === playerTeam?.id
             const playerIsAway = awayTeam.id === playerTeam?.id
-            if (playerIsHome || playerIsAway) soundManager.play(playerIsHome === homeWon ? "victory" : "defeat")
+            if (playerIsHome || playerIsAway) playMatchOutcomeCue(runtime.match.id, playerIsHome === homeWon)
         } finally {
             silentPlaybackRef.current = false
             isSimulatingRef.current = false

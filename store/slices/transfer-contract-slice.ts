@@ -495,7 +495,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
         // Audio cue lands after the state commit so the visual roster +
         // budget changes paint together with the sound.
         if (typeof window !== "undefined") {
-            soundManager.play("contractSign")
+            soundManager.play("sale")
         }
     },
 

@@ -8,6 +8,25 @@ import { AudioFeedbackGate, type SoundType } from './audio-feedback'
 import { useSettingsStore } from './settings-store'
 import { routeMusicScene } from './route-audio'
 
+/**
+ * Phase 5 cue ids played with the nearest existing synth sound until the
+ * sample-based engine (stream 5.5) gives each its own file.
+ */
+const SYNTH_STAND_IN: Partial<Record<SoundType, SoundType>> = {
+    matchIntro: 'start',
+    countdown: 'weekAdvance',
+    titleWin: 'achievement',
+    titleWinMajor: 'victory',
+    promotion: 'tournamentAdvance',
+    relegation: 'defeat',
+    signing: 'contractSign',
+    sale: 'transfer',
+    seasonReview: 'start',
+    award: 'achievement',
+    welcome: 'success',
+    decision: 'notification',
+}
+
 export class SoundManager {
     private quietScene = false
     private foreground = true
@@ -125,7 +144,7 @@ export class SoundManager {
         try {
         const t = this.ctx.currentTime
 
-        switch (type) {
+        switch (SYNTH_STAND_IN[type] ?? type) {
             case 'click': {
                 const osc = this.ctx.createOscillator()
                 const gain = this.ctx.createGain()

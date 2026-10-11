@@ -57,7 +57,8 @@ export function AdvancementAnimation({
             setPhase("celebrate")
             // Sound + confetti land together with the celebrate phase.
             if (typeof window !== "undefined") {
-                soundManager.play(isChampionship ? "victory" : "tournamentAdvance")
+                // The match result already played its victory cue (once per match).
+                soundManager.play("tournamentAdvance")
             }
             // Fire confetti with better positioning (above fold)
             fireConfetti({
