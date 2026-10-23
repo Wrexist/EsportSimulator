@@ -46,6 +46,8 @@ const SITE_FONT_FAMILY = '"Barlow Condensed", "Arial Narrow", "Segoe UI", sans-s
 const TIMER_FONT = '700 10px "Inter Variable", "Segoe UI", system-ui, sans-serif'
 /** Milliseconds between name relayouts (labels ride with their dots in between). */
 const LABEL_RELAYOUT_MS = 250
+/** A plate this close (CSS px) to another player's dot counts as covering it. */
+const LABEL_CLEARANCE = 4
 const FLOOR_FADE_MS = 220
 const NO_DASH: number[] = []
 const DASH_EDGE = [3, 3]
@@ -133,6 +135,7 @@ export class RadarRenderer {
     private labelLayoutMs = -Infinity
     private labelLayoutT = NaN
     private labelLayoutKey = ""
+    private clashBoxes: { i: number; x: number; y: number; w: number; h: number }[] = []
     private spriteDpr = 0
 
     /** Darkening over the art (the old bright overviews need it, baked art does not). */
@@ -1010,9 +1013,10 @@ export class RadarRenderer {
     private drawLabels(scene: RadarScene, o: RadarFrameOptions, s: number): void {
         const ctx = this.ctx
         const { k, ox, oy } = this.tf
-        // Relayout a few times a second (or after a jump); in between labels ride with their dots.
+        // Relayout a few times a second (or after a jump); in between labels ride with their dots,
+        // unless riding along has run two plates together or over another player's dot.
         const key = `${o.level}|${scene.playerCount}|${this.width}x${this.height}`
-        if (o.nowMs - this.labelLayoutMs > LABEL_RELAYOUT_MS || !(Math.abs(scene.t - this.labelLayoutT) < 0.75) || key !== this.labelLayoutKey) {
+        if (o.nowMs - this.labelLayoutMs > LABEL_RELAYOUT_MS || !(Math.abs(scene.t - this.labelLayoutT) < 0.75) || key !== this.labelLayoutKey || this.labelsClash(scene, o)) {
             this.labelLayoutMs = o.nowMs
             this.labelLayoutT = scene.t
             this.labelLayoutKey = key
@@ -1074,6 +1078,34 @@ export class RadarRenderer {
             ctx.drawImage(sp.image, Math.round(lx * d), Math.round(ly * d))
         }
         ctx.setTransform(d, 0, 0, d, 0, 0)
+    }
+
+    /** Two riding name plates overlap, or a plate covers another living player's dot (CSS px, `LABEL_CLEARANCE` around it). */
+    private labelsClash(scene: RadarScene, o: RadarFrameOptions): boolean {
+        const { k, ox, oy } = this.tf
+        const boxes = this.clashBoxes
+        boxes.length = 0
+        for (let i = 0; i < scene.playerCount; i++) {
+            const p = scene.players[i]
+            if (!p.alive || (o.dualLevel && p.floor !== o.level)) continue
+            const off = this.labelOffsets.get(p.id), label = this.labelPlaced.get(p.id)
+            if (!off || !label) continue
+            boxes.push({ i, x: ox + p.x * k + off.dx, y: oy + p.y * k + off.dy, w: label.width, h: label.height })
+        }
+        for (let a = 0; a < boxes.length; a++) {
+            const A = boxes[a]
+            for (let b = a + 1; b < boxes.length; b++) {
+                const B = boxes[b]
+                if (A.x < B.x + B.w && A.x + A.w > B.x && A.y < B.y + B.h && A.y + A.h > B.y) return true
+            }
+            for (let i = 0; i < scene.playerCount; i++) {
+                const p = scene.players[i]
+                if (i === A.i || !p.alive || (o.dualLevel && p.floor !== o.level)) continue
+                const px = ox + p.x * k, py = oy + p.y * k
+                if (px > A.x - LABEL_CLEARANCE && px < A.x + A.w + LABEL_CLEARANCE && py > A.y - LABEL_CLEARANCE && py < A.y + A.h + LABEL_CLEARANCE) return true
+            }
+        }
+        return false
     }
 
     /** Living player under a screen point (CSS px), within `radius`. */
