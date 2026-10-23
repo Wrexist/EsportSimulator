@@ -61,7 +61,7 @@ Two exposures close in time are folded into one trip only when a single cover sp
 Rule: anchors (duels, plant, defuse, pickups) never move. Only holding stretches
 are edited, and walking never goes above run speed.
 
-## 4. Grenades (`engine/match/round-script-tracks.ts`)
+## 4. Grenades (`engine/match/grenade-damage.ts`, `round-script-tracks.ts`)
 
 | Constant | Value | Why |
 |---|---|---|
@@ -69,16 +69,28 @@ are edited, and walking never goes above run speed.
 | `HE_MAX_DAMAGE` | 98 | CS2 |
 | `HE_ARMOUR_SHARE` | 0.6 | Same as the resolver |
 
-A damaging HE lands at distance `R · (1 − raw/98)` from the victim, with
-`raw = dmg / 0.6`, clamped to `[0.6, 0.9 R]`. That is a linear falloff
-inverted, so a 50-damage HE lands closer than a 10-damage one. The landing
-spot snaps to the walk graph and stays on the victim's floor. A molotov lands
-0.4 map-% from its victim (inside the fire). If an HE ever did no damage, it
-would be moved toward the thrower until no living opponent is in reach.
+Damage model (`heDamage`): 98 × (1 − distance/R), times 0.6 with armour,
+rounded. A target at or past R, behind a wall, or on another floor takes 0.
 
-**Finding:** in script-v1 every HE damages someone (300 of 300 HEs on
-8 maps × 2 seeds). Real HEs often hit nobody. This is a resolver tuning
-question and is left as is (see report, C10 / QA-4).
+The resolver no longer rolls a guaranteed 12–45 HP. It rolls a landing error
+(`heLandingDistance(roll, grenades)`): `R · max(0, lo + 1.1·roll)` with
+`lo = 0.2 − (grenades − 50)·0.003`. For an average thrower (grenades 50) that
+keeps the old mean raw damage (≈ 28.5 HP per throw) but about 27 % of throws
+land out of reach and do nothing. Better throwers land closer. It still uses
+one draw from the same stream as the old roll, so every other random draw in
+a round is unchanged.
+
+A damaging HE lands at distance `R · (1 − raw/98)` from the victim, with
+`raw = dmg / 0.6`, clamped to `[0.6, 0.9 R]`, preferring spots with line of
+sight to the victim. That is the falloff inverted, so a 50-damage HE lands
+closer than a 10-damage one. A harmless HE is placed where no living opponent
+is in reach (out of range, behind a wall or on another floor): first by
+walking back toward the thrower, then the nearest such node. A molotov lands
+0.4 map-% from its victim (inside the fire) and always damages it.
+
+Measured (8 maps × 2 seeds): 299 HEs, 224 hits, 25 % harmless. Grenades still
+cannot kill (`hurt` floors at 1 HP); lethality is a separate experiment
+(report, QA-4).
 
 ## 5. HP timing (`lib/round-hp.ts`)
 

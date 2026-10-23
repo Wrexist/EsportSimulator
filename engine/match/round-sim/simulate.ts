@@ -31,6 +31,7 @@
 import type { MatchEvent, RoundResult } from "@/types"
 import { SeededRNG } from "../../rng"
 import type { BuyStrategy } from "../buy-phase"
+import { heDamage, heLandingDistance } from "../grenade-damage"
 import type { PlayerSimulationState } from "../round-outcome"
 import type { SiteId, UtilityKind } from "../round-script-types"
 import { aimPoints, TRAIT_AGGRESSIVE, TRAIT_CLUTCHER, TRAIT_PASSIVE, TRAIT_TRADER, type SimProfile } from "./profile"
@@ -599,7 +600,7 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
         if (!pool.length) break
         const d = pool[rnd(R, P.util).int(0, pool.length - 1)]
         const he = throwUtil(R, a, "he", S, "T", tHit - 1.5)
-        hurtBy(he, a, d, min(d.hp - 1, round(rnd(R, P.util).range(12, 45) * (d.kevlar ? 0.6 : 1))))
+        hurtBy(he, a, d, heDamage({ distance: heLandingDistance(rnd(R, P.util).next(), a.p.grenades), armoured: d.kevlar }))
         break
     }
     let flashes = 0
@@ -627,7 +628,7 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
             if (entry && rnd(R, P.util).next() < 0.4) hurtBy(molotov, d, entry, rnd(R, P.util).int(8, 24))
         } else if (d.he > 0 && entry && rnd(R, P.util).next() < 0.5) {
             const he = throwUtil(R, d, "he", S, "CT", tHit - 0.5)
-            hurtBy(he, d, entry, min(entry.hp - 1, round(rnd(R, P.util).range(10, 40) * (entry.kevlar ? 0.6 : 1))))
+            hurtBy(he, d, entry, heDamage({ distance: heLandingDistance(rnd(R, P.util).next(), d.p.grenades), armoured: entry.kevlar }))
         } else if (d.flash > 0 && entry && rnd(R, P.util).next() < 0.5) {
             throwUtil(R, d, "flash", S, "CT", tHit)
             if (rnd(R, P.util).next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * d.p.grenades) { entry.blindUntil = tHit + delay + 2; entry.blindBy = d.i }

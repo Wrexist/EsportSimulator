@@ -9,6 +9,8 @@ import type { XY, Step, Actor, Ctx } from "./round-script-context"
 import { defaultSteps, legOf } from "./round-script-timeline"
 import type { Floor, RPoint, ScriptUtility, Side, SiteId, TrackKey, UtilityKind } from "./round-script-types"
 import { sampleTrack } from "./round-script-sample"
+import { HE_DAMAGE_RADIUS, heDistanceFor } from "./grenade-damage"
+import { visibilityFor } from "./round-script-visibility"
 
 // Math is read once: global lookups are very slow inside Jest's sandbox (tests time the builder).
 const { abs, ceil, exp, max, min, sign } = Math
@@ -268,16 +270,8 @@ export function throwUtility(ctx: Ctx, tracks?: Record<string, TrackKey[]>): Scr
     return out.sort((a, b) => a.t - b.t)
 }
 
-/**
- * Damage reach of a grenade in map-% (CS2 HE: 98 base damage, falloff to 0 at
- * ~350 u ≈ 6.8 map-% at 51 u per map-%; molotov: the fire's own radius). An
- * opponent inside it at the detonation would have been hurt, one outside it
- * never is. See docs/revamp/TUNING_COMBAT_2026-10.md.
- */
-export const HE_DAMAGE_RADIUS = 6.8
-export const HE_MAX_DAMAGE = 98
-/** Armour keeps this share of HE damage (CS2 armour penetration 57.5 %; the resolver uses 0.6). */
-export const HE_ARMOUR_SHARE = 0.6
+// Damage reach of an HE (and its inverse) lives in ../grenade-damage, shared with the resolver.
+export { HE_ARMOUR_SHARE, HE_DAMAGE_RADIUS, HE_MAX_DAMAGE } from "./grenade-damage"
 
 /**
  * Where the grenade must land so the radar agrees with the resolver: a
@@ -292,6 +286,7 @@ function placeGrenade(
 ): RPoint {
     if (!tracks || (kind !== "he" && kind !== "molotov")) return spot
     const { g } = ctx
+    const vis = visibilityFor(g)
     const posAt = (id: string) => {
         const track = tracks[id]
         return track?.length ? sampleTrack(track, t) : undefined
@@ -301,8 +296,8 @@ function placeGrenade(
         const vp = posAt(victim.id)
         if (!vp) return spot
         // Distance from the damage: HE falls off linearly to the edge of its reach.
-        const raw = min(HE_MAX_DAMAGE, dmg / HE_ARMOUR_SHARE)
-        const want = kind === "he" ? max(0.6, min(HE_DAMAGE_RADIUS * 0.9, HE_DAMAGE_RADIUS * (1 - raw / HE_MAX_DAMAGE))) : 0.4
+        const want = kind === "he" ? max(0.6, min(HE_DAMAGE_RADIUS * 0.9, heDistanceFor(dmg))) : 0.4
+        const vn = g.nearest(vp)
         const reach = kind === "he" ? HE_DAMAGE_RADIUS : 1.6
         let base = angle(vp, spot)
         if (!Number.isFinite(base) || len(spot.x - vp.x, spot.y - vp.y) < 0.05) base = 0
@@ -314,7 +309,8 @@ function placeGrenade(
             if (g.floor[n] !== vp.floor) continue
             const d = len(g.x[n] - vp.x, g.y[n] - vp.y)
             if (d > reach * 0.95) continue
-            const err = abs(d - want)
+            // A wall between them would have stopped it.
+            const err = abs(d - want) + (vis.sees(n, vn) ? 0 : 50)
             if (err < bestErr) { bestErr = err; best = { x: g.x[n], y: g.y[n], floor: g.floor[n] } }
             if (err < 0.5) break
         }
@@ -323,7 +319,11 @@ function placeGrenade(
     if (kind !== "he") return spot
     // Harmless HE: nobody on the other side may stand inside its reach.
     const foes = ctx.actors.filter(a => a.side !== thrower.side && a.deathT > t).map(a => posAt(a.id)).filter((p): p is NonNullable<typeof p> => !!p)
-    const clear = (p: RPoint) => foes.every(f => f.floor !== p.floor || len(f.x - p.x, f.y - p.y) > HE_DAMAGE_RADIUS)
+    // Out of reach, on another floor or behind a wall (heDamage's misses).
+    const clear = (p: RPoint) => {
+        const pn = g.nearest(p)
+        return foes.every(f => f.floor !== p.floor || len(f.x - p.x, f.y - p.y) >= HE_DAMAGE_RADIUS || !vis.sees(pn, g.nearest(f)))
+    }
     if (clear(spot)) return spot
     const tp = posAt(thrower.id)
     // Short of the target: back toward the thrower until it is clear (it bounced off something).
@@ -334,6 +334,13 @@ function placeGrenade(
             const p = { x: g.x[n], y: g.y[n], floor: g.floor[n] }
             if (clear(p)) return p
         }
+    }
+    // Else the nearest clear spot around it.
+    const sn = g.nearest(spot)
+    const near = g.around(sn, 2 * HE_DAMAGE_RADIUS).sort((m, n) => len(g.x[m] - spot.x, g.y[m] - spot.y) - len(g.x[n] - spot.x, g.y[n] - spot.y) || m - n)
+    for (const n of near) {
+        const p = { x: g.x[n], y: g.y[n], floor: g.floor[n] }
+        if (clear(p)) return p
     }
     return spot
 }
