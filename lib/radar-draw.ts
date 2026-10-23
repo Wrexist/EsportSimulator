@@ -12,7 +12,8 @@
  */
 
 import type { Floor, Side, UtilityKind } from "@/engine/match/round-script-types"
-import type { RadarScene, ScenePlayer, WeaponClass } from "./radar-scene"
+import { HP_LOSS_SECONDS, type RadarScene, type ScenePlayer, type WeaponClass } from "./radar-scene"
+import { HE_DAMAGE_RADIUS } from "@/engine/match/round-script-tracks"
 import { DEFAULT_VIEW, viewTransform, type RadarBounds, type RadarTransform, type RadarView } from "./radar-view"
 import { layoutRadarLabels, type RadarLabel } from "./radar-label-layout"
 import type { RadarPlayerDot } from "./radar-types"
@@ -572,6 +573,31 @@ export class RadarRenderer {
         }
         ctx.globalAlpha = 1
 
+        // Fire exchanged in a duel about to end: short bursts from each shooter toward the target.
+        for (let i = 0; i < scene.shotCount; i++) {
+            const sh = scene.shots[i]
+            const fa = floorAlpha(sh.floor)
+            const fx = ox + sh.fx * k, fy = oy + sh.fy * k, tx = ox + sh.tx * k, ty = oy + sh.ty * k
+            const dx = tx - fx, dy = ty - fy
+            const d = Math.hypot(dx, dy)
+            if (d < 1) continue
+            // A bullet streak travelling along the line (no strobing with reduced motion).
+            const head = o.reducedMotion ? 0.7 : 0.25 + 0.75 * sh.burst
+            const tail = Math.max(0, head - 0.35)
+            ctx.globalAlpha = fa * (o.reducedMotion ? 0.55 : 0.85 * (1 - sh.burst * 0.5))
+            ctx.lineWidth = 1.4 * s
+            ctx.strokeStyle = sideColor(sh.side)
+            ctx.beginPath(); ctx.moveTo(fx + dx * tail, fy + dy * tail); ctx.lineTo(fx + dx * head, fy + dy * head); ctx.stroke()
+            // Muzzle flash at the shooter.
+            if (o.reducedMotion || sh.burst < 0.35) {
+                ctx.globalAlpha = fa * 0.9
+                ctx.fillStyle = "#FFF4D6"
+                ctx.beginPath(); ctx.arc(fx + (dx / d) * 9 * s, fy + (dy / d) * 9 * s, 2 * s, 0, TAU); ctx.fill()
+            }
+            animating = true
+        }
+        ctx.globalAlpha = 1
+
         // Shot tracers (killer → victim) and damage-only hits.
         for (let i = 0; i < scene.hitCount; i++) {
             const h = scene.hits[i]
@@ -629,7 +655,8 @@ export class RadarRenderer {
             if (u.kind !== "flash" && u.kind !== "he") continue
             const a = u.opacity * floorAlpha(u.floor)
             const x = ox + u.x * k, y = oy + u.y * k
-            const r = Math.max(5, (0.8 + u.progress * (u.kind === "he" ? 3.8 : 3.2)) * k)
+            // An HE grows to its damage reach: everyone it hurt stands inside the ring, nobody outside was hurt.
+            const r = Math.max(5, (u.kind === "he" ? (0.25 + 0.75 * Math.min(1, u.progress * 2.5)) * HE_DAMAGE_RADIUS : 0.8 + u.progress * 3.2) * k)
             ctx.globalAlpha = a
             if (u.kind === "flash") {
                 ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
@@ -767,6 +794,36 @@ export class RadarRenderer {
                     ctx.lineWidth = 1.8 * s
                     ctx.strokeStyle = low ? RADAR_COLORS.bomb : RADAR_COLORS.ink1
                     ctx.stroke()
+                }
+                // The HP just lost: a red segment after the remaining arc that fades out.
+                for (let i = 0; i < scene.playerCount; i++) {
+                    const p = scene.players[i]
+                    if (!onPass(p) || !(p.hp > 0) || !(p.hpLost > 0) || !(p.hpLostAge < HP_LOSS_SECONDS)) continue
+                    const x = ox + p.x * k, y = oy + p.y * k
+                    const start = -Math.PI / 2 + TAU * Math.min(1, p.hp / 100)
+                    const base = ctx.globalAlpha
+                    ctx.globalAlpha = base * (1 - p.hpLostAge / HP_LOSS_SECONDS)
+                    ctx.lineWidth = 2.6 * s
+                    ctx.strokeStyle = RADAR_COLORS.bomb
+                    ctx.beginPath(); ctx.arc(x, y, ringR, start, start + TAU * Math.min(1, p.hpLost / 100)); ctx.stroke()
+                    ctx.globalAlpha = base
+                    animating = true
+                }
+                // Critical HP: a slow pulse so a one-shot player stands out among the rest.
+                if (!offPass && !o.reducedMotion) {
+                    const ph = (o.nowMs % 1100) / 1100
+                    for (let i = 0; i < scene.playerCount; i++) {
+                        const p = scene.players[i]
+                        if (!onPass(p) || !(p.hp > 0) || p.hp > 25) continue
+                        const x = ox + p.x * k, y = oy + p.y * k
+                        const base = ctx.globalAlpha
+                        ctx.globalAlpha = base * 0.5 * (1 - ph)
+                        ctx.lineWidth = 1.5 * s
+                        ctx.strokeStyle = RADAR_COLORS.bomb
+                        ctx.beginPath(); ctx.arc(x, y, ringR + (1.5 + ph * 5) * s, 0, TAU); ctx.stroke()
+                        ctx.globalAlpha = base
+                        animating = true
+                    }
                 }
             }
             // Bodies: CT circle, T diamond (colour-independent side signal).

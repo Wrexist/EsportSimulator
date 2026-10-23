@@ -4,10 +4,11 @@
  */
 
 import type { NavGraph } from "./round-script-nav"
-import { len, other, angle, round3, round4 } from "./round-script-context"
+import { len, other, angle, round3, round4, roundPoint } from "./round-script-context"
 import type { XY, Step, Actor, Ctx } from "./round-script-context"
 import { defaultSteps, legOf } from "./round-script-timeline"
-import type { Floor, ScriptUtility, Side, SiteId, TrackKey, UtilityKind } from "./round-script-types"
+import type { Floor, RPoint, ScriptUtility, Side, SiteId, TrackKey, UtilityKind } from "./round-script-types"
+import { sampleTrack } from "./round-script-sample"
 
 // Math is read once: global lookups are very slow inside Jest's sandbox (tests time the builder).
 const { abs, ceil, exp, max, min, sign } = Math
@@ -236,8 +237,8 @@ export function spaceTeammates(ctx: Ctx, raw: Map<Actor, TrackKey[]>): void {
 
 // ─── Utility ───────────────────────────────────────────────────────────────
 
-export function throwUtility(ctx: Ctx): ScriptUtility[] {
-    if (ctx.input.utility) return resolverUtility(ctx)
+export function throwUtility(ctx: Ctx, tracks?: Record<string, TrackKey[]>): ScriptUtility[] {
+    if (ctx.input.utility) return resolverUtility(ctx, tracks)
     const rng = ctx.rng.util
     const out: ScriptUtility[] = []
     const volley = (side: Side, site: SiteId, t0: number, throwers: Actor[]) => {
@@ -267,8 +268,78 @@ export function throwUtility(ctx: Ctx): ScriptUtility[] {
     return out.sort((a, b) => a.t - b.t)
 }
 
+/**
+ * Damage reach of a grenade in map-% (CS2 HE: 98 base damage, falloff to 0 at
+ * ~350 u ≈ 6.8 map-% at 51 u per map-%; molotov: the fire's own radius). An
+ * opponent inside it at the detonation would have been hurt, one outside it
+ * never is. See docs/revamp/TUNING_COMBAT_2026-10.md.
+ */
+export const HE_DAMAGE_RADIUS = 6.8
+export const HE_MAX_DAMAGE = 98
+/** Armour keeps this share of HE damage (CS2 armour penetration 57.5 %; the resolver uses 0.6). */
+export const HE_ARMOUR_SHARE = 0.6
+
+/**
+ * Where the grenade must land so the radar agrees with the resolver: a
+ * damaging HE lands at the distance its damage implies from the player it
+ * hurt (a molotov on top of them); a harmless HE lands where no living
+ * opponent is inside its damage reach. Prefers the baked spot's direction,
+ * snaps to the walk graph and stays on the victim's floor.
+ */
+function placeGrenade(
+    ctx: Ctx, tracks: Record<string, TrackKey[]> | undefined, kind: UtilityKind, t: number, thrower: Actor,
+    spot: RPoint, hit?: string, dmg?: number,
+): RPoint {
+    if (!tracks || (kind !== "he" && kind !== "molotov")) return spot
+    const { g } = ctx
+    const posAt = (id: string) => {
+        const track = tracks[id]
+        return track?.length ? sampleTrack(track, t) : undefined
+    }
+    const victim = hit ? ctx.byId.get(hit) : undefined
+    if (victim && victim.side !== thrower.side && victim.deathT >= t && dmg !== undefined && dmg > 0) {
+        const vp = posAt(victim.id)
+        if (!vp) return spot
+        // Distance from the damage: HE falls off linearly to the edge of its reach.
+        const raw = min(HE_MAX_DAMAGE, dmg / HE_ARMOUR_SHARE)
+        const want = kind === "he" ? max(0.6, min(HE_DAMAGE_RADIUS * 0.9, HE_DAMAGE_RADIUS * (1 - raw / HE_MAX_DAMAGE))) : 0.4
+        const reach = kind === "he" ? HE_DAMAGE_RADIUS : 1.6
+        let base = angle(vp, spot)
+        if (!Number.isFinite(base) || len(spot.x - vp.x, spot.y - vp.y) < 0.05) base = 0
+        let best: RPoint | undefined
+        let bestErr = Infinity
+        for (let i = 0; i < 12; i++) {
+            const a = base + (i % 2 ? 1 : -1) * ceil(i / 2) * (Math.PI / 6)
+            const n = g.nearest({ x: vp.x + Math.cos(a) * want, y: vp.y + Math.sin(a) * want, floor: vp.floor })
+            if (g.floor[n] !== vp.floor) continue
+            const d = len(g.x[n] - vp.x, g.y[n] - vp.y)
+            if (d > reach * 0.95) continue
+            const err = abs(d - want)
+            if (err < bestErr) { bestErr = err; best = { x: g.x[n], y: g.y[n], floor: g.floor[n] } }
+            if (err < 0.5) break
+        }
+        return best ?? { x: vp.x, y: vp.y, floor: vp.floor }
+    }
+    if (kind !== "he") return spot
+    // Harmless HE: nobody on the other side may stand inside its reach.
+    const foes = ctx.actors.filter(a => a.side !== thrower.side && a.deathT > t).map(a => posAt(a.id)).filter((p): p is NonNullable<typeof p> => !!p)
+    const clear = (p: RPoint) => foes.every(f => f.floor !== p.floor || len(f.x - p.x, f.y - p.y) > HE_DAMAGE_RADIUS)
+    if (clear(spot)) return spot
+    const tp = posAt(thrower.id)
+    // Short of the target: back toward the thrower until it is clear (it bounced off something).
+    if (tp) {
+        for (let k = 1; k <= 8; k++) {
+            const u = k / 8
+            const n = g.nearest({ x: spot.x + (tp.x - spot.x) * u, y: spot.y + (tp.y - spot.y) * u, floor: spot.floor })
+            const p = { x: g.x[n], y: g.y[n], floor: g.floor[n] }
+            if (clear(p)) return p
+        }
+    }
+    return spot
+}
+
 /** script-v1: the grenades the resolver threw, on the baked spots it named (a dead thrower throws nothing). */
-function resolverUtility(ctx: Ctx): ScriptUtility[] {
+function resolverUtility(ctx: Ctx, tracks?: Record<string, TrackKey[]>): ScriptUtility[] {
     const out: ScriptUtility[] = []
     for (const u of ctx.input.utility ?? []) {
         const thrower = ctx.byId.get(u.playerId)
@@ -277,8 +348,13 @@ function resolverUtility(ctx: Ctx): ScriptUtility[] {
             ?? ctx.map.utility.find(s => s.site === u.site && s.kind === u.kind && s.side === thrower.side)
             ?? ctx.map.utility.find(s => s.site === u.site && s.side === thrower.side)
         // No baked spot for this kind (CT flashes / HEs): onto the site itself.
-        const at = spot ? spot.at : ctx.map.sites[u.site].center
-        out.push({ t: round3(u.t), throwerId: u.playerId, kind: u.kind, at: { ...at }, radius: spot?.radius ?? 2, duration: UTILITY_SECONDS[u.kind] })
+        const base = spot ? spot.at : ctx.map.sites[u.site].center
+        const hurt = !!u.hit && typeof u.dmg === "number" && u.dmg > 0
+        const at = placeGrenade(ctx, tracks, u.kind, u.t, thrower, base, hurt ? u.hit : undefined, hurt ? u.dmg : undefined)
+        out.push({
+            t: round3(u.t), throwerId: u.playerId, kind: u.kind, at: roundPoint(at), radius: spot?.radius ?? 2, duration: UTILITY_SECONDS[u.kind],
+            ...(hurt ? { hitId: u.hit, dmg: u.dmg } : {}),
+        })
     }
     return out.sort((a, b) => a.t - b.t)
 }

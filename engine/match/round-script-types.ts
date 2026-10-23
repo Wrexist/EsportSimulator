@@ -129,7 +129,7 @@ export interface RoundScriptInput {
      * the fight happened.
      */
     plan?: { tStrategy: TStrategy; site: SiteId; ctSetup: CtSetup; execAt?: number }
-    utility?: { t: number; playerId: string; kind: UtilityKind; spot: string; site: SiteId }[]
+    utility?: { t: number; playerId: string; kind: UtilityKind; spot: string; site: SiteId; hit?: string; dmg?: number }[]
 }
 
 export interface TrackKey {
@@ -162,6 +162,9 @@ export interface ScriptUtility {
     radius: number
     /** Seconds the effect lasts (smoke 18, molotov 7, flash/he ~0.3). */
     duration: number
+    /** script-v1: the opponent this grenade hurt (the grenade lands within damage reach of them) and the HP it took. */
+    hitId?: string
+    dmg?: number
 }
 
 export interface ScriptBomb {
