@@ -204,6 +204,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     // The live match is full-screen: no sidebar (all locked mid-match) and no
     // top bar (its "Play match" CTA is wrong while the match is running).
     const isLiveMatch = isLiveMatchPath(pathname)
+    // The result page runs its scoreboard and standouts to the right edge, so
+    // the floating help button would sit on the MVP rating at 1280×720.
+    const isMatchResult = isMatchRoute && (pathname?.endsWith("/result") ?? false)
 
     const viewCareerId = useGameStore(state => state.saveId)
     const mainScrollRef = useRouteScroll(viewCareerId, pathname, !hideChrome)
@@ -400,7 +403,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 </>
             )}
             {showBugReportButton && !hideChrome && !isLiveMatch && <BugReportButton />}
-            {!hideChrome && !isLiveMatch && <HelpSystem />}
+            {!hideChrome && !isLiveMatch && !isMatchResult && <HelpSystem />}
             {!pathname?.startsWith("/map-editor") && <DevTools />}
             <WeekProcessingOverlay />
             <KeyboardShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
