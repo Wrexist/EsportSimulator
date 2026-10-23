@@ -156,7 +156,6 @@ interface Round {
     firstKill: boolean
     pressure: number
     bomb: Bomb
-    clutch: [Actor | null, number, Actor | null, number]
     utility: UtilityThrow[]
     S: ZoneSite
     O: ZoneSite
@@ -364,7 +363,6 @@ function kill(R: Round, k: Actor, v: Actor, zone: string, chip = 0, util?: "he" 
     v.hp = 0
     v.alive = false
     v.deathT = t
-    const isTrade = t - v.lastKillT <= 5
     let assister: Actor | undefined
     let best = 40
     for (const a of R.all) if (a.home === k.home && a !== k && a.dmgTo[v.i] > best) { best = a.dmgTo[v.i]; assister = a }
@@ -381,18 +379,13 @@ function kill(R: Round, k: Actor, v: Actor, zone: string, chip = 0, util?: "he" 
         isHeadshot: hs, location: R.z.callouts.get(zone) ?? zone, zone, damage: dmg,
     }
     if (chip > 0) ev.chip = chip
-    if (isTrade) ev.isTrade = true
     if (assister) ev.assisterId = assister.id
     if (flashAssist) ev.isFlashAssist = true
     if (util) ev.isUtility = true
-    if (!R.firstKill) ev.isOpening = true
+    if (!R.firstKill) ev.isOpening = true // provisional: killsInTimeOrder() re-marks opening and trades by time
     R.events.push(ev)
     R.firstKill = true
     if (R.bomb.carrier === v) R.bomb.carrier = null
-    // First 1vX per side.
-    const tAlive = countAlive(R.T), ctAlive = countAlive(R.CT)
-    if (!R.clutch[0] && tAlive === 1 && ctAlive >= 1) { R.clutch[0] = R.T.find(a => a.alive)!; R.clutch[1] = ctAlive }
-    if (!R.clutch[2] && ctAlive === 1 && tAlive >= 1) { R.clutch[2] = R.CT.find(a => a.alive)!; R.clutch[3] = tAlive }
 }
 
 // ─── Fights ────────────────────────────────────────────────────────────────
@@ -657,7 +650,7 @@ function retakeUtility(R: Round, retakers: Actor[], holders: Actor[], t: number)
             if (pool.length) { const h = pool[rnd(R, P.retakeUtil).int(0, pool.length - 1)]; h.flushed = true; hurtBy(molotov, a, h, rnd(R, P.retakeUtil).int(6, 25)) }
         }
         while (a.flash > 0 && flashes < 3) {
-            throwUtil(R, a, "flash", S, "CT", t - 0.5 + 0.3 * flashes)
+            throwUtil(R, a, "flash", S, "CT", t - 1.1 + 0.3 * flashes) // all three land before the retake swings at t
             flashes++
             const pool = holders.filter(h => h.alive)
             if (pool.length && rnd(R, P.retakeUtil).next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * a.p.grenades) {
@@ -849,7 +842,7 @@ export function simulateScriptRound(input: SimInput): SimOutput {
     const R: Round = {
         rollKey: input.rng.int(1, 0x7ffffffe), draws: new Map(), meetings: new Map(), z: input.zones, t: 0, all, T: T_, CT: CT_, events: [], firstKill: false, pressure: input.pressure,
         bomb: { carrier: null, lost: false, planted: false, plantT: 0, planter: null },
-        clutch: [null, 0, null, 0], utility: [], S: input.zones.sites.A, O: input.zones.sites.B,
+        utility: [], S: input.zones.sites.A, O: input.zones.sites.B,
     }
     const tSide = input.homeIsCT ? input.away : input.home
     const ctSide = input.homeIsCT ? input.home : input.away
@@ -1091,7 +1084,7 @@ function lurkPick(R: Round, lurker: Actor, rotators: [Actor, number][], t: numbe
     const entry = rotators.find(([a]) => a.alive && a.post !== "mid") ?? rotators.find(([a]) => a.alive)
     if (!entry) return
     const [victim] = entry
-    const saved = R.t
+    const saved = R.t, firstKill = R.firstKill
     R.t = t + rnd(R, P.lurk).range(1, 4)
     // Caught leaving their post: the fight is where the rotator was holding.
     const z = victim.zone || (R.z.lurk[R.O.id]?.id ?? R.O.main.id)
@@ -1103,7 +1096,10 @@ function lurkPick(R: Round, lurker: Actor, rotators: [Actor, number][], t: numbe
     // A rotator who wins still has the whole rotation ahead of them.
     if (victim.alive) entry[1] = max(entry[1], R.t + (victim.post === "mid" ? R.S.midTime : R.O.rotateTime))
     // Resolved out of order with the hit; its events carry their own times.
+    // The hit's first duel is still the round's opening one unless this pick
+    // comes first in time (finish() re-marks the opening kill by time).
     R.t = saved
+    R.firstKill = firstKill
 }
 
 /** Hit failed or never happened: the lurker (if any) hunts the remaining CTs until time. */
@@ -1287,12 +1283,41 @@ function ctSave(R: Round): RoundEnd {
 
 // ─── Output ────────────────────────────────────────────────────────────────
 
+/**
+ * Lurk picks are resolved apart from the hit, so kills are not pushed in time
+ * order. With the events sorted, re-mark the opening kill and trades, and find
+ * each side's first 1vX, from the kills as they happened. Returns the 1vX
+ * players and their opponent counts: [T, vs, CT, vs].
+ */
+function killsInTimeOrder(R: Round): [Actor | null, number, Actor | null, number] {
+    const byId = new Map(R.all.map(a => [a.id, a]))
+    const dead = new Set<Actor>()
+    const lastKill = new Map<string, number>()
+    const clutch: [Actor | null, number, Actor | null, number] = [null, 0, null, 0]
+    let first = true
+    for (const e of R.events) {
+        if (e.type !== "KILL") continue
+        if (first) e.isOpening = true
+        else delete e.isOpening
+        first = false
+        if (e.time - (lastKill.get(e.victimId!) ?? -99) <= 5) e.isTrade = true
+        else delete e.isTrade
+        lastKill.set(e.playerId!, e.time)
+        const v = byId.get(e.victimId!)
+        if (v) dead.add(v)
+        const tAlive = R.T.filter(a => !dead.has(a)), ctAlive = R.CT.filter(a => !dead.has(a))
+        if (!clutch[0] && tAlive.length === 1 && ctAlive.length >= 1) { clutch[0] = tAlive[0]; clutch[1] = ctAlive.length }
+        if (!clutch[2] && ctAlive.length === 1 && tAlive.length >= 1) { clutch[2] = ctAlive[0]; clutch[3] = tAlive.length }
+    }
+    return clutch
+}
+
 function finish(R: Round, input: SimInput, plan: PlanState, end: RoundEnd): SimOutput {
     const homeWon = end.winnerCT === input.homeIsCT
     R.events.sort((a, b) => a.time - b.time)
     const endT = max(end.t, R.events.length ? R.events[R.events.length - 1].time : 0)
     // CLUTCH: the winners' last player won a 1vX.
-    const [tc, tvs, cc, cvs] = R.clutch
+    const [tc, tvs, cc, cvs] = killsInTimeOrder(R)
     const clutcher = end.winnerCT ? cc : tc
     const vs = end.winnerCT ? cvs : tvs
     if (clutcher && clutcher.alive) R.events.push({ type: "CLUTCH", time: r1(endT), playerId: clutcher.id, details: `1v${vs}` })
