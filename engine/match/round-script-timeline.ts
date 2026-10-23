@@ -83,10 +83,20 @@ export function defaultSteps(ctx: Ctx, a: Actor, from: Anchor, horizon: number):
 }
 
 /** Steps from anchor `from` to anchor `to`: the default motion, left as late as possible. */
+/**
+ * Two anchors this close (seconds), with time to walk between them: the player
+ * holds where the first left them instead of drifting back toward their
+ * default spot and returning (back-and-forth between quick kills).
+ */
+export const SHORT_LEG = 4
+
 export function legSteps(ctx: Ctx, a: Actor, from: Anchor, to: Anchor): Step[] {
     const { g, v } = ctx
-    const def = defaultSteps(ctx, a, from, to.t)
     const dist = g.distancesTo(to.node)
+    const gap = to.t - from.t
+    const def = from.holdUntil === undefined && gap <= SHORT_LEG && dist[from.node] / v <= gap
+        ? [{ t: from.t, node: from.node, look: from.look, aimAt: from.aimAt }, { t: to.t, node: from.node, look: from.look }]
+        : defaultSteps(ctx, a, from, to.t)
     const end: Step = { t: to.t, node: to.node, look: to.look, aimAt: to.aimAt }
     const minK = from.holdUntil !== undefined && from.holdUntil > from.t ? 1 : 0
     let k = def.length - 1
