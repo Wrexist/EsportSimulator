@@ -192,6 +192,9 @@ sight): 57.1 → 30.0 stand-off pair-seconds per round, longest stand-off
 
 ## F. Verification results
 
+Phase 1 results are below. Phase 2 results (after the grenade and gameplay
+fixes) are in section I and supersede these where they differ.
+
 | Check | Result |
 |---|---|
 | `tsc --noEmit` | 0 errors |
@@ -201,7 +204,7 @@ sight): 57.1 → 30.0 stand-off pair-seconds per round, longest stand-off
 | New tests | `__tests__/combat-overhaul.test.ts`: 10 tests (bake freshness, cross-floor, duels in sight, stand-off metric, grenade placement, dead throwers, HP timing, radar fire, HP lost, feed clock) |
 | `npm run build` (Next production build plus worker check) | **passed**; "production worker starts without browser globals" |
 | Runtime | Full career match played in Chromium (dev server) at 1920×1080 and 1280×720, through skip match, end beat and result page. No page errors in the capture logs |
-| Electron / Steam packaging | **not run** (not available in this container; nothing published) |
+| Electron / Steam packaging | not run in phase 1 (see section I for the phase 2 Linux QA package) |
 | Performance | Round script build p50 is about 5.8 ms, up from 4.7 ms on `main` (the perf test limit is 6 ms). Visibility bakes are 0.9–2.7 KB per map |
 
 Skipped or failed: none. One audit-harness test I wrote (a harmless HE never
@@ -210,28 +213,102 @@ harmless HE, so it had nothing to check (see QA-4).
 
 ## G. Remaining work
 
-- **Release-blocking:** none known. D1 (result page) was not reproduced, but
-  it should get one manual playthrough on a real install before release.
+(Updated after phase 2; see section I.)
+
+- **Release status: not release-ready.**
+  - The packaged app was verified only as a Linux local-QA build in a
+    container under a virtual display. The Windows/Steam package has
+    not been built or run.
+  - D1 (result page) still needs one manual playthrough on a real install.
 - **High priority:**
-  - Short sightings while walking (67% of rounds still have one, mostly
-    3–5 s). A walk into cover can also brush past an enemy. Rejecting
-    those walks made the totals worse, so that check was left out.
-  - Back-and-forth movement (A6).
-  - Resolver timing (QA-2/QA-3).
-  - Grenades always hit (QA-4).
-- **Lower priority polish:** feed grouping and placement (D8/D9), label
-  overlap (C7), D12/D13/D15/D17–D19.
+  - **Short sightings (3–5 s) remain.** The phase 2 audit (baked line of
+    sight, ≤ 6 map-%, ≥ 3 s, not the lead-in to the pair's own duel) finds
+    2.3 sightings per round:
+    - 59 % last 3–5 s;
+    - 35 % involve two moving players;
+    - 30 % a T walking past a holding CT;
+    - 23 % two holders.
+    In 306 cases the cover pass found no hiding spot. That is mostly a
+    whole team walking through a holder's area when the resolver gave
+    them no fight. Fixing this properly needs the resolver to create those
+    fights (a calibration change), or the script to route walkers around
+    enemies. Relaxing the cover search changed nothing measurable.
+  - QA-3 (rest): the lurk pick's victim is still removed from the hit
+    before their recorded death time. Outcomes and stats are now read in
+    time order, but the resolver's own sequencing is unchanged.
+- **Product decision (made):** HE grenades stay non-lethal for this release
+  (Isac, 2026-10-23). Lethal HEs are a separate future change. It needs:
+  - fight-list guards;
+  - a utility death in the round script;
+  - a kill-feed icon.
+- **Lower priority polish:** feed grouping and placement (D8/D9),
+  D12/D13/D15/D17–D19.
+- **Packaging finding (Linux only):** `sharp`'s native library
+  (`@img/sharp-libvips-*`) is packed inside the asar and fails to load on
+  Linux. The QA build fixed it by unpacking `@img/**`. The Windows release
+  config was not changed or tested here.
 - **Unverified risks:**
   - The HE radius is an estimate.
-  - The Electron build was not run or packaged here.
-  - The decision-card countdown was checked at 1920 and 1280 only.
+  - Windows packaging and Steam integration were not exercised.
 - **Deferred:** PF-1/PF-2 performance (touches save cloning), moving the
   round build off the click handler (PF-3), and deleting
   `radar-script-frame.ts` (C9).
 
 ## H. Next step
 
-Make the resolver allow a grenade to do no damage (QA-4), and later to kill
-(C10). That is the smallest change that makes utility feel real. Today every
-HE hurts someone, which experienced CS players will notice. It changes
-balance, so it needs a calibration run and your sign-off first.
+Build and run the Windows package on a real machine (`npm run qa:package`,
+then play one match), and play D1 through to the result page. Then decide
+how to handle the remaining short sightings. Either the resolver creates a
+fight for close contacts (a calibration change that needs sign-off), or the
+script routes walkers around enemies.
+
+## I. Phase 2 (2026-10-23): grenades, gameplay fixes, release check
+
+### What changed
+
+| Item | Change | Measured effect |
+|---|---|---|
+| HE misses | `engine/match/grenade-damage.ts`: damage = 98 × (1 − distance/6.8), ×0.6 with armour; 0 out of reach, behind a wall or on another floor. Landing error depends on the thrower's grenade skill (one random draw per throw, as before) | 26.1 % of HEs hit nobody (was 0 %); 20.9 HP per throw (was 19.3). All round, economy and win-reason metrics stay in band. See `GRENADE_CALIBRATION_2026-10.md` |
+| HE lethality | Experiment only, **not integrated** (Isac: keep non-lethal) | 4 of 1,704 HEs would kill; no outcome change; 2 impossible states without extra guards |
+| Event ordering (QA-3, part) | `finish()` re-derives opening kill, trades and the first 1vX per side from kills in time order; the lurk pick no longer steals the opening kill | Wrong opening kill: 11 % of rounds → 0 % |
+| Retake flashes (A9/QA-2) | Pop 1.1 s (first flash) and 0.8 s (second) before the retake fight instead of seconds late | Timing change only; no separate audit metric |
+| Back-and-forth (A6) | A leg of 4 s or less to a reachable next anchor holds instead of stepping out and back | Oscillation bursts 119 → 41 per 334 rounds; stand-offs unchanged (533 → 526) |
+| Radar labels (C7) | Forced relayout when two name plates overlap or a plate covers another dot | Overlapping plates 3.1 % → 0 % of frames at 1×, 16 % → 0 % at 4× |
+| Short sightings (3–5 s) | **Not fixed** (see section G) | 2.3 per round remain |
+
+New tests: `grenade-damage.test.ts` (9: direct hit, partial, edge of radius,
+outside radius, obstructed, other floor, nobody hit, armour, miss
+distribution), `resolver-order.test.ts` (5), `round-script-motion.test.ts`
+(oscillation bound). `l21-paired-and-insights.test.ts`: the `call-full-buy`
+scenario now runs 1,200 seeds. At 400 seeds the HE change pushed its noisy
+estimate to −7.25 pp, just outside the ±6 pp bound; at 1,200 seeds it is
+−4.5 pp (95 % CI −7.3 to −1.7), inside the bound. The bound was not changed.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| Full `jest` | **261 suites pass** (one scenario failed before the seed-count change above; passes after) |
+| `next lint` | clean |
+| `npm run build` | passed, including the worker check |
+| Packaged Electron | **Linux local QA build only**, from a Linux `dir` copy of the QA package config, run under a virtual display as a non-root user and driven over the remote debugging port. Nothing was published or uploaded, and nothing went to Steam |
+| Full match, packaged app, 1920×1080 | New career, then a full BO1 (Sandstone, 7–13) at 2× then 8× (key moments), covering multi-player fights (the 1280 capture shows a triple kill), round transitions, the end beat and the result page. No page errors logged |
+| Full match, packaged app, 1280×720 | The same fixture from the same saved state, through to the result page (7–13, deterministic replay of the same match). No page errors logged |
+| Windows package / Steam | **not built or run** |
+| Performance | Calibration `ms_per_map` about 5.8–7.9 ms in this container (informational; no limit) |
+
+Evidence (project files): `overhaul-evidence/electron/` (1920 and 1280
+screenshots, `errors.log`), `overhaul-evidence/grenades/` (calibration
+comparisons and the lethal patch). Before images for the live screens are in
+`live-before/` from phase 1.
+
+### Defects found during the packaged run
+
+- **Linux packaging:** `sharp`'s native library fails to load from inside the
+  asar. Fixed only in the QA config here (unpack `@img/**`); the Windows
+  release config was not changed.
+- **Top bar at 1280×720:** the "CLUB" nav item runs into the search button
+  on the match result page.
+- **Help bubble at 1280×720:** the floating help button covers part of the
+  MVP rating on the result page.
+
