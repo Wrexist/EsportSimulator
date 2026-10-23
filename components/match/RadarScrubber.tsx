@@ -165,7 +165,7 @@ function RadarScrubberComponent(p: RadarScrubberProps) {
                     </div>
                 </div>
             </div>
-            <span ref={timeRef} className="w-9 text-right text-xs tabular-nums text-ink-2">0:00</span>
+            <span ref={timeRef} className="min-w-9 whitespace-nowrap text-right text-xs tabular-nums text-ink-2">0:00</span>
             {p.reviewActive ? (
                 <button type="button" onClick={p.onBackToLive}
                     className="flex min-h-7 items-center gap-1.5 rounded bg-gold px-2.5 text-xs font-semibold text-gold-on hover:bg-gold-hover">

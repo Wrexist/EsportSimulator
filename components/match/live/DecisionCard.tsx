@@ -147,7 +147,8 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                             return (
                                 <div key={o.id} className="relative border-l border-line p-1">
                                     <Button
-                                        variant="secondary"
+                                        // The recommended call is the screen's one primary (gold) action; the theme styles buttons by variant.
+                                        variant={isRec ? "default" : "secondary"}
                                         onClick={() => onPick(o.id)}
                                         title={`${label}: ${money(o.total)} total${isRec ? " (recommended)" : ""}`}
                                         className={cn(
