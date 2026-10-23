@@ -91,6 +91,21 @@ describe('engagements', () => {
     })
 })
 
+describe('bomb', () => {
+    it('the planter on the radar is the resolver\'s planter (the feed names the same player)', () => {
+        let checked = 0
+        for (const f of fixtures) f.steps.forEach((step, i) => {
+            const plant = step.round.events?.find(e => e.type === 'PLANT')
+            const script = f.live[i].script
+            if (!plant?.playerId || !script.bomb.plant) return
+            if (!aliveAt(deathTimes(script), plant.playerId, script.bomb.plant.t)) return
+            expect(script.bomb.plant.planterId).toBe(plant.playerId)
+            checked++
+        })
+        expect(checked).toBeGreaterThan(10)
+    })
+})
+
 describe('grenades', () => {
     it('a damaging HE lands within its blast radius of the victim, a molotov under them, on their floor', () => {
         let he = 0, molly = 0

@@ -127,6 +127,8 @@ export interface Ctx {
     trigger: number
     plantNode: number
     planter?: Actor
+    /** The resolver's planter (PLANT playerId), when it names one. */
+    plantBy?: string
     deaths: ScriptDeath[]
     bomb: ScriptBomb
     carrierId: string | null
@@ -184,6 +186,7 @@ export function createContext(input: RoundScriptInput, map: RoundMap): Ctx {
         endTime: max(roundEnd?.time ?? lastT + 2, lastT, 5),
         actors, byId, kills,
         plantT: plant?.time,
+        ...(plant?.playerId ? { plantBy: plant.playerId } : {}),
         defuseT: plant ? defuse?.time : undefined,
         exploded: !!plant && (events.some(e => e.type === "EXPLODE") || input.endReason === "bomb_exploded"),
         saveT: save?.time,
