@@ -40,7 +40,7 @@ of a duel spot pair with no line of sight, and `THROUGH_SMOKE = 60` when the
 line crosses an active smoke. These are costs, not bans: if every candidate is
 blind, the cheapest is still used. They are meant to dominate the other terms,
 so a visible spot wins whenever one exists (measured: kills placed without
-line of sight fell from 28.6 % to about 3.5 %).
+line of sight fell from 28.6 % to 3.6 %).
 
 ## 3. Cover pass (`engine/match/round-script-cover.ts`)
 
