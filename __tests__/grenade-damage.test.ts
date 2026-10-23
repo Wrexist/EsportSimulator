@@ -40,19 +40,19 @@ describe('HE damage', () => {
         }
     })
 
-    it('an average thrower misses about a quarter of the time and keeps the old mean damage', () => {
+    it('an average thrower misses over a quarter of the time and keeps the old mean damage', () => {
         const N = 10000
         let miss = 0, sum = 0
         for (let i = 0; i < N; i++) {
-            const dmg = heDamage({ distance: heLandingDistance((i + 0.5) / N, 50), armoured: false })
+            const dmg = heDamage({ distance: heLandingDistance((i + 0.5) / N, 55), armoured: false })
             if (dmg === 0) miss++
             sum += dmg
         }
-        expect(miss / N).toBeGreaterThan(0.24)
-        expect(miss / N).toBeLessThan(0.3)
-        // The resolver's old roll was uniform 12–45 HP (28.5 on average).
-        expect(sum / N).toBeGreaterThan(27)
-        expect(sum / N).toBeLessThan(30)
+        expect(miss / N).toBeGreaterThan(0.26)
+        expect(miss / N).toBeLessThan(0.32)
+        // The resolver's old rolls were uniform 12–45 HP (T) and 10–40 HP (CT): about 27 on average.
+        expect(sum / N).toBeGreaterThan(26)
+        expect(sum / N).toBeLessThan(28.5)
     })
 
     it('better throwers land closer', () => {

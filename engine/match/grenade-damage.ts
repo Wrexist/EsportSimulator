@@ -34,11 +34,13 @@ export function heDamage(target: HeTarget): number {
 /**
  * Landing error of a thrown HE from its target, in map-%: `roll` is a uniform
  * draw in [0, 1), `grenades` the thrower's 0–100 utility skill. Calibrated so
- * the mean damage per throw matches the old 12–45 HP roll (28.5 HP raw) for an
- * average thrower, but about a quarter of throws land too far and miss.
+ * an average thrower (grenades 55, the player database averages 56) keeps the
+ * old resolver's mean damage per throw (≈ 27 HP raw, T and CT rolls blended),
+ * but about 29 % of throws land too far and miss. Skill moves the mean a few
+ * HP either way (≈ +2 raw at 70).
  */
 export function heLandingDistance(roll: number, grenades: number): number {
-    const lo = 0.2 - (grenades - 50) * 0.003
+    const lo = 0.22 - (grenades - 55) * 0.002
     return HE_DAMAGE_RADIUS * Math.max(0, lo + 1.1 * roll)
 }
 

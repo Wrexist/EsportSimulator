@@ -74,8 +74,9 @@ rounded. A target at or past R, behind a wall, or on another floor takes 0.
 
 The resolver no longer rolls a guaranteed 12–45 HP. It rolls a landing error
 (`heLandingDistance(roll, grenades)`): `R · max(0, lo + 1.1·roll)` with
-`lo = 0.2 − (grenades − 50)·0.003`. For an average thrower (grenades 50) that
-keeps the old mean raw damage (≈ 28.5 HP per throw) but about 27 % of throws
+`lo = 0.22 − (grenades − 55)·0.002`. For an average thrower (grenades 55; the
+player database averages 56) that keeps the old mean raw damage (≈ 27 HP per
+throw, the old T 12–45 and CT 10–40 rolls blended) but about 29 % of throws
 land out of reach and do nothing. Better throwers land closer. It still uses
 one draw from the same stream as the old roll, so every other random draw in
 a round is unchanged.
@@ -88,9 +89,10 @@ is in reach (out of range, behind a wall or on another floor): first by
 walking back toward the thrower, then the nearest such node. A molotov lands
 0.4 map-% from its victim (inside the fire) and always damages it.
 
-Measured (8 maps × 2 seeds): 299 HEs, 224 hits, 25 % harmless. Grenades still
-cannot kill (`hurt` floors at 1 HP); lethality is a separate experiment
-(report, QA-4).
+Measured (all maps × seeds 1–12, skill 70): 1,692 HEs, 26 % harmless, 20.9 HP
+per throw (19.3 before). Grenades still cannot kill (`hurt` floors at 1 HP).
+The before/after calibration and the lethal-HE experiment are in
+`GRENADE_CALIBRATION_2026-10.md`.
 
 ## 5. HP timing (`lib/round-hp.ts`)
 
