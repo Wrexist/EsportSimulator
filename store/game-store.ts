@@ -1096,7 +1096,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       difficulty: "normal",
       autoSave: true,
       notifications: true,
-      showBugReportButton: true,
+      showBugReportButton: false,
 
       // Game Over State
       gameOverReason: null,

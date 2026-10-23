@@ -4,7 +4,7 @@ import { memo, useEffect, useMemo, useRef } from "react"
 import { ChevronLeft, ChevronRight, Pause, Play, Radio } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { PreparedRadarScript } from "@/lib/radar-scene"
-import { formatRoundClock, scrubberSpan, scrubberTicks, type ScrubTick } from "@/lib/radar-scrubber"
+import { scrubberClock, scrubberSpan, scrubberTicks, type ScrubTick } from "@/lib/radar-scrubber"
 
 const SIDE_COLOR = { CT: "#5AA9FF", T: "#FF8A3D" } as const
 const UTILITY_COLOR = { smoke: "#C9CFD7", flash: "#FFFFFF", molotov: "#FF7A1A", he: "#B5E06A" } as const
@@ -42,6 +42,8 @@ function RadarScrubberComponent(p: RadarScrubberProps) {
     const upTo = p.isLiveRound ? p.liveTick : Infinity
     const ticks: ScrubTick[] = useMemo(() => (p.prep ? scrubberTicks(p.prep, upTo) : []), [p.prep, upTo])
     const span = useMemo(() => (p.prep ? scrubberSpan(p.prep, p.isLiveRound ? p.liveTick : undefined) : 115), [p.prep, p.isLiveRound, p.liveTick])
+    const prepRef = useRef(p.prep)
+    prepRef.current = p.prep
     const spanRef = useRef(span)
     spanRef.current = span
 
@@ -59,9 +61,10 @@ function RadarScrubberComponent(p: RadarScrubberProps) {
             const sec = Math.floor(t)
             if (sec !== lastSecond && timeRef.current) {
                 lastSecond = sec
-                timeRef.current.textContent = formatRoundClock(t)
+                const label = scrubberClock(prepRef.current, t)
+                timeRef.current.textContent = label
                 sliderRef.current?.setAttribute("aria-valuenow", String(sec))
-                sliderRef.current?.setAttribute("aria-valuetext", formatRoundClock(t))
+                sliderRef.current?.setAttribute("aria-valuetext", label)
             }
         })
         return () => registerFrame(null)
@@ -168,10 +171,12 @@ function RadarScrubberComponent(p: RadarScrubberProps) {
                     className="flex min-h-7 items-center gap-1.5 rounded bg-gold px-2.5 text-xs font-semibold text-gold-on hover:bg-gold-hover">
                     <Radio size={13} aria-hidden="true" /> Back to live
                 </button>
-            ) : (
+            ) : p.isLiveRound ? (
                 <span className="flex min-h-7 items-center gap-1.5 rounded px-2 text-[11px] font-bold tracking-[0.06em] text-positive">
                     <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-positive" /> LIVE
                 </span>
+            ) : (
+                <span className="flex min-h-7 items-center rounded px-2 text-[11px] font-bold tracking-[0.06em] text-ink-3">ROUND OVER</span>
             )}
         </div>
     )

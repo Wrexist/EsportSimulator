@@ -399,7 +399,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                     <InboxDrawer />
                 </>
             )}
-            {showBugReportButton && !hideChrome && <BugReportButton />}
+            {showBugReportButton && !hideChrome && !isLiveMatch && <BugReportButton />}
             {!hideChrome && !isLiveMatch && <HelpSystem />}
             {!pathname?.startsWith("/map-editor") && <DevTools />}
             <WeekProcessingOverlay />
