@@ -204,6 +204,7 @@ describe('feed clock', () => {
             { type: 'KILL', time: 25, message: 'k1' },
             { type: 'PLANT', time: 60, message: 'planted' },
             { type: 'KILL', time: 70, message: 'k2' },
+            { type: 'DEFUSE', time: 78, message: 'defused' },
             { type: 'ROUND_END', time: 80, message: 'end' },
             { type: 'SYSTEM', time: 0, message: 'Freezetime over, round 4 begins.' },
             { type: 'KILL', time: 10, message: 'k3' },
@@ -213,7 +214,9 @@ describe('feed clock', () => {
         expect(at(1)).toEqual({ text: '1:30', bomb: false })
         expect(at(2)).toEqual({ text: '0:40', bomb: false })
         expect(at(3)).toEqual({ text: '0:30', bomb: true })
+        // The defuse stops the bomb timer: the round clock (stopped at the plant) shows, like the scorebug.
+        expect(at(4)).toEqual({ text: '0:55', bomb: false })
         // A new round has no bomb timer.
-        expect(at(6)).toEqual({ text: '1:45', bomb: false })
+        expect(at(7)).toEqual({ text: '1:45', bomb: false })
     })
 })
