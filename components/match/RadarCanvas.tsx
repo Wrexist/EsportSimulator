@@ -216,7 +216,7 @@ function RadarCanvasInner(props: RadarCanvasProps, ref: React.ForwardedRef<Radar
             const scene = sceneRef.current
             if (prep) sampleRadarScene(prep, sceneT, scene)
             else if (feed.snapshot && !review.active) sceneFromSnapshot({ ...feed.snapshot, t: Math.floor(liveT), alpha: liveT - Math.floor(liveT) }, scene)
-            else scene.playerCount = scene.deathCount = scene.tracerCount = scene.hitCount = scene.utilityCount = scene.grenadeCount = 0, scene.bomb.phase = "none", scene.bomb.hasPos = false
+            else scene.playerCount = scene.deathCount = scene.tracerCount = scene.hitCount = scene.shotCount = scene.utilityCount = scene.grenadeCount = 0, scene.bomb.phase = "none", scene.bomb.hasPos = false
             const hasScene = !!prep || (!!feed.snapshot && !review.active)
 
             // Floor: manual, or follow the action.
