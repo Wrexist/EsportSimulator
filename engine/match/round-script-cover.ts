@@ -46,6 +46,9 @@ export const COVER_SPACING = 2.2
 /** Candidates tried for partial cover when nothing nearby is fully hidden. */
 export const PARTIAL_CANDIDATES = 16
 
+/** Without any cover, a holder steps aside to stay at least this far (map-%) from a passing enemy. */
+export const STEP_ASIDE = 6
+
 export interface CoverStats {
     /** Holding stretches that were exposed. */
     exposed: number
@@ -209,8 +212,9 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
                 const nextX0 = x + 1 < exposures.length ? exposures[x + 1].x0 : Infinity
                 const leave = back ? min(max(x1, arrive), w1 - d) : Infinity
                 if (back && leave < arrive + 0.3) continue
-                if (back && nextX0 - (leave + d) < 2 * d + 0.6 && x + 1 < exposures.length) {
-                    // Too close to the next exposure to peek in between: fold them into one.
+                if (back && nextX0 - (leave + d) < 2 * d + 0.6 && x + 1 < exposures.length
+                    && pickCover(a, P, x0, exposures[x + 1].x1, [...seenBy, ...exposures[x + 1].seenBy], maxWalk) !== null) {
+                    // Too close to the next exposure to peek in between: fold them into one (when one cover serves both).
                     exposures[x + 1].x0 = x0
                     for (const e of seenBy) if (!exposures[x + 1].seenBy.includes(e)) exposures[x + 1].seenBy.push(e)
                     continue
@@ -275,7 +279,25 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
             best = n
             bestSeen = seen - 1
         }
+        if (best !== null) return best
+        // Nowhere out of sight (an enemy sweeps the whole area): at least keep out of point-blank range.
+        let far = here > 0 ? closest(P, times, seenBy) : 0
+        for (const n of cands) {
+            if (crowded(n)) continue
+            const d = closest(n, times, seenBy)
+            if (d >= STEP_ASIDE && d > far) { best = n; far = d }
+        }
         return best
+    }
+
+    /** Closest any of `who` comes to node `n` over the grid times (map-%). */
+    function closest(n: number, times: readonly number[], who: readonly number[]): number {
+        let d = Infinity
+        for (const k of times) for (const ei of who) {
+            const m = gridOf(ei)[k]
+            if (m >= 0 && g.floor[m] === g.floor[n]) d = min(d, len(g.x[m] - g.x[n], g.y[m] - g.y[n]))
+        }
+        return d
     }
 
     function walkPath(out: Step[], path: number[], ta: number, tb: number): void {
