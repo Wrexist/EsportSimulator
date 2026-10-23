@@ -31,10 +31,11 @@
 
 import { BOMB_SECONDS, createContext } from "./round-script-context"
 import { sampleTrack } from "./round-script-sample"
-import type { Actor } from "./round-script-context"
+import type { Actor, Step } from "./round-script-context"
+import { applyCover } from "./round-script-cover"
 import { choosePlan, assignRoles, buildTPhases, buildCtPhases } from "./round-script-plan"
 import { runTimeline } from "./round-script-timeline"
-import { assembleSteps, toKeys, clipKeys, roundKeys, spaceTeammates, throwUtility } from "./round-script-tracks"
+import { assembleSteps, toKeys, clipKeys, roundKeys, smokeClouds, spaceTeammates, throwUtility } from "./round-script-tracks"
 import { navGraphFor } from "./round-script-nav"
 import type { Floor, RoundMap, RoundScript, RoundScriptInput, SampledPlayer, Side, TrackKey } from "./round-script-types"
 
@@ -49,14 +50,18 @@ export {
 
 export function buildRoundScript(input: RoundScriptInput, map: RoundMap): RoundScript {
     const ctx = createContext(input, map)
+    ctx.smokes = smokeClouds(ctx)
     choosePlan(ctx)
     assignRoles(ctx)
     buildTPhases(ctx)
     buildCtPhases(ctx)
     runTimeline(ctx)
 
+    const steps = new Map<Actor, Step[]>()
+    for (const a of ctx.actors) steps.set(a, assembleSteps(ctx, a))
+    applyCover(ctx, steps, ctx.smokes)
     const raw = new Map<Actor, TrackKey[]>()
-    for (const a of ctx.actors) raw.set(a, clipKeys(toKeys(ctx.g, assembleSteps(ctx, a)), ctx.endTime))
+    for (const a of ctx.actors) raw.set(a, clipKeys(toKeys(ctx.g, steps.get(a)!), ctx.endTime))
     spaceTeammates(ctx, raw)
     const tracks: Record<string, TrackKey[]> = {}
     const sides: Record<string, Side> = {}

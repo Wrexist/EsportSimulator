@@ -135,6 +135,8 @@ export interface Ctx {
     chains: Map<string, Chain>
     /** Constraints the builder could not meet (kept for tests / the harness). */
     violations: number
+    /** script-v1 smokes (where and while they block sight). */
+    smokes: { t0: number; t1: number; at: RPoint; r: number }[]
 }
 
 // ─── Context ───────────────────────────────────────────────────────────────
@@ -187,7 +189,7 @@ export function createContext(input: RoundScriptInput, map: RoundMap): Ctx {
         saveT: save?.time,
         strategy: "default", site: "A", ctSetup: "2-1-2", execAt: 40, trigger: 45, plantNode: g.siteNodes.A,
         deaths: [], bomb: { carrier: [] }, carrierId: null,
-        chains: new Map(), violations: 0,
+        chains: new Map(), violations: 0, smokes: [],
     }
 }
 

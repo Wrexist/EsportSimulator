@@ -338,6 +338,20 @@ function placeGrenade(
     return spot
 }
 
+/** script-v1: the resolver's smokes as clouds (where and while they block sight). */
+export function smokeClouds(ctx: Ctx): { t0: number; t1: number; at: RPoint; r: number }[] {
+    const out: { t0: number; t1: number; at: RPoint; r: number }[] = []
+    for (const u of ctx.input.utility ?? []) {
+        if (u.kind !== "smoke") continue
+        const thrower = ctx.byId.get(u.playerId)
+        if (!thrower || u.t >= thrower.deathT) continue
+        const spot = ctx.map.utility.find(s => s.id === u.spot) ?? ctx.map.utility.find(s => s.site === u.site && s.kind === "smoke" && s.side === thrower.side)
+        if (!spot) continue
+        out.push({ t0: u.t + 0.5, t1: u.t + UTILITY_SECONDS.smoke, at: spot.at, r: spot.radius })
+    }
+    return out
+}
+
 /** script-v1: the grenades the resolver threw, on the baked spots it named (a dead thrower throws nothing). */
 function resolverUtility(ctx: Ctx, tracks?: Record<string, TrackKey[]>): ScriptUtility[] {
     const out: ScriptUtility[] = []

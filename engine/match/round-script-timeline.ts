@@ -8,6 +8,7 @@ import type { NavGraph } from "./round-script-nav"
 import { RUN_PACE, PLAN_PACE, len, weaponClass, hyp, alive, round3, roundPoint } from "./round-script-context"
 import type { Phase, Anchor, Step, Actor, Kill, State, Ctx } from "./round-script-context"
 import { zonePoint } from "./round-sim/zones"
+import { segmentHitsCircle, visibilityFor } from "./round-script-visibility"
 
 // Math is read once: global lookups are very slow inside Jest's sandbox (tests time the builder).
 const { abs, max, min } = Math
@@ -26,6 +27,9 @@ export const ZONE_HARD = 6.5
 export const ZONE_WALL = 80
 /** script-v1: victim spots tried around the resolver's zone (map-%). */
 export const ZONE_SPREAD = 4
+/** A duel spot pair without line of sight (a wall between them) or through a smoke: practically never chosen. */
+export const NO_SIGHT = 120
+export const THROUGH_SMOKE = 60
 
 // ─── Default motion, legs, sampling of the plan ────────────────────────────
 
@@ -321,6 +325,8 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
     const matesK = others
     // script-v1: the resolver says where this fight happened (and that replaces the bomb / trade guesses).
     const zone = kill.zone ? zonePoint(ctx.map, kill.zone) : undefined
+    const vis = visibilityFor(g)
+    const smokes = ctx.smokes.filter(s => t >= s.t0 && t <= s.t1)
     const bomb = !zone && ctx.plantT !== undefined && t >= ctx.plantT ? g.point(ctx.plantNode) : null
     const trade = !zone && kill.trade && ctx.lastDeath && t - ctx.lastDeath.t <= 6 ? g.point(ctx.lastDeath.node) : null
     // Lookahead: the killer's next fight must stay within reach of its opponent.
@@ -367,6 +373,9 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
             const dz = len((vx + kx) / 2 - zone.x, (vy + ky) / 2 - zone.y)
             if (dz > ZONE_RADIUS) cost += ZONE_PULL * (dz - ZONE_RADIUS) + (dz > ZONE_HARD ? ZONE_WALL + 10 * (dz - ZONE_HARD) : 0)
         }
+        if (!vis.sees(v, k)) cost += NO_SIGHT
+        if (cost >= bestCost) return
+        if (smokes.length && smokes.some(sm => sm.at.floor === g.floor[v] && segmentHitsCircle(g.point(k), g.point(v), sm.at, sm.r))) cost += THROUGH_SMOKE
         if (cost >= bestCost) return
         if (!reachV(v) || !reachK(k)) return
         if (walkDist > e * 1.6 + 2) cost += 6
