@@ -96,14 +96,14 @@ Status key: ✅ fixed and verified by a test or measurement. 🟡 partly fixed.
 | D14 | P2 | First-session card pushes every page down | Same card on every route | One-line strip away from the step's page | screenshot | ✅ |
 | D16 | P2 | Bug button on by default, covers the feed | Store default `true` | Default `false` (saved settings are kept), hidden on the live screen | code review | ✅ |
 | D1 | P0? | Result page "not played yet" | Not reproduced on a quiet tree (VICTORY 22–21 shown); the audit run overlapped hot-reloads | none | manual run | ❔ |
-| A6 | P2 | Back-and-forth movement in quick multi-kills | Short anchor gaps | none | measured: 0.24 per round | ⏸ scope |
+| A6 | P2 | Back-and-forth movement in quick multi-kills | Between two anchors < 4 s apart the player drifted back toward their default spot and returned | Phase 2: hold between them (`SHORT_LEG = 4`) | `round-script-motion.test.ts`; audit: bursts 119 → 41 in 334 rounds | ✅ (some remain: cover trips) |
 | A7 | P3 | Some graph edges clip props | Graph stitching | none | 0.09% of moving samples | ⏸ low impact |
 | A8 | P3 | Teammates overlap | Shared spots | Cover keeps 2.2 map-% spacing | teammate-spacing test | 🟡 |
-| A9/QA-2 | P2/P3 | Retake flash up to 0.4 s after the fight starts | Resolver timing | none | 8 cases | ⏸ resolver timing |
-| QA-3 | P2 | Lurker picks resolved out of order | Resolver order | none | | ⏸ needs a resolver redesign |
-| QA-4/C10 | P2/P3 | Every HE damages someone; grenades can't kill | Resolver `hurt()` floors HP at 1 | none (balance change, out of scope) | 300/300 HEs hit | ⏸ balance decision |
+| A9/QA-2 | P2/P3 | Retake flash after the retake started | Third flash timed at t + 0.1 | Phase 2: flashes at t − 1.1 / − 0.8 / − 0.5 (timing only, no RNG change) | `resolver-order.test.ts › no grenade after the thrower's death` | ✅ |
+| QA-3 | P2 | Lurker picks resolved out of order | A lurk pick is resolved apart from the hit, so its kill was pushed before earlier kills | Phase 2: opening kill, trades and 1vX recomputed from the kills in time order; the hit's first duel keeps its opening bonus | `resolver-order.test.ts`; wrong opening kill 11 % of rounds → 0 % | ✅ (outcomes; the lurk victim's state is still applied early, see G) |
+| QA-4/C10 | P2/P3 | Every HE damages someone; grenades can't kill | Resolver rolled a guaranteed 12–45 HP | Phase 2: landing error + CS2 falloff; 26 % of HEs hit nobody; misses placed out of reach. Lethal HEs measured separately, **not integrated** | `grenade-damage.test.ts` (9); `GRENADE_CALIBRATION_2026-10.md` | ✅ misses / ⏸ lethality (decision) |
 | QA-5 | P3 | One cross-floor duel | Placement | Visibility returns false across floors, so the duel spot cost now covers it | stress run | 🟡 |
-| C7 | P3 | Labels overlap in crowds | Renderer | none | | ⏸ polish |
+| C7 | P3 | Labels overlap in crowds | Plates rode with their dots for 250 ms between layouts | Phase 2: relayout as soon as two plates (or a plate and a dot) clash | simulated 4 maps at 900 px: 3.1 % → 0 % of frames at 1×, 16 % → 0 % at 4× | ✅ |
 | C9 | P3 | Dead duplicate frame model | Legacy | none (tests still use it as reference) | | ⏸ |
 | PF-1/PF-2 | P2 | `structuredClone` hot spot; perf baseline over target | Clones every round | none | | ⏸ not touched (save format risk) |
 | PF-3 | P3 | Synchronous round build | | none; the build is now about 5.8 ms p50 (was 4.7) because of the cover pass | perf test (< 6 ms) | ⏸ |

@@ -23,7 +23,11 @@ jest.setTimeout(240_000)
 // script-v1 rounds are decided by many duels, so paired arms diverge more
 // than under the legacy coin flip: 400 seeds resolve the smaller effects.
 describe('every permitted decision has a measurable, bounded effect over 400 paired seeds', () => {
-    const reports = SCENARIOS.map(s => runScenario(s, 400))
+    // call-full-buy is held to a tight ±6 pp bound, tighter than 400 seeds
+    // resolve (its match-win CI is about ±5 pp there; 2026-10 HE misses moved
+    // its 400-seed draw from -3.3 to -7.3 pp while 1200 seeds give -2.7 → -4.5
+    // and an unchanged round share), so it gets 1200.
+    const reports = SCENARIOS.map(s => runScenario(s, s.id === 'call-full-buy' ? 1200 : 400))
     test.each(reports.map(r => [r.id, r] as const))('%s', (_id, r) => {
         if (r.id === 'call-save-always') {
             expect(r.verdict).toBe('negative-control')
