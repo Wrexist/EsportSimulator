@@ -644,6 +644,7 @@ function retakeUtility(R: Round, retakers: Actor[], holders: Actor[], t: number)
     const S = R.S.id
     let flashes = 0
     for (const a of retakers) {
+        if (!a.alive) continue
         if (a.smoke > 0) {
             const pool = holders.filter(h => h.alive && !h.smoked)
             throwUtil(R, a, "smoke", S, "CT", t - 2)
@@ -1167,8 +1168,9 @@ function retake(R: Round, plan: PlanState, lurker: Actor | null, pending: [Actor
     start = min(max(start, plantT + 2), deadline() - 10)
     R.t = max(R.t, start)
     if (tN() && wantsSave()) return ctSave(R)
-    const present = arrivals.filter(([, at]) => at <= R.t).map(([a]) => a)
-    const later = arrivals.filter(([, at]) => at > R.t)
+    // The lurker's pick may have killed a rotator on the way: only the living arrive.
+    const present = arrivals.filter(([a, at]) => a.alive && at <= R.t).map(([a]) => a)
+    const later = arrivals.filter(([a, at]) => a.alive && at > R.t)
     retakeUtility(R, present, holders, R.t)
     let lastCT = ctN()
     const F: Fight = {
