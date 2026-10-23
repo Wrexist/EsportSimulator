@@ -58,8 +58,28 @@ line of sight fell from 28.6 % to 3.6 %).
 
 Two exposures close in time are folded into one trip only when a single cover spot serves both; otherwise each gets its own trip.
 
-Rule: anchors (duels, plant, defuse, pickups) never move. Only holding stretches
-are edited, and walking never goes above run speed.
+Rule: anchors (duels, plant, defuse, pickups) never move. Walking never goes
+above run speed.
+
+Walkers (added 2026-10-23, before the hold pass). Someone about to walk into
+sight of a close enemy they are not fighting either waits at the last spot on
+that walk the enemy cannot see and goes on once the enemy has passed, or sets
+off earlier from the hold before the walk so they pass before the enemy gets
+there. The time comes out of the walk's next hold. Neither is allowed to move
+an anchor, cross the plant (a walk to the site turns pointless after it), or
+park the walker on a teammate.
+
+| Constant | Value | Why |
+|---|---|---|
+| `MAX_YIELDS` | 4 per player per round | Bounds the pass; later waits rarely help |
+| `YIELD_LOOKBACK` | 6 s | How far back on the walk a wait spot may be; farther back reads as turning round |
+| `YIELD_MARGIN` | 1 s | The wait spot must stay hidden this long after setting off again |
+| `LEAVE_EARLY_MAX` | 6 s | Longest early start beyond the exposure itself |
+| (catch-up pace) | up to 1 / `WALK_PACE` | After a wait the rest of the walk may speed up to make its next hold, never above run speed on any step |
+
+Duel placement also adds `BYSTANDER = 25` when the killer's spot is in clear
+sight of one of the victim's teammates within `BYSTANDER_RANGE = 8` map-%:
+the killer stays there after the kill, and that teammate would shoot.
 
 ## 4. Grenades (`engine/match/grenade-damage.ts`, `round-script-tracks.ts`)
 

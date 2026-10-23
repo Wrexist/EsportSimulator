@@ -21,7 +21,7 @@
  * Pure and deterministic; it only edits holding stretches.
  */
 
-import { len } from "./round-script-context"
+import { len, WALK_PACE } from "./round-script-context"
 import type { Actor, Ctx, Step } from "./round-script-context"
 import { segmentHitsCircle, visibilityFor } from "./round-script-visibility"
 import type { RPoint } from "./round-script-types"
@@ -49,17 +49,27 @@ export const PARTIAL_CANDIDATES = 16
 /** Without any cover, a holder steps aside to stay at least this far (map-%) from a passing enemy. */
 export const STEP_ASIDE = 6
 
+/** Waits one walker may take in a round, and how far back (seconds) on their walk they look for a spot to wait. */
+export const MAX_YIELDS = 4
+export const YIELD_LOOKBACK = 6
+/** A wait spot stays hidden this long (seconds) after the walker sets off again. */
+export const YIELD_MARGIN = 1
+/** How much earlier than strictly needed (seconds) a walker may set off to pass before an enemy arrives. */
+export const LEAVE_EARLY_MAX = 6
+
 export interface CoverStats {
     /** Holding stretches that were exposed. */
     exposed: number
     /** Of those, how many moved into cover. */
     covered: number
+    /** Walks that waited for an enemy to pass. */
+    yielded: number
 }
 
 export interface Smoke { t0: number; t1: number; at: RPoint; r: number }
 
 export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly Smoke[]): CoverStats {
-    const stats: CoverStats = { exposed: 0, covered: 0 }
+    const stats: CoverStats = { exposed: 0, covered: 0, yielded: 0 }
     const { g } = ctx
     const vis = visibilityFor(g)
     const N = ctx.actors.length
@@ -132,6 +142,12 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
 
     // Attackers give ground before the plant (they choose when to fight), defenders after it.
     const order = [...ctx.actors].sort((a, b) => (a.side === b.side ? a.order - b.order : a.side === "T" ? -1 : 1))
+
+    // Walkers first: someone about to walk into sight of a close enemy they are not
+    // fighting waits at the last spot on their way that enemy cannot see, and goes on
+    // once the enemy has passed. The delay comes out of their next hold, so every
+    // anchor stays where and when the timeline put it.
+    for (const a of order) for (let tries = 0; tries < MAX_YIELDS; tries++) if (!yieldOnce(a)) break
     for (const a of order) {
         const src = steps.get(a)
         if (!src || src.length < 2) continue
@@ -159,6 +175,156 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
         grid[idx.get(a)!] = null
     }
     return stats
+
+    /** One wait for the first walk that runs into sight of an enemy; false when there is none left to fix. */
+    function yieldOnce(a: Actor): boolean {
+        const st = steps.get(a)
+        if (!st || st.length < 3) return false
+        const ai = idx.get(a)!
+        const gr = gridOf(ai)
+        let c = 0
+        for (let k = kFrom(st[0].t); k < K; k++) {
+            const t = tAt(k)
+            if (gr[k] < 0 || !(a.deathT > t + 0.1)) continue
+            while (c + 1 < st.length && st[c + 1].t <= t) c++
+            if (c + 1 >= st.length || st[c + 1].node === st[c].node) continue
+            if (!watchers(ai, gr[k], k, null)) continue
+            // The exposure, merged over short gaps, and who sees it.
+            const seenBy: number[] = []
+            let x1 = t, quiet = 0
+            for (let q = k; q < K && tAt(q) < a.deathT; q++) {
+                if (gr[q] >= 0 && watchers(ai, gr[q], q, seenBy)) { x1 = tAt(q); quiet = 0 } else if ((quiet += SAMPLE_SECONDS) > MERGE_GAP) break
+            }
+            const resume = x1 + SAMPLE_SECONDS
+            if (tryYield(a, ai, st, c, t, resume) || tryLeaveEarly(a, ai, st, c, t, resume)) { stats.yielded++; return true }
+            // Nowhere to wait: leave this walk and look further on.
+            k = kFrom(resume)
+        }
+        return false
+    }
+
+    function tryYield(a: Actor, ai: number, st: Step[], c: number, x0: number, resume: number): boolean {
+        // Wait spots: the nodes the walker already passed on this walk, latest first.
+        for (let w = c; w >= 1 && st[w].t >= x0 - YIELD_LOOKBACK; w--) {
+            const n = st[w].node
+            if (resume <= st[w].t) continue
+            const plan = reschedule(a, st, w, resume)
+            if (!plan || overPlant(st[w].t, plan.times[plan.times.length - 1])) break
+            let hidden = true
+            for (let k = kFrom(st[w].t); k < K && tAt(k) <= resume + YIELD_MARGIN; k++) if (watchers(ai, n, k, null) || mateNear(ai, n, k)) { hidden = false; break }
+            if (!hidden) {
+                // A spot passed in a hold (the walk's start) is as far back as it goes.
+                if (st[w - 1].node === n) break
+                continue
+            }
+            const look = st[w].look ?? st[w + 1].look
+            const next: Step[] = st.slice(0, w + 1)
+            pushStep(next, { t: resume, node: n, look })
+            for (let s = w + 1; s <= plan.h; s++) pushStep(next, { ...st[s], t: plan.times[s - w - 1] })
+            for (let s = plan.h + 1; s < st.length; s++) pushStep(next, st[s])
+            steps.set(a, next)
+            grid[ai] = null
+            return true
+        }
+        return false
+    }
+
+    /**
+     * The other way round: leave the hold before this walk earlier, pass before the enemy
+     * gets there and wait at the walk's end instead. Only when the whole walk, and the
+     * longer wait at its end, then stays out of sight.
+     */
+    function tryLeaveEarly(a: Actor, ai: number, st: Step[], c: number, x0: number, x1: number): boolean {
+        let b = c
+        while (b >= 1 && st[b - 1].node !== st[b].node) b--
+        if (b < 1) return false
+        let h = c + 1
+        while (h + 1 < st.length && st[h + 1].node !== st[h].node) h++
+        const t0 = st[b].t, tEnd = st[h].t
+        if (a.anchors.some(an => an.t > t0 + 1e-6 && an.t < tEnd - 1e-6)) return false
+        const most = t0 - st[b - 1].t - 0.2
+        const need = x1 - x0
+        for (let d = need; d <= most + 1e-6 && d <= need + LEAVE_EARLY_MAX; d += SAMPLE_SECONDS) {
+            if (a.anchors.some(an => an.t >= t0 - d - 1e-6 && an.t <= t0 + 1e-6 && an.node === st[b].node && an.t > st[b - 1].t + 1e-6)) return false
+            const next: Step[] = st.slice(0, b)
+            for (let s = b; s <= h; s++) pushStep(next, { ...st[s], t: st[s].t - d })
+            pushStep(next, { t: tEnd, node: st[h].node, look: st[h].look })
+            for (let s = h + 1; s < st.length; s++) pushStep(next, st[s])
+            if (overPlant(t0 - d, tEnd) || exposedOn(ai, next, t0 - d, tEnd)) continue
+            steps.set(a, next)
+            grid[ai] = null
+            return true
+        }
+        return false
+    }
+
+    /** A walk moved in time must not cross the plant: the round changes there (a walk to the site turns pointless). */
+    function overPlant(t0: number, t1: number): boolean {
+        return ctx.plantT !== undefined && t0 < ctx.plantT && t1 > ctx.plantT
+    }
+
+    /** Whether steps `st` put player `ai` in sight of an enemy they are not fighting during [ta, tb]. */
+    function exposedOn(ai: number, st: Step[], ta: number, tb: number): boolean {
+        let c = 0
+        for (let k = kFrom(ta); k < K && tAt(k) <= tb; k++) {
+            const t = tAt(k)
+            if (t < st[0].t) continue
+            while (c + 1 < st.length && st[c + 1].t <= t) c++
+            const s0 = st[c], s1 = st[c + 1]
+            const n = !s1 || s1.node === s0.node || (t - s0.t) < (s1.t - s0.t) / 2 ? s0.node : s1.node
+            if (watchers(ai, n, k, null) || mateNear(ai, n, k)) return true
+        }
+        return false
+    }
+
+    /** A teammate within COVER_SPACING of node `n` at grid time `k`. */
+    function mateNear(ai: number, n: number, k: number): boolean {
+        for (const mi of matesOf[ai]) {
+            const m = gridOf(mi)[k]
+            if (m >= 0 && g.floor[m] === g.floor[n] && len(g.x[m] - g.x[n], g.y[m] - g.y[n]) < COVER_SPACING) return true
+        }
+        return false
+    }
+
+    /**
+     * New times for steps w+1..h when the walker leaves step w at `resume` instead: the walk goes on
+     * to a later hold (no anchor before it) that still has room, walking at its old pace while the
+     * holds on the way shrink, or up to WALK_PACE faster (never above run speed) when it must.
+     */
+    function reschedule(a: Actor, st: Step[], w: number, resume: number): { h: number; times: number[] } | null {
+        let walk = 0, pause = 0, dist = 0, fastest = 0
+        for (let h = w + 1; h < st.length; h++) {
+            if (a.anchors.some(an => an.t > st[w].t + 1e-6 && an.t <= st[h].t + 1e-6)) return null
+            const dt = st[h].t - st[h - 1].t
+            if (st[h].node === st[h - 1].node) pause += dt
+            else {
+                const d = g.pathDist(st[h - 1].node, st[h].node)
+                walk += dt
+                dist += d
+                fastest = max(fastest, d / max(dt, 1e-9) / ctx.v)
+            }
+            const holds = h + 1 < st.length && st[h + 1].node === st[h].node
+            const end = h + 1 >= st.length
+            if (!holds && !end) continue
+            const by = holds ? st[h + 1].t - 0.2 : a.deathT === Infinity ? ctx.endTime - 0.2 : -Infinity
+            const room = min(by, a.deathT - 0.2) - resume
+            if (room < max(dist / ctx.v, walk * WALK_PACE) - 1e-6) { if (end) return null; continue }
+            if (a.anchors.some(an => an.t > st[w].t + 1e-6 && an.t <= resume + room + 1e-6 && an.t < st[h + 1]?.t - 1e-6)) return null
+            const walkScale = min(1, room / max(walk, 1e-9))
+            // No step of the walk may end up faster than run speed.
+            if (walkScale < 1 && walkScale < fastest) { if (end) return null; continue }
+            const pauseScale = pause > 0 ? max(0, min(1, (room - walk * walkScale) / pause)) : 0
+            const times: number[] = []
+            let t = resume
+            for (let s = w + 1; s <= h; s++) {
+                const d = st[s].t - st[s - 1].t
+                t += st[s].node === st[s - 1].node ? d * pauseScale : d * walkScale
+                times.push(t)
+            }
+            return { h, times }
+        }
+        return null
+    }
 
     function coverRun(a: Actor, run: Step[], pins: number[], pinned: [number, number][], openEnd: boolean): Step[] {
         const P = run[0].node
@@ -264,8 +430,8 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
         }
         // Coarse pass first (every 4th moment), so most candidates are rejected after a check or two.
         const hidden = (n: number) => {
-            for (let q = 0; q < times.length; q += 4) if (watchers(ai, n, times[q], null, seenBy)) return false
-            for (let q = 0; q < times.length; q++) if (q % 4 && watchers(ai, n, times[q], null, seenBy)) return false
+            for (let q = 0; q < times.length; q += 4) if (watchers(ai, n, times[q], null)) return false
+            for (let q = 0; q < times.length; q++) if (q % 4 && watchers(ai, n, times[q], null)) return false
             return true
         }
         for (const n of cands) if (hidden(n) && !crowded(n)) return n
@@ -274,7 +440,7 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
         let bestSeen = Math.min(here - 1, Math.floor(times.length / 5))
         for (const n of cands.slice(0, PARTIAL_CANDIDATES)) {
             let seen = 0
-            for (const k of times) if (watchers(ai, n, k, null, seenBy) && ++seen > bestSeen) break
+            for (const k of times) if (watchers(ai, n, k, null) && ++seen > bestSeen) break
             if (seen > bestSeen || crowded(n)) continue
             best = n
             bestSeen = seen - 1

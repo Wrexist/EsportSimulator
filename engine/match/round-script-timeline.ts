@@ -30,6 +30,9 @@ export const ZONE_SPREAD = 4
 /** A duel spot pair without line of sight (a wall between them) or through a smoke: practically never chosen. */
 export const NO_SIGHT = 120
 export const THROUGH_SMOKE = 60
+/** A duel spot in plain sight of a close enemy who is not in this fight (map-%, cost): the bystander would shoot. */
+export const BYSTANDER_RANGE = 8
+export const BYSTANDER = 25
 
 // ─── Default motion, legs, sampling of the plan ────────────────────────────
 
@@ -401,6 +404,12 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
         }
         for (const m of matesV) if (len(m.x - vx, m.y - vy) < 2.5) cost += 5
         for (const m of matesK) if (len(m.x - kx, m.y - ky) < 2.5) cost += 5
+        // The killer stays on after the kill: the victim's teammates nearby should not have a clear view of the spot.
+        for (const m of matesV) {
+            if (m.floor !== g.floor[k] || len(m.x - kx, m.y - ky) > BYSTANDER_RANGE) continue
+            if (vis.sees(k, m.node)) cost += BYSTANDER
+        }
+        if (cost >= bestCost) return
         if (bomb) {
             const dv = len(vx - bomb.x, vy - bomb.y)
             const dk = len(kx - bomb.x, ky - bomb.y)
