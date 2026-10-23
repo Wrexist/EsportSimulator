@@ -50,8 +50,8 @@ export function graphChecksum(g: NavGraph): number {
 }
 
 export class Visibility {
-    /** Visible pairs as n * size + m (both orders). Null = no usable bake. */
-    private readonly seen: Set<number> | null
+    /** Visible pairs: byte n * size + m is 1 (both orders). Null = no usable bake. */
+    private readonly seen: Uint8Array | null
 
     constructor(private readonly g: NavGraph, bake: VisibilityBake | undefined) {
         this.seen = bake && bake.nodes === g.size && bake.checksum === graphChecksum(g) ? decode(g, bake) : null
@@ -69,20 +69,20 @@ export class Visibility {
         if (g.floor[a] !== g.floor[b]) return false
         const dx = g.x[a] - g.x[b], dy = g.y[a] - g.y[b]
         if (dx * dx + dy * dy > VIS_RADIUS * VIS_RADIUS) return false
-        return this.seen === null || this.seen.has(a * g.size + b)
+        return this.seen === null || this.seen[a * g.size + b] === 1
     }
 }
 
-function decode(g: NavGraph, bake: VisibilityBake): Set<number> | null {
+function decode(g: NavGraph, bake: VisibilityBake): Uint8Array | null {
     const bytes = typeof Buffer !== "undefined" ? Buffer.from(bake.bits, "base64") : Uint8Array.from(atob(bake.bits), c => c.charCodeAt(0))
-    const seen = new Set<number>()
+    const seen = new Uint8Array(g.size * g.size)
     let i = 0
     let ok = true
     visibilityPairs(g, (n, m) => {
         if (i >= bake.pairs) { ok = false; return }
         if (bytes[i >> 3] & (1 << (i & 7))) {
-            seen.add(n * g.size + m)
-            seen.add(m * g.size + n)
+            seen[n * g.size + m] = 1
+            seen[m * g.size + n] = 1
         }
         i++
     })

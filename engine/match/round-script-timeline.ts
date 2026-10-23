@@ -375,7 +375,10 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
         }
         if (!vis.sees(v, k)) cost += NO_SIGHT
         if (cost >= bestCost) return
-        if (smokes.length && smokes.some(sm => sm.at.floor === g.floor[v] && segmentHitsCircle(g.point(k), g.point(v), sm.at, sm.r))) cost += THROUGH_SMOKE
+        for (let si = 0; si < smokes.length; si++) {
+            const sm = smokes[si]
+            if (sm.at.floor === g.floor[v] && segmentHitsCircle(g.point(k), g.point(v), sm.at, sm.r)) { cost += THROUGH_SMOKE; break }
+        }
         if (cost >= bestCost) return
         if (!reachV(v) || !reachK(k)) return
         if (walkDist > e * 1.6 + 2) cost += 6

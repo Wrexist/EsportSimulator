@@ -23,7 +23,6 @@
 
 import { len } from "./round-script-context"
 import type { Actor, Ctx, Step } from "./round-script-context"
-import { sampleSteps } from "./round-script-timeline"
 import { segmentHitsCircle, visibilityFor } from "./round-script-visibility"
 import type { RPoint } from "./round-script-types"
 
@@ -44,6 +43,8 @@ export const COVER_WALK = 18
 export const MERGE_GAP = 1.5
 /** Teammates in cover keep at least this far apart (map-%). */
 export const COVER_SPACING = 2.2
+/** Candidates tried for partial cover when nothing nearby is fully hidden. */
+export const PARTIAL_CANDIDATES = 16
 
 export interface CoverStats {
     /** Holding stretches that were exposed. */
@@ -76,13 +77,13 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
         return false
     }
     const smoked = (t: number, n: number, m: number) => {
-        for (const s of smokes) {
+        for (let i = 0; i < smokes.length; i++) {
+            const s = smokes[i]
             if (t < s.t0 || t > s.t1 || s.at.floor !== g.floor[n]) continue
-            if (segmentHitsCircle(pointOf(n), pointOf(m), s.at, s.r)) return true
+            if (segmentHitsCircle(g.point(n), g.point(m), s.at, s.r)) return true
         }
         return false
     }
-    const pointOf = (n: number): RPoint => ({ x: g.x[n], y: g.y[n], floor: g.floor[n] })
 
     // Every player's node on a fixed time grid (t_k = k·SAMPLE_SECONDS + 0.25; -1 = dead / not yet moving),
     // rebuilt for a player whenever the pass edits their steps.
@@ -95,10 +96,13 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
         gr = new Int32Array(K).fill(-1)
         const a = ctx.actors[i]
         const es = steps.get(a)
-        if (es?.length) for (let k = 0; k < K; k++) {
+        // One sweep with a cursor (k and the steps both run forward): the node a walker is nearer to.
+        if (es?.length) for (let k = 0, c = 0; k < K; k++) {
             const t = tAt(k)
             if (t < es[0].t || !(a.deathT > t)) continue
-            gr[k] = sampleSteps(g, es, t).node
+            while (c + 1 < es.length && es[c + 1].t <= t) c++
+            const s0 = es[c], s1 = es[c + 1]
+            gr[k] = !s1 || s1.node === s0.node || (t - s0.t) < (s1.t - s0.t) / 2 ? s0.node : s1.node
         }
         grid[i] = gr
         return gr
@@ -173,8 +177,9 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
             const exposures: { x0: number; x1: number; seenBy: number[] }[] = []
             for (let k = kFrom(w0 + 0.1); k < K && tAt(k) < min(w1, a.deathT) - 0.1; k++) {
                 const t = tAt(k)
+                if (!watchers(ai, P, k, null)) continue
                 const seenBy: number[] = []
-                if (!watchers(ai, P, k, seenBy)) continue
+                watchers(ai, P, k, seenBy)
                 const cur = exposures[exposures.length - 1]
                 if (cur && t - cur.x1 <= MERGE_GAP) {
                     cur.x1 = t + SAMPLE_SECONDS / 2
@@ -242,26 +247,33 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
         // Fully hidden if possible, else the spot seen least (at most a fifth of the time, and less than here).
         let here = 0
         for (const k of times) if (watchers(ai, P, k, null, seenBy)) here++
-        let best: number | null = null
-        let bestSeen = Math.min(here - 1, Math.floor(times.length / 5))
         const mates = matesOf[ai]
-        for (const n of cands) {
-            let seen = 0
-            for (const k of times) if (watchers(ai, n, k, null, seenBy) && ++seen > bestSeen) break
-            if (seen > bestSeen) continue
-            // Not on top of a teammate while in cover.
-            let crowded = false
-            for (let q = 0; q < times.length && !crowded; q += 2) {
+        const crowded = (n: number) => {
+            for (let q = 0; q < times.length; q += 2) {
                 const k = times[q]
                 for (const mi of mates) {
                     const m = gridOf(mi)[k]
-                    if (m >= 0 && g.floor[m] === g.floor[n] && len(g.x[m] - g.x[n], g.y[m] - g.y[n]) < COVER_SPACING) { crowded = true; break }
+                    if (m >= 0 && g.floor[m] === g.floor[n] && len(g.x[m] - g.x[n], g.y[m] - g.y[n]) < COVER_SPACING) return true
                 }
             }
-            if (crowded) continue
+            return false
+        }
+        // Coarse pass first (every 4th moment), so most candidates are rejected after a check or two.
+        const hidden = (n: number) => {
+            for (let q = 0; q < times.length; q += 4) if (watchers(ai, n, times[q], null, seenBy)) return false
+            for (let q = 0; q < times.length; q++) if (q % 4 && watchers(ai, n, times[q], null, seenBy)) return false
+            return true
+        }
+        for (const n of cands) if (hidden(n) && !crowded(n)) return n
+        // Partial cover among the nearest few.
+        let best: number | null = null
+        let bestSeen = Math.min(here - 1, Math.floor(times.length / 5))
+        for (const n of cands.slice(0, PARTIAL_CANDIDATES)) {
+            let seen = 0
+            for (const k of times) if (watchers(ai, n, k, null, seenBy) && ++seen > bestSeen) break
+            if (seen > bestSeen || crowded(n)) continue
             best = n
             bestSeen = seen - 1
-            if (seen === 0) return n
         }
         return best
     }
