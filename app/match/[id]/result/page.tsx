@@ -27,6 +27,7 @@ import { MAP_NAMES } from "@/data/map-pool"
 import { Panel } from "@/src/components/ui/Panel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { TierTag } from "@/src/components/ui/TierTag"
+import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 
 // Confetti in the v2 palette: trophy gold, white, win green.
 const CONFETTI_COLORS = ['#F2B53A', '#F2F4F7', '#3DD68C']
@@ -360,7 +361,7 @@ export default function MatchResultPage() {
                 <TeamLogoImage src={team?.logoPath} alt={team?.name || ""} size={60} team={team} />
             </div>
             <div className="min-w-0">
-                <p className={cn("truncate font-display text-[36px] font-bold uppercase leading-none", won ? "text-ink-1" : "text-ink-2")}>{team?.name}</p>
+                <p className={cn("truncate font-display text-[36px] font-bold uppercase leading-none", won ? "text-ink-1" : "text-ink-2")}><TeamLink id={team?.id}>{team?.name}</TeamLink></p>
                 <p className={cn("mt-2 flex items-center gap-2 text-sm text-ink-3", align === "right" && "justify-end")}>
                     World <span className="font-semibold tabular-nums text-ink-2">#{team?.worldRanking || "—"}</span>
                 </p>
@@ -680,7 +681,7 @@ export default function MatchResultPage() {
                                                 const pctWon = total > 0 ? Math.round((fk / total) * 100) : 0
                                                 return (
                                                     <div key={stat.playerId} className="grid grid-cols-[120px_minmax(0,1fr)_96px] items-center gap-3 text-sm">
-                                                        <span className="truncate font-semibold text-ink-1">{player.nickname}</span>
+                                                        <PlayerLink id={player.id} className="truncate font-semibold text-ink-1">{player.nickname}</PlayerLink>
                                                         <div className="h-1.5 overflow-hidden rounded-full bg-hover">
                                                             <div className={cn("h-full rounded-full", fk > fd ? "bg-positive" : fk < fd ? "bg-ink-3" : "bg-ink-2")} style={{ width: `${Math.max(pctWon, 4)}%` }} />
                                                         </div>
@@ -712,7 +713,7 @@ export default function MatchResultPage() {
                                                 const clutches = stat.clutches || 0
                                                 return (
                                                     <div key={stat.playerId} className="grid grid-cols-[120px_minmax(0,1fr)_56px_80px] items-center gap-3 text-sm">
-                                                        <span className="truncate font-semibold text-ink-1">{player.nickname}</span>
+                                                        <PlayerLink id={player.id} className="truncate font-semibold text-ink-1">{player.nickname}</PlayerLink>
                                                         <div className="h-1.5 overflow-hidden rounded-full bg-hover">
                                                             <div className={cn("h-full rounded-full", kast >= 75 ? "bg-positive" : "bg-ink-2")} style={{ width: `${kast}%` }} />
                                                         </div>
@@ -805,7 +806,7 @@ function MvpCard({ label, stat, player, isMatchMvp }: { label: string; stat: Pla
                     {label}
                     {isMatchMvp && <span className="inline-flex items-center gap-1 text-gold"><Trophy size={11} aria-hidden="true" /> Match MVP</span>}
                 </p>
-                <p className="truncate font-display text-[26px] font-bold uppercase leading-tight text-ink-1">{player?.nickname ?? "Former player"}</p>
+                <p className="truncate font-display text-[26px] font-bold uppercase leading-tight text-ink-1"><PlayerLink id={player?.id}>{player?.nickname ?? "Former player"}</PlayerLink></p>
                 <p className="text-xs tabular-nums text-ink-3">
                     {stat.kills}–{stat.deaths} · {Math.round(stat.adr)} ADR{typeof stat.kast === "number" ? ` · ${Math.round(stat.kast)}% KAST` : ""}
                 </p>
@@ -836,7 +837,7 @@ function PlayerStatsTable({ team, won, stats, playersById, result, mvpId }: {
                     <th data-slot="table-head" className="pl-4">
                         <span className="flex items-center gap-2 normal-case tracking-normal">
                             <TeamLogoImage src={team?.logoPath} alt="" team={team as any} size={18} />
-                            <span className="font-display text-base font-bold uppercase text-ink-1">{team?.name}</span>
+                            <TeamLink id={team?.id} className="font-display text-base font-bold uppercase text-ink-1">{team?.name}</TeamLink>
                             <span className={cn("text-[11px] font-semibold uppercase tracking-[0.06em]", won ? "text-positive" : "text-ink-3")}>{won ? "Won" : "Lost"}</span>
                         </span>
                     </th>
@@ -862,7 +863,7 @@ function PlayerStatsTable({ team, won, stats, playersById, result, mvpId }: {
                                         <PlayerPortrait src={player?.portraitPath} seed={player?.id} alt={player?.nickname || "Player"} size={32} />
                                     </div>
                                     <CountryFlag country={player?.nationality || ""} size={14} />
-                                    <span className="truncate text-sm font-semibold text-ink-1">{player?.nickname ?? "Former player"}</span>
+                                    <PlayerLink id={player?.id} className="truncate text-sm font-semibold text-ink-1">{player?.nickname ?? "Former player"}</PlayerLink>
                                     {stat.playerId === mvpId && <Trophy size={13} className="shrink-0 text-gold" aria-label="Match MVP" />}
                                     <RoleTag role={player?.role} className="ml-1" />
                                 </div>

@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils"
 import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { ScoutedRating } from "./ScoutedRating"
 import { DealPanel } from "./DealPanel"
+import { TeamLink } from "@/components/ui/EntityLink"
 
 type Mode = "transfers" | "scouting"
 type SortField = "ovr" | "age" | "value" | "name"
@@ -149,7 +150,7 @@ const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, sc
                 {team ? (
                     <span className="flex min-w-0 items-center gap-2 text-sm text-ink-2">
                         <TeamLogoImage src={(team as { logoPath?: string }).logoPath} alt={team.name} team={team as never} size={18} />
-                        <span className="max-w-[140px] truncate">{team.name}</span>
+                        <TeamLink id={team.id} className="max-w-[140px] truncate">{team.name}</TeamLink>
                     </span>
                 ) : <span className="text-sm text-ink-3">—</span>}
             </td>

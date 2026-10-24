@@ -37,6 +37,7 @@ import { MATCH_BALANCE, COST_CONSTANTS } from "@/lib/constants"
 import { ROUND_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import { ANTI_STRAT_SELF_PENALTY, MAP_POINTS_PER_EDGE, MENTAL_PREP_EDGE, NON_PLAYER_BONUS_CAP, PREP_STRENGTH_PER_POINT, ROUND_SHARE_PER_EDGE, STYLE_SPECIALISATION_EDGE } from "@/engine/match/round-sim/team-edge"
 import { TUNING } from "@/engine/match/round-sim/tuning"
+import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
@@ -172,7 +173,7 @@ function TeamBlock({ team, ovr, rank, align }: { team: any; ovr: number; rank?: 
                 <TeamLogoDisplay team={team} size={60} />
             </div>
             <div className="min-w-0">
-                <h2 className="truncate font-display text-[40px] font-bold uppercase leading-none text-ink-1">{team.name}</h2>
+                <h2 className="truncate font-display text-[40px] font-bold uppercase leading-none text-ink-1"><TeamLink id={team.id}>{team.name}</TeamLink></h2>
                 <div className={cn("mt-2 flex items-center gap-3 text-sm text-ink-3", align === "right" && "justify-end")}>
                     <span>World <span className="font-semibold tabular-nums text-ink-2">#{rank || "—"}</span></span>
                     <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
@@ -836,7 +837,7 @@ export default function TacticalHQPage() {
                                             <PlayerPortrait src={threat.portraitPath} seed={threat.id} alt={threat.nickname} size={44} />
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="truncate font-semibold text-ink-1">{threat.nickname}</p>
+                                            <p className="truncate font-semibold text-ink-1"><PlayerLink id={threat.id}>{threat.nickname}</PlayerLink></p>
                                             <div className="mt-0.5 flex items-center gap-2"><RoleTag role={threat.role} /><CountryFlag country={threat.nationality || ""} size={12} /></div>
                                         </div>
                                         <RatingChip value={threat.ovr} />

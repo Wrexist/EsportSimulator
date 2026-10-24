@@ -9,6 +9,7 @@ import { TournamentDefinition, formatPrizePool } from "@/data/tournament-calenda
 import { TeamSaveData, MatchSaveData, CompletedMatchSaveData } from "@/engine"
 import { textOnBrand as textOn } from "@/lib/branding/fallback"
 import { pressable } from "@/lib/accessibility"
+import { TeamLink } from "@/components/ui/EntityLink"
 
 interface TournamentStandingsProps {
     tournament: TournamentDefinition
@@ -201,9 +202,9 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                             <AvatarImage src={team.logoPath} />
                                             <AvatarFallback className="rounded-md bg-raised text-[11px]">{team.name.substring(0, 2)}</AvatarFallback>
                                         </Avatar>
-                                        <span className={cn("font-bold truncate", isPlayer ? "text-ink-1" : "text-ink-1")}>
+                                        <TeamLink id={team.id} className="font-bold truncate text-ink-1">
                                             {team.name}
-                                        </span>
+                                        </TeamLink>
                                     </div>
                                     <div className="text-center tabular-nums text-xs text-ink-2">
                                         #{team.worldRanking || "—"}
@@ -337,9 +338,9 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                             <AvatarFallback className="rounded-md bg-raised text-[11px]">{team.team?.name.substring(0, 2)}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex flex-col min-w-0">
-                                            <span className={cn("font-bold truncate", isPlayer ? "text-ink-1" : "text-ink-1")}>
+                                            <TeamLink id={team.team?.id} className="font-bold truncate text-ink-1">
                                                 {team.team?.name}
-                                            </span>
+                                            </TeamLink>
                                             <span className="text-[11px] text-ink-3">
                                                 {team.points} pts
                                             </span>

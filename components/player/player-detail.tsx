@@ -39,6 +39,7 @@ import { PlayerCareerRecord } from "./PlayerCareerRecord"
 import { PlayerAttributes, ATTRIBUTE_FOOTNOTE } from "./PlayerAttributes"
 import { PlayerRadar } from "./PlayerRadar"
 import { DevelopmentOutlook } from "./DevelopmentOutlook"
+import { TeamLink } from "@/components/ui/EntityLink"
 import { PersonalityChips } from "./PersonalityChips"
 import { PersonalityPanel } from "./PersonalityPanel"
 import { PlayerStorylines } from "@/components/storylines/PlayerStorylines"
@@ -170,7 +171,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                     >
                         <div className="absolute left-4 top-4 flex min-w-0 items-center gap-2">
                             {viewedTeam && <TeamLogoDisplay team={viewedTeam} size={24} />}
-                            <span className="truncate text-sm font-semibold text-ink-1">{viewedTeam?.name ?? (isAcademy ? "Academy" : player.isRetired ? "Retired" : "Free agent")}</span>
+                            <TeamLink id={viewedTeam?.id} className="truncate text-sm font-semibold text-ink-1">{viewedTeam?.name ?? (isAcademy ? "Academy" : player.isRetired ? "Retired" : "Free agent")}</TeamLink>
                         </div>
                         <div className="absolute right-4 top-4 flex flex-col items-end gap-1.5">
                             {player.injury && (
@@ -364,7 +365,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                 <Panel title="Current contract" padded={false}>
                                     {contract ? (
                                         <dl className="divide-y divide-line">
-                                            <Row label="Club">{viewedTeam?.name ?? "—"}</Row>
+                                            <Row label="Club"><TeamLink id={viewedTeam?.id}>{viewedTeam?.name ?? "—"}</TeamLink></Row>
                                             <Row label="Wage">{formatCurrency(contract.salaryPerWeek, "$", false)} / wk</Row>
                                             <Row label="Signed">Week {contract.startWeek}</Row>
                                             <Row label="Expires">Week {contract.endWeek}</Row>
