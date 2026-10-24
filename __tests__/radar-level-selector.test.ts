@@ -31,15 +31,14 @@ describe("radar-level-selector", () => {
     expect(sceneAutoFloor(later, "upper", true)).toBe("upper")
   })
 
-  it("falls back to alive player majority when there is no bomb or recent kill line", () => {
-    const s = scene(50, {
-      dots: [
-        { playerId: "a", nickname: "A", x: 10, y: 10, side: "ct", isAlive: true, level: "lower", angle: 0 },
-        { playerId: "b", nickname: "B", x: 10, y: 10, side: "ct", isAlive: true, level: "lower", angle: 0 },
-        { playerId: "c", nickname: "C", x: 10, y: 10, side: "t", isAlive: true, level: "upper", angle: 0 },
-      ],
-    })
-    expect(sceneAutoFloor(s, "upper", true)).toBe("lower")
+  it("falls back to a clear alive-player majority when there is no bomb or recent kill line", () => {
+    const dot = (id: string, level: "upper" | "lower"): RadarPlayerDot => ({ playerId: id, nickname: id, x: 10, y: 10, side: "ct", isAlive: true, level, angle: 0 })
+    // Two more on the other floor: switch.
+    expect(sceneAutoFloor(scene(50, { dots: [dot("a", "lower"), dot("b", "lower"), dot("c", "lower"), dot("d", "upper")] }), "upper", true)).toBe("lower")
+    // One more (a player on the stairs): stay, so the view does not flicker.
+    expect(sceneAutoFloor(scene(50, { dots: [dot("a", "lower"), dot("b", "lower"), dot("c", "upper")] }), "upper", true)).toBe("upper")
+    // Nobody left on the shown floor: switch.
+    expect(sceneAutoFloor(scene(50, { dots: [dot("a", "lower")] }), "upper", true)).toBe("lower")
   })
 
   it("keeps the current floor on a tie", () => {

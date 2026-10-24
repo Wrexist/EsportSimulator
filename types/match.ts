@@ -34,6 +34,11 @@ export interface MatchEvent {
      * script places the fight there.
      */
     zone?: string
+    /**
+     * script-v1 KILL: exact radar spot of a fight that started where the two
+     * met (a close contact), so the round script places it there, not at the zone.
+     */
+    spot?: { x: number; y: number; floor?: "upper" | "lower" }
     /** script-v1 KILL: damage the killer dealt with the kill (the victim's remaining HP). */
     damage?: number
     /**

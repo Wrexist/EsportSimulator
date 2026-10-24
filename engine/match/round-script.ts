@@ -29,14 +29,17 @@
  * state), -nav (walk graph), -layout (fallback map), -input (adapter).
  */
 
-import { BOMB_SECONDS, createContext, lerpAngle } from "./round-script-context"
-import type { Actor } from "./round-script-context"
+import { BOMB_SECONDS, createContext } from "./round-script-context"
+import { sampleTrack } from "./round-script-sample"
+import type { Actor, Step } from "./round-script-context"
+import { applyCover } from "./round-script-cover"
 import { choosePlan, assignRoles, buildTPhases, buildCtPhases } from "./round-script-plan"
 import { runTimeline } from "./round-script-timeline"
-import { assembleSteps, toKeys, clipKeys, roundKeys, spaceTeammates, throwUtility } from "./round-script-tracks"
+import { assembleSteps, toKeys, clipKeys, roundKeys, smokeClouds, spaceTeammates, throwUtility } from "./round-script-tracks"
 import { navGraphFor } from "./round-script-nav"
 import type { Floor, RoundMap, RoundScript, RoundScriptInput, SampledPlayer, Side, TrackKey } from "./round-script-types"
 
+export { sampleTrack } from "./round-script-sample"
 export { roundMapFromLayout, type RoundLayoutSource } from "./round-script-layout"
 export {
     roundScriptSeed, scriptInputFromResolverRound,
@@ -47,14 +50,18 @@ export {
 
 export function buildRoundScript(input: RoundScriptInput, map: RoundMap): RoundScript {
     const ctx = createContext(input, map)
+    ctx.smokes = smokeClouds(ctx)
     choosePlan(ctx)
     assignRoles(ctx)
     buildTPhases(ctx)
     buildCtPhases(ctx)
     runTimeline(ctx)
 
+    const steps = new Map<Actor, Step[]>()
+    for (const a of ctx.actors) steps.set(a, assembleSteps(ctx, a))
+    applyCover(ctx, steps, ctx.smokes)
     const raw = new Map<Actor, TrackKey[]>()
-    for (const a of ctx.actors) raw.set(a, clipKeys(toKeys(ctx.g, assembleSteps(ctx, a)), ctx.endTime))
+    for (const a of ctx.actors) raw.set(a, clipKeys(toKeys(ctx.g, steps.get(a)!), ctx.endTime))
     spaceTeammates(ctx, raw)
     const tracks: Record<string, TrackKey[]> = {}
     const sides: Record<string, Side> = {}
@@ -71,7 +78,7 @@ export function buildRoundScript(input: RoundScriptInput, map: RoundMap): RoundS
         sides,
         tracks,
         deaths: ctx.deaths,
-        utility: throwUtility(ctx),
+        utility: throwUtility(ctx, tracks),
         bomb: ctx.bomb,
         endTime: ctx.endTime,
     }
@@ -98,28 +105,4 @@ export function samplePositions(script: RoundScript, t: number): SampledPlayer[]
         out.push({ id, side: script.sides[id], ...sampleTrack(track, t), alive: death === undefined || t < death })
     }
     return out
-}
-
-/** Binary search + linear interpolation; aim turns the short way round. */
-export function sampleTrack(track: readonly TrackKey[], t: number): { x: number; y: number; floor: Floor; aim: number } {
-    const first = track[0]
-    const last = track[track.length - 1]
-    if (t <= first.t) return { x: first.x, y: first.y, floor: first.floor, aim: first.aim }
-    if (t >= last.t) return { x: last.x, y: last.y, floor: last.floor, aim: last.aim }
-    let lo = 0
-    let hi = track.length - 1
-    while (hi - lo > 1) {
-        const mid = (lo + hi) >> 1
-        if (track[mid].t <= t) lo = mid
-        else hi = mid
-    }
-    const a = track[lo]
-    const b = track[hi]
-    const u = b.t > a.t ? (t - a.t) / (b.t - a.t) : 1
-    return {
-        x: a.x + (b.x - a.x) * u,
-        y: a.y + (b.y - a.y) * u,
-        floor: u < 0.5 ? a.floor : b.floor,
-        aim: lerpAngle(a.aim, b.aim, u),
-    }
 }

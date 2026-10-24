@@ -15,7 +15,7 @@
 
 import manifestJson from '@/public/audio/manifest.json'
 import { AudioFeedbackGate, type MusicScene, type SoundCategory, type SoundType } from './audio-feedback'
-import { useSettingsStore } from './settings-store'
+import { DEFAULT_MASTER_VOLUME, DEFAULT_MUSIC_VOLUME, DEFAULT_SFX_VOLUME, useSettingsStore } from './settings-store'
 import { routeMusicScene } from './route-audio'
 
 export interface ManifestSound { file: string; category: SoundCategory; gain: number; duration: number; variation?: number; duck?: number; alias?: string }
@@ -87,9 +87,9 @@ export class SoundManager {
     private muteWhenUnfocused = true
     private uiSounds = true
     private hoverSounds = false
-    private masterVolume = 80
-    private musicVolume = 45
-    private sfxVolume = 80
+    private masterVolume = DEFAULT_MASTER_VOLUME
+    private musicVolume = DEFAULT_MUSIC_VOLUME
+    private sfxVolume = DEFAULT_SFX_VOLUME
     private categoryVolume: Record<SoundCategory, number> = { ui: 100, match: 100, moment: 100 }
 
     private baseScene: MusicScene | null = null

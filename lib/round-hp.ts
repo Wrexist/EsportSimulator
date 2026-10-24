@@ -24,6 +24,11 @@
 import type { MatchEvent, RoundResult } from "@/types"
 
 export const MAX_HP = 100
+/** Seconds before a kill the loser's hits on the winner land (the exchange of fire, drawn on the radar). */
+export const RETURN_FIRE_LEAD = 0.25
+/** A molotov's damage is dealt in up to this many ticks over this many seconds. */
+export const MOLOTOV_TICKS = 4
+export const MOLOTOV_BURN_SECONDS = 1.5
 
 export interface HpStep { t: number; hp: number }
 
@@ -80,9 +85,24 @@ export function roundHp(src: RoundHpSource): RoundHp {
     let estimated = false
     if (exact) {
         for (const k of kills) {
-            if (typeof k.chip === "number" && k.chip > 0) hits.push({ t: k.time, victimId: k.playerId, attackerId: k.victimId, dmg: k.chip, source: "duel" })
+            // The loser's return fire lands during the exchange, a moment before their death.
+            if (typeof k.chip === "number" && k.chip > 0) hits.push({ t: Math.max(0, k.time - RETURN_FIRE_LEAD), victimId: k.playerId, attackerId: k.victimId, dmg: k.chip, source: "duel" })
         }
-        for (const u of grenadeHits) hits.push({ t: u.t, victimId: u.hit!, attackerId: u.playerId, dmg: u.dmg!, source: "grenade" })
+        for (const u of grenadeHits) {
+            if (u.kind !== "molotov") {
+                hits.push({ t: u.t, victimId: u.hit!, attackerId: u.playerId, dmg: u.dmg!, source: "grenade" })
+                continue
+            }
+            // Fire burns in ticks while the victim gets out (all of it before they die, so the HP at the death still matches the kill).
+            const death = deathT.get(u.hit!)
+            const span = Math.max(0, Math.min(MOLOTOV_BURN_SECONDS, (death ?? Infinity) - u.t - 0.1))
+            const ticks = span > 0 ? Math.min(MOLOTOV_TICKS, Math.max(1, Math.floor(u.dmg! / 4))) : 1
+            const per = Math.floor(u.dmg! / ticks)
+            for (let i = 0; i < ticks; i++) {
+                const dmg = i === ticks - 1 ? u.dmg! - per * (ticks - 1) : per
+                if (dmg > 0) hits.push({ t: u.t + (ticks > 1 ? span * i / (ticks - 1) : 0), victimId: u.hit!, attackerId: u.playerId, dmg, source: "grenade" })
+            }
+        }
     } else {
         // Victims: their exact chip, at their last won duel (else just before the death).
         const lastKillBefore = (id: string, t: number) => {

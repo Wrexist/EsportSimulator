@@ -7,6 +7,11 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { ArmorGlyph, GrenadeGlyph, KitGlyph, WeaponGlyph, weaponDisplayName } from "@/components/match/WeaponGlyph"
 
+/** Marks the player's own team (home is always on the left, so in an away match it is the right-hand side). */
+export function YouTag() {
+    return <span className="shrink-0 rounded-sm bg-gold/15 px-1.5 py-0.5 text-[11px] font-bold leading-none tracking-[0.06em] text-gold" title="Your team">YOU</span>
+}
+
 /** One player's row: everything is a primitive so the memo skips idle ticks. */
 export interface RosterCardRowProps {
     id: string
@@ -94,8 +99,10 @@ const RosterCardRow = memo(function RosterCardRow(p: RosterCardRowProps) {
     )
 })
 
-export function LiveRosterCard({ teamName, isCT, alive, teamCash, players, footer }: {
+export function LiveRosterCard({ teamName, isCT, isOwn, alive, teamCash, players, footer }: {
     teamName: string
+    /** The player's own team (a YOU tag in the header). */
+    isOwn?: boolean
     isCT: boolean
     alive: number
     teamCash: number
@@ -111,6 +118,7 @@ export function LiveRosterCard({ teamName, isCT, alive, teamCash, players, foote
             <header className="flex items-center gap-2 border-b border-line px-3 py-2">
                 <span className={cn("rounded-sm px-1.5 py-0.5 text-[11px] font-bold leading-none tracking-[0.06em]", isCT ? "bg-side-ct/15 text-side-ct" : "bg-side-t/15 text-side-t")}>{isCT ? "CT" : "T"}</span>
                 <h2 className="min-w-0 truncate font-display text-lg font-bold uppercase leading-none text-ink-1">{teamName}</h2>
+                {isOwn && <YouTag />}
                 <span className="ml-auto shrink-0 text-xs tabular-nums text-ink-3">
                     <span className="font-semibold text-ink-1">{alive}</span> alive · <span className="text-ink-2">{formatCurrency(teamCash, "$", false)}</span>
                 </span>

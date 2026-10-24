@@ -377,6 +377,7 @@ export default function LiveMatchPage() {
                 homeLossLevel={shownLossLevels.home}
                 awayLossLevel={shownLossLevels.away}
                 clock={scorebugClock}
+                ownTeam={isPlayerHome ? "home" : "away"}
             />
 
             <LiveMatchControlBar
@@ -401,7 +402,7 @@ export default function LiveMatchPage() {
             {/* Rosters left/right, radar is the hero. */}
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(420px,min(900px,calc(100dvh-196px)))_minmax(0,1fr)]">
                 <div className="flex min-h-0 min-w-0 flex-col gap-3">
-                    <LiveRosterCard teamName={homeTeam.name} isCT={homeIsCT} alive={aliveCount(homeRows)} teamCash={teamCash(homeRows)} players={homeRows} />
+                    <LiveRosterCard teamName={homeTeam.name} isCT={homeIsCT} isOwn={isPlayerHome} alive={aliveCount(homeRows)} teamCash={teamCash(homeRows)} players={homeRows} />
                     {isPlayerHome ? roundsPanel : feedPanel}
                 </div>
 
@@ -417,7 +418,16 @@ export default function LiveMatchPage() {
                         isAnimating={isPlaying}
                         currentTime={gameState.time}
                         roundOver={roundOver}
-                        overlay={decisionOverlay}
+                        overlay={gameState.status === "FINISHED" && (endBeatDone || !finishedResult)
+                            ? (
+                                // In the radar's overlay slot, above the scrubber (not floating over it).
+                                <div className="flex justify-center pb-2">
+                                    <Button onClick={handleFinish} className="h-12 w-full max-w-sm text-base shadow-[0_8px_24px_rgba(0,0,0,0.45)]">
+                                        Continue to results <ChevronRight size={18} aria-hidden="true" />
+                                    </Button>
+                                </div>
+                            )
+                            : decisionOverlay}
                         fillHeight
                     />
                     <MomentCallout callout={callout} />
@@ -442,7 +452,7 @@ export default function LiveMatchPage() {
                 </div>
 
                 <div className="flex min-h-0 min-w-0 flex-col gap-3">
-                    <LiveRosterCard teamName={awayTeam.name} isCT={!homeIsCT} alive={aliveCount(awayRows)} teamCash={teamCash(awayRows)} players={awayRows} />
+                    <LiveRosterCard teamName={awayTeam.name} isCT={!homeIsCT} isOwn={!isPlayerHome} alive={aliveCount(awayRows)} teamCash={teamCash(awayRows)} players={awayRows} />
                     {isPlayerHome ? feedPanel : roundsPanel}
                 </div>
             </div>
@@ -507,13 +517,6 @@ export default function LiveMatchPage() {
                 )}
             </AnimatePresence>
 
-            {gameState.status === "FINISHED" && (endBeatDone || !finishedResult) && (
-                <div className="fixed bottom-8 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 px-4">
-                    <Button onClick={handleFinish} className="h-12 w-full text-base">
-                        Continue to results <ChevronRight size={18} aria-hidden="true" />
-                    </Button>
-                </div>
-            )}
         </div>
         </ErrorBoundary>
     )

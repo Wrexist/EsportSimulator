@@ -31,6 +31,7 @@
 import type { MatchEvent, RoundResult } from "@/types"
 import { SeededRNG } from "../../rng"
 import type { BuyStrategy } from "../buy-phase"
+import { heDamage, heLandingDistance } from "../grenade-damage"
 import type { PlayerSimulationState } from "../round-outcome"
 import type { SiteId, UtilityKind } from "../round-script-types"
 import { aimPoints, TRAIT_AGGRESSIVE, TRAIT_CLUTCHER, TRAIT_PASSIVE, TRAIT_TRADER, type SimProfile } from "./profile"
@@ -74,7 +75,15 @@ export interface SimInput {
     pressure: number
     /** Map weight on IGL reads (tactical maps read more). */
     tacticalWeight: number
+    /** Base of the keyed rolls, so a second pass of the same round replays it exactly. */
+    rollKey?: number
+    /** Close contacts the round script found (enemies in sight with no fight), fought as duels. */
+    contacts?: readonly Contact[]
 }
+
+/** Two enemies in plain sight of each other at `t` (round seconds), at baked zone `zone`. */
+/** Two enemies in sight of each other in the round script with no fight between them. `still`: the one standing (holding) when they met, if only one was. */
+export interface Contact { t: number; a: string; b: string; zone: string; still?: "a" | "b"; spot?: { x: number; y: number; floor?: "upper" | "lower" } }
 
 export interface SimOutput {
     winner: "HOME" | "AWAY"
@@ -155,10 +164,12 @@ interface Round {
     firstKill: boolean
     pressure: number
     bomb: Bomb
-    clutch: [Actor | null, number, Actor | null, number]
     utility: UtilityThrow[]
     S: ZoneSite
     O: ZoneSite
+    contacts: Contact[]
+    /** The spot the next kill is recorded at (a contact fight). */
+    spotNext?: Contact["spot"]
 }
 
 // ─── Setup ─────────────────────────────────────────────────────────────────
@@ -363,7 +374,6 @@ function kill(R: Round, k: Actor, v: Actor, zone: string, chip = 0, util?: "he" 
     v.hp = 0
     v.alive = false
     v.deathT = t
-    const isTrade = t - v.lastKillT <= 5
     let assister: Actor | undefined
     let best = 40
     for (const a of R.all) if (a.home === k.home && a !== k && a.dmgTo[v.i] > best) { best = a.dmgTo[v.i]; assister = a }
@@ -380,18 +390,14 @@ function kill(R: Round, k: Actor, v: Actor, zone: string, chip = 0, util?: "he" 
         isHeadshot: hs, location: R.z.callouts.get(zone) ?? zone, zone, damage: dmg,
     }
     if (chip > 0) ev.chip = chip
-    if (isTrade) ev.isTrade = true
+    if (R.spotNext) ev.spot = R.spotNext
     if (assister) ev.assisterId = assister.id
     if (flashAssist) ev.isFlashAssist = true
     if (util) ev.isUtility = true
-    if (!R.firstKill) ev.isOpening = true
+    if (!R.firstKill) ev.isOpening = true // provisional: killsInTimeOrder() re-marks opening and trades by time
     R.events.push(ev)
     R.firstKill = true
     if (R.bomb.carrier === v) R.bomb.carrier = null
-    // First 1vX per side.
-    const tAlive = countAlive(R.T), ctAlive = countAlive(R.CT)
-    if (!R.clutch[0] && tAlive === 1 && ctAlive >= 1) { R.clutch[0] = R.T.find(a => a.alive)!; R.clutch[1] = ctAlive }
-    if (!R.clutch[2] && ctAlive === 1 && tAlive >= 1) { R.clutch[2] = R.CT.find(a => a.alive)!; R.clutch[3] = tAlive }
 }
 
 // ─── Fights ────────────────────────────────────────────────────────────────
@@ -478,6 +484,7 @@ function pickHolder(R: Round, D: Actor[]): Actor {
 function fight(R: Round, F: Fight): FightEnd {
     let duels = 0
     for (let guard = 0; guard < 40; guard++) {
+        contactsUntil(R, R.t)
         admit(R, F.attQ, F.att)
         admit(R, F.defQ, F.def)
         const A = living(F.att)
@@ -520,6 +527,41 @@ function fight(R: Round, F: Fight): FightEnd {
     }
     return "time"
 }
+
+/**
+ * Meetings the plan did not arrange: two enemies the round script put in close
+ * sight of each other with no fight between them (see contacts.ts) fight it out
+ * at that moment. A contact the round has moved well past is dropped. Only
+ * before the plant: after it the retake and post-plant fights already decide
+ * who meets whom, and extra meetings there turned bomb wins into eliminations.
+ */
+function contactsUntil(R: Round, until: number): void {
+    while (R.contacts.length && R.contacts[0].t <= until) {
+        const c = R.contacts.shift()!
+        const a = R.all.find(x => x.id === c.a), b = R.all.find(x => x.id === c.b)
+        if (!a || !b || !a.alive || !b.alive || a.ct === b.ct) continue
+        if (R.t - c.t > CONTACT_STALE || R.bomb.planted) continue
+        // The round's opening kill stays with the planned fights unless an AWP is in the meeting:
+        // chance meetings between riflers would hand openings to lurkers and supports.
+        if (!R.firstKill && T.CONTACT_OPENING_AWP_ONLY && !isSniperClass(a.wc) && !isSniperClass(b.wc)) continue
+        if (!countAlive(R.T) || !countAlive(R.CT)) return
+        R.t = max(R.t, c.t)
+        // Nobody holds a pre-aimed angle on a chance meeting: the players, first-kill reaction (entry
+        // for whoever walked into it), a scoped AWP's first shot, and the T's intent against a CT
+        // who is rotating or repositioning.
+        const pts = (x: Actor, walking: boolean) => commonPts(R, x) + openingPts(R, x, walking)
+            + (!R.firstKill && isSniperClass(x.wc) ? T.CONTACT_AWP_OPEN : 0) + (x.ct ? 0 : T.CONTACT_T_EDGE)
+        R.spotNext = c.spot
+        duel(R, a, b, pts(a, c.still === "b"), pts(b, c.still === "a"), c.zone)
+        R.spotNext = undefined
+        a.fresh = b.fresh = false
+        a.zone = b.zone = c.zone
+        // A meeting takes its time: the next one (or the planned fight going on) is not the same instant.
+        R.t += CONTACT_AFTER
+    }
+}
+const CONTACT_STALE = 6
+const CONTACT_AFTER = 0.6
 
 /** The side that just lost a player may trade the killer, and so on (decaying). */
 function tradeChain(R: Round, F: Fight, killer: Actor, side: "att" | "def", zone: string, extra = 0): void {
@@ -599,7 +641,7 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
         if (!pool.length) break
         const d = pool[rnd(R, P.util).int(0, pool.length - 1)]
         const he = throwUtil(R, a, "he", S, "T", tHit - 1.5)
-        hurtBy(he, a, d, min(d.hp - 1, round(rnd(R, P.util).range(12, 45) * (d.kevlar ? 0.6 : 1))))
+        hurtBy(he, a, d, heDamage({ distance: heLandingDistance(rnd(R, P.util).next(), a.p.grenades), armoured: d.kevlar }))
         break
     }
     let flashes = 0
@@ -627,7 +669,7 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
             if (entry && rnd(R, P.util).next() < 0.4) hurtBy(molotov, d, entry, rnd(R, P.util).int(8, 24))
         } else if (d.he > 0 && entry && rnd(R, P.util).next() < 0.5) {
             const he = throwUtil(R, d, "he", S, "CT", tHit - 0.5)
-            hurtBy(he, d, entry, min(entry.hp - 1, round(rnd(R, P.util).range(10, 40) * (entry.kevlar ? 0.6 : 1))))
+            hurtBy(he, d, entry, heDamage({ distance: heLandingDistance(rnd(R, P.util).next(), d.p.grenades), armoured: entry.kevlar }))
         } else if (d.flash > 0 && entry && rnd(R, P.util).next() < 0.5) {
             throwUtil(R, d, "flash", S, "CT", tHit)
             if (rnd(R, P.util).next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * d.p.grenades) { entry.blindUntil = tHit + delay + 2; entry.blindBy = d.i }
@@ -644,6 +686,7 @@ function retakeUtility(R: Round, retakers: Actor[], holders: Actor[], t: number)
     const S = R.S.id
     let flashes = 0
     for (const a of retakers) {
+        if (!a.alive) continue
         if (a.smoke > 0) {
             const pool = holders.filter(h => h.alive && !h.smoked)
             throwUtil(R, a, "smoke", S, "CT", t - 2)
@@ -655,7 +698,7 @@ function retakeUtility(R: Round, retakers: Actor[], holders: Actor[], t: number)
             if (pool.length) { const h = pool[rnd(R, P.retakeUtil).int(0, pool.length - 1)]; h.flushed = true; hurtBy(molotov, a, h, rnd(R, P.retakeUtil).int(6, 25)) }
         }
         while (a.flash > 0 && flashes < 3) {
-            throwUtil(R, a, "flash", S, "CT", t - 0.5 + 0.3 * flashes)
+            throwUtil(R, a, "flash", S, "CT", t - 1.1 + 0.3 * flashes) // all three land before the retake swings at t
             flashes++
             const pool = holders.filter(h => h.alive)
             if (pool.length && rnd(R, P.retakeUtil).next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * a.p.grenades) {
@@ -845,9 +888,9 @@ export function simulateScriptRound(input: SimInput): SimOutput {
     const T_ = all.filter(a => !a.ct)
     const CT_ = all.filter(a => a.ct)
     const R: Round = {
-        rollKey: input.rng.int(1, 0x7ffffffe), draws: new Map(), meetings: new Map(), z: input.zones, t: 0, all, T: T_, CT: CT_, events: [], firstKill: false, pressure: input.pressure,
+        rollKey: input.rollKey ?? input.rng.int(1, 0x7ffffffe), contacts: [...(input.contacts ?? [])].sort((x, y) => x.t - y.t), draws: new Map(), meetings: new Map(), z: input.zones, t: 0, all, T: T_, CT: CT_, events: [], firstKill: false, pressure: input.pressure,
         bomb: { carrier: null, lost: false, planted: false, plantT: 0, planter: null },
-        clutch: [null, 0, null, 0], utility: [], S: input.zones.sites.A, O: input.zones.sites.B,
+        utility: [], S: input.zones.sites.A, O: input.zones.sites.B,
     }
     const tSide = input.homeIsCT ? input.away : input.home
     const ctSide = input.homeIsCT ? input.home : input.away
@@ -874,6 +917,7 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
 
     // ── 1. Map control: early picks before the hit ──
     earlyFights(R, plan, aggressor)
+    contactsUntil(R, plan.execAt - 3)
     let done = elim()
     if (done) return done
 
@@ -1062,6 +1106,8 @@ function earlyFights(R: Round, plan: PlanState, aggressor: Actor | null): void {
     fights.sort((a, b) => a.t - b.t)
     for (const f of fights) {
         if (f.t >= plan.execAt - 3) break
+        contactsUntil(R, f.t)
+        if (!countAlive(ts) || !countAlive(cts)) return
         R.t = max(R.t, f.t)
         f.run()
         if (!countAlive(ts) || !countAlive(cts)) return
@@ -1089,7 +1135,7 @@ function lurkPick(R: Round, lurker: Actor, rotators: [Actor, number][], t: numbe
     const entry = rotators.find(([a]) => a.alive && a.post !== "mid") ?? rotators.find(([a]) => a.alive)
     if (!entry) return
     const [victim] = entry
-    const saved = R.t
+    const saved = R.t, firstKill = R.firstKill
     R.t = t + rnd(R, P.lurk).range(1, 4)
     // Caught leaving their post: the fight is where the rotator was holding.
     const z = victim.zone || (R.z.lurk[R.O.id]?.id ?? R.O.main.id)
@@ -1101,7 +1147,10 @@ function lurkPick(R: Round, lurker: Actor, rotators: [Actor, number][], t: numbe
     // A rotator who wins still has the whole rotation ahead of them.
     if (victim.alive) entry[1] = max(entry[1], R.t + (victim.post === "mid" ? R.S.midTime : R.O.rotateTime))
     // Resolved out of order with the hit; its events carry their own times.
+    // The hit's first duel is still the round's opening one unless this pick
+    // comes first in time (finish() re-marks the opening kill by time).
     R.t = saved
+    R.firstKill = firstKill
 }
 
 /** Hit failed or never happened: the lurker (if any) hunts the remaining CTs until time. */
@@ -1167,8 +1216,9 @@ function retake(R: Round, plan: PlanState, lurker: Actor | null, pending: [Actor
     start = min(max(start, plantT + 2), deadline() - 10)
     R.t = max(R.t, start)
     if (tN() && wantsSave()) return ctSave(R)
-    const present = arrivals.filter(([, at]) => at <= R.t).map(([a]) => a)
-    const later = arrivals.filter(([, at]) => at > R.t)
+    // The lurker's pick may have killed a rotator on the way: only the living arrive.
+    const present = arrivals.filter(([a, at]) => a.alive && at <= R.t).map(([a]) => a)
+    const later = arrivals.filter(([a, at]) => a.alive && at > R.t)
     retakeUtility(R, present, holders, R.t)
     let lastCT = ctN()
     const F: Fight = {
@@ -1284,12 +1334,41 @@ function ctSave(R: Round): RoundEnd {
 
 // ─── Output ────────────────────────────────────────────────────────────────
 
+/**
+ * Lurk picks are resolved apart from the hit, so kills are not pushed in time
+ * order. With the events sorted, re-mark the opening kill and trades, and find
+ * each side's first 1vX, from the kills as they happened. Returns the 1vX
+ * players and their opponent counts: [T, vs, CT, vs].
+ */
+function killsInTimeOrder(R: Round): [Actor | null, number, Actor | null, number] {
+    const byId = new Map(R.all.map(a => [a.id, a]))
+    const dead = new Set<Actor>()
+    const lastKill = new Map<string, number>()
+    const clutch: [Actor | null, number, Actor | null, number] = [null, 0, null, 0]
+    let first = true
+    for (const e of R.events) {
+        if (e.type !== "KILL") continue
+        if (first) e.isOpening = true
+        else delete e.isOpening
+        first = false
+        if (e.time - (lastKill.get(e.victimId!) ?? -99) <= 5) e.isTrade = true
+        else delete e.isTrade
+        lastKill.set(e.playerId!, e.time)
+        const v = byId.get(e.victimId!)
+        if (v) dead.add(v)
+        const tAlive = R.T.filter(a => !dead.has(a)), ctAlive = R.CT.filter(a => !dead.has(a))
+        if (!clutch[0] && tAlive.length === 1 && ctAlive.length >= 1) { clutch[0] = tAlive[0]; clutch[1] = ctAlive.length }
+        if (!clutch[2] && ctAlive.length === 1 && tAlive.length >= 1) { clutch[2] = ctAlive[0]; clutch[3] = tAlive.length }
+    }
+    return clutch
+}
+
 function finish(R: Round, input: SimInput, plan: PlanState, end: RoundEnd): SimOutput {
     const homeWon = end.winnerCT === input.homeIsCT
     R.events.sort((a, b) => a.time - b.time)
     const endT = max(end.t, R.events.length ? R.events[R.events.length - 1].time : 0)
     // CLUTCH: the winners' last player won a 1vX.
-    const [tc, tvs, cc, cvs] = R.clutch
+    const [tc, tvs, cc, cvs] = killsInTimeOrder(R)
     const clutcher = end.winnerCT ? cc : tc
     const vs = end.winnerCT ? cvs : tvs
     if (clutcher && clutcher.alive) R.events.push({ type: "CLUTCH", time: r1(endT), playerId: clutcher.id, details: `1v${vs}` })

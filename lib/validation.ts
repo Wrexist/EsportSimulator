@@ -103,7 +103,7 @@ export const GameSaveValidationSchema = z.object({
     // Optional fields
     rngState: z.number().optional(),
     marketStaff: z.array(z.any()).optional(),
-    facilityLevels: z.record(z.number()).optional()
+    facilityLevels: z.record(z.string(), z.number()).optional()
 }).passthrough() // Allow additional fields for forward compatibility
 
 /**
@@ -122,7 +122,7 @@ export function validateSaveFile(data: unknown): {
 
     return {
         success: false,
-        errors: result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+        errors: result.error.issues.map(e => `${e.path.join('.')}: ${e.message}`)
     }
 }
 
@@ -142,7 +142,7 @@ export function validateContract(input: unknown): {
 
     return {
         success: false,
-        errors: result.error.errors.map(e => e.message)
+        errors: result.error.issues.map(e => e.message)
     }
 }
 
@@ -162,7 +162,7 @@ export function validateTransferOffer(input: unknown): {
 
     return {
         success: false,
-        errors: result.error.errors.map(e => e.message)
+        errors: result.error.issues.map(e => e.message)
     }
 }
 
@@ -181,7 +181,7 @@ export function validateSaveMetadata(data: unknown): {
 
     return {
         success: false,
-        errors: result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+        errors: result.error.issues.map(e => `${e.path.join('.')}: ${e.message}`)
     }
 }
 
@@ -202,7 +202,7 @@ export function createValidator<T extends z.ZodType>(schema: T) {
 
         return {
             success: false,
-            errors: result.error.errors.map(e => e.message)
+            errors: result.error.issues.map(e => e.message)
         }
     }
 }

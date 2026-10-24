@@ -3,7 +3,7 @@
  * rebuilt from the recorded rounds, and the playback clock.
  */
 import { prepareRadarScript } from '@/lib/radar-scene'
-import { clampReviewTime, formatRoundClock, ROUND_SECONDS, scrubberSpan, scrubberTicks } from '@/lib/radar-scrubber'
+import { clampReviewTime, formatRoundClock, scrubberClock, ROUND_SECONDS, scrubberSpan, scrubberTicks } from '@/lib/radar-scrubber'
 import { reviewableRounds, reviewRound, reviewScript } from '@/lib/radar-review'
 import { clockSetPlayback, clockSetTick, clockTime, createRadarClock } from '@/lib/radar-clock'
 import { MapId } from '@/types/enums'
@@ -23,7 +23,7 @@ describe('round scrubber', () => {
             for (const [i, d] of prep.deaths.entries()) {
                 expect(kills[i].side).toBe(d.killerSide)
                 expect(kills[i].label).toContain(`N_${prep.players[d.killer].id}`)
-                expect(kills[i].label).toContain(formatRoundClock(d.t))
+                expect(kills[i].label).toContain(scrubberClock(prep, d.t))
             }
             expect(ticks.filter(t => t.kind === 'utility')).toHaveLength(prep.utility.length)
             expect(ticks.some(t => t.kind === 'plant')).toBe(!!prep.plant)

@@ -7,6 +7,7 @@ import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { lossBonusAt } from "@/engine/match/round-sim/economy"
 import { buyShortLabel } from "@/lib/live-match-decision"
+import { YouTag } from "@/components/match/live/LiveRosterCard"
 
 /** One revealed round of the current map, for the history strip. */
 export interface ScorebugRound {
@@ -53,6 +54,8 @@ interface LiveMatchScoreboardProps {
      * it the timer shows `roundTime` / `bombTime`.
      */
     clock?: ScorebugClock | null
+    /** Which team is the player's own (a YOU tag by its name). */
+    ownTeam?: "home" | "away"
 }
 
 /** Live clock and the round's bomb times for the scorebug timer. */
@@ -200,6 +203,7 @@ function LiveMatchScoreboardImpl({
     matchFormat,
     currentMapId: _currentMapId,
     mapName,
+    ownTeam,
     homeSeriesScore,
     awaySeriesScore,
     homeScore,
@@ -246,8 +250,9 @@ function LiveMatchScoreboardImpl({
             className="relative z-10 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch rounded-lg border border-line bg-panel"
             role="region"
             aria-label="Match scoreboard"
-            aria-live="polite"
         >
+            {/* Screen readers hear the score change, not every second of the timer. */}
+            <span className="sr-only" aria-live="polite">{`${homeTeam.name} ${homeScore}, ${awayTeam.name} ${awayScore}`}</span>
             {/* HOME */}
             <div className="flex min-w-0 items-center gap-4 py-2.5 pl-0 pr-6">
                 <span className={cn("h-full w-1 self-stretch rounded-l-lg", homeIsCT ? "bg-side-ct" : "bg-side-t")} aria-hidden="true" />
@@ -258,6 +263,7 @@ function LiveMatchScoreboardImpl({
                     <div className="flex min-w-0 items-center gap-2">
                         <span className="truncate font-display text-[26px] font-bold uppercase leading-none text-ink-1">{homeTeam.name}</span>
                         {!finished && <SidePill ct={homeIsCT} />}
+                        {ownTeam === "home" && <YouTag />}
                     </div>
                     <div className="flex items-center gap-3">
                         <SeriesPips won={homeSeriesScore} toWin={toWin} label={`Maps won: ${homeSeriesScore} of ${toWin}`} align="left" />
@@ -291,6 +297,7 @@ function LiveMatchScoreboardImpl({
                     <div className="flex min-w-0 flex-row-reverse items-center gap-2">
                         <span className="truncate font-display text-[26px] font-bold uppercase leading-none text-ink-1">{awayTeam.name}</span>
                         {!finished && <SidePill ct={!homeIsCT} />}
+                        {ownTeam === "away" && <YouTag />}
                     </div>
                     <div className="flex flex-row-reverse items-center gap-3">
                         <SeriesPips won={awaySeriesScore} toWin={toWin} label={`Maps won: ${awaySeriesScore} of ${toWin}`} align="right" />

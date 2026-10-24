@@ -60,7 +60,9 @@ export function assignRoles(ctx: Ctx): void {
     // The planter has to be alive at the plant; the bomb starts with them.
     if (ctx.plantT !== undefined) {
         const plantT = ctx.plantT
-        ctx.planter = byPriority(ts.filter(a => alive(a, plantT)))[0] ?? byPriority(ts)[0]
+        // The resolver's planter when it names a living T (the feed and the scrubber show this name).
+        const named = ctx.plantBy ? ts.find(a => a.id === ctx.plantBy && alive(a, plantT)) : undefined
+        ctx.planter = named ?? byPriority(ts.filter(a => alive(a, plantT)))[0] ?? byPriority(ts)[0]
         const spots = ctx.g.plantNodes[ctx.site]
         ctx.plantNode = spots.length ? rng.pick(spots) : ctx.g.siteNodes[ctx.site]
     }
