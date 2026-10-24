@@ -625,7 +625,7 @@ function throwUtil(R: Round, a: Actor, kind: UtilityKind, site: SiteId, side: "T
 }
 
 /** T utility on the site before the execute; CT utility on the entrance. Returns the execute delay. */
-function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy: TStrategy, tHit: number): number {
+function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy: TStrategy, tHit: number, readCall = false): number {
     const S = R.S.id
     const maxSmokes = strategy === "execute" ? 3 : strategy === "rush" || strategy === "eco" ? 0 : 2
     const maxFlashes = strategy === "execute" ? 4 : strategy === "rush" || strategy === "eco" ? 1 : 2
@@ -681,7 +681,8 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
     const entry = hitters[0]
     for (const d of defenders) {
         if (!d.alive) continue
-        if (d.molotov > 0 && strategy !== "rush") {
+        // A rush is on them before a molotov lands, unless they read it and wait with one.
+        if (d.molotov > 0 && (strategy !== "rush" || readCall)) {
             const molotov = throwUtil(R, d, "molotov", S, "CT", tHit - 1)
             delay += rnd(R, P.util).range(1.5, 4)
             if (entry && rnd(R, P.util).next() < 0.4) hurtBy(molotov, d, entry, rnd(R, P.util).int(8, 24))
@@ -751,7 +752,13 @@ export interface PlanState {
     execAt: number
     fakeAt: number
     ecoRush: boolean
+    /** G1: the CTs read a playbook call they have seen before, so they wait for it (a read rush loses its speed). */
+    readCall?: boolean
 }
+
+/** A rush the CTs are not waiting for: it beats the defence before it is set (no read playbook rush). */
+export const surpriseRush = (plan: Pick<PlanState, "strategy" | "ecoRush" | "readCall">): boolean =>
+    (plan.strategy === "rush" || plan.ecoRush) && !plan.readCall
 
 const BEATS: Record<string, string> = { aggressive: "structured", structured: "balanced", balanced: "aggressive" }
 
@@ -822,8 +829,15 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
         const right = max(0.05, min(0.35, T.READ_RIGHT_BASE + edge)) + predictable
         const wrong = max(0.02, min(0.15, T.READ_WRONG_BASE - edge / 2))
         read = roll < right ? "right" : roll < right + wrong ? "wrong" : "none"
-        // A call they have seen again and again: the CTs who read it stack the site it hits.
-        if (read === "right" && predictable > 0 && !fixedSetup) setup = site === "A" ? "stack-A" : "stack-B"
+        // A call they have seen again and again: the CTs who read it stack for it. A call
+        // with a fixed site is stacked on that site; for a site-free call they know the
+        // play but have to guess the site (a sharper caller guesses better).
+        if (read === "right" && predictable > 0 && !fixedSetup) {
+            const onSite = calls?.t?.site ? true : rng.bool(max(0.3, min(0.7, 0.5 + edge)))
+            const stackOn: SiteId = onSite ? site : site === "A" ? "B" : "A"
+            setup = stackOn === "A" ? "stack-A" : "stack-B"
+            if (!onSite) read = "wrong"
+        }
     }
 
     const S = R.z.sites[site]
@@ -842,7 +856,8 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
             break
         default: execAt = rng.range(52, 82)
     }
-    return { strategy, site, setup, read, execAt, fakeAt, ecoRush }
+    const readCall = read === "right" && predictable > 0
+    return { strategy, site, setup, read, execAt, fakeAt, ecoRush, ...(readCall ? { readCall } : {}) }
 }
 
 // ─── Jobs ──────────────────────────────────────────────────────────────────
@@ -1006,7 +1021,7 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
             rotators.push([c, execAt + info + O.rotateTime])
         }
     }
-    const delay = executeUtility(R, hitters, defenders, plan.strategy, execAt)
+    const delay = executeUtility(R, hitters, defenders, plan.strategy, execAt, plan.readCall)
     execAt += delay
     R.t = execAt
     // A lurker catches the first rotator walking past.
@@ -1024,10 +1039,10 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
     const hit: Fight = {
         att: hitters, def: defenders, attQ: late, defQ: rotators.filter(([a]) => a.alive),
         zone: S.id, entryZone: split && rnd(R, P.flow).bool(0.5) ? S.split.id : S.main.id,
-        tEnd: LATEST_PLANT_START - 2, step: plan.strategy === "rush" || plan.ecoRush ? T.RUSH_STEP : T.HIT_STEP,
+        tEnd: LATEST_PLANT_START - 2, step: surpriseRush(plan) ? T.RUSH_STEP : T.HIT_STEP,
         attTrade: T.TRADE_HIT, defTrade: T.TRADE_HOLD, holdCut: split ? T.SPLIT_HOLD_CUT : 0, maxDuels: 99, fallback: true, tag: "hit",
         // A rush hits before the defence is set (no utility, fast swings).
-        attPts: plan.strategy === "rush" || plan.ecoRush ? () => T.RUSH_SPEED : undefined,
+        attPts: surpriseRush(plan) ? () => T.RUSH_SPEED : undefined,
         stop: tGivesUp,
     }
     const res = fight(R, hit)

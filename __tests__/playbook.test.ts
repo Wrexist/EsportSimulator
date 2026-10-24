@@ -30,14 +30,17 @@ describe("playbook calls in the round plan", () => {
         expect(ctFull).toBeGreaterThan(5)
     })
 
-    test("a call that keeps repeating is read more often", () => {
-        const book: Playbook = { [MapId.MIRAGE]: { t: { pistol: { strategy: "execute" }, force: { strategy: "execute" }, full: { strategy: "execute" } } } }
-        let auto = 0, autoN = 0, fixed = 0, fixedN = 0
-        for (let i = 0; i < 12; i++) {
-            for (const r of rounds(play(undefined, i))) if (r.tTeam === "HOME" && r.buys?.home === "FULL") { autoN++; if (r.plan?.read === "right") auto++ }
-            for (const r of rounds(play(book, i))) if (r.tTeam === "HOME" && r.buys?.home === "FULL") { fixedN++; if (r.plan?.read === "right") fixed++ }
+    test("a call that keeps repeating is read more often; a site-free call keeps them guessing the site", () => {
+        const everywhere = (call: { strategy: "execute"; site?: "A" }): Playbook => ({ [MapId.MIRAGE]: { t: { pistol: call, force: call, full: call } } })
+        const readRate = (book: Playbook | undefined) => {
+            let n = 0, right = 0
+            for (let i = 0; i < 12; i++) for (const r of rounds(play(book, i))) if (r.tTeam === "HOME" && r.buys?.home === "FULL") { n++; if (r.plan?.read === "right") right++ }
+            return right / n
         }
-        expect(fixed / fixedN).toBeGreaterThan(auto / autoN + 0.2)
+        const auto = readRate(undefined), siteFree = readRate(everywhere({ strategy: "execute" })), onA = readRate(everywhere({ strategy: "execute", site: "A" }))
+        expect(onA).toBeGreaterThan(auto + 0.2)
+        expect(siteFree).toBeGreaterThan(auto + 0.05)
+        expect(siteFree).toBeLessThan(onA - 0.1)
     })
 
     test("no playbook: the series plays exactly as before (other maps' calls change nothing)", () => {

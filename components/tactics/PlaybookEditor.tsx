@@ -12,7 +12,7 @@ import { useGameStore } from "@/store/game-store"
 import { ACTIVE_MAP_POOL, getMapName } from "@/data/map-pool"
 import { ownMapDetail, rate, type RateCell } from "@/engine/map-record"
 import {
-    CT_SETUP_HINT, CT_SETUP_LABEL, CT_SETUPS, PLAY_SITUATIONS, decodePlaybook, encodePlaybook, SITUATION_LABEL, T_CALL_HINT, T_CALL_LABEL, T_CALL_STRATEGIES,
+    CT_SETUP_HINT, CT_SETUP_LABEL, CT_SETUPS, PLAY_SITUATIONS, decodePlaybook, encodePlaybook, sanitizePlaybook, SITUATION_LABEL, T_CALL_HINT, T_CALL_LABEL, T_CALL_STRATEGIES,
     type MapPlaybook, type PlaySituation, type Playbook, type TCall, type TCallStrategy,
 } from "@/engine/match/playbook"
 import type { CtSetup, SiteId } from "@/engine/match/round-script-types"
@@ -28,7 +28,12 @@ const ANY = "any"
 
 function RateNote({ cell }: { cell?: RateCell }) {
     if (!cell?.n) return <span className="text-xs text-ink-3">No rounds yet</span>
-    return <span className={cn("text-xs tabular-nums text-ink-3", cell.n < 8 && "opacity-60")}>{rate(cell.won, cell.n)}% of {cell.n} this season</span>
+    return (
+        <span className={cn("text-xs tabular-nums text-ink-3", cell.n < 8 && "opacity-60")}
+            title="Every round you played this plan on this map this season, at any buy and whoever made the call">
+            {rate(cell.won, cell.n)}% of {cell.n} rounds with this plan here
+        </span>
+    )
 }
 
 export interface PlaybookEditorProps {
@@ -45,7 +50,9 @@ export function PlaybookEditor({ maps = ACTIVE_MAP_POOL, className }: PlaybookEd
     const [mapId, setMapId] = useState<string>(maps[0] ?? ACTIVE_MAP_POOL[0])
     const [importing, setImporting] = useState(false)
     const [code, setCode] = useState("")
-    const playbook: Playbook = team?.playbook ?? {}
+    const playbook: Playbook = useMemo(() => sanitizePlaybook(team?.playbook), [team?.playbook])
+    // Match prep can offer a map outside the active pool: copy and import reach it too.
+    const allMaps = [...new Set([...ACTIVE_MAP_POOL, ...maps])]
     const book: MapPlaybook = playbook[mapId] ?? {}
     const detail = useMemo(() => ownMapDetail({ mapRecords, playerTeamId }, "current", "official")[mapId], [mapRecords, playerTeamId, mapId])
     if (!team || !playerTeamId) return null
@@ -73,10 +80,8 @@ export function PlaybookEditor({ maps = ACTIVE_MAP_POOL, className }: PlaybookEd
     }
     const copyToAll = () => {
         const all: Playbook = { ...playbook }
-        for (const m of ACTIVE_MAP_POOL) {
-            if (book.t || book.ct) all[m] = book
-            else delete all[m]
-        }
+        if (!book.t && !book.ct) return
+        for (const m of allMaps) all[m] = book
         setPlaybook(playerTeamId, all)
         toast.success("Playbook copied", { description: `${getMapName(mapId)}'s calls now apply on every map.` })
     }
@@ -90,7 +95,7 @@ export function PlaybookEditor({ maps = ACTIVE_MAP_POOL, className }: PlaybookEd
         }
     }
     const importCode = () => {
-        const read = decodePlaybook(code, ACTIVE_MAP_POOL)
+        const read = decodePlaybook(code, allMaps)
         if (!read || !Object.keys(read).length) {
             toast.error("Not a playbook code", { description: "Codes start with PB1 and name at least one map in the pool." })
             return
@@ -188,7 +193,7 @@ export function PlaybookEditor({ maps = ACTIVE_MAP_POOL, className }: PlaybookEd
                     and a stack that keeps sitting on one site gets hit on the other. &ldquo;IGL decides&rdquo; mixes the calls for you.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={copyToAll}>Use these calls on every map</Button>
+                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!book.t && !book.ct} onClick={copyToAll}>Use these calls on every map</Button>
                     <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!book.t && !book.ct} onClick={() => save({})}>Clear {getMapName(mapId)}</Button>
                     <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!Object.keys(playbook).length} onClick={copyCode}>Copy share code</Button>
                     <Button size="sm" variant="outline" className="h-8 px-3 text-xs" aria-expanded={importing} onClick={() => setImporting(v => !v)}>Paste a code</Button>

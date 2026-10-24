@@ -31,6 +31,7 @@ export const T_CALL_STRATEGIES: readonly TCallStrategy[] = ["default", "execute"
 export const CT_SETUPS: readonly CtSetup[] = ["2-1-2", "stack-A", "stack-B", "aggressive"]
 
 export const SITUATION_LABEL: Record<PlaySituation, string> = { pistol: "Pistol round", force: "Force / half buy", full: "Full buy" }
+/** Plan names, shared with the Map data screen (which adds the eco plan). */
 export const T_CALL_LABEL: Record<TCallStrategy, string> = { default: "Default", execute: "Execute", split: "Split", fake: "Fake", rush: "Rush" }
 export const CT_SETUP_LABEL: Record<CtSetup, string> = { "2-1-2": "2-1-2", "stack-A": "Stack A", "stack-B": "Stack B", aggressive: "Aggressive mid" }
 export const T_CALL_HINT: Record<TCallStrategy, string> = {
@@ -53,10 +54,6 @@ export function playSituation(buy: "pistol" | "eco" | "force" | "half" | "full",
     if (buy === "full") return "full"
     if (buy === "eco") return side === "CT" ? "force" : null
     return "force"
-}
-
-export function tCallLabel(call: TCall): string {
-    return `${T_CALL_LABEL[call.strategy]}${call.site ? ` ${call.site}` : ""}`
 }
 
 /** Key a T call's repeats are counted under (site-free calls count apart from site calls). */

@@ -22,7 +22,7 @@ import type { PlayerSimulationState } from "../round-outcome"
 import { scriptBuyPhase } from "./buy"
 import { buildProfile, callQuality, type SimProfile } from "./profile"
 import { BUY_OF, simulateScriptRound, type Contact, type SimOutput, type SimSide } from "./simulate"
-import { playSituation, tCallKey, type Playbook, type RoundCalls } from "../playbook"
+import { playSituation, sanitizePlaybook, tCallKey, type Playbook, type RoundCalls } from "../playbook"
 import { findContacts } from "./contacts"
 import { sightMapFor, simulateSightRound } from "./sight"
 import { cappedEdge, teamEdgeBreakdown, type StaffBundle, type TeamEdgeBreakdown } from "./team-edge"
@@ -90,16 +90,18 @@ export interface ScriptSeriesTeamInput {
     implicitGear: boolean
 }
 
-export function buildScriptSeries(args: { seed: number; matchId: string; home: ScriptSeriesTeamInput; away: ScriptSeriesTeamInput; contacts?: boolean }): ScriptSeries {
+export function buildScriptSeries(args: { seed: number; matchId: string; home: ScriptSeriesTeamInput; away: ScriptSeriesTeamInput; contacts?: boolean; managedTeamId?: string }): ScriptSeries {
     const side = (s: ScriptSeriesTeamInput): ScriptSeriesSide => {
         const profiles = new Map(s.players.map(p => [p.id, buildProfile(p)]))
+        // Only the manager's own club runs a playbook: a club the manager left keeps no fixed calls.
+        const playbook = s.team.id === args.managedTeamId && s.team.playbook ? sanitizePlaybook(s.team.playbook) : undefined
         return {
             teamId: s.team.id,
             playstyle: s.team.playstyle,
             targetPlayerId: s.team.targetPlayerId,
             profiles,
             call: callQuality([...profiles.values()]),
-            ...(s.team.playbook ? { playbook: s.team.playbook } : {}),
+            ...(playbook && Object.keys(playbook).length ? { playbook } : {}),
             edge: teamEdgeBreakdown(s.team, s.players, s.staff, { counterMod: s.counterMod, mentalPrep: s.mentalPrep, implicitGear: s.implicitGear }),
         }
     }

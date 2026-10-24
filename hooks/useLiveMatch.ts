@@ -373,6 +373,8 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                 customTactics,
                 managedTeamId: useGameStore.getState().playerTeamId ?? undefined,
             })
+            // G1: the calls already run this series, so reloading does not reset the read penalty.
+            if (playback?.playbookCounts && ctx.script) ctx.script.callCounts = new Map(playback.playbookCounts)
         } catch (error) {
             hasInitialized.current = true
             useGameStore.getState().addToast({ message: error instanceof Error ? error.message : "Could not restore match", type: "warning" })
@@ -520,6 +522,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                 events: currentRoundEvents.current, processedTime: lastProcessedTime.current, exactTime: true,
                 maps: matchData.current!.canonicalMaps, seed: matchData.current!.match.seed,
                 homeRoster: matchData.current!.homePlayerIds, awayRoster: matchData.current!.awayPlayerIds,
+                ...(matchData.current!.ctx.script?.callCounts?.size ? { playbookCounts: [...matchData.current!.ctx.script.callCounts] } : {}),
             },
             gameState,
             simState,

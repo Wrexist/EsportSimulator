@@ -284,6 +284,7 @@ export class SimulationEngineV2 {
                     seed: ctx.seed, matchId: ctx.matchId ?? '', home: side(ctx.home), away: side(ctx.away),
                     // Only a match the manager plays keeps its rounds (and so has a radar to match).
                     contacts: ctx.managedTeamId === ctx.home.team.id || ctx.managedTeamId === ctx.away.team.id,
+                    managedTeamId: ctx.managedTeamId,
                 })
                 : undefined,
         }
