@@ -195,7 +195,13 @@ export interface RoundResult {
      * A damaging grenade (HE / molotov) also names the player it hurt (`hit`)
      * and the HP it took (`dmg`) — reporting only, absent on older rounds.
      */
-    utility?: { t: number; playerId: string; kind: 'smoke' | 'flash' | 'molotov' | 'he'; spot: string; site: 'A' | 'B'; hit?: string; dmg?: number }[]
+    utility?: { t: number; playerId: string; kind: 'smoke' | 'flash' | 'molotov' | 'he'; spot: string; site: 'A' | 'B'; hit?: string; dmg?: number; at?: { x: number; y: number; floor?: 'upper' | 'lower' } }[]
+    /**
+     * sight-v1 rounds: where every player walked (engine/match/round-sim/moves.ts):
+     * per player the spawn node and legs on the round map's walk graph, plus the
+     * bomb's carriers. The radar replays these positions.
+     */
+    moves?: { v: 1; ids: string[]; legs: number[][]; bomb: number[] }
 }
 
 /** Manager decisions recorded with a result (own team only; no hidden opponent data). */

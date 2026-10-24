@@ -109,6 +109,7 @@ export interface LegacyRoundOutcome {
     damage?: RoundResult['damage']
     utility?: RoundResult['utility']
     utilityUsed?: Record<string, string[]>
+    moves?: RoundResult['moves']
 }
 
 export interface LegacySeriesSide {
@@ -422,6 +423,7 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
         ...(r.plan ? { plan: r.plan } : {}),
         ...(r.damage ? { damage: r.damage } : {}),
         ...(r.utility?.length ? { utility: r.utility } : {}),
+        ...(r.moves ? { moves: r.moves } : {}),
     }
 
     if (isScript(ctx)) {

@@ -1,0 +1,102 @@
+{
+  "maps": 48,
+  "rounds": 1013,
+  "seed": 20261024,
+  "los": true,
+  "rows": [
+    {
+      "label": "CT round win %",
+      "sim": 49.358,
+      "pro": 53.8
+    },
+    {
+      "label": "Kills per round",
+      "sim": 6.678,
+      "pro": 6.53
+    },
+    {
+      "label": "Trade kills %",
+      "sim": 26.312,
+      "pro": 16
+    },
+    {
+      "label": "Plant rate %",
+      "sim": 55.38,
+      "pro": 52
+    },
+    {
+      "label": "T win after a plant %",
+      "sim": 75.401,
+      "pro": 76
+    },
+    {
+      "label": "T win without a plant %",
+      "sim": 19.912,
+      "pro": 13
+    },
+    {
+      "label": "T wins by the bomb %",
+      "sim": 45.419,
+      "pro": 41.6
+    },
+    {
+      "label": "First kill, median s",
+      "sim": 21.7,
+      "pro": 27
+    },
+    {
+      "label": "Plant time, median s",
+      "sim": 80.2,
+      "pro": 75.6
+    },
+    {
+      "label": "Round length, median s",
+      "sim": 91.3,
+      "pro": 92
+    },
+    {
+      "label": "Kill distance, median map-%",
+      "sim": 10.388,
+      "pro": 12.5
+    },
+    {
+      "label": "Quiet pair-s/round ≤ 4 m",
+      "sim": 0.04,
+      "pro": 0.05
+    },
+    {
+      "label": "Quiet pair-s/round ≤ 6 map-%",
+      "sim": 0.265,
+      "pro": 0.38
+    },
+    {
+      "label": "Quiet pair-s/round ≤ 10 map-%",
+      "sim": 2.185,
+      "pro": 1.47
+    },
+    {
+      "label": "Sightings ≥ 3 s/round ≤ 6 map-%",
+      "sim": 0.007,
+      "pro": 0.03
+    },
+    {
+      "label": "Sightings ≥ 3 s/round ≤ 10 map-%",
+      "sim": 0.136,
+      "pro": 0.12
+    }
+  ],
+  "killsBy10s": [
+    0.4,
+    12.06,
+    11.53,
+    7.33,
+    5.11,
+    7.07,
+    12.11,
+    16.76,
+    13.16,
+    10.3,
+    3.16,
+    0.89
+  ]
+}

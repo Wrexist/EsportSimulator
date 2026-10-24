@@ -184,7 +184,7 @@ export function siteSpots(ctx: Ctx, site: SiteId, from: number, taken: number[],
 export function postPlantSpots(ctx: Ctx, count: number): number[] {
     const { g } = ctx
     const bomb = ctx.plantNode
-    const holdNodes = new Set(ctx.map.holds.filter(h => h.site === ctx.site).map(h => g.holdNodes.get(h.id)))
+    const holdNodes = new Set(ctx.map.holds.filter(h => h.site === ctx.site && !h.pro).map(h => g.holdNodes.get(h.id)))
     const pool = g.around(bomb, 13).filter(n => g.dist(n, bomb) >= 3.5)
         .map(n => ({ n, score: abs(g.dist(n, bomb) - 8) - (holdNodes.has(n) ? 3 : 0) + ctx.rng.assign.range(0, 2) }))
         .sort((a, b) => a.score - b.score)
@@ -372,12 +372,14 @@ export function buildCtPhases(ctx: Ctx): void {
     const counts = { A: 2, B: 2, mid: 1 }
     if (ctx.ctSetup === "stack-A") Object.assign(counts, { A: 3, B: 1 })
     if (ctx.ctSetup === "stack-B") Object.assign(counts, { A: 1, B: 3 })
-    const mids = rng.shuffle(ctx.map.holds.filter(h => h.kind === "mid"))
+    // The event-based builder keeps to the geometry holds (pro spots are the sight engine's).
+    const geo = ctx.map.holds.filter(h => !h.pro)
+    const mids = rng.shuffle(geo.filter(h => h.kind === "mid"))
     if (!mids.length) { counts[rng.bool(0.5) ? "A" : "B"] += counts.mid; counts.mid = 0 }
     const slots: RoundMapHold[] = []
     const spaced = (h: RoundMapHold) => !slots.includes(h) && slots.every(o => o.at.floor !== h.at.floor || hyp(o.at, h.at) >= HOME_GAP)
     for (const s of ["A", "B"] as const) {
-        const ofSite = ctx.map.holds.filter(h => h.site === s && h.kind !== "mid")
+        const ofSite = geo.filter(h => h.site === s && h.kind !== "mid")
         const ranked = [
             ...rng.shuffle(ofSite.filter(h => h.kind === "anchor")),
             ...rng.shuffle(ofSite.filter(h => h.kind === "site")),
@@ -388,8 +390,8 @@ export function buildCtPhases(ctx: Ctx): void {
     }
     let midTaken = 0
     for (const h of mids) if (midTaken < counts.mid && spaced(h)) { slots.push(h); midTaken++ }
-    for (const h of rng.shuffle(ctx.map.holds)) if (slots.length < cts.length && spaced(h)) slots.push(h)
-    for (const h of ctx.map.holds) if (slots.length < cts.length && !slots.includes(h)) slots.push(h)
+    for (const h of rng.shuffle(geo)) if (slots.length < cts.length && spaced(h)) slots.push(h)
+    for (const h of geo) if (slots.length < cts.length && !slots.includes(h)) slots.push(h)
 
     const awper = cts.find(a => isSniper(a.player.weapon)) ?? cts.find(a => a.role === "awp")
     const ordered = rng.shuffle(cts.filter(a => a !== awper))

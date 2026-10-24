@@ -8,9 +8,11 @@
  * minute-long stand-offs at 2 m with nobody shooting).
  *
  * Pairs farther apart than VIS_RADIUS, or on different floors, never count
- * as visible: past that range a sighting is not a fight the radar has to
- * explain. Without a bake (or with a stale one) every pair in range is
- * visible, which is the old behaviour.
+ * as visible for the round script: past that range a sighting is not a fight
+ * the radar has to explain. The bake itself reaches BAKE_RADIUS, the sight
+ * engine's range (round-sim/sight.ts: pro kills reach about 31 m). Without a
+ * bake (or with a stale one) every pair in range is visible, which is the old
+ * behaviour.
  */
 
 import type { NavGraph } from "./round-script-nav"
@@ -19,6 +21,8 @@ import { VISIBILITY_BAKES } from "@/data/round-maps/visibility"
 
 /** Map-% radius the bake covers (≥ the longest duel and the exposure range). */
 export const VIS_RADIUS = 12
+/** Map-% radius the bake covers: the sight engine's longest sight line (≈ 31 m, the pro p90 kill distance). */
+export const BAKE_RADIUS = 24
 
 export interface VisibilityBake {
     schemaVersion: 1
@@ -30,10 +34,10 @@ export interface VisibilityBake {
     bits: string
 }
 
-/** Walks every baked pair once (n < m, same floor, within VIS_RADIUS), in bit order. */
+/** Walks every baked pair once (n < m, same floor, within BAKE_RADIUS), in bit order. */
 export function visibilityPairs(g: NavGraph, visit: (n: number, m: number) => void): void {
     for (let n = 0; n < g.size; n++) {
-        const near = g.around(n, VIS_RADIUS).filter(m => m > n).sort((a, b) => a - b)
+        const near = g.around(n, BAKE_RADIUS).filter(m => m > n).sort((a, b) => a - b)
         for (const m of near) visit(n, m)
     }
 }
@@ -54,7 +58,7 @@ export class Visibility {
     private readonly seen: Uint8Array | null
 
     constructor(private readonly g: NavGraph, bake: VisibilityBake | undefined) {
-        this.seen = bake && bake.nodes === g.size && bake.checksum === graphChecksum(g) ? decode(g, bake) : null
+        this.seen = bake && bake.radius === BAKE_RADIUS && bake.nodes === g.size && bake.checksum === graphChecksum(g) ? decode(g, bake) : null
     }
 
     /** True when the map has a matching bake (tests). */
@@ -69,6 +73,16 @@ export class Visibility {
         if (g.floor[a] !== g.floor[b]) return false
         const dx = g.x[a] - g.x[b], dy = g.y[a] - g.y[b]
         if (dx * dx + dy * dy > VIS_RADIUS * VIS_RADIUS) return false
+        return this.seen === null || this.seen[a * g.size + b] === 1
+    }
+
+    /** Line of sight up to BAKE_RADIUS (the sight engine's range); same floor only. */
+    seesFar(a: number, b: number): boolean {
+        const g = this.g
+        if (a === b) return true
+        if (g.floor[a] !== g.floor[b]) return false
+        const dx = g.x[a] - g.x[b], dy = g.y[a] - g.y[b]
+        if (dx * dx + dy * dy > BAKE_RADIUS * BAKE_RADIUS) return false
         return this.seen === null || this.seen[a * g.size + b] === 1
     }
 }

@@ -235,7 +235,8 @@ describe('radar frames from the script', () => {
                 const at = (t: number) => radarScriptFrame(script, t).players.find(p => p.id === id)!
                 const d0 = Math.hypot(at(lastFight + 1).x - plant.at.x, at(lastFight + 1).y - plant.at.y)
                 const d1 = Math.hypot(at(script.endTime).x - plant.at.x, at(script.endTime).y - plant.at.y)
-                expect(d1).toBeGreaterThan(d0)
+                // Savers run for their spawn: farther from the bomb, or already well out of its sight range (24 map-%).
+                expect(d1 > d0 || d1 > 24).toBe(true)
                 checked++
             }
         }
