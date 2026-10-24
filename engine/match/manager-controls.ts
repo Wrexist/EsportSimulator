@@ -14,6 +14,15 @@ export function spendTimeout(state: TimeoutState, betweenRounds: boolean, status
 
 /** Round-win probability edge while regrouping after a tactical timeout. */
 export const REGROUP_EDGE = 0.04
+/**
+ * What a regroup is worth in round wins, as the decision card states it.
+ * REGROUP_EDGE is the engine input (duel points via REGROUP_POINTS_PER_PROB);
+ * on the sight engine it moves the round-win chance by less than its face
+ * value. Measured 2026-10-24 with paired rounds (same state, same dice, with
+ * and without the regroup; scripts/odds/win-odds-calibration.ts effects):
+ * 36.3% → 39.2% over 6,601 rounds, +2.9 points.
+ */
+export const REGROUP_ROUND_WIN_PTS = 3
 /** Losses in a row before a regroup helps ("no benefit without a losing streak"). */
 export const REGROUP_MIN_LOSS_STREAK = 2
 

@@ -132,6 +132,7 @@ import { normalizeDecisions } from "@/engine/decision-deadlines"
 import drillCatalog from "@/data/drills.json"
 import { formatCurrency } from "@/lib/utils-extended"
 import { DEFAULT_TEAM_TRAINING } from "@/engine/development-outlook"
+import { chooseLiveCheckpoint, liveCheckpointStore } from "@/lib/live-checkpoint-store"
 
 enableMapSet()
 
@@ -1743,6 +1744,17 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             throw new Error(message)
           }
 
+          // A live match checkpointed after this save was written (reload or
+          // crash mid-match) resumes where it was, not from round 1.
+          const resumedLiveMatch = chooseLiveCheckpoint({
+            stored: await liveCheckpointStore.read(save.saveId),
+            saveId: save.saveId,
+            saveUpdatedAt: save.updatedAt,
+            scheduledMatchIds: (save.scheduledMatches ?? []).map(m => m.id),
+            completedMatchIds: (save.completedMatches ?? []).map(m => m.id),
+            savedActive: save.activeMatchState,
+          })
+
           await steamAchievements.setActiveSave(save.saveId)
 
           // Initialize Steam Achievements with UI callback
@@ -1824,8 +1836,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             delegation: hydratedSave.delegation ?? {},
             draftCup: hydratedSave.draftCup ?? null,
             mapRecords: hydratedSave.mapRecords,
-            activeMatchId: hydratedSave.activeMatchId ?? null,
-            activeMatchState: hydratedSave.activeMatchState ?? null,
+            activeMatchId: resumedLiveMatch ? resumedLiveMatch.matchId : hydratedSave.activeMatchId ?? null,
+            activeMatchState: resumedLiveMatch ?? hydratedSave.activeMatchState ?? null,
             physicalMatchPreview: hydratedSave.physicalMatchPreview ?? null,
             boardState: hydratedSave.boardState,
             socialFeed: hydratedSave.socialFeed,

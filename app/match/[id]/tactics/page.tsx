@@ -1,6 +1,8 @@
 "use client"
 
 import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
+import { bestOfLabel, playerWinChance } from '@/lib/match-win-chance'
+import { WIN_ODDS_CHECK } from '@/engine/match/win-odds'
 import { fixtureBlockReason } from '@/lib/playable-match'
 import { useEffect, useRef, useState, useMemo, type ReactNode } from "react"
 import { useParams, useRouter } from "next/navigation"
@@ -48,8 +50,8 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
 // Real effects, read from the constants the match engine (script-v1,
 // engine/match/round-sim) applies. "Team strength" is its non-player edge:
 // every factor below is summed per team, the difference between the teams is
-// capped at ±10% and shifts every duel (team-edge.ts); measured, +1% ≈ +0.28%
-// of rounds won ≈ +0.85 map-win points.
+// capped at ±10% and shifts every duel (team-edge.ts); measured, +1% ≈ +0.14%
+// of rounds won ≈ +0.43 map-win points.
 // - VOD review adds 25 tactical prep; prep / 400 → +6.25% for this match.
 // - Mental reset: +15 roster morale (store; morale is part of each player's
 //   duel condition) and +3% team strength.
@@ -262,6 +264,15 @@ export default function TacticalHQPage() {
         const ids = opponent?.rosterIds ?? []
         return ids.map((pid: string) => playersById.get(pid)).filter(Boolean) as any[]
     }, [opponent?.rosterIds, playersById])
+
+    // Calibrated win chance from the context the match will be played with
+    // (engine/match/win-odds.ts). Recomputed when prep changes the teams.
+    const winChance = useMemo(() => {
+        if (!match || !playerTeamId || completedMatches.some(m => m.id === match.id)) return null
+        const home = teamsById.get(match.homeTeamId), away = teamsById.get(match.awayTeamId)
+        if (!home || !away) return null
+        return playerWinChance({ match, home, away, players, playersById, staff: useGameStore.getState().staff, playerTeamId })
+    }, [match, teamsById, players, playersById, playerTeamId, completedMatches])
 
     // Every match-prep lever (VOD review, playstyle, economy, anti-strat,
     // mental reset) is available from the first match. Facilities keep their
@@ -620,6 +631,14 @@ export default function TacticalHQPage() {
                         <p className="mt-1 text-xs text-ink-3">{competitionDetail}</p>
                         <p className="mt-2 font-display text-[56px] font-bold leading-none tabular-nums text-ink-1">{(match.format || "BO3").toUpperCase()}</p>
                         <p className="mt-2 text-xs text-ink-3">{dateLabel} · week {match.week}</p>
+                        {winChance !== null && (
+                            <p
+                                className="mt-2 text-xs text-ink-3"
+                                title={`Your chance to win this ${bestOfLabel(match.format)}, from both lineups' aim, form and condition and the team edge. Checked against ${WIN_ODDS_CHECK.maps.toLocaleString("en-US")} simulated maps between the game's clubs: shown chances landed within ${WIN_ODDS_CHECK.meanErrorPts} points of the real results on average.`}
+                            >
+                                Win chance <span className="font-semibold tabular-nums text-ink-1">{Math.round(winChance * 100)}%</span>
+                            </p>
+                        )}
                     </div>
                     <TeamBlock team={opponent} ovr={avgOvr(theirLineup)} rank={opponent.worldRanking} align="right" />
                 </div>
