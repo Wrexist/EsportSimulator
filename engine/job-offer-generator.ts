@@ -14,6 +14,9 @@ import { closeStint, openStint } from "./manager-timeline"
 import { EventType } from "@/types/enums"
 import { SeededRNG, generateSeed } from "./rng"
 
+/** Highest club reputation that offers a first job to an unemployed new manager (G9). */
+export const FIRST_JOB_MAX_REPUTATION = 35
+
 // ===== CONSTANTS =====
 
 const JOB_OFFER_BASE_CHANCE = 0.05 // 5% base chance per week
@@ -103,6 +106,38 @@ export class JobOfferGenerator {
             event.data.deadlineWeek = save.currentWeek + 52
             event.choices = [
                 { id: "ACCEPT", text: `Accept offer from ${team.name}`, effects: { reputation: 5 } },
+                { id: "DECLINE", text: "Decline", effects: {} },
+            ]
+            created.push(event)
+        }
+        return created
+    }
+
+    /**
+     * Unemployed start (G9): offers from clubs low enough to take a chance on
+     * a manager with no record. Reuses the dismissal flow (afterDismissal) so
+     * the job-market screen and acceptJobOffer handle it; `firstJob` marks
+     * that no spell ended and no dismissal is counted.
+     */
+    static createFirstJobOffers(save: GameSave, rng?: SeededRNG, count = 3): GameEventSaveData[] {
+        const activeRng = rng ?? new SeededRNG((save.lastRngSeed ?? 1) ^ 0x51ed)
+        const open = save.teams.filter(t => t.id !== save.playerTeamId && t.rosterIds.length > 0)
+        let pool = open.filter(t => t.reputation <= FIRST_JOB_MAX_REPUTATION)
+        // A small world without enough low clubs: the lowest-reputation clubs instead.
+        if (pool.length < count) pool = [...open].sort((a, b) => a.reputation - b.reputation || a.id.localeCompare(b.id)).slice(0, count)
+        pool.sort((a, b) => b.reputation - a.reputation || (a.worldRanking ?? 999) - (b.worldRanking ?? 999) || a.id.localeCompare(b.id))
+        const shortlist = activeRng.shuffle(pool.slice(0, Math.max(count, 12))).slice(0, count)
+        const created: GameEventSaveData[] = []
+        for (const team of shortlist) {
+            const event = this.createJobOffer(save, team, activeRng)
+            if (!event) continue
+            event.id = `job_offer_first_${team.id}`
+            event.data.afterDismissal = true
+            event.data.firstJob = true
+            event.data.originTeamId = null
+            event.data.deadlineWeek = save.currentWeek + 52
+            event.choices = [
+                { id: "ACCEPT", text: `Accept offer from ${team.name}`, effects: {} },
                 { id: "DECLINE", text: "Decline", effects: {} },
             ]
             created.push(event)
@@ -386,10 +421,14 @@ export class JobOfferGenerator {
         const oldTeam = save.teams.find(t => t.id === save.playerTeamId)
         // The move takes effect next week for historical attribution: completed
         // results in the current week still belong to the departing tenure.
+        const firstJob = !!event.data.firstJob
         save.careerStats = updateCareerStats(save)
         // Phase 5.1 timeline: a dismissal already closed the stint; otherwise this is a move.
-        closeStint(save, "moved")
+        // A first job (unemployed start) ends no spell: the placeholder club was never managed.
+        if (firstJob) save.managerDetails.stints = []
+        else closeStint(save, "moved")
         switchClubManagement(save, oldTeam, newTeam)
+        if (firstJob && newTeam.startingLeagueTier == null) newTeam.startingLeagueTier = newTeam.leagueTier
         save.managerDetails.lastJobChangeWeek = save.currentWeek
         save.managerDetails.tenureStartWeek = save.currentWeek + 1
         openStint(save)
@@ -399,7 +438,7 @@ export class JobOfferGenerator {
             // key would keep its old value there.
             save.gameOverReason = undefined
             save.gameOverWeek = undefined
-            save.managerDetails.dismissals = (save.managerDetails.dismissals ?? 0) + 1
+            if (!firstJob) save.managerDetails.dismissals = (save.managerDetails.dismissals ?? 0) + 1
         }
         ensureBoardState(save)
         const signingBonus = salary * 4
@@ -416,7 +455,7 @@ export class JobOfferGenerator {
         event.selectedChoiceId = 'ACCEPT'
         const id = `job_transition_${event.id}`
         const objectives = (save.boardState?.objectives ?? []).map(o => o.label).join("; ")
-        if (!save.eventsLog.some(e => e.id === id)) save.eventsLog.unshift({ id, week: save.currentWeek, type: 'CAREER_UPDATE', acknowledged: false, data: { teamId: newTeam.id, title: `Welcome to ${newTeam.name}!`, message: `You now manage ${newTeam.name}. Club signing funds: $${signingBonus.toLocaleString()}. Your previous club keeps its academy, scouting reports and plans.${objectives ? ` The board's objectives: ${objectives}.` : ""}` } })
+        if (!save.eventsLog.some(e => e.id === id)) save.eventsLog.unshift({ id, week: save.currentWeek, type: 'CAREER_UPDATE', acknowledged: false, data: { teamId: newTeam.id, title: `Welcome to ${newTeam.name}!`, message: `You now manage ${newTeam.name}. Club signing funds: $${signingBonus.toLocaleString()}.${firstJob ? "" : " Your previous club keeps its academy, scouting reports and plans."}${objectives ? ` The board's objectives: ${objectives}.` : ""}` } })
         return { success: true, message: `Welcome to ${newTeam.name}!` }
     }
 

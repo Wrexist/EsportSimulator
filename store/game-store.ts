@@ -573,7 +573,7 @@ export interface GameStoreState extends AdvanceState, MomentsState {
 
 interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, MomentsActions {
   // Lifecycle
-  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string) => Promise<void>
+  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: { unemployed?: boolean }) => Promise<void>
   initializeCustomTeam: (managerName: string, teamData: import("@/types/team-creator").CustomTeamData) => Promise<void>
   loadGame: (saveId: string, cloudChoice?: "local" | "cloud") => Promise<void>
   saveGame: () => Promise<void>
@@ -1178,7 +1178,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         })
       },
 
-      initializeNewGame: async (saveName, playerTeamId) => {
+      initializeNewGame: async (saveName, playerTeamId, _snapshotId, options) => {
+        // G9: an unemployed start creates the world around a placeholder club
+        // (never managed) and opens on the first-job market.
+        const unemployed = options?.unemployed === true
         careerGeneration++
         weekProcessorBridge.reset?.()
         set({ isLoading: true, error: null })
@@ -1254,7 +1257,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Snapshot the starting tier so ZERO_TO_HERO can detect a
           // career-long climb. Set exactly once at career creation;
           // post-tick achievement evaluation reads it without mutation.
-          if (selectedTeam && selectedTeam.startingLeagueTier == null) {
+          if (selectedTeam && !unemployed && selectedTeam.startingLeagueTier == null) {
             selectedTeam.startingLeagueTier = selectedTeam.leagueTier
           }
           const teamRoster = newSave.players.filter((p: any) => selectedTeam?.rosterIds?.includes(p.id))
@@ -1263,7 +1266,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             : 75
 
           // Add Welcome Mail
-          newSave.eventsLog.unshift({
+          if (!unemployed) newSave.eventsLog.unshift({
             id: `evt_welcome_${newSave.currentWeek}_${newSave.saveId}`,
             type: "CAREER_UPDATE",
             week: 1,
@@ -1299,14 +1302,20 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Seed preseason friendlies so Week 1 isn't an empty calendar — gives
           // the player scrims to play immediately and a real "next match" on the
           // dashboard while the first tournaments are still weeks away.
-          seedPreseasonFriendlies(newSave, playerTeamId)
+          if (!unemployed) seedPreseasonFriendlies(newSave, playerTeamId)
 
           // Regional league: draw split 1 now (after the friendlies, so league
           // nights avoid them) so the fixture list is there on day one, and set
           // the board's objectives against it (Phase 4.4).
           drawDueLeagueSplit(newSave)
           ensureBoardState(newSave)
-          queueWelcomeMoment(newSave, playerTeamId)
+          if (unemployed) {
+            newSave.gameOverReason = "UNEMPLOYED"
+            newSave.gameOverWeek = newSave.currentWeek
+            JobOfferGenerator.createFirstJobOffers(newSave, new SeededRNG((newSave.lastRngSeed ?? 1) ^ 0x51ed)) // adds the offers to the inbox
+          } else {
+            queueWelcomeMoment(newSave, playerTeamId)
+          }
 
           // Initial Save
           newSave.firstSession = get().showTutorialOnNewGame ? newFirstSession() : { ...newFirstSession(), status: "dismissed" }

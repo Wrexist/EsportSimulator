@@ -165,7 +165,7 @@ export interface IndexesState {
 // ===== SLICE ACTION INTERFACES =====
 
 export interface CoreGameActions {
-  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string) => Promise<void>
+  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: { unemployed?: boolean }) => Promise<void>
   initializeCustomTeam: (managerName: string, teamData: CustomTeamData) => Promise<void>
   loadGame: (saveId: string) => Promise<void>
   saveGame: () => Promise<void>

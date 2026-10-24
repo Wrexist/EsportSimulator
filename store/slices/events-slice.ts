@@ -19,6 +19,7 @@
 import type { EventsActions, SliceCreator } from "@/store/types"
 import type { GameSave } from "@/engine/save-types"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
+import { seedPreseasonFriendlies } from "@/engine/preseason-friendlies"
 import { applyChoiceEffects, type ChoiceEffects, type ChoiceTarget } from "@/engine/event-choice"
 import { answerPressConference, type PressTarget } from "@/engine/storylines/press"
 import { getArchetype } from "@/engine/personality"
@@ -267,7 +268,12 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
 
     acceptJobOffer: (eventId) => {
         let result = { success: false, message: "Offer not found" }
-        set(state => { result = JobOfferGenerator.acceptJobOffer(state as unknown as GameSave, eventId) })
+        set(state => {
+            const firstJob = !!state.eventsLog.find(e => e.id === eventId)?.data?.firstJob
+            result = JobOfferGenerator.acceptJobOffer(state as unknown as GameSave, eventId)
+            // Unemployed start (G9): the first club gets the preseason friendlies a new career seeds.
+            if (result.success && firstJob && state.playerTeamId) seedPreseasonFriendlies(state as unknown as GameSave, state.playerTeamId)
+        })
         return result
     },
 
