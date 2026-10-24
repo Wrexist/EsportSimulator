@@ -243,8 +243,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
             const homeWon = result.homeScore > result.awayScore
             const isDraw = result.homeScore === result.awayScore
-            settlePlayerContractBonuses(state, matchId, homeTeam.id, !isDraw && homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId)
-            settlePlayerContractBonuses(state, matchId, awayTeam.id, !isDraw && !homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId)
+            settlePlayerContractBonuses(state, matchId, homeTeam.id, !isDraw && homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, undefined, isOfficialMatch(match))
+            settlePlayerContractBonuses(state, matchId, awayTeam.id, !isDraw && !homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, undefined, isOfficialMatch(match))
 
             // Recent form: keep last 5 results for the form widget.
             const updateForm = (team: TeamSaveData, formResult: "W" | "L" | "D") => {

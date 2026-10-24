@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils"
 import { choiceLabel, describeChoice, type ChoiceLike, type EffectChip, type InboxContext } from "./inbox-model"
 import { getArchetype } from "@/engine/personality"
 import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
+import { CLAUSE_TUNING } from "@/engine/contract-clauses"
 import { useInboxDrawer } from "./inbox-drawer-store"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
@@ -140,8 +141,9 @@ export function TransferOfferDecision({ event, ctx }: { event: GameEventSaveData
         ? "No longer on the transfer list"
         : playsThisWeek ? "You play this week — the roster must stay intact" : undefined
 
-    const accept = () => {
-        acceptTransferOffer(event.id)
+    const sellOnFee = Math.round(fee * (1 - CLAUSE_TUNING.SELL_ON_FEE_CUT))
+    const accept = (sellOn = false) => {
+        acceptTransferOffer(event.id, { sellOn })
         const after = useGameStore.getState().eventsLog.find(e => e.id === event.id)
         if (after?.selectedChoiceId === "accept" || !useGameStore.getState().teams.find(t => t.id === ctx.playerTeamId)?.rosterIds.includes(String(data.playerId))) {
             toast.success(`${who} sold to ${data.teamName || "the bidding club"}`)
@@ -164,7 +166,13 @@ export function TransferOfferDecision({ event, ctx }: { event: GameEventSaveData
                 label="Accept the bid"
                 chips={[{ label: formatSignedCurrency(fee, "$", false), tone: "positive" }, { label: `${who} leaves`, tone: "negative" }]}
                 blockedReason={acceptBlocked}
-                onClick={accept}
+                onClick={() => accept()}
+            />
+            <OptionButton
+                label={`Accept with a ${Math.round(CLAUSE_TUNING.SELL_ON_SHARE * 100)}% sell-on`}
+                chips={[{ label: formatSignedCurrency(sellOnFee, "$", false), tone: "positive" }, { label: `${Math.round(CLAUSE_TUNING.SELL_ON_SHARE * 100)}% of his next fee`, tone: "positive" }, { label: `${who} leaves`, tone: "negative" }]}
+                blockedReason={acceptBlocked}
+                onClick={() => accept(true)}
             />
             <OptionButton
                 label="Reject"

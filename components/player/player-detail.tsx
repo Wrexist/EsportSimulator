@@ -373,6 +373,9 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                             {contract.buyout > 0 && <Row label="Buyout">{formatCurrency(contract.buyout)}</Row>}
                                             {!!contract.matchWinBonus && <Row label="Match-win bonus">{formatCurrency(contract.matchWinBonus, "$", false)}</Row>}
                                             {!!contract.tournamentWinBonus && <Row label="Title bonus">{formatCurrency(contract.tournamentWinBonus, "$", false)}</Row>}
+                                            {!!contract.releaseClause && <Row label="Release clause">{formatCurrency(contract.releaseClause)}</Row>}
+                                            {!!contract.appearanceBonus && <Row label="Appearance bonus">{formatCurrency(contract.appearanceBonus, "$", false)} / official match</Row>}
+                                            {contract.sellOn && <Row label="Sell-on owed">{Math.round(contract.sellOn.pct * 100)}% of his next fee to <TeamLink id={contract.sellOn.teamId}>{teams.find(t => t.id === contract.sellOn!.teamId)?.name ?? "his old club"}</TeamLink></Row>}
                                         </dl>
                                     ) : (
                                         <p className="px-4 py-5 text-sm text-ink-3">No senior contract on file.</p>

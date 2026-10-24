@@ -12,6 +12,7 @@ import { formatWeeksAsYears, MAX_CONTRACT_WEEKS, MIN_CONTRACT_WEEKS, type Negoti
 import { ArchetypeChip } from "@/components/player/PersonalityChips"
 import { getArchetype } from "@/engine/personality"
 import { SENIOR_ROSTER_MAX, squadFullMessage } from "@/engine/roster-rules"
+import { RELEASE_LABEL, releaseClauseFee, type ReleaseClause } from "@/engine/contract-clauses"
 
 const money = (value: number) => formatCurrency(value, "$", false)
 
@@ -196,6 +197,7 @@ export function DealTerms({ n, onDone }: { n: NegotiationState; onDone?: () => v
                     </p>
                 </div>
             </div>
+            <ClauseTerms n={n} />
             <Chance
                 label="Player accepts"
                 value={n.wageChance}
@@ -222,3 +224,49 @@ export function DealTerms({ n, onDone }: { n: NegotiationState; onDone?: () => v
         </div>
     )
 }
+
+/** G13: the clauses he signs with; each one moves the wage he asks. */
+function ClauseTerms({ n }: { n: NegotiationState }) {
+    const releases: ReleaseClause[] = ["none", "high", "low"]
+    const fee = releaseClauseFee(n.clauses.release, n.salaryOffer)
+    return (
+        <details className="rounded border border-line bg-shell px-3 py-2" open={n.clauses.release !== "none" || n.clauses.appearanceBonus > 0 || n.clauses.titleBonus > 0}>
+            <summary className="cursor-pointer text-xs font-semibold text-ink-2">
+                Clauses{n.clauseSaving > 0 ? <span className="ml-1 font-normal text-ink-3">· he asks {money(n.clauseSaving)}/wk less</span> : null}
+            </summary>
+            <div className="mt-2 space-y-3">
+                <div className="space-y-1.5">
+                    <span className="text-xs text-ink-3">Release clause</span>
+                    <div role="radiogroup" aria-label="Release clause" className="grid grid-cols-3 gap-1.5">
+                        {releases.map(r => (
+                            <button key={r} type="button" role="radio" aria-checked={n.clauses.release === r} onClick={() => n.setClauses({ release: r })}
+                                className={cn("rounded border px-2 py-1.5 text-xs font-semibold", n.clauses.release === r ? "border-ink-2 bg-raised text-ink-1" : "border-line text-ink-3 hover:text-ink-2")}>
+                                {r === "none" ? "None" : r === "high" ? "High" : "Low"}
+                            </button>
+                        ))}
+                    </div>
+                    <p className="text-xs text-ink-3">
+                        {n.clauses.release === "none"
+                            ? "No club can take him without your say."
+                            : `${RELEASE_LABEL[n.clauses.release]}: in a transfer window, a club that can pay ${money(fee)} may take him without your say (only while you have six players or more). He takes a lower wage for it.`}
+                    </p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                        <span className="text-xs text-ink-3">Appearance bonus</span>
+                        <MoneyInput label="Appearance bonus per official match" value={n.clauses.appearanceBonus} onChange={v => n.setClauses({ appearanceBonus: v })} suffix="/ match" />
+                    </div>
+                    <div className="space-y-1">
+                        <span className="text-xs text-ink-3">Title bonus</span>
+                        <MoneyInput label="Bonus per title won" value={n.clauses.titleBonus} onChange={v => n.setClauses({ titleBonus: v })} suffix="/ title" />
+                    </div>
+                </div>
+                <p className="text-xs text-ink-3">
+                    Appearance money is paid for every official match he plays, and the title bonus whenever you win a tournament.
+                    For them he takes off his weekly wage about half the appearance bonus (up to 30% of the wage) and a thirtieth of the title bonus (up to 15%).
+                </p>
+            </div>
+        </details>
+    )
+}
+

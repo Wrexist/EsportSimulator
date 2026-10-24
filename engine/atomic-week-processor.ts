@@ -1115,8 +1115,8 @@ export class AtomicWeekProcessor {
 
             this.applyMatchSponsorGoalProgress(save, homeTeam, homeWon, result.homeScore, match.id, eventIdSet, ledgerIdSet)
             this.applyMatchSponsorGoalProgress(save, awayTeam, !homeWon, result.awayScore, match.id, eventIdSet, ledgerIdSet)
-            settlePlayerContractBonuses(save, match.id, homeTeam.id, homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet)
-            settlePlayerContractBonuses(save, match.id, awayTeam.id, !homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet)
+            settlePlayerContractBonuses(save, match.id, homeTeam.id, homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet, isOfficialMatch(match))
+            settlePlayerContractBonuses(save, match.id, awayTeam.id, !homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet, isOfficialMatch(match))
 
             // Phase 11: Update team rivalries
             updateRivalries(save, completedMatch)

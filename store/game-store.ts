@@ -603,7 +603,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   /** Phase 5.3: answer a press conference (question id → answer id). */
   answerPressConference: (eventId: string, answers: Record<string, string>) => { ok: boolean; message: string }
   saveMatchResult: (matchId: string, result: MatchResult) => void
-  transferPlayer: (playerId: string, fromTeamId: string | null, toTeamId: string, fee: number, newContract?: { salaryPerWeek: number, startWeek: number, endWeek: number, buyout: number }) => { success: boolean; message?: string }
+  transferPlayer: (playerId: string, fromTeamId: string | null, toTeamId: string, fee: number, newContract?: import("@/engine/contract-clauses").NewContractTerms) => { success: boolean; message?: string }
   scheduleScrim: (opponentId: string, week: number, day?: number) => { success: boolean, message: string }
   scheduleActivity: (activity: ActivitySaveData) => { success: boolean, message: string }
 
@@ -705,7 +705,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   setPlayerTrainingFocus: (playerId: string, focus: string) => void
   listPlayerForTransfer: (playerId: string, price: number) => void
   unlistPlayerForTransfer: (playerId: string) => void
-  acceptTransferOffer: (eventId: string) => void
+  acceptTransferOffer: (eventId: string, options?: { sellOn?: boolean }) => void
   renewContract: (playerId: string) => void
   releasePlayer: (playerId: string) => { success: boolean; message: string }
 

@@ -115,6 +115,9 @@ test("a full Draft Cup run through the store", async () => {
     expect(firstMatch.week).toBe(s.currentWeek)
     expect(s.eventsLog.some(e => e.id.startsWith("evt_draft_cup_"))).toBe(true)
 
+    // G13: a title bonus on one drafted contract is paid only if the cup is won.
+    useGameStore.setState(st => ({ contracts: st.contracts.map(c => c.playerId === picks[0].playerId && c.teamId === cup.teamId ? { ...c, tournamentWinBonus: 7_000 } : c) }))
+
     let played = 0
     for (let guard = 0; guard < 6 && !draftCupOutcome(useGameStore.getState() as never); guard++) {
         s = useGameStore.getState()
@@ -142,6 +145,8 @@ test("a full Draft Cup run through the store", async () => {
     expect(outcome.seriesWon).toBe(played - (outcome.finish === "champion" ? 0 : 1))
     expect(outcome.score).toBeGreaterThan(0)
     expect(outcome.breakdown.reduce((n, b) => n + b.points, 0)).toBe(outcome.score)
+    const titleBonus = s.financeLedger.filter(e => e.id.endsWith(`_${picks[0].playerId}_title`))
+    expect(titleBonus.map(e => e.amount)).toEqual(outcome.finish === "champion" ? [7_000] : [])
     // No other competition ever scheduled the drafted team.
     expect(s.scheduledMatches.concat(s.completedMatches).filter(m => (m.homeTeamId === cup.teamId || m.awayTeamId === cup.teamId) && m.tournamentId !== cup.tournamentId)).toEqual([])
 })

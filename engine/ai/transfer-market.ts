@@ -30,7 +30,6 @@ import type {
     PlayerSaveData,
     ContractSaveData,
 } from "../save-types"
-import type { SeededRNG } from "../rng"
 import type { EventType } from "../../types"
 import { getPlayerIndex } from "./player-index"
 import { aiRoll } from "./rng-helpers"
@@ -40,6 +39,8 @@ import { aiCommitCheck } from "./club-budget"
 import { evaluatePlayer } from "../player-evaluation"
 import { applyRosterChangePenalty } from "../chemistry-engine"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
+import { releaseTriggerChance, settleSellOn } from "../contract-clauses"
+import { SeededRNG, deriveSeed } from "../rng"
 
 const MAX_TRANSFER_OFFERS_PER_TEAM_PER_WEEK = 2
 /** Open bids per listed player. Without it every AI club could bid on the same
@@ -342,6 +343,8 @@ export function processAIToAITransfers(
         // Scope contract removal to the seller — wiping by playerId alone
         // can clobber unrelated historical/ghost contracts.
         const sellerTeamId = candidate.team.id
+        // G13: a club that sold him earlier with a sell-on takes its share of this fee.
+        settleSellOn(save, save.contracts.find(c => c.playerId === candidate.player.id && c.teamId === sellerTeamId), candidate.player.nickname, fee)
         save.contracts = save.contracts.filter(c => !(c.playerId === candidate.player.id && c.teamId === sellerTeamId))
         save.contracts.push({
             playerId: candidate.player.id,
@@ -386,4 +389,72 @@ export function processAIToAITransfers(
         if (idx !== -1) availablePlayers.splice(idx, 1)
         transferCount++
     }
+}
+
+/**
+ * G13: AI clubs pay release clauses in your players' contracts. Weekly (in a
+ * transfer window), each clause can be triggered by the club best placed to
+ * pay it: a club that can afford the fee and the wage, with room on its
+ * roster. The lower the clause against his value, the likelier. You keep at
+ * least five players: a clause is only paid while you have a sixth.
+ * Uses its own seeded roll, so the rest of the week's randomness is unchanged.
+ */
+export function processReleaseClauses(save: GameSave, playerTeamId: string): string[] {
+    const mine = save.teams.find(t => t.id === playerTeamId)
+    if (!mine || save.draftCup) return []
+    const rng = new SeededRNG(deriveSeed(save.saveId ?? "save", "release-clauses", save.currentWeek))
+    const taken: string[] = []
+    const clauses = save.contracts.filter(c => c.teamId === playerTeamId && (c.releaseClause ?? 0) > 0 && c.endWeek > save.currentWeek)
+    for (const contract of clauses) {
+        if (mine.rosterIds.length < 6) break
+        const player = save.players.find(p => p.id === contract.playerId)
+        if (!player || player.isRetired || !mine.rosterIds.includes(player.id)) continue
+        const fee = contract.releaseClause!
+        if (rng.next() >= releaseTriggerChance(fee, contract.salaryPerWeek)) continue
+        const buyer = save.teams
+            .filter(t => t.id !== playerTeamId && t.rosterIds.length < MAX_ROSTER_SIZE && aiCommitCheck(save, t)(recruitmentSalary(player, save.currentWeek, t), fee))
+            .sort((a, b) => b.reputation - a.reputation || a.id.localeCompare(b.id))[0]
+        if (!buyer) continue
+
+        mine.rosterIds = mine.rosterIds.filter(id => id !== player.id)
+        buyer.rosterIds.push(player.id)
+        mine.budget += fee
+        buyer.budget -= fee
+        save.financeLedger ??= []
+        for (const [team, type] of [[buyer, "EXPENSE"], [mine, "INCOME"]] as const) {
+            save.financeLedger.push({ id: `fin_release_${save.currentWeek}_${player.id}_${team.id}`, week: save.currentWeek, teamId: team.id, type,
+                category: type === "EXPENSE" ? "TRANSFER_OUT" : "TRANSFER_IN", amount: fee, description: `Release clause: ${player.nickname}`, balance: team.budget })
+            applyRosterChangePenalty(team, save.currentWeek, 1)
+        }
+        if (mine.activeRoleTraining) {
+            mine.activeRoleTraining = mine.activeRoleTraining.filter(t => t.playerId !== player.id)
+            mine.trainingSlotsUsed = mine.activeRoleTraining.length
+        }
+        recalculateTeamSynergy(mine, save.players)
+        recalculateTeamSynergy(buyer, save.players)
+        player.forSale = false
+        player.transferListingPrice = undefined
+        player.weeksOnTransferList = undefined
+        save.watchlistedPlayerIds = save.watchlistedPlayerIds?.filter(id => id !== player.id)
+        save.contracts = save.contracts.filter(c => !(c.playerId === player.id && c.teamId === playerTeamId))
+        save.contracts.push({ playerId: player.id, teamId: buyer.id, salaryPerWeek: recruitmentSalary(player, save.currentWeek, buyer), startWeek: save.currentWeek,
+            endWeek: save.currentWeek + TRANSFER_CONTRACT_WEEKS, buyout: fee * 2 })
+        save.transferHistory?.push({ id: `transfer_release_${save.currentWeek}_${player.id}_${buyer.id}`, week: save.currentWeek, type: "TRANSFER",
+            playerId: player.id, playerName: player.nickname, fromTeamId: mine.id, fromTeamName: mine.name, toTeamId: buyer.id, toTeamName: buyer.name, fee })
+        save.eventsLog.push({
+            id: `evt_release_${save.currentWeek}_${player.id}`,
+            type: "CONTRACT" as unknown as EventType,
+            week: save.currentWeek,
+            acknowledged: false,
+            data: {
+                title: `${buyer.name} paid ${player.nickname}'s release clause`,
+                message: `${buyer.name} paid the ${fee.toLocaleString("en-US")} release clause in ${player.nickname}'s contract, and he has joined them. The fee is in your budget.`,
+                playerId: player.id,
+                teamId: buyer.id,
+                severity: "warning",
+            },
+        })
+        taken.push(player.id)
+    }
+    return taken
 }

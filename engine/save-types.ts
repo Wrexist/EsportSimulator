@@ -925,6 +925,14 @@ export interface ContractSaveData {
     mvpBonus?: number
     tournamentWinBonus?: number
     signOnBonus?: number
+
+    // G13 clauses (engine/contract-clauses.ts)
+    /** Fee at which another club may take the player without the owner's say (0 / absent = none). */
+    releaseClause?: number
+    /** Paid for every official match played. */
+    appearanceBonus?: number
+    /** A share of the player's next transfer fee owed to a club that sold him. */
+    sellOn?: { teamId: string; pct: number }
 }
 
 /**

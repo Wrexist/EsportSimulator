@@ -25,6 +25,7 @@ import { ensurePersonality } from "../personality"
 import { PlayerRole } from "@/types/enums"
 import { logger } from "@/lib/logger"
 import { processFreeAgentMarket, freeAgentScoutingFactor, hashRoll } from "./free-agent-market"
+import { processReleaseClauses } from "../ai/transfer-market"
 import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 
 // Flavour backstory fragments so intakes read as distinct scouted talents
@@ -65,6 +66,8 @@ export function processAIWorldLogic(save: GameSave, playerTeamId: string, rng: S
 
     if (isTransferWindow) {
         AIManager.processAIToAITransfers(save, playerTeamId, rng)
+        // G13: clubs pay release clauses in your players' contracts (own seeded roll).
+        processReleaseClauses(save, playerTeamId)
     }
 
     // 4. Staff market auto-refresh every 4 weeks.

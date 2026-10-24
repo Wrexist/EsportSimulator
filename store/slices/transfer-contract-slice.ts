@@ -51,6 +51,7 @@ import {
 } from "@/store/utils/helpers"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { CLAUSE_TUNING, sanitizeClauseFields, settleSellOn, type NewContractTerms } from "@/engine/contract-clauses"
 import { releaseSettlement, SENIOR_ROSTER_MAX, SENIOR_ROSTER_MIN, squadFullMessage } from "@/engine/roster-rules"
 const MAX_ROSTER_SIZE = SENIOR_ROSTER_MAX
 const STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS = 3
@@ -69,11 +70,12 @@ export interface TransferContractActions {
         fromTeamId: string | null,
         toTeamId: string,
         fee: number,
-        newContract?: { salaryPerWeek: number; startWeek: number; endWeek: number; buyout: number },
+        newContract?: NewContractTerms,
     ) => { success: boolean; message?: string }
     listPlayerForTransfer: (playerId: string, price: number) => void
     unlistPlayerForTransfer: (playerId: string) => void
-    acceptTransferOffer: (eventId: string) => void
+    /** `sellOn`: take a lower fee for a share of his next transfer fee (G13). */
+    acceptTransferOffer: (eventId: string, options?: { sellOn?: boolean }) => void
     renewContract: (playerId: string) => void
     promotePlayer: (playerId: string) => void
     releasePlayer: (playerId: string) => { success: boolean; message: string }
@@ -216,9 +218,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             }
 
             // Validate any inbound contract.
-            let normalizedContract: {
-                salaryPerWeek: number; startWeek: number; endWeek: number; buyout: number
-            } | undefined
+            let normalizedContract: NewContractTerms | undefined
             if (!newContract) {
                 result = { success: false, message: "Agree a player contract before completing the signing." }
                 return
@@ -251,6 +251,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                     startWeek: startWeekValidation.value,
                     endWeek: endWeekValidation.value,
                     buyout: buyoutValidation.value,
+                    ...sanitizeClauseFields(newContract),
                 }
             }
 
@@ -294,15 +295,11 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             // Contract write — drop any existing contracts for this player first
             // so we never end up with two active contracts on the same ID.
             if (normalizedContract) {
+                // G13: a club that sold him earlier with a sell-on takes its share of this fee.
+                const seller = fromTeam
+                if (seller) settleSellOn(state, state.contracts.find(c => c.playerId === playerId && c.teamId === seller.id), transferPlayerRecord.nickname || playerId, normalizedFee)
                 state.contracts = state.contracts.filter(c => c.playerId !== playerId)
-                state.contracts.push({
-                    playerId,
-                    teamId: toTeamId,
-                    salaryPerWeek: normalizedContract.salaryPerWeek,
-                    startWeek: normalizedContract.startWeek,
-                    endWeek: normalizedContract.endWeek,
-                    buyout: normalizedContract.buyout,
-                })
+                state.contracts.push({ playerId, teamId: toTeamId, ...normalizedContract })
             }
 
             // Always clear the listing flag on a successful move.
@@ -425,14 +422,16 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
         })
     },
 
-    acceptTransferOffer: (eventId) => {
+    acceptTransferOffer: (eventId, options) => {
         const currentState = get()
         const event = currentState.eventsLog.find(e => e.id === eventId)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (!event || !event.data || event.type !== "TRANSFER_OFFER" || event.selectedChoiceId) return
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { playerId, teamId, offerAmount } = event.data as any
+        const { playerId, teamId, offerAmount: bid } = event.data as any
+        // G13: a sell-on share costs a cut of the fee now.
+        const offerAmount = options?.sellOn ? Math.round(Number(bid) * (1 - CLAUSE_TUNING.SELL_ON_FEE_CUT)) : bid
         const playerTeamId = get().playerTeamId
 
         const listed = currentState.players.find(p => p.id === playerId)
@@ -484,6 +483,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 startWeek: currentWeek,
                 endWeek: currentWeek + contractLength,
                 buyout: Math.round(newSalary * contractLength * 1.5),
+                ...(options?.sellOn ? { sellOn: { teamId: playerTeamId!, pct: CLAUSE_TUNING.SELL_ON_SHARE } } : {}),
             },
         )
 
