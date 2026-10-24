@@ -20,6 +20,7 @@ import type { EventsActions, SliceCreator } from "@/store/types"
 import type { GameSave } from "@/engine/save-types"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
 import { seedPreseasonFriendlies } from "@/engine/preseason-friendlies"
+import { queueMoment } from "@/engine/moments"
 import { applyChoiceEffects, type ChoiceEffects, type ChoiceTarget } from "@/engine/event-choice"
 import { answerPressConference, type PressTarget } from "@/engine/storylines/press"
 import { getArchetype } from "@/engine/personality"
@@ -32,7 +33,7 @@ const NEWS_FEED_CAP = 50
 // ~7-8 in-game weeks of timeline at ~8 posts/week; bounds multi-season saves.
 const SOCIAL_FEED_CAP = 60
 
-export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
+export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
     acknowledgeEvent: (eventId) => {
         set((state) => {
             const event = state.eventsLog.find(e => e.id === eventId)
@@ -271,16 +272,34 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set) => ({
         set(state => {
             const firstJob = !!state.eventsLog.find(e => e.id === eventId)?.data?.firstJob
             result = JobOfferGenerator.acceptJobOffer(state as unknown as GameSave, eventId)
-            // Unemployed start (G9): the first club gets the preseason friendlies a new career seeds.
-            if (result.success && firstJob && state.playerTeamId) seedPreseasonFriendlies(state as unknown as GameSave, state.playerTeamId)
+            // Unemployed start (G9): the first club gets what a new career opens
+            // with, the preseason friendlies and the board brief.
+            if (result.success && firstJob && state.playerTeamId) {
+                const save = state as unknown as GameSave
+                seedPreseasonFriendlies(save, state.playerTeamId)
+                queueMoment(save, { key: `welcome:${save.saveId}`, kind: "welcome", week: save.currentWeek, teamId: state.playerTeamId })
+            }
         })
+        // Taking a club between careers is a milestone: write it at once so a
+        // quit before the next autosave does not reload the job market.
+        if (result.success && get().gameOverReason == null) void get().saveGame?.()
         return result
     },
 
     declineJobOffer: (eventId) => {
+        let between = false
         set((state) => {
+            between = !!state.eventsLog.find(e => e.id === eventId)?.data?.afterDismissal
             JobOfferGenerator.declineJobOffer(state as unknown as GameSave, eventId)
         })
+        if (between) void get().saveGame?.()
+    },
+
+    findMoreJobOffers: () => {
+        let added = 0
+        set((state) => { added = JobOfferGenerator.findMoreOffers(state as unknown as GameSave) })
+        if (added > 0) void get().saveGame?.()
+        return added
     },
 
     negotiateJobOffer: (eventId) => {

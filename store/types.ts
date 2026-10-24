@@ -250,6 +250,8 @@ export interface EventsActions {
   addNewsItem: (item: Omit<NewsFeedItem, "id" | "week">) => void
   acceptJobOffer: (eventId: string) => { success: boolean; message: string }
   declineJobOffer: (eventId: string) => void
+  /** Between clubs: top the open offers back up from clubs not yet offered; returns how many were added. */
+  findMoreJobOffers: () => number
   negotiateJobOffer: (eventId: string) => { success: boolean; message: string; newOffer?: number; withdrew?: boolean }
   /** Merge this week's generated NPC posts into the persisted social feed
    *  (idempotent per week — deduped by id, capped). */

@@ -715,6 +715,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   // Phase 60: Job Market
   acceptJobOffer: (eventId: string) => { success: boolean; message: string }
   declineJobOffer: (eventId: string) => void
+  findMoreJobOffers: () => number
 
   negotiateJobOffer: (eventId: string) => { success: boolean; message: string; newOffer?: number; withdrew?: boolean }
 
@@ -1976,7 +1977,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
         // Guard: prevent advancing if game is over (bankruptcy)
         if (state.gameOverReason) {
-          get().addToast({ message: "Your organization has been dissolved. Load a save or start a new game.", type: "warning" })
+          get().addToast({ message: "You have no club. Take a job offer to continue the career.", type: "warning" })
           set({ isLoading: false })
           return
         }

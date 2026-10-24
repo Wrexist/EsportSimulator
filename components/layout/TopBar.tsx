@@ -35,6 +35,7 @@ export function TopBar() {
         playerTeamId,
         setTimeMode,
         managerName,
+        betweenClubs,
     } = useGameStore(
         useShallow(s => ({
             currentWeek: s.currentWeek,
@@ -45,6 +46,7 @@ export function TopBar() {
             playerTeamId: s.playerTeamId,
             setTimeMode: s.setTimeMode,
             managerName: s.managerDetails?.name,
+            betweenClubs: !!s.gameOverReason,
         }))
     )
 
@@ -125,7 +127,7 @@ export function TopBar() {
                 <div className="ml-auto flex shrink-0 items-center gap-3">
                     <NavigationSearch compact disabled={false} />
 
-                    {!hideCareerControls && (
+                    {!hideCareerControls && !betweenClubs && (
                         <div className="flex flex-col items-end leading-none" title="Club funds">
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Funds</span>
                             {isMounted ? (

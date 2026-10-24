@@ -7,7 +7,7 @@ import { useGameStore } from "@/store/game-store"
 import { useSettingsStore } from "@/lib/settings-store"
 import { useShallow } from "zustand/react/shallow"
 import { useRouter } from "next/navigation"
-import { AlertCircle, Loader2, Trash2 } from "lucide-react"
+import { AlertCircle, Briefcase, Loader2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     AlertDialog,
@@ -257,7 +257,9 @@ function LoadGamePageInner() {
                                             <td className="py-2 pl-4 pr-3">
                                                 <div className="flex min-w-0 items-center gap-3">
                                                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
-                                                        {slot.teamName
+                                                        {slot.betweenClubs
+                                                            ? <Briefcase size={18} className="text-ink-3" aria-hidden="true" />
+                                                            : slot.teamName
                                                             ? <TeamLogoImage src={slot.teamLogo} team={slot.teamPreview} alt={slot.teamName} size={34} />
                                                             : <AlertCircle size={18} className={corrupted ? "text-negative" : "text-ink-3"} />}
                                                     </span>

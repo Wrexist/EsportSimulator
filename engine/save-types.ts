@@ -1306,6 +1306,8 @@ export interface SaveSlotMetadata {
     teamName: string | null
     updatedAt: string | null
     isEmpty: boolean
+    /** The career has no club right now (job market open); teamName holds a label. */
+    betweenClubs?: boolean
 
     // Set when the slot's data failed to parse/validate. The slot is still
     // surfaced (rather than silently dropped) so the player can see it and
