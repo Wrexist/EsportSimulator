@@ -110,20 +110,81 @@ numbers.
 
 ![Before, after and a pro round on Mirage](radar-trails-mirage.png)
 
+## Pro positions in the sim
+
+The sight engine now sets up where pros do. `scripts/pro-spots.ts` reads all
+1,558 ESTA demos (34,585 rounds on six maps) and clusters the spots players
+settle on between 8 s and the first kill: CT set-ups and T waiting spots, each
+with its share of the frames (`docs/revamp/sight-engine/pro-spots/`).
+`scripts/bake-pro-spots.ts` turns them into map data:
+
+- CT set-ups become holds (`pro: true`, with their `share`). A set-up that sees
+  no T way in to its site is left out (the sight engine would never play it).
+  Each gets a short `spur` route to the route lines over walkable ground.
+- T waiting spots become `stages`. Stagers, lurkers and fakers spread over the
+  free ones near their route, out of known CT angles, instead of queueing on
+  one line. With none free, they stop a node short of a mate.
+- CTs pick holds weighted by pro share (geometry-only holds count 1%). The
+  known pro angles also decide which crossings Ts smoke on the way out.
+- The older radar builder keeps the geometry holds only.
+
+Re-run: `npx tsx scripts/pro-spots.ts <compact demos> --out <dir>`, copy to
+`docs/revamp/sight-engine/pro-spots/`, then `npx tsx scripts/bake-pro-spots.ts
+docs/revamp/sight-engine/pro-spots && npx tsx scripts/bake-round-visibility.ts`.
+Anubis and Sandstone have no pro demos and keep their geometry holds.
+
+The pro holds made CTs play more passive spots and pushed the plant rate to
+62–66%, so the retune raised `SIGHT_CT_DEFEND` 4 → 9 and `SIGHT_POST` 16 → 30.
+Sight audit, 48 maps with mesh line of sight:
+
+| Measure | Before pro spots | With pro spots | Pro |
+|---|---|---|---|
+| CT round win | 49.4% | 52.6% | 53.8% |
+| Kills per round | 6.68 | 6.56 | 6.53 |
+| Trade kills | 26.3% | 24.4% | 16% |
+| Plant rate | 55.4% | 57.4% | 52% |
+| T win after a plant | 75.4% | 75.9% | 76% |
+| T win without a plant | 19.9% | 9.1% | 13% |
+| T wins by the bomb | 45.4% | 50.8% | 41.6% |
+| First kill, median | 21.7 s | 21.8 s | 27 s |
+| Plant time, median | 80.2 s | 80.7 s | 75.6 s |
+| Round length, median | 91.3 s | 94.5 s | 92 s |
+| Kill distance, median | 10.4 map-% | 9.6 map-% | 12.5 map-% |
+| Sightings ≥ 3 s per round, ≤ 10 map-% | 0.136 | 0.065 | 0.12 |
+
+Radar movement (190 demos, 5,018 pro rounds; off-route now counts the spurs, so
+it is not comparable with the table above):
+
+| Measure | Before pro spots | With pro spots | Pro |
+|---|---|---|---|
+| Standing still % | 43.4 | 47.2 | 26.2 |
+| Walking % | 27.8 | 24.2 | 41.7 |
+| Teammate within 1.5 map-% while moving % | 20.2 | 18.1 | 6.5 |
+| Heatmap overlap with pro, CT | 0.26 | 0.39–0.45 | 1 |
+| Heatmap overlap with pro, T | 0.36 | 0.35–0.42 | 1 |
+
+Calibration harness, 600 samples: **44 pass · 6 warn · 0 fail**. The new warns
+are kills per round 6.58 and KPR 0.66 (just under the harness's older 6.6 and
+0.66 bounds; the ESTA pros play 6.53), aces 0.39 per map (bound 0.3) and CT
+wins on time 13.9% of CT wins (bound 13%).
+
 ## Tuning
 
 All sight-engine knobs are the `SIGHT_*` block in
 `engine/match/round-sim/tuning.ts`. The main calibration levers:
 
 - `SIGHT_EXEC`: execute times by T strategy (plant timing, round length).
-- `SIGHT_CT_BIAS` (3) and `SIGHT_CT_DEFEND` (4, before the plant only):
+- `SIGHT_CT_BIAS` (3) and `SIGHT_CT_DEFEND` (9, before the plant only):
   side balance.
-- `SIGHT_POST` (16): posted Ts against retakers. `SIGHT_SAVE_RETAKE` (3):
+- `SIGHT_POST` (30): posted Ts against retakers. `SIGHT_SAVE_RETAKE` (3):
   CT saves on a plant (bomb share).
 - `SIGHT_SKILL` (0.75) and `SIGHT_STAR` (0.25): every fight is a real duel
   here, so raw skill is flattened a little and standouts get their swing
   (skill curve, star impact).
 - `SIGHT_TRADE` (2): trade points.
+- `SIGHT_STAGE_SPREAD` (12): how far a T walks off the route to a pro waiting
+  spot. `SIGHT_KNOWN_ANGLE` (0.03): the smallest pro share that makes a CT
+  angle one every T knows (Ts stage out of it and smoke it off).
 
 ## Other changes
 

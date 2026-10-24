@@ -41,7 +41,7 @@ import { PACES, arrivals, type RoundMoves } from "./moves"
 import { TRAIT_AGGRESSIVE } from "./profile"
 import {
     BOMB_TIME, LATEST_PLANT_START, P, PLANT_TIME, ROUND_TIME,
-    assignJobs, choosePlan, commonPts, countAlive, duel, explode, finish, givesUp, holdPts, hurtBy, keyedRoll,
+    assignJobs, choosePlan, commonPts, countAlive, duel, explode, finish, givesUp, holdPts, hurtBy, keyedRoll, pickWeighted,
     living, makeActors, openingPts, peekPts, plantUrgency, r1, rnd, save, tradePts,
     type Actor, type PlanState, type Round, type RoundEnd, type SimInput, type SimOutput, type UtilityThrow,
 } from "./simulate"
@@ -73,8 +73,12 @@ interface MapData {
     chains: Map<string, Chain>
     /** Hold node → the point its holder watches. */
     watch: Map<number, XY>
-    /** Nodes some CT hold has in sight (within SIGHT_RANGE): Ts stage out of them. */
+    /** Hold nodes of the angles every T knows (geometry holds and common pro ones). */
+    angles: number[]
+    /** Nodes a known angle has in sight (within SIGHT_RANGE): Ts stage out of them. */
     exposed: Uint8Array
+    /** Pro T waiting spots. */
+    stages: { node: number; site: SiteId; share: number }[]
 }
 
 const mapCache = new WeakMap<RoundMap, MapData>()
@@ -109,9 +113,17 @@ function mapData(map: RoundMap, zones: MapZones): MapData {
     const watch = new Map<number, XY>()
     for (const h of map.holds) { const n = g.holdNodes.get(h.id); if (n !== undefined) watch.set(n, h.watch) }
     const vis = visibilityFor(g)
+    const angles = map.holds.filter(h => !h.pro || (h.share ?? 0) >= T.SIGHT_KNOWN_ANGLE).flatMap(h => {
+        const n = g.holdNodes.get(h.id)
+        return n === undefined ? [] : [n]
+    })
     const exposed = new Uint8Array(g.size)
-    for (const h of watch.keys()) for (let n = 0; n < g.size; n++) if (!exposed[n] && g.dist(n, h) <= T.SIGHT_RANGE && vis.seesFar(n, h)) exposed[n] = 1
-    d = { map, g, vis, zoneOf, chains, watch, exposed }
+    for (const h of angles) for (let n = 0; n < g.size; n++) if (!exposed[n] && g.dist(n, h) <= T.SIGHT_RANGE && vis.seesFar(n, h)) exposed[n] = 1
+    const stages = (map.stages ?? []).flatMap(s => {
+        const node = g.stageNodes.get(s.id)
+        return node === undefined ? [] : [{ node, site: s.site, share: s.share }]
+    })
+    d = { map, g, vis, zoneOf, chains, watch, angles, exposed, stages }
     mapCache.set(map, d)
     return d
 }
@@ -634,7 +646,7 @@ function land(C: Ctx, b: Body, kind: UtilityKind, site: SiteId, at: number, spot
         C.fires.push(f)
         for (const x of foes) {
             const xp = bodyXY(C, x, t)
-            if (g.floor[x.node] !== p.floor || (xp.x - p.x) ** 2 + (xp.y - p.y) ** 2 > f.r * f.r) continue
+            if (g.floor[sightNode(x, t)] !== p.floor || (xp.x - p.x) ** 2 + (xp.y - p.y) ** 2 > f.r * f.r) continue
             // The burn is recorded on someone not already in a gunfight (they live past it).
             if (!e.hit && x.fights === 0) hurtBy(e, b.a, x.a, 6 + floor(rnd(R, P.util).next() * 16))
             x.a.flushed = true
@@ -645,7 +657,7 @@ function land(C: Ctx, b: Body, kind: UtilityKind, site: SiteId, at: number, spot
         // The one it hurts most (one recorded victim per grenade).
         let best: Body | null = null, bestDmg = 0
         for (const x of foes) {
-            if (g.floor[x.node] !== p.floor) continue
+            if (g.floor[sightNode(x, t)] !== p.floor) continue
             const xp = bodyXY(C, x, t)
             const dmg = heDamage({ distance: sqrt((xp.x - p.x) ** 2 + (xp.y - p.y) ** 2), armoured: x.a.kevlar, obstructed: !C.D.vis.seesFar(pn, x.node) })
             if (dmg > bestDmg) { best = x; bestDmg = dmg }
@@ -653,7 +665,7 @@ function land(C: Ctx, b: Body, kind: UtilityKind, site: SiteId, at: number, spot
         if (best) hurtBy(e, b.a, best.a, bestDmg)
     } else if (kind === "flash") {
         for (const x of foes) {
-            if (g.floor[x.node] !== p.floor || g.dist(x.node, pn) > T.SIGHT_FLASH_RANGE || !C.D.vis.seesFar(pn, x.node)) continue
+            if (g.floor[sightNode(x, t)] !== p.floor || g.dist(x.node, pn) > T.SIGHT_FLASH_RANGE || !C.D.vis.seesFar(pn, x.node)) continue
             const facing = angleDiff(x.face, atan2(p.y - g.y[x.node], p.x - g.x[x.node])) <= PI / 2
             if (!facing) continue
             if (rnd(R, P.util).next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * b.a.p.grenades + T.SIGHT_FLASH_BONUS) {
@@ -849,6 +861,7 @@ function opening(C: Ctx): void {
     const lurkId = R.z.lurk[O.id]?.id ?? O.main.id
     const spots = siteSpots(C, S.id, routeNode(C.D, mainId, 0) ?? g.siteNodes[S.id], C.Ts.length + 1, [C.plantNode])
     let spot = 0, split = 0
+    const taken = new Set<number>()
     const order: Record<string, number> = { entry: 0, pack: 1, support: 2, igl: 3, fake: 4, awp: 5, lurk: 6 }
     const ts = [...C.Ts].sort((a, b) => (order[a.a.job] ?? 3) - (order[b.a.job] ?? 3) || a.k - b.k)
     ts.forEach((b, i) => {
@@ -866,17 +879,19 @@ function opening(C: Ctx): void {
         }
         if (job === "lurk") {
             const n = stageNode(C.D, lurkId, 3) ?? g.siteNodes[O.id]
-            b.queue = [...alongRoute(C.D, lurkId, b.node, n, leave, WALK), { node: n, at: leave, pace: WALK, look: ahead(C, lurkId, -6) }]
+            b.queue = waitOn(C, lurkId, b.node, n, O.id, taken, leave, ahead(C, lurkId, -6))
             return
         }
         if (job === "fake") {
             const n = stageNode(C.D, O.main.id, 6) ?? g.siteNodes[O.id]
-            b.queue = [...alongRoute(C.D, O.main.id, b.node, n, leave, WALK), { node: n, at: leave, pace: WALK, look: ahead(C, O.main.id, -6) }]
+            b.queue = waitOn(C, O.main.id, b.node, n, O.id, taken, leave, ahead(C, O.main.id, -6))
             return
         }
         const back = job === "awp" ? 3 : st === "default" ? T.SIGHT_STAGE_DEFAULT + 3 * (i % 3) : st === "eco" ? 8 : 5 + 2 * (i % 3)
         const n = (job === "awp" ? routeNode(C.D, route, back) : stageNode(C.D, route, back)) ?? g.siteNodes[S.id]
-        b.queue = [...alongRoute(C.D, route, b.node, n, leave, WALK), { node: n, at: leave, pace: WALK, look: ahead(C, route, back - 8) }]
+        b.queue = job === "awp"
+            ? [...alongRoute(C.D, route, b.node, n, leave, WALK), { node: n, at: leave, pace: WALK, look: ahead(C, route, back - 8) }]
+            : waitOn(C, route, b.node, n, S.id, taken, leave, ahead(C, route, back - 8))
         ;(b as Body & { route?: string; target?: number }).route = route
         ;(b as Body & { route?: string; target?: number }).target = target
     })
@@ -887,6 +902,31 @@ function opening(C: Ctx): void {
     }
     crossSmokes(C)
     earlyPlays(C)
+}
+
+/**
+ * The walk out to a stage: along the route to `n`, or, when a pro waiting
+ * spot for that site is free within SIGHT_STAGE_SPREAD of it and out of the
+ * known angles, along the route to the point nearest that spot and on to it
+ * (pros spread over the waiting spots instead of queueing on one line).
+ */
+function waitOn(C: Ctx, routeId: string, from: number, n: number, site: SiteId, taken: Set<number>, leave: number, look: XY | null): Way[] {
+    const { g, D } = C
+    const free = D.stages.filter(s => s.site === site && !taken.has(s.node) && !D.exposed[s.node] && g.pathDist(n, s.node) <= T.SIGHT_STAGE_SPREAD)
+    const chain = D.chains.get(routeId)
+    if (!free.length) {
+        // No waiting spot free: the route node, or the first one back from it a mate is not already on.
+        const back = chain ? chain.nodes.slice(0, chain.nodes.indexOf(n) + 1).reverse() : []
+        const at = taken.has(n) ? back.find(c => !taken.has(c)) ?? n : n
+        taken.add(at)
+        return [...alongRoute(D, routeId, from, at, leave, WALK), { node: at, at: leave, pace: WALK, look }]
+    }
+    const pick = pickWeighted(rnd(C.R, P.spots), free, s => s.share).node
+    taken.add(pick)
+    const upTo = chain ? chain.nodes.slice(0, chain.nodes.indexOf(n) + 1) : []
+    let via = n
+    for (const c of upTo) if (g.pathDist(c, pick) < g.pathDist(via, pick)) via = c
+    return [...alongRoute(D, routeId, from, via, leave, WALK), { node: pick, at: leave, pace: WALK, look }]
 }
 
 /**
@@ -906,7 +946,7 @@ function crossSmokes(C: Ctx): void {
             for (let i = 1; i < path.length; i++) {
                 const n = path[i]
                 if (!D.exposed[n]) continue
-                for (const h of D.watch.keys()) {
+                for (const h of D.angles) {
                     if (g.floor[h] !== g.floor[n] || g.dist(n, h) > T.SIGHT_RANGE || g.dist(n, h) < T.SIGHT_CLOSE || !D.vis.seesFar(n, h)) continue
                     const prev = crossed.get(h)
                     if (!prev || at[i] < prev.t) crossed.set(h, { t: at[i], n, by: b })
