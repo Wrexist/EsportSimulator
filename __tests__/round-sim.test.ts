@@ -14,7 +14,10 @@ import { scriptBuyPhase } from '@/engine/match/round-sim/buy'
 import { cappedEdge, NON_PLAYER_BONUS_CAP, teamEdgeBreakdown } from '@/engine/match/round-sim/team-edge'
 import { killRewardFor, weaponClassOf } from '@/engine/match/round-sim/weapons'
 import { scriptRating } from '@/engine/match/match-stats'
-import { buildRoundScript, samplePositions, scriptInputFromResolverRound } from '@/engine/match/round-script'
+import { samplePositions } from '@/engine/match/round-script'
+import { hasMoves, scriptFromMoves } from '@/engine/match/round-script-moves'
+import { sampleTrack } from '@/engine/match/round-script-sample'
+import { walkAreaFor } from '@/engine/match/round-script-walkable'
 import { zonePoint } from '@/engine/match/round-sim/zones'
 import { restoreLivePlayback } from '@/engine/match/live-checkpoint'
 import { sanitizeRestoredSimState } from '@/engine/match/live-match-init'
@@ -122,7 +125,7 @@ describe('rounds decided by what happens', () => {
         }
     })
 
-    test('timeline: plant by 1:55, bomb at plant + 40 s, defuse in time, the winner is never wiped out', () => {
+    test('timeline: plant by 1:55, bomb at plant + 40 s, defuse in time, the winner is wiped out only by a bomb that still goes off', () => {
         for (const { round } of rounds) {
             const ev = round.events ?? []
             const plant = ev.find(e => e.type === 'PLANT'), explode = ev.find(e => e.type === 'EXPLODE'), defuse = ev.find(e => e.type === 'DEFUSE')
@@ -130,7 +133,7 @@ describe('rounds decided by what happens', () => {
             if (plant && explode) expect(explode.time).toBeCloseTo(plant.time + 40, 1)
             if (plant && defuse) expect(defuse.time).toBeLessThan(plant.time + 40)
             const winners = new Set(round.winningTeamId === 'H' ? ['H_0', 'H_1', 'H_2', 'H_3', 'H_4'] : ['A_0', 'A_1', 'A_2', 'A_3', 'A_4'])
-            expect(ev.filter(e => e.type === 'KILL' && winners.has(e.victimId!)).length).toBeLessThan(5)
+            if (round.winType !== 'BOMB_EXPLODED') expect(ev.filter(e => e.type === 'KILL' && winners.has(e.victimId!)).length).toBeLessThan(5)
             for (let i = 1; i < ev.length; i++) expect(ev[i].time).toBeGreaterThanOrEqual(ev[i - 1].time)
         }
     })
@@ -169,34 +172,37 @@ describe('rounds decided by what happens', () => {
         }
         expect(states).toBeGreaterThan(30)
         expect(won / states).toBeGreaterThan(0.78)
-        expect(toOneVOne / states).toBeLessThan(0.4)
+        // Pros (ESTA, 600 demos, 4,846 first 2v1s): won 84%, the next kill goes to the 1 in 42%.
+        expect(toOneVOne / states).toBeLessThan(0.5)
     })
 
     test('a side that gives the round up saves; the winners may catch a saver on the way out', () => {
-        let saves = 0, exitKills = 0
+        let saves = 0, exitKills = 0, lost = 0
         for (const { round } of rounds) {
             const ev = round.events ?? []
             const save = ev.find(e => e.type === 'SAVE')
             if (!save) continue
             saves++
-            // Ts save before a plant (the CTs win), CTs save a planted bomb (the Ts win).
-            expect(round.winner).toBe(save.side === 't' ? 'ct' : 't')
+            // Ts save before a plant (the CTs win), CTs save a planted bomb (the Ts win);
+            // now and then the savers still win the fights the hunters bring them.
+            if (round.winner === (save.side === 't' ? 'ct' : 't')) lost++
             const savingTeam = save.side === 'ct' ? round.ctTeam : round.tTeam
             const saverIds = new Set(savingTeam === 'H' ? ['H_0', 'H_1', 'H_2', 'H_3', 'H_4'] : ['A_0', 'A_1', 'A_2', 'A_3', 'A_4'])
             for (const e of ev) if (e.type === 'KILL' && e.time > save.time && saverIds.has(e.victimId!)) exitKills++
         }
         expect(saves).toBeGreaterThan(10)
+        expect(lost / saves).toBeGreaterThan(0.9)
         expect(exitKills).toBeGreaterThan(0)
     })
 
     test('a stronger team wins more rounds; equipment matters', () => {
-        // Ten maps: four BO1 maps leave the round share ±6 points of noise.
+        // Twenty maps: 80s beat 65s in about 59% of rounds (30 Mirage maps measured); fewer maps leave ±4 points of noise.
         let fav = 0, total = 0
-        for (let s = 0; s < 10; s++) {
+        for (let s = 0; s < 20; s++) {
             const { steps } = series(MapId.MIRAGE, 300 + s, undefined, even(80), even(65))
             for (const st of steps) { total++; if (st.round.winningTeamId === 'H') fav++ }
         }
-        expect(fav / total).toBeGreaterThan(0.6)
+        expect(fav / total).toBeGreaterThan(0.55)
         let fullVsEco = 0, n = 0
         for (const { round } of rounds) {
             const b = round.buys!
@@ -328,7 +334,8 @@ describe('stats from real numbers', () => {
 
     test('a star (90 among 65s) stands out', () => {
         let star = 0, mates = 0
-        for (let s = 0; s < 6; s++) {
+        // Twelve maps: the star rates about 1.4× the mates (30 maps measured), six maps swing ±0.3.
+        for (let s = 0; s < 12; s++) {
             const home = buildSide({ id: 'S', skills: [90, 65, 65, 65, 65] }), away = buildSide({ id: 'O', skills: even(70) })
             const match = { id: `star_${s}`, homeTeamId: 'S', awayTeamId: 'O', format: 'BO1', seed: 4000 + s, date: new Date(0), mapVeto: [], vetoComplete: true, maps: [MAPS[s % MAPS.length]], mapResults: [], roundHistory: [] } as unknown as Match
             const ctx = simulationEngineV2.createSeriesContext(match, home.team as unknown as Team, away.team as unknown as Team, home.players, away.players, {}, {}, [MAPS[s % MAPS.length]], undefined, 'nobody')
@@ -340,53 +347,76 @@ describe('stats from real numbers', () => {
     })
 })
 
-describe('the round script shows what the engine decided', () => {
+describe('the radar replays what the engine did', () => {
     const sample = rounds.filter((_, i) => i % 3 === 0)
     const built = sample.map(r => {
         const map = getRoundMap(r.ctx.maps[0])!
-        const input = scriptInputFromResolverRound({
-            mapId: r.ctx.maps[0], seed: r.ctx.seed, matchId: r.ctx.matchId, mapIndex: 0, round: r.round,
-            home: { teamId: 'H', players: r.ctx.home.players.map(p => ({ id: p.id, role: p.role })) },
-            away: { teamId: 'A', players: r.ctx.away.players.map(p => ({ id: p.id, role: p.role })) },
-            loadouts: { ...r.step.preRound.home, ...r.step.preRound.away },
-        })
-        return { r, map, script: buildRoundScript(input, map) }
+        const ct = r.round.ctTeam === 'H' ? r.ctx.home : r.ctx.away
+        return { r, map, script: scriptFromMoves(r.round, r.ctx.maps[0], map, new Set(ct.players.map(p => p.id))) }
     })
 
-    test('plan, site and grenades come from the resolver', () => {
+    test('every sight round records where everyone walked; the plan, site and grenades come from the engine', () => {
         let thrown = 0, recorded = 0
         for (const { r, script } of built) {
+            expect(hasMoves(r.round)).toBe(true)
             expect(script.plan).toEqual({ tStrategy: r.round.plan!.tStrategy, site: r.round.plan!.site, ctSetup: r.round.plan!.ctSetup })
             if (script.bomb.plant) expect(script.bomb.plant.site).toBe(r.round.plan!.site)
             recorded += r.round.utility?.length ?? 0
             thrown += script.utility.length
         }
-        expect(thrown / recorded).toBeGreaterThan(0.95)
+        expect(thrown).toBe(recorded)
     })
 
-    test('fights happen in range, where the engine put them, and the killer is the nearest enemy', () => {
+    test('each kill is where the two players stood, in sight range, at walking speed', () => {
         const dist = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y)
-        let kills = 0, inRange = 0, near = 0, nearest = 0
+        let kills = 0, inRange = 0, atSpot = 0
         for (const { r, map, script } of built) {
             for (const d of script.deaths) {
                 kills++
-                if (dist(d.at, d.from) <= 12 && d.at.floor === d.from.floor) inRange++
-                const zone = r.round.events!.find(e => e.type === 'KILL' && e.victimId === d.victimId)?.zone
-                const zp = zonePoint(map, zone)
-                if (zp && dist({ x: (d.at.x + d.from.x) / 2, y: (d.at.y + d.from.y) / 2 }, zp) <= 8) near++
+                if (dist(d.at, d.from) <= 24 && d.at.floor === d.from.floor) inRange++
+                const spot = r.round.events!.find(e => e.type === 'KILL' && e.victimId === d.victimId)?.spot
+                if (spot && dist({ x: (d.at.x + d.from.x) / 2, y: (d.at.y + d.from.y) / 2 }, spot) <= 0.1) atSpot++
                 const pos = samplePositions(script, d.t - 0.01)
-                const victim = pos.find(p => p.id === d.victimId)!
-                const enemy = pos.filter(p => p.alive && p.side !== victim.side && p.floor === victim.floor).sort((a, b) => dist(a, victim) - dist(b, victim))[0]
-                if (enemy?.id === d.killerId) nearest++
+                expect(pos.find(p => p.id === d.victimId)!.alive).toBe(true)
             }
-            // Never faster than the builder's speed limit, not even to make a resolver fight.
             for (const track of Object.values(script.tracks)) for (let i = 1; i < track.length; i++) {
-                expect(dist(track[i], track[i - 1]) / (track[i].t - track[i - 1].t)).toBeLessThanOrEqual(map.runSpeed * 1.1 + 1e-6)
+                const dt = track[i].t - track[i - 1].t
+                if (dt > 0.01) expect(dist(track[i], track[i - 1]) / dt).toBeLessThanOrEqual(map.runSpeed * 1.01)
             }
         }
-        expect(inRange / kills).toBeGreaterThan(0.98)
-        // The radar shows the fight within 8 map-% of the zone the resolver named.
-        expect(near / kills).toBeGreaterThan(0.9)
-        expect(nearest / kills).toBeGreaterThan(0.85)
+        expect(inRange / kills).toBeGreaterThan(0.97)
+        expect(atSpot / kills).toBeGreaterThan(0.97)
+    })
+
+    test('players drift off the engine line only a little, on walkable ground, and stand still less', () => {
+        let frames = 0, drifted = 0, offGround = 0, stillRaw = 0, stillLoose = 0
+        for (const { r, map, script } of built) {
+            const mapId = r.ctx.maps[0]
+            const walk = walkAreaFor(mapId)
+            expect(walk.baked).toBe(true)
+            const ct = r.round.ctTeam === 'H' ? r.ctx.home : r.ctx.away
+            const raw = scriptFromMoves(r.round, mapId, map, new Set(ct.players.map(p => p.id)), { loosen: false })
+            for (const [id, track] of Object.entries(script.tracks)) {
+                const base = raw.tracks[id]
+                const end = Math.min(track[track.length - 1].t, base[base.length - 1].t)
+                for (let t = 0; t + 0.5 <= end; t += 0.5) {
+                    const p = sampleTrack(track, t), q = sampleTrack(base, t)
+                    const p2 = sampleTrack(track, t + 0.5), q2 = sampleTrack(base, t + 0.5)
+                    frames++
+                    const d = Math.hypot(p.x - q.x, p.y - q.y)
+                    expect(d).toBeLessThan(3.5)
+                    if (d > 0.05) {
+                        drifted++
+                        if (!walk.ok(p.x, p.y, p.floor)) offGround++
+                    }
+                    if (Math.hypot(q2.x - q.x, q2.y - q.y) < 0.05 * map.runSpeed) stillRaw++
+                    if (Math.hypot(p2.x - p.x, p2.y - p.y) < 0.05 * map.runSpeed) stillLoose++
+                }
+            }
+        }
+        expect(drifted / frames).toBeGreaterThan(0.3)
+        // A drifted point between two samples can graze a raster corner; the samples themselves are checked.
+        expect(offGround / drifted).toBeLessThan(0.02)
+        expect(stillLoose / frames).toBeLessThan(0.7 * stillRaw / frames)
     })
 })

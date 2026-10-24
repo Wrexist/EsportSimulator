@@ -61,7 +61,13 @@ export function buildRoundScript(input: RoundScriptInput, map: RoundMap): RoundS
     for (const a of ctx.actors) steps.set(a, assembleSteps(ctx, a))
     applyCover(ctx, steps, ctx.smokes)
     const raw = new Map<Actor, TrackKey[]>()
-    for (const a of ctx.actors) raw.set(a, clipKeys(toKeys(ctx.g, steps.get(a)!), ctx.endTime))
+    for (const a of ctx.actors) {
+        const keys = clipKeys(toKeys(ctx.g, steps.get(a)!), ctx.endTime)
+        // A survivor whose steps stop short of the end stays where the last one left them.
+        const last = keys[keys.length - 1]
+        if (a.deathT === Infinity && last && last.t < ctx.endTime - 1e-6) keys.push({ ...last, t: ctx.endTime })
+        raw.set(a, keys)
+    }
     spaceTeammates(ctx, raw)
     const tracks: Record<string, TrackKey[]> = {}
     const sides: Record<string, Side> = {}
