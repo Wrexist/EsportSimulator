@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation"
 import { Search, ArrowUpRight } from "lucide-react"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command"
-import { menuGroups, settingsItem } from "@/lib/navigation"
+import { menuGroups, navLabel, settingsItem } from "@/lib/navigation"
+import { t, useLocale } from "@/lib/i18n"
 
 export function NavigationSearch({ compact = false, disabled }: { compact?: boolean; disabled: boolean }) {
+    useLocale() // re-render on a language change
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
     const router = useRouter()
@@ -39,22 +41,22 @@ export function NavigationSearch({ compact = false, disabled }: { compact?: bool
                 : "mx-2 mb-2 flex h-9 shrink-0 items-center gap-2 rounded border border-line bg-shell px-3 text-ink-3 transition-colors hover:border-line-strong hover:text-ink-1 disabled:opacity-40"}
         >
             <Search size={15} className="shrink-0" />
-            <span className={compact ? "hidden text-xs 2xl:inline" : "flex-1 text-left text-xs"}>Go to…</span>
+            <span className={compact ? "hidden text-xs 2xl:inline" : "flex-1 text-left text-xs"}>{t("search.open")}</span>
             <kbd className={compact ? "hidden rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3 2xl:inline" : "rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3"}>Ctrl K</kbd>
         </button>
         </DialogTrigger>
             <DialogContent className="overflow-hidden p-0 sm:max-w-lg" showCloseButton={false}>
-                <DialogTitle className="sr-only">Go to a game screen</DialogTitle>
-                <DialogDescription className="sr-only">Search destinations. Use arrow keys to select and Enter to navigate.</DialogDescription>
+                <DialogTitle className="sr-only">{t("search.title")}</DialogTitle>
+                <DialogDescription className="sr-only">{t("search.description")}</DialogDescription>
                 <Command className="bg-transparent">
-                    <CommandInput aria-label="Search game screens" placeholder="Where would you like to go?" className="h-14 focus-visible:outline-2! focus-visible:-outline-offset-4! focus-visible:shadow-none!" />
+                    <CommandInput aria-label={t("search.inputLabel")} placeholder={t("search.placeholder")} className="h-14 focus-visible:outline-2! focus-visible:-outline-offset-4! focus-visible:shadow-none!" />
                     <CommandList className="max-h-[min(55vh,420px)] p-2" aria-busy={isPending}>
-                        <CommandEmpty>No screens found. Try squad, week or finances.</CommandEmpty>
-                        {[...menuGroups, { label: "Preferences", items: [settingsItem] }].map(group =>
-                            <CommandGroup key={group.label} heading={group.label}>
+                        <CommandEmpty>{t("search.empty")}</CommandEmpty>
+                        {[...menuGroups, { key: "search.preferences", label: "Preferences", items: [settingsItem] }].map(group =>
+                            <CommandGroup key={group.key} heading={navLabel(group)}>
                                 {group.items.map(item => <CommandItem
                                     key={item.href}
-                                    value={`${group.label} ${item.label}`}
+                                    value={`${navLabel(group)} ${navLabel(item)}`}
                                     keywords={item.keywords?.split(" ")}
                                     onSelect={() => {
                                         if (disabled) return
@@ -62,11 +64,11 @@ export function NavigationSearch({ compact = false, disabled }: { compact?: bool
                                         setOpen(false)
                                     }}
                                     className="gap-3 rounded px-3 py-2.5 text-ink-2 data-[selected=true]:bg-hover data-[selected=true]:text-ink-1"
-                                ><item.icon size={16} /><span className="flex-1">{item.label}</span><ArrowUpRight size={14} className="text-ink-3" /></CommandItem>)}
+                                ><item.icon size={16} /><span className="flex-1">{navLabel(item)}</span><ArrowUpRight size={14} className="text-ink-3" /></CommandItem>)}
                             </CommandGroup>
                         )}
                     </CommandList>
-                    <div className="border-t border-line px-5 py-3 text-xs text-ink-3">Type to find a screen · Enter to open · Esc to close</div>
+                    <div className="border-t border-line px-5 py-3 text-xs text-ink-3">{t("search.footer")}</div>
                 </Command>
             </DialogContent>
     </Dialog>

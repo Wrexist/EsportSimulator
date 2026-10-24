@@ -24,9 +24,12 @@ import {
     Landmark,
     type LucideIcon
 } from "lucide-react"
+import { t } from "@/lib/i18n"
 
 export interface MenuItem {
     icon: LucideIcon
+    /** Translation key (locales/en.ts); `label` is its English text. */
+    key: string
     label: string
     href: string
     /** Extra search-palette terms (old screen names, synonyms). */
@@ -34,6 +37,7 @@ export interface MenuItem {
 }
 
 export interface MenuGroup {
+    key: string
     label: string
     items: MenuItem[]
 }
@@ -45,6 +49,7 @@ export interface MenuGroup {
  */
 export interface NavHub {
     id: string
+    key: string
     label: string
     icon: LucideIcon
     items: MenuItem[]
@@ -112,22 +117,24 @@ export function desktopRedirectHref(app: string | null | undefined): string {
 export const navHubs: NavHub[] = [
     {
         id: "home",
+        key: "nav.hub.home",
         label: "Home",
         icon: Home,
         items: [
-            { icon: Home, label: "Overview", href: "/" },
-            { icon: Inbox, label: "Inbox", href: inboxHref(), keywords: "mail messages news decisions offers" },
+            { icon: Home, key: "nav.overview", label: "Overview", href: "/" },
+            { icon: Inbox, key: "nav.inbox", label: "Inbox", href: inboxHref(), keywords: "mail messages news decisions offers" },
         ],
     },
     {
         id: "squad",
+        key: "nav.hub.squad",
         label: "Squad",
         icon: Users,
         items: [
-            { icon: Users, label: "Roster", href: "/squad", keywords: "lineup players" },
-            { icon: ClipboardList, label: "Staff", href: "/staff", keywords: "coach analyst psychologist scout" },
-            { icon: GraduationCap, label: "Academy", href: "/academy", keywords: "prospects youth" },
-            { icon: BarChart3, label: "Statistics", href: "/stats" },
+            { icon: Users, key: "nav.roster", label: "Roster", href: "/squad", keywords: "lineup players" },
+            { icon: ClipboardList, key: "nav.staff", label: "Staff", href: "/staff", keywords: "coach analyst psychologist scout" },
+            { icon: GraduationCap, key: "nav.academy", label: "Academy", href: "/academy", keywords: "prospects youth" },
+            { icon: BarChart3, key: "nav.statistics", label: "Statistics", href: "/stats" },
         ],
         prefixes: ["/player/"],
     },
@@ -135,12 +142,13 @@ export const navHubs: NavHub[] = [
         // Phase 4.2: one place for the coming week. Training and the season
         // calendar are tabs of the same hub; a staff meeting is a booking.
         id: "week",
+        key: "nav.hub.week",
         label: "Week",
         icon: CalendarCheck,
         items: [
-            { icon: CalendarCheck, label: "Week plan", href: "/week", keywords: "weekly focus bookings scrim bootcamp marketing staff meeting" },
-            { icon: Dumbbell, label: "Training", href: "/training", keywords: "drills retraining weapons loadouts" },
-            { icon: Calendar, label: "Calendar", href: "/schedule", keywords: "schedule season fixtures" },
+            { icon: CalendarCheck, key: "nav.weekPlan", label: "Week plan", href: "/week", keywords: "weekly focus bookings scrim bootcamp marketing staff meeting" },
+            { icon: Dumbbell, key: "nav.training", label: "Training", href: "/training", keywords: "drills retraining weapons loadouts" },
+            { icon: Calendar, key: "nav.calendar", label: "Calendar", href: "/schedule", keywords: "schedule season fixtures" },
         ],
         prefixes: ["/week/", "/schedule/"],
     },
@@ -148,20 +156,22 @@ export const navHubs: NavHub[] = [
         // `/match` redirects to the playable match's prep, else the latest
         // result, else the calendar (app/match/page.tsx).
         id: "match",
+        key: "nav.hub.match",
         label: "Match",
         icon: Swords,
         items: [
-            { icon: Swords, label: "Match centre", href: "/match", keywords: "next match tactics veto lineup result" },
+            { icon: Swords, key: "nav.matchCentre", label: "Match centre", href: "/match", keywords: "next match tactics veto lineup result" },
         ],
         prefixes: ["/match/"],
     },
     {
         id: "recruitment",
+        key: "nav.hub.recruitment",
         label: "Recruitment",
         icon: UserPlus,
         items: [
-            { icon: UserPlus, label: "Transfers", href: "/transfers" },
-            { icon: Search, label: "Scouting", href: "/scouting" },
+            { icon: UserPlus, key: "nav.transfers", label: "Transfers", href: "/transfers" },
+            { icon: Search, key: "nav.scouting", label: "Scouting", href: "/scouting" },
         ],
     },
     {
@@ -170,28 +180,30 @@ export const navHubs: NavHub[] = [
         // scene's record (every title on the calendar, players who defined
         // eras), so they sit with tournaments.
         id: "competition",
+        key: "nav.hub.competition",
         label: "Competition",
         icon: Trophy,
         items: [
-            { icon: ListOrdered, label: "League", href: "/league", keywords: "division table standings promotion relegation split" },
-            { icon: Trophy, label: "Tournaments", href: "/tournaments" },
-            { icon: Globe, label: "Rankings", href: "/rankings" },
-            { icon: Award, label: "Trophies", href: "/trophies", keywords: "cabinet titles legacy" },
-            { icon: Crown, label: "Hall of Fame", href: "/hall-of-fame", keywords: "legends legacy" },
+            { icon: ListOrdered, key: "nav.league", label: "League", href: "/league", keywords: "division table standings promotion relegation split" },
+            { icon: Trophy, key: "nav.tournaments", label: "Tournaments", href: "/tournaments" },
+            { icon: Globe, key: "nav.rankings", label: "Rankings", href: "/rankings" },
+            { icon: Award, key: "nav.trophies", label: "Trophies", href: "/trophies", keywords: "cabinet titles legacy" },
+            { icon: Crown, key: "nav.hallOfFame", label: "Hall of Fame", href: "/hall-of-fame", keywords: "legends legacy" },
         ],
         prefixes: ["/tournaments/", "/team/"],
     },
     {
         id: "club",
+        key: "nav.hub.club",
         label: "Club",
         icon: Building2,
         items: [
-            { icon: DollarSign, label: "Finances", href: "/finances", keywords: "money budget ledger" },
-            { icon: Handshake, label: "Sponsors", href: "/sponsorships" },
-            { icon: Building2, label: "Facilities", href: "/basecamp", keywords: "gear equipment basecamp" },
+            { icon: DollarSign, key: "nav.finances", label: "Finances", href: "/finances", keywords: "money budget ledger" },
+            { icon: Handshake, key: "nav.sponsors", label: "Sponsors", href: "/sponsorships" },
+            { icon: Building2, key: "nav.facilities", label: "Facilities", href: "/basecamp", keywords: "gear equipment basecamp" },
             // The board employs the manager: objectives, confidence, warnings.
-            { icon: Landmark, label: "Board", href: "/career/board", keywords: "objectives confidence expectations warning notice dismissal job security" },
-            { icon: UserRound, label: "Manager", href: "/career", keywords: "career profile saves" },
+            { icon: Landmark, key: "nav.board", label: "Board", href: "/career/board", keywords: "objectives confidence expectations warning notice dismissal job security" },
+            { icon: UserRound, key: "nav.manager", label: "Manager", href: "/career", keywords: "career profile saves" },
         ],
         // `/equipment` redirects into Facilities → Gear.
         prefixes: ["/equipment"],
@@ -199,9 +211,15 @@ export const navHubs: NavHub[] = [
 ]
 
 /** Hub-grouped destinations (search palette). */
-export const menuGroups: MenuGroup[] = navHubs.map(hub => ({ label: hub.label, items: hub.items }))
+export const menuGroups: MenuGroup[] = navHubs.map(hub => ({ key: hub.key, label: hub.label, items: hub.items }))
 
-export const settingsItem: MenuItem = { icon: Settings, label: "Settings & Tools", href: "/settings" }
+export const settingsItem: MenuItem = { icon: Settings, key: "nav.settings", label: "Settings & Tools", href: "/settings" }
+
+/** A hub's or item's label in the current language. */
+export function navLabel(entry: { key: string; label: string }): string {
+    const text = t(entry.key)
+    return text === entry.key ? entry.label : text
+}
 
 const pathOf = (href: string) => href.split("?")[0]
 

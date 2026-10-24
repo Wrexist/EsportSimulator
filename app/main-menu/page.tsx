@@ -12,6 +12,7 @@ import { TeamLogoImage } from "@/components/ui/asset-images"
 import { SettingsModal } from "@/components/settings/SettingsModal"
 import { Logotype } from "@/components/brand/Logotype"
 import { TitleHero } from "@/components/brand/TitleHero"
+import { t, tn, useLocale } from "@/lib/i18n"
 
 /** "Season 2 · Week 14" from an absolute career week. */
 function seasonWeekLabel(week: number | null | undefined): string {
@@ -43,6 +44,7 @@ function MenuItem({ label, hint, onClick, href, disabled }: MenuItemProps) {
 }
 
 export default function MainMenuPage() {
+    useLocale() // re-render on a language change
     const router = useRouter()
     const { listSaves, switchSave, isLoading } = useGameStore(useShallow(state => ({
         listSaves: state.listSaves,
@@ -101,7 +103,7 @@ export default function MainMenuPage() {
                     </h1>
                 </header>
 
-                <nav aria-label="Main menu" className="mt-auto mb-auto w-full max-w-[400px] space-y-1.5 pt-16">
+                <nav aria-label={t("menu.label")} className="mt-auto mb-auto w-full max-w-[400px] space-y-1.5 pt-16">
                     {!savesLoaded ? (
                         <div className="h-[76px] w-full animate-pulse rounded-md bg-panel" aria-hidden="true" />
                     ) : latest ? (
@@ -116,9 +118,9 @@ export default function MainMenuPage() {
                                     : <TeamLogoImage src={latest.teamLogo} team={latest.teamPreview} alt={latest.teamName || "Club"} size={38} />}
                             </span>
                             <span className="min-w-0 flex-1">
-                                <span className="block font-display text-[28px] font-bold uppercase leading-none tracking-[0.02em]">Continue</span>
+                                <span className="block font-display text-[28px] font-bold uppercase leading-none tracking-[0.02em]">{t("menu.continue")}</span>
                                 <span className="mt-1 block truncate text-[13px] font-semibold">
-                                    {latest.teamName} · {latest.draftCup ? "Draft Cup" : seasonWeekLabel(latest.currentWeek)}
+                                    {latest.teamName} · {latest.draftCup ? t("menu.draftCup") : seasonWeekLabel(latest.currentWeek)}
                                 </span>
                             </span>
                             {isContinuing ? <Loader2 className="animate-spin" /> : <Play fill="currentColor" />}
@@ -126,27 +128,27 @@ export default function MainMenuPage() {
                     ) : (
                         <Button asChild className="mb-3 h-16 w-full justify-start px-4">
                             <Link href="/new-game">
-                                <span className="font-display text-[28px] font-bold uppercase leading-none tracking-[0.02em]">New career</span>
+                                <span className="font-display text-[28px] font-bold uppercase leading-none tracking-[0.02em]">{t("menu.newCareer")}</span>
                                 <Play fill="currentColor" className="ml-auto" />
                             </Link>
                         </Button>
                     )}
 
-                    {latest && <MenuItem label="New career" href="/new-game" />}
-                    <MenuItem label="Draft Cup" href="/new-game/draft-cup" hint="Short run" />
+                    {latest && <MenuItem label={t("menu.newCareer")} href="/new-game" />}
+                    <MenuItem label={t("menu.draftCup")} href="/new-game/draft-cup" hint={t("menu.shortRun")} />
                     <MenuItem
-                        label="Load game"
+                        label={t("menu.loadGame")}
                         href="/load-game"
-                        hint={savesLoaded ? (careers.length === 0 ? "No saves" : `${careers.length} ${careers.length === 1 ? "save" : "saves"}`) : undefined}
+                        hint={savesLoaded ? (careers.length === 0 ? t("menu.noSaves") : tn("menu.saves", careers.length)) : undefined}
                     />
-                    <MenuItem label="Settings" onClick={() => setIsSettingsOpen(true)} />
-                    {canQuit && <MenuItem label="Quit" onClick={handleQuit} />}
+                    <MenuItem label={t("menu.settings")} onClick={() => setIsSettingsOpen(true)} />
+                    {canQuit && <MenuItem label={t("menu.quit")} onClick={handleQuit} />}
                 </nav>
 
                 <footer className="flex w-full max-w-[400px] items-center gap-3 border-t border-line pt-4 text-xs text-ink-3">
-                    <span className="font-semibold uppercase tracking-[0.14em]">Version</span>
+                    <span className="font-semibold uppercase tracking-[0.14em]">{t("menu.version")}</span>
                     <span className="tabular-nums text-ink-2">{process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}</span>
-                    <Link href="/credits" className="ml-auto rounded-sm font-semibold uppercase tracking-[0.14em] hover:text-ink-1 focus-visible:text-ink-1 focus-visible:outline-hidden">Credits</Link>
+                    <Link href="/credits" className="ml-auto rounded-sm font-semibold uppercase tracking-[0.14em] hover:text-ink-1 focus-visible:text-ink-1 focus-visible:outline-hidden">{t("menu.credits")}</Link>
                 </footer>
             </div>
 
