@@ -6,8 +6,8 @@
  * facilities, style specialisation, anti-strat tunnel vision — is summed per
  * team in "team strength" units (0.06 = +6%). The DIFFERENCE between the two
  * teams is capped at ±NON_PLAYER_BONUS_CAP (10%) and enters every duel as a
- * small rating offset, so a 10% edge is worth about +2.8% of rounds and
- * ~+8 points of map-win probability (measured: see ROUND_SHARE_PER_EDGE).
+ * small rating offset, so a 10% edge is worth about +1.4% of rounds and
+ * ~+4 points of map-win probability (measured: see ROUND_SHARE_PER_EDGE).
  *
  * Player condition (form, morale, energy, fatigue) is per player, not here
  * (profile.ts `condition`).
@@ -38,12 +38,14 @@ export const ROLE_MISSING_EDGE = 0.04
 export const FACILITY_EDGE_PER_LEVEL = 0.01
 
 /**
- * Measured with the calibration harness (600 samples, paired seeds): share of
- * rounds won per 1.0 of team edge (+10% ≈ +2.8% of rounds) and map-win points
- * per 1.0 (+10% ≈ +8.5 points). VOD review (+6.25%): +1.4–1.7% of rounds.
+ * Display-only: what the tactics screen quotes per 1% of team strength.
+ * Re-measured 2026-10-24 on the sight engine (scripts/odds/win-odds-calibration.ts
+ * effects, 1,200 paired maps, edges levelled then +10% for one side):
+ * +10% ≈ +1.4% of rounds and +4.3 map-win points. The older 0.28 / 85 came
+ * from the pre-sight engine.
  */
-export const ROUND_SHARE_PER_EDGE = 0.28
-export const MAP_POINTS_PER_EDGE = 85
+export const ROUND_SHARE_PER_EDGE = 0.14
+export const MAP_POINTS_PER_EDGE = 43
 
 export interface StaffBundle { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist }
 
