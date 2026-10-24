@@ -85,8 +85,8 @@ describe("save v10", () => {
 
     test("re-derives the placeholder, keeps real values and legends, deterministic and idempotent", () => {
         const migrated = runMigrationLadder(v9()) as GameSave
-        expect(CURRENT_SAVE_VERSION).toBe(10)
-        expect(migrated.saveVersion).toBe(10)
+        expect(CURRENT_SAVE_VERSION).toBeGreaterThanOrEqual(10)
+        expect(migrated.saveVersion).toBe(CURRENT_SAVE_VERSION)
         const by = new Map(migrated.players.map(x => [x.id, x]))
         expect(by.get("a")!.amicability).toBe(deriveAmicability(by.get("a")!))
         expect(by.get("b")!.amicability).toBe(deriveAmicability(by.get("b")!))

@@ -22,6 +22,7 @@ import type {
     PlayerSaveData,
 } from "./save-types"
 import { assignPersonalities, spreadPlaceholderAmicability } from "./personality"
+import { applyReputationLift } from "./player-evaluation"
 import {
     dedupeQualifications,
     normalizeQualificationStatus,
@@ -370,6 +371,21 @@ export function migrateToV10(save: Record<string, unknown>): Record<string, unkn
 }
 
 /**
+ * v11 (ratings match results): the OVR used to add a reputation bonus the
+ * match engine never saw. OVR is now the engine's own strength
+ * (engine/match-rating.ts), and each player's reputation bonus moves into
+ * their skill and potential once, as a new career does, so the clubs keep
+ * the ratings they showed and now play to them. Legends keep their values.
+ */
+export function migrateToV11(save: Record<string, unknown>): Record<string, unknown> {
+    const players = Array.isArray(save.players) ? (save.players as PlayerSaveData[]) : []
+    const week = typeof save.currentWeek === "number" ? save.currentWeek : 1
+    const year = 2025 + Math.floor((Math.max(1, week) - 1) / 52)
+    for (const p of players) if (!p.isLegendary) applyReputationLift(p, year)
+    return { ...save, players, saveVersion: 11 }
+}
+
+/**
  * Run the full ladder up to the current version. Each step is no-op
  * if the save already meets its target version.
  *
@@ -393,6 +409,7 @@ export function runMigrationLadder(save: unknown): GameSave {
     if (version < 8) migrated = migrateToV8(migrated)
     if (version < 9) migrated = migrateToV9(migrated)
     if (version < 10) migrated = migrateToV10(migrated)
+    if (version < 11) migrated = migrateToV11(migrated)
 
     return {
         ...migrated,
