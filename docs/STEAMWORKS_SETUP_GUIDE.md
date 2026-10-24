@@ -1,5 +1,7 @@
 # Steamworks Configuration Guide for Esports Manager: FPS
 
+> **Superseded (2026-10-24).** Current Steam configuration: [docs/steam/README.md](steam/README.md). Achievement names, descriptions and leaderboard labels below are out of date: use the generated [STEAMWORKS_CONFIG.md](steam/STEAMWORKS_CONFIG.md).
+
 > Current L30 evidence (14 September 2026): [report](launch-readiness/evidence/L30-REPORT.md). App ID 4326170, ownership and Cloud enabled verified through read-only native calls. Partner configuration, packaged client mutation and two-device/user acceptance are still open. Divergent valid saves now require a load-time choice; uploads refuse unseen changes in the current SDK view and retain a previous-copy local backup. Older setup/test expectations below are guidance, not evidence of accepted behavior.
 
 This guide walks you through setting up all achievements, statistics, and leaderboards in the Steamworks console to match the game code.
@@ -87,7 +89,7 @@ Click **"Ny prestation"** (New Achievement) for each entry.
 | `FIRST_TOURNAMENT` | Tournament Debut | Participate in your first tournament | No |
 | `WIN_B_TIER` | Rising Star | Win a B-Tier tournament | No |
 | `WIN_A_TIER` | Premier Champion | Win an A-Tier tournament | No |
-| `WIN_MAJOR` | Major Champion | Win a CS2 Major | No |
+| `WIN_MAJOR` | Major Champion | Win a Major | No |
 | `GRAND_SLAM` | Grand Slam | Win all 3 Majors in a single year | **Yes** |
 | `DYNASTY` | Dynasty Builder | Win 3 Major championships | No |
 | `PERFECT_TOURNAMENT` | Flawless Victory | Win a tournament without losing a single map | No |

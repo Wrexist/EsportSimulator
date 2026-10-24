@@ -1,0 +1,9 @@
+"lang"
+{
+	"language"	"swedish"
+	"tokens"
+	{
+		"#Status_Managing"	"Leder %team% - säsong %season%, vecka %week%"
+		"#Status_Ranked"	"Leder %team% (världsranking #%rank%) - säsong %season%, vecka %week%"
+	}
+}

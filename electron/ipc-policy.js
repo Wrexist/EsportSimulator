@@ -52,9 +52,9 @@ add('steam-set-stat', false, a=>a.length===2&&name(a[0])&&typeof a[1]==='number'
 add('steam-store-stats', false, none, 'no arguments → boolean', 'Steam stats; throttled');
 add('steam-set-achievement steam-is-achievement-unlocked', false, one(name), 'allowlisted identifier → boolean', 'Steam achievements');
 add('steam-set-leaderboard-score', false, a=>a.length===2&&name(a[0])&&int32(a[1]), 'allowlisted name + int32 → boolean', 'Steam leaderboard; throttled');
-const presenceKey = v=>['status','steam_display'].includes(v);
-add('steam-set-rich-presence', false, a=>a.length===2&&presenceKey(a[0])&&(a[1]===null||text(a[1],255)), 'status|steam_display + string ≤255 bytes|null → boolean', 'Bounded presence cache and Steam');
-add('steam-get-rich-presence', null, one(presenceKey), 'status|steam_display → string|null', 'Presence cache');
+const presenceKey = v=>['status','steam_display','team','season','week','rank'].includes(v);
+add('steam-set-rich-presence', false, a=>a.length===2&&presenceKey(a[0])&&(a[1]===null||text(a[1],255)), 'status|steam_display|team|season|week|rank + string ≤255 bytes|null → boolean', 'Bounded presence cache and Steam');
+add('steam-get-rich-presence', null, one(presenceKey), 'status|steam_display|team|season|week|rank → string|null', 'Presence cache');
 add('steam-cloud-list', [], none, 'no arguments to bounded save filenames', 'Current Steam account cloud namespace, receipt filtered');
 add('steam-cloud-write', false, a=>a.length===2&&cloudName(a[0])&&text(a[1],MAX_VALUE_BYTES), 'save_*.json + string ≤32 MiB UTF-8 → boolean', 'Steam cloud namespace; throttled');
 add('steam-cloud-read', null, one(cloudName), 'save_*.json → bounded string|null', 'Steam cloud namespace; throttled');

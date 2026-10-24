@@ -115,6 +115,15 @@ export const FREE_AGENT_TUNING = {
  */
 export const AI_SQUAD_TUNING = {
     /**
+     * G5: AI clubs pick their starting five (the first five roster slots)
+     * each week from the whole senior roster: highest summed overall, with
+     * each of the five roles (AWPer, IGL, entry, support, rifler) missing
+     * from the five counted as this many overall points lost. The engine
+     * takes ROLE_MISSING_EDGE (4% team strength) per missing role, and the
+     * AWPer role decides who buys the AWP.
+     */
+    LINEUP_ROLE_WEIGHT: 6,
+    /**
      * Pass 2: AI clubs train every week on the managed club's default
      * regimen (store/game-store.ts: AIM at intensity 5) through the same
      * TrainingProcessor, so development is symmetric.

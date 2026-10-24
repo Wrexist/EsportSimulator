@@ -363,7 +363,7 @@ The base game is funded and complete. Every stretch goal adds **new content and 
 | **QA & Playtesting** | €2,000 | External testers across hardware configs |
 | **Launch Marketing** | €4,000 | Press kits, content creator outreach, trailer production |
 | **Kickstarter + Payment Fees** | €1,500 | ~8-10% of campaign total |
-| **Legal & Business Setup** | €1,000 | EULA, privacy policy, business registration |
+| **Legal & Business Setup** | €1,000 | Privacy policy, business registration |
 | **Audio & Music** | €2,000 | Original soundtrack and sound design |
 | **Art Assets & Polish** | €2,500 | UI polish, tournament logos, player portraits |
 | **Fulfillment (Physical Rewards)** | €900 | Printing, USB drives, shipping for high tiers |
@@ -430,7 +430,7 @@ We believe in being transparent with our backers. Here are the real risks involv
 **The risk:** Steam's review process could reject the game or require changes. Store page visibility is not guaranteed for indie titles.
 
 **How we're handling it:**
-- The game complies with all Steamworks requirements: proper EULA, privacy policy, content descriptors, and system requirement disclosures are already prepared.
+- The game complies with all Steamworks requirements: privacy policy, content descriptors, and system requirement disclosures are already prepared.
 - Steam integration (achievements, cloud saves, leaderboards, rich presence) is **already coded and functional** via Steamworks.js — this is not future work.
 - We have budgeted for launch marketing (€4,000) to drive initial wishlists and day-one purchases, rather than relying solely on Steam's algorithm.
 - If Steam approval is unexpectedly delayed, we will distribute the game directly to backers via a standalone installer (already built) while we resolve any store issues.

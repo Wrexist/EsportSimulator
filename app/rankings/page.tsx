@@ -4,7 +4,9 @@ import React, { useMemo, useState, useRef } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useRouteViewState } from "@/hooks/use-route-view-state"
+import Link from "next/link"
 import { useGameStore } from "@/store/game-store"
+import { PlayerLink } from "@/components/ui/EntityLink"
 import { useShallow } from "zustand/react/shallow"
 import { PlayerPortrait, TeamLogoImage } from "@/components/ui/asset-images"
 import { HelpTooltip, StatExplanations } from "@/components/ui/stat-tooltip"
@@ -646,6 +648,7 @@ function RankingsPageInner() {
                                         </div>
                                     </div>
                                 </div>
+                                <Link href={`/team/${encodeURIComponent(selectedTeam.id)}`} className="ml-auto mr-2 rounded px-2.5 py-1.5 text-xs font-semibold text-ink-2 transition-colors hover:bg-hover hover:text-gold">Club page</Link>
                                 <button onClick={() => setSelectedTeam(null)} aria-label="Close team details" className="rounded p-2 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1">
                                     <X size={18} />
                                 </button>
@@ -676,7 +679,7 @@ function RankingsPageInner() {
                                                                 <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={36} variant="card" />
                                                             </span>
                                                             <CountryFlag country={player.nationality} size={14} />
-                                                            <span className="text-sm font-semibold text-ink-1">{player.nickname}</span>
+                                                            <PlayerLink id={player.id} className="text-sm font-semibold text-ink-1">{player.nickname}</PlayerLink>
                                                         </span>
                                                     </td>
                                                     <td className="px-3"><RoleTag role={(player.role || "Rifler").split(",")[0]} /></td>

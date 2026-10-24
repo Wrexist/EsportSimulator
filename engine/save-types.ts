@@ -49,6 +49,14 @@ export interface GameSave {
   firstSession?: import('@/lib/first-session').FirstSessionState
     customTactics?: import("@/types").CustomTactics
     watchlistedPlayerIds?: string[]
+    /** G8: saved transfer-market searches with weekly alerts (engine/market-search.ts). */
+    savedSearches?: SavedMarketSearch[]
+    /** G6: chores delegated to staff (engine/delegation.ts). */
+    delegation?: import("./delegation").DelegationSettings
+    /** G7: the Draft Cup run this save plays (absent on a normal career). */
+    draftCup?: import("./draft-cup").DraftCupState
+    /** G2: per-season map, side, buy and plan tallies (engine/map-record.ts). */
+    mapRecords?: import("./map-record").MapRecordState
     activeMatchId?: string | null
     activeMatchState?: import("@/types").ActiveMatchState | null
     physicalMatchPreview?: import("./spatial/career-round-journal").PhysicalCareerJournal | null
@@ -1219,6 +1227,16 @@ export interface EventDataPayload {
     [key: string]: unknown
 }
 
+export interface SavedMarketSearch {
+    id: string
+    name: string
+    criteria: import("./market-search").MarketCriteria
+    alerts: boolean
+    createdWeek: number
+    /** Players matching at the last check; a weekly alert names only players not in it. */
+    seenIds: string[]
+}
+
 export interface GameEventSaveData {
     id: string
     type: string
@@ -1292,6 +1310,10 @@ export interface SaveSlotMetadata {
     teamName: string | null
     updatedAt: string | null
     isEmpty: boolean
+    /** The career has no club right now (job market open); teamName holds a label. */
+    betweenClubs?: boolean
+    /** G7: a Draft Cup run (its difficulty, and the finish and score once settled). */
+    draftCup?: { difficulty: string; finish?: string; score?: number }
 
     // Set when the slot's data failed to parse/validate. The slot is still
     // surfaced (rather than silently dropped) so the player can see it and

@@ -84,6 +84,8 @@ function EventLinks({ event }: { event: GameEventSaveData }) {
     else if (data.tournamentId) links.push([`/tournaments/${data.tournamentId}`, "View tournament"])
     if (event.type === "FINANCE" || event.type === "BUDGET_WARNING") links.push(["/finances", "Finances"])
     if (event.type === "SCOUTING_COMPLETE") links.push(["/scouting", "Scouting"])
+    if (event.type === "STAFF_REPORT") links.push(["/staff#delegation", "Change what staff handle"])
+    if (event.type === "MARKET_ALERT") links.push([data.searchId ? `/transfers?search=${encodeURIComponent(String(data.searchId))}` : "/transfers", "Open in the market"])
     if (["AI_SIGNING", "AI_TRANSFER", "ROSTER_UPDATE", "TRANSFER_WINDOW"].includes(event.type as string)) links.push(["/transfers", "Transfer market"])
     if (links.length === 0) return null
     return (

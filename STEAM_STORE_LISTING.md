@@ -1,5 +1,7 @@
 # Esports Manager: FPS ? store copy draft
 
+> **Superseded (2026-10-24).** Current Steam configuration: [docs/steam/README.md](docs/steam/README.md). Kept as history; the staged store copy is in `marketing/store-page-2026-10-12/` on the owner's PC.
+
 Local Windows 1.0 draft, not published or release-approved. [Artwork preview](marketing/steam-2026-09-14/preview.html) ? [Delivery notes](marketing/steam-2026-09-14/README.md)
 
 [Exact-size upload pack and guide](marketing/steam-upload-pack-2026-09-14/START-HERE.html)
