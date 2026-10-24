@@ -103,6 +103,10 @@ export interface ScoutingState {
   scoutedPlayers: { playerId: string; scoutedWeek: number; scoutLevel: "BASIC" | "ADVANCED" | "EXPERT" | "ELITE" }[]
   activeScoutingMission?: { playerId: string; startWeek: number; completionWeek: number; scoutId: string }
   watchlistedPlayerIds: string[]
+  savedSearches: import("@/engine/save-types").SavedMarketSearch[]
+  /** G6: chores the staff runs before each week. */
+  delegation: import("@/engine/delegation").DelegationSettings
+  mapRecords?: import("@/engine/map-record").MapRecordState
 }
 
 export interface AcademyState {
@@ -164,7 +168,7 @@ export interface IndexesState {
 // ===== SLICE ACTION INTERFACES =====
 
 export interface CoreGameActions {
-  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string) => Promise<void>
+  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: { unemployed?: boolean }) => Promise<void>
   initializeCustomTeam: (managerName: string, teamData: CustomTeamData) => Promise<void>
   loadGame: (saveId: string) => Promise<void>
   saveGame: () => Promise<void>
@@ -200,6 +204,8 @@ export interface EntitiesActions {
   setPlaystyle: (teamId: string, playstyle: TeamSaveData["playstyle"]) => void
   setEconomyStyle: (teamId: string, economyStyle: TeamSaveData["economyStyle"]) => void
   setTargetPlayer: (teamId: string, targetPlayerId: string | undefined) => void
+  setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
+  runDelegatedChores: () => string[]
   purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }
   upgradeMerchStore: (teamId: string) => { success: boolean, message: string }
   toggleMerchItem: (teamId: string, itemType: string) => { success: boolean; message: string }
@@ -248,6 +254,8 @@ export interface EventsActions {
   addNewsItem: (item: Omit<NewsFeedItem, "id" | "week">) => void
   acceptJobOffer: (eventId: string) => { success: boolean; message: string }
   declineJobOffer: (eventId: string) => void
+  /** Between clubs: top the open offers back up from clubs not yet offered; returns how many were added. */
+  findMoreJobOffers: () => number
   negotiateJobOffer: (eventId: string) => { success: boolean; message: string; newOffer?: number; withdrew?: boolean }
   /** Merge this week's generated NPC posts into the persisted social feed
    *  (idempotent per week — deduped by id, capped). */
@@ -263,6 +271,10 @@ export interface ScoutingActions {
   isPlayerScouted: (playerId: string) => boolean
   toggleWatchlistPlayer: (playerId: string) => void
   isPlayerWatchlisted: (playerId: string) => boolean
+  /** G8: save the current market filters; returns false when nothing narrows the market or the list is full. */
+  saveMarketSearch: (name: string, criteria: import("@/engine/market-search").MarketCriteria) => boolean
+  deleteMarketSearch: (id: string) => void
+  toggleMarketSearchAlerts: (id: string) => void
 }
 
 export interface AcademyActions {

@@ -179,7 +179,7 @@ export const navHubs: NavHub[] = [
             { icon: Award, label: "Trophies", href: "/trophies", keywords: "cabinet titles legacy" },
             { icon: Crown, label: "Hall of Fame", href: "/hall-of-fame", keywords: "legends legacy" },
         ],
-        prefixes: ["/tournaments/"],
+        prefixes: ["/tournaments/", "/team/"],
     },
     {
         id: "club",

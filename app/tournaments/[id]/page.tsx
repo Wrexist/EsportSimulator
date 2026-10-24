@@ -51,6 +51,7 @@ import { Kpi } from "@/src/components/ui/Kpi"
 import { TierTag } from "@/src/components/ui/TierTag"
 import TournamentBracket from "@/components/tournament/TournamentBracket"
 import TournamentStats from "@/components/tournament/TournamentStats"
+import { TeamLink } from "@/components/ui/EntityLink"
 
 // Prize split by placement — mirrors PRIZE_DISTRIBUTION_8 / _16 in
 // engine/processors/standings-processor.ts (deep fields use the 16-place
@@ -642,7 +643,7 @@ export default function TournamentDetailPage() {
                                                             <td>
                                                                 <span className="flex items-center gap-2.5">
                                                                     <TeamLogoImage src={s.team.logoPath} alt="" size={22} />
-                                                                    <span className="text-sm font-semibold text-ink-1">{s.team.name}</span>
+                                                                    <TeamLink id={s.team.id} className="text-sm font-semibold text-ink-1">{s.team.name}</TeamLink>
                                                                 </span>
                                                             </td>
                                                             <td className="pr-4 text-right text-sm tabular-nums">
@@ -930,7 +931,7 @@ export default function TournamentDetailPage() {
                                             <span className="font-display text-xl font-bold text-ink-3">VS</span>
                                             <span className="flex flex-1 items-center justify-end gap-3 text-right">
                                                 <span>
-                                                    <span className="block font-display text-2xl font-bold uppercase leading-none text-ink-1">{opponent.name}</span>
+                                                    <TeamLink id={opponent.id} className="block font-display text-2xl font-bold uppercase leading-none text-ink-1">{opponent.name}</TeamLink>
                                                     <span className="text-xs text-ink-3">World #{opponent.worldRanking || "—"}</span>
                                                 </span>
                                                 <TeamLogoImage src={opponent.logoPath} alt="" size={36} />

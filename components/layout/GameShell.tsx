@@ -9,6 +9,7 @@ import { ErrorBoundary } from "./ErrorBoundary"
 
 import { usePathname, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
 import { useSettingsStore } from "@/lib/settings-store"
 import { Suspense, useEffect, useRef, useState, useCallback } from "react"
 import { useShallow } from "zustand/react/shallow"
@@ -45,6 +46,13 @@ const InboxDrawer = dynamic(() => import("../inbox/InboxDrawer").then(mod => mod
 const LIVE_MATCH_PATH = /^\/match\/[^/]+\/live\/?$/
 function isLiveMatchPath(path: string | null | undefined): boolean {
     return !!path && LIVE_MATCH_PATH.test(path)
+}
+
+/** Screens open while between clubs: the job market, the wider world and settings. */
+const BETWEEN_CLUBS_ROUTES = ["/team/", "/rankings", "/league", "/hall-of-fame", "/settings", "/credits", "/load-game", "/main-menu", "/new-game", "/map-editor", "/dev"]
+function isBetweenClubsRoute(pathname: string | null): boolean {
+    if (!pathname || pathname === "/") return true
+    return BETWEEN_CLUBS_ROUTES.some(r => r.endsWith("/") ? pathname.startsWith(r) : pathname === r || pathname.startsWith(`${r}/`))
 }
 
 export function GameShell({ children }: { children: React.ReactNode }) {
@@ -186,6 +194,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     }, [])
 
     const inCareer = useGameStore(state => !!state.saveId && !!state.playerTeamId)
+    // Between clubs (sacked, club folded, or a career started without a club)
+    // there is no club to run: management screens show the job market.
+    const betweenClubs = useGameStore(state => inCareer && !!state.gameOverReason)
     const musicScene = routeMusicScene(pathname, inCareer)
     useEffect(() => {
         soundManager.setQuietScene(musicScene === "silent")
@@ -371,7 +382,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                     >
                         <ErrorBoundary>
                             {!hideChrome && !isMatchRoute && <TutorialOverlay />}
-                            {children}
+                            {betweenClubs && !isBetweenClubsRoute(pathname) ? <DismissalJobMarket blockedRoute /> : children}
                         </ErrorBoundary>
                     </div>
                 </main>

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import type { SaveSlotMetadata } from "@/engine"
-import { Loader2, Play } from "lucide-react"
+import { Briefcase, Loader2, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import { SettingsModal } from "@/components/settings/SettingsModal"
@@ -111,7 +111,9 @@ export default function MainMenuPage() {
                             className="mb-3 h-auto w-full justify-start gap-4 px-4 py-3.5 text-left"
                         >
                             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-gold-on">
-                                <TeamLogoImage src={latest.teamLogo} team={latest.teamPreview} alt={latest.teamName || "Club"} size={38} />
+                                {latest.betweenClubs
+                                    ? <Briefcase size={22} className="text-gold" aria-hidden="true" />
+                                    : <TeamLogoImage src={latest.teamLogo} team={latest.teamPreview} alt={latest.teamName || "Club"} size={38} />}
                             </span>
                             <span className="min-w-0 flex-1">
                                 <span className="block font-display text-[28px] font-bold uppercase leading-none tracking-[0.02em]">Continue</span>

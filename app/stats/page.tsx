@@ -20,6 +20,7 @@ import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Sparkline } from "@/src/components/ui/Sparkline"
+import { MapDataPanel } from "@/components/stats/MapDataPanel"
 
 /** Chart styling from the v2 tokens (app/premium-ui.css custom properties). */
 const AXIS = { stroke: "var(--border-subtle)", tick: { fill: "var(--text-muted)", fontSize: 11 }, axisLine: false, tickLine: false } as const
@@ -164,6 +165,7 @@ export default function StatsPage() {
                         <TabsTrigger value="results">Results</TabsTrigger>
                         <TabsTrigger value="trophies">Trophies</TabsTrigger>
                         <TabsTrigger value="rivalries">Rivalries</TabsTrigger>
+                        <TabsTrigger value="maps">Maps</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="players" className="mt-3 space-y-4">
@@ -326,6 +328,10 @@ export default function StatsPage() {
 
                     <TabsContent value="trophies" className="mt-3">
                         <TrophyCabinet trophies={(team.trophies || []) as never} title="Trophy cabinet" />
+                    </TabsContent>
+
+                    <TabsContent value="maps" className="mt-3">
+                        <MapDataPanel />
                     </TabsContent>
 
                     <TabsContent value="rivalries" className="mt-3">

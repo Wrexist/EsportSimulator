@@ -316,6 +316,28 @@ export default function TeamSelectionPage() {
         router.push("/new-game/create-team")
     }
 
+    // G9: start with no club. The world is built around a placeholder club
+    // (the lowest-reputation side, never managed) and the career opens on
+    // the first-job market.
+    const handleStartUnemployed = async () => {
+        if (!validateManagerName() || isStarting || startingRef.current || rankedTeams.length === 0) return
+        const placeholder = [...rankedTeams].sort((a, b) => a.reputation - b.reputation || a.id.localeCompare(b.id))[0]
+        startingRef.current = true
+        setIsStarting(true)
+        try {
+            await initializeNewGame(managerName.trim() || "My Career", placeholder.id, undefined, { unemployed: true })
+            if (useGameStore.getState().error) throw Error(useGameStore.getState().error!)
+            clearCareerDraft()
+            void recordNewCampaign()
+            router.push("/")
+        } catch (err) {
+            debug.error("Failed to start game:", err)
+            toast.error("Failed to start game", { description: "An error occurred while initializing. Please try again." })
+            startingRef.current = false
+            setIsStarting(false)
+        }
+    }
+
     const handleStartGame = async () => {
         if (!selectedTeam || isStarting || startingRef.current) return
         if (managerName.trim().length < 2 || isLocked(selectedTeam)) {
@@ -419,6 +441,13 @@ export default function TeamSelectionPage() {
                                 <span>
                                     <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">Create your own team</span>
                                     <span className="mt-1 block text-[13px] font-medium text-ink-3">Start at the bottom with an empty roster</span>
+                                </span>
+                                <ChevronRight />
+                            </Button>
+                            <Button onClick={handleStartUnemployed} disabled={isStarting || rankedTeams.length === 0} variant="outline" className="h-auto w-full justify-between px-4 py-3 text-left">
+                                <span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">Start without a club</span>
+                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">Take a job offer from a lower-tier side and earn your way up</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
