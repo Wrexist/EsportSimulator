@@ -62,6 +62,7 @@ export const GameSaveSchema = z
             id: z.string(), name: z.string(), alerts: z.boolean(), createdWeek: z.number(), seenIds: z.array(z.string()),
             criteria: z.object({}).passthrough(),
         }).passthrough()).optional(),
+        mapRecords: z.object({ current: z.object({ season: z.number(), teams: z.record(z.string(), z.unknown()) }).passthrough(), previous: z.object({}).passthrough().optional() }).passthrough().optional(),
         activeMatchState: z.object({
             matchId: z.string(), gameState: z.object({}).passthrough(), simState: z.object({}).passthrough(),
             homeRoster: arrayOfUnknown, awayRoster: arrayOfUnknown, logs: arrayOfUnknown,

@@ -51,6 +51,8 @@ export interface GameSave {
     watchlistedPlayerIds?: string[]
     /** G8: saved transfer-market searches with weekly alerts (engine/market-search.ts). */
     savedSearches?: SavedMarketSearch[]
+    /** G2: per-season map, side, buy and plan tallies (engine/map-record.ts). */
+    mapRecords?: import("./map-record").MapRecordState
     activeMatchId?: string | null
     activeMatchState?: import("@/types").ActiveMatchState | null
     physicalMatchPreview?: import("./spatial/career-round-journal").PhysicalCareerJournal | null

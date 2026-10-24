@@ -223,6 +223,7 @@ export class SaveManager {
             customTactics: initialData.customTactics ?? createDefaultTactics(),
             watchlistedPlayerIds: initialData.watchlistedPlayerIds ?? [],
             savedSearches: initialData.savedSearches ?? [],
+            ...(initialData.mapRecords ? { mapRecords: initialData.mapRecords } : {}),
             activeMatchId: initialData.activeMatchId ?? null,
             activeMatchState: initialData.activeMatchState ?? null,
             // A new slot must never inherit another career's worker ownership.

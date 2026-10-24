@@ -104,6 +104,7 @@ export interface ScoutingState {
   activeScoutingMission?: { playerId: string; startWeek: number; completionWeek: number; scoutId: string }
   watchlistedPlayerIds: string[]
   savedSearches: import("@/engine/save-types").SavedMarketSearch[]
+  mapRecords?: import("@/engine/map-record").MapRecordState
 }
 
 export interface AcademyState {
