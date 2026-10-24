@@ -5,7 +5,7 @@
 import { useGameStore } from "@/store/game-store"
 import {
     buildDraftPool, draftComplete, draftCupOutcome, draftPrice, draftSpent, pickCupField, clubStrength,
-    DRAFT_BUDGET, DRAFT_POOL_PER_ROLE, DRAFT_ROLES, type DraftPick, type DraftPool,
+    DRAFT_BUDGET, DRAFT_POOL_PER_ROLE, DRAFT_PRICE_FLOOR, DRAFT_ROLES, type DraftPick, type DraftPool,
 } from "@/engine/draft-cup"
 import { buildDraftCupWorld } from "@/lib/draft-cup-world"
 import type { GameSave } from "@/engine/save-types"
@@ -43,9 +43,9 @@ const byId = () => new Map(world.players.map(p => [p.id, p]))
 
 describe("draft rules", () => {
     test("prices climb steeply and five stars do not fit", () => {
-        expect(draftPrice(40)).toBe(1)
-        expect(draftPrice(50)).toBeLessThan(draftPrice(60))
-        expect(draftPrice(62) * 5).toBeGreaterThan(DRAFT_BUDGET)
+        expect(draftPrice(DRAFT_PRICE_FLOOR + 2)).toBe(1)
+        expect(draftPrice(DRAFT_PRICE_FLOOR + 12)).toBeLessThan(draftPrice(DRAFT_PRICE_FLOOR + 22))
+        expect(draftPrice(DRAFT_PRICE_FLOOR + 24) * 5).toBeGreaterThan(DRAFT_BUDGET)
     })
 
     test("the field comes from the difficulty band and the pool avoids it", () => {

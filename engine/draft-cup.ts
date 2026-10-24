@@ -54,9 +54,17 @@ export const DRAFT_CUP_TEAMS = 8
 /** Dearest player the pool offers: anyone pricier would eat the whole budget. */
 export const DRAFT_MAX_PRICE = 60
 
+/**
+ * Duel rating that costs nothing. A full budget spread evenly buys five
+ * players about 20 points above it: set so that draft sits a little above
+ * the Pro band (clubs ranked 9-24, mean duel 66 since ratings follow the
+ * engine; was 38 when the world's strength was flat, Pro band 54).
+ */
+export const DRAFT_PRICE_FLOOR = 50
+
 /** Points a player costs, from his duel rating: steep at the top, so five stars never fit. */
 export function draftPrice(duel: number): number {
-    return Math.max(1, Math.round(Math.pow(Math.max(0, duel - 38), 1.6) / 6))
+    return Math.max(1, Math.round(Math.pow(Math.max(0, duel - DRAFT_PRICE_FLOOR), 1.6) / 6))
 }
 
 /**
