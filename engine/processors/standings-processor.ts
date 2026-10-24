@@ -256,8 +256,11 @@ export function updateStandings(
     idx?: SaveIndexes,
     eventIdSet?: Set<string>,
     ledgerIdSet?: Set<string>,
+    /** Only this tournament (a Draft Cup settles its own cup when the run ends, with no week tick after). */
+    onlyTournamentId?: string,
 ): void {
     save.tournaments.forEach(tournament => {
+        if (onlyTournamentId && tournament.id !== onlyTournamentId) return
         const seen = new Set<string>()
         const tournamentMatches = save.completedMatches.filter(m => {
             if (m.tournamentId !== tournament.id || seen.has(m.id)) return false

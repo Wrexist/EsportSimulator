@@ -7,6 +7,8 @@
 
 import type { SliceCreator } from "@/store/types"
 import { draftCupOutcome } from "@/engine/draft-cup"
+import { updateStandings } from "@/engine/processors/standings-processor"
+import type { GameSave } from "@/engine/save-types"
 import { recordDraftCupRun } from "@/lib/draft-cup-runs"
 
 export interface DraftCupActions {
@@ -24,6 +26,10 @@ export const createDraftCupSlice: SliceCreator<DraftCupActions> = (set, get) => 
         if (!outcome) return false
         const team = state.teams.find(t => t.id === cup.teamId)
         set((s) => {
+            // The run ends with the cup, so no week tick follows to hand out
+            // the trophy, prize money and title contract bonuses: settle the
+            // cup's rewards now (deduped, so a later tick never pays twice).
+            updateStandings(s as unknown as GameSave, undefined, undefined, undefined, cup.tournamentId)
             if (s.draftCup) s.draftCup = { ...s.draftCup, result: { ...outcome, finishedWeek: s.currentWeek } }
         })
         recordDraftCupRun({
