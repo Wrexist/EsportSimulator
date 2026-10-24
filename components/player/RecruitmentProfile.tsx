@@ -18,6 +18,7 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { PlayerCareerRecord } from "./PlayerCareerRecord"
 import { PersonalityChips } from "./PersonalityChips"
 import { PersonalityPanel } from "./PersonalityPanel"
+import { SquadFitPanel } from "./SquadFitPanel"
 import { TeamLink } from "@/components/ui/EntityLink"
 
 const ATTRIBUTES = [
@@ -122,6 +123,14 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
 
             <div className="min-w-0 space-y-4">
                 <PersonalityPanel player={player} />
+                {canNegotiate && ownTeam && (
+                    <SquadFitPanel
+                        player={player}
+                        rating={typeof report.ovrRange === "number" ? report.ovrRange : Math.round((report.ovrRange[0] + report.ovrRange[1]) / 2)}
+                        exact={typeof report.ovrRange === "number"}
+                        leader={report.exactStats?.leader}
+                    />
+                )}
                 <Panel
                     title="Scouting report"
                     actions={
