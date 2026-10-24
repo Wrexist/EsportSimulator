@@ -3,7 +3,7 @@
 /**
  * Team-settings slice.
  *
- * Six small actions that toggle team-scoped settings without touching
+ * Small actions that toggle team-scoped settings without touching
  * the broader match/transfer/contract systems:
  *   - setPlaystyle / setEconomyStyle — strategic loadout flags. Both
  *     validate the input against the canonical set of allowed values
@@ -11,6 +11,7 @@
  *   - setTargetPlayer — "antistrat" flag pointing at an opponent
  *     roster's star. Cleared when set to falsy; otherwise must
  *     reference a real non-own-team player.
+ *   - setPlaybook — the G1 playbook of named calls per map (sanitized).
  *   - swapRosterPositions — swap two roster indexes (used by the UI
  *     drag-and-drop). Bounds-checked.
  *   - updateTeamBudget — adjust budget by a bounded delta. Refuses
@@ -32,6 +33,7 @@ import {
     VALID_ECONOMY_STYLES,
 } from "@/store/utils/helpers"
 import type { TeamSaveData } from "@/engine/save-types"
+import { sanitizePlaybook, type Playbook } from "@/engine/match/playbook"
 
 const INJURY_TREATMENT_COST = 5000
 const INJURY_TREATMENT_WEEKS_OFF = 2
@@ -40,6 +42,8 @@ export interface TeamSettingsActions {
     setPlaystyle: (teamId: string, playstyle: TeamSaveData["playstyle"]) => void
     setEconomyStyle: (teamId: string, economyStyle: TeamSaveData["economyStyle"]) => void
     setTargetPlayer: (teamId: string, targetPlayerId: string | undefined) => void
+    /** G1: replace the club's playbook (invalid entries are dropped; empty clears it). */
+    setPlaybook: (teamId: string, playbook: Playbook) => void
     swapRosterPositions: (teamId: string, index1: number, index2: number) => void
     updateTeamBudget: (teamId: string, amount: number) => void
     treatInjury: (playerId: string) => void
@@ -82,6 +86,17 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
             if (!isOwnPlayer && targetExists) {
                 team.targetPlayerId = targetPlayerId
             }
+        })
+    },
+
+    setPlaybook: (teamId, playbook) => {
+        set((state) => {
+            if (!state.playerTeamId || teamId !== state.playerTeamId) return
+            const team = state.teams.find(t => t.id === teamId)
+            if (!team) return
+            const clean = sanitizePlaybook(playbook)
+            if (Object.keys(clean).length) team.playbook = clean
+            else delete team.playbook
         })
     },
 

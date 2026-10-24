@@ -594,6 +594,7 @@ export interface TeamSaveData {
 
     // === PHASE 20: TACTICAL PERFECTION ===
     playstyle?: "balanced" | "aggressive" | "structured" | "default"
+    playbook?: import("@/engine/match/playbook").Playbook // G1: named calls per map, side and buy
     tacticalPrep?: number // 0-100 bonus from VOD reviews
     prepPenalty?: number // transient quick-sim differential (B4); set only on a sim copy, never persisted
     economyStyle?: "standard" | "force" | "eco" // Phase 60: Economy aggressiveness

@@ -21,7 +21,8 @@ import type { BuyStrategy } from "../buy-phase"
 import type { PlayerSimulationState } from "../round-outcome"
 import { scriptBuyPhase } from "./buy"
 import { buildProfile, callQuality, type SimProfile } from "./profile"
-import { simulateScriptRound, type Contact, type SimOutput, type SimSide } from "./simulate"
+import { BUY_OF, simulateScriptRound, type Contact, type SimOutput, type SimSide } from "./simulate"
+import { playSituation, tCallKey, type Playbook, type RoundCalls } from "../playbook"
 import { findContacts } from "./contacts"
 import { sightMapFor, simulateSightRound } from "./sight"
 import { cappedEdge, teamEdgeBreakdown, type StaffBundle, type TeamEdgeBreakdown } from "./team-edge"
@@ -41,6 +42,8 @@ export interface ScriptSeriesSide {
     profiles: Map<string, SimProfile>
     call: number
     edge: TeamEdgeBreakdown
+    /** G1: the manager's playbook (AI clubs have none). */
+    playbook?: Playbook
 }
 
 export interface ScriptSeries {
@@ -55,6 +58,8 @@ export interface ScriptSeries {
      * nothing ever shows them and they skip the extra passes.
      */
     contacts: boolean
+    /** G1: how often each team already ran each playbook call, per map (`map:team:t:call` / `map:team:ct:setup`). */
+    callCounts?: Map<string, number>
 }
 
 /** Replays of a round with the contacts its script shows (each pass may uncover new ones). */
@@ -94,6 +99,7 @@ export function buildScriptSeries(args: { seed: number; matchId: string; home: S
             targetPlayerId: s.team.targetPlayerId,
             profiles,
             call: callQuality([...profiles.values()]),
+            ...(s.team.playbook ? { playbook: s.team.playbook } : {}),
             edge: teamEdgeBreakdown(s.team, s.players, s.staff, { counterMod: s.counterMod, mentalPrep: s.mentalPrep, implicitGear: s.implicitGear }),
         }
     }
@@ -195,13 +201,14 @@ export class ScriptRoundEngine {
             pressure: stagePressure(isHighPressure, matchStage),
             tacticalWeight: tacticalWeight(mapId),
             rollKey: rng.int(1, 0x7ffffffe),
+            ...roundCalls(series, mapIndex, mapId, homeIsCT, homeStrategy, awayStrategy),
         }
         // Players walk the map and fight whoever they see (sight.ts); the resolver is the fallback
         // for a map without a baked round map.
         const sightMap = (sightOverride ?? true) ? sightMapFor(zones) : undefined
-        if (sightMap) return simulateSightRound(input, sightMap)
+        if (sightMap) return countCalls(series, mapIndex, input, simulateSightRound(input, sightMap))
         let out = simulateScriptRound(input)
-        if (!(contactsOverride ?? series.contacts) || !mapId) return out
+        if (!(contactsOverride ?? series.contacts) || !mapId) return countCalls(series, mapIndex, input, out)
         // Fight out the close contacts the round's script shows (two enemies in plain sight, nobody
         // shooting), then replay the round with them: same rolls, so only what follows a contact changes.
         const src = {
@@ -216,8 +223,36 @@ export class ScriptRoundEngine {
             contacts = [...contacts, ...found]
             out = simulateScriptRound({ ...input, contacts })
         }
-        return out
+        return countCalls(series, mapIndex, input, out)
     }
+}
+
+/** G1: this round's playbook calls for both sides, with how often each already ran on this map. */
+function roundCalls(series: ScriptSeries, mapIndex: number, mapId: MapId | undefined, homeIsCT: boolean, homeStrategy: BuyStrategy, awayStrategy: BuyStrategy): { calls?: RoundCalls } {
+    if (!mapId || (!series.home.playbook && !series.away.playbook)) return {}
+    const [tSide, ctSide] = homeIsCT ? [series.away, series.home] : [series.home, series.away]
+    const [tBuy, ctBuy] = homeIsCT ? [awayStrategy, homeStrategy] : [homeStrategy, awayStrategy]
+    const counts = series.callCounts ?? new Map<string, number>()
+    const calls: RoundCalls = {}
+    const tSit = playSituation(BUY_OF[tBuy] ?? "full", "T")
+    const tCall = tSit ? tSide.playbook?.[mapId]?.t?.[tSit] : undefined
+    if (tCall) calls.t = { ...tCall, seen: counts.get(`${mapIndex}:${tSide.teamId}:t:${tCallKey(tCall)}`) ?? 0 }
+    const ctSit = playSituation(BUY_OF[ctBuy] ?? "full", "CT")
+    const setup = ctSit ? ctSide.playbook?.[mapId]?.ct?.[ctSit] : undefined
+    if (setup) calls.ct = { setup, stacks: { A: counts.get(`${mapIndex}:${ctSide.teamId}:ct:stack-A`) ?? 0, B: counts.get(`${mapIndex}:${ctSide.teamId}:ct:stack-B`) ?? 0 } }
+    return calls.t || calls.ct ? { calls } : {}
+}
+
+/** G1: record the playbook calls this round ran (the opponent reads repeats). */
+function countCalls(series: ScriptSeries, mapIndex: number, input: { calls?: RoundCalls; homeIsCT: boolean; home: SimSide; away: SimSide }, out: SimOutput): SimOutput {
+    const calls = input.calls
+    if (!calls) return out
+    const counts = series.callCounts ?? (series.callCounts = new Map())
+    const bump = (key: string) => counts.set(key, (counts.get(key) ?? 0) + 1)
+    const [tSide, ctSide] = input.homeIsCT ? [input.away, input.home] : [input.home, input.away]
+    if (calls.t && out.plan.tStrategy !== "eco") bump(`${mapIndex}:${tSide.teamId}:t:${tCallKey(calls.t)}`)
+    if (calls.ct) bump(`${mapIndex}:${ctSide.teamId}:ct:${calls.ct.setup}`)
+    return out
 }
 
 export const scriptRoundEngine = new ScriptRoundEngine()

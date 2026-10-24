@@ -34,6 +34,7 @@ import type { BuyStrategy } from "../buy-phase"
 import { heDamage, heLandingDistance } from "../grenade-damage"
 import type { PlayerSimulationState } from "../round-outcome"
 import type { SiteId, UtilityKind } from "../round-script-types"
+import type { RoundCalls } from "../playbook"
 import { aimPoints, TRAIT_AGGRESSIVE, TRAIT_CLUTCHER, TRAIT_PASSIVE, TRAIT_TRADER, type SimProfile } from "./profile"
 import { TUNING as T } from "./tuning"
 import { WEAPON_CLASSES, isSaveWorthy, isSniperClass, weaponClassOf, type WeaponClass, type WeaponClassSpec } from "./weapons"
@@ -79,6 +80,8 @@ export interface SimInput {
     rollKey?: number
     /** Close contacts the round script found (enemies in sight with no fight), fought as duels. */
     contacts?: readonly Contact[]
+    /** G1: calls the round takes from the managers' playbooks (fixed T strategy / site, CT setup). */
+    calls?: RoundCalls
 }
 
 /** Two enemies in plain sight of each other at `t` (round seconds), at baked zone `zone`. */
@@ -736,7 +739,7 @@ function weighted<K extends string>(rng: SeededRNG, w: Record<K, number>): K {
     return keys[keys.length - 1]
 }
 
-const BUY_OF: Record<string, "pistol" | "eco" | "force" | "half" | "full"> = {
+export const BUY_OF: Record<string, "pistol" | "eco" | "force" | "half" | "full"> = {
     PISTOL: "pistol", ECO: "eco", FORCE: "force", SEMIBUY: "half", FULL: "full", "DOUBLE AWP": "full",
 }
 
@@ -766,6 +769,7 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
     const ctBuy = BUY_OF[ctSide.strategy] ?? "full"
     const tStyle = (tSide.playstyle ?? "").toLowerCase()
     const ctStyle = (ctSide.playstyle ?? "").toLowerCase()
+    const calls = input.calls
     let strategy: TStrategy
     if (tBuy === "eco") strategy = "eco"
     else {
@@ -780,29 +784,46 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
         const smokes = R.T.reduce((s, a) => s + a.smoke, 0)
         if (smokes < 2) { w.execute -= 2; w.default += 1 }
         strategy = weighted(rng, w)
+        // G1: the manager's call replaces the IGL's (the roll above still runs, so other rolls keep their order).
+        if (calls?.t) strategy = calls.t.strategy
     }
-    const site: SiteId = rng.bool(0.5) ? "A" : "B"
+    // A CT setup that keeps stacking one site gets hit on the other (the T IGL adapts; a sharper caller adapts more).
+    const stackLean = calls?.ct && !calls.t?.site
+        ? max(-T.PLAYBOOK_STACK_ADAPT_CAP, min(T.PLAYBOOK_STACK_ADAPT_CAP, T.PLAYBOOK_STACK_ADAPT * (calls.ct.stacks.A - calls.ct.stacks.B) * (0.5 + tSide.call / 100)))
+        : 0
+    let site: SiteId = rng.bool(0.5 - stackLean) ? "A" : "B"
+    if (strategy !== "eco" && calls?.t?.site) site = calls.t.site
 
     const cw: Record<CtSetup, number> = { "2-1-2": 6, "stack-A": 1, "stack-B": 1, aggressive: 1 }
     if (ctStyle === "aggressive") cw.aggressive += 2
     if (ctStyle === "structured") cw["2-1-2"] += 2
     if (ctBuy === "eco" || ctBuy === "force") { cw["stack-A"] += 1.5; cw["stack-B"] += 1.5; cw.aggressive += 1.5 }
     let setup = weighted(rng, cw)
+    const fixedSetup = calls?.ct?.setup
+    if (fixedSetup) setup = fixedSetup
 
     // The read: a better caller (and a tactical map) anticipates the T plan, and a
     // playstyle that counters the other one reads it better (the counter triangle).
+    // G1: a fixed T call that keeps repeating on this map is read more often.
     const counter = counterSign(ctStyle, tStyle)
+    const repeats = calls?.t && strategy !== "eco" ? min(T.PLAYBOOK_READ_REPEAT_CAP, calls.t.seen) : 0
     const edge = max(-0.2, min(0.2, T.READ_IGL * ((ctSide.call - tSide.call) / 50) * input.tacticalWeight + T.READ_COUNTER * counter))
+    const predictable = T.PLAYBOOK_READ_PER_REPEAT * repeats
     let read: PlanState["read"] = "none"
-    if (setup === "stack-A" || setup === "stack-B") {
-        const onSite = rng.bool(max(0.3, min(0.7, 0.5 + edge)))
+    if (fixedSetup === "stack-A" || fixedSetup === "stack-B") {
+        // The manager chose where to stack: it is right only if the Ts come there.
+        read = (fixedSetup === "stack-A") === (site === "A") ? "right" : "wrong"
+    } else if (setup === "stack-A" || setup === "stack-B") {
+        const onSite = rng.bool(max(0.3, min(0.7, 0.5 + edge)) + predictable)
         setup = onSite ? (site === "A" ? "stack-A" : "stack-B") : (site === "A" ? "stack-B" : "stack-A")
         read = onSite ? "right" : "wrong"
     } else {
         const roll = rng.next()
-        const right = max(0.05, min(0.35, T.READ_RIGHT_BASE + edge))
+        const right = max(0.05, min(0.35, T.READ_RIGHT_BASE + edge)) + predictable
         const wrong = max(0.02, min(0.15, T.READ_WRONG_BASE - edge / 2))
         read = roll < right ? "right" : roll < right + wrong ? "wrong" : "none"
+        // A call they have seen again and again: the CTs who read it stack the site it hits.
+        if (read === "right" && predictable > 0 && !fixedSetup) setup = site === "A" ? "stack-A" : "stack-B"
     }
 
     const S = R.z.sites[site]

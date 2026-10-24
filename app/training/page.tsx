@@ -25,6 +25,7 @@ import { FOCUS_OPTIONS, drillStatLabel, trainingModifiers } from "@/components/t
 
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
 const WeaponTrainingModal = dynamic(() => import("@/components/training/WeaponTrainingModal").then(m => m.WeaponTrainingModal), { ssr: false })
+const PlaybookEditor = dynamic(() => import("@/components/tactics/PlaybookEditor").then(m => m.PlaybookEditor), { ssr: false })
 const TacticalLoadoutEditor = dynamic(() => import("@/components/match/TacticalLoadoutEditor").then(m => m.TacticalLoadoutEditor), { ssr: false })
 
 /** Team drills refuse to run when an eligible player is at or above this fatigue (team-drills-slice). */
@@ -40,7 +41,7 @@ function fatigueTone(fatigue: number) {
 /**
  * Week hub → Training tab: what runs outside the weekly update — team drills
  * (apply at once, use a slot), individual programmes (role retraining, paid
- * weapon drills) and the buy loadouts. Each player's weekly focus is set in
+ * weapon drills), the playbook of calls per map and the buy loadouts. Each player's weekly focus is set in
  * the week plan.
  */
 export default function TrainingPage() {
@@ -246,6 +247,8 @@ export default function TrainingPage() {
                     Role retraining takes 8 weeks, is paid every week and skips the weekly focus while it runs. Weapon drills are paid per session and add weapon mastery.
                 </p>
             </Panel>
+
+            <div id="playbook" className="scroll-mt-20"><PlaybookEditor /></div>
 
             <Panel title="Buy loadouts" actions={<span className="text-xs text-ink-3">Used by the match engine&apos;s buy phase</span>} padded={false}>
                 <table data-slot="table" className="w-full border-collapse text-left">
