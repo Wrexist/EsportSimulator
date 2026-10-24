@@ -154,6 +154,100 @@ export const TUNING = {
     /** Duel points per +1.0 round-win probability of a manager regroup (timeout). */
     REGROUP_POINTS_PER_PROB: 50,
 
+    // ── sight engine (sight.ts) ──
+    /** CT side bias on the sight engine (replaces CT_BIAS there). */
+    SIGHT_CT_BIAS: 3,
+    /** CTs before the plant (they defend ground they know; after the plant SIGHT_POST is the T side's). */
+    SIGHT_CT_DEFEND: 4,
+    /** Share of the aim-skill points that counts on the sight engine (1 = the resolver's). */
+    SIGHT_SKILL: 0.75,
+    /** Duel points per skill point above the player's team average (the star's swing). */
+    SIGHT_STAR: 0.25,
+    /** Trade points on the sight engine (replaces TRADE; the trading attribute still counts). */
+    SIGHT_TRADE: 2,
+    /** When the hitters leave their staging spots, by T strategy (s; fake: when the fake shows). */
+    SIGHT_EXEC: { default: [66, 96], execute: [46, 72], split: [56, 82], fake: [40, 56], rush: [0, 0], eco: [60, 85] } as Record<string, [number, number]>,
+    /** Mid control: seconds after the map's mid time the Ts walk at the mid CT. */
+    SIGHT_MID_DELAY: [8, 28] as [number, number],
+    /** Spacing of the waypoints a T follows along a route to the staging spot (map-%). */
+    SIGHT_ROUTE_STEP: 8,
+    /** Smokes the Ts spend on crossings watched by CT holds on the way out. */
+    SIGHT_CROSS_SMOKES: 2,
+    /** Chance the Ts take mid early, scaled from the resolver's per-strategy odds. */
+    SIGHT_MID_SCALE: 0.6,
+    /** When a CT peeks the T AWPer's angle (s). */
+    SIGHT_PEEK_AT: [18, 40] as [number, number],
+    /** Save scale for CTs facing a planted bomb (the resolver's SAVE_RETAKE). */
+    SIGHT_SAVE_RETAKE: 3,
+    /** Ts on a site beyond the CTs there that make a rotator wait for the retake instead. */
+    SIGHT_LOST_SITE: 2,
+    /** A posted T against a retaking CT. */
+    SIGHT_POST: 16,
+    /** Seconds from the fake to the real execute. */
+    SIGHT_FAKE_GAP: [10, 16] as [number, number],
+    /** Longest sight line that can start a fight (map-%, ≈ 31 m: the pro p90 kill distance). */
+    SIGHT_RANGE: 24,
+    /**
+     * Chance a new sighting becomes a fight, by distance (map-%): ≤ 3, ≤ 6, ≤ 10, ≤ 15, ≤ 20, beyond.
+     * Pro contact → kill within 3 s: 78% at 0–4 m, 71% at 4–8 m, 62% at 8–13 m (pro-benchmarks §7).
+     */
+    SIGHT_ENGAGE: [0.95, 0.9, 0.8, 0.65, 0.5, 0.4] as number[],
+    /** Seconds before a pair that let a sighting pass rolls again. */
+    SIGHT_RECHECK: 1,
+    /** A sighting this close (map-%, ≈ 8 m) that is let pass: whoever walked into it backs off. */
+    SIGHT_CLOSE: 6,
+    /** Seconds the one who backs off waits out of sight. */
+    SIGHT_BACKOFF: 2,
+    /** Saving players avoid fights: the engage chance is scaled by this. */
+    SIGHT_SAVE_ENGAGE: 0.5,
+    /** Seconds standing still before a player counts as holding the angle. */
+    SIGHT_SETTLE: 0.6,
+    /** Radians either side of where a player faces in which they see an enemy coming (≈ 100°). */
+    SIGHT_AWARE: 1.75,
+    /** Caught facing away (and not hearing them come). */
+    SIGHT_BEHIND: 10,
+    /** A walking enemy this close (map-%) is heard: the holder turns to face them. */
+    SIGHT_HEAR: 15,
+    /** Through a smoke: closer than this (map-%) they hear each other and fight through it. */
+    SIGHT_SMOKE_NEAR: 6,
+    /** Ts within this walking distance (map-%) of the bomb hear a defuse and go for it. */
+    SIGHT_DEFUSE_HEAR: 30,
+    /** Planting or defusing when shot at. */
+    SIGHT_BUSY: 12,
+    /** Sight → kill (s): median, and the median up close (< 4 map-%); lognormal spreads. Pro 0.43 / 0.58 s. */
+    SIGHT_KILL_MEDIAN: 0.43,
+    SIGHT_KILL_CLOSE: 0.58,
+    SIGHT_KILL_SPREAD: 0.9,
+    SIGHT_KILL_SPREAD_CLOSE: 1.2,
+    /** Points per map-% past a weapon's comfortable range (pistols from 9, SMGs from 11, shotguns from 5). */
+    SIGHT_RANGE_PISTOL: 1,
+    SIGHT_RANGE_SMG: 0.5,
+    SIGHT_RANGE_SHOTGUN: 1.5,
+    /** Seconds after a teammate's death in which its killer can be traded (trade points). */
+    SIGHT_TRADE_WINDOW: 4,
+    /** Seconds after a kill in which the killer is exposed. */
+    SIGHT_EXPOSED_SECONDS: 2.5,
+    /** A flash blinds whoever faces it within this range (map-%). Extra blind chance over the resolver's. */
+    SIGHT_FLASH_RANGE: 14,
+    SIGHT_FLASH_BONUS: 0.1,
+    /** Ts seen this close to a site centre (two of them, or one in the core) give the CTs the call. */
+    SIGHT_SITE_RADIUS: 12,
+    SIGHT_SITE_CORE: 7,
+    /** Ts within SIGHT_SITE_RADIUS a CT must see at once for the call (one inside the core is enough). */
+    SIGHT_CALL_SEEN: 3,
+    /** Default staging: map-% short of the route's contact point. */
+    SIGHT_STAGE_DEFAULT: 13,
+    /** Mid control: how far short of the mid CT the takers walk, and how long they stay. */
+    SIGHT_MID_BACK: 6,
+    SIGHT_MID_HOLD: 8,
+    /** A CT peeking the T AWPer walks to this far short of the angle. */
+    SIGHT_PEEK_BACK: 10,
+    /** Rotators stop this far short of the site centre, then go in after ROTATE_WAIT seconds. */
+    SIGHT_ROTATE_STAGE: 9,
+    SIGHT_ROTATE_WAIT: 2,
+    /** Retakers regroup this far short of the bomb. */
+    SIGHT_RETAKE_STAGE: 11,
+
     // ── side balance ──
     /** CT side bias (points) applied to every CT duel; per-map overrides below. */
     CT_BIAS: 6,

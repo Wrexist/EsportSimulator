@@ -56,7 +56,7 @@ describe('engagements', () => {
             for (const d of live.script.deaths) {
                 if (d.killerId === d.victimId) continue
                 kills++
-                if (vis.sees(g.nearest(d.from), g.nearest(d.at))) seen++
+                if (vis.seesFar(g.nearest(d.from), g.nearest(d.at))) seen++
             }
         }
         expect(kills).toBeGreaterThan(200)
@@ -200,6 +200,8 @@ describe('radar feedback', () => {
             for (const h of hp.hits) {
                 const p = prep.index.get(h.victimId)
                 if (p === undefined) continue
+                // A second hit on the same player within the 0.1 s restarts the clock.
+                if (hp.hits.some(o => o !== h && o.victimId === h.victimId && o.t > h.t && o.t <= h.t + 0.1)) continue
                 sampleRadarScene(prep, h.t + 0.1, scene)
                 const sp = scene.players[p]
                 if (!sp.alive) continue
