@@ -18,7 +18,7 @@ Superseded and kept only as history: `STEAM_STORE_LISTING.md`, `deployment/STORE
 
 Everything here is done in the partner site by the account owner. Nothing in this list is published by a commit.
 
-- [ ] **Release model.** The staged store page and trailer say Early Access; `STEAM_RELEASE_HANDOFF.md` says Windows 1.0. Pick one and make the store page, Early Access questionnaire and trailer end card agree.
+- [x] **Release model.** Early Access (owner, 24 Oct 2026). The staged page, Early Access questionnaire and trailer end card already say so.
 - [ ] **AI content disclosure.** Make the survey text match what ships (player portraits and several illustrations were made with AI image tools). The draft is `marketing/store-page-2026-10-12/ai-disclosure-proposed.txt`.
 - [ ] **Tags.** Replace Tactical RPG, PvE and 3D. Proposed order: Management, Simulation, Sports, eSports, Strategy, Singleplayer, Economy, Tactical, Choices Matter, Replay Value, Realistic, Top-Down, Indie.
 - [ ] **Screenshots.** At least 5 (14 staged). Mark at least four as suitable for all ages, or the game is left out of some Steam surfaces. Lead with the live radar, not the title screen.

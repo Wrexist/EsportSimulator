@@ -1,6 +1,6 @@
 # Esports Manager: FPS — game overview and Steam release handoff
 
-Updated 25 September 2026. Target: **Windows desktop 1.0**, not Early Access. App ID **4326170**. Decision: **NO-GO for launch** until the acceptance gates below pass. This is a development checkpoint, not a promise of zero bugs or a release certification.
+Updated 25 September 2026. Target: **Windows desktop, Early Access** (owner decision 24 Oct 2026; this replaces the earlier 1.0 target). App ID **4326170**. Decision: **NO-GO for launch** until the acceptance gates below pass. This is a development checkpoint, not a promise of zero bugs or a release certification.
 
 This is the current summary. [Every unaccepted task and acceptance criterion](docs/launch-readiness/OPEN-RELEASE-ITEMS-2026-09-25.md) is listed separately, derived from the 36-package register. Older unchecked items can have substantial implementation already: reverify before rewriting. Historical passing reports certify only their recorded source/build, not today's candidate.
 
