@@ -557,6 +557,8 @@ function sightings(C: Ctx, t: number): void {
             const key = pairKey(tb, cb)
             seenNow.add(key)
             for (let s = 0; s < 2; s++) {
+                // Same floor only: on Nuke the two sites sit almost on top of each other.
+                if (g.floor[tn] !== g.floor[C.siteNode[s]]) continue
                 const dc = g.dist(tn, C.siteNode[s])
                 if (dc <= T.SIGHT_SITE_RADIUS) spotted[s] |= 1 << tb.k
                 if (dc <= T.SIGHT_SITE_CORE) spotted[s] |= 1 << 12
