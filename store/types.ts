@@ -104,6 +104,8 @@ export interface ScoutingState {
   activeScoutingMission?: { playerId: string; startWeek: number; completionWeek: number; scoutId: string }
   watchlistedPlayerIds: string[]
   savedSearches: import("@/engine/save-types").SavedMarketSearch[]
+  /** G6: chores the staff runs before each week. */
+  delegation: import("@/engine/delegation").DelegationSettings
   mapRecords?: import("@/engine/map-record").MapRecordState
 }
 
@@ -202,6 +204,8 @@ export interface EntitiesActions {
   setPlaystyle: (teamId: string, playstyle: TeamSaveData["playstyle"]) => void
   setEconomyStyle: (teamId: string, economyStyle: TeamSaveData["economyStyle"]) => void
   setTargetPlayer: (teamId: string, targetPlayerId: string | undefined) => void
+  setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
+  runDelegatedChores: () => string[]
   purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }
   upgradeMerchStore: (teamId: string) => { success: boolean, message: string }
   toggleMerchItem: (teamId: string, itemType: string) => { success: boolean; message: string }

@@ -223,6 +223,7 @@ export class SaveManager {
             customTactics: initialData.customTactics ?? createDefaultTactics(),
             watchlistedPlayerIds: initialData.watchlistedPlayerIds ?? [],
             savedSearches: initialData.savedSearches ?? [],
+            delegation: initialData.delegation ?? {},
             ...(initialData.mapRecords ? { mapRecords: initialData.mapRecords } : {}),
             activeMatchId: initialData.activeMatchId ?? null,
             activeMatchState: initialData.activeMatchState ?? null,

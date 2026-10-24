@@ -2,7 +2,7 @@
 
 import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
 import { fixtureBlockReason } from '@/lib/playable-match'
-import { useState, useMemo, type ReactNode } from "react"
+import { useEffect, useRef, useState, useMemo, type ReactNode } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -416,6 +416,18 @@ export default function TacticalHQPage() {
         setIsSimulatingVeto(false)
         router.refresh()
     }
+
+    // G6: with the veto delegated, the coach runs it as soon as match prep opens for this week's match.
+    const vetoDelegated = useGameStore(state => !!state.delegation?.veto)
+    const autoVetoStarted = useRef(false)
+    const canAutoVeto = !!match && !!myTeam && !!opponent && vetoDelegated && !match.vetoComplete && match.week === currentWeek
+        && !completedMatches.some(m => m.id === match.id)
+    useEffect(() => {
+        if (!canAutoVeto || autoVetoStarted.current) return
+        autoVetoStarted.current = true
+        void handleAutoVeto()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [canAutoVeto])
 
     const handleStartMatch = () => {
         if (!match || !match.maps || !myTeam || !opponent) return

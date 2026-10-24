@@ -51,6 +51,8 @@ export interface GameSave {
     watchlistedPlayerIds?: string[]
     /** G8: saved transfer-market searches with weekly alerts (engine/market-search.ts). */
     savedSearches?: SavedMarketSearch[]
+    /** G6: chores delegated to staff (engine/delegation.ts). */
+    delegation?: import("./delegation").DelegationSettings
     /** G2: per-season map, side, buy and plan tallies (engine/map-record.ts). */
     mapRecords?: import("./map-record").MapRecordState
     activeMatchId?: string | null

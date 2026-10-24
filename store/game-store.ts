@@ -109,6 +109,7 @@ import { checkMilestones } from "@/engine/milestone-checker"
 import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
+import { createDelegationSlice } from "@/store/slices/delegation-slice"
 import { createDressingRoomSlice } from "@/store/slices/dressing-room-slice"
 import { createPlayerDevelopmentSlice } from "@/store/slices/player-development-slice"
 import { createStaffManagementSlice } from "@/store/slices/staff-management-slice"
@@ -477,6 +478,7 @@ export interface GameStoreState extends AdvanceState, MomentsState {
   activeScoutingMission?: { playerId: string; startWeek: number; completionWeek: number; scoutId: string }
   watchlistedPlayerIds: string[]
   savedSearches: import("@/engine/save-types").SavedMarketSearch[]
+  delegation: import("@/engine/delegation").DelegationSettings
   mapRecords?: import("@/engine/map-record").MapRecordState
 
   // Phase 25: Region Selection
@@ -611,6 +613,8 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   setPlaystyle: (teamId: string, playstyle: TeamSaveData["playstyle"]) => void
   setEconomyStyle: (teamId: string, economyStyle: TeamSaveData["economyStyle"]) => void
   setTargetPlayer: (teamId: string, targetPlayerId: string | undefined) => void
+  setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
+  runDelegatedChores: () => string[]
   performVODReview: (matchId: string) => void
   performMentalReset: (matchId?: string) => void
 
@@ -975,6 +979,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set as Parameters<typeof createTeamSettingsSlice>[0],
         get as Parameters<typeof createTeamSettingsSlice>[1],
       ),
+      ...createDelegationSlice(
+        set as Parameters<typeof createDelegationSlice>[0],
+        get as Parameters<typeof createDelegationSlice>[1],
+      ),
       ...createDressingRoomSlice(
         set as Parameters<typeof createDressingRoomSlice>[0],
         get as Parameters<typeof createDressingRoomSlice>[1],
@@ -1076,6 +1084,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       activeScoutingMission: undefined,
       watchlistedPlayerIds: [],
       savedSearches: [],
+      delegation: {},
       mapRecords: undefined,
 
       // Phase 25
@@ -1335,6 +1344,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             recordBook: newSave.recordBook, // explicit: a new career never inherits the last one's records
             storylines: newSave.storylines, // nor its storylines (Phase 5.3)
             autoTactics: false, // nor its auto-tactics switch
+            delegation: {}, // nor its staff delegation
             availableEquipment: initialEquipment,
             playerTeamId: playerTeamId, // We assume the user controls the team they selected
             theme: "crystal", // Default theme for new game
@@ -1649,6 +1659,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             recordBook: newSave.recordBook,
             storylines: newSave.storylines,
             autoTactics: false,
+            delegation: {},
             availableEquipment: [
               { id: "mouse_001", name: "Basic Gaming Mouse", type: "MOUSE", weeklyCost: 0, tier: 1, purchasedWeek: 0, bonus: { stat: "skill", value: 1 } },
             ],
@@ -1785,6 +1796,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             autoTactics: hydratedSave.autoTactics === true,
             watchlistedPlayerIds: hydratedSave.watchlistedPlayerIds ?? [],
             savedSearches: hydratedSave.savedSearches ?? [],
+            delegation: hydratedSave.delegation ?? {},
             mapRecords: hydratedSave.mapRecords,
             activeMatchId: hydratedSave.activeMatchId ?? null,
             activeMatchState: hydratedSave.activeMatchState ?? null,
@@ -1990,6 +2002,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           set({ isLoading: false })
           return
         }
+
+        // G6: staff run the chores the manager delegated (renewals, drills, scouting) before the week is built.
+        get().runDelegatedChores()
 
         set({ isLoading: true, weekProgress: "preparing" })
 
