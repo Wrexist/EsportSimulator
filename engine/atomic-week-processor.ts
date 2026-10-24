@@ -58,6 +58,7 @@ import {
 } from "./processors/tournament-completion"
 import { processFanbaseGrowth as processFanbaseGrowthFn } from "./processors/fanbase-growth"
 import { processScoutingMissions as processScoutingMissionsFn } from "./processors/scouting-mission-processor"
+import { processMarketAlerts } from "./market-search"
 import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./processors/sponsor-goals-processor"
 import { applyMatchSponsorGoalProgress as applyMatchSponsorGoalProgressFn } from "./processors/match-sponsor-goals"
 import { resetStaleTournamentState } from "./processors/tournament-state-cleanup"
@@ -545,6 +546,8 @@ export class AtomicWeekProcessor {
                 })
                 // Retirements can take an AI club below five: refill now.
                 ensureAIRosterViability(save, config.playerTeamId)
+                // Saved market searches and shortlist contracts (G8), after this week's moves.
+                processMarketAlerts(save)
 
                 changes.markItemized(save, rankItems, e => {
                     if (e.kind === "contract" && e.delta < 0) {

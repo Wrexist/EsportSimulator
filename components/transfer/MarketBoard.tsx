@@ -2,7 +2,7 @@
 
 import { memo, useEffect, useMemo, useState, type KeyboardEvent } from "react"
 import Link from "next/link"
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Search, SlidersHorizontal, Star } from "lucide-react"
+import { ArrowDown, ArrowUp, Bell, BellOff, Bookmark, ChevronLeft, ChevronRight, Search, SlidersHorizontal, Star, X } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import { useDebounce } from "@/hooks/useDebounce"
@@ -20,7 +20,7 @@ import { getVisibleStats, scoutedRatingSortValue, type VisibleStats } from "@/en
 import { academyHeldPlayerIds, employedScout, recruitmentSalary } from "@/engine/recruitment"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
-import { getPlayerRegion, ALL_REGIONS } from "@/engine/scouting-helpers"
+import { ALL_REGIONS } from "@/engine/scouting-helpers"
 import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
 import { SENIOR_ROSTER_MAX } from "@/engine/roster-rules"
 import { cn } from "@/lib/utils"
@@ -28,6 +28,8 @@ import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { ScoutedRating } from "./ScoutedRating"
 import { DealPanel } from "./DealPanel"
 import { TeamLink } from "@/components/ui/EntityLink"
+import { describeCriteria, isNarrowing, matchesMarketSearch, MAX_SAVED_SEARCHES, type MarketCriteria } from "@/engine/market-search"
+import { toast } from "@/lib/toast"
 
 type Mode = "transfers" | "scouting"
 type SortField = "ovr" | "age" | "value" | "name"
@@ -174,6 +176,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
     const {
         players, teams, playerTeamId, scoutedPlayers, academyPlayers, academyPendingProspects, contracts,
         currentWeek, watchlistedPlayerIds, activeScoutingMission, staff, boardState, saveId, transferHistory,
+        savedSearches, saveMarketSearch, deleteMarketSearch, toggleMarketSearchAlerts,
     } = useGameStore(useShallow(state => ({
         players: state.players,
         teams: state.teams,
@@ -189,6 +192,10 @@ export function MarketBoard({ mode }: { mode: Mode }) {
         boardState: state.boardState,
         saveId: state.saveId,
         transferHistory: state.transferHistory,
+        savedSearches: state.savedSearches,
+        saveMarketSearch: state.saveMarketSearch,
+        deleteMarketSearch: state.deleteMarketSearch,
+        toggleMarketSearchAlerts: state.toggleMarketSearchAlerts,
     })))
 
     // The server renders without a career; match it on the first client render.
@@ -209,6 +216,23 @@ export function MarketBoard({ mode }: { mode: Mode }) {
     const [page, setPage] = useRouteViewState(saveId, `${prefix}:page`, 0)
     const [showFilters, setShowFilters] = useState(false)
     const [selectedId, setSelectedId] = useState<string | null>(null)
+    const [naming, setNaming] = useState(false)
+    const [searchName, setSearchName] = useState("")
+
+    const criteria: MarketCriteria = { query: searchTerm, role, status, age, maxFee, contractMax, region }
+    const applyCriteria = (c: MarketCriteria) => {
+        setSearchTerm(c.query); setRole(c.role); setStatus(c.status); setAge(c.age); setMaxFee(c.maxFee); setContractMax(c.contractMax); setRegion(c.region)
+        setShowFilters(c.age !== "all" || c.maxFee > 0 || c.contractMax > 0 || c.region !== "ALL")
+        setPage(0)
+    }
+    // An inbox market alert opens the board with its saved search (?search=<id>).
+    useEffect(() => {
+        if (!isMounted) return
+        const id = new URLSearchParams(window.location.search).get("search")
+        const saved = id ? (savedSearches || []).find(x => x.id === id) : undefined
+        if (saved) applyCriteria(saved.criteria)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isMounted])
 
     const myTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
     const teamByPlayer = useMemo(() => {
@@ -243,21 +267,12 @@ export function MarketBoard({ mode }: { mode: Mode }) {
     const watchSet = useMemo(() => new Set(watchlistedPlayerIds), [watchlistedPlayerIds])
 
     const filtered = useMemo(() => {
-        const q = debouncedSearch.trim().toLowerCase()
-        const ageRange = AGES.find(a => a.value === age)?.range ?? [0, 99]
-        const list = market.filter(({ player, team, knowledge, value }) => {
-            if (q && !(player.nickname.toLowerCase().includes(q) || player.name?.toLowerCase().includes(q) || team?.name.toLowerCase().includes(q))) return false
-            if (role !== "ALL" && player.role !== role) return false
-            if (status === "listed" && !(team && player.forSale)) return false
-            if (status === "free" && team) return false
-            if (status === "scouted" && knowledge.scoutingLevel === "NONE") return false
-            if (status === "watchlist" && !watchSet.has(player.id)) return false
-            if (player.age < ageRange[0] || player.age > ageRange[1]) return false
-            if (maxFee > 0 && team && value > maxFee) return false
-            if (contractMax > 0 && (!team || (contractWeeks.get(player.id) ?? 999) > contractMax)) return false
-            if (region !== "ALL" && getPlayerRegion(player.nationality) !== region) return false
-            return true
-        })
+        const list = market.filter(({ player, team, knowledge, value }) => matchesMarketSearch({
+            player, team, value,
+            scouted: knowledge.scoutingLevel !== "NONE",
+            watchlisted: watchSet.has(player.id),
+            contractWeeksLeft: contractWeeks.get(player.id),
+        }, { query: debouncedSearch, role, status, age, maxFee, contractMax, region }))
         const sign = dir === "asc" ? 1 : -1
         list.sort((a, b) => {
             let cmp = 0
@@ -382,6 +397,32 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                                 <span>· each missing role costs 4% team strength.</span>
                             </div>
                         )}
+                        <div className="flex flex-wrap items-center gap-2 border-t border-line px-3 py-2 text-xs">
+                            <Bookmark size={13} className="shrink-0 text-ink-3" aria-hidden="true" />
+                            {(savedSearches || []).length === 0 && !naming && <span className="text-ink-3">Save a search to get an inbox alert when new players match it.</span>}
+                            {(savedSearches || []).map(sv => (
+                                <span key={sv.id} className="inline-flex items-center rounded-sm border border-line-strong">
+                                    <button type="button" onClick={() => applyCriteria(sv.criteria)} title={describeCriteria(sv.criteria, { role: formatRole })} className="max-w-[180px] truncate px-2 py-1 font-semibold text-ink-2 hover:text-ink-1">{sv.name}</button>
+                                    <button type="button" onClick={() => toggleMarketSearchAlerts(sv.id)} aria-label={sv.alerts ? `Turn off alerts for ${sv.name}` : `Turn on alerts for ${sv.name}`} aria-pressed={sv.alerts} className={cn("border-l border-line px-1.5 py-1", sv.alerts ? "text-gold" : "text-ink-3 hover:text-ink-1")}>
+                                        {sv.alerts ? <Bell size={12} /> : <BellOff size={12} />}
+                                    </button>
+                                    <button type="button" onClick={() => deleteMarketSearch(sv.id)} aria-label={`Delete saved search ${sv.name}`} className="border-l border-line px-1.5 py-1 text-ink-3 hover:text-negative"><X size={12} /></button>
+                                </span>
+                            ))}
+                            {naming ? (
+                                <form className="flex items-center gap-1.5" onSubmit={e => {
+                                    e.preventDefault()
+                                    if (saveMarketSearch(searchName || describeCriteria(criteria, { role: formatRole }), criteria)) { toast.success("Search saved. New matches will reach your inbox."); setNaming(false); setSearchName("") }
+                                    else toast.error(`Up to ${MAX_SAVED_SEARCHES} saved searches.`)
+                                }}>
+                                    <Input id="saved-search-name" autoFocus value={searchName} onChange={e => setSearchName(e.target.value)} placeholder={describeCriteria(criteria, { role: formatRole })} aria-label="Saved search name" className="h-7 w-52 text-xs" maxLength={40} />
+                                    <Button type="submit" size="sm" className="h-7 px-2.5 text-xs">Save</Button>
+                                    <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => setNaming(false)}>Cancel</Button>
+                                </form>
+                            ) : isNarrowing(criteria) && (savedSearches || []).length < MAX_SAVED_SEARCHES && (
+                                <button type="button" onClick={() => setNaming(true)} className="ml-auto font-semibold text-ink-2 underline-offset-2 hover:text-ink-1 hover:underline">Save this search</button>
+                            )}
+                        </div>
                     </Panel>
 
                     {/* Market table */}

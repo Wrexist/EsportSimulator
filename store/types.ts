@@ -103,6 +103,7 @@ export interface ScoutingState {
   scoutedPlayers: { playerId: string; scoutedWeek: number; scoutLevel: "BASIC" | "ADVANCED" | "EXPERT" | "ELITE" }[]
   activeScoutingMission?: { playerId: string; startWeek: number; completionWeek: number; scoutId: string }
   watchlistedPlayerIds: string[]
+  savedSearches: import("@/engine/save-types").SavedMarketSearch[]
 }
 
 export interface AcademyState {
@@ -263,6 +264,10 @@ export interface ScoutingActions {
   isPlayerScouted: (playerId: string) => boolean
   toggleWatchlistPlayer: (playerId: string) => void
   isPlayerWatchlisted: (playerId: string) => boolean
+  /** G8: save the current market filters; returns false when nothing narrows the market or the list is full. */
+  saveMarketSearch: (name: string, criteria: import("@/engine/market-search").MarketCriteria) => boolean
+  deleteMarketSearch: (id: string) => void
+  toggleMarketSearchAlerts: (id: string) => void
 }
 
 export interface AcademyActions {

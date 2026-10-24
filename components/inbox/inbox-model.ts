@@ -173,7 +173,8 @@ export function getEventSender(event: GameEventSaveData, ctx: InboxContext): str
         case "PLAYER_LEVEL_UP": return "Training staff"
         case "STAFF_LEVEL_UP": return "Staff"
         case "TEAM_UPDATE": return "Team manager"
-        case "SCOUTING_COMPLETE": return "Scouting department"
+        case "SCOUTING_COMPLETE":
+        case "MARKET_ALERT": return "Scouting department"
         case "MILESTONE": return "Club records"
         case "AI_SIGNING":
         case "AI_TRANSFER":
