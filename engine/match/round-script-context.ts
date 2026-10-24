@@ -89,6 +89,8 @@ export interface Kill {
     trade?: boolean
     /** script-v1: baked zone id the resolver put this fight in. */
     zone?: string
+    /** script-v1: exact spot of a contact fight (overrides the zone's point). */
+    spot?: RPoint
 }
 
 export interface State {
@@ -127,6 +129,8 @@ export interface Ctx {
     trigger: number
     plantNode: number
     planter?: Actor
+    /** The resolver's planter (PLANT playerId), when it names one. */
+    plantBy?: string
     deaths: ScriptDeath[]
     bomb: ScriptBomb
     carrierId: string | null
@@ -135,6 +139,8 @@ export interface Ctx {
     chains: Map<string, Chain>
     /** Constraints the builder could not meet (kept for tests / the harness). */
     violations: number
+    /** script-v1 smokes (where and while they block sight). */
+    smokes: { t0: number; t1: number; at: RPoint; r: number }[]
 }
 
 // ─── Context ───────────────────────────────────────────────────────────────
@@ -169,7 +175,7 @@ export function createContext(input: RoundScriptInput, map: RoundMap): Ctx {
         victim.deathT = e.time
         victim.eventTimes.push(e.time)
         byId.get(killerId)?.eventTimes.push(e.time)
-        kills.push({ t: e.time, killerId, victimId: victim.id, weapon: e.weapon, headshot: e.isHeadshot, trade: e.isTrade, ...(e.zone ? { zone: e.zone } : {}) })
+        kills.push({ t: e.time, killerId, victimId: victim.id, weapon: e.weapon, headshot: e.isHeadshot, trade: e.isTrade, ...(e.zone ? { zone: e.zone } : {}), ...(e.spot ? { spot: { x: e.spot.x, y: e.spot.y, floor: e.spot.floor ?? "upper" } } : {}) })
     }
     const plant = events.find(e => e.type === "PLANT")
     const defuse = events.find(e => e.type === "DEFUSE")
@@ -182,12 +188,13 @@ export function createContext(input: RoundScriptInput, map: RoundMap): Ctx {
         endTime: max(roundEnd?.time ?? lastT + 2, lastT, 5),
         actors, byId, kills,
         plantT: plant?.time,
+        ...(plant?.playerId ? { plantBy: plant.playerId } : {}),
         defuseT: plant ? defuse?.time : undefined,
         exploded: !!plant && (events.some(e => e.type === "EXPLODE") || input.endReason === "bomb_exploded"),
         saveT: save?.time,
         strategy: "default", site: "A", ctSetup: "2-1-2", execAt: 40, trigger: 45, plantNode: g.siteNodes.A,
         deaths: [], bomb: { carrier: [] }, carrierId: null,
-        chains: new Map(), violations: 0,
+        chains: new Map(), violations: 0, smokes: [],
     }
 }
 

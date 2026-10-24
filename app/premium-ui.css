@@ -180,8 +180,6 @@
 @media(max-width:1350px) {
   .premium-app .game-page { padding:20px; }
   .premium-app .game-topbar { padding:8px 12px; }
-  .premium-app .game-topbar .topbar-club { min-width:130px; }
-  .premium-app .game-topbar .topbar-club-name { max-width:120px; }
   .premium-app .game-topbar .topbar-date { font-size:12px; }
   .dashboard-layout { grid-template-columns:minmax(0,1.4fr) minmax(290px,1fr); gap:16px; }
   .live-match-grid { grid-template-columns:minmax(170px,1fr) minmax(360px,min(940px,calc(100dvh - 230px))) minmax(170px,1fr); gap:12px; }

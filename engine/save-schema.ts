@@ -58,6 +58,13 @@ export const GameSaveSchema = z
             }).passthrough().optional(),
         }).passthrough().nullable().optional(),
         watchlistedPlayerIds: z.array(z.string()).optional(),
+        savedSearches: z.array(z.object({
+            id: z.string(), name: z.string(), alerts: z.boolean(), createdWeek: z.number(), seenIds: z.array(z.string()),
+            criteria: z.object({}).passthrough(),
+        }).passthrough()).optional(),
+        draftCup: z.object({ tournamentId: z.string(), teamId: z.string(), difficulty: z.string(), budget: z.number(), picks: z.array(z.object({ playerId: z.string(), role: z.string(), price: z.number() }).passthrough()), startWeek: z.number() }).passthrough().optional(),
+        delegation: z.object({ drills: z.boolean().optional(), renewals: z.boolean().optional(), scouting: z.boolean().optional(), veto: z.boolean().optional() }).passthrough().optional(),
+        mapRecords: z.object({ current: z.object({ season: z.number(), teams: z.record(z.string(), z.unknown()) }).passthrough(), previous: z.object({}).passthrough().optional() }).passthrough().optional(),
         activeMatchState: z.object({
             matchId: z.string(), gameState: z.object({}).passthrough(), simState: z.object({}).passthrough(),
             homeRoster: arrayOfUnknown, awayRoster: arrayOfUnknown, logs: arrayOfUnknown,

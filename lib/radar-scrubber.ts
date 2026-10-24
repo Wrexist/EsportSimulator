@@ -6,6 +6,7 @@
 
 import type { Side, UtilityKind } from "@/engine/match/round-script-types"
 import type { PreparedRadarScript } from "./radar-scene"
+import { scorebugTime } from "./live-clock"
 
 export type ScrubTickKind = "kill" | "plant" | "defuse" | "explode" | "utility"
 
@@ -30,6 +31,17 @@ export function formatRoundClock(t: number): string {
 }
 
 /**
+ * The scorebug's clock at round time `t` of a prepared round: time left, or
+ * the bomb timer (prefixed "Bomb") after the plant. The scrubber, the review
+ * chip and the feed all read time this way, so one moment has one time.
+ */
+export function scrubberClock(prep: Pick<PreparedRadarScript, "plant" | "defuse" | "explodeAt"> | null, t: number): string {
+    const end = prep?.defuse?.success ? prep.defuse.tEnd : prep?.explodeAt
+    const c = scorebugTime(t, prep?.plant?.t, end)
+    return c.planted ? `Bomb ${formatRoundClock(c.seconds)}` : formatRoundClock(c.seconds)
+}
+
+/**
  * Ticks of a round, in time order. `upTo` hides everything after it (the live
  * round: no spoilers). Kills are coloured by the killer's side.
  */
@@ -38,20 +50,20 @@ export function scrubberTicks(prep: PreparedRadarScript, upTo = Infinity): Scrub
     const out: ScrubTick[] = []
     for (const d of prep.deaths) {
         if (d.t > upTo) continue
-        out.push({ t: d.t, kind: "kill", side: d.killerSide, label: `${formatRoundClock(d.t)} ${name(d.killer)} killed ${name(d.victim)}${d.headshot ? " (headshot)" : ""}`, headshot: d.headshot })
+        out.push({ t: d.t, kind: "kill", side: d.killerSide, label: `${scrubberClock(prep, d.t)} ${name(d.killer)} killed ${name(d.victim)}${d.headshot ? " (headshot)" : ""}`, headshot: d.headshot })
     }
     for (const u of prep.utility) {
         if (u.t > upTo) continue
-        out.push({ t: u.t, kind: "utility", side: u.side, utility: u.kind, label: `${formatRoundClock(u.t)} ${UTILITY_NAME[u.kind]} by ${name(u.thrower)}` })
+        out.push({ t: u.t, kind: "utility", side: u.side, utility: u.kind, label: `${scrubberClock(prep, u.t)} ${UTILITY_NAME[u.kind]} by ${name(u.thrower)}` })
     }
     if (prep.plant && prep.plant.t <= upTo) {
-        out.push({ t: prep.plant.t, kind: "plant", side: "T", label: `${formatRoundClock(prep.plant.t)} Bomb planted at ${prep.plant.site} by ${name(prep.plant.planter)}` })
+        out.push({ t: prep.plant.t, kind: "plant", side: "T", label: `${scrubberClock(prep, prep.plant.t)} Bomb planted at ${prep.plant.site} by ${name(prep.plant.planter)}` })
     }
     if (prep.defuse?.success && prep.defuse.tEnd <= upTo) {
-        out.push({ t: prep.defuse.tEnd, kind: "defuse", side: "CT", label: `${formatRoundClock(prep.defuse.tEnd)} Bomb defused by ${name(prep.defuse.defuser)}` })
+        out.push({ t: prep.defuse.tEnd, kind: "defuse", side: "CT", label: `${scrubberClock(prep, prep.defuse.tEnd)} Bomb defused by ${name(prep.defuse.defuser)}` })
     }
     if (prep.explodeAt !== undefined && prep.explodeAt <= upTo) {
-        out.push({ t: prep.explodeAt, kind: "explode", side: "T", label: `${formatRoundClock(prep.explodeAt)} Bomb exploded` })
+        out.push({ t: prep.explodeAt, kind: "explode", side: "T", label: `${scrubberClock(prep, prep.explodeAt)} Bomb exploded` })
     }
     return out.sort((a, b) => a.t - b.t || order(a.kind) - order(b.kind))
 }

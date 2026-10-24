@@ -40,6 +40,20 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
     const canReview = next.reviewPath !== '' && pathname === next.reviewPath
     const done = guide.reviewed.length
 
+    // Away from the step's own page the compact guide is one line, so it does not push the page down.
+    if (compact && !canReview && next.action.href !== pathname) {
+        return (
+            <section aria-label="First session guide" className="flex min-h-10 flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-line bg-panel px-4 py-1.5 text-sm">
+                <span className="font-semibold text-ink-1">First session <span className="ml-1 text-xs font-normal tabular-nums text-ink-3">{done} / {FIRST_SESSION_STEPS.length}</span></span>
+                <span className="min-w-0 truncate text-ink-2">Next: {next.title}</span>
+                <span className="ml-auto flex items-center gap-2">
+                    <Button asChild size="sm" variant="outline"><Link href={next.action.href}>{next.action.label}</Link></Button>
+                    <button type="button" onClick={state.dismiss} className="rounded-sm text-xs font-medium text-ink-3 hover:text-ink-1" aria-label="Skip first session guide. You can replay it from Settings.">Skip guide</button>
+                </span>
+            </section>
+        )
+    }
+
     return (
         <section aria-labelledby="first-session-title" className="rounded-lg border border-line-strong bg-panel">
             <header className="flex min-h-11 items-center justify-between gap-4 border-b border-line px-4 py-2">

@@ -122,6 +122,16 @@ export function getTierStyle(tier: TierLevel): {
                 label: "Amateur",
                 shortLabel: "AM"
             }
+        default:
+            // Snapshot clubs below the ranked tiers carry "ACADEMY"; anything
+            // unknown reads as the lowest tier instead of crashing a screen.
+            return {
+                color: "text-slate-400",
+                bgColor: "bg-slate-400/10",
+                borderColor: "border-slate-400/30",
+                label: String(tier) === "ACADEMY" ? "Academy" : "Amateur",
+                shortLabel: String(tier) === "ACADEMY" ? "ACAD" : "AM"
+            }
     }
 }
 

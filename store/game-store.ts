@@ -109,6 +109,10 @@ import { checkMilestones } from "@/engine/milestone-checker"
 import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
+import { createDelegationSlice } from "@/store/slices/delegation-slice"
+import { createDraftCupSlice } from "@/store/slices/draft-cup-slice"
+import { draftCupOutcome } from "@/engine/draft-cup"
+import { setupDraftCup, type DraftCupSetup } from "@/engine/draft-cup-setup"
 import { createDressingRoomSlice } from "@/store/slices/dressing-room-slice"
 import { createPlayerDevelopmentSlice } from "@/store/slices/player-development-slice"
 import { createStaffManagementSlice } from "@/store/slices/staff-management-slice"
@@ -127,6 +131,8 @@ import { foldWeeklyDigest } from "@/lib/inbox-digest"
 import { normalizeDecisions } from "@/engine/decision-deadlines"
 import drillCatalog from "@/data/drills.json"
 import { formatCurrency } from "@/lib/utils-extended"
+import { DEFAULT_TEAM_TRAINING } from "@/engine/development-outlook"
+import { chooseLiveCheckpoint, liveCheckpointStore } from "@/lib/live-checkpoint-store"
 
 enableMapSet()
 
@@ -367,9 +373,10 @@ const MAX_CONTRACT_LENGTH_WEEKS = 52 * 10
 const MAX_MAPS_PER_SERIES = 5
 const ALLOWED_MAP_IDS = new Set<string>(Object.values(MapId))
 const MAX_ROUNDS_PER_MAP = 60
-const MAX_MATCH_KILLS = 80
-const MAX_MATCH_DEATHS = 80
-const MAX_MATCH_ASSISTS = 60
+// Series totals: a long BO5 runs 120+ rounds, and a star kills about 0.8 a round.
+const MAX_MATCH_KILLS = 200
+const MAX_MATCH_DEATHS = 200
+const MAX_MATCH_ASSISTS = 150
 const MAX_MATCH_CLUTCHES = 15
 const MAX_MATCH_OPENINGS = 30
 const MAX_MATCH_ADR = 300
@@ -474,6 +481,10 @@ export interface GameStoreState extends AdvanceState, MomentsState {
   scoutedPlayers: { playerId: string; scoutedWeek: number; scoutLevel: "BASIC" | "ADVANCED" | "EXPERT" | "ELITE" }[]
   activeScoutingMission?: { playerId: string; startWeek: number; completionWeek: number; scoutId: string }
   watchlistedPlayerIds: string[]
+  savedSearches: import("@/engine/save-types").SavedMarketSearch[]
+  delegation: import("@/engine/delegation").DelegationSettings
+  draftCup: import("@/engine/draft-cup").DraftCupState | null
+  mapRecords?: import("@/engine/map-record").MapRecordState
 
   // Phase 25: Region Selection
   selectedRegions: string[]
@@ -571,7 +582,7 @@ export interface GameStoreState extends AdvanceState, MomentsState {
 
 interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, MomentsActions {
   // Lifecycle
-  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string) => Promise<void>
+  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: { unemployed?: boolean; draftCup?: { world: GameSave; setup: DraftCupSetup } }) => Promise<void>
   initializeCustomTeam: (managerName: string, teamData: import("@/types/team-creator").CustomTeamData) => Promise<void>
   loadGame: (saveId: string, cloudChoice?: "local" | "cloud") => Promise<void>
   saveGame: () => Promise<void>
@@ -607,6 +618,9 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   setPlaystyle: (teamId: string, playstyle: TeamSaveData["playstyle"]) => void
   setEconomyStyle: (teamId: string, economyStyle: TeamSaveData["economyStyle"]) => void
   setTargetPlayer: (teamId: string, targetPlayerId: string | undefined) => void
+  setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
+  runDelegatedChores: () => string[]
+  settleDraftCup: () => Promise<boolean>
   performVODReview: (matchId: string) => void
   performMentalReset: (matchId?: string) => void
 
@@ -650,6 +664,10 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   isPlayerScouted: (playerId: string) => boolean
   toggleWatchlistPlayer: (playerId: string) => void
   isPlayerWatchlisted: (playerId: string) => boolean
+  /** G8: save the current market filters; returns false when nothing narrows the market or the list is full. */
+  saveMarketSearch: (name: string, criteria: import("@/engine/market-search").MarketCriteria) => boolean
+  deleteMarketSearch: (id: string) => void
+  toggleMarketSearchAlerts: (id: string) => void
 
   // Phase 39: Customizable Tactical Loadouts
   updateCustomTactic: (id: keyof CustomTactics, side: "ct" | "t", strategy: TacticalStrategy) => void
@@ -707,6 +725,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   // Phase 60: Job Market
   acceptJobOffer: (eventId: string) => { success: boolean; message: string }
   declineJobOffer: (eventId: string) => void
+  findMoreJobOffers: () => number
 
   negotiateJobOffer: (eventId: string) => { success: boolean; message: string; newOffer?: number; withdrew?: boolean }
 
@@ -868,6 +887,11 @@ function weekRecordedActions(set: unknown, get: unknown) {
  * reports (sanitized) and a tracker for the current week. `fresh` marks a
  * brand-new career, whose baseline is the true start of the week.
  */
+/** G7: the Draft Cup run is over (knocked out or champion). */
+function draftCupOver(state: { draftCup?: unknown }): boolean {
+  return !!state.draftCup && !!draftCupOutcome(state as never)
+}
+
 function careerAdvanceState(save: GameSave, playerTeamId: string | null, fresh: boolean): AdvanceState {
   const loaded = sanitizeWeekReports((save as GameSave & { weekReports?: unknown }).weekReports)
   const source = { ...save, playerTeamId, weekReports: loaded } as unknown as TrackingState
@@ -965,6 +989,14 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       ...createTeamSettingsSlice(
         set as Parameters<typeof createTeamSettingsSlice>[0],
         get as Parameters<typeof createTeamSettingsSlice>[1],
+      ),
+      ...createDelegationSlice(
+        set as Parameters<typeof createDelegationSlice>[0],
+        get as Parameters<typeof createDelegationSlice>[1],
+      ),
+      ...createDraftCupSlice(
+        set as Parameters<typeof createDraftCupSlice>[0],
+        get as Parameters<typeof createDraftCupSlice>[1],
       ),
       ...createDressingRoomSlice(
         set as Parameters<typeof createDressingRoomSlice>[0],
@@ -1066,6 +1098,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       scoutedPlayers: [],
       activeScoutingMission: undefined,
       watchlistedPlayerIds: [],
+      savedSearches: [],
+      delegation: {},
+      draftCup: null,
+      mapRecords: undefined,
 
       // Phase 25
       selectedRegions: ["EU", "NA"], // Default regions
@@ -1096,7 +1132,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       difficulty: "normal",
       autoSave: true,
       notifications: true,
-      showBugReportButton: true,
+      showBugReportButton: false,
 
       // Game Over State
       gameOverReason: null,
@@ -1171,7 +1207,13 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         })
       },
 
-      initializeNewGame: async (saveName, playerTeamId) => {
+      initializeNewGame: async (saveName, playerTeamId, _snapshotId, options) => {
+        // G9: an unemployed start creates the world around a placeholder club
+        // (never managed) and opens on the first-job market.
+        const unemployed = options?.unemployed === true
+        // G7: a Draft Cup run starts from the world the draft screen built
+        // (its pool came from it) and ends after one cup.
+        const draftCup = options?.draftCup
         careerGeneration++
         weekProcessorBridge.reset?.()
         set({ isLoading: true, error: null })
@@ -1185,7 +1227,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           steamAchievements.initialize(achievementToast(get))
 
           // Create new save from snapshot
-          const newSave = snapshotLoader.createCareerFromSnapshot(saveName, playerTeamId, 1)
+          const newSave = draftCup ? { ...draftCup.world, saveName } : snapshotLoader.createCareerFromSnapshot(saveName, playerTeamId, 1)
 
           if (!newSave) {
             throw new Error("Failed to create save from snapshot")
@@ -1235,19 +1277,20 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Initialize career history for all players (Phase 3 improvements)
           PreSeasonTransferProcessor.initializeCareerHistory(newSave)
 
-          // Run pre-season transfer window (first 3 days)
-          const transferResult = PreSeasonTransferProcessor.processPreSeasonWindow(newSave, playerTeamId)
-
-          // Apply results
-          newSave.eventsLog.push(...transferResult.events)
-          newSave.transferHistory = transferResult.transfers
+          // Run pre-season transfer window (first 3 days). Not for a Draft
+          // Cup: the draft was made against these rosters.
+          if (!draftCup) {
+            const transferResult = PreSeasonTransferProcessor.processPreSeasonWindow(newSave, playerTeamId)
+            newSave.eventsLog.push(...transferResult.events)
+            newSave.transferHistory = transferResult.transfers
+          }
 
           // Get the selected team for welcome message
           const selectedTeam = newSave.teams.find((t: any) => t.id === playerTeamId)
           // Snapshot the starting tier so ZERO_TO_HERO can detect a
           // career-long climb. Set exactly once at career creation;
           // post-tick achievement evaluation reads it without mutation.
-          if (selectedTeam && selectedTeam.startingLeagueTier == null) {
+          if (selectedTeam && !unemployed && !draftCup && selectedTeam.startingLeagueTier == null) {
             selectedTeam.startingLeagueTier = selectedTeam.leagueTier
           }
           const teamRoster = newSave.players.filter((p: any) => selectedTeam?.rosterIds?.includes(p.id))
@@ -1256,7 +1299,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             : 75
 
           // Add Welcome Mail
-          newSave.eventsLog.unshift({
+          if (!unemployed && !draftCup) newSave.eventsLog.unshift({
             id: `evt_welcome_${newSave.currentWeek}_${newSave.saveId}`,
             type: "CAREER_UPDATE",
             week: 1,
@@ -1292,17 +1335,27 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Seed preseason friendlies so Week 1 isn't an empty calendar — gives
           // the player scrims to play immediately and a real "next match" on the
           // dashboard while the first tournaments are still weeks away.
-          seedPreseasonFriendlies(newSave, playerTeamId)
+          if (!unemployed && !draftCup) seedPreseasonFriendlies(newSave, playerTeamId)
 
           // Regional league: draw split 1 now (after the friendlies, so league
           // nights avoid them) so the fixture list is there on day one, and set
           // the board's objectives against it (Phase 4.4).
           drawDueLeagueSplit(newSave)
+          // The drafted team joins after the draw, so it plays no league.
+          const teamId = draftCup ? setupDraftCup(newSave, draftCup.setup) : playerTeamId
           ensureBoardState(newSave)
-          queueWelcomeMoment(newSave, playerTeamId)
+          if (draftCup) {
+            // No welcome moment: the cup's inbox mail opens the run.
+          } else if (unemployed) {
+            newSave.gameOverReason = "UNEMPLOYED"
+            newSave.gameOverWeek = newSave.currentWeek
+            JobOfferGenerator.createFirstJobOffers(newSave, new SeededRNG((newSave.lastRngSeed ?? 1) ^ 0x51ed)) // adds the offers to the inbox
+          } else {
+            queueWelcomeMoment(newSave, playerTeamId)
+          }
 
           // Initial Save
-          newSave.firstSession = get().showTutorialOnNewGame ? newFirstSession() : { ...newFirstSession(), status: "dismissed" }
+          newSave.firstSession = get().showTutorialOnNewGame && !draftCup ? newFirstSession() : { ...newFirstSession(), status: "dismissed" }
           newSave.selectedWeeklyActivity = null
           const initialSaveResult = await saveManager.saveGame(newSave)
           if (!initialSaveResult.success) throw new Error(initialSaveResult.error || "Could not save the new career. Free disk space and retry.")
@@ -1310,13 +1363,15 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Update Store
           set({
             ...newSave,
-            ...careerAdvanceState(newSave, playerTeamId, true),
+            ...careerAdvanceState(newSave, teamId, true),
             lastCommittedWeekTick: newSave.lastCommittedWeekTick,
             recordBook: newSave.recordBook, // explicit: a new career never inherits the last one's records
             storylines: newSave.storylines, // nor its storylines (Phase 5.3)
             autoTactics: false, // nor its auto-tactics switch
+            delegation: {}, // nor its staff delegation
+            draftCup: newSave.draftCup ?? null, // G7: set only on a Draft Cup run
             availableEquipment: initialEquipment,
-            playerTeamId: playerTeamId, // We assume the user controls the team they selected
+            playerTeamId: teamId, // We assume the user controls the team they selected
             theme: "crystal", // Default theme for new game
             manualTutorialTrigger: 0,
             tutorialCompleted: false, // Reset tutorial for new game
@@ -1629,6 +1684,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             recordBook: newSave.recordBook,
             storylines: newSave.storylines,
             autoTactics: false,
+            delegation: {},
+            draftCup: null,
             availableEquipment: [
               { id: "mouse_001", name: "Basic Gaming Mouse", type: "MOUSE", weeklyCost: 0, tier: 1, purchasedWeek: 0, bonus: { stat: "skill", value: 1 } },
             ],
@@ -1686,6 +1743,17 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             set({ lastLoadError: { saveId, errorCode: errorCode || "UNKNOWN", message } })
             throw new Error(message)
           }
+
+          // A live match checkpointed after this save was written (reload or
+          // crash mid-match) resumes where it was, not from round 1.
+          const resumedLiveMatch = chooseLiveCheckpoint({
+            stored: await liveCheckpointStore.read(save.saveId),
+            saveId: save.saveId,
+            saveUpdatedAt: save.updatedAt,
+            scheduledMatchIds: (save.scheduledMatches ?? []).map(m => m.id),
+            completedMatchIds: (save.completedMatches ?? []).map(m => m.id),
+            savedActive: save.activeMatchState,
+          })
 
           await steamAchievements.setActiveSave(save.saveId)
 
@@ -1764,8 +1832,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             customTactics: hydratedSave.customTactics ?? createDefaultTactics(),
             autoTactics: hydratedSave.autoTactics === true,
             watchlistedPlayerIds: hydratedSave.watchlistedPlayerIds ?? [],
-            activeMatchId: hydratedSave.activeMatchId ?? null,
-            activeMatchState: hydratedSave.activeMatchState ?? null,
+            savedSearches: hydratedSave.savedSearches ?? [],
+            delegation: hydratedSave.delegation ?? {},
+            draftCup: hydratedSave.draftCup ?? null,
+            mapRecords: hydratedSave.mapRecords,
+            activeMatchId: resumedLiveMatch ? resumedLiveMatch.matchId : hydratedSave.activeMatchId ?? null,
+            activeMatchState: resumedLiveMatch ?? hydratedSave.activeMatchState ?? null,
             physicalMatchPreview: hydratedSave.physicalMatchPreview ?? null,
             boardState: hydratedSave.boardState,
             socialFeed: hydratedSave.socialFeed,
@@ -1876,7 +1948,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       advanceDay: async () => {
         const state = get()
         // A dissolved career must not move its calendar (daily mode never reached advanceWeek's guard).
-        if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state)) return
+        if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state) || draftCupOver(state)) return
         // During a Continue run only the run itself advances (no stray hotkey steps past a stop).
         if (state.continueRun && !isContinueStepping()) return
         if (state.timeMode !== "HYBRID_DAILY") {
@@ -1905,7 +1977,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       advanceToWeekEnd: async () => {
         const state = get()
-        if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state)) return
+        if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state) || draftCupOver(state)) return
         if (state.continueRun && !isContinueStepping()) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
@@ -1953,9 +2025,15 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         // Guard: during a Continue run only the run itself advances.
         if (state.continueRun && !isContinueStepping()) return
 
+        // G7: a finished Draft Cup run has no next week.
+        if (draftCupOver(state)) {
+          set({ isLoading: false })
+          return
+        }
+
         // Guard: prevent advancing if game is over (bankruptcy)
         if (state.gameOverReason) {
-          get().addToast({ message: "Your organization has been dissolved. Load a save or start a new game.", type: "warning" })
+          get().addToast({ message: "You have no club. Take a job offer to continue the career.", type: "warning" })
           set({ isLoading: false })
           return
         }
@@ -1968,6 +2046,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           set({ isLoading: false })
           return
         }
+
+        // G6: staff run the chores the manager delegated (renewals, drills, scouting) before the week is built.
+        get().runDelegatedChores()
 
         set({ isLoading: true, weekProgress: "preparing" })
 
@@ -2041,7 +2122,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // every AI roster. Bounded by potential, with fatigue as the brake.
           const trainingFocus = new Map<string, { focus: TrainingFocus; intensity: number }>()
           if (state.playerTeamId) {
-            trainingFocus.set(state.playerTeamId, { focus: TrainingFocus.AIM, intensity: 5 })
+            trainingFocus.set(state.playerTeamId, { ...DEFAULT_TEAM_TRAINING })
           }
 
           const config = {

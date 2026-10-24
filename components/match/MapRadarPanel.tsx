@@ -15,7 +15,7 @@ import type { LiveTimeSource } from "@/lib/live-clock"
 import { FREEZE_LABEL_SECONDS } from "@/lib/live-match-pacing"
 import { radarArtFor } from "@/lib/radar-art"
 import { reviewRound, reviewScript, reviewableRounds, type RadarReviewSource } from "@/lib/radar-review"
-import { clampReviewTime, formatRoundClock, scrubberSpan } from "@/lib/radar-scrubber"
+import { clampReviewTime, scrubberClock, scrubberSpan } from "@/lib/radar-scrubber"
 import type { RadarSite } from "@/lib/radar-draw"
 import { roundMapBounds } from "@/lib/radar-view"
 import { RadarCanvas, createRadarFeed, feedLiveTime, type RadarCanvasHandle, type RadarFeed } from "./RadarCanvas"
@@ -227,8 +227,8 @@ function MapRadarPanelComponent({
         if (shownOver && !reviewUi.active) return { label: "ROUND OVER", color: "#AEB6C2" }
         if (positionSource === 'physical-replay') return { label: "REPLAY", color: "#AEB6C2" }
         if (!reviewUi.active && currentTime != null && currentTime < FREEZE_LABEL_SECONDS) return { label: "FREEZE TIME", color: "#5AA9FF" }
-        if (reviewUi.active) return null
-        return { label: "LIVE", color: "#3DD68C" }
+        // Live play needs no chip: the control bar and the scrubber already say LIVE.
+        return null
     })()
 
     // Bombsites: the round map's (plant area + letter), else the caller's positions.
@@ -310,7 +310,7 @@ function MapRadarPanelComponent({
     const scrubberPrep = reviewUi.active ? reviewPrep : livePrep
     const source = activeScript ? "round-script" : radarDots ? "snapshot" : undefined
     const floorLabel = isDualLevel ? (shownFloor === "upper" ? "Upper floor" : "Lower floor") : "Single level"
-    const ariaLabel = `${mapName} radar${headerScene ? `: CT ${ctAlive} alive, T ${tAlive} alive` : ""}${roundPhase ? `, ${roundPhase.label.toLowerCase()}` : ""}`
+    const ariaLabel = `${mapName} radar${headerScene ? `: CT ${ctAlive} alive, T ${tAlive} alive` : ""}${roundPhase ? `, ${roundPhase.label.toLowerCase()}` : reviewUi.active ? "" : ", live"}`
 
     return (
         <div className={cn("map-radar-panel overflow-hidden rounded-lg border border-line bg-panel", fillHeight && "flex h-full min-h-0 flex-col")}>
@@ -322,7 +322,7 @@ function MapRadarPanelComponent({
                     <span>{mapName} <span className="font-normal text-ink-3">radar</span></span>
                     <ChevronUp size={14} className={cn("text-ink-3 transition-transform", !isExpanded && "rotate-180")} />
                 </button>
-                {isExpanded && reviewUi.active && <span className="rounded-sm bg-gold/15 px-1.5 py-0.5 text-[11px] font-bold tracking-[0.06em] text-gold">REVIEW · R{scrubberRound ?? "–"} {formatRoundClock(shownT)}</span>}
+                {isExpanded && reviewUi.active && <span className="rounded-sm bg-gold/15 px-1.5 py-0.5 text-[11px] font-bold tracking-[0.06em] text-gold">REVIEW · R{scrubberRound ?? "–"} {scrubberClock(reviewPrep, shownT)}</span>}
                 {isExpanded && roundPhase && <span className="rounded-sm px-1.5 py-0.5 text-[11px] font-bold tracking-[0.06em]" style={{ backgroundColor: `${roundPhase.color}20`, color: roundPhase.color }}>{roundPhase.label}</span>}
                 {isExpanded && <div className="ml-auto flex flex-wrap items-center gap-2">
                     {isDualLevel && <div role="group" aria-label="Radar floor" className="flex items-center gap-1">
@@ -417,7 +417,7 @@ function MapRadarPanelComponent({
                             />
                         )}
                         <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-line px-3 py-2 text-xs text-ink-3">
-                            <span className="flex items-center gap-3"><span className="font-semibold text-side-ct"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="font-semibold text-side-t"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>alive</span></span>
+                            <span className="flex items-center gap-3"><span className="font-semibold text-side-ct"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="font-semibold text-side-t"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>{shownOver ? "at round end" : "alive"}</span></span>
                             <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : activeScript ? 'Positions follow the round script: routes, duels, grenades and the bomb are placed to match what happened in the round. Scroll to zoom, drag to pan, click a player to highlight.' : 'Career match positions are estimated from recorded round events.'}>
                                 {positionSource === 'physical-replay' ? 'Recorded positions' : activeScript ? 'Round script' : 'Estimated positions'} · {floorLabel}
                             </span>

@@ -22,6 +22,7 @@ import { cn, deterministicSeed } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { leagueStageLabel } from "@/components/league/league-view"
+import { rate, recentMapTally, type SideTally } from "@/engine/map-record"
 
 // Map Wallpaper Paths
 const MAP_WALLPAPERS: Record<string, string> = {
@@ -86,13 +87,14 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
     const params = useParams()
     const id = params.id as string
     const router = useRouter()
-    const { scheduledMatches, teams, players, updateScheduledMatch, playerTeamId, completedMatches } = useGameStore(useShallow(state => ({
+    const { scheduledMatches, teams, players, updateScheduledMatch, playerTeamId, completedMatches, mapRecords } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
         teams: state.teams,
         players: state.players,
         updateScheduledMatch: state.updateScheduledMatch,
         playerTeamId: state.playerTeamId,
         completedMatches: state.completedMatches,
+        mapRecords: state.mapRecords,
     })))
 
     // State
@@ -124,6 +126,14 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         () => awayTeam ? computeTeamMapStats(completedMatches, awayTeam.id) : {},
         [completedMatches, awayTeam],
     )
+
+    // G2: official CT / T round win rates per map, this season and last.
+    const homeSides = useMemo(() => homeTeam ? recentMapTally({ mapRecords }, homeTeam.id) : {}, [mapRecords, homeTeam])
+    const awaySides = useMemo(() => awayTeam ? recentMapTally({ mapRecords }, awayTeam.id) : {}, [mapRecords, awayTeam])
+    const sideLine = (t: SideTally | undefined) => {
+        if (!t || t[0] === 0) return "—"
+        return `${rate(t[3], t[2]) ?? "—"} / ${rate(t[5], t[4]) ?? "—"}%`
+    }
 
     // Refs for AI processing
     const processingRef = useRef(false)
@@ -557,6 +567,13 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                             <dt>Your read edge</dt>
                                             <dd className="tabular-nums text-ink-2">{edge >= 0 ? "+" : "−"}{Math.abs(edge).toFixed(1)}%</dd>
                                         </div>
+                                        <div className="flex justify-between gap-2" title="Official CT and T round win rates on this map, this season and last. History only; it does not change the odds.">
+                                            <dt>CT / T</dt>
+                                            <dd className="tabular-nums text-ink-2">
+                                                {sideLine(homeSides[mapId])} <span className="text-ink-3">/</span> {sideLine(awaySides[mapId])}
+                                                <span className="sr-only"> ({homeTeam.name} / {awayTeam.name})</span>
+                                            </dd>
+                                        </div>
                                         <div className="flex justify-between gap-2" title="Past results on this map. History only; it does not change the odds.">
                                             <dt>Record</dt>
                                             <dd className="tabular-nums text-ink-2">
@@ -579,7 +596,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
 
             <p className="text-xs text-ink-3">
                 The engine adds the map-strength gap to every round (the edge shown). It moves by tenths of a percent from map to map, so the veto barely changes the odds.
-                Records are past results ({homeTeam.name} / {awayTeam.name}) and don&apos;t affect the match.
+                Records and CT / T round win rates are past results ({homeTeam.name} / {awayTeam.name}) and don&apos;t affect the match.
             </p>
 
             {/* Side Selection Overlay */}
@@ -596,6 +613,22 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{MAP_NAMES[showSideSelection || ""]}</p>
                             <h2 id="modal-title-side-selection" className="mt-1 font-display text-4xl font-bold uppercase text-ink-1">Choose your side</h2>
                             <p className="mt-1 text-sm text-ink-3">You play the first half on this side, then switch.</p>
+                            {showSideSelection && (() => {
+                                const mine = (userIsHome ? homeSides : awaySides)[showSideSelection]
+                                const theirs = (userIsHome ? awaySides : homeSides)[showSideSelection]
+                                if (!mine?.[0] && !theirs?.[0]) return null
+                                const line = (t: SideTally | undefined, side: "ct" | "t") => !t?.[0] ? "—" : side === "ct" ? `${rate(t[3], t[2]) ?? "—"}% of ${t[2]}` : `${rate(t[5], t[4]) ?? "—"}% of ${t[4]}`
+                                return (
+                                    <table className="mx-auto mt-4 text-sm">
+                                        <caption className="pb-1 text-xs text-ink-3">Official round win rates on this map, this season and last</caption>
+                                        <thead><tr className="text-xs text-ink-3"><th /><th className="px-3 font-semibold text-side-ct">CT</th><th className="px-3 font-semibold text-side-t">T</th></tr></thead>
+                                        <tbody className="tabular-nums">
+                                            <tr><th className="pr-3 text-left font-semibold text-ink-2">You</th><td className="px-3">{line(mine, "ct")}</td><td className="px-3">{line(mine, "t")}</td></tr>
+                                            <tr><th className="pr-3 text-left font-semibold text-ink-2">{(userIsHome ? awayTeam : homeTeam).name}</th><td className="px-3">{line(theirs, "ct")}</td><td className="px-3">{line(theirs, "t")}</td></tr>
+                                        </tbody>
+                                    </table>
+                                )
+                            })()}
 
                             <div className="mt-6 grid grid-cols-2 gap-4">
                                 <button

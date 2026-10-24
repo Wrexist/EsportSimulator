@@ -8,6 +8,7 @@ import type { NavGraph } from "./round-script-nav"
 import { RUN_PACE, PLAN_PACE, len, weaponClass, hyp, alive, round3, roundPoint } from "./round-script-context"
 import type { Phase, Anchor, Step, Actor, Kill, State, Ctx } from "./round-script-context"
 import { zonePoint } from "./round-sim/zones"
+import { segmentHitsCircle, visibilityFor } from "./round-script-visibility"
 
 // Math is read once: global lookups are very slow inside Jest's sandbox (tests time the builder).
 const { abs, max, min } = Math
@@ -26,6 +27,12 @@ export const ZONE_HARD = 6.5
 export const ZONE_WALL = 80
 /** script-v1: victim spots tried around the resolver's zone (map-%). */
 export const ZONE_SPREAD = 4
+/** A duel spot pair without line of sight (a wall between them) or through a smoke: practically never chosen. */
+export const NO_SIGHT = 120
+export const THROUGH_SMOKE = 60
+/** A duel spot in plain sight of a close enemy who is not in this fight (map-%, cost): the bystander would shoot. */
+export const BYSTANDER_RANGE = 8
+export const BYSTANDER = 25
 
 // ─── Default motion, legs, sampling of the plan ────────────────────────────
 
@@ -79,10 +86,20 @@ export function defaultSteps(ctx: Ctx, a: Actor, from: Anchor, horizon: number):
 }
 
 /** Steps from anchor `from` to anchor `to`: the default motion, left as late as possible. */
+/**
+ * Two anchors this close (seconds), with time to walk between them: the player
+ * holds where the first left them instead of drifting back toward their
+ * default spot and returning (back-and-forth between quick kills).
+ */
+export const SHORT_LEG = 4
+
 export function legSteps(ctx: Ctx, a: Actor, from: Anchor, to: Anchor): Step[] {
     const { g, v } = ctx
-    const def = defaultSteps(ctx, a, from, to.t)
     const dist = g.distancesTo(to.node)
+    const gap = to.t - from.t
+    const def = from.holdUntil === undefined && gap <= SHORT_LEG && dist[from.node] / v <= gap
+        ? [{ t: from.t, node: from.node, look: from.look, aimAt: from.aimAt }, { t: to.t, node: from.node, look: from.look }]
+        : defaultSteps(ctx, a, from, to.t)
     const end: Step = { t: to.t, node: to.node, look: to.look, aimAt: to.aimAt }
     const minK = from.holdUntil !== undefined && from.holdUntil > from.t ? 1 : 0
     let k = def.length - 1
@@ -320,7 +337,9 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
     const matesV = ctx.actors.filter(a => a.side === V.side && a !== V && alive(a, t)).map(a => stateAt(ctx, a, t))
     const matesK = others
     // script-v1: the resolver says where this fight happened (and that replaces the bomb / trade guesses).
-    const zone = kill.zone ? zonePoint(ctx.map, kill.zone) : undefined
+    const zone = kill.spot ?? (kill.zone ? zonePoint(ctx.map, kill.zone) : undefined)
+    const vis = visibilityFor(g)
+    const smokes = ctx.smokes.filter(s => t >= s.t0 && t <= s.t1)
     const bomb = !zone && ctx.plantT !== undefined && t >= ctx.plantT ? g.point(ctx.plantNode) : null
     const trade = !zone && kill.trade && ctx.lastDeath && t - ctx.lastDeath.t <= 6 ? g.point(ctx.lastDeath.node) : null
     // Lookahead: the killer's next fight must stay within reach of its opponent.
@@ -332,7 +351,7 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
     let foeHard = Infinity
     let foeFixedDist: Float64Array | null = null
     let foeFixedBound = Infinity
-    const nextZone = nextKill?.zone ? zonePoint(ctx.map, nextKill.zone) : undefined
+    const nextZone = nextKill?.spot ?? (nextKill?.zone ? zonePoint(ctx.map, nextKill.zone) : undefined)
     if (nextKill && nextZone) {
         // script-v1: the next fight has a place; stay within reach of it.
         foeDist = g.distancesTo(g.nearest(nextZone))
@@ -367,6 +386,12 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
             const dz = len((vx + kx) / 2 - zone.x, (vy + ky) / 2 - zone.y)
             if (dz > ZONE_RADIUS) cost += ZONE_PULL * (dz - ZONE_RADIUS) + (dz > ZONE_HARD ? ZONE_WALL + 10 * (dz - ZONE_HARD) : 0)
         }
+        if (!vis.sees(v, k)) cost += NO_SIGHT
+        if (cost >= bestCost) return
+        for (let si = 0; si < smokes.length; si++) {
+            const sm = smokes[si]
+            if (sm.at.floor === g.floor[v] && segmentHitsCircle(g.point(k), g.point(v), sm.at, sm.r)) { cost += THROUGH_SMOKE; break }
+        }
         if (cost >= bestCost) return
         if (!reachV(v) || !reachK(k)) return
         if (walkDist > e * 1.6 + 2) cost += 6
@@ -379,6 +404,12 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
         }
         for (const m of matesV) if (len(m.x - vx, m.y - vy) < 2.5) cost += 5
         for (const m of matesK) if (len(m.x - kx, m.y - ky) < 2.5) cost += 5
+        // The killer stays on after the kill: the victim's teammates nearby should not have a clear view of the spot.
+        for (const m of matesV) {
+            if (m.floor !== g.floor[k] || len(m.x - kx, m.y - ky) > BYSTANDER_RANGE) continue
+            if (vis.sees(k, m.node)) cost += BYSTANDER
+        }
+        if (cost >= bestCost) return
         if (bomb) {
             const dv = len(vx - bomb.x, vy - bomb.y)
             const dk = len(kx - bomb.x, ky - bomb.y)

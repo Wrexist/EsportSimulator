@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FormGuide } from "@/src/components/ui/FixtureBanner"
 import { leagueTableRows, showsMapDiff, signed, zoneRules } from "./league-view"
+import { TeamLink } from "@/components/ui/EntityLink"
 
 export interface LeagueTableProps {
     division: LeagueDivision
@@ -72,7 +73,7 @@ export function LeagueTable({ division, bottomLevel, teamsById, playerTeamId }: 
                                     <td className="min-w-0 pr-3">
                                         <span className="flex min-w-0 items-center gap-2.5">
                                             <TeamLogoDisplay team={team} size={22} className="shrink-0" />
-                                            <span className={cn("truncate text-sm font-semibold", r.isPlayer ? "text-gold" : "text-ink-1")}>{team?.name ?? r.teamId}</span>
+                                            <TeamLink id={team ? r.teamId : null} className={cn("truncate text-sm font-semibold", r.isPlayer ? "text-gold" : "text-ink-1")}>{team?.name ?? r.teamId}</TeamLink>
                                             {champion && <Trophy size={13} className="shrink-0 text-gold" aria-label="Division champions" />}
                                         </span>
                                     </td>

@@ -14,6 +14,9 @@ import { closeStint, openStint } from "./manager-timeline"
 import { EventType } from "@/types/enums"
 import { SeededRNG, generateSeed } from "./rng"
 
+/** Highest club reputation that offers a first job to an unemployed new manager (G9). */
+export const FIRST_JOB_MAX_REPUTATION = 35
+
 // ===== CONSTANTS =====
 
 const JOB_OFFER_BASE_CHANCE = 0.05 // 5% base chance per week
@@ -70,44 +73,98 @@ export class JobOfferGenerator {
     }
 
     /**
-     * Job market after a dismissal (sacked, or the club folded): a few clubs
-     * at or below the old club's stature offer the manager a fresh start, so
-     * the career continues instead of dead-ending (Phase 4.4). Same offer
-     * events as the weekly market, flagged `afterDismissal` so they can be
-     * accepted while the career is between clubs. Idempotent.
+     * Between clubs (Phase 4.4, G9): a dismissed manager (sacked, or the club
+     * folded) or a new manager who started without a club gets offers from
+     * clubs willing to hire, so the career goes on. Same offer events as the
+     * weekly market, flagged `afterDismissal` so they can be taken while the
+     * career has no club; `firstJob` marks the unemployed start (no spell
+     * ended, no dismissal counted).
      */
     static createDismissalOffers(save: GameSave, rng?: SeededRNG, count = 3): GameEventSaveData[] {
-        const open = save.eventsLog.filter(e => e.type === "JOB_OFFER" && e.data?.afterDismissal && !e.selectedChoiceId && !e.data.isWithdrawn)
+        const open = this.openBetweenClubsOffers(save)
         if (open.length) return open
-        const activeRng = rng ?? new SeededRNG((save.lastRngSeed ?? 1) ^ save.currentWeek)
-        const oldTeam = save.teams.find(t => t.id === save.playerTeamId)
-        const managerLevel = Math.max(1, save.managerDetails?.level || 1)
-        const ceiling = Math.max(30, (oldTeam?.reputation ?? 50))
-        const fits = (team: TeamSaveData, relaxed: boolean) => {
-            if (team.id === save.playerTeamId || team.rosterIds.length === 0) return false
-            if (team.reputation > ceiling) return false
-            const requiredLevel = team.reputation >= 75 ? 10 : team.reputation >= 40 ? 5 : 1
-            return relaxed || managerLevel >= requiredLevel
+        return this.createBetweenClubsOffers(save, rng ?? new SeededRNG((save.lastRngSeed ?? 1) ^ save.currentWeek), count, false)
+    }
+
+    /** Unemployed start (G9): offers from clubs low enough to take a chance on a manager with no record. */
+    static createFirstJobOffers(save: GameSave, rng?: SeededRNG, count = 3): GameEventSaveData[] {
+        return this.createBetweenClubsOffers(save, rng ?? new SeededRNG((save.lastRngSeed ?? 1) ^ 0x51ed), count, true)
+    }
+
+    /** Offers that can still be taken while between clubs. */
+    static openBetweenClubsOffers(save: GameSave): GameEventSaveData[] {
+        return save.eventsLog.filter(e => e.type === "JOB_OFFER" && e.data?.afterDismissal && !e.selectedChoiceId && !e.data.isWithdrawn
+            && Number(e.data.deadlineWeek) >= save.currentWeek)
+    }
+
+    /**
+     * Clubs that would hire you now, best first: for a first job the clubs
+     * with reputation up to FIRST_JOB_MAX_REPUTATION (the lowest clubs in a
+     * small world); after a dismissal clubs up to the old club's stature
+     * that your manager level qualifies for (any of them if too few do).
+     * Clubs already offered in this spell between clubs are left out.
+     */
+    static betweenClubsPool(save: GameSave, firstJob: boolean): TeamSaveData[] {
+        const spellStart = save.gameOverWeek ?? save.currentWeek
+        const offered = new Set(save.eventsLog
+            .filter(e => e.type === "JOB_OFFER" && e.data?.afterDismissal && e.week >= spellStart)
+            .map(e => String(e.data.offeringTeamId)))
+        const open = save.teams.filter(t => t.id !== save.playerTeamId && t.rosterIds.length > 0 && !offered.has(t.id))
+        let pool: TeamSaveData[]
+        if (firstJob) {
+            pool = open.filter(t => t.reputation <= FIRST_JOB_MAX_REPUTATION)
+            // A small world without enough low clubs: the lowest-reputation clubs instead.
+            if (pool.length < 3) pool = [...open].sort((a, b) => a.reputation - b.reputation || a.id.localeCompare(b.id)).slice(0, 3)
+        } else {
+            const oldTeam = save.teams.find(t => t.id === save.playerTeamId)
+            const managerLevel = Math.max(1, save.managerDetails?.level || 1)
+            const ceiling = Math.max(30, (oldTeam?.reputation ?? 50))
+            const fits = (team: TeamSaveData, relaxed: boolean) => {
+                if (team.reputation > ceiling) return false
+                const requiredLevel = team.reputation >= 75 ? 10 : team.reputation >= 40 ? 5 : 1
+                return relaxed || managerLevel >= requiredLevel
+            }
+            pool = open.filter(t => fits(t, false))
+            if (pool.length < 3) pool = open.filter(t => fits(t, true))
         }
-        let pool = save.teams.filter(t => fits(t, false))
-        if (pool.length < count) pool = save.teams.filter(t => fits(t, true))
-        // Strongest willing clubs first; pick among the top dozen so the offers vary.
-        pool.sort((a, b) => b.reputation - a.reputation || (a.worldRanking ?? 999) - (b.worldRanking ?? 999) || a.id.localeCompare(b.id))
-        const shortlist = activeRng.shuffle(pool.slice(0, Math.max(count, 12))).slice(0, count)
+        return pool.sort((a, b) => b.reputation - a.reputation || (a.worldRanking ?? 999) - (b.worldRanking ?? 999) || a.id.localeCompare(b.id))
+    }
+
+    private static createBetweenClubsOffers(save: GameSave, rng: SeededRNG, count: number, firstJob: boolean): GameEventSaveData[] {
+        const pool = this.betweenClubsPool(save, firstJob)
+        // Pick among the top dozen so the offers vary.
+        const shortlist = rng.shuffle(pool.slice(0, Math.max(count, 12))).slice(0, count)
         const created: GameEventSaveData[] = []
         for (const team of shortlist) {
-            const event = this.createJobOffer(save, team, activeRng)
+            const event = this.createJobOffer(save, team, rng)
             if (!event) continue
-            event.id = `job_offer_dismissal_${save.currentWeek}_${team.id}`
+            event.id = firstJob ? `job_offer_first_${team.id}` : `job_offer_dismissal_${save.currentWeek}_${team.id}`
             event.data.afterDismissal = true
+            if (firstJob) { event.data.firstJob = true; event.data.originTeamId = null }
             event.data.deadlineWeek = save.currentWeek + 52
             event.choices = [
-                { id: "ACCEPT", text: `Accept offer from ${team.name}`, effects: { reputation: 5 } },
+                { id: "ACCEPT", text: `Accept offer from ${team.name}`, effects: firstJob ? {} : { reputation: 5 } },
                 { id: "DECLINE", text: "Decline", effects: {} },
             ]
             created.push(event)
         }
         return created
+    }
+
+    /**
+     * Between clubs: ask around for more offers once you have turned some
+     * down. Tops the open offers back up to `count` from clubs not yet
+     * offered in this spell; returns how many were added (0 when no other
+     * club is hiring). No time passes and nothing about the clubs changes.
+     */
+    static findMoreOffers(save: GameSave, count = 3): number {
+        if (!save.gameOverReason) return 0
+        const missing = count - this.openBetweenClubsOffers(save).length
+        if (missing <= 0) return 0
+        const firstJob = save.gameOverReason === "UNEMPLOYED"
+        const asked = save.eventsLog.filter(e => e.type === "JOB_OFFER" && e.data?.afterDismissal).length
+        const rng = new SeededRNG(((save.lastRngSeed ?? 1) ^ 0x7a11) + asked * 7919)
+        return this.createBetweenClubsOffers(save, rng, missing, firstJob).length
     }
 
     /**
@@ -386,10 +443,14 @@ export class JobOfferGenerator {
         const oldTeam = save.teams.find(t => t.id === save.playerTeamId)
         // The move takes effect next week for historical attribution: completed
         // results in the current week still belong to the departing tenure.
+        const firstJob = !!event.data.firstJob
         save.careerStats = updateCareerStats(save)
         // Phase 5.1 timeline: a dismissal already closed the stint; otherwise this is a move.
-        closeStint(save, "moved")
+        // A first job (unemployed start) ends no spell: the placeholder club was never managed.
+        if (firstJob) save.managerDetails.stints = []
+        else closeStint(save, "moved")
         switchClubManagement(save, oldTeam, newTeam)
+        if (firstJob && newTeam.startingLeagueTier == null) newTeam.startingLeagueTier = newTeam.leagueTier
         save.managerDetails.lastJobChangeWeek = save.currentWeek
         save.managerDetails.tenureStartWeek = save.currentWeek + 1
         openStint(save)
@@ -399,7 +460,7 @@ export class JobOfferGenerator {
             // key would keep its old value there.
             save.gameOverReason = undefined
             save.gameOverWeek = undefined
-            save.managerDetails.dismissals = (save.managerDetails.dismissals ?? 0) + 1
+            if (!firstJob) save.managerDetails.dismissals = (save.managerDetails.dismissals ?? 0) + 1
         }
         ensureBoardState(save)
         const signingBonus = salary * 4
@@ -416,7 +477,7 @@ export class JobOfferGenerator {
         event.selectedChoiceId = 'ACCEPT'
         const id = `job_transition_${event.id}`
         const objectives = (save.boardState?.objectives ?? []).map(o => o.label).join("; ")
-        if (!save.eventsLog.some(e => e.id === id)) save.eventsLog.unshift({ id, week: save.currentWeek, type: 'CAREER_UPDATE', acknowledged: false, data: { teamId: newTeam.id, title: `Welcome to ${newTeam.name}!`, message: `You now manage ${newTeam.name}. Club signing funds: $${signingBonus.toLocaleString()}. Your previous club keeps its academy, scouting reports and plans.${objectives ? ` The board's objectives: ${objectives}.` : ""}` } })
+        if (!save.eventsLog.some(e => e.id === id)) save.eventsLog.unshift({ id, week: save.currentWeek, type: 'CAREER_UPDATE', acknowledged: false, data: { teamId: newTeam.id, title: `Welcome to ${newTeam.name}!`, message: `You now manage ${newTeam.name}. Club signing funds: $${signingBonus.toLocaleString()}.${firstJob ? "" : " Your previous club keeps its academy, scouting reports and plans."}${objectives ? ` The board's objectives: ${objectives}.` : ""}` } })
         return { success: true, message: `Welcome to ${newTeam.name}!` }
     }
 
@@ -436,6 +497,7 @@ export class JobOfferGenerator {
         // Mark as declined
         event.acknowledged = true
         event.selectedChoiceId = "DECLINE"
+        if (event.data.afterDismissal) { event.choices = []; return { success: true, message: `You turned down ${offerData.offeringTeamName}.` } }
 
         // Boost loyalty with current team
         const currentTeam = save.teams.find(t => t.id === save.playerTeamId)

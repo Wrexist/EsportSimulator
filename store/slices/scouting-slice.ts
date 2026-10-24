@@ -15,6 +15,8 @@ import { nextDeterministicId } from "@/store/utils/helpers"
 
 import { employedScout } from "@/engine/recruitment"
 import { scoutTierFromAccuracy } from "@/engine/scouting-system"
+import { isNarrowing, marketCandidates, matchesMarketSearch, MAX_SAVED_SEARCHES, newSavedSearch } from "@/engine/market-search"
+import type { GameSave } from "@/engine/save-types"
 
 const SCOUTING_COST_BASIC = 3000
 
@@ -117,5 +119,24 @@ export const createScoutingSlice: SliceCreator<ScoutingActions> = (set, get) => 
     isPlayerWatchlisted: (playerId: string) => {
         const state = get()
         return (state.watchlistedPlayerIds || []).includes(playerId)
+    },
+
+    saveMarketSearch: (name, criteria) => {
+        const state = get()
+        const current = state.savedSearches || []
+        if (!isNarrowing(criteria) || current.length >= MAX_SAVED_SEARCHES) return false
+        // Players matching now are not news; the first alert names only later arrivals.
+        const seen = marketCandidates(state as unknown as GameSave).filter(c => matchesMarketSearch(c, criteria)).map(c => c.player.id)
+        const search = newSavedSearch(name, criteria, state.currentWeek, seen)
+        set({ savedSearches: [...current.filter(s => s.id !== search.id), search] })
+        return true
+    },
+
+    deleteMarketSearch: (id) => {
+        set({ savedSearches: (get().savedSearches || []).filter(s => s.id !== id) })
+    },
+
+    toggleMarketSearchAlerts: (id) => {
+        set({ savedSearches: (get().savedSearches || []).map(s => s.id === id ? { ...s, alerts: !s.alerts } : s) })
     },
 })

@@ -10,6 +10,7 @@ if (args.some(a => !['--checks', '--package'].includes(a)) || (args.includes('--
 }
 const checksOnly = args.includes('--checks');
 const packageBuild = args.includes('--package');
+const GATE_TIMEOUT_MIN = Number(process.env.RELEASE_GATE_TIMEOUT_MIN) || 90;
 const parent = path.join(root,'tmp/launch-evidence');
 fs.mkdirSync(parent,{recursive:true});
 const out = fs.mkdtempSync(path.join(parent,'run-'));
@@ -26,7 +27,8 @@ async function run(id, npmArgs) {
     const child = spawn(process.execPath,[npm,...npmArgs], {cwd:root, env:{...process.env, NEXT_TELEMETRY_DISABLED:'1'}, stdio:['ignore',fd,fd], windowsHide:true});
     let settled = false;
     const finish = value => { if (!settled) { settled = true; clearTimeout(timer); resolve(value); } };
-    const timer = setTimeout(() => { child.kill(); finish({code:null,error:'Gate timeout after 30 minutes'}); },30*60*1000);
+    // A hang guard, not a speed budget: the serial test run takes ~37 min on a desktop PC.
+    const timer = setTimeout(() => { child.kill(); finish({code:null,error:`Gate timeout after ${GATE_TIMEOUT_MIN} minutes`}); },GATE_TIMEOUT_MIN*60*1000);
     child.on('error',e => finish({code:null,error:e.message}));
     child.on('close',(code,signal) => finish({code,error:signal ? `Signal ${signal}` : undefined}));
   });

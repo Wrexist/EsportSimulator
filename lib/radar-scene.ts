@@ -17,7 +17,7 @@ import { sampleTrack } from "@/engine/match/round-script"
 import type { MatchEvent, RoundResult } from "@/types/match"
 import type { RadarBombState, RadarKillLine, RadarPlayerDot, RadarScriptPlayerInfo, RadarSmoke } from "./radar-types"
 import { PLANT_SECONDS, POP_SECONDS, TRACER_SECONDS, type BombPhase } from "./radar-script-frame"
-import { hpAt, roundHp, type HpStep } from "./round-hp"
+import { MOLOTOV_BURN_SECONDS, RETURN_FIRE_LEAD, hpAt, roundHp, type HpStep } from "./round-hp"
 
 export { TRACER_SECONDS, PLANT_SECONDS, POP_SECONDS, type BombPhase }
 
@@ -25,6 +25,12 @@ export { TRACER_SECONDS, PLANT_SECONDS, POP_SECONDS, type BombPhase }
 export const TRAIL_SECONDS = 1.5
 /** Seconds a damage-only hit stays visible. */
 export const HIT_SECONDS = 0.8
+/** Seconds of exchanged fire drawn before each kill (the duel itself, not only its last bullet). */
+export const ENGAGE_SECONDS = 0.6
+/** The round's first contact is held a little longer so it reads. */
+export const OPENING_ENGAGE_SECONDS = 0.9
+/** Seconds the HP just lost stays drawn on the ring. */
+export const HP_LOSS_SECONDS = 0.9
 /** Seconds from plant to explosion. */
 export const BOMB_TIMER_SECONDS = 40
 const SMOKE_FADE_IN = 0.6
@@ -78,6 +84,10 @@ export interface PreparedDeath {
     fx: number; fy: number; ffloor: Floor
     headshot: boolean
     weapon?: string
+    /** The loser hit the winner in this duel (return fire drawn during the exchange). */
+    returnFire: boolean
+    /** The round's first kill (first contact). */
+    opening: boolean
 }
 
 export interface PreparedUtility {
@@ -181,7 +191,16 @@ export function prepareRadarScript(script: RoundScript, opts: PrepareRadarOption
         fx: d.from.x, fy: d.from.y, ffloor: d.from.floor,
         headshot: !!d.headshot,
         ...(d.weapon ? { weapon: d.weapon } : {}),
+        returnFire: false,
+        opening: false,
     }))
+    if (deaths.length) deaths[0].opening = true
+    for (const h of hp.hits) {
+        if (h.source !== "duel" || h.attackerId === undefined) continue
+        const loser = index.get(h.attackerId)
+        const d = deaths.find(x => x.victim === loser && x.t - h.t > -0.05 && x.t - h.t < RETURN_FIRE_LEAD + 0.05)
+        if (d) d.returnFire = true
+    }
 
     const utility: PreparedUtility[] = [...script.utility].sort((a, b) => a.t - b.t).map(u => {
         const thrower = index.get(u.throwerId) ?? -1
@@ -205,10 +224,10 @@ export function prepareRadarScript(script: RoundScript, opts: PrepareRadarOption
         const attacker = h.attackerId !== undefined ? index.get(h.attackerId) : undefined
         if (player === undefined || attacker === undefined) continue
         if (h.source === "duel") {
-            const d = deaths.find(x => x.victim === attacker && Math.abs(x.t - h.t) < 0.05)
+            const d = deaths.find(x => x.victim === attacker && x.t - h.t > -0.05 && x.t - h.t < RETURN_FIRE_LEAD + 0.05)
             if (d) hits.push({ t: h.t, player, side: d.victimSide, fromX: d.ax, fromY: d.ay, fromFloor: d.afloor })
         } else {
-            const u = utility.find(x => x.thrower === attacker && (x.kind === "he" || x.kind === "molotov") && Math.abs(x.t - h.t) < 0.05)
+            const u = utility.find(x => x.thrower === attacker && (x.kind === "he" || x.kind === "molotov") && h.t - x.t > -0.05 && h.t - x.t < (x.kind === "molotov" ? MOLOTOV_BURN_SECONDS : 0) + 0.05)
             if (u) hits.push({ t: h.t, player, side: u.side, fromX: u.x, fromY: u.y, fromFloor: u.floor })
         }
     }
@@ -247,6 +266,9 @@ export interface ScenePlayer {
     hp: number
     /** Seconds since the last damage-only hit (Infinity = none). */
     hitAge: number
+    /** HP the latest change took (drawn as a fading segment for HP_LOSS_SECONDS), and how long ago. */
+    hpLost: number
+    hpLostAge: number
     hasBomb: boolean
     planting: boolean
     defusing: boolean
@@ -261,6 +283,8 @@ export interface ScenePlayer {
 export interface SceneDeath { victimId: string; x: number; y: number; floor: Floor; side: Side; age: number }
 export interface SceneTracer { fx: number; fy: number; tx: number; ty: number; floor: Floor; side: Side; headshot: boolean; strength: number; age: number }
 export interface SceneHit { fx: number; fy: number; tx: number; ty: number; floor: Floor; side: Side; strength: number }
+/** Fire exchanged in a duel that ends in a kill soon: shooter → target, `burst` 0..1 within the current burst. */
+export interface SceneShot { fx: number; fy: number; tx: number; ty: number; floor: Floor; side: Side; burst: number; opening: boolean }
 export interface SceneUtility { kind: UtilityKind; x: number; y: number; floor: Floor; radius: number; side: Side | null; opacity: number; progress: number; remaining: number }
 export interface SceneGrenade { kind: UtilityKind; fx: number; fy: number; tx: number; ty: number; k: number; floor: Floor; side: Side }
 
@@ -292,6 +316,8 @@ export interface RadarScene {
     tracerCount: number
     hits: SceneHit[]
     hitCount: number
+    shots: SceneShot[]
+    shotCount: number
     utility: SceneUtility[]
     utilityCount: number
     grenades: SceneGrenade[]
@@ -301,12 +327,13 @@ export interface RadarScene {
 
 const newPlayer = (): ScenePlayer => ({
     id: "", side: "T", name: "", weapon: null, hasKit: false, x: 0, y: 0, floor: "upper", aim: 0, alive: false,
-    hp: NaN, hitAge: Infinity, hasBomb: false, planting: false, defusing: false, progress: 0,
+    hp: NaN, hitAge: Infinity, hpLost: 0, hpLostAge: Infinity, hasBomb: false, planting: false, defusing: false, progress: 0,
     trail: new Float64Array(MAX_TRAIL_POINTS * 2), trailAge: new Float64Array(MAX_TRAIL_POINTS), trailN: 0,
 })
 const newDeath = (): SceneDeath => ({ victimId: "", x: 0, y: 0, floor: "upper", side: "T", age: 0 })
 const newTracer = (): SceneTracer => ({ fx: 0, fy: 0, tx: 0, ty: 0, floor: "upper", side: "T", headshot: false, strength: 0, age: 0 })
 const newHit = (): SceneHit => ({ fx: 0, fy: 0, tx: 0, ty: 0, floor: "upper", side: "T", strength: 0 })
+const newShot = (): SceneShot => ({ fx: 0, fy: 0, tx: 0, ty: 0, floor: "upper", side: "T", burst: 0, opening: false })
 const newUtility = (): SceneUtility => ({ kind: "smoke", x: 0, y: 0, floor: "upper", radius: 0, side: null, opacity: 0, progress: 0, remaining: 0 })
 const newGrenade = (): SceneGrenade => ({ kind: "smoke", fx: 0, fy: 0, tx: 0, ty: 0, k: 0, floor: "upper", side: "T" })
 
@@ -319,7 +346,7 @@ export function createRadarScene(): RadarScene {
     return {
         t: 0, endTime: 0, hpKnown: false,
         players: [], playerCount: 0, deaths: [], deathCount: 0, tracers: [], tracerCount: 0,
-        hits: [], hitCount: 0, utility: [], utilityCount: 0, grenades: [], grenadeCount: 0,
+        hits: [], hitCount: 0, shots: [], shotCount: 0, utility: [], utilityCount: 0, grenades: [], grenadeCount: 0,
         bomb: { phase: "none", hasPos: false, x: 0, y: 0, floor: "upper", carrierId: null, defuserId: null, progress: 0, since: 0, remaining: NaN, site: null },
     }
 }
@@ -394,6 +421,19 @@ function lastHitAge(times: readonly number[], t: number): number {
     return age
 }
 
+/** The latest HP change at or before `t`: how much it took and how long ago (alive players only). */
+function lastLoss(steps: readonly HpStep[], t: number, out: ScenePlayer): void {
+    out.hpLost = 0
+    out.hpLostAge = Infinity
+    let prev = 100
+    for (const st of steps) {
+        if (st.t > t) break
+        out.hpLost = prev - st.hp
+        out.hpLostAge = t - st.t
+        prev = st.hp
+    }
+}
+
 /** Fills `scene` with everything the radar shows at `t`. No allocation once the pools are warm. */
 export function sampleRadarScene(prep: PreparedRadarScript, t: number, scene: RadarScene): RadarScene {
     scene.t = t
@@ -408,6 +448,7 @@ export function sampleRadarScene(prep: PreparedRadarScript, t: number, scene: Ra
         s.alive = t < p.deathT
         s.hp = !prep.hpKnown ? NaN : !s.alive ? 0 : hpAt(p.hp, t)
         s.hitAge = lastHitAge(p.hitTimes, t)
+        lastLoss(p.hp, t, s)
         s.hasBomb = false; s.planting = false; s.defusing = false; s.progress = 0
         if (s.alive) fillTrail(p.track, t, lo, s)
         else s.trailN = 0
@@ -429,6 +470,26 @@ export function sampleRadarScene(prep: PreparedRadarScript, t: number, scene: Ra
     }
     scene.deathCount = dc
     scene.tracerCount = tc
+
+    // The exchange before each kill: the killer fires on the victim; the victim fires back when it hit.
+    let sc = 0
+    for (const d of prep.deaths) {
+        const lead = d.opening ? OPENING_ENGAGE_SECONDS : ENGAGE_SECONDS
+        if (d.t - lead > t) break
+        if (t >= d.t || d.killer < 0 || d.victim < 0 || d.killer === d.victim) continue
+        const K = scene.players[d.killer], V = scene.players[d.victim]
+        if (!K.alive || !V.alive || K.floor !== V.floor) continue
+        const left = d.t - t
+        const add = (A: ScenePlayer, B: ScenePlayer, side: Side, phase: number) => {
+            const sh = slot(scene.shots, sc++, newShot)
+            sh.fx = A.x; sh.fy = A.y; sh.tx = B.x; sh.ty = B.y; sh.floor = A.floor; sh.side = side; sh.opening = d.opening
+            // ~6 bursts per second, the two shooters out of phase.
+            sh.burst = ((left * 6 + phase) % 1 + 1) % 1
+        }
+        add(K, V, d.killerSide, 0)
+        if (d.returnFire) add(V, K, d.victimSide, 0.5)
+    }
+    scene.shotCount = sc
 
     let hc = 0
     for (const h of prep.hits) {
@@ -572,7 +633,7 @@ export function sceneFromSnapshot(input: SnapshotInput, scene: RadarScene): Rada
         s.alive = true
         s.hp = finite(dot.hp) ? dot.hp : NaN
         if (finite(dot.hp)) hpKnown = true
-        s.hitAge = Infinity; s.hasBomb = !!dot.hasBomb; s.planting = false; s.defusing = false; s.progress = 0; s.trailN = 0
+        s.hitAge = Infinity; s.hpLost = 0; s.hpLostAge = Infinity; s.hasBomb = !!dot.hasBomb; s.planting = false; s.defusing = false; s.progress = 0; s.trailN = 0
     }
     scene.playerCount = pc
     scene.deathCount = dc
@@ -596,6 +657,7 @@ export function sceneFromSnapshot(input: SnapshotInput, scene: RadarScene): Rada
     }
     scene.tracerCount = tc
     scene.hitCount = 0
+    scene.shotCount = 0
     scene.grenadeCount = 0
 
     let uc = 0

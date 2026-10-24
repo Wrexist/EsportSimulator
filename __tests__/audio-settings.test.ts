@@ -1,4 +1,4 @@
-import { migrateSettings, DEFAULT_MUSIC_VOLUME, SETTINGS_VERSION, type useSettingsStore } from '@/lib/settings-store'
+import { migrateSettings, DEFAULT_MASTER_VOLUME, DEFAULT_MUSIC_VOLUME, DEFAULT_SFX_VOLUME, SETTINGS_VERSION, type useSettingsStore } from '@/lib/settings-store'
 
 /** Audio settings: one home, Phase 5 defaults, and a one-time migration of the old music default. */
 describe('audio settings', () => {
@@ -25,24 +25,33 @@ describe('audio settings', () => {
 
     test('defaults: music on at a modest level, interface sounds on, hover off, background mute on', () => {
         const s = freshStore().getState()
-        expect(s.masterVolume).toBe(80)
+        expect(s.masterVolume).toBe(DEFAULT_MASTER_VOLUME)
         expect(s.musicVolume).toBe(DEFAULT_MUSIC_VOLUME)
-        expect(DEFAULT_MUSIC_VOLUME).toBe(45)
-        expect(s.sfxVolume).toBe(80)
+        expect(s.sfxVolume).toBe(DEFAULT_SFX_VOLUME)
+        // Quieter than the old 80 / 45 / 80, which was too loud on first load.
+        expect([DEFAULT_MASTER_VOLUME, DEFAULT_MUSIC_VOLUME, DEFAULT_SFX_VOLUME]).toEqual([55, 30, 65])
         expect(s.soundEnabled).toBe(true)
         expect(s.uiSounds).toBe(true)
         expect(s.hoverSounds).toBe(false)
         expect(s.muteWhenUnfocused).toBe(true)
     })
 
-    test('the old stored music default (0) moves to 45 once; a later chosen 0 stays', () => {
-        expect((migrateSettings({ musicVolume: 0, masterVolume: 60 }, 0) as { musicVolume: number }).musicVolume).toBe(45)
+    test('untouched old defaults (80 / 45 / 80) move to the quieter ones once; any moved slider keeps every value', () => {
+        expect(migrateSettings({ masterVolume: 80, musicVolume: 45, sfxVolume: 80 }, 1)).toMatchObject({ masterVolume: DEFAULT_MASTER_VOLUME, musicVolume: DEFAULT_MUSIC_VOLUME, sfxVolume: DEFAULT_SFX_VOLUME })
+        expect(migrateSettings({ masterVolume: 80, musicVolume: 0, sfxVolume: 80 }, 0)).toMatchObject({ masterVolume: DEFAULT_MASTER_VOLUME, musicVolume: DEFAULT_MUSIC_VOLUME, sfxVolume: DEFAULT_SFX_VOLUME })
+        expect(migrateSettings({ masterVolume: 100, musicVolume: 45, sfxVolume: 80 }, 1)).toMatchObject({ masterVolume: 100, musicVolume: 45, sfxVolume: 80 })
+        expect(migrateSettings({ masterVolume: 80, musicVolume: 60, sfxVolume: 80 }, 1)).toMatchObject({ masterVolume: 80, musicVolume: 60, sfxVolume: 80 })
+        expect(migrateSettings({ masterVolume: 80, musicVolume: 45, sfxVolume: 80 }, SETTINGS_VERSION)).toMatchObject({ masterVolume: 80, musicVolume: 45, sfxVolume: 80 })
+    })
+
+    test('the old stored music default (0) moves to the default once; a later chosen 0 stays', () => {
+        expect((migrateSettings({ musicVolume: 0, masterVolume: 60 }, 0) as { musicVolume: number }).musicVolume).toBe(DEFAULT_MUSIC_VOLUME)
         expect((migrateSettings({ musicVolume: 30 }, 0) as { musicVolume: number }).musicVolume).toBe(30)
         expect((migrateSettings({ musicVolume: 0 }, SETTINGS_VERSION) as { musicVolume: number }).musicVolume).toBe(0)
 
         storage.set('game-settings', JSON.stringify({ state: { musicVolume: 0, masterVolume: 60, sfxVolume: 70 }, version: 0 }))
         const store = freshStore()
-        expect(store.getState().musicVolume).toBe(45)
+        expect(store.getState().musicVolume).toBe(DEFAULT_MUSIC_VOLUME)
         expect(store.getState().masterVolume).toBe(60)
         expect(store.getState().sfxVolume).toBe(70)
         expect(JSON.parse(storage.get('game-settings')!).version).toBe(SETTINGS_VERSION)

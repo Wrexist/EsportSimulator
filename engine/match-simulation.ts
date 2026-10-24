@@ -280,7 +280,11 @@ export class SimulationEngineV2 {
             engine: this.roundEngineFor(version),
             engineVersion: version,
             script: version === SCRIPT_ENGINE_VERSION
-                ? buildScriptSeries({ seed: ctx.seed, matchId: ctx.matchId ?? '', home: side(ctx.home), away: side(ctx.away) })
+                ? buildScriptSeries({
+                    seed: ctx.seed, matchId: ctx.matchId ?? '', home: side(ctx.home), away: side(ctx.away),
+                    // Only a match the manager plays keeps its rounds (and so has a radar to match).
+                    contacts: ctx.managedTeamId === ctx.home.team.id || ctx.managedTeamId === ctx.away.team.id,
+                })
                 : undefined,
         }
     }

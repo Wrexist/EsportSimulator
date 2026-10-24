@@ -23,6 +23,8 @@ import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { Meter } from "@/src/components/ui/Meter"
 import { RatingChip } from "@/src/components/ui/RatingChip"
+import { DRAFT_CUP_DIFFICULTY } from "@/engine/draft-cup"
+import { DraftCupBracket } from "@/components/draft-cup/DraftCupBracket"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { FixtureBanner, FormGuide, type FormResult } from "@/src/components/ui/FixtureBanner"
@@ -97,8 +99,10 @@ export default function Page() {
     scheduledMatches, completedMatches, currentWeek, currentDay, academyCount,
     timeMode, _hasHydrated,
     gameOverReason, tournamentQualifications,
-    staff, storeLoading, gameStartDate,
+    staff, storeLoading, gameStartDate, draftCup, tournaments,
   } = useGameStore(useShallow(s => ({
+    draftCup: s.draftCup,
+    tournaments: s.tournaments,
     isInitialized: s.isInitialized,
     playerTeamId: s.playerTeamId,
     teams: s.teams,
@@ -305,7 +309,7 @@ export default function Page() {
           art="/esport-ui-assets/backgrounds/match-command-arena.webp"
           competition={competition}
           when={when}
-          home={{ team: playerTeam, name: playerTeam.name, meta: `World #${playerTeam.worldRanking ?? "—"}`, form: formFor(playerTeamId), ovr: teamOvr }}
+          home={{ team: playerTeam, name: playerTeam.name, meta: draftCup ? "Drafted side" : `World #${playerTeam.worldRanking ?? "—"}`, form: formFor(playerTeamId), ovr: teamOvr }}
           away={{ team: opponent, name: opponent?.name ?? "TBD", meta: opponent ? `World #${opponent.worldRanking ?? "—"}` : undefined, form: opponent ? formFor(opponent.id) : [], ovr: opponentOvr }}
           center={
             <>
@@ -332,7 +336,7 @@ export default function Page() {
             </span>
           }
           when={<span className="font-semibold text-ink-1">Starts in {t.weeksUntil} week{t.weeksUntil === 1 ? "" : "s"}</span>}
-          home={{ team: playerTeam, name: playerTeam.name, meta: `World #${playerTeam.worldRanking ?? "—"}`, form: formFor(playerTeamId), ovr: teamOvr }}
+          home={{ team: playerTeam, name: playerTeam.name, meta: draftCup ? "Drafted side" : `World #${playerTeam.worldRanking ?? "—"}`, form: formFor(playerTeamId), ovr: teamOvr }}
           away={{ team: null, name: "TBD", meta: "Drawn when the event starts" }}
           action={<Button asChild variant="outline" className="h-10 px-6"><Link href="/schedule">View schedule</Link></Button>}
           footnote={upcomingTournaments[1] ? `Then ${upcomingTournaments[1].name} in ${upcomingTournaments[1].weeksUntil} weeks` : undefined}
@@ -373,8 +377,32 @@ export default function Page() {
   const finance = financialReport
   const financeState = FINANCE_STATE[finance?.state ?? "STABLE"] ?? FINANCE_STATE.STABLE
 
+  // G7: a Draft Cup run shows its round and record instead of the season.
+  const cupBracket = draftCup ? (tournaments.find(t => t.id === draftCup.tournamentId)?.playoffBracket ?? []).filter(m => m.homeTeamId === draftCup.teamId || m.awayTeamId === draftCup.teamId) : []
+  const cupRound = cupBracket.find(m => !m.isCompleted)?.stage.replace(/ \d+$/, "")
+  const cupWins = cupBracket.filter(m => m.isCompleted && m.winnerId === draftCup?.teamId).length
+
   return (
     <div className="space-y-5 pb-12">
+      {draftCup ? (
+      <ScreenHeader
+        eyebrow={`Draft Cup · ${DRAFT_CUP_DIFFICULTY[draftCup.difficulty].label}${timeMode === "HYBRID_DAILY" ? ` · Day ${currentDay + 1}` : ""}`}
+        title={playerTeam?.name ?? "Draft Cup"}
+        subtitle="Eight teams, one round a week, best of three with a best-of-five final. One loss ends the run."
+        leading={playerTeam && (
+          <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-line bg-panel">
+            <TeamLogoDisplay team={playerTeam} size={52} />
+          </div>
+        )}
+        aside={
+          <KpiStrip>
+            <Kpi label="Round" value={cupRound ?? "—"} />
+            <Kpi label="Series won" value={`${cupWins} of 3`} />
+            <Kpi label="Team OVR" value={<RatingChip value={teamOvr} size="lg" bare />} />
+          </KpiStrip>
+        }
+      />
+      ) : (
       <ScreenHeader
         eyebrow={`Season ${season} · Week ${weekInSeason}${timeMode === "HYBRID_DAILY" ? ` · Day ${currentDay + 1}` : ""}`}
         title="Club overview"
@@ -393,6 +421,7 @@ export default function Page() {
           </KpiStrip>
         }
       />
+      )}
 
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
@@ -447,6 +476,8 @@ export default function Page() {
             </Panel>
 
             <div className="min-w-0 space-y-4">
+            {/* G7: a Draft Cup run has its bracket instead of a league and a board. */}
+            {draftCup ? <DraftCupBracket /> : <>
             {/* League position (Phase 4.7) */}
             {playerTeamId && (
               <LeagueSnapshot league={league} playerTeamId={playerTeamId} teamsById={teamsById} dayById={leagueDayById} gameStartDate={gameStartDate} />
@@ -487,12 +518,13 @@ export default function Page() {
                 </p>
               )}
             </Panel>
+            </>}
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Finances strip */}
-            <Panel
+            {!draftCup && <Panel
               title="Finances"
               actions={<><span className={cn("text-xs font-semibold", financeState.className)}>{financeState.label}</span><PanelLink href="/finances">Ledger</PanelLink></>}
               padded={false}
@@ -520,7 +552,7 @@ export default function Page() {
                   <dd className="tabular-nums text-ink-1">{formatCurrency(-((finance?.expenses.facilities ?? 0) + (finance?.expenses.equipment ?? 0) + (finance?.expenses.academy ?? 0)))}</dd>
                 </div>
               </dl>
-            </Panel>
+            </Panel>}
 
             {/* Recent results */}
             <Panel title="Recent results" actions={<PanelLink href="/schedule">Schedule</PanelLink>} padded={false}>

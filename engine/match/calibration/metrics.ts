@@ -76,7 +76,8 @@ export function roundViolations(r: RoundResult, homeIds: Set<string>, homeId: st
     const ctWon = r.winner === 'ct'
     const tDead = ctWon ? losersDead : winnersDead
     const ctDead = ctWon ? winnersDead : losersDead
-    if (winnersDead >= 5) out.push('round winner fully eliminated')
+    // The one real exception: every T dies after the plant and no CT can reach the bomb in time.
+    if (winnersDead >= 5 && !(r.winType === 'BOMB_EXPLODED' && !ctWon)) out.push('round winner fully eliminated')
     if (r.winType === 'ELIMINATION' && losersDead < 5) out.push('ELIMINATION win with loser survivors')
     if (r.winType === 'ELIMINATION' && ctWon && plant) out.push('CT elimination win after a plant (must defuse)')
     if (r.winType === 'TIME' && !ctWon) out.push('TIME win for T')
