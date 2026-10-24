@@ -1,5 +1,7 @@
 # Steamworks Partner Portal — Ready-to-Paste Copy
 
+> **Superseded (2026-10-24).** Current Steam configuration: [docs/steam/README.md](../docs/steam/README.md). Its system requirements are unmeasured and its Early Access answers describe features that were never built; do not paste them.
+
 This document exists to make the Steam resubmission paste-only, not editorial.
 Open the Steamworks partner portal side-by-side with this file and copy each
 section into its matching field. Save each field (Steamworks does **not**

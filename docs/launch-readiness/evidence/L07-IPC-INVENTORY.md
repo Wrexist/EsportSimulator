@@ -27,12 +27,12 @@ Native game storage is limited to esports_* keys (ASCII letters/digits/underscor
 | steam-cloud-write | save_*.json + string ≤32 MiB UTF-8 → boolean | false | Steam cloud namespace; throttled | electron/steam.js:434 |
 | steam-get-id | no arguments → string / null | null | Steam identity read | electron/steam.js:268 |
 | steam-get-persona-name | no arguments → string / null | null | Steam identity read | electron/steam.js:280 |
-| steam-get-rich-presence | status / steam_display → string / null | null | Presence cache | electron/steam.js:419 |
+| steam-get-rich-presence | status / steam_display / team / season / week / rank → string / null | null | Presence cache | electron/steam.js:419 |
 | steam-get-stat | bounded stat identifier → number / null | null | Steam stat allowlist | electron/steam.js:292 |
 | steam-is-achievement-unlocked | allowlisted identifier → boolean | false | Steam achievements | electron/steam.js:359 |
 | steam-set-achievement | allowlisted identifier → boolean | false | Steam achievements | electron/steam.js:342 |
 | steam-set-leaderboard-score | allowlisted name + int32 → boolean | false | Steam leaderboard; throttled | electron/steam.js:373 |
-| steam-set-rich-presence | status / steam_display + string ≤255 bytes / null → boolean | false | Bounded presence cache and Steam | electron/steam.js:396 |
+| steam-set-rich-presence | status / steam_display / team / season / week / rank + string ≤255 bytes / null → boolean | false | Bounded presence cache and Steam | electron/steam.js:396 |
 | steam-set-stat | allowlisted name + finite 32-bit range value → boolean | false | Steam stats; throttled | electron/steam.js:304 |
 | steam-store-stats | no arguments → boolean | false | Steam stats; throttled | electron/steam.js:329 |
 | storage-clear | no arguments → boolean | false | Game keys only; preserves private window settings | electron/main.js:580 |
