@@ -16,7 +16,8 @@ import { cn } from "@/lib/utils"
 import { navHubs, navLabel, hubForPath, isNavItemActive, settingsItem } from "@/lib/navigation"
 import { NavigationSearch } from "./NavigationSearch"
 import { InboxButton } from "@/components/inbox/InboxButton"
-import { t, useLocale } from "@/lib/i18n"
+import { t } from "@/lib/i18n"
+import { useLocale } from "@/lib/use-locale"
 
 /**
  * Two-row game header (design system v2).

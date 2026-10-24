@@ -23,7 +23,7 @@ never shows mixed text.
 ## For developers
 
 - Use `t("key")`, or `tn("key", count)` for a plural, from `@/lib/i18n`, and
-  call `useLocale()` in the component so it re-renders on a language change.
+  call `useLocale()` (`@/lib/use-locale`) in the component so it re-renders on a language change.
 - Add every new string to `locales/en.ts`, grouped under its screen.
 - So far the top bar, the screen search and the main menu go through the
   translation layer; the report counts what is left. A language picker in

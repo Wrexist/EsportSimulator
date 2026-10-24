@@ -6,7 +6,8 @@ import { Search, ArrowUpRight } from "lucide-react"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command"
 import { menuGroups, navLabel, settingsItem } from "@/lib/navigation"
-import { t, useLocale } from "@/lib/i18n"
+import { t } from "@/lib/i18n"
+import { useLocale } from "@/lib/use-locale"
 
 export function NavigationSearch({ compact = false, disabled }: { compact?: boolean; disabled: boolean }) {
     useLocale() // re-render on a language change

@@ -12,7 +12,8 @@ import { TeamLogoImage } from "@/components/ui/asset-images"
 import { SettingsModal } from "@/components/settings/SettingsModal"
 import { Logotype } from "@/components/brand/Logotype"
 import { TitleHero } from "@/components/brand/TitleHero"
-import { t, tn, useLocale } from "@/lib/i18n"
+import { t, tn } from "@/lib/i18n"
+import { useLocale } from "@/lib/use-locale"
 
 /** "Season 2 · Week 14" from an absolute career week. */
 function seasonWeekLabel(week: number | null | undefined): string {

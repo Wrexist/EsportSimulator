@@ -9,10 +9,10 @@
  *   t('nav.roster')                 // "Roster"
  *   t('match.round', { n: 5 })      // "Round 5"
  *   tn('menu.saves', 3)             // "3 saves"
- * In a component, useLocale() re-renders it when the language changes.
+ * In a component, useLocale() (lib/use-locale.ts) re-renders it when the
+ * language changes.
  */
 
-import { useSyncExternalStore } from "react"
 import { EN } from "@/locales/en"
 
 type TranslationDict = Record<string, string>
@@ -45,13 +45,10 @@ export function getAvailableLocales(): string[] {
     return Object.keys(translations).filter(locale => getLocaleCompleteness(locale).complete)
 }
 
-/** Re-render on language change. Returns the active locale. */
-export function useLocale(): string {
-    return useSyncExternalStore(
-        fn => { listeners.add(fn); return () => listeners.delete(fn) },
-        getLocale,
-        () => "en",
-    )
+/** Called on every language change; returns the unsubscribe. */
+export function subscribeLocale(fn: () => void): () => void {
+    listeners.add(fn)
+    return () => { listeners.delete(fn) }
 }
 
 /**
