@@ -33,6 +33,7 @@ function adaptTeamSaveToTeam(team: TeamSaveData): Team {
         playstyle: team.playstyle,
         tacticalPrep: team.tacticalPrep ?? 0,
         economyStyle: team.economyStyle,
+        playbook: team.playbook, // G1: weekly auto-sim plays the manager's calls too
         equipment: team.equipment || [],
     } as Team
 }

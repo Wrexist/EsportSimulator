@@ -82,3 +82,22 @@ describe("playbook data", () => {
         expect(decodePlaybook("PB1 Mirage:r.-/-.-.-")).toBeNull()
     })
 })
+
+test("a match simulated from the save (weekly auto-sim) plays the manager's calls", () => {
+    const { createLaunchFixture } = jest.requireActual("@/scripts/launch/fixtures") as typeof import("@/scripts/launch/fixtures")
+    const { MatchEngine } = jest.requireActual("@/engine/match-engine") as typeof import("@/engine/match-engine")
+    const { SeededRNG } = jest.requireActual("@/engine/rng") as typeof import("@/engine/rng")
+    const save = createLaunchFixture("first-week")
+    const mine = save.teams.find(t => t.id === save.playerTeamId)!
+    const other = save.teams.find(t => t.id !== mine.id && t.rosterIds.length >= 5)!
+    const book: Playbook = {}
+    for (const map of Object.values(MapId)) book[map] = { t: { full: { strategy: "split", site: "B" } } }
+    mine.playbook = book
+    const match = { id: "pb-save", homeTeamId: mine.id, awayTeamId: other.id, format: "BO1", maps: [MapId.MIRAGE], week: 1, seed: 7 } as unknown as Parameters<MatchEngine["simulateMatch"]>[0]
+    const players = (t: typeof mine) => save.players.filter(p => t.rosterIds.includes(p.id)).slice(0, 5)
+    const result = new MatchEngine().simulateMatch(match, mine, other, players(mine), players(other), new SeededRNG(3), 0, 0, [], [], mine.id)
+    const all = result.maps.flatMap(m => m.rounds as RoundResult[])
+    const mineFullT = all.filter(r => r.tTeam === mine.id && r.buys?.home === "FULL" && r.plan)
+    expect(mineFullT.length).toBeGreaterThan(0)
+    for (const r of mineFullT) expect([r.plan!.tStrategy, r.plan!.site]).toEqual(["split", "B"])
+})
