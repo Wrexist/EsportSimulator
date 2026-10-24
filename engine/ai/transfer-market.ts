@@ -35,7 +35,8 @@ import { getPlayerIndex } from "./player-index"
 import { aiRoll } from "./rng-helpers"
 
 import { recruitmentRole, recruitmentSalary } from "../recruitment"
-import { aiCommitCheck } from "./club-budget"
+import { aiClubBudget, aiCommitCheck } from "./club-budget"
+import { AI_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import { evaluatePlayer } from "../player-evaluation"
 import { applyRosterChangePenalty } from "../chemistry-engine"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
@@ -399,6 +400,23 @@ export function processAIToAITransfers(
  * least five players: a clause is only paid while you have a sixth.
  * Uses its own seeded roll, so the rest of the week's randomness is unchanged.
  */
+/**
+ * A release clause is a fixed price, so a club takes it as a bargain rather
+ * than as a planned signing: it needs the cash (the fee may not eat into
+ * FEE_RESERVE_WEEKS of its costs) and the player must beat someone on its
+ * roster. His wage is not held to the club's weekly surplus, which few clubs
+ * have; a club that goes over budget answers with its usual cost control
+ * (releasing its highest-paid bench player). Otherwise a clause would
+ * almost never be paid and would be a free wage cut.
+ */
+export function canPayReleaseClause(save: GameSave, team: GameSave["teams"][number], player: GameSave["players"][number], fee: number): boolean {
+    if (team.rosterIds.length >= MAX_ROSTER_SIZE || !Number.isFinite(team.budget) || team.budget < fee) return false
+    if (team.budget - fee < AI_ECONOMY_TUNING.FEE_RESERVE_WEEKS * aiClubBudget(save, team).costs) return false
+    const ids = new Set(team.rosterIds)
+    const weakest = Math.min(...save.players.filter(p => ids.has(p.id)).map(p => p.skill ?? 0))
+    return team.rosterIds.length < 5 || (player.skill ?? 0) > weakest
+}
+
 export function processReleaseClauses(save: GameSave, playerTeamId: string): string[] {
     const mine = save.teams.find(t => t.id === playerTeamId)
     if (!mine || save.draftCup) return []
@@ -412,7 +430,7 @@ export function processReleaseClauses(save: GameSave, playerTeamId: string): str
         const fee = contract.releaseClause!
         if (rng.next() >= releaseTriggerChance(fee, contract.salaryPerWeek)) continue
         const buyer = save.teams
-            .filter(t => t.id !== playerTeamId && t.rosterIds.length < MAX_ROSTER_SIZE && aiCommitCheck(save, t)(recruitmentSalary(player, save.currentWeek, t), fee))
+            .filter(t => t.id !== playerTeamId && canPayReleaseClause(save, t, player, fee))
             .sort((a, b) => b.reputation - a.reputation || a.id.localeCompare(b.id))[0]
         if (!buyer) continue
 

@@ -12,7 +12,7 @@ import { formatWeeksAsYears, MAX_CONTRACT_WEEKS, MIN_CONTRACT_WEEKS, type Negoti
 import { ArchetypeChip } from "@/components/player/PersonalityChips"
 import { getArchetype } from "@/engine/personality"
 import { SENIOR_ROSTER_MAX, squadFullMessage } from "@/engine/roster-rules"
-import { RELEASE_LABEL, releaseClauseFee, type ReleaseClause } from "@/engine/contract-clauses"
+import { RELEASE_LABEL, releaseClauseFee, releaseTriggerChance, type ReleaseClause } from "@/engine/contract-clauses"
 
 const money = (value: number) => formatCurrency(value, "$", false)
 
@@ -248,7 +248,7 @@ function ClauseTerms({ n }: { n: NegotiationState }) {
                     <p className="text-xs text-ink-3">
                         {n.clauses.release === "none"
                             ? "No club can take him without your say."
-                            : `${RELEASE_LABEL[n.clauses.release]}: in a transfer window, a club that can pay ${money(fee)} may take him without your say (only while you have six players or more). He takes a lower wage for it.`}
+                            : `${RELEASE_LABEL[n.clauses.release]}: each transfer-window week there is about a ${Math.round(releaseTriggerChance(fee, n.salaryOffer) * 100)}% chance that a club with ${money(fee)} to spare, and a weaker player than him, takes him without your say (only while you have six players or more). You keep the fee. He takes a lower wage for it.`}
                     </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">

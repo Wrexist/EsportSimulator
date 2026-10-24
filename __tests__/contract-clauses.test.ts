@@ -4,7 +4,7 @@
  * and appearance bonuses are paid for official matches only.
  */
 import { CLAUSE_TUNING, NO_CLAUSES, clauseFields, releaseClauseFee, releaseTriggerChance, sanitizeClauseFields, settleSellOn, wageWithClauses } from "@/engine/contract-clauses"
-import { processReleaseClauses } from "@/engine/ai/transfer-market"
+import { canPayReleaseClause, processReleaseClauses } from "@/engine/ai/transfer-market"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
 import { createLaunchFixture } from "@/scripts/launch/fixtures"
 import type { GameSave } from "@/engine/save-types"
@@ -16,9 +16,6 @@ jest.mock("@/data", () => {
     const nodePath = jest.requireActual("node:path")
     return { ...actual, snapshotLoader: new SnapshotLoader(nodePath.join(process.cwd(), "public/data/snapshot")) }
 })
-// Clubs in a fresh world run at a weekly loss, so none can take on a wage; here every
-// club can, so the test is about the clause rule rather than the economy.
-jest.mock("@/engine/ai/club-budget", () => ({ ...jest.requireActual("@/engine/ai/club-budget"), aiCommitCheck: () => () => true }))
 jest.setTimeout(300_000)
 
 let world: GameSave
@@ -58,7 +55,7 @@ function fixture(): GameSave {
 
 describe("release clauses and sell-on", () => {
     test("an AI club that can pay takes a player with a low clause; you keep the fee", () => {
-        // The real world: AI clubs with real income and wages decide whether they can pay.
+        // The real world: AI clubs with their real cash decide whether they can pay (no mocks).
         let taken: string[] = []
         let save!: GameSave
         for (let week = 1; week < 200 && !taken.length; week++) {
@@ -77,6 +74,19 @@ describe("release clauses and sell-on", () => {
         expect(save.financeLedger.some(e => e.teamId === mine.id && e.description.startsWith("Release clause"))).toBe(true)
         expect(save.eventsLog.some(e => e.id === `evt_release_${save.currentWeek}_${taken[0]}`)).toBe(true)
         expect(save.contracts.filter(c => c.playerId === taken[0]).map(c => c.teamId)).not.toContain(mine.id)
+    })
+
+    test("a club pays only with the cash to spare and for a player who beats someone it has", () => {
+        const save = structuredClone(world)
+        const club = save.teams.find(t => t.id !== save.playerTeamId && t.rosterIds.length >= 5 && t.rosterIds.length < 7)!
+        const own = save.players.filter(p => club.rosterIds.includes(p.id))
+        const better = { ...own[0], id: "x_better", skill: Math.max(...own.map(p => p.skill)) + 5 }
+        const worse = { ...own[0], id: "x_worse", skill: Math.min(...own.map(p => p.skill)) - 1 }
+        club.budget = 1e9
+        expect(canPayReleaseClause(save, club, better, 1000)).toBe(true)
+        expect(canPayReleaseClause(save, club, worse, 1000)).toBe(false)
+        club.budget = 1000
+        expect(canPayReleaseClause(save, club, better, 1000)).toBe(false)
     })
 
     test("no clause, no trigger; and never below six players", () => {
