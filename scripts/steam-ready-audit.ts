@@ -18,7 +18,7 @@
  *   A3  Achievement parity:    code IDs vs Steamworks setup doc IDs
  *   A4  Save schema integrity: CURRENT_SAVE_VERSION matches migration ladder
  *   A5  Trademark code scan:   ts/tsx/json source (not just asset paths)
- *   A6  Legal documents:       EULA + Privacy Policy presence + key phrases
+ *   A6  Legal documents:       Privacy Policy presence + key phrases
  *   A7  Privacy posture:       outbound network calls in client code
  *   A8  Steam Deck readiness:  min window size, focus-visible CSS, shortcuts
  *   A9  Production hygiene:    raw console.* in engine/store, debugger stmts
@@ -379,17 +379,7 @@ function checkA5TrademarkSource(): void {
 // A6: Legal documents
 // ============================================================
 function checkA6LegalDocs(): void {
-    const eula = readFileSafe("EULA.md")
-    if (!eula) {
-        add({ check: "A6", severity: "BLOCKER", code: "EULA_MISSING", detail: "EULA.md is missing — Steam requires an EULA shown in the Library install flow" })
-    } else {
-        if (!/Steam/i.test(eula)) {
-            add({ check: "A6", severity: "MEDIUM", code: "EULA_NO_STEAM_REF", file: "EULA.md", detail: "EULA does not reference Steam Subscriber Agreement (SSA) precedence" })
-        }
-        if (!/Last Updated|Effective Date/i.test(eula)) {
-            add({ check: "A6", severity: "LOW", code: "EULA_NO_DATE", file: "EULA.md", detail: "EULA has no last-updated date" })
-        }
-    }
+    // No custom EULA: players are covered by the Steam Subscriber Agreement.
     const privacy = readFileSafe("PRIVACY_POLICY.md")
     if (!privacy) {
         add({ check: "A6", severity: "HIGH", code: "PRIVACY_MISSING", detail: "PRIVACY_POLICY.md is missing — Steam store listing requires a privacy policy URL when collecting any data" })
