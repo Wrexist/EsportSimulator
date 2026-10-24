@@ -222,6 +222,10 @@ export class SaveManager {
             selectedWeeklyActivity: initialData.selectedWeeklyActivity ?? null,
             customTactics: initialData.customTactics ?? createDefaultTactics(),
             watchlistedPlayerIds: initialData.watchlistedPlayerIds ?? [],
+            savedSearches: initialData.savedSearches ?? [],
+            delegation: initialData.delegation ?? {},
+            ...(initialData.draftCup ? { draftCup: initialData.draftCup } : {}),
+            ...(initialData.mapRecords ? { mapRecords: initialData.mapRecords } : {}),
             activeMatchId: initialData.activeMatchId ?? null,
             activeMatchState: initialData.activeMatchState ?? null,
             // A new slot must never inherit another career's worker ownership.
@@ -873,7 +877,10 @@ export class SaveManager {
                 if (!playerTeamId && parsed.financeLedger && parsed.financeLedger.length > 0) {
                     playerTeamId = parsed.financeLedger[0].teamId
                 }
-                const playerTeam = parsed.teams.find(t => t.id === playerTeamId) || parsed.teams[0]
+                // Between clubs (sacked, folded, or started without a club) the
+                // save still points at the last (or a placeholder) club: show no club.
+                const betweenClubs = !!parsed.gameOverReason
+                const playerTeam = betweenClubs ? undefined : parsed.teams.find(t => t.id === playerTeamId) || parsed.teams[0]
 
                 // Get Preview Players (Rich Data)
                 const topPlayerPreviews: PlayerPreview[] = []
@@ -921,7 +928,9 @@ export class SaveManager {
                     saveId: parsed.saveId,
                     saveName: parsed.saveName,
                     currentWeek: parsed.currentWeek,
-                    teamName: playerTeam?.name ?? null,
+                    teamName: betweenClubs ? (parsed.gameOverReason === "UNEMPLOYED" ? "Looking for a first club" : "Between clubs") : playerTeam?.name ?? null,
+                    ...(betweenClubs ? { betweenClubs: true } : {}),
+                    ...(parsed.draftCup ? { draftCup: { difficulty: parsed.draftCup.difficulty, finish: parsed.draftCup.result?.finish, score: parsed.draftCup.result?.score } } : {}),
                     teamLogo: playerTeam?.logoPath,
                     teamPreview: playerTeam ? {
                         id: playerTeam.id,
@@ -942,7 +951,7 @@ export class SaveManager {
                     topPlayerPreviews,
                     topPlayerPortraits,
                     teamOvr,
-                    budget: playerTeam?.budget ?? 0,
+                    budget: playerTeam?.budget,
 
                     // NEW: Date/Time Data
                     gameStartDate: parsed.gameStartDate,

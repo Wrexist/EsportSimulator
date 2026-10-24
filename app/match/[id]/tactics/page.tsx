@@ -4,7 +4,7 @@ import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
 import { bestOfLabel, playerWinChance } from '@/lib/match-win-chance'
 import { WIN_ODDS_CHECK } from '@/engine/match/win-odds'
 import { fixtureBlockReason } from '@/lib/playable-match'
-import { useState, useMemo, type ReactNode } from "react"
+import { useEffect, useRef, useState, useMemo, type ReactNode } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -39,6 +39,7 @@ import { MATCH_BALANCE, COST_CONSTANTS } from "@/lib/constants"
 import { ROUND_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import { ANTI_STRAT_SELF_PENALTY, MAP_POINTS_PER_EDGE, MENTAL_PREP_EDGE, NON_PLAYER_BONUS_CAP, PREP_STRENGTH_PER_POINT, ROUND_SHARE_PER_EDGE, STYLE_SPECIALISATION_EDGE } from "@/engine/match/round-sim/team-edge"
 import { TUNING } from "@/engine/match/round-sim/tuning"
+import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
@@ -174,7 +175,7 @@ function TeamBlock({ team, ovr, rank, align }: { team: any; ovr: number; rank?: 
                 <TeamLogoDisplay team={team} size={60} />
             </div>
             <div className="min-w-0">
-                <h2 className="truncate font-display text-[40px] font-bold uppercase leading-none text-ink-1">{team.name}</h2>
+                <h2 className="truncate font-display text-[40px] font-bold uppercase leading-none text-ink-1"><TeamLink id={team.id}>{team.name}</TeamLink></h2>
                 <div className={cn("mt-2 flex items-center gap-3 text-sm text-ink-3", align === "right" && "justify-end")}>
                     <span>World <span className="font-semibold tabular-nums text-ink-2">#{rank || "—"}</span></span>
                     <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
@@ -427,6 +428,18 @@ export default function TacticalHQPage() {
         router.refresh()
     }
 
+    // G6: with the veto delegated, the coach runs it as soon as match prep opens for this week's match.
+    const vetoDelegated = useGameStore(state => !!state.delegation?.veto)
+    const autoVetoStarted = useRef(false)
+    const canAutoVeto = !!match && !!myTeam && !!opponent && vetoDelegated && !match.vetoComplete && match.week === currentWeek
+        && !completedMatches.some(m => m.id === match.id)
+    useEffect(() => {
+        if (!canAutoVeto || autoVetoStarted.current) return
+        autoVetoStarted.current = true
+        void handleAutoVeto()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [canAutoVeto])
+
     const handleStartMatch = () => {
         if (!match || !match.maps || !myTeam || !opponent) return
         // HYBRID_DAILY day pacing: a current-week match whose scheduled day hasn't
@@ -557,7 +570,7 @@ export default function TacticalHQPage() {
         : match.stage || (isTournament ? "Tournament match" : "Week " + match.week)
     const nextStage = liveTournament?.playoffBracket?.find(m => m.sourceMatchIds?.includes(match.id))?.stage
     const stakes = leagueStage ? getStakes(match.stage || leagueStage, false)
-        : isTournament ? getStakes(match.stage || "", tournamentDef?.format === "bracket", nextStage || undefined) : null
+        : isTournament ? getStakes(match.stage || "", (tournamentDef?.format ?? liveTournament?.format) === "bracket", nextStage || undefined) : null
     const matchDate = getDateForWeek(match.week)
     matchDate.setUTCDate(matchDate.getUTCDate() + (match.day ?? 0))
     const dateLabel = formatGameCalendarDate(matchDate, { weekday: "short", month: "short", day: "numeric" })
@@ -855,7 +868,7 @@ export default function TacticalHQPage() {
                                             <PlayerPortrait src={threat.portraitPath} seed={threat.id} alt={threat.nickname} size={44} />
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="truncate font-semibold text-ink-1">{threat.nickname}</p>
+                                            <p className="truncate font-semibold text-ink-1"><PlayerLink id={threat.id}>{threat.nickname}</PlayerLink></p>
                                             <div className="mt-0.5 flex items-center gap-2"><RoleTag role={threat.role} /><CountryFlag country={threat.nationality || ""} size={12} /></div>
                                         </div>
                                         <RatingChip value={threat.ovr} />

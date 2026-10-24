@@ -4,6 +4,7 @@ import {
     PlayerSaveData,
 } from "./save-types"
 import { reconcileTeamRoles } from "./role-reconciler"
+import { setAILineup } from "./ai/lineup"
 import { PlayerRole } from "../types" // Adjust import path if needed
 import { SeededRNG, generateSeed } from "./rng"
 import { TrainingManager } from "./training-manager"
@@ -107,6 +108,8 @@ export class AIManager {
             // Phase 10: Role Refinement (Team-Based)
             const teamPlayers = save.players.filter(p => team.rosterIds.includes(p.id))
             reconcileTeamRoles(teamPlayers)
+            // G5: field the best role-balanced five (roles are fresh from the reconciler).
+            setAILineup(team, playersById, save.currentWeek)
         })
 
         // Process Global Transfer Market only during transfer windows

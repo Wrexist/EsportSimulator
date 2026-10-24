@@ -57,6 +57,8 @@ function openEntryBlocked(save: GameSave, teamId: string, def: TournamentDefinit
 
 export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationContext): void {
     if (!ctx.playerTeamId) return
+    // G7: a Draft Cup team plays only its cup.
+    if (save.draftCup) return
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const myTeam = save.teams.find((t: any) => t.id === ctx.playerTeamId)

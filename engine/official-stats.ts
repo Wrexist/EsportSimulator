@@ -24,6 +24,7 @@
  */
 
 import type { GameSave, MatchSaveData, PlayerSaveData, TeamSaveData } from "./save-types"
+import { recordMapResults } from "./map-record"
 import type {
     ClubRecordSet, OpenSeasonBook, PlayerSeasonLine, PlayerSeasonTally, RecordBook, RecordEntry, RecordKey, RecordSet, SeasonHonours, SeasonTitle,
 } from "./records-types"
@@ -227,6 +228,7 @@ function updatePersonalBest(p: PlayerSaveData, key: "bestMapRating" | "mostMapKi
 export function recordOfficialMatch(save: GameSave, match: OfficialMatch, result: MatchResult, lookups: OfficialMatchLookups = {}): boolean {
     const startedAt = perfTrace.stepsEnabled ? perfTrace.now() : 0
     const recorded = recordMatch(save, match, result, lookups)
+    if (result) recordMapResults(save, match, result, isOfficialMatch(match))
     if (perfTrace.stepsEnabled) perfTrace.step("records.officialMatch", startedAt)
     return recorded
 }

@@ -9,6 +9,10 @@ import { ErrorBoundary } from "./ErrorBoundary"
 
 import { usePathname, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
+import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
+import { DraftCupResult } from "@/components/draft-cup/DraftCupResult"
+import { draftCupOutcome } from "@/engine/draft-cup"
+import Link from "next/link"
 import { useSettingsStore } from "@/lib/settings-store"
 import { Suspense, useEffect, useRef, useState, useCallback } from "react"
 import { useShallow } from "zustand/react/shallow"
@@ -45,6 +49,30 @@ const InboxDrawer = dynamic(() => import("../inbox/InboxDrawer").then(mod => mod
 const LIVE_MATCH_PATH = /^\/match\/[^/]+\/live\/?$/
 function isLiveMatchPath(path: string | null | undefined): boolean {
     return !!path && LIVE_MATCH_PATH.test(path)
+}
+
+/** Screens open while between clubs: the job market, the wider world and settings. */
+const BETWEEN_CLUBS_ROUTES = ["/team/", "/rankings", "/league", "/hall-of-fame", "/settings", "/credits", "/load-game", "/main-menu", "/new-game", "/map-editor", "/dev"]
+function isBetweenClubsRoute(pathname: string | null): boolean {
+    if (!pathname || pathname === "/") return true
+    return BETWEEN_CLUBS_ROUTES.some(r => r.endsWith("/") ? pathname.startsWith(r) : pathname === r || pathname.startsWith(`${r}/`))
+}
+
+/** G7: club-running screens a Draft Cup side has no use for (no market, staff, money or facilities). */
+const DRAFT_CUP_BLOCKED = ["/transfers", "/academy", "/sponsorships", "/finances", "/scouting", "/staff", "/basecamp", "/equipment"]
+/** Screens still open once a Draft Cup run is over: its match reports and the menus. */
+const DRAFT_CUP_OVER_ROUTES = ["/match/", "/settings", "/credits", "/load-game", "/main-menu", "/new-game", "/map-editor", "/dev"]
+const routeIn = (pathname: string | null, routes: string[]) =>
+    !!pathname && routes.some(r => r.endsWith("/") ? pathname.startsWith(r) : pathname === r || pathname.startsWith(`${r}/`))
+
+function DraftCupBlocked() {
+    return (
+        <div className="mx-auto mt-10 max-w-md rounded-lg border border-line bg-panel p-6 text-center">
+            <h1 className="font-display text-2xl font-bold uppercase text-ink-1">Not part of the Draft Cup</h1>
+            <p className="mt-2 text-sm text-ink-2">This run is about the five you drafted. Train them, set the playbook and prepare for the next opponent.</p>
+            <Link href="/" className="mt-4 inline-block text-sm font-semibold text-gold hover:underline">Back to Home</Link>
+        </div>
+    )
 }
 
 export function GameShell({ children }: { children: React.ReactNode }) {
@@ -186,6 +214,10 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     }, [])
 
     const inCareer = useGameStore(state => !!state.saveId && !!state.playerTeamId)
+    // Between clubs (sacked, club folded, or a career started without a club)
+    // there is no club to run: management screens show the job market.
+    const betweenClubs = useGameStore(state => inCareer && !!state.gameOverReason)
+    const draftCupStage = useGameStore(state => !inCareer || !state.draftCup ? null : draftCupOutcome(state as never) ? "over" : "running")
     const musicScene = routeMusicScene(pathname, inCareer)
     useEffect(() => {
         soundManager.setQuietScene(musicScene === "silent")
@@ -371,7 +403,10 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                     >
                         <ErrorBoundary>
                             {!hideChrome && !isMatchRoute && <TutorialOverlay />}
-                            {children}
+                            {betweenClubs && !isBetweenClubsRoute(pathname) ? <DismissalJobMarket blockedRoute />
+                                : draftCupStage === "over" && !routeIn(pathname, DRAFT_CUP_OVER_ROUTES) ? <DraftCupResult />
+                                : draftCupStage === "running" && routeIn(pathname, DRAFT_CUP_BLOCKED) ? <DraftCupBlocked />
+                                : children}
                         </ErrorBoundary>
                     </div>
                 </main>

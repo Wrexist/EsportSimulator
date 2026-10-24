@@ -20,6 +20,7 @@ import { RECORD_LABEL } from "@/lib/season-review-view"
 import { isMajorTournament, isOfficialMatch } from "@/engine/official-stats"
 import { isLeagueMatchId, ordinal } from "@/engine/season/regional-league"
 import { RECORD_KEYS, type RecordEntry, type RecordKey } from "@/engine/records-types"
+import { TeamLink } from "@/components/ui/EntityLink"
 
 const SeasonReviewReplay = dynamic(() => import("@/components/moments/season-review/SeasonReviewReplay").then(m => m.SeasonReviewReplay), { ssr: false })
 
@@ -257,7 +258,7 @@ export default function TrophyRoomPage() {
                             {stats.rivals.map(r => (
                                 <li key={r.team.id} className="flex items-center gap-3 px-4 py-2.5">
                                     <TeamLogoDisplay team={r.team} size={22} />
-                                    <span className="min-w-0 flex-1 truncate text-sm text-ink-1">{r.team.name}</span>
+                                    <TeamLink id={r.team.id} className="min-w-0 flex-1 truncate text-sm text-ink-1">{r.team.name}</TeamLink>
                                     <span className="text-sm tabular-nums text-ink-2">{r.wins}<span className="text-ink-3">–</span>{r.losses}</span>
                                 </li>
                             ))}

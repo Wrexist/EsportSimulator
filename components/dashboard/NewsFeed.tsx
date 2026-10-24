@@ -6,6 +6,7 @@ import { Newspaper, Trophy, Users, Zap, Award, Briefcase, Building2, DollarSign,
 import { format } from "date-fns"
 import { useMemo, type ReactNode } from "react"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
+import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 
 // Hoisted: built once at module load instead of per item per render.
 const CATEGORY_ICON_MAP: Record<string, ReactNode> = {
@@ -89,9 +90,11 @@ export function NewsFeed({ limit }: { limit?: number }) {
                             {team ? <TeamLogoDisplay team={team} size={22} /> : categoryIcon}
                         </span>
                         <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold leading-snug text-ink-1">{item.title}</p>
+                            <p className="text-sm font-semibold leading-snug text-ink-1">
+                                {item.playerId ? <PlayerLink id={item.playerId}>{item.title}</PlayerLink> : item.title}
+                            </p>
                             <p className="mt-0.5 text-xs text-ink-3">
-                                {categoryLabel}{team ? ` · ${team.name}` : ""}{dateStr ? ` · ${dateStr}` : ""}
+                                {categoryLabel}{team && <> · <TeamLink id={team.id}>{team.name}</TeamLink></>}{dateStr ? ` · ${dateStr}` : ""}
                             </p>
                             {item.content && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-2">{item.content}</p>}
                         </div>

@@ -18,6 +18,8 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { PlayerCareerRecord } from "./PlayerCareerRecord"
 import { PersonalityChips } from "./PersonalityChips"
 import { PersonalityPanel } from "./PersonalityPanel"
+import { SquadFitPanel } from "./SquadFitPanel"
+import { TeamLink } from "@/components/ui/EntityLink"
 
 const ATTRIBUTES = [
     ["skill", "Aim"], ["rifle", "Rifle"], ["awp", "AWP"], ["pistol", "Pistol"], ["grenades", "Utility"], ["clutch", "Clutch"],
@@ -59,7 +61,7 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
                 <div className="relative flex h-[200px] items-end justify-center border-b border-line bg-raised">
                     <div className="absolute left-4 top-4 flex min-w-0 items-center gap-2">
                         {owner && <TeamLogoDisplay team={owner} size={24} />}
-                        <span className="truncate text-sm font-semibold text-ink-1">{owner?.name || (academyHeld ? "Academy prospect" : "Free agent")}</span>
+                        <TeamLink id={owner?.id} className="truncate text-sm font-semibold text-ink-1">{owner?.name || (academyHeld ? "Academy prospect" : "Free agent")}</TeamLink>
                     </div>
                     <span className="absolute right-4 top-4 rounded-sm border border-line-strong bg-panel px-1.5 py-0.5 text-[11px] font-semibold text-ink-2">
                         {report.scoutingLevel.toLowerCase()} report
@@ -121,6 +123,14 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
 
             <div className="min-w-0 space-y-4">
                 <PersonalityPanel player={player} />
+                {canNegotiate && ownTeam && (
+                    <SquadFitPanel
+                        player={player}
+                        rating={typeof report.ovrRange === "number" ? report.ovrRange : Math.round((report.ovrRange[0] + report.ovrRange[1]) / 2)}
+                        exact={typeof report.ovrRange === "number"}
+                        leader={report.exactStats?.leader}
+                    />
+                )}
                 <Panel
                     title="Scouting report"
                     actions={
