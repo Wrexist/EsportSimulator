@@ -35,12 +35,15 @@ const LANE_SWAY = 0.8
 /** Shuffle while holding: how far from the spot (map-%), walking pace (× run speed) and pauses (seconds). */
 const SHUFFLE = 2.2
 const SHUFFLE_PACE: [number, number] = [0.15, 0.35]
-const SHUFFLE_PAUSE: [number, number] = [0.15, 0.9]
+const SHUFFLE_PAUSE: [number, number] = [0.1, 0.6]
 /** Teammates closer than this (map-%) step apart, by at most SPACING_MAX. */
 const SPACING = 2.5
 const SPACING_MAX = 1.5
 /** The most a player is ever drawn off the engine's spot (map-%). */
 export const MAX_DRIFT = 3
+/** Teammates closer than this (map-%) count as stacked on one spot, and each steps this far off it. */
+const STACKED = 0.3
+const STACK_STEP = 0.3
 /** Seconds the drift takes to fade in / out around a pinned moment. */
 const FADE = 0.6
 /**
@@ -70,6 +73,9 @@ interface Lane {
     moving: Float64Array
     /** 0 with an enemy close, 1 with none near (per sample). */
     calm: Float64Array
+    /** Step off a teammate standing on the very same spot (kept even inside pins). */
+    sx: Float64Array
+    sy: Float64Array
 }
 
 function hash(s: string): number {
@@ -108,6 +114,7 @@ export function loosenTracks(
             id, side: sides[id], t0, t1, n,
             bx: new Float64Array(n), by: new Float64Array(n), floor: new Array(n), aim: new Float64Array(n),
             ox: new Float64Array(n), oy: new Float64Array(n), moving: new Float64Array(n), calm: new Float64Array(n).fill(1),
+            sx: new Float64Array(n), sy: new Float64Array(n),
         }
         for (let i = 0; i < n; i++) {
             const p = sampleTrack(track, min(t1, t0 + i * H))
@@ -251,6 +258,22 @@ function spaceOut(lanes: Lane[]): void {
             pb[0][j] -= dx * k; pb[1][j] -= dy * k
         }
     }
+    // Two teammates on the very same spot (the engine parks them on one node): a small step apart,
+    // even at a kill or plant, so the radar never draws one dot for two players.
+    for (let a = 0; a < lanes.length; a++) for (let b = a + 1; b < lanes.length; b++) {
+        const A = lanes[a], B = lanes[b]
+        if (A.side !== B.side) continue
+        const from = max(A.t0, B.t0), to = min(A.t1, B.t1)
+        const u = hash(`${A.id}|${B.id}`) * 2 * PI
+        for (let t = from; t <= to + 1e-9; t += H) {
+            const i = Math.round((t - A.t0) / H), j = Math.round((t - B.t0) / H)
+            if (i >= A.n || j >= B.n || A.floor[i] !== B.floor[j]) continue
+            if (hypot(A.bx[i] - B.bx[j], A.by[i] - B.by[j]) >= STACKED) continue
+            A.sx[i] += cos(u) * STACK_STEP; A.sy[i] += sin(u) * STACK_STEP
+            B.sx[j] -= cos(u) * STACK_STEP; B.sy[j] -= sin(u) * STACK_STEP
+        }
+    }
+    for (const L of lanes) { smooth(L.sx, 0.2); smooth(L.sy, 0.2) }
     for (const L of lanes) {
         const [px, py] = push.get(L)!
         smooth(px, 0.25); smooth(py, 0.25)
@@ -269,6 +292,14 @@ function fit(L: Lane, pins: [number, number][], walk: WalkArea, v: number): void
         if (d > MAX_DRIFT) { ox[i] *= MAX_DRIFT / d; oy[i] *= MAX_DRIFT / d }
     }
     const f = new Float64Array(n)
+    // The stack step fades at this player's own pins only (a kill or plant stays on the engine's spot).
+    const g = new Float64Array(n)
+    for (let i = 0; i < n; i++) {
+        const t = L.t0 + i * H
+        let e = 1
+        for (const [a, b] of pins) e = min(e, smoothstep(0, FADE, max(a - t, t - b)))
+        g[i] = e
+    }
     for (let i = 0; i < n; i++) {
         const t = L.t0 + i * H
         // Fade: 0 inside a pin or near a floor change, back to 1 over FADE.
@@ -301,7 +332,14 @@ function fit(L: Lane, pins: [number, number][], walk: WalkArea, v: number): void
         for (let k = a; k <= b; k++) s += lo[k]
         f[i] = s / (b - a + 1)
     }
-    for (let i = 0; i < n; i++) { ox[i] *= f[i]; oy[i] *= f[i] }
+    for (let i = 0; i < n; i++) {
+        ox[i] *= f[i]; oy[i] *= f[i]
+        // The step off a stacked teammate stays (where the ground allows).
+        let x = ox[i] + L.sx[i] * g[i], y = oy[i] + L.sy[i] * g[i]
+        const d = hypot(x, y)
+        if (d > MAX_DRIFT) { x *= MAX_DRIFT / d; y *= MAX_DRIFT / d }
+        if ((L.sx[i] || L.sy[i]) && g[i] > 0 && walk.clear(bx[i], by[i], bx[i] + x, by[i] + y, L.floor[i])) { ox[i] = x; oy[i] = y }
+    }
     // Run speed: shrink the drift where it would make a step too fast (the engine's own walk never is).
     const at = (i: number) => min(L.t1, L.t0 + i * H)
     for (let pass = 0; pass < 12; pass++) {

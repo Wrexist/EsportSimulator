@@ -46,7 +46,12 @@ export interface MapZones {
     lurk: Record<SiteId, RouteInfo | undefined>
     /** Zone / spot id → callout ("A site", "Mid", "B approach", …). */
     callouts: Map<string, string>
+    /** Hold id → how often a CT picks it (its pro share; geometry holds without one get GEO_HOLD_SHARE). */
+    shares: Map<string, number>
 }
+
+/** Pick weight of a geometry hold the pro demos give no share. */
+export const GEO_HOLD_SHARE = 0.01
 
 const cache = new Map<string, MapZones>()
 
@@ -92,7 +97,8 @@ function buildZones(map: RoundMap): MapZones {
         const rot = map.routes.find(r => r.kind === "rotate" && r.site === id && r.from === other)
         const holds = map.holds.filter(h => h.site === id && h.kind !== "mid")
         for (const h of map.holds) callouts.set(h.id, calloutOf(map, h.at))
-        const mids = map.holds.filter(h => h.kind === "mid")
+        // Timings from the geometry holds only (pro spots spread far and would skew them).
+        const mids = map.holds.filter(h => h.kind === "mid" && !h.pro)
         const center = map.sites[id].center
         const midDist = mids.length ? Math.min(...mids.map(h => hyp(h.at, center))) : hyp(ctSpawn, center)
         const util = { T: emptyUtil(), CT: emptyUtil() }
@@ -120,12 +126,14 @@ function buildZones(map: RoundMap): MapZones {
     const mids = map.holds.some(h => h.kind === "mid")
         ? map.holds.filter(h => h.kind === "mid")
         : [...map.holds].sort((a, b) => hyp(a.at, between) - hyp(b.at, between)).slice(0, 1)
-    const midTime = mids.length ? (Math.min(...mids.map(h => hyp(h.at, tSpawn))) * 1.35) / (v * 0.95) : 12
+    const geoMids = mids.filter(h => !h.pro)
+    const midTime = geoMids.length ? (Math.min(...geoMids.map(h => hyp(h.at, tSpawn))) * 1.35) / (v * 0.95) : 12
+    const shares = new Map(map.holds.map(h => [h.id, h.share ?? GEO_HOLD_SHARE]))
     const lurkOf = (s: SiteId) => {
         const r = map.routes.find(x => x.kind === "lurk" && x.site === s)
         return r ? routeInfo(r, s) : undefined
     }
-    return { mapId: map.mapId, runSpeed: v, sites, midHolds: mids.map(h => h.id), midTime, lurk: { A: lurkOf("A"), B: lurkOf("B") }, callouts }
+    return { mapId: map.mapId, runSpeed: v, sites, midHolds: mids.map(h => h.id), midTime, lurk: { A: lurkOf("A"), B: lurkOf("B") }, callouts, shares }
 }
 
 function emptyUtil(): Record<UtilityKind, string[]> {
@@ -145,7 +153,7 @@ function genericZones(mapId: string): MapZones {
         main: { id, contactTime: 16, callout: `${id} approach` }, alt: { id, contactTime: 19, callout: `${id} approach` }, split: { id, contactTime: 20, callout: `${id} approach` },
         ctTime: 9, rotateTime: 16, midTime: 8, util: { T: emptyUtil(), CT: emptyUtil() },
     })
-    return { mapId, runSpeed: 4, sites: { A: site("A"), B: site("B") }, midHolds: ["mid"], midTime: 11, lurk: { A: undefined, B: undefined }, callouts }
+    return { mapId, runSpeed: 4, sites: { A: site("A"), B: site("B") }, midHolds: ["mid"], midTime: 11, lurk: { A: undefined, B: undefined }, callouts, shares: new Map() }
 }
 
 // ─── Callouts (shared with the live radar) ─────────────────────────────────

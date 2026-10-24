@@ -25,7 +25,8 @@ export interface RPoint {
 
 // ─── Baked per-map data (data/round-maps/<mapId>.json) ─────────────────────
 
-export type RouteKind = "t-exec" | "ct-setup" | "rotate" | "lurk"
+/** "spur": a short walk from the route lines to a pro spot (scripts/bake-pro-spots.ts). */
+export type RouteKind = "t-exec" | "ct-setup" | "rotate" | "lurk" | "spur"
 
 export interface RoundMapRoute {
     /** Stable id, e.g. "t-a-main", "t-a-alt", "t-b-main", "ct-a", "rot-a-b". */
@@ -51,6 +52,19 @@ export interface RoundMapHold {
     at: RPoint
     /** Point the holder watches (sets the view direction). */
     watch: RPoint
+    /** Share of pro CT set-up time spent here (ESTA demos), when known: how often a CT picks it. */
+    share?: number
+    /** A spot taken from the pro demos (scripts/bake-pro-spots.ts) rather than the geometry bake. */
+    pro?: boolean
+}
+
+/** Where pro Ts wait before the hit (ESTA demos), near the site they lead to. */
+export interface RoundMapStage {
+    id: string
+    site: SiteId
+    at: RPoint
+    /** Share of pro T waiting time spent here. */
+    share: number
 }
 
 export type UtilityKind = "smoke" | "flash" | "molotov" | "he"
@@ -86,6 +100,8 @@ export interface RoundMap {
     /** ≥ 3 holds per site (site + anchor positions). */
     holds: RoundMapHold[]
     utility: RoundMapUtility[]
+    /** Pro T waiting spots (scripts/bake-pro-spots.ts); none on maps without pro demos. */
+    stages?: RoundMapStage[]
     /** Running speed with a rifle in map-% per second (≈ 215 u/s ÷ units-per-%). */
     runSpeed: number
 }

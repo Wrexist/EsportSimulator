@@ -37,7 +37,7 @@ import type { SiteId, UtilityKind } from "../round-script-types"
 import { aimPoints, TRAIT_AGGRESSIVE, TRAIT_CLUTCHER, TRAIT_PASSIVE, TRAIT_TRADER, type SimProfile } from "./profile"
 import { TUNING as T } from "./tuning"
 import { WEAPON_CLASSES, isSaveWorthy, isSniperClass, weaponClassOf, type WeaponClass, type WeaponClassSpec } from "./weapons"
-import type { MapZones, ZoneSite } from "./zones"
+import { GEO_HOLD_SHARE, type MapZones, type ZoneSite } from "./zones"
 
 // Math is read once: global lookups are slow inside Jest's sandbox.
 const { exp, floor, max, min, round } = Math
@@ -330,7 +330,7 @@ export function keyedRoll(R: Round, purpose: number, subject: number): number {
 /** Purposes of the round's random draws, each its own stream (subject 4095 of keyedRoll). */
 export const P = {
     plan: 16, jobs: 17, early: 18, flow: 19, util: 20, retakeUtil: 21, pickAtt: 22, pickDef: 23, step: 24,
-    fallback: 25, trade: 26, lurk: 27, late: 28, retake: 29,
+    fallback: 25, trade: 26, lurk: 27, late: 28, retake: 29, spots: 30,
 } as const
 
 /** A SeededRNG whose n-th draw is the n-th keyed roll of one purpose. */
@@ -349,6 +349,18 @@ export function rnd(R: Round, purpose: number): SeededRNG {
     let d = R.draws.get(purpose)
     if (!d) { d = new Draws(R, purpose); R.draws.set(purpose, d) }
     return d
+}
+
+/** One item, each as likely as its weight. */
+export function pickWeighted<X>(r: SeededRNG, items: readonly X[], weight: (x: X) => number): X {
+    let total = 0
+    for (const x of items) total += max(0, weight(x))
+    let u = r.next() * total
+    for (const x of items) {
+        u -= max(0, weight(x))
+        if (u < 0) return x
+    }
+    return items[items.length - 1]
 }
 
 /** Non-lethal damage (chip, grenades): never below 1 HP. Returns the HP taken. */
@@ -849,14 +861,17 @@ export function assignJobs(R: Round, plan: PlanState): { lurker: Actor | null; f
     const order = rnd(R, P.jobs).shuffle(cts.filter(a => a !== awper))
     if (awper) order.unshift(awper)
     const posts: string[] = []
+    const taken = new Set<string>()
     for (const k of ["mid", "A", "B"] as const) for (let n = 0; n < counts[k]; n++) posts.push(k)
     order.forEach((a, k) => {
         let post = posts[k] ?? "A"
         // The AWPer takes mid or a long anchor.
         if (a === awper && rnd(R, P.jobs).bool(0.3)) post = rnd(R, P.jobs).bool(0.5) ? "A" : "B"
         a.post = post
-        const holds = post === "mid" ? R.z.midHolds : R.z.sites[post as SiteId].holds
-        a.zone = holds.length ? holds[k % holds.length] : post
+        const holds = (post === "mid" ? R.z.midHolds : R.z.sites[post as SiteId].holds).filter(h => !taken.has(h))
+        // A hold by how often pros set up there; nobody shares one.
+        a.zone = holds.length ? pickWeighted(rnd(R, P.spots), holds, h => R.z.shares.get(h) ?? GEO_HOLD_SHARE) : post
+        taken.add(a.zone)
     })
     // Keep the counts after the AWPer swap: swap with someone on the AWPer's new post.
     if (awper && awper.post !== "mid" && !cts.some(a => a !== awper && a.post === "mid")) {

@@ -158,7 +158,7 @@ export const TUNING = {
     /** CT side bias on the sight engine (replaces CT_BIAS there). */
     SIGHT_CT_BIAS: 3,
     /** CTs before the plant (they defend ground they know; after the plant SIGHT_POST is the T side's). */
-    SIGHT_CT_DEFEND: 4,
+    SIGHT_CT_DEFEND: 9,
     /** Share of the aim-skill points that counts on the sight engine (1 = the resolver's). */
     SIGHT_SKILL: 0.75,
     /** Duel points per skill point above the player's team average (the star's swing). */
@@ -182,7 +182,7 @@ export const TUNING = {
     /** Ts on a site beyond the CTs there that make a rotator wait for the retake instead. */
     SIGHT_LOST_SITE: 2,
     /** A posted T against a retaking CT. */
-    SIGHT_POST: 16,
+    SIGHT_POST: 30,
     /** Seconds from the fake to the real execute. */
     SIGHT_FAKE_GAP: [10, 16] as [number, number],
     /** Longest sight line that can start a fight (map-%, ≈ 31 m: the pro p90 kill distance). */
@@ -237,6 +237,10 @@ export const TUNING = {
     SIGHT_CALL_SEEN: 3,
     /** Default staging: map-% short of the route's contact point. */
     SIGHT_STAGE_DEFAULT: 13,
+    /** A T waits on a pro waiting spot this close (walking map-%) to their stage on the route, when one is free and out of known angles. */
+    SIGHT_STAGE_SPREAD: 12,
+    /** Pro holds with at least this share are angles every T knows (they stage out of them and smoke them off), with the geometry holds. */
+    SIGHT_KNOWN_ANGLE: 0.03,
     /** Mid control: how far short of the mid CT the takers walk, and how long they stay. */
     SIGHT_MID_BACK: 6,
     SIGHT_MID_HOLD: 8,
