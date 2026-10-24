@@ -368,9 +368,10 @@ const MAX_CONTRACT_LENGTH_WEEKS = 52 * 10
 const MAX_MAPS_PER_SERIES = 5
 const ALLOWED_MAP_IDS = new Set<string>(Object.values(MapId))
 const MAX_ROUNDS_PER_MAP = 60
-const MAX_MATCH_KILLS = 80
-const MAX_MATCH_DEATHS = 80
-const MAX_MATCH_ASSISTS = 60
+// Series totals: a long BO5 runs 120+ rounds, and a star kills about 0.8 a round.
+const MAX_MATCH_KILLS = 200
+const MAX_MATCH_DEATHS = 200
+const MAX_MATCH_ASSISTS = 150
 const MAX_MATCH_CLUTCHES = 15
 const MAX_MATCH_OPENINGS = 30
 const MAX_MATCH_ADR = 300

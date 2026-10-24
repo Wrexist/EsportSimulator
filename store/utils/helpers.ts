@@ -120,9 +120,10 @@ export const MAX_SIGNING_BONUS = 50_000_000
 export const MAX_CONTRACT_LENGTH_WEEKS = 52 * 10
 export const MAX_MAPS_PER_SERIES = 5
 export const MAX_ROUNDS_PER_MAP = 60
-export const MAX_MATCH_KILLS = 80
-export const MAX_MATCH_DEATHS = 80
-export const MAX_MATCH_ASSISTS = 60
+// Series totals: a long BO5 runs 120+ rounds, and a star kills about 0.8 a round.
+export const MAX_MATCH_KILLS = 200
+export const MAX_MATCH_DEATHS = 200
+export const MAX_MATCH_ASSISTS = 150
 export const MAX_MATCH_CLUTCHES = 15
 export const MAX_MATCH_OPENINGS = 30
 export const MAX_MATCH_ADR = 300

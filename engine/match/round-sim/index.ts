@@ -23,6 +23,7 @@ import { scriptBuyPhase } from "./buy"
 import { buildProfile, callQuality, type SimProfile } from "./profile"
 import { simulateScriptRound, type Contact, type SimOutput, type SimSide } from "./simulate"
 import { findContacts } from "./contacts"
+import { sightMapFor, simulateSightRound } from "./sight"
 import { cappedEdge, teamEdgeBreakdown, type StaffBundle, type TeamEdgeBreakdown } from "./team-edge"
 import { TUNING } from "./tuning"
 import { zonesFor } from "./zones"
@@ -58,6 +59,16 @@ export interface ScriptSeries {
 
 /** Replays of a round with the contacts its script shows (each pass may uncover new ones). */
 export const CONTACT_PASSES = 2
+
+let sightOverride: boolean | null = null
+/**
+ * Calibration / tests: play rounds on the sight engine (true, the default
+ * wherever the map has a baked round map) or the resolver (false); null
+ * restores the default.
+ */
+export function forceSightEngine(on: boolean | null): void {
+    sightOverride = on
+}
 
 let contactsOverride: boolean | null = null
 /** Calibration / tests: force the contact passes on or off for every series (null = per series). */
@@ -185,6 +196,10 @@ export class ScriptRoundEngine {
             tacticalWeight: tacticalWeight(mapId),
             rollKey: rng.int(1, 0x7ffffffe),
         }
+        // Players walk the map and fight whoever they see (sight.ts); the resolver is the fallback
+        // for a map without a baked round map.
+        const sightMap = (sightOverride ?? true) ? sightMapFor(zones) : undefined
+        if (sightMap) return simulateSightRound(input, sightMap)
         let out = simulateScriptRound(input)
         if (!(contactsOverride ?? series.contacts) || !mapId) return out
         // Fight out the close contacts the round's script shows (two enemies in plain sight, nobody
