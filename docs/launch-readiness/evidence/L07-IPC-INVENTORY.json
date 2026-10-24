@@ -196,7 +196,7 @@
       "file": "electron/steam.js",
       "line": 419,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
-      "schema": "status|steam_display → string|null",
+      "schema": "status|steam_display|team|season|week|rank → string|null",
       "invalidReturn": null,
       "authority": "Presence cache"
     },
@@ -241,7 +241,7 @@
       "file": "electron/steam.js",
       "line": 396,
       "sender": "Exact trusted WebContents object + its current mainFrame + selected localhost origin on both frame and contents; destroyed/null frames denied.",
-      "schema": "status|steam_display + string ≤255 bytes|null → boolean",
+      "schema": "status|steam_display|team|season|week|rank + string ≤255 bytes|null → boolean",
       "invalidReturn": false,
       "authority": "Bounded presence cache and Steam"
     },

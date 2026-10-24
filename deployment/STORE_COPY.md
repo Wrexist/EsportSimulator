@@ -1,5 +1,7 @@
 # Esports Manager: FPS — Store copy (ready to paste)
 
+> **Superseded (2026-10-24).** Current Steam configuration: [docs/steam/README.md](../docs/steam/README.md). This Early Access copy predates the revamp and claims Workshop support; do not paste it.
+
 Paste into Steamworks → Store Page → Basic Info. Steam BBCode is used in the
 long description. Trim/tweak to taste, but keep it gameplay-focused (no
 overlays/awards in screenshots — Steam flagged that separately).

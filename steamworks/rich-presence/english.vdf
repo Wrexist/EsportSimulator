@@ -1,0 +1,9 @@
+"lang"
+{
+	"language"	"english"
+	"tokens"
+	{
+		"#Status_Managing"	"Managing %team% - Season %season%, Week %week%"
+		"#Status_Ranked"	"Managing %team% (World #%rank%) - Season %season%, Week %week%"
+	}
+}

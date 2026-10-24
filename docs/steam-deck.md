@@ -22,9 +22,8 @@ works on the Deck and on any controller via the Steam Input overlay.
 - **Skip-to-content link** — `app/layout.tsx` renders a visually-hidden
   "Skip to main content" link that appears on first Tab, letting keyboard
   users bypass the sidebar.
-- **Minimum window size** — 1024x640 enforced in `electron/main.js`, above
-  the Deck's 1280x800 native resolution so the layout never degrades below
-  its intended breakpoint.
+- **Minimum window size** — 1024x640 enforced in `electron/main.js`, below
+  the Deck's 1280x800 native resolution, so the Deck's full screen fits.
 
 ## Manual pre-submission checklist
 
@@ -68,10 +67,12 @@ Once the checklist passes in local testing:
    - Start → `F10` (settings)
    - Select → `F1` (shortcuts modal)
    - LB/RB → `1`..`9` cycling (optional — bind to specific sections as desired)
-3. Set the game rating to **Playable** (or **Verified** if all criteria pass
-   including default controller config, readable text at Deck resolution,
-   and suspend/resume). Do not self-mark Verified — Valve runs their own
-   pass; self-reporting Playable is the ceiling until Valve reviews.
+3. Developers cannot set the rating. Valve tests the game and assigns
+   Verified, Playable, Unsupported or Unknown; you can request a review
+   from the Steam Deck Compatibility page once the build is live. Verified
+   needs full controller input with on-screen glyphs, readable text at
+   1280x800 and no keyboard-only steps, so expect **Playable** at best with
+   the keyboard-mapped approach above.
 4. Confirm the build boots at `1280x800` windowed and at 60 Hz, and that
    resuming from sleep restores the window at its saved bounds. Both are
    already covered by the window-state persistence and `minWidth`/`minHeight`
