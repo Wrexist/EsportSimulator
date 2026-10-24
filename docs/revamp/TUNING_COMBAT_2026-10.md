@@ -77,6 +77,23 @@ park the walker on a teammate.
 | `LEAVE_EARLY_MAX` | 6 s | Longest early start beyond the exposure itself |
 | (catch-up pace) | up to 1 / `WALK_PACE` | After a wait the rest of the walk may speed up to make its next hold, never above run speed on any step |
 
+Sight-aware routes (added 2026-10-24, before the walkers). A walk that passes
+in sight of a close enemy is re-planned on a path that costs extra for every
+node an enemy would see at the time the walker gets there (Dijkstra on the nav
+graph). The new route is kept only when it is seen less than the old one, fits
+the same time at no more than run speed, and is not much longer. Each player
+may set off earlier from the hold before the walk, never before an anchor or
+across the plant.
+
+| Constant | Value | Why |
+|---|---|---|
+| `MAX_REROUTES` | 6 per player per round | Bounds the pass |
+| `SIGHT_COST` | 8 | Extra path cost per seen node, scaled by edge length over pace |
+| `DETOUR_MAX` / `DETOUR_EXTRA` | 1.8× + 3 map-% | Longest detour allowed; longer ones read as wandering |
+
+On its own this is a small gain (Sandstone 13.7 → 12.8 s per round of close
+no-fight sightings); most walks have no hidden route that fits their time.
+
 Duel placement also adds `BYSTANDER = 25` when the killer's spot is in clear
 sight of one of the victim's teammates within `BYSTANDER_RANGE = 8` map-%:
 the killer stays there after the kill, and that teammate would shoot.
@@ -147,3 +164,46 @@ The scorebug counts down: round time left, stopping at the plant, then the
 same clock (`lib/live-feed-clock.ts`, `scrubberClock` in
 `lib/radar-scrubber.ts`), so a kill at "1:30" in the feed happened when the
 scorebug said 1:30.
+
+## 8. Chance meetings become fights (`engine/match/round-sim/contacts.ts`, `contactsUntil` in `simulate.ts`)
+
+The resolver decides who fights whom before the round script places anyone,
+so the script could walk two enemies past each other in clear sight with no
+fight (14.7 s per round of enemy pairs within 4 map-% in sight with no duel,
+measured on all maps). Now, for the manager's own matches (the only rounds
+shown on the radar), the round is resolved, its script is built (without the
+cover pass), and every enemy pair that stays within `CONTACT_RANGE` in sight
+for `CONTACT_SECONDS` with one of them moving and no duel of their own within
+2.5 s is fed back to the resolver as a duel at that moment. The round is then
+resolved again, up to `CONTACT_PASSES` times. AI-vs-AI matches skip it.
+
+| Constant | Value | Why |
+|---|---|---|
+| `CONTACT_RANGE` | 5 map-% (≈ 6.5 m) | Close enough that both would certainly shoot |
+| `CONTACT_SECONDS` | 1 s | Shorter sightings are passing glimpses |
+| `CONTACT_REACTION` | 0.5 s | First sight to first shot |
+| `CONTACT_PASSES` | 2 | A third pass gained little for its cost |
+| `CONTACT_STALE` | 6 s | A meeting the round has moved well past is dropped |
+| `CONTACT_T_EDGE` | 3 points | The T moves with intent; the CT is usually rotating. Without it CT round wins rose about 5 points |
+| `CONTACT_AWP_OPEN` | 10 points | A scoped AWP takes the first shot of the round |
+| `CONTACT_OPENING_AWP_ONLY` | true | Before the first kill only meetings with an AWP count; rifler-vs-rifler chance meetings handed openings to lurkers and supports (AWPer opening share fell to 20.8%) |
+| (post-plant) | off | After the plant, extra meetings turned bomb wins into eliminations (T bomb share fell below 32%) |
+
+Effect (seeds 11 and 12, all 8 maps, close no-fight sightings per round,
+with the sight-aware routes above): 14.7 s → 10.3 s. Per map: Sandstone
+13.7 → 10.6, Mirage 14.7 → 11.2, Inferno 18.7 → 12.3, Nuke 15.2 → 8.7,
+Overpass 13.7 → 11.4, Vertigo 10.6 → 8.2, Ancient 16.5 → 10.9, Anubis
+13.5 → 8.9. Calibration (600 maps) stays in band (48 pass, 2 warn, 0 fail,
+against 46 / 4 / 0 before); see the PR for the table. Cost: about 42 ms per
+map instead of 4 ms, only for the manager's matches.
+
+Successive meetings are `CONTACT_AFTER = 0.6` s apart (a meeting found while
+a planned fight ran would otherwise land on the same instant as it). The
+sight-aware routes only touch walks done before the plant; after it, a detour
+on a retreat read as turning back toward the site.
+
+Pro reference (ESTA CS:GO demos, `docs/revamp/pro-benchmarks/` on the
+benchmarks branch): close quiet pair-seconds are about 0.4 s per round at
+≤ 6 map-%, so the game is still well above pro levels. Closing the rest needs
+the round script to plan around enemies rather than fixing meetings after
+the fact.

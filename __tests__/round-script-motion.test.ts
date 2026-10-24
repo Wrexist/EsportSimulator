@@ -35,9 +35,12 @@ function reversals(fixtures: ReturnType<typeof playRadarSeries>[]) {
 
 describe('round script motion', () => {
     it('quick multi-kills do not walk back and forth', () => {
-        const r = reversals([MapId.MIRAGE, MapId.INFERNO, MapId.NUKE, MapId.OVERPASS, MapId.ANCIENT].map(m => playRadarSeries(m, 5)))
-        expect(r.rounds).toBeGreaterThan(80)
-        // Measured on these rounds: 21 bursts (0.21 per round) before SHORT_LEG, 5 after.
+        const maps = [MapId.MIRAGE, MapId.INFERNO, MapId.NUKE, MapId.OVERPASS, MapId.ANCIENT]
+        const r = reversals([5, 6, 7].flatMap(seed => maps.map(m => playRadarSeries(m, seed))))
+        expect(r.rounds).toBeGreaterThan(250)
+        // Measured on seed 5: 21 bursts (0.21 per round) before SHORT_LEG, 5 after. One seed swings
+        // a lot (0.03–0.13 per round across seeds 5–7, with or without resolver contacts), so three are pooled:
+        // 24 / 304 rounds without contacts, 25 / 334 with them.
         expect(r.bursts / r.rounds).toBeLessThan(0.1)
     })
 })

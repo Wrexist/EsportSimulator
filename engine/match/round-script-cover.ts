@@ -56,6 +56,13 @@ export const YIELD_LOOKBACK = 6
 export const YIELD_MARGIN = 1
 /** How much earlier than strictly needed (seconds) a walker may set off to pass before an enemy arrives. */
 export const LEAVE_EARLY_MAX = 6
+/** Walks per player re-planned around enemy sight lines. */
+export const MAX_REROUTES = 6
+/** Sight-aware detour: extra cost (map-%) per second a node is in sight of an enemy the walker is not fighting. */
+export const SIGHT_COST = 8
+/** A detour may be this much longer than the shortest walk (× its length, + map-%). */
+export const DETOUR_MAX = 1.8
+export const DETOUR_EXTRA = 3
 
 export interface CoverStats {
     /** Holding stretches that were exposed. */
@@ -64,12 +71,14 @@ export interface CoverStats {
     covered: number
     /** Walks that waited for an enemy to pass. */
     yielded: number
+    /** Walks that took another way round an enemy. */
+    rerouted: number
 }
 
 export interface Smoke { t0: number; t1: number; at: RPoint; r: number }
 
 export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly Smoke[]): CoverStats {
-    const stats: CoverStats = { exposed: 0, covered: 0, yielded: 0 }
+    const stats: CoverStats = { exposed: 0, covered: 0, yielded: 0, rerouted: 0 }
     const { g } = ctx
     const vis = visibilityFor(g)
     const N = ctx.actors.length
@@ -147,6 +156,9 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
     // fighting waits at the last spot on their way that enemy cannot see, and goes on
     // once the enemy has passed. The delay comes out of their next hold, so every
     // anchor stays where and when the timeline put it.
+    // Then walks that still run into sight take another way when one fits in their time
+    // (leaving their hold earlier, up to run speed), arriving exactly when they did.
+    for (const a of order) for (let tries = 0; tries < MAX_REROUTES; tries++) if (!rerouteOnce(a)) break
     for (const a of order) for (let tries = 0; tries < MAX_YIELDS; tries++) if (!yieldOnce(a)) break
     for (const a of order) {
         const src = steps.get(a)
@@ -256,6 +268,137 @@ export function applyCover(ctx: Ctx, steps: Map<Actor, Step[]>, smokes: readonly
             return true
         }
         return false
+    }
+
+    /** Re-plan the first walk (from a hold to the next hold) that runs into sight; false when none can be improved. */
+    function rerouteOnce(a: Actor): boolean {
+        const st = steps.get(a)
+        if (!st || st.length < 3) return false
+        const ai = idx.get(a)!
+        const gr = gridOf(ai)
+        let c = 0
+        for (let k = kFrom(st[0].t); k < K; k++) {
+            const t = tAt(k)
+            if (gr[k] < 0 || !(a.deathT > t + 0.1)) continue
+            while (c + 1 < st.length && st[c + 1].t <= t) c++
+            if (c + 1 >= st.length || st[c + 1].node === st[c].node) continue
+            if (!watchers(ai, gr[k], k, null)) continue
+            let b = c
+            while (b >= 1 && st[b - 1].node !== st[b].node) b--
+            let h = c + 1
+            while (h + 1 < st.length && st[h + 1].node !== st[h].node) h++
+            if (tryReroute(a, ai, st, b, h)) { stats.rerouted++; return true }
+            k = kFrom(st[h].t)
+        }
+        return false
+    }
+
+    function tryReroute(a: Actor, ai: number, st: Step[], b: number, h: number): boolean {
+        const from = st[b].node, to = st[h].node, t0 = st[b].t, t1 = st[h].t
+        if (from === to || !(t1 > t0)) return false
+        if (a.anchors.some(an => an.t > t0 + 1e-6 && an.t < t1 - 1e-6)) return false
+        // Only walks done before the plant: after it they are retakes and give-ups, where a detour reads as turning back.
+        if (ctx.plantT !== undefined && t1 > ctx.plantT) return false
+        const before = exposure(ai, st, t0, t1)
+        if (!before) return false
+        // Earliest departure: back into the hold before the walk, never before an anchor or across the plant.
+        let early = t0
+        if (b >= 1 && st[b - 1].node === from) early = st[b - 1].t + 0.2
+        for (const an of a.anchors) if (an.t <= t0 + 1e-6) early = max(early, an.holdUntil ?? an.t)
+        if (ctx.plantT !== undefined && ctx.plantT > early && ctx.plantT < t1) early = max(early, min(ctx.plantT, t0))
+        early = min(early, t0)
+        let oldLen = 0
+        for (let s = b + 1; s <= h; s++) oldLen += g.cost(st[s - 1].node, st[s].node)
+        const pace = max(oldLen / (t1 - t0), ctx.v * 0.5)
+        const path = sightPath(ai, from, to, t0, pace)
+        if (!path) return false
+        let pathLen = 0
+        for (let s = 1; s < path.length; s++) pathLen += g.cost(path[s - 1], path[s])
+        if (pathLen > g.pathDist(from, to) * DETOUR_MAX + DETOUR_EXTRA) return false
+        const window = t1 - early
+        if (pathLen / ctx.v > window + 1e-6) return false
+        // Keep the old pace when it fits, otherwise up to run speed; leave as late as that allows.
+        const dur = min(window, max(pathLen / ctx.v, pathLen / pace))
+        const dep = t1 - dur
+        const next: Step[] = dep < t0 - 1e-6 ? st.slice(0, b) : st.slice(0, b + 1)
+        pushStep(next, { t: dep, node: from, look: st[b].look })
+        walkPath(next, path, dep, t1)
+        for (let s = h; s < st.length; s++) pushStep(next, st[s])
+        if (exposure(ai, next, early, t1) >= before) return false
+        steps.set(a, next)
+        grid[ai] = null
+        return true
+    }
+
+    /** Samples in [ta, tb] where steps `st` put player `ai` in sight of an enemy they are not fighting (or on a mate). */
+    function exposure(ai: number, st: Step[], ta: number, tb: number): number {
+        let c = 0, n = 0
+        for (let k = kFrom(ta); k < K && tAt(k) <= tb; k++) {
+            const t = tAt(k)
+            if (t < st[0].t) continue
+            while (c + 1 < st.length && st[c + 1].t <= t) c++
+            const s0 = st[c], s1 = st[c + 1]
+            const node = !s1 || s1.node === s0.node || (t - s0.t) < (s1.t - s0.t) / 2 ? s0.node : s1.node
+            if (watchers(ai, node, k, null) || mateNear(ai, node, k)) n++
+        }
+        return n
+    }
+
+    /**
+     * Shortest walk from `from` to `to` with every node priced by the time it spends in sight of
+     * an enemy (when the walker, leaving at t0 at `pace` map-%/s, would pass it).
+     */
+    function sightPath(ai: number, from: number, to: number, t0: number, pace: number): number[] | null {
+        const M = g.size
+        const cost = new Float64Array(M).fill(Infinity)
+        const walked = new Float64Array(M)
+        const prev = new Int32Array(M).fill(-1)
+        const done = new Uint8Array(M)
+        const heap: number[] = []
+        const push = (n: number) => {
+            heap.push(n)
+            let i = heap.length - 1
+            while (i > 0) { const p = (i - 1) >> 1; if (cost[heap[p]] <= cost[heap[i]]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p }
+        }
+        const pop = (): number => {
+            const top = heap[0], last = heap.pop()!
+            if (heap.length) {
+                heap[0] = last
+                let i = 0
+                for (;;) {
+                    const l = 2 * i + 1, r = l + 1
+                    let m = i
+                    if (l < heap.length && cost[heap[l]] < cost[heap[m]]) m = l
+                    if (r < heap.length && cost[heap[r]] < cost[heap[m]]) m = r
+                    if (m === i) break
+                    ;[heap[m], heap[i]] = [heap[i], heap[m]]
+                    i = m
+                }
+            }
+            return top
+        }
+        cost[from] = 0
+        push(from)
+        while (heap.length) {
+            const n = pop()
+            if (done[n]) continue
+            done[n] = 1
+            if (n === to) break
+            for (const m of g.neighbors(n)) {
+                if (done[m]) continue
+                const e = g.cost(n, m)
+                const w = walked[n] + e
+                const k = kFrom(t0 + w / pace)
+                const seen = m !== to && k < K && watchers(ai, m, k, null) ? SIGHT_COST * e / pace : 0
+                const cm = cost[n] + e + seen
+                if (cm < cost[m]) { cost[m] = cm; walked[m] = w; prev[m] = n; push(m) }
+            }
+        }
+        if (!done[to]) return null
+        const path: number[] = []
+        for (let n = to; n >= 0; n = prev[n]) path.push(n)
+        path.reverse()
+        return path[0] === from ? path : null
     }
 
     /** A walk moved in time must not cross the plant: the round changes there (a walk to the site turns pointless). */

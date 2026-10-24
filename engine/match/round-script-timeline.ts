@@ -337,7 +337,7 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
     const matesV = ctx.actors.filter(a => a.side === V.side && a !== V && alive(a, t)).map(a => stateAt(ctx, a, t))
     const matesK = others
     // script-v1: the resolver says where this fight happened (and that replaces the bomb / trade guesses).
-    const zone = kill.zone ? zonePoint(ctx.map, kill.zone) : undefined
+    const zone = kill.spot ?? (kill.zone ? zonePoint(ctx.map, kill.zone) : undefined)
     const vis = visibilityFor(g)
     const smokes = ctx.smokes.filter(s => t >= s.t0 && t <= s.t1)
     const bomb = !zone && ctx.plantT !== undefined && t >= ctx.plantT ? g.point(ctx.plantNode) : null
@@ -351,7 +351,7 @@ export function chooseDuel(ctx: Ctx, kill: Kill, V: Actor, K: Actor, sV: State, 
     let foeHard = Infinity
     let foeFixedDist: Float64Array | null = null
     let foeFixedBound = Infinity
-    const nextZone = nextKill?.zone ? zonePoint(ctx.map, nextKill.zone) : undefined
+    const nextZone = nextKill?.spot ?? (nextKill?.zone ? zonePoint(ctx.map, nextKill.zone) : undefined)
     if (nextKill && nextZone) {
         // script-v1: the next fight has a place; stay within reach of it.
         foeDist = g.distancesTo(g.nearest(nextZone))

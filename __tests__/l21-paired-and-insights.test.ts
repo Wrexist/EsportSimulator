@@ -26,8 +26,16 @@ describe('every permitted decision has a measurable, bounded effect over 400 pai
     // call-full-buy is held to a tight ±6 pp bound, tighter than 400 seeds
     // resolve (its match-win CI is about ±5 pp there; 2026-10 HE misses moved
     // its 400-seed draw from -3.3 to -7.3 pp while 1200 seeds give -2.7 → -4.5
-    // and an unchanged round share), so it gets 1200.
-    const reports = SCENARIOS.map(s => runScenario(s, s.id === 'call-full-buy' ? 1200 : 400))
+    // and an unchanged round share), so it gets 1200. Since chance meetings
+    // became fights in the manager's matches (2026-10-24)
+    // paired arms diverge more (a small change moves where players meet, so
+    // the meetings differ): CIs are about 1.5x wider at 400 seeds. The small
+    // effects get 1200 seeds. At 1200 with meetings on: timeout round share
+    // +0.43 pp [0.17, 0.69], force after a lost pistol -$52 cash per round
+    // [-87, -16], countered playstyle -2.3 pp [-3.3, -1.4] (-2.3 without
+    // meetings), no AWPer -1.2 pp [-2.0, -0.3] (-1.7 without at 400 seeds).
+    const WIDE = new Set(['call-full-buy', 'timeout-on-streak', 'call-force-after-pistol-loss', 'playstyle-countered', 'roles-no-awper'])
+    const reports = SCENARIOS.map(s => runScenario(s, WIDE.has(s.id) ? 1200 : 400))
     test.each(reports.map(r => [r.id, r] as const))('%s', (_id, r) => {
         if (r.id === 'call-save-always') {
             expect(r.verdict).toBe('negative-control')

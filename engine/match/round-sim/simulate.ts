@@ -75,7 +75,15 @@ export interface SimInput {
     pressure: number
     /** Map weight on IGL reads (tactical maps read more). */
     tacticalWeight: number
+    /** Base of the keyed rolls, so a second pass of the same round replays it exactly. */
+    rollKey?: number
+    /** Close contacts the round script found (enemies in sight with no fight), fought as duels. */
+    contacts?: readonly Contact[]
 }
+
+/** Two enemies in plain sight of each other at `t` (round seconds), at baked zone `zone`. */
+/** Two enemies in sight of each other in the round script with no fight between them. `still`: the one standing (holding) when they met, if only one was. */
+export interface Contact { t: number; a: string; b: string; zone: string; still?: "a" | "b"; spot?: { x: number; y: number; floor?: "upper" | "lower" } }
 
 export interface SimOutput {
     winner: "HOME" | "AWAY"
@@ -159,6 +167,9 @@ interface Round {
     utility: UtilityThrow[]
     S: ZoneSite
     O: ZoneSite
+    contacts: Contact[]
+    /** The spot the next kill is recorded at (a contact fight). */
+    spotNext?: Contact["spot"]
 }
 
 // ─── Setup ─────────────────────────────────────────────────────────────────
@@ -379,6 +390,7 @@ function kill(R: Round, k: Actor, v: Actor, zone: string, chip = 0, util?: "he" 
         isHeadshot: hs, location: R.z.callouts.get(zone) ?? zone, zone, damage: dmg,
     }
     if (chip > 0) ev.chip = chip
+    if (R.spotNext) ev.spot = R.spotNext
     if (assister) ev.assisterId = assister.id
     if (flashAssist) ev.isFlashAssist = true
     if (util) ev.isUtility = true
@@ -472,6 +484,7 @@ function pickHolder(R: Round, D: Actor[]): Actor {
 function fight(R: Round, F: Fight): FightEnd {
     let duels = 0
     for (let guard = 0; guard < 40; guard++) {
+        contactsUntil(R, R.t)
         admit(R, F.attQ, F.att)
         admit(R, F.defQ, F.def)
         const A = living(F.att)
@@ -514,6 +527,41 @@ function fight(R: Round, F: Fight): FightEnd {
     }
     return "time"
 }
+
+/**
+ * Meetings the plan did not arrange: two enemies the round script put in close
+ * sight of each other with no fight between them (see contacts.ts) fight it out
+ * at that moment. A contact the round has moved well past is dropped. Only
+ * before the plant: after it the retake and post-plant fights already decide
+ * who meets whom, and extra meetings there turned bomb wins into eliminations.
+ */
+function contactsUntil(R: Round, until: number): void {
+    while (R.contacts.length && R.contacts[0].t <= until) {
+        const c = R.contacts.shift()!
+        const a = R.all.find(x => x.id === c.a), b = R.all.find(x => x.id === c.b)
+        if (!a || !b || !a.alive || !b.alive || a.ct === b.ct) continue
+        if (R.t - c.t > CONTACT_STALE || R.bomb.planted) continue
+        // The round's opening kill stays with the planned fights unless an AWP is in the meeting:
+        // chance meetings between riflers would hand openings to lurkers and supports.
+        if (!R.firstKill && T.CONTACT_OPENING_AWP_ONLY && !isSniperClass(a.wc) && !isSniperClass(b.wc)) continue
+        if (!countAlive(R.T) || !countAlive(R.CT)) return
+        R.t = max(R.t, c.t)
+        // Nobody holds a pre-aimed angle on a chance meeting: the players, first-kill reaction (entry
+        // for whoever walked into it), a scoped AWP's first shot, and the T's intent against a CT
+        // who is rotating or repositioning.
+        const pts = (x: Actor, walking: boolean) => commonPts(R, x) + openingPts(R, x, walking)
+            + (!R.firstKill && isSniperClass(x.wc) ? T.CONTACT_AWP_OPEN : 0) + (x.ct ? 0 : T.CONTACT_T_EDGE)
+        R.spotNext = c.spot
+        duel(R, a, b, pts(a, c.still === "b"), pts(b, c.still === "a"), c.zone)
+        R.spotNext = undefined
+        a.fresh = b.fresh = false
+        a.zone = b.zone = c.zone
+        // A meeting takes its time: the next one (or the planned fight going on) is not the same instant.
+        R.t += CONTACT_AFTER
+    }
+}
+const CONTACT_STALE = 6
+const CONTACT_AFTER = 0.6
 
 /** The side that just lost a player may trade the killer, and so on (decaying). */
 function tradeChain(R: Round, F: Fight, killer: Actor, side: "att" | "def", zone: string, extra = 0): void {
@@ -840,7 +888,7 @@ export function simulateScriptRound(input: SimInput): SimOutput {
     const T_ = all.filter(a => !a.ct)
     const CT_ = all.filter(a => a.ct)
     const R: Round = {
-        rollKey: input.rng.int(1, 0x7ffffffe), draws: new Map(), meetings: new Map(), z: input.zones, t: 0, all, T: T_, CT: CT_, events: [], firstKill: false, pressure: input.pressure,
+        rollKey: input.rollKey ?? input.rng.int(1, 0x7ffffffe), contacts: [...(input.contacts ?? [])].sort((x, y) => x.t - y.t), draws: new Map(), meetings: new Map(), z: input.zones, t: 0, all, T: T_, CT: CT_, events: [], firstKill: false, pressure: input.pressure,
         bomb: { carrier: null, lost: false, planted: false, plantT: 0, planter: null },
         utility: [], S: input.zones.sites.A, O: input.zones.sites.B,
     }
@@ -869,6 +917,7 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
 
     // ── 1. Map control: early picks before the hit ──
     earlyFights(R, plan, aggressor)
+    contactsUntil(R, plan.execAt - 3)
     let done = elim()
     if (done) return done
 
@@ -1057,6 +1106,8 @@ function earlyFights(R: Round, plan: PlanState, aggressor: Actor | null): void {
     fights.sort((a, b) => a.t - b.t)
     for (const f of fights) {
         if (f.t >= plan.execAt - 3) break
+        contactsUntil(R, f.t)
+        if (!countAlive(ts) || !countAlive(cts)) return
         R.t = max(R.t, f.t)
         f.run()
         if (!countAlive(ts) || !countAlive(cts)) return

@@ -21,7 +21,8 @@ import type { BuyStrategy } from "../buy-phase"
 import type { PlayerSimulationState } from "../round-outcome"
 import { scriptBuyPhase } from "./buy"
 import { buildProfile, callQuality, type SimProfile } from "./profile"
-import { simulateScriptRound, type SimOutput, type SimSide } from "./simulate"
+import { simulateScriptRound, type Contact, type SimOutput, type SimSide } from "./simulate"
+import { findContacts } from "./contacts"
 import { cappedEdge, teamEdgeBreakdown, type StaffBundle, type TeamEdgeBreakdown } from "./team-edge"
 import { TUNING } from "./tuning"
 import { zonesFor } from "./zones"
@@ -47,6 +48,21 @@ export interface ScriptSeries {
     home: ScriptSeriesSide
     away: ScriptSeriesSide
     dayForm: Map<string, number>
+    /**
+     * Fight out the close contacts the round's radar would show (a match whose
+     * rounds are kept: the manager's own). AI-only matches keep no rounds, so
+     * nothing ever shows them and they skip the extra passes.
+     */
+    contacts: boolean
+}
+
+/** Replays of a round with the contacts its script shows (each pass may uncover new ones). */
+export const CONTACT_PASSES = 2
+
+let contactsOverride: boolean | null = null
+/** Calibration / tests: force the contact passes on or off for every series (null = per series). */
+export function forceResolverContacts(on: boolean | null): void {
+    contactsOverride = on
 }
 
 export interface ScriptSeriesTeamInput {
@@ -58,7 +74,7 @@ export interface ScriptSeriesTeamInput {
     implicitGear: boolean
 }
 
-export function buildScriptSeries(args: { seed: number; matchId: string; home: ScriptSeriesTeamInput; away: ScriptSeriesTeamInput }): ScriptSeries {
+export function buildScriptSeries(args: { seed: number; matchId: string; home: ScriptSeriesTeamInput; away: ScriptSeriesTeamInput; contacts?: boolean }): ScriptSeries {
     const side = (s: ScriptSeriesTeamInput): ScriptSeriesSide => {
         const profiles = new Map(s.players.map(p => [p.id, buildProfile(p)]))
         return {
@@ -70,7 +86,7 @@ export function buildScriptSeries(args: { seed: number; matchId: string; home: S
             edge: teamEdgeBreakdown(s.team, s.players, s.staff, { counterMod: s.counterMod, mentalPrep: s.mentalPrep, implicitGear: s.implicitGear }),
         }
     }
-    return { seed: args.seed, matchId: args.matchId, home: side(args.home), away: side(args.away), dayForm: new Map() }
+    return { seed: args.seed, matchId: args.matchId, home: side(args.home), away: side(args.away), dayForm: new Map(), contacts: !!args.contacts }
 }
 
 export interface ScriptRoundExtra {
@@ -157,16 +173,35 @@ export class ScriptRoundEngine {
             targetedId: other.targetPlayerId && players.some(p => p.id === other.targetPlayerId) ? other.targetPlayerId : undefined,
             dayForm: players.map(p => dayForm(series, mapIndex, p.id, s.teamId)),
         })
-        return simulateScriptRound({
+        const zones = zonesFor(mapId)
+        const input = {
             rng,
-            zones: zonesFor(mapId),
+            zones,
             round: roundNum,
             home: side(homePlayers, series.home, series.away, homeEconomy, homeStrategy, 1, homeRegroupEdge),
             away: side(awayPlayers, series.away, series.home, awayEconomy, awayStrategy, -1, awayRegroupEdge),
             homeIsCT,
             pressure: stagePressure(isHighPressure, matchStage),
             tacticalWeight: tacticalWeight(mapId),
-        })
+            rollKey: rng.int(1, 0x7ffffffe),
+        }
+        let out = simulateScriptRound(input)
+        if (!(contactsOverride ?? series.contacts) || !mapId) return out
+        // Fight out the close contacts the round's script shows (two enemies in plain sight, nobody
+        // shooting), then replay the round with them: same rolls, so only what follows a contact changes.
+        const src = {
+            mapId, seed: series.seed, matchId: series.matchId, mapIndex, round: roundNum, homeIsCT, zones,
+            home: { teamId: series.home.teamId, players: homePlayers, economy: homeEconomy },
+            away: { teamId: series.away.teamId, players: awayPlayers, economy: awayEconomy },
+        }
+        let contacts: Contact[] = []
+        for (let pass = 0; pass < CONTACT_PASSES; pass++) {
+            const found = findContacts(src, out).filter(c => !contacts.some(x => x.a === c.a && x.b === c.b))
+            if (!found.length) break
+            contacts = [...contacts, ...found]
+            out = simulateScriptRound({ ...input, contacts })
+        }
+        return out
     }
 }
 

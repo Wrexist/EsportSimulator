@@ -27,6 +27,12 @@ export const TUNING = {
     AWP_HOLD: 6,
     /** An AWP / scout forced to peek or fight close. */
     AWP_PEEK: 4,
+    /** Chance meeting (resolver contact, see contactsUntil): points to the T, who moves with intent. */
+    CONTACT_T_EDGE: 3,
+    /** Chance meeting before the round's first kill: points to an AWP / scout (scoped in, first shot). */
+    CONTACT_AWP_OPEN: 10,
+    /** Only meetings with an AWP / scout in them can be the round's opening kill. */
+    CONTACT_OPENING_AWP_ONLY: true,
     /** Peeker penalty per extra defender covering the same entrance (max 2). */
     CROSSFIRE: 3,
     /** A holder who got a kill within SPOTTED_SECONDS keeps only this share of the hold. */

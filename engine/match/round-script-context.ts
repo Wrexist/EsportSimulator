@@ -89,6 +89,8 @@ export interface Kill {
     trade?: boolean
     /** script-v1: baked zone id the resolver put this fight in. */
     zone?: string
+    /** script-v1: exact spot of a contact fight (overrides the zone's point). */
+    spot?: RPoint
 }
 
 export interface State {
@@ -173,7 +175,7 @@ export function createContext(input: RoundScriptInput, map: RoundMap): Ctx {
         victim.deathT = e.time
         victim.eventTimes.push(e.time)
         byId.get(killerId)?.eventTimes.push(e.time)
-        kills.push({ t: e.time, killerId, victimId: victim.id, weapon: e.weapon, headshot: e.isHeadshot, trade: e.isTrade, ...(e.zone ? { zone: e.zone } : {}) })
+        kills.push({ t: e.time, killerId, victimId: victim.id, weapon: e.weapon, headshot: e.isHeadshot, trade: e.isTrade, ...(e.zone ? { zone: e.zone } : {}), ...(e.spot ? { spot: { x: e.spot.x, y: e.spot.y, floor: e.spot.floor ?? "upper" } } : {}) })
     }
     const plant = events.find(e => e.type === "PLANT")
     const defuse = events.find(e => e.type === "DEFUSE")
