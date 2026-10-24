@@ -16,6 +16,8 @@ import { killRewardFor, weaponClassOf } from '@/engine/match/round-sim/weapons'
 import { scriptRating } from '@/engine/match/match-stats'
 import { samplePositions } from '@/engine/match/round-script'
 import { hasMoves, scriptFromMoves } from '@/engine/match/round-script-moves'
+import { sampleTrack } from '@/engine/match/round-script-sample'
+import { walkAreaFor } from '@/engine/match/round-script-walkable'
 import { zonePoint } from '@/engine/match/round-sim/zones'
 import { restoreLivePlayback } from '@/engine/match/live-checkpoint'
 import { sanitizeRestoredSimState } from '@/engine/match/live-match-init'
@@ -382,5 +384,37 @@ describe('the radar replays what the engine did', () => {
         }
         expect(inRange / kills).toBeGreaterThan(0.97)
         expect(atSpot / kills).toBeGreaterThan(0.97)
+    })
+
+    test('players drift off the engine line only a little, on walkable ground, and stand still less', () => {
+        let frames = 0, drifted = 0, offGround = 0, stillRaw = 0, stillLoose = 0
+        for (const { r, map, script } of built) {
+            const mapId = r.ctx.maps[0]
+            const walk = walkAreaFor(mapId)
+            expect(walk.baked).toBe(true)
+            const ct = r.round.ctTeam === 'H' ? r.ctx.home : r.ctx.away
+            const raw = scriptFromMoves(r.round, mapId, map, new Set(ct.players.map(p => p.id)), { loosen: false })
+            for (const [id, track] of Object.entries(script.tracks)) {
+                const base = raw.tracks[id]
+                const end = Math.min(track[track.length - 1].t, base[base.length - 1].t)
+                for (let t = 0; t + 0.5 <= end; t += 0.5) {
+                    const p = sampleTrack(track, t), q = sampleTrack(base, t)
+                    const p2 = sampleTrack(track, t + 0.5), q2 = sampleTrack(base, t + 0.5)
+                    frames++
+                    const d = Math.hypot(p.x - q.x, p.y - q.y)
+                    expect(d).toBeLessThan(3.5)
+                    if (d > 0.05) {
+                        drifted++
+                        if (!walk.ok(p.x, p.y, p.floor)) offGround++
+                    }
+                    if (Math.hypot(q2.x - q.x, q2.y - q.y) < 0.05 * map.runSpeed) stillRaw++
+                    if (Math.hypot(p2.x - p.x, p2.y - p.y) < 0.05 * map.runSpeed) stillLoose++
+                }
+            }
+        }
+        expect(drifted / frames).toBeGreaterThan(0.3)
+        // A drifted point between two samples can graze a raster corner; the samples themselves are checked.
+        expect(offGround / drifted).toBeLessThan(0.02)
+        expect(stillLoose / frames).toBeLessThan(0.7 * stillRaw / frames)
     })
 })

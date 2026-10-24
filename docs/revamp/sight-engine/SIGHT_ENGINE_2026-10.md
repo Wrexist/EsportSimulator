@@ -69,6 +69,47 @@ planting.
 The game's own calibration harness (`docs/revamp/calibration/script-v1.md`,
 600 samples): **47 pass · 3 warn · 0 fail** (PR #65: 47 · 3 · 0).
 
+## Radar movement against the pro demos
+
+The engine walks players on the route lines and parks them on exact hold
+nodes, so a straight replay looked on rails. The radar now draws each player
+a little off the engine's line (`engine/match/round-script-motion.ts`):
+
+- rounded corners, and a lane of their own while walking;
+- a shuffle around the spot while holding (walk a step or two, stop, walk on);
+- teammates walking on top of each other step apart.
+
+The drift is display-only and never changes the round:
+
+- At most 3 map-%, and only on walkable ground: a new nav-mesh raster per map,
+  `data/round-maps/walk/`, baked by `scripts/bake-round-walk.ts`.
+- It fades out around every kill, grenade hit, plant, defuse and bomb pick-up,
+  and never pushes a player past run speed.
+- It stops whenever an enemy is within 10–14 map-%, so it adds no new
+  stand-offs (the quiet pair-seconds and sightings above are unchanged).
+
+`npx tsx scripts/audit-radar-motion.ts --pro <compact demos>` compares 2 Hz
+positions with 433 ESTA pro demos on the five shared maps (11,478 rounds),
+using the pro benchmark extract. `--raw` shows the engine's exact line.
+
+| Measure (per living player, 0.5 s frames) | Before | After | Pro |
+|---|---|---|---|
+| Standing still % | 68.9 | 43.4 | 26.1 |
+| Walking % | 3.1 | 27.8 | 41.5 |
+| Running % | 28.0 | 28.8 | 32.4 |
+| Off the route lines, median map-% | 0.10 | 0.48 | 1.42 |
+| Turn per 0.5 s while moving, median ° | 5.5 | 9.6 | 13.5 |
+| Teammate within 1.5 map-% while moving % | 27.9 | 20.2 | 6.5 |
+| Heatmap overlap with pro, CT · T | 0.20 · 0.28 | 0.26 · 0.36 | 1 |
+
+What the radar can't fix on its own is where the engine sends players. Pros
+spread wider (their median teammate gap is 8.9 map-%, the sim's 3.0) and use
+more of the map: the heatmap overlap is about 0.3. Closing that gap means
+changing the engine's routes and holds, which would change the calibrated
+numbers.
+
+![Before, after and a pro round on Mirage](radar-trails-mirage.png)
+
 ## Tuning
 
 All sight-engine knobs are the `SIGHT_*` block in

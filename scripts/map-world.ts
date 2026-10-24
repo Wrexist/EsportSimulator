@@ -66,6 +66,11 @@ export class World {
         }
         return []
     }
+    /** Whether the nav mesh has ground on this floor right under a radar point (no search around it). */
+    standable(x: number, y: number, floor: Floor): boolean {
+        const w = this.xy(x, y, floor)
+        return this.nav.surfaces(w[0], w[1]).some(s => this.floorOf(s.point[2]) === floor)
+    }
     los(a: Vec3, b: Vec3): boolean {
         return !this.scene.raycast([a[0], a[1], a[2] + EYE], [b[0], b[1], b[2] + EYE])
     }
