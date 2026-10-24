@@ -46,6 +46,7 @@ function makeMatch(opts: {
     tournamentId?: string
     stage?: string
     flags?: { comebackWin?: boolean; underdogWin?: boolean }
+    maps?: Array<[number, number]>
 }): CompletedMatchSaveData {
     const cm: CompletedMatchSaveData = {
         id: opts.id,
@@ -56,7 +57,7 @@ function makeMatch(opts: {
         format: "BO3", seed: 1,
         result: {
             homeScore: opts.homeScore, awayScore: opts.awayScore,
-            maps: [],
+            maps: (opts.maps ?? []).map(([homeScore, awayScore]) => ({ map: "mirage", homeScore, awayScore })),
             playerStats: {},
             winnerId: opts.homeScore > opts.awayScore ? opts.home : opts.away,
             mvpPlayerId: "",
@@ -127,21 +128,21 @@ function snapshotUnlocks(): { unlocked: Set<string>; restore: () => void } {
 }
 
 describe("evaluatePostTickAchievements — REDEMPTION", () => {
-    test("won S_TIER this season after losing S_TIER Grand Final prior year → REDEMPTION fires", () => {
+    test("won a Major this season after losing a Major Grand Final prior year → REDEMPTION fires", () => {
         const snap = snapshotUnlocks()
         try {
             const save = makeSave({
                 currentWeek: 60, // mid season 2 (53-104)
                 tournaments: [{
-                    id: "iem_dallas_s1",
-                    name: "Dallas Masters",
+                    id: "major_copenhagen_s1",
+                    name: "Northern Major",
                     tier: "S_TIER",
                 } as TournamentSaveData],
                 teams: [makeTeam("player", {
                     rosterIds: ["p1"],
                     trophies: [{
                         // Won S_TIER in current season (week 55, after seasonStart=53).
-                        tournamentId: "iem_dallas_s2", tournamentName: "Dallas Masters",
+                        tournamentId: "major_copenhagen_s2", tournamentName: "Northern Major",
                         week: 55, tier: "S_TIER",
                     }],
                 })],
@@ -151,7 +152,7 @@ describe("evaluatePostTickAchievements — REDEMPTION", () => {
                         id: "m_loss", week: 30,
                         home: "player", away: "ai_winner",
                         homeScore: 14, awayScore: 16,
-                        tournamentId: "iem_dallas_s1",
+                        tournamentId: "major_copenhagen_s1",
                         stage: "Grand Final",
                     }),
                 ],
@@ -164,15 +165,15 @@ describe("evaluatePostTickAchievements — REDEMPTION", () => {
         }
     })
 
-    test("won S_TIER without prior-year loss → REDEMPTION does NOT fire", () => {
+    test("won a Major without prior-year loss → REDEMPTION does NOT fire", () => {
         const snap = snapshotUnlocks()
         try {
             const save = makeSave({
                 currentWeek: 60,
-                tournaments: [{ id: "iem_dallas_s2", name: "Dallas", tier: "S_TIER" } as TournamentSaveData],
+                tournaments: [{ id: "major_copenhagen_s2", name: "Northern Major", tier: "S_TIER" } as TournamentSaveData],
                 teams: [makeTeam("player", {
                     rosterIds: ["p1"],
-                    trophies: [{ tournamentId: "iem_dallas_s2", tournamentName: "Dallas", week: 55, tier: "S_TIER" }],
+                    trophies: [{ tournamentId: "major_copenhagen_s2", tournamentName: "Northern Major", week: 55, tier: "S_TIER" }],
                 })],
                 completedMatches: [],
             })
@@ -184,25 +185,25 @@ describe("evaluatePostTickAchievements — REDEMPTION", () => {
         }
     })
 
-    test("lost A_TIER Grand Final prior year → REDEMPTION does NOT fire (must be S_TIER)", () => {
+    test("lost a non-Major S_TIER Grand Final prior year → REDEMPTION does NOT fire (must be a Major)", () => {
         const snap = snapshotUnlocks()
         try {
             const save = makeSave({
                 currentWeek: 60,
                 tournaments: [
-                    { id: "iem_dallas_s1", name: "Dallas", tier: "A_TIER" } as TournamentSaveData,
-                    { id: "iem_dallas_s2", name: "Dallas", tier: "S_TIER" } as TournamentSaveData,
+                    { id: "masters_dallas_s1", name: "Dallas Masters", tier: "S_TIER" } as TournamentSaveData,
+                    { id: "major_copenhagen_s2", name: "Northern Major", tier: "S_TIER" } as TournamentSaveData,
                 ],
                 teams: [makeTeam("player", {
                     rosterIds: ["p1"],
-                    trophies: [{ tournamentId: "iem_dallas_s2", tournamentName: "Dallas", week: 55, tier: "S_TIER" }],
+                    trophies: [{ tournamentId: "major_copenhagen_s2", tournamentName: "Northern Major", week: 55, tier: "S_TIER" }],
                 })],
                 completedMatches: [
                     makeMatch({
                         id: "m_loss", week: 30,
                         home: "player", away: "ai_winner",
                         homeScore: 14, awayScore: 16,
-                        tournamentId: "iem_dallas_s1", // A_TIER
+                        tournamentId: "masters_dallas_s1", // S-tier, but not a Major
                         stage: "Grand Final",
                     }),
                 ],
@@ -220,17 +221,17 @@ describe("evaluatePostTickAchievements — REDEMPTION", () => {
         try {
             const save = makeSave({
                 currentWeek: 60,
-                tournaments: [{ id: "iem_dallas_s2", name: "Dallas", tier: "S_TIER" } as TournamentSaveData],
+                tournaments: [{ id: "major_copenhagen_s2", name: "Northern Major", tier: "S_TIER" } as TournamentSaveData],
                 teams: [makeTeam("player", {
                     rosterIds: ["p1"],
-                    trophies: [{ tournamentId: "iem_dallas_s2", tournamentName: "Dallas", week: 55, tier: "S_TIER" }],
+                    trophies: [{ tournamentId: "major_copenhagen_s2", tournamentName: "Northern Major", week: 55, tier: "S_TIER" }],
                 })],
                 completedMatches: [
                     makeMatch({
                         id: "m_loss", week: 30,
                         home: "player", away: "ai_winner",
                         homeScore: 1, awayScore: 2,
-                        tournamentId: "iem_dallas_s1",
+                        tournamentId: "major_copenhagen_s1",
                         stage: "Semifinal", // not Grand Final
                     }),
                 ],
@@ -306,6 +307,157 @@ describe("evaluatePostTickAchievements — UNLUCKY (14-16 Grand Final loss)", ()
 
             evaluatePostTickAchievements(save)
             expect(snap.unlocked.has("UNLUCKY")).toBe(false)
+        } finally {
+            snap.restore()
+        }
+    })
+})
+
+describe("evaluatePostTickAchievements — UNLUCKY in a series final", () => {
+    test("BO3 Grand Final lost 1-2 with a 14-16 map → UNLUCKY fires", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const save = makeSave({
+                currentWeek: 10,
+                completedMatches: [makeMatch({
+                    id: "m", week: 10, home: "player", away: "ai",
+                    homeScore: 1, awayScore: 2, stage: "Grand Final",
+                    maps: [[13, 8], [10, 13], [14, 16]],
+                })],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("UNLUCKY")).toBe(true)
+        } finally {
+            snap.restore()
+        }
+    })
+
+    test("BO3 Grand Final lost without a 14-16 map → UNLUCKY does NOT fire", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const save = makeSave({
+                currentWeek: 10,
+                completedMatches: [makeMatch({
+                    id: "m", week: 10, home: "player", away: "ai",
+                    homeScore: 0, awayScore: 2, stage: "Grand Final",
+                    maps: [[9, 13], [11, 13]],
+                })],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("UNLUCKY")).toBe(false)
+        } finally {
+            snap.restore()
+        }
+    })
+})
+
+describe("evaluatePostTickAchievements — Majors and flawless titles", () => {
+    const trophy = (tournamentId: string, week: number) => ({ tournamentId, tournamentName: tournamentId, week, tier: "S_TIER" })
+
+    test("an S_TIER title that is not a Major does NOT unlock WIN_MAJOR", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const save = makeSave({ teams: [makeTeam("player", { rosterIds: ["p1"], trophies: [trophy("masters_dallas_s1", 20)] })] })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("WIN_B_TIER")).toBe(false)
+            expect(snap.unlocked.has("WIN_MAJOR")).toBe(false)
+        } finally {
+            snap.restore()
+        }
+    })
+
+    test("both Majors in one season → WIN_MAJOR and GRAND_SLAM", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const save = makeSave({
+                currentWeek: 60,
+                teams: [makeTeam("player", { rosterIds: ["p1"], trophies: [trophy("major_copenhagen_s2", 55), trophy("major_shanghai_s2", 59)] })],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("WIN_MAJOR")).toBe(true)
+            expect(snap.unlocked.has("GRAND_SLAM")).toBe(true)
+        } finally {
+            snap.restore()
+        }
+    })
+
+    test("Majors in different seasons → no GRAND_SLAM", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const save = makeSave({
+                currentWeek: 60,
+                teams: [makeTeam("player", { rosterIds: ["p1"], trophies: [trophy("major_shanghai_s1", 40), trophy("major_copenhagen_s2", 55)] })],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("GRAND_SLAM")).toBe(false)
+        } finally {
+            snap.restore()
+        }
+    })
+
+    test("title won without dropping a map → PERFECT_TOURNAMENT", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const save = makeSave({
+                teams: [makeTeam("player", { rosterIds: ["p1"], trophies: [{ ...trophy("cup_s1", 20), tier: "A_TIER" }] })],
+                completedMatches: [
+                    makeMatch({ id: "a", week: 18, home: "player", away: "x", homeScore: 2, awayScore: 0, tournamentId: "cup_s1" }),
+                    makeMatch({ id: "b", week: 20, home: "y", away: "player", homeScore: 0, awayScore: 2, tournamentId: "cup_s1", stage: "Grand Final" }),
+                ],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("PERFECT_TOURNAMENT")).toBe(true)
+            expect(snap.unlocked.has("WIN_A_TIER")).toBe(true)
+        } finally {
+            snap.restore()
+        }
+    })
+
+    test("title won after dropping a map → no PERFECT_TOURNAMENT", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const save = makeSave({
+                teams: [makeTeam("player", { rosterIds: ["p1"], trophies: [{ ...trophy("cup_s1", 20), tier: "A_TIER" }] })],
+                completedMatches: [
+                    makeMatch({ id: "a", week: 18, home: "player", away: "x", homeScore: 2, awayScore: 1, tournamentId: "cup_s1" }),
+                    makeMatch({ id: "b", week: 20, home: "player", away: "y", homeScore: 2, awayScore: 0, tournamentId: "cup_s1", stage: "Grand Final" }),
+                ],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("PERFECT_TOURNAMENT")).toBe(false)
+        } finally {
+            snap.restore()
+        }
+    })
+})
+
+describe("evaluatePostTickAchievements — win count", () => {
+    test("other clubs' away wins do not count toward the player's wins", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const save = makeSave({
+                currentWeek: 10,
+                completedMatches: Array.from({ length: 12 }, (_, i) => makeMatch({
+                    id: `ai${i}`, week: 9, home: "ai_a", away: "ai_b", homeScore: 0, awayScore: 2,
+                })),
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("FIRST_WIN")).toBe(false)
+            expect(snap.unlocked.has("WIN_10")).toBe(false)
+        } finally {
+            snap.restore()
+        }
+    })
+
+    test("the player's away win counts", () => {
+        const snap = snapshotUnlocks()
+        try {
+            const save = makeSave({
+                currentWeek: 10,
+                completedMatches: [makeMatch({ id: "w", week: 9, home: "ai", away: "player", homeScore: 0, awayScore: 2 })],
+            })
+            evaluatePostTickAchievements(save)
+            expect(snap.unlocked.has("FIRST_WIN")).toBe(true)
         } finally {
             snap.restore()
         }

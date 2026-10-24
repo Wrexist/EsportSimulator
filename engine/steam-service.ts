@@ -27,7 +27,7 @@ export const ACHIEVEMENTS: Record<string, Omit<Achievement, 'unlocked' | 'unlock
     WIN_B_TIER: { id: "WIN_B_TIER", name: "Proving Grounds", description: "Win a B-Tier tournament", icon: "award", hidden: false },
     WIN_A_TIER: { id: "WIN_A_TIER", name: "Premier Champion", description: "Win an A-Tier tournament", icon: "award", hidden: false },
     WIN_MAJOR: { id: "WIN_MAJOR", name: "Major Champion", description: "Lift the trophy at a Major championship", icon: "crown", hidden: false },
-    GRAND_SLAM: { id: "GRAND_SLAM", name: "Grand Slam", description: "Win all 3 Majors in a single year", icon: "gem", hidden: true },
+    GRAND_SLAM: { id: "GRAND_SLAM", name: "Grand Slam", description: "Win both Majors in a single season", icon: "gem", hidden: true },
     DYNASTY: { id: "DYNASTY", name: "Dynasty", description: "Win 3 Major championships across your career", icon: "crown", hidden: false },
     PERFECT_TOURNAMENT: { id: "PERFECT_TOURNAMENT", name: "Flawless", description: "Win a tournament without dropping a single map", icon: "shield", hidden: false },
 
@@ -53,8 +53,8 @@ export const ACHIEVEMENTS: Record<string, Omit<Achievement, 'unlocked' | 'unlock
     FIRST_TRANSFER: { id: "FIRST_TRANSFER", name: "Dealmaker", description: "Complete your first player transfer", icon: "handshake", hidden: false },
 
     // ── Hidden Achievements ──
-    UNLUCKY: { id: "UNLUCKY", name: "Heartbreaker", description: "Lose a Grand Final in overtime 14-16", icon: "broken_heart", hidden: true },
-    REDEMPTION: { id: "REDEMPTION", name: "Redemption Arc", description: "Win a Major the year after losing one", icon: "refresh", hidden: true },
+    UNLUCKY: { id: "UNLUCKY", name: "Heartbreaker", description: "Lose a Grand Final on a map that ends 14-16 in overtime", icon: "broken_heart", hidden: true },
+    REDEMPTION: { id: "REDEMPTION", name: "Redemption Arc", description: "Win a Major the season after losing a Major Grand Final", icon: "refresh", hidden: true },
 }
 
 type ElectronWindow = typeof window & {
@@ -332,42 +332,26 @@ export class SteamService {
         } catch { /* Local progression must remain playable with unavailable storage. */ }
     }
 
-    // Rich Presence for Steam
-    async updateRichPresence(status: string, display: string): Promise<void> {
-        if (!this.electronBridge) return
-        try {
-            if (this.electronBridge.setRichPresence) {
-                await this.electronBridge.setRichPresence("status", status)
-                await this.electronBridge.setRichPresence("steam_display", "#Status")
-            }
-        } catch (e) {
-            debug.warn("[Steam] Rich presence not available")
-        }
-    }
-
     /**
-     * Update Rich Presence with detailed game state
+     * Rich Presence shown in the Steam friends list. Steam only displays
+     * `steam_display` when it names a token from the Rich Presence
+     * localization file uploaded in Steamworks
+     * (steamworks/rich-presence/*.vdf); %team%, %season%, %week% and %rank% are
+     * substituted from the keys set here. `status` is the plain-text
+     * fallback some Steam surfaces still read.
      */
     async updateGameStatePresence(state: {
         teamName: string
         week: number
         ranking?: number
-        tournament?: string
-        activity?: string
     }): Promise<void> {
         if (!this.electronBridge?.setRichPresence) return
         try {
-            const { teamName, week, ranking, tournament, activity } = state
-
-            let status = `Managing ${teamName} | Week ${week}`
-            if (ranking) status += ` | #${ranking}`
-
-            let display = activity || "In Game"
-            if (tournament) display = `Playing ${tournament}`
-
-            await this.electronBridge.setRichPresence("status", status)
-            await this.electronBridge.setRichPresence("steam_display", "#Status")
-        } catch (e) {
+            const presence = buildRichPresence(state)
+            for (const [key, value] of Object.entries(presence)) {
+                await this.electronBridge.setRichPresence(key, value)
+            }
+        } catch {
             debug.warn("[Steam] Rich presence update failed")
         }
     }
@@ -422,30 +406,54 @@ export class SteamService {
 
 export const steamService = SteamService.getInstance()
 
+/** Tokens defined in steamworks/rich-presence/*.vdf. Keep the two in sync. */
+export const RICH_PRESENCE_TOKENS = ["#Status_Managing", "#Status_Ranked"] as const
+
+const PRESENCE_VALUE_MAX = 64
+
+/** Rich Presence keys for the current career, in the order they should be set. */
+export function buildRichPresence(state: { teamName: string; week: number; ranking?: number }): Record<string, string> {
+    const team = state.teamName.trim().slice(0, PRESENCE_VALUE_MAX) || "a club"
+    // currentWeek counts from the start of the career; show it as season + week.
+    const absoluteWeek = Math.max(1, Math.floor(Number.isFinite(state.week) ? state.week : 1))
+    const season = String(Math.ceil(absoluteWeek / 52))
+    const week = String(((absoluteWeek - 1) % 52) + 1)
+    const ranked = typeof state.ranking === "number" && Number.isFinite(state.ranking) && state.ranking >= 1
+    const presence: Record<string, string> = { team, season, week }
+    if (ranked) presence.rank = String(Math.floor(state.ranking as number))
+    presence.status = `Managing ${team} | Season ${season}, Week ${week}${ranked ? ` | World #${presence.rank}` : ""}`
+    // steam_display last, so Steam never renders a token before its substitutions exist.
+    presence.steam_display = ranked ? "#Status_Ranked" : "#Status_Managing"
+    return presence
+}
+
 export function checkAchievements(gameState: {
     totalWins?: number
     worldRanking?: number
     leagueTier?: string
     startingLeagueTier?: string // Track initial tier for ZERO_TO_HERO
     budget?: number
-    tournamentsWon?: { tier: string; id: string; flawless?: boolean }[]
+    tournamentsWon?: { tier: string; id: string; major?: boolean; flawless?: boolean }[]
     hallOfFamePlayers?: number
     totalKills?: number
     totalHS?: number
     matchesPlayed?: number
     firstTournamentParticipation?: boolean
     developedStar?: boolean
-    majorWinsInSeason?: number
+    majorWinsInSeason?: number // Majors (major_* events) won this season
     totalMajorWins?: number
     comebackWin?: boolean // Won a match after being down 12-3 or worse
     underdogWin?: boolean // Beat a team ranked 20+ higher
     loyalTeamYears?: number // Years with same 5 players
     profitableSale?: boolean // Sold player for more than paid
-    lostGrandFinal1614?: boolean // Lost Grand Final 16-14
-    redemptionArc?: boolean // Won Major after losing one previous year
+    lostGrandFinal1614?: boolean // Lost a Grand Final on a 14-16 map
+    redemptionArc?: boolean // Won a Major the season after losing a Major Grand Final
     wonTournament?: boolean // Won any tournament (placement === 1)
     seasonComplete?: boolean // Completed a full 52-week season
     completedTransfer?: boolean // Completed a player transfer
+    titlesWon?: number
+    matchesLost?: number
+    prizeMoney?: number
 }): void {
     const service = SteamService.getInstance()
 
@@ -469,12 +477,13 @@ export function checkAchievements(gameState: {
 
     // Tournament Achievements
     if (gameState.firstTournamentParticipation) service.unlockAchievement("FIRST_TOURNAMENT")
-    if (gameState.majorWinsInSeason && gameState.majorWinsInSeason >= 3) service.unlockAchievement("GRAND_SLAM")
+    // The calendar has two Majors a season.
+    if (gameState.majorWinsInSeason && gameState.majorWinsInSeason >= 2) service.unlockAchievement("GRAND_SLAM")
 
     if (gameState.tournamentsWon) {
         if (gameState.tournamentsWon.some(t => t.tier === "B_TIER")) service.unlockAchievement("WIN_B_TIER")
         if (gameState.tournamentsWon.some(t => t.tier === "A_TIER")) service.unlockAchievement("WIN_A_TIER")
-        if (gameState.tournamentsWon.some(t => t.tier === "S_TIER")) service.unlockAchievement("WIN_MAJOR")
+        if (gameState.tournamentsWon.some(t => t.major)) service.unlockAchievement("WIN_MAJOR")
         if (gameState.tournamentsWon.some(t => t.flawless)) service.unlockAchievement("PERFECT_TOURNAMENT")
     }
 
@@ -511,6 +520,11 @@ export function checkAchievements(gameState: {
         headshots: gameState.totalHS,
         wins: gameState.totalWins,
         matches: gameState.matchesPlayed,
-        budget: gameState.budget
+        budget: gameState.budget,
+        tournamentsWon: gameState.titlesWon,
+        majorsWon: gameState.totalMajorWins,
+        matchesLost: gameState.matchesLost,
+        peakRanking: gameState.worldRanking,
+        prizeMoney: gameState.prizeMoney,
     })
 }
