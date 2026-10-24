@@ -2,6 +2,7 @@ import { Player, PLAYER_STAT_CONSTRAINTS } from "@/types/player"
 import { calculateProPrestigeScore } from "./prestige-system"
 import { SeededRNG, generateSeed } from "./rng"
 import { CONDITION_TUNING } from "@/lib/balance-tuning"
+import { ageDeclineChance, naturalGrowthChance } from "./development-rates"
 
 /**
  * Subset of player fields used by processWeeklyUpdates and its internal helpers.
@@ -84,14 +85,11 @@ export class PlayerLifecycleManager {
         if (age > 24 || p.isRetired === true) return
         const potential = (typeof p.potential === "number" ? p.potential : 75)
         const skill = player.skill ?? 50
-        const headroom = potential - skill
-        if (headroom <= 0) return
-
         // Younger + more headroom = more likely. Scales with the gap; peaks
         // around a couple of points per season for a raw high-ceiling teenager,
         // tapering to near-zero as they approach potential.
-        const ageFactor = age <= 19 ? 1 : age <= 21 ? 0.7 : age <= 23 ? 0.45 : 0.25
-        const growthChance = Math.min(0.04, (headroom / 100) * 0.18 * ageFactor)
+        const growthChance = naturalGrowthChance(age, skill, potential)
+        if (growthChance <= 0) return
         if (this.roll(rng) >= growthChance) return
 
         // Grow a random developing stat that still has room, capped at potential.
@@ -145,7 +143,7 @@ export class PlayerLifecycleManager {
         // 28yo: ~0.2% chance/week (~10% per year — gentle decline)
         // 32yo: ~1.0% chance/week (~52% chance of at least one decline per year)
         // 36yo: ~1.8% chance/week (~more frequent but still manageable)
-        const declineChance = Math.min(0.03, (player.age - 27) * 0.002)
+        const declineChance = ageDeclineChance(player.age)
 
         if (this.roll(rng) < declineChance) {
             this.applyAgingDecline(player, rng)

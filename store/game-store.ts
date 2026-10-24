@@ -127,6 +127,7 @@ import { foldWeeklyDigest } from "@/lib/inbox-digest"
 import { normalizeDecisions } from "@/engine/decision-deadlines"
 import drillCatalog from "@/data/drills.json"
 import { formatCurrency } from "@/lib/utils-extended"
+import { DEFAULT_TEAM_TRAINING } from "@/engine/development-outlook"
 
 enableMapSet()
 
@@ -2041,7 +2042,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // every AI roster. Bounded by potential, with fatigue as the brake.
           const trainingFocus = new Map<string, { focus: TrainingFocus; intensity: number }>()
           if (state.playerTeamId) {
-            trainingFocus.set(state.playerTeamId, { focus: TrainingFocus.AIM, intensity: 5 })
+            trainingFocus.set(state.playerTeamId, { ...DEFAULT_TEAM_TRAINING })
           }
 
           const config = {

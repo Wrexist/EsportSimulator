@@ -38,6 +38,7 @@ import { PlayerSignatureMoments } from "./PlayerSignatureMoments"
 import { PlayerCareerRecord } from "./PlayerCareerRecord"
 import { PlayerAttributes, ATTRIBUTE_FOOTNOTE } from "./PlayerAttributes"
 import { PlayerRadar } from "./PlayerRadar"
+import { DevelopmentOutlook } from "./DevelopmentOutlook"
 import { PersonalityChips } from "./PersonalityChips"
 import { PersonalityPanel } from "./PersonalityPanel"
 import { PlayerStorylines } from "@/components/storylines/PlayerStorylines"
@@ -397,6 +398,8 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                 <Kpi label="Talent points" value={player.talentPoints || 0} hint="One per level" />
                                 <Kpi label="Potential" value={potential} hint="Training stops here" />
                             </KpiStrip>
+
+                            {isOwnPlayer && <DevelopmentOutlook player={player} />}
 
                             {activeRoleTraining && (
                                 <Panel title="Role retraining">
