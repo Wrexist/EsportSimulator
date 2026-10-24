@@ -15,6 +15,9 @@ import { angle, round3, roundPoint, type Step, type XY } from "./round-script-co
 import { clipKeys, roundKeys, toKeys, UTILITY_SECONDS } from "./round-script-tracks"
 import { sampleTrack } from "./round-script-sample"
 import { expandLegs, type RoundMoves } from "./round-sim/moves"
+import { loosenTracks, MAX_DRIFT, type Pins } from "./round-script-motion"
+import { HE_DAMAGE_RADIUS } from "./grenade-damage"
+import { walkAreaFor } from "./round-script-walkable"
 import type {
     RoundMap, RoundScript, RPoint, ScriptBomb, ScriptDeath, ScriptUtility, Side, SiteId, TrackKey, UtilityKind,
 } from "./round-script-types"
@@ -26,6 +29,9 @@ const { max } = Math
 const FREE_RADIUS: Record<UtilityKind, number> = { smoke: 2.5, molotov: 1.6, he: 1.2, flash: 2 }
 /** Seconds a killer turns onto the victim before the shot. */
 const AIM_LEAD = 0.3
+/** Seconds a plant takes (round-sim/simulate.ts PLANT_TIME) and a defuse with a kit (without: twice that). */
+const PLANT_TIME = 3.2
+const DEFUSE_KIT_TIME = 5
 
 /** Whether a round carries movement this map can replay. */
 export function hasMoves(round: Pick<RoundResult, "moves">): boolean {
@@ -35,9 +41,13 @@ export function hasMoves(round: Pick<RoundResult, "moves">): boolean {
 
 /**
  * The radar script of a sight-v1 round. `ctIds` are the players on CT this
- * round. Throws on a record that does not fit the map (the caller falls back).
+ * round. Players are drawn a little off the engine's exact line
+ * (round-script-motion.ts) unless `opts.loosen` is false. Throws on a record
+ * that does not fit the map (the caller falls back).
  */
-export function scriptFromMoves(round: RoundResult, mapId: string, map: RoundMap, ctIds: ReadonlySet<string>): RoundScript {
+export function scriptFromMoves(
+    round: RoundResult, mapId: string, map: RoundMap, ctIds: ReadonlySet<string>, opts: { loosen?: boolean } = {},
+): RoundScript {
     const moves = round.moves as RoundMoves
     const g = navGraphFor(map)
     const events = round.events ?? []
@@ -64,8 +74,32 @@ export function scriptFromMoves(round: RoundResult, mapId: string, map: RoundMap
             const s = steps[i], nx = steps[i + 1]
             if ((!nx || nx.node === s.node) && watch.has(s.node)) s.look = watch.get(s.node)
         }
-        raw.set(id, clipKeys(toKeys(g, steps), deathT.get(id) ?? endTime))
+        const until = deathT.get(id) ?? endTime
+        const keys = clipKeys(toKeys(g, steps), until)
+        // Standing still to the end: one key there, so the radar's loosening covers the whole hold.
+        const last = keys[keys.length - 1]
+        if (last && last.t < until - 0.05) keys.push({ ...last, t: until })
+        raw.set(id, keys)
     })
+    const sideOf: Record<string, Side> = {}
+    for (const id of moves.ids) sideOf[id] = ctIds.has(id) ? "CT" : "T"
+    const utility = utilityOf(round, map, g)
+    if (opts.loosen !== false) {
+        const pins = pinsOf(round, moves)
+        // Whoever stood near an HE when it went off stays put: a drift must not walk them into (or out of) the blast.
+        for (const u of utility) {
+            if (u.kind !== "he") continue
+            for (const [id, track] of raw) {
+                if (!track.length || track[0].t > u.t || track[track.length - 1].t < u.t) continue
+                const p = sampleTrack(track, u.t)
+                if (Math.hypot(p.x - u.at.x, p.y - u.at.y) >= HE_DAMAGE_RADIUS + MAX_DRIFT) continue
+                let list = pins.get(id)
+                if (!list) pins.set(id, list = [])
+                list.push([u.t - 0.3, u.t + 0.3])
+            }
+        }
+        loosenTracks(raw, sideOf, pins, walkAreaFor(mapId), map.runSpeed, `${mapId}:${round.roundNumber}`)
+    }
     const at = (id: string, t: number): RPoint | undefined => {
         const track = raw.get(id)
         if (!track?.length) return undefined
@@ -90,7 +124,7 @@ export function scriptFromMoves(round: RoundResult, mapId: string, map: RoundMap
     const sides: Record<string, Side> = {}
     for (const id of moves.ids) {
         tracks[id] = roundKeys(raw.get(id) ?? [])
-        sides[id] = ctIds.has(id) ? "CT" : "T"
+        sides[id] = sideOf[id]
     }
 
     return {
@@ -105,10 +139,37 @@ export function scriptFromMoves(round: RoundResult, mapId: string, map: RoundMap
         sides,
         tracks,
         deaths,
-        utility: utilityOf(round, map, g),
+        utility,
         bomb: bombOf(round, moves, g),
         endTime,
     }
+}
+
+/**
+ * Moments the radar shows a player exactly where the engine had them: their
+ * kills and deaths, grenade hits, planting, defusing and picking up the bomb.
+ */
+function pinsOf(round: RoundResult, moves: RoundMoves): Pins {
+    const pins: Pins = new Map()
+    const pin = (id: string | undefined, a: number, b: number) => {
+        if (!id) return
+        let list = pins.get(id)
+        if (!list) pins.set(id, list = [])
+        list.push([a, b])
+    }
+    for (const e of round.events ?? []) {
+        if (e.type === "KILL") { pin(e.playerId, e.time - AIM_LEAD - 0.1, e.time); pin(e.victimId, e.time - 0.4, e.time) }
+        else if (e.type === "PLANT") pin(e.playerId, e.time - PLANT_TIME - 0.2, e.time + 0.3)
+        else if (e.type === "DEFUSE") pin(e.playerId, e.time - DEFUSE_KIT_TIME * 2 - 0.2, e.time)
+    }
+    // Grenade victims stand where the engine hit them (in the fire, inside the blast).
+    for (const u of round.utility ?? []) if (u.hit) pin(u.hit, u.t - 0.5, u.t + 0.5)
+    const b = moves.bomb
+    for (let i = 0; i + 2 < b.length; i += 3) {
+        const t = b[i] / 100, who = b[i + 1]
+        if (who >= 0) pin(moves.ids[who], t - 0.3, t + 0.3)
+    }
+    return pins
 }
 
 /** Point the killer's aim at the victim for the moment of the kill. */
