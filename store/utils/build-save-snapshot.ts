@@ -60,7 +60,7 @@ export function buildSaveSnapshot(state: SaveSnapshotState): GameSave {
         autoTactics: state.autoTactics === true,
         watchlistedPlayerIds: state.watchlistedPlayerIds ?? [],
         savedSearches: state.savedSearches ? structuredClone(state.savedSearches) : [],
-        ...(state.mapRecords ? { mapRecords: structuredClone(state.mapRecords) } : {}),
+        mapRecords: state.mapRecords ? structuredClone(state.mapRecords) : undefined,
         activeMatchId: state.activeMatchId ?? null,
         activeMatchState: state.activeMatchState ?? null,
         physicalMatchPreview: state.physicalMatchPreview ? structuredClone(state.physicalMatchPreview) : null,

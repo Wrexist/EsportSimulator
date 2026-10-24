@@ -815,6 +815,7 @@ function sentinelCareer(): GameSave {
         league: { version: 1, history: [{ id: "rt-split", season: 1, split: 1, divisions: [] }] },
         careerStats: { seasons: [], totalSeasons: 1, totalMatches: 20, totalWins: 12, totalLosses: 8, totalTournamentWins: 1, totalPrizeMoney: 5000, peakWorldRanking: 3, peakElo: 1700, teamsManaged: [team], lastUpdatedWeek: 9 },
         boardState: { teamId: team, confidence: 38, seasonExpectation: "CONTEND", expectationSetSeason: 1, lastReviewedSeason: 0, onNotice: true, lastPulseWeek: 8 },
+        mapRecords: { current: { season: 1, teams: { [team]: { Mirage: [2, 1, 30, 16, 28, 13] } } } },
         socialFeed: [{ id: "rt-post", week: 8, user: { name: "n", handle: "h", avatar: "a" }, content: "rt", timestamp: "now", likes: 1, retweets: 0, replies: 0 }],
     } as Partial<GameSave>)
 }
