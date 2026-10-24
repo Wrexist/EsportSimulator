@@ -53,6 +53,8 @@ export interface GameSave {
     savedSearches?: SavedMarketSearch[]
     /** G6: chores delegated to staff (engine/delegation.ts). */
     delegation?: import("./delegation").DelegationSettings
+    /** G14: this career started in a randomised world. */
+    randomWorld?: boolean
     /** G7: the Draft Cup run this save plays (absent on a normal career). */
     draftCup?: import("./draft-cup").DraftCupState
     /** G2: per-season map, side, buy and plan tallies (engine/map-record.ts). */

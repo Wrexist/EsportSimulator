@@ -128,6 +128,8 @@ export default function TeamSelectionPage() {
     // in new ones. Was hardcoded to 1, which left every above-Rookie team locked.
     const [managerLevel, setManagerLevel] = useState(1)
     const [sandboxMode, setSandboxMode] = useState(false)
+    // G14: new players and rosters shuffled between clubs of the same tier.
+    const [randomWorld, setRandomWorld] = useState(false)
 
     useEffect(() => {
         loadCareerProfile().then(p => setManagerLevel(Math.max(1, p.peakLevel))).catch(() => { })
@@ -332,7 +334,7 @@ export default function TeamSelectionPage() {
         startingRef.current = true
         setIsStarting(true)
         try {
-            await initializeNewGame(managerName.trim() || "My Career", placeholder.id, undefined, { unemployed: true })
+            await initializeNewGame(managerName.trim() || "My Career", placeholder.id, undefined, { unemployed: true, randomWorld })
             if (useGameStore.getState().error) throw Error(useGameStore.getState().error!)
             clearCareerDraft()
             void recordNewCampaign()
@@ -354,7 +356,7 @@ export default function TeamSelectionPage() {
         setIsStarting(true)
         try {
             // Pass manager name to initializeNewGame (using it as save name for now)
-            await initializeNewGame(managerName.trim() || "My Career", selectedTeam.id)
+            await initializeNewGame(managerName.trim() || "My Career", selectedTeam.id, undefined, { randomWorld })
             if (useGameStore.getState().error) throw Error(useGameStore.getState().error!)
             clearCareerDraft()
             void recordNewCampaign()
@@ -435,6 +437,14 @@ export default function TeamSelectionPage() {
                             />
                             {managerNameError && <p id="manager-name-error" className="text-xs font-medium text-negative">{managerNameError}</p>}
                         </div>
+
+                        <label className="mt-5 flex items-start gap-3 text-sm text-ink-1">
+                            <Switch checked={randomWorld} onCheckedChange={setRandomWorld} aria-describedby="random-world-hint" className="mt-0.5" />
+                            <span>
+                                <span className="font-semibold">Randomised world</span>
+                                <span id="random-world-hint" className="mt-0.5 block text-xs text-ink-3">New player names and faces, ratings moved a little, and rosters shuffled between clubs of the same tier and region. For existing-team and no-club starts.</span>
+                            </span>
+                        </label>
 
                         <div className="mt-8 space-y-2">
                             <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between px-4 py-3 text-left">
@@ -635,6 +645,9 @@ export default function TeamSelectionPage() {
                                             {selectedRoster.length} / 5{selectedRoster.length < 5 ? ` · sign ${5 - selectedRoster.length} before your first match` : ""}
                                         </span>
                                     </div>
+                                    {randomWorld ? (
+                                        <p className="border-t border-line px-5 py-3 text-sm text-ink-2">Randomised world: this club gets the roster of another club in its tier and region, with new players, when the career starts. Rank, budget and expectations stay with the club.</p>
+                                    ) : (
                                     <table data-slot="table" className="w-full border-collapse text-left">
                                         <tbody>
                                             {selectedRoster.map(player => (
@@ -658,6 +671,7 @@ export default function TeamSelectionPage() {
                                             ))}
                                         </tbody>
                                     </table>
+                                    )}
                                 </section>
 
                                 {challenge && (

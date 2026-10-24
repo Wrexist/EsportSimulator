@@ -172,6 +172,8 @@ export interface IndexesState {
 /** Options for a new career: start between clubs (G9), or a Draft Cup run (G7). */
 export interface NewGameOptions {
   unemployed?: boolean
+  /** G14: randomise the world (engine/random-world.ts). */
+  randomWorld?: boolean
   draftCup?: { world: import("@/engine/save-types").GameSave; setup: DraftCupSetup }
 }
 

@@ -133,6 +133,7 @@ import drillCatalog from "@/data/drills.json"
 import { formatCurrency } from "@/lib/utils-extended"
 import { DEFAULT_TEAM_TRAINING } from "@/engine/development-outlook"
 import { chooseLiveCheckpoint, liveCheckpointStore } from "@/lib/live-checkpoint-store"
+import { randomizeWorld } from "@/engine/random-world"
 
 enableMapSet()
 
@@ -1233,6 +1234,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (!newSave) {
             throw new Error("Failed to create save from snapshot")
           }
+          if (options?.randomWorld && !draftCup) randomizeWorld(newSave)
 
           await steamAchievements.setActiveSave(newSave.saveId)
           // Initialize Phase 18: The Empire fields for new save
