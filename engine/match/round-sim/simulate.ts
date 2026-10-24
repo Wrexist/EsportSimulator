@@ -817,6 +817,7 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
     const edge = max(-0.2, min(0.2, T.READ_IGL * ((ctSide.call - tSide.call) / 50) * input.tacticalWeight + T.READ_COUNTER * counter))
     const predictable = T.PLAYBOOK_READ_PER_REPEAT * repeats
     let read: PlanState["read"] = "none"
+    let callRead = false
     if (fixedSetup === "stack-A" || fixedSetup === "stack-B") {
         // The manager chose where to stack: it is right only if the Ts come there.
         read = (fixedSetup === "stack-A") === (site === "A") ? "right" : "wrong"
@@ -824,20 +825,18 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
         const onSite = rng.bool(max(0.3, min(0.7, 0.5 + edge)) + predictable)
         setup = onSite ? (site === "A" ? "stack-A" : "stack-B") : (site === "A" ? "stack-B" : "stack-A")
         read = onSite ? "right" : "wrong"
+        callRead = onSite && predictable > 0
     } else {
         const roll = rng.next()
         const right = max(0.05, min(0.35, T.READ_RIGHT_BASE + edge)) + predictable
         const wrong = max(0.02, min(0.15, T.READ_WRONG_BASE - edge / 2))
         read = roll < right ? "right" : roll < right + wrong ? "wrong" : "none"
-        // A call they have seen again and again: the CTs who read it stack for it. A call
-        // with a fixed site is stacked on that site; for a site-free call they know the
-        // play but have to guess the site (a sharper caller guesses better).
-        if (read === "right" && predictable > 0 && !fixedSetup) {
-            const onSite = calls?.t?.site ? true : rng.bool(max(0.3, min(0.7, 0.5 + edge)))
-            const stackOn: SiteId = onSite ? site : site === "A" ? "B" : "A"
-            setup = stackOn === "A" ? "stack-A" : "stack-B"
-            if (!onSite) read = "wrong"
-        }
+        // A call they have seen again and again: the CTs who read it stack the site it hits.
+        // The read is of the play as it develops, so mixing sites with the same call does
+        // not hide it (measured: with a 50/50 site guess a fixed rush beat the IGL's mix
+        // by 15 map points, since an unread rush wins most full buys).
+        callRead = read === "right" && predictable > 0
+        if (callRead && !fixedSetup) setup = site === "A" ? "stack-A" : "stack-B"
     }
 
     const S = R.z.sites[site]
@@ -856,8 +855,7 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
             break
         default: execAt = rng.range(52, 82)
     }
-    const readCall = read === "right" && predictable > 0
-    return { strategy, site, setup, read, execAt, fakeAt, ecoRush, ...(readCall ? { readCall } : {}) }
+    return { strategy, site, setup, read, execAt, fakeAt, ecoRush, ...(callRead ? { readCall: true } : {}) }
 }
 
 // ─── Jobs ──────────────────────────────────────────────────────────────────

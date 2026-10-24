@@ -30,17 +30,16 @@ describe("playbook calls in the round plan", () => {
         expect(ctFull).toBeGreaterThan(5)
     })
 
-    test("a call that keeps repeating is read more often; a site-free call keeps them guessing the site", () => {
+    test("a call that keeps repeating is read more often, with or without a fixed site", () => {
         const everywhere = (call: { strategy: "execute"; site?: "A" }): Playbook => ({ [MapId.MIRAGE]: { t: { pistol: call, force: call, full: call } } })
         const readRate = (book: Playbook | undefined) => {
             let n = 0, right = 0
             for (let i = 0; i < 12; i++) for (const r of rounds(play(book, i))) if (r.tTeam === "HOME" && r.buys?.home === "FULL") { n++; if (r.plan?.read === "right") right++ }
             return right / n
         }
-        const auto = readRate(undefined), siteFree = readRate(everywhere({ strategy: "execute" })), onA = readRate(everywhere({ strategy: "execute", site: "A" }))
-        expect(onA).toBeGreaterThan(auto + 0.2)
-        expect(siteFree).toBeGreaterThan(auto + 0.05)
-        expect(siteFree).toBeLessThan(onA - 0.1)
+        const auto = readRate(undefined)
+        expect(readRate(everywhere({ strategy: "execute" }))).toBeGreaterThan(auto + 0.2)
+        expect(readRate(everywhere({ strategy: "execute", site: "A" }))).toBeGreaterThan(auto + 0.2)
     })
 
     test("no playbook: the series plays exactly as before (other maps' calls change nothing)", () => {
