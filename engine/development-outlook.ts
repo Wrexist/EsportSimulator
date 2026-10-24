@@ -14,7 +14,7 @@ import type { PlayerSaveData, StaffSaveData, TeamSaveData } from "./save-types"
 import { facilityLevel, staffDevelopmentEffects } from "./organization-effects"
 import { ARCHETYPE_INFO, getArchetype, mentorTrainingFactor, trainingFactor } from "./personality"
 import { isFeatureUnlocked } from "./talent-trees"
-import { ageDeclineChance, naturalGrowthChance } from "./development-rates"
+import { ageDeclineChance, naturalGrowthChance, naturalGrowthPerWeek } from "./development-rates"
 
 export { ageDeclineChance, naturalGrowthChance }
 
@@ -122,7 +122,9 @@ export function developmentOutlook(input: {
         return { stat, now, after: Math.min(cap, now + perWeek * weeks) }
     })
     const primary = effects.primaryStats[0] as string | undefined
-    const weeklyGain = primary ? ((gains as Record<string, number | undefined>)[primary] ?? 0) * multiplier : 0
+    const weeklyGain = primary
+        ? ((gains as Record<string, number | undefined>)[primary] ?? 0) * multiplier * (["tactic", "leader", "teamwork"].includes(primary) ? tacticalMultiplier : 1)
+        : 0
 
     const skill = player.skill ?? 50
     const headroom = Math.max(0, ...trained.map(s => potential - Number((player as unknown as Record<string, unknown>)[s] ?? potential)), potential - skill)
@@ -136,7 +138,7 @@ export function developmentOutlook(input: {
         factors,
         forecast,
         weeks,
-        naturalPerSeason: naturalGrowthChance(age, skill, potential) * WEEKS_PER_SEASON,
+        naturalPerSeason: naturalGrowthPerWeek(player as unknown as Record<string, unknown>) * WEEKS_PER_SEASON,
         declinePerSeason: ageDeclineChance(age) * WEEKS_PER_SEASON,
         breakthrough,
         atCeiling: headroom <= 0,

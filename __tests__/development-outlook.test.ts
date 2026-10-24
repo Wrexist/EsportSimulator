@@ -107,5 +107,19 @@ describe("developmentOutlook", () => {
         const young = makePlayer("p5", { age: 18 })
         const save = makeSave(makeTeam({ rosterIds: ["p5"] }), [young])
         expect(outlookFor(save, young).naturalPerSeason).toBeCloseTo(naturalGrowthChance(18, 50, 90) * 52, 9)
+        // Only skill below potential: one pick in six adds a point.
+        const capped = makePlayer("p6", { age: 18, potential: 60, skill: 50, rifle: 60, reaction: 60, clutch: 60, tactic: 60, awp: 60 })
+        const save2 = makeSave(makeTeam({ rosterIds: ["p6"] }), [capped])
+        expect(outlookFor(save2, capped).naturalPerSeason).toBeCloseTo(naturalGrowthChance(18, 50, 60) * 52 / 6, 9)
+    })
+
+    test("the weekly gain counts the tactical multiplier for a tactics focus", () => {
+        const p = makePlayer("p7", { trainingFocus: TrainingFocus.TACTICS } as Partial<PlayerSaveData>)
+        const plain = outlookFor(makeSave(makeTeam({ rosterIds: ["p7"] }), [p]), p)
+        const withRoom = outlookFor(makeSave(makeTeam({ rosterIds: ["p7"], facilities: [{ id: "f", type: "TACTICAL", level: 2 }] as never }), [p]), p)
+        expect(plain.weeklyGain).toBeGreaterThan(0)
+        expect(withRoom.weeklyGain / plain.weeklyGain).toBeCloseTo(1.4, 6)
+        const primary = withRoom.forecast[0]
+        expect((primary.after - primary.now) / 12).toBeCloseTo(withRoom.weeklyGain, 6)
     })
 })

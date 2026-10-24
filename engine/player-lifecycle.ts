@@ -2,7 +2,7 @@ import { Player, PLAYER_STAT_CONSTRAINTS } from "@/types/player"
 import { calculateProPrestigeScore } from "./prestige-system"
 import { SeededRNG, generateSeed } from "./rng"
 import { CONDITION_TUNING } from "@/lib/balance-tuning"
-import { ageDeclineChance, naturalGrowthChance } from "./development-rates"
+import { ageDeclineChance, naturalGrowthChance, NATURAL_GROWTH_STATS } from "./development-rates"
 
 /**
  * Subset of player fields used by processWeeklyUpdates and its internal helpers.
@@ -93,7 +93,7 @@ export class PlayerLifecycleManager {
         if (this.roll(rng) >= growthChance) return
 
         // Grow a random developing stat that still has room, capped at potential.
-        const growableStats = ['skill', 'rifle', 'reaction', 'clutch', 'tactic', 'awp']
+        const growableStats = NATURAL_GROWTH_STATS
         const stat = growableStats[Math.floor(this.roll(rng) * growableStats.length)]
         const cur = p[stat]
         if (typeof cur === 'number' && cur < potential && cur < 100) {
