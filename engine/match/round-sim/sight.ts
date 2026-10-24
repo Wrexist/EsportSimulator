@@ -1164,10 +1164,18 @@ function planted(C: Ctx, t: number): void {
         b.task = "retake"
         setQueue(b, [{ node: stage, at: t + rnd(R, P.retake).range(0.5, 2), pace: RUN, look: bomb }])
     }
-    const sorted = cts.map(b => t + 1 + g.pathDist(b.node, shortOf(g, b.node, C.bombNode, T.SIGHT_RETAKE_STAGE)) / (g.map.runSpeed * PACES[RUN])).sort((a, b) => a - b)
+    const sorted = cts.map(b => t + 1 + walked(g, b.node, shortOf(g, b.node, C.bombNode, T.SIGHT_RETAKE_STAGE)) / (g.map.runSpeed * PACES[RUN])).sort((a, b) => a - b)
     C.retakeAt = min(max(sorted[min(sorted.length - 1, 1)] ?? t + 3, t + 2), retakeDeadline(C) - 10)
     // Down in numbers on the plant: the CTs may give the round up at once.
     if (countAlive(R.T) && wantsSave(C, t)) ctSave(C, t)
+}
+
+/** Walking length of the path from a to b: its edge costs, without the detour cost that steers paths around spots. */
+function walked(g: NavGraph, a: number, b: number): number {
+    const path = g.path(a, b)
+    let d = 0
+    for (let i = 1; i < path.length; i++) d += g.cost(path[i - 1], path[i])
+    return d
 }
 
 const kitTime = (C: Ctx) => (C.CTs.some(b => b.a.alive && b.a.kit) ? 5 : 10)
