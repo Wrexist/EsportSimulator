@@ -12,11 +12,16 @@
  * (RoundResult.plan / .utility, MatchEvent.zone); the builder uses them, so
  * the radar shows the site, timing, smokes and fight places the engine
  * decided, also after a resume.
+ *
+ * Rounds from the sight engine also carry every player's walk
+ * (RoundResult.moves): the radar then replays those positions exactly
+ * (round-script-moves.ts) instead of rebuilding them from the events.
  */
 
 import type { MatchEvent, RoundResult } from "@/types"
 import type { LegacySeriesContext } from "@/engine/match/legacy-series"
 import { buildRoundScript, prepareRoundMap, scriptInputFromResolverRound, type ResolverLoadout } from "@/engine/match/round-script"
+import { hasMoves, scriptFromMoves } from "@/engine/match/round-script-moves"
 import type { RPoint, RoundMap, RoundScript, SiteId } from "@/engine/match/round-script-types"
 import { roundMapFor } from "@/data/round-maps"
 import { calloutOf } from "@/engine/match/round-sim/zones"
@@ -79,6 +84,16 @@ const lineup = (side: LiveScriptSeries["home"]) => ({
 export function buildLiveRoundScript(src: LiveRoundScriptSource): LiveRoundScript | null {
     const map = liveRoundMap(src.mapId)
     if (!map || !src.round?.events?.length) return null
+    if (hasMoves(src.round)) {
+        try {
+            const ct = src.round.ctTeam === src.ctx.home.team.id ? src.ctx.home : src.ctx.away
+            const script = scriptFromMoves(src.round, src.mapId, map, new Set(ct.players.map(p => p.id)))
+            return { script, map, mapId: src.mapId, mapIndex: src.mapIndex, roundNumber: src.round.roundNumber }
+        } catch (error) {
+            // A record that does not fit this map: rebuild from the events below.
+            if (process.env.NODE_ENV !== "production") console.warn("[radar] moves replay failed", error)
+        }
+    }
     try {
         const input = scriptInputFromResolverRound({
             mapId: src.mapId,

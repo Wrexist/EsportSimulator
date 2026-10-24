@@ -1,10 +1,11 @@
 "use client"
 
-import { memo, type ReactNode } from "react"
+import { memo, useMemo, type ReactNode } from "react"
 import { Swords, Zap as ZapIcon, EyeOff, Coins, Shield, Sparkles, Bomb } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { LogEntry } from "@/types"
 import { WeaponGlyph, HeadshotMark } from "@/components/match/WeaponGlyph"
+import { feedClockLabels } from "@/lib/live-feed-clock"
 
 // Stable React keys for feed rows. Entries are prepended (newest first) and
 // the tail is trimmed, so array indices shift on every new line and made React
@@ -22,18 +23,15 @@ function logRowKey(entry: object): number {
 
 const sideText = (side: "CT" | "T" | undefined) => side === "CT" ? "text-side-ct" : "text-side-t"
 const otherSide = (side: "CT" | "T" | undefined): "CT" | "T" => side === "CT" ? "T" : "CT"
-// Round-clock label (m:ss). script-v1 events carry fractional seconds; show whole seconds.
-const clock = (t: number | undefined) => {
-    if (t == null) return ""
-    const s = Math.max(0, Math.floor(t))
-    return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`
-}
-
 // One feed line. Entries are immutable and keep their identity, so a new
 // line renders only itself, not the up to 200 lines already in the feed.
-const LogRow = memo(function LogRow({ l }: { l: LogEntry }) {
-    const timeStr = clock(l.time)
-    const time = <span className="w-8 shrink-0 text-[11px] tabular-nums text-ink-3">{timeStr}</span>
+const LogRow = memo(function LogRow({ l, clockText, bomb }: { l: LogEntry; clockText: string; bomb: boolean }) {
+    const timeStr = clockText
+    const time = (
+        <span className={cn("w-8 shrink-0 text-[11px] tabular-nums", bomb ? "text-side-t" : "text-ink-3")} title={bomb ? "Bomb timer" : "Round time left"}>
+            {timeStr}
+        </span>
+    )
 
     if (l.type === "KILL") {
         return (
@@ -90,9 +88,13 @@ const LogRow = memo(function LogRow({ l }: { l: LogEntry }) {
 // Memoized log list: a stable `logs` reference from useLiveMatch means this
 // re-runs only when a line is added, and then only the new line renders.
 const LiveLogList = memo(function LiveLogList({ logs }: { logs: LogEntry[] }) {
+    const labels = useMemo(() => feedClockLabels(logs), [logs])
     return (
         <ol className="space-y-px pb-3">
-            {logs.map(l => <LogRow key={logRowKey(l)} l={l} />)}
+            {logs.map(l => {
+                const c = labels.get(l)
+                return <LogRow key={logRowKey(l)} l={l} clockText={c?.text ?? ""} bomb={!!c?.bomb} />
+            })}
         </ol>
     )
 })

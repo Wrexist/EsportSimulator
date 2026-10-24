@@ -17,6 +17,7 @@ import { StaffPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { StaffNegotiationModal } from "@/components/staff/StaffNegotiationModal"
 import { TalentTree } from "@/components/staff/TalentTree"
+import { DelegationPanel } from "@/components/staff/DelegationPanel"
 import { ROLE_LABEL, matchCountedIds, staffEffects, staffMatchPct, teamStaffSummary } from "@/components/staff/staff-effects"
 import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
@@ -255,6 +256,8 @@ export default function StaffPage() {
                             Hiring costs a two-week sign-on fee. A second coach, analyst or psychologist adds training or recovery but no extra match strength.
                         </p>
                     </Panel>
+
+                    <div id="delegation" className="scroll-mt-20"><DelegationPanel /></div>
                 </div>
 
                 {hired.length > 0 && <aside className="min-w-0">

@@ -43,6 +43,8 @@ export class NavGraph {
     readonly floor: Floor[] = []
     readonly routeNodes = new Map<string, number[]>()
     readonly holdNodes = new Map<string, number>()
+    /** Pro T waiting spots (RoundMap.stages) by id. */
+    readonly stageNodes = new Map<string, number>()
     readonly spawnNodes: Record<Side, number[]> = { T: [], CT: [] }
     readonly plantNodes: Record<SiteId, number[]> = { A: [], B: [] }
     readonly siteNodes: Record<SiteId, number>
@@ -80,6 +82,7 @@ export class NavGraph {
         }
         for (const side of ["T", "CT"] as const) this.spawnNodes[side] = map.spawns[side].map(p => this.attach(p, routeCount))
         for (const h of map.holds) this.holdNodes.set(h.id, this.attach(h.at, routeCount))
+        for (const st of map.stages ?? []) this.stageNodes.set(st.id, this.attach(st.at, routeCount))
         this.siteNodes = { A: this.attach(map.sites.A.center, routeCount), B: this.attach(map.sites.B.center, routeCount) }
         for (const site of ["A", "B"] as const) this.plantNodes[site] = map.sites[site].plantSpots.map(p => this.attach(p, routeCount))
         this.connectComponents()

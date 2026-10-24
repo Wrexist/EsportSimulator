@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, type CSSProperties } from "react"
 import { motion } from "framer-motion"
 import { Settings2, Pause, Play, Timer, ChevronDown, ChevronUp } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ArmorGlyph, GrenadeGlyph, KitGlyph, WeaponGlyph, weaponDisplayName } from "@/components/match/WeaponGlyph"
 import { STRATEGY_LABEL, type BuyPreviewOption, type DecisionPreview } from "@/lib/live-match-decision"
 import type { ManagerStrategy } from "@/engine/match/legacy-series"
-import { REGROUP_EDGE, REGROUP_MIN_LOSS_STREAK } from "@/engine/match/manager-controls"
+import { REGROUP_ROUND_WIN_PTS, REGROUP_MIN_LOSS_STREAK } from "@/engine/match/manager-controls"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 
 const money = (n: number) => formatCurrency(Math.round(n), "$", false)
@@ -45,6 +45,19 @@ function BuyCell({ p, muted }: { p: BuyPreviewOption["players"][number]; muted: 
     )
 }
 
+/** Whole seconds left on the auto call, counting down (restarts when `restart` changes). */
+function Countdown({ ms, restart }: { ms: number; restart: unknown }) {
+    const [left, setLeft] = useState(Math.ceil(ms / 1000))
+    useEffect(() => {
+        const start = Date.now()
+        const tick = () => setLeft(Math.max(0, Math.ceil((ms - (Date.now() - start)) / 1000)))
+        tick()
+        const id = setInterval(tick, 250)
+        return () => clearInterval(id)
+    }, [ms, restart])
+    return <>{left}</>
+}
+
 export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, timeout, overtimeNote }: DecisionCardProps) {
     const reduceMotion = useAppReducedMotion()
     const sideCT = preview.side === "CT"
@@ -52,6 +65,10 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
     const counting = auto.on && !auto.hold
     // Folded: only the calls (the radar and its round scrubber stay visible).
     const [folded, setFolded] = useState(false)
+    // A call that buys exactly what another one buys is a note, not a column (fewer, wider choices).
+    const calls = preview.options.filter(o => !o.sameAs)
+    const same = preview.options.filter(o => o.sameAs)
+    const cols = { "--cols": calls.length } as CSSProperties
     return (
         <motion.section
             initial={reduceMotion ? false : { opacity: 0, y: 10 }}
@@ -62,7 +79,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
             aria-label={`Round ${preview.round} buy decision`}
         >
             {auto.on && (
-                <div className="h-0.5 w-full bg-hover" aria-hidden="true">
+                <div className="h-1 w-full bg-hover" aria-hidden="true">
                     {counting && (
                         <motion.div
                             key={auto.key}
@@ -93,6 +110,15 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                         {folded ? <ChevronUp size={14} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}
                         {folded ? "Players" : "Fold"}
                     </button>
+                    {recommended && (
+                        <button
+                            type="button"
+                            onClick={() => onEditLoadout(recommended)}
+                            className="hidden h-7 items-center gap-1 rounded px-1.5 text-xs font-semibold text-ink-3 hover:bg-hover hover:text-ink-1 @max-[52rem]:flex"
+                        >
+                            <Settings2 size={13} aria-hidden="true" /> Edit loadouts
+                        </button>
+                    )}
                     {auto.on && (
                         <button
                             type="button"
@@ -101,7 +127,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                             title={auto.hold ? "Let auto tactics confirm the call (Space)" : "Hold the auto call to decide yourself (Space)"}
                         >
                             {auto.hold ? <Play size={12} aria-hidden="true" /> : <Pause size={12} aria-hidden="true" />}
-                            {auto.hold ? "Auto held" : `Auto in ${Math.round(auto.durationMs / 1000)} s`}
+                            {auto.hold ? "Auto held" : "Hold auto"}
                         </button>
                     )}
                 </header>
@@ -113,32 +139,34 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
 
                 {/* Calls × players: what each call buys each player, at its real cost. */}
                 <div className="mt-2.5 overflow-hidden rounded-md border border-line">
-                    <div className="grid grid-cols-[132px_repeat(5,minmax(0,1fr))] border-b border-line bg-shell @max-[52rem]:grid-cols-[124px_repeat(5,minmax(0,1fr))]">
+                    <div className="grid grid-cols-[132px_repeat(var(--cols),minmax(0,1fr))] border-b border-line bg-shell @max-[52rem]:grid-cols-[112px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
                         <div className="flex items-end px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">Player · cash</div>
-                        {preview.options.map(o => {
+                        {calls.map(o => {
                             const label = STRATEGY_LABEL[o.id]
                             const isRec = o.id === recommended
                             return (
                                 <div key={o.id} className="relative border-l border-line p-1">
                                     <Button
-                                        variant="secondary"
-                                        onClick={() => !o.sameAs && onPick(o.id)}
-                                        disabled={!!o.sameAs}
-                                        title={o.sameAs ? `Buys the same as ${STRATEGY_LABEL[o.sameAs]}` : `${label}: ${money(o.total)} total`}
+                                        // The recommended call is the screen's one primary (gold) action; the theme styles buttons by variant.
+                                        variant={isRec ? "default" : "secondary"}
+                                        onClick={() => onPick(o.id)}
+                                        title={`${label}: ${money(o.total)} total${isRec ? " (recommended)" : ""}`}
                                         className={cn(
-                                            "flex h-[50px] w-full flex-col items-start justify-center gap-0.5 rounded-[4px] border bg-raised pl-2 pr-7 text-left hover:border-gold hover:bg-hover @max-[52rem]:pl-1.5 @max-[52rem]:pr-5",
-                                            isRec ? "border-gold/70" : "border-line",
+                                            "flex h-[50px] w-full flex-col items-start justify-center gap-0.5 rounded-[4px] border pl-2 pr-7 text-left @max-[52rem]:pl-1.5 @max-[52rem]:pr-1.5",
+                                            isRec ? "border-gold bg-gold hover:border-gold-hover hover:bg-gold-hover" : "border-line bg-raised hover:border-gold hover:bg-hover",
                                         )}
                                     >
-                                        <span className="whitespace-nowrap text-sm font-semibold leading-none text-ink-1 @max-[52rem]:text-xs">{label}</span>
-                                        <span className="whitespace-nowrap text-xs leading-none tabular-nums text-ink-3">{o.sameAs ? `= ${STRATEGY_LABEL[o.sameAs]}` : o.total > 0 ? <>{money(o.total)}<span className="@max-[52rem]:hidden"> total</span></> : "No spend"}</span>
+                                        <span className={cn("whitespace-nowrap text-sm font-semibold leading-none @max-[52rem]:text-xs", isRec ? "text-gold-on" : "text-ink-1")}>{label}</span>
+                                        <span className={cn("whitespace-nowrap text-xs leading-none tabular-nums", isRec ? "text-gold-on/80" : "text-ink-3")}>
+                                            {isRec && counting ? <>Auto in <Countdown ms={auto.durationMs} restart={auto.key} /> s</> : o.total > 0 ? <>{money(o.total)}<span className="@max-[52rem]:hidden"> total</span></> : "No spend"}
+                                        </span>
                                     </Button>
                                     <button
                                         type="button"
                                         aria-label={`Edit ${label} loadout`}
                                         title={`Edit ${label} loadout`}
                                         onClick={e => { e.stopPropagation(); onEditLoadout(o.id) }}
-                                        className="absolute right-2 top-2 rounded p-1 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1 @max-[52rem]:right-1 @max-[52rem]:top-1"
+                                        className={cn("absolute right-2 top-2 rounded p-1 transition-colors @max-[52rem]:hidden", isRec ? "text-gold-on/80 hover:bg-black/10 hover:text-gold-on" : "text-ink-3 hover:bg-hover hover:text-ink-1")}
                                     >
                                         <Settings2 className="h-3.5 w-3.5" />
                                     </button>
@@ -147,19 +175,24 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                         })}
                     </div>
                     {!folded && preview.options[0]?.players.map((p, row) => (
-                        <div key={p.id} className="grid grid-cols-[132px_repeat(5,minmax(0,1fr))] border-b border-line last:border-b-0 @max-[52rem]:grid-cols-[124px_repeat(5,minmax(0,1fr))]">
+                        <div key={p.id} className="grid grid-cols-[132px_repeat(var(--cols),minmax(0,1fr))] border-b border-line last:border-b-0 @max-[52rem]:grid-cols-[112px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
                             <div className="flex h-7 min-w-0 items-center gap-1.5 px-2 text-xs">
                                 <span className="min-w-0 truncate font-semibold text-ink-1">{names[p.id] ?? p.id}</span>
                                 <span className="ml-auto shrink-0 tabular-nums text-positive">{money(p.cash)}</span>
                             </div>
-                            {preview.options.map(o => (
-                                <div key={o.id} className={cn("border-l border-line", o.id === recommended && "bg-gold/[0.05]")}>
-                                    <BuyCell p={o.players[row]} muted={!!o.sameAs} />
+                            {calls.map(o => (
+                                <div key={o.id} className={cn("border-l border-line", o.id === recommended && "bg-gold/[0.08]")}>
+                                    <BuyCell p={o.players[row]} muted={false} />
                                 </div>
                             ))}
                         </div>
                     ))}
                 </div>
+                {same.length > 0 && (
+                    <p className="mt-1.5 text-xs text-ink-3">
+                        {same.map(o => `${STRATEGY_LABEL[o.id]} buys the same as ${STRATEGY_LABEL[o.sameAs!]}`).join(" · ")}.
+                    </p>
+                )}
 
                 <footer className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-2">
                     <Button
@@ -167,15 +200,15 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                         size="sm"
                         onClick={timeout.onCall}
                         disabled={timeout.disabled}
-                        title={`Between rounds only: regroup — +${REGROUP_EDGE * 100}% round-win chance for 2 rounds while you have lost ${REGROUP_MIN_LOSS_STREAK}+ in a row. Two per series; no benefit without a losing streak.`}
+                        title={`Between rounds only: regroup — about +${REGROUP_ROUND_WIN_PTS}% round-win chance for 2 rounds while you have lost ${REGROUP_MIN_LOSS_STREAK}+ in a row. Two per series; no benefit without a losing streak.`}
                         className="h-8 shrink-0 gap-1.5 px-3 text-xs"
                     >
                         <Timer size={13} aria-hidden="true" /> Tactical timeout ({timeout.remaining})
                     </Button>
-                    <p className="min-w-0 flex-1 text-xs leading-snug text-ink-3">
+                    <p className="min-w-0 flex-1 text-xs leading-snug text-ink-3 @max-[52rem]:hidden">
                         {timeout.active
-                            ? <span className="font-semibold text-ink-1">Regrouping: +{REGROUP_EDGE * 100}% round-win chance while on a {REGROUP_MIN_LOSS_STREAK}+ loss streak.</span>
-                            : <>+{REGROUP_EDGE * 100}% round-win chance for two rounds, only after {REGROUP_MIN_LOSS_STREAK}+ losses in a row.</>}
+                            ? <span className="font-semibold text-ink-1">Regrouping: about +{REGROUP_ROUND_WIN_PTS}% round-win chance while on a {REGROUP_MIN_LOSS_STREAK}+ loss streak.</span>
+                            : <>About +{REGROUP_ROUND_WIN_PTS}% round-win chance for two rounds, only after {REGROUP_MIN_LOSS_STREAK}+ losses in a row.</>}
                     </p>
                     {(preview.lossBonus !== undefined || preview.winReward !== undefined) && (
                         <p className="shrink-0 text-xs text-ink-3">

@@ -35,7 +35,7 @@ export function MomentCallout({ callout }: { callout: MomentCalloutData | null }
     }, [callout])
     useEffect(() => () => { if (timer.current) clearTimeout(timer.current) }, [])
     return (
-        <div className="pointer-events-none absolute inset-x-0 top-14 z-20 flex justify-center" aria-live="polite">
+        <div className="pointer-events-none absolute inset-x-0 top-24 z-20 flex justify-center" aria-live="polite">
             <AnimatePresence>
                 {shown && (
                     <motion.div

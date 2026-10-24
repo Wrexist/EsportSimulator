@@ -4,10 +4,13 @@
  */
 
 import type { NavGraph } from "./round-script-nav"
-import { len, other, angle, round3, round4 } from "./round-script-context"
+import { len, other, angle, round3, round4, roundPoint } from "./round-script-context"
 import type { XY, Step, Actor, Ctx } from "./round-script-context"
 import { defaultSteps, legOf } from "./round-script-timeline"
-import type { Floor, ScriptUtility, Side, SiteId, TrackKey, UtilityKind } from "./round-script-types"
+import type { Floor, RPoint, ScriptUtility, Side, SiteId, TrackKey, UtilityKind } from "./round-script-types"
+import { sampleTrack } from "./round-script-sample"
+import { HE_DAMAGE_RADIUS, heDistanceFor } from "./grenade-damage"
+import { visibilityFor } from "./round-script-visibility"
 
 // Math is read once: global lookups are very slow inside Jest's sandbox (tests time the builder).
 const { abs, ceil, exp, max, min, sign } = Math
@@ -236,8 +239,8 @@ export function spaceTeammates(ctx: Ctx, raw: Map<Actor, TrackKey[]>): void {
 
 // ─── Utility ───────────────────────────────────────────────────────────────
 
-export function throwUtility(ctx: Ctx): ScriptUtility[] {
-    if (ctx.input.utility) return resolverUtility(ctx)
+export function throwUtility(ctx: Ctx, tracks?: Record<string, TrackKey[]>): ScriptUtility[] {
+    if (ctx.input.utility) return resolverUtility(ctx, tracks)
     const rng = ctx.rng.util
     const out: ScriptUtility[] = []
     const volley = (side: Side, site: SiteId, t0: number, throwers: Actor[]) => {
@@ -267,8 +270,97 @@ export function throwUtility(ctx: Ctx): ScriptUtility[] {
     return out.sort((a, b) => a.t - b.t)
 }
 
+// Damage reach of an HE (and its inverse) lives in ../grenade-damage, shared with the resolver.
+export { HE_ARMOUR_SHARE, HE_DAMAGE_RADIUS, HE_MAX_DAMAGE } from "./grenade-damage"
+
+/**
+ * Where the grenade must land so the radar agrees with the resolver: a
+ * damaging HE lands at the distance its damage implies from the player it
+ * hurt (a molotov on top of them); a harmless HE lands where no living
+ * opponent is inside its damage reach. Prefers the baked spot's direction,
+ * snaps to the walk graph and stays on the victim's floor.
+ */
+function placeGrenade(
+    ctx: Ctx, tracks: Record<string, TrackKey[]> | undefined, kind: UtilityKind, t: number, thrower: Actor,
+    spot: RPoint, hit?: string, dmg?: number,
+): RPoint {
+    if (!tracks || (kind !== "he" && kind !== "molotov")) return spot
+    const { g } = ctx
+    const vis = visibilityFor(g)
+    const posAt = (id: string) => {
+        const track = tracks[id]
+        return track?.length ? sampleTrack(track, t) : undefined
+    }
+    const victim = hit ? ctx.byId.get(hit) : undefined
+    if (victim && victim.side !== thrower.side && victim.deathT >= t && dmg !== undefined && dmg > 0) {
+        const vp = posAt(victim.id)
+        if (!vp) return spot
+        // Distance from the damage: HE falls off linearly to the edge of its reach.
+        const want = kind === "he" ? max(0.6, min(HE_DAMAGE_RADIUS * 0.9, heDistanceFor(dmg))) : 0.4
+        const vn = g.nearest(vp)
+        const reach = kind === "he" ? HE_DAMAGE_RADIUS : 1.6
+        let base = angle(vp, spot)
+        if (!Number.isFinite(base) || len(spot.x - vp.x, spot.y - vp.y) < 0.05) base = 0
+        let best: RPoint | undefined
+        let bestErr = Infinity
+        for (let i = 0; i < 12; i++) {
+            const a = base + (i % 2 ? 1 : -1) * ceil(i / 2) * (Math.PI / 6)
+            const n = g.nearest({ x: vp.x + Math.cos(a) * want, y: vp.y + Math.sin(a) * want, floor: vp.floor })
+            if (g.floor[n] !== vp.floor) continue
+            const d = len(g.x[n] - vp.x, g.y[n] - vp.y)
+            if (d > reach * 0.95) continue
+            // A wall between them would have stopped it.
+            const err = abs(d - want) + (vis.sees(n, vn) ? 0 : 50)
+            if (err < bestErr) { bestErr = err; best = { x: g.x[n], y: g.y[n], floor: g.floor[n] } }
+            if (err < 0.5) break
+        }
+        return best ?? { x: vp.x, y: vp.y, floor: vp.floor }
+    }
+    if (kind !== "he") return spot
+    // Harmless HE: nobody on the other side may stand inside its reach.
+    const foes = ctx.actors.filter(a => a.side !== thrower.side && a.deathT > t).map(a => posAt(a.id)).filter((p): p is NonNullable<typeof p> => !!p)
+    // Out of reach, on another floor or behind a wall (heDamage's misses).
+    const clear = (p: RPoint) => {
+        const pn = g.nearest(p)
+        return foes.every(f => f.floor !== p.floor || len(f.x - p.x, f.y - p.y) >= HE_DAMAGE_RADIUS || !vis.sees(pn, g.nearest(f)))
+    }
+    if (clear(spot)) return spot
+    const tp = posAt(thrower.id)
+    // Short of the target: back toward the thrower until it is clear (it bounced off something).
+    if (tp) {
+        for (let k = 1; k <= 8; k++) {
+            const u = k / 8
+            const n = g.nearest({ x: spot.x + (tp.x - spot.x) * u, y: spot.y + (tp.y - spot.y) * u, floor: spot.floor })
+            const p = { x: g.x[n], y: g.y[n], floor: g.floor[n] }
+            if (clear(p)) return p
+        }
+    }
+    // Else the nearest clear spot around it.
+    const sn = g.nearest(spot)
+    const near = g.around(sn, 2 * HE_DAMAGE_RADIUS).sort((m, n) => len(g.x[m] - spot.x, g.y[m] - spot.y) - len(g.x[n] - spot.x, g.y[n] - spot.y) || m - n)
+    for (const n of near) {
+        const p = { x: g.x[n], y: g.y[n], floor: g.floor[n] }
+        if (clear(p)) return p
+    }
+    return spot
+}
+
+/** script-v1: the resolver's smokes as clouds (where and while they block sight). */
+export function smokeClouds(ctx: Ctx): { t0: number; t1: number; at: RPoint; r: number }[] {
+    const out: { t0: number; t1: number; at: RPoint; r: number }[] = []
+    for (const u of ctx.input.utility ?? []) {
+        if (u.kind !== "smoke") continue
+        const thrower = ctx.byId.get(u.playerId)
+        if (!thrower || u.t >= thrower.deathT) continue
+        const spot = ctx.map.utility.find(s => s.id === u.spot) ?? ctx.map.utility.find(s => s.site === u.site && s.kind === "smoke" && s.side === thrower.side)
+        if (!spot) continue
+        out.push({ t0: u.t + 0.5, t1: u.t + UTILITY_SECONDS.smoke, at: spot.at, r: spot.radius })
+    }
+    return out
+}
+
 /** script-v1: the grenades the resolver threw, on the baked spots it named (a dead thrower throws nothing). */
-function resolverUtility(ctx: Ctx): ScriptUtility[] {
+function resolverUtility(ctx: Ctx, tracks?: Record<string, TrackKey[]>): ScriptUtility[] {
     const out: ScriptUtility[] = []
     for (const u of ctx.input.utility ?? []) {
         const thrower = ctx.byId.get(u.playerId)
@@ -277,8 +369,13 @@ function resolverUtility(ctx: Ctx): ScriptUtility[] {
             ?? ctx.map.utility.find(s => s.site === u.site && s.kind === u.kind && s.side === thrower.side)
             ?? ctx.map.utility.find(s => s.site === u.site && s.side === thrower.side)
         // No baked spot for this kind (CT flashes / HEs): onto the site itself.
-        const at = spot ? spot.at : ctx.map.sites[u.site].center
-        out.push({ t: round3(u.t), throwerId: u.playerId, kind: u.kind, at: { ...at }, radius: spot?.radius ?? 2, duration: UTILITY_SECONDS[u.kind] })
+        const base = spot ? spot.at : ctx.map.sites[u.site].center
+        const hurt = !!u.hit && typeof u.dmg === "number" && u.dmg > 0
+        const at = placeGrenade(ctx, tracks, u.kind, u.t, thrower, base, hurt ? u.hit : undefined, hurt ? u.dmg : undefined)
+        out.push({
+            t: round3(u.t), throwerId: u.playerId, kind: u.kind, at: roundPoint(at), radius: spot?.radius ?? 2, duration: UTILITY_SECONDS[u.kind],
+            ...(hurt ? { hitId: u.hit, dmg: u.dmg } : {}),
+        })
     }
     return out.sort((a, b) => a.t - b.t)
 }

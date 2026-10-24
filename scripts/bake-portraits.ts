@@ -50,6 +50,7 @@ function maybeDisableTlsVerification() {
 maybeDisableTlsVerification()
 
 import Replicate from "replicate"
+import "./imgly-zod-v3.cjs"
 import { removeBackground as imglyRemoveBackground } from "@imgly/background-removal-node"
 import { PNG } from "pngjs"
 

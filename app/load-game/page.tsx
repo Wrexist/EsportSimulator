@@ -1,13 +1,14 @@
 "use client"
 
 import React, { useCallback, useEffect, useState } from "react"
+import { DRAFT_CUP_DIFFICULTY, DRAFT_CUP_FINISH_LABEL, type DraftCupDifficulty, type DraftCupFinish } from "@/engine/draft-cup"
 import Link from "next/link"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
 import { useSettingsStore } from "@/lib/settings-store"
 import { useShallow } from "zustand/react/shallow"
 import { useRouter } from "next/navigation"
-import { AlertCircle, Loader2, Trash2 } from "lucide-react"
+import { AlertCircle, Briefcase, Loader2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     AlertDialog,
@@ -28,6 +29,13 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { formatCurrency } from "@/lib/utils-extended"
 import { SaveSlotMetadata } from "@/engine"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
+
+/** G7: "Draft Cup · Pro · Semi-finalists · 455" (or "in progress"). */
+function draftCupSlotLabel(cup: { difficulty: string; finish?: string; score?: number }): string {
+    const difficulty = DRAFT_CUP_DIFFICULTY[cup.difficulty as DraftCupDifficulty]?.label ?? cup.difficulty
+    const finish = cup.finish ? DRAFT_CUP_FINISH_LABEL[cup.finish as DraftCupFinish] : undefined
+    return ["Draft Cup", difficulty, finish ?? "In progress", cup.score != null ? `${cup.score} pts` : null].filter(Boolean).join(" · ")
+}
 
 export default function LoadGamePage() {
     return (
@@ -257,14 +265,16 @@ function LoadGamePageInner() {
                                             <td className="py-2 pl-4 pr-3">
                                                 <div className="flex min-w-0 items-center gap-3">
                                                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-line bg-raised">
-                                                        {slot.teamName
+                                                        {slot.betweenClubs
+                                                            ? <Briefcase size={18} className="text-ink-3" aria-hidden="true" />
+                                                            : slot.teamName
                                                             ? <TeamLogoImage src={slot.teamLogo} team={slot.teamPreview} alt={slot.teamName} size={34} />
                                                             : <AlertCircle size={18} className={corrupted ? "text-negative" : "text-ink-3"} />}
                                                     </span>
                                                     <div className="min-w-0">
                                                         <h3 className="truncate text-[15px] font-semibold text-ink-1">{slot.teamName || slot.saveName || "Unnamed career"}</h3>
                                                         <p className="truncate text-xs text-ink-3">
-                                                            {corrupted ? "Could not be read" : slot.saveName || "—"}
+                                                            {corrupted ? "Could not be read" : slot.draftCup ? draftCupSlotLabel(slot.draftCup) : slot.saveName || "—"}
                                                             {isActive && <span className="ml-2 font-semibold text-gold">Loaded</span>}
                                                         </p>
                                                     </div>

@@ -12,17 +12,29 @@ export type RenderingMode = 'performance' | 'compatibility'
 /** Live match playback: key moments at speed, quiet stretches fast-forwarded; or every second. */
 export type LivePacing = 'moments' | 'full'
 const boundedVolume = (value: number) => Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0
-/** Phase 5: music plays by default at a modest level. */
-export const DEFAULT_MUSIC_VOLUME = 45
-/** Persisted settings version; v1 moved the old music default (0) to DEFAULT_MUSIC_VOLUME. */
-export const SETTINGS_VERSION = 1
+/** Default levels. Lowered 2026-10-23 (80 / 45 / 80 was too loud on first load). */
+export const DEFAULT_MASTER_VOLUME = 55
+export const DEFAULT_MUSIC_VOLUME = 30
+export const DEFAULT_SFX_VOLUME = 65
+/**
+ * Persisted settings version; v1 moved the old music default (0) to DEFAULT_MUSIC_VOLUME,
+ * v2 moves the untouched old defaults (80 / 45 / 80 together) to the new ones.
+ */
+export const SETTINGS_VERSION = 2
 
 /** One-time migration of stored device settings from an older version. */
 export function migrateSettings(persisted: unknown, version: number): unknown {
     if (!persisted || typeof persisted !== 'object') return persisted
     const stored = { ...(persisted as Record<string, unknown>) }
     // v0 shipped music off (0) by default; nobody could tell a chosen 0 from the default.
-    if (version < 1 && (stored.musicVolume === 0 || stored.musicVolume === undefined)) stored.musicVolume = DEFAULT_MUSIC_VOLUME
+    const untouchedMusic = version < 1 ? stored.musicVolume === 0 || stored.musicVolume === undefined : stored.musicVolume === 45
+    if (version < 1 && untouchedMusic) stored.musicVolume = DEFAULT_MUSIC_VOLUME
+    // Settings are stored whole, defaults included: exactly the old trio (80 / 45 / 80) means nobody moved a slider.
+    if (version < 2 && untouchedMusic && stored.masterVolume === 80 && stored.sfxVolume === 80) {
+        stored.masterVolume = DEFAULT_MASTER_VOLUME
+        stored.musicVolume = DEFAULT_MUSIC_VOLUME
+        stored.sfxVolume = DEFAULT_SFX_VOLUME
+    }
     return stored
 }
 
@@ -99,9 +111,9 @@ export const useSettingsStore = create<GameSettings>()(
             uiScale: 100,
             soundEnabled: true,
             soundPreferenceSet: false,
-            masterVolume: 80,
+            masterVolume: DEFAULT_MASTER_VOLUME,
             musicVolume: DEFAULT_MUSIC_VOLUME,
-            sfxVolume: 80,
+            sfxVolume: DEFAULT_SFX_VOLUME,
             uiSounds: true,
             hoverSounds: false,
             muteWhenUnfocused: true,

@@ -10,6 +10,7 @@ import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { Panel } from "@/src/components/ui/Panel"
 import { FormGuide } from "@/src/components/ui/FixtureBanner"
 import { clubFixtures } from "./league-view"
+import { TeamLink } from "@/components/ui/EntityLink"
 
 export interface ClubLeagueFixturesProps {
     division: LeagueDivision
@@ -57,7 +58,7 @@ export function ClubLeagueFixtures({ division, teamId, teamsById, dayById, compl
                                     <span className="w-24 shrink-0 text-xs tabular-nums text-ink-3">{when(c.fixture.week, dayById.get(c.fixture.id))}</span>
                                     <span className="w-6 shrink-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3" title={c.home ? "Home" : "Away"}>{c.home ? "H" : "A"}</span>
                                     <TeamLogoDisplay team={opp} size={22} className="shrink-0" />
-                                    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? "TBD"}</span>
+                                    <TeamLink id={opp ? c.opponentId : null} className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? "TBD"}</TeamLink>
                                     <span className="shrink-0 text-xs tabular-nums text-ink-3">{position.has(c.opponentId) ? ordinal(position.get(c.opponentId)!) : ""}</span>
                                 </li>
                             )
