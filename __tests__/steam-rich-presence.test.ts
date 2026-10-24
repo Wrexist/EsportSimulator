@@ -42,6 +42,15 @@ describe("Steam Rich Presence", () => {
         expect(keys[keys.length - 1]).toBe("steam_display")
     })
 
+    test("the desktop IPC policy accepts every key the game sets", () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { contracts } = require("../electron/ipc-policy")
+        const check = contracts["steam-set-rich-presence"].check
+        for (const [key, value] of Object.entries(buildRichPresence({ teamName: "WyLD", week: 60, ranking: 86 }))) {
+            expect([key, check([key, value])]).toEqual([key, true])
+        }
+    })
+
     const files = fs.readdirSync(dir).filter(file => file.endsWith(".vdf"))
 
     test("an English localization file exists", () => {
