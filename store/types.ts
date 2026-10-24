@@ -106,6 +106,7 @@ export interface ScoutingState {
   savedSearches: import("@/engine/save-types").SavedMarketSearch[]
   /** G6: chores the staff runs before each week. */
   delegation: import("@/engine/delegation").DelegationSettings
+  draftCup: import("@/engine/draft-cup").DraftCupState | null
   mapRecords?: import("@/engine/map-record").MapRecordState
 }
 
@@ -206,6 +207,7 @@ export interface EntitiesActions {
   setTargetPlayer: (teamId: string, targetPlayerId: string | undefined) => void
   setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
   runDelegatedChores: () => string[]
+  settleDraftCup: () => Promise<boolean>
   purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }
   upgradeMerchStore: (teamId: string) => { success: boolean, message: string }
   toggleMerchItem: (teamId: string, itemType: string) => { success: boolean; message: string }

@@ -118,7 +118,7 @@ export default function MainMenuPage() {
                             <span className="min-w-0 flex-1">
                                 <span className="block font-display text-[28px] font-bold uppercase leading-none tracking-[0.02em]">Continue</span>
                                 <span className="mt-1 block truncate text-[13px] font-semibold">
-                                    {latest.teamName} · {seasonWeekLabel(latest.currentWeek)}
+                                    {latest.teamName} · {latest.draftCup ? "Draft Cup" : seasonWeekLabel(latest.currentWeek)}
                                 </span>
                             </span>
                             {isContinuing ? <Loader2 className="animate-spin" /> : <Play fill="currentColor" />}
@@ -133,6 +133,7 @@ export default function MainMenuPage() {
                     )}
 
                     {latest && <MenuItem label="New career" href="/new-game" />}
+                    <MenuItem label="Draft Cup" href="/new-game/draft-cup" hint="Short run" />
                     <MenuItem
                         label="Load game"
                         href="/load-game"

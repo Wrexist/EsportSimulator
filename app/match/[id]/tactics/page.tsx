@@ -559,7 +559,7 @@ export default function TacticalHQPage() {
         : match.stage || (isTournament ? "Tournament match" : "Week " + match.week)
     const nextStage = liveTournament?.playoffBracket?.find(m => m.sourceMatchIds?.includes(match.id))?.stage
     const stakes = leagueStage ? getStakes(match.stage || leagueStage, false)
-        : isTournament ? getStakes(match.stage || "", tournamentDef?.format === "bracket", nextStage || undefined) : null
+        : isTournament ? getStakes(match.stage || "", (tournamentDef?.format ?? liveTournament?.format) === "bracket", nextStage || undefined) : null
     const matchDate = getDateForWeek(match.week)
     matchDate.setUTCDate(matchDate.getUTCDate() + (match.day ?? 0))
     const dateLabel = formatGameCalendarDate(matchDate, { weekday: "short", month: "short", day: "numeric" })

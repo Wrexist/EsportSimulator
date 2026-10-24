@@ -817,6 +817,7 @@ function sentinelCareer(): GameSave {
         boardState: { teamId: team, confidence: 38, seasonExpectation: "CONTEND", expectationSetSeason: 1, lastReviewedSeason: 0, onNotice: true, lastPulseWeek: 8 },
         mapRecords: { current: { season: 1, teams: { [team]: { Mirage: [2, 1, 30, 16, 28, 13] } } } },
         delegation: { drills: true, veto: true },
+        draftCup: { tournamentId: "rt-cup", teamId: team, difficulty: "pro", budget: 100, picks: [{ playerId: "rt-p", role: "IGL", price: 20 }], startWeek: 1, result: { finish: "semi", seriesWon: 1, mapsWon: 3, mapsLost: 2, roundDiff: 4, budgetLeft: 2, score: 600, breakdown: [{ label: "x", points: 600 }], finishedWeek: 2 } },
         socialFeed: [{ id: "rt-post", week: 8, user: { name: "n", handle: "h", avatar: "a" }, content: "rt", timestamp: "now", likes: 1, retweets: 0, replies: 0 }],
     } as Partial<GameSave>)
 }

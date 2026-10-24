@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
 import { useShallow } from "zustand/react/shallow"
+import { draftCupOutcome } from "@/engine/draft-cup"
 import type { LeagueTitleMoment, TitleMoment } from "@/engine/moments"
 import { isMajorTournament } from "@/engine/official-stats"
 import { trophyArtFor, trophyKindForTournament, type TrophyArtKind } from "@/lib/trophy-art"
@@ -67,7 +68,11 @@ export function TitleMomentView({ moment, onDismiss }: { moment: TitleMoment; on
     const reveal = useReveal()
     const scale = moment.major ? "major" : "minor"
     useTitleConfetti(moment.key, scale)
-    const { financeLedger, playerTeamId } = useGameStore(useShallow(s => ({ financeLedger: s.financeLedger, playerTeamId: s.playerTeamId })))
+    const { financeLedger, playerTeamId, draftCupScore } = useGameStore(useShallow(s => ({
+        financeLedger: s.financeLedger, playerTeamId: s.playerTeamId,
+        // G7: a Draft Cup title shows the run score; the run ends here, so no prize or reputation follows.
+        draftCupScore: s.draftCup?.tournamentId === moment.tournamentId ? draftCupOutcome(s as never)?.score ?? null : null,
+    })))
     // The prize actually booked for this title, once the week tick has paid it.
     const booked = financeLedger.find(e => e.teamId === playerTeamId && e.type === "INCOME" && e.category === "PRIZE" && e.id.startsWith(`prize_${moment.tournamentId}_`))
     const prize = booked?.amount ?? moment.prize
@@ -75,9 +80,10 @@ export function TitleMomentView({ moment, onDismiss }: { moment: TitleMoment; on
     const prizeHint = booked || moment.prizeBooked ? "Paid to your club" : moment.prizeIsPool ? "Your share is paid when the week ends" : "Paid when the week ends"
 
     const facts: MomentFact[] = []
-    if (prize > 0) facts.push({ label: prizeLabel, value: <AnimatedNumber value={prize} animateOnMount duration={1400} format={money} />, hint: prizeHint })
-    if (moment.repGain > 0) facts.push({ label: "Reputation", value: `+${moment.repGain}`, hint: moment.prizeBooked ? "Added" : "Added when the week ends" })
-    if (moment.fanGain) facts.push({ label: "New followers", value: `+${moment.fanGain.toLocaleString("en-US")}` })
+    if (draftCupScore != null) facts.push({ label: "Run score", value: <AnimatedNumber value={draftCupScore} animateOnMount duration={1400} format={n => String(Math.round(n))} />, hint: "The breakdown comes next" })
+    else if (prize > 0) facts.push({ label: prizeLabel, value: <AnimatedNumber value={prize} animateOnMount duration={1400} format={money} />, hint: prizeHint })
+    if (moment.repGain > 0 && draftCupScore == null) facts.push({ label: "Reputation", value: `+${moment.repGain}`, hint: moment.prizeBooked ? "Added" : "Added when the week ends" })
+    if (moment.fanGain && draftCupScore == null) facts.push({ label: "New followers", value: `+${moment.fanGain.toLocaleString("en-US")}` })
 
     const headlineId = `moment-title-${moment.key}`
     // S-tier titles get the full-scale moment; only a Major is called one.

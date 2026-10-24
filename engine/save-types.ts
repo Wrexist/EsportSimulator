@@ -53,6 +53,8 @@ export interface GameSave {
     savedSearches?: SavedMarketSearch[]
     /** G6: chores delegated to staff (engine/delegation.ts). */
     delegation?: import("./delegation").DelegationSettings
+    /** G7: the Draft Cup run this save plays (absent on a normal career). */
+    draftCup?: import("./draft-cup").DraftCupState
     /** G2: per-season map, side, buy and plan tallies (engine/map-record.ts). */
     mapRecords?: import("./map-record").MapRecordState
     activeMatchId?: string | null
@@ -1310,6 +1312,8 @@ export interface SaveSlotMetadata {
     isEmpty: boolean
     /** The career has no club right now (job market open); teamName holds a label. */
     betweenClubs?: boolean
+    /** G7: a Draft Cup run (its difficulty, and the finish and score once settled). */
+    draftCup?: { difficulty: string; finish?: string; score?: number }
 
     // Set when the slot's data failed to parse/validate. The slot is still
     // surfaced (rather than silently dropped) so the player can see it and

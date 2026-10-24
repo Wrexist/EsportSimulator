@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useState } from "react"
+import { DRAFT_CUP_DIFFICULTY, DRAFT_CUP_FINISH_LABEL, type DraftCupDifficulty, type DraftCupFinish } from "@/engine/draft-cup"
 import Link from "next/link"
 import { debug } from "@/lib/debug-logger"
 import { useGameStore } from "@/store/game-store"
@@ -28,6 +29,13 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { formatCurrency } from "@/lib/utils-extended"
 import { SaveSlotMetadata } from "@/engine"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
+
+/** G7: "Draft Cup · Pro · Semi-finalists · 455" (or "in progress"). */
+function draftCupSlotLabel(cup: { difficulty: string; finish?: string; score?: number }): string {
+    const difficulty = DRAFT_CUP_DIFFICULTY[cup.difficulty as DraftCupDifficulty]?.label ?? cup.difficulty
+    const finish = cup.finish ? DRAFT_CUP_FINISH_LABEL[cup.finish as DraftCupFinish] : undefined
+    return ["Draft Cup", difficulty, finish ?? "In progress", cup.score != null ? `${cup.score} pts` : null].filter(Boolean).join(" · ")
+}
 
 export default function LoadGamePage() {
     return (
@@ -266,7 +274,7 @@ function LoadGamePageInner() {
                                                     <div className="min-w-0">
                                                         <h3 className="truncate text-[15px] font-semibold text-ink-1">{slot.teamName || slot.saveName || "Unnamed career"}</h3>
                                                         <p className="truncate text-xs text-ink-3">
-                                                            {corrupted ? "Could not be read" : slot.saveName || "—"}
+                                                            {corrupted ? "Could not be read" : slot.draftCup ? draftCupSlotLabel(slot.draftCup) : slot.saveName || "—"}
                                                             {isActive && <span className="ml-2 font-semibold text-gold">Loaded</span>}
                                                         </p>
                                                     </div>

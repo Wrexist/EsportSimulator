@@ -224,6 +224,7 @@ export class SaveManager {
             watchlistedPlayerIds: initialData.watchlistedPlayerIds ?? [],
             savedSearches: initialData.savedSearches ?? [],
             delegation: initialData.delegation ?? {},
+            ...(initialData.draftCup ? { draftCup: initialData.draftCup } : {}),
             ...(initialData.mapRecords ? { mapRecords: initialData.mapRecords } : {}),
             activeMatchId: initialData.activeMatchId ?? null,
             activeMatchState: initialData.activeMatchState ?? null,
@@ -929,6 +930,7 @@ export class SaveManager {
                     currentWeek: parsed.currentWeek,
                     teamName: betweenClubs ? (parsed.gameOverReason === "UNEMPLOYED" ? "Looking for a first club" : "Between clubs") : playerTeam?.name ?? null,
                     ...(betweenClubs ? { betweenClubs: true } : {}),
+                    ...(parsed.draftCup ? { draftCup: { difficulty: parsed.draftCup.difficulty, finish: parsed.draftCup.result?.finish, score: parsed.draftCup.result?.score } } : {}),
                     teamLogo: playerTeam?.logoPath,
                     teamPreview: playerTeam ? {
                         id: playerTeam.id,
