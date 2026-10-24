@@ -19,7 +19,7 @@ Superseded and kept only as history: `STEAM_STORE_LISTING.md`, `deployment/STORE
 Everything here is done in the partner site by the account owner. Nothing in this list is published by a commit.
 
 - [x] **Release model.** Early Access (owner, 24 Oct 2026). The staged page, Early Access questionnaire and trailer end card already say so.
-- [ ] **AI content disclosure.** Make the survey text match what ships (player portraits and several illustrations were made with AI image tools). The draft is `marketing/store-page-2026-10-12/ai-disclosure-proposed.txt`.
+- [x] **AI content disclosure.** None: the owner confirmed on 24 Oct 2026 that the game is not made with AI.
 - [ ] **Tags.** Replace Tactical RPG, PvE and 3D. Proposed order: Management, Simulation, Sports, eSports, Strategy, Singleplayer, Economy, Tactical, Choices Matter, Replay Value, Realistic, Top-Down, Indie.
 - [ ] **Screenshots.** At least 5 (14 staged). Mark at least four as suitable for all ages, or the game is left out of some Steam surfaces. Lead with the live radar, not the title screen.
 - [ ] **Stats and achievements.** Enter every row of [STEAMWORKS_CONFIG.md](STEAMWORKS_CONFIG.md), upload 31 unlocked and 31 locked icons, then publish.
