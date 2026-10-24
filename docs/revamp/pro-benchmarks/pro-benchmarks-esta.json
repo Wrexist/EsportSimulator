@@ -1,0 +1,4553 @@
+{
+ "meta": {
+  "dataset": "ESTA (Esports Trajectories & Actions), github.com/pnxenopoulos/esta, CC BY-SA 4.0",
+  "demos": 1558,
+  "subsets": {
+   "lan": 680,
+   "online": 878
+  },
+  "period": "Jan 2021 \u2013 May 2022 (CS:GO, MR15, top HLTV-listed online and LAN events)",
+  "units": "distances in metres at 1 world unit = 0.0254 m (1 inch); game map-% = 51 u",
+  "frames": "2 Hz player snapshots (0.5 s), so sight timings carry \u00b10.5 s resolution"
+ },
+ "all": {
+  "rounds": {
+   "rounds": 40187,
+   "maps": 1558,
+   "t_round_win_pct": 46.2,
+   "ct_round_win_pct": 53.8,
+   "t_wins_by_bomb_pct_of_t_wins": 41.6,
+   "t_wins_by_elim_pct_of_t_wins": 58.4,
+   "ct_wins_by_elim_pct_of_ct_wins": 68.0,
+   "ct_wins_by_defuse_pct_of_ct_wins": 22.7,
+   "ct_wins_by_time_pct_of_ct_wins": 9.2,
+   "plant_rate_pct": 52.1,
+   "plant_rate_gun_rounds_pct": 53.7,
+   "t_win_after_plant_pct": 76.3,
+   "t_win_no_plant_pct": 13.4,
+   "plant_time_s_after_freeze": {
+    "n": 20942,
+    "mean": 73.72,
+    "p10": 37.98,
+    "p25": 52.84,
+    "p50": 75.61,
+    "p75": 95.3,
+    "p90": 106.61
+   },
+   "pistol_t_win_pct": 49.0,
+   "pistol_rounds": 3116,
+   "gun_round_t_win_pct": 44.8,
+   "gun_rounds": 19192,
+   "round_duration_s": {
+    "n": 40187,
+    "mean": 90.33,
+    "p10": 48.22,
+    "p25": 68.83,
+    "p50": 92.51,
+    "p75": 113.83,
+    "p90": 128.68
+   },
+   "time_to_first_kill_s": {
+    "n": 40139,
+    "mean": 34.77,
+    "p10": 12.4,
+    "p25": 16.81,
+    "p50": 27.41,
+    "p75": 47.85,
+    "p90": 70.35
+   },
+   "time_to_first_kill_s_gun": {
+    "n": 19187,
+    "mean": 36.22,
+    "p10": 12.36,
+    "p25": 16.82,
+    "p50": 28.55,
+    "p75": 51.32,
+    "p90": 74.17
+   },
+   "time_to_first_kill_s_pistol": {
+    "n": 3116,
+    "mean": 29.15,
+    "p10": 13.02,
+    "p25": 16.88,
+    "p50": 24.26,
+    "p75": 36.96,
+    "p90": 52.78
+   },
+   "first_kill_by_t_pct": 42.1,
+   "opening_kill_team_round_win_pct": 72.4,
+   "opening_kill_round_win_pct_when_t": 72.0,
+   "opening_kill_round_win_pct_when_ct": 72.7,
+   "opening_kill_distance_m": {
+    "n": 40139,
+    "mean": 18.56,
+    "p10": 6.29,
+    "p25": 10.17,
+    "p50": 16.38,
+    "p75": 24.32,
+    "p90": 33.39
+   },
+   "kills_per_round": 6.53,
+   "adr": 72.2,
+   "utility_adr": 4.59,
+   "utility_damage_per_team_round": 22.9,
+   "grenades_per_team_round": {
+    "nFlash": 3.28,
+    "nSmoke": 3.0,
+    "nHE": 1.58,
+    "nMolly": 2.45
+   }
+  },
+  "buys": {
+   "matrix_non_pistol": {
+    "T Full Eco vs CT Full Eco": {
+     "n": 1,
+     "t_win_pct": 0.0
+    },
+    "T Full Eco vs CT Semi Eco": {
+     "n": 0,
+     "t_win_pct": null
+    },
+    "T Full Eco vs CT Semi Buy": {
+     "n": 308,
+     "t_win_pct": 4.5
+    },
+    "T Full Eco vs CT Full Buy": {
+     "n": 2641,
+     "t_win_pct": 6.0
+    },
+    "T Semi Eco vs CT Full Eco": {
+     "n": 0,
+     "t_win_pct": null
+    },
+    "T Semi Eco vs CT Semi Eco": {
+     "n": 1,
+     "t_win_pct": 0.0
+    },
+    "T Semi Eco vs CT Semi Buy": {
+     "n": 143,
+     "t_win_pct": 26.6
+    },
+    "T Semi Eco vs CT Full Buy": {
+     "n": 2641,
+     "t_win_pct": 18.1
+    },
+    "T Semi Buy vs CT Full Eco": {
+     "n": 334,
+     "t_win_pct": 96.1
+    },
+    "T Semi Buy vs CT Semi Eco": {
+     "n": 679,
+     "t_win_pct": 75.6
+    },
+    "T Semi Buy vs CT Semi Buy": {
+     "n": 916,
+     "t_win_pct": 59.3
+    },
+    "T Semi Buy vs CT Full Buy": {
+     "n": 3623,
+     "t_win_pct": 33.2
+    },
+    "T Full Buy vs CT Full Eco": {
+     "n": 1919,
+     "t_win_pct": 93.2
+    },
+    "T Full Buy vs CT Semi Eco": {
+     "n": 2059,
+     "t_win_pct": 80.4
+    },
+    "T Full Buy vs CT Semi Buy": {
+     "n": 2626,
+     "t_win_pct": 66.1
+    },
+    "T Full Buy vs CT Full Buy": {
+     "n": 19180,
+     "t_win_pct": 44.8
+    }
+   },
+   "win_pct_vs_full_buy_either_side": {
+    "Full Eco": {
+     "n": 4560,
+     "win_pct": 6.3
+    },
+    "Semi Eco": {
+     "n": 4700,
+     "win_pct": 18.7
+    },
+    "Semi Buy": {
+     "n": 6249,
+     "win_pct": 33.5
+    },
+    "Full Buy": {
+     "n": 38360,
+     "win_pct": 50.0
+    }
+   },
+   "buy_type_definition": "awpy/HLTV style on team freeze-time-end equipment value: Full Eco < $5k, Semi Eco $5k\u201310k, Semi Buy $10k\u201320k, Full Buy > $20k"
+  },
+  "series": {
+   "maps": 1558,
+   "overtime_rate_pct": 7.0,
+   "win_after_win_pct": 65.1,
+   "pistol_winner_wins_next_round_pct": 77.2,
+   "pistol_winner_wins_next_two_pct": 58.6,
+   "rounds_per_map_mr15": 25.79
+  },
+  "kills": {
+   "kills": 268640,
+   "headshot_pct": 46.1,
+   "wallbang_pct": 4.1,
+   "through_smoke_pct": 4.5,
+   "trade_kill_share_pct_awpy_5s": 16.1,
+   "trade_time_s": {
+    "n": 75918,
+    "mean": 3.29,
+    "p10": 0.44,
+    "p25": 1.07,
+    "p50": 2.45,
+    "p75": 5.09,
+    "p90": 7.66
+   },
+   "trade_within_s_pct_of_trades_le5s": {
+    "1s": 31.6,
+    "2s": 58.5,
+    "3s": 76.2,
+    "4s": 89.3
+   },
+   "trade_share_by_window_pct_of_all_kills": {
+    "2s": 12.3,
+    "3s": 16.0,
+    "5s": 21.0
+   },
+   "engagement_distance_m": {
+    "n": 268640,
+    "mean": 17.86,
+    "p10": 6.68,
+    "p25": 10.51,
+    "p50": 16.23,
+    "p75": 23.42,
+    "p90": 31.04
+   },
+   "engagement_distance_map_pct": {
+    "n": 268640,
+    "mean": 13.78,
+    "p10": 5.15,
+    "p25": 8.12,
+    "p50": 12.53,
+    "p75": 18.08,
+    "p90": 23.96
+   },
+   "engagement_distance_hist_m_pct": {
+    "0-5": 5.1,
+    "5-10": 17.7,
+    "10-15": 22.1,
+    "15-20": 19.4,
+    "20-30": 24.3,
+    "30-40": 8.6,
+    "40+": 2.8
+   },
+   "engagement_distance_by_weapon_m": {
+    "Rifle": {
+     "n": 209050,
+     "mean": 18.56,
+     "p10": 7.18,
+     "p25": 11.18,
+     "p50": 17.02,
+     "p75": 24.16,
+     "p90": 31.79
+    },
+    "Pistols": {
+     "n": 43894,
+     "mean": 15.74,
+     "p10": 5.69,
+     "p25": 8.86,
+     "p50": 13.91,
+     "p75": 20.9,
+     "p90": 28.53
+    },
+    "SMG": {
+     "n": 11769,
+     "mean": 12.27,
+     "p10": 4.83,
+     "p25": 7.28,
+     "p50": 11.02,
+     "p75": 15.81,
+     "p90": 21.49
+    },
+    "Heavy": {
+     "n": 215,
+     "mean": 8.03,
+     "p10": 3.75,
+     "p25": 5.01,
+     "p50": 7.17,
+     "p75": 10.07,
+     "p90": 13.01
+    }
+   },
+   "kill_time_hist_s_after_freeze_pct": {
+    "0-10": 0.6,
+    "10-20": 8.6,
+    "20-30": 10.7,
+    "30-40": 10.9,
+    "40-50": 10.3,
+    "50-60": 10.1,
+    "60-70": 9.9,
+    "70-80": 9.8,
+    "80-90": 9.2,
+    "90-100": 8.6,
+    "100+": 11.2
+   }
+  },
+  "utility": {
+   "he_thrown": 130744,
+   "he_zero_enemy_damage_pct": 63.8,
+   "he_enemy_damage_per_throw": {
+    "n": 130744,
+    "mean": 9.57,
+    "p25": 0.0,
+    "p50": 0.0,
+    "p75": 9.0,
+    "p90": 38.0,
+    "p95": 51.0
+   },
+   "he_enemy_damage_per_damaging_throw": {
+    "n": 47274,
+    "mean": 26.47,
+    "p25": 7.0,
+    "p50": 20.0,
+    "p75": 40.0,
+    "p90": 57.0
+   },
+   "he_enemies_hit_per_throw_pct": {
+    "0": 63.8,
+    "1": 25.8,
+    "2": 7.8,
+    "3": 2.0,
+    "4+": 0.5
+   },
+   "he_damage_per_enemy_hit": {
+    "n": 64869,
+    "mean": 19.29,
+    "p10": 1.0,
+    "p25": 4.0,
+    "p50": 14.0,
+    "p75": 31.0,
+    "p90": 46.0
+   },
+   "he_damage_per_enemy_hit_hist": {
+    "1-10": 40.6,
+    "10-20": 19.0,
+    "20-30": 13.6,
+    "30-40": 11.0,
+    "40-50": 9.1,
+    "50-60": 5.0,
+    "60-80": 1.2,
+    "80+": 0.6
+   },
+   "he_kills_per_100_throws": 1.64,
+   "he_team_damage_pct_of_throws": 1.6,
+   "molotov_thrown": 203457,
+   "molotov_zero_enemy_damage_pct": 86.2,
+   "molotov_enemy_damage_per_throw": {
+    "n": 203457,
+    "mean": 3.19,
+    "p25": 0.0,
+    "p50": 0.0,
+    "p75": 0.0,
+    "p90": 7.0,
+    "p95": 24.0
+   },
+   "molotov_enemy_damage_per_damaging_throw": {
+    "n": 28135,
+    "mean": 23.06,
+    "p25": 6.0,
+    "p50": 15.0,
+    "p75": 32.0,
+    "p90": 56.0
+   }
+  },
+  "line_of_sight": {
+   "mesh_check": {
+    "kill_lines_checked": 207836,
+    "kill_lines_clear_pct": 89.1
+   },
+   "standoffs": {
+    "rounds": 34594,
+    "demos": 1309,
+    "4m": {
+     "radius_u": 157,
+     "radius_m": 4.0,
+     "radius_map_pct": 3.1,
+     "quiet_pair_seconds_per_round": 0.05,
+     "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.04,
+     "sightings_ge3s_per_round": 0.002,
+     "sightings_ge3s_duration_s": {
+      "n": 83,
+      "mean": 4.07,
+      "p10": 3.0,
+      "p25": 3.02,
+      "p50": 3.5,
+      "p75": 4.5,
+      "p90": 6.0
+     },
+     "rounds_with_sighting_ge3s_pct": 0.2,
+     "sightings_ge10s_per_100_rounds": 0.0,
+     "sightings_ge20s_per_100_rounds": 0.0,
+     "longest_s": 10.500000000000004
+    },
+    "6mappct": {
+     "radius_u": 306,
+     "radius_m": 7.8,
+     "radius_map_pct": 6.0,
+     "quiet_pair_seconds_per_round": 0.38,
+     "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.29,
+     "sightings_ge3s_per_round": 0.028,
+     "sightings_ge3s_duration_s": {
+      "n": 955,
+      "mean": 4.45,
+      "p10": 3.0,
+      "p25": 3.02,
+      "p50": 4.0,
+      "p75": 5.0,
+      "p90": 6.55
+     },
+     "rounds_with_sighting_ge3s_pct": 2.4,
+     "sightings_ge10s_per_100_rounds": 0.07,
+     "sightings_ge20s_per_100_rounds": 0.0,
+     "longest_s": 26.39
+    },
+    "10mappct": {
+     "radius_u": 510,
+     "radius_m": 13.0,
+     "radius_map_pct": 10.0,
+     "quiet_pair_seconds_per_round": 1.47,
+     "quiet_pair_seconds_per_round_no_damage_pm2_5s": 1.12,
+     "sightings_ge3s_per_round": 0.116,
+     "sightings_ge3s_duration_s": {
+      "n": 4026,
+      "mean": 4.71,
+      "p10": 3.0,
+      "p25": 3.08,
+      "p50": 4.0,
+      "p75": 5.5,
+      "p90": 7.5
+     },
+     "rounds_with_sighting_ge3s_pct": 9.1,
+     "sightings_ge10s_per_100_rounds": 0.43,
+     "sightings_ge20s_per_100_rounds": 0.01,
+     "longest_s": 28.400000000000006
+    },
+    "contact_to_fight": {
+     "0-4m": {
+      "contacts": 7162,
+      "damage_within_1s_pct": 73.0,
+      "damage_within_2s_pct": 81.3,
+      "damage_within_3s_pct": 84.6,
+      "damage_within_5s_pct": 87.4,
+      "kill_within_1s_pct": 61.5,
+      "kill_within_2s_pct": 73.7,
+      "kill_within_3s_pct": 77.8,
+      "kill_within_5s_pct": 81.0
+     },
+     "4-8m": {
+      "contacts": 30269,
+      "damage_within_1s_pct": 71.8,
+      "damage_within_2s_pct": 77.4,
+      "damage_within_3s_pct": 79.9,
+      "damage_within_5s_pct": 82.5,
+      "kill_within_1s_pct": 59.7,
+      "kill_within_2s_pct": 68.2,
+      "kill_within_3s_pct": 71.3,
+      "kill_within_5s_pct": 74.3
+     },
+     "8-13m": {
+      "contacts": 63576,
+      "damage_within_1s_pct": 64.6,
+      "damage_within_2s_pct": 69.7,
+      "damage_within_3s_pct": 72.5,
+      "damage_within_5s_pct": 75.5,
+      "kill_within_1s_pct": 51.0,
+      "kill_within_2s_pct": 58.2,
+      "kill_within_3s_pct": 61.6,
+      "kill_within_5s_pct": 65.2
+     }
+    }
+   },
+   "sight_to_kill": {
+    "kills": 217375,
+    "kills_with_visible_run_pct": 75.3,
+    "sight_to_kill_s": {
+     "n": 163718,
+     "mean": 0.74,
+     "p10": 0.09,
+     "p25": 0.21,
+     "p50": 0.43,
+     "p75": 0.83,
+     "p90": 1.59
+    },
+    "sight_to_first_shot_s": {
+     "n": 163449,
+     "mean": 0.3,
+     "p10": -0.21,
+     "p25": -0.05,
+     "p50": 0.12,
+     "p75": 0.29,
+     "p90": 0.84
+    },
+    "sight_to_first_damage_s": {
+     "n": 163718,
+     "mean": 0.5,
+     "p10": -0.06,
+     "p25": 0.07,
+     "p50": 0.23,
+     "p75": 0.52,
+     "p90": 1.22
+    },
+    "victim_fired_back_pct": 69.3,
+    "sight_to_kill_hist_s_pct": {
+     "0-0.5": 55.3,
+     "0.5-1": 24.9,
+     "1-1.5": 8.8,
+     "1.5-2": 4.1,
+     "2-3": 3.4,
+     "3-5": 2.2,
+     "5-10": 1.0,
+     "10+": 0.2
+    },
+    "opening_kill_sight_to_kill_s": {
+     "n": 24805,
+     "mean": 0.73,
+     "p10": 0.09,
+     "p25": 0.21,
+     "p50": 0.43,
+     "p75": 0.81,
+     "p90": 1.53
+    },
+    "sight_to_kill_by_distance_s": {
+     "0-5m": {
+      "n": 9437,
+      "mean": 1.22,
+      "p10": 0.12,
+      "p25": 0.27,
+      "p50": 0.58,
+      "p75": 1.35,
+      "p90": 3.13
+     },
+     "5-10m": {
+      "n": 31002,
+      "mean": 0.82,
+      "p10": 0.09,
+      "p25": 0.2,
+      "p50": 0.43,
+      "p75": 0.85,
+      "p90": 1.81
+     },
+     "10-20m": {
+      "n": 70382,
+      "mean": 0.7,
+      "p10": 0.09,
+      "p25": 0.21,
+      "p50": 0.42,
+      "p75": 0.79,
+      "p90": 1.48
+     },
+     "20m+": {
+      "n": 52897,
+      "mean": 0.67,
+      "p10": 0.09,
+      "p25": 0.21,
+      "p50": 0.44,
+      "p75": 0.83,
+      "p90": 1.45
+     }
+    }
+   }
+  }
+ },
+ "maps": {
+  "Inferno": {
+   "rounds": {
+    "rounds": 7502,
+    "maps": 289,
+    "t_round_win_pct": 49.2,
+    "ct_round_win_pct": 50.8,
+    "t_wins_by_bomb_pct_of_t_wins": 50.8,
+    "t_wins_by_elim_pct_of_t_wins": 49.2,
+    "ct_wins_by_elim_pct_of_ct_wins": 66.5,
+    "ct_wins_by_defuse_pct_of_ct_wins": 23.8,
+    "ct_wins_by_time_pct_of_ct_wins": 9.7,
+    "plant_rate_pct": 57.8,
+    "plant_rate_gun_rounds_pct": 59.0,
+    "t_win_after_plant_pct": 78.7,
+    "t_win_no_plant_pct": 8.8,
+    "plant_time_s_after_freeze": {
+     "n": 4334,
+     "mean": 78.48,
+     "p10": 46.47,
+     "p25": 59.47,
+     "p50": 80.37,
+     "p75": 98.16,
+     "p90": 107.93
+    },
+    "pistol_t_win_pct": 56.1,
+    "pistol_rounds": 578,
+    "gun_round_t_win_pct": 47.5,
+    "gun_rounds": 3681,
+    "round_duration_s": {
+     "n": 7502,
+     "mean": 97.35,
+     "p10": 56.55,
+     "p25": 78.42,
+     "p50": 99.81,
+     "p75": 115.94,
+     "p90": 134.26
+    },
+    "time_to_first_kill_s": {
+     "n": 7494,
+     "mean": 39.18,
+     "p10": 13.46,
+     "p25": 18.87,
+     "p50": 32.21,
+     "p75": 55.01,
+     "p90": 78.65
+    },
+    "time_to_first_kill_s_gun": {
+     "n": 3681,
+     "mean": 40.48,
+     "p10": 13.64,
+     "p25": 19.44,
+     "p50": 32.53,
+     "p75": 58.12,
+     "p90": 81.5
+    },
+    "time_to_first_kill_s_pistol": {
+     "n": 578,
+     "mean": 33.77,
+     "p10": 13.14,
+     "p25": 16.97,
+     "p50": 28.47,
+     "p75": 46.89,
+     "p90": 62.35
+    },
+    "first_kill_by_t_pct": 42.2,
+    "opening_kill_team_round_win_pct": 71.7,
+    "opening_kill_round_win_pct_when_t": 74.8,
+    "opening_kill_round_win_pct_when_ct": 69.5,
+    "opening_kill_distance_m": {
+     "n": 7494,
+     "mean": 16.34,
+     "p10": 5.73,
+     "p25": 9.69,
+     "p50": 15.06,
+     "p75": 21.27,
+     "p90": 29.0
+    },
+    "kills_per_round": 6.35,
+    "adr": 70.8,
+    "utility_adr": 6.4,
+    "utility_damage_per_team_round": 32.0,
+    "grenades_per_team_round": {
+     "nFlash": 3.48,
+     "nSmoke": 3.09,
+     "nHE": 1.96,
+     "nMolly": 2.74
+    }
+   },
+   "buys": {
+    "matrix_non_pistol": {
+     "T Full Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Buy": {
+      "n": 51,
+      "t_win_pct": 7.8
+     },
+     "T Full Eco vs CT Full Buy": {
+      "n": 453,
+      "t_win_pct": 7.1
+     },
+     "T Semi Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Buy": {
+      "n": 32,
+      "t_win_pct": 18.8
+     },
+     "T Semi Eco vs CT Full Buy": {
+      "n": 459,
+      "t_win_pct": 20.3
+     },
+     "T Semi Buy vs CT Full Eco": {
+      "n": 54,
+      "t_win_pct": 96.3
+     },
+     "T Semi Buy vs CT Semi Eco": {
+      "n": 173,
+      "t_win_pct": 76.9
+     },
+     "T Semi Buy vs CT Semi Buy": {
+      "n": 207,
+      "t_win_pct": 59.4
+     },
+     "T Semi Buy vs CT Full Buy": {
+      "n": 621,
+      "t_win_pct": 34.9
+     },
+     "T Full Buy vs CT Full Eco": {
+      "n": 288,
+      "t_win_pct": 94.1
+     },
+     "T Full Buy vs CT Semi Eco": {
+      "n": 378,
+      "t_win_pct": 81.5
+     },
+     "T Full Buy vs CT Semi Buy": {
+      "n": 527,
+      "t_win_pct": 71.7
+     },
+     "T Full Buy vs CT Full Buy": {
+      "n": 3681,
+      "t_win_pct": 47.5
+     }
+    },
+    "win_pct_vs_full_buy_either_side": {
+     "Full Eco": {
+      "n": 741,
+      "win_pct": 6.6
+     },
+     "Semi Eco": {
+      "n": 837,
+      "win_pct": 19.5
+     },
+     "Semi Buy": {
+      "n": 1148,
+      "win_pct": 31.9
+     },
+     "Full Buy": {
+      "n": 7362,
+      "win_pct": 50.0
+     }
+    },
+    "buy_type_definition": "awpy/HLTV style on team freeze-time-end equipment value: Full Eco < $5k, Semi Eco $5k\u201310k, Semi Buy $10k\u201320k, Full Buy > $20k"
+   },
+   "series": {
+    "maps": 289,
+    "overtime_rate_pct": 7.6,
+    "win_after_win_pct": 64.0,
+    "pistol_winner_wins_next_round_pct": 75.1,
+    "pistol_winner_wins_next_two_pct": 59.5,
+    "rounds_per_map_mr15": 25.96
+   },
+   "kills": {
+    "kills": 48640,
+    "headshot_pct": 47.2,
+    "wallbang_pct": 4.3,
+    "through_smoke_pct": 5.5,
+    "trade_kill_share_pct_awpy_5s": 17.1,
+    "trade_time_s": {
+     "n": 14280,
+     "mean": 3.15,
+     "p10": 0.4,
+     "p25": 0.97,
+     "p50": 2.28,
+     "p75": 4.87,
+     "p90": 7.45
+    },
+    "trade_within_s_pct_of_trades_le5s": {
+     "1s": 34.0,
+     "2s": 60.2,
+     "3s": 77.0,
+     "4s": 89.8
+    },
+    "trade_share_by_window_pct_of_all_kills": {
+     "2s": 13.4,
+     "3s": 17.2,
+     "5s": 22.3
+    },
+    "engagement_distance_m": {
+     "n": 48640,
+     "mean": 16.03,
+     "p10": 6.25,
+     "p25": 9.77,
+     "p50": 14.85,
+     "p75": 20.88,
+     "p90": 27.57
+    },
+    "engagement_distance_map_pct": {
+     "n": 48640,
+     "mean": 12.38,
+     "p10": 4.83,
+     "p25": 7.54,
+     "p50": 11.46,
+     "p75": 16.12,
+     "p90": 21.28
+    },
+    "engagement_distance_hist_m_pct": {
+     "0-5": 6.1,
+     "5-10": 20.1,
+     "10-15": 24.5,
+     "15-20": 21.2,
+     "20-30": 21.3,
+     "30-40": 5.8,
+     "40+": 1.0
+    },
+    "engagement_distance_by_weapon_m": {
+     "Rifle": {
+      "n": 36724,
+      "mean": 16.64,
+      "p10": 6.71,
+      "p25": 10.42,
+      "p50": 15.58,
+      "p75": 21.5,
+      "p90": 28.09
+     },
+     "Pistols": {
+      "n": 8066,
+      "mean": 14.29,
+      "p10": 5.31,
+      "p25": 8.26,
+      "p50": 12.78,
+      "p75": 18.71,
+      "p90": 25.42
+     },
+     "SMG": {
+      "n": 2886,
+      "mean": 11.7,
+      "p10": 4.65,
+      "p25": 7.04,
+      "p50": 10.61,
+      "p75": 15.1,
+      "p90": 20.17
+     },
+     "Heavy": {
+      "n": 58,
+      "mean": 6.8,
+      "p10": 3.48,
+      "p25": 4.48,
+      "p50": 6.78,
+      "p75": 8.08,
+      "p90": 10.38
+     }
+    },
+    "kill_time_hist_s_after_freeze_pct": {
+     "0-10": 0.3,
+     "10-20": 6.9,
+     "20-30": 8.3,
+     "30-40": 9.4,
+     "40-50": 9.7,
+     "50-60": 9.8,
+     "60-70": 9.7,
+     "70-80": 10.3,
+     "80-90": 10.6,
+     "90-100": 10.1,
+     "100+": 14.8
+    }
+   },
+   "utility": {
+    "he_thrown": 30185,
+    "he_zero_enemy_damage_pct": 58.2,
+    "he_enemy_damage_per_throw": {
+     "n": 30185,
+     "mean": 11.22,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 14.0,
+     "p90": 42.0,
+     "p95": 54.0
+    },
+    "he_enemy_damage_per_damaging_throw": {
+     "n": 12618,
+     "mean": 26.85,
+     "p25": 7.0,
+     "p50": 21.0,
+     "p75": 41.0,
+     "p90": 57.0
+    },
+    "he_enemies_hit_per_throw_pct": {
+     "0": 58.2,
+     "1": 29.0,
+     "2": 9.8,
+     "3": 2.3,
+     "4+": 0.6
+    },
+    "he_damage_per_enemy_hit": {
+     "n": 17581,
+     "mean": 19.27,
+     "p10": 1.0,
+     "p25": 4.0,
+     "p50": 14.0,
+     "p75": 31.0,
+     "p90": 46.0
+    },
+    "he_damage_per_enemy_hit_hist": {
+     "1-10": 40.0,
+     "10-20": 19.5,
+     "20-30": 13.7,
+     "30-40": 10.9,
+     "40-50": 9.2,
+     "50-60": 5.3,
+     "60-80": 0.9,
+     "80+": 0.5
+    },
+    "he_kills_per_100_throws": 1.77,
+    "he_team_damage_pct_of_throws": 1.2,
+    "molotov_thrown": 42331,
+    "molotov_zero_enemy_damage_pct": 85.1,
+    "molotov_enemy_damage_per_throw": {
+     "n": 42331,
+     "mean": 3.63,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 0.0,
+     "p90": 9.0,
+     "p95": 25.0
+    },
+    "molotov_enemy_damage_per_damaging_throw": {
+     "n": 6312,
+     "mean": 24.36,
+     "p25": 6.0,
+     "p50": 16.0,
+     "p75": 32.0,
+     "p90": 56.0
+    }
+   },
+   "line_of_sight": {
+    "mesh_check": {
+     "kill_lines_checked": 44007,
+     "kill_lines_clear_pct": 82.3
+    },
+    "standoffs": {
+     "rounds": 7647,
+     "demos": 289,
+     "4m": {
+      "radius_u": 157,
+      "radius_m": 4.0,
+      "radius_map_pct": 3.1,
+      "quiet_pair_seconds_per_round": 0.06,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.04,
+      "sightings_ge3s_per_round": 0.002,
+      "sightings_ge3s_duration_s": {
+       "n": 16,
+       "mean": 4.35,
+       "p10": 3.01,
+       "p25": 3.38,
+       "p50": 3.5,
+       "p75": 4.76,
+       "p90": 6.75
+      },
+      "rounds_with_sighting_ge3s_pct": 0.2,
+      "sightings_ge10s_per_100_rounds": 0.0,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 7.550000000000004
+     },
+     "6mappct": {
+      "radius_u": 306,
+      "radius_m": 7.8,
+      "radius_map_pct": 6.0,
+      "quiet_pair_seconds_per_round": 0.41,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.29,
+      "sightings_ge3s_per_round": 0.027,
+      "sightings_ge3s_duration_s": {
+       "n": 204,
+       "mean": 4.42,
+       "p10": 3.0,
+       "p25": 3.02,
+       "p50": 4.0,
+       "p75": 5.0,
+       "p90": 6.55
+      },
+      "rounds_with_sighting_ge3s_pct": 2.3,
+      "sightings_ge10s_per_100_rounds": 0.07,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 14.999999999999996
+     },
+     "10mappct": {
+      "radius_u": 510,
+      "radius_m": 13.0,
+      "radius_map_pct": 10.0,
+      "quiet_pair_seconds_per_round": 1.46,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 1.06,
+      "sightings_ge3s_per_round": 0.101,
+      "sightings_ge3s_duration_s": {
+       "n": 775,
+       "mean": 4.51,
+       "p10": 3.0,
+       "p25": 3.02,
+       "p50": 4.0,
+       "p75": 5.03,
+       "p90": 7.0
+      },
+      "rounds_with_sighting_ge3s_pct": 7.9,
+      "sightings_ge10s_per_100_rounds": 0.25,
+      "sightings_ge20s_per_100_rounds": 0.01,
+      "longest_s": 26.63000000000001
+     },
+     "contact_to_fight": {
+      "0-4m": {
+       "contacts": 1764,
+       "damage_within_1s_pct": 73.8,
+       "damage_within_2s_pct": 81.8,
+       "damage_within_3s_pct": 84.4,
+       "damage_within_5s_pct": 87.1,
+       "kill_within_1s_pct": 61.9,
+       "kill_within_2s_pct": 73.2,
+       "kill_within_3s_pct": 77.2,
+       "kill_within_5s_pct": 80.1
+      },
+      "4-8m": {
+       "contacts": 7119,
+       "damage_within_1s_pct": 70.9,
+       "damage_within_2s_pct": 77.0,
+       "damage_within_3s_pct": 79.6,
+       "damage_within_5s_pct": 82.1,
+       "kill_within_1s_pct": 58.4,
+       "kill_within_2s_pct": 67.2,
+       "kill_within_3s_pct": 70.6,
+       "kill_within_5s_pct": 73.5
+      },
+      "8-13m": {
+       "contacts": 14410,
+       "damage_within_1s_pct": 62.6,
+       "damage_within_2s_pct": 68.6,
+       "damage_within_3s_pct": 71.7,
+       "damage_within_5s_pct": 74.7,
+       "kill_within_1s_pct": 48.4,
+       "kill_within_2s_pct": 56.0,
+       "kill_within_3s_pct": 59.8,
+       "kill_within_5s_pct": 63.5
+      }
+     }
+    },
+    "sight_to_kill": {
+     "kills": 46571,
+     "kills_with_visible_run_pct": 70.2,
+     "sight_to_kill_s": {
+      "n": 32705,
+      "mean": 0.79,
+      "p10": 0.09,
+      "p25": 0.22,
+      "p50": 0.45,
+      "p75": 0.9,
+      "p90": 1.76
+     },
+     "sight_to_first_shot_s": {
+      "n": 32652,
+      "mean": 0.33,
+      "p10": -0.24,
+      "p25": -0.06,
+      "p50": 0.12,
+      "p75": 0.31,
+      "p90": 0.96
+     },
+     "sight_to_first_damage_s": {
+      "n": 32705,
+      "mean": 0.55,
+      "p10": -0.06,
+      "p25": 0.07,
+      "p50": 0.24,
+      "p75": 0.58,
+      "p90": 1.41
+     },
+     "victim_fired_back_pct": 69.9,
+     "sight_to_kill_hist_s_pct": {
+      "0-0.5": 53.5,
+      "0.5-1": 24.5,
+      "1-1.5": 9.3,
+      "1.5-2": 4.5,
+      "2-3": 4.1,
+      "3-5": 2.7,
+      "5-10": 1.2,
+      "10+": 0.2
+     },
+     "opening_kill_sight_to_kill_s": {
+      "n": 4851,
+      "mean": 0.67,
+      "p10": 0.09,
+      "p25": 0.2,
+      "p50": 0.42,
+      "p75": 0.77,
+      "p90": 1.39
+     },
+     "sight_to_kill_by_distance_s": {
+      "0-5m": {
+       "n": 2287,
+       "mean": 1.11,
+       "p10": 0.11,
+       "p25": 0.27,
+       "p50": 0.58,
+       "p75": 1.29,
+       "p90": 2.72
+      },
+      "5-10m": {
+       "n": 7029,
+       "mean": 0.85,
+       "p10": 0.1,
+       "p25": 0.22,
+       "p50": 0.45,
+       "p75": 0.94,
+       "p90": 1.98
+      },
+      "10-20m": {
+       "n": 14941,
+       "mean": 0.75,
+       "p10": 0.09,
+       "p25": 0.21,
+       "p50": 0.44,
+       "p75": 0.84,
+       "p90": 1.63
+      },
+      "20m+": {
+       "n": 8448,
+       "mean": 0.73,
+       "p10": 0.09,
+       "p25": 0.22,
+       "p50": 0.45,
+       "p75": 0.87,
+       "p90": 1.62
+      }
+     }
+    }
+   }
+  },
+  "Mirage": {
+   "rounds": {
+    "rounds": 7190,
+    "maps": 278,
+    "t_round_win_pct": 46.0,
+    "ct_round_win_pct": 54.0,
+    "t_wins_by_bomb_pct_of_t_wins": 39.7,
+    "t_wins_by_elim_pct_of_t_wins": 60.3,
+    "ct_wins_by_elim_pct_of_ct_wins": 70.1,
+    "ct_wins_by_defuse_pct_of_ct_wins": 22.0,
+    "ct_wins_by_time_pct_of_ct_wins": 7.9,
+    "plant_rate_pct": 51.5,
+    "plant_rate_gun_rounds_pct": 52.4,
+    "t_win_after_plant_pct": 76.8,
+    "t_win_no_plant_pct": 13.4,
+    "plant_time_s_after_freeze": {
+     "n": 3701,
+     "mean": 68.7,
+     "p10": 33.8,
+     "p25": 45.41,
+     "p50": 69.49,
+     "p75": 90.95,
+     "p90": 103.54
+    },
+    "pistol_t_win_pct": 46.8,
+    "pistol_rounds": 556,
+    "gun_round_t_win_pct": 45.1,
+    "gun_rounds": 3438,
+    "round_duration_s": {
+     "n": 7190,
+     "mean": 86.05,
+     "p10": 44.64,
+     "p25": 63.64,
+     "p50": 86.79,
+     "p75": 109.74,
+     "p90": 124.14
+    },
+    "time_to_first_kill_s": {
+     "n": 7186,
+     "mean": 32.8,
+     "p10": 11.58,
+     "p25": 16.31,
+     "p50": 25.45,
+     "p75": 45.04,
+     "p90": 67.29
+    },
+    "time_to_first_kill_s_gun": {
+     "n": 3438,
+     "mean": 33.85,
+     "p10": 11.38,
+     "p25": 15.63,
+     "p50": 25.74,
+     "p75": 48.78,
+     "p90": 70.83
+    },
+    "time_to_first_kill_s_pistol": {
+     "n": 556,
+     "mean": 26.63,
+     "p10": 14.09,
+     "p25": 17.87,
+     "p50": 23.54,
+     "p75": 30.89,
+     "p90": 43.74
+    },
+    "first_kill_by_t_pct": 40.6,
+    "opening_kill_team_round_win_pct": 72.3,
+    "opening_kill_round_win_pct_when_t": 72.6,
+    "opening_kill_round_win_pct_when_ct": 72.2,
+    "opening_kill_distance_m": {
+     "n": 7186,
+     "mean": 20.18,
+     "p10": 6.81,
+     "p25": 11.19,
+     "p50": 18.71,
+     "p75": 28.12,
+     "p90": 36.63
+    },
+    "kills_per_round": 6.57,
+    "adr": 72.3,
+    "utility_adr": 3.52,
+    "utility_damage_per_team_round": 17.6,
+    "grenades_per_team_round": {
+     "nFlash": 3.39,
+     "nSmoke": 2.92,
+     "nHE": 1.19,
+     "nMolly": 2.23
+    }
+   },
+   "buys": {
+    "matrix_non_pistol": {
+     "T Full Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Buy": {
+      "n": 59,
+      "t_win_pct": 5.1
+     },
+     "T Full Eco vs CT Full Buy": {
+      "n": 507,
+      "t_win_pct": 6.5
+     },
+     "T Semi Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Buy": {
+      "n": 21,
+      "t_win_pct": 28.6
+     },
+     "T Semi Eco vs CT Full Buy": {
+      "n": 455,
+      "t_win_pct": 18.0
+     },
+     "T Semi Buy vs CT Full Eco": {
+      "n": 58,
+      "t_win_pct": 94.8
+     },
+     "T Semi Buy vs CT Semi Eco": {
+      "n": 119,
+      "t_win_pct": 79.8
+     },
+     "T Semi Buy vs CT Semi Buy": {
+      "n": 143,
+      "t_win_pct": 59.4
+     },
+     "T Semi Buy vs CT Full Buy": {
+      "n": 630,
+      "t_win_pct": 32.4
+     },
+     "T Full Buy vs CT Full Eco": {
+      "n": 379,
+      "t_win_pct": 92.1
+     },
+     "T Full Buy vs CT Semi Eco": {
+      "n": 377,
+      "t_win_pct": 79.3
+     },
+     "T Full Buy vs CT Semi Buy": {
+      "n": 448,
+      "t_win_pct": 64.1
+     },
+     "T Full Buy vs CT Full Buy": {
+      "n": 3438,
+      "t_win_pct": 45.1
+     }
+    },
+    "win_pct_vs_full_buy_either_side": {
+     "Full Eco": {
+      "n": 886,
+      "win_pct": 7.1
+     },
+     "Semi Eco": {
+      "n": 832,
+      "win_pct": 19.2
+     },
+     "Semi Buy": {
+      "n": 1078,
+      "win_pct": 33.9
+     },
+     "Full Buy": {
+      "n": 6876,
+      "win_pct": 50.0
+     }
+    },
+    "buy_type_definition": "awpy/HLTV style on team freeze-time-end equipment value: Full Eco < $5k, Semi Eco $5k\u201310k, Semi Buy $10k\u201320k, Full Buy > $20k"
+   },
+   "series": {
+    "maps": 278,
+    "overtime_rate_pct": 7.6,
+    "win_after_win_pct": 65.3,
+    "pistol_winner_wins_next_round_pct": 80.2,
+    "pistol_winner_wins_next_two_pct": 60.9,
+    "rounds_per_map_mr15": 25.86
+   },
+   "kills": {
+    "kills": 48612,
+    "headshot_pct": 46.9,
+    "wallbang_pct": 4.5,
+    "through_smoke_pct": 4.3,
+    "trade_kill_share_pct_awpy_5s": 15.3,
+    "trade_time_s": {
+     "n": 13287,
+     "mean": 3.5,
+     "p10": 0.52,
+     "p25": 1.23,
+     "p50": 2.7,
+     "p75": 5.39,
+     "p90": 7.89
+    },
+    "trade_within_s_pct_of_trades_le5s": {
+     "1s": 27.8,
+     "2s": 55.4,
+     "3s": 73.9,
+     "4s": 88.3
+    },
+    "trade_share_by_window_pct_of_all_kills": {
+     "2s": 10.9,
+     "3s": 14.6,
+     "5s": 19.7
+    },
+    "engagement_distance_m": {
+     "n": 48612,
+     "mean": 19.64,
+     "p10": 7.12,
+     "p25": 11.5,
+     "p50": 18.29,
+     "p75": 26.55,
+     "p90": 34.25
+    },
+    "engagement_distance_map_pct": {
+     "n": 48612,
+     "mean": 15.16,
+     "p10": 5.5,
+     "p25": 8.87,
+     "p50": 14.12,
+     "p75": 20.5,
+     "p90": 26.44
+    },
+    "engagement_distance_hist_m_pct": {
+     "0-5": 4.6,
+     "5-10": 14.8,
+     "10-15": 19.5,
+     "15-20": 17.3,
+     "20-30": 26.6,
+     "30-40": 13.5,
+     "40+": 3.8
+    },
+    "engagement_distance_by_weapon_m": {
+     "Rifle": {
+      "n": 38668,
+      "mean": 20.33,
+      "p10": 7.68,
+      "p25": 12.14,
+      "p50": 19.13,
+      "p75": 27.43,
+      "p90": 34.88
+     },
+     "Pistols": {
+      "n": 7764,
+      "mean": 17.36,
+      "p10": 6.09,
+      "p25": 9.74,
+      "p50": 15.49,
+      "p75": 23.38,
+      "p90": 31.31
+     },
+     "SMG": {
+      "n": 1569,
+      "mean": 12.89,
+      "p10": 4.78,
+      "p25": 7.31,
+      "p50": 11.45,
+      "p75": 16.34,
+      "p90": 24.09
+     }
+    },
+    "kill_time_hist_s_after_freeze_pct": {
+     "0-10": 0.9,
+     "10-20": 8.8,
+     "20-30": 13.0,
+     "30-40": 12.0,
+     "40-50": 10.9,
+     "50-60": 10.4,
+     "60-70": 10.2,
+     "70-80": 9.6,
+     "80-90": 8.5,
+     "90-100": 7.3,
+     "100+": 8.3
+    }
+   },
+   "utility": {
+    "he_thrown": 17774,
+    "he_zero_enemy_damage_pct": 62.8,
+    "he_enemy_damage_per_throw": {
+     "n": 17774,
+     "mean": 9.8,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 11.0,
+     "p90": 38.0,
+     "p95": 51.0
+    },
+    "he_enemy_damage_per_damaging_throw": {
+     "n": 6605,
+     "mean": 26.38,
+     "p25": 7.0,
+     "p50": 21.0,
+     "p75": 39.0,
+     "p90": 56.0
+    },
+    "he_enemies_hit_per_throw_pct": {
+     "0": 62.8,
+     "1": 28.0,
+     "2": 7.1,
+     "3": 1.7,
+     "4+": 0.3
+    },
+    "he_damage_per_enemy_hit": {
+     "n": 8663,
+     "mean": 20.11,
+     "p10": 1.0,
+     "p25": 5.0,
+     "p50": 15.0,
+     "p75": 32.0,
+     "p90": 47.0
+    },
+    "he_damage_per_enemy_hit_hist": {
+     "1-10": 38.8,
+     "10-20": 18.7,
+     "20-30": 13.8,
+     "30-40": 11.8,
+     "40-50": 9.5,
+     "50-60": 5.4,
+     "60-80": 1.5,
+     "80+": 0.5
+    },
+    "he_kills_per_100_throws": 1.97,
+    "he_team_damage_pct_of_throws": 1.2,
+    "molotov_thrown": 33602,
+    "molotov_zero_enemy_damage_pct": 88.1,
+    "molotov_enemy_damage_per_throw": {
+     "n": 33602,
+     "mean": 2.63,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 0.0,
+     "p90": 3.0,
+     "p95": 19.0
+    },
+    "molotov_enemy_damage_per_damaging_throw": {
+     "n": 4008,
+     "mean": 22.06,
+     "p25": 6.0,
+     "p50": 14.0,
+     "p75": 32.0,
+     "p90": 52.0
+    }
+   },
+   "line_of_sight": {
+    "mesh_check": {
+     "kill_lines_checked": 44404,
+     "kill_lines_clear_pct": 92.5
+    },
+    "standoffs": {
+     "rounds": 7393,
+     "demos": 278,
+     "4m": {
+      "radius_u": 157,
+      "radius_m": 4.0,
+      "radius_map_pct": 3.1,
+      "quiet_pair_seconds_per_round": 0.05,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.04,
+      "sightings_ge3s_per_round": 0.002,
+      "sightings_ge3s_duration_s": {
+       "n": 14,
+       "mean": 3.98,
+       "p10": 3.0,
+       "p25": 3.02,
+       "p50": 3.51,
+       "p75": 4.75,
+       "p90": 5.71
+      },
+      "rounds_with_sighting_ge3s_pct": 0.2,
+      "sightings_ge10s_per_100_rounds": 0.0,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 6.550000000000004
+     },
+     "6mappct": {
+      "radius_u": 306,
+      "radius_m": 7.8,
+      "radius_map_pct": 6.0,
+      "quiet_pair_seconds_per_round": 0.31,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.24,
+      "sightings_ge3s_per_round": 0.024,
+      "sightings_ge3s_duration_s": {
+       "n": 180,
+       "mean": 4.26,
+       "p10": 3.0,
+       "p25": 3.03,
+       "p50": 4.0,
+       "p75": 4.53,
+       "p90": 6.04
+      },
+      "rounds_with_sighting_ge3s_pct": 2.2,
+      "sightings_ge10s_per_100_rounds": 0.03,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 13.600000000000001
+     },
+     "10mappct": {
+      "radius_u": 510,
+      "radius_m": 13.0,
+      "radius_map_pct": 10.0,
+      "quiet_pair_seconds_per_round": 1.1,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.86,
+      "sightings_ge3s_per_round": 0.092,
+      "sightings_ge3s_duration_s": {
+       "n": 683,
+       "mean": 4.99,
+       "p10": 3.0,
+       "p25": 3.5,
+       "p50": 4.5,
+       "p75": 6.0,
+       "p90": 8.06
+      },
+      "rounds_with_sighting_ge3s_pct": 7.8,
+      "sightings_ge10s_per_100_rounds": 0.46,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 15.620000000000005
+     },
+     "contact_to_fight": {
+      "0-4m": {
+       "contacts": 1381,
+       "damage_within_1s_pct": 72.9,
+       "damage_within_2s_pct": 81.8,
+       "damage_within_3s_pct": 85.2,
+       "damage_within_5s_pct": 88.5,
+       "kill_within_1s_pct": 62.7,
+       "kill_within_2s_pct": 75.2,
+       "kill_within_3s_pct": 79.7,
+       "kill_within_5s_pct": 83.4
+      },
+      "4-8m": {
+       "contacts": 5135,
+       "damage_within_1s_pct": 72.5,
+       "damage_within_2s_pct": 78.2,
+       "damage_within_3s_pct": 80.7,
+       "damage_within_5s_pct": 83.4,
+       "kill_within_1s_pct": 61.7,
+       "kill_within_2s_pct": 70.3,
+       "kill_within_3s_pct": 73.4,
+       "kill_within_5s_pct": 76.6
+      },
+      "8-13m": {
+       "contacts": 10601,
+       "damage_within_1s_pct": 68.7,
+       "damage_within_2s_pct": 73.3,
+       "damage_within_3s_pct": 75.9,
+       "damage_within_5s_pct": 79.2,
+       "kill_within_1s_pct": 55.7,
+       "kill_within_2s_pct": 63.0,
+       "kill_within_3s_pct": 66.4,
+       "kill_within_5s_pct": 70.3
+      }
+     }
+    },
+    "sight_to_kill": {
+     "kills": 46409,
+     "kills_with_visible_run_pct": 76.9,
+     "sight_to_kill_s": {
+      "n": 35685,
+      "mean": 0.7,
+      "p10": 0.09,
+      "p25": 0.2,
+      "p50": 0.41,
+      "p75": 0.8,
+      "p90": 1.48
+     },
+     "sight_to_first_shot_s": {
+      "n": 35621,
+      "mean": 0.3,
+      "p10": -0.18,
+      "p25": -0.03,
+      "p50": 0.12,
+      "p75": 0.29,
+      "p90": 0.77
+     },
+     "sight_to_first_damage_s": {
+      "n": 35685,
+      "mean": 0.47,
+      "p10": -0.05,
+      "p25": 0.07,
+      "p50": 0.22,
+      "p75": 0.48,
+      "p90": 1.13
+     },
+     "victim_fired_back_pct": 65.9,
+     "sight_to_kill_hist_s_pct": {
+      "0-0.5": 57.1,
+      "0.5-1": 24.3,
+      "1-1.5": 8.7,
+      "1.5-2": 3.9,
+      "2-3": 3.1,
+      "3-5": 1.9,
+      "5-10": 0.9,
+      "10+": 0.2
+     },
+     "opening_kill_sight_to_kill_s": {
+      "n": 5468,
+      "mean": 0.69,
+      "p10": 0.09,
+      "p25": 0.2,
+      "p50": 0.41,
+      "p75": 0.77,
+      "p90": 1.43
+     },
+     "sight_to_kill_by_distance_s": {
+      "0-5m": {
+       "n": 1767,
+       "mean": 1.29,
+       "p10": 0.11,
+       "p25": 0.27,
+       "p50": 0.56,
+       "p75": 1.35,
+       "p90": 3.39
+      },
+      "5-10m": {
+       "n": 5387,
+       "mean": 0.82,
+       "p10": 0.09,
+       "p25": 0.19,
+       "p50": 0.41,
+       "p75": 0.81,
+       "p90": 1.76
+      },
+      "10-20m": {
+       "n": 13289,
+       "mean": 0.66,
+       "p10": 0.09,
+       "p25": 0.2,
+       "p50": 0.39,
+       "p75": 0.76,
+       "p90": 1.38
+      },
+      "20m+": {
+       "n": 15242,
+       "mean": 0.63,
+       "p10": 0.09,
+       "p25": 0.19,
+       "p50": 0.42,
+       "p75": 0.8,
+       "p90": 1.39
+      }
+     }
+    }
+   }
+  },
+  "Nuke": {
+   "rounds": {
+    "rounds": 6625,
+    "maps": 260,
+    "t_round_win_pct": 43.8,
+    "ct_round_win_pct": 56.2,
+    "t_wins_by_bomb_pct_of_t_wins": 39.6,
+    "t_wins_by_elim_pct_of_t_wins": 60.4,
+    "ct_wins_by_elim_pct_of_ct_wins": 70.4,
+    "ct_wins_by_defuse_pct_of_ct_wins": 21.3,
+    "ct_wins_by_time_pct_of_ct_wins": 8.2,
+    "plant_rate_pct": 48.4,
+    "plant_rate_gun_rounds_pct": 49.5,
+    "t_win_after_plant_pct": 75.1,
+    "t_win_no_plant_pct": 14.3,
+    "plant_time_s_after_freeze": {
+     "n": 3208,
+     "mean": 71.17,
+     "p10": 33.52,
+     "p25": 48.92,
+     "p50": 72.46,
+     "p75": 94.27,
+     "p90": 106.99
+    },
+    "pistol_t_win_pct": 47.5,
+    "pistol_rounds": 520,
+    "gun_round_t_win_pct": 42.3,
+    "gun_rounds": 3157,
+    "round_duration_s": {
+     "n": 6625,
+     "mean": 86.79,
+     "p10": 43.79,
+     "p25": 64.44,
+     "p50": 88.36,
+     "p75": 109.95,
+     "p90": 125.39
+    },
+    "time_to_first_kill_s": {
+     "n": 6616,
+     "mean": 32.58,
+     "p10": 12.9,
+     "p25": 16.49,
+     "p50": 25.62,
+     "p75": 43.47,
+     "p90": 64.91
+    },
+    "time_to_first_kill_s_gun": {
+     "n": 3156,
+     "mean": 34.04,
+     "p10": 12.95,
+     "p25": 16.7,
+     "p50": 26.8,
+     "p75": 46.1,
+     "p90": 67.89
+    },
+    "time_to_first_kill_s_pistol": {
+     "n": 520,
+     "mean": 24.88,
+     "p10": 12.81,
+     "p25": 16.14,
+     "p50": 22.34,
+     "p75": 30.52,
+     "p90": 39.99
+    },
+    "first_kill_by_t_pct": 40.3,
+    "opening_kill_team_round_win_pct": 73.1,
+    "opening_kill_round_win_pct_when_t": 70.9,
+    "opening_kill_round_win_pct_when_ct": 74.6,
+    "opening_kill_distance_m": {
+     "n": 6616,
+     "mean": 18.26,
+     "p10": 5.83,
+     "p25": 9.36,
+     "p50": 15.73,
+     "p75": 24.27,
+     "p90": 34.75
+    },
+    "kills_per_round": 6.59,
+    "adr": 72.6,
+    "utility_adr": 3.56,
+    "utility_damage_per_team_round": 17.8,
+    "grenades_per_team_round": {
+     "nFlash": 2.29,
+     "nSmoke": 3.17,
+     "nHE": 1.79,
+     "nMolly": 2.41
+    }
+   },
+   "buys": {
+    "matrix_non_pistol": {
+     "T Full Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Buy": {
+      "n": 43,
+      "t_win_pct": 7.0
+     },
+     "T Full Eco vs CT Full Buy": {
+      "n": 431,
+      "t_win_pct": 4.6
+     },
+     "T Semi Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Buy": {
+      "n": 27,
+      "t_win_pct": 33.3
+     },
+     "T Semi Eco vs CT Full Buy": {
+      "n": 472,
+      "t_win_pct": 18.2
+     },
+     "T Semi Buy vs CT Full Eco": {
+      "n": 38,
+      "t_win_pct": 92.1
+     },
+     "T Semi Buy vs CT Semi Eco": {
+      "n": 106,
+      "t_win_pct": 72.6
+     },
+     "T Semi Buy vs CT Semi Buy": {
+      "n": 156,
+      "t_win_pct": 59.0
+     },
+     "T Semi Buy vs CT Full Buy": {
+      "n": 653,
+      "t_win_pct": 33.4
+     },
+     "T Full Buy vs CT Full Eco": {
+      "n": 274,
+      "t_win_pct": 92.0
+     },
+     "T Full Buy vs CT Semi Eco": {
+      "n": 344,
+      "t_win_pct": 77.6
+     },
+     "T Full Buy vs CT Semi Buy": {
+      "n": 410,
+      "t_win_pct": 63.9
+     },
+     "T Full Buy vs CT Full Buy": {
+      "n": 3151,
+      "t_win_pct": 42.3
+     }
+    },
+    "win_pct_vs_full_buy_either_side": {
+     "Full Eco": {
+      "n": 705,
+      "win_pct": 6.0
+     },
+     "Semi Eco": {
+      "n": 816,
+      "win_pct": 20.0
+     },
+     "Semi Buy": {
+      "n": 1063,
+      "win_pct": 34.4
+     },
+     "Full Buy": {
+      "n": 6302,
+      "win_pct": 50.0
+     }
+    },
+    "buy_type_definition": "awpy/HLTV style on team freeze-time-end equipment value: Full Eco < $5k, Semi Eco $5k\u201310k, Semi Buy $10k\u201320k, Full Buy > $20k"
+   },
+   "series": {
+    "maps": 260,
+    "overtime_rate_pct": 6.2,
+    "win_after_win_pct": 64.9,
+    "pistol_winner_wins_next_round_pct": 75.7,
+    "pistol_winner_wins_next_two_pct": 59.5,
+    "rounds_per_map_mr15": 25.48
+   },
+   "kills": {
+    "kills": 44645,
+    "headshot_pct": 46.0,
+    "wallbang_pct": 3.1,
+    "through_smoke_pct": 3.6,
+    "trade_kill_share_pct_awpy_5s": 15.9,
+    "trade_time_s": {
+     "n": 12563,
+     "mean": 3.23,
+     "p10": 0.45,
+     "p25": 1.08,
+     "p50": 2.37,
+     "p75": 4.96,
+     "p90": 7.56
+    },
+    "trade_within_s_pct_of_trades_le5s": {
+     "1s": 31.0,
+     "2s": 59.0,
+     "3s": 77.0,
+     "4s": 89.6
+    },
+    "trade_share_by_window_pct_of_all_kills": {
+     "2s": 12.5,
+     "3s": 16.3,
+     "5s": 21.2
+    },
+    "engagement_distance_m": {
+     "n": 44645,
+     "mean": 16.98,
+     "p10": 6.06,
+     "p25": 9.54,
+     "p50": 15.11,
+     "p75": 22.38,
+     "p90": 30.85
+    },
+    "engagement_distance_map_pct": {
+     "n": 44645,
+     "mean": 13.11,
+     "p10": 4.68,
+     "p25": 7.37,
+     "p50": 11.66,
+     "p75": 17.28,
+     "p90": 23.82
+    },
+    "engagement_distance_hist_m_pct": {
+     "0-5": 6.4,
+     "5-10": 20.8,
+     "10-15": 22.3,
+     "15-20": 18.7,
+     "20-30": 20.7,
+     "30-40": 8.1,
+     "40+": 2.9
+    },
+    "engagement_distance_by_weapon_m": {
+     "Rifle": {
+      "n": 34569,
+      "mean": 17.77,
+      "p10": 6.6,
+      "p25": 10.23,
+      "p50": 15.94,
+      "p75": 23.26,
+      "p90": 31.84
+     },
+     "Pistols": {
+      "n": 7453,
+      "mean": 14.87,
+      "p10": 5.23,
+      "p25": 7.99,
+      "p50": 12.66,
+      "p75": 19.62,
+      "p90": 27.67
+     },
+     "SMG": {
+      "n": 2057,
+      "mean": 11.49,
+      "p10": 4.31,
+      "p25": 6.78,
+      "p50": 10.22,
+      "p75": 14.97,
+      "p90": 20.36
+     },
+     "Heavy": {
+      "n": 103,
+      "mean": 8.3,
+      "p10": 3.87,
+      "p25": 5.05,
+      "p50": 7.35,
+      "p75": 10.39,
+      "p90": 14.18
+     }
+    },
+    "kill_time_hist_s_after_freeze_pct": {
+     "0-10": 0.0,
+     "10-20": 10.4,
+     "20-30": 12.3,
+     "30-40": 12.0,
+     "40-50": 10.6,
+     "50-60": 10.2,
+     "60-70": 9.8,
+     "70-80": 9.3,
+     "80-90": 8.5,
+     "90-100": 7.5,
+     "100+": 9.4
+    }
+   },
+   "utility": {
+    "he_thrown": 24364,
+    "he_zero_enemy_damage_pct": 77.2,
+    "he_enemy_damage_per_throw": {
+     "n": 24364,
+     "mean": 5.71,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 0.0,
+     "p90": 22.0,
+     "p95": 41.0
+    },
+    "he_enemy_damage_per_damaging_throw": {
+     "n": 5548,
+     "mean": 25.06,
+     "p25": 6.0,
+     "p50": 18.0,
+     "p75": 38.0,
+     "p90": 55.0
+    },
+    "he_enemies_hit_per_throw_pct": {
+     "0": 77.2,
+     "1": 17.1,
+     "2": 4.2,
+     "3": 1.1,
+     "4+": 0.3
+    },
+    "he_damage_per_enemy_hit": {
+     "n": 7381,
+     "mean": 18.84,
+     "p10": 1.0,
+     "p25": 4.0,
+     "p50": 14.0,
+     "p75": 30.0,
+     "p90": 45.0
+    },
+    "he_damage_per_enemy_hit_hist": {
+     "1-10": 41.1,
+     "10-20": 19.1,
+     "20-30": 13.9,
+     "30-40": 11.2,
+     "40-50": 8.9,
+     "50-60": 4.3,
+     "60-80": 1.0,
+     "80+": 0.5
+    },
+    "he_kills_per_100_throws": 0.84,
+    "he_team_damage_pct_of_throws": 2.6,
+    "molotov_thrown": 32912,
+    "molotov_zero_enemy_damage_pct": 86.6,
+    "molotov_enemy_damage_per_throw": {
+     "n": 32912,
+     "mean": 3.12,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 0.0,
+     "p90": 7.0,
+     "p95": 24.0
+    },
+    "molotov_enemy_damage_per_damaging_throw": {
+     "n": 4402,
+     "mean": 23.35,
+     "p25": 7.0,
+     "p50": 16.0,
+     "p75": 32.0,
+     "p90": 56.0
+    }
+   },
+   "line_of_sight": {
+    "mesh_check": {
+     "kill_lines_checked": 41732,
+     "kill_lines_clear_pct": 93.6
+    },
+    "standoffs": {
+     "rounds": 6758,
+     "demos": 260,
+     "4m": {
+      "radius_u": 157,
+      "radius_m": 4.0,
+      "radius_map_pct": 3.1,
+      "quiet_pair_seconds_per_round": 0.05,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.04,
+      "sightings_ge3s_per_round": 0.002,
+      "sightings_ge3s_duration_s": {
+       "n": 13,
+       "mean": 3.55,
+       "p10": 3.0,
+       "p25": 3.0,
+       "p50": 3.53,
+       "p75": 4.0,
+       "p90": 4.03
+      },
+      "rounds_with_sighting_ge3s_pct": 0.2,
+      "sightings_ge10s_per_100_rounds": 0.0,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 5.0
+     },
+     "6mappct": {
+      "radius_u": 306,
+      "radius_m": 7.8,
+      "radius_map_pct": 6.0,
+      "quiet_pair_seconds_per_round": 0.38,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.28,
+      "sightings_ge3s_per_round": 0.022,
+      "sightings_ge3s_duration_s": {
+       "n": 152,
+       "mean": 4.44,
+       "p10": 3.0,
+       "p25": 3.02,
+       "p50": 3.77,
+       "p75": 5.0,
+       "p90": 7.04
+      },
+      "rounds_with_sighting_ge3s_pct": 2.0,
+      "sightings_ge10s_per_100_rounds": 0.06,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 12.5
+     },
+     "10mappct": {
+      "radius_u": 510,
+      "radius_m": 13.0,
+      "radius_map_pct": 10.0,
+      "quiet_pair_seconds_per_round": 1.36,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 1.02,
+      "sightings_ge3s_per_round": 0.096,
+      "sightings_ge3s_duration_s": {
+       "n": 651,
+       "mean": 4.57,
+       "p10": 3.0,
+       "p25": 3.02,
+       "p50": 4.0,
+       "p75": 5.05,
+       "p90": 7.5
+      },
+      "rounds_with_sighting_ge3s_pct": 7.8,
+      "sightings_ge10s_per_100_rounds": 0.25,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 15.0
+     },
+     "contact_to_fight": {
+      "0-4m": {
+       "contacts": 1789,
+       "damage_within_1s_pct": 76.2,
+       "damage_within_2s_pct": 84.0,
+       "damage_within_3s_pct": 86.9,
+       "damage_within_5s_pct": 89.0,
+       "kill_within_1s_pct": 64.0,
+       "kill_within_2s_pct": 76.3,
+       "kill_within_3s_pct": 79.7,
+       "kill_within_5s_pct": 82.6
+      },
+      "4-8m": {
+       "contacts": 7068,
+       "damage_within_1s_pct": 73.8,
+       "damage_within_2s_pct": 79.2,
+       "damage_within_3s_pct": 81.3,
+       "damage_within_5s_pct": 83.5,
+       "kill_within_1s_pct": 61.9,
+       "kill_within_2s_pct": 70.1,
+       "kill_within_3s_pct": 72.9,
+       "kill_within_5s_pct": 75.6
+      },
+      "8-13m": {
+       "contacts": 12840,
+       "damage_within_1s_pct": 67.4,
+       "damage_within_2s_pct": 72.4,
+       "damage_within_3s_pct": 74.9,
+       "damage_within_5s_pct": 77.5,
+       "kill_within_1s_pct": 53.9,
+       "kill_within_2s_pct": 61.2,
+       "kill_within_3s_pct": 64.3,
+       "kill_within_5s_pct": 67.5
+      }
+     }
+    },
+    "sight_to_kill": {
+     "kills": 43275,
+     "kills_with_visible_run_pct": 78.7,
+     "sight_to_kill_s": {
+      "n": 34059,
+      "mean": 0.69,
+      "p10": 0.09,
+      "p25": 0.21,
+      "p50": 0.43,
+      "p75": 0.81,
+      "p90": 1.47
+     },
+     "sight_to_first_shot_s": {
+      "n": 33998,
+      "mean": 0.26,
+      "p10": -0.22,
+      "p25": -0.05,
+      "p50": 0.11,
+      "p75": 0.28,
+      "p90": 0.72
+     },
+     "sight_to_first_damage_s": {
+      "n": 34059,
+      "mean": 0.45,
+      "p10": -0.06,
+      "p25": 0.06,
+      "p50": 0.22,
+      "p75": 0.49,
+      "p90": 1.09
+     },
+     "victim_fired_back_pct": 68.9,
+     "sight_to_kill_hist_s_pct": {
+      "0-0.5": 55.7,
+      "0.5-1": 25.6,
+      "1-1.5": 9.0,
+      "1.5-2": 4.1,
+      "2-3": 3.1,
+      "3-5": 1.6,
+      "5-10": 0.8,
+      "10+": 0.1
+     },
+     "opening_kill_sight_to_kill_s": {
+      "n": 5212,
+      "mean": 0.77,
+      "p10": 0.09,
+      "p25": 0.21,
+      "p50": 0.45,
+      "p75": 0.87,
+      "p90": 1.6
+     },
+     "sight_to_kill_by_distance_s": {
+      "0-5m": {
+       "n": 2330,
+       "mean": 0.97,
+       "p10": 0.11,
+       "p25": 0.24,
+       "p50": 0.5,
+       "p75": 1.03,
+       "p90": 2.31
+      },
+      "5-10m": {
+       "n": 7117,
+       "mean": 0.71,
+       "p10": 0.09,
+       "p25": 0.2,
+       "p50": 0.41,
+       "p75": 0.77,
+       "p90": 1.49
+      },
+      "10-20m": {
+       "n": 13941,
+       "mean": 0.65,
+       "p10": 0.09,
+       "p25": 0.2,
+       "p50": 0.41,
+       "p75": 0.75,
+       "p90": 1.37
+      },
+      "20m+": {
+       "n": 10671,
+       "mean": 0.68,
+       "p10": 0.1,
+       "p25": 0.22,
+       "p50": 0.46,
+       "p75": 0.88,
+       "p90": 1.45
+      }
+     }
+    }
+   }
+  },
+  "Dust2": {
+   "rounds": {
+    "rounds": 5096,
+    "maps": 197,
+    "t_round_win_pct": 48.0,
+    "ct_round_win_pct": 52.0,
+    "t_wins_by_bomb_pct_of_t_wins": 42.6,
+    "t_wins_by_elim_pct_of_t_wins": 57.4,
+    "ct_wins_by_elim_pct_of_ct_wins": 66.9,
+    "ct_wins_by_defuse_pct_of_ct_wins": 23.8,
+    "ct_wins_by_time_pct_of_ct_wins": 9.3,
+    "plant_rate_pct": 53.0,
+    "plant_rate_gun_rounds_pct": 56.9,
+    "t_win_after_plant_pct": 76.5,
+    "t_win_no_plant_pct": 15.9,
+    "plant_time_s_after_freeze": {
+     "n": 2699,
+     "mean": 73.93,
+     "p10": 41.4,
+     "p25": 54.82,
+     "p50": 75.26,
+     "p75": 93.71,
+     "p90": 104.93
+    },
+    "pistol_t_win_pct": 40.9,
+    "pistol_rounds": 394,
+    "gun_round_t_win_pct": 48.0,
+    "gun_rounds": 2415,
+    "round_duration_s": {
+     "n": 5096,
+     "mean": 90.46,
+     "p10": 49.37,
+     "p25": 69.9,
+     "p50": 92.25,
+     "p75": 113.22,
+     "p90": 128.72
+    },
+    "time_to_first_kill_s": {
+     "n": 5087,
+     "mean": 34.94,
+     "p10": 9.63,
+     "p25": 13.91,
+     "p50": 27.61,
+     "p75": 51.8,
+     "p90": 73.4
+    },
+    "time_to_first_kill_s_gun": {
+     "n": 2414,
+     "mean": 36.94,
+     "p10": 9.64,
+     "p25": 13.67,
+     "p50": 28.69,
+     "p75": 57.67,
+     "p90": 78.34
+    },
+    "time_to_first_kill_s_pistol": {
+     "n": 394,
+     "mean": 31.07,
+     "p10": 11.27,
+     "p25": 16.13,
+     "p50": 27.46,
+     "p75": 42.11,
+     "p90": 58.64
+    },
+    "first_kill_by_t_pct": 43.5,
+    "opening_kill_team_round_win_pct": 71.3,
+    "opening_kill_round_win_pct_when_t": 72.0,
+    "opening_kill_round_win_pct_when_ct": 70.7,
+    "opening_kill_distance_m": {
+     "n": 5087,
+     "mean": 23.39,
+     "p10": 7.18,
+     "p25": 12.64,
+     "p50": 19.81,
+     "p75": 28.59,
+     "p90": 44.66
+    },
+    "kills_per_round": 6.43,
+    "adr": 71.3,
+    "utility_adr": 4.39,
+    "utility_damage_per_team_round": 22.0,
+    "grenades_per_team_round": {
+     "nFlash": 4.23,
+     "nSmoke": 3.03,
+     "nHE": 1.2,
+     "nMolly": 2.22
+    }
+   },
+   "buys": {
+    "matrix_non_pistol": {
+     "T Full Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Buy": {
+      "n": 46,
+      "t_win_pct": 2.2
+     },
+     "T Full Eco vs CT Full Buy": {
+      "n": 353,
+      "t_win_pct": 5.4
+     },
+     "T Semi Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Buy": {
+      "n": 22,
+      "t_win_pct": 36.4
+     },
+     "T Semi Eco vs CT Full Buy": {
+      "n": 345,
+      "t_win_pct": 20.3
+     },
+     "T Semi Buy vs CT Full Eco": {
+      "n": 44,
+      "t_win_pct": 100.0
+     },
+     "T Semi Buy vs CT Semi Eco": {
+      "n": 83,
+      "t_win_pct": 69.9
+     },
+     "T Semi Buy vs CT Semi Buy": {
+      "n": 103,
+      "t_win_pct": 64.1
+     },
+     "T Semi Buy vs CT Full Buy": {
+      "n": 442,
+      "t_win_pct": 38.7
+     },
+     "T Full Buy vs CT Full Eco": {
+      "n": 250,
+      "t_win_pct": 93.6
+     },
+     "T Full Buy vs CT Semi Eco": {
+      "n": 262,
+      "t_win_pct": 85.1
+     },
+     "T Full Buy vs CT Semi Buy": {
+      "n": 337,
+      "t_win_pct": 68.0
+     },
+     "T Full Buy vs CT Full Buy": {
+      "n": 2415,
+      "t_win_pct": 48.0
+     }
+    },
+    "win_pct_vs_full_buy_either_side": {
+     "Full Eco": {
+      "n": 603,
+      "win_pct": 5.8
+     },
+     "Semi Eco": {
+      "n": 607,
+      "win_pct": 18.0
+     },
+     "Semi Buy": {
+      "n": 779,
+      "win_pct": 35.8
+     },
+     "Full Buy": {
+      "n": 4830,
+      "win_pct": 50.0
+     }
+    },
+    "buy_type_definition": "awpy/HLTV style on team freeze-time-end equipment value: Full Eco < $5k, Semi Eco $5k\u201310k, Semi Buy $10k\u201320k, Full Buy > $20k"
+   },
+   "series": {
+    "maps": 197,
+    "overtime_rate_pct": 5.6,
+    "win_after_win_pct": 65.0,
+    "pistol_winner_wins_next_round_pct": 75.6,
+    "pistol_winner_wins_next_two_pct": 56.8,
+    "rounds_per_map_mr15": 25.87
+   },
+   "kills": {
+    "kills": 33367,
+    "headshot_pct": 47.7,
+    "wallbang_pct": 4.5,
+    "through_smoke_pct": 5.2,
+    "trade_kill_share_pct_awpy_5s": 15.6,
+    "trade_time_s": {
+     "n": 9220,
+     "mean": 3.26,
+     "p10": 0.41,
+     "p25": 1.04,
+     "p50": 2.43,
+     "p75": 5.1,
+     "p90": 7.55
+    },
+    "trade_within_s_pct_of_trades_le5s": {
+     "1s": 32.5,
+     "2s": 58.9,
+     "3s": 76.6,
+     "4s": 89.5
+    },
+    "trade_share_by_window_pct_of_all_kills": {
+     "2s": 12.1,
+     "3s": 15.7,
+     "5s": 20.5
+    },
+    "engagement_distance_m": {
+     "n": 33367,
+     "mean": 21.03,
+     "p10": 7.35,
+     "p25": 12.21,
+     "p50": 19.17,
+     "p75": 27.37,
+     "p90": 35.75
+    },
+    "engagement_distance_map_pct": {
+     "n": 33367,
+     "mean": 16.23,
+     "p10": 5.67,
+     "p25": 9.42,
+     "p50": 14.8,
+     "p75": 21.13,
+     "p90": 27.59
+    },
+    "engagement_distance_hist_m_pct": {
+     "0-5": 4.3,
+     "5-10": 13.3,
+     "10-15": 17.9,
+     "15-20": 17.2,
+     "20-30": 28.7,
+     "30-40": 11.9,
+     "40+": 6.7
+    },
+    "engagement_distance_by_weapon_m": {
+     "Rifle": {
+      "n": 26362,
+      "mean": 21.85,
+      "p10": 7.86,
+      "p25": 12.96,
+      "p50": 19.93,
+      "p75": 28.11,
+      "p90": 36.99
+     },
+     "Pistols": {
+      "n": 5442,
+      "mean": 18.42,
+      "p10": 6.4,
+      "p25": 10.39,
+      "p50": 16.67,
+      "p75": 25.09,
+      "p90": 32.3
+     },
+     "SMG": {
+      "n": 1095,
+      "mean": 13.83,
+      "p10": 5.01,
+      "p25": 7.48,
+      "p50": 12.28,
+      "p75": 18.34,
+      "p90": 25.49
+     }
+    },
+    "kill_time_hist_s_after_freeze_pct": {
+     "0-10": 1.9,
+     "10-20": 9.4,
+     "20-30": 8.6,
+     "30-40": 9.2,
+     "40-50": 10.0,
+     "50-60": 10.1,
+     "60-70": 10.6,
+     "70-80": 10.7,
+     "80-90": 10.0,
+     "90-100": 8.8,
+     "100+": 10.7
+    }
+   },
+   "utility": {
+    "he_thrown": 12542,
+    "he_zero_enemy_damage_pct": 60.1,
+    "he_enemy_damage_per_throw": {
+     "n": 12542,
+     "mean": 11.78,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 14.0,
+     "p90": 43.0,
+     "p95": 58.0
+    },
+    "he_enemy_damage_per_damaging_throw": {
+     "n": 5000,
+     "mean": 29.55,
+     "p25": 7.0,
+     "p50": 22.0,
+     "p75": 43.0,
+     "p90": 65.0
+    },
+    "he_enemies_hit_per_throw_pct": {
+     "0": 60.1,
+     "1": 26.7,
+     "2": 9.0,
+     "3": 3.3,
+     "4+": 0.9
+    },
+    "he_damage_per_enemy_hit": {
+     "n": 7302,
+     "mean": 20.23,
+     "p10": 1.0,
+     "p25": 4.0,
+     "p50": 15.0,
+     "p75": 33.0,
+     "p90": 47.0
+    },
+    "he_damage_per_enemy_hit_hist": {
+     "1-10": 39.5,
+     "10-20": 17.7,
+     "20-30": 14.1,
+     "30-40": 11.5,
+     "40-50": 9.8,
+     "50-60": 5.2,
+     "60-80": 1.5,
+     "80+": 0.8
+    },
+    "he_kills_per_100_throws": 2.1,
+    "he_team_damage_pct_of_throws": 1.5,
+    "molotov_thrown": 23262,
+    "molotov_zero_enemy_damage_pct": 85.8,
+    "molotov_enemy_damage_per_throw": {
+     "n": 23262,
+     "mean": 3.48,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 0.0,
+     "p90": 8.0,
+     "p95": 25.0
+    },
+    "molotov_enemy_damage_per_damaging_throw": {
+     "n": 3308,
+     "mean": 24.49,
+     "p25": 6.0,
+     "p50": 16.0,
+     "p75": 34.0,
+     "p90": 56.0
+    }
+   }
+  },
+  "Overpass": {
+   "rounds": {
+    "rounds": 4738,
+    "maps": 181,
+    "t_round_win_pct": 43.4,
+    "ct_round_win_pct": 56.6,
+    "t_wins_by_bomb_pct_of_t_wins": 38.9,
+    "t_wins_by_elim_pct_of_t_wins": 61.1,
+    "ct_wins_by_elim_pct_of_ct_wins": 68.6,
+    "ct_wins_by_defuse_pct_of_ct_wins": 19.0,
+    "ct_wins_by_time_pct_of_ct_wins": 12.4,
+    "plant_rate_pct": 47.6,
+    "plant_rate_gun_rounds_pct": 48.9,
+    "t_win_after_plant_pct": 77.1,
+    "t_win_no_plant_pct": 12.8,
+    "plant_time_s_after_freeze": {
+     "n": 2254,
+     "mean": 81.96,
+     "p10": 46.47,
+     "p25": 65.47,
+     "p50": 86.47,
+     "p75": 101.51,
+     "p90": 109.35
+    },
+    "pistol_t_win_pct": 46.4,
+    "pistol_rounds": 362,
+    "gun_round_t_win_pct": 41.3,
+    "gun_rounds": 2227,
+    "round_duration_s": {
+     "n": 4738,
+     "mean": 95.7,
+     "p10": 53.19,
+     "p25": 76.94,
+     "p50": 99.52,
+     "p75": 115.35,
+     "p90": 131.26
+    },
+    "time_to_first_kill_s": {
+     "n": 4733,
+     "mean": 38.55,
+     "p10": 15.28,
+     "p25": 19.95,
+     "p50": 31.73,
+     "p75": 52.49,
+     "p90": 74.11
+    },
+    "time_to_first_kill_s_gun": {
+     "n": 2226,
+     "mean": 40.13,
+     "p10": 15.51,
+     "p25": 20.39,
+     "p50": 33.89,
+     "p75": 55.31,
+     "p90": 76.95
+    },
+    "time_to_first_kill_s_pistol": {
+     "n": 362,
+     "mean": 32.94,
+     "p10": 14.96,
+     "p25": 18.91,
+     "p50": 27.33,
+     "p75": 44.62,
+     "p90": 58.38
+    },
+    "first_kill_by_t_pct": 42.8,
+    "opening_kill_team_round_win_pct": 73.3,
+    "opening_kill_round_win_pct_when_t": 69.4,
+    "opening_kill_round_win_pct_when_ct": 76.2,
+    "opening_kill_distance_m": {
+     "n": 4733,
+     "mean": 18.69,
+     "p10": 6.58,
+     "p25": 10.36,
+     "p50": 16.63,
+     "p75": 24.73,
+     "p90": 33.26
+    },
+    "kills_per_round": 6.55,
+    "adr": 72.5,
+    "utility_adr": 3.72,
+    "utility_damage_per_team_round": 18.6,
+    "grenades_per_team_round": {
+     "nFlash": 3.32,
+     "nSmoke": 2.89,
+     "nHE": 1.52,
+     "nMolly": 2.53
+    }
+   },
+   "buys": {
+    "matrix_non_pistol": {
+     "T Full Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Buy": {
+      "n": 40,
+      "t_win_pct": 2.5
+     },
+     "T Full Eco vs CT Full Buy": {
+      "n": 324,
+      "t_win_pct": 7.1
+     },
+     "T Semi Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Buy": {
+      "n": 19,
+      "t_win_pct": 15.8
+     },
+     "T Semi Eco vs CT Full Buy": {
+      "n": 331,
+      "t_win_pct": 16.9
+     },
+     "T Semi Buy vs CT Full Eco": {
+      "n": 34,
+      "t_win_pct": 100.0
+     },
+     "T Semi Buy vs CT Semi Eco": {
+      "n": 66,
+      "t_win_pct": 72.7
+     },
+     "T Semi Buy vs CT Semi Buy": {
+      "n": 113,
+      "t_win_pct": 51.3
+     },
+     "T Semi Buy vs CT Full Buy": {
+      "n": 455,
+      "t_win_pct": 30.1
+     },
+     "T Full Buy vs CT Full Eco": {
+      "n": 236,
+      "t_win_pct": 93.2
+     },
+     "T Full Buy vs CT Semi Eco": {
+      "n": 214,
+      "t_win_pct": 79.9
+     },
+     "T Full Buy vs CT Semi Buy": {
+      "n": 317,
+      "t_win_pct": 68.1
+     },
+     "T Full Buy vs CT Full Buy": {
+      "n": 2227,
+      "t_win_pct": 41.3
+     }
+    },
+    "win_pct_vs_full_buy_either_side": {
+     "Full Eco": {
+      "n": 560,
+      "win_pct": 7.0
+     },
+     "Semi Eco": {
+      "n": 545,
+      "win_pct": 18.2
+     },
+     "Semi Buy": {
+      "n": 772,
+      "win_pct": 30.8
+     },
+     "Full Buy": {
+      "n": 4454,
+      "win_pct": 50.0
+     }
+    },
+    "buy_type_definition": "awpy/HLTV style on team freeze-time-end equipment value: Full Eco < $5k, Semi Eco $5k\u201310k, Semi Buy $10k\u201320k, Full Buy > $20k"
+   },
+   "series": {
+    "maps": 181,
+    "overtime_rate_pct": 6.1,
+    "win_after_win_pct": 65.8,
+    "pistol_winner_wins_next_round_pct": 77.3,
+    "pistol_winner_wins_next_two_pct": 59.1,
+    "rounds_per_map_mr15": 26.18
+   },
+   "kills": {
+    "kills": 31809,
+    "headshot_pct": 44.7,
+    "wallbang_pct": 4.3,
+    "through_smoke_pct": 2.9,
+    "trade_kill_share_pct_awpy_5s": 16.5,
+    "trade_time_s": {
+     "n": 9125,
+     "mean": 3.3,
+     "p10": 0.42,
+     "p25": 1.05,
+     "p50": 2.47,
+     "p75": 5.09,
+     "p90": 7.67
+    },
+    "trade_within_s_pct_of_trades_le5s": {
+     "1s": 32.0,
+     "2s": 58.4,
+     "3s": 75.9,
+     "4s": 89.1
+    },
+    "trade_share_by_window_pct_of_all_kills": {
+     "2s": 12.5,
+     "3s": 16.2,
+     "5s": 21.3
+    },
+    "engagement_distance_m": {
+     "n": 31809,
+     "mean": 17.75,
+     "p10": 6.98,
+     "p25": 10.79,
+     "p50": 16.4,
+     "p75": 23.13,
+     "p90": 30.13
+    },
+    "engagement_distance_map_pct": {
+     "n": 31809,
+     "mean": 13.7,
+     "p10": 5.39,
+     "p25": 8.33,
+     "p50": 12.66,
+     "p75": 17.85,
+     "p90": 23.26
+    },
+    "engagement_distance_hist_m_pct": {
+     "0-5": 4.4,
+     "5-10": 17.2,
+     "10-15": 22.3,
+     "15-20": 20.6,
+     "20-30": 25.3,
+     "30-40": 7.9,
+     "40+": 2.3
+    },
+    "engagement_distance_by_weapon_m": {
+     "Rifle": {
+      "n": 24920,
+      "mean": 18.38,
+      "p10": 7.48,
+      "p25": 11.42,
+      "p50": 17.12,
+      "p75": 23.75,
+      "p90": 30.7
+     },
+     "Pistols": {
+      "n": 5143,
+      "mean": 15.59,
+      "p10": 6.05,
+      "p25": 9.14,
+      "p50": 14.06,
+      "p75": 20.7,
+      "p90": 27.35
+     },
+     "SMG": {
+      "n": 1360,
+      "mean": 12.73,
+      "p10": 5.06,
+      "p25": 7.61,
+      "p50": 11.34,
+      "p75": 16.58,
+      "p90": 22.35
+     }
+    },
+    "kill_time_hist_s_after_freeze_pct": {
+     "0-10": 0.1,
+     "10-20": 6.0,
+     "20-30": 9.7,
+     "30-40": 9.9,
+     "40-50": 9.0,
+     "50-60": 9.5,
+     "60-70": 9.5,
+     "70-80": 10.2,
+     "80-90": 10.5,
+     "90-100": 11.3,
+     "100+": 14.4
+    }
+   },
+   "utility": {
+    "he_thrown": 14863,
+    "he_zero_enemy_damage_pct": 69.4,
+    "he_enemy_damage_per_throw": {
+     "n": 14863,
+     "mean": 7.59,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 4.0,
+     "p90": 31.0,
+     "p95": 46.0
+    },
+    "he_enemy_damage_per_damaging_throw": {
+     "n": 4542,
+     "mean": 24.83,
+     "p25": 6.0,
+     "p50": 18.0,
+     "p75": 39.0,
+     "p90": 54.0
+    },
+    "he_enemies_hit_per_throw_pct": {
+     "0": 69.4,
+     "1": 22.9,
+     "2": 6.3,
+     "3": 1.1,
+     "4+": 0.2
+    },
+    "he_damage_per_enemy_hit": {
+     "n": 5906,
+     "mean": 19.1,
+     "p10": 1.0,
+     "p25": 4.0,
+     "p50": 14.0,
+     "p75": 31.0,
+     "p90": 45.0
+    },
+    "he_damage_per_enemy_hit_hist": {
+     "1-10": 41.0,
+     "10-20": 19.5,
+     "20-30": 12.4,
+     "30-40": 10.9,
+     "40-50": 9.4,
+     "50-60": 5.0,
+     "60-80": 1.2,
+     "80+": 0.6
+    },
+    "he_kills_per_100_throws": 1.61,
+    "he_team_damage_pct_of_throws": 1.5,
+    "molotov_thrown": 24810,
+    "molotov_zero_enemy_damage_pct": 88.4,
+    "molotov_enemy_damage_per_throw": {
+     "n": 24810,
+     "mean": 2.75,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 0.0,
+     "p90": 4.0,
+     "p95": 19.0
+    },
+    "molotov_enemy_damage_per_damaging_throw": {
+     "n": 2890,
+     "mean": 23.64,
+     "p25": 7.0,
+     "p50": 16.0,
+     "p75": 32.0,
+     "p90": 56.0
+    }
+   },
+   "line_of_sight": {
+    "mesh_check": {
+     "kill_lines_checked": 29571,
+     "kill_lines_clear_pct": 87.1
+    },
+    "standoffs": {
+     "rounds": 4846,
+     "demos": 181,
+     "4m": {
+      "radius_u": 157,
+      "radius_m": 4.0,
+      "radius_map_pct": 3.1,
+      "quiet_pair_seconds_per_round": 0.03,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.02,
+      "sightings_ge3s_per_round": 0.001,
+      "sightings_ge3s_duration_s": {
+       "n": 4,
+       "mean": 3.5,
+       "p10": 3.0,
+       "p25": 3.0,
+       "p50": 3.25,
+       "p75": 3.75,
+       "p90": 4.2
+      },
+      "rounds_with_sighting_ge3s_pct": 0.1,
+      "sightings_ge10s_per_100_rounds": 0.0,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 4.5
+     },
+     "6mappct": {
+      "radius_u": 306,
+      "radius_m": 7.8,
+      "radius_map_pct": 6.0,
+      "quiet_pair_seconds_per_round": 0.29,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.21,
+      "sightings_ge3s_per_round": 0.02,
+      "sightings_ge3s_duration_s": {
+       "n": 97,
+       "mean": 4.34,
+       "p10": 3.0,
+       "p25": 3.02,
+       "p50": 3.5,
+       "p75": 4.53,
+       "p90": 5.72
+      },
+      "rounds_with_sighting_ge3s_pct": 1.8,
+      "sightings_ge10s_per_100_rounds": 0.06,
+      "sightings_ge20s_per_100_rounds": 0.02,
+      "longest_s": 26.39
+     },
+     "10mappct": {
+      "radius_u": 510,
+      "radius_m": 13.0,
+      "radius_map_pct": 10.0,
+      "quiet_pair_seconds_per_round": 1.12,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.81,
+      "sightings_ge3s_per_round": 0.091,
+      "sightings_ge3s_duration_s": {
+       "n": 441,
+       "mean": 4.53,
+       "p10": 3.0,
+       "p25": 3.02,
+       "p50": 4.0,
+       "p75": 5.03,
+       "p90": 6.55
+      },
+      "rounds_with_sighting_ge3s_pct": 7.2,
+      "sightings_ge10s_per_100_rounds": 0.21,
+      "sightings_ge20s_per_100_rounds": 0.02,
+      "longest_s": 28.400000000000006
+     },
+     "contact_to_fight": {
+      "0-4m": {
+       "contacts": 789,
+       "damage_within_1s_pct": 75.9,
+       "damage_within_2s_pct": 84.0,
+       "damage_within_3s_pct": 88.3,
+       "damage_within_5s_pct": 90.6,
+       "kill_within_1s_pct": 64.5,
+       "kill_within_2s_pct": 77.4,
+       "kill_within_3s_pct": 81.7,
+       "kill_within_5s_pct": 84.4
+      },
+      "4-8m": {
+       "contacts": 3748,
+       "damage_within_1s_pct": 75.5,
+       "damage_within_2s_pct": 79.9,
+       "damage_within_3s_pct": 82.3,
+       "damage_within_5s_pct": 84.8,
+       "kill_within_1s_pct": 63.2,
+       "kill_within_2s_pct": 70.9,
+       "kill_within_3s_pct": 73.7,
+       "kill_within_5s_pct": 76.7
+      },
+      "8-13m": {
+       "contacts": 8065,
+       "damage_within_1s_pct": 70.8,
+       "damage_within_2s_pct": 75.6,
+       "damage_within_3s_pct": 78.3,
+       "damage_within_5s_pct": 81.0,
+       "kill_within_1s_pct": 56.3,
+       "kill_within_2s_pct": 63.6,
+       "kill_within_3s_pct": 66.7,
+       "kill_within_5s_pct": 70.2
+      }
+     }
+    },
+    "sight_to_kill": {
+     "kills": 30443,
+     "kills_with_visible_run_pct": 73.7,
+     "sight_to_kill_s": {
+      "n": 22442,
+      "mean": 0.7,
+      "p10": 0.09,
+      "p25": 0.21,
+      "p50": 0.42,
+      "p75": 0.79,
+      "p90": 1.44
+     },
+     "sight_to_first_shot_s": {
+      "n": 22411,
+      "mean": 0.26,
+      "p10": -0.22,
+      "p25": -0.05,
+      "p50": 0.1,
+      "p75": 0.27,
+      "p90": 0.68
+     },
+     "sight_to_first_damage_s": {
+      "n": 22442,
+      "mean": 0.46,
+      "p10": -0.06,
+      "p25": 0.06,
+      "p50": 0.22,
+      "p75": 0.46,
+      "p90": 1.07
+     },
+     "victim_fired_back_pct": 71.5,
+     "sight_to_kill_hist_s_pct": {
+      "0-0.5": 56.6,
+      "0.5-1": 25.6,
+      "1-1.5": 8.4,
+      "1.5-2": 3.7,
+      "2-3": 2.7,
+      "3-5": 1.9,
+      "5-10": 1.0,
+      "10+": 0.1
+     },
+     "opening_kill_sight_to_kill_s": {
+      "n": 3381,
+      "mean": 0.63,
+      "p10": 0.09,
+      "p25": 0.2,
+      "p50": 0.41,
+      "p75": 0.73,
+      "p90": 1.22
+     },
+     "sight_to_kill_by_distance_s": {
+      "0-5m": {
+       "n": 1136,
+       "mean": 1.28,
+       "p10": 0.12,
+       "p25": 0.28,
+       "p50": 0.61,
+       "p75": 1.52,
+       "p90": 3.34
+      },
+      "5-10m": {
+       "n": 4106,
+       "mean": 0.78,
+       "p10": 0.09,
+       "p25": 0.2,
+       "p50": 0.41,
+       "p75": 0.78,
+       "p90": 1.68
+      },
+      "10-20m": {
+       "n": 9983,
+       "mean": 0.65,
+       "p10": 0.09,
+       "p25": 0.21,
+       "p50": 0.41,
+       "p75": 0.75,
+       "p90": 1.34
+      },
+      "20m+": {
+       "n": 7217,
+       "mean": 0.62,
+       "p10": 0.09,
+       "p25": 0.2,
+       "p50": 0.41,
+       "p75": 0.78,
+       "p90": 1.29
+      }
+     }
+    }
+   }
+  },
+  "Vertigo": {
+   "rounds": {
+    "rounds": 4331,
+    "maps": 169,
+    "t_round_win_pct": 48.9,
+    "ct_round_win_pct": 51.1,
+    "t_wins_by_bomb_pct_of_t_wins": 36.4,
+    "t_wins_by_elim_pct_of_t_wins": 63.6,
+    "ct_wins_by_elim_pct_of_ct_wins": 67.1,
+    "ct_wins_by_defuse_pct_of_ct_wins": 22.9,
+    "ct_wins_by_time_pct_of_ct_wins": 10.0,
+    "plant_rate_pct": 52.9,
+    "plant_rate_gun_rounds_pct": 54.5,
+    "t_win_after_plant_pct": 77.6,
+    "t_win_no_plant_pct": 16.5,
+    "plant_time_s_after_freeze": {
+     "n": 2292,
+     "mean": 73.83,
+     "p10": 40.01,
+     "p25": 54.65,
+     "p50": 75.3,
+     "p75": 94.25,
+     "p90": 105.46
+    },
+    "pistol_t_win_pct": 57.1,
+    "pistol_rounds": 338,
+    "gun_round_t_win_pct": 46.0,
+    "gun_rounds": 2083,
+    "round_duration_s": {
+     "n": 4331,
+     "mean": 89.71,
+     "p10": 49.16,
+     "p25": 68.27,
+     "p50": 92.1,
+     "p75": 113.45,
+     "p90": 126.48
+    },
+    "time_to_first_kill_s": {
+     "n": 4325,
+     "mean": 31.87,
+     "p10": 11.73,
+     "p25": 15.64,
+     "p50": 25.88,
+     "p75": 42.84,
+     "p90": 62.36
+    },
+    "time_to_first_kill_s_gun": {
+     "n": 2082,
+     "mean": 33.03,
+     "p10": 11.8,
+     "p25": 15.93,
+     "p50": 26.94,
+     "p75": 44.12,
+     "p90": 65.08
+    },
+    "time_to_first_kill_s_pistol": {
+     "n": 338,
+     "mean": 27.89,
+     "p10": 12.58,
+     "p25": 16.53,
+     "p50": 23.76,
+     "p75": 35.15,
+     "p90": 50.95
+    },
+    "first_kill_by_t_pct": 46.8,
+    "opening_kill_team_round_win_pct": 72.6,
+    "opening_kill_round_win_pct_when_t": 72.9,
+    "opening_kill_round_win_pct_when_ct": 72.4,
+    "opening_kill_distance_m": {
+     "n": 4325,
+     "mean": 15.23,
+     "p10": 6.13,
+     "p25": 9.36,
+     "p50": 14.11,
+     "p75": 20.05,
+     "p90": 25.63
+    },
+    "kills_per_round": 6.64,
+    "adr": 73.8,
+    "utility_adr": 5.71,
+    "utility_damage_per_team_round": 28.5,
+    "grenades_per_team_round": {
+     "nFlash": 3.19,
+     "nSmoke": 2.77,
+     "nHE": 1.8,
+     "nMolly": 2.35
+    }
+   },
+   "buys": {
+    "matrix_non_pistol": {
+     "T Full Eco vs CT Full Eco": {
+      "n": 1,
+      "t_win_pct": 0.0
+     },
+     "T Full Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Buy": {
+      "n": 37,
+      "t_win_pct": 5.4
+     },
+     "T Full Eco vs CT Full Buy": {
+      "n": 249,
+      "t_win_pct": 6.8
+     },
+     "T Semi Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Buy": {
+      "n": 9,
+      "t_win_pct": 22.2
+     },
+     "T Semi Eco vs CT Full Buy": {
+      "n": 254,
+      "t_win_pct": 13.8
+     },
+     "T Semi Buy vs CT Full Eco": {
+      "n": 56,
+      "t_win_pct": 96.4
+     },
+     "T Semi Buy vs CT Semi Eco": {
+      "n": 70,
+      "t_win_pct": 75.7
+     },
+     "T Semi Buy vs CT Semi Buy": {
+      "n": 89,
+      "t_win_pct": 68.5
+     },
+     "T Semi Buy vs CT Full Buy": {
+      "n": 357,
+      "t_win_pct": 29.7
+     },
+     "T Full Buy vs CT Full Eco": {
+      "n": 255,
+      "t_win_pct": 96.9
+     },
+     "T Full Buy vs CT Semi Eco": {
+      "n": 262,
+      "t_win_pct": 82.8
+     },
+     "T Full Buy vs CT Semi Buy": {
+      "n": 277,
+      "t_win_pct": 62.1
+     },
+     "T Full Buy vs CT Full Buy": {
+      "n": 2077,
+      "t_win_pct": 46.1
+     }
+    },
+    "win_pct_vs_full_buy_either_side": {
+     "Full Eco": {
+      "n": 504,
+      "win_pct": 5.0
+     },
+     "Semi Eco": {
+      "n": 516,
+      "win_pct": 15.5
+     },
+     "Semi Buy": {
+      "n": 634,
+      "win_pct": 33.3
+     },
+     "Full Buy": {
+      "n": 4154,
+      "win_pct": 50.0
+     }
+    },
+    "buy_type_definition": "awpy/HLTV style on team freeze-time-end equipment value: Full Eco < $5k, Semi Eco $5k\u201310k, Semi Buy $10k\u201320k, Full Buy > $20k"
+   },
+   "series": {
+    "maps": 169,
+    "overtime_rate_pct": 10.7,
+    "win_after_win_pct": 66.0,
+    "pistol_winner_wins_next_round_pct": 80.7,
+    "pistol_winner_wins_next_two_pct": 60.4,
+    "rounds_per_map_mr15": 25.63
+   },
+   "kills": {
+    "kills": 29916,
+    "headshot_pct": 44.1,
+    "wallbang_pct": 4.7,
+    "through_smoke_pct": 5.6,
+    "trade_kill_share_pct_awpy_5s": 16.9,
+    "trade_time_s": {
+     "n": 8590,
+     "mean": 3.21,
+     "p10": 0.43,
+     "p25": 1.0,
+     "p50": 2.32,
+     "p75": 4.95,
+     "p90": 7.57
+    },
+    "trade_within_s_pct_of_trades_le5s": {
+     "1s": 33.3,
+     "2s": 59.7,
+     "3s": 77.1,
+     "4s": 90.1
+    },
+    "trade_share_by_window_pct_of_all_kills": {
+     "2s": 12.9,
+     "3s": 16.7,
+     "5s": 21.6
+    },
+    "engagement_distance_m": {
+     "n": 29916,
+     "mean": 15.91,
+     "p10": 6.77,
+     "p25": 10.35,
+     "p50": 15.1,
+     "p75": 20.84,
+     "p90": 25.72
+    },
+    "engagement_distance_map_pct": {
+     "n": 29916,
+     "mean": 12.28,
+     "p10": 5.23,
+     "p25": 7.99,
+     "p50": 11.66,
+     "p75": 16.09,
+     "p90": 19.85
+    },
+    "engagement_distance_hist_m_pct": {
+     "0-5": 4.5,
+     "5-10": 18.8,
+     "10-15": 26.2,
+     "15-20": 22.2,
+     "20-30": 23.9,
+     "30-40": 4.2,
+     "40+": 0.2
+    },
+    "engagement_distance_by_weapon_m": {
+     "Rifle": {
+      "n": 23277,
+      "mean": 16.47,
+      "p10": 7.31,
+      "p25": 10.97,
+      "p50": 15.79,
+      "p75": 21.35,
+      "p90": 26.21
+     },
+     "Pistols": {
+      "n": 4710,
+      "mean": 13.93,
+      "p10": 5.76,
+      "p25": 8.73,
+      "p50": 12.98,
+      "p75": 18.24,
+      "p90": 23.23
+     },
+     "SMG": {
+      "n": 1415,
+      "mean": 11.96,
+      "p10": 5.28,
+      "p25": 7.66,
+      "p50": 11.27,
+      "p75": 15.22,
+      "p90": 19.96
+     }
+    },
+    "kill_time_hist_s_after_freeze_pct": {
+     "0-10": 1.0,
+     "10-20": 9.1,
+     "20-30": 10.0,
+     "30-40": 11.5,
+     "40-50": 10.7,
+     "50-60": 10.5,
+     "60-70": 10.2,
+     "70-80": 9.4,
+     "80-90": 8.3,
+     "90-100": 7.6,
+     "100+": 11.7
+    }
+   },
+   "utility": {
+    "he_thrown": 16469,
+    "he_zero_enemy_damage_pct": 55.7,
+    "he_enemy_damage_per_throw": {
+     "n": 16469,
+     "mean": 11.76,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 16.0,
+     "p90": 43.0,
+     "p95": 55.0
+    },
+    "he_enemy_damage_per_damaging_throw": {
+     "n": 7301,
+     "mean": 26.54,
+     "p25": 6.0,
+     "p50": 20.0,
+     "p75": 41.0,
+     "p90": 56.0
+    },
+    "he_enemies_hit_per_throw_pct": {
+     "0": 55.7,
+     "1": 31.2,
+     "2": 9.6,
+     "3": 2.9,
+     "4+": 0.7
+    },
+    "he_damage_per_enemy_hit": {
+     "n": 10182,
+     "mean": 19.03,
+     "p10": 1.0,
+     "p25": 4.0,
+     "p50": 13.0,
+     "p75": 31.0,
+     "p90": 46.0
+    },
+    "he_damage_per_enemy_hit_hist": {
+     "1-10": 42.1,
+     "10-20": 18.7,
+     "20-30": 12.7,
+     "30-40": 10.7,
+     "40-50": 8.7,
+     "50-60": 5.2,
+     "60-80": 1.1,
+     "80+": 0.6
+    },
+    "he_kills_per_100_throws": 2.06,
+    "he_team_damage_pct_of_throws": 1.9,
+    "molotov_thrown": 21548,
+    "molotov_zero_enemy_damage_pct": 85.0,
+    "molotov_enemy_damage_per_throw": {
+     "n": 21548,
+     "mean": 3.21,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 0.0,
+     "p90": 8.0,
+     "p95": 24.0
+    },
+    "molotov_enemy_damage_per_damaging_throw": {
+     "n": 3238,
+     "mean": 21.35,
+     "p25": 6.0,
+     "p50": 14.0,
+     "p75": 32.0,
+     "p90": 48.0
+    }
+   },
+   "line_of_sight": {
+    "mesh_check": {
+     "kill_lines_checked": 26903,
+     "kill_lines_clear_pct": 93.0
+    },
+    "standoffs": {
+     "rounds": 4490,
+     "demos": 169,
+     "4m": {
+      "radius_u": 157,
+      "radius_m": 4.0,
+      "radius_map_pct": 3.1,
+      "quiet_pair_seconds_per_round": 0.08,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.06,
+      "sightings_ge3s_per_round": 0.005,
+      "sightings_ge3s_duration_s": {
+       "n": 21,
+       "mean": 4.52,
+       "p10": 3.02,
+       "p25": 3.02,
+       "p50": 3.5,
+       "p75": 5.0,
+       "p90": 8.5
+      },
+      "rounds_with_sighting_ge3s_pct": 0.5,
+      "sightings_ge10s_per_100_rounds": 0.02,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 10.500000000000004
+     },
+     "6mappct": {
+      "radius_u": 306,
+      "radius_m": 7.8,
+      "radius_map_pct": 6.0,
+      "quiet_pair_seconds_per_round": 0.58,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.46,
+      "sightings_ge3s_per_round": 0.046,
+      "sightings_ge3s_duration_s": {
+       "n": 208,
+       "mean": 4.59,
+       "p10": 3.0,
+       "p25": 3.02,
+       "p50": 4.0,
+       "p75": 5.04,
+       "p90": 7.02
+      },
+      "rounds_with_sighting_ge3s_pct": 3.9,
+      "sightings_ge10s_per_100_rounds": 0.18,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 13.5
+     },
+     "10mappct": {
+      "radius_u": 510,
+      "radius_m": 13.0,
+      "radius_map_pct": 10.0,
+      "quiet_pair_seconds_per_round": 2.4,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 1.94,
+      "sightings_ge3s_per_round": 0.217,
+      "sightings_ge3s_duration_s": {
+       "n": 974,
+       "mean": 4.74,
+       "p10": 3.0,
+       "p25": 3.02,
+       "p50": 4.0,
+       "p75": 5.5,
+       "p90": 7.55
+      },
+      "rounds_with_sighting_ge3s_pct": 15.1,
+      "sightings_ge10s_per_100_rounds": 0.91,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 17.000000000000004
+     },
+     "contact_to_fight": {
+      "0-4m": {
+       "contacts": 860,
+       "damage_within_1s_pct": 64.7,
+       "damage_within_2s_pct": 72.2,
+       "damage_within_3s_pct": 76.0,
+       "damage_within_5s_pct": 79.5,
+       "kill_within_1s_pct": 53.0,
+       "kill_within_2s_pct": 64.8,
+       "kill_within_3s_pct": 68.8,
+       "kill_within_5s_pct": 72.7
+      },
+      "4-8m": {
+       "contacts": 4517,
+       "damage_within_1s_pct": 65.8,
+       "damage_within_2s_pct": 71.3,
+       "damage_within_3s_pct": 74.2,
+       "damage_within_5s_pct": 77.6,
+       "kill_within_1s_pct": 53.4,
+       "kill_within_2s_pct": 61.9,
+       "kill_within_3s_pct": 65.3,
+       "kill_within_5s_pct": 68.8
+      },
+      "8-13m": {
+       "contacts": 10740,
+       "damage_within_1s_pct": 57.4,
+       "damage_within_2s_pct": 61.9,
+       "damage_within_3s_pct": 64.7,
+       "damage_within_5s_pct": 67.9,
+       "kill_within_1s_pct": 44.7,
+       "kill_within_2s_pct": 51.0,
+       "kill_within_3s_pct": 54.1,
+       "kill_within_5s_pct": 57.5
+      }
+     }
+    },
+    "sight_to_kill": {
+     "kills": 28503,
+     "kills_with_visible_run_pct": 79.3,
+     "sight_to_kill_s": {
+      "n": 22589,
+      "mean": 0.77,
+      "p10": 0.09,
+      "p25": 0.22,
+      "p50": 0.44,
+      "p75": 0.84,
+      "p90": 1.66
+     },
+     "sight_to_first_shot_s": {
+      "n": 22556,
+      "mean": 0.33,
+      "p10": -0.21,
+      "p25": -0.05,
+      "p50": 0.12,
+      "p75": 0.29,
+      "p90": 0.87
+     },
+     "sight_to_first_damage_s": {
+      "n": 22589,
+      "mean": 0.54,
+      "p10": -0.05,
+      "p25": 0.08,
+      "p50": 0.23,
+      "p75": 0.52,
+      "p90": 1.3
+     },
+     "victim_fired_back_pct": 71.1,
+     "sight_to_kill_hist_s_pct": {
+      "0-0.5": 54.8,
+      "0.5-1": 25.2,
+      "1-1.5": 8.4,
+      "1.5-2": 3.9,
+      "2-3": 3.6,
+      "3-5": 2.5,
+      "5-10": 1.3,
+      "10+": 0.2
+     },
+     "opening_kill_sight_to_kill_s": {
+      "n": 3384,
+      "mean": 0.85,
+      "p10": 0.1,
+      "p25": 0.23,
+      "p50": 0.47,
+      "p75": 0.91,
+      "p90": 1.94
+     },
+     "sight_to_kill_by_distance_s": {
+      "0-5m": {
+       "n": 1120,
+       "mean": 1.43,
+       "p10": 0.13,
+       "p25": 0.27,
+       "p50": 0.63,
+       "p75": 1.74,
+       "p90": 3.76
+      },
+      "5-10m": {
+       "n": 4334,
+       "mean": 0.9,
+       "p10": 0.09,
+       "p25": 0.21,
+       "p50": 0.44,
+       "p75": 0.91,
+       "p90": 2.12
+      },
+      "10-20m": {
+       "n": 11047,
+       "mean": 0.72,
+       "p10": 0.09,
+       "p25": 0.22,
+       "p50": 0.43,
+       "p75": 0.8,
+       "p90": 1.51
+      },
+      "20m+": {
+       "n": 6088,
+       "mean": 0.66,
+       "p10": 0.09,
+       "p25": 0.21,
+       "p50": 0.43,
+       "p75": 0.79,
+       "p90": 1.41
+      }
+     }
+    }
+   }
+  },
+  "Ancient": {
+   "rounds": {
+    "rounds": 3407,
+    "maps": 132,
+    "t_round_win_pct": 42.7,
+    "ct_round_win_pct": 57.3,
+    "t_wins_by_bomb_pct_of_t_wins": 38.5,
+    "t_wins_by_elim_pct_of_t_wins": 61.5,
+    "ct_wins_by_elim_pct_of_ct_wins": 64.8,
+    "ct_wins_by_defuse_pct_of_ct_wins": 26.8,
+    "ct_wins_by_time_pct_of_ct_wins": 8.4,
+    "plant_rate_pct": 52.2,
+    "plant_rate_gun_rounds_pct": 53.5,
+    "t_win_after_plant_pct": 70.4,
+    "t_win_no_plant_pct": 12.3,
+    "plant_time_s_after_freeze": {
+     "n": 1779,
+     "mean": 68.03,
+     "p10": 31.75,
+     "p25": 43.76,
+     "p50": 68.27,
+     "p75": 91.92,
+     "p90": 105.32
+    },
+    "pistol_t_win_pct": 45.8,
+    "pistol_rounds": 264,
+    "gun_round_t_win_pct": 41.1,
+    "gun_rounds": 1612,
+    "round_duration_s": {
+     "n": 3407,
+     "mean": 85.64,
+     "p10": 44.58,
+     "p25": 63.43,
+     "p50": 85.63,
+     "p75": 109.9,
+     "p90": 124.38
+    },
+    "time_to_first_kill_s": {
+     "n": 3400,
+     "mean": 32.23,
+     "p10": 12.0,
+     "p25": 15.72,
+     "p50": 24.49,
+     "p75": 42.8,
+     "p90": 66.12
+    },
+    "time_to_first_kill_s_gun": {
+     "n": 1611,
+     "mean": 34.38,
+     "p10": 12.1,
+     "p25": 15.84,
+     "p50": 25.96,
+     "p75": 47.0,
+     "p90": 72.45
+    },
+    "time_to_first_kill_s_pistol": {
+     "n": 264,
+     "mean": 25.79,
+     "p10": 13.16,
+     "p25": 16.12,
+     "p50": 22.83,
+     "p75": 31.31,
+     "p90": 44.05
+    },
+    "first_kill_by_t_pct": 38.9,
+    "opening_kill_team_round_win_pct": 72.8,
+    "opening_kill_round_win_pct_when_t": 69.8,
+    "opening_kill_round_win_pct_when_ct": 74.8,
+    "opening_kill_distance_m": {
+     "n": 3400,
+     "mean": 17.0,
+     "p10": 6.33,
+     "p25": 10.06,
+     "p50": 15.76,
+     "p75": 23.14,
+     "p90": 28.6
+    },
+    "kills_per_round": 6.64,
+    "adr": 73.3,
+    "utility_adr": 4.83,
+    "utility_damage_per_team_round": 24.2,
+    "grenades_per_team_round": {
+     "nFlash": 3.25,
+     "nSmoke": 3.06,
+     "nHE": 1.54,
+     "nMolly": 2.73
+    }
+   },
+   "buys": {
+    "matrix_non_pistol": {
+     "T Full Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Buy": {
+      "n": 18,
+      "t_win_pct": 0.0
+     },
+     "T Full Eco vs CT Full Buy": {
+      "n": 222,
+      "t_win_pct": 4.5
+     },
+     "T Semi Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Buy": {
+      "n": 9,
+      "t_win_pct": 22.2
+     },
+     "T Semi Eco vs CT Full Buy": {
+      "n": 235,
+      "t_win_pct": 15.3
+     },
+     "T Semi Buy vs CT Full Eco": {
+      "n": 36,
+      "t_win_pct": 91.7
+     },
+     "T Semi Buy vs CT Semi Eco": {
+      "n": 42,
+      "t_win_pct": 83.3
+     },
+     "T Semi Buy vs CT Semi Buy": {
+      "n": 66,
+      "t_win_pct": 59.1
+     },
+     "T Semi Buy vs CT Full Buy": {
+      "n": 353,
+      "t_win_pct": 30.9
+     },
+     "T Full Buy vs CT Full Eco": {
+      "n": 166,
+      "t_win_pct": 93.4
+     },
+     "T Full Buy vs CT Semi Eco": {
+      "n": 153,
+      "t_win_pct": 75.8
+     },
+     "T Full Buy vs CT Semi Buy": {
+      "n": 231,
+      "t_win_pct": 58.9
+     },
+     "T Full Buy vs CT Full Buy": {
+      "n": 1612,
+      "t_win_pct": 41.1
+     }
+    },
+    "win_pct_vs_full_buy_either_side": {
+     "Full Eco": {
+      "n": 388,
+      "win_pct": 5.4
+     },
+     "Semi Eco": {
+      "n": 388,
+      "win_pct": 18.8
+     },
+     "Semi Buy": {
+      "n": 584,
+      "win_pct": 34.9
+     },
+     "Full Buy": {
+      "n": 3224,
+      "win_pct": 50.0
+     }
+    },
+    "buy_type_definition": "awpy/HLTV style on team freeze-time-end equipment value: Full Eco < $5k, Semi Eco $5k\u201310k, Semi Buy $10k\u201320k, Full Buy > $20k"
+   },
+   "series": {
+    "maps": 132,
+    "overtime_rate_pct": 6.8,
+    "win_after_win_pct": 64.9,
+    "pistol_winner_wins_next_round_pct": 79.1,
+    "pistol_winner_wins_next_two_pct": 52.1,
+    "rounds_per_map_mr15": 25.81
+   },
+   "kills": {
+    "kills": 22993,
+    "headshot_pct": 44.1,
+    "wallbang_pct": 3.6,
+    "through_smoke_pct": 4.3,
+    "trade_kill_share_pct_awpy_5s": 16.2,
+    "trade_time_s": {
+     "n": 6526,
+     "mean": 3.39,
+     "p10": 0.44,
+     "p25": 1.09,
+     "p50": 2.5,
+     "p75": 5.38,
+     "p90": 7.85
+    },
+    "trade_within_s_pct_of_trades_le5s": {
+     "1s": 31.6,
+     "2s": 59.1,
+     "3s": 76.7,
+     "4s": 89.2
+    },
+    "trade_share_by_window_pct_of_all_kills": {
+     "2s": 12.2,
+     "3s": 15.8,
+     "5s": 20.6
+    },
+    "engagement_distance_m": {
+     "n": 22993,
+     "mean": 16.93,
+     "p10": 6.99,
+     "p25": 10.52,
+     "p50": 15.75,
+     "p75": 22.32,
+     "p90": 27.95
+    },
+    "engagement_distance_map_pct": {
+     "n": 22993,
+     "mean": 13.07,
+     "p10": 5.4,
+     "p25": 8.12,
+     "p50": 12.16,
+     "p75": 17.23,
+     "p90": 21.58
+    },
+    "engagement_distance_hist_m_pct": {
+     "0-5": 4.5,
+     "5-10": 18.3,
+     "10-15": 24.0,
+     "15-20": 20.0,
+     "20-30": 26.1,
+     "30-40": 6.1,
+     "40+": 1.2
+    },
+    "engagement_distance_by_weapon_m": {
+     "Rifle": {
+      "n": 17890,
+      "mean": 17.56,
+      "p10": 7.51,
+      "p25": 11.18,
+      "p50": 16.49,
+      "p75": 22.93,
+      "p90": 28.5
+     },
+     "Pistols": {
+      "n": 3778,
+      "mean": 14.98,
+      "p10": 5.83,
+      "p25": 8.82,
+      "p50": 13.49,
+      "p75": 19.91,
+      "p90": 26.3
+     },
+     "SMG": {
+      "n": 1047,
+      "mean": 12.49,
+      "p10": 5.02,
+      "p25": 7.61,
+      "p50": 11.28,
+      "p75": 16.16,
+      "p90": 21.89
+     }
+    },
+    "kill_time_hist_s_after_freeze_pct": {
+     "0-10": 0.7,
+     "10-20": 10.4,
+     "20-30": 11.8,
+     "30-40": 11.5,
+     "40-50": 11.1,
+     "50-60": 10.8,
+     "60-70": 9.5,
+     "70-80": 8.8,
+     "80-90": 7.8,
+     "90-100": 7.4,
+     "100+": 10.1
+    }
+   },
+   "utility": {
+    "he_thrown": 10707,
+    "he_zero_enemy_damage_pct": 60.6,
+    "he_enemy_damage_per_throw": {
+     "n": 10707,
+     "mean": 9.87,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 10.0,
+     "p90": 37.0,
+     "p95": 52.0
+    },
+    "he_enemy_damage_per_damaging_throw": {
+     "n": 4222,
+     "mean": 25.04,
+     "p25": 6.0,
+     "p50": 18.0,
+     "p75": 38.0,
+     "p90": 56.0
+    },
+    "he_enemies_hit_per_throw_pct": {
+     "0": 60.6,
+     "1": 27.0,
+     "2": 9.3,
+     "3": 2.5,
+     "4+": 0.6
+    },
+    "he_damage_per_enemy_hit": {
+     "n": 5962,
+     "mean": 17.73,
+     "p10": 1.0,
+     "p25": 4.0,
+     "p50": 12.0,
+     "p75": 28.0,
+     "p90": 43.0
+    },
+    "he_damage_per_enemy_hit_hist": {
+     "1-10": 43.9,
+     "10-20": 19.0,
+     "20-30": 14.0,
+     "30-40": 10.0,
+     "40-50": 8.0,
+     "50-60": 3.9,
+     "60-80": 0.9,
+     "80+": 0.4
+    },
+    "he_kills_per_100_throws": 1.21,
+    "he_team_damage_pct_of_throws": 1.2,
+    "molotov_thrown": 19026,
+    "molotov_zero_enemy_damage_pct": 84.0,
+    "molotov_enemy_damage_per_throw": {
+     "n": 19026,
+     "mean": 3.29,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 0.0,
+     "p90": 9.0,
+     "p95": 24.0
+    },
+    "molotov_enemy_damage_per_damaging_throw": {
+     "n": 3041,
+     "mean": 20.56,
+     "p25": 6.0,
+     "p50": 14.0,
+     "p75": 29.0,
+     "p90": 48.0
+    }
+   },
+   "line_of_sight": {
+    "mesh_check": {
+     "kill_lines_checked": 21219,
+     "kill_lines_clear_pct": 84.9
+    },
+    "standoffs": {
+     "rounds": 3460,
+     "demos": 132,
+     "4m": {
+      "radius_u": 157,
+      "radius_m": 4.0,
+      "radius_map_pct": 3.1,
+      "quiet_pair_seconds_per_round": 0.05,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.04,
+      "sightings_ge3s_per_round": 0.004,
+      "sightings_ge3s_duration_s": {
+       "n": 15,
+       "mean": 3.81,
+       "p10": 3.0,
+       "p25": 3.01,
+       "p50": 3.02,
+       "p75": 4.01,
+       "p90": 5.32
+      },
+      "rounds_with_sighting_ge3s_pct": 0.4,
+      "sightings_ge10s_per_100_rounds": 0.0,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 8.0
+     },
+     "6mappct": {
+      "radius_u": 306,
+      "radius_m": 7.8,
+      "radius_map_pct": 6.0,
+      "quiet_pair_seconds_per_round": 0.39,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 0.29,
+      "sightings_ge3s_per_round": 0.033,
+      "sightings_ge3s_duration_s": {
+       "n": 114,
+       "mean": 4.67,
+       "p10": 3.02,
+       "p25": 3.5,
+       "p50": 4.03,
+       "p75": 5.04,
+       "p90": 7.04
+      },
+      "rounds_with_sighting_ge3s_pct": 2.8,
+      "sightings_ge10s_per_100_rounds": 0.09,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 15.120000000000005
+     },
+     "10mappct": {
+      "radius_u": 510,
+      "radius_m": 13.0,
+      "radius_map_pct": 10.0,
+      "quiet_pair_seconds_per_round": 1.75,
+      "quiet_pair_seconds_per_round_no_damage_pm2_5s": 1.34,
+      "sightings_ge3s_per_round": 0.145,
+      "sightings_ge3s_duration_s": {
+       "n": 502,
+       "mean": 4.9,
+       "p10": 3.02,
+       "p25": 3.5,
+       "p50": 4.03,
+       "p75": 5.54,
+       "p90": 7.55
+      },
+      "rounds_with_sighting_ge3s_pct": 11.5,
+      "sightings_ge10s_per_100_rounds": 0.78,
+      "sightings_ge20s_per_100_rounds": 0.0,
+      "longest_s": 19.14
+     },
+     "contact_to_fight": {
+      "0-4m": {
+       "contacts": 579,
+       "damage_within_1s_pct": 69.3,
+       "damage_within_2s_pct": 79.8,
+       "damage_within_3s_pct": 84.6,
+       "damage_within_5s_pct": 88.1,
+       "kill_within_1s_pct": 58.4,
+       "kill_within_2s_pct": 71.7,
+       "kill_within_3s_pct": 77.4,
+       "kill_within_5s_pct": 81.0
+      },
+      "4-8m": {
+       "contacts": 2682,
+       "damage_within_1s_pct": 72.4,
+       "damage_within_2s_pct": 78.9,
+       "damage_within_3s_pct": 81.7,
+       "damage_within_5s_pct": 84.6,
+       "kill_within_1s_pct": 59.0,
+       "kill_within_2s_pct": 68.4,
+       "kill_within_3s_pct": 71.9,
+       "kill_within_5s_pct": 74.9
+      },
+      "8-13m": {
+       "contacts": 6920,
+       "damage_within_1s_pct": 61.0,
+       "damage_within_2s_pct": 66.5,
+       "damage_within_3s_pct": 69.5,
+       "damage_within_5s_pct": 72.8,
+       "kill_within_1s_pct": 47.7,
+       "kill_within_2s_pct": 55.2,
+       "kill_within_3s_pct": 58.8,
+       "kill_within_5s_pct": 62.3
+      }
+     }
+    },
+    "sight_to_kill": {
+     "kills": 22174,
+     "kills_with_visible_run_pct": 73.2,
+     "sight_to_kill_s": {
+      "n": 16238,
+      "mean": 0.84,
+      "p10": 0.09,
+      "p25": 0.22,
+      "p50": 0.46,
+      "p75": 0.92,
+      "p90": 1.9
+     },
+     "sight_to_first_shot_s": {
+      "n": 16211,
+      "mean": 0.4,
+      "p10": -0.2,
+      "p25": -0.04,
+      "p50": 0.13,
+      "p75": 0.35,
+      "p90": 1.17
+     },
+     "sight_to_first_damage_s": {
+      "n": 16238,
+      "mean": 0.59,
+      "p10": -0.05,
+      "p25": 0.08,
+      "p50": 0.24,
+      "p75": 0.6,
+      "p90": 1.54
+     },
+     "victim_fired_back_pct": 70.5,
+     "sight_to_kill_hist_s_pct": {
+      "0-0.5": 53.0,
+      "0.5-1": 24.1,
+      "1-1.5": 9.0,
+      "1.5-2": 4.6,
+      "2-3": 4.6,
+      "3-5": 3.1,
+      "5-10": 1.4,
+      "10+": 0.2
+     },
+     "opening_kill_sight_to_kill_s": {
+      "n": 2509,
+      "mean": 0.83,
+      "p10": 0.09,
+      "p25": 0.22,
+      "p50": 0.47,
+      "p75": 0.91,
+      "p90": 1.94
+     },
+     "sight_to_kill_by_distance_s": {
+      "0-5m": {
+       "n": 797,
+       "mean": 1.74,
+       "p10": 0.14,
+       "p25": 0.33,
+       "p50": 0.82,
+       "p75": 2.43,
+       "p90": 4.36
+      },
+      "5-10m": {
+       "n": 3029,
+       "mean": 0.94,
+       "p10": 0.1,
+       "p25": 0.22,
+       "p50": 0.46,
+       "p75": 0.98,
+       "p90": 2.27
+      },
+      "10-20m": {
+       "n": 7181,
+       "mean": 0.77,
+       "p10": 0.09,
+       "p25": 0.21,
+       "p50": 0.45,
+       "p75": 0.87,
+       "p90": 1.71
+      },
+      "20m+": {
+       "n": 5231,
+       "mean": 0.73,
+       "p10": 0.1,
+       "p25": 0.22,
+       "p50": 0.45,
+       "p75": 0.87,
+       "p90": 1.61
+      }
+     }
+    }
+   }
+  },
+  "Train": {
+   "rounds": {
+    "rounds": 1298,
+    "maps": 52,
+    "t_round_win_pct": 45.5,
+    "ct_round_win_pct": 54.5,
+    "t_wins_by_bomb_pct_of_t_wins": 35.7,
+    "t_wins_by_elim_pct_of_t_wins": 64.3,
+    "ct_wins_by_elim_pct_of_ct_wins": 66.6,
+    "ct_wins_by_defuse_pct_of_ct_wins": 27.3,
+    "ct_wins_by_time_pct_of_ct_wins": 6.1,
+    "plant_rate_pct": 52.0,
+    "plant_rate_gun_rounds_pct": 52.5,
+    "t_win_after_plant_pct": 71.0,
+    "t_win_no_plant_pct": 18.0,
+    "plant_time_s_after_freeze": {
+     "n": 675,
+     "mean": 69.26,
+     "p10": 35.47,
+     "p25": 47.8,
+     "p50": 64.3,
+     "p75": 94.66,
+     "p90": 106.12
+    },
+    "pistol_t_win_pct": 50.0,
+    "pistol_rounds": 104,
+    "gun_round_t_win_pct": 43.9,
+    "gun_rounds": 579,
+    "round_duration_s": {
+     "n": 1298,
+     "mean": 85.65,
+     "p10": 44.44,
+     "p25": 62.96,
+     "p50": 86.12,
+     "p75": 108.1,
+     "p90": 125.79
+    },
+    "time_to_first_kill_s": {
+     "n": 1298,
+     "mean": 33.18,
+     "p10": 13.12,
+     "p25": 17.0,
+     "p50": 24.97,
+     "p75": 44.08,
+     "p90": 68.32
+    },
+    "time_to_first_kill_s_gun": {
+     "n": 579,
+     "mean": 33.68,
+     "p10": 12.73,
+     "p25": 17.02,
+     "p50": 24.69,
+     "p75": 44.8,
+     "p90": 71.71
+    },
+    "time_to_first_kill_s_pistol": {
+     "n": 104,
+     "mean": 30.59,
+     "p10": 14.38,
+     "p25": 17.45,
+     "p50": 23.34,
+     "p75": 40.18,
+     "p90": 58.49
+    },
+    "first_kill_by_t_pct": 43.4,
+    "opening_kill_team_round_win_pct": 72.6,
+    "opening_kill_round_win_pct_when_t": 70.9,
+    "opening_kill_round_win_pct_when_ct": 73.9,
+    "opening_kill_distance_m": {
+     "n": 1298,
+     "mean": 19.78,
+     "p10": 6.04,
+     "p25": 9.16,
+     "p50": 17.15,
+     "p75": 27.71,
+     "p90": 39.45
+    },
+    "kills_per_round": 6.64,
+    "adr": 73.0,
+    "utility_adr": 4.79,
+    "utility_damage_per_team_round": 23.9,
+    "grenades_per_team_round": {
+     "nFlash": 3.09,
+     "nSmoke": 2.89,
+     "nHE": 1.47,
+     "nMolly": 2.28
+    }
+   },
+   "buys": {
+    "matrix_non_pistol": {
+     "T Full Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Full Eco vs CT Semi Buy": {
+      "n": 14,
+      "t_win_pct": 0.0
+     },
+     "T Full Eco vs CT Full Buy": {
+      "n": 102,
+      "t_win_pct": 3.9
+     },
+     "T Semi Eco vs CT Full Eco": {
+      "n": 0,
+      "t_win_pct": null
+     },
+     "T Semi Eco vs CT Semi Eco": {
+      "n": 1,
+      "t_win_pct": 0.0
+     },
+     "T Semi Eco vs CT Semi Buy": {
+      "n": 4,
+      "t_win_pct": 50.0
+     },
+     "T Semi Eco vs CT Full Buy": {
+      "n": 90,
+      "t_win_pct": 21.1
+     },
+     "T Semi Buy vs CT Full Eco": {
+      "n": 14,
+      "t_win_pct": 100.0
+     },
+     "T Semi Buy vs CT Semi Eco": {
+      "n": 20,
+      "t_win_pct": 70.0
+     },
+     "T Semi Buy vs CT Semi Buy": {
+      "n": 39,
+      "t_win_pct": 48.7
+     },
+     "T Semi Buy vs CT Full Buy": {
+      "n": 112,
+      "t_win_pct": 36.6
+     },
+     "T Full Buy vs CT Full Eco": {
+      "n": 71,
+      "t_win_pct": 84.5
+     },
+     "T Full Buy vs CT Semi Eco": {
+      "n": 69,
+      "t_win_pct": 79.7
+     },
+     "T Full Buy vs CT Semi Buy": {
+      "n": 79,
+      "t_win_pct": 72.2
+     },
+     "T Full Buy vs CT Full Buy": {
+      "n": 579,
+      "t_win_pct": 43.9
+     }
+    },
+    "win_pct_vs_full_buy_either_side": {
+     "Full Eco": {
+      "n": 173,
+      "win_pct": 8.7
+     },
+     "Semi Eco": {
+      "n": 159,
+      "win_pct": 20.8
+     },
+     "Semi Buy": {
+      "n": 191,
+      "win_pct": 33.0
+     },
+     "Full Buy": {
+      "n": 1158,
+      "win_pct": 50.0
+     }
+    },
+    "buy_type_definition": "awpy/HLTV style on team freeze-time-end equipment value: Full Eco < $5k, Semi Eco $5k\u201310k, Semi Buy $10k\u201320k, Full Buy > $20k"
+   },
+   "series": {
+    "maps": 52,
+    "overtime_rate_pct": 1.9,
+    "win_after_win_pct": 65.9,
+    "pistol_winner_wins_next_round_pct": 70.2,
+    "pistol_winner_wins_next_two_pct": 51.9,
+    "rounds_per_map_mr15": 24.96
+   },
+   "kills": {
+    "kills": 8658,
+    "headshot_pct": 46.1,
+    "wallbang_pct": 2.6,
+    "through_smoke_pct": 3.3,
+    "trade_kill_share_pct_awpy_5s": 15.1,
+    "trade_time_s": {
+     "n": 2327,
+     "mean": 3.48,
+     "p10": 0.46,
+     "p25": 1.14,
+     "p50": 2.69,
+     "p75": 5.43,
+     "p90": 7.98
+    },
+    "trade_within_s_pct_of_trades_le5s": {
+     "1s": 30.4,
+     "2s": 56.9,
+     "3s": 75.3,
+     "4s": 88.4
+    },
+    "trade_share_by_window_pct_of_all_kills": {
+     "2s": 11.0,
+     "3s": 14.5,
+     "5s": 19.3
+    },
+    "engagement_distance_m": {
+     "n": 8658,
+     "mean": 19.97,
+     "p10": 6.42,
+     "p25": 10.48,
+     "p50": 17.77,
+     "p75": 26.89,
+     "p90": 38.03
+    },
+    "engagement_distance_map_pct": {
+     "n": 8658,
+     "mean": 15.42,
+     "p10": 4.96,
+     "p25": 8.09,
+     "p50": 13.72,
+     "p75": 20.75,
+     "p90": 29.36
+    },
+    "engagement_distance_hist_m_pct": {
+     "0-5": 5.5,
+     "5-10": 17.5,
+     "10-15": 17.7,
+     "15-20": 16.7,
+     "20-30": 22.7,
+     "30-40": 11.9,
+     "40+": 8.1
+    },
+    "engagement_distance_by_weapon_m": {
+     "Rifle": {
+      "n": 6640,
+      "mean": 20.79,
+      "p10": 6.82,
+      "p25": 11.23,
+      "p50": 18.72,
+      "p75": 27.91,
+      "p90": 39.17
+     },
+     "Pistols": {
+      "n": 1538,
+      "mean": 17.78,
+      "p10": 5.65,
+      "p25": 8.77,
+      "p50": 15.05,
+      "p75": 24.4,
+      "p90": 34.97
+     },
+     "SMG": {
+      "n": 340,
+      "mean": 12.51,
+      "p10": 4.58,
+      "p25": 7.13,
+      "p50": 10.89,
+      "p75": 16.36,
+      "p90": 23.08
+     }
+    },
+    "kill_time_hist_s_after_freeze_pct": {
+     "0-10": 0.3,
+     "10-20": 9.3,
+     "20-30": 12.9,
+     "30-40": 12.4,
+     "40-50": 11.2,
+     "50-60": 9.4,
+     "60-70": 9.4,
+     "70-80": 9.2,
+     "80-90": 9.0,
+     "90-100": 7.9,
+     "100+": 9.1
+    }
+   },
+   "utility": {
+    "he_thrown": 3840,
+    "he_zero_enemy_damage_pct": 62.6,
+    "he_enemy_damage_per_throw": {
+     "n": 3840,
+     "mean": 10.23,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 11.0,
+     "p90": 39.0,
+     "p95": 53.0
+    },
+    "he_enemy_damage_per_damaging_throw": {
+     "n": 1438,
+     "mean": 27.32,
+     "p25": 6.0,
+     "p50": 21.0,
+     "p75": 40.0,
+     "p90": 58.0
+    },
+    "he_enemies_hit_per_throw_pct": {
+     "0": 62.6,
+     "1": 28.5,
+     "2": 6.8,
+     "3": 1.5,
+     "4+": 0.7
+    },
+    "he_damage_per_enemy_hit": {
+     "n": 1892,
+     "mean": 20.77,
+     "p10": 1.0,
+     "p25": 4.0,
+     "p50": 15.5,
+     "p75": 33.0,
+     "p90": 48.0
+    },
+    "he_damage_per_enemy_hit_hist": {
+     "1-10": 37.4,
+     "10-20": 19.2,
+     "20-30": 14.1,
+     "30-40": 11.5,
+     "40-50": 9.7,
+     "50-60": 5.0,
+     "60-80": 2.3,
+     "80+": 1.0
+    },
+    "he_kills_per_100_throws": 2.19,
+    "he_team_damage_pct_of_throws": 1.8,
+    "molotov_thrown": 5966,
+    "molotov_zero_enemy_damage_pct": 84.3,
+    "molotov_enemy_damage_per_throw": {
+     "n": 5966,
+     "mean": 3.85,
+     "p25": 0.0,
+     "p50": 0.0,
+     "p75": 0.0,
+     "p90": 11.0,
+     "p95": 26.0
+    },
+    "molotov_enemy_damage_per_damaging_throw": {
+     "n": 936,
+     "mean": 24.51,
+     "p25": 8.0,
+     "p50": 16.0,
+     "p75": 32.0,
+     "p90": 56.0
+    }
+   }
+  }
+ }
+}
