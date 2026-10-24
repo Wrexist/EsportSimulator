@@ -106,6 +106,20 @@ describe('createLiveCheckpointStore', () => {
         expect(await store.read('s')).toBeNull()
     })
 
+    test("clearing a played match leaves a newer match's checkpoint alone", async () => {
+        const { storage, data } = memoryStorage(5)
+        const store = createLiveCheckpointStore(storage)
+        const of = (matchId: string) => ({ matchId, gameState: { round: 1 } }) as unknown as ActiveMatchState
+        await store.write('s', of('old'))
+        // The next match starts writing before the old result's save finished.
+        const next = store.write('s', of('new'))
+        const cleared = store.clear('s', 'old')
+        await Promise.all([next, cleared])
+        expect((await store.read('s'))?.state.matchId).toBe('new')
+        await store.clear('s', 'new')
+        expect(data.has(LIVE_CHECKPOINT_PREFIX + 's')).toBe(false)
+    })
+
     test('unreadable or foreign entries are ignored', async () => {
         const { storage, data } = memoryStorage()
         const store = createLiveCheckpointStore(storage)

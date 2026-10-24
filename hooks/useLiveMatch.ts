@@ -1214,7 +1214,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         clearActiveMatchState()
         // Save the career now: until then a reload would load the save from
         // before this match and play it again.
-        void persistCommittedMatch(runtime.ownerSaveId, useGameStore.getState().saveGame)
+        void persistCommittedMatch(runtime.ownerSaveId, runtime.match.id, useGameStore.getState().saveGame)
         router.push(`/match/${id}/result`)
     }, [id, saveMatchResult, clearActiveMatchState, router])
 

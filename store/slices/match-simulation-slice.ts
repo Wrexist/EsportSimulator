@@ -694,7 +694,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             ;(set as any)({ activeMatchId: null, activeMatchState: null })
         }
         // Saved at once, so a reload cannot bring the match back to play again.
-        void persistCommittedMatch(get().saveId, get().saveGame)
+        void persistCommittedMatch(get().saveId, matchId, get().saveGame)
         return true
     },
 })

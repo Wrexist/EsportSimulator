@@ -37,7 +37,7 @@ const keyOf = (saveId: string) => LIVE_CHECKPOINT_PREFIX + saveId
  */
 export function createLiveCheckpointStore(storage: AsyncStorage = asyncStorage, now: () => number = Date.now) {
     let chain: Promise<void> = Promise.resolve()
-    let pending: { saveId: string; text: string } | null = null
+    let pending: { saveId: string; matchId: string; text: string } | null = null
     let draining = false
 
     const drain = (): Promise<void> => {
@@ -57,7 +57,7 @@ export function createLiveCheckpointStore(storage: AsyncStorage = asyncStorage, 
     return {
         write(saveId: string, state: ActiveMatchState): Promise<void> {
             const entry: StoredLiveCheckpoint = { version: VERSION, saveId, savedAt: now(), state }
-            pending = { saveId, text: JSON.stringify(entry) }
+            pending = { saveId, matchId: state.matchId, text: JSON.stringify(entry) }
             return drain()
         },
         async read(saveId: string): Promise<StoredLiveCheckpoint | null> {
@@ -71,9 +71,23 @@ export function createLiveCheckpointStore(storage: AsyncStorage = asyncStorage, 
                 return null
             }
         },
-        clear(saveId: string): Promise<void> {
-            pending = null
-            chain = chain.then(() => storage.removeItem(keyOf(saveId))).catch(() => { /* a stale key is ignored once its match is played */ })
+        /**
+         * Removes the checkpoint. With `matchId`, only that match's checkpoint:
+         * a later match may already have written its own under the same save.
+         */
+        clear(saveId: string, matchId?: string): Promise<void> {
+            const owns = (id: string | undefined) => matchId === undefined || id === matchId
+            if (pending && pending.saveId === saveId && owns(pending.matchId)) pending = null
+            chain = chain.then(async () => {
+                if (matchId !== undefined) {
+                    const text = await storage.getItem(keyOf(saveId))
+                    if (!text) return
+                    let storedMatch: string | undefined
+                    try { storedMatch = (JSON.parse(text) as StoredLiveCheckpoint)?.state?.matchId } catch { /* unreadable: remove it */ }
+                    if (storedMatch !== undefined && !owns(storedMatch)) return
+                }
+                await storage.removeItem(keyOf(saveId))
+            }).catch(() => { /* a stale key is ignored once its match is played */ })
             return chain
         },
         /** Resolves when every queued write has been handed to storage. */
@@ -117,10 +131,10 @@ export function chooseLiveCheckpoint(args: {
  * save fails the checkpoint stays; it resumes the same match, whose result is
  * the same.
  */
-export function persistCommittedMatch(saveId: string | null | undefined, saveGame: (() => Promise<void>) | undefined): Promise<void> {
+export function persistCommittedMatch(saveId: string | null | undefined, matchId: string, saveGame: (() => Promise<void>) | undefined): Promise<void> {
     if (!saveId || typeof saveGame !== "function") return Promise.resolve()
     return Promise.resolve()
         .then(() => saveGame())
-        .then(() => liveCheckpointStore.clear(saveId))
+        .then(() => liveCheckpointStore.clear(saveId, matchId))
         .catch(() => { /* saveGame reports the failure itself */ })
 }
