@@ -66,6 +66,7 @@ import {
 } from "@/store/utils/helpers"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { persistCommittedMatch } from "@/lib/live-checkpoint-store"
 const NEWS_FEED_CAP = 50
 
 export interface MatchSimulationActions {
@@ -692,6 +693,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;(set as any)({ activeMatchId: null, activeMatchState: null })
         }
+        // Saved at once, so a reload cannot bring the match back to play again.
+        void persistCommittedMatch(get().saveId, get().saveGame)
         return true
     },
 })

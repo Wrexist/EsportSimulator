@@ -7,13 +7,12 @@ import { useShallow } from "zustand/react/shallow"
 import { MapId, Player, MatchResult, MatchEvent, ActiveMatchState, LiveGameState, LogEntry, LivePlayerState, SimState, RoundResult } from "@/types"
 import type { TeamSaveData } from "@/engine/save-types"
 import { EconomyManager, WEAPONS, commentaryManager } from "@/engine"
-import { LEGACY_MATCH_ENGINE, restoreLivePlayback, pendingLiveEvents, roundEndPending } from "@/engine/match/live-checkpoint"
+import { LEGACY_MATCH_ENGINE, restoreLivePlayback, pendingLiveEvents } from "@/engine/match/live-checkpoint"
 import { isEngineVersion, resolveEngineVersion } from "@/engine/match/engine-version"
-import { sanitizeRestoredSimState, buildRestoredGameState } from "@/engine/match/live-match-init"
+import { buildRestoredGameState } from "@/engine/match/live-match-init"
 import {
     createLegacySeriesState,
     finalizeLegacySeries,
-    normalizeRestoredSim,
     playLegacyRound,
     MANAGER_STRATEGIES,
     type LegacySeriesContext,
@@ -22,22 +21,21 @@ import {
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { soundManager } from "@/lib/sound-manager"
 import { playMatchOutcomeCue } from "@/lib/match-outcome-sound"
-import { resolveHomeStartsCT } from "@/lib/live-match-utils"
 import { annotateRoundEvents, buildLiveRoundScript, warmRoundMap, type LiveRoundScript } from "@/lib/live-round-script"
 import { AUTO_CONFIRM_MS, BREAK_CARD_MS, PISTOL_START_MS, ROUND_BEAT_MS, computeRoundPacing, defaultLiveSpeed, type PacingMode, type RoundPacing } from "@/lib/live-match-pacing"
 import { buildRoundTimeline, summarizeRound, type RoundSummary, type RoundTimeline } from "@/lib/live-match-roster"
 import { LiveClock, liveWakeTimes, nextWakeAfter, roundBombTimes, roundClockSeconds, scorebugTime } from "@/lib/live-clock"
 import type { LegacyTransition } from "@/engine/match/legacy-series"
 import { MAP_NAMES } from "@/data/map-pool"
+import { liveCheckpointStore, persistCommittedMatch } from "@/lib/live-checkpoint-store"
 import {
     ROUND_SECONDS,
     BOMB_SECONDS,
     getNormalizedSeed,
     getActivePlayersByRosterOrder,
-    buildCanonicalResultMaps,
     sanitizeRosterFromEconomy,
-    sanitizeEconomyForActivePlayers,
     finishLegacySeriesFromState,
+    restoreLiveSeriesState,
     tallyLivePlayerStats,
 } from "@/lib/live-match-builders"
 
@@ -47,6 +45,8 @@ type RoundStrategy = ManagerStrategy | "PISTOL"
 const MAX_LIVE_LOG_ENTRIES = 200
 /** Longest single wait of the playback loop (wall ms) before it re-checks the clock. */
 const MAX_WAKE_WAIT_MS = 1000
+/** Longest gap between durable checkpoint writes while a round plays (wall ms). */
+const DURABLE_CHECKPOINT_MS = 3000
 
 /** What the screen shows about the round being played back (built once per round). */
 export interface LiveRoundView {
@@ -400,25 +400,9 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         }
 
         if (restoring && playback) {
-            const restoredSim = activeMatchState!.simState as SimState | undefined
-            const requestedMapIndex = restoredSim?.currentMapIndex ?? activeMatchState!.gameState?.currentMapIndex ?? 0
-            const currentMapIndex = Math.max(0, Math.min(canonicalMaps.length - 1, requestedMapIndex))
+            const restored = restoreLiveSeriesState({ ctx, checkpoint: activeMatchState!, playback, homePlayers, awayPlayers, mapStartingSides })
+            const { inFlight, currentMapIndex, sim: sanitizedSimState } = restored
             const currentMapId = canonicalMaps[currentMapIndex] || MapId.SANDSTONE
-            const homeStartsCT = typeof restoredSim?.homeStartsCT === "boolean"
-                ? restoredSim.homeStartsCT
-                : resolveHomeStartsCT({ mapId: currentMapId, mapStartingSides, homeTeamId: hTeam.id, awayTeamId: aTeam.id, seed, mapIndex: currentMapIndex })
-
-            const restoredHomeEconomy = sanitizeEconomyForActivePlayers(homePlayers, restoredSim?.homeEconomy, homeStartsCT)
-            const restoredAwayEconomy = sanitizeEconomyForActivePlayers(awayPlayers, restoredSim?.awayEconomy, !homeStartsCT)
-            const inFlight = roundEndPending(playback.events, playback.processedTime) && !activeMatchState!.isWaitingForStrategy
-            // Pre-v2 checkpoints applied halftime/overtime/map transitions at
-            // ROUND_END playback; normalise them exactly once.
-            const sanitizedSimState: SimState = normalizeRestoredSim(ctx, {
-                ...sanitizeRestoredSimState({ restoredSim, homeEconomy: restoredHomeEconomy, awayEconomy: restoredAwayEconomy, homeStartsCT, currentMapIndex }),
-                ...(restoredSim?.rulesVersion ? { rulesVersion: restoredSim.rulesVersion } : {}),
-                ...(restoredSim?.lastRound ? { lastRound: restoredSim.lastRound } : {}),
-            }, inFlight)
-
             const restoredResultSource = (activeMatchState!.matchResult as unknown as MatchResult | undefined) || shellResult
             const restoredResult: MatchResult = {
                 ...restoredResultSource,
@@ -426,7 +410,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                 lineups: shellResult.lineups,
                 homeScore: sanitizedSimState.homeSeriesScore,
                 awayScore: sanitizedSimState.awaySeriesScore,
-                maps: buildCanonicalResultMaps(restoredResultSource.maps, canonicalMaps, hTeam.id, aTeam.id, mapStartingSides, seed),
+                maps: restored.maps,
             }
             const restoredGameState = buildRestoredGameState({ savedGameState: activeMatchState!.gameState, simState: sanitizedSimState, currentMapIndex: inFlight && sanitizedSimState.lastRound ? sanitizedSimState.lastRound.mapIndex : currentMapIndex })
 
@@ -563,6 +547,8 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
     // not at the last event. Nothing is revealed between the last processed
     // time and the next wake, so the stamped state is exactly the shown one.
     const lastCheckpoint = useRef<ActiveMatchState | null>(null)
+    // Set once the result is committed: no checkpoint may be written after it.
+    const matchCommittedRef = useRef(false)
     useEffect(() => {
         const stamp = (s: ActiveMatchState | null): ActiveMatchState | null => {
             const view = roundViewRef.current
@@ -581,17 +567,37 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                 bombTime: shown.planted ? shown.seconds : BOMB_SECONDS,
             }
         }
-        const flush = () => {
+        // Durable copy (lib/live-checkpoint-store): at once when a round is
+        // decided or the decision card opens, otherwise every few seconds of
+        // playback, and when the page goes away.
+        const durable = { at: 0, key: "" }
+        const writeDurable = (s: ActiveMatchState | null, force = false) => {
+            const saveId = matchData.current?.ownerSaveId
+            if (!s || !saveId || matchCommittedRef.current || s.gameState.status === "FINISHED") return
+            const key = `${s.gameState.currentMapIndex}:${s.gameState.round}:${s.isWaitingForStrategy ? 1 : 0}`
+            const now = Date.now()
+            if (!force && key === durable.key && now - durable.at < DURABLE_CHECKPOINT_MS) return
+            durable.key = key
+            durable.at = now
+            void liveCheckpointStore.write(saveId, s)
+        }
+        const flush = (force = false) => {
             const pending = pendingCheckpoint.current
             pendingCheckpoint.current = null
             if (pending) lastCheckpoint.current = pending
             const stamped = stamp(lastCheckpoint.current)
             if (stamped) lastCheckpoint.current = stamped
             const snapshot = stamped ?? pending
-            if (snapshot) updateActiveMatchState(structuredClone(snapshot))
+            if (snapshot) {
+                const copy = structuredClone(snapshot)
+                updateActiveMatchState(copy)
+                writeDurable(copy, force)
+            } else if (force) writeDurable(lastCheckpoint.current, true)
         }
-        const timer = setInterval(flush, 500)
-        return () => { clearInterval(timer); flush() }
+        const timer = setInterval(() => flush(), 500)
+        const onPageHide = () => flush(true)
+        window.addEventListener("pagehide", onPageHide)
+        return () => { clearInterval(timer); window.removeEventListener("pagehide", onPageHide); flush(true) }
     }, [id, updateActiveMatchState, liveClock])
 
     const isPlayerHome = !!playerTeam && matchData.current?.homeTeam.id === playerTeam.id
@@ -1203,8 +1209,12 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
             useGameStore.getState().addToast({ message: "The result could not be committed. Your match checkpoint has been preserved.", type: "warning" })
             return
         }
+        matchCommittedRef.current = true
         pendingCheckpoint.current = null
         clearActiveMatchState()
+        // Save the career now: until then a reload would load the save from
+        // before this match and play it again.
+        void persistCommittedMatch(runtime.ownerSaveId, useGameStore.getState().saveGame)
         router.push(`/match/${id}/result`)
     }, [id, saveMatchResult, clearActiveMatchState, router])
 

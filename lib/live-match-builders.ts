@@ -5,9 +5,11 @@
  * functions stay easy to unit-test and reason about in isolation.
  */
 
-import { MapId, MapResult, Player, LivePlayerState, CustomTactics, MatchEvent } from "@/types"
+import { MapId, MapResult, Player, LivePlayerState, CustomTactics, MatchEvent, ActiveMatchState, SimState } from "@/types"
 import { EconomyManager } from "@/engine"
-import { playLegacyRound, type LegacyRoundStep, type LegacySeriesContext, type LegacySeriesState } from "@/engine/match/legacy-series"
+import { normalizeRestoredSim, playLegacyRound, type LegacyRoundStep, type LegacySeriesContext, type LegacySeriesState } from "@/engine/match/legacy-series"
+import { roundEndPending, type LivePlaybackCheckpoint } from "@/engine/match/live-checkpoint"
+import { sanitizeRestoredSimState } from "@/engine/match/live-match-init"
 import { createRoundStartEconomy, resolveHomeStartsCT, selectActiveRosterIds } from "@/lib/live-match-utils"
 
 export const ACTIVE_PLAYERS_PER_TEAM = 5
@@ -170,6 +172,52 @@ export function sanitizeEconomyForActivePlayers(
         }
         return acc
     }, {})
+}
+
+export interface RestoredLiveSeries {
+    sim: SimState
+    maps: MapResult[]
+    /** A round was computed and its playback had not reached ROUND_END. */
+    inFlight: boolean
+    currentMapIndex: number
+}
+
+/**
+ * The series state a live checkpoint holds: the canonical sim (economy,
+ * streaks, score, side) and the recorded rounds. Rounds already computed
+ * are never re-simulated; the next round is played from exactly this state,
+ * so a resumed (or skipped) match continues the one that was on screen.
+ */
+export function restoreLiveSeriesState(args: {
+    ctx: LegacySeriesContext
+    checkpoint: ActiveMatchState
+    playback: LivePlaybackCheckpoint
+    homePlayers: Player[]
+    awayPlayers: Player[]
+    mapStartingSides?: Record<string, string>
+}): RestoredLiveSeries {
+    const { ctx, checkpoint, playback, homePlayers, awayPlayers, mapStartingSides } = args
+    const restoredSim = checkpoint.simState as SimState | undefined
+    const requestedMapIndex = restoredSim?.currentMapIndex ?? checkpoint.gameState?.currentMapIndex ?? 0
+    const currentMapIndex = Math.max(0, Math.min(ctx.maps.length - 1, requestedMapIndex))
+    const currentMapId = ctx.maps[currentMapIndex] || MapId.SANDSTONE
+    const homeTeamId = ctx.home.team.id, awayTeamId = ctx.away.team.id
+    const homeStartsCT = typeof restoredSim?.homeStartsCT === "boolean"
+        ? restoredSim.homeStartsCT
+        : resolveHomeStartsCT({ mapId: currentMapId, mapStartingSides, homeTeamId, awayTeamId, seed: ctx.seed, mapIndex: currentMapIndex })
+    const homeEconomy = sanitizeEconomyForActivePlayers(homePlayers, restoredSim?.homeEconomy, homeStartsCT)
+    const awayEconomy = sanitizeEconomyForActivePlayers(awayPlayers, restoredSim?.awayEconomy, !homeStartsCT)
+    const inFlight = roundEndPending(playback.events, playback.processedTime) && !checkpoint.isWaitingForStrategy
+    // Pre-v2 checkpoints applied halftime/overtime/map transitions at
+    // ROUND_END playback; normalise them exactly once.
+    const sim: SimState = normalizeRestoredSim(ctx, {
+        ...sanitizeRestoredSimState({ restoredSim, homeEconomy, awayEconomy, homeStartsCT, currentMapIndex }),
+        ...(restoredSim?.rulesVersion ? { rulesVersion: restoredSim.rulesVersion } : {}),
+        ...(restoredSim?.lastRound ? { lastRound: restoredSim.lastRound } : {}),
+    }, inFlight)
+    const source = checkpoint.matchResult as unknown as { maps?: MapResult[] } | undefined
+    const maps = buildCanonicalResultMaps(source?.maps, ctx.maps as MapId[], homeTeamId, awayTeamId, mapStartingSides, ctx.seed)
+    return { sim, maps, inFlight, currentMapIndex }
 }
 
 /**

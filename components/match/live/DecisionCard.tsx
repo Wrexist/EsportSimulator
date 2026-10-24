@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ArmorGlyph, GrenadeGlyph, KitGlyph, WeaponGlyph, weaponDisplayName } from "@/components/match/WeaponGlyph"
 import { STRATEGY_LABEL, type BuyPreviewOption, type DecisionPreview } from "@/lib/live-match-decision"
 import type { ManagerStrategy } from "@/engine/match/legacy-series"
-import { REGROUP_EDGE, REGROUP_MIN_LOSS_STREAK } from "@/engine/match/manager-controls"
+import { REGROUP_ROUND_WIN_PTS, REGROUP_MIN_LOSS_STREAK } from "@/engine/match/manager-controls"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 
 const money = (n: number) => formatCurrency(Math.round(n), "$", false)
@@ -200,15 +200,15 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                         size="sm"
                         onClick={timeout.onCall}
                         disabled={timeout.disabled}
-                        title={`Between rounds only: regroup — +${REGROUP_EDGE * 100}% round-win chance for 2 rounds while you have lost ${REGROUP_MIN_LOSS_STREAK}+ in a row. Two per series; no benefit without a losing streak.`}
+                        title={`Between rounds only: regroup — about +${REGROUP_ROUND_WIN_PTS}% round-win chance for 2 rounds while you have lost ${REGROUP_MIN_LOSS_STREAK}+ in a row. Two per series; no benefit without a losing streak.`}
                         className="h-8 shrink-0 gap-1.5 px-3 text-xs"
                     >
                         <Timer size={13} aria-hidden="true" /> Tactical timeout ({timeout.remaining})
                     </Button>
                     <p className="min-w-0 flex-1 text-xs leading-snug text-ink-3 @max-[52rem]:hidden">
                         {timeout.active
-                            ? <span className="font-semibold text-ink-1">Regrouping: +{REGROUP_EDGE * 100}% round-win chance while on a {REGROUP_MIN_LOSS_STREAK}+ loss streak.</span>
-                            : <>+{REGROUP_EDGE * 100}% round-win chance for two rounds, only after {REGROUP_MIN_LOSS_STREAK}+ losses in a row.</>}
+                            ? <span className="font-semibold text-ink-1">Regrouping: about +{REGROUP_ROUND_WIN_PTS}% round-win chance while on a {REGROUP_MIN_LOSS_STREAK}+ loss streak.</span>
+                            : <>About +{REGROUP_ROUND_WIN_PTS}% round-win chance for two rounds, only after {REGROUP_MIN_LOSS_STREAK}+ losses in a row.</>}
                     </p>
                     {(preview.lossBonus !== undefined || preview.winReward !== undefined) && (
                         <p className="shrink-0 text-xs text-ink-3">
