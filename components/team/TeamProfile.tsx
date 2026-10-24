@@ -15,6 +15,7 @@ import { RatingChip } from "@/src/components/ui/RatingChip"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { cn } from "@/lib/utils"
+import { formatScoutedRating, fuzzyBand } from "@/engine/scouting-system"
 
 const RESULTS_SHOWN = 10
 
@@ -108,7 +109,7 @@ export function TeamProfile({ team }: { team: TeamSaveData }) {
                                         <td className="pr-4 text-right">
                                             {exact
                                                 ? <RatingChip value={ovr} size="sm" />
-                                                : <span className="text-sm tabular-nums text-ink-3" title="Scout this player to see the exact rating">{Math.max(0, ovr - 15)}–{Math.min(99, ovr + 15)}</span>}
+                                                : <span className="text-sm tabular-nums text-ink-3" title="Scout this player to see the exact rating">{formatScoutedRating(fuzzyBand(ovr, 20, `${player.id}:ovr`))}</span>}
                                         </td>
                                     </tr>
                                 )

@@ -162,13 +162,17 @@ export function compareRanking(a: RankedTeam, b: RankedTeam): number {
     return an - bn || a.id.localeCompare(b.id)
 }
 
+/** Draft Cup sides (G7) exist for one cup: they never take a world rank. */
+export const DRAFT_CUP_TEAM_PREFIX = "draft_team_"
+export const isUnrankedTeamId = (id: string): boolean => id.startsWith(DRAFT_CUP_TEAM_PREFIX)
+
 /**
  * Sort clubs by Elo and assign world ranks. Records each club's Elo at this
  * refresh (rankedElo) so the next refresh can split a rank change into the
  * club's own results and everyone else's.
  */
 export function refreshWorldRankings(save: Pick<GameSave, "teams">): void {
-    const sorted = [...save.teams].sort((a, b) => compareRanking(a, b))
+    const sorted = save.teams.filter(t => !isUnrankedTeamId(t.id)).sort((a, b) => compareRanking(a, b))
     sorted.forEach((team, index) => {
         team.worldRanking = index + 1
         team.rankedElo = team.elo

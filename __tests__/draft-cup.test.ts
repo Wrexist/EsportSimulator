@@ -132,6 +132,10 @@ test("a full Draft Cup run through the store", async () => {
         expect(useGameStore.getState().error ?? null).toBeNull()
     }
     s = useGameStore.getState()
+    // A side drafted for one cup never takes a world rank, and the drafted five get the field's facilities.
+    const finalTeam = s.teams.find(t => t.id === cup.teamId)!
+    expect(finalTeam.worldRanking).toBeUndefined()
+    expect(s.teams.filter(t => t.worldRanking != null).map(t => t.worldRanking!).sort((a, b) => a - b)).toEqual(s.teams.filter(t => t.id !== cup.teamId).map((_, i) => i + 1))
     const outcome = draftCupOutcome(s as never)!
     expect(outcome).toBeTruthy()
     expect(played).toBe(outcome.finish === "champion" ? 3 : outcome.finish === "final" ? 3 : outcome.finish === "semi" ? 2 : 1)

@@ -112,7 +112,7 @@ import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
 import { createDelegationSlice } from "@/store/slices/delegation-slice"
 import { createDraftCupSlice } from "@/store/slices/draft-cup-slice"
 import { draftCupOutcome } from "@/engine/draft-cup"
-import { setupDraftCup, type DraftCupSetup } from "@/engine/draft-cup-setup"
+import { setupDraftCup } from "@/engine/draft-cup-setup"
 import { createDressingRoomSlice } from "@/store/slices/dressing-room-slice"
 import { createPlayerDevelopmentSlice } from "@/store/slices/player-development-slice"
 import { createStaffManagementSlice } from "@/store/slices/staff-management-slice"
@@ -582,7 +582,7 @@ export interface GameStoreState extends AdvanceState, MomentsState {
 
 interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, MomentsActions {
   // Lifecycle
-  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: { unemployed?: boolean; draftCup?: { world: GameSave; setup: DraftCupSetup } }) => Promise<void>
+  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: import("@/store/types").NewGameOptions) => Promise<void>
   initializeCustomTeam: (managerName: string, teamData: import("@/types/team-creator").CustomTeamData) => Promise<void>
   loadGame: (saveId: string, cloudChoice?: "local" | "cloud") => Promise<void>
   saveGame: () => Promise<void>

@@ -46,6 +46,18 @@ test("first-job offers come from low-reputation clubs and stay open", () => {
     }
 })
 
+test("after every low club is offered, a first job never reaches up the table", () => {
+    const save = createLaunchFixture("first-week")
+    save.gameOverReason = "UNEMPLOYED"
+    save.gameOverWeek = save.currentWeek
+    const template = save.teams.find(t => t.id !== save.playerTeamId)!
+    save.teams = [save.teams.find(t => t.id === save.playerTeamId)!,
+        ...[10, 15, 20, 60, 70, 80, 90].map((rep, n) => ({ ...structuredClone(template), id: `club_${n}`, name: `Club ${n}`, reputation: rep }))]
+    // The three lowest clubs have been offered and declined already.
+    save.eventsLog.push(...["club_0", "club_1", "club_2"].map(id => ({ id: `offer_${id}`, type: "JOB_OFFER", week: save.currentWeek, acknowledged: true, selectedChoiceId: "decline", data: { afterDismissal: true, firstJob: true, offeringTeamId: id } }) as never))
+    expect(JobOfferGenerator.betweenClubsPool(save, true).map(t => t.id)).toEqual([])
+})
+
 test("taking a first job starts the career there", async () => {
     await Promise.resolve()
     const initial = useGameStore.getState()

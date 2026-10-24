@@ -53,6 +53,8 @@ export default function DraftCupPage() {
     const [pool, setPool] = useState<DraftPool | null>(null)
     const [picks, setPicks] = useState<Picks>({})
     const [rerolls, setRerolls] = useState(DRAFT_REROLLS)
+    /** Difficulty the current pool was dealt for: going Back keeps the deal, so Back is not a free reroll. */
+    const [dealtFor, setDealtFor] = useState<DraftCupDifficulty | null>(null)
     const [busy, setBusy] = useState<null | "world" | "start">(null)
     const startingRef = useRef(false)
 
@@ -77,7 +79,7 @@ export default function DraftCupPage() {
         setOpponentIds(field)
         setPool(buildDraftPool(w.players, w.teams, field, generateSeed()))
         setPicks({})
-        setRerolls(DRAFT_REROLLS)
+        setDealtFor(diff)
     }
 
     const startDraft = async () => {
@@ -86,7 +88,8 @@ export default function DraftCupPage() {
         try {
             const w = world ?? await buildDraftCupWorld()
             setWorld(w)
-            deal(w, difficulty)
+            // A new difficulty needs a new field; the reroll count carries over.
+            if (!pool || dealtFor !== difficulty) deal(w, difficulty)
             setStep("draft")
         } catch (err) {
             debug.error("Draft Cup world failed:", err)

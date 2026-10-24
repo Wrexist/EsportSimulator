@@ -36,6 +36,7 @@ import type { AcademyPlayer, AcademyMatchResult, AcademyWeeklyReport, AcademySco
 import type { CustomTeamData } from "@/types/team-creator"
 import type { MatchResult } from "@/types"
 
+import type { DraftCupSetup } from "@/engine/draft-cup-setup"
 import type { PhysicalPreviewActions } from './slices/physical-preview-slice'
 
 // ===== SLICE STATE INTERFACES =====
@@ -168,8 +169,14 @@ export interface IndexesState {
 
 // ===== SLICE ACTION INTERFACES =====
 
+/** Options for a new career: start between clubs (G9), or a Draft Cup run (G7). */
+export interface NewGameOptions {
+  unemployed?: boolean
+  draftCup?: { world: import("@/engine/save-types").GameSave; setup: DraftCupSetup }
+}
+
 export interface CoreGameActions {
-  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: { unemployed?: boolean }) => Promise<void>
+  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: NewGameOptions) => Promise<void>
   initializeCustomTeam: (managerName: string, teamData: CustomTeamData) => Promise<void>
   loadGame: (saveId: string) => Promise<void>
   saveGame: () => Promise<void>

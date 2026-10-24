@@ -25,7 +25,8 @@ export interface FitLine {
 }
 
 const pct = (x: number) => `${Math.round(x * 100)}%`
-const primaryRole = (p: Partial<PlayerSaveData>) => String(p.role || "Rifler").split(",")[0].trim()
+/** First listed role, normalized: saves hold both "AWPER" (PlayerRole) and older "AWPer" spellings. */
+const primaryRole = (p: Partial<PlayerSaveData>) => String(p.role || "RIFLER").split(",")[0].trim().toUpperCase().replace(/[^A-Z]/g, "_")
 
 export function squadFit(input: {
     target: PlayerSaveData
@@ -108,8 +109,8 @@ export function squadFit(input: {
     // Role overlap (fact, not an effect).
     const role = primaryRole(target)
     const sameRole = starters.filter(p => primaryRole(p) === role)
-    if (sameRole.length && (role === "AWPer" || role === "IGL")) {
-        lines.push({ tone: "info", text: `Your five already has ${role === "AWPer" ? "an AWPer" : "an IGL"}: ${sameRole.map(name).join(", ")}.` })
+    if (sameRole.length && (role === "AWPER" || role === "IGL")) {
+        lines.push({ tone: "info", text: `Your five already has ${role === "AWPER" ? "an AWPer" : "an IGL"}: ${sameRole.map(name).join(", ")}.` })
     }
 
     lines.push({ tone: "info", text: `Any signing costs ${CHEMISTRY_PENALTY_PER_SWAP} team chemistry, which grows back once the roster settles.` })

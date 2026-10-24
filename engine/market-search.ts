@@ -92,8 +92,8 @@ export function describeCriteria(c: MarketCriteria, labels: { role?: (r: string)
     return parts.join(" · ") || "Whole market"
 }
 
-/** Everyone the managed club could approach, as the board lists them. */
-export function marketCandidates(save: Pick<GameSave, "players" | "teams" | "contracts" | "currentWeek" | "scoutedPlayers" | "watchlistedPlayerIds" | "academyPlayers" | "academyPendingProspects" | "playerTeamId">): MarketCandidate[] {
+/** Everyone the managed club could approach, as the board lists them; `only` limits it to those players. */
+export function marketCandidates(save: Pick<GameSave, "players" | "teams" | "contracts" | "currentWeek" | "scoutedPlayers" | "watchlistedPlayerIds" | "academyPlayers" | "academyPendingProspects" | "playerTeamId">, only?: ReadonlySet<string>): MarketCandidate[] {
     const myTeam = save.teams.find(t => t.id === save.playerTeamId)
     if (!myTeam) return []
     const own = new Set(myTeam.rosterIds)
@@ -105,7 +105,7 @@ export function marketCandidates(save: Pick<GameSave, "players" | "teams" | "con
     const watch = new Set(save.watchlistedPlayerIds ?? [])
     const out: MarketCandidate[] = []
     for (const p of save.players) {
-        if (own.has(p.id) || held.has(p.id) || p.isRetired) continue
+        if (own.has(p.id) || held.has(p.id) || p.isRetired || (only && !only.has(p.id))) continue
         out.push({
             player: p,
             team: teamByPlayer.get(p.id),
@@ -132,7 +132,8 @@ export function processMarketAlerts(save: GameSave): GameEventSaveData | null {
     // alerts back on reports only later arrivals.
     if (!searches.length && !(save.watchlistedPlayerIds ?? []).length) return null
 
-    const candidates = marketCandidates(save)
+    // With no saved searches only the shortlist's contracts matter: skip rating the whole world.
+    const candidates = marketCandidates(save, searches.length ? undefined : new Set(save.watchlistedPlayerIds ?? []))
     const lines: string[] = []
     const found: { searchId: string; playerIds: string[] }[] = []
     for (const s of searches) {

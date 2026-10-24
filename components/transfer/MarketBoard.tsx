@@ -51,11 +51,12 @@ const STATUSES: { value: StatusFilter; label: string }[] = [
     { value: "scouted", label: "Scouted" },
     { value: "watchlist", label: "Watchlist" },
 ]
+// Age bands themselves live in AGE_BANDS (engine/market-search.ts), shared with the alerts.
 const AGES = [
-    { value: "all", label: "Any age", range: [0, 99] },
-    { value: "young", label: "≤ 21", range: [0, 21] },
-    { value: "prime", label: "22–27", range: [22, 27] },
-    { value: "veteran", label: "28+", range: [28, 99] },
+    { value: "all", label: "Any age" },
+    { value: "young", label: "≤ 21" },
+    { value: "prime", label: "22–27" },
+    { value: "veteran", label: "28+" },
 ] as const
 const FEES = [
     { value: 0, label: "Any fee" },

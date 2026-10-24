@@ -112,9 +112,13 @@ export class JobOfferGenerator {
         const open = save.teams.filter(t => t.id !== save.playerTeamId && t.rosterIds.length > 0 && !offered.has(t.id))
         let pool: TeamSaveData[]
         if (firstJob) {
-            pool = open.filter(t => t.reputation <= FIRST_JOB_MAX_REPUTATION)
-            // A small world without enough low clubs: the lowest-reputation clubs instead.
-            if (pool.length < 3) pool = [...open].sort((a, b) => a.reputation - b.reputation || a.id.localeCompare(b.id)).slice(0, 3)
+            // A small world without enough low clubs: the cap rises to the third-lowest
+            // club in the whole world, counting clubs already offered, so declining
+            // and asking for more never moves the offers up the table.
+            const lowest = save.teams.filter(t => t.id !== save.playerTeamId && t.rosterIds.length > 0)
+                .map(t => t.reputation).sort((a, b) => a - b)
+            const cap = Math.max(FIRST_JOB_MAX_REPUTATION, lowest[Math.min(2, lowest.length - 1)] ?? 0)
+            pool = open.filter(t => t.reputation <= cap)
         } else {
             const oldTeam = save.teams.find(t => t.id === save.playerTeamId)
             const managerLevel = Math.max(1, save.managerDetails?.level || 1)
