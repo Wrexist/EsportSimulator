@@ -14,6 +14,10 @@
  * Phase 5.2: the player's archetype scales the wage he asks and the length
  * he wants (engine/personality.ts, the same factor recruitmentSalary uses for
  * every club); `personalityLines` states it on the negotiation screen.
+ *
+ * The race (engine/transfer-hype.ts): every AI club in for an Icon, Star or
+ * Wonderkid this week raises a selling club's hidden price by 3% (up to 12%). The
+ * rivals beaten to the signature are carried into the signing reveal.
  */
 
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -27,8 +31,18 @@ import { quotePlayerSigning } from "@/engine/finance-forecast"
 import { archetypeWageFactor, contractDemandLines, contractLengthFactor, getArchetype } from "@/engine/personality"
 import { formatCurrency } from "@/lib/utils-extended"
 import { clauseFields, NO_CLAUSES, wageWithClauses, type ClauseTerms } from "@/engine/contract-clauses"
+import { rivalFeePremium, rivalInterest } from "@/engine/transfer-hype"
+import type { SigningSignature } from "@/engine/moments"
 
-export type NegotiationStage = "BUYOUT" | "CONTRACT" | "SUCCESS" | "FAILED"
+export type NegotiationStage = "BUYOUT" | "CONTRACT" | "SIGN" | "SUCCESS" | "FAILED"
+
+/** Terms the player agreed to, waiting for the manager's signature. */
+export interface PendingDeal {
+    salary: number
+    duration: number
+    fee: number
+    clauses: ClauseTerms
+}
 
 export const MAX_NEGOTIATION_SALARY = 10_000_000
 export const MIN_CONTRACT_WEEKS = 12
@@ -101,6 +115,7 @@ export function useNegotiation(playerId: string | null, active = true) {
     const [negotiationLog, setNegotiationLog] = useState<string[]>([])
     const [initializedKey, setInitializedKey] = useState("")
     const [failureMessage, setFailureMessage] = useState<string | null>(null)
+    const [pendingDeal, setPendingDeal] = useState<PendingDeal | null>(null)
     const sessionKey = `${saveId}:${playerId}:${currentWeek}`
     const originalOwner = useRef<string | null>(null)
     // transferPlayer is synchronous, but React batches state updates — a
@@ -121,6 +136,7 @@ export function useNegotiation(playerId: string | null, active = true) {
             setClausesRaw(NO_CLAUSES)
             setNegotiationLog([])
             setFailureMessage(null)
+            setPendingDeal(null)
             dealSubmittedRef.current = false
 
             if (!initialTeam) {
@@ -143,6 +159,12 @@ export function useNegotiation(playerId: string | null, active = true) {
 
     const ready = !!playerSave && initializedKey === sessionKey
     const evaluation = useMemo(() => playerSave ? evaluatePlayer(playerSave, undefined, undefined, currentWeek) : null, [playerSave, currentWeek])
+    /** AI clubs in the race for him; each one lifts a selling club's price (free agents: no fee to lift). */
+    const rivals = useMemo(() => active && playerSave ? rivalInterest(playerSave, { teams, players, currentWeek, playerTeamId, saveId }) : [],
+        [active, playerSave, teams, players, currentWeek, playerTeamId, saveId])
+    const feePremium = currentTeam ? rivalFeePremium(rivals.length) : 0
+    /** The centre of the club's hidden price: market value plus the rival premium. */
+    const askingValue = evaluation ? Math.round(evaluation.transferValue * (1 + feePremium)) : 0
 
     const getNegotiationRng = (phase: string) => new SeededRNG(
         deterministicSeed(saveId || "local", currentWeek, playerId ?? "", currentTeam?.id || "FA", myTeam?.id || "NO_TEAM", phase)
@@ -207,7 +229,7 @@ export function useNegotiation(playerId: string | null, active = true) {
     }
     const setDurationOffer = (val: number) => setDurationOfferRaw(Math.max(MIN_CONTRACT_WEEKS, Math.min(MAX_CONTRACT_WEEKS, Math.floor(val || 52))))
 
-    const feeChance = evaluation && evaluation.transferValue > 0 ? bandChance(buyoutOffer / evaluation.transferValue, FEE_BAND) : 1
+    const feeChance = askingValue > 0 ? bandChance(buyoutOffer / askingValue, FEE_BAND) : 1
     const durationOk = durationOffer >= durationPref.minWeeks && durationOffer <= durationPref.maxWeeks
     const centre = wageCentre(durationOffer)
     const wageChance = !durationOk ? 0 : centre > 0 ? bandChance(salaryOffer / centre, WAGE_BAND) : 1
@@ -216,12 +238,12 @@ export function useNegotiation(playerId: string | null, active = true) {
     /** Where the player's hidden minimum can sit (effective, after the 3% grace). */
     const wageRange: [number, number] = [Math.ceil(centre * WAGE_BAND[0] * ACCEPT_WITHIN), sureWage]
     /** Where the club's hidden price can sit (effective, after the 3% grace). */
-    const feeRange: [number, number] = evaluation
-        ? [Math.ceil(evaluation.transferValue * FEE_BAND[0] * ACCEPT_WITHIN), Math.ceil(evaluation.transferValue * FEE_BAND[1] * ACCEPT_WITHIN)]
+    const feeRange: [number, number] = askingValue > 0
+        ? [Math.ceil(askingValue * FEE_BAND[0] * ACCEPT_WITHIN), Math.ceil(askingValue * FEE_BAND[1] * ACCEPT_WITHIN)]
         : [0, 0]
 
     /** The signing reveal (Phase 5.4a): a full-screen moment with the deal as made. */
-    const celebrateSigning = (signing: { playerId: string; fee: number; salaryPerWeek: number; contractEndWeek: number; fromTeamId: string | null }) => {
+    const celebrateSigning = (signing: Parameters<typeof queueSigningMoment>[0]) => {
         queueSigningMoment(signing)
     }
 
@@ -229,7 +251,7 @@ export function useNegotiation(playerId: string | null, active = true) {
         if (!evaluation) return
         const sanitizedBuyoutOffer = Math.max(0, Math.floor(buyoutOffer))
         const variance = getNegotiationRng("BUYOUT_THRESHOLD").range(0.9, 1.1)
-        const minPrice = Math.round(evaluation.transferValue * variance)
+        const minPrice = Math.round(askingValue * variance)
 
         if (sanitizedBuyoutOffer >= minPrice * 0.97) {
             setNegotiationLog(prev => [...prev, `${currentTeam?.name ?? "The club"} accepted ${money(sanitizedBuyoutOffer)}.`])
@@ -268,40 +290,65 @@ export function useNegotiation(playerId: string | null, active = true) {
         const minimumSalary = Math.round(wageWithClauses(minSalary, clauses))
 
         if (sanitizedSalary >= minimumSalary * 0.97) {
-            if (myTeam) {
-                if (dealSubmittedRef.current) return
-                dealSubmittedRef.current = true
-                const result = transferPlayer(
-                    playerSave.id,
-                    currentTeam?.id || "FA",
-                    myTeam.id,
-                    sanitizedBuyoutOffer,
-                    {
-                        salaryPerWeek: sanitizedSalary,
-                        startWeek: currentWeek,
-                        endWeek: currentWeek + sanitizedDuration,
-                        buyout: Math.max(sanitizedSalary * 20, sanitizedBuyoutOffer * 2),
-                        ...clauseFields(clauses, sanitizedSalary),
-                    }
-                )
-                if (result.success) {
-                    setNegotiationLog(prev => [...prev, "Contract accepted."])
-                    setStage("SUCCESS")
-                    celebrateSigning({ playerId: playerSave.id, fee: sanitizedBuyoutOffer, salaryPerWeek: sanitizedSalary, contractEndWeek: currentWeek + sanitizedDuration, fromTeamId: currentTeam?.id ?? null })
-                } else {
-                    const reason = result.message || "The deal could not be completed."
-                    setNegotiationLog(prev => [...prev, `Transfer rejected: ${reason}`])
-                    setFailureMessage(reason)
-                    setStage("FAILED")
-                    addToast({ message: `Transfer failed: ${reason}`, type: "error" })
-                }
-            } else {
-                setNegotiationLog(prev => [...prev, "Contract accepted."])
-                setStage("SUCCESS")
-            }
+            // Terms agreed: the paper contract comes out for the manager to sign.
+            setNegotiationLog(prev => [...prev, "Terms agreed. The contract is ready to sign."])
+            setPendingDeal({ salary: sanitizedSalary, duration: sanitizedDuration, fee: sanitizedBuyoutOffer, clauses })
+            setStage("SIGN")
         } else {
             setNegotiationLog(prev => [...prev, `${money(sanitizedSalary)}/wk rejected. Accepts ${money(Math.ceil(minimumSalary * 0.97))}/wk or more at this length.`])
         }
+    }
+
+    /**
+     * The manager signed the paper contract: the deal is completed on the
+     * agreed terms, and the reveal carries the signature. Returns whether the
+     * transfer went through.
+     */
+    const signContract = (signature: SigningSignature | null): boolean => {
+        if (!playerSave || !pendingDeal || !myTeam) return false
+        if ((currentTeam?.id || null) !== originalOwner.current) {
+            setFailureMessage("This player's club changed during negotiations. Reopen the deal to get current terms.")
+            setStage("FAILED")
+            return false
+        }
+        if (dealSubmittedRef.current) return false
+        dealSubmittedRef.current = true
+        const { salary, duration, fee, clauses: agreed } = pendingDeal
+        const result = transferPlayer(
+            playerSave.id,
+            currentTeam?.id || "FA",
+            myTeam.id,
+            fee,
+            {
+                salaryPerWeek: salary,
+                startWeek: currentWeek,
+                endWeek: currentWeek + duration,
+                buyout: Math.max(salary * 20, fee * 2),
+                ...clauseFields(agreed, salary),
+            }
+        )
+        if (result.success) {
+            setNegotiationLog(prev => [...prev, "Contract signed."])
+            setStage("SUCCESS")
+            celebrateSigning({
+                playerId: playerSave.id, fee, salaryPerWeek: salary, contractEndWeek: currentWeek + duration, fromTeamId: currentTeam?.id ?? null,
+                rivalNames: rivals.slice(0, 3).map(r => r.name), rivalCount: rivals.length, rosterBefore: myTeam.rosterIds,
+                signature: signature ?? undefined,
+            })
+            return true
+        }
+        const reason = result.message || "The deal could not be completed."
+        setNegotiationLog(prev => [...prev, `Transfer rejected: ${reason}`])
+        setFailureMessage(reason)
+        setStage("FAILED")
+        addToast({ message: `Transfer failed: ${reason}`, type: "error" })
+        return false
+    }
+
+    /** Put the contract down unsigned: back to the terms (the agreement stands this week). */
+    const cancelSigning = () => {
+        setPendingDeal(null)
+        setStage("CONTRACT")
     }
 
     /** Re-arm after a failure so the manager can fix the blocker and re-offer. */
@@ -319,6 +366,9 @@ export function useNegotiation(playerId: string | null, active = true) {
         budget,
         boardSanction,
         evaluation,
+        rivals,
+        feePremium,
+        askingValue,
         stage,
         buyoutOffer, setBuyoutOffer,
         salaryOffer, setSalaryOffer,
@@ -337,6 +387,9 @@ export function useNegotiation(playerId: string | null, active = true) {
         feeRange,
         submitBuyout,
         submitContract,
+        pendingDeal,
+        signContract,
+        cancelSigning,
         retry,
     }
 }

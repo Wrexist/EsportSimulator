@@ -30,12 +30,18 @@ import { DealPanel } from "./DealPanel"
 import { TeamLink } from "@/components/ui/EntityLink"
 import { describeCriteria, isNarrowing, matchesMarketSearch, MAX_SAVED_SEARCHES, type MarketCriteria } from "@/engine/market-search"
 import { toast } from "@/lib/toast"
+import { marketStandings, rivalInterest, type MarketStanding } from "@/engine/transfer-hype"
+import { StandingBadge } from "./StandingBadge"
+import { MarqueeTargets, type MarqueeTarget } from "./MarqueeTargets"
 
 type Mode = "transfers" | "scouting"
 type SortField = "ovr" | "age" | "value" | "name"
 type StatusFilter = "all" | "listed" | "free" | "scouted" | "watchlist"
 
 const PAGE_SIZE = 25
+const MARQUEE_COUNT = 4
+const MARQUEE_CONTRACT_WEEKS = 26
+const STANDING_ORDER: Record<MarketStanding, number> = { ICON: 0, STAR: 1, WONDERKID: 2 }
 const ROLES = [
     { value: "ALL", label: "All roles" },
     { value: "AWPER", label: "AWPer" },
@@ -113,8 +119,8 @@ function SortHead({ field, label, sort, dir, onSort, className }: { field: SortF
     )
 }
 
-const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, scouting, onSelect }: {
-    row: Row; selected: boolean; wage: number; watchlisted: boolean; scouting: boolean; onSelect: (id: string) => void
+const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, scouting, standing, onSelect }: {
+    row: Row; selected: boolean; wage: number; watchlisted: boolean; scouting: boolean; standing?: MarketStanding; onSelect: (id: string) => void
 }) {
     const { player, team, knowledge, value } = row
     const status = !team ? "Free agent" : player.forSale ? "Listed" : "Contracted"
@@ -141,6 +147,7 @@ const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, sc
                         <div className="flex items-center gap-1.5">
                             <span className={cn("truncate text-sm font-semibold", selected ? "text-gold" : "text-ink-1 group-hover:text-gold")}>{player.nickname}</span>
                             {watchlisted && <Star size={11} className="shrink-0 fill-current text-ink-3" aria-label="On watchlist" />}
+                            <StandingBadge standing={standing} size="xs" />
                         </div>
                         <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
                             <CountryFlag country={player.nationality} size={12} />
@@ -267,6 +274,31 @@ export function MarketBoard({ mode }: { mode: Mode }) {
 
     const watchSet = useMemo(() => new Set(watchlistedPlayerIds), [watchlistedPlayerIds])
 
+    // Icon / Star / Wonderkid across every active player (market values reused).
+    const standings = useMemo(() => {
+        if (!myTeam) return new Map<string, MarketStanding>()
+        return marketStandings(players, currentWeek, new Map(market.map(r => [r.player.id, r.value])))
+    }, [players, currentWeek, market, myTeam])
+
+    // Marquee targets: the top standings that can be had now, with their rivals counted.
+    const marquee = useMemo<MarqueeTarget[]>(() => {
+        if (mode !== "transfers" || !myTeam) return []
+        const picks: Omit<MarqueeTarget, "rivalCount">[] = []
+        for (const r of market) {
+            const standing = standings.get(r.player.id)
+            if (!standing) continue
+            const weeks = contractWeeks.get(r.player.id)
+            const reason = !r.team ? "free" : r.player.forSale ? "listed" : weeks !== undefined && weeks <= MARQUEE_CONTRACT_WEEKS ? "expiring" : null
+            if (!reason) continue
+            picks.push({ player: r.player, team: r.team, standing, value: r.value, reason, contractWeeksLeft: weeks })
+        }
+        picks.sort((a, b) => STANDING_ORDER[a.standing] - STANDING_ORDER[b.standing] || b.value - a.value || a.player.id.localeCompare(b.player.id))
+        return picks.slice(0, MARQUEE_COUNT).map(p => ({
+            ...p,
+            rivalCount: rivalInterest(p.player, { teams, players, currentWeek, playerTeamId, saveId, standing: p.standing }).length,
+        }))
+    }, [mode, myTeam, market, standings, contractWeeks, teams, players, currentWeek, playerTeamId, saveId])
+
     const filtered = useMemo(() => {
         const list = market.filter(({ player, team, knowledge, value }) => matchesMarketSearch({
             player, team, value,
@@ -350,6 +382,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
                 <div className="min-w-0 space-y-3">
+                    <MarqueeTargets targets={marquee} selectedId={activeId} onSelect={setSelectedId} />
                     {/* Toolbar */}
                     <Panel padded={false}>
                         <div className="flex flex-wrap items-center gap-2 px-3 py-2.5">
@@ -451,6 +484,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                                             wage={recruitmentSalary(row.player, currentWeek, myTeam)}
                                             watchlisted={watchSet.has(row.player.id)}
                                             scouting={activeScoutingMission?.playerId === row.player.id}
+                                            standing={standings.get(row.player.id)}
                                             onSelect={setSelectedId}
                                         />
                                     ))}
@@ -479,7 +513,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                 </div>
 
                 <aside className="min-w-0 space-y-4 xl:sticky xl:top-4 xl:self-start">
-                    {activeId ? <DealPanel key={activeId} playerId={activeId} mode={mode} /> : (
+                    {activeId ? <DealPanel key={activeId} playerId={activeId} mode={mode} standing={standings.get(activeId)} /> : (
                         <Panel><p className="text-sm text-ink-3">Pick a player to see their terms.</p></Panel>
                     )}
                     {recent.length > 0 && (

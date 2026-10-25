@@ -96,6 +96,13 @@ export interface TierMoveMoment extends MomentBase {
     eligibleLost?: string[]
 }
 
+/** The manager's hand-drawn signature: SVG path data in a w x h box. */
+export interface SigningSignature {
+    d: string
+    w: number
+    h: number
+}
+
 /** A player signed by the manager (transfer or free agent; not a renewal). */
 export interface SigningMoment extends MomentBase {
     kind: "signing"
@@ -109,6 +116,15 @@ export interface SigningMoment extends MomentBase {
     rating: number
     /** Rating 85+ (the game's "blockbuster" rule): the bigger reveal. */
     big: boolean
+    /** Market standing when signed (engine/transfer-hype.ts); absent for most players. */
+    standing?: "ICON" | "STAR" | "WONDERKID"
+    /** AI clubs that were in the race for him (up to three) and how many there were. */
+    rivalNames?: string[]
+    rivalCount?: number
+    /** Best-five OVR of the manager's squad before and after the deal. */
+    squad?: { before: number; after: number }
+    /** The signature the manager drew on the contract. */
+    signature?: SigningSignature
 }
 
 /** The board brief after a new career is created. */

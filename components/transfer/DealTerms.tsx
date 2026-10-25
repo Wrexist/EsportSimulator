@@ -13,6 +13,8 @@ import { ArchetypeChip } from "@/components/player/PersonalityChips"
 import { getArchetype } from "@/engine/personality"
 import { SENIOR_ROSTER_MAX, squadFullMessage } from "@/engine/roster-rules"
 import { RELEASE_LABEL, releaseClauseFee, releaseTriggerChance, type ReleaseClause } from "@/engine/contract-clauses"
+import type { MarketStanding } from "@/engine/transfer-hype"
+import { ContractPaper } from "./ContractPaper"
 
 const money = (value: number) => formatCurrency(value, "$", false)
 
@@ -78,9 +80,24 @@ function Log({ lines }: { lines: string[] }) {
  * then wage + length to the player, with real acceptance odds and the cost
  * of the signing on the books.
  */
-export function DealTerms({ n, onDone }: { n: NegotiationState; onDone?: () => void }) {
+export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone?: () => void; standing?: MarketStanding }) {
     const router = useRouter()
     if (!n.ready || !n.evaluation || !n.playerSave) return null
+
+    if (n.stage === "SIGN") {
+        return (
+            <div className="space-y-3">
+                <div role="status" className="flex items-start gap-3 rounded border border-gold/40 bg-gold/5 px-3 py-3">
+                    <Check size={18} className="mt-0.5 shrink-0 text-gold" />
+                    <div>
+                        <p className="text-sm font-semibold text-ink-1">Terms agreed</p>
+                        <p className="text-xs text-ink-3">The contract is on the table. Sign it to complete the deal.</p>
+                    </div>
+                </div>
+                <ContractPaper n={n} standing={standing} />
+            </div>
+        )
+    }
 
     if (n.stage === "SUCCESS") {
         return (
@@ -142,6 +159,7 @@ export function DealTerms({ n, onDone }: { n: NegotiationState; onDone?: () => v
                 <MoneyInput label="Transfer fee offer" value={n.buyoutOffer} onChange={n.setBuyoutOffer} />
                 <dl className="divide-y divide-line">
                     <Row label="Market value" value={money(value)} />
+                    {n.feePremium > 0 && <Row label={`Rival premium (${n.rivals.length} club${n.rivals.length === 1 ? "" : "s"} chasing)`} value={`+${Math.round(n.feePremium * 100)}% · ${money(n.askingValue)}`} tone="text-gold" />}
                     <Row label="Your funds" value={money(n.budget)} tone={n.budget < value * 0.5 ? "text-caution" : undefined} />
                     {n.boardSanction.fraction < 1 && (
                         <Row label={`Board limit (${Math.round(n.boardSanction.fraction * 100)}% of funds)`} value={money(n.boardSanction.maxFee)} tone={overBoard ? "text-negative" : "text-caution"} />
