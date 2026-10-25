@@ -3,6 +3,7 @@
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import React, { memo, useMemo, useEffect, useRef, useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
+import { TeamStanding } from "@/src/components/ui/TeamStanding"
 import { Trophy, ChevronLeft, ChevronRight } from "lucide-react"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { pressable } from "@/lib/accessibility"
@@ -14,6 +15,9 @@ interface BracketTeam {
     isWinner?: boolean
     logo?: string
     recentForm?: ("W" | "L" | "D")[]
+    /** World ranking and team OVR, shown beside the name. */
+    rank?: number
+    ovr?: number
     branding?: {
         primaryColor: string
         secondaryColor: string
@@ -302,6 +306,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                 )}>
                     {name}
                 </span>
+                {!tbd && <TeamStanding rank={team?.rank} ovr={team?.ovr} />}
                 <span className={cn("w-5 text-right font-display text-base font-bold tabular-nums", team?.isWinner ? "text-ink-1" : "text-ink-3")}>
                     {team?.score ?? ""}
                 </span>

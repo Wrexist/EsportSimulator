@@ -11,6 +11,7 @@ import {
     getEntryTypeLabel,
 } from "@/data/tournament-calendar"
 import { useGameStore } from "@/store/game-store"
+import { teamOvrMap } from "@/lib/team-ovr"
 import { useShallow } from "zustand/react/shallow"
 import { ScheduleMatchCard } from "@/components/schedule/ScheduleMatchCard"
 import TournamentStandings from "@/components/tournament/TournamentStandings"
@@ -54,8 +55,9 @@ export function TournamentDetailsModal({
     tournament,
     status
 }: TournamentDetailsModalProps) {
-    const { tournaments, scheduledMatches, completedMatches, teams, playerTeamId, currentWeek, tournamentQualifications, registerForTournament, activeMatchId } = useGameStore(useShallow(state => ({
+    const { tournaments, scheduledMatches, completedMatches, teams, players, playerTeamId, currentWeek, tournamentQualifications, registerForTournament, activeMatchId } = useGameStore(useShallow(state => ({
         tournaments: state.tournaments,
+        players: state.players,
         scheduledMatches: state.scheduledMatches,
         completedMatches: state.completedMatches,
         teams: state.teams,
@@ -71,6 +73,12 @@ export function TournamentDetailsModal({
     const seasonalTournament = tournaments.find(t =>
         t.id === tournament.id || t.id.startsWith(`${tournament.id}_`)
     )
+
+    // Rank and OVR beside each bracket name.
+    const bracketOvrs = useMemo(() => {
+        const ids = new Set((seasonalTournament?.playoffBracket ?? []).flatMap(m => [m.homeTeamId, m.awayTeamId]))
+        return teamOvrMap(teams.filter(t => ids.has(t.id)), players)
+    }, [seasonalTournament, teams, players])
 
     // Get qualified/invited team IDs from the qualification system
     const qualifiedTeamIds = useMemo(() => {
@@ -180,7 +188,9 @@ export function TournamentDetailsModal({
                                             logo: homeTeam?.logoPath,
                                             score: completedMatch?.result ? completedMatch.result.homeScore : undefined,
                                             isWinner: m.winnerId === m.homeTeamId,
-                                            recentForm: homeTeam?.recentForm
+                                            recentForm: homeTeam?.recentForm,
+                                            rank: homeTeam?.worldRanking,
+                                            ovr: homeTeam ? bracketOvrs.get(homeTeam.id) : undefined,
                                         },
                                         team2: {
                                             id: m.awayTeamId || "TBD",
@@ -188,7 +198,9 @@ export function TournamentDetailsModal({
                                             logo: awayTeam?.logoPath,
                                             score: completedMatch?.result ? completedMatch.result.awayScore : undefined,
                                             isWinner: m.winnerId === m.awayTeamId,
-                                            recentForm: awayTeam?.recentForm
+                                            recentForm: awayTeam?.recentForm,
+                                            rank: awayTeam?.worldRanking,
+                                            ovr: awayTeam ? bracketOvrs.get(awayTeam.id) : undefined,
                                         }
                                     }
                                 })}

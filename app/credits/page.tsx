@@ -11,7 +11,12 @@ const CREDITS: { category: string; entries: { role: string; name: string }[] }[]
     {
         category: "Game design and development",
         entries: [
-            { role: "Creator and lead developer", name: "IsacC" },
+            { role: "Creator and lead developer", name: "Delta" },
+            { role: "Game design", name: "Delta" },
+            { role: "Match engine and simulation", name: "Delta" },
+            { role: "Interface and art direction", name: "Delta" },
+            { role: "Writing and world building", name: "Delta" },
+            { role: "Balancing and quality assurance", name: "Delta" },
         ],
     },
     {
@@ -84,7 +89,7 @@ export default function CreditsPage() {
 
             <p className="text-xs leading-relaxed text-ink-3">
                 This game is a work of fiction. Team names, player likenesses and tournament structures are used for simulation only, and no endorsement is implied.
-                © {new Date().getFullYear()} IsacC. All rights reserved.
+                © {new Date().getFullYear()} Delta. All rights reserved.
             </p>
         </div>
     )

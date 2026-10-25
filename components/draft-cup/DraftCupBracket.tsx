@@ -2,10 +2,13 @@
 
 /** G7: the Draft Cup bracket on Home, round by round. */
 
+import { useMemo } from "react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { Panel } from "@/src/components/ui/Panel"
+import { TeamStanding } from "@/src/components/ui/TeamStanding"
+import { teamOvrMap } from "@/lib/team-ovr"
 import { cn } from "@/lib/utils"
 
 const ROUNDS = [
@@ -15,8 +18,11 @@ const ROUNDS = [
 ]
 
 export function DraftCupBracket() {
-    const { draftCup, tournaments, teams } = useGameStore(useShallow(s => ({ draftCup: s.draftCup, tournaments: s.tournaments, teams: s.teams })))
-    const bracket = draftCup ? tournaments.find(t => t.id === draftCup.tournamentId)?.playoffBracket ?? [] : []
+    const { draftCup, tournaments, teams, players } = useGameStore(useShallow(s => ({ draftCup: s.draftCup, tournaments: s.tournaments, teams: s.teams, players: s.players })))
+    const tournament = draftCup ? tournaments.find(t => t.id === draftCup.tournamentId) : undefined
+    const bracket = tournament?.playoffBracket ?? []
+    // Rank and OVR beside each name, so the field reads at a glance.
+    const ovrs = useMemo(() => teamOvrMap(teams.filter(t => tournament?.teamIds.includes(t.id)), players), [teams, players, tournament])
     if (!draftCup || !bracket.length) return null
     const team = (id?: string) => teams.find(t => t.id === id)
 
@@ -39,7 +45,9 @@ export function DraftCupBracket() {
                                             const cell = (
                                                 <span key={i} className={cn("flex min-w-0 items-center gap-1.5", i === 0 ? "justify-end text-right" : "", lost && "opacity-45")}>
                                                     {i === 1 && <TeamLogoDisplay team={t} size={16} />}
+                                                    {i === 0 && t && <TeamStanding rank={t.worldRanking} ovr={ovrs.get(t.id)} />}
                                                     <span className={cn("truncate", mine ? "font-semibold text-gold" : won ? "font-semibold text-ink-1" : "text-ink-2")}>{t?.name ?? "To be decided"}</span>
+                                                    {i === 1 && t && <TeamStanding rank={t.worldRanking} ovr={ovrs.get(t.id)} />}
                                                     {i === 0 && <TeamLogoDisplay team={t} size={16} />}
                                                 </span>
                                             )
