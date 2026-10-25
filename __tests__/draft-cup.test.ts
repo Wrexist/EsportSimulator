@@ -79,7 +79,7 @@ describe("draft rules", () => {
     })
 })
 
-test("a full Draft Cup run through the store", async () => {
+test.each([["as drafted", false], ["with a dominant side, so the cup is won", true]])("a full Draft Cup run through the store, %s", async (_label, dominant) => {
     const players = byId() as never
     const opponentIds = pickCupField(world.teams, players, "open", 11)
     const pool = buildDraftPool(world.players, world.teams, opponentIds, 12)
@@ -115,6 +115,10 @@ test("a full Draft Cup run through the store", async () => {
     expect(firstMatch.week).toBe(s.currentWeek)
     expect(s.eventsLog.some(e => e.id.startsWith("evt_draft_cup_"))).toBe(true)
 
+    // G13: a title bonus on one drafted contract is paid only if the cup is won.
+    useGameStore.setState(st => ({ contracts: st.contracts.map(c => c.playerId === picks[0].playerId && c.teamId === cup.teamId ? { ...c, tournamentWinBonus: 7_000 } : c) }))
+    if (dominant) useGameStore.setState(st => ({ players: st.players.map(p => picks.some(k => k.playerId === p.id) ? { ...p, skill: 99, rifle: 99, awp: 99, reaction: 99, clutch: 99, eyesight: 99, form: 100 } : p) }))
+
     let played = 0
     for (let guard = 0; guard < 6 && !draftCupOutcome(useGameStore.getState() as never); guard++) {
         s = useGameStore.getState()
@@ -131,13 +135,23 @@ test("a full Draft Cup run through the store", async () => {
         await useGameStore.getState().advanceWeek()
         expect(useGameStore.getState().error ?? null).toBeNull()
     }
+    // The result screen settles the run: trophy, prize money and title bonuses (no week tick follows).
+    expect(await useGameStore.getState().settleDraftCup()).toBe(true)
     s = useGameStore.getState()
+    // A side drafted for one cup never takes a world rank, and the drafted five get the field's facilities.
+    const finalTeam = s.teams.find(t => t.id === cup.teamId)!
+    expect(finalTeam.worldRanking).toBeUndefined()
+    expect(s.teams.filter(t => t.worldRanking != null).map(t => t.worldRanking!).sort((a, b) => a - b)).toEqual(s.teams.filter(t => t.id !== cup.teamId).map((_, i) => i + 1))
     const outcome = draftCupOutcome(s as never)!
     expect(outcome).toBeTruthy()
     expect(played).toBe(outcome.finish === "champion" ? 3 : outcome.finish === "final" ? 3 : outcome.finish === "semi" ? 2 : 1)
     expect(outcome.seriesWon).toBe(played - (outcome.finish === "champion" ? 0 : 1))
     expect(outcome.score).toBeGreaterThan(0)
     expect(outcome.breakdown.reduce((n, b) => n + b.points, 0)).toBe(outcome.score)
+    const titleBonus = s.financeLedger.filter(e => e.id.endsWith(`_${picks[0].playerId}_title`))
+    expect(titleBonus.map(e => e.amount)).toEqual(outcome.finish === "champion" ? [7_000] : [])
+    if (dominant) expect(outcome.finish).toBe("champion")
+    expect(s.teams.find(t => t.id === cup.teamId)!.trophies?.map(t => t.tournamentId) ?? []).toEqual(outcome.finish === "champion" ? [cup.tournamentId] : [])
     // No other competition ever scheduled the drafted team.
     expect(s.scheduledMatches.concat(s.completedMatches).filter(m => (m.homeTeamId === cup.teamId || m.awayTeamId === cup.teamId) && m.tournamentId !== cup.tournamentId)).toEqual([])
 })

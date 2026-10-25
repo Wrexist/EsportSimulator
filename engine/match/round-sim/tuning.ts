@@ -149,6 +149,14 @@ export const TUNING = {
     READ_COUNTER: 0.15,
     READ_RIGHT_BASE: 0.18,
     READ_WRONG_BASE: 0.08,
+    /** G1 playbook: added chance the CT reads a fixed T call, per earlier use of that call on this map. */
+    PLAYBOOK_READ_PER_REPEAT: 0.1,
+    /** Repeats that still add to the read. */
+    PLAYBOOK_READ_REPEAT_CAP: 6,
+    /** G1 playbook: shift of the T site roll away from a site a fixed CT setup kept stacking (per stack, net of the other site). */
+    PLAYBOOK_STACK_ADAPT: 0.03,
+    /** Farthest the T site roll moves from 50/50. */
+    PLAYBOOK_STACK_ADAPT_CAP: 0.15,
 
     // ── team factors ──
     /** Duel points per +1.0 round-win probability of a manager regroup (timeout). */

@@ -11,6 +11,7 @@
 import { TournamentManager } from "./tournament-manager"
 import { SeededRNG } from "./rng"
 import { SynergyCalculator } from "./synergy-calculator"
+import { DRAFT_CUP_TEAM_PREFIX } from "./world-ranking"
 import { clubStrength, DRAFT_CUP_DIFFICULTY, draftComplete, draftSpent, type DraftCupDifficulty, type DraftCupState, type DraftPick, type DraftRole } from "./draft-cup"
 import type { GameSave, TeamSaveData, TournamentSaveData } from "./save-types"
 
@@ -33,7 +34,7 @@ const DRAFT_CUP_BUDGET_CASH = 150_000
 const CUP_PRIZE_POOL = 250_000
 
 export function draftCupTeamId(saveId: string): string {
-    return `draft_team_${saveId}`
+    return `${DRAFT_CUP_TEAM_PREFIX}${saveId}`
 }
 
 /** Elo for seeding: the field's Elo scale mapped from starting-five strength. */
@@ -83,6 +84,9 @@ export function setupDraftCup(save: GameSave, setup: DraftCupSetup): string {
     const roster = setup.picks.map(pick => save.players.find(p => p.id === pick.playerId)!)
     const byId = new Map(save.players.map(p => [p.id, p]))
 
+    // Facilities feed match strength: give the drafted side the field's average, not the template club's.
+    const field = opponents.map(id => save.teams.find(t => t.id === id)!)
+    const fieldFacilities = Math.round(field.reduce((n, t) => n + (t.facilitiesLevel ?? 0), 0) / field.length)
     const team: TeamSaveData = {
         ...structuredClone(template),
         id: teamId,
@@ -97,12 +101,30 @@ export function setupDraftCup(save: GameSave, setup: DraftCupSetup): string {
         // New together, but picked to play together: below a settled side (70).
         chemistry: 60,
         lastRosterChangeWeek: week,
+        facilitiesLevel: fieldFacilities,
+        facilities: [],
+        academyFacility: undefined,
+        leagueTier: "C_TIER",
+        financialState: undefined,
+        runwayWeeks: undefined,
+        weeklyNet: undefined,
+        financeSettlement: undefined,
+        consecutiveInsolventWeeks: undefined,
+        administrations: undefined,
+        lastAdministrationWeek: undefined,
+        aiWageSwapWeek: undefined,
+        prepPenalty: undefined,
+        economyStyle: undefined,
+        targetPlayerId: undefined,
+        merchStoreLevel: undefined,
+        activeMerchItems: [],
+        difficultySettings: undefined,
         trainingSlotsUsed: 0,
         maxTrainingSlots: 3,
         budget: DRAFT_CUP_BUDGET_CASH,
         startingBudget: DRAFT_CUP_BUDGET_CASH,
         elo: 1500,
-        worldRanking: 999,
+        worldRanking: undefined,
         peakWorldRanking: undefined,
         rankedElo: undefined,
         ratedMatches: 0,

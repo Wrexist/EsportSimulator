@@ -40,6 +40,7 @@ import { ROUND_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import { ANTI_STRAT_SELF_PENALTY, MAP_POINTS_PER_EDGE, MENTAL_PREP_EDGE, NON_PLAYER_BONUS_CAP, PREP_STRENGTH_PER_POINT, ROUND_SHARE_PER_EDGE, STYLE_SPECIALISATION_EDGE } from "@/engine/match/round-sim/team-edge"
 import { TUNING } from "@/engine/match/round-sim/tuning"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
+import { PlaybookEditor } from "@/components/tactics/PlaybookEditor"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
@@ -743,6 +744,8 @@ export default function TacticalHQPage() {
                             </div>
                         </div>
                     </Panel>
+
+                    {mapsLocked && !isCompleted && <PlaybookEditor maps={[...new Set(match.maps ?? [])]} />}
                 </div>
 
                 <aside className="min-w-0 space-y-4">

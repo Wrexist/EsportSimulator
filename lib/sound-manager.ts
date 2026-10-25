@@ -83,6 +83,8 @@ export class SoundManager {
 
     private enabled = true
     private quietScene = false
+    /** >0 while store actions run on the manager's behalf (delegated chores): their cues stay silent. */
+    private silenced = 0
     private foreground = true
     private muteWhenUnfocused = true
     private uiSounds = true
@@ -264,8 +266,14 @@ export class SoundManager {
 
     // ── effects ─────────────────────────────────────────────────────────────
 
+    /** Runs `fn` with effect cues muted, for actions the player did not take themselves. */
+    public silently<T>(fn: () => T): T {
+        this.silenced++
+        try { return fn() } finally { this.silenced-- }
+    }
+
     public play(type: SoundType, opts: PlayOptions = {}) {
-        if (!this.enabled || this.isQuiet()) return
+        if (!this.enabled || this.silenced > 0 || this.isQuiet()) return
         const entry = AUDIO_MANIFEST.sounds[type]
         if (!entry) return
         if (entry.category === 'ui' && !this.uiSounds) return

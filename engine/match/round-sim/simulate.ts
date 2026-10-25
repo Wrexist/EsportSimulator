@@ -34,6 +34,7 @@ import type { BuyStrategy } from "../buy-phase"
 import { heDamage, heLandingDistance } from "../grenade-damage"
 import type { PlayerSimulationState } from "../round-outcome"
 import type { SiteId, UtilityKind } from "../round-script-types"
+import type { RoundCalls } from "../playbook"
 import { aimPoints, TRAIT_AGGRESSIVE, TRAIT_CLUTCHER, TRAIT_PASSIVE, TRAIT_TRADER, type SimProfile } from "./profile"
 import { TUNING as T } from "./tuning"
 import { WEAPON_CLASSES, isSaveWorthy, isSniperClass, weaponClassOf, type WeaponClass, type WeaponClassSpec } from "./weapons"
@@ -79,6 +80,8 @@ export interface SimInput {
     rollKey?: number
     /** Close contacts the round script found (enemies in sight with no fight), fought as duels. */
     contacts?: readonly Contact[]
+    /** G1: calls the round takes from the managers' playbooks (fixed T strategy / site, CT setup). */
+    calls?: RoundCalls
 }
 
 /** Two enemies in plain sight of each other at `t` (round seconds), at baked zone `zone`. */
@@ -622,7 +625,7 @@ function throwUtil(R: Round, a: Actor, kind: UtilityKind, site: SiteId, side: "T
 }
 
 /** T utility on the site before the execute; CT utility on the entrance. Returns the execute delay. */
-function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy: TStrategy, tHit: number): number {
+function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy: TStrategy, tHit: number, readCall = false): number {
     const S = R.S.id
     const maxSmokes = strategy === "execute" ? 3 : strategy === "rush" || strategy === "eco" ? 0 : 2
     const maxFlashes = strategy === "execute" ? 4 : strategy === "rush" || strategy === "eco" ? 1 : 2
@@ -678,7 +681,8 @@ function executeUtility(R: Round, hitters: Actor[], defenders: Actor[], strategy
     const entry = hitters[0]
     for (const d of defenders) {
         if (!d.alive) continue
-        if (d.molotov > 0 && strategy !== "rush") {
+        // A rush is on them before a molotov lands, unless they read it and wait with one.
+        if (d.molotov > 0 && (strategy !== "rush" || readCall)) {
             const molotov = throwUtil(R, d, "molotov", S, "CT", tHit - 1)
             delay += rnd(R, P.util).range(1.5, 4)
             if (entry && rnd(R, P.util).next() < 0.4) hurtBy(molotov, d, entry, rnd(R, P.util).int(8, 24))
@@ -736,7 +740,7 @@ function weighted<K extends string>(rng: SeededRNG, w: Record<K, number>): K {
     return keys[keys.length - 1]
 }
 
-const BUY_OF: Record<string, "pistol" | "eco" | "force" | "half" | "full"> = {
+export const BUY_OF: Record<string, "pistol" | "eco" | "force" | "half" | "full"> = {
     PISTOL: "pistol", ECO: "eco", FORCE: "force", SEMIBUY: "half", FULL: "full", "DOUBLE AWP": "full",
 }
 
@@ -748,7 +752,13 @@ export interface PlanState {
     execAt: number
     fakeAt: number
     ecoRush: boolean
+    /** G1: the CTs read a playbook call they have seen before, so they wait for it (a read rush loses its speed). */
+    readCall?: boolean
 }
+
+/** A rush the CTs are not waiting for: it beats the defence before it is set (no read playbook rush). */
+export const surpriseRush = (plan: Pick<PlanState, "strategy" | "ecoRush" | "readCall">): boolean =>
+    (plan.strategy === "rush" || plan.ecoRush) && !plan.readCall
 
 const BEATS: Record<string, string> = { aggressive: "structured", structured: "balanced", balanced: "aggressive" }
 
@@ -766,6 +776,7 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
     const ctBuy = BUY_OF[ctSide.strategy] ?? "full"
     const tStyle = (tSide.playstyle ?? "").toLowerCase()
     const ctStyle = (ctSide.playstyle ?? "").toLowerCase()
+    const calls = input.calls
     let strategy: TStrategy
     if (tBuy === "eco") strategy = "eco"
     else {
@@ -780,29 +791,52 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
         const smokes = R.T.reduce((s, a) => s + a.smoke, 0)
         if (smokes < 2) { w.execute -= 2; w.default += 1 }
         strategy = weighted(rng, w)
+        // G1: the manager's call replaces the IGL's (the roll above still runs, so other rolls keep their order).
+        if (calls?.t) strategy = calls.t.strategy
     }
-    const site: SiteId = rng.bool(0.5) ? "A" : "B"
+    // A CT setup that keeps stacking one site gets hit on the other (the T IGL adapts; a sharper caller adapts more).
+    const stackLean = calls?.ct && !calls.t?.site
+        ? max(-T.PLAYBOOK_STACK_ADAPT_CAP, min(T.PLAYBOOK_STACK_ADAPT_CAP, T.PLAYBOOK_STACK_ADAPT * (calls.ct.stacks.A - calls.ct.stacks.B) * (0.5 + tSide.call / 100)))
+        : 0
+    let site: SiteId = rng.bool(0.5 - stackLean) ? "A" : "B"
+    if (strategy !== "eco" && calls?.t?.site) site = calls.t.site
 
     const cw: Record<CtSetup, number> = { "2-1-2": 6, "stack-A": 1, "stack-B": 1, aggressive: 1 }
     if (ctStyle === "aggressive") cw.aggressive += 2
     if (ctStyle === "structured") cw["2-1-2"] += 2
     if (ctBuy === "eco" || ctBuy === "force") { cw["stack-A"] += 1.5; cw["stack-B"] += 1.5; cw.aggressive += 1.5 }
     let setup = weighted(rng, cw)
+    const fixedSetup = calls?.ct?.setup
+    if (fixedSetup) setup = fixedSetup
 
     // The read: a better caller (and a tactical map) anticipates the T plan, and a
     // playstyle that counters the other one reads it better (the counter triangle).
+    // G1: a fixed T call that keeps repeating on this map is read more often.
     const counter = counterSign(ctStyle, tStyle)
+    const repeats = calls?.t && strategy !== "eco" ? min(T.PLAYBOOK_READ_REPEAT_CAP, calls.t.seen) : 0
     const edge = max(-0.2, min(0.2, T.READ_IGL * ((ctSide.call - tSide.call) / 50) * input.tacticalWeight + T.READ_COUNTER * counter))
+    const predictable = T.PLAYBOOK_READ_PER_REPEAT * repeats
     let read: PlanState["read"] = "none"
-    if (setup === "stack-A" || setup === "stack-B") {
-        const onSite = rng.bool(max(0.3, min(0.7, 0.5 + edge)))
+    let callRead = false
+    if (fixedSetup === "stack-A" || fixedSetup === "stack-B") {
+        // The manager chose where to stack: it is right only if the Ts come there.
+        read = (fixedSetup === "stack-A") === (site === "A") ? "right" : "wrong"
+    } else if (setup === "stack-A" || setup === "stack-B") {
+        const onSite = rng.bool(max(0.3, min(0.7, 0.5 + edge)) + predictable)
         setup = onSite ? (site === "A" ? "stack-A" : "stack-B") : (site === "A" ? "stack-B" : "stack-A")
         read = onSite ? "right" : "wrong"
+        callRead = onSite && predictable > 0
     } else {
         const roll = rng.next()
-        const right = max(0.05, min(0.35, T.READ_RIGHT_BASE + edge))
+        const right = max(0.05, min(0.35, T.READ_RIGHT_BASE + edge)) + predictable
         const wrong = max(0.02, min(0.15, T.READ_WRONG_BASE - edge / 2))
         read = roll < right ? "right" : roll < right + wrong ? "wrong" : "none"
+        // A call they have seen again and again: the CTs who read it stack the site it hits.
+        // The read is of the play as it develops, so mixing sites with the same call does
+        // not hide it (measured: with a 50/50 site guess a fixed rush beat the IGL's mix
+        // by 15 map points, since an unread rush wins most full buys).
+        callRead = read === "right" && predictable > 0
+        if (callRead && !fixedSetup) setup = site === "A" ? "stack-A" : "stack-B"
     }
 
     const S = R.z.sites[site]
@@ -821,7 +855,7 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
             break
         default: execAt = rng.range(52, 82)
     }
-    return { strategy, site, setup, read, execAt, fakeAt, ecoRush }
+    return { strategy, site, setup, read, execAt, fakeAt, ecoRush, ...(callRead ? { readCall: true } : {}) }
 }
 
 // ─── Jobs ──────────────────────────────────────────────────────────────────
@@ -985,7 +1019,7 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
             rotators.push([c, execAt + info + O.rotateTime])
         }
     }
-    const delay = executeUtility(R, hitters, defenders, plan.strategy, execAt)
+    const delay = executeUtility(R, hitters, defenders, plan.strategy, execAt, plan.readCall)
     execAt += delay
     R.t = execAt
     // A lurker catches the first rotator walking past.
@@ -1003,10 +1037,10 @@ function playRound(R: Round, plan: PlanState, lurker: Actor | null, fakers: Acto
     const hit: Fight = {
         att: hitters, def: defenders, attQ: late, defQ: rotators.filter(([a]) => a.alive),
         zone: S.id, entryZone: split && rnd(R, P.flow).bool(0.5) ? S.split.id : S.main.id,
-        tEnd: LATEST_PLANT_START - 2, step: plan.strategy === "rush" || plan.ecoRush ? T.RUSH_STEP : T.HIT_STEP,
+        tEnd: LATEST_PLANT_START - 2, step: surpriseRush(plan) ? T.RUSH_STEP : T.HIT_STEP,
         attTrade: T.TRADE_HIT, defTrade: T.TRADE_HOLD, holdCut: split ? T.SPLIT_HOLD_CUT : 0, maxDuels: 99, fallback: true, tag: "hit",
         // A rush hits before the defence is set (no utility, fast swings).
-        attPts: plan.strategy === "rush" || plan.ecoRush ? () => T.RUSH_SPEED : undefined,
+        attPts: surpriseRush(plan) ? () => T.RUSH_SPEED : undefined,
         stop: tGivesUp,
     }
     const res = fight(R, hit)

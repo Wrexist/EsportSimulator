@@ -26,6 +26,7 @@ import { getBoardSanctionedFee } from "@/engine/board-expectations"
 import { quotePlayerSigning } from "@/engine/finance-forecast"
 import { archetypeWageFactor, contractDemandLines, contractLengthFactor, getArchetype } from "@/engine/personality"
 import { formatCurrency } from "@/lib/utils-extended"
+import { clauseFields, NO_CLAUSES, wageWithClauses, type ClauseTerms } from "@/engine/contract-clauses"
 
 export type NegotiationStage = "BUYOUT" | "CONTRACT" | "SUCCESS" | "FAILED"
 
@@ -95,6 +96,8 @@ export function useNegotiation(playerId: string | null, active = true) {
     const [buyoutOffer, setBuyoutOfferRaw] = useState<number>(0)
     const [salaryOffer, setSalaryOfferRaw] = useState<number>(0)
     const [durationOffer, setDurationOfferRaw] = useState<number>(52)
+    /** G13: release clause and bonuses; the wage he asks moves with them. */
+    const [clauses, setClausesRaw] = useState<ClauseTerms>(NO_CLAUSES)
     const [negotiationLog, setNegotiationLog] = useState<string[]>([])
     const [initializedKey, setInitializedKey] = useState("")
     const [failureMessage, setFailureMessage] = useState<string | null>(null)
@@ -115,6 +118,7 @@ export function useNegotiation(playerId: string | null, active = true) {
             originalOwner.current = initialTeam?.id || null
             setBuyoutOfferRaw(0)
             setDurationOfferRaw(104)
+            setClausesRaw(NO_CLAUSES)
             setNegotiationLog([])
             setFailureMessage(null)
             dealSubmittedRef.current = false
@@ -174,8 +178,8 @@ export function useNegotiation(playerId: string | null, active = true) {
     const personalityWage = playerSave && evaluation ? archetypeWageFactor(getArchetype(playerSave), evaluation.overallRating, myTeam) : 1
     const personalityLines = playerSave && evaluation ? contractDemandLines(getArchetype(playerSave), evaluation.overallRating, myTeam) : []
 
-    /** Base weekly wage before the hidden variance (same factors as the acceptance rule). */
-    const wageCentre = (duration: number) => {
+    /** Base weekly wage before the hidden variance and the clauses (same factors as the acceptance rule). */
+    const wageBeforeClauses = (duration: number) => {
         if (!playerSave || !evaluation) return 0
         let base = evaluation.transferValue / 150
         if (playerSave.age > 28) base *= 1.1
@@ -183,6 +187,14 @@ export function useNegotiation(playerId: string | null, active = true) {
         const distFromIdeal = Math.abs(duration - durationPref.idealWeeks) / Math.max(1, durationPref.maxWeeks - durationPref.minWeeks)
         return base * (0.95 + distFromIdeal * 0.10)
     }
+    const wageCentre = (duration: number) => wageWithClauses(wageBeforeClauses(duration), clauses)
+    /** How much less a week he asks for the clauses (at the current length). */
+    const clauseSaving = Math.max(0, Math.round(wageBeforeClauses(durationOffer) - wageCentre(durationOffer)))
+    const setClauses = (next: Partial<ClauseTerms>) => setClausesRaw(prev => ({
+        release: next.release ?? prev.release,
+        appearanceBonus: Math.max(0, Math.min(MAX_NEGOTIATION_SALARY, Math.floor(next.appearanceBonus ?? prev.appearanceBonus) || 0)),
+        titleBonus: Math.max(0, Math.min(MAX_NEGOTIATION_SALARY, Math.floor(next.titleBonus ?? prev.titleBonus) || 0)),
+    }))
 
     const setBuyoutOffer = (val: number) => {
         if (!Number.isFinite(val)) { setBuyoutOfferRaw(0); return }
@@ -253,7 +265,7 @@ export function useNegotiation(playerId: string | null, active = true) {
         minSalary *= freeAgentWageFactor(playerSave, currentWeek) * buyerReputationFactor(myTeam) * personalityWage
         const distFromIdeal = Math.abs(sanitizedDuration - durationPref.idealWeeks) / Math.max(1, durationPref.maxWeeks - durationPref.minWeeks)
         minSalary *= 0.95 + distFromIdeal * 0.10
-        const minimumSalary = Math.round(minSalary)
+        const minimumSalary = Math.round(wageWithClauses(minSalary, clauses))
 
         if (sanitizedSalary >= minimumSalary * 0.97) {
             if (myTeam) {
@@ -269,6 +281,7 @@ export function useNegotiation(playerId: string | null, active = true) {
                         startWeek: currentWeek,
                         endWeek: currentWeek + sanitizedDuration,
                         buyout: Math.max(sanitizedSalary * 20, sanitizedBuyoutOffer * 2),
+                        ...clauseFields(clauses, sanitizedSalary),
                     }
                 )
                 if (result.success) {
@@ -310,6 +323,7 @@ export function useNegotiation(playerId: string | null, active = true) {
         buyoutOffer, setBuyoutOffer,
         salaryOffer, setSalaryOffer,
         durationOffer, setDurationOffer,
+        clauses, setClauses, clauseSaving,
         durationPref,
         durationOk,
         personalityLines,

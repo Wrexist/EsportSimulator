@@ -13,9 +13,11 @@ import { AnimatedNumber } from "@/components/ui/animated-number"
 import { AdvanceControl } from "@/components/report/AdvanceControl"
 import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
-import { navHubs, hubForPath, isNavItemActive, settingsItem } from "@/lib/navigation"
+import { navHubs, navLabel, hubForPath, isNavItemActive, settingsItem } from "@/lib/navigation"
 import { NavigationSearch } from "./NavigationSearch"
 import { InboxButton } from "@/components/inbox/InboxButton"
+import { t } from "@/lib/i18n"
+import { useLocale } from "@/lib/use-locale"
 
 /**
  * Two-row game header (design system v2).
@@ -23,6 +25,7 @@ import { InboxButton } from "@/components/inbox/InboxButton"
  * Row 2: the active hub's sub-tabs.
  */
 export function TopBar() {
+    useLocale() // re-render on a language change
     // Single shallow-equality selector instead of many individual subscriptions:
     // every store mutation (match tick, transfer, ledger entry) would otherwise
     // re-render the header and cascade through its children.
@@ -92,18 +95,18 @@ export function TopBar() {
             {/* Row 1 — identity, hubs, status, advance */}
             <div className="flex h-14 items-center gap-4 px-5">
                 {!hideCareerControls && (
-                    <Link href="/" className="topbar-club flex min-w-0 shrink-0 items-center gap-2.5 pr-2" aria-label="Club overview">
+                    <Link href="/" className="topbar-club flex min-w-0 shrink-0 items-center gap-2.5 pr-2" aria-label={t("topbar.clubOverview")}>
                         <span className="flex h-9 w-9 items-center justify-center">
                             {isMounted ? <TeamLogoDisplay team={playerTeam} size={32} /> : <span className="h-8 w-8 rounded bg-raised" />}
                         </span>
                         <span className="topbar-club-name hidden max-w-[160px] truncate font-display 2xl:inline text-[19px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1" title={playerTeam?.name}>
-                            {isMounted ? (playerTeam?.name || "No Team") : "Loading..."}
+                            {isMounted ? (playerTeam?.name || t("topbar.noTeam")) : t("common.loading")}
                         </span>
                     </Link>
                 )}
 
                 {!hideCareerControls && (
-                    <nav aria-label="Main navigation" className="flex h-full min-w-0 items-stretch gap-1">
+                    <nav aria-label={t("topbar.mainNavigation")} className="flex h-full min-w-0 items-stretch gap-1">
                         {navHubs.map(hub => {
                             const active = activeHub?.id === hub.id
                             return (
@@ -116,7 +119,7 @@ export function TopBar() {
                                         active ? "text-ink-1" : "text-ink-3 hover:text-ink-1"
                                     )}
                                 >
-                                    {hub.label}
+                                    {navLabel(hub)}
                                     {active && <span aria-hidden="true" className="absolute inset-x-2 bottom-0 h-0.5 bg-gold 2xl:inset-x-3" />}
                                 </Link>
                             )
@@ -129,7 +132,7 @@ export function TopBar() {
 
                     {!hideCareerControls && !betweenClubs && (
                         <div className="flex flex-col items-end leading-none" title="Club funds">
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Funds</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("topbar.funds")}</span>
                             {isMounted ? (
                                 <AnimatedNumber
                                     value={budget}
@@ -163,7 +166,7 @@ export function TopBar() {
                     <InboxButton />
                     <Link
                         href={settingsItem.href}
-                        aria-label="Settings"
+                        aria-label={t("topbar.settings")}
                         title="Settings"
                         className="flex h-9 w-9 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1"
                     >
@@ -173,7 +176,7 @@ export function TopBar() {
                     {!hideCareerControls && (
                         <Link
                             href="/career"
-                            aria-label="Manager profile"
+                            aria-label={t("topbar.managerProfile")}
                             title={managerName ? `${managerName} — manager profile` : "Manager profile"}
                             className="flex h-8 w-8 items-center justify-center rounded-full border border-line-strong bg-raised text-[11px] font-bold text-ink-1 hover:border-gold"
                         >
@@ -187,7 +190,7 @@ export function TopBar() {
 
             {/* Row 2 — sub-tabs of the active hub */}
             {!hideCareerControls && activeHub && (
-                <nav aria-label={`${activeHub.label} sections`} className="flex h-10 items-stretch gap-1 border-t border-line px-5">
+                <nav aria-label={t("topbar.sections", { hub: navLabel(activeHub) })} className="flex h-10 items-stretch gap-1 border-t border-line px-5">
                     {activeHub.items.map(item => {
                         const active = isNavItemActive(item, pathname)
                         return (
@@ -201,7 +204,7 @@ export function TopBar() {
                                 )}
                             >
                                 <item.icon size={15} className={active ? "text-gold" : undefined} />
-                                {item.label}
+                                {navLabel(item)}
                                 {active && <span aria-hidden="true" className="absolute inset-x-3 bottom-0 h-0.5 bg-gold" />}
                             </Link>
                         )

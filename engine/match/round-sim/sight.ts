@@ -42,7 +42,7 @@ import { TRAIT_AGGRESSIVE } from "./profile"
 import {
     BOMB_TIME, LATEST_PLANT_START, P, PLANT_TIME, ROUND_TIME,
     assignJobs, choosePlan, commonPts, countAlive, duel, explode, finish, givesUp, holdPts, hurtBy, keyedRoll, pickWeighted,
-    living, makeActors, openingPts, peekPts, plantUrgency, r1, rnd, save, tradePts,
+    living, makeActors, openingPts, peekPts, plantUrgency, r1, rnd, save, surpriseRush, tradePts,
     type Actor, type PlanState, type Round, type RoundEnd, type SimInput, type SimOutput, type UtilityThrow,
 } from "./simulate"
 import { TUNING as T } from "./tuning"
@@ -472,7 +472,8 @@ function sidePts(C: Ctx, me: Body, foe: Body, f: Fight, t: number): number {
     // Trading a teammate the foe just killed; exposed after my own kill.
     if (foe.victims.some(([, tk]) => t - tk <= T.SIGHT_TRADE_WINDOW)) s += tradePts(a) - T.TRADE + T.SIGHT_TRADE
     if (t - me.killedAt <= T.SIGHT_EXPOSED_SECONDS) s -= T.EXPOSED
-    if (!a.ct && (C.plan.strategy === "rush" || C.plan.ecoRush) && !R.bomb.planted) s += T.RUSH_SPEED
+    // A rush beats a defence that is not set; CTs who read it are waiting (G1: repeated playbook rushes).
+    if (!a.ct && surpriseRush(C.plan) && !R.bomb.planted) s += T.RUSH_SPEED
     if (me.task === "push" && isMoving) s += T.PUSH_SURPRISE + (a.p.creativity - 50) * 0.05
     if (me.task === "lurk" && foe.task === "rotate") s += T.LURK + (a.p.creativity - 50) * T.LURK_CREATIVITY
     if (a.ct && C.retakeStarted && t > retakeDeadline(C) - 8) s -= T.RUSHED
@@ -768,7 +769,8 @@ function entranceUtility(C: Ctx, site: SiteId, t: number): void {
         if (!b.a.alive || b.a.post !== site || b.saving) continue
         const lead = ts[0]
         const at = t + 0.5 + 0.4 * k++
-        if (b.a.molotov > 0 && C.plan.strategy !== "rush") {
+        // A rush is on them before a molotov lands, unless they read it and wait with one.
+        if (b.a.molotov > 0 && (C.plan.strategy !== "rush" || C.plan.readCall)) {
             C.jobs.push({ t: at, run: () => { if (lead.a.alive) land(C, b, "molotov", site, at, "", g.point(lead.node), 1.6) } })
         } else if (b.a.he > 0 && rnd(R, P.util).next() < 0.6) {
             C.jobs.push({ t: at, run: () => { if (lead.a.alive) heAt(C, b, site, at, lead) } })

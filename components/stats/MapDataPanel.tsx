@@ -6,11 +6,12 @@ import { useGameStore } from "@/store/game-store"
 import { getMapName } from "@/data/map-pool"
 import { ownMapDetail, rate, sumTallies, type OwnMapDetail, type RateCell } from "@/engine/map-record"
 import { Panel } from "@/src/components/ui/Panel"
+import { CT_SETUP_LABEL, T_CALL_LABEL } from "@/engine/match/playbook"
 import { cn } from "@/lib/utils"
 
 const BUY_LABELS: Record<string, string> = { ECO: "Eco", FORCE: "Force", SEMIBUY: "Semi-buy", FULL: "Full buy", "DOUBLE AWP": "Double AWP" }
-const T_PLAN_LABELS: Record<string, string> = { default: "Default", execute: "Execute", rush: "Rush", split: "Split", fake: "Fake", eco: "Eco push" }
-const CT_SETUP_LABELS: Record<string, string> = { "2-1-2": "2-1-2", "stack-A": "Stack A", "stack-B": "Stack B", aggressive: "Aggressive" }
+const T_PLAN_LABELS: Record<string, string> = { ...T_CALL_LABEL, eco: "Eco push" }
+const CT_SETUP_LABELS: Record<string, string> = CT_SETUP_LABEL
 const STYLE_LABELS: Record<string, string> = { aggressive: "Aggressive", structured: "Structured", balanced: "Balanced", default: "Default" }
 /** Fewer rounds than this and a rate is shown dimmed: too few to read much into. */
 const SMALL_SAMPLE = 8

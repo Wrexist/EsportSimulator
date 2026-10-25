@@ -24,7 +24,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getTeamFlag } from "@/engine/region-logic"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { LeagueEngine, TIER_DISPLAY, LeagueTier } from "@/engine/league-engine"
-import { seasonEndTierMove } from "@/engine/world-ranking"
+import { isUnrankedTeamId, seasonEndTierMove } from "@/engine/world-ranking"
 import { CircuitPointsManager } from "@/engine/tournament-qualification"
 import { CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
@@ -36,6 +36,7 @@ import { Panel } from "@/src/components/ui/Panel"
 import { RatingChip } from "@/src/components/ui/RatingChip"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { TierTag } from "@/src/components/ui/TierTag"
+import { formatScoutedRating, fuzzyBand } from "@/engine/scouting-system"
 
 type RankingsRowProps = {
     team: any
@@ -299,7 +300,7 @@ function RankingsPageInner() {
     // Calculate rankings based on Elo (Phase 19). Uses `playerById` for O(1)
     // roster lookup and `recentFormByTeamId` for O(1) form lookup.
     const rankedTeams = useMemo(() => {
-        return [...teams]
+        return teams.filter(t => !isUnrankedTeamId(t.id))
             // Match the engine's tiebreaker (LeagueEngine.refreshWorldRankings:
             // elo → reputation → numeric id) so the displayed rank is
             // deterministic and consistent with team.worldRanking used elsewhere
@@ -686,7 +687,7 @@ function RankingsPageInner() {
                                                     <td className="pr-5 text-right">
                                                         {isScouted
                                                             ? <RatingChip value={ev.overallRating} size="sm" />
-                                                            : <span className="text-sm tabular-nums text-ink-3" title="Scout this player to see the exact rating">{Math.max(0, ev.overallRating - 15)}–{Math.min(99, ev.overallRating + 15)}</span>}
+                                                            : <span className="text-sm tabular-nums text-ink-3" title="Scout this player to see the exact rating">{formatScoutedRating(fuzzyBand(ev.overallRating, 20, `${player.id}:ovr`))}</span>}
                                                     </td>
                                                 </tr>
                                             )

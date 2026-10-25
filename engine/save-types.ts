@@ -53,6 +53,8 @@ export interface GameSave {
     savedSearches?: SavedMarketSearch[]
     /** G6: chores delegated to staff (engine/delegation.ts). */
     delegation?: import("./delegation").DelegationSettings
+    /** G14: this career started in a randomised world. */
+    randomWorld?: boolean
     /** G7: the Draft Cup run this save plays (absent on a normal career). */
     draftCup?: import("./draft-cup").DraftCupState
     /** G2: per-season map, side, buy and plan tallies (engine/map-record.ts). */
@@ -594,6 +596,7 @@ export interface TeamSaveData {
 
     // === PHASE 20: TACTICAL PERFECTION ===
     playstyle?: "balanced" | "aggressive" | "structured" | "default"
+    playbook?: import("@/engine/match/playbook").Playbook // G1: named calls per map, side and buy
     tacticalPrep?: number // 0-100 bonus from VOD reviews
     prepPenalty?: number // transient quick-sim differential (B4); set only on a sim copy, never persisted
     economyStyle?: "standard" | "force" | "eco" // Phase 60: Economy aggressiveness
@@ -924,6 +927,14 @@ export interface ContractSaveData {
     mvpBonus?: number
     tournamentWinBonus?: number
     signOnBonus?: number
+
+    // G13 clauses (engine/contract-clauses.ts)
+    /** Fee at which another club may take the player without the owner's say (0 / absent = none). */
+    releaseClause?: number
+    /** Paid for every official match played. */
+    appearanceBonus?: number
+    /** A share of the player's next transfer fee owed to a club that sold him. */
+    sellOn?: { teamId: string; pct: number }
 }
 
 /**

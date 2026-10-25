@@ -22,6 +22,15 @@ export interface LivePlaybackCheckpoint {
     seed: number
     homeRoster: string[]
     awayRoster: string[]
+    /** G1: playbook calls each team already ran this series (ScriptSeries.callCounts), so a restore keeps the read penalty. */
+    playbookCounts?: [string, number][]
+}
+
+/** Valid playbook counts from a checkpoint (anything else is dropped). */
+function restorePlaybookCounts(value: unknown): [string, number][] | undefined {
+    if (!Array.isArray(value)) return undefined
+    const out = value.filter((e): e is [string, number] => Array.isArray(e) && e.length === 2 && typeof e[0] === "string" && e[0].length < 200 && Number.isInteger(e[1]) && e[1] >= 0 && e[1] < 1000)
+    return out.length ? out.slice(0, 256) : undefined
 }
 
 /** Restore the original event queue; never simulate another round to repair a checkpoint. */
@@ -38,7 +47,7 @@ export function restoreLivePlayback(saved: ActiveMatchState): LivePlaybackCheckp
     if (!Array.isArray(events) || events.length > 512 || events.some(e => !e || !['BUY','KILL','PLANT','DEFUSE','EXPLODE','ROUND_END','SAVE','CLUTCH'].includes(e.type) || !Number.isFinite(e.time) || e.time < 0 || e.time > 600) || !Number.isFinite(savedTime) || savedTime < -1 || savedTime > 600) throw Error('Invalid live event checkpoint')
     if (!saved.isWaitingForStrategy && saved.gameState.status === 'IN_PROGRESS' && !events.some(e => e.type === 'ROUND_END')) throw Error('This older checkpoint is missing its round events. Restore a pre-match recovery save; the round cannot be reconstructed safely.')
     const processedTime = existing?.exactTime ? savedTime : exactProcessedTime(events, savedTime)
-    return { version: 1, engine: existing?.engine ?? LEGACY_MATCH_ENGINE, ...(existing?.saveId !== undefined ? { saveId: existing.saveId } : {}), events: events.map(e => ({ ...e })), processedTime, exactTime: true, maps: existing?.maps || maps.map(m => m.map), seed: existing?.seed ?? 0, homeRoster: existing?.homeRoster || saved.homeRoster.map(p => p.id), awayRoster: existing?.awayRoster || saved.awayRoster.map(p => p.id) }
+    return { version: 1, engine: existing?.engine ?? LEGACY_MATCH_ENGINE, ...(existing?.saveId !== undefined ? { saveId: existing.saveId } : {}), events: events.map(e => ({ ...e })), processedTime, exactTime: true, maps: existing?.maps || maps.map(m => m.map), seed: existing?.seed ?? 0, homeRoster: existing?.homeRoster || saved.homeRoster.map(p => p.id), awayRoster: existing?.awayRoster || saved.awayRoster.map(p => p.id), ...(restorePlaybookCounts(existing?.playbookCounts) ? { playbookCounts: restorePlaybookCounts(existing?.playbookCounts) } : {}) }
 }
 
 /**

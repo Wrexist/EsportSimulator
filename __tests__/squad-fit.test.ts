@@ -84,4 +84,15 @@ describe("squadFit", () => {
         const lines = squadFit({ ...s, team: s.team as TeamSaveData, currentWeek: 5, wage: 1000, visible: { rating: s.rating, exact: true } })
         expect(lines.some(l => l.tone === "good" && l.text.startsWith("ace (Professional) can mentor him"))).toBe(true)
     })
+
+    test("names a role overlap whichever spelling the save uses", () => {
+        for (const [mine, theirs] of [["AWPER", "AWPer"], ["AWPer", "AWPER"], ["IGL", "IGL"]]) {
+            const s = setup({ role: theirs } as Partial<PlayerSaveData>, { role: mine } as Partial<PlayerSaveData>)
+            const lines = squadFit({ ...s, team: s.team as TeamSaveData, currentWeek: 5, wage: 1000, visible: { rating: s.rating, exact: true } })
+            expect(lines.some(l => l.text.startsWith("Your five already has") && l.text.includes("ace"))).toBe(true)
+        }
+        const s = setup({ role: "SUPPORT" } as Partial<PlayerSaveData>, { role: "AWPER" } as Partial<PlayerSaveData>)
+        const lines = squadFit({ ...s, team: s.team as TeamSaveData, currentWeek: 5, wage: 1000, visible: { rating: s.rating, exact: true } })
+        expect(lines.some(l => l.text.startsWith("Your five already has"))).toBe(false)
+    })
 })

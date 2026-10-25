@@ -256,8 +256,11 @@ export function updateStandings(
     idx?: SaveIndexes,
     eventIdSet?: Set<string>,
     ledgerIdSet?: Set<string>,
+    /** Only this tournament (a Draft Cup settles its own cup when the run ends, with no week tick after). */
+    onlyTournamentId?: string,
 ): void {
     save.tournaments.forEach(tournament => {
+        if (onlyTournamentId && tournament.id !== onlyTournamentId) return
         const seen = new Set<string>()
         const tournamentMatches = save.completedMatches.filter(m => {
             if (m.tournamentId !== tournament.id || seen.has(m.id)) return false
@@ -377,6 +380,19 @@ export function updateStandings(
                     }],
                 })
             }
+        }
+
+        // G13: title bonuses for the champion's players who have one.
+        for (const contract of save.contracts) {
+            const bonus = contract.tournamentWinBonus
+            if (contract.teamId !== winningTeam.id || !winningTeam.rosterIds.includes(contract.playerId) || !(typeof bonus === "number" && bonus > 0)
+                || contract.startWeek > save.currentWeek || contract.endWeek <= save.currentWeek) continue
+            const id = `contract_bonus_${tournament.id}_${winningTeam.id}_${contract.playerId}_title`
+            if (ledgerIdSet?.has(id) ?? save.financeLedger.some(e => e.id === id)) continue
+            winningTeam.budget -= bonus
+            save.financeLedger.push({ id, week: save.currentWeek, teamId: winningTeam.id, type: "EXPENSE", category: "WAGES_PLAYER", amount: bonus,
+                description: `Title contract bonus (${tournament.name}): ${contract.playerId}`, balance: winningTeam.budget })
+            ledgerIdSet?.add(id)
         }
 
         // Reputation + follower gains for the champion.

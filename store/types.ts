@@ -36,6 +36,7 @@ import type { AcademyPlayer, AcademyMatchResult, AcademyWeeklyReport, AcademySco
 import type { CustomTeamData } from "@/types/team-creator"
 import type { MatchResult } from "@/types"
 
+import type { DraftCupSetup } from "@/engine/draft-cup-setup"
 import type { PhysicalPreviewActions } from './slices/physical-preview-slice'
 
 // ===== SLICE STATE INTERFACES =====
@@ -168,8 +169,16 @@ export interface IndexesState {
 
 // ===== SLICE ACTION INTERFACES =====
 
+/** Options for a new career: start between clubs (G9), or a Draft Cup run (G7). */
+export interface NewGameOptions {
+  unemployed?: boolean
+  /** G14: randomise the world (engine/random-world.ts). */
+  randomWorld?: boolean
+  draftCup?: { world: import("@/engine/save-types").GameSave; setup: DraftCupSetup }
+}
+
 export interface CoreGameActions {
-  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: { unemployed?: boolean }) => Promise<void>
+  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: NewGameOptions) => Promise<void>
   initializeCustomTeam: (managerName: string, teamData: CustomTeamData) => Promise<void>
   loadGame: (saveId: string) => Promise<void>
   saveGame: () => Promise<void>
@@ -188,7 +197,7 @@ export interface CoreGameActions {
 }
 
 export interface EntitiesActions {
-  transferPlayer: (playerId: string, fromTeamId: string | null, toTeamId: string, fee: number, newContract?: { salaryPerWeek: number, startWeek: number, endWeek: number, buyout: number }) => { success: boolean; message?: string }
+  transferPlayer: (playerId: string, fromTeamId: string | null, toTeamId: string, fee: number, newContract?: import("@/engine/contract-clauses").NewContractTerms) => { success: boolean; message?: string }
   updatePlayer: (playerId: string, updates: Partial<PlayerSaveData>) => void
   updateTeamBudget: (teamId: string, amount: number) => void
   swapRosterPositions: (teamId: string, index1: number, index2: number) => void
@@ -205,6 +214,7 @@ export interface EntitiesActions {
   setPlaystyle: (teamId: string, playstyle: TeamSaveData["playstyle"]) => void
   setEconomyStyle: (teamId: string, economyStyle: TeamSaveData["economyStyle"]) => void
   setTargetPlayer: (teamId: string, targetPlayerId: string | undefined) => void
+  setPlaybook: (teamId: string, playbook: import("@/engine/match/playbook").Playbook) => void
   setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
   runDelegatedChores: () => string[]
   settleDraftCup: () => Promise<boolean>
@@ -214,7 +224,7 @@ export interface EntitiesActions {
   setPlayerTrainingFocus: (playerId: string, focus: string) => void
   listPlayerForTransfer: (playerId: string, price: number) => void
   unlistPlayerForTransfer: (playerId: string) => void
-  acceptTransferOffer: (eventId: string) => void
+  acceptTransferOffer: (eventId: string, options?: { sellOn?: boolean }) => void
   renewContract: (playerId: string) => void
   releasePlayer: (playerId: string) => { success: boolean; message: string }
   startRoleTraining: (playerId: string, targetRole: Role) => { success: boolean, message: string }

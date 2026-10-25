@@ -112,7 +112,7 @@ import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
 import { createDelegationSlice } from "@/store/slices/delegation-slice"
 import { createDraftCupSlice } from "@/store/slices/draft-cup-slice"
 import { draftCupOutcome } from "@/engine/draft-cup"
-import { setupDraftCup, type DraftCupSetup } from "@/engine/draft-cup-setup"
+import { setupDraftCup } from "@/engine/draft-cup-setup"
 import { createDressingRoomSlice } from "@/store/slices/dressing-room-slice"
 import { createPlayerDevelopmentSlice } from "@/store/slices/player-development-slice"
 import { createStaffManagementSlice } from "@/store/slices/staff-management-slice"
@@ -133,6 +133,7 @@ import drillCatalog from "@/data/drills.json"
 import { formatCurrency } from "@/lib/utils-extended"
 import { DEFAULT_TEAM_TRAINING } from "@/engine/development-outlook"
 import { chooseLiveCheckpoint, liveCheckpointStore } from "@/lib/live-checkpoint-store"
+import { randomizeWorld } from "@/engine/random-world"
 
 enableMapSet()
 
@@ -582,7 +583,7 @@ export interface GameStoreState extends AdvanceState, MomentsState {
 
 interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, MomentsActions {
   // Lifecycle
-  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: { unemployed?: boolean; draftCup?: { world: GameSave; setup: DraftCupSetup } }) => Promise<void>
+  initializeNewGame: (saveName: string, playerTeamId: string, snapshotId?: string, options?: import("@/store/types").NewGameOptions) => Promise<void>
   initializeCustomTeam: (managerName: string, teamData: import("@/types/team-creator").CustomTeamData) => Promise<void>
   loadGame: (saveId: string, cloudChoice?: "local" | "cloud") => Promise<void>
   saveGame: () => Promise<void>
@@ -603,7 +604,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   /** Phase 5.3: answer a press conference (question id → answer id). */
   answerPressConference: (eventId: string, answers: Record<string, string>) => { ok: boolean; message: string }
   saveMatchResult: (matchId: string, result: MatchResult) => void
-  transferPlayer: (playerId: string, fromTeamId: string | null, toTeamId: string, fee: number, newContract?: { salaryPerWeek: number, startWeek: number, endWeek: number, buyout: number }) => { success: boolean; message?: string }
+  transferPlayer: (playerId: string, fromTeamId: string | null, toTeamId: string, fee: number, newContract?: import("@/engine/contract-clauses").NewContractTerms) => { success: boolean; message?: string }
   scheduleScrim: (opponentId: string, week: number, day?: number) => { success: boolean, message: string }
   scheduleActivity: (activity: ActivitySaveData) => { success: boolean, message: string }
 
@@ -618,6 +619,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   setPlaystyle: (teamId: string, playstyle: TeamSaveData["playstyle"]) => void
   setEconomyStyle: (teamId: string, economyStyle: TeamSaveData["economyStyle"]) => void
   setTargetPlayer: (teamId: string, targetPlayerId: string | undefined) => void
+  setPlaybook: (teamId: string, playbook: import("@/engine/match/playbook").Playbook) => void
   setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
   runDelegatedChores: () => string[]
   settleDraftCup: () => Promise<boolean>
@@ -704,7 +706,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   setPlayerTrainingFocus: (playerId: string, focus: string) => void
   listPlayerForTransfer: (playerId: string, price: number) => void
   unlistPlayerForTransfer: (playerId: string) => void
-  acceptTransferOffer: (eventId: string) => void
+  acceptTransferOffer: (eventId: string, options?: { sellOn?: boolean }) => void
   renewContract: (playerId: string) => void
   releasePlayer: (playerId: string) => { success: boolean; message: string }
 
@@ -1232,6 +1234,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (!newSave) {
             throw new Error("Failed to create save from snapshot")
           }
+          if (options?.randomWorld && !draftCup) randomizeWorld(newSave)
 
           await steamAchievements.setActiveSave(newSave.saveId)
           // Initialize Phase 18: The Empire fields for new save
