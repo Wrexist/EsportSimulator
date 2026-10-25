@@ -20,6 +20,13 @@ describe("market standing", () => {
         expect(s.get("p41")).toBeUndefined() // outside the top 20%
     })
 
+    test("players missing from the values map are still ranked by their own value", () => {
+        const save = createLaunchFixture("first-week")
+        const full = marketStandings(save.players, save.currentWeek)
+        const partial = new Map(save.players.slice(1).map(p => [p.id, evaluatePlayer(p, undefined, undefined, save.currentWeek).transferValue]))
+        expect(marketStandings(save.players, save.currentWeek, partial)).toEqual(full)
+    })
+
     test("retired players are not ranked; an empty pool is empty", () => {
         const players = [player("a", 25, 50), { ...player("b", 25, 50), isRetired: true }]
         const s = marketStandings(players, 1, new Map([["a", 1], ["b", 999]]))

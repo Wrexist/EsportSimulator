@@ -58,17 +58,20 @@ function evaluations(players: PlayerSaveData[], currentWeek: number | undefined)
 
 /**
  * Standing for every active player, by market value. `values` may be passed
- * when the caller already evaluated the players (the market board does).
+ * when the caller already evaluated some players (the market board does);
+ * the rest are evaluated here.
  */
 export function marketStandings(
     players: PlayerSaveData[],
     currentWeek: number,
     values?: Map<string, number>,
 ): Map<string, MarketStanding> {
-    const evals = values ? undefined : evaluations(players, currentWeek)
+    // Players missing from `values` (the manager's own, academy) are evaluated, so the cut-offs see everyone.
+    let evals: Map<string, { ovr: number; value: number }> | undefined
+    const valueOf = (p: PlayerSaveData) => values?.get(p.id) ?? (evals ??= evaluations(players, currentWeek)).get(p.id)?.value ?? 0
     const pool = players
         .filter(p => !p.isRetired)
-        .map(p => ({ p, value: values?.get(p.id) ?? evals?.get(p.id)?.value ?? 0 }))
+        .map(p => ({ p, value: valueOf(p) }))
         .sort((a, b) => b.value - a.value || a.p.id.localeCompare(b.p.id))
     const out = new Map<string, MarketStanding>()
     if (pool.length === 0) return out
