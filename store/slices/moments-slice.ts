@@ -18,9 +18,27 @@ import {
     type Moment,
     type MomentHolder,
     type SigningMoment,
+    type SigningSignature,
 } from "@/engine/moments"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
+import { bestFiveOvr, marketStandings } from "@/engine/transfer-hype"
+
+/** A completed signing, as the negotiation hands it to the reveal. */
+export interface SigningInput {
+    playerId: string
+    fee: number
+    salaryPerWeek: number
+    contractEndWeek: number
+    fromTeamId: string | null
+    /** Up to three AI clubs that were in the race for him, and how many there were. */
+    rivalNames?: string[]
+    rivalCount?: number
+    /** The manager's roster before the deal (for the best-five change). */
+    rosterBefore?: string[]
+    /** The signature the manager drew on the contract. */
+    signature?: SigningSignature
+}
 
 export interface MomentsState {
     /** Moments waiting to be shown, oldest first (saved). */
@@ -37,7 +55,7 @@ export interface MomentsActions {
     /** Record a one-off beat that is not queued (e.g. a match intro) as delivered. */
     markMomentSeen: (key: string) => void
     /** The manager signed a player through a negotiation: queue the reveal. */
-    queueSigningMoment: (signing: { playerId: string; fee: number; salaryPerWeek: number; contractEndWeek: number; fromTeamId: string | null }) => boolean
+    queueSigningMoment: (signing: SigningInput) => boolean
 }
 
 /** What the slice needs from the rest of the store. */
@@ -60,13 +78,16 @@ export const initialMomentsState: MomentsState = {
     seenMomentKeys: [],
 }
 
+/** A signature longer than this is not kept with the moment (saves stay small). */
+const MAX_SIGNATURE_CHARS = 12_000
+
 /** Rating at or above which a signing gets the big reveal (the game's "blockbuster" rule). */
 export const BIG_SIGNING_RATING = 85
 
 /** Build the signing moment from the career as it is right after the deal. */
 export function buildSigningMoment(
     state: Pick<Store, "currentWeek" | "playerTeamId" | "players" | "teams">,
-    signing: { playerId: string; fee: number; salaryPerWeek: number; contractEndWeek: number; fromTeamId: string | null },
+    signing: SigningInput,
 ): SigningMoment | null {
     const player = state.players.find(p => p.id === signing.playerId)
     if (!player || !state.playerTeamId) return null
@@ -74,6 +95,18 @@ export function buildSigningMoment(
     let rating = player.skill ?? 0
     try { rating = evaluatePlayer(player).overallRating } catch { /* keep the raw skill */ }
     const fee = Math.max(0, Math.round(signing.fee))
+    let standing: SigningMoment["standing"]
+    let squad: SigningMoment["squad"]
+    try {
+        standing = marketStandings(state.players, state.currentWeek).get(player.id)
+        const myTeam = state.teams.find(t => t.id === state.playerTeamId)
+        if (myTeam && signing.rosterBefore) {
+            const before = bestFiveOvr(signing.rosterBefore.filter(id => id !== player.id), state.players)
+            const after = bestFiveOvr(myTeam.rosterIds, state.players)
+            if (before != null && after != null) squad = { before, after }
+        }
+    } catch { /* the reveal works without them */ }
+    const rivalNames = (signing.rivalNames ?? []).slice(0, 3)
     return {
         key: `signing:${player.id}:${state.currentWeek}`,
         kind: "signing",
@@ -85,6 +118,10 @@ export function buildSigningMoment(
         fromTeamName: fromTeam?.name ?? null,
         rating,
         big: rating >= BIG_SIGNING_RATING,
+        ...(standing ? { standing } : {}),
+        ...(rivalNames.length > 0 ? { rivalNames, rivalCount: Math.max(rivalNames.length, signing.rivalCount ?? 0) } : {}),
+        ...(squad ? { squad } : {}),
+        ...(signing.signature && signing.signature.d.length <= MAX_SIGNATURE_CHARS ? { signature: signing.signature } : {}),
     }
 }
 

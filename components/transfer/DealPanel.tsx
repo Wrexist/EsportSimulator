@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useMemo } from "react"
-import { ArrowUpRight, Star } from "lucide-react"
+import { ArrowUpRight, Star, Swords } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,8 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { useNegotiation } from "./useNegotiation"
 import { DealTerms } from "./DealTerms"
 import { ScoutedRating, REPORT_LABEL } from "./ScoutedRating"
+import { StandingBadge } from "./StandingBadge"
+import { RIVAL_FEE_MAX_CLUBS, RIVAL_FEE_STEP, type MarketStanding } from "@/engine/transfer-hype"
 
 const SCOUTING_FEE = 3000
 const REPORT_RANKS = ["NONE", "BASIC", "ADVANCED", "EXPERT", "ELITE"] as const
@@ -46,7 +48,7 @@ function Section({ title, aside, children, className }: { title: string; aside?:
  * Docked deal panel: who the player is, what your scouts actually know, and
  * the live offer (fee → wage + length) with honest acceptance odds.
  */
-export function DealPanel({ playerId, mode }: { playerId: string; mode: "transfers" | "scouting" }) {
+export function DealPanel({ playerId, mode, standing }: { playerId: string; mode: "transfers" | "scouting"; standing?: MarketStanding }) {
     const n = useNegotiation(playerId, true)
     const {
         players, staff, scoutedPlayers, currentWeek, activeScoutingMission,
@@ -152,6 +154,7 @@ export function DealPanel({ playerId, mode }: { playerId: string; mode: "transfe
                         </div>
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-3">
+                        <StandingBadge standing={standing} />
                         <CountryFlag country={player.nationality} size={14} />
                         <RoleTag role={player.role} />
                         <span className="tabular-nums">Age {player.age}</span>
@@ -193,11 +196,50 @@ export function DealPanel({ playerId, mode }: { playerId: string; mode: "transfe
                 {scoutAction}
             </Section>
 
+            {!isOwn && <RivalSection n={n} />}
+
             {!isOwn && (
                 <Section title="Deal" aside={<span className="text-xs text-ink-3">{club ? "Fee, then contract" : "Contract only"}</span>}>
-                    <DealTerms n={n} />
+                    <DealTerms n={n} standing={standing} />
                 </Section>
             )}
         </Panel>
+    )
+}
+
+/** Who else is in the race this week, and what that does to the fee. */
+function RivalSection({ n }: { n: ReturnType<typeof useNegotiation> }) {
+    const rivals = n.rivals
+    const shown = rivals.slice(0, 3)
+    const pct = Math.round(n.feePremium * 100)
+    return (
+        <Section
+            title="The race"
+            aside={rivals.length > 0
+                ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-gold"><Swords size={12} aria-hidden="true" />{rivals.length} club{rivals.length === 1 ? "" : "s"} chasing</span>
+                : <span className="text-xs text-ink-3">No rivals</span>}
+        >
+            {rivals.length === 0 ? (
+                <p className="text-xs text-ink-3">No other club is in for him this week. He is yours to lose.</p>
+            ) : (
+                <>
+                    <ul className="flex flex-wrap gap-1.5">
+                        {shown.map(r => (
+                            <li key={r.id} className="inline-flex items-center gap-1.5 rounded-sm border border-line-strong bg-shell px-1.5 py-1 text-xs text-ink-2">
+                                <TeamLogoImage src={r.logoPath} alt={r.name} team={r as never} size={14} />
+                                <span className="max-w-[120px] truncate">{r.name}</span>
+                            </li>
+                        ))}
+                        {rivals.length > shown.length && <li className="px-1 py-1 text-xs text-ink-3">+{rivals.length - shown.length} more</li>}
+                    </ul>
+                    <p className="text-xs text-ink-3">
+                        {rivals.length === 1 ? "This club is" : "These clubs are"} in for him this week and would start him.
+                        {n.currentTeam
+                            ? ` ${n.currentTeam.name} ask ${pct}% more with them in the race (${Math.round(RIVAL_FEE_STEP * 100)}% per club, up to ${Math.round(RIVAL_FEE_STEP * RIVAL_FEE_MAX_CLUBS * 100)}%).`
+                            : " As a free agent there is no fee to push up."}
+                    </p>
+                </>
+            )}
+        </Section>
     )
 }
