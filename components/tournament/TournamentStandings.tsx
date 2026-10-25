@@ -342,7 +342,7 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                                 {team.team?.name}
                                             </TeamLink>
                                             <span className="text-[11px] text-ink-3">
-                                                {team.points} pts
+                                                {team.points} pts{team.team?.worldRanking ? ` · World #${team.team.worldRanking}` : ""}
                                             </span>
                                         </div>
                                     </div>

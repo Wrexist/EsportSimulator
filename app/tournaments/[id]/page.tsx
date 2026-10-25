@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import { trophyArtFor, trophyKindForTournament } from "@/lib/trophy-art"
 import { useGameStore } from "@/store/game-store"
+import { teamOvrMap } from "@/lib/team-ovr"
 import { useShallow } from "zustand/react/shallow"
 import type { TournamentDefinition } from "@/data/tournament-calendar"
 import type { TournamentSaveData } from "@/engine/save-types"
@@ -133,7 +134,7 @@ const getTimelineRoleLabel = (role: TimelineNodeRole): string => {
 }
 
 // Helper to map match data to bracket format
-function mapToBracketMatch(m: any, teams: any[], completedMatches: any[]): any {
+function mapToBracketMatch(m: any, teams: any[], completedMatches: any[], ovrs?: Map<string, number>): any {
     // Improve data resolution: Check if match is actually completed/scheduled elsewhere
     const completedMatch = completedMatches.find(cm => cm.id === m.id)
     const activeMatch = m.result ? m : (completedMatch || m)
@@ -168,6 +169,8 @@ function mapToBracketMatch(m: any, teams: any[], completedMatches: any[]): any {
             logo: team1.logoPath,
             recentForm: getForm(team1.id),
             branding: team1.branding,
+            rank: team1.worldRanking,
+            ovr: ovrs?.get(team1.id),
         } : undefined,
         team2: team2 ? {
             id: team2.id,
@@ -177,6 +180,8 @@ function mapToBracketMatch(m: any, teams: any[], completedMatches: any[]): any {
             logo: team2.logoPath,
             recentForm: getForm(team2.id),
             branding: team2.branding,
+            rank: team2.worldRanking,
+            ovr: ovrs?.get(team2.id),
         } : undefined
     }
 }
@@ -865,9 +870,11 @@ export default function TournamentDetailPage() {
                                         // TournamentBracket sorts the stages (RO32 → Final).
                                         const bracketMatches = displayTournament?.playoffBracket || []
                                         const uniqueStages = [...new Set(bracketMatches.map((m: any) => m.stage).filter(Boolean))] as string[]
+                                        const bracketIds = new Set(bracketMatches.flatMap((m: any) => [m.homeTeamId, m.awayTeamId]))
+                                        const bracketOvrs = teamOvrMap(teams.filter(t => bracketIds.has(t.id)), players)
                                         return (
                                             <TournamentBracket
-                                                matches={bracketMatches.map((m: any) => mapToBracketMatch(m, teams, completedMatches))}
+                                                matches={bracketMatches.map((m: any) => mapToBracketMatch(m, teams, completedMatches, bracketOvrs))}
                                                 rounds={uniqueStages.length > 0 ? uniqueStages : ["Quarter-Finals", "Semi-Finals", "Grand Final"]}
                                                 playerTeamId={playerTeamId || undefined}
                                                 onMatchClick={() => { /* bracket matches open from the schedule */ }}

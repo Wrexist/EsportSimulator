@@ -7,6 +7,7 @@ import {
     buildDraftPool, draftComplete, draftCupOutcome, draftPrice, draftSpent, pickCupField, clubStrength,
     DRAFT_BUDGET, DRAFT_POOL_PER_ROLE, DRAFT_PRICE_FLOOR, DRAFT_ROLES, type DraftPick, type DraftPool,
 } from "@/engine/draft-cup"
+import { JobOfferGenerator } from "@/engine/job-offer-generator"
 import { buildDraftCupWorld } from "@/lib/draft-cup-world"
 import type { GameSave } from "@/engine/save-types"
 
@@ -152,6 +153,12 @@ test.each([["as drafted", false], ["with a dominant side, so the cup is won", tr
     expect(titleBonus.map(e => e.amount)).toEqual(outcome.finish === "champion" ? [7_000] : [])
     if (dominant) expect(outcome.finish).toBe("champion")
     expect(s.teams.find(t => t.id === cup.teamId)!.trophies?.map(t => t.tournamentId) ?? []).toEqual(outcome.finish === "champion" ? [cup.tournamentId] : [])
+    // No club offers the Draft Cup manager a job, even when one is forced.
+    expect(s.eventsLog.filter(e => e.type === "JOB_OFFER")).toEqual([])
+    const probe = JSON.parse(JSON.stringify(s)) as GameSave
+    JobOfferGenerator.forceJobOffer(probe)
+    expect(JobOfferGenerator.createDismissalOffers(probe)).toEqual([])
+    expect(probe.eventsLog.filter(e => e.type === "JOB_OFFER")).toEqual([])
     // No other competition ever scheduled the drafted team.
     expect(s.scheduledMatches.concat(s.completedMatches).filter(m => (m.homeTeamId === cup.teamId || m.awayTeamId === cup.teamId) && m.tournamentId !== cup.tournamentId)).toEqual([])
 })

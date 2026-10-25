@@ -45,6 +45,8 @@ export class JobOfferGenerator {
      * Called once per week in the weekly processor
      */
     static processWeeklyJobOffers(save: GameSave, rng?: SeededRNG): void {
+        // A Draft Cup is one cup with a drafted team: no other club hires its manager.
+        if (save.draftCup) return
         const activeRng = rng ?? new SeededRNG(save.lastRngSeed ?? generateSeed())
         const currentTeam = save.teams.find(t => t.id === save.playerTeamId)
         if (!currentTeam) return
@@ -135,6 +137,7 @@ export class JobOfferGenerator {
     }
 
     private static createBetweenClubsOffers(save: GameSave, rng: SeededRNG, count: number, firstJob: boolean): GameEventSaveData[] {
+        if (save.draftCup) return []
         const pool = this.betweenClubsPool(save, firstJob)
         // Pick among the top dozen so the offers vary.
         const shortlist = rng.shuffle(pool.slice(0, Math.max(count, 12))).slice(0, count)
@@ -175,6 +178,7 @@ export class JobOfferGenerator {
      * Force a job offer generation for testing/debug
      */
     static forceJobOffer(save: GameSave, rng?: SeededRNG): void {
+        if (save.draftCup) return
         const activeRng = rng ?? new SeededRNG(save.lastRngSeed ?? generateSeed())
         const currentTeam = save.teams.find(t => t.id === save.playerTeamId)
         if (!currentTeam) return
@@ -433,6 +437,8 @@ export class JobOfferGenerator {
         if (!event || event.type !== "JOB_OFFER") {
             return { success: false, message: "Job offer not found" }
         }
+        // Saves from before the Draft Cup guard can still hold one.
+        if (save.draftCup) return { success: false, message: "Not available during a Draft Cup" }
 
         const unavailable = this.offerUnavailable(save, event)
         if (unavailable) return { success: false, message: unavailable }
