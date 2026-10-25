@@ -865,7 +865,7 @@ describe('OVR Balance (player-evaluation)', () => {
         expect(evElite.overallRating - evAcademy.overallRating).toBeGreaterThanOrEqual(25)
     })
 
-    it('generated prospect with no prestige should not exceed OVR 55', () => {
+    it('a generated skill-55 prospect rates as a skill-55 player, and prestige does not lift OVR', () => {
         const player = makePlayer({
             skill: 55, awp: 50, rifle: 55, pistol: 50, grenades: 50,
             reaction: 50, clutch: 50, creativity: 50, tactic: 50,
@@ -874,7 +874,9 @@ describe('OVR Balance (player-evaluation)', () => {
             matchesPlayed: 0, prestigeScore: 0,
         })
         const ev = evaluatePlayer(player as any)
-        expect(ev.overallRating).toBeLessThanOrEqual(55)
+        // OVR is the engine's strength (engine/match-rating.ts) on the OVR scale (+6).
+        expect(ev.overallRating).toBeLessThanOrEqual(61)
+        expect(evaluatePlayer({ ...player, prestigeScore: 90, matchesPlayed: 500 } as any).overallRating).toBe(ev.overallRating)
     })
 
     it('futureValue should NOT inflate OVR for young players', () => {

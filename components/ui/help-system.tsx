@@ -19,7 +19,7 @@ export const helpTopics: HelpTopic[] = [
         id: 'reading-stats', title: 'Reading player and match stats',
         description: 'Ratings, roles and match results', category: 'gameplay',
         content: <div className="space-y-3">
-            <p><strong>OVR</strong> means overall rating: a summary of player ability. Potential describes room for development, not guaranteed improvement.</p>
+            <p><strong>OVR</strong> means overall rating: how strong the player is in a match. It is built from the same numbers the match uses, so the side with the higher OVR wins more often. Reputation raises a player's price, not their OVR. Potential describes room for development, not guaranteed improvement.</p>
             <p><strong>IGL</strong> means in-game leader. An <strong>AWPer</strong> specializes in the sniper rifle; an entry player takes early fights.</p>
             <p><strong>K / D / A</strong> means kills, deaths and assists. <strong>ADR</strong> is average damage per round; a match rating is a separate performance measure from OVR.</p>
             <p><strong>BO1 / BO3 / BO5</strong> means best of one, three or five maps. In a multi-map series, the series score counts maps; each map score counts rounds.</p>

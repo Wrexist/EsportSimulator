@@ -5395,8 +5395,8 @@
     },
     {
       "path": "data/snapshot-loader.ts",
-      "sha256": "46a16b83a57742063efcf87d9bf94cfca7c4c7e37db1a73ca1778e242d133703",
-      "bytes": 25329,
+      "sha256": "829dec75ef583b15858e001ca4d1a57dd2c178cc22356cbf31b8a6630b5b2116",
+      "bytes": 24958,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -5426,7 +5426,14 @@
             "change": "Balance pass 2 (90b388a7): opening contract endWeek staggered by a seeded offset using AI_SQUAD_TUNING constants. Code-only; no names, ratings, media references or game text changed."
           }
         ]
-      }
+      },
+      "reviewHistory": [
+        {
+          "date": "2026-10-24",
+          "previousSha256": "46a16b83a57742063efcf87d9bf94cfca7c4c7e37db1a73ca1778e242d133703",
+          "change": "Ratings that predict results (PR #73): after the snapshot players are built, each player's reputation bonus (engine/match-rating.ts reputationLift) is added once to skill and potential via applyReputationLift. Code-only: no names, game text, media references or snapshot data bytes changed; starting skill values are derived at career creation."
+        }
+      ]
     },
     {
       "path": "data/snapshot-types.ts",

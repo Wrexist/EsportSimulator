@@ -12,6 +12,7 @@
  */
 
 import { PlayerSaveData } from "./save-types"
+import { matchRating, overallFromMatchRating, reputationLift } from "./match-rating"
 
 // ===== TYPES =====
 
@@ -297,6 +298,23 @@ export function calculateProReputationScore(
     return Math.min(Math.round(weightedSum / weightTotal), 100)
 }
 
+/** A player's Pro reputation: from their top-20 history, else their stored prestige score. */
+export function playerProScore(player: PlayerSaveData, currentYear: number = 2025, proHistory?: ProTop20Entry[]): number {
+    const proScore = calculateProReputationScore(proHistory ?? player.proHistory, currentYear)
+    return proScore === 0 && player.prestigeScore ? player.prestigeScore : proScore
+}
+
+/**
+ * Turn a player's reputation into real strength once (engine/match-rating.ts
+ * reputationLift): `skill` and `potential` rise by the same amount.
+ */
+export function applyReputationLift(player: PlayerSaveData, currentYear: number = 2025): void {
+    const lift = reputationLift(playerProScore(player, currentYear))
+    if (lift <= 0) return
+    player.skill = Math.min(99, (player.skill ?? 50) + lift)
+    if (typeof player.potential === "number") player.potential = Math.min(99, player.potential + lift)
+}
+
 // ===== MARKET VALUE CALCULATION =====
 
 /**
@@ -376,13 +394,7 @@ export function evaluatePlayer(
     // Layer 5: Future value
     const futureValue = calculateFutureValue(player, baseSkill)
 
-    // Pro reputation (use player's stored history if not passed)
-    const effectiveHistory = proHistory ?? player.proHistory
-    let proScore = calculateProReputationScore(effectiveHistory, currentYear)
-    // Fallback: use stored prestigeScore when proHistory yields nothing
-    if (proScore === 0 && player.prestigeScore) {
-        proScore = player.prestigeScore
-    }
+    const proScore = playerProScore(player, currentYear, proHistory)
 
     // Composite: Match-day rating
     const matchDayRating = Math.round(
@@ -392,34 +404,10 @@ export function evaluatePlayer(
         (reliability * 10)
     )
 
-    // ===== EXPERIENCE & PRESTIGE FACTOR FOR OVR =====
-    // Unknown players with few matches should not top rankings
-
-    // Experience factor based on matches played (0.7 to 1.0)
-    // New players (0 matches) get 0.7 multiplier
-    // Experienced players (500+ matches) get full 1.0
-    const matchesPlayed = player.matchesPlayed || 0
-    const experienceFactor = Math.min(1.0, 0.85 + (matchesPlayed / 667)) // 100 matches = full experience
-
-    // Prestige bonus: Proven players get up to +25 OVR (non-linear)
-    // prestige 95 → +23, prestige 65 → +13, prestige 20 → +2, prestige 0 → 0
-    const prestigeBonus = Math.pow(proScore / 100, 1.5) * 25
-
-    // Confidence modifier: How "proven" is this rating?
-    // High prestige + high matches = high confidence = full rating
-    // Low prestige + low matches = low confidence = reduced rating
-    const confidenceFactor = experienceFactor * 0.4 + (proScore / 100) * 0.6 // 0.34 to 1.0
-    const confidenceMultiplier = 0.92 + (confidenceFactor * 0.08) // 0.92 to 1.0
-
-    // Composite: Overall rating (current ability + prestige, no futureValue)
-    // futureValue is for transfers/scouting only, not display OVR
-    const rawOverall =
-        baseSkill * 0.50 +
-        roleFit * 0.35 +
-        prestigeBonus
-
-    // Apply confidence multiplier to prevent unknown players from topping charts
-    const overallRating = Math.min(99, Math.max(1, Math.round(rawOverall * confidenceMultiplier)))
+    // Overall rating: what the match engine plays with (engine/match-rating.ts),
+    // so a higher OVR wins more maps. Reputation and experience are not in it:
+    // they raise market value (calculateMarketValue's Pro bonus), not aim.
+    const overallRating = overallFromMatchRating(matchRating(player as never))
 
     const partialEval = {
         baseSkill,

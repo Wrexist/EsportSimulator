@@ -31,7 +31,7 @@ import { logger } from "@/lib/logger"
 /**
  * Current save version - increment when schema changes
  */
-export const CURRENT_SAVE_VERSION = 10
+export const CURRENT_SAVE_VERSION = 11
 
 /**
  * Minimum supported save version for migration

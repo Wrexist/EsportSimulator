@@ -33,6 +33,7 @@ import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { PlayerRole, PlayerTier, TournamentTier, TournamentFormat, MatchFormat } from "@/types"
 
 import { reconcileTeamRoles } from "@/engine/role-reconciler"
+import { applyReputationLift } from "@/engine/player-evaluation"
 import { ensurePersonality, spreadPlaceholderAmicability } from "@/engine/personality"
 
 /**
@@ -327,6 +328,10 @@ export class SnapshotLoader {
             academyScoutingMissions: [],
             academyPendingProspects: []
         }
+
+        // Reputation becomes real strength once (engine/match-rating.ts): the
+        // famous clubs' OVR is what the engine plays, not a display bonus.
+        players.forEach(p => applyReputationLift(p, 2025 + Math.floor((startWeek - 1) / 52)))
 
         // Phase 10: Role Refinement (Team-Based)
         // Ensure every team has a balanced set of roles based on stats
