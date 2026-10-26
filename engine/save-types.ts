@@ -50,6 +50,8 @@ export interface GameSave {
      * Permanent: achievements, Steam stats and leaderboards stay off for it.
      */
     sandbox?: import("./sandbox").SandboxState
+    /** C10: a pro career, playing as one player (engine/pro-career.ts). */
+    proCareer?: import("./pro-career").ProCareerState
     /** C6: this season's map pool (engine/season/map-rotation.ts); absent = all seven maps. */
     mapRotation?: import("./season/map-rotation").MapRotation
     selectedWeeklyActivity?: import('@/types/activities').WeeklyActivityType | null
@@ -790,6 +792,8 @@ export interface PlayerSaveData {
     traits?: string[] // e.g. ["AGGRESSIVE", "PASSIVE", "CLUTCHER"]
     roleMastery?: Record<string, number> // e.g. { "AWPER": 85, "RIFLER": 40 }
     availableSkillPoints?: number
+    /** C10: the role is the player's own choice; the role reconciler keeps it. */
+    roleLocked?: boolean
     trainingFocus?: string // TrainingFocus enum key
 
     // Phase 6: Prestige System
@@ -1347,6 +1351,8 @@ export interface SaveSlotMetadata {
     draftCup?: { difficulty: string; finish?: string; score?: number }
     /** C9: the sandbox editor is on for this save (no achievements). */
     sandbox?: boolean
+    /** C10: a pro career; the pro's nickname. */
+    pro?: string
 
     // Set when the slot's data failed to parse/validate. The slot is still
     // surfaced (rather than silently dropped) so the player can see it and

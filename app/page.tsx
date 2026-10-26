@@ -25,6 +25,7 @@ import { Meter } from "@/src/components/ui/Meter"
 import { RatingChip } from "@/src/components/ui/RatingChip"
 import { DRAFT_CUP_DIFFICULTY } from "@/engine/draft-cup"
 import { DraftCupBracket } from "@/components/draft-cup/DraftCupBracket"
+import { ProCareerPanel } from "@/components/pro/ProCareerPanel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { FixtureBanner, FormGuide, type FormResult } from "@/src/components/ui/FixtureBanner"
@@ -426,6 +427,7 @@ export default function Page() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
         <div className="min-w-0 space-y-4">
+          <ProCareerPanel />
           {renderHero()}
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">

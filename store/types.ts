@@ -113,6 +113,8 @@ export interface ScoutingState {
   mapRotation?: import("@/engine/season/map-rotation").MapRotation
   /** C9: sandbox editor state (no achievements for this save). */
   sandbox?: import("@/engine/sandbox").SandboxState
+  /** C10: pro career state. */
+  proCareer?: import("@/engine/pro-career").ProCareerState
 }
 
 export interface AcademyState {

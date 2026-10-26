@@ -69,6 +69,8 @@ const PREFIX_RULES: Array<[prefix: string, rule: DecisionRule]> = [
     ["birthday_", rule({ family: "birthday", label: "Birthday", window: 1, cooldown: 0, defaultChoiceId: "wish", consequence: "sends {name} its best wishes", deferrable: true })],
     ["fatigue_", rule({ family: "burnout", label: "Burnout warning", window: 1, cooldown: 4, defaultChoiceId: "push", consequence: "keeps {name} on the full training load", deferrable: true })],
     // C5 (engine/workload.ts): never held back, since the risk is this week's.
+    ["pro_offer_", rule({ family: "pro_offer", label: "Club offer", window: 2, cooldown: 0, defaultChoiceId: "stay", consequence: "stays at the current club" })],
+    ["pro_retire_", rule({ family: "pro_retire", label: "Retirement", window: 2, cooldown: 0, defaultChoiceId: "play_on", consequence: "plays another season" })],
     ["workload_", rule({ family: "workload", label: "Workload warning", window: 0, cooldown: 3, defaultChoiceId: "play", consequence: "plays {name} at the stated injury risk" })],
     ["knock_", rule({ family: "knock", label: "Minor knock", window: 0, cooldown: 0, defaultChoiceId: "rest", consequence: "rests {name} for the stated weeks" })],
     ["streak_win_", rule({ family: "win_streak", label: "Win streak", window: 1, cooldown: 0, defaultChoiceId: "focus", consequence: "tells the squad to stay focused", deferrable: true })],

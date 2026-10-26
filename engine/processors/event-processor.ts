@@ -478,6 +478,8 @@ export class EventProcessor {
 
         save.players.forEach(player => {
             if (player.isRetired) return
+            // C10: the pro decides when to stop (engine/pro-career.ts).
+            if (player.id === save.proCareer?.playerId) return
 
             // Legends never retire — they play forever
             if (player.isLegendary) return

@@ -104,6 +104,8 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
         set((state) => {
             const team = state.teams.find(t => t.id === teamId)
             if (!team || teamId !== state.playerTeamId || state.activeMatchId) return
+            // C10: in a pro career the coach picks the lineup (engine/pro-career.ts coachLineup).
+            if (state.proCareer && state.proCareer.retiredWeek == null) return
             const len = team.rosterIds.length
             // Bounds check both indexes — UI can pass stale values during
             // a re-render race.

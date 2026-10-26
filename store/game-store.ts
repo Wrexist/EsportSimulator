@@ -112,6 +112,7 @@ import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
 import { createDelegationSlice } from "@/store/slices/delegation-slice"
 import { createSandboxSlice } from "@/store/slices/sandbox-slice"
+import { createProCareerSlice } from "@/store/slices/pro-career-slice"
 import { createDraftCupSlice } from "@/store/slices/draft-cup-slice"
 import { draftCupOutcome } from "@/engine/draft-cup"
 import { setupDraftCup } from "@/engine/draft-cup-setup"
@@ -491,6 +492,7 @@ export interface GameStoreState extends AdvanceState, MomentsState {
   mapRecords?: import("@/engine/map-record").MapRecordState
   mapRotation?: import("@/engine/season/map-rotation").MapRotation
   sandbox?: import("@/engine/sandbox").SandboxState
+  proCareer?: import("@/engine/pro-career").ProCareerState
 
   // Phase 25: Region Selection
   selectedRegions: string[]
@@ -629,6 +631,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   runDelegatedChores: () => string[]
   enableSandbox: () => void
   sandboxEdit: (edit: import("@/engine/sandbox").SandboxEdit) => import("@/engine/sandbox").SandboxResult
+  startProCareer: (input: import("@/engine/pro-career").ProStartInput) => boolean
   settleDraftCup: () => Promise<boolean>
   performVODReview: (matchId: string) => void
   performMentalReset: (matchId?: string) => void
@@ -1007,6 +1010,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set as Parameters<typeof createSandboxSlice>[0],
         get as Parameters<typeof createSandboxSlice>[1],
       ),
+      ...createProCareerSlice(
+        set as Parameters<typeof createProCareerSlice>[0],
+        get as Parameters<typeof createProCareerSlice>[1],
+      ),
       ...createDraftCupSlice(
         set as Parameters<typeof createDraftCupSlice>[0],
         get as Parameters<typeof createDraftCupSlice>[1],
@@ -1117,6 +1124,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       mapRecords: undefined,
       mapRotation: undefined,
       sandbox: undefined,
+      proCareer: undefined,
 
       // Phase 25
       selectedRegions: ["EU", "NA"], // Default regions
@@ -1387,6 +1395,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             delegation: {}, // nor its staff delegation
             mapRotation: newSave.mapRotation, // nor its season map pool (C6)
             sandbox: undefined, // nor its sandbox switch (C9)
+            proCareer: undefined, // nor its pro career (C10)
             draftCup: newSave.draftCup ?? null, // G7: set only on a Draft Cup run
             availableEquipment: initialEquipment,
             playerTeamId: teamId, // We assume the user controls the team they selected
@@ -1706,6 +1715,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             draftCup: null,
             mapRotation: undefined,
             sandbox: undefined,
+            proCareer: undefined,
             availableEquipment: [
               { id: "mouse_001", name: "Basic Gaming Mouse", type: "MOUSE", weeklyCost: 0, tier: 1, purchasedWeek: 0, bonus: { stat: "skill", value: 1 } },
             ],
@@ -1858,6 +1868,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             mapRecords: hydratedSave.mapRecords,
             mapRotation: hydratedSave.mapRotation,
             sandbox: hydratedSave.sandbox,
+            proCareer: hydratedSave.proCareer,
             activeMatchId: resumedLiveMatch ? resumedLiveMatch.matchId : hydratedSave.activeMatchId ?? null,
             activeMatchState: resumedLiveMatch ?? hydratedSave.activeMatchState ?? null,
             physicalMatchPreview: hydratedSave.physicalMatchPreview ?? null,

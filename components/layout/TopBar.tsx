@@ -13,7 +13,7 @@ import { AnimatedNumber } from "@/components/ui/animated-number"
 import { AdvanceControl } from "@/components/report/AdvanceControl"
 import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
-import { navHubs, navLabel, hubForPath, isNavItemActive, settingsItem } from "@/lib/navigation"
+import { navHubsFor, navLabel, hubForPath, isNavItemActive, settingsItem } from "@/lib/navigation"
 import { NavigationSearch } from "./NavigationSearch"
 import { InboxButton } from "@/components/inbox/InboxButton"
 import { t } from "@/lib/i18n"
@@ -39,6 +39,7 @@ export function TopBar() {
         setTimeMode,
         managerName,
         betweenClubs,
+        pro,
     } = useGameStore(
         useShallow(s => ({
             currentWeek: s.currentWeek,
@@ -50,11 +51,15 @@ export function TopBar() {
             setTimeMode: s.setTimeMode,
             managerName: s.managerDetails?.name,
             betweenClubs: !!s.gameOverReason,
+            pro: !!s.proCareer && s.proCareer.retiredWeek == null,
         }))
     )
 
     const pathname = usePathname()
-    const activeHub = hubForPath(pathname)
+    // C10: a pro career hides the club-running screens (the staff run the club).
+    const hubs = navHubsFor(pro)
+    const pathHub = hubForPath(pathname)
+    const activeHub = pathHub ? hubs.find(h => h.id === pathHub.id) ?? null : null
 
     const currentDate = useMemo(() => {
         const weekStart = getDateForWeek(currentWeek)
@@ -107,7 +112,7 @@ export function TopBar() {
 
                 {!hideCareerControls && (
                     <nav aria-label={t("topbar.mainNavigation")} className="flex h-full min-w-0 items-stretch gap-1">
-                        {navHubs.map(hub => {
+                        {hubs.map(hub => {
                             const active = activeHub?.id === hub.id
                             return (
                                 <Link
@@ -130,7 +135,7 @@ export function TopBar() {
                 <div className="ml-auto flex shrink-0 items-center gap-3">
                     <NavigationSearch compact disabled={false} />
 
-                    {!hideCareerControls && !betweenClubs && (
+                    {!hideCareerControls && !betweenClubs && !pro && (
                         <div className="flex flex-col items-end leading-none" title="Club funds">
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("topbar.funds")}</span>
                             {isMounted ? (
