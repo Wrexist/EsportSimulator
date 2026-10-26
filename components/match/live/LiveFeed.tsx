@@ -23,6 +23,16 @@ function logRowKey(entry: object): number {
 
 const sideText = (side: "CT" | "T" | undefined) => side === "CT" ? "text-side-ct" : "text-side-t"
 const otherSide = (side: "CT" | "T" | undefined): "CT" | "T" => side === "CT" ? "T" : "CT"
+/** Short labels for what made a kill notable, in the order a caster would say them. */
+export function killTags(l: LogEntry): { label: string; title: string; tone: string }[] {
+    const tags: { label: string; title: string; tone: string }[] = []
+    if (l.isOpening) tags.push({ label: "Opening", title: "First kill of the round", tone: "border-line-strong text-ink-1" })
+    if (l.isClutchKill) tags.push({ label: "Clutch", title: "Last one alive, facing two or more", tone: "border-gold text-gold" })
+    if (l.isThroughSmoke) tags.push({ label: "Smoke", title: "Kill across a smoked angle", tone: "border-line-strong text-ink-2" })
+    if (l.isTrade) tags.push({ label: "Trade", title: "Avenged a teammate within five seconds", tone: "border-line-strong text-ink-2" })
+    return tags
+}
+
 // One feed line. Entries are immutable and keep their identity, so a new
 // line renders only itself, not the up to 200 lines already in the feed.
 const LogRow = memo(function LogRow({ l, clockText, bomb }: { l: LogEntry; clockText: string; bomb: boolean }) {
@@ -34,20 +44,27 @@ const LogRow = memo(function LogRow({ l, clockText, bomb }: { l: LogEntry; clock
     )
 
     if (l.type === "KILL") {
+        const tags = killTags(l)
         return (
             <li className="flex h-7 items-center gap-2 rounded-[3px] bg-raised px-2 text-[13px]">
                 {time}
                 <span className={cn("min-w-0 truncate font-semibold", sideText(l.killerSide))}>{l.killerName}</span>
-                {l.assisterName && <span className="shrink-0 truncate text-xs text-ink-3">+ {l.assisterName}</span>}
+                {l.assisterName && (
+                    <span className="flex shrink-0 items-center gap-0.5 truncate text-xs text-ink-3" title={l.isFlashAssist ? "Flash assist" : "Assist"}>
+                        + {l.isFlashAssist && <ZapIcon className="h-3 w-3 text-ink-2" aria-label="Flash assist" />}{l.assisterName}
+                    </span>
+                )}
                 <span className="flex shrink-0 items-center gap-1 text-ink-2">
                     <WeaponGlyph weapon={l.weapon} className="h-3 w-8" />
                     {l.isHeadshot && <HeadshotMark className="text-ink-1" />}
                 </span>
                 <span className={cn("min-w-0 truncate font-semibold", sideText(otherSide(l.killerSide)))}>{l.victimName}</span>
-                {(l.location || l.isTrade) && (
+                {(l.location || tags.length > 0) && (
                     <span className="ml-auto flex shrink-0 items-center gap-1.5">
                         {l.location && <span className="whitespace-nowrap text-[11px] text-ink-3" data-kill-location="">{l.location}</span>}
-                        {l.isTrade && <span className="rounded-sm border border-line-strong px-1 text-[11px] font-semibold uppercase leading-4 tracking-[0.04em] text-ink-2">Trade</span>}
+                        {tags.map(tag => (
+                            <span key={tag.label} title={tag.title} className={cn("rounded-sm border px-1 text-[11px] font-semibold uppercase leading-4 tracking-[0.04em]", tag.tone)}>{tag.label}</span>
+                        ))}
                     </span>
                 )}
             </li>

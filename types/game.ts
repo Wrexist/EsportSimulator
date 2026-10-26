@@ -552,6 +552,9 @@ export interface LogEntry {
   isUtility?: boolean
   isTrade?: boolean
   isFlashAssist?: boolean
+  isOpening?: boolean
+  isThroughSmoke?: boolean
+  isClutchKill?: boolean
   reward?: number
   playerId?: string // For clutch
   details?: string // For save/clutch

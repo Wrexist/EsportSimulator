@@ -79,6 +79,8 @@ export default function LiveMatchPage() {
         ownIsCT,
         pacingMode,
         setPacingMode,
+        keyRoundsOnly,
+        setKeyRoundsOnly,
         liveClock,
         roundView,
         roundBeat,
@@ -392,6 +394,8 @@ export default function LiveMatchPage() {
                 setSpeed={setSpeed}
                 pacingMode={pacingMode}
                 setPacingMode={setPacingMode}
+                keyRoundsOnly={keyRoundsOnly}
+                setKeyRoundsOnly={setKeyRoundsOnly}
                 fastForward={fastForward}
                 onSimulateRound={simulateRoundInstant}
                 onSimulateMatch={simulateMatchInstant}
@@ -400,7 +404,7 @@ export default function LiveMatchPage() {
             />
 
             {/* Rosters left/right, radar is the hero. */}
-            <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(420px,min(900px,calc(100dvh-196px)))_minmax(0,1fr)]">
+            <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(420px,min(1400px,calc(100dvh-196px),calc(100vw-720px)))_minmax(0,1fr)]">
                 <div className="flex min-h-0 min-w-0 flex-col gap-3">
                     <LiveRosterCard teamName={homeTeam.name} isCT={homeIsCT} isOwn={isPlayerHome} alive={aliveCount(homeRows)} teamCash={teamCash(homeRows)} players={homeRows} />
                     {isPlayerHome ? roundsPanel : feedPanel}

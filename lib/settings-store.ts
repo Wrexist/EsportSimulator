@@ -67,6 +67,8 @@ interface GameSettings {
     autoSaveInterval: number // minutes
     gameSpeed: GameSpeed
     livePacing: LivePacing
+    /** Live match: play only the rounds worth watching; the rest finish at once. */
+    liveKeyRoundsOnly: boolean
     notifications: boolean
     difficulty: Difficulty
     language: string
@@ -90,6 +92,7 @@ interface GameSettings {
     setAutoSaveInterval: (interval: number) => void
     setGameSpeed: (speed: GameSpeed) => void
     setLivePacing: (pacing: LivePacing) => void
+    setLiveKeyRoundsOnly: (enabled: boolean) => void
     setNotifications: (enabled: boolean) => void
     setDifficulty: (diff: Difficulty) => void
     setLanguage: (lang: string) => void
@@ -122,6 +125,7 @@ export const useSettingsStore = create<GameSettings>()(
             autoSaveInterval: 10,
             gameSpeed: 'normal',
             livePacing: 'moments',
+            liveKeyRoundsOnly: false,
             notifications: true,
             difficulty: 'normal',
             language: 'en',
@@ -168,6 +172,7 @@ export const useSettingsStore = create<GameSettings>()(
             setAutoSaveInterval: (interval) => set({ autoSaveInterval: Number.isFinite(interval) ? Math.max(1, Math.min(30, interval)) : 10 }),
             setGameSpeed: (speed) => set({ gameSpeed: speed }),
             setLivePacing: (pacing) => set({ livePacing: pacing === 'full' ? 'full' : 'moments' }),
+            setLiveKeyRoundsOnly: (enabled) => set({ liveKeyRoundsOnly: enabled === true }),
             setNotifications: (enabled) => set({ notifications: enabled }),
             setDifficulty: (diff) => set({ difficulty: diff }),
             setLanguage: (_lang) => set({ language: SUPPORTED_UI_LANGUAGE }),
@@ -252,6 +257,7 @@ export const useSettingsStore = create<GameSettings>()(
                     autoSaveInterval: typeof stored?.autoSaveInterval === 'number' && Number.isFinite(stored.autoSaveInterval) ? Math.max(1, Math.min(30, stored.autoSaveInterval)) : 10,
                     gameSpeed: ['normal', 'fast', 'very-fast'].includes(stored?.gameSpeed ?? '') ? stored!.gameSpeed! : current.gameSpeed,
                     livePacing: stored?.livePacing === 'full' ? 'full' : 'moments',
+                    liveKeyRoundsOnly: stored?.liveKeyRoundsOnly === true,
                     notifications: typeof stored?.notifications === 'boolean' ? stored.notifications : current.notifications,
                     difficulty: ['easy', 'normal', 'hard', 'legendary'].includes(stored?.difficulty ?? '') ? stored!.difficulty! : current.difficulty,
                     language: SUPPORTED_UI_LANGUAGE,

@@ -175,6 +175,8 @@ export interface Round {
     contacts: Contact[]
     /** The spot the next kill is recorded at (a contact fight). */
     spotNext?: Contact["spot"]
+    /** sight engine: the next kill's duel crossed a smoke (display only). */
+    smokeNext?: boolean
 }
 
 // ─── Setup ─────────────────────────────────────────────────────────────────
@@ -412,6 +414,7 @@ export function kill(R: Round, k: Actor, v: Actor, zone: string, chip = 0, util?
     if (assister) ev.assisterId = assister.id
     if (flashAssist) ev.isFlashAssist = true
     if (util) ev.isUtility = true
+    else if (R.smokeNext || k.smoked || v.smoked) ev.isThroughSmoke = true
     if (!R.firstKill) ev.isOpening = true // provisional: killsInTimeOrder() re-marks opening and trades by time
     R.events.push(ev)
     R.firstKill = true
@@ -1406,6 +1409,13 @@ function killsInTimeOrder(R: Round): [Actor | null, number, Actor | null, number
         if (e.time - (lastKill.get(e.victimId!) ?? -99) <= 5) e.isTrade = true
         else delete e.isTrade
         lastKill.set(e.playerId!, e.time)
+        const k = byId.get(e.playerId!)
+        if (k) {
+            // Alive counts before this kill: the killer alone against two or more.
+            const mine = k.ct ? R.CT : R.T, theirs = k.ct ? R.T : R.CT
+            if (mine.filter(a => !dead.has(a)).length === 1 && theirs.filter(a => !dead.has(a)).length >= 2) e.isClutchKill = true
+            else delete e.isClutchKill
+        }
         const v = byId.get(e.victimId!)
         if (v) dead.add(v)
         const tAlive = R.T.filter(a => !dead.has(a)), ctAlive = R.CT.filter(a => !dead.has(a))
