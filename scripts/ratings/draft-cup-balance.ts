@@ -11,9 +11,10 @@
  * cups    deals real drafts (field from the difficulty band, pool, then three
  *         ways to spend the budget: best OVR inside it, the test's greedy
  *         pick, cheapest five) and plays the whole 8-team bracket on the
- *         AI match path (BO3, BO3, BO5) with the drafted side built exactly as
- *         the game builds it (setupDraftCup: chemistry, facilities). One row per
- *         cup: drafted five's OVR, field OVR, how far the side went.
+ *         AI match path, using the cup's own seeded bracket (BO3, BO3, BO5)
+ *         and the drafted side exactly as the game builds them (setupDraftCup:
+ *         Elo seeding, chemistry, facilities). One row per cup: drafted
+ *         five's OVR, field OVR, how far the side went.
  * report  per difficulty and draft style: titles, finals, quarter-final exits
  *         and the OVR gap to the field.
  */
@@ -109,23 +110,34 @@ function series(save: GameSave, home: TeamSaveData, away: TeamSaveData, bestOf: 
     return { winner: result.winnerId === home.id ? home : away, homeMaps, awayMaps }
 }
 
-/** Plays the bracket; returns how far `mine` went and its maps. */
-function playCup(save: GameSave, mine: TeamSaveData, field: TeamSaveData[], rng: SeededRNG, tag: string) {
-    let alive = [mine, ...field].sort(() => rng.next() - 0.5)
+/**
+ * Plays the cup's own bracket as setupDraftCup initialised it (Elo seeding,
+ * pairings, BO3/BO5 per match), filling later rounds from their source
+ * matches; returns how far `mine` went and its maps.
+ */
+function playCup(save: GameSave, mine: TeamSaveData, tournamentId: string, rng: SeededRNG) {
+    const bracket = (save.tournaments.find(t => t.id === tournamentId)?.playoffBracket ?? []).filter(m => m.stage !== '3rd Place Decider')
+    const team = (id: string) => save.teams.find(t => t.id === id)!
+    const winners = new Map<string, string>()
     let mapsWon = 0, mapsLost = 0
-    const stages = ['quarter', 'semi', 'final'] as const
-    for (let s = 0; s < 3; s++) {
-        const next: TeamSaveData[] = []
-        for (let i = 0; i < alive.length; i += 2) {
-            const r = series(save, alive[i], alive[i + 1], s === 2 ? 5 : 3, rng, `${tag}_${s}_${i}`)
-            if (alive[i] === mine) { mapsWon += r.homeMaps; mapsLost += r.awayMaps }
-            if (alive[i + 1] === mine) { mapsWon += r.awayMaps; mapsLost += r.homeMaps }
-            next.push(r.winner)
+    for (let guard = 0; winners.size < bracket.length && guard < bracket.length; guard++) {
+        for (const m of bracket) {
+            if (winners.has(m.id)) continue
+            const src = m.sourceMatchIds ?? []
+            const slot = (i: number, fixed?: string) => fixed ?? (src.length === 2 ? winners.get(src[i]) : src.length === 1 && i === 0 ? winners.get(src[0]) : undefined)
+            const homeId = slot(0, m.homeTeamId), awayId = slot(1, m.awayTeamId)
+            if (!homeId || !awayId) continue
+            const r = series(save, team(homeId), team(awayId), m.format === 'BO5' ? 5 : 3, rng, m.id)
+            if (homeId === mine.id) { mapsWon += r.homeMaps; mapsLost += r.awayMaps }
+            if (awayId === mine.id) { mapsWon += r.awayMaps; mapsLost += r.homeMaps }
+            winners.set(m.id, r.winner.id)
+            if (homeId === mine.id || awayId === mine.id) {
+                if (r.winner.id !== mine.id) return { finish: /grand final/i.test(m.stage) ? 'final' as const : /semi/i.test(m.stage) ? 'semi' as const : 'quarter' as const, mapsWon, mapsLost }
+                if (/grand final/i.test(m.stage)) return { finish: 'champion' as const, mapsWon, mapsLost }
+            }
         }
-        if (!next.includes(mine)) return { finish: stages[s], mapsWon, mapsLost }
-        alive = next
     }
-    return { finish: 'champion' as const, mapsWon, mapsLost }
+    throw new Error(`Bracket of ${tournamentId} did not resolve`)
 }
 
 async function cups(): Promise<void> {
@@ -151,7 +163,7 @@ async function cups(): Promise<void> {
                 const mine = save.teams.find(t => t.id === teamId)!
                 const field = opponentIds.map(id => save.teams.find(t => t.id === id)!)
                 const teamOvr = (t: TeamSaveData) => mean(t.rosterIds.slice(0, 5).map(id => ovrOf(save.players.find(p => p.id === id))))
-                const r = playCup(save, mine, field, new SeededRNG(seed ^ 0x5eed), save.saveId)
+                const r = playCup(save, mine, save.draftCup!.tournamentId, new SeededRNG(seed ^ 0x5eed))
                 const fieldOvrs = field.map(teamOvr)
                 const row: Row = {
                     difficulty, style, run, spent: picks.reduce((s, p) => s + p.price, 0),
