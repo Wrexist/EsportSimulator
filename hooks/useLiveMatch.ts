@@ -23,6 +23,7 @@ import { soundManager } from "@/lib/sound-manager"
 import { playMatchOutcomeCue } from "@/lib/match-outcome-sound"
 import { annotateRoundEvents, buildLiveRoundScript, warmRoundMap, type LiveRoundScript } from "@/lib/live-round-script"
 import { AUTO_CONFIRM_MS, BREAK_CARD_MS, PISTOL_START_MS, ROUND_BEAT_MS, computeRoundPacing, defaultLiveSpeed, type PacingMode, type RoundPacing } from "@/lib/live-match-pacing"
+import { keyRoundReason, SKIPPED_ROUND_LINE } from "@/lib/live-key-rounds"
 import { buildRoundTimeline, summarizeRound, type RoundSummary, type RoundTimeline } from "@/lib/live-match-roster"
 import { LiveClock, liveWakeTimes, nextWakeAfter, roundBombTimes, roundClockSeconds, scorebugTime } from "@/lib/live-clock"
 import type { LegacyTransition } from "@/engine/match/legacy-series"
@@ -207,6 +208,12 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
     const livePacing = useSettingsStore(s => s.livePacing)
     const setLivePacing = useSettingsStore(s => s.setLivePacing)
     const pacingMode: PacingMode = livePacing === "full" ? "full" : "moments"
+    const keyRoundsOnly = useSettingsStore(s => s.liveKeyRoundsOnly)
+    const setKeyRoundsOnly = useSettingsStore(s => s.setLiveKeyRoundsOnly)
+    const keyRoundsOnlyRef = useRef(keyRoundsOnly)
+    keyRoundsOnlyRef.current = keyRoundsOnly
+    // Set when a round starts that "Key rounds only" finishes at once.
+    const [quietRound, setQuietRound] = useState(0)
     // Seed live-match playback speed from the user's Live match speed setting.
     const gameSpeedSetting = useSettingsStore(s => s.gameSpeed)
     // Always one of LIVE_SPEED_PRESETS so the control bar label is exact.
@@ -698,6 +705,14 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
 
         setIsPlaying(true)
         setIsWaitingForStrategy(false)
+        if (keyRoundsOnlyRef.current && !keyRoundReason({
+            roundNumber: currentRoundNumber,
+            isOvertime: currentSimState.isOvertime,
+            homeRounds: currentSimState.homeRounds,
+            awayRounds: currentSimState.awayRounds,
+            events: currentRoundEvents.current,
+            managerCall: !!strategy,
+        })) setQuietRound(n => n + 1)
         setRoundTime(ROUND_SECONDS)
         setIsBombPlanted(false)
         setBombTime(BOMB_SECONDS)
@@ -795,6 +810,9 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                         isUtility: nextEvent.isUtility,
                         isTrade: nextEvent.isTrade,
                         isFlashAssist: nextEvent.isFlashAssist,
+                        isOpening: nextEvent.isOpening,
+                        isThroughSmoke: nextEvent.isThroughSmoke,
+                        isClutchKill: nextEvent.isClutchKill,
                         location: nextEvent.location,
                         reward
                     }, ...prev]
@@ -1054,6 +1072,16 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         isSimulatingRef.current = false
     }, [isWaitingForStrategy, startNextRound, advanceTo, liveClock])
 
+    // "Key rounds only": a quiet round finishes as soon as it has started.
+    // The round-end banner and the decision card still follow as usual.
+    useEffect(() => {
+        if (quietRound === 0 || !roundInFlightRef.current) return
+        setLogs(prev => [{ type: "SYSTEM", message: SKIPPED_ROUND_LINE }, ...prev])
+        simulateRoundInstant()
+        // Only a new quiet round triggers this; simulateRoundInstant changes with every state change.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [quietRound])
+
     // Space / play button. Mid-round it pauses playback; between rounds it
     // holds (or releases) the auto-tactics countdown on the decision card.
     const waitingRef = useRef(isWaitingForStrategy)
@@ -1279,6 +1307,8 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         ownIsCT,
         pacingMode,
         setPacingMode,
+        keyRoundsOnly,
+        setKeyRoundsOnly,
         /** Continuous round clock for the radar (stable object). */
         liveClock,
         roundView,

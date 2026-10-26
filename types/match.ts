@@ -49,6 +49,10 @@ export interface MatchEvent {
     chip?: number
     /** script-v1 KILL: the round's first kill. */
     isOpening?: boolean
+    /** sight-v1 KILL (display only): the fight was across a smoked angle (killer or victim was smoked off). */
+    isThroughSmoke?: boolean
+    /** sight-v1 KILL (display only): the killer was the last one alive on their side, facing two or more. */
+    isClutchKill?: boolean
 }
 
 export type MatchEventType = "KILL" | "PLANT" | "DEFUSE" | "ROUND_END" | "SAVE" | "CLUTCH"

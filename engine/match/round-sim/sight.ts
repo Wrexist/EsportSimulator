@@ -499,8 +499,11 @@ function resolveFight(C: Ctx, f: Fight): void {
     const zone = C.D.zoneOf[vn] ?? R.S.id
     const p = bodyXY(C, tb, f.at), q = bodyXY(C, cb, f.at)
     R.spotNext = { x: round((p.x + q.x) * 50) / 100, y: round((p.y + q.y) * 50) / 100, floor: C.g.floor[vn] }
+    // Kill feed only: the two fought through a smoke (close enough to spray through it).
+    R.smokeNext = smoked(C, vn, sightNode(cb, f.at), f.at)
     const w = duel(R, tb.a, cb.a, st, sc, zone)
     R.spotNext = undefined
+    R.smokeNext = false
     const wb = w === tb.a ? tb : cb
     const lb = wb === tb ? cb : tb
     wb.killedAt = f.at

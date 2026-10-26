@@ -21,6 +21,9 @@ interface LiveMatchControlBarProps {
     setSpeed: (speed: number) => void
     pacingMode: PacingMode
     setPacingMode: (mode: PacingMode) => void
+    /** Play only pistols, map points, clutches and other key rounds; finish the rest at once. */
+    keyRoundsOnly: boolean
+    setKeyRoundsOnly: (on: boolean) => void
     /** Key moments: the quiet stretch is being fast-forwarded right now. */
     fastForward: boolean
     onSimulateRound: () => void
@@ -51,6 +54,8 @@ function LiveMatchControlBarComponent({
     setSpeed,
     pacingMode,
     setPacingMode,
+    keyRoundsOnly,
+    setKeyRoundsOnly,
     fastForward,
     onSimulateRound,
     onSimulateMatch,
@@ -172,6 +177,17 @@ function LiveMatchControlBarComponent({
                         </button>
                     ))}
                 </div>
+
+                {/* Which rounds play on the radar */}
+                <button
+                    type="button"
+                    aria-pressed={keyRoundsOnly}
+                    onClick={() => setKeyRoundsOnly(!keyRoundsOnly)}
+                    title="Play pistols, map points, clutches, four-kill rounds and defuses on the radar; finish the quiet rounds at once"
+                    className={cn(segment(keyRoundsOnly), "rounded border border-line bg-shell")}
+                >
+                    Key rounds only
+                </button>
 
                 {/* What the clock is doing right now */}
                 <span

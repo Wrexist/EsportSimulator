@@ -2,6 +2,7 @@
 
 import { resultLineup, matchFollowup } from '@/lib/match-followup'
 import { buildMatchInsights, buyWinRate } from '@/lib/match-insights'
+import { buildMatchReasons } from '@/lib/match-reasons'
 import { useEffect, useMemo, useState, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -521,6 +522,13 @@ export default function MatchResultPage() {
                     nextMatchId: nextPlayerMatch?.id,
                 })
                 const name = (pid?: string) => (pid && (playersById.get(pid)?.nickname || playersById.get(pid)?.name)) || "Former player"
+                const why = buildMatchReasons({
+                    result,
+                    teamId: playerTeamId!,
+                    isHome: isPlayerHome,
+                    ownLineup: resultLineup(result, ownTeam?.id, ownTeam?.rosterIds),
+                    opponentLineup: resultLineup(result, otherTeam?.id, otherTeam?.rosterIds),
+                })
                 const standout = (label: string, s?: { playerId: string; rating: number; kills: number; deaths: number }) => s && (
                     <li>{label}: <span className="font-semibold text-ink-1">{name(s.playerId)}</span> <span className="tabular-nums">{s.rating.toFixed(2)}</span> rating, <span className="tabular-nums">{s.kills}–{s.deaths}</span></li>
                 )
@@ -532,6 +540,36 @@ export default function MatchResultPage() {
                             <p className="text-xs text-ink-3">Built from the recorded rounds, the public scoreboard and visible buys; review prompts, not proof of cause.</p>
                         </div>
                         <p className="text-sm text-ink-2">{insights.headline}</p>
+                        {(why.reasons.length > 0 || why.players.length > 0) && (
+                            <div className="grid gap-3 md:grid-cols-2">
+                                {why.reasons.length > 0 && (
+                                    <div className={card} data-testid="match-reasons">
+                                        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{insights.won ? "Why you won" : "Why you lost"}</h3>
+                                        <ol className="space-y-2 text-sm text-ink-2">
+                                            {why.reasons.map((r, i) => (
+                                                <li key={r.key} className="flex gap-2">
+                                                    <span className={cn("w-4 shrink-0 font-semibold tabular-nums", insights.won ? "text-positive" : "text-negative")}>{i + 1}</span>
+                                                    <span>{r.text}</span>
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                )}
+                                {why.players.length > 0 && (
+                                    <div className={card} data-testid="rating-reasons">
+                                        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Your ratings explained</h3>
+                                        <ul className="space-y-1.5 text-sm text-ink-2">
+                                            {why.players.map(p => (
+                                                <li key={p.playerId} className="flex gap-2">
+                                                    <span className={cn("w-10 shrink-0 font-semibold tabular-nums", p.rating >= 1.1 ? "text-positive" : p.rating < 0.9 ? "text-negative" : "text-ink-1")}>{p.rating.toFixed(2)}</span>
+                                                    <span><span className="font-semibold text-ink-1">{name(p.playerId)}</span>: {p.line}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <div className="grid gap-3 md:grid-cols-3">
                             <div className={card}>
                                 <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Key rounds</h3>
