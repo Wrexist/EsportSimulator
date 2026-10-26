@@ -49,6 +49,16 @@ describe("draft rules", () => {
         expect(draftPrice(DRAFT_PRICE_FLOOR + 24) * 5).toBeGreaterThan(DRAFT_BUDGET)
     })
 
+    test("prices follow the OVR the game shows, so the same OVR costs the same", () => {
+        const pool = buildDraftPool(world.players, world.teams, [], 4)
+        const priceAt = new Map<number, number>()
+        for (const o of DRAFT_ROLES.flatMap(r => pool[r])) {
+            expect(o.price).toBe(draftPrice(o.overall))
+            expect(priceAt.get(o.overall) ?? o.price).toBe(o.price)
+            priceAt.set(o.overall, o.price)
+        }
+    })
+
     test("the field comes from the difficulty band and the pool avoids it", () => {
         const players = byId() as never
         const open = pickCupField(world.teams, players, "open", 1)
