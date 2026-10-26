@@ -24,8 +24,9 @@ const { containedPath, readBounded, writeAtomic } = require('./local-files');
 const { IS_DEMO } = require('./edition.cjs');
 // The free demo is a separate Steam app with no achievements, stats,
 // leaderboards, cloud quota or Workshop: those calls answer "unavailable" so
-// a demo career never writes to the full game's account records. Overlay,
-// identity and Rich Presence stay on.
+// a demo career never writes to the full game's account records, and no
+// community or Workshop overlay is applied. Steam overlay, identity and Rich
+// Presence stay on.
 const DEMO_UNAVAILABLE = {
     'steam-get-stat': null,
     'steam-set-stat': false,
@@ -39,6 +40,7 @@ const DEMO_UNAVAILABLE = {
     'steam-cloud-delete': false,
     'workshop-available': false,
     'workshop-list': [],
+    'workshop-get-active': { source: 'none' },
     'workshop-set-active': false,
     'workshop-subscribe': false,
     'workshop-unsubscribe': false,
@@ -226,6 +228,8 @@ function workshopInstallFolder(idStr) {
  * back to the base game. Never silently activate a different database.
  */
 function getActiveModDir() {
+    // The demo shares the full game's save folder but never applies its overlays.
+    if (IS_DEMO) return null;
     try {
         const active = readActiveMod();
         if (active.source === 'none') return null;
