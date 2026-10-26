@@ -446,7 +446,7 @@ export function describeChoice(event: GameEventSaveData, choice: ChoiceLike, bud
     }
     const through = fx.playThrough as { escalateChance?: unknown; form?: unknown } | undefined
     if (through && num(through.escalateChance) != null) {
-        chips.push({ label: "Available now", tone: "positive" })
+        chips.push({ label: "Back for the next match", tone: "positive" })
         if (num(through.form)) chips.push({ label: `${signed(through.form as number)} form`, tone: "negative" })
         chips.push({ label: `${Math.round((through.escalateChance as number) * 100)}% chance it worsens (2–4 wks out)`, tone: "negative" })
     }

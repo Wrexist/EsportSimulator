@@ -274,9 +274,10 @@ export class AtomicWeekProcessor {
                 save.currentWeek++
             }
             // C6: this module instance (a worker, or the main thread) plays
-            // the save's season pool; a new season benches its map at the
-            // end of this tick (rotateSeasonMapPool below).
-            applyMapRotation(save)
+            // the save's season pool. The first tick of a new season benches
+            // its map before any of the season's matches are played.
+            if (save.currentWeek > 1 && (save.currentWeek - 1) % 52 === 0) rotateSeasonMapPool(save)
+            else applyMapRotation(save)
             // Phase 5.2 safety net: any player created without a personality
             // (older code paths, mods) gets his deterministic one now.
             assignPersonalities(save.players)
@@ -698,8 +699,6 @@ export class AtomicWeekProcessor {
                 // First-time migration for existing saves
                 save.careerStats = migrateCareerStats(save)
             }
-            // C6: the first tick of a new season benches one map for it.
-            if (save.currentWeek > 1 && (save.currentWeek - 1) % 52 === 0) rotateSeasonMapPool(save)
 
             // Board (Phase 4.4): objectives, weekly confidence moves with
             // causes (results, league table vs objective, finances), the

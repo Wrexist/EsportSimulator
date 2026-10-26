@@ -332,7 +332,7 @@ export class EventProcessor {
                             healthLoss,
                             severity,
                             title: `${player.nickname} has a knock: ${injuryName}`,
-                            message: `${player.nickname} picked up a minor ${injuryName.toLowerCase()}. Rest him and he is out for ${weeksOut} week${weeksOut === 1 ? "" : "s"}. Play him through it and he is available now, loses ${-WORKLOAD_TUNING.KNOCK_FORM} form, and has a ${escalate}% chance it worsens into a moderate injury (2 to 4 weeks out) at next week's check.`,
+                            message: `${player.nickname} picked up a minor ${injuryName.toLowerCase()}. Rest him and he is out for ${weeksOut} week${weeksOut === 1 ? "" : "s"}. Play him through it and he is back for your next match, loses ${-WORKLOAD_TUNING.KNOCK_FORM} form, and has a ${escalate}% chance it worsens into a moderate injury (2 to 4 weeks out) at next week's check.`,
                         },
                         choices: [
                             { id: "rest", text: `Rest him (out ${weeksOut} week${weeksOut === 1 ? "" : "s"})`, effects: {} },
