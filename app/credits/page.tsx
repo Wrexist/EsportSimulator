@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Panel } from "@/src/components/ui/Panel"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { COMMUNITY_CREDITS } from "@/data/community-credits"
 
 const CREDITS: { category: string; entries: { role: string; name: string }[] }[] = [
     {
@@ -46,6 +47,9 @@ const CREDITS: { category: string; entries: { role: string; name: string }[] }[]
             { role: "Ambient music", name: "Generated in the game" },
         ],
     },
+    ...(COMMUNITY_CREDITS.length > 0
+        ? [{ category: "Community", entries: COMMUNITY_CREDITS.map(c => ({ role: c.for, name: c.name })) }]
+        : []),
     {
         category: "Special thanks",
         entries: [
@@ -77,7 +81,7 @@ export default function CreditsPage() {
                     <Panel key={section.category} title={section.category} padded={false} className="mb-4 break-inside-avoid">
                         <dl className="divide-y divide-line">
                             {section.entries.map(entry => (
-                                <div key={entry.role} className="flex items-baseline justify-between gap-4 px-4 py-2.5">
+                                <div key={`${entry.role}-${entry.name}`} className="flex items-baseline justify-between gap-4 px-4 py-2.5">
                                     <dt className="text-sm text-ink-3">{entry.role}</dt>
                                     <dd className="text-right text-sm font-semibold text-ink-1">{entry.name}</dd>
                                 </div>
@@ -89,6 +93,8 @@ export default function CreditsPage() {
 
             <p className="text-xs leading-relaxed text-ink-3">
                 This game is a work of fiction. Team names, player likenesses and tournament structures are used for simulation only, and no endorsement is implied.
+                Esports Manager: FPS is an independent game and is not affiliated with or endorsed by Valve Corporation or any esports organization.
+                Map names refer to locations in the tactical FPS scene and remain the property of their owners.
                 © {new Date().getFullYear()} Delta. All rights reserved.
             </p>
         </div>

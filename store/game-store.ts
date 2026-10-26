@@ -1,5 +1,6 @@
 "use client"
 
+import { applyMapRotation } from "@/engine/season/map-rotation"
 import { newFirstSession, restoreFirstSession, restoreWeeklyPlan } from '@/lib/first-session'
 import { createDefaultTactics } from "@/engine/default-tactics"
 import { refreshStockIdentities } from "@/lib/identity-refresh"
@@ -110,6 +111,7 @@ import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processo
 import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
 import { createDelegationSlice } from "@/store/slices/delegation-slice"
+import { createSandboxSlice } from "@/store/slices/sandbox-slice"
 import { createDraftCupSlice } from "@/store/slices/draft-cup-slice"
 import { draftCupOutcome } from "@/engine/draft-cup"
 import { setupDraftCup } from "@/engine/draft-cup-setup"
@@ -486,6 +488,8 @@ export interface GameStoreState extends AdvanceState, MomentsState {
   delegation: import("@/engine/delegation").DelegationSettings
   draftCup: import("@/engine/draft-cup").DraftCupState | null
   mapRecords?: import("@/engine/map-record").MapRecordState
+  mapRotation?: import("@/engine/season/map-rotation").MapRotation
+  sandbox?: import("@/engine/sandbox").SandboxState
 
   // Phase 25: Region Selection
   selectedRegions: string[]
@@ -622,6 +626,8 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   setPlaybook: (teamId: string, playbook: import("@/engine/match/playbook").Playbook) => void
   setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
   runDelegatedChores: () => string[]
+  enableSandbox: () => void
+  sandboxEdit: (edit: import("@/engine/sandbox").SandboxEdit) => import("@/engine/sandbox").SandboxResult
   settleDraftCup: () => Promise<boolean>
   performVODReview: (matchId: string) => void
   performMentalReset: (matchId?: string) => void
@@ -996,6 +1002,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         set as Parameters<typeof createDelegationSlice>[0],
         get as Parameters<typeof createDelegationSlice>[1],
       ),
+      ...createSandboxSlice(
+        set as Parameters<typeof createSandboxSlice>[0],
+        get as Parameters<typeof createSandboxSlice>[1],
+      ),
       ...createDraftCupSlice(
         set as Parameters<typeof createDraftCupSlice>[0],
         get as Parameters<typeof createDraftCupSlice>[1],
@@ -1104,6 +1114,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       delegation: {},
       draftCup: null,
       mapRecords: undefined,
+      mapRotation: undefined,
+      sandbox: undefined,
 
       // Phase 25
       selectedRegions: ["EU", "NA"], // Default regions
@@ -1372,6 +1384,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             storylines: newSave.storylines, // nor its storylines (Phase 5.3)
             autoTactics: false, // nor its auto-tactics switch
             delegation: {}, // nor its staff delegation
+            mapRotation: newSave.mapRotation, // nor its season map pool (C6)
+            sandbox: undefined, // nor its sandbox switch (C9)
             draftCup: newSave.draftCup ?? null, // G7: set only on a Draft Cup run
             availableEquipment: initialEquipment,
             playerTeamId: teamId, // We assume the user controls the team they selected
@@ -1689,6 +1703,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             autoTactics: false,
             delegation: {},
             draftCup: null,
+            mapRotation: undefined,
+            sandbox: undefined,
             availableEquipment: [
               { id: "mouse_001", name: "Basic Gaming Mouse", type: "MOUSE", weeklyCost: 0, tier: 1, purchasedWeek: 0, bonus: { stat: "skill", value: 1 } },
             ],
@@ -1839,6 +1855,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             delegation: hydratedSave.delegation ?? {},
             draftCup: hydratedSave.draftCup ?? null,
             mapRecords: hydratedSave.mapRecords,
+            mapRotation: hydratedSave.mapRotation,
+            sandbox: hydratedSave.sandbox,
             activeMatchId: resumedLiveMatch ? resumedLiveMatch.matchId : hydratedSave.activeMatchId ?? null,
             activeMatchState: resumedLiveMatch ?? hydratedSave.activeMatchState ?? null,
             physicalMatchPreview: hydratedSave.physicalMatchPreview ?? null,
@@ -2637,3 +2655,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
     }
   )
 )
+
+// C6: keep the active map pool on the loaded career's season pool (vetoes,
+// series maps and the match screens all read ACTIVE_MAP_POOL).
+useGameStore.subscribe((state, prev) => {
+  if (state.mapRotation !== prev.mapRotation || state.saveId !== prev.saveId) applyMapRotation(state)
+  // C9: a sandbox save earns no achievements, stats or leaderboard scores.
+  if (state.sandbox !== prev.sandbox || state.saveId !== prev.saveId) steamAchievements.setSandboxed(!!state.sandbox)
+})

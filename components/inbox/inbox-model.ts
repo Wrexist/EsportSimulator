@@ -196,6 +196,7 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
             return num(data.weeksLeft) != null ? `${who}'s contract ends in ${data.weeksLeft} week${data.weeksLeft === 1 ? "" : "s"}` : data.title || `${who}'s contract`
         case "MORALE": return data.title || `${who} is unhappy`
         case "INJURY":
+            if (data.title && (event.id.startsWith("workload_") || event.id.startsWith("knock_"))) return stripEmoji(String(data.title)).trim()
             if (data.fatigue) return `${who} is close to burnout`
             if (event.id.startsWith("recovery_")) return `${who} is fit again`
             return num(data.weeksOut) != null ? `${who} out for ${data.weeksOut} week${data.weeksOut === 1 ? "" : "s"}` : `${who} injured`
@@ -436,6 +437,19 @@ export function describeChoice(event: GameEventSaveData, choice: ChoiceLike, bud
     if (persuade && num(persuade.from) != null && num(persuade.to) != null) chips.push({ label: `Retirement chance ${persuade.from}% → ${persuade.to}%`, tone: "positive" })
     const mentor = fx.mentor as { name?: unknown } | undefined
     if (mentor) chips.push({ label: `Mentors ${typeof mentor.name === "string" ? mentor.name : "a team-mate"}: training +${Math.round((PERSONALITY_TUNING.MENTOR_TRAINING - 1) * 100)}%`, tone: "positive" })
+    // C5 (engine/workload.ts): rest week, play through a knock.
+    const rest = fx.rest as { fatigue?: unknown; morale?: unknown } | undefined
+    if (rest && num(rest.fatigue)) {
+        chips.push({ label: `-${Math.abs(rest.fatigue as number)} fatigue`, tone: "positive" })
+        if (num(rest.morale)) chips.push({ label: `${signed(rest.morale as number)} morale`, tone: "positive" })
+        chips.push({ label: "Sits out this week if a substitute is free", tone: "neutral" })
+    }
+    const through = fx.playThrough as { escalateChance?: unknown; form?: unknown } | undefined
+    if (through && num(through.escalateChance) != null) {
+        chips.push({ label: "Available now", tone: "positive" })
+        if (num(through.form)) chips.push({ label: `${signed(through.form as number)} form`, tone: "negative" })
+        chips.push({ label: `${Math.round((through.escalateChance as number) * 100)}% chance it worsens (2–4 wks out)`, tone: "negative" })
+    }
     if (typeof fx.follows === "string" && fx.follows) chips.push({ label: fx.follows, tone: "neutral" })
     if (chips.length === 0) chips.push({ label: "No effect", tone: "neutral" })
     return { chips, blockedReason }

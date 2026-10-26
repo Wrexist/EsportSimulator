@@ -8,6 +8,7 @@
  * promise gains the game doesn't apply.
  */
 
+import { trainingAgeFactor } from "@/engine/development-rates"
 import { TrainingFocus, calculateTrainingFatigue, calculateTrainingGains } from "@/types"
 import { facilityLevel, staffDevelopmentEffects } from "@/engine/organization-effects"
 import { getPlayerPassiveBonuses } from "@/engine/talent-trees"
@@ -69,7 +70,7 @@ export function weeklyPreview(player: PlayerSaveData, mods: TrainingModifiers): 
         if (!gain) continue
         const current = Number((player as unknown as Record<string, number>)[stat])
         if (!Number.isFinite(current)) continue
-        let g = gain * mods.general
+        let g = gain * mods.general * trainingAgeFactor(player.age)
         if (stat === "tactic" || stat === "leader" || stat === "teamwork") g *= mods.tactical
         const cap = Math.min(100, Math.max(current, player.potential))
         gains.push({ stat, amount: Math.max(0, Math.min(cap, current + g) - current) })

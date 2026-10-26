@@ -68,6 +68,9 @@ const PREFIX_RULES: Array<[prefix: string, rule: DecisionRule]> = [
     ["morale_", rule({ family: "unhappy_player", label: "Unhappy player", window: 1, cooldown: 4, defaultChoiceId: "ignore", consequence: "leaves {name}'s complaint unanswered", deferrable: true })],
     ["birthday_", rule({ family: "birthday", label: "Birthday", window: 1, cooldown: 0, defaultChoiceId: "wish", consequence: "sends {name} its best wishes", deferrable: true })],
     ["fatigue_", rule({ family: "burnout", label: "Burnout warning", window: 1, cooldown: 4, defaultChoiceId: "push", consequence: "keeps {name} on the full training load", deferrable: true })],
+    // C5 (engine/workload.ts): never held back, since the risk is this week's.
+    ["workload_", rule({ family: "workload", label: "Workload warning", window: 0, cooldown: 3, defaultChoiceId: "play", consequence: "plays {name} at the stated injury risk" })],
+    ["knock_", rule({ family: "knock", label: "Minor knock", window: 0, cooldown: 0, defaultChoiceId: "rest", consequence: "rests {name} for the stated weeks" })],
     ["streak_win_", rule({ family: "win_streak", label: "Win streak", window: 1, cooldown: 0, defaultChoiceId: "focus", consequence: "tells the squad to stay focused", deferrable: true })],
     ["streak_loss_", rule({ family: "losing_run", label: "Losing run", window: 1, cooldown: 0, defaultChoiceId: "shakeup", consequence: "issues the standard roster shakeup warning", deferrable: true })],
     ["legend_coach_opportunity_", rule({ family: "legend_coach", label: "Legend coach offer", window: 2, cooldown: 0, defaultChoiceId: "decline", consequence: "declines the coaching offer" })],

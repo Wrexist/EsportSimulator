@@ -158,7 +158,7 @@ export function ProspectsTable({ rows, academyLevel, currentWeek, academyRoster,
                                     <div className="flex items-center justify-end gap-2">
                                         <ConfirmDialog
                                             title={`Promote ${player.nickname}?`}
-                                            description={`Joins the senior squad on ${formatCurrency(PROMOTION_TERMS.salaryPerWeek, "$", false)}/wk for ${PROMOTION_TERMS.lengthWeeks} weeks. The roster holds 7 players, and any roster change costs a little chemistry.`}
+                                            description={`Joins the senior squad on ${formatCurrency(PROMOTION_TERMS.salaryPerWeek, "$", false)}/wk for ${PROMOTION_TERMS.lengthWeeks} weeks (${formatCurrency(PROMOTION_TERMS.salaryPerWeek * PROMOTION_TERMS.lengthWeeks, "$", false)} in total, nothing up front). The roster holds 7 players, and any roster change costs a little chemistry.`}
                                             onConfirm={() => onPromote(prospect.id)}
                                             confirmText="Promote"
                                             icon="info"

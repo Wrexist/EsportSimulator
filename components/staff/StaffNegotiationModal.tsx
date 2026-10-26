@@ -233,6 +233,13 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                     <p className="mt-2 text-xs text-ink-3">Two years or more lowers their expected wage by about 5%.</p>
                                 </div>
 
+                                {/* C8: every cost of the deal on one card. */}
+                                <dl className="divide-y divide-line rounded-lg border border-line text-sm" data-testid="staff-cost-breakdown">
+                                    {!isRenewal && <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Now (sign-on fee)</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(signingBonus, "$", false)}</dd></div>}
+                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Every week</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(salaryOffer, "$", false)}</dd></div>
+                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Total over {durationOffer} weeks</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency((isRenewal ? 0 : signingBonus) + Math.max(0, Math.floor(salaryOffer)) * durationOffer, "$", false)}</dd></div>
+                                </dl>
+
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-ink-3">Club budget</span>
                                     <span className={cn("font-semibold tabular-nums", myTeam && myTeam.budget < signingBonus ? "text-negative" : "text-ink-1")}>

@@ -87,7 +87,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
     const params = useParams()
     const id = params.id as string
     const router = useRouter()
-    const { scheduledMatches, teams, players, updateScheduledMatch, playerTeamId, completedMatches, mapRecords } = useGameStore(useShallow(state => ({
+    const { scheduledMatches, teams, players, updateScheduledMatch, playerTeamId, completedMatches, mapRecords, mapRotation } = useGameStore(useShallow(state => ({
         scheduledMatches: state.scheduledMatches,
         teams: state.teams,
         players: state.players,
@@ -95,6 +95,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         playerTeamId: state.playerTeamId,
         completedMatches: state.completedMatches,
         mapRecords: state.mapRecords,
+        mapRotation: state.mapRotation,
     })))
 
     // State
@@ -138,21 +139,18 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
     // Refs for AI processing
     const processingRef = useRef(false)
 
-    // Generate Veto Sequence based on format
-    const generateVetoSequence = (format: string): VetoTurn[] => {
+    // Generate Veto Sequence based on format and the season's pool size
+    // (seven maps, or six in a season with a benched map; C6).
+    const generateVetoSequence = (format: string, poolSize: number = ACTIVE_MAP_POOL.length): VetoTurn[] => {
+        const bans = (n: number, firstHome = true): VetoTurn[] =>
+            Array.from({ length: Math.max(0, n) }, (_, i) => ({ team: (i % 2 === 0) === firstHome ? "home" : "away", action: "BAN" }) as VetoTurn)
         if (format === "BO1") {
-            // BO1: 6 Bans, 1 Decider -> Other team picks side
-            return [
-                { team: "home", action: "BAN" }, { team: "away", action: "BAN" },
-                { team: "home", action: "BAN" }, { team: "away", action: "BAN" },
-                { team: "home", action: "BAN" }, { team: "away", action: "BAN" },
-                { team: "auto", action: "DECIDER" },
-                { team: "away", action: "SIDE_PICK" } // Away gets side choice on decider
-            ]
+            // BO1: ban down to one map, decider -> away picks side
+            return [...bans(poolSize - 1), { team: "auto", action: "DECIDER" }, { team: "away", action: "SIDE_PICK" }]
         } else if (format === "BO5") {
-            // BO5 (Pool of 7): 2 Bans, 5 Played (4 Picks + 1 Decider/Leftover)
+            // BO5: pool − 5 bans, 4 picks, the last map is the decider
             return [
-                { team: "home", action: "BAN" }, { team: "away", action: "BAN" },
+                ...bans(poolSize - 5),
                 { team: "home", action: "PICK" }, { team: "away", action: "SIDE_PICK" },
                 { team: "away", action: "PICK" }, { team: "home", action: "SIDE_PICK" },
                 { team: "home", action: "PICK" }, { team: "away", action: "SIDE_PICK" },
@@ -160,12 +158,12 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                 { team: "auto", action: "DECIDER" }, { team: "home", action: "SIDE_PICK" }
             ]
         } else {
-            // BO3 Standard
+            // BO3 Standard: 2 bans, 2 picks, ban down to the decider
             return [
                 { team: "home", action: "BAN" }, { team: "away", action: "BAN" },
                 { team: "home", action: "PICK" }, { team: "away", action: "SIDE_PICK" },
                 { team: "away", action: "PICK" }, { team: "home", action: "SIDE_PICK" },
-                { team: "home", action: "BAN" }, { team: "away", action: "BAN" },
+                ...bans(poolSize - 5),
                 { team: "auto", action: "DECIDER" }, { team: "away", action: "SIDE_PICK" }
             ]
         }
@@ -491,7 +489,12 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
             </section>
 
             {/* Map pool */}
-            <div className="grid grid-cols-4 gap-3 xl:grid-cols-7">
+            {mapRotation?.benched?.length ? (
+                <p className="text-xs text-ink-3" data-testid="benched-maps">
+                    Season {mapRotation.season} pool: {mapRotation.benched.map(m => MAP_NAMES[m] ?? m).join(" and ")} benched for the season.
+                </p>
+            ) : null}
+            <div className={cn("grid grid-cols-4 gap-3", ACTIVE_MAP_POOL.length === 6 ? "xl:grid-cols-6" : "xl:grid-cols-7")}>
                 {[...ACTIVE_MAP_POOL].map((mapId) => {
                     const isAvailable = availableMaps.includes(mapId)
                     const actionLog = vetoHistory.find(v => v.mapId === mapId && v.action !== "SIDE_PICK")

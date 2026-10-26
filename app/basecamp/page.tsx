@@ -201,9 +201,13 @@ export default function BasecampPage() {
                           <td className="pl-3 pr-4 text-right" onClick={e => e.stopPropagation()}>
                             {maxed ? <span className="text-xs text-ink-3">Fully upgraded</span>
                               : affordable ? (
-                                <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={() => handleUpgrade(f.type, f.label)}>
-                                  {level === 0 ? "Build" : `Upgrade to ${level + 1}`} · {money(cost)}
-                                </Button>
+                                <div className="flex flex-col items-end gap-1">
+                                  <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={() => handleUpgrade(f.type, f.label)}>
+                                    {level === 0 ? "Build" : `Upgrade to ${level + 1}`} · {money(cost)}
+                                  </Button>
+                                  {/* C8: the one-time cost and what it adds every week. */}
+                                  <span className="text-[11px] tabular-nums text-ink-3">then +{money(Math.floor(facilityWeeklyCost(level + 1) - facilityWeeklyCost(level)))}/wk upkeep</span>
+                                </div>
                               ) : (
                                 <span className="text-xs text-ink-3">{money(cost)} · {money(cost - team.budget)} short</span>
                               )}

@@ -7,6 +7,7 @@ import { TrainingProcessor } from "@/engine/processors/training-processor"
 import { TrainingFocus } from "@/types"
 import type { GameSave, TeamSaveData, PlayerSaveData, StaffSaveData } from "@/engine/save-types"
 import { developmentOutlook, DEFAULT_TEAM_TRAINING, ageDeclineChance, naturalGrowthChance } from "@/engine/development-outlook"
+import { ceilingLossPerSeason } from "@/engine/development-rates"
 
 function makePlayer(id: string, overrides: Partial<PlayerSaveData> = {}): PlayerSaveData {
     return {
@@ -103,7 +104,7 @@ describe("developmentOutlook", () => {
         expect(naturalGrowthChance(18, 50, 90)).toBeCloseTo(Math.min(0.04, 0.4 * 0.18), 9)
         expect(naturalGrowthChance(25, 50, 90)).toBe(0)
         expect(ageDeclineChance(27)).toBe(0)
-        expect(ageDeclineChance(32)).toBeCloseTo(0.01, 9)
+        expect(ageDeclineChance(32)).toBeCloseTo(ceilingLossPerSeason(32) / 52, 9)
         const young = makePlayer("p5", { age: 18 })
         const save = makeSave(makeTeam({ rosterIds: ["p5"] }), [young])
         expect(outlookFor(save, young).naturalPerSeason).toBeCloseTo(naturalGrowthChance(18, 50, 90) * 52, 9)

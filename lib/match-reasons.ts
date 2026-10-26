@@ -158,3 +158,20 @@ export function playerLine(s: PlayerMatchStats, p: PlayerTally): string {
     const text = parts.join(', ')
     return text.charAt(0).toUpperCase() + text.slice(1) + '.'
 }
+
+/**
+ * C1: one line on how the result is judged against the pre-match odds
+ * (ranking points). Morale and form move by resultSurpriseFactor, so an
+ * expected result moves them less and an upset more.
+ */
+export function oddsLine(expected: number | undefined, won: boolean): string | null {
+    if (typeof expected !== 'number' || !Number.isFinite(expected)) return null
+    const pct = Math.round(expected * 100)
+    if (pct >= 40 && pct <= 60) return `An even match by ranking points (${pct}% for you): the usual morale and form swing.`
+    if (won) return pct < 40
+        ? `An upset: ranking points gave you ${pct}%. Morale and form rise more than after an even win.`
+        : `Expected: ranking points made you ${pct}% favourites. Morale and form rise less than after an even win.`
+    return pct > 60
+        ? `A setback: ranking points made you ${pct}% favourites. Morale and form drop more than after an even defeat.`
+        : `They were the stronger side (${pct}% for you by ranking points), so the defeat costs less morale and form than an even one.`
+}

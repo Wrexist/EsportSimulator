@@ -1,4 +1,5 @@
 import { generateCareerDecision } from "./career-decisions"
+import { applyMapRotation, rotateSeasonMapPool } from "./season/map-rotation"
 import { expireDecisions, normalizeDecisions } from "./decision-deadlines"
 import { processStorylines } from "./storylines"
 import { createPressConference } from "./storylines/press"
@@ -38,7 +39,7 @@ import {
     TrainingFocus,
     EventType,
 } from "@/types"
-import { PlayerLifecycleManager, applyFormResult, applyMoraleResult } from "./player-lifecycle"
+import { PlayerLifecycleManager, applyFormResult, applyMoraleResult, resultSurpriseFactor } from "./player-lifecycle"
 import { EconomyEngine } from "./economy-engine"
 import { LegendEventsManager } from "./legend-events-manager"
 import { EventsManager } from "./events-manager"
@@ -73,7 +74,7 @@ import { assignPersonalities, isOfficialMatch, lineupDefeatShield, playerResultM
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
 import { LeagueEngine } from "./league-engine"
-import { applyTierBands, tiersAreBanded } from "./world-ranking"
+import { applyTierBands, expectedScore, tiersAreBanded } from "./world-ranking"
 import { competitionLabel, rankMovementEntries } from "./ranking-report"
 import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
@@ -272,6 +273,10 @@ export class AtomicWeekProcessor {
             if (save.currentWeek < transaction.weekNumber) {
                 save.currentWeek++
             }
+            // C6: this module instance (a worker, or the main thread) plays
+            // the save's season pool; a new season benches its map at the
+            // end of this tick (rotateSeasonMapPool below).
+            applyMapRotation(save)
             // Phase 5.2 safety net: any player created without a personality
             // (older code paths, mods) gets his deterministic one now.
             assignPersonalities(save.players)
@@ -567,6 +572,7 @@ export class AtomicWeekProcessor {
                 debugLog(`[Week ${save.currentWeek}] Step 8: Rest days...`)
                 const __s = perfTrace.stepsEnabled ? perfTrace.now() : 0
                 TrainingProcessor.processRestDays(save, config.playerTeamId)
+                result.eventsGenerated += await EventProcessor.generateWorkloadWarnings(save, transaction, config.playerTeamId, this.saveManager)
                 const restPrefix = `rest_w${save.currentWeek - 1}_d`
                 const restDays = save.scheduledActivities.filter(a => a.id.startsWith(restPrefix) && a.id.endsWith(`_${config.playerTeamId}`)).length
                 mark({ type: "recovery", label: restDays > 0 ? `${restDays} rest day${restDays === 1 ? "" : "s"}` : "Rest days" })
@@ -692,6 +698,8 @@ export class AtomicWeekProcessor {
                 // First-time migration for existing saves
                 save.careerStats = migrateCareerStats(save)
             }
+            // C6: the first tick of a new season benches one map for it.
+            if (save.currentWeek > 1 && (save.currentWeek - 1) % 52 === 0) rotateSeasonMapPool(save)
 
             // Board (Phase 4.4): objectives, weekly confidence moves with
             // causes (results, league table vs objective, finances), the
@@ -1075,7 +1083,13 @@ export class AtomicWeekProcessor {
             const homeShield = lineupDefeatShield(homeTeam, homePlayers.map(p => p.id), lookupPlayer)
             const awayShield = lineupDefeatShield(awayTeam, awayPlayers.map(p => p.id), lookupPlayer)
 
-            const updateStats = (players: typeof save.players, won: boolean, moraleLossDampen: number, shield: number) => {
+            // C1: the result is judged against the odds (pre-match Elo; the
+            // Elo exchange below runs after this).
+            const homeExpected = expectedScore(homeTeam.elo ?? 1000, awayTeam.elo ?? 1000)
+            if (isPlayerMatch) completedMatch.homeExpected = Math.round(homeExpected * 1000) / 1000
+
+            const updateStats = (players: typeof save.players, won: boolean, moraleLossDampen: number, shield: number, expected: number) => {
+                const surprise = resultSurpriseFactor(expected, won)
                 players.forEach(p => {
                     const pStat = result.playerStats[p.id]
                     p.matchesPlayed++
@@ -1090,10 +1104,10 @@ export class AtomicWeekProcessor {
                     // Phase 55: Energy drain from matches (-15 per match)
                     p.energy = Math.max(0, (p.energy ?? 100) - 15)
 
-                    let moraleDelta = getMoraleChange(won) * derbyStakes
+                    let moraleDelta = getMoraleChange(won) * derbyStakes * surprise
                     if (moraleDelta < 0) moraleDelta *= (1 - moraleLossDampen)
                     p.morale = applyMoraleResult(p.morale, playerResultMorale(p, moraleDelta, shield))
-                    p.form = applyFormResult(p.form, won)
+                    p.form = applyFormResult(p.form, won, surprise)
 
                     // Phase 6: Skill Point Progression
                     // 5% chance on win, 1% on loss to simulate learning
@@ -1105,8 +1119,8 @@ export class AtomicWeekProcessor {
                 })
             }
 
-            updateStats(homePlayers, homeWon, homeMoraleDampen, homeShield)
-            updateStats(awayPlayers, !homeWon, awayMoraleDampen, awayShield)
+            updateStats(homePlayers, homeWon, homeMoraleDampen, homeShield, homeExpected)
+            updateStats(awayPlayers, !homeWon, awayMoraleDampen, awayShield, 1 - homeExpected)
             // Phase 5.2: official appearances (starters / fit players left out).
             if (isOfficialMatch(match)) {
                 recordAppearances(homeTeam, homePlayers.map(p => p.id), lookupPlayer)

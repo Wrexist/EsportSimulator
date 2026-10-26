@@ -2,7 +2,7 @@ import { Player, PLAYER_STAT_CONSTRAINTS } from "@/types/player"
 import { calculateProPrestigeScore } from "./prestige-system"
 import { SeededRNG, generateSeed } from "./rng"
 import { CONDITION_TUNING } from "@/lib/balance-tuning"
-import { ageDeclineChance, naturalGrowthChance, NATURAL_GROWTH_STATS } from "./development-rates"
+import { AGE_CURVE, ageDeclineChance, lastsLonger, naturalGrowthChance, NATURAL_GROWTH_STATS } from "./development-rates"
 
 /**
  * Subset of player fields used by processWeeklyUpdates and its internal helpers.
@@ -24,9 +24,20 @@ interface PlayerLike {
 }
 
 /** Form after a committed match result (CONDITION_TUNING); same rule for every club. */
-export function applyFormResult(form: number | undefined, won: boolean): number {
-    const delta = won ? CONDITION_TUNING.FORM_PER_WIN : CONDITION_TUNING.FORM_PER_LOSS
+export function applyFormResult(form: number | undefined, won: boolean, factor = 1): number {
+    const delta = (won ? CONDITION_TUNING.FORM_PER_WIN : CONDITION_TUNING.FORM_PER_LOSS) * factor
     return Math.max(0, Math.min(100, (form ?? 50) + delta))
+}
+
+/**
+ * C1: how much a result should move morale and form given the side's
+ * pre-match chance (0..1). 1 at even odds; below 1 for the expected result
+ * (a favourite's win, an underdog's defeat), above 1 for an upset.
+ */
+export function resultSurpriseFactor(expected: number | undefined, won: boolean): number {
+    if (typeof expected !== "number" || !Number.isFinite(expected)) return 1
+    const e = Math.max(0, Math.min(1, expected))
+    return Math.max(0, 1 + CONDITION_TUNING.RESULT_SURPRISE * (won ? 0.5 - e : e - 0.5))
 }
 
 /**
@@ -133,30 +144,24 @@ export class PlayerLifecycleManager {
     }
 
     /**
-     * Handles aging mechanics
-     * Players > 27 have a chance to lose physical stats each week
+     * Handles aging mechanics (C7, engine/development-rates.ts AGE_CURVE):
+     * from 29 the ceiling falls a little each season, and aim stats above
+     * it sink toward it. Game sense and the AWP stat do not sink.
      */
     private static processAging(player: PlayerLike, week: number, rng?: SeededRNG): void {
-        if (player.age <= 27) return
-
-        // Chance increases with age, capped to prevent instant stat destruction
-        // 28yo: ~0.2% chance/week (~10% per year — gentle decline)
-        // 32yo: ~1.0% chance/week (~52% chance of at least one decline per year)
-        // 36yo: ~1.8% chance/week (~more frequent but still manageable)
-        const declineChance = ageDeclineChance(player.age)
-
-        if (this.roll(rng) < declineChance) {
-            this.applyAgingDecline(player, rng)
+        void week
+        const role = (player as { role?: string }).role, second = (player as { secondaryRole?: string }).secondaryRole
+        const chance = ageDeclineChance(player.age, role, second)
+        if (chance <= 0) return
+        const p = player as unknown as Record<string, number>
+        const sink = AGE_CURVE.SINK_CHANCE * (lastsLonger(role, second) ? AGE_CURVE.LASTING_ROLE_FACTOR : 1)
+        if (typeof p.potential === "number" && this.roll(rng) < chance) {
+            p.potential = Math.max(10, p.potential - 1)
         }
-    }
-
-    private static applyAgingDecline(player: PlayerLike, rng?: SeededRNG): void {
-        // Physical stats decline first
-        const physicalStats: (keyof PlayerLike)[] = ['reaction', 'skill', 'rifle', 'clutch']
-        const targetStat = physicalStats[Math.floor(this.roll(rng) * physicalStats.length)]
-
-        if (typeof player[targetStat] === 'number' && (player[targetStat] as number) > 10) {
-            (player as unknown as Record<string, unknown>)[targetStat as string] = Math.max(10, (player[targetStat] as number) - 1)
+        const ceiling = typeof p.potential === "number" ? p.potential : 100
+        for (const stat of AGE_CURVE.SINKING_STATS) {
+            const v = p[stat]
+            if (typeof v === "number" && v > ceiling && v > 10 && this.roll(rng) < sink) p[stat] = v - 1
         }
     }
 

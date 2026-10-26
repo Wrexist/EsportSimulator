@@ -35,6 +35,14 @@ export const CONDITION_TUNING = {
      * Before tuning, S-tier wins (+15, loss -3) pinned winning rosters at 100.
      */
     MORALE_GAIN_HEADROOM: 50,
+    /**
+     * C1: results are judged against the odds. A side's pre-match chance e
+     * (Elo expectation) scales the morale and form swing of the result by
+     * 1 + RESULT_SURPRISE × (0.5 − e) for a win and 1 + RESULT_SURPRISE × (e − 0.5)
+     * for a defeat: a loss to a much stronger side barely hurts, an upset win
+     * lifts more, and an even match is unchanged. Same rule for every club.
+     */
+    RESULT_SURPRISE: 1,
     /** Weekly form/morale drift target is lowered by this much per point of fatigue. */
     FATIGUE_FORM_DRAG: 0.3,
     FATIGUE_MORALE_DRAG: 0.2,

@@ -14,7 +14,7 @@ import type { PlayerSaveData, StaffSaveData, TeamSaveData } from "./save-types"
 import { facilityLevel, staffDevelopmentEffects } from "./organization-effects"
 import { ARCHETYPE_INFO, getArchetype, mentorTrainingFactor, trainingFactor } from "./personality"
 import { isFeatureUnlocked } from "./talent-trees"
-import { ageDeclineChance, naturalGrowthChance, naturalGrowthPerWeek } from "./development-rates"
+import { ageDeclineChance, naturalGrowthChance, naturalGrowthPerWeek, trainingAgeFactor } from "./development-rates"
 
 export { ageDeclineChance, naturalGrowthChance }
 
@@ -106,6 +106,7 @@ export function developmentOutlook(input: {
         push("Coaching staff", effectsOfStaff.trainingMultiplier)
         push(ARCHETYPE_INFO[archetype].label, focus === TrainingFocus.REST ? 1 : trainingFactor(archetype))
         push("Mentor", mentorTrainingFactor(team, player.id, lookup))
+        push(`Age ${age}`, focus === TrainingFocus.REST ? 1 : trainingAgeFactor(age))
         multiplier = factors.reduce((m, f) => m * f.multiplier, 1)
         tacticalMultiplier = (1 + tacticalLevel * 0.2) * effectsOfStaff.tacticMultiplier
         breakthrough = team.id === playerTeamId && clubStaff.some(s => s.role === "coach"
@@ -139,7 +140,7 @@ export function developmentOutlook(input: {
         forecast,
         weeks,
         naturalPerSeason: naturalGrowthPerWeek(player as unknown as Record<string, unknown>) * WEEKS_PER_SEASON,
-        declinePerSeason: ageDeclineChance(age) * WEEKS_PER_SEASON,
+        declinePerSeason: ageDeclineChance(age, player.role, player.secondaryRole) * WEEKS_PER_SEASON,
         breakthrough,
         atCeiling: headroom <= 0,
     }

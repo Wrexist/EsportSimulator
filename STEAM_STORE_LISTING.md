@@ -35,6 +35,8 @@ Set training priorities, prepare your lineup and choose your match approach. Fol
 - Prepare lineups and tactics, then review match statistics.
 - Navigate tournaments, qualification, rankings and board expectations.
 
+Esports Manager: FPS is an independent game and is not affiliated with or endorsed by Valve or any esports organization.
+
 ## Internal release fields - not customer copy
 
 Target: Windows 1.0. Mouse and keyboard are the working input scope; keyboard coverage still needs acceptance. English is the working UI language; localization scope remains open. Minimum/recommended hardware, supported Windows versions, disk footprint, price and release date must be measured or confirmed before filling in Steam fields.

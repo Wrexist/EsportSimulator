@@ -37,7 +37,8 @@ import {
     SeededRNG,
 } from "@/engine"
 import { ManagerProgression } from "@/engine/manager-progression"
-import { applyFormResult, applyMoraleResult } from "@/engine/player-lifecycle"
+import { applyFormResult, applyMoraleResult, resultSurpriseFactor } from "@/engine/player-lifecycle"
+import { expectedScore } from "@/engine/world-ranking"
 import { isOfficialMatch, lineupDefeatShield, playerResultMorale, recordAppearances } from "@/engine/personality"
 import { settlePlayerContractBonuses } from "@/engine/processors/player-contract-bonuses"
 import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mastery"
@@ -255,6 +256,10 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             updateForm(homeTeam, isDraw ? "D" : (homeWon ? "W" : "L"))
             updateForm(awayTeam, isDraw ? "D" : (homeWon ? "L" : "W"))
 
+            // C1: the result is judged against the pre-match odds (Elo before the exchange below).
+            const homeExpected = expectedScore(homeTeam.elo ?? 1000, awayTeam.elo ?? 1000)
+            completedMatch.homeExpected = Math.round(homeExpected * 1000) / 1000
+
             const oldHomeRank = homeTeam.worldRanking || 999
             const oldAwayRank = awayTeam.worldRanking || 999
 
@@ -386,8 +391,9 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 ? state.tournaments.find(t => t.id === match.tournamentId)?.tier
                 : undefined
             const lookupPlayer = (id: string) => playerMap.get(id)
-            const updatePlayerStats = (team: TeamSaveData, won: boolean) => {
+            const updatePlayerStats = (team: TeamSaveData, won: boolean, expected: number) => {
                 if (!team || !result.playerStats) return
+                const surprise = resultSurpriseFactor(expected, won)
                 const playedIds = Object.keys(result.playerStats).filter(pid => team.rosterIds.includes(pid))
                 // Phase 5.2: captain's defeat shield for the lineup he played in.
                 const shield = lineupDefeatShield(team, result.lineups?.[team.id] ?? playedIds, lookupPlayer)
@@ -409,8 +415,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                             default: return won ? 5 : -5
                         }
                     })()
-                    player.morale = applyMoraleResult(player.morale || 50, playerResultMorale(player, moraleChange, shield))
-                    player.form = applyFormResult(player.form, won)
+                    player.morale = applyMoraleResult(player.morale || 50, playerResultMorale(player, moraleChange * surprise, shield))
+                    player.form = applyFormResult(player.form, won, surprise)
 
                     const stats = result.playerStats[pid]
                     if (!stats) return
@@ -488,8 +494,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                     }
                 })
             }
-            updatePlayerStats(homeTeam, homeWon)
-            updatePlayerStats(awayTeam, !homeWon)
+            updatePlayerStats(homeTeam, homeWon, homeExpected)
+            updatePlayerStats(awayTeam, !homeWon, 1 - homeExpected)
             // Phase 5.2: official appearances (starters / fit players left out).
             if (isOfficialMatch(match)) {
                 recordAppearances(homeTeam, result.lineups[homeTeam.id] ?? [], lookupPlayer)

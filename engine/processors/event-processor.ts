@@ -4,11 +4,56 @@ import { EventType, Team, InjuryType } from "@/types"
 import { SaveManager } from "../save-manager"
 import { hallOfFameAchievements, hallOfFameEntry, qualifiesForHallOfFame } from "../hall-of-fame-manager"
 import { retirementChance } from "../retirement-chance"
-
-const INJURY_BASE_CHANCE = 0.002
-const FATIGUE_INJURY_MULTIPLIER = 0.002
+import { WORKLOAD_TUNING, injuryRiskPerWeek, needsWorkloadWarning, riskPct } from "../workload"
 
 export class EventProcessor {
+    /**
+     * C5: workload warnings for the managed squad. Runs after the week's rest
+     * days, so the warning names the load a player carries into the next week.
+     */
+    static async generateWorkloadWarnings(
+        save: GameSave,
+        transaction: WeekTickState,
+        playerTeamId: string,
+        saveManager: SaveManager
+    ): Promise<number> {
+        const team = save.teams.find(t => t.id === playerTeamId)
+        if (!team) return 0
+        const generated = new Set(transaction.generatedEventIds)
+        let eventsGenerated = 0
+        for (const pid of team.rosterIds) {
+            const player = save.players.find(p => p.id === pid)
+            // The medical team flags a player whose weekly injury chance has
+            // reached WORKLOAD_TUNING.WARN_RISK. The decision family's cooldown
+            // keeps it to one open warning.
+            if (!player || !needsWorkloadWarning(player)) continue
+            const eventId = `workload_${player.id}_${save.currentWeek}`
+            if (generated.has(eventId)) continue
+            const risk = riskPct(injuryRiskPerWeek(player))
+            const rested = Math.max(0, Math.round(player.fatigue) - WORKLOAD_TUNING.REST_FATIGUE)
+            save.eventsLog.push({
+                id: eventId,
+                type: EventType.INJURY,
+                week: save.currentWeek,
+                data: {
+                    playerId: player.id,
+                    load: Math.round(player.fatigue),
+                    risk,
+                    title: `${player.nickname}'s workload is high`,
+                    message: `${player.nickname} is carrying a heavy load (fatigue ${Math.round(player.fatigue)}). His injury chance this week is ${risk}, and it keeps rising while the load stays this high. Rest him this week (fatigue to ${rested}, out of the starting five if a fit substitute is free), or play him at that risk.`,
+                },
+                acknowledged: false,
+                choices: [
+                    { id: "rest", text: "Rest him this week", effects: { rest: { fatigue: WORKLOAD_TUNING.REST_FATIGUE, morale: WORKLOAD_TUNING.REST_MORALE } } },
+                    { id: "play", text: "Play him", effects: { follows: `Injury chance ${risk} this week` } },
+                ],
+            })
+            await saveManager.recordEventGenerated(transaction, eventId)
+            eventsGenerated++
+        }
+        return eventsGenerated
+    }
+
     static async generateEvents(
         save: GameSave,
         transaction: WeekTickState,
@@ -25,7 +70,7 @@ export class EventProcessor {
         save.players.forEach(p => playerMap.set(p.id, p))
         const generatedEventIdSet = new Set(transaction.generatedEventIds)
 
-        // 1-2. Single pass over rosterIds for morale and fatigue. Expiring
+        // 1. Single pass over rosterIds for morale (workload warnings: generateWorkloadWarnings, after rest days). Expiring
         // contracts are one message per contract from processContractExpiry
         // (the old weekly "Discuss renewal" choice renewed nothing; Phase 4.9).
         if (playerTeam) {
@@ -51,26 +96,6 @@ export class EventProcessor {
                                 { id: "talk", text: "One-on-One Talk (Morale +10)", effects: { morale: 10 } },
                                 { id: "bonus", text: "Performance Bonus (Money -5k, Loyalty +5)", effects: { money: -5000, loyalty: 5 } },
                                 { id: "ignore", text: "Ignore", effects: { loyalty: -5, morale: -5 } }
-                            ]
-                        })
-                        await saveManager.recordEventGenerated(transaction, eventId)
-                        eventsGenerated++
-                    }
-                }
-
-                // 2. High Fatigue Checks
-                if (player.fatigue > 80 && rng.bool(0.5)) {
-                    const eventId = `fatigue_${player.id}_${save.currentWeek}`
-                    if (!generatedEventIdSet.has(eventId)) {
-                        save.eventsLog.push({
-                            id: eventId,
-                            type: EventType.INJURY, // Using generic type
-                            week: save.currentWeek,
-                            data: { playerId: player.id, fatigue: player.fatigue },
-                            acknowledged: false,
-                            choices: [
-                                { id: "rest", text: "Light Training (Morale +5)", effects: { morale: 5 } },
-                                { id: "push", text: "Push Harder (Loyalty -5, Morale -5)", effects: { loyalty: -5, morale: -5 } }
                             ]
                         })
                         await saveManager.recordEventGenerated(transaction, eventId)
@@ -214,19 +239,18 @@ export class EventProcessor {
                 return
             }
 
-            let chance = INJURY_BASE_CHANCE
-            if (player.fatigue > 50) {
-                chance += (player.fatigue - 50) * FATIGUE_INJURY_MULTIPLIER
+            // C5: a knock the manager chose to play through either clears or
+            // worsens into a moderate injury, with the chance stated when he chose.
+            let worsened: { name: string; type: InjuryType } | null = null
+            if (player.knock) {
+                const knock = player.knock
+                player.knock = undefined
+                if (knock.week < save.currentWeek && rng.bool(knock.escalateChance)) worsened = { name: knock.name, type: knock.type }
             }
-            chance *= (1 - player.health / 200)
-            if (player.age > 30) {
-                chance *= 1 + (player.age - 30) * 0.05
-            }
-            chance *= 0.2
 
-            if (rng.bool(chance)) {
+            if (worsened || rng.bool(injuryRiskPerWeek(player))) {
                 injuries++
-                const severityRoll = rng.next()
+                const severityRoll = worsened ? 0.6 : rng.next()
                 let weeksOut: number
                 let healthLoss: number
                 let injuryType: InjuryType
@@ -256,7 +280,10 @@ export class EventProcessor {
                         { type: "BURNOUT", name: "Mild Burnout", desc: "Loss of motivation and high stress levels." },
                         { type: "OTHER", name: "Back Spasm", desc: "Sudden back pain from poor posture." }
                     ]
-                    const t = rng.pick(types)
+                    // C5: burnout follows the load; a worsened knock keeps its own kind.
+                    const t = worsened
+                        ? { type: worsened.type, name: `${worsened.name} (worsened)`, desc: "A knock played through has become a proper injury." }
+                        : player.fatigue >= WORKLOAD_TUNING.BURNOUT_FATIGUE ? types[1] : rng.pick(types)
                     injuryType = t.type
                     injuryName = t.name
                     injuryDesc = t.desc
@@ -270,7 +297,7 @@ export class EventProcessor {
                         { type: "OTHER", name: "Fractured Wrist", desc: "Accidental injury resulting in a fracture." },
                         { type: "ILLNESS", name: "Severe Viral Infection", desc: "High fever and fatigue affecting performance." }
                     ]
-                    const t = rng.pick(types)
+                    const t = player.fatigue >= WORKLOAD_TUNING.BURNOUT_FATIGUE ? types[1] : rng.pick(types)
                     injuryType = t.type
                     injuryName = t.name
                     injuryDesc = t.desc
@@ -290,7 +317,29 @@ export class EventProcessor {
                 // Inbox message only for the manager's own players; every
                 // injury is still reported in the news feed below.
                 const injuredTeam = playerTeamMap.get(player.id)
-                if (injuredTeam?.id === save.playerTeamId) save.eventsLog.unshift({
+                // C5: a minor knock at the managed club is the manager's call:
+                // rest him (the layoff stands) or play through it at a stated risk.
+                if (injuredTeam?.id === save.playerTeamId && severity === "MINOR" && !worsened) {
+                    const escalate = Math.round(WORKLOAD_TUNING.KNOCK_ESCALATE * 100)
+                    save.eventsLog.unshift({
+                        id: `knock_${player.id}_${save.currentWeek}`,
+                        type: EventType.INJURY,
+                        week: save.currentWeek,
+                        acknowledged: false,
+                        data: {
+                            playerId: player.id,
+                            weeksOut,
+                            healthLoss,
+                            severity,
+                            title: `${player.nickname} has a knock: ${injuryName}`,
+                            message: `${player.nickname} picked up a minor ${injuryName.toLowerCase()}. Rest him and he is out for ${weeksOut} week${weeksOut === 1 ? "" : "s"}. Play him through it and he is available now, loses ${-WORKLOAD_TUNING.KNOCK_FORM} form, and has a ${escalate}% chance it worsens into a moderate injury (2 to 4 weeks out) at next week's check.`,
+                        },
+                        choices: [
+                            { id: "rest", text: `Rest him (out ${weeksOut} week${weeksOut === 1 ? "" : "s"})`, effects: {} },
+                            { id: "play_through", text: "Play through it", effects: { playThrough: { escalateChance: WORKLOAD_TUNING.KNOCK_ESCALATE, form: WORKLOAD_TUNING.KNOCK_FORM } } },
+                        ],
+                    })
+                } else if (injuredTeam?.id === save.playerTeamId) save.eventsLog.unshift({
                     id: `injury_${player.id}_${save.currentWeek}`,
                     type: EventType.INJURY,
                     week: save.currentWeek,
