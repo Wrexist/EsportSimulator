@@ -35,6 +35,7 @@ const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod =
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
 const MomentHost = dynamic(() => import("../moments/MomentHost").then(mod => mod.MomentHost), { ssr: false })
 const ToastNotifications = dynamic(() => import("../ui/ToastNotifications").then(mod => mod.ToastNotifications), { ssr: false })
+const ReviewAsk = dynamic(() => import("../celebration/ReviewAsk").then(mod => mod.ReviewAsk), { ssr: false })
 const LegendPickModal = dynamic(() => import("../celebration/LegendPickModal").then(mod => mod.LegendPickModal), { ssr: false })
 const BugReportButton = dynamic(() => import("../ui/BugReportButton").then(mod => mod.BugReportButton), { ssr: false })
 const DevTools = dynamic(() => import("../debug/DevTools").then(mod => mod.DevTools), { ssr: false })
@@ -431,6 +432,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                     />
                 )
             }
+            {!hideChrome && !isMatchRoute && !momentPending && !pendingLegendPick && <ReviewAsk />}
             {!hideChrome && !isLiveMatch && (
                 <>
                     <Suspense fallback={null}><InboxUrlBridge /></Suspense>

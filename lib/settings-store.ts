@@ -70,6 +70,9 @@ interface GameSettings {
     notifications: boolean
     difficulty: Difficulty
     language: string
+    /** The once-only Steam review ask has been shown (answered or dismissed). */
+    reviewAskDone: boolean
+    setReviewAskDone: () => void
 
     // Actions
     setWindowMode: (mode: WindowMode) => void
@@ -125,6 +128,8 @@ export const useSettingsStore = create<GameSettings>()(
             notifications: true,
             difficulty: 'normal',
             language: 'en',
+            reviewAskDone: false,
+            setReviewAskDone: () => set({ reviewAskDone: true }),
 
             // Setters
             setWindowMode: (mode) => set({ windowMode: mode }),
@@ -269,6 +274,7 @@ export const useSettingsStore = create<GameSettings>()(
                     // A value already stored by this settings surface wins over
                     // the deprecated game-store preference, including false.
                     autoSavePreferenceSet: typeof stored?.autoSave === 'boolean',
+                    reviewAskDone: stored?.reviewAskDone === true,
                 }
             },
         }
