@@ -21,7 +21,35 @@ function rememberCloud(key, value) {
 }
 const { registerTrustedHandler, cloudName, workshopId, MAX_VALUE_BYTES } = require('./ipc-policy');
 const { containedPath, readBounded, writeAtomic } = require('./local-files');
-const handleSteam = (channel, handler) => registerTrustedHandler(ipcMain, channel, isTrustedSender, handler);
+const { IS_DEMO } = require('./edition.cjs');
+// The free demo is a separate Steam app with no achievements, stats,
+// leaderboards, cloud quota or Workshop: those calls answer "unavailable" so
+// a demo career never writes to the full game's account records, and no
+// community or Workshop overlay is applied. Steam overlay, identity and Rich
+// Presence stay on.
+const DEMO_UNAVAILABLE = {
+    'steam-get-stat': null,
+    'steam-set-stat': false,
+    'steam-store-stats': false,
+    'steam-set-achievement': false,
+    'steam-is-achievement-unlocked': false,
+    'steam-set-leaderboard-score': false,
+    'steam-cloud-list': [],
+    'steam-cloud-write': false,
+    'steam-cloud-read': null,
+    'steam-cloud-delete': false,
+    'workshop-available': false,
+    'workshop-list': [],
+    'workshop-get-active': { source: 'none' },
+    'workshop-set-active': false,
+    'workshop-subscribe': false,
+    'workshop-unsubscribe': false,
+    'workshop-open': false,
+};
+const demoHandler = (channel, handler) => IS_DEMO && Object.prototype.hasOwnProperty.call(DEMO_UNAVAILABLE, channel)
+    ? () => DEMO_UNAVAILABLE[channel]
+    : handler;
+const handleSteam = (channel, handler) => registerTrustedHandler(ipcMain, channel, isTrustedSender, demoHandler(channel, handler));
 
 let steamworks;
 try {
@@ -200,6 +228,8 @@ function workshopInstallFolder(idStr) {
  * back to the base game. Never silently activate a different database.
  */
 function getActiveModDir() {
+    // The demo shares the full game's save folder but never applies its overlays.
+    if (IS_DEMO) return null;
     try {
         const active = readActiveMod();
         if (active.source === 'none') return null;
@@ -631,6 +661,7 @@ function getAppId() {
 }
 
 module.exports = {
+    DEMO_UNAVAILABLE,
     initializeSteam,
     isAvailable,
     getAppId,

@@ -136,6 +136,7 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { DEFAULT_TEAM_TRAINING } from "@/engine/development-outlook"
 import { chooseLiveCheckpoint, liveCheckpointStore } from "@/lib/live-checkpoint-store"
 import { randomizeWorld } from "@/engine/random-world"
+import { demoWeekCapReached } from "@/lib/edition"
 
 enableMapSet()
 
@@ -1969,7 +1970,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       advanceDay: async () => {
         const state = get()
         // A dissolved career must not move its calendar (daily mode never reached advanceWeek's guard).
-        if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state) || draftCupOver(state)) return
+        if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state) || draftCupOver(state) || demoWeekCapReached(state)) return
         // During a Continue run only the run itself advances (no stray hotkey steps past a stop).
         if (state.continueRun && !isContinueStepping()) return
         if (state.timeMode !== "HYBRID_DAILY") {
@@ -1998,7 +1999,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       advanceToWeekEnd: async () => {
         const state = get()
-        if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state) || draftCupOver(state)) return
+        if (state.isLoading || state.gameOverReason || !hasLoadedCareer(state) || draftCupOver(state) || demoWeekCapReached(state)) return
         if (state.continueRun && !isContinueStepping()) return
         if (state.timeMode !== "HYBRID_DAILY") {
           await state.advanceWeek()
@@ -2048,6 +2049,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
         // G7: a finished Draft Cup run has no next week.
         if (draftCupOver(state)) {
+          set({ isLoading: false })
+          return
+        }
+
+        // Demo: the career stops after its last week and continues in the full game.
+        if (demoWeekCapReached(state)) {
           set({ isLoading: false })
           return
         }
