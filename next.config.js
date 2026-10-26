@@ -13,6 +13,8 @@ const nextConfig = {
     distDir: process.env.ESIM_ISOLATED_REVIEW === '1' ? 'tmp/anubis-radar-dev-build' : '.next',
     env: {
         NEXT_PUBLIC_GAME_VERSION: (() => { try { return require('./package.json').version; } catch { return '1.0.0'; } })(),
+        // Free Steam demo build (scripts/dist-demo.cjs); see lib/edition.ts.
+        NEXT_PUBLIC_ESM_EDITION: process.env.ESM_EDITION === 'demo' ? 'demo' : 'full',
     },
     reactStrictMode: true,
     eslint: {
