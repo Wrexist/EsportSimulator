@@ -14,8 +14,6 @@
 
 import { SeededRNG } from "./rng"
 import { evaluatePlayer } from "./player-evaluation"
-import { aimPoints, buildProfile } from "./match/round-sim/profile"
-import { TUNING } from "./match/round-sim/tuning"
 import type { GameSave } from "./save-types"
 
 export const DRAFT_ROLES = ["IGL", "AWPER", "ENTRY_FRAGGER", "RIFLER", "SUPPORT"] as const
@@ -35,13 +33,17 @@ export const DRAFT_CUP_DIFFICULTIES: readonly DraftCupDifficulty[] = ["open", "p
 export const DRAFT_CUP_DIFFICULTY: Record<DraftCupDifficulty, {
     label: string
     hint: string
-    /** The seven opponents come from clubs ranked this far down by starting-five strength (0 = strongest). */
+    /**
+     * The seven opponents come from clubs ranked this far down by team OVR (0 = strongest).
+     * Measured with scripts/ratings/draft-cup-balance.ts (300 cups each, best draft inside
+     * the budget): cups won about 26% on Open, 17% on Pro, 7% on Elite.
+     */
     band: [number, number]
     scoreMultiplier: number
 }> = {
     open: { label: "Open", hint: "Opponents from the chasing pack. A balanced draft should go deep.", band: [24, 60], scoreMultiplier: 1 },
     pro: { label: "Pro", hint: "Established clubs. An even fight for a balanced draft.", band: [8, 24], scoreMultiplier: 1.25 },
-    elite: { label: "Elite", hint: "The best clubs in the world, settled sides with better chemistry than yours.", band: [0, 8], scoreMultiplier: 1.5 },
+    elite: { label: "Elite", hint: "The best clubs in the world, settled sides with better chemistry than yours.", band: [1, 10], scoreMultiplier: 1.5 },
 }
 
 export const DRAFT_BUDGET = 100
@@ -55,28 +57,17 @@ export const DRAFT_CUP_TEAMS = 8
 export const DRAFT_MAX_PRICE = 60
 
 /**
- * Duel rating that costs nothing. A full budget spread evenly buys five
- * players about 20 points above it: set so that draft sits a little above
- * the Pro band (clubs ranked 9-24, mean duel 66 since ratings follow the
- * engine; was 38 when the world's strength was flat, Pro band 54).
+ * OVR that costs nothing. A full budget spread evenly buys five players about
+ * 20 OVR above it. Prices follow OVR, which is the match engine's strength,
+ * so two players with the same OVR cost the same and a draft is as strong in
+ * matches as it looks (was a duel rating of aim plus role weapon only, which
+ * left up to 14 points between players of the same OVR).
  */
-export const DRAFT_PRICE_FLOOR = 50
+export const DRAFT_PRICE_FLOOR = 55
 
-/** Points a player costs, from his duel rating: steep at the top, so five stars never fit. */
-export function draftPrice(duel: number): number {
-    return Math.max(1, Math.round(Math.pow(Math.max(0, duel - DRAFT_PRICE_FLOOR), 1.6) / 6))
-}
-
-/**
- * Duel rating: what the match engine plays a player at in gunfights, in
- * skill points. Aim from `skill` plus the weapon adjustment for his role's
- * weapon (AWP for the AWPer, rifle for the rest), as the rounds and the
- * pre-match win chance use it. Prices and the opponents' strength both come
- * from it, so a draft is as strong in matches as it looks.
- */
-export function duelRating(p: DraftSourcePlayer): number {
-    const profile = buildProfile(p as never)
-    return Math.round(aimPoints(profile, profile.role === "awp" ? "awp" : "rifle") / TUNING.AIM_PER_SKILL)
+/** Points a player costs, from his OVR: steep at the top, so five stars never fit. */
+export function draftPrice(overall: number): number {
+    return Math.max(1, Math.round(Math.pow(Math.max(0, overall - DRAFT_PRICE_FLOOR), 1.6) / 6))
 }
 
 /** Minimal player shape the draft reads (snapshot and save players both fit). */
@@ -98,9 +89,7 @@ export interface DraftOption {
     playerId: string
     nickname: string
     role: DraftRole
-    /** Engine duel rating (prices and strength). */
-    duel: number
-    /** The overall the rest of the game shows. */
+    /** The OVR the rest of the game shows (prices and strength). */
     overall: number
     price: number
     /** Club the player is drafted from ("" for a free agent). */
@@ -134,11 +123,11 @@ function shuffle<T>(items: T[], rng: SeededRNG): T[] {
     return out
 }
 
-/** Starting-five strength of a club (mean duel rating of its first five). */
+/** Starting-five strength of a club: the mean OVR of its first five (the team OVR the brackets show, unrounded). */
 export function clubStrength(team: DraftSourceTeam, playersById: Map<string, DraftSourcePlayer>): number {
     const five = team.rosterIds.map(id => playersById.get(id)).filter((p): p is DraftSourcePlayer => !!p && !p.isRetired).slice(0, 5)
     if (five.length < 5) return 0
-    return five.reduce((s, p) => s + duelRating(p), 0) / 5
+    return five.reduce((s, p) => s + overallOf(p), 0) / 5
 }
 
 /** The seven opponents: random clubs from the difficulty's strength band. */
@@ -154,7 +143,7 @@ export function pickCupField(teams: DraftSourceTeam[], playersById: Map<string, 
 
 /**
  * The pool: per role, players from clubs outside the cup and free agents
- * (by duel rating, dearer than DRAFT_MAX_PRICE left out), one from the top
+ * (by OVR, dearer than DRAFT_MAX_PRICE left out), one from the top
  * 3% of the role, one from the next 7%, two from the next 20% and two from
  * the next 30%, so every price range is on offer.
  */
@@ -167,16 +156,16 @@ export function buildDraftPool(players: DraftSourcePlayer[], teams: DraftSourceT
     for (const role of DRAFT_ROLES) {
         const eligible = players
             .filter(p => p.role === role && !p.isRetired && !excluded.has(clubOf.get(p.id) ?? ""))
-            .map(p => ({ p, duel: duelRating(p) }))
-            .filter(x => draftPrice(x.duel) <= DRAFT_MAX_PRICE)
-            .sort((a, b) => b.duel - a.duel || a.p.id.localeCompare(b.p.id))
+            .map(p => ({ p, overall: overallOf(p) }))
+            .filter(x => draftPrice(x.overall) <= DRAFT_MAX_PRICE)
+            .sort((a, b) => b.overall - a.overall || a.p.id.localeCompare(b.p.id))
         const n = eligible.length
         const slice = (a: number, b: number) => eligible.slice(Math.floor(n * a), Math.max(Math.floor(n * a) + 1, Math.floor(n * b)))
         const bands: Array<[number, number, number]> = [[0, 0.03, 1], [0.03, 0.1, 1], [0.1, 0.3, 2], [0.3, 0.6, 2]]
         const options: DraftOption[] = []
         for (const [a, b, count] of bands) {
-            for (const { p, duel } of shuffle(slice(a, b), rng).slice(0, count)) {
-                options.push({ playerId: p.id, nickname: p.nickname, role, duel, overall: overallOf(p), price: draftPrice(duel), fromTeamId: clubOf.get(p.id) ?? "" })
+            for (const { p, overall } of shuffle(slice(a, b), rng).slice(0, count)) {
+                options.push({ playerId: p.id, nickname: p.nickname, role, overall, price: draftPrice(overall), fromTeamId: clubOf.get(p.id) ?? "" })
             }
         }
         pool[role] = options.sort((x, y) => y.price - x.price || x.playerId.localeCompare(y.playerId))

@@ -34,7 +34,7 @@ import { debug } from "@/lib/debug-logger"
 import { cn } from "@/lib/utils"
 
 const SWATCHES = PRESET_COLORS.slice(0, 8)
-const DUEL_HINT = "Duel rating: aim plus weapon skill for the role, the number the match engine plays gunfights on. Prices follow it."
+const OVR_HINT = "OVR: the strength the match engine plays a player at. Prices follow it, so the same OVR always costs the same."
 
 type Picks = Partial<Record<DraftRole, DraftOption>>
 
@@ -71,7 +71,7 @@ export default function DraftCupPage() {
     const fieldStrength = opponentIds.length
         ? opponentIds.reduce((s, id) => s + clubStrength(teamsById.get(id)!, playersById as never), 0) / opponentIds.length
         : 0
-    const fiveStrength = pickList.length ? pickList.reduce((s, o) => s + o.duel, 0) / pickList.length : 0
+    const fiveStrength = pickList.length ? pickList.reduce((s, o) => s + o.overall, 0) / pickList.length : 0
 
     const deal = (w: GameSave, diff: DraftCupDifficulty) => {
         const byId = new Map(w.players.map(p => [p.id, p]))
@@ -252,10 +252,9 @@ export default function DraftCupPage() {
                                                 </span>
                                                 <span className="truncate text-xs text-ink-3">{club?.name ?? "Free agent"}</span>
                                                 <span className="mt-auto flex items-end justify-between gap-2">
-                                                    <span title={DUEL_HINT}>
-                                                        <span className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-3">Duel</span>
-                                                        <span className="font-display text-2xl font-bold leading-none tabular-nums text-ink-1">{o.duel}</span>
-                                                        <span className="ml-1.5 text-[11px] tabular-nums text-ink-3">OVR {o.overall}</span>
+                                                    <span title={OVR_HINT}>
+                                                        <span className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-3">OVR</span>
+                                                        <span className="font-display text-2xl font-bold leading-none tabular-nums text-ink-1">{o.overall}</span>
                                                     </span>
                                                     <span className={cn("rounded px-1.5 py-0.5 text-sm font-bold tabular-nums", selected ? "bg-gold text-ink" : "bg-raised text-ink-1")}>{o.price}</span>
                                                 </span>
@@ -290,7 +289,7 @@ export default function DraftCupPage() {
                             ))}
                         </ul>
                         <p className="mt-4 border-t border-line pt-3 text-xs leading-relaxed text-ink-3">
-                            Your five: duel {fiveStrength ? fiveStrength.toFixed(0) : "–"}. Opponents average {fieldStrength.toFixed(0)}, and they have played together longer than your side.
+                            Your five: OVR {fiveStrength ? fiveStrength.toFixed(0) : "–"}. Opponents average {fieldStrength.toFixed(0)}, and they have played together longer than your side.
                         </p>
                     </Panel>
 
@@ -303,7 +302,7 @@ export default function DraftCupPage() {
                                     <li key={id} className="flex h-10 items-center gap-2.5 border-b border-line px-4 last:border-b-0">
                                         <TeamLogoImage src={t.logoPath} alt="" size={20} />
                                         <span className="min-w-0 flex-1 truncate text-sm text-ink-1">{t.name}</span>
-                                        <span className="text-xs tabular-nums text-ink-3" title={DUEL_HINT}>{clubStrength(t, playersById as never).toFixed(0)}</span>
+                                        <span className="text-xs tabular-nums text-ink-3" title={OVR_HINT}>{clubStrength(t, playersById as never).toFixed(0)}</span>
                                     </li>
                                 )
                             })}
