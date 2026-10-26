@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { IS_DEMO } from "@/lib/edition"
 import { AccessibilitySettings, AudioSettings, ControlsSettings, DisplaySettings, GameplaySettings, SettingRow } from "@/components/settings/SettingsSections"
 
 type SettingsTab = "SETTINGS" | "ACHIEVEMENTS" | "DEV_TOOLS"
@@ -201,7 +202,7 @@ export default function SettingsPage() {
         subtitle="Changes apply immediately and are stored on this device."
         aside={
           <>
-            <Button asChild variant="ghost"><Link href="/settings/community-import">Community &amp; Workshop</Link></Button>
+            {!IS_DEMO && <Button asChild variant="ghost"><Link href="/settings/community-import">Community &amp; Workshop</Link></Button>}
             <Button asChild variant="ghost"><Link href="/credits">Credits</Link></Button>
             <Button asChild variant="outline"><Link href="/main-menu">Main menu</Link></Button>
           </>

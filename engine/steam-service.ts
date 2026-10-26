@@ -1,5 +1,6 @@
 // Phase 40: Steam Integration (Optimized for Electron Bridge)
 import { debug } from "@/lib/debug-logger"
+import { IS_DEMO } from "@/lib/edition"
 
 export interface Achievement {
     id: string
@@ -199,6 +200,8 @@ export class SteamService {
 
     async unlockAchievement(achievementId: string): Promise<boolean> {
         if (!Object.prototype.hasOwnProperty.call(ACHIEVEMENTS, achievementId)) return false
+        // The free demo is a separate Steam app without achievements.
+        if (IS_DEMO) return false
         if (!this.electronBridge) return this.unlockOnce(achievementId)
         const key = `${this.scopeRevision}:${achievementId}`
         const current = this.unlockFlights.get(key)

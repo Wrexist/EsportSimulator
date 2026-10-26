@@ -10,6 +10,7 @@ Updated 24 October 2026. App **4326170**, depot **4326171**, store item 1072595.
 | Capsules and library art | `marketing/steam-graphics-2026-09-25/UPLOAD-READY/` |
 | Steam Cloud settings | [../steam-cloud.md](../steam-cloud.md) |
 | Steam Deck | [../steam-deck.md](../steam-deck.md) |
+| Free demo: what it contains, build, upload, Steamworks setup | [DEMO.md](DEMO.md) |
 | Release gates | [../launch-readiness/CHECKLIST.md](../launch-readiness/CHECKLIST.md) (L30 Steam features, L31 artifact, L32 store, L35 support) |
 
 Superseded and kept only as history: `STEAM_STORE_LISTING.md`, `deployment/STORE_COPY.md`, `deployment/STEAMWORKS_COPY.md` and the tables in `docs/STEAMWORKS_SETUP_GUIDE.md`.
