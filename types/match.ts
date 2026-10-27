@@ -183,7 +183,12 @@ export interface RoundResult {
     /** Buy each team ran (public: visible from equipment). */
     buys?: { home: string; away: string }
     /** Managed team's call for this round, if any. */
-    managerCall?: { strategy?: string; regroup?: boolean }
+    managerCall?: {
+        strategy?: string
+        regroup?: boolean
+        /** R2: mid-round coach calls, each with the result the round had without it. */
+        coachCalls?: { t: number; kind: 'go' | 'swing' | 'rotateA' | 'rotateB' | 'hold' | 'save'; without: 'won' | 'lost' }[]
+    }
     /** script-v1: the round's plan (T strategy and site, CT setup, whether the CTs read it, execute time). */
     plan?: {
         tStrategy: 'default' | 'execute' | 'rush' | 'split' | 'fake' | 'eco'

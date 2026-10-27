@@ -19,6 +19,7 @@ import { DecisionCard } from "@/components/match/live/DecisionCard"
 import { RoundEndBanner } from "@/components/match/live/RoundEndBanner"
 import { MomentCallout, type MomentCalloutData } from "@/components/match/live/MomentCallout"
 import { IntermissionCard, type HalfStat } from "@/components/match/live/IntermissionCard"
+import { CoachCallBanner, CoachCallBar } from "@/components/match/live/CoachCallBar"
 import { ChevronRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -91,6 +92,9 @@ export default function LiveMatchPage() {
         finishedResult,
         introActive,
         endIntro,
+        callCoach,
+        coachCalls,
+        coachRoundKey,
     } = useLiveMatch(params.id, { introKey: `intro:${params.id}` })
     const router = useRouter()
     // Dev builds count the page's commits on window.__liveCommits (perf tooling).
@@ -282,6 +286,11 @@ export default function LiveMatchPage() {
     const homeIsCT = roundHomeIsCT
     // Loadout editor always describes the managed team.
     const ownRoster = isPlayerHome ? homeRoster : awayRoster
+    // R2: the managed team's side in the round on screen, and its call bar.
+    const ownCT = isPlayerHome ? homeIsCT : !homeIsCT
+    const coachBar = roundLive && gameState.status === "IN_PROGRESS" && !decisionOverlay && roundView != null && roundView.key === coachRoundKey
+        ? <CoachCallBar ct={ownCT} calls={coachCalls} clock={liveClock} planted={isBombPlanted} roundEnd={liveClock.end} onCall={callCoach} />
+        : null
     const ownOriginal = isPlayerHome ? originalHomeMap : originalAwayMap
     const ownBudget = Math.floor(Object.values(ownEconomy).reduce((s, p) => s + (p?.cash || 0), 0))
 
@@ -431,10 +440,11 @@ export default function LiveMatchPage() {
                                     </Button>
                                 </div>
                             )
-                            : decisionOverlay}
+                            : decisionOverlay ?? coachBar}
                         fillHeight
                     />
                     <MomentCallout callout={callout} />
+                    <CoachCallBanner call={coachCalls[coachCalls.length - 1] ?? null} ct={ownCT} />
                     <AnimatePresence>
                         {roundBeat && <RoundEndBanner key={roundBeat.id} beat={roundBeat} homeName={homeTeam.name} awayName={awayTeam.name} names={names} />}
                     </AnimatePresence>

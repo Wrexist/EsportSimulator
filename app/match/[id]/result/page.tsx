@@ -574,6 +574,22 @@ export default function MatchResultPage() {
                                 )}
                             </div>
                         )}
+                        {why.calls && (
+                            <div className={card} data-testid="call-reasons">
+                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Your calls</h3>
+                                <p className="mb-2 text-sm text-ink-2">{why.calls.text}</p>
+                                <ul className="space-y-1.5 text-sm text-ink-2">
+                                    {why.calls.calls.map((c, i) => (
+                                        <li key={`${c.map}-${c.round}-${i}`} className="flex gap-2">
+                                            <span className={cn("w-24 shrink-0 font-semibold", c.flipped === "won" ? "text-positive" : c.flipped === "lost" ? "text-negative" : "text-ink-3")}>
+                                                {c.flipped === "won" ? "Won the round" : c.flipped === "lost" ? "Cost the round" : "No change"}
+                                            </span>
+                                            <span><span className="tabular-nums text-ink-3">{MAP_NAMES[c.map] ?? c.map} R{c.round}</span> · {c.label}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                         <div className="grid gap-3 md:grid-cols-3">
                             <div className={card}>
                                 <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Key rounds</h3>

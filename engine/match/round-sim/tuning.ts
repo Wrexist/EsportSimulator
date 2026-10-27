@@ -275,6 +275,8 @@ export const TUNING = {
     /** A lone site CT facing this many hitters on the execute falls back for the retake, with this chance. */
     SIGHT_ANCHOR_HITTERS: 3,
     SIGHT_ANCHOR_FALLBACK: 0.15,
+    /** R2: duel points for retaking CTs after the coach called "hold for retake" (they come in together, utility first). */
+    SIGHT_COACH_HOLD: 5,
     /** Retakers regroup this far short of the bomb. */
     SIGHT_RETAKE_STAGE: 11,
 
