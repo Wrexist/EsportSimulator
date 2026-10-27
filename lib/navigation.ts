@@ -224,6 +224,11 @@ export function navHubsFor(pro: boolean): NavHub[] {
 /** Hub-grouped destinations (search palette). */
 export const menuGroups: MenuGroup[] = navHubs.map(hub => ({ key: hub.key, label: hub.label, items: hub.items }))
 
+/** The search palette's destinations, without the club-running screens in a pro career. */
+export function menuGroupsFor(pro: boolean): MenuGroup[] {
+    return pro ? navHubsFor(true).map(hub => ({ key: hub.key, label: hub.label, items: hub.items })) : menuGroups
+}
+
 export const settingsItem: MenuItem = { icon: Settings, key: "nav.settings", label: "Settings & Tools", href: "/settings" }
 
 /** A hub's or item's label in the current language. */

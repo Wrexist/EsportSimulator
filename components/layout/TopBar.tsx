@@ -133,7 +133,7 @@ export function TopBar() {
                 )}
 
                 <div className="ml-auto flex shrink-0 items-center gap-3">
-                    <NavigationSearch compact disabled={false} />
+                    <NavigationSearch compact disabled={false} pro={pro} />
 
                     {!hideCareerControls && !betweenClubs && !pro && (
                         <div className="flex flex-col items-end leading-none" title="Club funds">

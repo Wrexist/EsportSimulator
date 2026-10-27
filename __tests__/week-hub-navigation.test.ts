@@ -6,7 +6,7 @@
  */
 import fs from "fs"
 import path from "path"
-import { GEAR_HREF, hubForPath, menuGroups, navHubs, staffMeetingHref } from "@/lib/navigation"
+import { GEAR_HREF, PRO_HIDDEN_HREFS, hubForPath, menuGroups, menuGroupsFor, navHubs, staffMeetingHref } from "@/lib/navigation"
 import { NUMBER_KEY_ROUTES, SHORTCUT_GROUPS } from "@/lib/keyboard-shortcuts"
 import { matchCentreHref, type MatchCentreState } from "@/app/match/match-centre"
 
@@ -150,4 +150,11 @@ describe("/match → match centre target", () => {
     test("no career → Home", () => {
         expect(matchCentreHref(base({ playerTeamId: null }))).toBe("/")
     })
+})
+
+test("a pro career's search palette leaves out the club-running screens", () => {
+    const hrefs = menuGroupsFor(true).flatMap(g => g.items).map(i => i.href)
+    expect(hrefs.some(h => PRO_HIDDEN_HREFS.has(h))).toBe(false)
+    expect(hrefs).toContain("/career")
+    expect(menuGroupsFor(false)).toBe(menuGroups)
 })
