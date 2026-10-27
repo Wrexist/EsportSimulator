@@ -15,6 +15,7 @@ import { TitleHero } from "@/components/brand/TitleHero"
 import { t, tn } from "@/lib/i18n"
 import { useLocale } from "@/lib/use-locale"
 import { DEMO_LAST_WEEK, FULL_GAME_STORE_URL, IS_DEMO } from "@/lib/edition"
+import { DISCORD_INVITE_URL, hasCommunityDiscord } from "@/lib/community"
 
 /** "Season 2 · Week 14" from an absolute career week. */
 function seasonWeekLabel(week: number | null | undefined): string {
@@ -162,7 +163,10 @@ export default function MainMenuPage() {
                 <footer className="flex w-full max-w-[400px] items-center gap-3 border-t border-line pt-4 text-xs text-ink-3">
                     <span className="font-semibold uppercase tracking-[0.14em]">{t("menu.version")}</span>
                     <span className="tabular-nums text-ink-2">{process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}</span>
-                    <Link href="/credits" className="ml-auto rounded-sm font-semibold uppercase tracking-[0.14em] hover:text-ink-1 focus-visible:text-ink-1 focus-visible:outline-hidden">{t("menu.credits")}</Link>
+                    {hasCommunityDiscord() && (
+                        <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer" className="ml-auto rounded-sm font-semibold uppercase tracking-[0.14em] hover:text-ink-1 focus-visible:text-ink-1 focus-visible:outline-hidden">{t("menu.discord")}</a>
+                    )}
+                    <Link href="/credits" className={`${hasCommunityDiscord() ? "" : "ml-auto "}rounded-sm font-semibold uppercase tracking-[0.14em] hover:text-ink-1 focus-visible:text-ink-1 focus-visible:outline-hidden`}>{t("menu.credits")}</Link>
                 </footer>
             </div>
 

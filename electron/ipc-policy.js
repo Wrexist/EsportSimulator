@@ -47,6 +47,13 @@ add('mod-install', false, one(v=>text(v,MAX_MOD_BYTES)&&require('./mod-content')
 add('mod-restore', false, none, 'no arguments', 'Restore previous community database');
 add('mod-clear', false, none, 'no arguments → boolean', 'Four community JSON files only');
 add('steam-get-id steam-get-persona-name', null, none, 'no arguments → string|null', 'Steam identity read');
+const optText = (v, max) => v === undefined || v === null || text(v, max);
+const majorShare = v => record(v) && Object.keys(v).every(k => ['managerName','teamName','tournamentName','opponentName','finalScore','season'].includes(k))
+    && optText(v.managerName, 64) && text(v.teamName, 64) && v.teamName.length > 0 && text(v.tournamentName, 96) && v.tournamentName.length > 0
+    && optText(v.opponentName, 64) && (v.finalScore === undefined || v.finalScore === null || (typeof v.finalScore === 'string' && /^\d{1,2}-\d{1,2}$/.test(v.finalScore)))
+    && (v.season === undefined || v.season === null || (Number.isInteger(v.season) && v.season >= 1 && v.season <= 999));
+add('community-share-available', false, none, 'no arguments → boolean', 'Community share status');
+add('community-share-major', 'unavailable', one(majorShare), 'Major title names + optional final → posted|limited|failed|unavailable', 'Player-initiated post to the community relay; throttled');
 add('steam-get-stat', null, one(name), 'bounded stat identifier → number|null', 'Steam stat allowlist');
 add('steam-set-stat', false, a=>a.length===2&&name(a[0])&&typeof a[1]==='number'&&Number.isFinite(a[1])&&Math.abs(a[1])<=2147483647, 'allowlisted name + finite 32-bit range value → boolean', 'Steam stats; throttled');
 add('steam-store-stats', false, none, 'no arguments → boolean', 'Steam stats; throttled');

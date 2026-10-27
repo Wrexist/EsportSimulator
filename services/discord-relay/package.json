@@ -1,0 +1,6 @@
+{
+  "name": "esm-discord-relay",
+  "private": true,
+  "description": "Posts opted-in Major wins from Esports Manager: FPS to the community Discord.",
+  "engines": { "node": ">=20" }
+}
