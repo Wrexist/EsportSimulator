@@ -18,6 +18,8 @@ interface TeamLike { id: string; staffIds?: string[] }
 interface MatchLike {
     id: string; seed?: number; format: string; maps?: string[]; mapStartingSides?: Record<string, string>
     mentalPrep?: boolean; mentalPrepTeamId?: string; isHighPressure?: boolean; stage?: string | null; engineVersion?: string
+    /** R3: anti-strat counters picked for this match, per map. */
+    counters?: Partial<Record<string, { ct?: boolean; t?: boolean }>>
 }
 
 /** Same rule as lib/live-match-builders#getNormalizedSeed (kept here to avoid an engine→lib cycle). */

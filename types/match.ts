@@ -103,6 +103,8 @@ export interface Match {
      * back to the home side.
      */
     mentalPrepTeamId?: string
+    /** R3: anti-strat counters picked for this match, per map (engine/match/habits.ts). */
+    counters?: Partial<Record<string, { ct?: boolean; t?: boolean }>>
 }
 
 /**
@@ -196,6 +198,11 @@ export interface RoundResult {
         ctSetup: '2-1-2' | 'stack-A' | 'stack-B' | 'aggressive'
         read?: 'right' | 'wrong' | 'none'
         execAt?: number
+        /** R3: the Ts / CTs ran their map habit this round (an AI club playing the manager's team). */
+        tHabit?: boolean
+        ctHabit?: boolean
+        /** R3: the manager's anti-strat counter played this round (its side). */
+        counter?: 'ct' | 't'
     }
     /** script-v1: damage dealt this round by player id (kills + chip + grenades). */
     damage?: Record<string, number>

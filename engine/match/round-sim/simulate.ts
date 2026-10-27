@@ -36,6 +36,7 @@ import type { PlayerSimulationState } from "../round-outcome"
 import type { SiteId, UtilityKind } from "../round-script-types"
 import type { RoundCalls } from "../playbook"
 import type { CoachCall } from "../coach-calls"
+import type { MapHabits, RoundCounter } from "../habits"
 import { aimPoints, TRAIT_AGGRESSIVE, TRAIT_CLUTCHER, TRAIT_PASSIVE, TRAIT_TRADER, type SimProfile } from "./profile"
 import { TUNING as T } from "./tuning"
 import { WEAPON_CLASSES, isSaveWorthy, isSniperClass, weaponClassOf, type WeaponClass, type WeaponClassSpec } from "./weapons"
@@ -85,6 +86,10 @@ export interface SimInput {
     calls?: RoundCalls
     /** R2: the managed team's mid-round calls (side: `ct`), each taking effect at its second. */
     coach?: { ct: boolean; calls: readonly CoachCall[] }
+    /** R3: map habits of the side now T / CT (an AI club playing the manager's team). */
+    habits?: { t?: MapHabits["t"]; ct?: MapHabits["ct"] }
+    /** R3: the manager's anti-strat counter this round (full buys only). */
+    counter?: RoundCounter
 }
 
 /** Two enemies in plain sight of each other at `t` (round seconds), at baked zone `zone`. */
@@ -338,7 +343,7 @@ export function keyedRoll(R: Round, purpose: number, subject: number): number {
 /** Purposes of the round's random draws, each its own stream (subject 4095 of keyedRoll). */
 export const P = {
     plan: 16, jobs: 17, early: 18, flow: 19, util: 20, retakeUtil: 21, pickAtt: 22, pickDef: 23, step: 24,
-    fallback: 25, trade: 26, lurk: 27, late: 28, retake: 29, spots: 30, coach: 31,
+    fallback: 25, trade: 26, lurk: 27, late: 28, retake: 29, spots: 30, coach: 31, habit: 32,
 } as const
 
 /** A SeededRNG whose n-th draw is the n-th keyed roll of one purpose. */
@@ -760,6 +765,10 @@ export interface PlanState {
     ecoRush: boolean
     /** G1: the CTs read a playbook call they have seen before, so they wait for it (a read rush loses its speed). */
     readCall?: boolean
+    /** R3: the Ts / CTs run their map habit; the manager's counter is played (its side). */
+    tHabit?: boolean
+    ctHabit?: boolean
+    counter?: "ct" | "t"
 }
 
 /** A rush the CTs are not waiting for: it beats the defence before it is set (no read playbook rush). */
@@ -806,13 +815,28 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
         : 0
     let site: SiteId = rng.bool(0.5 - stackLean) ? "A" : "B"
     if (strategy !== "eco" && calls?.t?.site) site = calls.t.site
+    // R3: a club's habit on its full buys (own stream: every other roll keeps its order).
+    const hr = rnd(R, P.habit)
+    const tHabitRoll = hr.bool(T.HABIT_RATE_T), ctHabitRoll = hr.bool(T.HABIT_RATE_CT)
+    // The habit is the site: the plan stays the IGL's.
+    const tHabit = !!input.habits?.t && tBuy === "full" && !calls?.t && tHabitRoll
+    if (tHabit) site = input.habits!.t!.site
+    // The manager's T counter: hit the site their CTs leave light.
+    const tCounter = input.counter?.side === "t" && tBuy === "full"
+    if (tCounter) site = input.counter!.site
 
     const cw: Record<CtSetup, number> = { "2-1-2": 6, "stack-A": 1, "stack-B": 1, aggressive: 1 }
     if (ctStyle === "aggressive") cw.aggressive += 2
     if (ctStyle === "structured") cw["2-1-2"] += 2
     if (ctBuy === "eco" || ctBuy === "force") { cw["stack-A"] += 1.5; cw["stack-B"] += 1.5; cw.aggressive += 1.5 }
     let setup = weighted(rng, cw)
-    const fixedSetup = calls?.ct?.setup
+    // R3: the manager's CT counter stacks the site their Ts favour; a club's CT habit stacks its site.
+    const ctCounter = input.counter?.side === "ct" && ctBuy === "full"
+    // A playbook call they have already seen is read instead (G1): the habit gives way to the read.
+    const ctHabit = !ctCounter && !!input.habits?.ct && ctBuy === "full" && !calls?.ct && !(calls?.t && calls.t.seen > 0) && ctHabitRoll
+    const fixedSetup: CtSetup | undefined = ctCounter ? (input.counter!.site === "A" ? "stack-A" : "stack-B")
+        : ctHabit ? (input.habits!.ct!.stack === "A" ? "stack-A" : "stack-B")
+        : calls?.ct?.setup
     if (fixedSetup) setup = fixedSetup
 
     // The read: a better caller (and a tactical map) anticipates the T plan, and a
@@ -861,7 +885,13 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
             break
         default: execAt = rng.range(52, 82)
     }
-    return { strategy, site, setup, read, execAt, fakeAt, ecoRush, ...(callRead ? { readCall: true } : {}) }
+    return {
+        strategy, site, setup, read, execAt, fakeAt, ecoRush,
+        ...(callRead ? { readCall: true } : {}),
+        ...(tHabit ? { tHabit: true } : {}),
+        ...(ctHabit ? { ctHabit: true } : {}),
+        ...(ctCounter ? { counter: "ct" as const } : tCounter ? { counter: "t" as const } : {}),
+    }
 }
 
 // ─── Jobs ──────────────────────────────────────────────────────────────────
@@ -1460,7 +1490,10 @@ export function finish(R: Round, input: SimInput, plan: PlanState, end: RoundEnd
         winner: homeWon ? "HOME" : "AWAY",
         winType: end.winType,
         kills, deaths, events: R.events,
-        plan: { tStrategy: plan.strategy, site: plan.site, ctSetup: plan.setup, read: plan.read, execAt: r1(plan.execAt) },
+        plan: {
+            tStrategy: plan.strategy, site: plan.site, ctSetup: plan.setup, read: plan.read, execAt: r1(plan.execAt),
+            ...(plan.tHabit ? { tHabit: true } : {}), ...(plan.ctHabit ? { ctHabit: true } : {}), ...(plan.counter ? { counter: plan.counter } : {}),
+        },
         damage,
         utility: R.utility.sort((a, b) => a.t - b.t),
         utilityUsed,

@@ -574,6 +574,19 @@ export default function MatchResultPage() {
                                 )}
                             </div>
                         )}
+                        {why.counters.length > 0 && (
+                            <div className={card} data-testid="counter-reasons">
+                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Your counters</h3>
+                                <ul className="space-y-1.5 text-sm text-ink-2">
+                                    {why.counters.map(c => (
+                                        <li key={`${c.map}-${c.side}`} className="flex gap-2">
+                                            <span className={cn("w-24 shrink-0 font-semibold", c.side === "ct" ? "text-side-ct" : "text-side-t")}>{c.side.toUpperCase()}: {c.label}</span>
+                                            <span><span className="tabular-nums text-ink-3">{MAP_NAMES[c.map] ?? c.map}</span> · {c.text}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                         {why.calls && (
                             <div className={card} data-testid="call-reasons">
                                 <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Your calls</h3>

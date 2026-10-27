@@ -635,6 +635,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   settleDraftCup: () => Promise<boolean>
   performVODReview: (matchId: string) => void
   performMentalReset: (matchId?: string) => void
+  setMatchCounter: (matchId: string, mapId: string, side: "ct" | "t", on: boolean) => void
 
   // Equipment Shop
   purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }

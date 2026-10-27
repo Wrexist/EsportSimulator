@@ -1,4 +1,5 @@
 import { runLegacySeries, finalizeLegacySeries, type LegacySeriesContext, type LegacyDecisionPolicy, type LegacyRoundEngine } from "./match/legacy-series"
+import { sanitizeCounters } from "./match/habits"
 import { LEGACY_ENGINE_VERSION, SCRIPT_ENGINE_VERSION, resolveEngineVersion, type EngineVersion } from "./match/engine-version"
 import { buildScriptSeries, scriptRoundEngine } from "./match/round-sim"
 /**
@@ -255,6 +256,7 @@ export class SimulationEngineV2 {
             matchStage: match.stage,
             managedTeamId: managedTeamId ?? homeTeam.id,
             customTactics,
+            ...(match.counters ? { counters: sanitizeCounters(match.counters) } : {}),
             playerMap: new Map(activeHomePlayers.concat(activeAwayPlayers).map(p => [p.id, p])),
         }
         return engineVersion === LEGACY_ENGINE_VERSION ? ctx : this.retargetSeriesContext(ctx, engineVersion)
@@ -285,6 +287,7 @@ export class SimulationEngineV2 {
                     // Only a match the manager plays keeps its rounds (and so has a radar to match).
                     contacts: ctx.managedTeamId === ctx.home.team.id || ctx.managedTeamId === ctx.away.team.id,
                     managedTeamId: ctx.managedTeamId,
+                    counters: ctx.counters,
                 })
                 : undefined,
         }

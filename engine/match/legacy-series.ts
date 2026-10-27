@@ -52,6 +52,7 @@ import type {
 import { EconomyManager } from '../economy-manager'
 import { createMatchRNG, deriveSeed, type SeededRNG } from '../rng'
 import { applyRoundEconomy, getMapsToWinForFormat, resolveHomeStartsCT } from '@/lib/live-match-utils'
+import type { MatchCounters } from './habits'
 import type { CoachCallRecord } from './coach-calls'
 import { managedLoadout, regroupEdge, restoreTimeoutState, spendTimeout, type TimeoutState } from './manager-controls'
 import { determineMapMVP, determineMVP, generateMatchStats, generateScriptMatchStats } from './match-stats'
@@ -145,6 +146,8 @@ export interface LegacySeriesContext {
     matchStage?: string
     managedTeamId?: string
     customTactics?: CustomTactics
+    /** R3: the managed team's anti-strat counters for this match, per map. */
+    counters?: MatchCounters
     playerMap: Map<string, Player>
 }
 
