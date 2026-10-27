@@ -334,7 +334,7 @@ export default function TacticalHQPage() {
         // Result: [HomePick, AwayPick, Decider]
 
         // Simulate Veto Sequence based on Format
-        // Pool of 7 maps
+        // The season's pool (seven maps, six when one is benched; C6)
 
         let picks: MapId[] = []
         let currentPool = [...availableMaps]
@@ -368,17 +368,15 @@ export default function TacticalHQPage() {
         if (match.format === "BO1") {
             // BO1: Ban A, Ban B, Ban A, Ban B, Ban A, Ban B, Decider (Remaining)
             // Or simpler: each bans 3 times.
-            for (let i = 0; i < 3; i++) {
-                runBan("home")
-                runBan("away")
-            }
+            // C6: ban down to one map whatever the season's pool size.
+            for (let i = 0; currentPool.length > 1; i++) runBan(i % 2 === 0 ? "home" : "away")
             // Last map is the pick
             if (currentPool.length > 0) picks.push(currentPool[0])
 
         } else if (match.format === "BO5") {
             // BO5 (from pool of 7): Ban A, Ban B. 5 maps remain.
-            runBan("home")
-            runBan("away")
+            // C6: pool − 5 bans (two from seven, one from a six-map season).
+            for (let i = 0; currentPool.length > 5; i++) runBan(i % 2 === 0 ? "home" : "away")
             // All remaining 5 are played
             picks = [...currentPool]
             // Shuffle or keep order? Usually Pick A, Pick B... 
@@ -412,9 +410,8 @@ export default function TacticalHQPage() {
             runPick("home")
             runPick("away")
 
-            // Ban A, Ban B
-            runBan("home")
-            runBan("away")
+            // Ban down to the decider (two bans from seven, one from six; C6)
+            for (let i = 0; currentPool.length > 1; i++) runBan(i % 2 === 0 ? "home" : "away")
 
             // Decider
             if (currentPool.length > 0) picks.push(currentPool[0])

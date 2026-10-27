@@ -63,6 +63,8 @@ export function buildSaveSnapshot(state: SaveSnapshotState): GameSave {
         delegation: state.delegation ? { ...state.delegation } : {},
         draftCup: state.draftCup ? structuredClone(state.draftCup) : undefined,
         mapRecords: state.mapRecords ? structuredClone(state.mapRecords) : undefined,
+        mapRotation: state.mapRotation ? structuredClone(state.mapRotation) : undefined,
+        sandbox: state.sandbox ? structuredClone(state.sandbox) : undefined,
         activeMatchId: state.activeMatchId ?? null,
         activeMatchState: state.activeMatchState ?? null,
         physicalMatchPreview: state.physicalMatchPreview ? structuredClone(state.physicalMatchPreview) : null,

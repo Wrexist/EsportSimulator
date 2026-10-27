@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Esports Manager: FPS — News &amp; Devlogs</title>
+<meta name="description" content="News and devlogs for Esports Manager: FPS, the tactical FPS esports club manager on Steam.">
+<style>
+  :root{
+    --bg:#0b0f16; --panel:#121826; --panel2:#0f1420; --line:#1e2636;
+    --text:#e6ecf5; --muted:#93a1b8; --accent:#38bdf8; --accent2:#a855f7;
+    --good:#22c55e; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:radial-gradient(1200px 700px at 70% -10%,#16203a 0,var(--bg) 55%) fixed;
+    color:var(--text); font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:940px; margin:0 auto; padding:0 20px}
+  header.hero{padding:64px 0 40px; text-align:center}
+  .badge{display:inline-block; font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--line); background:var(--panel2);
+    padding:6px 12px; border-radius:999px; margin-bottom:18px}
+  h1{font-size:clamp(28px,5vw,44px); line-height:1.1; margin:.2em 0 .3em; letter-spacing:-.02em}
+  h1 .grad{background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text;
+    background-clip:text; color:transparent}
+  .sub{color:var(--muted); font-size:18px; max-width:640px; margin:0 auto}
+  nav.pills{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:28px 0 8px}
+  nav.pills a{border:1px solid var(--line); background:var(--panel); color:var(--text);
+    padding:9px 16px; border-radius:999px; font-size:14px}
+  nav.pills a:hover{border-color:var(--accent); text-decoration:none}
+  section{margin:40px 0}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid var(--line);
+    border-radius:var(--radius); padding:26px 26px 6px}
+  h2{font-size:24px; margin:0 0 6px; letter-spacing:-.01em}
+  h2 .n{display:inline-grid; place-items:center; width:30px; height:30px; margin-right:10px;
+    border-radius:8px; background:var(--accent); color:#04121c; font-size:15px; font-weight:800; vertical-align:middle}
+  .lead{color:var(--muted); margin:.2em 0 1.2em}
+  ol.steps{counter-reset:s; list-style:none; padding:0; margin:0 0 22px}
+  ol.steps li{position:relative; padding:14px 0 14px 52px; border-top:1px solid var(--line)}
+  ol.steps li:first-child{border-top:0}
+  ol.steps li::before{counter-increment:s; content:counter(s); position:absolute; left:0; top:12px;
+    width:32px; height:32px; display:grid; place-items:center; border-radius:9px;
+    background:var(--panel2); border:1px solid var(--line); color:var(--accent); font-weight:800; font-size:14px}
+  ol.steps b{color:var(--text)}
+  code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.92em}
+  kbd{background:var(--panel2); border:1px solid var(--line); border-bottom-width:2px; border-radius:6px; padding:2px 7px}
+  pre{background:#0a0e17; border:1px solid var(--line); border-radius:10px; padding:16px; overflow:auto;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13.5px; line-height:1.6; color:#cfe6f5}
+  pre .c{color:#5f7089}
+  .grid{display:grid; gap:14px; grid-template-columns:1fr 1fr; margin:6px 0 22px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .tile{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:16px}
+  .tile h3{margin:0 0 4px; font-size:15px}
+  .tile p{margin:0; color:var(--muted); font-size:14px}
+  .note{border:1px solid var(--line); border-left:3px solid var(--accent); background:var(--panel2);
+    border-radius:10px; padding:14px 16px; color:var(--muted); font-size:14.5px; margin:10px 0 22px}
+  .note.legal{border-left-color:var(--accent2)}
+  footer{border-top:1px solid var(--line); margin-top:56px; padding:26px 0 60px; color:var(--muted); font-size:14px; text-align:center}
+  .tree{color:#cfe6f5}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="badge">Esports Manager: FPS</span>
+    <h1>News &amp; <span class="grad">Devlogs</span></h1>
+    <p class="sub">What is changing in the game, why, and what comes next. Every big update gets a short devlog per feature first, then the update post.</p>
+    <nav class="pills">
+      <a href="https://store.steampowered.com/app/4326170/">Steam store page</a>
+      <a href="https://store.steampowered.com/news/app/4326170">Steam news</a>
+      <a href="https://steamcommunity.com/app/4326170/discussions/">Discussions</a>
+      <a href="index.html">Workshop &amp; mods guide</a>
+    </nav>
+  </header>
+
+  <section id="next-update">
+    <div class="card">
+      <h2><span class="n">★</span>Coming next: Seasons &amp; Careers</h2>
+      <p class="lead">The next update is about long careers: players who age like real pros, a map pool that changes each season, and harder choices about who plays when the schedule gets heavy.</p>
+      <ul>
+        <li><b>Honest odds.</b> Results are judged against the odds. A shock win lifts morale and form more than a routine one, and the result screen tells you how likely the result was.</li>
+        <li><b>Workload and knocks.</b> Every player shows a load and injury-risk rating. When someone is running hot you decide: rest them or play them. A minor knock can be played through, at a cost.</li>
+        <li><b>Seasonal map pool.</b> Each new season one map is benched and the veto adapts. Prepare for what is in the pool, not what was.</li>
+        <li><b>Age curve.</b> Young players grow fastest, peaks arrive in the mid twenties, and decline starts around thirty. In-game leaders and AWPers last longer.</li>
+        <li><b>Full costs.</b> Staff, transfers, academy promotions and facility upgrades show the total over the deal, not just this week.</li>
+        <li><b>Trophy collection.</b> Titles now add rings, medals and replica items to a collection on the trophies screen.</li>
+        <li><b>Sandbox saves.</b> Turn any save into a sandbox and edit money, players, contracts and teams. Sandbox saves are marked and do not count for achievements.</li>
+      </ul>
+      <div class="note">Devlogs for each of these come out on Steam news in the week before the update.</div>
+    </div>
+  </section>
+
+  <section id="have-your-say">
+    <div class="card">
+      <h2><span class="n">✓</span>Have your say</h2>
+      <p class="lead">We run polls on Steam for what comes next. Poll winners and the people whose bug reports led to a fix are named in the patch notes and on the in-game credits screen (only with your permission).</p>
+    </div>
+  </section>
+
+  <footer>
+    Esports Manager: FPS is an independent game and is not affiliated with or endorsed by Valve Corporation or any esports organization.
+  </footer>
+
+</div>
+</body>
+</html>

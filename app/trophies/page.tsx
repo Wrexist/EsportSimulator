@@ -21,6 +21,7 @@ import { isMajorTournament, isOfficialMatch } from "@/engine/official-stats"
 import { isLeagueMatchId, ordinal } from "@/engine/season/regional-league"
 import { RECORD_KEYS, type RecordEntry, type RecordKey } from "@/engine/records-types"
 import { TeamLink } from "@/components/ui/EntityLink"
+import { CollectionPanel } from "@/components/squad/CollectionPanel"
 
 const SeasonReviewReplay = dynamic(() => import("@/components/moments/season-review/SeasonReviewReplay").then(m => m.SeasonReviewReplay), { ssr: false })
 
@@ -174,6 +175,8 @@ export default function TrophyRoomPage() {
                     ))}
                 </div>
             </Panel>
+
+            <CollectionPanel trophies={team?.trophies} />
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
                 <Panel title="Title history" padded={false}>

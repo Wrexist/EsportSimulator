@@ -276,6 +276,7 @@ function LoadGamePageInner() {
                                                         <p className="truncate text-xs text-ink-3">
                                                             {corrupted ? "Could not be read" : slot.draftCup ? draftCupSlotLabel(slot.draftCup) : slot.saveName || "—"}
                                                             {isActive && <span className="ml-2 font-semibold text-gold">Loaded</span>}
+                                                            {slot.sandbox && <span className="ml-2 rounded-sm bg-caution/15 px-1.5 py-0.5 text-[11px] font-semibold text-caution" title="Sandbox editor on: no achievements">Sandbox</span>}
                                                         </p>
                                                     </div>
                                                 </div>

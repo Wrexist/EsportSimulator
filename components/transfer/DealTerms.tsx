@@ -231,6 +231,7 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
                 {n.currentTeam && <Row label="Fee due on signing" value={money(n.buyoutOffer)} />}
                 <Row label="Funds after signing" value={money(n.budget - n.buyoutOffer)} tone={n.budget < n.buyoutOffer ? "text-negative" : undefined} />
                 <Row label="Wages over the term" value={money(n.salaryOffer * Math.max(0, n.durationOffer - 1))} />
+                <Row label={`Total over ${n.durationOffer} weeks${n.clauses.appearanceBonus > 0 || n.clauses.titleBonus > 0 ? " (before bonuses)" : ""}`} value={money((n.currentTeam ? n.buyoutOffer : 0) + n.salaryOffer * Math.max(0, n.durationOffer - 1))} />
                 {preview && <Row label="Weekly net after signing" value={formatCurrency(preview.weeklyNet, "$", false)} tone={preview.weeklyNet < 0 ? "text-negative" : "text-positive"} />}
                 {preview && <Row label="Runway at that rate" value={preview.runwayWeeks >= 999 ? "No deficit" : `${preview.runwayWeeks} weeks`} tone={preview.runwayWeeks < 12 ? "text-caution" : undefined} />}
             </dl>

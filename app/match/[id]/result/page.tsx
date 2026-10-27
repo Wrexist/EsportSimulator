@@ -2,7 +2,7 @@
 
 import { resultLineup, matchFollowup } from '@/lib/match-followup'
 import { buildMatchInsights, buyWinRate } from '@/lib/match-insights'
-import { buildMatchReasons } from '@/lib/match-reasons'
+import { buildMatchReasons, oddsLine } from '@/lib/match-reasons'
 import { useEffect, useMemo, useState, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -540,6 +540,10 @@ export default function MatchResultPage() {
                             <p className="text-xs text-ink-3">Built from the recorded rounds, the public scoreboard and visible buys; review prompts, not proof of cause.</p>
                         </div>
                         <p className="text-sm text-ink-2">{insights.headline}</p>
+                        {(() => {
+                            const odds = oddsLine(match.homeExpected === undefined ? undefined : (isPlayerHome ? match.homeExpected : 1 - match.homeExpected), !!insights.won)
+                            return odds ? <p className="text-sm text-ink-3" data-testid="odds-line">{odds}</p> : null
+                        })()}
                         {(why.reasons.length > 0 || why.players.length > 0) && (
                             <div className="grid gap-3 md:grid-cols-2">
                                 {why.reasons.length > 0 && (
