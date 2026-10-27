@@ -75,6 +75,9 @@ interface GameSettings {
     /** The once-only Steam review ask has been shown (answered or dismissed). */
     reviewAskDone: boolean
     setReviewAskDone: () => void
+    /** Demo tour stops opened on this device (lib/demo-tour.ts; demo builds only). */
+    demoTourVisited: string[]
+    markDemoTourVisited: (stop: string) => void
 
     // Actions
     setWindowMode: (mode: WindowMode) => void
@@ -134,6 +137,8 @@ export const useSettingsStore = create<GameSettings>()(
             language: 'en',
             reviewAskDone: false,
             setReviewAskDone: () => set({ reviewAskDone: true }),
+            demoTourVisited: [],
+            markDemoTourVisited: (stop) => set(state => state.demoTourVisited.includes(stop) ? state : { demoTourVisited: [...state.demoTourVisited, stop].slice(-20) }),
 
             // Setters
             setWindowMode: (mode) => set({ windowMode: mode }),
@@ -281,6 +286,7 @@ export const useSettingsStore = create<GameSettings>()(
                     // the deprecated game-store preference, including false.
                     autoSavePreferenceSet: typeof stored?.autoSave === 'boolean',
                     reviewAskDone: stored?.reviewAskDone === true,
+                    demoTourVisited: Array.isArray(stored?.demoTourVisited) ? stored.demoTourVisited.filter((v): v is string => typeof v === 'string').slice(-20) : [],
                 }
             },
         }

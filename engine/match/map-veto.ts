@@ -125,6 +125,29 @@ export function simulateMapVeto(
         return { veto, maps: availableMaps }
     }
 
+    // BO5 from a six-map season pool (C6): one ban each would leave no
+    // decider, so the bans shrink to pool − 5, alternating from home.
+    if (format === 'BO5' && availableMaps.length < 7) {
+        const bans = Math.max(0, availableMaps.length - 5)
+        for (let i = 0; i < bans; i++) {
+            const home = i % 2 === 0
+            const map = selectMapForVeto(rng, availableMaps, home ? awayMapStrengths : homeMapStrengths, 'BAN', home ? homeVetoSkill : awayVetoSkill)
+            veto.push({ teamId: home ? homeTeamId : awayTeamId, action: 'BAN', map, order: veto.length + 1 })
+            availableMaps = availableMaps.filter(candidate => candidate !== map)
+        }
+        for (let i = 0; i < 4; i++) {
+            const home = i % 2 === 0
+            const map = selectMapForVeto(rng, availableMaps, home ? homeMapStrengths : awayMapStrengths, 'PICK', home ? homeVetoSkill : awayVetoSkill)
+            veto.push({ teamId: home ? homeTeamId : awayTeamId, action: 'PICK', map, order: veto.length + 1 })
+            selectedMaps.push(map)
+            availableMaps = availableMaps.filter(candidate => candidate !== map)
+        }
+        const decider = rng.pick(availableMaps)
+        veto.push({ teamId: "SYSTEM", action: "PICK", map: decider, order: veto.length + 1 })
+        selectedMaps.push(decider)
+        return { veto, maps: selectedMaps }
+    }
+
     // Home bans away's strongest map — precision driven by HOME's own analyst.
     const homeBan = selectMapForVeto(rng, availableMaps, awayMapStrengths, "BAN", homeVetoSkill)
     veto.push({ teamId: homeTeamId, action: "BAN", map: homeBan, order: 1 })

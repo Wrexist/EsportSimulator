@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react"
 import Link from "next/link"
 import { useGameStore } from "@/store/game-store"
+import { useRouter } from "next/navigation"
 import { useShallow } from "zustand/react/shallow"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -21,6 +22,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
+import { IS_DEMO } from "@/lib/edition"
 import { AccessibilitySettings, AudioSettings, ControlsSettings, DisplaySettings, GameplaySettings, SettingRow } from "@/components/settings/SettingsSections"
 
 type SettingsTab = "SETTINGS" | "ACHIEVEMENTS" | "DEV_TOOLS"
@@ -42,6 +44,9 @@ const LICENSES: [string, string][] = [
 
 export default function SettingsPage() {
   const careerLoaded = useGameStore(state => state.isInitialized && !!state.playerTeamId)
+  const router = useRouter()
+  const sandboxOn = useGameStore(state => !!state.sandbox)
+  const enableSandbox = useGameStore(state => state.enableSandbox)
   const devToolsEnabled = isDevToolsEnabled()
   const { saveGame, deleteAllSaves } = useGameStore(useShallow(state => ({
     saveGame: state.saveGame,
@@ -201,7 +206,7 @@ export default function SettingsPage() {
         subtitle="Changes apply immediately and are stored on this device."
         aside={
           <>
-            <Button asChild variant="ghost"><Link href="/settings/community-import">Community &amp; Workshop</Link></Button>
+            {!IS_DEMO && <Button asChild variant="ghost"><Link href="/settings/community-import">Community &amp; Workshop</Link></Button>}
             <Button asChild variant="ghost"><Link href="/credits">Credits</Link></Button>
             <Button asChild variant="outline"><Link href="/main-menu">Main menu</Link></Button>
           </>
@@ -240,6 +245,26 @@ export default function SettingsPage() {
                     <Button variant="outline" size="sm" onClick={handleExport} disabled={!careerLoaded} className="gap-1.5"><Download size={13} /> Export</Button>
                     <Button variant="outline" size="sm" onClick={() => importInputRef.current?.click()} className="gap-1.5"><Upload size={13} /> Import</Button>
                   </div>
+                </SettingRow>
+                <SettingRow
+                  label="Sandbox editor"
+                  hint={sandboxOn
+                    ? "On for this career: edit money, players, contracts and club names. This career earns no achievements."
+                    : careerLoaded ? "Edit money, players, contracts and names in this career. Turning it on is permanent for this career and switches its achievements off." : "Load a career to use the sandbox editor."}
+                >
+                  {sandboxOn ? (
+                    <Button asChild variant="outline" size="sm"><Link href="/settings/sandbox">Open editor</Link></Button>
+                  ) : (
+                    <ConfirmDialog
+                      title="Turn on the sandbox editor?"
+                      description="You can then edit this career's money, players, contracts and names. The career earns no achievements, Steam stats or leaderboard scores from now on, and its save slot is marked Sandbox. This cannot be turned off for this career."
+                      onConfirm={() => { enableSandbox(); router.push("/settings/sandbox") }}
+                      confirmText="Turn on sandbox"
+                      icon="info"
+                    >
+                      <Button variant="outline" size="sm" disabled={!careerLoaded}>Turn on…</Button>
+                    </ConfirmDialog>
+                  )}
                 </SettingRow>
                 <SettingRow label="Delete all local careers" hint="Removes every career and its backups. Preferences, your manager profile and Map Studio drafts are kept.">
                   <ConfirmDialog

@@ -1,5 +1,6 @@
 "use client"
 
+import { LoadChip } from "@/components/squad/LoadChip"
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
@@ -130,6 +131,7 @@ const RosterRow = memo(function RosterRow({
       <td className="px-3"><Meter value={player.morale} label="Morale" /></td>
       <td className="px-3"><Meter value={player.form} label="Form" /></td>
       <td className="px-3"><Meter value={playerEnergyPercent(player)} label="Energy" /></td>
+      <td className="px-3"><LoadChip player={player} /></td>
       <td className={cn("px-3 text-right text-sm tabular-nums", contractTone(weeksLeft))}>
         {weeksLeft >= 52 ? `${(weeksLeft / 52).toFixed(1)}y` : `${weeksLeft}w`}
       </td>
@@ -165,7 +167,7 @@ const RosterRow = memo(function RosterRow({
 function SectionRow({ label, hint }: { label: string; hint?: ReactNode }) {
   return (
     <tr className="border-b border-line bg-shell">
-      <td colSpan={12} className="px-4 py-2">
+      <td colSpan={13} className="px-4 py-2">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{label}</span>
           {hint}
@@ -324,6 +326,7 @@ function SquadPageInner() {
                     <th data-slot="table-head" className="px-3">Morale</th>
                     <th data-slot="table-head" className="px-3">Form</th>
                     <th data-slot="table-head" className="px-3">Energy</th>
+                    <th data-slot="table-head" className="px-3" title="Workload and this week's injury chance">Load · injury risk</th>
                     <th data-slot="table-head" className="px-3 text-right">Contract</th>
                     <th data-slot="table-head" className="px-3 text-right">Wage / wk</th>
                     <th data-slot="table-head" className="pr-4"><span className="sr-only">Actions</span></th>
@@ -339,7 +342,7 @@ function SquadPageInner() {
                   {activeRoster.length > 0
                     ? activeRoster.map((p, i) => renderRow(p, i + 1, false))
                     : (
-                      <tr><td colSpan={12} className="p-6">
+                      <tr><td colSpan={13} className="p-6">
                         <EmptyState icon={Users} title="No active players" description="Sign free agents to build your starting lineup" action={{ label: "Browse transfers", href: "/transfers" }} />
                       </td></tr>
                     )}
@@ -349,9 +352,9 @@ function SquadPageInner() {
                   />
                   {benchRoster.length > 0
                     ? benchRoster.map((p, i) => renderRow(p, i + 6, true))
-                    : <tr><td colSpan={12} className="px-4 py-5 text-sm text-ink-3">Bench is empty. Sign a sixth player to cover injuries.</td></tr>}
+                    : <tr><td colSpan={13} className="px-4 py-5 text-sm text-ink-3">Bench is empty. Sign a sixth player to cover injuries.</td></tr>}
                   {roster.length >= SENIOR_ROSTER_MAX && (
-                    <tr><td colSpan={12} role="status" className="border-t border-line px-4 py-3 text-xs text-ink-2">{squadFullMessage(roster.length)}</td></tr>
+                    <tr><td colSpan={13} role="status" className="border-t border-line px-4 py-3 text-xs text-ink-2">{squadFullMessage(roster.length)}</td></tr>
                   )}
                 </tbody>
               </table>

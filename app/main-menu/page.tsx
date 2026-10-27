@@ -14,6 +14,7 @@ import { Logotype } from "@/components/brand/Logotype"
 import { TitleHero } from "@/components/brand/TitleHero"
 import { t, tn } from "@/lib/i18n"
 import { useLocale } from "@/lib/use-locale"
+import { DEMO_LAST_WEEK, FULL_GAME_STORE_URL, IS_DEMO } from "@/lib/edition"
 
 /** "Season 2 · Week 14" from an absolute career week. */
 function seasonWeekLabel(week: number | null | undefined): string {
@@ -26,11 +27,13 @@ type MenuItemProps = {
     hint?: string
     onClick?: () => void
     href?: string
+    /** Opens in the OS browser (Steam store) instead of routing in the app. */
+    external?: boolean
     disabled?: boolean
 }
 
 /** A secondary main-menu entry: display type, quiet until hovered or focused (gold edge marks it). */
-function MenuItem({ label, hint, onClick, href, disabled }: MenuItemProps) {
+function MenuItem({ label, hint, onClick, href, external, disabled }: MenuItemProps) {
     const inner = (
         <>
             <span className="font-display text-[26px] font-semibold uppercase leading-none tracking-[0.02em]">{label}</span>
@@ -38,6 +41,9 @@ function MenuItem({ label, hint, onClick, href, disabled }: MenuItemProps) {
         </>
     )
     const className = "relative h-14 w-full justify-start gap-3 px-4 before:absolute before:inset-y-3 before:left-0 before:w-0.5 before:rounded-full before:bg-gold before:opacity-0 before:transition-opacity hover:bg-raised/80 hover:before:opacity-100 focus-visible:before:opacity-100"
+    if (href && external) {
+        return <Button asChild variant="ghost" className={className}><a href={href} target="_blank" rel="noreferrer">{inner}</a></Button>
+    }
     if (href) {
         return <Button asChild variant="ghost" className={className}><Link href={href}>{inner}</Link></Button>
     }
@@ -102,6 +108,12 @@ export default function MainMenuPage() {
                     <h1>
                         <Logotype size="hero" subtitle="FPS" label="Esports Manager: FPS" />
                     </h1>
+                    {IS_DEMO && (
+                        <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-gold/60 px-3 py-1 text-xs font-semibold text-ink-2">
+                            <span className="font-bold uppercase tracking-[0.14em] text-gold">{t("menu.demo")}</span>
+                            <span>{t("menu.demoWeeks", { count: DEMO_LAST_WEEK })}</span>
+                        </p>
+                    )}
                 </header>
 
                 <nav aria-label={t("menu.label")} className="mt-auto mb-auto w-full max-w-[400px] space-y-1.5 pt-16">
@@ -142,6 +154,7 @@ export default function MainMenuPage() {
                         href="/load-game"
                         hint={savesLoaded ? (careers.length === 0 ? t("menu.noSaves") : tn("menu.saves", careers.length)) : undefined}
                     />
+                    {IS_DEMO && <MenuItem label={t("menu.fullGame")} href={FULL_GAME_STORE_URL} external />}
                     <MenuItem label={t("menu.settings")} onClick={() => setIsSettingsOpen(true)} />
                     {canQuit && <MenuItem label={t("menu.quit")} onClick={handleQuit} />}
                 </nav>

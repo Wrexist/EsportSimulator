@@ -21,12 +21,13 @@ import { soundManager } from "@/lib/sound-manager"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { draftCupOutcome } from "@/engine/draft-cup"
+import { demoWeekCapReached } from "@/lib/edition"
 
 export function AdvanceControl() {
     const router = useRouter()
     const pathname = usePathname()
     const {
-        timeMode, currentWeek, currentDay, isLoading, gameOverReason, draftCupOver, saveId, playerTeamId,
+        timeMode, currentWeek, currentDay, isLoading, gameOverReason, runOver, saveId, playerTeamId,
         continueRun, advanceStop,
         advanceDay, advanceToWeekEnd, advanceWeek, continueToNextDecision, cancelContinue, dismissAdvanceStop,
     } = useGameStore(useShallow(s => ({
@@ -35,7 +36,7 @@ export function AdvanceControl() {
         currentDay: s.currentDay,
         isLoading: s.isLoading,
         gameOverReason: s.gameOverReason,
-        draftCupOver: !!s.draftCup && !!draftCupOutcome(s as never),
+        runOver: (!!s.draftCup && !!draftCupOutcome(s as never)) || demoWeekCapReached(s),
         saveId: s.saveId,
         playerTeamId: s.playerTeamId,
         continueRun: s.continueRun,
@@ -53,7 +54,7 @@ export function AdvanceControl() {
     const pendingMatchId = useGameStore(selectPlayableMatchId)
     const hasCareer = !!saveId && !!playerTeamId
     const running = !!continueRun
-    const locked = isLoading || !!gameOverReason || draftCupOver || !hasCareer || running
+    const locked = isLoading || !!gameOverReason || runOver || !hasCareer || running
     const daily = timeMode === "HYBRID_DAILY"
 
     const step = (fn: () => Promise<void>) => () => {

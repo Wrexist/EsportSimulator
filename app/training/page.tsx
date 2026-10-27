@@ -1,5 +1,6 @@
 "use client"
 
+import { LoadChip } from "@/components/squad/LoadChip"
 import React, { useCallback, useMemo, useState } from "react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
@@ -189,7 +190,7 @@ export default function TrainingPage() {
                             <tr className="border-b border-line">
                                 <th data-slot="table-head" className="pl-4">Player</th>
                                 <th data-slot="table-head" className="px-3">Role</th>
-                                <th data-slot="table-head" className="px-3">Fatigue</th>
+                                <th data-slot="table-head" className="px-3" title="Fatigue, workload and this week's injury chance">Load · injury risk</th>
                                 <th data-slot="table-head" className="px-3">This week</th>
                                 <th data-slot="table-head" className="pr-4 text-right"><span className="sr-only">Actions</span></th>
                             </tr>
@@ -213,7 +214,12 @@ export default function TrainingPage() {
                                             </button>
                                         </td>
                                         <td className="px-3"><RoleTag role={p.role} /></td>
-                                        <td className="px-3"><Meter value={fatigue} label="Fatigue" tone={fatigueTone(fatigue)} /></td>
+                                        <td className="px-3">
+                                            <div className="flex items-center gap-2">
+                                                <Meter value={fatigue} label="Fatigue" tone={fatigueTone(fatigue)} />
+                                                <LoadChip player={p} />
+                                            </div>
+                                        </td>
                                         <td className="px-3 text-sm">
                                             {retraining
                                                 ? <span className="text-ink-2">Retraining to {retraining.targetRole.toUpperCase()} · {retraining.weeksCompleted}/{retraining.totalWeeks} wks · {formatCurrency(retraining.weeklyCost || 0, "$", false)}/wk</span>

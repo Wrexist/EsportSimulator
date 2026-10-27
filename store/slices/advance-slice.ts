@@ -14,6 +14,7 @@
 
 import { CONTINUE_WEEK_CAP, nextStop, stoppedEventIds, type AdvanceStop, type StopSource } from "@/lib/advance-stops"
 import type { WeekReportsState } from "@/lib/week-report"
+import { demoWeekCapReached } from "@/lib/edition"
 
 export interface ContinueRunState {
     startedWeek: number
@@ -92,7 +93,7 @@ export const initialAdvanceState: AdvanceState = {
 export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions => ({
     continueToNextDecision: async () => {
         const start = get()
-        if (start.continueRun || start.isLoading || start.gameOverReason || !start.saveId || !start.playerTeamId) return
+        if (start.continueRun || start.isLoading || start.gameOverReason || !start.saveId || !start.playerTeamId || demoWeekCapReached(start)) return
         const saveId = start.saveId
         set({ continueRun: { startedWeek: start.currentWeek, weeksDone: 0, daysDone: 0, cancelRequested: false }, advanceStop: null, weekReportToast: null })
 
@@ -105,6 +106,8 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
             for (let step = 0; step < (CONTINUE_WEEK_CAP + 1) * 8; step++) {
                 const s = get()
                 if (s.saveId !== saveId) return
+                // Demo: the last demo week is done; the end screen takes over.
+                if (demoWeekCapReached(s)) break
                 stop = nextStop(s, seen)
                 if (stop) break
                 const run = s.continueRun

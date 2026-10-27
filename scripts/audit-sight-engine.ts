@@ -5,6 +5,7 @@
  *   npx tsx scripts/audit-sight-engine.ts                  # 48 maps
  *   npx tsx scripts/audit-sight-engine.ts --maps 96 --json tmp/sight-audit.json
  *   npx tsx scripts/audit-sight-engine.ts --no-los         # skip the mesh raycasts (fast)
+ *   npx tsx scripts/audit-sight-engine.ts --map Nuke       # one map (any baked map, in the pool or not)
  *
  * Rounds come from the production series runner (calibration fixtures, two
  * even 70-rated teams, managed and AI paths alternating). Positions are the
@@ -43,7 +44,7 @@ const PRO = {
     quiet6: 0.38, quiet4m: 0.05, quiet10: 1.47, sightings3s6: 0.03, sightings3s10: 0.12,
 }
 
-interface Args { maps: number; seed: number; json?: string; los: boolean }
+interface Args { maps: number; seed: number; json?: string; los: boolean; only?: string }
 
 function parseArgs(argv: string[]): Args {
     const a: Args = { maps: 48, seed: 20261024, los: true }
@@ -52,6 +53,7 @@ function parseArgs(argv: string[]): Args {
         else if (argv[i] === '--seed') a.seed = Number(argv[++i])
         else if (argv[i] === '--json') a.json = argv[++i]
         else if (argv[i] === '--no-los') a.los = false
+        else if (argv[i] === '--map') a.only = argv[++i]
         else throw new Error(`unknown argument ${argv[i]}`)
     }
     return a
@@ -133,7 +135,8 @@ function main(): void {
         quiet6: 0, quiet4m: 0, quiet10: 0, sightings6: 0, sightings10: 0, replayed: 0, ms: 0,
     }
     for (let i = 0; i < args.maps; i++) {
-        const map = ACTIVE_MAP_POOL[i % ACTIVE_MAP_POOL.length]
+        const pool = args.only ? [args.only as typeof ACTIVE_MAP_POOL[number]] : ACTIVE_MAP_POOL
+        const map = pool[i % pool.length]
         const input = { id: `audit-${i}`, seed: deriveSeed(args.seed, 'audit', i), map, home, away, managedTeamId: i % 2 ? undefined : 'HOME' }
         const t0 = Date.now()
         const res = i % 2 ? runner.ai(input) : runner.managed(input)

@@ -12,6 +12,9 @@ import { useGameStore } from "@/store/game-store"
 import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
 import { DraftCupResult } from "@/components/draft-cup/DraftCupResult"
 import { draftCupOutcome } from "@/engine/draft-cup"
+import { DemoEnd, DemoWeeksPill } from "@/components/demo/DemoEnd"
+import { IS_DEMO, demoWeekCapReached, demoWeeksLeft } from "@/lib/edition"
+import { demoTourStopForPath } from "@/lib/demo-tour"
 import Link from "next/link"
 import { useSettingsStore } from "@/lib/settings-store"
 import { Suspense, useEffect, useRef, useState, useCallback } from "react"
@@ -63,6 +66,8 @@ function isBetweenClubsRoute(pathname: string | null): boolean {
 const DRAFT_CUP_BLOCKED = ["/transfers", "/academy", "/sponsorships", "/finances", "/scouting", "/staff", "/basecamp", "/equipment"]
 /** Screens still open once a Draft Cup run is over: its match reports and the menus. */
 const DRAFT_CUP_OVER_ROUTES = ["/match/", "/settings", "/credits", "/load-game", "/main-menu", "/new-game", "/map-editor", "/dev"]
+/** Screens still open once a demo career has played its last week: only the menus. */
+const DEMO_OVER_ROUTES = ["/settings", "/credits", "/load-game", "/main-menu", "/new-game"]
 const routeIn = (pathname: string | null, routes: string[]) =>
     !!pathname && routes.some(r => r.endsWith("/") ? pathname.startsWith(r) : pathname === r || pathname.startsWith(`${r}/`))
 
@@ -219,6 +224,13 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     // there is no club to run: management screens show the job market.
     const betweenClubs = useGameStore(state => inCareer && !!state.gameOverReason)
     const draftCupStage = useGameStore(state => !inCareer || !state.draftCup ? null : draftCupOutcome(state as never) ? "over" : "running")
+    const demoOver = useGameStore(state => inCareer && demoWeekCapReached(state))
+    const demoWeeks = useGameStore(state => IS_DEMO && inCareer && !state.draftCup ? demoWeeksLeft(state.currentWeek) : 0)
+    const markDemoTourVisited = useSettingsStore(state => state.markDemoTourVisited)
+    useEffect(() => {
+        const stop = IS_DEMO ? demoTourStopForPath(pathname) : null
+        if (stop) markDemoTourVisited(stop)
+    }, [pathname, markDemoTourVisited])
     const musicScene = routeMusicScene(pathname, inCareer)
     useEffect(() => {
         soundManager.setQuietScene(musicScene === "silent")
@@ -404,7 +416,8 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                     >
                         <ErrorBoundary>
                             {!hideChrome && !isMatchRoute && <TutorialOverlay />}
-                            {betweenClubs && !isBetweenClubsRoute(pathname) ? <DismissalJobMarket blockedRoute />
+                            {demoOver && !routeIn(pathname, DEMO_OVER_ROUTES) ? <DemoEnd />
+                                : betweenClubs && !isBetweenClubsRoute(pathname) ? <DismissalJobMarket blockedRoute />
                                 : draftCupStage === "over" && !routeIn(pathname, DRAFT_CUP_OVER_ROUTES) ? <DraftCupResult />
                                 : draftCupStage === "running" && routeIn(pathname, DRAFT_CUP_BLOCKED) ? <DraftCupBlocked />
                                 : children}
@@ -432,7 +445,8 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                     />
                 )
             }
-            {!hideChrome && !isMatchRoute && !momentPending && !pendingLegendPick && <ReviewAsk />}
+            {!IS_DEMO && !hideChrome && !isMatchRoute && !momentPending && !pendingLegendPick && <ReviewAsk />}
+            {demoWeeks > 0 && !hideChrome && !isLiveMatch && <DemoWeeksPill weeksLeft={demoWeeks} />}
             {!hideChrome && !isLiveMatch && (
                 <>
                     <Suspense fallback={null}><InboxUrlBridge /></Suspense>

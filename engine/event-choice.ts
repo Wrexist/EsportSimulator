@@ -51,6 +51,18 @@ export interface ChoiceEffects {
     mentor?: { menteeId: string; name?: string }
     /** Phase 5.3: what the storyline does next because of this answer (the arc applies it; stated here). */
     follows?: string
+    /**
+     * C5: rest the event player this week: fatigue down by `fatigue` (not the
+     * ±10 answer clamp), morale up, and out of the starting five when a fit
+     * substitute is free (he stays in if there is none).
+     */
+    rest?: { fatigue: number; morale?: number }
+    /**
+     * C5: play the event player through a minor knock: the injury clears,
+     * form moves by `form`, and the next injury check worsens it into a
+     * moderate injury with `escalateChance` (engine/workload.ts).
+     */
+    playThrough?: { escalateChance: number; form?: number }
 }
 
 /** The slice of a save (or the store draft) a choice can touch. */
@@ -123,7 +135,7 @@ export function applyChoiceEffects(
     effects: ChoiceEffects | undefined,
     ledger: { id: () => string; description: string },
 ): boolean {
-    const { morale, money, loyalty, reputation, fatigue, chemistry, transferList, promise, board, fans, renew, players, bench, persuade, mentor } = (effects ?? {}) as ChoiceEffects
+    const { morale, money, loyalty, reputation, fatigue, chemistry, transferList, promise, board, fans, renew, players, bench, persuade, mentor, rest, playThrough } = (effects ?? {}) as ChoiceEffects
     const data = (event.data ?? {}) as { playerId?: unknown; teamId?: unknown }
     const playerId = data.playerId != null ? String(data.playerId) : null
     const teamId = (typeof data.teamId === "string" && data.teamId) || target.playerTeamId
@@ -133,7 +145,7 @@ export function applyChoiceEffects(
     // Listing a player, a promise, a renewal, benching, persuading or a
     // mentorship needs him in the managed squad.
     let subject: PlayerSaveData | undefined
-    if (transferList || promise || renew || bench || persuade || mentor) {
+    if (transferList || promise || renew || bench || persuade || mentor || rest || playThrough) {
         subject = playerId && managed?.rosterIds.includes(playerId) ? playerOf(playerId) : undefined
         if (!subject) return false
     }
@@ -164,6 +176,7 @@ export function applyChoiceEffects(
         substitute = benchSubstitute(managed, subject.id, playerOf)
         if (!substitute) return false
     }
+    if (playThrough && subject && (subject.injury?.severity !== "MINOR" || !finite(playThrough.escalateChance))) return false
     let mentee: PlayerSaveData | undefined
     if (mentor && subject && managed) {
         mentee = managed.rosterIds.includes(mentor.menteeId) ? playerOf(mentor.menteeId) : undefined
@@ -233,6 +246,21 @@ export function applyChoiceEffects(
         const i = managed.rosterIds.indexOf(subject.id), j = managed.rosterIds.indexOf(substitute)
         managed.rosterIds[i] = substitute
         managed.rosterIds[j] = subject.id
+    }
+    if (subject && rest && finite(rest.fatigue)) {
+        subject.fatigue = clamp(subject.fatigue - Math.abs(rest.fatigue), 0, 100)
+        if (finite(rest.morale)) subject.morale = clamp(subject.morale + rest.morale, 0, 100)
+        const sub = managed ? benchSubstitute(managed, subject.id, playerOf) : null
+        if (sub && managed) {
+            const i = managed.rosterIds.indexOf(subject.id), j = managed.rosterIds.indexOf(sub)
+            managed.rosterIds[i] = sub
+            managed.rosterIds[j] = subject.id
+        }
+    }
+    if (subject && playThrough && subject.injury) {
+        subject.knock = { name: subject.injury.name, type: subject.injury.type, week: target.currentWeek, escalateChance: clamp(playThrough.escalateChance, 0, 1) }
+        subject.injury = undefined
+        if (finite(playThrough.form)) subject.form = clamp((subject.form ?? 50) + playThrough.form, 0, 100)
     }
     if (subject && persuade) ensurePersonality(subject).personality!.persuadedSeason = seasonOf(target.currentWeek)
     if (subject && mentee && managed) {

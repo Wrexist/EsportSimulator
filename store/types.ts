@@ -109,6 +109,12 @@ export interface ScoutingState {
   delegation: import("@/engine/delegation").DelegationSettings
   draftCup: import("@/engine/draft-cup").DraftCupState | null
   mapRecords?: import("@/engine/map-record").MapRecordState
+  /** C6: this season's map pool. */
+  mapRotation?: import("@/engine/season/map-rotation").MapRotation
+  /** C9: sandbox editor state (no achievements for this save). */
+  sandbox?: import("@/engine/sandbox").SandboxState
+  /** C10: pro career state. */
+  proCareer?: import("@/engine/pro-career").ProCareerState
 }
 
 export interface AcademyState {

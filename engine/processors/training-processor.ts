@@ -7,6 +7,7 @@ import { getPlayerPassiveBonuses } from "../talent-trees"
 import { facilityLevel, staffDevelopmentEffects } from "../organization-effects"
 import type { SaveIndexes } from "@/store/indexes"
 import { CONDITION_TUNING } from "@/lib/balance-tuning"
+import { trainingAgeFactor } from "../development-rates"
 import type { ChangeCause } from "@/lib/week-changes"
 import { ARCHETYPE_INFO, getArchetype, mentorTrainingFactor, trainingFactor } from "../personality"
 
@@ -126,6 +127,7 @@ export class TrainingProcessor {
                 )
                 // Phase 5.2: archetype (Professional +, Hothead/Showman −) and a mentor.
                 const personalFactor = trainingFactor(getArchetype(player)) * mentorTrainingFactor(team, playerId, lookup)
+                    * trainingAgeFactor(player.age)
 
                 // Player talent passive bonuses (fatigue reduction, energy recovery)
                 const playerBonuses = getPlayerPassiveBonuses(player.unlockedTalentIds || [])

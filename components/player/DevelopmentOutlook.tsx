@@ -1,5 +1,6 @@
 "use client"
 
+import { AGE_CURVE, lastsLonger } from "@/engine/development-rates"
 import { useMemo } from "react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
@@ -94,8 +95,8 @@ export function DevelopmentOutlook({ player }: { player: PlayerSaveData }) {
                         <dt className="font-semibold text-ink-1">Age decline</dt>
                         <dd className="text-ink-3">
                             {outlook.declinePerSeason > 0
-                                ? `About ${outlook.declinePerSeason.toFixed(1)} points a season lost to age (reaction, skill, rifle or clutch). Training can win them back.`
-                                : "Starts after 27."}
+                                ? `His ceiling drops about ${outlook.declinePerSeason.toFixed(1)} points a season, and his aim, reaction and clutch slowly sink to it. Tactics, leadership and the AWP do not fade${lastsLonger(player.role, player.secondaryRole) ? ", and as an IGL or AWPer he ages at half the rate" : ""}.`
+                                : `Starts at ${AGE_CURVE.CEILING_LOSS[0][0]}. Until then training moves him toward his potential, a little slower each year after 22.`}
                         </dd>
                     </div>
                 </dl>

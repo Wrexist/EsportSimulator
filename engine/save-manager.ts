@@ -226,6 +226,9 @@ export class SaveManager {
             delegation: initialData.delegation ?? {},
             ...(initialData.draftCup ? { draftCup: initialData.draftCup } : {}),
             ...(initialData.mapRecords ? { mapRecords: initialData.mapRecords } : {}),
+            ...(initialData.mapRotation ? { mapRotation: initialData.mapRotation } : {}),
+            ...(initialData.sandbox ? { sandbox: initialData.sandbox } : {}),
+            ...(initialData.proCareer ? { proCareer: initialData.proCareer } : {}),
             activeMatchId: initialData.activeMatchId ?? null,
             activeMatchState: initialData.activeMatchState ?? null,
             // A new slot must never inherit another career's worker ownership.
@@ -930,6 +933,8 @@ export class SaveManager {
                     currentWeek: parsed.currentWeek,
                     teamName: betweenClubs ? (parsed.gameOverReason === "UNEMPLOYED" ? "Looking for a first club" : "Between clubs") : playerTeam?.name ?? null,
                     ...(betweenClubs ? { betweenClubs: true } : {}),
+                    ...(parsed.sandbox ? { sandbox: true } : {}),
+                    ...(parsed.proCareer && parsed.proCareer.retiredWeek == null ? { pro: parsed.players?.find((p: { id: string }) => p.id === parsed.proCareer!.playerId)?.nickname ?? "Pro" } : {}),
                     ...(parsed.draftCup ? { draftCup: { difficulty: parsed.draftCup.difficulty, finish: parsed.draftCup.result?.finish, score: parsed.draftCup.result?.score } } : {}),
                     teamLogo: playerTeam?.logoPath,
                     teamPreview: playerTeam ? {

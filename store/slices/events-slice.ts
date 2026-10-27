@@ -27,6 +27,7 @@ import { getArchetype } from "@/engine/personality"
 import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { generateSocialPosts } from "@/lib/social-generator"
 import { nextDeterministicId } from "@/store/utils/helpers"
+import { moveProPlayer, retirePro } from "@/engine/pro-career"
 
 import { formatCurrency } from "@/lib/utils-extended"
 const NEWS_FEED_CAP = 50
@@ -87,6 +88,13 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
                 })
                 if (!applied) return
             }
+
+            // C10: the pro's own answers move him or end the pro career.
+            if (eventId.startsWith("pro_offer_") && choiceId === "accept") {
+                if (state.activeMatchId || state.activeMatchState) return
+                if (!moveProPlayer(state as unknown as GameSave, String(event.data.offeringTeamId ?? ""))) return
+            }
+            if (eventId.startsWith("pro_retire_") && choiceId === "retire") retirePro(state as unknown as GameSave)
 
             // Legend-Coach Hire — special-case event handler that replaces
             // (or appends) the team's coach with a max-level legend.

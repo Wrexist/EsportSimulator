@@ -210,8 +210,24 @@ export const navHubs: NavHub[] = [
     },
 ]
 
+/** C10: club-running screens a pro career leaves to the staff. */
+export const PRO_HIDDEN_HREFS: ReadonlySet<string> = new Set(["/staff", "/academy", "/transfers", "/scouting", "/finances", "/sponsorships", "/basecamp", "/career/board"])
+
+/** The hubs to show: all of them, or without the club-running screens in a pro career. */
+export function navHubsFor(pro: boolean): NavHub[] {
+    if (!pro) return navHubs
+    return navHubs
+        .map(hub => ({ ...hub, items: hub.items.filter(item => !PRO_HIDDEN_HREFS.has(item.href)) }))
+        .filter(hub => hub.items.length > 0)
+}
+
 /** Hub-grouped destinations (search palette). */
 export const menuGroups: MenuGroup[] = navHubs.map(hub => ({ key: hub.key, label: hub.label, items: hub.items }))
+
+/** The search palette's destinations, without the club-running screens in a pro career. */
+export function menuGroupsFor(pro: boolean): MenuGroup[] {
+    return pro ? navHubsFor(true).map(hub => ({ key: hub.key, label: hub.label, items: hub.items })) : menuGroups
+}
 
 export const settingsItem: MenuItem = { icon: Settings, key: "nav.settings", label: "Settings & Tools", href: "/settings" }
 

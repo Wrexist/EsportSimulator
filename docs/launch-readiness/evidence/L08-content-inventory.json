@@ -4562,6 +4562,19 @@
       "releaseDisposition": "hold"
     },
     {
+      "path": "data/community-credits.ts",
+      "sha256": "9ca070de1cb2fa5779114f3a936a09021f42d831aaa9a8f5ec68705684e546ac",
+      "bytes": 489,
+      "kind": "code-and-player-text",
+      "source": "Project implementation",
+      "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
+      "license": "Project-authored code",
+      "permission": "Project-authored credits list, empty at release. Names are added only with each player's permission. Owner release statement of 2026-10-11 (docs/launch-readiness/evidence/phase5-7-owner-release-statement.json): \"I clear the project-made and project-edited revamp content for release.\"",
+      "attribution": null,
+      "allowedUse": "Include these exact reviewed project bytes in the game.",
+      "releaseDisposition": "include"
+    },
+    {
       "path": "data/drills.json",
       "sha256": "22336dd6558c716195200a55b8c9c4d9ac00abb016f4545ea32b13412b889da3",
       "bytes": 16874,
@@ -4803,8 +4816,8 @@
     },
     {
       "path": "data/map-pool.ts",
-      "sha256": "a5492809f5ae23a13f9ee0625fc44c7c9e19b9aa224e8ffec962cfda04fd9ab2",
-      "bytes": 2010,
+      "sha256": "6d98c5fbff8e008f1485fa99c303f2041bc6dd844c7cd4d3a8950ee9de2417dd",
+      "bytes": 3147,
       "kind": "project-map-derivative",
       "source": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request.",
       "evidence": "docs/launch-readiness/evidence/2026-09-25-map-reconciliation.json",
@@ -4813,7 +4826,14 @@
       "attribution": "Underlying map references retain their source metadata; lineup marks retain their source links.",
       "allowedUse": "Project-authored map configuration, generated review/scenario data or map derivative under retained owner map-use confirmation and explicit native-map integration request.",
       "releaseDisposition": "include",
-      "reviewBasis": "owner-attested with retained source lineage"
+      "reviewBasis": "owner-attested with retained source lineage",
+      "reviewHistory": [
+        {
+          "date": "2026-10-26",
+          "previousSha256": "a5492809f5ae23a13f9ee0625fc44c7c9e19b9aa224e8ffec962cfda04fd9ab2",
+          "change": "Seasonal map pool (PR #80): each new season benches one map from the active seven and brings back the one benched last season. Code-only: same map names and map references; no media, lineups or map data bytes added."
+        }
+      ]
     },
     {
       "path": "data/map-studio-library.json",

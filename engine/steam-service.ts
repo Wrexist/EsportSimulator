@@ -1,5 +1,6 @@
 // Phase 40: Steam Integration (Optimized for Electron Bridge)
 import { debug } from "@/lib/debug-logger"
+import { IS_DEMO } from "@/lib/edition"
 
 export interface Achievement {
     id: string
@@ -75,8 +76,19 @@ export class SteamService {
     private pendingAchievements = new Set<string>()
     private unlockFlights = new Map<string, Promise<boolean>>()
     private activeSaveId: string | null = null
+    /** C9: a sandbox save (edited by hand) earns no achievements, stats or leaderboard scores. */
+    private sandboxed = false
 
     private constructor() { }
+
+    /** C9: block achievements, stats and leaderboards while a sandbox save is loaded. */
+    setSandboxed(on: boolean): void {
+        this.sandboxed = on
+    }
+
+    get isSandboxed(): boolean {
+        return this.sandboxed
+    }
 
     static getInstance(): SteamService {
         if (!SteamService.instance) {
@@ -130,7 +142,7 @@ export class SteamService {
 
     // ===== STATS & ACHIEVEMENTS =====
     async setStat(name: string, value: number) {
-        if (!this.electronBridge) return
+        if (!this.electronBridge || this.sandboxed) return
         if (!Number.isFinite(value)) return
         if (await this.electronBridge.setStat(name, Math.max(0, Math.min(2147483647, Math.round(value)))) === true) await this.electronBridge.storeStats()
     }
@@ -148,7 +160,7 @@ export class SteamService {
         playersDeveloped?: number,
         prizeMoney?: number
     }) {
-        if (!this.electronBridge) return
+        if (!this.electronBridge || this.sandboxed) return
 
         // Core stats
         if (stats.kills !== undefined) await this.electronBridge.setStat("stat_total_kills", stats.kills)
@@ -176,7 +188,7 @@ export class SteamService {
         longestWinStreak?: number
         tournamentsWon?: number
     }) {
-        if (!this.electronBridge) return
+        if (!this.electronBridge || this.sandboxed) return
         if (stats.maxElo !== undefined) {
             await this.electronBridge.setLeaderboardScore?.("lead_world_ranking", stats.maxElo)
         }
@@ -199,6 +211,9 @@ export class SteamService {
 
     async unlockAchievement(achievementId: string): Promise<boolean> {
         if (!Object.prototype.hasOwnProperty.call(ACHIEVEMENTS, achievementId)) return false
+        if (this.sandboxed) return false
+        // The free demo is a separate Steam app without achievements.
+        if (IS_DEMO) return false
         if (!this.electronBridge) return this.unlockOnce(achievementId)
         const key = `${this.scopeRevision}:${achievementId}`
         const current = this.unlockFlights.get(key)
