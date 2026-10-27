@@ -148,6 +148,8 @@ export interface LegacySeriesContext {
     customTactics?: CustomTactics
     /** R3: the managed team's anti-strat counters for this match, per map. */
     counters?: MatchCounters
+    /** R3: the manager's team plays this match (as passed, not the home-team default): the rival runs its habits. */
+    managerMatch?: boolean
     playerMap: Map<string, Player>
 }
 

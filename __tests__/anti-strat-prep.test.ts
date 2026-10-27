@@ -8,7 +8,8 @@ import { buildSide, even } from '@/engine/match/calibration/fixtures'
 import { forceHabits } from '@/engine/match/round-sim'
 import { counterSite, sanitizeCounters, teamHabits } from '@/engine/match/habits'
 import { counterLines } from '@/lib/match-reasons'
-import type { MatchResult, RoundResult } from '@/types'
+import type { Match, MatchResult, Player, RoundResult, Team } from '@/types'
+import { simulationEngineV2 } from '@/engine/match-simulation'
 import { MapId } from '@/types/enums'
 
 const runner = seriesRunnerFor('script-v1')!
@@ -43,6 +44,15 @@ describe('club habits', () => {
         }
         expect(tHabit / awayTFull).toBeGreaterThan(0.4)
         expect(tHabit / awayTFull).toBeLessThan(0.9)
+    })
+
+    it('are off in an AI fixture that names no managed team (it defaults to the home side)', () => {
+        const match = { id: 'as-fixture', homeTeamId: 'HOME', awayTeamId: 'AWAY', format: 'BO1', seed: 5, maps: [MapId.MIRAGE], engineVersion: 'script-v1' } as unknown as Match
+        const ctx = simulationEngineV2.createSeriesContext(match, home.team as unknown as Team, away.team as unknown as Team, home.players as unknown as Player[], away.players as unknown as Player[], {}, {})
+        expect(ctx.script?.away.habitual).toBeUndefined()
+        expect(ctx.script?.home.habitual).toBeUndefined()
+        const managed = simulationEngineV2.createSeriesContext(match, home.team as unknown as Team, away.team as unknown as Team, home.players as unknown as Player[], away.players as unknown as Player[], {}, {}, undefined, undefined, 'HOME')
+        expect(managed.script?.away.habitual).toBe(true)
     })
 
     it('leave AI-only matches exactly as they were', () => {

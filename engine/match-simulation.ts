@@ -257,6 +257,7 @@ export class SimulationEngineV2 {
             managedTeamId: managedTeamId ?? homeTeam.id,
             customTactics,
             ...(match.counters ? { counters: sanitizeCounters(match.counters) } : {}),
+            managerMatch: managedTeamId !== undefined && (managedTeamId === homeTeam.id || managedTeamId === awayTeam.id),
             playerMap: new Map(activeHomePlayers.concat(activeAwayPlayers).map(p => [p.id, p])),
         }
         return engineVersion === LEGACY_ENGINE_VERSION ? ctx : this.retargetSeriesContext(ctx, engineVersion)
@@ -288,6 +289,7 @@ export class SimulationEngineV2 {
                     contacts: ctx.managedTeamId === ctx.home.team.id || ctx.managedTeamId === ctx.away.team.id,
                     managedTeamId: ctx.managedTeamId,
                     counters: ctx.counters,
+                    managerMatch: !!ctx.managerMatch,
                 })
                 : undefined,
         }

@@ -104,13 +104,14 @@ export interface ScriptSeriesTeamInput {
     implicitGear: boolean
 }
 
-export function buildScriptSeries(args: { seed: number; matchId: string; home: ScriptSeriesTeamInput; away: ScriptSeriesTeamInput; contacts?: boolean; managedTeamId?: string; counters?: MatchCounters }): ScriptSeries {
+export function buildScriptSeries(args: { seed: number; matchId: string; home: ScriptSeriesTeamInput; away: ScriptSeriesTeamInput; contacts?: boolean; managedTeamId?: string; counters?: MatchCounters; managerMatch?: boolean }): ScriptSeries {
     const side = (s: ScriptSeriesTeamInput): ScriptSeriesSide => {
         const profiles = new Map(s.players.map(p => [p.id, buildProfile(p)]))
         // Only the manager's own club runs a playbook: a club the manager left keeps no fixed calls.
         const playbook = s.team.id === args.managedTeamId && s.team.playbook ? sanitizePlaybook(s.team.playbook) : undefined
         // R3: in a match of the manager's, the other club runs its habits and the manager's counters apply.
-        const managed = args.managedTeamId !== undefined && (args.home.team.id === args.managedTeamId || args.away.team.id === args.managedTeamId)
+        // `managerMatch` comes from the caller: an AI fixture defaults its managed id to the home team.
+        const managed = !!args.managerMatch && (args.home.team.id === args.managedTeamId || args.away.team.id === args.managedTeamId)
         const counters = managed && s.team.id === args.managedTeamId && args.counters && Object.keys(args.counters).length ? args.counters : undefined
         return {
             teamId: s.team.id,
