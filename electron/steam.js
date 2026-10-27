@@ -22,6 +22,7 @@ function rememberCloud(key, value) {
 const { registerTrustedHandler, cloudName, workshopId, MAX_VALUE_BYTES } = require('./ipc-policy');
 const { containedPath, readBounded, writeAtomic } = require('./local-files');
 const { IS_DEMO } = require('./edition.cjs');
+const communityShare = require('./community-share');
 // The free demo is a separate Steam app with no achievements, stats,
 // leaderboards, cloud quota or Workshop: those calls answer "unavailable" so
 // a demo career never writes to the full game's account records, and no
@@ -305,6 +306,17 @@ function registerHandlers() {
             logFn(`[Steam] getSteamId error: ${e.message}`);
             return null;
         }
+    });
+
+    // ---- community Discord (player-initiated only) -----------------------
+    handleSteam('community-share-available', (event) => {
+        if (!isTrustedSender(event)) return false;
+        return communityShare.canShare(steamClient, { demo: IS_DEMO });
+    });
+
+    handleSteam('community-share-major', async (event, share) => {
+        if (!canRunMutation(event, 'community-share-major')) return 'unavailable';
+        return communityShare.shareMajorWin(steamClient, share, { demo: IS_DEMO, log: logFn });
     });
 
     handleSteam('steam-get-persona-name', (event) => {

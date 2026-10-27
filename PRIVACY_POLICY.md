@@ -1,7 +1,7 @@
 # Privacy Policy
 
 **Esports Manager: FPS**
-Last Updated: March 18, 2026
+Last Updated: October 27, 2026
 
 ## Overview
 
@@ -25,6 +25,9 @@ If you purchased the Game through Steam:
 
 All Steam-related data processing is handled by Valve Corporation under their terms.
 
+### Community Discord Sharing (optional)
+When you win a Major, the title screen offers an **Announce in Discord** button. Nothing is sent unless you press it. When you do, the Game sends your manager name, club name, the tournament, the final's opponent and score, and the season to our community relay, together with a one-time Steam sign-in ticket. The relay asks Steam to confirm the ticket (so only owners of the Game can post) and then publishes one message in the #major-winners channel of the community Discord server. Your Steam ID is used only for that check and to limit how often one account can post; it is not published or stored. Posted messages are public on the Discord server and are subject to [Discord's Privacy Policy](https://discord.com/privacy). Ask in the server, or contact us below, to have a post removed.
+
 ## Data We Do NOT Collect
 - No personal information (name, email, address)
 - No device identifiers or hardware fingerprints
@@ -33,7 +36,7 @@ All Steam-related data processing is handled by Valve Corporation under their te
 - No cookies or web tracking
 
 ## Third-Party Services
-The Game does not integrate with any third-party analytics, advertising, or tracking services. The only third-party integration is the Steam SDK (steamworks.js) for platform features.
+The Game does not integrate with any third-party analytics, advertising, or tracking services. The only third-party integration is the Steam SDK (steamworks.js) for platform features, plus the optional, player-initiated Discord share described above.
 
 ## Children's Privacy
 The Game does not knowingly collect data from children under 13 (or the applicable age in your jurisdiction). Since we collect no personal data, no special provisions are required.

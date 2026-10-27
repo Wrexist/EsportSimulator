@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { useShallow } from "zustand/react/shallow"
 import { draftCupOutcome } from "@/engine/draft-cup"
 import type { LeagueTitleMoment, TitleMoment } from "@/engine/moments"
-import { isMajorTournament } from "@/engine/official-stats"
+import { isMajorTournament, seasonOfWeek } from "@/engine/official-stats"
 import { trophyArtFor, trophyKindForTournament, type TrophyArtKind } from "@/lib/trophy-art"
 import { useGameStore } from "@/store/game-store"
 import { fireConfetti } from "@/lib/confetti-lazy"
@@ -17,6 +17,7 @@ import { AnimatedNumber } from "@/components/ui/animated-number"
 import { TierTag } from "@/src/components/ui/TierTag"
 import { colors, tokens } from "@/src/design/tokens"
 import { MomentFacts, MomentFrame, MomentOverline, MomentRule, useReveal, type MomentFact } from "./MomentFrame"
+import { ShareMajorToDiscord } from "./ShareMajorToDiscord"
 
 const EASE = [...tokens.motion.easeOutExpo] as [number, number, number, number]
 // Trophy gold, white and win green: the v2 celebration palette (tokens).
@@ -68,8 +69,9 @@ export function TitleMomentView({ moment, onDismiss }: { moment: TitleMoment; on
     const reveal = useReveal()
     const scale = moment.major ? "major" : "minor"
     useTitleConfetti(moment.key, scale)
-    const { financeLedger, playerTeamId, draftCupScore } = useGameStore(useShallow(s => ({
+    const { financeLedger, playerTeamId, draftCupScore, managerName, teamName } = useGameStore(useShallow(s => ({
         financeLedger: s.financeLedger, playerTeamId: s.playerTeamId,
+        managerName: s.managerDetails?.name, teamName: s.teams.find(t => t.id === s.playerTeamId)?.name,
         // G7: a Draft Cup title shows the run score; the run ends here, so no prize or reputation follows.
         draftCupScore: s.draftCup?.tournamentId === moment.tournamentId ? draftCupOutcome(s as never)?.score ?? null : null,
     })))
@@ -114,6 +116,19 @@ export function TitleMomentView({ moment, onDismiss }: { moment: TitleMoment; on
                 <motion.div {...reveal(0.75)} className="mt-8 w-full max-w-3xl">
                     <MomentFacts facts={facts} />
                 </motion.div>
+            )}
+            {isMajor && teamName && draftCupScore == null && (
+                <ShareMajorToDiscord
+                    delay={0.9}
+                    share={{
+                        managerName: managerName && managerName !== "Unknown" ? managerName : null,
+                        teamName,
+                        tournamentName: moment.tournamentName,
+                        opponentName: moment.finalOpponentName ?? null,
+                        finalScore: moment.finalScore ?? null,
+                        season: seasonOfWeek(moment.week),
+                    }}
+                />
             )}
         </MomentFrame>
     )

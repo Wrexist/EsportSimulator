@@ -21,6 +21,19 @@ export type ActiveModPointer =
     | { source: "none" }
     | { source: "workshop"; workshopId: string };
 
+/** What a "Major winners" post may contain (all from the career, nothing else). */
+export interface MajorWinShare {
+    managerName?: string | null;
+    teamName: string;
+    tournamentName: string;
+    opponentName?: string | null;
+    /** "2-1" style map score of the final. */
+    finalScore?: string | null;
+    season?: number | null;
+}
+
+export type MajorWinShareResult = "posted" | "limited" | "failed" | "unavailable";
+
 declare global {
     interface Window {
         electron: {
@@ -60,6 +73,10 @@ declare global {
                 removeItem: (key: string) => Promise<boolean>;
                 clear: () => Promise<boolean>;
                 getAllKeys: () => Promise<string[]>;
+            };
+            community?: {
+                canShare: () => Promise<boolean>;
+                shareMajorWin: (share: MajorWinShare) => Promise<MajorWinShareResult>;
             };
             mods?: {
                 readFolder: () => Promise<string | null>;

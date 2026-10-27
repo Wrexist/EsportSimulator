@@ -26,6 +26,11 @@ contextBridge.exposeInMainWorld('electron', {
         readFromCloud: (filename) => ipcRenderer.invoke('steam-cloud-read', filename),
         deleteFromCloud: (filename) => ipcRenderer.invoke('steam-cloud-delete', filename),
     },
+    community: {
+        // Player-initiated "Announce in Discord" for a Major title.
+        canShare: () => ipcRenderer.invoke('community-share-available'),
+        shareMajorWin: (share) => ipcRenderer.invoke('community-share-major', share),
+    },
     window: {
         setFullscreen: (fullscreen) => ipcRenderer.invoke('window-set-fullscreen', fullscreen),
         setSize: (width, height) => ipcRenderer.invoke('window-set-size', width, height),

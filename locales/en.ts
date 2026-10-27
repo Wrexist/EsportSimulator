@@ -74,6 +74,7 @@ export const EN = {
     "menu.quit": "Quit",
     "menu.version": "Version",
     "menu.credits": "Credits",
+    "menu.discord": "Discord",
     "menu.demo": "Free demo",
     "menu.demoWeeks": "First {{count}} weeks of a career",
     "menu.fullGame": "Get the full game",

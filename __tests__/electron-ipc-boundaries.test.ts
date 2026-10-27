@@ -41,7 +41,7 @@ test('every actual handler rejects foreign contents, child frames and wrong orig
     'steam-set-leaderboard-score':['lead_world_ranking',1],
     'steam-set-rich-presence':['status','QA'], 'steam-get-rich-presence':['status'],
     'steam-cloud-read':['save_test.json'], 'steam-cloud-write':['save_test.json','{}'], 'steam-cloud-delete':['save_test.json'],
-    'workshop-set-active':[{source:'community'}], 'workshop-subscribe':['123'], 'workshop-unsubscribe':['123'], 'workshop-open':['123'],
+    'workshop-set-active':[{source:'community'}], 'community-share-major':[{teamName:'Team',tournamentName:'Major'}], 'workshop-subscribe':['123'], 'workshop-unsubscribe':['123'], 'workshop-open':['123'],
   }
   harness.values.esports_save_test='private sentinel'
   for (const name of harness.handlers.keys()) expect(contracts[name].check(args[name]||[])).toBe(true)

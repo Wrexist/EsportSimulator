@@ -5,6 +5,8 @@ const EXTERNAL_HOSTS = [
     'store.steampowered.com',
     'help.steampowered.com',
     'steamcommunity.com',
+    // Community Discord invite (Major win share, main menu).
+    'discord.gg',
     // cs2nades.gg removed 2026-10-04: imported lineups are excluded from the 1.0
     // base game, so no shipped content links there.
 ];

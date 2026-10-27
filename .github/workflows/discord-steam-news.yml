@@ -1,0 +1,62 @@
+name: Discord · Steam updates feed
+
+# Posts every new Steam announcement (patch notes, news) to the community
+# Discord's #announcements channel with @everyone.
+#
+# One-time setup: repo Settings → Secrets and variables → Actions →
+#   New repository secret DISCORD_UPDATES_WEBHOOK = the channel's webhook URL.
+# Until the secret exists every run is a quiet no-op.
+#
+# Right after publishing on Steam you can run it by hand (Actions → this
+# workflow → Run workflow) instead of waiting for the next scheduled check.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      post_latest:
+        description: 'Also post the newest announcement again (use once to test the channel)'
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Print the message instead of sending it'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: discord-steam-news
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/discord
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - name: Restore feed state
+        uses: actions/cache/restore@v4
+        with:
+          path: .discord-state
+          key: discord-steam-news-${{ github.run_id }}
+          restore-keys: discord-steam-news-
+      - name: Post new announcements
+        run: node scripts/discord/post-steam-news.cjs
+        env:
+          DISCORD_UPDATES_WEBHOOK: ${{ secrets.DISCORD_UPDATES_WEBHOOK }}
+          POST_LATEST: ${{ inputs.post_latest && '1' || '' }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+      - name: Save feed state
+        if: always() && hashFiles('.discord-state/steam-news.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .discord-state
+          key: discord-steam-news-${{ github.run_id }}
