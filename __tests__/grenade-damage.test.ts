@@ -67,7 +67,7 @@ describe('HE damage', () => {
 })
 
 describe('HE grenades in played rounds', () => {
-    const fixtures = [playRadarSeries(MapId.MIRAGE, 5), playRadarSeries(MapId.INFERNO, 5), playRadarSeries(MapId.NUKE, 5), playRadarSeries(MapId.OVERPASS, 5)]
+    const fixtures = [playRadarSeries(MapId.MIRAGE, 5), playRadarSeries(MapId.INFERNO, 5), playRadarSeries(MapId.NUKE, 5), playRadarSeries(MapId.OVERPASS, 5), playRadarSeries(MapId.ANCIENT, 5)]
 
     it('some HEs miss, and a miss lands where it could not have hurt anyone (out of reach, behind a wall or on another floor)', () => {
         let thrown = 0, misses = 0, contradictions = 0

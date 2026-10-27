@@ -46,7 +46,7 @@ import {
     type Actor, type PlanState, type Round, type RoundEnd, type SimInput, type SimOutput, type UtilityThrow,
 } from "./simulate"
 import { TUNING as T } from "./tuning"
-import { isSniperClass, isSaveWorthy } from "./weapons"
+import { isSniperClass, isSaveWorthy, type WeaponClass } from "./weapons"
 import { zonePoint, type MapZones } from "./zones"
 
 // Math is read once: global lookups are slow inside Jest's sandbox.
@@ -480,9 +480,37 @@ function sidePts(C: Ctx, me: Body, foe: Body, f: Fight, t: number): number {
     // Before the plant the CTs defend ground they know, after it the Ts do.
     if (a.ct && !R.bomb.planted) s += T.SIGHT_CT_DEFEND
     // Post-plant: the Ts sit on angles around the bomb, the CTs have to come to them.
-    if (!a.ct && me.task === "post" && foe.task === "retake") s += T.SIGHT_POST
+    // Fewer Ts than retakers leave angles open: the CTs clear them one at a time.
+    if (!a.ct && me.task === "post" && foe.task === "retake") s += max(0, T.SIGHT_POST - T.SIGHT_POST_OPEN * max(0, countAlive(R.CT) - countAlive(R.T)))
+    // Team play: mates close by who see the foe too (a crossfire, a ready trade).
+    s += T.SIGHT_SUPPORT * supporters(C, me, foe, f.t0)
     if (a.p.traits & TRAIT_AGGRESSIVE && isMoving) s += 1
     return s
+}
+
+/**
+ * Living mates of `me` within SIGHT_SUPPORT_RANGE who have `foe` in sight and are free to shoot,
+ * the best SIGHT_SUPPORT_CAP of them, each weighted by their skill against the foe's: a crossfire
+ * is only as good as the player holding it.
+ */
+function isPistolClass(wc: WeaponClass): boolean {
+    return wc === "pistol" || wc === "pistolB" || wc === "deagle" || wc === "knife"
+}
+
+function supporters(C: Ctx, me: Body, foe: Body, t: number): number {
+    const g = C.g
+    const mn = sightNode(me, t), fn = sightNode(foe, t)
+    let best = 0, second = 0
+    for (const m of me.a.ct ? C.CTs : C.Ts) {
+        if (m === me || !m.a.alive || m.saving || m.busy || m.a.blindUntil > t) continue
+        const k = sightNode(m, t)
+        if (g.floor[k] !== g.floor[fn] || g.dist(k, mn) > T.SIGHT_SUPPORT_RANGE || g.dist(k, fn) > T.SIGHT_RANGE || !C.D.vis.seesFar(k, fn)) continue
+        let w = max(0, min(2, 1 + (m.a.p.skill - foe.a.p.skill) / T.SIGHT_SUPPORT_SKILL))
+        // A pistol backing up against a rifle is a distraction, not a crossfire.
+        if (isPistolClass(m.a.wc) && !isPistolClass(foe.a.wc)) w *= T.SIGHT_SUPPORT_PISTOL
+        if (w > best) { second = best; best = w } else if (w > second) second = w
+    }
+    return T.SIGHT_SUPPORT_CAP >= 2 ? best + second : T.SIGHT_SUPPORT_CAP >= 1 ? best : 0
 }
 
 function resolveFight(C: Ctx, f: Fight): void {
@@ -656,7 +684,11 @@ function land(C: Ctx, b: Body, kind: UtilityKind, site: SiteId, at: number, spot
             // The burn is recorded on someone not already in a gunfight (they live past it).
             if (!e.hit && x.fights === 0) hurtBy(e, b.a, x.a, 6 + floor(rnd(R, P.util).next() * 16))
             x.a.flushed = true
-            // Out of the fire: one step back toward their own spawn.
+            // Out of the fire: one step back toward their own spawn (off the post angle).
+            if (x.task === "post") {
+                x.task = "flushed"
+                C.jobs.push({ t: t + T.SIGHT_REPOST, run: () => { if (x.task === "flushed") x.task = "post" } })
+            }
             backOff(C, x, t)
         }
     } else if (kind === "he") {
@@ -1058,6 +1090,8 @@ function execute(C: Ctx, t: number): void {
         ways.push({ node: target, at: t + 0.9 * i, pace: RUN, look: g.point(g.spawnNodes.CT[0] ?? g.siteNodes[S.id]) })
         setQueue(b, ways)
     })
+    // A lone anchor facing the whole hit gives the site up and waits for the retake.
+    C.jobs.push({ t: t + 1.5, run: () => anchorFallback(C, t + 1.5) })
     // The lurker cuts the rotation from the other site.
     const lk = C.lurker
     if (lk?.a.alive && !lk.saving) {
@@ -1073,6 +1107,30 @@ function execute(C: Ctx, t: number): void {
         f.task = "exec"
         setQueue(f, [{ node: spots[k++ % spots.length], at: t + 1, pace: RUN, look: g.point(g.siteNodes[S.id]) }])
     }
+}
+
+/**
+ * The hit is coming in with numbers: a site CT alone against SIGHT_ANCHOR_HITTERS
+ * or more Ts nearby falls back out of the site's sight to play the retake
+ * with the rotation (pros give a lost site up rather than die on it alone).
+ */
+function anchorFallback(C: Ctx, t: number): void {
+    const { g, R } = C
+    if (R.bomb.planted || C.tSaving) return
+    const S = R.S.id
+    const center = g.siteNodes[S]
+    const near = (b: Body, r: number) => b.a.alive && g.dist(b.node, center) <= r
+    const anchors = C.CTs.filter(b => near(b, T.SIGHT_SITE_RADIUS + 4) && !b.saving && b.fights === 0 && !b.busy)
+    const hitters = C.Ts.filter(b => near(b, T.SIGHT_SITE_RADIUS + 10) && !b.saving).length
+    if (anchors.length !== 1 || hitters < T.SIGHT_ANCHOR_HITTERS) return
+    const b = anchors[0]
+    if (!rnd(R, P.fallback).bool(T.SIGHT_ANCHOR_FALLBACK)) return
+    const hidden = hiddenFrom(C.D, S)
+    const home = g.path(b.node, b.spawn)
+    let n = home[min(6, home.length - 1)]
+    for (let i = 1; i < home.length; i++) if (hidden[home[i]] && g.dist(home[i], center) >= T.SIGHT_ROTATE_STAGE) { n = home[i]; break }
+    b.task = "fallback"
+    setQueue(b, [{ node: n, at: t, pace: RUN, look: g.point(center) }])
 }
 
 /** The fake: utility on the other site; the CTs may bite. */
@@ -1114,11 +1172,45 @@ function call(C: Ctx, site: SiteId, t: number): void {
     }
 }
 
+/** Nodes the site core (within SIGHT_SITE_CORE of its centre) cannot see within SIGHT_RANGE. */
+function hiddenFrom(D: MapData, site: SiteId): Uint8Array {
+    const cache = D as MapData & { hidden?: Partial<Record<SiteId, Uint8Array>> }
+    const have = cache.hidden?.[site]
+    if (have) return have
+    const g = D.g
+    const core = g.around(g.siteNodes[site], T.SIGHT_SITE_CORE)
+    const out = new Uint8Array(g.size).fill(1)
+    for (let n = 0; n < g.size; n++) for (const c of core) {
+        if (g.floor[c] === g.floor[n] && g.dist(n, c) <= T.SIGHT_RANGE && D.vis.seesFar(c, n)) { out[n] = 0; break }
+    }
+    ;(cache.hidden ??= {})[site] = out
+    return out
+}
+
+/**
+ * Where a rotator stops on the way to a site: the last node of the walk in
+ * that the site cannot see (at least SIGHT_ROTATE_STAGE short of the centre),
+ * so they arrive behind cover and go in with a mate instead of running into
+ * Ts already on it.
+ */
+function rotateStage(C: Ctx, from: number, site: SiteId): number {
+    const g = C.g
+    const center = g.siteNodes[site]
+    const hidden = hiddenFrom(C.D, site)
+    const path = g.path(from, center)
+    let acc = 0
+    for (let i = path.length - 2; i >= 0; i--) {
+        acc += g.cost(path[i], path[i + 1])
+        if (acc >= T.SIGHT_ROTATE_STAGE && (hidden[path[i]] || acc >= T.SIGHT_ROTATE_FAR)) return path[i]
+    }
+    return from
+}
+
 function rotate(C: Ctx, b: Body, site: SiteId, t: number): void {
     if (!b.a.alive || b.saving || C.called.plant !== undefined) return
     const g = C.g
     const center = g.siteNodes[site]
-    const stage = shortOf(g, b.node, center, T.SIGHT_ROTATE_STAGE)
+    const stage = rotateStage(C, b.node, site)
     b.a.post = site
     b.task = "rotate"
     const spot = siteSpots(C, site, stage, 1, C.CTs.filter(x => x !== b && x.a.alive).map(x => x.node))[0]

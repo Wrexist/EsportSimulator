@@ -51,8 +51,8 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
 // Real effects, read from the constants the match engine (script-v1,
 // engine/match/round-sim) applies. "Team strength" is its non-player edge:
 // every factor below is summed per team, the difference between the teams is
-// capped at ±10% and shifts every duel (team-edge.ts); measured, +1% ≈ +0.14%
-// of rounds won ≈ +0.43 map-win points.
+// capped at ±10% and shifts every duel (team-edge.ts); measured, +1% ≈ +0.17%
+// of rounds won ≈ +0.52 map-win points.
 // - VOD review adds 25 tactical prep; prep / 400 → +6.25% for this match.
 // - Mental reset: +15 roster morale (store; morale is part of each player's
 //   duel condition) and +3% team strength.

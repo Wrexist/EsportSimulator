@@ -153,7 +153,9 @@ describe('HP timing', () => {
             }
             for (const u of r.utility ?? []) {
                 if (u.kind !== 'molotov' || !u.hit) continue
-                const ticks = hp.hits.filter(h => h.source === 'grenade' && h.victimId === u.hit && h.attackerId === u.playerId && h.t >= u.t - 1e-6 && h.t <= u.t + 2)
+                // The same thrower can follow up with an HE on the same victim; its hit is not a burn tick.
+                const heAt = (r.utility ?? []).filter(v => v.kind === 'he' && v.hit === u.hit && v.playerId === u.playerId).map(v => v.t)
+                const ticks = hp.hits.filter(h => h.source === 'grenade' && h.victimId === u.hit && h.attackerId === u.playerId && h.t >= u.t - 1e-6 && h.t <= u.t + 2 && !heAt.some(t => Math.abs(t - h.t) < 1e-6))
                 expect(ticks.length).toBeGreaterThan(0)
                 expect(ticks.length).toBeLessThanOrEqual(MOLOTOV_TICKS)
                 for (const h of ticks) expect(h.t).toBeLessThan(died.get(u.hit) ?? Infinity)

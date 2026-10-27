@@ -417,6 +417,7 @@ describe('the radar replays what the engine did', () => {
         expect(drifted / frames).toBeGreaterThan(0.3)
         // A drifted point between two samples can graze a raster corner; the samples themselves are checked.
         expect(offGround / drifted).toBeLessThan(0.02)
-        expect(stillLoose / frames).toBeLessThan(0.7 * stillRaw / frames)
+        // Drift stops near enemies, and held angles, fallbacks and crossfires keep more players close to them (team play, 2026-10).
+        expect(stillLoose / frames).toBeLessThan(0.72 * stillRaw / frames)
     })
 })

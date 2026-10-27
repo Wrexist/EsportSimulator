@@ -20,7 +20,8 @@ export const REGROUP_EDGE = 0.04
  * on the sight engine it moves the round-win chance by less than its face
  * value. Measured 2026-10-24 with paired rounds (same state, same dice, with
  * and without the regroup; scripts/odds/win-odds-calibration.ts effects):
- * 36.3% → 39.2% over 6,601 rounds, +2.9 points.
+ * 36.3% → 39.2% over 6,601 rounds, +2.9 points; re-measured 2026-10-27 with
+ * team play: 36.2% → 39.5% over 6,538 rounds, +3.2 points.
  */
 export const REGROUP_ROUND_WIN_PTS = 3
 /** Losses in a row before a regroup helps ("no benefit without a losing streak"). */
