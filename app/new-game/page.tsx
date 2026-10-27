@@ -325,6 +325,13 @@ export default function TeamSelectionPage() {
         router.push("/new-game/draft-cup")
     }
 
+    // C10: a pro career, playing as one young player.
+    const handleProCareer = () => {
+        if (!validateManagerName()) return
+        saveCareerDraft({ managerName: managerName.trim() })
+        router.push("/new-game/pro")
+    }
+
     // G9: start with no club. The world is built around a placeholder club
     // (the lowest-reputation side, never managed) and the career opens on
     // the first-job market.
@@ -413,7 +420,7 @@ export default function TeamSelectionPage() {
                     </Link>
 
                     <div className="my-auto w-full max-w-[420px] py-12">
-                        <ScreenHeader eyebrow="Step 1 of 2" title="New career" subtitle="Name your manager, then take over a club, found your own, or play a short Draft Cup." />
+                        <ScreenHeader eyebrow="Step 1 of 2" title="New career" subtitle="Name your manager, then take over a club, found your own, start as a pro player, or play a short Draft Cup." />
 
                         <div className="mt-8 space-y-2">
                             <label htmlFor="manager-name" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Manager name</label>
@@ -465,6 +472,13 @@ export default function TeamSelectionPage() {
                                 <span>
                                     <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">Start without a club</span>
                                     <span className="mt-1 block text-[13px] font-medium text-ink-3">Take a job offer from a lower-tier side and earn your way up</span>
+                                </span>
+                                <ChevronRight />
+                            </Button>
+                            <Button onClick={handleProCareer} variant="outline" className="h-auto w-full justify-between px-4 py-3 text-left">
+                                <span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">Pro career</span>
+                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">Play as one 17-year-old and fight for a place in the lineup</span>
                                 </span>
                                 <ChevronRight />
                             </Button>

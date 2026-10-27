@@ -1,5 +1,6 @@
 import { generateCareerDecision } from "./career-decisions"
 import { applyMapRotation, rotateSeasonMapPool } from "./season/map-rotation"
+import { isProActive, processProWeek, handClubDecisionsToStaff } from "./pro-career"
 import { expireDecisions, normalizeDecisions } from "./decision-deadlines"
 import { processStorylines } from "./storylines"
 import { createPressConference } from "./storylines/press"
@@ -489,7 +490,8 @@ export class AtomicWeekProcessor {
                 this.processScoutingMissions(save, idx)
 
                 // Phase 60: Job Market - Generate job offers based on performance
-                JobOfferGenerator.processWeeklyJobOffers(save, rng)
+                // C10: a pro gets club offers instead (engine/pro-career.ts).
+                if (!isProActive(save)) JobOfferGenerator.processWeeklyJobOffers(save, rng)
 
                 // Name the event that moved a player when one names them.
                 const freshByPlayer = new Map<string, ChangeCause>()
@@ -727,7 +729,14 @@ export class AtomicWeekProcessor {
             perfTrace.step("step.12b_storylines", __sStories)
             // Every open request gets its deadline and default; a repeat of an
             // open request refreshes it instead of stacking (Phase 4.9).
+            // C10: the pro's week (contract, the coach's lineup, offers), then
+            // the staff answer the club's decisions with their defaults.
+            if (isProActive(save)) processProWeek(save)
             normalizeDecisions(save)
+            if (handClubDecisionsToStaff(save) > 0) {
+                expireDecisions(save, d => mark({ type: "decision", label: `Staff answered: ${d.label}` }))
+                normalizeDecisions(save)
+            }
             result.changes = changes.result()
 
             // Guard long-running saves against unbounded log growth.

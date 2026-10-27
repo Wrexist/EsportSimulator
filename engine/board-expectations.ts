@@ -435,6 +435,8 @@ function tenureWeeks(save: GameSave): number {
 
 /** Warning → final warning (on notice) → dismissal; recovery clears warnings. */
 function applyConsequences(save: GameSave, board: BoardState, events: string[]): boolean {
+    // C10: in a pro career the staff run the club; there is no manager to warn or dismiss.
+    if (save.proCareer && save.proCareer.retiredWeek == null) return false
     const team = save.teams.find(t => t.id === save.playerTeamId)
     const name = team?.name ?? "the club"
     const reasons = (board.history ?? []).filter(m => m.delta < 0).slice(0, 3).map(m => m.cause.toLowerCase()).join("; ")
@@ -618,7 +620,7 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
     }
 
     // Dismissal at the review: on notice going in and the meter at the sack line.
-    const sacked = wasOnNotice && board.confidence <= BOARD_TUNING.SACK_AT_OR_BELOW
+    const sacked = wasOnNotice && board.confidence <= BOARD_TUNING.SACK_AT_OR_BELOW && !(save.proCareer && save.proCareer.retiredWeek == null)
     if (sacked) {
         dismiss(save, board, `The season review left board confidence at ${Math.round(board.confidence)}/100 after a final warning.`)
     } else {

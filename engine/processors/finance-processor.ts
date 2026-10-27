@@ -117,7 +117,8 @@ export class FinanceProcessor {
             if (team.financialState === "INSOLVENT") {
                 team.consecutiveInsolventWeeks = (team.consecutiveInsolventWeeks ?? 0) + 1
                 // 8 consecutive weeks of insolvency = team dissolved
-                if (team.id === playerTeamId && team.consecutiveInsolventWeeks >= 8) {
+                // C10: a pro's club is run by its staff; it does not end the career.
+                if (team.id === playerTeamId && team.consecutiveInsolventWeeks >= 8 && !(save.proCareer && save.proCareer.retiredWeek == null)) {
                     save.gameOverReason = "BANKRUPTCY"
                     save.gameOverWeek = save.currentWeek
                 }

@@ -56,9 +56,16 @@ export function reconcileTeamRoles(players: PlayerSaveData[]): void {
     const assignedPlayerIds = new Set<string>()
     const remainingSpecialties: typeof SPECIALTIES = []
 
+    // C10: a locked role (the pro's own choice) is kept and its slot taken.
+    const lockedRoles = new Set<string>()
+    for (const p of players) {
+        if (p.roleLocked && p.role) { assignedPlayerIds.add(p.id); lockedRoles.add(p.role) }
+    }
+
     // 2. Hysteresis pass: keep an incumbent if they still qualify for their
     //    current role. Their slot is locked — no other candidate competes.
     for (const spec of SPECIALTIES) {
+        if (lockedRoles.has(spec.id)) continue
         const incumbent = players.find(p =>
             !assignedPlayerIds.has(p.id) &&
             p.role === spec.id &&
