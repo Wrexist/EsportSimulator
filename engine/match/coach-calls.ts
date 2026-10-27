@@ -71,6 +71,7 @@ export function coachCallBlocked(kind: CoachCallKind, s: CoachCallState): string
     if (s.t < COACH_CALL_FIRST) return "Let the round start"
     const last = s.calls[s.calls.length - 1]
     if (last && s.t - last.t < COACH_CALL_COOLDOWN) return `Wait ${Math.ceil(COACH_CALL_COOLDOWN - (s.t - last.t))} s`
-    if (s.planted && kind !== "save") return "The bomb is down"
+    // After the plant only the CTs can still save; the Ts play it out.
+    if (s.planted && (kind !== "save" || !s.ct)) return "The bomb is down"
     return null
 }

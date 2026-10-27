@@ -64,9 +64,10 @@ describe('coach call rules', () => {
         expect(coachCallBlocked('hold', { ...base, t: 40, calls: [{ t: 5, kind: 'rotateA' }, { t: 20, kind: 'hold' }] })).toBe('2 calls per round')
         expect(coachCallBlocked('hold', { ...base, over: true })).toBe('The round is over')
     })
-    it('only allows a save once the bomb is down', () => {
+    it('only allows a CT save once the bomb is down', () => {
         expect(coachCallBlocked('rotateB', { ...base, planted: true })).toBe('The bomb is down')
         expect(coachCallBlocked('save', { ...base, planted: true })).toBeNull()
+        expect(coachCallBlocked('save', { ...base, ct: false, planted: true })).toBe('The bomb is down')
     })
 })
 

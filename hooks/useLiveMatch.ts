@@ -281,6 +281,9 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
     // R2: the round as it started (state + decision), so a mid-round coach call can play it again.
     const roundStartRef = useRef<{ state: LegacySeriesState; decision: LegacyRoundDecision; mapIndex: number; roundNumber: number; managedWon: boolean; calls: CoachCallRecord[] } | null>(null)
     const [coachCalls, setCoachCalls] = useState<CoachCallRecord[]>([])
+    // The round (`map:round`) calls can be made in: one started on this screen (a round
+    // restored from a checkpoint mid-flight has no start state to replay from).
+    const [coachRoundKey, setCoachRoundKey] = useState<string | null>(null)
     const hasInitialized = useRef(false)
     const isMountedRef = useRef(true)
     const lastProcessedTime = useRef(-1)
@@ -646,6 +649,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         const step = playLegacyRound(runtime.ctx, startState, decision)
         roundStartRef.current = { state: startState, decision, mapIndex, roundNumber: currentRoundNumber, managedWon: step.round.winningTeamId === runtime.ctx.managedTeamId, calls: [] }
         setCoachCalls([])
+        setCoachRoundKey(`${mapIndex}:${currentRoundNumber}`)
 
         // Consume one round of regroup pressure relief.
         if (timeoutBoostRoundsRef.current > 0) {
@@ -1363,6 +1367,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         callTimeout,
         callCoach,
         coachCalls,
+        coachRoundKey,
         customTactics,
         teams,
         updateCustomTactic,

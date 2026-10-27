@@ -94,6 +94,7 @@ export default function LiveMatchPage() {
         endIntro,
         callCoach,
         coachCalls,
+        coachRoundKey,
     } = useLiveMatch(params.id, { introKey: `intro:${params.id}` })
     const router = useRouter()
     // Dev builds count the page's commits on window.__liveCommits (perf tooling).
@@ -287,7 +288,7 @@ export default function LiveMatchPage() {
     const ownRoster = isPlayerHome ? homeRoster : awayRoster
     // R2: the managed team's side in the round on screen, and its call bar.
     const ownCT = isPlayerHome ? homeIsCT : !homeIsCT
-    const coachBar = roundLive && gameState.status === "IN_PROGRESS" && !decisionOverlay
+    const coachBar = roundLive && gameState.status === "IN_PROGRESS" && !decisionOverlay && roundView != null && roundView.key === coachRoundKey
         ? <CoachCallBar ct={ownCT} calls={coachCalls} clock={liveClock} planted={isBombPlanted} roundEnd={liveClock.end} onCall={callCoach} />
         : null
     const ownOriginal = isPlayerHome ? originalHomeMap : originalAwayMap
