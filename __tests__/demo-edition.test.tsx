@@ -19,6 +19,8 @@ const { weekProcessorBridge } = require('@/engine/worker/week-processor-bridge')
 const { debouncedStorage } = require('@/engine/storage-adapter')
 const { TopBar } = require('@/components/layout/TopBar')
 const { DemoEnd } = require('@/components/demo/DemoEnd')
+const { DemoTour } = require('@/components/demo/DemoTour')
+const { DEMO_TOUR, demoTourDone, demoTourStopForPath } = require('@/lib/demo-tour')
 const { editionOf, parseDemoAppId } = require('../electron/edition.cjs')
 const { resolveAppId } = require('../electron/steam-app-id.cjs')
 const { demoAppIdFrom } = require('../scripts/dist-demo.cjs')
@@ -78,6 +80,7 @@ test('the end screen points to the full game store page and the next week', () =
     expect(html).toContain('https://store.steampowered.com/app/4326170/')
     expect(html).toContain(`week ${DEMO_LAST_WEEK + 1}`)
     expect(html).toContain('Demo Club')
+    expect(html).toContain('The majors')
 })
 
 test('the demo package runs Steam as its own app, never as the full game', () => {
@@ -107,4 +110,27 @@ test('the demo build and upload scripts take only a demo App ID and depot', () =
     expect(depot).toContain('"DepotID" "4500001"')
     expect(depot).not.toContain('4326171')
     expect(depot).toContain('"FileExclusion" "steam_appid.txt"')
+})
+
+test('the demo tour ticks a stop when its screen is opened or the career shows it', () => {
+    expect(demoTourStopForPath('/match/m1/live')).toBe('live')
+    expect(demoTourStopForPath('/match/m1/tactics')).toBe('playbook')
+    expect(demoTourStopForPath('/match/m1/result')).toBeNull()
+    expect(demoTourStopForPath('/transfers')).toBe('market')
+    expect(demoTourStopForPath('/scouting')).toBe('market')
+    expect(demoTourStopForPath('/new-game/draft-cup')).toBe('draftCup')
+    expect(demoTourStopForPath('/')).toBeNull()
+    expect([...demoTourDone(['week'], {})]).toEqual(['week'])
+    expect(demoTourDone([], { playbook: { maps: {} }, signedPlayer: true })).toEqual(new Set(['playbook', 'market']))
+    // Every stop links somewhere a career can open.
+    for (const item of DEMO_TOUR) expect(item.href.startsWith('/')).toBe(true)
+})
+
+test('Home shows the demo tour with every stop and the weeks left', () => {
+    career(4, { teams: [{ id: 'team-1', name: 'Demo Club', rosterIds: [] }], transferHistory: [], draftCup: null })
+    Object.assign(useGameStore.getInitialState(), useGameStore.getState())
+    const html = renderToStaticMarkup(<DemoTour demo />)
+    for (const item of DEMO_TOUR) expect(html).toContain(item.label)
+    expect(html).toContain('9 demo weeks left')
+    expect(renderToStaticMarkup(<DemoTour demo={false} />)).toBe('')
 })

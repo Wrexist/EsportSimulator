@@ -9,6 +9,7 @@ import { useShallow } from "zustand/react/shallow"
 import { NewsFeed } from "@/components/dashboard/NewsFeed"
 import { ActionCenter } from "@/components/dashboard/ActionCenter"
 import { GettingStartedChecklist } from "@/components/dashboard/GettingStartedChecklist"
+import { DemoTour } from "@/components/demo/DemoTour"
 import { LastWeekPanel } from "@/components/report/LastWeekPanel"
 import { StorylinesPanel } from "@/components/storylines/StorylinesPanel"
 import { DismissalJobMarket } from "@/components/career/DismissalJobMarket"
@@ -588,6 +589,7 @@ export default function Page() {
         {/* Right rail: decisions first */}
         <aside className="min-w-0 space-y-4">
           <GettingStartedChecklist />
+          <DemoTour />
           <ActionCenter />
           <StorylinesPanel />
           <LastWeekPanel />
