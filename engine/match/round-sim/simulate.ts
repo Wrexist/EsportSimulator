@@ -35,6 +35,7 @@ import { heDamage, heLandingDistance } from "../grenade-damage"
 import type { PlayerSimulationState } from "../round-outcome"
 import type { SiteId, UtilityKind } from "../round-script-types"
 import type { RoundCalls } from "../playbook"
+import type { CoachCall } from "../coach-calls"
 import { aimPoints, TRAIT_AGGRESSIVE, TRAIT_CLUTCHER, TRAIT_PASSIVE, TRAIT_TRADER, type SimProfile } from "./profile"
 import { TUNING as T } from "./tuning"
 import { WEAPON_CLASSES, isSaveWorthy, isSniperClass, weaponClassOf, type WeaponClass, type WeaponClassSpec } from "./weapons"
@@ -82,6 +83,8 @@ export interface SimInput {
     contacts?: readonly Contact[]
     /** G1: calls the round takes from the managers' playbooks (fixed T strategy / site, CT setup). */
     calls?: RoundCalls
+    /** R2: the managed team's mid-round calls (side: `ct`), each taking effect at its second. */
+    coach?: { ct: boolean; calls: readonly CoachCall[] }
 }
 
 /** Two enemies in plain sight of each other at `t` (round seconds), at baked zone `zone`. */
@@ -335,7 +338,7 @@ export function keyedRoll(R: Round, purpose: number, subject: number): number {
 /** Purposes of the round's random draws, each its own stream (subject 4095 of keyedRoll). */
 export const P = {
     plan: 16, jobs: 17, early: 18, flow: 19, util: 20, retakeUtil: 21, pickAtt: 22, pickDef: 23, step: 24,
-    fallback: 25, trade: 26, lurk: 27, late: 28, retake: 29, spots: 30,
+    fallback: 25, trade: 26, lurk: 27, late: 28, retake: 29, spots: 30, coach: 31,
 } as const
 
 /** A SeededRNG whose n-th draw is the n-th keyed roll of one purpose. */

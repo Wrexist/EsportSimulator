@@ -47,6 +47,7 @@ import {
 } from "./simulate"
 import { TUNING as T } from "./tuning"
 import { isSniperClass, isSaveWorthy, type WeaponClass } from "./weapons"
+import type { CoachCallKind } from "../coach-calls"
 import { zonePoint, type MapZones } from "./zones"
 
 // Math is read once: global lookups are slow inside Jest's sandbox.
@@ -279,6 +280,8 @@ interface Ctx {
     end: RoundEnd | null
     /** Site centre nodes, A then B. */
     siteNode: [number, number]
+    /** R2: the CT coach called "hold for retake". */
+    coachHold?: boolean
 }
 
 const pairKey = (a: Body, b: Body) => a.k * 16 + b.k
@@ -482,6 +485,8 @@ function sidePts(C: Ctx, me: Body, foe: Body, f: Fight, t: number): number {
     // Post-plant: the Ts sit on angles around the bomb, the CTs have to come to them.
     // Fewer Ts than retakers leave angles open: the CTs clear them one at a time.
     if (!a.ct && me.task === "post" && foe.task === "retake") s += max(0, T.SIGHT_POST - T.SIGHT_POST_OPEN * max(0, countAlive(R.CT) - countAlive(R.T)))
+    // A retake the coach held for comes in together, with its utility (R2 "hold for retake").
+    if (a.ct && C.coachHold && me.task === "retake") s += T.SIGHT_COACH_HOLD
     // Team play: mates close by who see the foe too (a crossfire, a ready trade).
     s += T.SIGHT_SUPPORT * supporters(C, me, foe, f.t0)
     if (a.p.traits & TRAIT_AGGRESSIVE && isMoving) s += 1
@@ -1172,6 +1177,96 @@ function call(C: Ctx, site: SiteId, t: number): void {
     }
 }
 
+// ─── Coach calls (R2) ──────────────────────────────────────────────────────
+
+/** The managed team's mid-round call, from second `t` on. A call the round no longer allows does nothing. */
+function coachCall(C: Ctx, kind: CoachCallKind, ct: boolean, t: number): void {
+    const R = C.R
+    if (C.end) return
+    if (kind === "save") {
+        if (ct) ctSave(C, t)
+        else if (!R.bomb.planted) tSave(C, t)
+        return
+    }
+    if (R.bomb.planted) return
+    if (ct) {
+        if (C.ctSaving) return
+        if (kind === "rotateA" || kind === "rotateB") return coachRotate(C, kind === "rotateA" ? "A" : "B", t)
+        if (kind === "hold") return coachHold(C, t)
+        return
+    }
+    if (C.tSaving) return
+    if (kind === "go") {
+        // Everyone in now; the planned timing no longer applies.
+        C.execAt = min(C.execAt, t)
+        execute(C, t)
+        for (const f of C.fakers) if (f.a.alive && !f.saving && f.task !== "exec") {
+            f.task = "exec"
+            setQueue(f, [{ node: C.plantNode, at: t, pace: RUN, look: C.g.point(C.g.siteNodes[R.S.id]) }])
+        }
+    } else if (kind === "swing") coachSwing(C, t)
+}
+
+/** Every CT not already holding `site` moves there (the call is the information a rotation waits for). */
+function coachRotate(C: Ctx, site: SiteId, t: number): void {
+    const g = C.g
+    const center = g.siteNodes[site]
+    if (C.called[site] === undefined) C.called[site] = t
+    let k = 0
+    for (const b of C.CTs) {
+        if (!b.a.alive || b.saving || b.busy) continue
+        if (b.a.post === site && g.dist(b.node, center) <= T.SIGHT_SITE_RADIUS + 6) continue
+        const at = t + 0.3 * k++
+        rotate(C, b, site, at)
+    }
+}
+
+/** The site with more Ts on it is given up: its CTs fall back out of its sight and the team retakes it together. */
+function coachHold(C: Ctx, t: number): void {
+    const g = C.g
+    const tsNear = (s: SiteId) => C.Ts.filter(b => b.a.alive && g.dist(b.node, g.siteNodes[s]) <= T.SIGHT_SITE_RADIUS + 12).length
+    const site: SiteId = tsNear("A") >= tsNear("B") ? "A" : "B"
+    const center = g.siteNodes[site]
+    const hidden = hiddenFrom(C.D, site)
+    for (const b of C.CTs) {
+        if (!b.a.alive || b.saving || b.busy || g.dist(b.node, center) > T.SIGHT_SITE_RADIUS + 8) continue
+        const home = g.path(b.node, b.spawn)
+        let n = home[min(6, home.length - 1)]
+        for (let i = 1; i < home.length; i++) if (hidden[home[i]] && g.dist(home[i], center) >= T.SIGHT_ROTATE_STAGE) { n = home[i]; break }
+        b.task = "fallback"
+        b.a.post = site
+        setQueue(b, [{ node: n, at: t, pace: RUN, look: g.point(center) }])
+    }
+    // Rotators stop at their stage instead of walking in one by one; nobody else is sent in before the plant.
+    C.coachHold = true
+    if (C.called[site] === undefined) C.called[site] = t
+    for (const b of C.CTs) if (b.a.alive && b.task === "rotate" && b.a.post === site && b.queue.length > 1) b.queue = b.queue.slice(0, 1)
+}
+
+/** The hit turns around: the bomb and every T head for the other site (CTs who rotated to the first one are caught out). */
+function coachSwing(C: Ctx, t: number): void {
+    const { R, g } = C
+    const from = R.S
+    R.S = R.O
+    R.O = from
+    C.plan.site = R.S.id
+    const plants = g.plantNodes[R.S.id]
+    C.plantNode = plants.length ? plants[floor(rnd(R, P.coach).next() * plants.length)] : g.siteNodes[R.S.id]
+    for (const b of C.Ts) {
+        const st = b as Staged
+        st.target = undefined
+        st.route = undefined
+        if (b.task === "post") b.task = ""
+    }
+    // The planter stops planting on the old site.
+    if (C.planter?.busy === "plant") { C.planter.busy = ""; C.planter.busyUntil = 0 }
+    C.executed = false
+    C.utilThrown = false
+    const at = t + 1
+    C.execAt = at
+    C.jobs.push({ t: at, run: () => execute(C, at) })
+}
+
 /** Nodes the site core (within SIGHT_SITE_CORE of its centre) cannot see within SIGHT_RANGE. */
 function hiddenFrom(D: MapData, site: SiteId): Uint8Array {
     const cache = D as MapData & { hidden?: Partial<Record<SiteId, Uint8Array>> }
@@ -1287,7 +1382,9 @@ function startRetake(C: Ctx, t: number): void {
     if (C.retakeStarted) return
     C.retakeStarted = true
     const { g, R } = C
-    if (countAlive(R.T) && wantsSave(C, t)) return ctSave(C, t)
+    // A retake the coach held for is played unless it is clearly lost.
+    const held = C.coachHold && countAlive(R.CT) >= countAlive(R.T) - 1
+    if (countAlive(R.T) && !held && wantsSave(C, t)) return ctSave(C, t)
     retakeUtility(C, t)
     const cts = C.CTs.filter(b => b.a.alive && !b.saving)
     const defuser = cts.filter(b => b.a.kit).sort((a, b) => g.pathDist(a.node, C.bombNode) - g.pathDist(b.node, C.bombNode))[0]
@@ -1548,6 +1645,10 @@ export function simulateSightRound(input: SimInput, map: RoundMap): SimOutput & 
         if (plan.strategy === "fake" && C.fakers.length) C.jobs.push({ t: plan.fakeAt, run: () => fake(C, plan.fakeAt) })
         // A hit that never started (everyone stuck in fights) goes in late anyway.
         C.jobs.push({ t: LATEST_PLANT_START - 22, run: () => execute(C, LATEST_PLANT_START - 22) })
+    }
+    for (const c of input.coach?.calls ?? []) {
+        const ct = input.coach!.ct
+        C.jobs.push({ t: c.t, run: () => coachCall(C, c.kind, ct, c.t) })
     }
 
     const maxT = ROUND_TIME + BOMB_TIME + 5

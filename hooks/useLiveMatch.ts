@@ -15,9 +15,13 @@ import {
     finalizeLegacySeries,
     playLegacyRound,
     MANAGER_STRATEGIES,
+    type LegacyRoundDecision,
     type LegacySeriesContext,
+    type LegacySeriesState,
     type ManagerStrategy,
 } from "@/engine/match/legacy-series"
+import { COACH_CALL_LABEL, coachCallBlocked, type CoachCallKind, type CoachCallRecord } from "@/engine/match/coach-calls"
+import { forgetLastRoundCalls } from "@/engine/match/round-sim"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { soundManager } from "@/lib/sound-manager"
 import { playMatchOutcomeCue } from "@/lib/match-outcome-sound"
@@ -274,6 +278,9 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
     // Set while "Skip match" reveals a round: no per-round win/lose cue.
     const silentPlaybackRef = useRef(false)
     const roundInFlightRef = useRef(false)
+    // R2: the round as it started (state + decision), so a mid-round coach call can play it again.
+    const roundStartRef = useRef<{ state: LegacySeriesState; decision: LegacyRoundDecision; mapIndex: number; roundNumber: number; managedWon: boolean; calls: CoachCallRecord[] } | null>(null)
+    const [coachCalls, setCoachCalls] = useState<CoachCallRecord[]>([])
     const hasInitialized = useRef(false)
     const isMountedRef = useRef(true)
     const lastProcessedTime = useRef(-1)
@@ -634,7 +641,11 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         // Kickoff cue once per match (shares the countdown's once-per-kickoff gate with the match intro).
         if (mapIndex === 0 && currentRoundNumber === 1) soundManager.play("matchStart", { key: `kickoff:${id}` })
 
-        const step = playLegacyRound(runtime.ctx, { sim: currentSimState, maps: runtime.result.maps, finished: false }, { strategy, regroup: regrouping, customTactics })
+        const startState: LegacySeriesState = { sim: currentSimState, maps: runtime.result.maps, finished: false }
+        const decision: LegacyRoundDecision = { strategy, regroup: regrouping, customTactics }
+        const step = playLegacyRound(runtime.ctx, startState, decision)
+        roundStartRef.current = { state: startState, decision, mapIndex, roundNumber: currentRoundNumber, managedWon: step.round.winningTeamId === runtime.ctx.managedTeamId, calls: [] }
+        setCoachCalls([])
 
         // Consume one round of regroup pressure relief.
         if (timeoutBoostRoundsRef.current > 0) {
@@ -1225,6 +1236,58 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         soundManager.play("notification")
     }, [isWaitingForStrategy, setIsAutoTactics])
 
+    /**
+     * R2: a mid-round call for the managed team. The round is played again from
+     * its start with the call taking effect at the radar's current second: what
+     * was already shown stays the same, the rest of the round follows the call.
+     * Returns why the call cannot be made, or null once it is made.
+     */
+    const callCoach = useCallback((kind: CoachCallKind): string | null => {
+        const runtime = matchData.current
+        const start = roundStartRef.current
+        const live = roundScriptRef.current
+        const series = runtime?.ctx.script
+        if (!runtime || !start || !live || !series || live.mapIndex !== start.mapIndex || live.roundNumber !== start.roundNumber) return "No round to call"
+        const round = runtime.result.maps[start.mapIndex]?.rounds.find(r => r.roundNumber === start.roundNumber)
+        if (!round) return "No round to call"
+        // On the engine's 0.25 s tick, a moment after what is on screen.
+        const t = Math.ceil((liveClock.now() + 0.1) * 4) / 4
+        const plantT = live.script.bomb.plant?.t
+        const blocked = coachCallBlocked(kind, {
+            t,
+            ct: round.ctTeam === runtime.ctx.managedTeamId,
+            calls: start.calls,
+            planted: plantT !== undefined && plantT <= t,
+            over: t >= liveClock.end - 0.5,
+        })
+        if (blocked) return blocked
+        const calls = [...start.calls, { t, kind, without: start.managedWon ? "won" as const : "lost" as const }]
+        forgetLastRoundCalls(series)
+        const step = playLegacyRound(runtime.ctx, start.state, { ...start.decision, coachCalls: calls })
+        runtime.result.maps = step.state.maps
+        latestSimStateRef.current = step.state.sim
+        setSimState(step.state.sim)
+        const loadouts = { ...step.preRound.home, ...step.preRound.away }
+        const next = buildLiveRoundScript({
+            ctx: runtime.ctx,
+            mapId: runtime.canonicalMaps[start.mapIndex] ?? step.state.maps[start.mapIndex]?.map ?? "",
+            mapIndex: start.mapIndex,
+            round: step.round,
+            loadouts,
+        })
+        setRoundScript(next)
+        currentRoundEvents.current = annotateRoundEvents(step.round.events || [], next)
+        const view = makeRoundView(runtime, start.mapIndex, step.round, next, currentRoundEvents.current, loadouts)
+        setRoundView(view)
+        liveClock.startRound(view.pacing, t)
+        start.calls = calls
+        start.managedWon = step.round.winningTeamId === runtime.ctx.managedTeamId
+        setCoachCalls(calls)
+        setLogs(prev => [{ type: "SYSTEM", message: `Coach call: ${COACH_CALL_LABEL[kind]}` }, ...prev])
+        soundManager.play("notification")
+        return null
+    }, [liveClock, setRoundScript, setRoundView])
+
     const handleFinish = useCallback(() => {
         const runtime = matchData.current
         const sim = latestSimStateRef.current
@@ -1298,6 +1361,8 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         timeoutsRemaining,
         timeoutActive: timeoutBoostRounds > 0,
         callTimeout,
+        callCoach,
+        coachCalls,
         customTactics,
         teams,
         updateCustomTactic,

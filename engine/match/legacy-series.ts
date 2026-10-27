@@ -52,6 +52,7 @@ import type {
 import { EconomyManager } from '../economy-manager'
 import { createMatchRNG, deriveSeed, type SeededRNG } from '../rng'
 import { applyRoundEconomy, getMapsToWinForFormat, resolveHomeStartsCT } from '@/lib/live-match-utils'
+import type { CoachCallRecord } from './coach-calls'
 import { managedLoadout, regroupEdge, restoreTimeoutState, spendTimeout, type TimeoutState } from './manager-controls'
 import { determineMapMVP, determineMVP, generateMatchStats, generateScriptMatchStats } from './match-stats'
 import type { BuyStrategy } from './buy-phase'
@@ -174,6 +175,8 @@ export interface LegacyRoundDecision {
     regroup?: boolean
     /** Current managed loadouts (the live screen may edit them between rounds). */
     customTactics?: CustomTactics
+    /** R2: the managed team's mid-round calls (the live screen plays the round again with them). */
+    coachCalls?: readonly CoachCallRecord[]
 }
 
 export interface LegacyRoundStep {
@@ -386,6 +389,7 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     ctx.engine.performBuyPhase(away.players, aEcon, awayStrategy, !homeIsCT, rng, managedLoadout(tactics, away.team.id, ctx.managedTeamId))
     const preRound = { home: structuredClone(hEcon), away: structuredClone(aEcon) }
 
+    const coach = (managedHome || managedAway) && ctx.script ? decision.coachCalls ?? [] : []
     const regroupHome = !!decision.regroup && managedHome
     const regroupAway = !!decision.regroup && managedAway
     const ctId = homeIsCT ? home.team.id : away.team.id
@@ -397,15 +401,15 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
         roundNum, hEcon, aEcon, homeStrategy, awayStrategy, ctx.isHighPressure, home.team, away.team, ctId, tId, tactics,
         sim.homeMomentumScore, sim.awayMomentumScore, home.staff, away.staff, mapId, ctx.matchStage, home.stressRes, away.stressRes, ctx.playerMap,
         regroupEdge(sim.homeLossStreak, regroupHome), regroupEdge(sim.awayLossStreak, regroupAway),
-        ctx.script ? { series: ctx.script, mapIndex } : undefined,
+        ctx.script ? { series: ctx.script, mapIndex, ...(coach.length && ctx.managedTeamId ? { coach: { teamId: ctx.managedTeamId, calls: coach } } : {}) } : undefined,
     )
     const homeWon = r.winner === 'HOME'
 
     const playerEconomy = [...home.players.map(p => ({ p, e: hEcon[p.id] })), ...away.players.map(p => ({ p, e: aEcon[p.id] }))].map(({ p, e }) => ({
         playerId: p.id, spent: (preBuyCash[p.id] || 0) - e.cash, remaining: e.cash, weapon: e.weapon, hasArmor: e.hasArmor, hasHelmet: e.hasHelmet, hasKit: e.hasKit,
     }))
-    const managerCall = (managedHome || managedAway) && (call && !pistol || decision.regroup)
-        ? { ...(call && !pistol ? { strategy: call } : {}), ...(decision.regroup ? { regroup: true } : {}) }
+    const managerCall = (managedHome || managedAway) && (call && !pistol || decision.regroup || coach.length)
+        ? { ...(call && !pistol ? { strategy: call } : {}), ...(decision.regroup ? { regroup: true } : {}), ...(coach.length ? { coachCalls: coach.map(c => ({ ...c })) } : {}) }
         : undefined
     const round: RoundResult = {
         roundNumber: roundNum,

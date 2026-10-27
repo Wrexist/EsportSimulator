@@ -25,6 +25,7 @@ import { BUY_OF, simulateScriptRound, type Contact, type SimOutput, type SimSide
 import { playSituation, sanitizePlaybook, tCallKey, type Playbook, type RoundCalls } from "../playbook"
 import { findContacts } from "./contacts"
 import { sightMapFor, simulateSightRound } from "./sight"
+import type { CoachCall } from "../coach-calls"
 import { cappedEdge, teamEdgeBreakdown, type StaffBundle, type TeamEdgeBreakdown } from "./team-edge"
 import { TUNING } from "./tuning"
 import { zonesFor } from "./zones"
@@ -60,6 +61,8 @@ export interface ScriptSeries {
     contacts: boolean
     /** G1: how often each team already ran each playbook call, per map (`map:team:t:call` / `map:team:ct:setup`). */
     callCounts?: Map<string, number>
+    /** The `callCounts` keys the last round played added to (see forgetLastRoundCalls). */
+    lastCounted?: string[]
 }
 
 /** Replays of a round with the contacts its script shows (each pass may uncover new ones). */
@@ -111,6 +114,8 @@ export function buildScriptSeries(args: { seed: number; matchId: string; home: S
 export interface ScriptRoundExtra {
     series: ScriptSeries
     mapIndex: number
+    /** R2: the managed team's mid-round calls this round. */
+    coach?: { teamId: string; calls: readonly CoachCall[] }
 }
 
 function normal(series: ScriptSeries, label: string, mapIndex: number, id: string, sd: number): number {
@@ -204,6 +209,7 @@ export class ScriptRoundEngine {
             tacticalWeight: tacticalWeight(mapId),
             rollKey: rng.int(1, 0x7ffffffe),
             ...roundCalls(series, mapIndex, mapId, homeIsCT, homeStrategy, awayStrategy),
+            ...(extra?.coach?.calls.length ? { coach: { ct: (extra.coach.teamId === series.home.teamId) === homeIsCT, calls: extra.coach.calls } } : {}),
         }
         // Players walk the map and fight whoever they see (sight.ts); the resolver is the fallback
         // for a map without a baked round map.
@@ -247,14 +253,28 @@ function roundCalls(series: ScriptSeries, mapIndex: number, mapId: MapId | undef
 
 /** G1: record the playbook calls this round ran (the opponent reads repeats). */
 function countCalls(series: ScriptSeries, mapIndex: number, input: { calls?: RoundCalls; homeIsCT: boolean; home: SimSide; away: SimSide }, out: SimOutput): SimOutput {
+    series.lastCounted = []
     const calls = input.calls
     if (!calls) return out
     const counts = series.callCounts ?? (series.callCounts = new Map())
-    const bump = (key: string) => counts.set(key, (counts.get(key) ?? 0) + 1)
+    const bump = (key: string) => { counts.set(key, (counts.get(key) ?? 0) + 1); series.lastCounted!.push(key) }
     const [tSide, ctSide] = input.homeIsCT ? [input.away, input.home] : [input.home, input.away]
     if (calls.t && out.plan.tStrategy !== "eco") bump(`${mapIndex}:${tSide.teamId}:t:${tCallKey(calls.t)}`)
     if (calls.ct) bump(`${mapIndex}:${ctSide.teamId}:ct:${calls.ct.setup}`)
     return out
+}
+
+/**
+ * Takes back the playbook-call counts of the round played last, so the same
+ * round can be played again (a mid-round coach call) from the same counts.
+ */
+export function forgetLastRoundCalls(series: ScriptSeries): void {
+    for (const key of series.lastCounted ?? []) {
+        const n = (series.callCounts?.get(key) ?? 0) - 1
+        if (n > 0) series.callCounts!.set(key, n)
+        else series.callCounts?.delete(key)
+    }
+    series.lastCounted = []
 }
 
 export const scriptRoundEngine = new ScriptRoundEngine()

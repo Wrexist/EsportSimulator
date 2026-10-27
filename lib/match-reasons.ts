@@ -9,6 +9,7 @@
  * happened, not a proof of cause.
  */
 import type { MatchEvent, MatchResult, PlayerMatchStats, RoundResult } from '@/types'
+import { COACH_CALL_LABEL } from '@/engine/match/coach-calls'
 
 export interface MatchReason {
     key: 'opening' | 'trades' | 'clutches' | 'pistols' | 'buys' | 'utility' | 'multikills'
@@ -22,6 +23,54 @@ export interface PlayerReason { playerId: string; rating: number; line: string }
 export interface MatchReasons {
     reasons: MatchReason[]
     players: PlayerReason[]
+    /** Mid-round coach calls (R2), when any were made. */
+    calls: CallsReason | null
+}
+
+/** One mid-round call and what it did to its round. */
+export interface CallLine {
+    map: string
+    round: number
+    label: string
+    /** 'won' = the call turned a lost round into a win, 'lost' = the reverse, null = same result either way. */
+    flipped: 'won' | 'lost' | null
+}
+
+export interface CallsReason {
+    calls: CallLine[]
+    /** Rounds the calls won minus rounds they lost. */
+    swing: number
+    text: string
+}
+
+/**
+ * Each call is judged against the same round played with the calls before it
+ * but not this one (recorded when the call was made); its own result is the
+ * next call's comparison, or the round's result for the last call.
+ */
+export function coachCallsReason(result: MatchResult, teamId: string): CallsReason | null {
+    const calls: CallLine[] = []
+    for (const map of result.maps) {
+        for (const r of map.rounds ?? []) {
+            const made = r.managerCall?.coachCalls ?? []
+            const won = r.winningTeamId === teamId
+            made.forEach((c, i) => {
+                const withIt = i + 1 < made.length ? made[i + 1].without === 'won' : won
+                const without = c.without === 'won'
+                calls.push({ map: map.map, round: r.roundNumber, label: COACH_CALL_LABEL[c.kind], flipped: withIt === without ? null : withIt ? 'won' : 'lost' })
+            })
+        }
+    }
+    if (!calls.length) return null
+    const gained = calls.filter(c => c.flipped === 'won').length
+    const cost = calls.filter(c => c.flipped === 'lost').length
+    const n = (k: number) => k === 1 ? '1 call' : `${k} calls`
+    const parts = [`You made ${n(calls.length)} during rounds.`]
+    if (gained) parts.push(`${n(gained)} won a round that was lost without it.`)
+    if (cost) parts.push(`${n(cost)} lost a round that was won without it.`)
+    if (!gained && !cost) parts.push(calls.length === 1 ? 'It did not change the result of its round.' : 'None of them changed the result of a round.')
+    const text = parts.join(' ')
+    return { calls, swing: gained - cost, text }
 }
 
 const BUY_RANK: Record<string, number> = { PISTOL: 0, ECO: 0, FORCE: 1, SEMIBUY: 2, FULL: 3, 'DOUBLE AWP': 3 }
@@ -137,7 +186,7 @@ export function buildMatchReasons(args: { result: MatchResult; teamId: string; i
     }
     players.sort((a, b) => b.rating - a.rating)
 
-    return { reasons: leaning.slice(0, 3), players }
+    return { reasons: leaning.slice(0, 3), players, calls: coachCallsReason(result, teamId) }
 }
 
 /** What drove one player's rating: up to two strengths, then the main weakness. */
