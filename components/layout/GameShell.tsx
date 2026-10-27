@@ -14,6 +14,7 @@ import { DraftCupResult } from "@/components/draft-cup/DraftCupResult"
 import { draftCupOutcome } from "@/engine/draft-cup"
 import { DemoEnd, DemoWeeksPill } from "@/components/demo/DemoEnd"
 import { IS_DEMO, demoWeekCapReached, demoWeeksLeft } from "@/lib/edition"
+import { demoTourStopForPath } from "@/lib/demo-tour"
 import Link from "next/link"
 import { useSettingsStore } from "@/lib/settings-store"
 import { Suspense, useEffect, useRef, useState, useCallback } from "react"
@@ -225,6 +226,11 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     const draftCupStage = useGameStore(state => !inCareer || !state.draftCup ? null : draftCupOutcome(state as never) ? "over" : "running")
     const demoOver = useGameStore(state => inCareer && demoWeekCapReached(state))
     const demoWeeks = useGameStore(state => IS_DEMO && inCareer && !state.draftCup ? demoWeeksLeft(state.currentWeek) : 0)
+    const markDemoTourVisited = useSettingsStore(state => state.markDemoTourVisited)
+    useEffect(() => {
+        const stop = IS_DEMO ? demoTourStopForPath(pathname) : null
+        if (stop) markDemoTourVisited(stop)
+    }, [pathname, markDemoTourVisited])
     const musicScene = routeMusicScene(pathname, inCareer)
     useEffect(() => {
         soundManager.setQuietScene(musicScene === "silent")
