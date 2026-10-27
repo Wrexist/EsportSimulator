@@ -44,7 +44,7 @@ export const TUNING = {
      * Every duel: per player one team has alive over the other, relative to the
      * smaller side ((a - b) / min(a, b), capped at ±NUMBERS_CAP): 5v4 +¼, 2v1 +1, 3v1 +2.
      */
-    NUMBERS_ROUND: 3.2,
+    NUMBERS_ROUND: 7,
     NUMBERS_CAP: 2,
     // ── saves (see givesUp in simulate.ts) ──
     /**
@@ -95,8 +95,9 @@ export const TUNING = {
      * The last player alive against two or more: every angle is theirs to clear
      * alone while the others crossfire and trade, so late man-advantages close
      * out instead of trading down to a 1v1 (1v2 clutches ≈ 13%, 1v3 ≈ 2%).
+     * Smaller since team play (crossfire support, NUMBERS_ROUND 7) does part of this.
      */
-    CLUTCH_ISOLATE: -24,
+    CLUTCH_ISOLATE: -12,
     /** A lurker catching a rotator from behind. */
     LURK: 6,
     LURK_CREATIVITY: 0.08,
@@ -164,9 +165,9 @@ export const TUNING = {
 
     // ── sight engine (sight.ts) ──
     /** CT side bias on the sight engine (replaces CT_BIAS there). */
-    SIGHT_CT_BIAS: 3,
+    SIGHT_CT_BIAS: 5,
     /** CTs before the plant (they defend ground they know; after the plant SIGHT_POST is the T side's). */
-    SIGHT_CT_DEFEND: 9,
+    SIGHT_CT_DEFEND: 7,
     /** Share of the aim-skill points that counts on the sight engine (1 = the resolver's). */
     SIGHT_SKILL: 0.75,
     /** Duel points per skill point above the player's team average (the star's swing). */
@@ -190,7 +191,19 @@ export const TUNING = {
     /** Ts on a site beyond the CTs there that make a rotator wait for the retake instead. */
     SIGHT_LOST_SITE: 2,
     /** A posted T against a retaking CT. */
-    SIGHT_POST: 30,
+    SIGHT_POST: 29,
+    /** Post edge lost per retaker beyond the Ts alive (angles left open). */
+    SIGHT_POST_OPEN: 9,
+    /** Seconds a T flushed off a post angle (molotov) takes to set up on it again. */
+    SIGHT_REPOST: 4,
+    /** Team play: points per mate within SIGHT_SUPPORT_RANGE (map-%) who sees the foe too, up to SIGHT_SUPPORT_CAP mates. */
+    SIGHT_SUPPORT: 7,
+    SIGHT_SUPPORT_RANGE: 10,
+    SIGHT_SUPPORT_CAP: 2,
+    /** Skill a supporter needs over the foe to count double (or under it to count for nothing): keeps team play from drowning out skill. */
+    SIGHT_SUPPORT_SKILL: 80,
+    /** Weight of a supporter with a pistol when the foe has more than a pistol. */
+    SIGHT_SUPPORT_PISTOL: 0.4,
     /** Seconds from the fake to the real execute. */
     SIGHT_FAKE_GAP: [10, 16] as [number, number],
     /** Longest sight line that can start a fight (map-%, ≈ 31 m: the pro p90 kill distance). */
@@ -256,7 +269,12 @@ export const TUNING = {
     SIGHT_PEEK_BACK: 10,
     /** Rotators stop this far short of the site centre, then go in after ROTATE_WAIT seconds. */
     SIGHT_ROTATE_STAGE: 9,
+    /** A rotator stops at the last spot of the walk in the site cannot see, but no farther out than this (map-%). */
+    SIGHT_ROTATE_FAR: 16,
     SIGHT_ROTATE_WAIT: 2,
+    /** A lone site CT facing this many hitters on the execute falls back for the retake, with this chance. */
+    SIGHT_ANCHOR_HITTERS: 3,
+    SIGHT_ANCHOR_FALLBACK: 0.15,
     /** Retakers regroup this far short of the bomb. */
     SIGHT_RETAKE_STAGE: 11,
 

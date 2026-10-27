@@ -39,13 +39,13 @@ export const FACILITY_EDGE_PER_LEVEL = 0.01
 
 /**
  * Display-only: what the tactics screen quotes per 1% of team strength.
- * Re-measured 2026-10-24 on the sight engine (scripts/odds/win-odds-calibration.ts
+ * Re-measured 2026-10-27 on the sight engine with team play (scripts/odds/win-odds-calibration.ts
  * effects, 1,200 paired maps, edges levelled then +10% for one side):
- * +10% ≈ +1.4% of rounds and +4.3 map-win points. The older 0.28 / 85 came
- * from the pre-sight engine.
+ * +10% ≈ +1.7% of rounds and +5.2 map-win points (2026-10-24: 1.4 / 4.3; the
+ * older 0.28 / 85 came from the pre-sight engine).
  */
-export const ROUND_SHARE_PER_EDGE = 0.14
-export const MAP_POINTS_PER_EDGE = 43
+export const ROUND_SHARE_PER_EDGE = 0.17
+export const MAP_POINTS_PER_EDGE = 52
 
 export interface StaffBundle { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist }
 

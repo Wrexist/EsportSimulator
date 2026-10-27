@@ -20,19 +20,19 @@ import type { LegacySeriesContext } from "./legacy-series"
 import { aimPoints, buildProfile } from "./round-sim/profile"
 import { cappedEdge } from "./round-sim/team-edge"
 
-/** Fitted 2026-10-24 on 5,902 simulated maps (sight engine, main 18577654 tuning). */
+/** Fitted 2026-10-27 on 5,912 simulated maps (sight engine with team play, docs/revamp/team-play/TEAM_PLAY_2026-10.md). */
 export const WIN_ODDS_FIT = {
     /** Log-odds per duel-rating point of mean gap. */
-    rating: 0.19,
+    rating: 0.22,
     /** Log-odds per 1.0 of capped team edge (0.10 = the cap). */
     edge: 2.5,
 } as const
 
 /** The check the match screen quotes: an independent set of simulated maps. */
 export const WIN_ODDS_CHECK = {
-    maps: 4424,
+    maps: 4414,
     /** Mean gap between shown and actual win rate, per 10% bucket weighted by maps (points). */
-    meanErrorPts: 0.9,
+    meanErrorPts: 1.2,
 } as const
 
 export interface WinOddsInputs {
