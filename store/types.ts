@@ -249,6 +249,7 @@ export interface MatchActions extends PhysicalPreviewActions {
   saveMatchResult: (matchId: string, result: MatchResult) => void
   performVODReview: (matchId: string) => void
   performMentalReset: (matchId?: string) => void
+  setMatchCounter: (matchId: string, mapId: string, side: "ct" | "t", on: boolean) => void
   setActiveMatch: (id: string | null) => void
   updateActiveMatchState: (state: ActiveMatchState) => void
   clearActiveMatchState: () => void

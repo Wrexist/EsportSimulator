@@ -8,6 +8,8 @@
  *     the veto UI when the user confirms map selections.
  *   - performVODReview — buys a +25 tactical-prep boost for an upcoming
  *     match by deducting VOD_REVIEW_COST (one-shot per match).
+ *   - setMatchCounter — R3: picks or drops an anti-strat counter for one
+ *     map and side of a reviewed match (needs the VOD review first).
  *   - performMentalReset — boosts roster morale by +15 (clamped to 100)
  *     and optionally flags one match's mentalPrep. Deducts
  *     MENTAL_RESET_COST.
@@ -31,6 +33,7 @@ export interface MatchOperationsActions {
     updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
     performVODReview: (matchId: string) => void
     performMentalReset: (matchId?: string) => void
+    setMatchCounter: (matchId: string, mapId: string, side: "ct" | "t", on: boolean) => void
 }
 
 function canPrepare(state: StoreState, match: MatchSaveData): boolean {
@@ -133,6 +136,21 @@ export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = 
                 description: "VOD Review Session",
                 balance: team.budget,
             })
+        })
+    },
+
+    setMatchCounter: (matchId, mapId, side, on) => {
+        set((state) => {
+            const match = state.scheduledMatches.find(m => m.id === matchId)
+            if (!match || !canPrepare(state, match) || !match.vodReviewed) return
+            if (!ALLOWED_MAP_IDS.has(mapId)) return
+            const counters = { ...(match.counters ?? {}) }
+            const entry = { ...(counters[mapId] ?? {}) }
+            if (on) entry[side] = true
+            else delete entry[side]
+            if (entry.ct || entry.t) counters[mapId] = entry
+            else delete counters[mapId]
+            match.counters = counters
         })
     },
 

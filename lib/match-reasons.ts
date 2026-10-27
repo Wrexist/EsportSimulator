@@ -25,6 +25,44 @@ export interface MatchReasons {
     players: PlayerReason[]
     /** Mid-round coach calls (R2), when any were made. */
     calls: CallsReason | null
+    /** Anti-strat counters (R3), when any were played. */
+    counters: CounterLine[]
+}
+
+/** One anti-strat counter over a map: how often it ran, how often it met their habit, and the rounds won. */
+export interface CounterLine {
+    map: string
+    side: 'ct' | 't'
+    label: string
+    rounds: number
+    /** Rounds where they kept to the habit the counter plays against. */
+    met: number
+    won: number
+    text: string
+}
+
+/** R3: each counter the manager picked, per map and side, from the rounds it was played on. */
+export function counterLines(result: MatchResult, teamId: string): CounterLine[] {
+    const lines = new Map<string, CounterLine>()
+    for (const map of result.maps) {
+        for (const r of map.rounds ?? []) {
+            const side = r.plan?.counter
+            if (!side || !r.plan) continue
+            const site = side === 'ct' ? (r.plan.ctSetup === 'stack-A' ? 'A' : 'B') : r.plan.site
+            const key = `${map.map}:${side}`
+            const line = lines.get(key) ?? { map: map.map, side, label: side === 'ct' ? `Stack ${site}` : `Hit ${site}`, rounds: 0, met: 0, won: 0, text: '' }
+            line.rounds++
+            if (side === 'ct' ? r.plan.read === 'right' : r.plan.ctHabit) line.met++
+            if (r.winningTeamId === teamId) line.won++
+            lines.set(key, line)
+        }
+    }
+    return [...lines.values()].map(l => ({
+        ...l,
+        text: l.side === 'ct'
+            ? `${l.rounds} CT full-buy rounds: their Ts came to your stack in ${l.met}, you won ${l.won}.`
+            : `${l.rounds} T full-buy rounds: their CTs were stacked on the other site in ${l.met}, you won ${l.won}.`,
+    }))
 }
 
 /** One mid-round call and what it did to its round. */
@@ -186,7 +224,7 @@ export function buildMatchReasons(args: { result: MatchResult; teamId: string; i
     }
     players.sort((a, b) => b.rating - a.rating)
 
-    return { reasons: leaning.slice(0, 3), players, calls: coachCallsReason(result, teamId) }
+    return { reasons: leaning.slice(0, 3), players, calls: coachCallsReason(result, teamId), counters: counterLines(result, teamId) }
 }
 
 /** What drove one player's rating: up to two strengths, then the main weakness. */

@@ -1108,6 +1108,8 @@ export interface MatchSaveData {
      * legacy saves, fall back to the home side (prior behaviour).
      */
     mentalPrepTeamId?: string
+    /** R3: anti-strat counters picked for this match, per map (engine/match/habits.ts). */
+    counters?: Partial<Record<string, { ct?: boolean; t?: boolean }>>
 }
 
 /**

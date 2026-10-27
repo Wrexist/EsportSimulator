@@ -41,6 +41,7 @@ import { ANTI_STRAT_SELF_PENALTY, MAP_POINTS_PER_EDGE, MENTAL_PREP_EDGE, NON_PLA
 import { TUNING } from "@/engine/match/round-sim/tuning"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { PlaybookEditor } from "@/components/tactics/PlaybookEditor"
+import { COUNTER_EFFECT, COUNTER_LABEL, habitLine, teamHabits } from "@/engine/match/habits"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
@@ -208,6 +209,7 @@ export default function TacticalHQPage() {
         setPlaystyle,
         setEconomyStyle,
         setTargetPlayer,
+        setMatchCounter,
         addToast,
         getDateForWeek,
     } = useGameStore(useShallow(state => ({
@@ -227,6 +229,7 @@ export default function TacticalHQPage() {
         setPlaystyle: state.setPlaystyle,
         setEconomyStyle: state.setEconomyStyle,
         setTargetPlayer: state.setTargetPlayer,
+        setMatchCounter: state.setMatchCounter,
         addToast: state.addToast,
         getDateForWeek: state.getDateForWeek,
     })))
@@ -742,6 +745,48 @@ export default function TacticalHQPage() {
                         </div>
                     </Panel>
 
+                    {/* R3: their habits (shown by the VOD review) and the counters for this match */}
+                    {!isCompleted && (
+                        <Panel title="Anti-strat prep" actions={<span className="text-xs text-ink-3">{vodReviewed ? "From the VOD review" : "Needs the VOD review"}</span>}>
+                            {!vodReviewed ? (
+                                <p className="text-sm text-ink-3">Review their demos (Preparation, VOD review) to see which site their Ts favour and which site their CTs stack on each map. Then pick counters for this match.</p>
+                            ) : !mapsLocked ? (
+                                <p className="text-sm text-ink-3">Set the maps first: habits and counters are per map.</p>
+                            ) : (
+                                <div className="space-y-4" data-testid="counter-prep">
+                                    {[...new Set(match.maps ?? [])].map((map: string) => {
+                                        const habits = teamHabits(opponent.id, map)
+                                        const picked = match.counters?.[map] ?? {}
+                                        return (
+                                            <div key={map}>
+                                                <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                                                    <p className={overline}>{MAP_NAMES[map] ?? map}</p>
+                                                    <p className="text-xs text-ink-3">{habitLine.t(habits)} {habitLine.ct(habits)}</p>
+                                                </div>
+                                                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                                    <OptionCard
+                                                        selected={!!picked.ct}
+                                                        onClick={() => setMatchCounter(match.id, map, "ct", !picked.ct)}
+                                                        label={`CT: ${COUNTER_LABEL.ct(habits)}`}
+                                                        effect={<>On your CT full buys. Measured: about +{COUNTER_EFFECT.ct.rounds} of every 100 of those rounds, +{COUNTER_EFFECT.ct.maps} map-win points.</>}
+                                                        note="When they hit the other site, you are stacked on the wrong one."
+                                                    />
+                                                    <OptionCard
+                                                        selected={!!picked.t}
+                                                        onClick={() => setMatchCounter(match.id, map, "t", !picked.t)}
+                                                        label={`T: ${COUNTER_LABEL.t(habits)}`}
+                                                        effect={<>On your T full buys. Measured: about +{COUNTER_EFFECT.t.rounds} of every 100 of those rounds, +{COUNTER_EFFECT.t.maps} map-win points.</>}
+                                                        note="Replaces the site of your playbook calls on those rounds."
+                                                    />
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            )}
+                        </Panel>
+                    )}
+
                     {mapsLocked && !isCompleted && <PlaybookEditor maps={[...new Set(match.maps ?? [])]} />}
                 </div>
 
@@ -885,7 +930,7 @@ export default function TacticalHQPage() {
                                 icon={<Video size={16} />}
                                 title="VOD review"
                                 cost={COST_CONSTANTS.VOD_REVIEW_COST}
-                                effect={<>+25 tactical prep: <span className="text-ink-2">+{VOD_STRENGTH_PCT}% team strength</span> for this match.</>}
+                                effect={<>+25 tactical prep: <span className="text-ink-2">+{VOD_STRENGTH_PCT}% team strength</span> for this match, and their habits on each map.</>}
                                 done={vodReviewed}
                                 doneLabel="Done"
                                 disabled={!isMatchWeek}

@@ -70,6 +70,8 @@ export interface SeriesInput {
     away: BuiltSide
     /** Managed path: the manager's team (gets `policy`). Default: nobody. */
     managedTeamId?: string
+    /** Managed path: R3 anti-strat counters for the match (map → sides). */
+    counters?: Partial<Record<string, { ct?: boolean; t?: boolean }>>
     policy?: LegacyDecisionPolicy
     /** AI path: caller tactical bonus in Coach.tacticBonus units (what tournaments pass). */
     homeBonus?: number
@@ -94,7 +96,7 @@ function productionRunner(engine: MatchEngineId): SeriesRunner {
         engine,
         managed(input) {
             const ctx = prepareLegacySeries({
-                match: { id: input.id, seed: input.seed, format: 'BO1', maps: [input.map], engineVersion: engine },
+                match: { id: input.id, seed: input.seed, format: 'BO1', maps: [input.map], engineVersion: engine, ...(input.counters ? { counters: input.counters } : {}) },
                 homeTeam: input.home.team,
                 awayTeam: input.away.team,
                 homePlayers: input.home.players,

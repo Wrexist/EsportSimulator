@@ -21,7 +21,8 @@ import type { BuyStrategy } from "../buy-phase"
 import type { PlayerSimulationState } from "../round-outcome"
 import { scriptBuyPhase } from "./buy"
 import { buildProfile, callQuality, type SimProfile } from "./profile"
-import { BUY_OF, simulateScriptRound, type Contact, type SimOutput, type SimSide } from "./simulate"
+import { BUY_OF, simulateScriptRound, type Contact, type SimInput, type SimOutput, type SimSide } from "./simulate"
+import { counterSite, teamHabits, type MatchCounters, type RoundCounter } from "../habits"
 import { playSituation, sanitizePlaybook, tCallKey, type Playbook, type RoundCalls } from "../playbook"
 import { findContacts } from "./contacts"
 import { sightMapFor, simulateSightRound } from "./sight"
@@ -45,6 +46,10 @@ export interface ScriptSeriesSide {
     edge: TeamEdgeBreakdown
     /** G1: the manager's playbook (AI clubs have none). */
     playbook?: Playbook
+    /** R3: an AI club playing the manager's team runs its map habits (habits.ts). */
+    habitual?: boolean
+    /** R3: the manager's anti-strat counters for this match, per map. */
+    counters?: MatchCounters
 }
 
 export interface ScriptSeries {
@@ -78,6 +83,12 @@ export function forceSightEngine(on: boolean | null): void {
     sightOverride = on
 }
 
+let habitsOverride: boolean | null = null
+/** Calibration / tests: switch the R3 club habits off (false) for every series; null = per series. */
+export function forceHabits(on: boolean | null): void {
+    habitsOverride = on
+}
+
 let contactsOverride: boolean | null = null
 /** Calibration / tests: force the contact passes on or off for every series (null = per series). */
 export function forceResolverContacts(on: boolean | null): void {
@@ -93,11 +104,15 @@ export interface ScriptSeriesTeamInput {
     implicitGear: boolean
 }
 
-export function buildScriptSeries(args: { seed: number; matchId: string; home: ScriptSeriesTeamInput; away: ScriptSeriesTeamInput; contacts?: boolean; managedTeamId?: string }): ScriptSeries {
+export function buildScriptSeries(args: { seed: number; matchId: string; home: ScriptSeriesTeamInput; away: ScriptSeriesTeamInput; contacts?: boolean; managedTeamId?: string; counters?: MatchCounters; managerMatch?: boolean }): ScriptSeries {
     const side = (s: ScriptSeriesTeamInput): ScriptSeriesSide => {
         const profiles = new Map(s.players.map(p => [p.id, buildProfile(p)]))
         // Only the manager's own club runs a playbook: a club the manager left keeps no fixed calls.
         const playbook = s.team.id === args.managedTeamId && s.team.playbook ? sanitizePlaybook(s.team.playbook) : undefined
+        // R3: in a match of the manager's, the other club runs its habits and the manager's counters apply.
+        // `managerMatch` comes from the caller: an AI fixture defaults its managed id to the home team.
+        const managed = !!args.managerMatch && (args.home.team.id === args.managedTeamId || args.away.team.id === args.managedTeamId)
+        const counters = managed && s.team.id === args.managedTeamId && args.counters && Object.keys(args.counters).length ? args.counters : undefined
         return {
             teamId: s.team.id,
             playstyle: s.team.playstyle,
@@ -105,6 +120,8 @@ export function buildScriptSeries(args: { seed: number; matchId: string; home: S
             profiles,
             call: callQuality([...profiles.values()]),
             ...(playbook && Object.keys(playbook).length ? { playbook } : {}),
+            ...(managed && s.team.id !== args.managedTeamId ? { habitual: true } : {}),
+            ...(counters ? { counters } : {}),
             edge: teamEdgeBreakdown(s.team, s.players, s.staff, { counterMod: s.counterMod, mentalPrep: s.mentalPrep, implicitGear: s.implicitGear }),
         }
     }
@@ -209,6 +226,7 @@ export class ScriptRoundEngine {
             tacticalWeight: tacticalWeight(mapId),
             rollKey: rng.int(1, 0x7ffffffe),
             ...roundCalls(series, mapIndex, mapId, homeIsCT, homeStrategy, awayStrategy),
+            ...roundHabits(series, mapId, homeIsCT),
             ...(extra?.coach?.calls.length ? { coach: { ct: (extra.coach.teamId === series.home.teamId) === homeIsCT, calls: extra.coach.calls } } : {}),
         }
         // Players walk the map and fight whoever they see (sight.ts); the resolver is the fallback
@@ -249,6 +267,21 @@ function roundCalls(series: ScriptSeries, mapIndex: number, mapId: MapId | undef
     const setup = ctSit ? ctSide.playbook?.[mapId]?.ct?.[ctSit] : undefined
     if (setup) calls.ct = { setup, stacks: { A: counts.get(`${mapIndex}:${ctSide.teamId}:ct:stack-A`) ?? 0, B: counts.get(`${mapIndex}:${ctSide.teamId}:ct:stack-B`) ?? 0 } }
     return calls.t || calls.ct ? { calls } : {}
+}
+
+/** R3: the habits the habitual side runs this round, and the counter the manager's side plays. */
+function roundHabits(series: ScriptSeries, mapId: MapId | undefined, homeIsCT: boolean): { habits?: SimInput["habits"]; counter?: RoundCounter } {
+    if (!mapId || habitsOverride === false) return {}
+    const [tSide, ctSide] = homeIsCT ? [series.away, series.home] : [series.home, series.away]
+    const habitsOf = (s: ScriptSeriesSide) => teamHabits(s.teamId, mapId)
+    const out: { habits?: SimInput["habits"]; counter?: RoundCounter } = {}
+    if (tSide.habitual || ctSide.habitual) out.habits = {
+        ...(tSide.habitual ? { t: habitsOf(tSide).t } : {}),
+        ...(ctSide.habitual ? { ct: habitsOf(ctSide).ct } : {}),
+    }
+    if (ctSide.counters?.[mapId]?.ct && tSide.habitual) out.counter = { side: "ct", site: counterSite("ct", habitsOf(tSide)) }
+    else if (tSide.counters?.[mapId]?.t && ctSide.habitual) out.counter = { side: "t", site: counterSite("t", habitsOf(ctSide)) }
+    return out
 }
 
 /** G1: record the playbook calls this round ran (the opponent reads repeats). */

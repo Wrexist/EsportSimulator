@@ -277,6 +277,9 @@ export const TUNING = {
     SIGHT_ANCHOR_FALLBACK: 0.15,
     /** R2: duel points for retaking CTs after the coach called "hold for retake" (they come in together, utility first). */
     SIGHT_COACH_HOLD: 5,
+    /** R3: share of its full buys a club's Ts hit their favourite site / its CTs stack their site (an AI club playing the manager's team). */
+    HABIT_RATE_T: 0.65,
+    HABIT_RATE_CT: 0.45,
     /** Retakers regroup this far short of the bomb. */
     SIGHT_RETAKE_STAGE: 11,
 
