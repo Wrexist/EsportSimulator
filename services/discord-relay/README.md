@@ -21,7 +21,7 @@ game (Announce in Discord) ──ticket + names──▶ /api/major-win ──�
 2. Environment variables:
    - `DISCORD_MAJOR_WEBHOOK`: webhook URL of `#major-winners`
    - `STEAM_PUBLISHER_KEY`: Steamworks publisher Web API key
-3. Put `https://<project>.vercel.app/api/major-win` in `RELAY_URL`
+3. Live at `https://esm-discord-relay.vercel.app` (team Delta). Put `https://<project>.vercel.app/api/major-win` in `RELAY_URL`
    (`electron/community-share.js`) and the server invite in
    `DISCORD_INVITE_URL` (`lib/community.ts`). Both empty = the button is hidden.
 
