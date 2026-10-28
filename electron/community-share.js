@@ -3,8 +3,9 @@
 // with a Steam Web API auth ticket, and the relay posts to #major-winners.
 // Only runs when the player presses the button; nothing is sent otherwise.
 
-// Deployed relay endpoint. Empty = feature off (the button is not shown).
-const RELAY_URL = '';
+// Deployed relay endpoint (Vercel project esm-discord-relay). Empty = feature off.
+// The button also stays hidden until DISCORD_INVITE_URL (lib/community.ts) is set.
+const RELAY_URL = 'https://esm-discord-relay.vercel.app/api/major-win';
 // Must match TICKET_IDENTITY in services/discord-relay/lib/major-win.cjs.
 const TICKET_IDENTITY = 'esm-community';
 const FIELDS = ['managerName', 'teamName', 'tournamentName', 'opponentName', 'finalScore', 'season'];
