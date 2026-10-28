@@ -5,7 +5,7 @@
  */
 import type { MajorWinShare } from "@/types/electron-window"
 
-export const DISCORD_INVITE_URL = "https://discord.gg/GYkBvYus8f"
+export const DISCORD_INVITE_URL = "https://discord.gg/urpvaTjbKC"
 
 export const DISCORD_MAJOR_CHANNEL = "#major-winners"
 
