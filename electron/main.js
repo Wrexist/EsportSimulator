@@ -886,6 +886,13 @@ async function createWindow() {
 
         const BOOT_TIMEOUT_MS = app.isPackaged ? 30000 : 45000;
         const POST_DOM_READY_GRACE_MS = app.isPackaged ? 15000 : 20000;
+        // A first launch right after install can be slow (antivirus scanning
+        // the fresh app.asar, cold disk cache): the server is up and the
+        // renderer has started navigating to the menu, but the first page
+        // render takes longer than BOOT_TIMEOUT_MS. Once that navigation has
+        // started, give it this long before calling the boot failed.
+        const NAVIGATION_GRACE_MS = 90000;
+        let navigationGraceArmed = false;
         let loadAttempt = 0;
         let bootDeadlineAt = 0;
         let bootWatchdog = null;
@@ -1043,6 +1050,12 @@ body{background:#07090C;color:#F2F4F7;font-family:'Segoe UI',system-ui,sans-seri
         mainWindow.webContents.on('did-start-navigation', (_event, url, isInPlace, isMainFrame) => {
             debugLog(`[Renderer] did-start-navigation url=${url} inPlace=${isInPlace} mainFrame=${isMainFrame}`);
             flushDebugLog();
+            if (isMainFrame && !isInPlace && !navigationGraceArmed && !bootCompleted && !bootFailed && isSuccessfulRendererUrl(url)) {
+                navigationGraceArmed = true;
+                debugLog(`[Renderer] Extending boot grace while the first page loads: ${url}`);
+                flushDebugLog();
+                armBootWatchdog(NAVIGATION_GRACE_MS);
+            }
         });
         mainWindow.webContents.on('dom-ready', () => {
             debugLog('[Renderer] dom-ready');
