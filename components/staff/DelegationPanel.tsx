@@ -28,7 +28,7 @@ export function DelegationPanel() {
     }
 
     return (
-        <Panel title="Delegate to staff" actions={<span className="text-xs text-ink-3">Done before each week, reported in your inbox</span>} padded={false}>
+        <Panel title="Delegate to staff" actions={<span className="text-xs text-ink-3">Handled as the weeks go by, reported in your inbox</span>} padded={false}>
             <ul className="divide-y divide-line">
                 {DELEGATION_AREAS.map(area => {
                     const id = `delegate-${area}`

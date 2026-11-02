@@ -64,6 +64,8 @@ interface AdvanceHost extends StopSource {
     advanceDay: () => Promise<void>
     advanceWeek: () => Promise<void>
     saveGame: () => Promise<void>
+    /** "League matches" delegated: plays a due league round (delegation-slice). */
+    playDelegatedMatch?: () => Promise<boolean>
 }
 
 type Store = AdvanceHost & AdvanceState & AdvanceActions
@@ -108,6 +110,8 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
                 if (s.saveId !== saveId) return
                 // Demo: the last demo week is done; the end screen takes over.
                 if (demoWeekCapReached(s)) break
+                // "League matches" delegated: the assistant plays a due league round instead of stopping.
+                if (await s.playDelegatedMatch?.()) continue
                 stop = nextStop(s, seen)
                 if (stop) break
                 const run = s.continueRun

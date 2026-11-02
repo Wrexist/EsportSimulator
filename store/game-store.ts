@@ -632,6 +632,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   setPlaybook: (teamId: string, playbook: import("@/engine/match/playbook").Playbook) => void
   setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
   runDelegatedChores: () => string[]
+  playDelegatedMatch: () => Promise<boolean>
   enableSandbox: () => void
   sandboxEdit: (edit: import("@/engine/sandbox").SandboxEdit) => import("@/engine/sandbox").SandboxResult
   startProCareer: (input: import("@/engine/pro-career").ProStartInput) => boolean
@@ -2048,9 +2049,13 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             await new Promise(resolve => setTimeout(resolve, 0))
             set(draft => { simulateDueAIMatchesForDay(draft, matchDay) })
             persistDayCursor()
+            // "League matches" delegated: the assistant plays it and the week runs on.
+            if (await get().playDelegatedMatch()) return get().advanceToWeekEnd()
             return
           }
           // Already on or past match day — match still unplayed, don't skip
+          // (unless the assistant plays it).
+          if (await get().playDelegatedMatch()) return get().advanceToWeekEnd()
           return
         }
 
@@ -2098,6 +2103,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         // Guard: prevent advancing if the player has an unplayed match this week
         const completedIds = state._completedMatchIds || new Set(state.completedMatches.map(cm => cm.id))
         const unplayedPlayerMatch = weekBlockingMatch(state, completedIds)
+        // "League matches" delegated: the assistant plays a due league round, then the week goes on.
+        if (unplayedPlayerMatch && await get().playDelegatedMatch()) {
+          if (generation !== careerGeneration) return
+          return get().advanceWeek()
+        }
         if (unplayedPlayerMatch) {
           get().addToast({ message: "You have a match to play this week!", type: "warning" })
           set({ isLoading: false })
@@ -2390,7 +2400,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                   state: reportState,
                 })
                 const presentation = reportState.continueRun ? {}
-                  : reportState.timeMode === "WEEKLY" ? { weekReportOpen: playedWeek, weekReportToast: null }
+                  : reportState.timeMode === "WEEKLY" && useSettingsStore.getState().openWeekReport !== false ? { weekReportOpen: playedWeek, weekReportToast: null }
                     : { weekReportToast: playedWeek }
                 set({
                   weekReports: pushWeekReport(reportState.weekReports, report, finalClub ? newTracker(finalClub) : null),

@@ -11,16 +11,19 @@
 import type { ActiveDrill } from "./drill-manager"
 import type { ContractSaveData, PlayerSaveData } from "./save-types"
 import { evaluatePlayer } from "./player-evaluation"
+import { isLeagueMatchId } from "./season/regional-league"
+import { isLeagueStage } from "@/lib/match-stakes"
 
-export type DelegationArea = "drills" | "renewals" | "scouting" | "veto"
+export type DelegationArea = "drills" | "renewals" | "scouting" | "veto" | "matches"
 export type DelegationSettings = Partial<Record<DelegationArea, boolean>>
 
-export const DELEGATION_AREAS: readonly DelegationArea[] = ["drills", "renewals", "scouting", "veto"]
+export const DELEGATION_AREAS: readonly DelegationArea[] = ["matches", "drills", "renewals", "scouting", "veto"]
 export const DELEGATION_LABEL: Record<DelegationArea, string> = {
     drills: "Team drills",
     renewals: "Contract renewals",
     scouting: "Scouting missions",
     veto: "Map veto",
+    matches: "League matches",
 }
 /** Highest fatigue the assistant lets a drill push anyone to (lower in a match week). */
 export const DRILL_FATIGUE_CAP = 65
@@ -38,6 +41,12 @@ export const DELEGATION_HINT: Record<DelegationArea, string> = {
     renewals: `Renews starters and regular rotation players aged ${RENEW_MAX_AGE} or under when ${RENEW_WITHIN_WEEKS} weeks or less are left, if the budget allows. Others are left for you.`,
     scouting: "When the scout is free, sends him to watch the next player on your shortlist.",
     veto: "Your coach runs the map veto for you when you open match prep.",
+    matches: "Your assistant plays regular league rounds for you with your lineup and tactics, so the calendar keeps moving. Playoffs, cups, tournaments and big games are still yours.",
+}
+
+/** Fixtures the assistant may play: a regular league round that is not a big game. */
+export function isDelegableMatch(match: { tournamentId?: string | null; stage?: string | null; isHighPressure?: boolean; isScrim?: boolean }): boolean {
+    return isLeagueMatchId(match.tournamentId) && isLeagueStage(match.stage) && !match.isHighPressure && !match.isScrim
 }
 
 /** Drill reward names → the player stat they raise (team-drills-slice STAT_MAPPING). */

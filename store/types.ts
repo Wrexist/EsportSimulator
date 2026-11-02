@@ -223,6 +223,7 @@ export interface EntitiesActions {
   setPlaybook: (teamId: string, playbook: import("@/engine/match/playbook").Playbook) => void
   setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
   runDelegatedChores: () => string[]
+  playDelegatedMatch: () => Promise<boolean>
   settleDraftCup: () => Promise<boolean>
   purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }
   upgradeMerchStore: (teamId: string) => { success: boolean, message: string }

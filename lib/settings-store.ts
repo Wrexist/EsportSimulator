@@ -69,6 +69,9 @@ interface GameSettings {
     livePacing: LivePacing
     /** Live match: play only the rounds worth watching; the rest finish at once. */
     liveKeyRoundsOnly: boolean
+    /** Weekly mode: open the week report after each week (off: a small notice you can open). */
+    openWeekReport: boolean
+    setOpenWeekReport: (enabled: boolean) => void
     notifications: boolean
     difficulty: Difficulty
     language: string
@@ -135,6 +138,8 @@ export const useSettingsStore = create<GameSettings>()(
             gameSpeed: 'normal',
             livePacing: 'moments',
             liveKeyRoundsOnly: false,
+            openWeekReport: true,
+            setOpenWeekReport: (enabled) => set({ openWeekReport: enabled !== false }),
             notifications: true,
             difficulty: 'normal',
             language: 'en',
@@ -273,6 +278,7 @@ export const useSettingsStore = create<GameSettings>()(
                     gameSpeed: ['normal', 'fast', 'very-fast'].includes(stored?.gameSpeed ?? '') ? stored!.gameSpeed! : current.gameSpeed,
                     livePacing: stored?.livePacing === 'full' ? 'full' : 'moments',
                     liveKeyRoundsOnly: stored?.liveKeyRoundsOnly === true,
+                    openWeekReport: stored?.openWeekReport !== false,
                     notifications: typeof stored?.notifications === 'boolean' ? stored.notifications : current.notifications,
                     difficulty: ['easy', 'normal', 'hard', 'legendary'].includes(stored?.difficulty ?? '') ? stored!.difficulty! : current.difficulty,
                     language: SUPPORTED_UI_LANGUAGE,
