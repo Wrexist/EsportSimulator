@@ -124,7 +124,8 @@ export function ageDeclineChance(age: number, role?: string, secondaryRole?: str
  * median potential of 54 and a 90th percentile of 70. Over ten seasons the
  * AI prospects (about 330 of 1,040 rostered players by season six, median
  * potential 84) filled the top of the world: the top ten clubs went from 80.7
- * to 97 OVR and wages roughly quadrupled (scripts/audit/world-drift.ts 521).
+ * to 97 OVR, with dozens of players stuck at the 99 cap
+ * (scripts/audit/world-drift.ts 521).
  * Better clubs still find better prospects, and a rare gem can become a star.
  */
 export const AI_PROSPECT_POTENTIAL = {

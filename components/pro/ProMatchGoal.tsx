@@ -5,6 +5,7 @@
  * the live match, the result screen and Home.
  */
 
+import { useMemo } from "react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import type { GameSave } from "@/engine/save-types"
@@ -14,10 +15,13 @@ import { cn } from "@/lib/utils"
 /** The pro's player id and the goal for his next match (null when benched); undefined outside a pro career. */
 export function useProGoal(): { playerId: string; goal: number | null; last?: ProGoalResult; set: number; hit: number } | undefined {
     const view = useGameStore(useShallow(s => ({ proCareer: s.proCareer, players: s.players, teams: s.teams, playerTeamId: s.playerTeamId, currentWeek: s.currentWeek })))
-    const save = view as unknown as GameSave
-    if (!view.proCareer || !isProActive(save)) return undefined
-    const goals = view.proCareer.goals
-    return { playerId: view.proCareer.playerId, goal: proMatchGoal(save), last: goals?.last, set: goals?.set ?? 0, hit: goals?.hit ?? 0 }
+    // Memoised: the live match re-renders many times a second and the goal reads every squad rating.
+    return useMemo(() => {
+        const save = view as unknown as GameSave
+        if (!view.proCareer || !isProActive(save)) return undefined
+        const goals = view.proCareer.goals
+        return { playerId: view.proCareer.playerId, goal: proMatchGoal(save), last: goals?.last, set: goals?.set ?? 0, hit: goals?.hit ?? 0 }
+    }, [view])
 }
 
 /** Footer line on the own roster card in the live match. */
