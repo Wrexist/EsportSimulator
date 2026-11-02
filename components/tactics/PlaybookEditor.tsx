@@ -189,8 +189,8 @@ export function PlaybookEditor({ maps = ACTIVE_MAP_POOL, className }: PlaybookEd
                 </div>
 
                 <p className="border-t border-line pt-3 text-xs leading-relaxed text-ink-3">
-                    A fixed call is predictable. Each time the same T call runs again on a map, the other side reads it more often,
-                    and a stack that keeps sitting on one site gets hit on the other. &ldquo;IGL decides&rdquo; mixes the calls for you.
+                    A fixed call is predictable. Each time the same T call runs again on a map, the other side reads it more often
+                    (a rush they see coming runs into set crossfires), and a stack that keeps sitting on one site gets hit on the other. &ldquo;IGL decides&rdquo; mixes the calls for you.
                 </p>
                 <div className="flex flex-wrap gap-2">
                     <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!book.t && !book.ct} onClick={copyToAll}>Use these calls on every map</Button>
