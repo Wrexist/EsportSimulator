@@ -48,6 +48,20 @@ export type SaveErrorCode =
     | "UNKNOWN"
 
 const TMP_SUFFIX = ".tmp"
+
+/** The disk layer's per-value ceiling (electron/main.js, electron/ipc-policy.js). */
+export const SAVE_MAX_BYTES = 32 * 1024 * 1024
+/** Warn the player from three quarters of the ceiling. */
+export const SAVE_WARN_BYTES = 24 * 1024 * 1024
+export const SAVE_TOO_LARGE_MESSAGE = "This career's save is too large to write. Your last save is safe; start a new career or contact support with this save."
+export const SAVE_SIZE_WARNING = "This career's save is getting very large. It still saves, but very long careers can reach the save size limit."
+
+/** UTF-8 size of a save text, exact only when it could be near the limits. */
+export function saveSizeBytes(text: string): number {
+    // Every UTF-16 unit is at most 3 UTF-8 bytes, so short texts skip encoding.
+    if (text.length * 3 <= SAVE_WARN_BYTES) return text.length
+    return new TextEncoder().encode(text).length
+}
 // Unreadable primary bytes are moved here before any recovery replaces them.
 // Shares the backup prefix so explicit career deletion still removes it.
 const CORRUPT_SUFFIX = "_corrupt"
@@ -60,6 +74,7 @@ import { generateSeed } from "./rng"
 import { AsyncStorage, asyncStorage } from "./storage-adapter"
 import { steamService } from "./steam-service"
 import { perfTrace } from "./perf-trace"
+import { LIVE_CHECKPOINT_PREFIX } from "../lib/live-checkpoint-store"
 import { debug } from "@/lib/debug-logger"
 import { createDefaultTactics } from "./default-tactics"
 
@@ -73,6 +88,8 @@ export class SaveManager {
     // last wrote and read back. Holding the full serialized save kept a second
     // copy of the career (about 25 MB by week 52) alive all session (L27.A3).
     private lastVerifiedPrimary: { key: string; length: number; fingerprint: string } | null = null
+    /** Career week whose save last rotated the backups, per save key (one rotation per week). */
+    private lastRotatedWeek = new Map<string, number>()
 
     constructor(storage: AsyncStorage = asyncStorage) {
         this.storage = storage
@@ -313,7 +330,7 @@ export class SaveManager {
     /**
      * Save game to storage with atomic backup
      */
-    async saveGame(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
+    async saveGame(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[]; sizeWarning?: string }> {
         // Capture at invocation, before another caller mutates its working state.
         const cloneStart = perfTrace.now()
         const snapshot = structuredClone(save)
@@ -323,7 +340,7 @@ export class SaveManager {
         return operation
     }
 
-    private async commitSave(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
+    private async commitSave(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[]; sizeWarning?: string }> {
         try {
             // saveGame captured a detached snapshot before joining the write queue.
             let stepStart = perfTrace.now()
@@ -376,7 +393,14 @@ export class SaveManager {
                 && known.fingerprint === await saveTextFingerprint(existing)
             const previous = existing && !knownPrimary ? await this.parseAndValidateSaveCandidate(existing, save.saveId) : null
             if (previous && !previous.ok && previous.error === "NEWER_VERSION") return { success: false, error: previous.message }
-            if (existing && (knownPrimary || previous?.ok)) {
+            // Backups step once per career week, not per save: day steps and
+            // periodic saves inside a week would otherwise cycle all three
+            // copies within days and leave no older week to fall back to.
+            const sameWeekAsLastRotation = this.lastRotatedWeek.get(key) === save.currentWeek
+            if (existing && (knownPrimary || previous?.ok) && sameWeekAsLastRotation) {
+                // The previous primary is this week's too; overwrite it below.
+            } else if (existing && (knownPrimary || previous?.ok)) {
+                this.lastRotatedWeek.set(key, save.currentWeek)
                 // Oldest first: partial rotation cannot replace every good backup
                 // with a corrupted primary, or overwrite a copy before it is retained.
                 if (backup2Old) await this.storage.setItem(backupKey + "_3", backup2Old)
@@ -394,6 +418,11 @@ export class SaveManager {
             //    stale .tmp will be discarded by clearStaleTmp() on next load.
             const serialized = serializeSignedSave(save, payload)
             step("05_stringify")
+            const sizeBytes = saveSizeBytes(serialized)
+            if (sizeBytes > SAVE_MAX_BYTES) {
+                // The disk layer refuses values this large; say why instead of "free space".
+                return { success: false, error: SAVE_TOO_LARGE_MESSAGE }
+            }
             // Hash the new primary while the staging/commit writes are in flight
             // (chunked, so it interleaves with storage I/O). Never rejects.
             const serializedFingerprint = saveTextFingerprint(serialized)
@@ -454,14 +483,11 @@ export class SaveManager {
             }
             step("07_cloud")
 
-            // Save size monitoring: warn if approaching storage limits
-            const sizeBytes = serialized.length * 2 // UTF-16 encoding
-            const sizeMB = sizeBytes / (1024 * 1024)
-            if (sizeMB > 4) {
-                debug.warn(`[SaveManager] Save file is ${sizeMB.toFixed(1)}MB — approaching storage limits. Consider starting a new career.`)
-            }
+            // Save size monitoring: tell the player well before the hard limit.
+            const sizeWarning = sizeBytes > SAVE_WARN_BYTES ? SAVE_SIZE_WARNING : undefined
+            if (sizeWarning) debug.warn(`[SaveManager] Save is ${(sizeBytes / (1024 * 1024)).toFixed(1)} MB of ${SAVE_MAX_BYTES / (1024 * 1024)} MB`)
 
-            return { success: true, repairs: repairs && repairs.length > 0 ? repairs : undefined }
+            return { success: true, repairs: repairs && repairs.length > 0 ? repairs : undefined, sizeWarning }
         } catch (error) {
             return {
                 success: false,
@@ -822,6 +848,9 @@ export class SaveManager {
             await this.storage.removeItem(backupKey + "_local")
             await this.storage.removeItem(backupKey + "_cloud")
             await this.storage.removeItem(backupKey + CORRUPT_SUFFIX)
+            // A live-match checkpoint would otherwise outlive its career.
+            await this.storage.removeItem(LIVE_CHECKPOINT_PREFIX + saveId)
+            this.lastRotatedWeek.delete(STORAGE_KEYS.SAVE_PREFIX + saveId)
 
             // Clear current if this was it
             const current = await this.storage.getItem(STORAGE_KEYS.CURRENT_SAVE_ID)
@@ -844,14 +873,23 @@ export class SaveManager {
     async deleteAllSaves(): Promise<{ success: boolean }> {
         try {
             const keys = await this.storage.getAllKeys()
+            const saveIds = new Set<string>()
             for (const key of keys) {
+                if (key.startsWith(STORAGE_KEYS.SAVE_PREFIX) && !key.endsWith(TMP_SUFFIX)) {
+                    saveIds.add(key.slice(STORAGE_KEYS.SAVE_PREFIX.length))
+                }
                 if (key.startsWith(STORAGE_KEYS.SAVE_PREFIX) ||
                     key.startsWith(STORAGE_KEYS.BACKUP_PREFIX) ||
+                    key.startsWith(LIVE_CHECKPOINT_PREFIX) ||
                     key === STORAGE_KEYS.CURRENT_SAVE_ID ||
                     key.startsWith(STORAGE_KEYS.WEEK_TICK_STATE)) {
                     await this.storage.removeItem(key)
                 }
             }
+            this.lastRotatedWeek.clear()
+            // Steam Cloud copies too, or the menu lists them again as cloud careers.
+            for (const id of await steamService.listCloudSaveIds?.() || []) saveIds.add(id)
+            for (const id of saveIds) await steamService.deleteCloudFile(`save_${id}.json`)
             return { success: true }
         } catch (e) {
             return { success: false }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 import { errorTracker } from '@/lib/error-tracking'
 
@@ -48,13 +49,14 @@ export default function Error({
                         <RefreshCw size={15} aria-hidden="true" />
                         Try again
                     </button>
-                    <a
+                    {/* Client navigation keeps the career in memory (a full reload would drop unsaved progress). */}
+                    <Link
                         href="/main-menu"
                         className="flex h-10 items-center gap-2 rounded border border-line bg-raised px-5 text-sm font-semibold text-ink-1 transition-colors hover:border-line-strong hover:bg-hover"
                     >
                         <Home size={15} aria-hidden="true" />
                         Main menu
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>

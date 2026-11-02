@@ -31,6 +31,7 @@ import { logger } from "@/lib/logger"
 import { MotionConfig } from "framer-motion"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { createSessionPersistence } from "@/lib/session-persistence"
+import { hasUnsavedChanges } from "@/lib/unsaved-changes"
 import { waitForPendingGameSave } from "@/store/game-store"
 import { useMomentPending } from "@/components/moments/moment-state"
 
@@ -110,6 +111,19 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         })
     }
 
+    // Auto-save off: the unsaved dialog resolves with the player's pick.
+    const unsavedResolverRef = useRef<((choice: "save" | "discard" | "stay") => void) | null>(null)
+    const chooseUnsavedRef = useRef<() => Promise<"save" | "discard" | "stay">>(() => Promise.resolve("stay"))
+    chooseUnsavedRef.current = () => new Promise(resolve => {
+        unsavedResolverRef.current = resolve
+        setExitDialog({ open: true, variant: "unsaved" })
+    })
+    const resolveUnsaved = useCallback((choice: "save" | "discard" | "stay") => {
+        unsavedResolverRef.current?.(choice)
+        unsavedResolverRef.current = null
+        setExitDialog(null)
+    }, [])
+
     const handleExitConfirm = useCallback(() => {
         exitResolverRef.current?.(true)
         exitResolverRef.current = null
@@ -176,6 +190,8 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             confirm: variant => showExitConfirmRef.current?.(variant) ?? Promise.resolve(false),
             showSaving: saving => setExitDialog(saving ? { open: true, variant: "saving" } : null),
             onError: error => logger.error("[GameShell] Save/close failed", error),
+            hasUnsavedChanges: () => hasUnsavedChanges(useGameStore.getState()),
+            chooseUnsaved: () => chooseUnsavedRef.current(),
         })
         const unsubscribeClose = electronBridge?.onAppClose(async () => {
             // Acknowledge receipt before awaiting a save or the player's choice.
@@ -212,6 +228,8 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             unsubscribeClose?.()
             exitResolverRef.current?.(false)
             exitResolverRef.current = null
+            unsavedResolverRef.current?.("stay")
+            unsavedResolverRef.current = null
             window.removeEventListener("beforeunload", handleBeforeUnload)
             document.removeEventListener("visibilitychange", handleVisibilityChange)
             window.removeEventListener("focus", handleVisibilityChange)
@@ -432,8 +450,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 <ExitConfirmDialog
                     open={exitDialog.open}
                     variant={exitDialog.variant}
-                    onConfirm={handleExitConfirm}
-                    onCancel={handleExitCancel}
+                    onConfirm={exitDialog.variant === "unsaved" ? () => resolveUnsaved("discard") : handleExitConfirm}
+                    onCancel={exitDialog.variant === "unsaved" ? () => resolveUnsaved("stay") : handleExitCancel}
+                    onSaveAndExit={() => resolveUnsaved("save")}
                 />
             )}
             <MomentHost />

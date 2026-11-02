@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { useFocusTrap } from "@/lib/accessibility"
 
-export type ExitDialogVariant = "saving" | "saveFailed" | "simulationRunning"
+export type ExitDialogVariant = "saving" | "saveFailed" | "simulationRunning" | "unsaved"
 
 interface ExitConfirmDialogProps {
     open: boolean
     variant: ExitDialogVariant
     onConfirm: () => void
     onCancel: () => void
+    /** "unsaved" only: save, then exit. */
+    onSaveAndExit?: () => void
 }
 
 const VARIANT_CONFIG = {
@@ -32,6 +34,14 @@ const VARIANT_CONFIG = {
         description: "Your latest progress could not be saved. Are you sure you want to exit without saving?",
         showButtons: true,
     },
+    unsaved: {
+        icon: Save,
+        iconColor: "text-gold",
+        iconBg: "bg-gold/10",
+        title: "Unsaved Progress",
+        description: "Auto-save is off and this career has progress that is not saved yet.",
+        showButtons: true,
+    },
     simulationRunning: {
         icon: AlertTriangle,
         iconColor: "text-negative",
@@ -42,7 +52,7 @@ const VARIANT_CONFIG = {
     },
 } as const
 
-export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitConfirmDialogProps) {
+export function ExitConfirmDialog({ open, variant, onConfirm, onCancel, onSaveAndExit }: ExitConfirmDialogProps) {
     const config = VARIANT_CONFIG[variant]
     const Icon = config.icon
 
@@ -91,6 +101,11 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
                         </p>
 
                         {/* Buttons */}
+                        {variant === "unsaved" && onSaveAndExit && (
+                            <Button onClick={onSaveAndExit} size="lg" className="w-full h-12 mb-3 relative">
+                                Save and exit
+                            </Button>
+                        )}
                         {config.showButtons && (
                             <div className="flex gap-4 w-full relative">
                                 <Button
@@ -106,7 +121,7 @@ export function ExitConfirmDialog({ open, variant, onConfirm, onCancel }: ExitCo
                                     size="lg"
                                     className="flex-1 h-12 border-negative/40 text-negative hover:bg-negative/10"
                                 >
-                                    Exit
+                                    {variant === "unsaved" ? "Exit without saving" : "Exit"}
                                 </Button>
                             </div>
                         )}

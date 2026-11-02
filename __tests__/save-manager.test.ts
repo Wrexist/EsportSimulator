@@ -484,3 +484,42 @@ test("career previews carry the actual club identity and player IDs without writ
     expect(preview.topPlayerPreviews?.[0].id).toBe(save.players[0].id)
     expect([...storage.store.entries()]).toEqual(before)
 })
+
+describe("backups step once per career week", () => {
+    test("saves inside one week overwrite the primary and keep the older week's backup", async () => {
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave()
+        const backup = (n: number) => storage.store.get(STORAGE_KEYS.BACKUP_PREFIX + save.saveId + "_" + n)
+        await sm.saveGame({ ...save, currentWeek: 1 })
+        await sm.saveGame({ ...save, currentWeek: 2 })
+        expect(JSON.parse(backup(1)!).currentWeek).toBe(1)
+        // Day steps and periodic saves within week 2.
+        for (let i = 0; i < 5; i++) await sm.saveGame({ ...save, currentWeek: 2, currentDay: i })
+        expect(JSON.parse(backup(1)!).currentWeek).toBe(1)
+        expect(backup(2)).toBeUndefined()
+        await sm.saveGame({ ...save, currentWeek: 3 })
+        expect(JSON.parse(backup(1)!).currentWeek).toBe(2)
+        expect(JSON.parse(backup(2)!).currentWeek).toBe(1)
+        expect((await sm.loadGame(save.saveId)).save?.currentWeek).toBe(3)
+    })
+})
+
+describe("deleting careers", () => {
+    test("delete all also removes live-match checkpoints", async () => {
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave()
+        await sm.saveGame(save)
+        storage.store.set("esports_live_checkpoint_" + save.saveId, "{}")
+        await sm.deleteAllSaves()
+        expect(Array.from(storage.store.keys()).filter(k => k.startsWith("esports_"))).toEqual([])
+    })
+
+    test("save size is measured in UTF-8 bytes against the disk ceiling", async () => {
+        const { saveSizeBytes, SAVE_MAX_BYTES, SAVE_WARN_BYTES } = await import("@/engine/save-manager")
+        expect(saveSizeBytes("abc")).toBe(3)
+        expect(saveSizeBytes("é".repeat(SAVE_WARN_BYTES))).toBe(SAVE_WARN_BYTES * 2)
+        expect(SAVE_MAX_BYTES).toBeGreaterThan(SAVE_WARN_BYTES)
+    })
+})

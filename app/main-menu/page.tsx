@@ -88,6 +88,13 @@ export default function MainMenuPage() {
         if (!latest?.saveId || isContinuing) return
         setIsContinuing(true)
         try {
+            // The career already in memory is newer than its file: resume it
+            // instead of reloading from disk over this session's progress.
+            const live = useGameStore.getState()
+            if (live.saveId === latest.saveId && live.playerTeamId && live.isInitialized) {
+                router.push("/")
+                return
+            }
             const ok = await switchSave(latest.saveId)
             // On failure the store records lastLoadError; the load screen explains it.
             router.push(ok ? "/" : "/load-game")

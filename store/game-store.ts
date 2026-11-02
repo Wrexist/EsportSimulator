@@ -102,6 +102,7 @@ import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
 import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 import { buildSaveSnapshot } from "@/store/utils/build-save-snapshot"
 import { useSettingsStore } from "@/lib/settings-store"
+import { markCareerSaved, hasUnsavedChanges } from "@/lib/unsaved-changes"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
@@ -169,6 +170,8 @@ let saveChain: Promise<void> = Promise.resolve()
 let pendingGameSave: Promise<void> | null = null
 export async function waitForPendingGameSave(): Promise<void> { await pendingGameSave }
 let careerGeneration = 0
+/** Career already told this session that its save is getting large. */
+let sizeWarnedSaveId: string | null = null
 
 const nextDeterministicId = (
   state: RngBackedState,
@@ -1410,6 +1413,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Rebuild entity indexes after new game initialization
           const newState = get()
           set(buildEntityIndexes(newState.teams, newState.players, newState.contracts, newState.staff, newState.completedMatches))
+          markCareerSaved(get())
           get().refreshStaffMarket()
         } catch (err) {
           const message = err instanceof Error ? err.message : "Initialization failed"
@@ -1732,6 +1736,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Rebuild entity indexes after custom team initialization
           const customState = get()
           set(buildEntityIndexes(customState.teams, customState.players, customState.contracts, customState.staff, customState.completedMatches))
+          markCareerSaved(get())
 
           get().refreshStaffMarket()
         } catch (err) {
@@ -1763,7 +1768,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
 
       loadGame: async (saveId, cloudChoice) => {
-        careerGeneration++
+        const loadGeneration = ++careerGeneration
         weekProcessorBridge.reset?.()
         set({ isLoading: true, error: null, lastLoadError: null })
         try {
@@ -1774,6 +1779,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             set({ lastLoadError: { saveId, errorCode: errorCode || "UNKNOWN", message } })
             throw new Error(message)
           }
+
+          // A newer load (boot auto-load racing Continue) owns the store now.
+          if (loadGeneration !== careerGeneration) return
 
           // A live match checkpointed after this save was written (reload or
           // crash mid-match) resumes where it was, not from round 1.
@@ -1786,6 +1794,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             savedActive: save.activeMatchState,
           })
 
+          if (loadGeneration !== careerGeneration) return
           await steamAchievements.setActiveSave(save.saveId)
 
           // Initialize Steam Achievements with UI callback
@@ -1852,6 +1861,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // repeats): give each its deadline and default, merge repeats (Phase 4.9).
           normalizeDecisions(hydratedSave, { arrivals: false })
 
+          if (loadGeneration !== careerGeneration) return
           set({
             ...hydratedSave,
             ...careerAdvanceState(hydratedSave, inferredTeamId, false),
@@ -1911,6 +1921,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Rebuild entity indexes after loading game
           const loadedState = get()
           set(buildEntityIndexes(loadedState.teams, loadedState.players, loadedState.contracts, loadedState.staff, loadedState.completedMatches))
+          markCareerSaved(get())
 
           // Welcome back toast if player was away for 24+ hours
           const lastPlayed = hydratedSave.lastPlayedAt
@@ -1953,6 +1964,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (saveResult.repairs && saveResult.repairs.length > 0) {
             get().addToast({ message: `Save auto-repaired: ${saveResult.repairs[0]}`, type: "warning", duration: 8000 })
           }
+          if (saveResult.sizeWarning && sizeWarnedSaveId !== state.saveId) {
+            sizeWarnedSaveId = state.saveId
+            get().addToast({ message: saveResult.sizeWarning, type: "warning", duration: 10000 })
+          }
+          // What was written is the state this snapshot was built from.
+          markCareerSaved(state)
         } catch (err) {
           const message = err instanceof Error ? err.message : "Save failed"
           logger.error("[saveGame] Error", message)
@@ -2457,6 +2474,13 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       switchSave: async (saveId, cloudChoice) => {
         try {
+          // Leaving a loaded career: with auto-save on, its in-memory progress
+          // is written first instead of being dropped by the load.
+          const current = get()
+          if (hasLoadedCareer(current) && !current.isLoading && current.saveId !== saveId
+            && useSettingsStore.getState().autoSave && hasUnsavedChanges(current)) {
+            await current.saveGame()
+          }
           await get().loadGame(saveId, cloudChoice)
           if (get().lastLoadError) return false
           const loadedSaveId = get().saveId
