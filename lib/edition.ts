@@ -6,7 +6,8 @@
  * unlock the full game by editing a setting.
  *
  * The demo is the full career with a calendar cap: the first DEMO_LAST_WEEK
- * weeks of season one (league split start, the first events, transfers,
+ * weeks of season one, the whole first league split up to its final table
+ * (promotion or relegation, split prizes, the first events, transfers,
  * training, live matches). When the last demo week is processed the career
  * stops and the save waits for the full game, which shares the same save
  * folder and continues it from the next week. Draft Cup runs are short and
@@ -18,8 +19,12 @@ export type Edition = "full" | "demo"
 export const EDITION: Edition = process.env.NEXT_PUBLIC_ESM_EDITION === "demo" ? "demo" : "full"
 export const IS_DEMO = EDITION === "demo"
 
-/** Last career week the demo plays; the career stops once it has been processed. */
-export const DEMO_LAST_WEEK = 12
+/**
+ * Last career week the demo plays; the career stops once it has been processed.
+ * It is split 1's last week (LEAGUE_TUNING.SPLITS), so the demo ends on the
+ * split's final table instead of halfway through it.
+ */
+export const DEMO_LAST_WEEK = 24
 
 /** Full game store page; opens in the OS browser through the external-link allowlist. */
 export const FULL_GAME_STORE_URL = "https://store.steampowered.com/app/4326170/"

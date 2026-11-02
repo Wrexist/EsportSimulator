@@ -62,8 +62,8 @@ export function DemoEnd() {
 
             <Panel title="Keep this career going">
                 <p className="text-sm text-ink-2">
-                    The season is far from over: the rest of the league split, the majors, the transfer windows and every season after it.
-                    Get the full game on Steam and this save is waiting in Load game, ready to play week {DEMO_LAST_WEEK + 1}.
+                    The season is far from over: the second split, the majors, the transfer windows and every season after it.
+                    Get the full game on Steam and, on this PC, this save is waiting in Load game, ready to play week {DEMO_LAST_WEEK + 1}.
                 </p>
                 <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                     {FULL_GAME_HIGHLIGHTS.map(h => (
