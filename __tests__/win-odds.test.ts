@@ -1,6 +1,6 @@
 import { contextFor } from '@/scripts/launch/l21-paired-scenarios'
 import { createLaunchFixture } from '@/scripts/launch/fixtures'
-import { mapWinChance, matchWinOdds, seriesWinChance, winOddsInputs, WIN_ODDS_CHECK, WIN_ODDS_FIT } from '@/engine/match/win-odds'
+import { counterShift, mapWinChance, matchWinOdds, seriesWinChance, winOddsInputs, WIN_ODDS_CHECK, WIN_ODDS_FIT } from '@/engine/match/win-odds'
 
 describe('win odds', () => {
     test('even sides are 50/50 and the curve is symmetric and monotone', () => {
@@ -11,6 +11,19 @@ describe('win odds', () => {
             expect(fav + mapWinChance({ ratingGap: -gap, edgeGap: -0.03 })).toBeCloseTo(1, 10)
             expect(mapWinChance({ ratingGap: gap + 1, edgeGap: 0.03 })).toBeGreaterThan(fav)
         }
+    })
+
+    test('anti-strat counters move the chance by their measured map-win points, for the manager only', () => {
+        const ctx = (managed: string, counters: Record<string, { ct?: boolean; t?: boolean }> | undefined, managerMatch = true) =>
+            ({ managedTeamId: managed, managerMatch, counters, home: { team: { id: 'H' } } }) as never
+        const both = { mirage: { ct: true, t: true } }
+        const shift = counterShift(ctx('H', both), 'mirage')
+        // At even odds the shift lands exactly on the measured points (CT 5 + T 8).
+        expect(1 / (1 + Math.exp(-shift))).toBeCloseTo(0.63, 5)
+        expect(counterShift(ctx('A', both), 'mirage')).toBeCloseTo(-shift, 10)
+        expect(counterShift(ctx('H', both), 'inferno')).toBe(0)
+        expect(counterShift(ctx('H', undefined), 'mirage')).toBe(0)
+        expect(counterShift(ctx('H', both, false), 'mirage')).toBe(0)
     })
 
     test('series chance from map chances', () => {

@@ -19,6 +19,7 @@ import type { MapId } from "@/types"
 import type { LegacySeriesContext } from "./legacy-series"
 import { aimPoints, buildProfile } from "./round-sim/profile"
 import { cappedEdge } from "./round-sim/team-edge"
+import { COUNTER_EFFECT } from "./habits"
 
 /** Fitted 2026-10-27 on 5,912 simulated maps (sight engine with team play, docs/revamp/team-play/TEAM_PLAY_2026-10.md). */
 export const WIN_ODDS_FIT = {
@@ -91,9 +92,29 @@ export interface MatchWinOdds {
     series: number
 }
 
+const logit = (p: number) => Math.log(p / (1 - p))
+
+/**
+ * R3: the manager's anti-strat counters on a map, as a shift in the home
+ * side's log-odds: their measured map-win points against a club keeping to
+ * its habits (COUNTER_EFFECT, even teams), on the same curve.
+ */
+export function counterShift(ctx: Pick<LegacySeriesContext, "counters" | "managerMatch" | "managedTeamId" | "home">, map: string): number {
+    if (!ctx.managerMatch || !ctx.managedTeamId) return 0
+    const picked = ctx.counters?.[map]
+    if (!picked) return 0
+    const pts = ((picked.ct ? COUNTER_EFFECT.ct.maps : 0) + (picked.t ? COUNTER_EFFECT.t.maps : 0)) / 100
+    if (pts <= 0) return 0
+    const shift = logit(0.5 + Math.min(0.45, pts))
+    return ctx.managedTeamId === ctx.home.team.id ? shift : -shift
+}
+
 /** The home side's win chances for a prepared series (same context the match is played with). */
 export function matchWinOdds(ctx: LegacySeriesContext, bestOf: number): MatchWinOdds {
-    const home = mapWinChance(winOddsInputs(ctx))
-    const maps = ctx.maps.map(map => ({ map, home }))
+    const base = mapWinChance(winOddsInputs(ctx))
+    const maps = ctx.maps.map(map => {
+        const shift = counterShift(ctx, map)
+        return { map, home: shift ? 1 / (1 + Math.exp(-(logit(base) + shift))) : base }
+    })
     return { maps, series: seriesWinChance(maps.map(m => m.home), bestOf) }
 }

@@ -638,7 +638,7 @@ export default function TacticalHQPage() {
                         {winChance !== null && (
                             <p
                                 className="mt-2 text-xs text-ink-3"
-                                title={`Your chance to win this ${bestOfLabel(match.format)}, from both lineups' aim, form and condition and the team edge. Checked against ${WIN_ODDS_CHECK.maps.toLocaleString("en-US")} simulated maps between the game's clubs: shown chances landed within ${WIN_ODDS_CHECK.meanErrorPts} points of the real results on average.`}
+                                title={`Your chance to win this ${bestOfLabel(match.format)}, from both lineups' aim, form and condition, the team edge and your anti-strat counters. Checked against ${WIN_ODDS_CHECK.maps.toLocaleString("en-US")} simulated maps between the game's clubs: shown chances landed within ${WIN_ODDS_CHECK.meanErrorPts} points of the real results on average.`}
                             >
                                 Win chance <span className="font-semibold tabular-nums text-ink-1">{Math.round(winChance * 100)}%</span>
                             </p>
@@ -757,8 +757,9 @@ export default function TacticalHQPage() {
                                 <p className="text-sm text-ink-3">Set the maps first: habits and counters are per map.</p>
                             ) : (
                                 <div className="space-y-4" data-testid="counter-prep">
+                                    <p className="text-xs text-ink-3">A club you counter often changes that habit before you meet again, and every club's habits change each season.</p>
                                     {[...new Set(match.maps ?? [])].map((map: string) => {
-                                        const habits = teamHabits(opponent.id, map)
+                                        const habits = teamHabits(opponent.id, map, opponent.habits)
                                         const picked = match.counters?.[map] ?? {}
                                         return (
                                             <div key={map}>

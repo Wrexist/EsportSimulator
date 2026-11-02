@@ -25,6 +25,7 @@
  * actions live in the same slice.
  */
 
+import { adaptHabits } from "@/engine/match/habits"
 import type { SliceCreator } from "@/store/types"
 import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
 import type {
@@ -320,6 +321,11 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             // path already did), and the match's press conference closes.
             updateRivalries(state as unknown as GameSave, completedMatch)
             closePressConference(state, matchId)
+            // R3: the other club reads the counters it faced and may change those habits.
+            if (match.counters && Object.keys(match.counters).length) {
+                const rival = match.homeTeamId === state.playerTeamId ? awayTeam : homeTeam
+                rival.habits = adaptHabits(rival.habits, match.counters, rival.id, matchSeed)
+            }
 
             // Careers, season tallies and records (Phase 5.1): one shared
             // path with the week tick's AI matches. Friendlies don't count.

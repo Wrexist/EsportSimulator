@@ -6,7 +6,7 @@
 import { seriesRunnerFor } from '@/engine/match/calibration/run'
 import { buildSide, even } from '@/engine/match/calibration/fixtures'
 import { forceHabits } from '@/engine/match/round-sim'
-import { counterSite, sanitizeCounters, teamHabits } from '@/engine/match/habits'
+import { adaptHabits, counterSite, sanitizeCounters, sanitizeHabitState, teamHabits, HABIT_ADAPT_CHANCE } from '@/engine/match/habits'
 import { counterLines } from '@/lib/match-reasons'
 import type { Match, MatchResult, Player, RoundResult, Team } from '@/types'
 import { simulationEngineV2 } from '@/engine/match-simulation'
@@ -21,6 +21,33 @@ const full = (b?: string) => b === 'FULL' || b === 'DOUBLE AWP'
 afterEach(() => forceHabits(null))
 
 describe('club habits', () => {
+    it('are drawn afresh each season; season one keeps the original draw', () => {
+        expect(teamHabits('AWAY', MapId.MIRAGE, { season: 1 })).toEqual(teamHabits('AWAY', MapId.MIRAGE))
+        const clubs = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+        const changed = clubs.filter(id => JSON.stringify(teamHabits(id, MapId.MIRAGE, { season: 2 })) !== JSON.stringify(teamHabits(id, MapId.MIRAGE)))
+        expect(changed.length).toBeGreaterThan(0)
+        expect(changed.length).toBeLessThan(clubs.length)
+    })
+
+    it('change after a club is countered, about as often as HABIT_ADAPT_CHANCE', () => {
+        let tChanged = 0, ctChanged = 0
+        const n = 400
+        for (let seed = 0; seed < n; seed++) {
+            const before = teamHabits('AWAY', MapId.MIRAGE)
+            const state = adaptHabits(undefined, { [MapId.MIRAGE]: { ct: true, t: true } }, 'AWAY', seed)
+            const after = teamHabits('AWAY', MapId.MIRAGE, state)
+            if (after.t.site !== before.t.site) tChanged++
+            if (after.ct.stack !== before.ct.stack) ctChanged++
+            // A map nobody countered keeps its habits.
+            expect(teamHabits('AWAY', MapId.INFERNO, state)).toEqual(teamHabits('AWAY', MapId.INFERNO))
+        }
+        for (const c of [tChanged, ctChanged]) expect(Math.abs(c / n - HABIT_ADAPT_CHANCE)).toBeLessThan(0.08)
+        // No counters: nothing changes. A saved state survives sanitising; junk does not.
+        expect(adaptHabits({ season: 2 }, undefined, 'AWAY', 1)).toEqual({ season: 2, shift: {} })
+        expect(sanitizeHabitState({ season: 3, shift: { [MapId.MIRAGE]: { t: true, x: 1 } } })).toEqual({ season: 3, shift: { [MapId.MIRAGE]: { t: true } } })
+        expect(sanitizeHabitState('junk')).toBeUndefined()
+    })
+
     it('are fixed per club and map', () => {
         expect(teamHabits('AWAY', MapId.MIRAGE)).toEqual(teamHabits('AWAY', MapId.MIRAGE))
         const all = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].map(id => teamHabits(id, MapId.MIRAGE).t.site)
