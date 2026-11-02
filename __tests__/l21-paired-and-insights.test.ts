@@ -34,7 +34,10 @@ describe('every permitted decision has a measurable, bounded effect over 400 pai
     // +0.43 pp [0.17, 0.69], force after a lost pistol -$52 cash per round
     // [-87, -16], countered playstyle -2.3 pp [-3.3, -1.4] (-2.3 without
     // meetings), no AWPer -1.2 pp [-2.0, -0.3] (-1.7 without at 400 seeds).
-    const WIDE = new Set(['call-full-buy', 'timeout-on-streak', 'call-force-after-pistol-loss', 'playstyle-countered', 'roles-no-awper'])
+    // loadout-utility sits near its bound (main at 400 seeds: -8.3 pp
+    // [-12.7, -3.8]); with map comfort its 400-seed draw moved to -11.5 pp,
+    // while 1200 seeds give -8.4 pp [-11.1, -5.8], so it gets 1200 too.
+    const WIDE = new Set(['call-full-buy', 'timeout-on-streak', 'call-force-after-pistol-loss', 'playstyle-countered', 'roles-no-awper', 'loadout-utility'])
     const reports = SCENARIOS.map(s => runScenario(s, WIDE.has(s.id) ? 1200 : 400))
     test.each(reports.map(r => [r.id, r] as const))('%s', (_id, r) => {
         if (r.id === 'call-save-always') {
