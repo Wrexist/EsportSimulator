@@ -78,6 +78,9 @@ interface GameSettings {
     /** Demo tour stops opened on this device (lib/demo-tour.ts; demo builds only). */
     demoTourVisited: string[]
     markDemoTourVisited: (stop: string) => void
+    /** One-time screen tips already dismissed on this device (components/ui/FirstVisitTip.tsx). */
+    seenTips: string[]
+    markTipSeen: (tip: string) => void
 
     // Actions
     setWindowMode: (mode: WindowMode) => void
@@ -139,6 +142,8 @@ export const useSettingsStore = create<GameSettings>()(
             setReviewAskDone: () => set({ reviewAskDone: true }),
             demoTourVisited: [],
             markDemoTourVisited: (stop) => set(state => state.demoTourVisited.includes(stop) ? state : { demoTourVisited: [...state.demoTourVisited, stop].slice(-20) }),
+            seenTips: [],
+            markTipSeen: (tip) => set(state => state.seenTips.includes(tip) ? state : { seenTips: [...state.seenTips, tip].slice(-50) }),
 
             // Setters
             setWindowMode: (mode) => set({ windowMode: mode }),
@@ -287,6 +292,7 @@ export const useSettingsStore = create<GameSettings>()(
                     autoSavePreferenceSet: typeof stored?.autoSave === 'boolean',
                     reviewAskDone: stored?.reviewAskDone === true,
                     demoTourVisited: Array.isArray(stored?.demoTourVisited) ? stored.demoTourVisited.filter((v): v is string => typeof v === 'string').slice(-20) : [],
+                    seenTips: Array.isArray(stored?.seenTips) ? stored.seenTips.filter((v): v is string => typeof v === 'string').slice(-50) : [],
                 }
             },
         }

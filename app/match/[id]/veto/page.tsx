@@ -23,6 +23,7 @@ import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { leagueStageLabel } from "@/components/league/league-view"
 import { rate, recentMapTally, type SideTally } from "@/engine/map-record"
+import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 
 // Map Wallpaper Paths
 const MAP_WALLPAPERS: Record<string, string> = {
@@ -441,6 +442,8 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                     {leagueStageLabel(match) ?? (tournament ? `${tournament.name}${match.stage ? ` · ${match.stage}` : ""}` : "Map veto")}
                 </p>
             </div>
+
+            <FirstVisitTip tip={SCREEN_TIPS.veto} />
 
             {/* Header: teams + turn */}
             <section className="rounded-[10px] border border-line bg-panel">

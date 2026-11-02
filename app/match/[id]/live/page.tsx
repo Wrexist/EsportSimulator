@@ -35,6 +35,7 @@ import { MatchIntro } from "@/components/match/MatchIntro"
 import { MatchEndBeat } from "@/components/match/MatchEndBeat"
 import { competitionOf } from "@/lib/match-framing"
 import { headToHeadOf, introContextLine } from "@/lib/match-intro"
+import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 
 declare global {
     interface Window { __liveCommits?: number }
@@ -364,6 +365,7 @@ export default function LiveMatchPage() {
         >
             {/* Pre-match derby framing — only renders for HEATED/FIERCE rivalries. */}
             <DerbyBanner homeTeam={homeTeam} awayTeam={awayTeam} />
+            <FirstVisitTip tip={SCREEN_TIPS.live} />
 
             {/* TeamSaveData (engine save shape) → Team (engine runtime
                 shape). Structural overlap is total for the fields the

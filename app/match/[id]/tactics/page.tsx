@@ -42,6 +42,7 @@ import { TUNING } from "@/engine/match/round-sim/tuning"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { PlaybookEditor } from "@/components/tactics/PlaybookEditor"
 import { COUNTER_EFFECT, COUNTER_LABEL, habitLine, teamHabits } from "@/engine/match/habits"
+import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
@@ -618,6 +619,8 @@ export default function TacticalHQPage() {
                     {isCompleted ? "Played" : isMatchWeek ? "Match day" : isFuture ? `Scheduled · week ${match.week}` : "Expired"}
                 </p>
             </div>
+
+            {!isCompleted && <FirstVisitTip tip={SCREEN_TIPS.tactics} />}
 
             {/* Broadcast header */}
             <section className="overflow-hidden rounded-[10px] border border-line bg-panel" aria-label={`${myTeam.name} versus ${opponent.name}`}>
