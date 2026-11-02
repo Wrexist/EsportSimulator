@@ -109,6 +109,8 @@ import { applyScheduledActivities } from "@/engine/processors/scheduled-activiti
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
 import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
 import { checkMilestones } from "@/engine/milestone-checker"
+import { checkLegacyGoals, LEGACY_INIT_ID } from "@/engine/legacy-goals"
+import { adjustManagerReputation } from "@/engine/manager-timeline"
 import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
@@ -2354,6 +2356,32 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               })
             } catch (msErr) {
               logger.error("[advanceWeek] milestone check failed", msErr)
+            }
+            // Legacy goals: each level fires once per career and raises the
+            // manager's reputation. A career from before legacy goals existed
+            // records the levels it already holds quietly, without a reward.
+            try {
+              const lgState = get()
+              const fired = new Set<string>(lgState.acknowledgedEventIds)
+              const hits = checkLegacyGoals(lgState as unknown as GameSave, fired)
+              // "legacy:init" marks a career whose legacy has been checked once.
+              const retro = !fired.has(LEGACY_INIT_ID) && lgState.currentWeek > 2
+              if (!fired.has(LEGACY_INIT_ID)) set((s) => { if (!s.acknowledgedEventIds.includes(LEGACY_INIT_ID)) s.acknowledgedEventIds.push(LEGACY_INIT_ID) })
+              if (hits.length) {
+                set((s) => {
+                  for (const hit of hits) {
+                    if (!retro) {
+                      adjustManagerReputation(s as unknown as GameSave, hit.reputation, hit.message)
+                      s.eventsLog.unshift({ id: hit.id, week: s.currentWeek, type: "MILESTONE", data: { description: hit.message, importance: "HIGH" }, acknowledged: true })
+                    }
+                    if (!s.acknowledgedEventIds.includes(hit.id)) s.acknowledgedEventIds.push(hit.id)
+                  }
+                })
+                if (retro) get().addToast({ message: "Legacy goals are on your manager profile. The levels your career already holds are marked.", type: "info", duration: 8000 })
+                else hits.forEach(hit => get().addToast({ message: `${hit.message} Reputation +${hit.reputation}.`, type: "achievement" }))
+              }
+            } catch (lgErr) {
+              logger.error("[advanceWeek] legacy goal check failed", lgErr)
             }
             phase("09_milestones")
 

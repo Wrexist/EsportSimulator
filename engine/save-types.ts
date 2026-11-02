@@ -263,9 +263,9 @@ export interface BoardState {
 
 /** A board objective for the current season. */
 export interface BoardObjective {
-    id: "league" | "ranking" | "finance"
+    id: "league" | "ranking" | "finance" | "trophies"
     label: string
-    /** league: max table position; ranking: max world ranking; finance: min cash at season end. */
+    /** league: max table position; ranking: max world ranking; finance: min cash at season end; trophies: titles this season. */
     target: number
     /** Live progress in the same unit as target (table position, world ranking, cash). */
     current?: number

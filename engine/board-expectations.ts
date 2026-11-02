@@ -226,6 +226,19 @@ function financeObjective(save: GameSave, team: TeamSaveData, startCash: number)
     return { id: "finance", label: `Budget discipline: end the season with at least ${money(target)} in the bank`, target }
 }
 
+/**
+ * A club the board expects to win silverware is asked for at least the haul it
+ * managed last season (one at the least, TROPHY_AMBITION_MAX at most): a
+ * dynasty is expected to keep winning, so success raises the bar.
+ */
+export function trophyAmbition(save: GameSave, season: number): number {
+    return clamp(trophiesInSeason(save, season - 1), 1, BOARD_TUNING.TROPHY_AMBITION_MAX)
+}
+
+function trophiesObjective(target: number): BoardObjective {
+    return { id: "trophies", label: target === 1 ? "Ambition: lift a trophy this season" : `Ambition: lift ${target} trophies this season`, target }
+}
+
 function rankingObjective(rankTarget: number): BoardObjective {
     return { id: "ranking", label: `Finish the season ranked #${rankTarget} or better`, target: rankTarget }
 }
@@ -241,7 +254,8 @@ export function ensureSeasonObjectives(save: GameSave, board: BoardState): void 
         board.rankTarget = board.expectationSetSeason === season && board.rankTarget ? board.rankTarget : rankTargetFor(ranking, team.reputation ?? 50)
         board.expectationSetSeason = season
         board.seasonStartCash = Math.round(team.budget)
-        board.objectives = [leagueObjective(save, team.id), rankingObjective(board.rankTarget), financeObjective(save, team, team.budget)]
+        board.objectives = [leagueObjective(save, team.id), rankingObjective(board.rankTarget), financeObjective(save, team, team.budget),
+            board.seasonExpectation === "WIN" ? trophiesObjective(trophyAmbition(save, season)) : undefined]
             .filter((o): o is BoardObjective => !!o)
         board.objectivesSeason = season
         return
@@ -271,6 +285,9 @@ export function refreshObjectiveProgress(save: GameSave, board: BoardState): voi
         } else if (o.id === "ranking") {
             o.current = team.worldRanking
             o.status = (team.worldRanking ?? 999) <= o.target ? "ON_TRACK" : "AT_RISK"
+        } else if (o.id === "trophies") {
+            o.current = trophiesInSeason(save, getSeasonNumber(save.currentWeek))
+            o.status = o.current >= o.target ? "MET" : "AT_RISK"
         } else {
             o.current = Math.round(team.budget)
             o.status = team.budget >= o.target ? "ON_TRACK" : "AT_RISK"
@@ -522,6 +539,16 @@ function judgeLeague(save: GameSave, board: BoardState, week: number): BoardMove
     return { week, delta, cause: `League objective ${position <= objective.target ? "met" : "missed"}: ${ordinal(position)} in ${name} (target ${ordinal(objective.target)})` }
 }
 
+function judgeTrophies(save: GameSave, board: BoardState, week: number, season: number): BoardMove | undefined {
+    const objective = board.objectives?.find(o => o.id === "trophies")
+    if (!objective) return undefined
+    const won = trophiesInSeason(save, season)
+    const ok = won >= objective.target
+    objective.current = won
+    objective.status = ok ? "MET" : "MISSED"
+    return { week, delta: ok ? BOARD_TUNING.REVIEW_TROPHIES_MET : BOARD_TUNING.REVIEW_TROPHIES_MISSED, cause: `Trophy ambition ${ok ? "met" : "missed"}: ${won} won (target ${objective.target})` }
+}
+
 function judgeFinance(save: GameSave, board: BoardState, week: number, interim: boolean): BoardMove | undefined {
     const objective = board.objectives?.find(o => o.id === "finance")
     const team = save.teams.find(t => t.id === save.playerTeamId)
@@ -588,7 +615,7 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
     const ranking = board.objectives?.find(o => o.id === "ranking")
     if (ranking) { ranking.current = endRank; ranking.status = outcome === "EXCEEDED" || outcome === "MET" ? "MET" : "MISSED" }
     const moves = board.objectives?.length
-        ? [judgeLeague(save, board, week), rankingMove, judgeFinance(save, board, week, false)].filter((m): m is BoardMove => !!m)
+        ? [judgeLeague(save, board, week), rankingMove, judgeFinance(save, board, week, false), judgeTrophies(save, board, week, seasonNumber)].filter((m): m is BoardMove => !!m)
         : [{ ...rankingMove, delta: CONFIDENCE_DELTA[outcome] }]
     const delta = moves.reduce((s, m) => s + m.delta, 0)
 

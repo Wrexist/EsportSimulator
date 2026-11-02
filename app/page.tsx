@@ -372,9 +372,9 @@ export default function Page() {
   // Phase 4.4: the board's real objectives (league finish, ranking, budget).
   const objectives = boardState?.objectives ?? []
   const objectiveProgress = (o: (typeof objectives)[number]) => o.current === undefined ? "—"
-    : o.id === "finance" ? formatCurrency(o.current) : o.id === "ranking" ? `#${o.current}` : ordinal(o.current)
+    : o.id === "finance" ? formatCurrency(o.current) : o.id === "ranking" ? `#${o.current}` : o.id === "trophies" ? `${o.current}` : ordinal(o.current)
   const objectiveTarget = (o: (typeof objectives)[number]) =>
-    o.id === "finance" ? formatCurrency(o.target) : o.id === "ranking" ? `#${o.target}` : ordinal(o.target)
+    o.id === "finance" ? formatCurrency(o.target) : o.id === "ranking" ? `#${o.target}` : o.id === "trophies" ? `${o.target}` : ordinal(o.target)
 
   const finance = financialReport
   const financeState = FINANCE_STATE[finance?.state ?? "STABLE"] ?? FINANCE_STATE.STABLE

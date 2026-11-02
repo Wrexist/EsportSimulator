@@ -392,6 +392,10 @@ export const BOARD_TUNING = {
     REVIEW_RANK_MISSED: -6,
     REVIEW_RANK_FAILED: -12,
     REVIEW_FINANCE_MET: 4,
+    /** Title-winning clubs: the board's trophy ambition (a club that won N last season is asked for N, capped). */
+    REVIEW_TROPHIES_MET: 6,
+    REVIEW_TROPHIES_MISSED: -6,
+    TROPHY_AMBITION_MAX: 3,
     REVIEW_FINANCE_MISSED: -8,
     /** Finance objective: end the season with at least max(SHARE x season-start cash, WEEKS x running costs). */
     FINANCE_CASH_SHARE: 0.5,
