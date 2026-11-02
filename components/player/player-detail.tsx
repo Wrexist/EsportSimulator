@@ -135,7 +135,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
     const contract = contracts.find(c => c.playerId === player.id)
     const weeksLeft = contract ? Math.max(0, contract.endWeek - currentWeek) : 0
     const canRenew = isOwnPlayer && !!contract && weeksLeft < 52
-    const renewedWage = contract ? renewalSalary(player, contract.salaryPerWeek) : 0
+    const renewedWage = contract ? renewalSalary(player, contract.salaryPerWeek, currentWeek) : 0
     const renewalRaise = contract && contract.salaryPerWeek > 0 ? Math.round((renewedWage / contract.salaryPerWeek - 1) * 100) : 10
     const isCaptain = !!viewedTeam && captainId(viewedTeam, id => allPlayers.find(p => p.id === id)) === player.id
 

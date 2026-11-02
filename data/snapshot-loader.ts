@@ -35,6 +35,7 @@ import { PlayerRole, PlayerTier, TournamentTier, TournamentFormat, MatchFormat }
 import { reconcileTeamRoles } from "@/engine/role-reconciler"
 import { applyReputationLift } from "@/engine/player-evaluation"
 import { ensurePersonality, spreadPlaceholderAmicability } from "@/engine/personality"
+import { startingPotential, startingWeaponMastery } from "@/engine/development-rates"
 
 /**
  * Auto-calculate an initial prestige score for players with empty proHistory.
@@ -416,7 +417,10 @@ export class SnapshotLoader {
             xpToNextLevel: 1000,
             talentPoints: 0,
             unlockedTalentIds: [],
-            potential: sp.potential,
+            // Established pros start near their level (engine/development-rates.ts STARTING_HEADROOM).
+            potential: startingPotential(sp.potential, sp.skill, sp.age) ?? sp.potential,
+            // ...and with the weapon mastery their careers have already earned.
+            weaponMastery: startingWeaponMastery(sp.age, sp.role),
 
             // Career stats - Copy from snapshot if available (for known pros)
             matchesPlayed,

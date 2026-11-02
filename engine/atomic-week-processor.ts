@@ -83,6 +83,7 @@ import { JobOfferGenerator } from "./job-offer-generator"
 import { QualificationEngine, CircuitPointsManager } from "./tournament-qualification"
 import { LEGENDARY_PLAYERS } from "./legendary-players-data"
 import { buildAnnualAwards, shouldTriggerAwards, addProAwardsEvent } from "./pro-awards-engine"
+import { updateReputationAtSeasonEnd } from "./player-evaluation"
 import { honoursFor, recordOfficialMatch, recordTierMove } from "./official-stats"
 import { closeSeason } from "./season-honours"
 import { queueMoment, seasonReviewMoment } from "./moments"
@@ -459,6 +460,9 @@ export class AtomicWeekProcessor {
                     debugLog(`[Week ${save.currentWeek}] Closing season ${closing}: honours and Top 20...`)
                     const honours = closeSeason(save, closing)
                     if (honours) addProAwardsEvent(save, buildAnnualAwards(save, honours, config.playerTeamId))
+                    if (honours) updateReputationAtSeasonEnd(save.players, honours.top20)
+                    // R3: every club's anti-strat habits are drawn afresh for the new season.
+                    for (const team of save.teams) team.habits = { season: closing + 1 }
                     // Phase 5.4b: the season review opens the new season, once,
                     // after any title or tier-move moment still waiting.
                     const closed = honours ?? honoursFor(save, closing)

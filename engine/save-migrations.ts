@@ -32,6 +32,7 @@ import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
 import { generateSeed } from "./rng"
 import { defaultBrandingFor } from "@/lib/branding/fallback"
 import { createDefaultTactics } from "./default-tactics"
+import { startingWeaponMastery } from "./development-rates"
 
 /**
  * Migrate legacy save (no saveVersion or saveVersion 0) to v1.
@@ -386,6 +387,29 @@ export function migrateToV11(save: Record<string, unknown>): Record<string, unkn
 }
 
 /**
+ * v12 (no season-one inflation): a new career's pros start with the weapon
+ * mastery their careers have earned (engine/development-rates.ts
+ * STARTING_MASTERY) and the OVR scale no longer adds +6 for it. Players in
+ * an older save get at least that starting mastery too, so a player who had
+ * not built any yet keeps his OVR; one who already had it shows the scale
+ * without the old +6.
+ */
+export function migrateToV12(save: Record<string, unknown>): Record<string, unknown> {
+    const players = Array.isArray(save.players) ? (save.players as PlayerSaveData[]) : []
+    for (const p of players) {
+        if (p.isLegendary) continue
+        const mastery: Record<string, unknown> = { ...(p.weaponMastery ?? {}) }
+        for (const [weapon, xp] of Object.entries(startingWeaponMastery(p.age, p.role))) {
+            const cur = mastery[weapon]
+            const curXp = typeof cur === "number" ? cur : cur && typeof cur === "object" && typeof (cur as { xp?: unknown }).xp === "number" ? (cur as { xp: number }).xp : 0
+            if (curXp < xp) mastery[weapon] = xp
+        }
+        p.weaponMastery = mastery as PlayerSaveData["weaponMastery"]
+    }
+    return { ...save, players, saveVersion: 12 }
+}
+
+/**
  * Run the full ladder up to the current version. Each step is no-op
  * if the save already meets its target version.
  *
@@ -410,6 +434,7 @@ export function runMigrationLadder(save: unknown): GameSave {
     if (version < 9) migrated = migrateToV9(migrated)
     if (version < 10) migrated = migrateToV10(migrated)
     if (version < 11) migrated = migrateToV11(migrated)
+    if (version < 12) migrated = migrateToV12(migrated)
 
     return {
         ...migrated,

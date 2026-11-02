@@ -529,7 +529,8 @@ describe("contracts", () => {
         expect(renewalSalary(player("m", "MERCENARY"), 1000)).toBe(1200)
 
         const players = [player("m", "MERCENARY"), player("l", "LOYAL")]
-        const team = club("ai", ["m", "l"], { budget: 10_000_000 })
+        // A club whose income covers the raises (renewals are optional spending).
+        const team = club("ai", ["m", "l"], { budget: 10_000_000, sponsors: [{ id: "inc", name: "Backer", tier: "STANDARD", weeklyPayout: 20_000, remainingWeeks: 52 }] as never })
         const save = world(players, [club("me", []), team], 100)
         save.contracts = players.map(p => ({ playerId: p.id, teamId: "ai", salaryPerWeek: 1000, startWeek: 1, endWeek: 104, buyout: 0 }))
         renewExpiringContracts(team, save, new Map(players.map(p => [p.id, p])))

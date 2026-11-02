@@ -89,8 +89,9 @@ describe("AI clubs follow the insolvency rule", () => {
         ai.consecutiveInsolventWeeks = CLUB_ECONOMY_TUNING.ADMINISTRATION_WEEKS
         const rep = ai.reputation
         expect(processAIAdministration(save, save.playerTeamId)).toEqual([ai.id])
-        expect(ai.rosterIds).not.toContain("bench_1")
-        expect(save.contracts.some(c => c.playerId === "bench_1" && c.teamId === ai.id)).toBe(false)
+        // The bench contract is gone (a released player may come back as a
+        // cheap free agent, but never on his old wage).
+        expect(save.contracts.some(c => c.playerId === "bench_1" && c.teamId === ai.id && c.salaryPerWeek === 3000)).toBe(false)
         expect(ai.staffIds).toEqual([])
         expect(ai.academyFacility.level).toBe(0)
         expect(ai.reputation).toBe(rep - CLUB_ECONOMY_TUNING.ADMINISTRATION_REPUTATION_PENALTY)

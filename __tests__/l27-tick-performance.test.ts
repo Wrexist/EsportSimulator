@@ -172,7 +172,7 @@ describe('role-filtered free-agent quotes', () => {
         const free = save.players.filter(p => !owned.has(p.id) && !p.isRetired && !contracted.has(p.id) && !held.has(p.id))
         const missing = new Set(['IGL', 'AWPER', 'ENTRY_FRAGGER', 'SUPPORT'])
         const eligible = free.filter(p => missing.has(recruitment.recruitmentRole(p.role)))
-        const expected = [...eligible].sort((a, b) => scoreSigningCandidate(b, recruitment.recruitmentSalary(b, save.currentWeek), missing) - scoreSigningCandidate(a, recruitment.recruitmentSalary(a, save.currentWeek), missing))[0]
+        const expected = [...eligible].sort((a, b) => scoreSigningCandidate(b, recruitment.recruitmentSalary(b, save.currentWeek, team), missing) - scoreSigningCandidate(a, recruitment.recruitmentSalary(a, save.currentWeek, team), missing))[0]
         const spy = jest.spyOn(recruitment, 'recruitmentSalary')
         try {
             signFreeAgent(team, save)

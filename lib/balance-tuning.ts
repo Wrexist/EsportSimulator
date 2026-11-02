@@ -164,6 +164,10 @@ export const AI_SQUAD_TUNING = {
     MAX_SPONSORS: 3,
     /** Human Renew button terms (store/slices/transfer-contract-slice.ts). */
     RENEWAL_SALARY_MULTIPLIER: 1.1,
+    /** A renewal pays at least this share of the market ask for a player of his level (engine/personality.ts renewalSalary). */
+    RENEWAL_MARKET_SHARE: 0.8,
+    /** Most a renewal multiplies the current wage by when it catches up with the market. */
+    RENEWAL_MAX_STEP: 2.5,
     RENEWAL_EXTENSION_WEEKS: 52,
     RENEWAL_RUNWAY_WEEKS: 26,
     /** Upgrade attempt cadence during transfer windows (spread by team id). */
@@ -295,6 +299,8 @@ export const CLUB_ECONOMY_TUNING = {
  * (engine/ai/club-budget.ts).
  */
 export const AI_ECONOMY_TUNING = {
+    /** A club that must sell (cost cutting, administration) lists the player at this share of his market value. */
+    DISTRESSED_LISTING_SHARE: 0.8,
     /** Share of weekly income an AI club keeps as surplus when it takes on a new recurring cost. */
     SURPLUS_SHARE: 0.05,
     /** A transfer fee leaves at least this many weeks of running costs in the bank. */

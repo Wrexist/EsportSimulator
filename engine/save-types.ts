@@ -31,7 +31,7 @@ import { logger } from "@/lib/logger"
 /**
  * Current save version - increment when schema changes
  */
-export const CURRENT_SAVE_VERSION = 11
+export const CURRENT_SAVE_VERSION = 12
 
 /**
  * Minimum supported save version for migration
@@ -606,6 +606,8 @@ export interface TeamSaveData {
     // === PHASE 20: TACTICAL PERFECTION ===
     playstyle?: "balanced" | "aggressive" | "structured" | "default"
     playbook?: import("@/engine/match/playbook").Playbook // G1: named calls per map, side and buy
+    /** R3: this club's anti-strat habits: the season drawn for and what it changed after being countered. */
+    habits?: import("@/engine/match/habits").TeamHabitState
     tacticalPrep?: number // 0-100 bonus from VOD reviews
     prepPenalty?: number // transient quick-sim differential (B4); set only on a sim copy, never persisted
     economyStyle?: "standard" | "force" | "eco" // Phase 60: Economy aggressiveness
