@@ -20,6 +20,7 @@ import type {
     TeamSaveData,
     QualificationStatus,
     PlayerSaveData,
+    GameEventSaveData,
 } from "./save-types"
 import { assignPersonalities, spreadPlaceholderAmicability } from "./personality"
 import { applyReputationLift } from "./player-evaluation"
@@ -33,6 +34,7 @@ import { generateSeed } from "./rng"
 import { defaultBrandingFor } from "@/lib/branding/fallback"
 import { createDefaultTactics } from "./default-tactics"
 import { startingWeaponMastery } from "./development-rates"
+import { evaluatePlayer } from "./player-evaluation"
 
 /**
  * Migrate legacy save (no saveVersion or saveVersion 0) to v1.
@@ -405,6 +407,19 @@ export function migrateToV12(save: Record<string, unknown>): Record<string, unkn
             if (curXp < xp) mastery[weapon] = xp
         }
         p.weaponMastery = mastery as PlayerSaveData["weaponMastery"]
+    }
+    // Prices set on the old market scale: listed players are relisted at their
+    // value on the new one, and open bids made at the old scale are withdrawn.
+    const week = typeof save.currentWeek === "number" ? save.currentWeek : 1
+    for (const p of players) {
+        if (!p.forSale || p.isRetired) continue
+        try { p.transferListingPrice = Math.max(1000, evaluatePlayer(p, undefined, undefined, week).transferValue) } catch { /* keep the old price */ }
+    }
+    const events = Array.isArray(save.eventsLog) ? (save.eventsLog as GameEventSaveData[]) : []
+    for (const e of events) {
+        if (String(e?.type) !== "TRANSFER_OFFER" || e.selectedChoiceId !== undefined || e.acknowledged) continue
+        e.data = { ...(e.data ?? {}), isWithdrawn: true, withdrawnReason: "The transfer market was re-priced; the club will bid again." }
+        e.acknowledged = true
     }
     return { ...save, players, saveVersion: 12 }
 }

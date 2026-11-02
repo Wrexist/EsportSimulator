@@ -16,6 +16,8 @@ export const DURABLE_CAREER_KEYS = [
     "transferHistory", "financeLedger", "academyPlayers", "academyRoster", "scoutedPlayers",
     "activeScoutingMission", "sponsorOffers", "boardState", "league", "proCareer", "draftCup",
     "selectedWeeklyActivity", "scheduledActivities", "storylines", "watchlistedPlayerIds",
+    "eventsLog", "acknowledgedEventIds", "managerDetails", "newsFeed", "momentQueue", "saveName",
+    "timeMode", "gameOverReason", "mapRecords", "recordBook",
 ] as const
 
 type DurableKey = typeof DURABLE_CAREER_KEYS[number]

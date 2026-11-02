@@ -2500,7 +2500,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const current = get()
           if (hasLoadedCareer(current) && !current.isLoading && current.saveId !== saveId
             && useSettingsStore.getState().autoSave && hasUnsavedChanges(current)) {
-            await current.saveGame()
+            // A failed save (shown by saveGame) must not lock every other
+            // career away: the last saved copy of this one stays on disk.
+            await current.saveGame().catch(() => { /* surfaced by saveGame */ })
           }
           await get().loadGame(saveId, cloudChoice)
           if (get().lastLoadError) return false

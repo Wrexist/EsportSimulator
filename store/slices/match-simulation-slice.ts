@@ -322,7 +322,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             updateRivalries(state as unknown as GameSave, completedMatch)
             closePressConference(state, matchId)
             // A bold claim made to the press is settled by the result.
-            settlePressStakes(state as never, matchId, completedMatch.result?.winnerId === state.playerTeamId)
+            // A draw settles nothing.
+            if (completedMatch.result?.winnerId) settlePressStakes(state as never, matchId, completedMatch.result.winnerId === state.playerTeamId)
             // R3: the other club reads the counters it faced and may change those habits.
             if (match.counters && Object.keys(match.counters).length) {
                 const rival = match.homeTeamId === state.playerTeamId ? awayTeam : homeTeam

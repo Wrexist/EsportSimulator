@@ -41,7 +41,7 @@ import { ANTI_STRAT_SELF_PENALTY, MAP_POINTS_PER_EDGE, MENTAL_PREP_EDGE, NON_PLA
 import { TUNING } from "@/engine/match/round-sim/tuning"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { PlaybookEditor } from "@/components/tactics/PlaybookEditor"
-import { COUNTER_EFFECT, COUNTER_LABEL, habitLine, teamHabits } from "@/engine/match/habits"
+import { COUNTER_EFFECT, COUNTER_LABEL, habitLine, sanitizeHabitState, teamHabits } from "@/engine/match/habits"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
@@ -759,7 +759,7 @@ export default function TacticalHQPage() {
                                 <div className="space-y-4" data-testid="counter-prep">
                                     <p className="text-xs text-ink-3">A club you counter often changes that habit before you meet again, and every club's habits change each season.</p>
                                     {[...new Set(match.maps ?? [])].map((map: string) => {
-                                        const habits = teamHabits(opponent.id, map, opponent.habits)
+                                        const habits = teamHabits(opponent.id, map, sanitizeHabitState(opponent.habits))
                                         const picked = match.counters?.[map] ?? {}
                                         return (
                                             <div key={map}>

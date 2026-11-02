@@ -12,6 +12,11 @@ export type ClubManagementState = Pick<GameSave, typeof CLUB_MANAGEMENT_KEYS[num
 export function switchClubManagement(save: GameSave, oldTeam: TeamSaveData | undefined, newTeam: TeamSaveData): void {
     const archived = Object.fromEntries(CLUB_MANAGEMENT_KEYS.map(key => [key, save[key]])) as ClubManagementState
     if (oldTeam) oldTeam.managementState = archived
+    // The career's difficulty belongs to the manager, not the club he leaves.
+    if (oldTeam?.difficultySettings && oldTeam !== newTeam) {
+        newTeam.difficultySettings = oldTeam.difficultySettings
+        delete oldTeam.difficultySettings
+    }
     const incoming = newTeam.managementState
     const empty: ClubManagementState = {
         academyPlayers: [], academyMatchHistory: [], academyRoster: {}, academyTrainingSchedule: {},

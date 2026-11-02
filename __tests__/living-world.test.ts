@@ -93,3 +93,26 @@ describe("a new world starts settled", () => {
         expect(by.get("leg")!.weaponMastery).toBeUndefined()
     })
 })
+
+describe("old saves meet the new market", () => {
+    test("v12 relists listed players at their new value and withdraws bids made at the old scale", () => {
+        const listed = base({ id: "l", forSale: true, transferListingPrice: 3_000_000 } as never)
+        const bid = { id: "e1", type: "TRANSFER_OFFER", week: 1, acknowledged: false, data: { playerId: "l", offerAmount: 2_500_000 } }
+        const answered = { id: "e2", type: "TRANSFER_OFFER", week: 1, acknowledged: true, selectedChoiceId: "accept", data: {} }
+        const migrated = runMigrationLadder(structuredClone({ saveVersion: 11, currentWeek: 5, players: [listed], eventsLog: [bid, answered] })) as GameSave
+        const p = migrated.players[0]
+        expect(p.transferListingPrice).toBe(evaluatePlayer(p, undefined, undefined, 5).transferValue)
+        expect(migrated.eventsLog[0].data.isWithdrawn).toBe(true)
+        expect(migrated.eventsLog[1].data.isWithdrawn).toBeUndefined()
+    })
+
+    test("career difficulty moves with the manager to a new club", () => {
+        const { switchClubManagement } = jest.requireActual("@/engine/club-management")
+        const oldTeam = { id: "a", difficultySettings: { incomeMultiplier: 0.85, fansMultiplier: 0.85, tournamentPrizeMultiplier: 1 } }
+        const newTeam = { id: "b" }
+        const save = { playerTeamId: "a", academyPlayers: [], academyRoster: {}, players: [] }
+        switchClubManagement(save, oldTeam, newTeam)
+        expect(newTeam).toMatchObject({ difficultySettings: { incomeMultiplier: 0.85 } })
+        expect(oldTeam.difficultySettings).toBeUndefined()
+    })
+})

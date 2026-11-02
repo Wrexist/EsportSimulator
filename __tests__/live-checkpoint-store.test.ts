@@ -51,7 +51,8 @@ describe('reload mid-match, then skip', () => {
     test.each([
         [11, 6, true],
         [4040, 9, false],
-        [90210, 17, true],
+        // Mid-map: the 90210 map ends 13-4, so stop before its 17th round.
+        [90210, 15, true],
         [7, 14, false],
     ])('seed %i after %i rounds (between rounds: %s): same series as without the reload', async (seed, played, waiting) => {
         const tactics = createDefaultTactics()

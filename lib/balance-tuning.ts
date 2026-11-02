@@ -256,7 +256,7 @@ export const LEAGUE_TUNING = {
  * club's recurring income, fans and prize money (team.difficultySettings).
  */
 export const CAREER_DIFFICULTY = {
-    easy: { label: "Relaxed", hint: "More starting cash and more income every week. Room for mistakes.", cash: 1.5, incomeMultiplier: 1.2, fansMultiplier: 1.25, tournamentPrizeMultiplier: 1.15 },
+    easy: { label: "Relaxed", hint: "More starting cash and more income every week. Room for mistakes.", cash: 1.5, incomeMultiplier: 1.2, fansMultiplier: 1.25, tournamentPrizeMultiplier: 1 },
     normal: { label: "Normal", hint: "The club as it is.", cash: 1, incomeMultiplier: 1, fansMultiplier: 1, tournamentPrizeMultiplier: 1 },
     hard: { label: "Hard", hint: "Less starting cash and less income. Every wage matters.", cash: 0.6, incomeMultiplier: 0.85, fansMultiplier: 0.85, tournamentPrizeMultiplier: 1 },
 } as const

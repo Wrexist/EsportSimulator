@@ -393,6 +393,15 @@ export class SaveManager {
                 && known.fingerprint === await saveTextFingerprint(existing)
             const previous = existing && !knownPrimary ? await this.parseAndValidateSaveCandidate(existing, save.saveId) : null
             if (previous && !previous.ok && previous.error === "NEWER_VERSION") return { success: false, error: previous.message }
+            // Serialised before the backups move: a save too large to write
+            // must not rotate the previous primary into the backups either.
+            const serialized = serializeSignedSave(save, payload)
+            step("05_stringify")
+            const sizeBytes = saveSizeBytes(serialized)
+            if (sizeBytes > SAVE_MAX_BYTES) {
+                // The disk layer refuses values this large; say why instead of "free space".
+                return { success: false, error: SAVE_TOO_LARGE_MESSAGE }
+            }
             // Backups step once per career week, not per save: day steps and
             // periodic saves inside a week would otherwise cycle all three
             // copies within days and leave no older week to fall back to.
@@ -416,13 +425,6 @@ export class SaveManager {
             // 2. Atomic write: stage to <key>.tmp first. If we crash between
             //    here and step 4, the existing primary is untouched and the
             //    stale .tmp will be discarded by clearStaleTmp() on next load.
-            const serialized = serializeSignedSave(save, payload)
-            step("05_stringify")
-            const sizeBytes = saveSizeBytes(serialized)
-            if (sizeBytes > SAVE_MAX_BYTES) {
-                // The disk layer refuses values this large; say why instead of "free space".
-                return { success: false, error: SAVE_TOO_LARGE_MESSAGE }
-            }
             // Hash the new primary while the staging/commit writes are in flight
             // (chunked, so it interleaves with storage I/O). Never rejects.
             const serializedFingerprint = saveTextFingerprint(serialized)
