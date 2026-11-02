@@ -210,6 +210,11 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 if (!state.isLoading) void state.saveGame().catch(() => {})
                 event.preventDefault()
                 event.returnValue = ""
+            } else if (hasUnsavedChanges(state)) {
+                // Auto-save off: the browser's own leave prompt is the only
+                // warning a tab close can show.
+                event.preventDefault()
+                event.returnValue = ""
             }
         }
         const handleVisibilityChange = () => {

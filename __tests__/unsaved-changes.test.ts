@@ -1,8 +1,19 @@
 import { createSessionPersistence } from "@/lib/session-persistence"
-import { clearCareerBaseline, hasUnsavedChanges, markCareerSaved } from "@/lib/unsaved-changes"
+import { readFileSync } from "fs"
+import { join } from "path"
+import { clearCareerBaseline, DURABLE_CAREER_KEYS, hasUnsavedChanges, markCareerSaved } from "@/lib/unsaved-changes"
 
 describe("unsaved career tracking", () => {
   afterEach(() => clearCareerBaseline())
+
+  test("every field the save snapshot writes is tracked", () => {
+    const source = readFileSync(join(__dirname, "../store/utils/build-save-snapshot.ts"), "utf8")
+    const written = new Set(Array.from(source.matchAll(/\bstate\.([A-Za-z]+)/g), m => m[1]))
+    written.delete("saveId")
+    written.delete("createdAt")
+    const tracked = new Set<string>(DURABLE_CAREER_KEYS)
+    expect([...written].filter(key => !tracked.has(key))).toEqual([])
+  })
 
   test("a career is clean right after a save or load and dirty once a durable slice changes", () => {
     const players = [{ id: "p1" }]

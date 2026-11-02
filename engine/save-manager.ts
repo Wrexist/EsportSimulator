@@ -87,9 +87,8 @@ export class SaveManager {
     // Length + full-content hash (not the text) of the primary this manager
     // last wrote and read back. Holding the full serialized save kept a second
     // copy of the career (about 25 MB by week 52) alive all session (L27.A3).
-    private lastVerifiedPrimary: { key: string; length: number; fingerprint: string } | null = null
-    /** Career week whose save last rotated the backups, per save key (one rotation per week). */
-    private lastRotatedWeek = new Map<string, number>()
+    // `week` is that save's career week, so backups can step once per week.
+    private lastVerifiedPrimary: { key: string; length: number; fingerprint: string; week: number } | null = null
 
     constructor(storage: AsyncStorage = asyncStorage) {
         this.storage = storage
@@ -111,7 +110,7 @@ export class SaveManager {
         data: string,
         expectedSaveId: string
     ): Promise<
-        | { ok: true; migrated: GameSave; updatedAtMs: number }
+        | { ok: true; migrated: GameSave; updatedAtMs: number; fromVersion: number }
         | { ok: false; error: SaveErrorCode; message?: string }
     > {
         // Reject obviously-bogus payloads BEFORE handing them to JSON.parse —
@@ -190,7 +189,8 @@ export class SaveManager {
             ? new Date(migrated.updatedAt).getTime()
             : 0
 
-        return { ok: true, migrated, updatedAtMs }
+        const fromVersion = typeof parsed.saveVersion === "number" ? parsed.saveVersion : 0
+        return { ok: true, migrated, updatedAtMs, fromVersion }
     }
 
     /**
@@ -405,11 +405,15 @@ export class SaveManager {
             // Backups step once per career week, not per save: day steps and
             // periodic saves inside a week would otherwise cycle all three
             // copies within days and leave no older week to fall back to.
-            const sameWeekAsLastRotation = this.lastRotatedWeek.get(key) === save.currentWeek
-            if (existing && (knownPrimary || previous?.ok) && sameWeekAsLastRotation) {
+            // The week is read from the primary on disk, so a restart inside
+            // a week does not rotate it again. A primary in an older save
+            // version always rotates: its original bytes are the copy to keep.
+            const primaryWeek = knownPrimary ? known!.week
+                : previous?.ok && previous.fromVersion === CURRENT_SAVE_VERSION ? previous.migrated.currentWeek
+                : undefined
+            if (existing && (knownPrimary || previous?.ok) && primaryWeek === save.currentWeek) {
                 // The previous primary is this week's too; overwrite it below.
             } else if (existing && (knownPrimary || previous?.ok)) {
-                this.lastRotatedWeek.set(key, save.currentWeek)
                 // Oldest first: partial rotation cannot replace every good backup
                 // with a corrupted primary, or overwrite a copy before it is retained.
                 if (backup2Old) await this.storage.setItem(backupKey + "_3", backup2Old)
@@ -474,7 +478,7 @@ export class SaveManager {
             step("06_writeVerify")
 
             // 4. Update current save ID
-            this.lastVerifiedPrimary = { key, length: serialized.length, fingerprint: await serializedFingerprint }
+            this.lastVerifiedPrimary = { key, length: serialized.length, fingerprint: await serializedFingerprint, week: save.currentWeek }
             await this.storage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, save.saveId)
 
             // 5. Upload to Steam Cloud (non-blocking, don't fail save on cloud error)
@@ -852,7 +856,6 @@ export class SaveManager {
             await this.storage.removeItem(backupKey + CORRUPT_SUFFIX)
             // A live-match checkpoint would otherwise outlive its career.
             await this.storage.removeItem(LIVE_CHECKPOINT_PREFIX + saveId)
-            this.lastRotatedWeek.delete(STORAGE_KEYS.SAVE_PREFIX + saveId)
 
             // Clear current if this was it
             const current = await this.storage.getItem(STORAGE_KEYS.CURRENT_SAVE_ID)
@@ -888,7 +891,6 @@ export class SaveManager {
                     await this.storage.removeItem(key)
                 }
             }
-            this.lastRotatedWeek.clear()
             // Steam Cloud copies too, or the menu lists them again as cloud careers.
             for (const id of await steamService.listCloudSaveIds?.() || []) saveIds.add(id)
             for (const id of saveIds) await steamService.deleteCloudFile(`save_${id}.json`)

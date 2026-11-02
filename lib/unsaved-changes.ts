@@ -9,7 +9,10 @@
  * the career stays "unsaved" until a save succeeds.
  */
 
-/** Durable store fields a player would lose by quitting without a save. */
+/**
+ * Every store field the save snapshot writes (store/utils/build-save-snapshot.ts),
+ * so any change a save would keep counts as unsaved. A test keeps the two in step.
+ */
 export const DURABLE_CAREER_KEYS = [
     "currentWeek", "currentDay", "teams", "players", "contracts", "tournaments", "staff",
     "scheduledMatches", "completedMatches", "customTactics", "autoTactics", "delegation",
@@ -18,6 +21,14 @@ export const DURABLE_CAREER_KEYS = [
     "selectedWeeklyActivity", "scheduledActivities", "storylines", "watchlistedPlayerIds",
     "eventsLog", "acknowledgedEventIds", "managerDetails", "newsFeed", "momentQueue", "saveName",
     "timeMode", "gameOverReason", "mapRecords", "recordBook",
+    "academyMatchHistory", "academyPendingProspects", "academyScoutingMissions",
+    "academyTrainingSchedule", "academyWeeklyReports", "activeMatchId", "activeMatchState",
+    "activelyPlayingLegendIds", "careerStats", "circuitPoints", "declinedSponsorOfferIds",
+    "difficulty", "firstSession", "gameOverWeek", "gameStartDate", "hallOfFame",
+    "lastCommittedWeekTick", "lastRngSeed", "legendaryPlayers", "mapRotation", "marketStaff",
+    "nextMarketRefreshWeek", "pendingCelebration", "pendingLegendPick", "physicalMatchPreview",
+    "playerTeamId", "sandbox", "savedSearches", "seenMomentKeys", "signedLegendIds", "socialFeed",
+    "tournamentQualifications", "weekReports",
 ] as const
 
 type DurableKey = typeof DURABLE_CAREER_KEYS[number]

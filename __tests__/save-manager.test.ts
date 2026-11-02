@@ -503,6 +503,19 @@ describe("backups step once per career week", () => {
         expect(JSON.parse(backup(2)!).currentWeek).toBe(1)
         expect((await sm.loadGame(save.saveId)).save?.currentWeek).toBe(3)
     })
+
+    test("a restart inside a week does not rotate the backups again", async () => {
+        const storage = new MemoryStorage()
+        const save = makeSave()
+        const backup = (n: number) => storage.store.get(STORAGE_KEYS.BACKUP_PREFIX + save.saveId + "_" + n)
+        const first = new SaveManager(storage)
+        await first.saveGame({ ...save, currentWeek: 1 })
+        await first.saveGame({ ...save, currentWeek: 2 })
+        // Each new manager is a fresh launch of the game, saving again in week 2.
+        for (let i = 0; i < 3; i++) await new SaveManager(storage).saveGame({ ...save, currentWeek: 2, currentDay: i })
+        expect(JSON.parse(backup(1)!).currentWeek).toBe(1)
+        expect(backup(2)).toBeUndefined()
+    })
 })
 
 describe("deleting careers", () => {
