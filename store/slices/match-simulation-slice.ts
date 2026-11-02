@@ -26,6 +26,7 @@
  */
 
 import { adaptHabits } from "@/engine/match/habits"
+import { autoVetoMaps } from "@/lib/auto-veto"
 import type { SliceCreator } from "@/store/types"
 import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
 import type {
@@ -75,6 +76,8 @@ export interface MatchSimulationActions {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- MatchResult shape lives in @/types but is loosely typed
     saveMatchResult: (matchId: string, result: any) => void
     simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
+    /** One click from a match stop: the engine's veto if none was made, the counters the VOD review found, then Quick sim. */
+    prepAndSimMatch: (matchId: string) => Promise<boolean>
 }
 
 export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = (set, get) => ({
@@ -609,6 +612,32 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
         })
+    },
+
+    prepAndSimMatch: async (matchId: string) => {
+        const state = get()
+        const match = state.scheduledMatches.find(m => m.id === matchId)
+        if (!match || !state.playerTeamId) return false
+        if (!match.vetoComplete || !match.maps?.length) {
+            const home = state.teams.find(t => t.id === match.homeTeamId)
+            const away = state.teams.find(t => t.id === match.awayTeamId)
+            if (home && away) {
+                const maps = autoVetoMaps(match, getActivePlayersByRosterOrder(home, state.players), getActivePlayersByRosterOrder(away, state.players))
+                if (maps.length) get().updateScheduledMatch(matchId, { vetoComplete: true, maps })
+            }
+        }
+        // Counters the manager has not set on a map yet: apply what the VOD
+        // review found, as the prep screen would offer (never on its own
+        // without the review, and never over a choice already made).
+        const prepped = get().scheduledMatches.find(m => m.id === matchId)
+        if (prepped?.vodReviewed) {
+            for (const map of new Set(prepped.maps ?? [])) {
+                if (prepped.counters?.[map]) continue
+                get().setMatchCounter(matchId, map, "ct", true)
+                get().setMatchCounter(matchId, map, "t", true)
+            }
+        }
+        return get().simulateInstantMatch(matchId)
     },
 
     simulateInstantMatch: async (matchId: string, opts: { skippedPrep?: boolean } = {}) => {

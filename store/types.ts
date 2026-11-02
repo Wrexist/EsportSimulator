@@ -249,6 +249,7 @@ export interface MatchActions extends PhysicalPreviewActions {
   scheduleActivity: (activity: ActivitySaveData) => { success: boolean, message: string }
   updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
   simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
+  prepAndSimMatch: (matchId: string) => Promise<boolean>
   saveMatchResult: (matchId: string, result: MatchResult) => void
   performVODReview: (matchId: string) => void
   performMentalReset: (matchId?: string) => void

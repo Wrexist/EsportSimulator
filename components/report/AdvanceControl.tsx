@@ -211,6 +211,7 @@ function StopNotice() {
                     <X size={14} />
                 </button>
             </div>
+            {stop.kind === "match" && stop.href && <MatchStopActions href={stop.href} onDone={dismiss} />}
             {stop.href && stop.actionLabel && stop.kind !== "match" && (
                 <Link
                     href={stop.href}
@@ -219,6 +220,42 @@ function StopNotice() {
                 >
                     {stop.actionLabel} <ArrowRight size={12} />
                 </Link>
+            )}
+        </div>
+    )
+}
+
+/**
+ * A match stop offers both paths: prepare it (veto, counters, live match) or
+ * let it play out now with the engine's veto and the counters the VOD review
+ * found (store prepAndSimMatch), then open the result.
+ */
+function MatchStopActions({ href, onDone }: { href: string; onDone: () => void }) {
+    const router = useRouter()
+    const prepAndSim = useGameStore(s => s.prepAndSimMatch)
+    const [busy, setBusy] = useState(false)
+    const matchId = href.match(/^\/match\/([^/]+)\//)?.[1]
+    const sim = async () => {
+        if (!matchId || busy) return
+        setBusy(true)
+        try {
+            if (await prepAndSim(matchId)) {
+                onDone()
+                router.push(`/match/${matchId}/result`)
+            }
+        } finally {
+            setBusy(false)
+        }
+    }
+    return (
+        <div className="mt-2 flex items-center gap-3">
+            <Link href={href} onClick={onDone} className="inline-flex items-center gap-1 text-xs font-semibold text-gold underline-offset-2 hover:underline">
+                Prepare <ArrowRight size={12} />
+            </Link>
+            {matchId && (
+                <button type="button" onClick={sim} disabled={busy} className="text-xs font-semibold text-ink-2 underline-offset-2 hover:text-ink-1 hover:underline disabled:opacity-50" title="Plays it now: the engine's veto, plus the anti-strat counters if you reviewed their demos">
+                    {busy ? "Simulating…" : "Sim match"}
+                </button>
             )}
         </div>
     )

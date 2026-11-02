@@ -735,6 +735,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   // Match Management
   updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
   simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
+  prepAndSimMatch: (matchId: string) => Promise<boolean>
 
   // Generic Updates (Added for Flexibility)
   updatePlayer: (playerId: string, updates: Partial<PlayerSaveData>) => void

@@ -22,7 +22,7 @@ import { Meter } from "@/src/components/ui/Meter"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { TierTag } from "@/src/components/ui/TierTag"
 import { PressPanel } from "@/components/storylines/PressConference"
-import { cn, deterministicSeed } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { formatGameCalendarDate } from "@/lib/game-calendar"
 import { getStakes } from "@/lib/match-stakes"
@@ -31,10 +31,8 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 // Engine Imports for Auto-Veto
-import { simulationEngineV2, SeededRNG } from "@/engine"
-import { MapId } from "@/types/enums"
 import { Player } from "@/types"
-import { getMapAssetName, ACTIVE_MAP_POOL, MAP_NAMES } from "@/data/map-pool"
+import { getMapAssetName, MAP_NAMES } from "@/data/map-pool"
 import { MATCH_BALANCE, COST_CONSTANTS } from "@/lib/constants"
 import { ROUND_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import { ANTI_STRAT_SELF_PENALTY, MAP_POINTS_PER_EDGE, MENTAL_PREP_EDGE, NON_PLAYER_BONUS_CAP, PREP_STRENGTH_PER_POINT, ROUND_SHARE_PER_EDGE, STYLE_SPECIALISATION_EDGE } from "@/engine/match/round-sim/team-edge"
@@ -43,6 +41,7 @@ import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { PlaybookEditor } from "@/components/tactics/PlaybookEditor"
 import { COUNTER_EFFECT, COUNTER_LABEL, habitLine, sanitizeHabitState, teamHabits } from "@/engine/match/habits"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
+import { autoVetoMaps } from "@/lib/auto-veto"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
@@ -313,113 +312,12 @@ export default function TacticalHQPage() {
     const handleAutoVeto = async () => {
         if (!match || !myTeam || !opponent) return
         setIsSimulatingVeto(true)
-
-        const rng = new SeededRNG(
-            deterministicSeed(
-                match.id,
-                match.seed,
-                match.week,
-                match.format,
-                match.homeTeamId,
-                match.awayTeamId
-            )
-        )
-        const availableMaps = [...ACTIVE_MAP_POOL]
-
         const homeTeam = match.homeTeamId === myTeam.id ? myTeam : opponent
         const awayTeam = match.homeTeamId === myTeam.id ? opponent : myTeam
-
         // O(1) lookup via memoized playersById map instead of N players.find()
         const homePlayers = homeTeam?.rosterIds.map(id => playersById.get(id)).filter(Boolean) as unknown as Player[]
         const awayPlayers = awayTeam?.rosterIds.map(id => playersById.get(id)).filter(Boolean) as unknown as Player[]
-
-        // We will just simulate a standard ban/pick phase purely using engine logic
-        // BO3 Sequence: Ban, Ban, Pick, Pick, Ban, Ban, Decider
-        // Result: [HomePick, AwayPick, Decider]
-
-        // Simulate Veto Sequence based on Format
-        // The season's pool (seven maps, six when one is benched; C6)
-
-        let picks: MapId[] = []
-        let currentPool = [...availableMaps]
-
-        // Helper to get engine selection
-        const getEngineSelection = (chooserPlayers: Player[], enemyPlayers: Player[], pool: MapId[], action: "BAN" | "PICK", chooserId: string, enemyId: string) => {
-            const strengths = simulationEngineV2.calculateMapStrengths(chooserPlayers, chooserId)
-            let targetStrengths = strengths
-            if (action === "BAN") {
-                // If banning, we look at enemy strengths to ban their best
-                targetStrengths = simulationEngineV2.calculateMapStrengths(enemyPlayers, enemyId)
-            }
-            return simulationEngineV2.selectMapForVeto(rng, pool, targetStrengths, action, 3)
-        }
-
-        const runBan = (team: "home" | "away") => {
-            const chooser = team === "home" ? homePlayers : awayPlayers
-            const enemy = team === "home" ? awayPlayers : homePlayers
-            const ban = getEngineSelection(chooser, enemy, currentPool, "BAN", team === "home" ? match.homeTeamId : match.awayTeamId, team === "home" ? match.awayTeamId : match.homeTeamId)
-            currentPool = currentPool.filter(m => m !== ban)
-        }
-
-        const runPick = (team: "home" | "away") => {
-            const chooser = team === "home" ? homePlayers : awayPlayers
-            const enemy = team === "home" ? awayPlayers : homePlayers
-            const pick = getEngineSelection(chooser, enemy, currentPool, "PICK", team === "home" ? match.homeTeamId : match.awayTeamId, team === "home" ? match.awayTeamId : match.homeTeamId)
-            currentPool = currentPool.filter(m => m !== pick)
-            picks.push(pick)
-        }
-
-        if (match.format === "BO1") {
-            // BO1: Ban A, Ban B, Ban A, Ban B, Ban A, Ban B, Decider (Remaining)
-            // Or simpler: each bans 3 times.
-            // C6: ban down to one map whatever the season's pool size.
-            for (let i = 0; currentPool.length > 1; i++) runBan(i % 2 === 0 ? "home" : "away")
-            // Last map is the pick
-            if (currentPool.length > 0) picks.push(currentPool[0])
-
-        } else if (match.format === "BO5") {
-            // BO5 (from pool of 7): Ban A, Ban B. 5 maps remain.
-            // C6: pool − 5 bans (two from seven, one from a six-map season).
-            for (let i = 0; currentPool.length > 5; i++) runBan(i % 2 === 0 ? "home" : "away")
-            // All remaining 5 are played
-            picks = [...currentPool]
-            // Shuffle or keep order? Usually Pick A, Pick B... 
-            // Let's just create a logical order: Pick A, Pick B, Pick A, Pick B, Decider
-            // But for simplicity, we just use the remaining pool.
-            // Ideally we want to order them by "pick" preference.
-            // Let's just simulate picks for the first 4, last is decider.
-            const orderedPicks: MapId[] = []
-            let tempPool = [...currentPool]
-
-            // 4 picks
-            const pickSequence = ["home", "away", "home", "away"]
-            for (const team of pickSequence) {
-                const chooser = team === "home" ? homePlayers : awayPlayers
-                const enemy = team === "home" ? awayPlayers : homePlayers
-                const pick = getEngineSelection(chooser, enemy, tempPool, "PICK", team === "home" ? match.homeTeamId : match.awayTeamId, team === "home" ? match.awayTeamId : match.homeTeamId)
-                tempPool = tempPool.filter(m => m !== pick)
-                orderedPicks.push(pick)
-            }
-            // Last one
-            if (tempPool.length > 0) orderedPicks.push(tempPool[0])
-            picks = orderedPicks
-
-        } else {
-            // Default BO3
-            // Ban A, Ban B
-            runBan("home")
-            runBan("away")
-
-            // Pick A, Pick B
-            runPick("home")
-            runPick("away")
-
-            // Ban down to the decider (two bans from seven, one from six; C6)
-            for (let i = 0; currentPool.length > 1; i++) runBan(i % 2 === 0 ? "home" : "away")
-
-            // Decider
-            if (currentPool.length > 0) picks.push(currentPool[0])
-        }
+        const picks = autoVetoMaps(match, homePlayers, awayPlayers)
 
         // Save to store and refresh
         updateScheduledMatch(matchId, {
