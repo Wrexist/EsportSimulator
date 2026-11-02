@@ -102,6 +102,7 @@ import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
 import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 import { buildSaveSnapshot } from "@/store/utils/build-save-snapshot"
 import { useSettingsStore } from "@/lib/settings-store"
+import { CAREER_DIFFICULTY } from "@/lib/balance-tuning"
 import { markCareerSaved, hasUnsavedChanges } from "@/lib/unsaved-changes"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
@@ -1316,6 +1317,16 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Get the selected team for welcome message
           const selectedTeam = newSave.teams.find((t: any) => t.id === playerTeamId)
+          // Career difficulty (new-game picker): starting cash and the club's recurring income.
+          const difficulty = options?.difficulty && Object.hasOwn(CAREER_DIFFICULTY, options.difficulty) ? options.difficulty : "normal"
+          if (selectedTeam && !unemployed && !draftCup && difficulty !== "normal") {
+            const d = CAREER_DIFFICULTY[difficulty]
+            const started = selectedTeam as { startingBudget?: number }
+            started.startingBudget = Math.round((started.startingBudget ?? selectedTeam.budget) * d.cash)
+            selectedTeam.budget = Math.round(selectedTeam.budget * d.cash)
+            selectedTeam.difficultySettings = { incomeMultiplier: d.incomeMultiplier, fansMultiplier: d.fansMultiplier, tournamentPrizeMultiplier: d.tournamentPrizeMultiplier }
+          }
+          newSave.difficulty = difficulty
           // Snapshot the starting tier so ZERO_TO_HERO can detect a
           // career-long climb. Set exactly once at career creation;
           // post-tick achievement evaluation reads it without mutation.

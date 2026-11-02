@@ -180,6 +180,8 @@ export interface NewGameOptions {
   unemployed?: boolean
   /** G14: randomise the world (engine/random-world.ts). */
   randomWorld?: boolean
+  /** Career difficulty for the club taken over (lib/balance-tuning.ts CAREER_DIFFICULTY). */
+  difficulty?: import("@/lib/balance-tuning").CareerDifficulty
   draftCup?: { world: import("@/engine/save-types").GameSave; setup: DraftCupSetup }
 }
 
