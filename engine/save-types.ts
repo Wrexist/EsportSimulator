@@ -78,6 +78,8 @@ export interface GameSave {
     createdAt: string // ISO date
     updatedAt: string // ISO date
     integrityHash?: string // Tamper/corruption detection
+    /** Integrity hashes of earlier saves of this career, newest first (lets a load tell a stale copy from a diverged one). */
+    ancestorHashes?: string[]
 
     // === GAME STATE ===
     currentWeek: number

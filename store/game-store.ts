@@ -1980,6 +1980,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             sizeWarnedSaveId = state.saveId
             get().addToast({ message: saveResult.sizeWarning, type: "warning", duration: 10000 })
           }
+          if (saveResult.cloudWarning) {
+            get().addToast({ message: saveResult.cloudWarning, type: "warning", duration: 10000 })
+          }
           // What was written is the state this snapshot was built from.
           markCareerSaved(state)
         } catch (err) {

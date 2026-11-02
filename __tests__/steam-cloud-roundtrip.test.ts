@@ -26,9 +26,6 @@
  *      local is also missing, fails the load with INTEGRITY_FAILED.
  *   4. Different valid contents require an explicit choice, with both
  *      originals preserved before either one is promoted.
- *   5. The cloud upload happens for the FINAL saveGame only (not for
- *      saveGameCheckpoint) — checkpoint writes must stay local-only
- *      to keep tick latency bounded.
  */
 
 import { SaveManager } from "@/engine/save-manager"
@@ -284,12 +281,48 @@ describe("Steam Cloud save round-trip", () => {
         // newer cloud.
         await storage.setItem(STORAGE_KEYS.SAVE_PREFIX + save.saveId, t0Cloud!)
 
-        const conflict = await sm.loadGame(save.saveId)
-        expect(conflict.errorCode).toBe("CLOUD_CONFLICT")
-        expect(conflict.save).toBeNull()
-        const loaded = await sm.loadGame(save.saveId, "cloud")
+        // The Cloud copy grew from the local one (same career, saved later),
+        // so it loads without asking, and both copies are kept.
+        const loaded = await sm.loadGame(save.saveId)
         expect(loaded.error).toBeUndefined()
         expect(loaded.save!.teams[0].budget).toBe(555_555)
+        expect(await storage.getItem(STORAGE_KEYS.BACKUP_PREFIX + save.saveId + "_local")).toBe(t0Cloud)
+    }, 15000)
+
+    test("a copy that only fell behind (failed upload) loses to its descendant; diverged copies still ask", async () => {
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave(sm)
+        const filename = `save_${save.saveId}.json`
+        save.currentWeek = 3
+        await sm.saveGame(save)
+        // Uploads start failing; this PC plays on to week 4.
+        const write = cloud.writeToCloud
+        cloud.writeToCloud = async () => false
+        save.currentWeek = 4
+        const behind = await sm.saveGame(save)
+        expect(behind.cloudWarning).toMatch(/Cloud copy is older/)
+        // Warned once, not on every save.
+        expect((await sm.saveGame(save)).cloudWarning).toBeUndefined()
+        cloud.writeToCloud = write
+
+        // A fresh launch loads this PC's week 4 without a conflict prompt.
+        const fresh = new SaveManager(storage)
+        const loaded = await fresh.loadGame(save.saveId)
+        expect(loaded.error).toBeUndefined()
+        expect(loaded.save!.currentWeek).toBe(4)
+
+        // Another PC grew a different week 4 from the same week-3 Cloud copy.
+        const otherStorage = new MemoryStorage()
+        const other = new SaveManager(otherStorage)
+        const fromCloud = await other.loadGame(save.saveId)
+        expect(fromCloud.save!.currentWeek).toBe(3)
+        fromCloud.save!.currentWeek = 4
+        fromCloud.save!.teams[0].budget = 1
+        await other.saveGame(fromCloud.save!)
+        expect(cloud.files.get(filename)).toBe(await otherStorage.getItem(STORAGE_KEYS.SAVE_PREFIX + save.saveId))
+        const conflict = await new SaveManager(storage).loadGame(save.saveId)
+        expect(conflict.errorCode).toBe("CLOUD_CONFLICT")
     }, 15000)
 
     test("clock-skewed divergent copies do not overwrite local progress without a choice", async () => {
@@ -327,22 +360,6 @@ describe("Steam Cloud save round-trip", () => {
         // Progress wins over wall clock: the week-10 local save is kept.
         expect(loaded.save!.currentWeek).toBe(10)
     }, 15000)
-
-    test("checkpoint writes stay local-only — cloud upload is reserved for final saveGame", async () => {
-        const storage = new MemoryStorage()
-        const sm = new SaveManager(storage)
-        const save = makeSave(sm)
-
-        // saveGameCheckpoint must NOT touch the cloud bridge.
-        const beforeCount = cloud.files.size
-        const result = await sm.saveGameCheckpoint(save)
-        expect(result.success).toBe(true)
-        expect(cloud.files.size).toBe(beforeCount)
-
-        // Local primary still got written so the resume path can read it.
-        const localData = await storage.getItem(STORAGE_KEYS.SAVE_PREFIX + save.saveId)
-        expect(localData).not.toBeNull()
-    })
 
     test("cloud-disconnected bridge does not fail saveGame (cloud sync is non-blocking)", async () => {
         // Detach the bridge entirely — simulate Steam offline / Electron-less host.

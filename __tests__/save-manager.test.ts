@@ -482,7 +482,8 @@ test("career previews carry the actual club identity and player IDs without writ
     expect(preview.teamPreview).toEqual({ id: club.id, name: club.name, logoPath: club.logoPath, branding: club.branding, customTeamData: club.customTeamData })
     expect(preview.teamPreview).not.toHaveProperty("rosterIds")
     expect(preview.topPlayerPreviews?.[0].id).toBe(save.players[0].id)
-    expect([...storage.store.entries()]).toEqual(before)
+    // Only the menu's own summary cache is added; the save itself is untouched.
+    expect([...storage.store.entries()].filter(([k]) => !k.startsWith("esports_slotmeta_"))).toEqual(before)
 })
 
 describe("backups step once per career week", () => {
@@ -534,5 +535,28 @@ describe("deleting careers", () => {
         expect(saveSizeBytes("abc")).toBe(3)
         expect(saveSizeBytes("é".repeat(SAVE_WARN_BYTES))).toBe(SAVE_WARN_BYTES * 2)
         expect(SAVE_MAX_BYTES).toBeGreaterThan(SAVE_WARN_BYTES)
+    })
+})
+
+describe("main menu save list", () => {
+    test("reuses a cached summary until the save changes", async () => {
+        const storage = new MemoryStorage()
+        const sm = new SaveManager(storage)
+        const save = makeSave()
+        await sm.saveGame({ ...save, currentWeek: 4 })
+        expect(storage.store.get(STORAGE_KEYS.SAVE_PREFIX + save.saveId)!.length).toBeGreaterThan(5000)
+        const first = await sm.getSaveSlots()
+        expect(first.find(s => s.saveId === save.saveId)?.currentWeek).toBe(4)
+        const parse = jest.spyOn(JSON, "parse")
+        const again = await sm.getSaveSlots()
+        // Only the small cached summary is parsed, never the save itself.
+        const bigParses = parse.mock.calls.filter(([text]) => typeof text === "string" && text.length > 5000)
+        parse.mockRestore()
+        expect(bigParses).toHaveLength(0)
+        expect(again).toEqual(first)
+        await sm.saveGame({ ...save, currentWeek: 5 })
+        expect((await sm.getSaveSlots()).find(s => s.saveId === save.saveId)?.currentWeek).toBe(5)
+        await sm.deleteSave(save.saveId)
+        expect([...storage.store.keys()].some(k => k.startsWith("esports_slotmeta_"))).toBe(false)
     })
 })
