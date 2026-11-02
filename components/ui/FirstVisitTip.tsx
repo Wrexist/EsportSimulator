@@ -28,7 +28,7 @@ export const SCREEN_TIPS = {
         id: "veto-v1",
         title: "Map veto",
         lines: [
-            "Ban and pick maps for the series. Each side's recent results per map are shown, and the edge shown is what the engine adds to every round on that map.",
+            "Ban and pick maps for the series. Every club has best and worst maps: ban their best, pick yours. The read edge and each side's comfort count in every round on that map; recent results are history only.",
         ],
     },
     live: {

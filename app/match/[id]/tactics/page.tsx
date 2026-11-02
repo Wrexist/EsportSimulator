@@ -344,12 +344,12 @@ export default function TacticalHQPage() {
         let currentPool = [...availableMaps]
 
         // Helper to get engine selection
-        const getEngineSelection = (chooserPlayers: Player[], enemyPlayers: Player[], pool: MapId[], action: "BAN" | "PICK") => {
-            const strengths = simulationEngineV2.calculateMapStrengths(chooserPlayers)
+        const getEngineSelection = (chooserPlayers: Player[], enemyPlayers: Player[], pool: MapId[], action: "BAN" | "PICK", chooserId: string, enemyId: string) => {
+            const strengths = simulationEngineV2.calculateMapStrengths(chooserPlayers, chooserId)
             let targetStrengths = strengths
             if (action === "BAN") {
                 // If banning, we look at enemy strengths to ban their best
-                targetStrengths = simulationEngineV2.calculateMapStrengths(enemyPlayers)
+                targetStrengths = simulationEngineV2.calculateMapStrengths(enemyPlayers, enemyId)
             }
             return simulationEngineV2.selectMapForVeto(rng, pool, targetStrengths, action, 3)
         }
@@ -357,14 +357,14 @@ export default function TacticalHQPage() {
         const runBan = (team: "home" | "away") => {
             const chooser = team === "home" ? homePlayers : awayPlayers
             const enemy = team === "home" ? awayPlayers : homePlayers
-            const ban = getEngineSelection(chooser, enemy, currentPool, "BAN")
+            const ban = getEngineSelection(chooser, enemy, currentPool, "BAN", team === "home" ? match.homeTeamId : match.awayTeamId, team === "home" ? match.awayTeamId : match.homeTeamId)
             currentPool = currentPool.filter(m => m !== ban)
         }
 
         const runPick = (team: "home" | "away") => {
             const chooser = team === "home" ? homePlayers : awayPlayers
             const enemy = team === "home" ? awayPlayers : homePlayers
-            const pick = getEngineSelection(chooser, enemy, currentPool, "PICK")
+            const pick = getEngineSelection(chooser, enemy, currentPool, "PICK", team === "home" ? match.homeTeamId : match.awayTeamId, team === "home" ? match.awayTeamId : match.homeTeamId)
             currentPool = currentPool.filter(m => m !== pick)
             picks.push(pick)
         }
@@ -396,7 +396,7 @@ export default function TacticalHQPage() {
             for (const team of pickSequence) {
                 const chooser = team === "home" ? homePlayers : awayPlayers
                 const enemy = team === "home" ? awayPlayers : homePlayers
-                const pick = getEngineSelection(chooser, enemy, tempPool, "PICK")
+                const pick = getEngineSelection(chooser, enemy, tempPool, "PICK", team === "home" ? match.homeTeamId : match.awayTeamId, team === "home" ? match.awayTeamId : match.homeTeamId)
                 tempPool = tempPool.filter(m => m !== pick)
                 orderedPicks.push(pick)
             }

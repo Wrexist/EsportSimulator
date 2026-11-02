@@ -11,6 +11,7 @@
  * `simulationEngineV2.selectMapForVeto(...)` keep working unchanged.
  */
 
+import { MAP_COMFORT_VETO_WEIGHT, mapComfort } from "./map-comfort"
 import { MapId } from "@/types"
 import type { Player, MapVeto, Analyst } from "@/types"
 import type { SeededRNG } from "../rng"
@@ -23,11 +24,13 @@ import { ACTIVE_MAP_POOL } from "@/data/map-pool"
  * skill; the rest blend both. Returns a defaulted-to-50 map for empty
  * rosters so downstream veto logic never sees missing entries.
  */
-export function calculateMapStrengths(players: Player[]): Map<MapId, number> {
+export function calculateMapStrengths(players: Player[], teamId?: string): Map<MapId, number> {
     const strengths = new Map<MapId, number>()
+    // Map identity (map-comfort.ts): a club's best maps rank higher in its veto.
+    const comfort = (map: MapId) => mapComfort(teamId, map) * MAP_COMFORT_VETO_WEIGHT
 
     if (players.length === 0) {
-        ACTIVE_MAP_POOL.forEach(map => strengths.set(map, 50))
+        ACTIVE_MAP_POOL.forEach(map => strengths.set(map, 50 + comfort(map)))
         return strengths
     }
 
@@ -50,7 +53,7 @@ export function calculateMapStrengths(players: Player[]): Map<MapId, number> {
                 strength = avgSkill * 0.5 + avgTactic * 0.5
         }
 
-        strengths.set(map, strength)
+        strengths.set(map, strength + comfort(map))
     })
 
     return strengths
@@ -111,8 +114,8 @@ export function simulateMapVeto(
     const homeVetoSkill = homeAnalyst ? homeAnalyst.level : 1
     const awayVetoSkill = awayAnalyst ? awayAnalyst.level : 1
 
-    const homeMapStrengths = cachedHomeMapStrengths || calculateMapStrengths(homePlayers)
-    const awayMapStrengths = cachedAwayMapStrengths || calculateMapStrengths(awayPlayers)
+    const homeMapStrengths = cachedHomeMapStrengths || calculateMapStrengths(homePlayers, homeTeamId)
+    const awayMapStrengths = cachedAwayMapStrengths || calculateMapStrengths(awayPlayers, awayTeamId)
 
     if (format === 'BO1') {
         while (availableMaps.length > 1) {

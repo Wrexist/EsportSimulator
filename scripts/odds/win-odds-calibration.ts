@@ -84,7 +84,7 @@ async function generate(): Promise<void> {
         const map = ACTIVE_MAP_POOL[rng.int(0, ACTIVE_MAP_POOL.length - 1)]
         const seed = rng.int(1, 0x7ffffffe)
         const ctx = contextFor(save, teams[a].id, teams[b].id, map, seed, `odds_${baseSeed}_${i}`)
-        const inputs = winOddsInputs(ctx)
+        const inputs = winOddsInputs(ctx, map)
         const result = finalizeLegacySeries(ctx, runLegacySeries(ctx).state)
         const m = result.maps[0]
         const row: Row = { home: teams[a].id, away: teams[b].id, map, seed, ...inputs, homeRounds: m.homeScore ?? 0, awayRounds: m.awayScore ?? 0, homeWon: result.winnerId === teams[a].id ? 1 : 0 }

@@ -20,6 +20,7 @@ import type { LegacySeriesContext } from "./legacy-series"
 import { aimPoints, buildProfile } from "./round-sim/profile"
 import { cappedEdge } from "./round-sim/team-edge"
 import { COUNTER_EFFECT } from "./habits"
+import { mapComfort } from "./map-comfort"
 
 /** Fitted 2026-10-27 on 5,912 simulated maps (sight engine with team play, docs/revamp/team-play/TEAM_PLAY_2026-10.md). */
 export const WIN_ODDS_FIT = {
@@ -53,8 +54,14 @@ function lineupRating(ctx: LegacySeriesContext, side: "home" | "away"): number {
     return profiles.reduce((sum, prof) => sum + aimPoints(prof, "rifle") + prof.condition, 0) / profiles.length
 }
 
-export function winOddsInputs(ctx: LegacySeriesContext): WinOddsInputs {
-    const edge = ctx.script ? cappedEdge(ctx.script.home.edge.total, ctx.script.away.edge.total) : 0
+/**
+ * The curve's inputs for a prepared series. With a map, the edge includes
+ * both clubs' comfort on it (map identity, map-comfort.ts), as the rounds
+ * on that map play it.
+ */
+export function winOddsInputs(ctx: LegacySeriesContext, map?: string): WinOddsInputs {
+    const comfort = (side: "home" | "away") => map ? mapComfort(ctx[side].team.id, map) : 0
+    const edge = ctx.script ? cappedEdge(ctx.script.home.edge.total + comfort("home"), ctx.script.away.edge.total + comfort("away")) : 0
     return { ratingGap: lineupRating(ctx, "home") - lineupRating(ctx, "away"), edgeGap: edge }
 }
 
@@ -111,8 +118,8 @@ export function counterShift(ctx: Pick<LegacySeriesContext, "counters" | "manage
 
 /** The home side's win chances for a prepared series (same context the match is played with). */
 export function matchWinOdds(ctx: LegacySeriesContext, bestOf: number): MatchWinOdds {
-    const base = mapWinChance(winOddsInputs(ctx))
     const maps = ctx.maps.map(map => {
+        const base = mapWinChance(winOddsInputs(ctx, map))
         const shift = counterShift(ctx, map)
         return { map, home: shift ? 1 / (1 + Math.exp(-(logit(base) + shift))) : base }
     })

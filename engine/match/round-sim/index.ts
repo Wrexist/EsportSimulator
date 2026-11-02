@@ -22,6 +22,7 @@ import type { PlayerSimulationState } from "../round-outcome"
 import { scriptBuyPhase } from "./buy"
 import { buildProfile, callQuality, type SimProfile } from "./profile"
 import { BUY_OF, simulateScriptRound, type Contact, type SimInput, type SimOutput, type SimSide } from "./simulate"
+import { mapComfort } from "../map-comfort"
 import { counterSite, sanitizeHabitState, teamHabits, type MatchCounters, type RoundCounter, type TeamHabitState } from "../habits"
 import { playSituation, sanitizePlaybook, tCallKey, type Playbook, type RoundCalls } from "../playbook"
 import { findContacts } from "./contacts"
@@ -202,7 +203,8 @@ export class ScriptRoundEngine {
             away: { team: awayTeam ?? ({ id: "away" } as Team), players: awayPlayers, staff: awayStaff ?? {}, counterMod: 1, mentalPrep: false, implicitGear: false },
         })
         const mapIndex = extra?.mapIndex ?? 0
-        const edge = cappedEdge(series.home.edge.total, series.away.edge.total) * TUNING.EDGE_DUEL_POINTS / 2
+        // Map identity (map-comfort.ts) joins the non-player edge under the same cap.
+        const edge = cappedEdge(series.home.edge.total + mapComfort(series.home.teamId, mapId), series.away.edge.total + mapComfort(series.away.teamId, mapId)) * TUNING.EDGE_DUEL_POINTS / 2
         const regroup = TUNING.REGROUP_POINTS_PER_PROB
         const side = (players: Player[], s: ScriptSeriesSide, other: ScriptSeriesSide, economy: Record<string, PlayerSimulationState>, strategy: BuyStrategy, sign: 1 | -1, regroupEdge: number): SimSide => ({
             teamId: s.teamId,

@@ -1,5 +1,7 @@
 import { contextFor } from '@/scripts/launch/l21-paired-scenarios'
 import { createLaunchFixture } from '@/scripts/launch/fixtures'
+import { cappedEdge } from '@/engine/match/round-sim/team-edge'
+import { mapComfort } from '@/engine/match/map-comfort'
 import { counterShift, mapWinChance, matchWinOdds, seriesWinChance, winOddsInputs, WIN_ODDS_CHECK, WIN_ODDS_FIT } from '@/engine/match/win-odds'
 
 describe('win odds', () => {
@@ -44,7 +46,11 @@ describe('win odds', () => {
         expect(Number.isFinite(inputs.ratingGap)).toBe(true)
         expect(Math.abs(inputs.edgeGap)).toBeLessThanOrEqual(0.1 + 1e-9)
         const odds = matchWinOdds(ctx, 1)
-        expect(odds.series).toBeCloseTo(mapWinChance(inputs))
+        // Each map adds both clubs' comfort on it (map identity) under the same edge cap.
+        const map = ctx.maps[0]
+        const edgeGap = cappedEdge(ctx.script!.home.edge.total + mapComfort(ctx.home.team.id, map), ctx.script!.away.edge.total + mapComfort(ctx.away.team.id, map))
+        expect(winOddsInputs(ctx, map).edgeGap).toBeCloseTo(edgeGap, 10)
+        expect(odds.series).toBeCloseTo(mapWinChance(winOddsInputs(ctx, map)), 10)
         expect(odds.maps.map(m => m.map)).toEqual(ctx.maps)
     })
 
