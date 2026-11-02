@@ -10,6 +10,7 @@ import { SeededRNG, generateSeed } from "./rng"
 import { TrainingManager } from "./training-manager"
 import { applyRosterChangePenalty } from "./chemistry-engine"
 import { generateProspectBatch } from "./prospect-generator"
+import { aiProspectPotential } from "./development-rates"
 import {
     manageStaff as manageStaffFn,
     manageSponsors as manageSponsorsFn,
@@ -408,10 +409,11 @@ export class AIManager {
                 totalMVPs: 0,
                 salary: rng.int(500, 2000),
                 contractWeeks: 104,
-                // Honor the curated potential from the generator when present;
-                // fall back to a random 60-90 ceiling for legacy/missing data.
-                potential: s?.potential ?? rng.int(60, 90),
+                // Matched to the world's own spread (development-rates AI_PROSPECT_POTENTIAL),
+                // not the user's academy ranges; never below his current skill.
+                potential: 0,
             }
+            prospectPlayer.potential = Math.max(prospectPlayer.skill + 2, aiProspectPotential(tier, rng))
             // Phase 5.2: the scouted prospect keeps the type he rolled as his archetype.
             ensurePersonality(prospectPlayer, prospect.archetype)
             // Commit the prospect AFTER prospect generation has succeeded —

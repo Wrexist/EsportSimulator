@@ -114,3 +114,31 @@ export function lastsLonger(role: string | undefined, secondaryRole?: string): b
 export function ageDeclineChance(age: number, role?: string, secondaryRole?: string): number {
     return ceilingLossPerSeason(age) / 52 * (lastsLonger(role, secondaryRole) ? AGE_CURVE.LASTING_ROLE_FACTOR : 1)
 }
+
+/**
+ * Potential for a prospect an AI club brings in (academy scouting and the
+ * season-end youth intake), matched to the world the career starts with.
+ *
+ * Both used the academy generator's ranges (about 60 to 95, the user's
+ * scouting ranges), against a starting world whose rostered pros have a
+ * median potential of 54 and a 90th percentile of 70. Over ten seasons the
+ * AI prospects (about 330 of 1,040 rostered players by season six, median
+ * potential 84) filled the top of the world: the top ten clubs went from 80.7
+ * to 97 OVR and wages roughly quadrupled (scripts/audit/world-drift.ts 521).
+ * Better clubs still find better prospects, and a rare gem can become a star.
+ */
+export const AI_PROSPECT_POTENTIAL = {
+    /** [low, high] by the club's scouting reach. */
+    LOCAL: [45, 66] as const,
+    REGIONAL: [50, 72] as const,
+    INTERNATIONAL: [55, 80] as const,
+    /** Chance a prospect is a gem, and the points it adds. */
+    GEM_CHANCE: 0.05,
+    GEM_BONUS: 10,
+}
+
+export function aiProspectPotential(tier: "LOCAL" | "REGIONAL" | "INTERNATIONAL", rng: { next(): number }): number {
+    const [lo, hi] = AI_PROSPECT_POTENTIAL[tier]
+    const gem = rng.next() < AI_PROSPECT_POTENTIAL.GEM_CHANCE ? AI_PROSPECT_POTENTIAL.GEM_BONUS : 0
+    return Math.min(95, Math.round(lo + rng.next() * (hi - lo)) + gem)
+}
