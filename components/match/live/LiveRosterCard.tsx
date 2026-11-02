@@ -34,6 +34,8 @@ export interface RosterCardRowProps {
     adr?: number
     /** HP is estimated for this round (survivors' chip damage). */
     hpEstimated?: boolean
+    /** C10: the pro career's own player. */
+    isPro?: boolean
 }
 
 const hpTone = (hp: number) => (hp > 60 ? "bg-ink-1" : hp > 25 ? "bg-caution" : "bg-negative")
@@ -42,8 +44,9 @@ const RosterCardRow = memo(function RosterCardRow(p: RosterCardRowProps) {
     const nades = p.nades ? p.nades.split(",") : []
     return (
         <li
-            className={cn("grid h-[64px] grid-cols-[40px_minmax(0,1fr)] items-center gap-x-2.5 border-b border-line px-3 last:border-b-0", p.dead && "bg-ink/50")}
+            className={cn("grid h-[64px] grid-cols-[40px_minmax(0,1fr)] items-center gap-x-2.5 border-b border-line px-3 last:border-b-0", p.dead && "bg-ink/50", p.isPro && "shadow-[inset_3px_0_0_var(--gold)]")}
             data-live-player={p.id}
+            data-pro={p.isPro ? "" : undefined}
             data-dead={p.dead ? "" : undefined}
         >
             <div className={cn("h-10 w-10 overflow-hidden rounded bg-raised", p.dead && "opacity-40 grayscale")}>
@@ -52,6 +55,7 @@ const RosterCardRow = memo(function RosterCardRow(p: RosterCardRowProps) {
             <div className="min-w-0 space-y-1.5">
                 <div className="flex min-w-0 items-center gap-2">
                     <span className={cn("min-w-0 truncate text-sm font-semibold leading-none", p.dead ? "text-ink-3" : "text-ink-1")}>{p.name}</span>
+                    {p.isPro && <span className="shrink-0 rounded-sm bg-gold/15 px-1 py-0.5 text-[10px] font-bold leading-none tracking-[0.06em] text-gold" title="Your player">YOU</span>}
                     {!p.dead && (
                         <span className="ml-auto flex min-w-0 shrink items-center gap-1.5 text-xs leading-none text-ink-2">
                             <WeaponGlyph weapon={p.weapon} className="h-2.5 w-7 text-ink-1" />

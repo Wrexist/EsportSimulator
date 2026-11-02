@@ -29,6 +29,7 @@ import { Panel } from "@/src/components/ui/Panel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { TierTag } from "@/src/components/ui/TierTag"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
+import { ProGoalVerdict, useProGoal } from "@/components/pro/ProMatchGoal"
 
 // Confetti in the v2 palette: trophy gold, white, win green.
 const CONFETTI_COLORS = ['#F2B53A', '#F2F4F7', '#3DD68C']
@@ -234,6 +235,9 @@ export default function MatchResultPage() {
         () => new Map(players.map(p => [p.id, p])),
         [players],
     )
+
+    // C10: the pro's own verdict for this match.
+    const pro = useProGoal()
 
     const playerStatsList = useMemo(
         () => Object.values(match?.result.playerStats || {}),
@@ -452,6 +456,12 @@ export default function MatchResultPage() {
                     {crest(awayTeam, "right", !homeWon)}
                 </div>
             </section>
+
+            {pro && isPlayerMatch && (
+                <Panel title="Your match">
+                    <ProGoalVerdict result={pro.last?.matchId === match.id ? pro.last : undefined} rating={result.playerStats?.[pro.playerId]?.rating} />
+                </Panel>
+            )}
 
             {/* Beat 2: who did what */}
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">

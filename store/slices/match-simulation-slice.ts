@@ -49,6 +49,7 @@ import { queueDecidedTitle } from "@/engine/processors/standings-processor"
 import { updateRivalries } from "@/engine/history-tracker"
 import { closePressConference, settlePressStakes } from "@/engine/storylines/press"
 import type { GameSave } from "@/engine/save-types"
+import { proMatchGoal, recordProMatch } from "@/engine/pro-career"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { isEngineVersion, LEGACY_ENGINE_VERSION, type EngineVersion } from "@/engine/match/engine-version"
 import { runLegacySeries, finalizeLegacySeries } from "@/engine/match/legacy-series"
@@ -104,6 +105,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
             const rosterIds = [...new Set([...homeTeam.rosterIds.slice(0, 5), ...awayTeam.rosterIds.slice(0, 5)])]
             if (rosterIds.length === 0) return
+            // C10: the pro's personal goal as shown before the match.
+            const proGoal = proMatchGoal(state as unknown as GameSave)
             const rosterSet = new Set(rosterIds)
 
             const maxMapsForFormat = match.format === "BO1" ? 1 : match.format === "BO5" ? 5 : 3
@@ -519,6 +522,9 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             // stayed at mastery 0 while AI starters reached +12 accuracy /
             // +8 damage (~+10 equipment power per player). Parity fix.
             processMatchWeaponMastery(state as unknown as GameSave, result)
+
+            // C10: judge the pro's rating against his personal goal (shown on the result screen and Home).
+            if (state.proCareer) recordProMatch(state as unknown as GameSave, matchId, result.playerStats?.[state.proCareer.playerId]?.rating, proGoal)
 
             // Manager stats + achievements + XP, only when player team was in the match.
             if (homeTeam.id === state.playerTeamId || awayTeam.id === state.playerTeamId) {

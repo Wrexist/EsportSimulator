@@ -36,6 +36,7 @@ import { MatchEndBeat } from "@/components/match/MatchEndBeat"
 import { competitionOf } from "@/lib/match-framing"
 import { headToHeadOf, introContextLine } from "@/lib/match-intro"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
+import { ProGoalStrip, useProGoal } from "@/components/pro/ProMatchGoal"
 
 declare global {
     interface Window { __liveCommits?: number }
@@ -104,6 +105,8 @@ export default function LiveMatchPage() {
     })
     // A loaded career without this fixture (stale link, already resolved):
     // the hook never initialises, so explain instead of spinning forever.
+    const pro = useProGoal()
+    const proId = pro?.playerId
     const matchMissing = useGameStore(state => state.teams.length > 0 && !state.scheduledMatches.some(m => m.id === params.id))
 
     // Local UI State for Loadout Editor (UI Concern)
@@ -324,10 +327,14 @@ export default function LiveMatchPage() {
                 deaths: p.deaths || 0,
                 adr: adrOf(damageTally, p.id),
                 hpEstimated: !!timeline?.estimatedHp,
+                isPro: p.id === proId,
             }
         })
     const homeRows = rows(homeRoster, originalHomeMap, homeIsCT, simState.homeEconomy)
     const awayRows = rows(awayRoster, originalAwayMap, !homeIsCT, simState.awayEconomy)
+    // C10: the pro's own line under his team's card.
+    const proRow = pro ? (isPlayerHome ? homeRows : awayRows).find(r => r.isPro) : undefined
+    const proFooter = pro ? <ProGoalStrip goal={proRow ? pro.goal : null} kills={proRow?.kills ?? 0} deaths={proRow?.deaths ?? 0} /> : undefined
     const teamCash = (list: RosterCardRowProps[]) => list.reduce((s, p) => s + (p.money || 0), 0)
     const aliveCount = (list: RosterCardRowProps[]) => list.filter(p => !p.dead).length
 
@@ -417,7 +424,7 @@ export default function LiveMatchPage() {
             {/* Rosters left/right, radar is the hero. */}
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(420px,min(1400px,calc(100dvh-196px),calc(100vw-720px)))_minmax(0,1fr)]">
                 <div className="flex min-h-0 min-w-0 flex-col gap-3">
-                    <LiveRosterCard teamName={homeTeam.name} isCT={homeIsCT} isOwn={isPlayerHome} alive={aliveCount(homeRows)} teamCash={teamCash(homeRows)} players={homeRows} />
+                    <LiveRosterCard teamName={homeTeam.name} isCT={homeIsCT} isOwn={isPlayerHome} alive={aliveCount(homeRows)} teamCash={teamCash(homeRows)} players={homeRows} footer={isPlayerHome ? proFooter : undefined} />
                     {isPlayerHome ? roundsPanel : feedPanel}
                 </div>
 
@@ -468,7 +475,7 @@ export default function LiveMatchPage() {
                 </div>
 
                 <div className="flex min-h-0 min-w-0 flex-col gap-3">
-                    <LiveRosterCard teamName={awayTeam.name} isCT={!homeIsCT} isOwn={!isPlayerHome} alive={aliveCount(awayRows)} teamCash={teamCash(awayRows)} players={awayRows} />
+                    <LiveRosterCard teamName={awayTeam.name} isCT={!homeIsCT} isOwn={!isPlayerHome} alive={aliveCount(awayRows)} teamCash={teamCash(awayRows)} players={awayRows} footer={isPlayerHome ? undefined : proFooter} />
                     {isPlayerHome ? feedPanel : roundsPanel}
                 </div>
             </div>
