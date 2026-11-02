@@ -14,6 +14,8 @@ export interface PressAnswer {
     /** The manager's line. */
     text: string
     effects: ChoiceEffects
+    /** Settled by the match result (a bold claim): applied once the match is played. */
+    afterResult?: { win: ChoiceEffects; loss: ChoiceEffects }
 }
 
 export interface PressQuestion {

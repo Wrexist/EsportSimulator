@@ -46,7 +46,7 @@ import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mast
 import { recordOfficialMatch } from "@/engine/official-stats"
 import { queueDecidedTitle } from "@/engine/processors/standings-processor"
 import { updateRivalries } from "@/engine/history-tracker"
-import { closePressConference } from "@/engine/storylines/press"
+import { closePressConference, settlePressStakes } from "@/engine/storylines/press"
 import type { GameSave } from "@/engine/save-types"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { isEngineVersion, LEGACY_ENGINE_VERSION, type EngineVersion } from "@/engine/match/engine-version"
@@ -321,6 +321,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             // path already did), and the match's press conference closes.
             updateRivalries(state as unknown as GameSave, completedMatch)
             closePressConference(state, matchId)
+            // A bold claim made to the press is settled by the result.
+            settlePressStakes(state as never, matchId, completedMatch.result?.winnerId === state.playerTeamId)
             // R3: the other club reads the counters it faced and may change those habits.
             if (match.counters && Object.keys(match.counters).length) {
                 const rival = match.homeTeamId === state.playerTeamId ? awayTeam : homeTeam

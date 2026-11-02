@@ -71,9 +71,21 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         }
     }
 
-    // 3. Post-Match Headlines (last week's completed matches, max 2)
-    const recentMatches = save.completedMatches.filter(m => m.week === save.currentWeek - 1)
-    for (const match of recentMatches.slice(0, 2)) {
+    // 3. Post-Match Headlines: last week's two most notable results (the
+    //    manager's own match first, then the biggest upsets and the biggest
+    //    clubs), not simply the first two played.
+    const recentMatches = save.completedMatches.filter(m => m.week === save.currentWeek - 1 && m.tournamentId && m.result?.winnerId)
+    const eloOf = (id: string) => (idx?.teamIndex.get(id) ?? save.teams.find(t => t.id === id))?.elo ?? 0
+    const notability = (m: (typeof recentMatches)[number]) => {
+        const own = m.homeTeamId === save.playerTeamId || m.awayTeamId === save.playerTeamId ? 1000 : 0
+        const winner = m.result.winnerId!, loser = winner === m.homeTeamId ? m.awayTeamId : m.homeTeamId
+        const upset = Math.max(0, eloOf(loser) - eloOf(winner))
+        const stature = (eloOf(m.homeTeamId) + eloOf(m.awayTeamId)) / 20
+        const league = m.tournamentId!.startsWith("league_") ? 0 : 40
+        return own + upset + stature + league
+    }
+    const headlined = recentMatches.map(m => ({ m, score: notability(m) })).sort((a, b) => b.score - a.score || a.m.id.localeCompare(b.m.id)).slice(0, 2).map(x => x.m)
+    for (const match of headlined) {
         const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
         const awayTeam = idx?.teamIndex.get(match.awayTeamId) ?? save.teams.find(t => t.id === match.awayTeamId)
         const winner = match.result.winnerId
@@ -127,9 +139,21 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
             const player = allPlayers[Math.floor(rng.next() * allPlayers.length)]
             // No index for roster membership — fall back to linear scan.
             const currentTeam = save.teams.find(t => t.rosterIds.includes(player.id))
-            const interestedTeams = save.teams
-                .filter(t => t.id !== currentTeam?.id && t.budget > 100000)
-                .slice(0, 3)
+            // Suitors: clubs that can pay, weighted by fit (a club near or a
+            // step above his current one is likelier than one far away).
+            const pool = save.teams.filter(t => t.id !== currentTeam?.id && t.budget > 100000)
+            const targetElo = (currentTeam?.elo ?? 1500) + 50
+            const weights = pool.map(t => 1 / (1 + Math.abs((t.elo ?? 1500) - targetElo) / 100))
+            const interestedTeams: typeof pool = []
+            while (interestedTeams.length < 3 && pool.length) {
+                const total = weights.reduce((a, b) => a + b, 0)
+                let roll = rng.next() * total
+                let i = 0
+                while (i < weights.length - 1 && roll >= weights[i]) { roll -= weights[i]; i++ }
+                interestedTeams.push(pool[i])
+                pool.splice(i, 1)
+                weights.splice(i, 1)
+            }
 
             if (currentTeam && interestedTeams.length > 0) {
                 const rumoredTeam = interestedTeams[Math.floor(rng.next() * interestedTeams.length)]

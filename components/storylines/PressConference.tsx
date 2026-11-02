@@ -77,6 +77,14 @@ export function PressConferenceDecision({ event, compact = false }: { event: Gam
                                 >
                                     <span className={cn("text-[13px]", selected ? "font-semibold text-ink-1" : "text-ink-2")}>“{a.text}”</span>
                                     <Chips chips={outcome.chips} />
+                                    {a.afterResult && (
+                                        <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-ink-3">
+                                            <span>After the match, if you win:</span>
+                                            <Chips chips={describeChoice(squadEvent, { ...a, effects: a.afterResult.win }, budget).chips} />
+                                            <span>if you lose:</span>
+                                            <Chips chips={describeChoice(squadEvent, { ...a, effects: a.afterResult.loss }, budget).chips} />
+                                        </span>
+                                    )}
                                 </button>
                             )
                         })}
