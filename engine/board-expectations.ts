@@ -111,13 +111,16 @@ interface TierTargets {
     /** Trophies the board expects this season. */
     trophyTarget: number
     label: string
+    /** What the board wants, without numbers: the rank target can be well
+     *  below the tier's default (a reputable club ranked #40), so the page
+     *  adds the season's actual target after this line. */
     blurb: string
 }
 
 const TIER_TARGETS: Record<BoardExpectationTier, TierTargets> = {
-    WIN: { rankTarget: 3, trophyTarget: 1, label: "Win silverware", blurb: "The board expects a title challenge and a top-3 finish." },
-    CONTEND: { rankTarget: 6, trophyTarget: 0, label: "Contend at the top", blurb: "The board expects a top-6 finish and a deep playoff run." },
-    COMPETE: { rankTarget: 14, trophyTarget: 0, label: "Stay competitive", blurb: "The board expects a top-14 finish and steady progress." },
+    WIN: { rankTarget: 3, trophyTarget: 1, label: "Win silverware", blurb: "The board expects a trophy this season." },
+    CONTEND: { rankTarget: 6, trophyTarget: 0, label: "Contend at the top", blurb: "The board expects a deep playoff run." },
+    COMPETE: { rankTarget: 14, trophyTarget: 0, label: "Stay competitive", blurb: "The board expects steady progress." },
     SURVIVE: { rankTarget: 26, trophyTarget: 0, label: "Build the project", blurb: "The board expects you to keep the club competitive and developing." },
 }
 
@@ -281,6 +284,13 @@ export function refreshObjectiveProgress(save: GameSave, board: BoardState): voi
         if (o.status === "MET" || o.status === "MISSED") continue
         if (o.id === "league") {
             const division = save.league?.current?.divisions.find(d => d.id === o.divisionId)
+            // Before the club's first league match of the split the table is
+            // just the draw order: not a result, so the objective hasn't started.
+            if (playedInSplit(division, team.id) === 0) {
+                o.current = undefined
+                o.status = undefined
+                continue
+            }
             o.current = tablePosition(division, team.id)
             o.status = o.current !== undefined && o.current <= o.target ? "ON_TRACK" : "AT_RISK"
         } else if (o.id === "ranking") {
