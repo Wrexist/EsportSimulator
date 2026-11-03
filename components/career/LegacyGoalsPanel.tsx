@@ -13,8 +13,23 @@ import { Panel } from "@/src/components/ui/Panel"
 import { Meter } from "@/src/components/ui/Meter"
 import { legacyProgress, type LegacyView } from "@/engine/legacy-goals"
 import { cn } from "@/lib/utils"
+import { t, tn } from "@/lib/i18n"
 
-const LEVEL_NAMES = ["Bronze", "Silver", "Gold"]
+const LEVELS = ["bronze", "silver", "gold"]
+const KNOWN = new Set(["silverware", "majors", "everywhere", "climb", "summit", "loyalty", "homegrown"])
+
+/** A goal's name in the active language (the engine keeps English for logs). */
+function goalName(goal: { id: string; name: string }): string {
+    return KNOWN.has(goal.id) ? t(`lgl.${goal.id}.name`) : goal.name
+}
+
+/** What the next level asks, in the active language. */
+function goalAsk(goal: { id: string; describe: (n: number) => string }, n: number): string {
+    if (!KNOWN.has(goal.id)) return goal.describe(n)
+    if (goal.id === "summit") return n === 1 ? t("lgl.summit.first") : t("lgl.summit.top", { n })
+    if (goal.id === "homegrown") return t("lgl.homegrown.desc", { n })
+    return tn(`lgl.${goal.id}.desc`, n)
+}
 
 export function LegacyGoalsPanel() {
     const view = useGameStore(useShallow(s => ({
@@ -25,23 +40,23 @@ export function LegacyGoalsPanel() {
     const levels = rows.reduce((n, r) => n + r.level, 0)
     const total = rows.reduce((n, r) => n + r.goal.levels.length, 0)
     return (
-        <Panel title="Legacy goals" actions={<span className="text-xs tabular-nums text-ink-3">{levels} of {total} levels</span>}>
-            <p className="mb-3 text-xs text-ink-3">Long-term aims across every club you manage. Each level reached raises your reputation once.</p>
+        <Panel title={t("lgl.title")} actions={<span className="text-xs tabular-nums text-ink-3">{t("lgl.levels", { levels, total })}</span>}>
+            <p className="mb-3 text-xs text-ink-3">{t("lgl.intro")}</p>
             <ul className="space-y-3">
                 {rows.map(r => (
                     <li key={r.goal.id}>
                         <div className="flex items-baseline justify-between gap-3">
-                            <span className="text-sm font-semibold text-ink-1">{r.goal.name}</span>
+                            <span className="text-sm font-semibold text-ink-1">{goalName(r.goal)}</span>
                             <span className={cn("text-xs font-semibold", r.level > 0 ? "text-gold" : "text-ink-3")}>
-                                {r.level > 0 ? LEVEL_NAMES[r.level - 1] ?? `Level ${r.level}` : "Not started"}
+                                {r.level > 0 ? (LEVELS[r.level - 1] ? t(`lgl.level.${LEVELS[r.level - 1]}`) : t("car.levelN", { level: r.level })) : t("lgl.notStarted")}
                             </span>
                         </div>
                         <p className="mt-0.5 text-xs text-ink-3">
                             {r.next != null
-                                ? <>Next: {r.goal.describe(r.next)} · reputation +{r.goal.reputation[r.level]}</>
-                                : "Every level reached."}
+                                ? t("lgl.next", { ask: goalAsk(r.goal, r.next), rep: r.goal.reputation[r.level] })
+                                : t("lgl.allReached")}
                         </p>
-                        {r.next != null && <Meter value={r.toward * 100} label={`${r.goal.name} progress`} tone="neutral" showValue={false} trackClassName="mt-1.5 w-full h-1.5" />}
+                        {r.next != null && <Meter value={r.toward * 100} label={t("lgl.progressAria", { goal: goalName(r.goal) })} tone="neutral" showValue={false} trackClassName="mt-1.5 w-full h-1.5" />}
                     </li>
                 ))}
             </ul>

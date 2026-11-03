@@ -16,9 +16,10 @@ import { Button } from "@/components/ui/button"
 import { trophyArtKind } from "@/components/squad/TrophyCabinet"
 import { cn } from "@/lib/utils"
 import { trophyArtFor, trophyKindForTournament } from "@/lib/trophy-art"
-import { RECORD_LABEL } from "@/lib/season-review-view"
 import { isMajorTournament, isOfficialMatch } from "@/engine/official-stats"
-import { isLeagueMatchId, ordinal } from "@/engine/season/regional-league"
+import { isLeagueMatchId } from "@/engine/season/regional-league"
+import { t, t as tr, tn, ordinalLabel } from "@/lib/i18n"
+import { divisionName } from "@/lib/display-names"
 import { RECORD_KEYS, type RecordEntry, type RecordKey } from "@/engine/records-types"
 import { TeamLink } from "@/components/ui/EntityLink"
 import { CollectionPanel } from "@/components/squad/CollectionPanel"
@@ -26,7 +27,8 @@ import { CollectionPanel } from "@/components/squad/CollectionPanel"
 const SeasonReviewReplay = dynamic(() => import("@/components/moments/season-review/SeasonReviewReplay").then(m => m.SeasonReviewReplay), { ssr: false })
 
 const TIER_ORDER = ["S_TIER", "A_TIER", "B_TIER", "C_TIER"] as const
-const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier", QUALIFIER: "Qualifier" }
+const TIER_KEYS = new Set(["S_TIER", "A_TIER", "B_TIER", "C_TIER", "QUALIFIER"])
+const tierLabel = (tier: string) => TIER_KEYS.has(tier) ? t(`common.tier.${tier}`) : tier
 const displayName = (name: string) => name.replace(/\s+\d{4}$/, "")
 const weekLabel = (week: number) => `S${Math.ceil(week / WEEKS_PER_YEAR)} W${((week - 1) % WEEKS_PER_YEAR) + 1}`
 const baseId = (id: string) => id.replace(/_s\d+$/, "")
@@ -59,9 +61,9 @@ export default function TrophyRoomPage() {
                 return {
                     key: `${t.tournamentId || "tr"}_${t.week || 0}_${i}`,
                     calId: cal?.id ?? null,
-                    name: displayName(t.tournamentName || cal?.name || "Tournament"),
+                    name: displayName(t.tournamentName || cal?.name || tr("tro.tournament")),
                     tier,
-                    tierLabel: isLeagueMatchId(t.tournamentId) ? "League" : TIER_LABEL[tier] ?? tier,
+                    tierLabel: isLeagueMatchId(t.tournamentId) ? tr("common.league") : tierLabel(tier),
                     art: trophyArtFor(trophyArtKind({ tournamentId: t.tournamentId ?? "", tier })),
                     major: isMajorTournament(t.tournamentId),
                     week: t.week || 0,
@@ -104,12 +106,12 @@ export default function TrophyRoomPage() {
 
     const majors = titles.filter(t => t.major).length
     const clubRecords = playerTeamId ? recordBook?.clubs[playerTeamId] : undefined
-    const teamName = (id: string) => teams.find(t => t.id === id)?.name ?? "Former club"
+    const teamName = (id: string) => teams.find(t => t.id === id)?.name ?? tr("tro.formerClub")
     const recordLine = (key: RecordKey, r: RecordEntry) => {
-        const value = key === "bestMapRating" ? r.value.toFixed(2) : key === "biggestWin" ? r.score ?? `+${r.value}` : key === "longestWinStreak" ? `${r.value} wins` : String(r.value)
+        const value = key === "bestMapRating" ? r.value.toFixed(2) : key === "biggestWin" ? r.score ?? `+${r.value}` : key === "longestWinStreak" ? tn("tro.wins", r.value) : String(r.value)
         const who = r.playerName ? `${r.playerName} · ` : ""
-        const when = key === "longestWinStreak" && r.fromWeek ? `${weekLabel(r.fromWeek)}–${weekLabel(r.week)}${r.endedBy ? `, ended by ${teamName(r.endedBy)}` : ", running"}` : weekLabel(r.week)
-        return { value, detail: `${who}vs ${teamName(r.opponentId)}${r.map ? ` · ${r.map}` : ""} · ${when}` }
+        const when = key === "longestWinStreak" && r.fromWeek ? `${weekLabel(r.fromWeek)}–${weekLabel(r.week)}${r.endedBy ? tr("tro.endedBy", { club: teamName(r.endedBy) }) : tr("tro.running")}` : weekLabel(r.week)
+        return { value, detail: `${who}${tr("tro.vs", { club: teamName(r.opponentId) })}${r.map ? ` · ${r.map}` : ""} · ${when}` }
     }
     const season = Math.max(1, Math.floor((currentWeek - 1) / WEEKS_PER_YEAR) + 1)
 
@@ -122,10 +124,10 @@ export default function TrophyRoomPage() {
             season: h.season,
             club: uc ? teams.find(t => t.id === uc.teamId)?.name : undefined,
             line: [
-                pos ? `${ordinal(pos.position)} in ${pos.division}` : null,
+                pos ? tr("tro.review.finish", { position: ordinalLabel(pos.position), division: divisionName(pos.division) }) : null,
                 uc ? `${uc.record.wins}–${uc.record.losses}` : null,
-                uc?.trophies.length ? `${uc.trophies.length} title${uc.trophies.length === 1 ? "" : "s"}` : null,
-                uc?.tierMove === "promoted" ? "promoted" : uc?.tierMove === "relegated" ? "relegated" : null,
+                uc?.trophies.length ? tn("tro.review.titles", uc.trophies.length) : null,
+                uc?.tierMove === "promoted" ? tr("tro.review.promoted") : uc?.tierMove === "relegated" ? tr("tro.review.relegated") : null,
             ].filter(Boolean).join(" · "),
             mvp: h.mvp?.name,
         }
@@ -134,9 +136,9 @@ export default function TrophyRoomPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
             <ScreenHeader
-                eyebrow={`Season ${season} · Legacy`}
-                title="Trophy room"
-                subtitle={`${team?.name ?? "Your club"} — every title on the calendar. Won ones light up.`}
+                eyebrow={tr("hof.eyebrow", { season })}
+                title={tr("tro.title")}
+                subtitle={tr("tro.subtitle", { club: team?.name ?? tr("tro.yourClub") })}
                 leading={team ? (
                     <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-line bg-panel">
                         <TeamLogoDisplay team={team} size={52} />
@@ -144,15 +146,15 @@ export default function TrophyRoomPage() {
                 ) : undefined}
                 aside={
                     <KpiStrip>
-                        <Kpi label="Titles" value={titles.length} valueClassName={titles.length > 0 ? "text-gold" : undefined} />
-                        <Kpi label="Majors" value={majors} valueClassName={majors > 0 ? "text-gold" : undefined} />
-                        <Kpi label="Record" value={<span>{stats.wins}<span className="text-ink-3">–</span>{stats.losses}</span>} hint="Recent official matches" />
-                        <Kpi label="Win rate" value={`${stats.rate}%`} />
+                        <Kpi label={tr("tro.kpi.titles")} value={titles.length} valueClassName={titles.length > 0 ? "text-gold" : undefined} />
+                        <Kpi label={tr("hof.col.majors")} value={majors} valueClassName={majors > 0 ? "text-gold" : undefined} />
+                        <Kpi label={tr("tro.kpi.record")} value={<span>{stats.wins}<span className="text-ink-3">–</span>{stats.losses}</span>} hint={tr("tro.kpi.recordHint")} />
+                        <Kpi label={tr("tro.kpi.winRate")} value={`${stats.rate}%`} />
                     </KpiStrip>
                 }
             />
 
-            <Panel title="Cabinet" actions={<span className="text-xs tabular-nums text-ink-3">{cabinet.filter(c => c.won > 0).length} of {cabinet.length} won</span>}>
+            <Panel title={tr("tro.cabinet")} actions={<span className="text-xs tabular-nums text-ink-3">{tr("tro.cabinetWon", { won: cabinet.filter(c => c.won > 0).length, total: cabinet.length })}</span>}>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
                     {cabinet.map(c => (
                         <div
@@ -168,9 +170,9 @@ export default function TrophyRoomPage() {
                             <p className={cn("mt-2 line-clamp-2 min-h-[2.5em] text-xs font-semibold leading-tight", c.won > 0 ? "text-ink-1" : "text-ink-3")}>{c.name}</p>
                             <p className="mt-1 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.06em] text-ink-3">
                                 {c.logo && <span className="relative h-3.5 w-3.5 shrink-0"><Image src={c.logo} alt="" fill sizes="14px" className="object-contain" /></span>}
-                                {TIER_LABEL[c.tier] ?? c.tier}
+                                {tierLabel(c.tier)}
                             </p>
-                            <p className={cn("mt-1.5 text-xs font-semibold tabular-nums", c.won > 0 ? "text-gold" : "text-ink-3")}>{c.won > 0 ? `Won ×${c.won}` : "Not won"}</p>
+                            <p className={cn("mt-1.5 text-xs font-semibold tabular-nums", c.won > 0 ? "text-gold" : "text-ink-3")}>{c.won > 0 ? tr("tro.wonTimes", { n: c.won }) : tr("tro.notWon")}</p>
                         </div>
                     ))}
                 </div>
@@ -179,15 +181,15 @@ export default function TrophyRoomPage() {
             <CollectionPanel trophies={team?.trophies} />
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
-                <Panel title="Title history" padded={false}>
+                <Panel title={tr("tro.history")} padded={false}>
                     {titles.length > 0 ? (
                         <table data-slot="table" className="w-full border-collapse text-left">
                             <thead data-slot="table-header">
                                 <tr className="border-b border-line">
-                                    <th data-slot="table-head" className="pl-4">Year</th>
-                                    <th data-slot="table-head" className="px-3">Tournament</th>
-                                    <th data-slot="table-head" className="px-3">Tier</th>
-                                    <th data-slot="table-head" className="px-3 text-right">Week</th>
+                                    <th data-slot="table-head" className="pl-4">{tr("tro.col.year")}</th>
+                                    <th data-slot="table-head" className="px-3">{tr("tro.col.tournament")}</th>
+                                    <th data-slot="table-head" className="px-3">{tr("tro.col.tier")}</th>
+                                    <th data-slot="table-head" className="px-3 text-right">{tr("tro.col.week")}</th>
                                     <th data-slot="table-head" className="pl-3 pr-4">MVP</th>
                                 </tr>
                             </thead>
@@ -210,30 +212,30 @@ export default function TrophyRoomPage() {
                         </table>
                     ) : (
                         <div className="px-4 py-6">
-                            <p className="text-sm text-ink-3">No titles yet. Your first one goes here.</p>
-                            <Link href="/tournaments" className="mt-2 inline-block text-sm font-semibold text-ink-2 underline underline-offset-2 hover:text-ink-1">See upcoming tournaments</Link>
+                            <p className="text-sm text-ink-3">{tr("tro.historyEmpty")}</p>
+                            <Link href="/tournaments" className="mt-2 inline-block text-sm font-semibold text-ink-2 underline underline-offset-2 hover:text-ink-1">{tr("tro.seeUpcoming")}</Link>
                         </div>
                     )}
                 </Panel>
 
                 <div className="min-w-0 space-y-4">
-                <Panel title="Season reviews" padded={false}>
+                <Panel title={tr("tro.reviews")} padded={false}>
                     {reviews.length > 0 ? (
                         <ul className="divide-y divide-line">
                             {reviews.map(r => (
                                 <li key={r.season} className="flex items-center gap-3 px-4 py-2.5">
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-sm font-semibold text-ink-1">Season {r.season}{r.club ? <span className="font-normal text-ink-3"> · {r.club}</span> : null}</p>
-                                        <p className="mt-0.5 line-clamp-2 text-xs text-ink-3">{[r.line, r.mvp ? `MVP ${r.mvp}` : null].filter(Boolean).join(" · ") || "No official results"}</p>
+                                        <p className="text-sm font-semibold text-ink-1">{tr("tro.seasonN", { n: r.season })}{r.club ? <span className="font-normal text-ink-3"> · {r.club}</span> : null}</p>
+                                        <p className="mt-0.5 line-clamp-2 text-xs text-ink-3">{[r.line, r.mvp ? tr("tro.mvp", { name: r.mvp }) : null].filter(Boolean).join(" · ") || tr("tro.noResults")}</p>
                                     </div>
-                                    <Button variant="outline" size="sm" onClick={() => setReplaySeason(r.season)}>Replay</Button>
+                                    <Button variant="outline" size="sm" onClick={() => setReplaySeason(r.season)}>{tr("tro.replay")}</Button>
                                 </li>
                             ))}
                         </ul>
-                    ) : <p className="px-4 py-6 text-sm text-ink-3">Each season ends with a review: your season, the awards, the team of the season and its records. Replay them here.</p>}
+                    ) : <p className="px-4 py-6 text-sm text-ink-3">{tr("tro.reviewsEmpty")}</p>}
                 </Panel>
 
-                <Panel title="Club records" padded={false}>
+                <Panel title={tr("tro.records")} padded={false}>
                     {clubRecords && RECORD_KEYS.some(k => clubRecords[k]) ? (
                         <ul className="divide-y divide-line">
                             {RECORD_KEYS.filter(k => clubRecords[k]).map(k => {
@@ -241,7 +243,7 @@ export default function TrophyRoomPage() {
                                 return (
                                     <li key={k} className="px-4 py-2.5">
                                         <div className="flex items-baseline justify-between gap-3">
-                                            <span className="text-sm text-ink-3">{RECORD_LABEL[k]}</span>
+                                            <span className="text-sm text-ink-3">{tr(`tro.rec.${k}`)}</span>
                                             <span className="text-sm font-semibold tabular-nums text-ink-1">{line.value}</span>
                                         </div>
                                         <p className="mt-0.5 truncate text-xs text-ink-3" title={line.detail}>{line.detail}</p>
@@ -249,13 +251,13 @@ export default function TrophyRoomPage() {
                                 )
                             })}
                         </ul>
-                    ) : <p className="px-4 py-6 text-sm text-ink-3">Records start with your first official match.</p>}
+                    ) : <p className="px-4 py-6 text-sm text-ink-3">{tr("tro.recordsEmpty")}</p>}
                     {clubRecords?.streak && clubRecords.streak.count > 1 && (
-                        <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">Current run: {clubRecords.streak.count} official wins since {weekLabel(clubRecords.streak.fromWeek)}.</p>
+                        <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">{tr("tro.currentRun", { n: clubRecords.streak.count, since: weekLabel(clubRecords.streak.fromWeek) })}</p>
                     )}
                 </Panel>
 
-                <Panel title="Most-played opponents" padded={false}>
+                <Panel title={tr("tro.opponents")} padded={false}>
                     {stats.rivals.length > 0 ? (
                         <ul className="divide-y divide-line">
                             {stats.rivals.map(r => (
@@ -266,7 +268,7 @@ export default function TrophyRoomPage() {
                                 </li>
                             ))}
                         </ul>
-                    ) : <p className="px-4 py-6 text-sm text-ink-3">No matches played yet.</p>}
+                    ) : <p className="px-4 py-6 text-sm text-ink-3">{tr("tro.opponentsEmpty")}</p>}
                 </Panel>
                 </div>
             </div>

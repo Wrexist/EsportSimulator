@@ -1,5 +1,6 @@
 "use client"
 
+import { t } from "@/lib/i18n"
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useShallow } from "zustand/react/shallow"
@@ -94,14 +95,14 @@ export function WeekPlan() {
         : null, [team, s.players, s.contracts, s.staff, s.currentWeek, s.academyCount])
 
     const projections = useMemo(() => new Map((preview?.players ?? []).map(p => [p.id, p])), [preview])
-    const retrainingTarget = useMemo(() => new Map((team?.activeRoleTraining ?? []).map(t => [t.playerId, t])), [team?.activeRoleTraining])
+    const retrainingTarget = useMemo(() => new Map((team?.activeRoleTraining ?? []).map(rt => [rt.playerId, rt])), [team?.activeRoleTraining])
     const bookings = useMemo(
         () => activitiesThisWeek(s.scheduledActivities || [], s.currentWeek).filter(a => !a.id.startsWith("rest_w")),
         [s.scheduledActivities, s.currentWeek],
     )
 
     if (!s.hydrated || !team || !preview) {
-        return <p role="status" className="py-16 text-center text-sm text-ink-3">Loading week plan…</p>
+        return <p role="status" className="py-16 text-center text-sm text-ink-3">{t("wk.loading")}</p>
     }
 
     const dayLabel = (day: number) => formatGameCalendarDate(gameCalendarDate(s.gameStartDate, s.currentWeek, day), { weekday: "short" })
@@ -113,21 +114,21 @@ export function WeekPlan() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
             <ScreenHeader
-                eyebrow={`Season ${season} · Week ${weekInSeason}${daily ? ` · ${formatGameCalendarDate(gameCalendarDate(s.gameStartDate, s.currentWeek, s.currentDay), { weekday: "long" })}` : ""}`}
-                title="Week plan"
-                subtitle="Everything here happens at this week's update, with the numbers the game applies."
+                eyebrow={`${t("wk.eyebrow", { season, week: weekInSeason })}${daily ? ` · ${formatGameCalendarDate(gameCalendarDate(s.gameStartDate, s.currentWeek, s.currentDay), { weekday: "long" })}` : ""}`}
+                title={t("wk.title")}
+                subtitle={t("wk.subtitle")}
                 aside={
                     <KpiStrip>
-                        <Kpi label="Matches to play" value={preview.fixturesToPlay.length} />
-                        <Kpi label="Rest days" value={`${preview.restDays.length} / 7`} />
-                        <Kpi label="Cash at update" value={<span className={cashAtUpdate < 0 ? "text-negative" : undefined}>{formatSignedCurrency(cashAtUpdate, "$", true)}</span>} hint="Before prize money" />
+                        <Kpi label={t("wk.kpi.matches")} value={preview.fixturesToPlay.length} />
+                        <Kpi label={t("wk.restDays")} value={`${preview.restDays.length} / 7`} />
+                        <Kpi label={t("wk.kpi.cash")} value={<span className={cashAtUpdate < 0 ? "text-negative" : undefined}>{formatSignedCurrency(cashAtUpdate, "$", true)}</span>} hint={t("wk.kpi.cashHint")} />
                     </KpiStrip>
                 }
             />
 
             {roster.length < 5 && (
                 <p className="text-sm text-caution">
-                    You need five players to compete. <Link href="/transfers" className="font-semibold underline underline-offset-2">Go to transfers</Link>
+                    {t("wk.needFive")} <Link href="/transfers" className="font-semibold underline underline-offset-2">{t("wk.goTransfers")}</Link>
                 </p>
             )}
 
@@ -142,8 +143,8 @@ export function WeekPlan() {
                         <WeekTrainingPlan roster={roster} projections={projections} retrainingTarget={retrainingTarget} onSetFocus={s.setPlayerTrainingFocus} />
                     ) : (
                         <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-panel px-4 py-3">
-                            <p className="text-sm text-ink-3">No players to train yet.</p>
-                            <Button variant="outline" size="sm" asChild><Link href="/transfers">Browse transfers</Link></Button>
+                            <p className="text-sm text-ink-3">{t("wk.noPlayers")}</p>
+                            <Button variant="outline" size="sm" asChild><Link href="/transfers">{t("wk.browseTransfers")}</Link></Button>
                         </div>
                     )}
                 </div>

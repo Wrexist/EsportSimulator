@@ -9,6 +9,7 @@ import type { BoardMove, BoardObjective, BoardState } from "@/engine/save-types"
 import { BOARD_TUNING } from "@/lib/balance-tuning"
 import { formatCurrency } from "@/lib/utils-extended"
 import { ordinalLabel, t, tn } from "@/lib/i18n"
+import { divisionName } from "@/lib/display-names"
 
 export type BoardTone = "positive" | "neutral" | "caution" | "negative"
 export type BoardStanding = "secure" | "uneasy" | "pressure" | "warning" | "notice"
@@ -99,12 +100,28 @@ const STATUS: Record<NonNullable<BoardObjective["status"]>, BoardTone> = {
 const places = (n: number) => tn("board.places", n)
 const trophies = (n: number) => tn("board.trophies", n)
 
+/** The objective as the engine wrote it (English, stored in the save), in the active language. */
+export function objectiveLabel(o: Pick<BoardObjective, "id" | "label" | "target">): string {
+    const l = o.label ?? ""
+    let m: RegExpMatchArray | null
+    if (o.id === "league") {
+        if ((m = l.match(/^Win promotion from (.+) \(top (\d+)\)$/))) return t("brd.obj.promotion", { division: divisionName(m[1]), n: Number(m[2]) })
+        if ((m = l.match(/^Avoid relegation from (.+) \((\d+)\w* or better\)$/))) return t("brd.obj.avoid", { division: divisionName(m[1]), position: ordinalLabel(Number(m[2])) })
+        if ((m = l.match(/^Finish (\d+)\w* or better in (.+)$/))) return t("brd.obj.finish", { position: ordinalLabel(Number(m[1])), division: divisionName(m[2]) })
+        if ((m = l.match(/^Win (.+)$/))) return t("brd.obj.winDivision", { division: divisionName(m[1]) })
+    }
+    if (o.id === "ranking") return t("brd.obj.ranking", { rank: o.target })
+    if (o.id === "finance") return t("brd.obj.finance", { amount: formatCurrency(o.target) })
+    if (o.id === "trophies") return tn("brd.obj.trophies", o.target)
+    return l
+}
+
 export function objectiveView(o: BoardObjective): ObjectiveView {
     const status = o.status ? { label: t(`board.objective.${o.status}`), tone: STATUS[o.status] } : { label: t("board.objective.notStarted"), tone: "neutral" as BoardTone }
     const cur = o.current
     if (o.id === "league") {
         return {
-            id: o.id, label: o.label, target: t("board.orBetter", { value: ordinalLabel(o.target) }),
+            id: o.id, label: objectiveLabel(o), target: t("board.orBetter", { value: ordinalLabel(o.target) }),
             current: cur === undefined ? "—" : ordinalLabel(cur),
             gap: cur === undefined ? null : cur > o.target ? t("board.gap.makeUp", { places: places(cur - o.target) }) : cur < o.target ? t("board.gap.spare", { places: places(o.target - cur) }) : t("board.gap.onLine"),
             status: status.label, tone: status.tone,
@@ -112,7 +129,7 @@ export function objectiveView(o: BoardObjective): ObjectiveView {
     }
     if (o.id === "ranking") {
         return {
-            id: o.id, label: o.label, target: t("board.orBetter", { value: `#${o.target}` }),
+            id: o.id, label: objectiveLabel(o), target: t("board.orBetter", { value: `#${o.target}` }),
             current: cur === undefined ? "—" : `#${cur}`,
             gap: cur === undefined ? null : cur > o.target ? t("board.gap.climb", { places: places(cur - o.target) }) : cur < o.target ? t("board.gap.spare", { places: places(o.target - cur) }) : t("board.gap.onLine"),
             status: status.label, tone: status.tone,
@@ -120,14 +137,14 @@ export function objectiveView(o: BoardObjective): ObjectiveView {
     }
     if (o.id === "trophies") {
         return {
-            id: o.id, label: o.label, target: trophies(o.target),
+            id: o.id, label: objectiveLabel(o), target: trophies(o.target),
             current: cur === undefined ? "—" : `${cur}`,
             gap: cur === undefined ? null : cur < o.target ? t("board.gap.toWin", { trophies: trophies(o.target - cur) }) : t("board.gap.done"),
             status: status.label, tone: status.tone,
         }
     }
     return {
-        id: o.id, label: o.label, target: t("board.orMore", { value: formatCurrency(o.target) }),
+        id: o.id, label: objectiveLabel(o), target: t("board.orMore", { value: formatCurrency(o.target) }),
         current: cur === undefined ? "—" : formatCurrency(cur),
         gap: cur === undefined ? null : cur < o.target ? t("board.gap.short", { value: formatCurrency(o.target - cur) }) : t("board.gap.above", { value: formatCurrency(cur - o.target) }),
         status: status.label, tone: status.tone,
