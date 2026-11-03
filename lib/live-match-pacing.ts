@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 /**
  * Live match pacing (Phase 3, stream K).
  *
@@ -28,7 +29,8 @@ import type { RoundScript } from "@/engine/match/round-script-types"
 
 export type PacingMode = "moments" | "full"
 export const PACING_MODES: readonly PacingMode[] = ["moments", "full"]
-export const PACING_MODE_LABEL: Record<PacingMode, string> = { moments: "Key moments", full: "Full round" }
+/** A pacing mode's name in the active language. */
+export const pacingModeLabel = (mode: PacingMode): string => t(`pacing.${mode}`)
 
 export type MomentKind = "opening" | "kill" | "plant" | "defuse-start" | "defuse-end" | "explode" | "utility" | "round-end"
 

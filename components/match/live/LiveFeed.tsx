@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { memo, useMemo, type ReactNode } from "react"
 import { Swords, Zap as ZapIcon, EyeOff, Coins, Shield, Sparkles, Bomb } from "lucide-react"
@@ -26,10 +27,11 @@ const otherSide = (side: "CT" | "T" | undefined): "CT" | "T" => side === "CT" ? 
 /** Short labels for what made a kill notable, in the order a caster would say them. */
 export function killTags(l: LogEntry): { label: string; title: string; tone: string }[] {
     const tags: { label: string; title: string; tone: string }[] = []
-    if (l.isOpening) tags.push({ label: "Opening", title: "First kill of the round", tone: "border-line-strong text-ink-1" })
-    if (l.isClutchKill) tags.push({ label: "Clutch", title: "Last one alive, facing two or more", tone: "border-gold text-gold" })
-    if (l.isThroughSmoke) tags.push({ label: "Smoke", title: "Kill across a smoked angle", tone: "border-line-strong text-ink-2" })
-    if (l.isTrade) tags.push({ label: "Trade", title: "Avenged a teammate within five seconds", tone: "border-line-strong text-ink-2" })
+    const tag = (id: string, tone: string) => tags.push({ label: t(`feed.tag.${id}`), title: t(`feed.tagTitle.${id}`), tone })
+    if (l.isOpening) tag("opening", "border-line-strong text-ink-1")
+    if (l.isClutchKill) tag("clutch", "border-gold text-gold")
+    if (l.isThroughSmoke) tag("smoke", "border-line-strong text-ink-2")
+    if (l.isTrade) tag("trade", "border-line-strong text-ink-2")
     return tags
 }
 
@@ -38,7 +40,7 @@ export function killTags(l: LogEntry): { label: string; title: string; tone: str
 const LogRow = memo(function LogRow({ l, clockText, bomb }: { l: LogEntry; clockText: string; bomb: boolean }) {
     const timeStr = clockText
     const time = (
-        <span className={cn("w-8 shrink-0 text-[11px] tabular-nums", bomb ? "text-side-t" : "text-ink-3")} title={bomb ? "Bomb timer" : "Round time left"}>
+        <span className={cn("w-8 shrink-0 text-[11px] tabular-nums", bomb ? "text-side-t" : "text-ink-3")} title={bomb ? t("feed.bombTimer") : t("feed.roundTime")}>
             {timeStr}
         </span>
     )
@@ -50,8 +52,8 @@ const LogRow = memo(function LogRow({ l, clockText, bomb }: { l: LogEntry; clock
                 {time}
                 <span className={cn("min-w-0 truncate font-semibold", sideText(l.killerSide))}>{l.killerName}</span>
                 {l.assisterName && (
-                    <span className="flex shrink-0 items-center gap-0.5 truncate text-xs text-ink-3" title={l.isFlashAssist ? "Flash assist" : "Assist"}>
-                        + {l.isFlashAssist && <ZapIcon className="h-3 w-3 text-ink-2" aria-label="Flash assist" />}{l.assisterName}
+                    <span className="flex shrink-0 items-center gap-0.5 truncate text-xs text-ink-3" title={l.isFlashAssist ? t("feed.flashAssist") : t("feed.assist")}>
+                        + {l.isFlashAssist && <ZapIcon className="h-3 w-3 text-ink-2" aria-label={t("feed.flashAssist")} />}{l.assisterName}
                     </span>
                 )}
                 <span className="flex shrink-0 items-center gap-1 text-ink-2">
@@ -118,9 +120,9 @@ const LiveLogList = memo(function LiveLogList({ logs }: { logs: LogEntry[] }) {
 
 export function LiveFeedPanel({ logs }: { logs: LogEntry[] }) {
     return (
-        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-line bg-panel" aria-label="Round feed">
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-line bg-panel" aria-label={t("feed.title")}>
             <header className="flex items-center gap-2 border-b border-line px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
-                <Swords className="h-3.5 w-3.5" aria-hidden="true" /> Round feed
+                <Swords className="h-3.5 w-3.5" aria-hidden="true" /> {t("feed.title")}
             </header>
             <div className="relative h-full min-h-0 flex-1 overflow-y-auto p-1.5 [scrollbar-width:thin]">
                 <LiveLogList logs={logs} />

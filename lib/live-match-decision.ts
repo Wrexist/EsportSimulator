@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 /**
  * Between-round decision card data (Phase 3, stream K).
  *
@@ -64,16 +65,11 @@ export interface DecisionPreview {
     winReward?: number
 }
 
-export const STRATEGY_LABEL: Record<ManagerStrategy, string> = {
-    ECO: "Save",
-    FORCE: "Force buy",
-    SEMIBUY: "Half buy",
-    FULL: "Full buy",
-    "DOUBLE AWP": "2xAWP",
-}
-
-const BUY_SHORT: Record<string, string> = { PISTOL: "Pistol", ECO: "Save", FORCE: "Force", SEMIBUY: "Half", FULL: "Full", "DOUBLE AWP": "2×AWP" }
-export const buyShortLabel = (id: string | undefined) => (id ? BUY_SHORT[id] ?? id : "—")
+const STRATEGY_KEY: Record<string, string> = { PISTOL: "pistol", ECO: "eco", FORCE: "force", SEMIBUY: "semibuy", FULL: "full", "DOUBLE AWP": "awp2" }
+/** A buy's name in the active language ("Force buy"). */
+export const strategyLabel = (id: ManagerStrategy): string => STRATEGY_KEY[id] ? t(`buy.${STRATEGY_KEY[id]}`) : id
+/** A buy's short name for tables ("Force"). */
+export const buyShortLabel = (id: string | undefined) => (id ? (STRATEGY_KEY[id] ? t(`buy.short.${STRATEGY_KEY[id]}`) : id) : "—")
 
 const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`
 
@@ -174,20 +170,20 @@ export function previewDecision(ctx: LegacySeriesContext, sim: SimState, customT
 
 function recommendReason(a: { auto: BuyStrategy; avgCash: number; style: EconomyStyle; overtime: boolean; lossBonus?: number; saveOption: BuyPreviewOption }): string {
     const lines = buyLines(a.style)
-    const avgText = `Avg ${money(a.avgCash)}`
-    const styleText = a.style === "standard" ? "" : ` (${a.style} economy style)`
-    if (a.overtime) return `Overtime: everyone starts each half with ${money(ECON_OVERTIME_START_CASH)}, so the engine full-buys.`
+    const avg = money(a.avgCash)
+    const style = a.style === "standard" ? "" : ` ${t("reason.style", { style: t(`economy.${a.style}`) })}`
+    if (a.overtime) return t("reason.overtime", { money: money(ECON_OVERTIME_START_CASH) })
     switch (a.auto) {
         case "ECO": {
-            if (a.lossBonus === undefined) return `${avgText} is under the ${money(lines.force)} force-buy line${styleText}.`
+            if (a.lossBonus === undefined) return t("reason.eco", { avg, force: money(lines.force), style })
             const left = a.saveOption.players.reduce((s, p) => s + p.cash - p.spend, 0) / Math.max(1, a.saveOption.players.length)
             const next = left + a.lossBonus
-            return `${avgText} is under the ${money(lines.force)} force-buy line${styleText}. Saving leaves avg ${money(next)} next round even after a loss (+${money(a.lossBonus)} loss bonus; full-buy line ${money(lines.full)}).`
+            return `${t("reason.eco", { avg, force: money(lines.force), style })} ${t("reason.ecoNext", { next: money(next), bonus: money(a.lossBonus), full: money(lines.full) })}`
         }
-        case "FORCE": return `${avgText} is between the ${money(lines.force)} force line and the ${money(lines.half)} half-buy line${styleText}.`
-        case "SEMIBUY": return `${avgText} is between the ${money(lines.half)} half-buy line and the ${money(lines.full)} full-buy line${styleText}.`
-        case "FULL": return `${avgText} clears the ${money(lines.full)} full-buy line${styleText}.`
-        case "PISTOL": return `${avgText} is $800 or less: the engine buys pistols and armour only.`
-        default: return `${avgText}.`
+        case "FORCE": return t("reason.force", { avg, force: money(lines.force), half: money(lines.half), style })
+        case "SEMIBUY": return t("reason.semibuy", { avg, half: money(lines.half), full: money(lines.full), style })
+        case "FULL": return t("reason.full", { avg, full: money(lines.full), style })
+        case "PISTOL": return t("reason.pistol", { avg })
+        default: return t("reason.avg", { avg })
     }
 }

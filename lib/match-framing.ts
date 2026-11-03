@@ -1,3 +1,5 @@
+import { stageName } from "@/lib/display-names"
+import { t } from "@/lib/i18n"
 /**
  * How a fixture is named on the big screens (match intro, board brief):
  * the competition, its tier and the stage, from the fixture itself.
@@ -24,13 +26,13 @@ export interface CompetitionFraming {
 export function competitionOf(match: FixtureLike, tournaments: ReadonlyArray<{ id: string; name: string; tier?: string }> = []): CompetitionFraming {
     const leagueStage = leagueStageLabel(match)
     if (leagueStage) {
-        const division = leagueDivisionLabel(match) ?? "Regional league"
+        const division = leagueDivisionLabel(match) ?? t("intro.regionalLeague")
         const round = leagueStage.includes(" · ") ? leagueStage.split(" · ").slice(1).join(" · ") : undefined
         return { name: division, stage: round, kind: "league" }
     }
     const tid = match.tournamentId
-    if (!tid || tid === "SCRIM") return { name: match.stage?.trim() || "Friendly", kind: "friendly" }
+    if (!tid || tid === "SCRIM") return { name: match.stage?.trim() ? stageName(match.stage.trim()) : t("intro.friendly"), kind: "friendly" }
     const live = tournaments.find(t => t.id === tid)
     const def = FULL_TOURNAMENT_CALENDAR.find(t => t.id === tid.replace(/_s\d+$/, "") || t.id === tid)
-    return { name: live?.name ?? def?.name ?? "Tournament", tier: live?.tier ?? def?.tier, stage: match.stage ?? undefined, kind: "tournament" }
+    return { name: live?.name ?? def?.name ?? t("intro.tournament"), tier: live?.tier ?? def?.tier, stage: match.stage ? stageName(match.stage) : undefined, kind: "tournament" }
 }

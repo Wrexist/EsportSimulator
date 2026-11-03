@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 // Per-route error boundary for the match flow (veto/tactics/live/result).
 // Catches simulation crashes without taking down the whole app — and gives the
@@ -47,13 +48,13 @@ export default function MatchError({
         try {
             // false = refused (the store toasted why); still leave the crashed
             // screen. Advancing the week resolves an unplayable fixture.
-            if (await simulateInstantMatch(matchId)) toast.success("Match resolved via instant simulation.")
+            if (await simulateInstantMatch(matchId)) toast.success(t("matchError.resolved"))
             router.push("/schedule")
         } catch (e) {
             // Even the headless sim failed — leave the user on this screen with
             // the other options rather than make things worse.
             if (process.env.NODE_ENV !== "production") console.error("[Match Error] instant-sim fallback failed", e)
-            toast.error("Couldn't resolve the match. Try 'Back to schedule' and replay it.")
+            toast.error(t("matchError.failed"))
             setResolving(false)
         }
     }
@@ -64,10 +65,9 @@ export default function MatchError({
                 <div className="w-16 h-16 rounded-full bg-negative/10 flex items-center justify-center mx-auto mb-5">
                     <AlertTriangle className="text-negative" size={32} />
                 </div>
-                <h1 className="text-xl font-bold mb-2">Match crashed</h1>
+                <h1 className="text-xl font-bold mb-2">{t("matchError.title")}</h1>
                 <p className="text-sm text-ink-3 mb-5">
-                    Something went wrong during the match. Your save is safe — simulate the
-                    result instantly, or head back to the schedule and try again.
+                    {t("matchError.body")}
                 </p>
                 {process.env.NODE_ENV !== "production" && (
                     <pre className="bg-raised border border-line rounded-lg p-3 text-left text-[11px] text-negative mb-5 max-h-28 overflow-y-auto whitespace-pre-wrap">
@@ -82,7 +82,7 @@ export default function MatchError({
                             className="flex items-center gap-2 px-4 py-2 bg-gold text-gold-on hover:bg-gold-hover disabled:opacity-60 rounded-lg text-sm font-medium transition-colors"
                         >
                             <FastForward size={14} />
-                            {resolving ? "Simulating…" : "Simulate instead"}
+                            {resolving ? t("advance.simulating") : t("matchError.simulate")}
                         </button>
                     )}
                     <button
@@ -91,14 +91,14 @@ export default function MatchError({
                         className="flex items-center gap-2 px-4 py-2 premium-white-action disabled:opacity-60 rounded-lg text-sm font-medium transition-colors"
                     >
                         <RefreshCw size={14} />
-                        Retry
+                        {t("matchError.retry")}
                     </button>
                     <Link
                         href="/schedule"
                         className="flex items-center gap-2 px-4 py-2 bg-hover hover:bg-hover rounded-lg text-sm font-medium transition-colors"
                     >
                         <Calendar size={14} />
-                        Schedule
+                        {t("result.schedule")}
                     </Link>
                 </div>
             </div>

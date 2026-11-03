@@ -37,6 +37,7 @@ import { competitionOf } from "@/lib/match-framing"
 import { headToHeadOf, introContextLine } from "@/lib/match-intro"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 import { ProGoalStrip, useProGoal } from "@/components/pro/ProMatchGoal"
+import { t } from "@/lib/i18n"
 
 declare global {
     interface Window { __liveCommits?: number }
@@ -231,8 +232,8 @@ export default function LiveMatchPage() {
     // (null while a round plays: the slot then is not in the DOM at all).
     // Built here (memoized) so the radar panel's memo holds between renders.
     const overtimeNote = intermission && (intermission.kind === "overtime" || intermission.kind === "overtime-switch")
-        ? intermission.kind === "overtime" ? "Overtime · MR3 · $12,500 each" : "Overtime · sides switched"
-        : simState?.isOvertime ? "Overtime" : undefined
+        ? intermission.kind === "overtime" ? t("live.overtimeStart") : t("live.overtimeSwitch")
+        : simState?.isOvertime ? t("live.overtime") : undefined
     const timeoutDisabled = timeoutsRemaining <= 0 || timeoutActive || !isWaitingForStrategy || gameState.status !== "IN_PROGRESS"
     const decisionKey = `${gameState.currentMapIndex}-${preview?.round ?? 0}`
     const decisionOverlay = useMemo(() => (preview
@@ -274,17 +275,17 @@ export default function LiveMatchPage() {
         if (matchMissing) {
             return (
                 <div role="alert" className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
-                    <p className="font-display text-3xl font-bold uppercase text-ink-1">Match not found</p>
-                    <p className="mb-6 mt-2 max-w-sm text-sm text-ink-3">This match is no longer on your schedule. It may already have been played or resolved when the week advanced.</p>
-                    <Button onClick={() => router.push("/schedule")}>Back to schedule</Button>
+                    <p className="font-display text-3xl font-bold uppercase text-ink-1">{t("prep.notFound")}</p>
+                    <p className="mb-6 mt-2 max-w-sm text-sm text-ink-3">{t("prep.notFoundBody")}</p>
+                    <Button onClick={() => router.push("/schedule")}>{t("prep.backToSchedule")}</Button>
                 </div>
             )
         }
-        return <LoadingState message="Warming up servers…" size="lg" fullScreen />
+        return <LoadingState message={t("live.loading")} size="lg" fullScreen />
     }
 
     const { homeTeam, awayTeam } = matchData.current
-    const mapName = MAP_NAMES[currentMapId] || currentMapId || "Unknown Map"
+    const mapName = MAP_NAMES[currentMapId] || currentMapId || t("live.unknownMap")
 
     // Side colours follow the round being shown.
     const homeIsCT = roundHomeIsCT
@@ -342,7 +343,7 @@ export default function LiveMatchPage() {
     const multi = timeline ? [...timeline.multiKills].reverse().find(k => k.t <= gameState.time) : undefined
     const homeIds = new Set(homeRoster.map(p => p.id))
     const callout: MomentCalloutData | null = multi && roundView
-        ? { id: `${roundView.key}:${multi.playerId}:${multi.count}`, playerName: names[multi.playerId] ?? "Player", count: multi.count, side: homeIds.has(multi.playerId) === homeIsCT ? "CT" : "T" }
+        ? { id: `${roundView.key}:${multi.playerId}:${multi.count}`, playerName: names[multi.playerId] ?? t("prep.player"), count: multi.count, side: homeIds.has(multi.playerId) === homeIsCT ? "CT" : "T" }
         : null
 
     const fastForward = pacingMode === "moments" && !!roundView && inFlight && !inMoment(roundView.pacing, gameState.time + FAST_FORWARD_LEAD)
@@ -354,10 +355,10 @@ export default function LiveMatchPage() {
         const count = (side: "home" | "away", types: string[]) => roundHistory.filter(r => r.winner === side && types.includes(r.winType ?? "")).length
         const pistol = roundHistory.find(r => r.round === (breakCard.kind === "halftime" ? 1 : 13))
         return [
-            ...(pistol ? [{ label: "Pistol round", home: pistol.winner === "home" ? 1 : 0, away: pistol.winner === "away" ? 1 : 0 }] : []),
-            { label: "Eliminations", home: count("home", ["ELIMINATION"]), away: count("away", ["ELIMINATION"]) },
-            { label: "Bomb / defuse", home: count("home", ["BOMB_EXPLODED", "BOMB_DEFUSE"]), away: count("away", ["BOMB_EXPLODED", "BOMB_DEFUSE"]) },
-            { label: "On time", home: count("home", ["TIME"]), away: count("away", ["TIME"]) },
+            ...(pistol ? [{ label: t("live.stat.pistol"), home: pistol.winner === "home" ? 1 : 0, away: pistol.winner === "away" ? 1 : 0 }] : []),
+            { label: t("live.stat.eliminations"), home: count("home", ["ELIMINATION"]), away: count("away", ["ELIMINATION"]) },
+            { label: t("live.stat.bomb"), home: count("home", ["BOMB_EXPLODED", "BOMB_DEFUSE"]), away: count("away", ["BOMB_EXPLODED", "BOMB_DEFUSE"]) },
+            { label: t("live.stat.time"), home: count("home", ["TIME"]), away: count("away", ["TIME"]) },
         ]
     })() : []
     const ownKey = isPlayerHome ? "home" : "away"
@@ -368,7 +369,7 @@ export default function LiveMatchPage() {
         <ErrorBoundary section="Live Match">
         <div className="relative flex h-full min-h-0 select-none flex-col gap-2.5 bg-ink font-sans text-ink-1"
             role="main"
-            aria-label={`Live match: ${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}`}
+            aria-label={t("live.aria", { home: homeTeam?.name ?? "", away: awayTeam?.name ?? "" })}
         >
             {/* Pre-match derby framing — only renders for HEATED/FIERCE rivalries. */}
             <DerbyBanner homeTeam={homeTeam} awayTeam={awayTeam} />
@@ -445,7 +446,7 @@ export default function LiveMatchPage() {
                                 // In the radar's overlay slot, above the scrubber (not floating over it).
                                 <div className="flex justify-center pb-2">
                                     <Button onClick={handleFinish} className="h-12 w-full max-w-sm text-base shadow-[0_8px_24px_rgba(0,0,0,0.45)]">
-                                        Continue to results <ChevronRight size={18} aria-hidden="true" />
+                                        {t("live.toResults")} <ChevronRight size={18} aria-hidden="true" />
                                     </Button>
                                 </div>
                             )

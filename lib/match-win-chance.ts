@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 /**
  * The manager's chance to win a fixture, for the match screens. Prepares the
  * series exactly as the live screen and instant simulation do (same lineups,
@@ -10,7 +11,7 @@ import { matchWinOdds } from "@/engine/match/win-odds"
 import { getActivePlayersByRosterOrder } from "@/lib/live-match-builders"
 
 export const bestOfOf = (format?: string) => (format === "BO5" ? 5 : format === "BO3" ? 3 : 1)
-export const bestOfLabel = (format?: string) => (bestOfOf(format) === 1 ? "map" : "series")
+export const bestOfLabel = (format?: string) => (bestOfOf(format) === 1 ? t("prep.format.map") : t("prep.format.series"))
 
 export function playerWinChance(args: {
     match: Pick<MatchSaveData, "id" | "homeTeamId" | "awayTeamId" | "format"> & Partial<MatchSaveData>

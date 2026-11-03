@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { t } from "@/lib/i18n"
 
 import { motion } from "framer-motion"
 import { ArrowLeftRight, ChevronRight } from "lucide-react"
@@ -27,7 +29,7 @@ export function IntermissionCard({ intermission, homeName, awayName, homeIsCT, m
 }) {
     const reduceMotion = useAppReducedMotion()
     const halftime = intermission.kind === "halftime"
-    const title = halftime ? "Half time" : intermission.kind === "map-end" ? `${mapName} final` : "Overtime"
+    const title = halftime ? t("live.halftime") : intermission.kind === "map-end" ? t("live.mapFinal", { map: mapName }) : t("live.overtime")
     const side = (ct: boolean) => <span className={cn("rounded-sm px-1.5 py-0.5 text-[11px] font-bold leading-none tracking-[0.06em]", ct ? "bg-side-ct/15 text-side-ct" : "bg-side-t/15 text-side-t")}>{ct ? "CT" : "T"}</span>
     return (
         <motion.div
@@ -52,10 +54,10 @@ export function IntermissionCard({ intermission, homeName, awayName, homeIsCT, m
                     </div>
                     {halftime && (
                         <p className="mt-3 flex items-center justify-center gap-2 text-sm text-ink-2">
-                            Switching sides: {homeName} {side(homeIsCT)} <ArrowLeftRight className="h-3.5 w-3.5 text-ink-3" aria-hidden="true" /> {awayName} {side(!homeIsCT)}
+                            {t("live.switching")} {homeName} {side(homeIsCT)} <ArrowLeftRight className="h-3.5 w-3.5 text-ink-3" aria-hidden="true" /> {awayName} {side(!homeIsCT)}
                         </p>
                     )}
-                    {intermission.kind === "map-end" && nextMapName && <p className="mt-3 text-sm text-ink-2">Next map: <span className="font-semibold text-ink-1">{nextMapName}</span></p>}
+                    {intermission.kind === "map-end" && nextMapName && <p className="mt-3 text-sm text-ink-2"><Trans k="live.nextMap" params={{ map: nextMapName }} tags={{ b: v => <span className="font-semibold text-ink-1">{v}</span> }} /></p>}
                     {stats.length > 0 && (
                         <dl className="mx-auto mt-4 grid max-w-[420px] grid-cols-[1fr_auto_1fr] gap-x-4 gap-y-1 text-sm">
                             {stats.map(s => (
@@ -68,7 +70,7 @@ export function IntermissionCard({ intermission, homeName, awayName, homeIsCT, m
                         </dl>
                     )}
                     <Button onClick={onContinue} className="mt-4 h-9 gap-1 px-4 text-sm">
-                        {halftime ? "Start second half" : "Start next map"} <ChevronRight size={16} aria-hidden="true" />
+                        {halftime ? t("live.startSecondHalf") : t("live.startNextMap")} <ChevronRight size={16} aria-hidden="true" />
                     </Button>
                 </div>
             </div>

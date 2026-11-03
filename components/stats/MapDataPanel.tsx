@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { useMemo, useState } from "react"
 import { useShallow } from "zustand/react/shallow"
@@ -6,12 +7,12 @@ import { useGameStore } from "@/store/game-store"
 import { getMapName } from "@/data/map-pool"
 import { ownMapDetail, rate, sumTallies, type OwnMapDetail, type RateCell } from "@/engine/map-record"
 import { Panel } from "@/src/components/ui/Panel"
-import { CT_SETUP_LABEL, T_CALL_LABEL } from "@/engine/match/playbook"
+import { CT_SETUPS, T_CALL_STRATEGIES, ctSetupLabel, tCallLabel } from "@/engine/match/playbook"
 import { cn } from "@/lib/utils"
 
 const BUY_LABELS: Record<string, string> = { ECO: "Eco", FORCE: "Force", SEMIBUY: "Semi-buy", FULL: "Full buy", "DOUBLE AWP": "Double AWP" }
-const T_PLAN_LABELS: Record<string, string> = { ...T_CALL_LABEL, eco: "Eco push" }
-const CT_SETUP_LABELS: Record<string, string> = CT_SETUP_LABEL
+const tPlanLabels = (): Record<string, string> => ({ ...Object.fromEntries(T_CALL_STRATEGIES.map(s => [s, tCallLabel(s)])), eco: t("playbook.t.eco") })
+const ctSetupLabels = (): Record<string, string> => Object.fromEntries(CT_SETUPS.map(s => [s, ctSetupLabel(s)]))
 const STYLE_LABELS: Record<string, string> = { aggressive: "Aggressive", structured: "Structured", balanced: "Balanced", default: "Default" }
 /** Fewer rounds than this and a rate is shown dimmed: too few to read much into. */
 const SMALL_SAMPLE = 8
@@ -145,8 +146,8 @@ export function MapDataPanel() {
                 <Panel title={selected ? `${getMapName(selected)} breakdown` : "All maps breakdown"} actions={<span className="text-xs text-ink-3">{selected ? "Click the map again for all maps" : "Click a map to narrow it down"}</span>}>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                         <RateBars title="By your buy" cells={focus.buys} labels={BUY_LABELS} />
-                        <RateBars title="T side: plan you ran" cells={focus.tPlans} labels={T_PLAN_LABELS} />
-                        <RateBars title="CT side: setup you held" cells={focus.ctSetups} labels={CT_SETUP_LABELS} />
+                        <RateBars title="T side: plan you ran" cells={focus.tPlans} labels={tPlanLabels()} />
+                        <RateBars title="CT side: setup you held" cells={focus.ctSetups} labels={ctSetupLabels()} />
                         <RateBars title="Your buy calls" cells={focus.calls} labels={BUY_LABELS} />
                         <RateBars title="Playstyle (maps)" cells={focus.playstyles} labels={STYLE_LABELS} unit="maps" />
                     </div>

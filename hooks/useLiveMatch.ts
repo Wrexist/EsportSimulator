@@ -20,7 +20,7 @@ import {
     type LegacySeriesState,
     type ManagerStrategy,
 } from "@/engine/match/legacy-series"
-import { COACH_CALL_LABEL, coachCallBlocked, type CoachCallKind, type CoachCallRecord } from "@/engine/match/coach-calls"
+import { coachCallLabel, coachCallBlocked, type CoachCallKind, type CoachCallRecord } from "@/engine/match/coach-calls"
 import { forgetLastRoundCalls } from "@/engine/match/round-sim"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { soundManager } from "@/lib/sound-manager"
@@ -32,6 +32,7 @@ import { buildRoundTimeline, summarizeRound, type RoundSummary, type RoundTimeli
 import { LiveClock, liveWakeTimes, nextWakeAfter, roundBombTimes, roundClockSeconds, scorebugTime } from "@/lib/live-clock"
 import type { LegacyTransition } from "@/engine/match/legacy-series"
 import { MAP_NAMES } from "@/data/map-pool"
+import { t } from "@/lib/i18n"
 import { liveCheckpointStore, persistCommittedMatch } from "@/lib/live-checkpoint-store"
 import {
     ROUND_SECONDS,
@@ -1251,21 +1252,21 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         const start = roundStartRef.current
         const live = roundScriptRef.current
         const series = runtime?.ctx.script
-        if (!runtime || !start || !live || !series || live.mapIndex !== start.mapIndex || live.roundNumber !== start.roundNumber) return "No round to call"
+        if (!runtime || !start || !live || !series || live.mapIndex !== start.mapIndex || live.roundNumber !== start.roundNumber) return t("coach.blocked.noRound")
         const round = runtime.result.maps[start.mapIndex]?.rounds.find(r => r.roundNumber === start.roundNumber)
-        if (!round) return "No round to call"
+        if (!round) return t("coach.blocked.noRound")
         // On the engine's 0.25 s tick, a moment after what is on screen.
-        const t = Math.ceil((liveClock.now() + 0.1) * 4) / 4
+        const at = Math.ceil((liveClock.now() + 0.1) * 4) / 4
         const plantT = live.script.bomb.plant?.t
         const blocked = coachCallBlocked(kind, {
-            t,
+            t: at,
             ct: round.ctTeam === runtime.ctx.managedTeamId,
             calls: start.calls,
-            planted: plantT !== undefined && plantT <= t,
-            over: t >= liveClock.end - 0.5,
+            planted: plantT !== undefined && plantT <= at,
+            over: at >= liveClock.end - 0.5,
         })
         if (blocked) return blocked
-        const calls = [...start.calls, { t, kind, without: start.managedWon ? "won" as const : "lost" as const }]
+        const calls = [...start.calls, { t: at, kind, without: start.managedWon ? "won" as const : "lost" as const }]
         forgetLastRoundCalls(series)
         const step = playLegacyRound(runtime.ctx, start.state, { ...start.decision, coachCalls: calls })
         runtime.result.maps = step.state.maps
@@ -1283,11 +1284,11 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         currentRoundEvents.current = annotateRoundEvents(step.round.events || [], next)
         const view = makeRoundView(runtime, start.mapIndex, step.round, next, currentRoundEvents.current, loadouts)
         setRoundView(view)
-        liveClock.startRound(view.pacing, t)
+        liveClock.startRound(view.pacing, at)
         start.calls = calls
         start.managedWon = step.round.winningTeamId === runtime.ctx.managedTeamId
         setCoachCalls(calls)
-        setLogs(prev => [{ type: "SYSTEM", message: `Coach call: ${COACH_CALL_LABEL[kind]}` }, ...prev])
+        setLogs(prev => [{ type: "SYSTEM", message: t("live.log.coachCall", { call: coachCallLabel(kind) }) }, ...prev])
         soundManager.play("notification")
         return null
     }, [liveClock, setRoundScript, setRoundView])

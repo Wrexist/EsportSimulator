@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 /**
  * G1: the manager's playbook — named calls per map, side and buy.
  *
@@ -30,23 +31,13 @@ export const PLAY_SITUATIONS: readonly PlaySituation[] = ["pistol", "force", "fu
 export const T_CALL_STRATEGIES: readonly TCallStrategy[] = ["default", "execute", "split", "fake", "rush"]
 export const CT_SETUPS: readonly CtSetup[] = ["2-1-2", "stack-A", "stack-B", "aggressive"]
 
-export const SITUATION_LABEL: Record<PlaySituation, string> = { pistol: "Pistol round", force: "Force / half buy", full: "Full buy" }
+// Names and hints in the active language (keys under "playbook.*").
+export const situationLabel = (s: PlaySituation): string => t(`playbook.situation.${s}`)
 /** Plan names, shared with the Map data screen (which adds the eco plan). */
-export const T_CALL_LABEL: Record<TCallStrategy, string> = { default: "Default", execute: "Execute", split: "Split", fake: "Fake", rush: "Rush" }
-export const CT_SETUP_LABEL: Record<CtSetup, string> = { "2-1-2": "2-1-2", "stack-A": "Stack A", "stack-B": "Stack B", aggressive: "Aggressive mid" }
-export const T_CALL_HINT: Record<TCallStrategy, string> = {
-    default: "Spread out, take map control, hit late",
-    execute: "Full utility on one site around the middle of the round",
-    split: "Hit one site from two sides, late",
-    fake: "Show the other site, then rotate onto this one",
-    rush: "All five onto the site at once",
-}
-export const CT_SETUP_HINT: Record<CtSetup, string> = {
-    "2-1-2": "Two on each site, one in the middle",
-    "stack-A": "Three on A, one on B",
-    "stack-B": "Three on B, one on A",
-    aggressive: "2-1-2 with one player pushing for an early pick",
-}
+export const tCallLabel = (s: TCallStrategy): string => t(`playbook.t.${s}`)
+export const ctSetupLabel = (s: CtSetup): string => t(`playbook.ct.${s}`)
+export const tCallHint = (s: TCallStrategy): string => t(`playbook.tHint.${s}`)
+export const ctSetupHint = (s: CtSetup): string => t(`playbook.ctHint.${s}`)
 
 /** Buy → playbook situation. A T eco is always a save or an eco rush, so it has no call; a CT eco plays its force setup. */
 export function playSituation(buy: "pistol" | "eco" | "force" | "half" | "full", side: "T" | "CT"): PlaySituation | null {

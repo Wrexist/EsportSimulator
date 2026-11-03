@@ -1,4 +1,5 @@
 "use client"
+import { t, tn } from "@/lib/i18n"
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
@@ -56,8 +57,8 @@ function Side({ team, align, reduce }: { team: TeamSaveData; align: "left" | "ri
                 <p className="line-clamp-2 max-w-full break-words font-display text-[clamp(40px,4.4vw,76px)] font-extrabold uppercase leading-[0.88] text-ink-1">{team.name}</p>
             </div>
             <div className="mt-3 flex h-7 items-center gap-4">
-                <span className="text-sm text-ink-3">World <span className="font-display text-xl font-bold tabular-nums text-ink-1">{team.worldRanking ? `#${team.worldRanking}` : "—"}</span></span>
-                <FormGuide results={form} emptyLabel="No results yet" />
+                <span className="text-sm text-ink-3">{t("intro.world")} <span className="font-display text-xl font-bold tabular-nums text-ink-1">{team.worldRanking ? `#${team.worldRanking}` : "—"}</span></span>
+                <FormGuide results={form} emptyLabel={t("intro.noResults")} />
             </div>
         </motion.div>
     )
@@ -124,7 +125,7 @@ export function MatchIntro(props: MatchIntroProps) {
         transition: { duration: reduce ? 0 : 0.45, delay: reduce ? 0 : delay, ease: EASE },
     })
     const bestOf = String(format || "BO1").toUpperCase()
-    const mapLabel = (m: string, i: number) => `${maps.length > 1 ? `Map ${i + 1} · ` : ""}${MAP_NAMES[m] ?? m}`
+    const mapLabel = (m: string, i: number) => `${maps.length > 1 ? `${t("intro.mapN", { n: i + 1 })} · ` : ""}${MAP_NAMES[m] ?? m}`
 
     return (
         <motion.div
@@ -132,7 +133,7 @@ export function MatchIntro(props: MatchIntroProps) {
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
-            aria-label={`${homeTeam.name} versus ${awayTeam.name}`}
+            aria-label={t("intro.versus", { home: homeTeam.name, away: awayTeam.name })}
             onClick={finish}
             initial={reduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -190,7 +191,7 @@ export function MatchIntro(props: MatchIntroProps) {
 
                 {/* Head to head + context */}
                 <motion.div {...fade(0.9)} className="mt-10 flex flex-col items-center gap-2 text-center">
-                    <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-ink-3">Head to head</p>
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-ink-3">{t("intro.h2h")}</p>
                     {h2h.meetings > 0 ? (
                         <p className="flex items-center gap-4 font-display font-bold uppercase leading-none">
                             <span className="text-[22px] text-ink-2">{homeTeam.shortName || homeTeam.name}</span>
@@ -198,9 +199,9 @@ export function MatchIntro(props: MatchIntroProps) {
                             <span className="text-[22px] text-ink-2">{awayTeam.shortName || awayTeam.name}</span>
                         </p>
                     ) : (
-                        <p className="font-display text-[28px] font-bold uppercase leading-none text-ink-1">First meeting</p>
+                        <p className="font-display text-[28px] font-bold uppercase leading-none text-ink-1">{t("intro.firstMeeting")}</p>
                     )}
-                    {h2h.meetings > 0 && <p className="text-xs text-ink-3">{h2h.meetings} recorded meeting{h2h.meetings === 1 ? "" : "s"}</p>}
+                    {h2h.meetings > 0 && <p className="text-xs text-ink-3">{tn("intro.meetings", h2h.meetings)}</p>}
                     {context && <p className="mt-3 rounded-sm border border-gold/40 bg-gold/8 px-4 py-1.5 text-sm font-semibold text-gold">{context}</p>}
                 </motion.div>
 
@@ -208,7 +209,7 @@ export function MatchIntro(props: MatchIntroProps) {
                 <motion.div {...fade(1.2)} className="mt-10 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-10">
                     <Lineup players={homePlayers} align="left" />
                     <div className="flex flex-col items-center gap-2 pt-1">
-                        <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-ink-3">{maps.length > 1 ? "Maps" : "Map"}</p>
+                        <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-ink-3">{maps.length > 1 ? t("intro.maps") : t("intro.map")}</p>
                         {maps.map((m, i) => (
                             <span key={`${m}-${i}`} className="rounded-sm border border-line-strong bg-panel px-3 py-1 text-sm font-semibold uppercase tracking-[0.06em] text-ink-1">{mapLabel(m, i)}</span>
                         ))}
@@ -216,7 +217,7 @@ export function MatchIntro(props: MatchIntroProps) {
                     <Lineup players={awayPlayers} align="right" />
                 </motion.div>
 
-                <motion.p {...fade(1.4, 0)} className="mt-10 text-center text-xs text-ink-3">Space, Enter or click to skip</motion.p>
+                <motion.p {...fade(1.4, 0)} className="mt-10 text-center text-xs text-ink-3">{t("intro.skip")}</motion.p>
             </div>
 
             {/* Time to live */}

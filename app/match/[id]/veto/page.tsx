@@ -25,6 +25,9 @@ import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { leagueStageLabel } from "@/components/league/league-view"
 import { rate, recentMapTally, type SideTally } from "@/engine/map-record"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
+import { t } from "@/lib/i18n"
+import { Trans } from "@/lib/trans"
+import { stageName } from "@/lib/display-names"
 
 // Map Wallpaper Paths
 const MAP_WALLPAPERS: Record<string, string> = {
@@ -77,8 +80,8 @@ function TeamSide({ team, rating, active, isUser, align }: { team: TeamSaveData;
             <div className="min-w-0">
                 <h2 className="truncate font-display text-[32px] font-bold uppercase leading-none text-ink-1">{team.name}</h2>
                 <p className={cn("mt-1.5 flex items-center gap-2 text-xs text-ink-3", align === "right" && "justify-end")}>
-                    <span>Avg skill <span className="font-semibold tabular-nums text-ink-2">{rating.toFixed(1)}</span></span>
-                    {isUser && <span className="rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-2">You</span>}
+                    <span><Trans k="veto.avgSkill" params={{ value: rating.toFixed(1) }} tags={{ b: v => <span className="font-semibold tabular-nums text-ink-2">{v}</span> }} /></span>
+                    {isUser && <span className="rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-2">{t("veto.you")}</span>}
                 </p>
             </div>
         </div>
@@ -106,7 +109,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
     const [awayTeam, setAwayTeam] = useState<TeamSaveData | null>(null)
     const [availableMaps, setAvailableMaps] = useState<MapId[]>([])
     const [vetoHistory, setVetoHistory] = useState<VetoTurn[]>([])
-    const [status, setStatus] = useState("Initializing...")
+    const [status, setStatus] = useState(() => t("veto.initializing"))
     const [isAiTurn, setIsAiTurn] = useState(false)
     const [vetoSequence, setVetoSequence] = useState<VetoTurn[]>([]) // Dynamic sequence
     const [mapStartingSides, setMapStartingSides] = useState<Record<string, string>>({}) // MapId -> TeamId of CT team
@@ -176,7 +179,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         const foundMatch = scheduledMatches.find(m => m.id === id)
         if (!foundMatch) {
             // Check completed?
-            setStatus("Match not found or already completed.")
+            setStatus(t("veto.notFound"))
             return
         }
 
@@ -191,7 +194,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         if (availableMaps.length === 0 && vetoSequence.length === 0) {
             setAvailableMaps([...ACTIVE_MAP_POOL])
             setVetoSequence(generateVetoSequence(foundMatch.format || "BO3"))
-            setStatus("Ready to start veto")
+            setStatus(t("veto.ready"))
         }
 
         // Only re-fire when the match identity / hydration source changes —
@@ -237,7 +240,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         if (!isUserTeam && !processingRef.current) {
             // AI TURN
             setIsAiTurn(true)
-            setStatus(`${currentTurn.team === "home" ? homeTeam.name : awayTeam.name} is choosing…`)
+            setStatus(t("veto.choosing", { team: currentTurn.team === "home" ? homeTeam.name : awayTeam.name }))
             processingRef.current = true
 
             setTimeout(() => {
@@ -245,7 +248,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
             }, 1000)
         } else if (isUserTeam) {
             setIsAiTurn(false)
-            setStatus(`Your turn to ${currentTurn.action.replace("_", " ").toLowerCase()}`)
+            setStatus(t(currentTurn.action === "BAN" ? "veto.yourTurnBan" : currentTurn.action === "PICK" ? "veto.yourTurnPick" : "veto.yourTurnSide"))
 
             // If it's a side pick or decider pick, we might need a specific UI trigger
             if (currentTurn.action === "SIDE_PICK") {
@@ -386,11 +389,11 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                         <Ban className="h-6 w-6 text-ink-3" />
                     </div>
                     <div>
-                        <h2 className="font-display text-3xl font-bold uppercase text-ink-1">Veto unavailable</h2>
-                        <p className="mt-1 text-sm text-ink-3">{status || "This match can't be found or has already been played."}</p>
+                        <h2 className="font-display text-3xl font-bold uppercase text-ink-1">{t("veto.unavailable")}</h2>
+                        <p className="mt-1 text-sm text-ink-3">{status || t("veto.unavailableBody")}</p>
                     </div>
                     <Button variant="outline" onClick={() => router.push("/")}>
-                        <ArrowLeft size={16} /> Back to dashboard
+                        <ArrowLeft size={16} /> {t("veto.backToDashboard")}
                     </Button>
                 </div>
             </div>
@@ -418,8 +421,8 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         const diff = TUNING.READ_IGL * ((homeCall - awayCall) / 50) * tacticalWeight(mapId)
         return Math.max(-20, Math.min(20, (userIsHome ? diff : -diff) * 100))
     }
-    const teamName = (side: string) => side === "home" ? homeTeam.name : side === "away" ? awayTeam.name : "Decider"
-    const actionLabel = (action: string) => action === "SIDE_PICK" ? "Side" : action === "DECIDER" ? "Decider" : action === "BAN" ? "Ban" : action === "PICK" ? "Pick" : action
+    const teamName = (side: string) => side === "home" ? homeTeam.name : side === "away" ? awayTeam.name : t("prep.decider")
+    const actionLabel = (action: string) => action === "SIDE_PICK" ? t("veto.action.side") : action === "DECIDER" ? t("prep.decider") : action === "BAN" ? t("veto.action.ban") : action === "PICK" ? t("veto.action.pick") : action
     const isUserTurn = !vetoDone && !isAiTurn && currentTurn.team !== "auto" && (currentTurn.team === "home" ? homeTeam.id : awayTeam.id) === playerTeamId
 
     const tournament = (() => {
@@ -437,10 +440,10 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                     onClick={() => router.push(`/match/${id}/tactics`)}
                     className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-3 transition-colors hover:text-ink-1"
                 >
-                    <ArrowLeft size={15} aria-hidden="true" /> Match day
+                    <ArrowLeft size={15} aria-hidden="true" /> {t("home.matchDay")}
                 </button>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
-                    {leagueStageLabel(match) ?? (tournament ? `${tournament.name}${match.stage ? ` · ${match.stage}` : ""}` : "Map veto")}
+                    {leagueStageLabel(match) ?? (tournament ? `${tournament.name}${match.stage ? ` · ${stageName(match.stage)}` : ""}` : t("veto.mapVeto"))}
                 </p>
             </div>
 
@@ -451,22 +454,22 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                 <div className="flex items-center gap-8 px-8 py-5">
                     <TeamSide team={homeTeam} isUser={homeTeam.id === playerTeamId} rating={getTeamRating(homePlayersList)} active={!vetoDone && currentTurn.team === "home"} align="left" />
                     <div className="flex w-[340px] shrink-0 flex-col items-center text-center">
-                        <h1 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Map veto · {(match.format || "BO3").toUpperCase()}</h1>
+                        <h1 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("veto.mapVetoFormat", { format: (match.format || "BO3").toUpperCase() })}</h1>
                         <h3
                             aria-live="polite"
                             className={cn("mt-1.5 font-display text-[28px] font-bold uppercase leading-none", isUserTurn ? "text-gold" : "text-ink-1")}
                         >
-                            {vetoDone ? "Veto complete" : status}
+                            {vetoDone ? t("veto.complete") : status}
                         </h3>
                         <p className="mt-1.5 text-xs text-ink-3">
-                            {vetoDone ? "Heading back to match day…" : isUserTurn ? (currentTurn.action === "SIDE_PICK" ? "Choose your starting side." : `Click a map to ${currentTurn.action === "BAN" ? "remove it" : "play it"}.`) : `Step ${turnIndex + 1} of ${vetoSequence.length}`}
+                            {vetoDone ? t("veto.heading") : isUserTurn ? (currentTurn.action === "SIDE_PICK" ? t("veto.chooseStartSide") : t(currentTurn.action === "BAN" ? "veto.clickBan" : "veto.clickPick")) : t("veto.step", { n: turnIndex + 1, total: vetoSequence.length })}
                         </p>
                     </div>
                     <TeamSide team={awayTeam} isUser={awayTeam.id === playerTeamId} rating={getTeamRating(awayPlayersList)} active={!vetoDone && currentTurn.team === "away"} align="right" />
                 </div>
 
                 {/* Sequence */}
-                <ol className="flex border-t border-line" aria-label="Veto order">
+                <ol className="flex border-t border-line" aria-label={t("veto.order")}>
                     {vetoSequence.map((step, idx) => {
                         const done = idx < vetoHistory.length
                         const current = idx === vetoHistory.length
@@ -495,7 +498,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
             {/* Map pool */}
             {mapRotation?.benched?.length ? (
                 <p className="text-xs text-ink-3" data-testid="benched-maps">
-                    Season {mapRotation.season} pool: {mapRotation.benched.map(m => MAP_NAMES[m] ?? m).join(" and ")} benched for the season.
+                    {t(mapRotation.benched.length === 1 ? "veto.benchedOne" : "veto.benchedTwo", { season: mapRotation.season, a: MAP_NAMES[mapRotation.benched[0]] ?? mapRotation.benched[0], b: MAP_NAMES[mapRotation.benched[1]] ?? mapRotation.benched[1] ?? "" })}
                 </p>
             ) : null}
             <div className={cn("grid grid-cols-4 gap-3", ACTIVE_MAP_POOL.length === 6 ? "xl:grid-cols-6" : "xl:grid-cols-7")}>
@@ -510,7 +513,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                     const hasRecord = hStats.wins + hStats.losses + aStats.wins + aStats.losses > 0
                     const edge = roundEdge(mapId)
                     const ctTeamId = mapStartingSides[mapId]
-                    const pickedBy = actionLog?.team === "auto" ? "Decider" : actionLog ? `${actionLabel(actionLog.action)} · ${teamName(actionLog.team)}` : null
+                    const pickedBy = actionLog?.team === "auto" ? t("prep.decider") : actionLog ? `${actionLabel(actionLog.action)} · ${teamName(actionLog.team)}` : null
 
                     return (
                         <div
@@ -522,7 +525,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                             )}
                             role="button"
                             tabIndex={canInteract ? 0 : -1}
-                            aria-label={`${MAP_NAMES[mapId] ?? mapId}: ${isBanned ? "banned" : isPicked ? "selected" : canInteract ? "select map" : "waiting for opponent"}`}
+                            aria-label={`${MAP_NAMES[mapId] ?? mapId}: ${isBanned ? t("veto.state.banned") : isPicked ? t("veto.state.selected") : canInteract ? t("veto.state.select") : t("veto.state.waiting")}`}
                             aria-disabled={!canInteract}
                             onKeyDown={event => {
                                 if (event.target !== event.currentTarget || !canInteract) return
@@ -561,7 +564,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                     <div className="flex items-center gap-1.5 text-xs font-semibold">
                                         <SideEmblem side={ctTeamId === playerTeamId ? "CT" : "T"} className="h-4 w-4" />
                                         <span className={ctTeamId === playerTeamId ? "text-side-ct" : "text-side-t"}>
-                                            You start {ctTeamId === playerTeamId ? "CT" : "T"}
+                                            {t("prep.youStart", { side: ctTeamId === playerTeamId ? "CT" : "T" })}
                                         </span>
                                     </div>
                                 )}
@@ -570,26 +573,26 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                 </h4>
                                 {!isBanned && (
                                     <dl className="space-y-0.5 text-[11px] text-ink-3">
-                                        <div className="flex justify-between gap-2" title="How much more often (percentage points) your IGL reads their plan on this map than theirs reads yours: tactics and leadership, weighted by how tactical the map is.">
-                                            <dt>Your read edge</dt>
+                                        <div className="flex justify-between gap-2" title={t("veto.readEdgeTitle")}>
+                                            <dt>{t("veto.readEdge")}</dt>
                                             <dd className="tabular-nums text-ink-2">{edge >= 0 ? "+" : "−"}{Math.abs(edge).toFixed(1)}%</dd>
                                         </div>
-                                        <div className="flex justify-between gap-2" title="Every club has maps it is at home on and maps it avoids. On its best map a club plays with a small edge, on its worst with the same edge against it.">
-                                            <dt>Comfort</dt>
+                                        <div className="flex justify-between gap-2" title={t("veto.comfortTitle")}>
+                                            <dt>{t("veto.comfort")}</dt>
                                             <dd className="text-ink-2">
                                                 {mapComfortLabel(mapComfort(homeTeam.id, mapId))} <span className="text-ink-3">/</span> {mapComfortLabel(mapComfort(awayTeam.id, mapId))}
                                                 <span className="sr-only"> ({homeTeam.name} / {awayTeam.name})</span>
                                             </dd>
                                         </div>
-                                        <div className="flex justify-between gap-2" title="Official CT and T round win rates on this map, this season and last. History only; it does not change the odds.">
+                                        <div className="flex justify-between gap-2" title={t("veto.sidesTitle")}>
                                             <dt>CT / T</dt>
                                             <dd className="tabular-nums text-ink-2">
                                                 {sideLine(homeSides[mapId])} <span className="text-ink-3">/</span> {sideLine(awaySides[mapId])}
                                                 <span className="sr-only"> ({homeTeam.name} / {awayTeam.name})</span>
                                             </dd>
                                         </div>
-                                        <div className="flex justify-between gap-2" title="Past results on this map. History only; it does not change the odds.">
-                                            <dt>Record</dt>
+                                        <div className="flex justify-between gap-2" title={t("veto.recordTitle")}>
+                                            <dt>{t("veto.record")}</dt>
                                             <dd className="tabular-nums text-ink-2">
                                                 {hasRecord ? <>{hStats.wins}–{hStats.losses} <span className="text-ink-3">/</span> {aStats.wins}–{aStats.losses}</> : "—"}
                                                 <span className="sr-only"> ({homeTeam.name} / {awayTeam.name})</span>
@@ -599,7 +602,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                 )}
                                 {!actionLog && canInteract && (
                                     <p className="text-xs font-semibold text-ink-2 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
-                                        {currentTurn.action === "BAN" ? "Ban this map" : "Pick this map"}
+                                        {currentTurn.action === "BAN" ? t("veto.banThis") : t("veto.pickThis")}
                                     </p>
                                 )}
                             </div>
@@ -609,8 +612,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
             </div>
 
             <p className="text-xs text-ink-3">
-                The engine adds the map-strength gap to every round (the edge shown). It moves by tenths of a percent from map to map, so the veto barely changes the odds.
-                Records and CT / T round win rates are past results ({homeTeam.name} / {awayTeam.name}) and don&apos;t affect the match.
+                {t("veto.footnote", { home: homeTeam.name, away: awayTeam.name })}
             </p>
 
             {/* Side Selection Overlay */}
@@ -625,19 +627,19 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                     >
                         <div ref={sideDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="modal-title-side-selection" className="max-h-full w-full max-w-2xl overflow-y-auto rounded-[10px] border border-line-strong bg-panel p-6 text-center">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{MAP_NAMES[showSideSelection || ""]}</p>
-                            <h2 id="modal-title-side-selection" className="mt-1 font-display text-4xl font-bold uppercase text-ink-1">Choose your side</h2>
-                            <p className="mt-1 text-sm text-ink-3">You play the first half on this side, then switch.</p>
+                            <h2 id="modal-title-side-selection" className="mt-1 font-display text-4xl font-bold uppercase text-ink-1">{t("veto.chooseSide")}</h2>
+                            <p className="mt-1 text-sm text-ink-3">{t("veto.firstHalf")}</p>
                             {showSideSelection && (() => {
                                 const mine = (userIsHome ? homeSides : awaySides)[showSideSelection]
                                 const theirs = (userIsHome ? awaySides : homeSides)[showSideSelection]
                                 if (!mine?.[0] && !theirs?.[0]) return null
-                                const line = (t: SideTally | undefined, side: "ct" | "t") => !t?.[0] ? "—" : side === "ct" ? `${rate(t[3], t[2]) ?? "—"}% of ${t[2]}` : `${rate(t[5], t[4]) ?? "—"}% of ${t[4]}`
+                                const line = (tally: SideTally | undefined, side: "ct" | "t") => !tally?.[0] ? "—" : side === "ct" ? t("veto.rateOf", { pct: rate(tally[3], tally[2]) ?? "—", n: tally[2] }) : t("veto.rateOf", { pct: rate(tally[5], tally[4]) ?? "—", n: tally[4] })
                                 return (
                                     <table className="mx-auto mt-4 text-sm">
-                                        <caption className="pb-1 text-xs text-ink-3">Official round win rates on this map, this season and last</caption>
+                                        <caption className="pb-1 text-xs text-ink-3">{t("veto.ratesCaption")}</caption>
                                         <thead><tr className="text-xs text-ink-3"><th /><th className="px-3 font-semibold text-side-ct">CT</th><th className="px-3 font-semibold text-side-t">T</th></tr></thead>
                                         <tbody className="tabular-nums">
-                                            <tr><th className="pr-3 text-left font-semibold text-ink-2">You</th><td className="px-3">{line(mine, "ct")}</td><td className="px-3">{line(mine, "t")}</td></tr>
+                                            <tr><th className="pr-3 text-left font-semibold text-ink-2">{t("veto.you")}</th><td className="px-3">{line(mine, "ct")}</td><td className="px-3">{line(mine, "t")}</td></tr>
                                             <tr><th className="pr-3 text-left font-semibold text-ink-2">{(userIsHome ? awayTeam : homeTeam).name}</th><td className="px-3">{line(theirs, "ct")}</td><td className="px-3">{line(theirs, "t")}</td></tr>
                                         </tbody>
                                     </table>
@@ -653,8 +655,8 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                     <span className="font-display text-5xl font-bold leading-none text-side-ct">CT</span>
                                     <SideEmblem side="CT" className="h-16 w-16" />
                                     <span>
-                                        <span className="block text-base font-semibold text-ink-1">Counter-Terrorist</span>
-                                        <span className="block text-xs text-ink-3">Start on defence</span>
+                                        <span className="block text-base font-semibold text-ink-1">{t("veto.ct")}</span>
+                                        <span className="block text-xs text-ink-3">{t("veto.startDefence")}</span>
                                     </span>
                                 </button>
                                 <button
@@ -665,8 +667,8 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                     <span className="font-display text-5xl font-bold leading-none text-side-t">T</span>
                                     <SideEmblem side="T" className="h-16 w-16" />
                                     <span>
-                                        <span className="block text-base font-semibold text-ink-1">Terrorist</span>
-                                        <span className="block text-xs text-ink-3">Start on attack</span>
+                                        <span className="block text-base font-semibold text-ink-1">{t("veto.t")}</span>
+                                        <span className="block text-xs text-ink-3">{t("veto.startAttack")}</span>
                                     </span>
                                 </button>
                             </div>

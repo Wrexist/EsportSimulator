@@ -8,6 +8,9 @@
  * re-deriving stage semantics from a different code path.
  */
 
+import { t } from "./i18n"
+import { stageName } from "./display-names"
+
 export interface MatchStakes {
     win: string
     loss: string
@@ -22,9 +25,8 @@ export function isLeagueStage(stage: string | undefined | null): boolean {
     return !!stage && /\bdivision \d+\s*·\s*round \d+\b/i.test(stage)
 }
 
-export const LEAGUE_STAKES: MatchStakes = {
-    win: "3 points in the division table",
-    loss: "No points from this round",
+export function leagueStakes(): MatchStakes {
+    return { win: t("stakes.league.win"), loss: t("stakes.league.loss") }
 }
 
 /**
@@ -37,61 +39,62 @@ export function getStakes(
 ): MatchStakes {
     const stageLower = stage?.toLowerCase() || ""
 
-    if (isLeagueStage(stage)) return { ...LEAGUE_STAKES }
+    if (isLeagueStage(stage)) return leagueStakes()
+    const next = nextStage ? t("stakes.advanceTo", { stage: stageName(nextStage) }) : undefined
 
     if (stageLower.includes("grand final")
         || (stageLower.includes("final") && !stageLower.includes("semi") && !stageLower.includes("quarter"))) {
         return {
-            win: "Win the tournament!",
-            loss: isElimination ? "Runner-up finish" : "Second place",
+            win: t("stakes.final.win"),
+            loss: isElimination ? t("stakes.final.lossElim") : t("stakes.final.loss"),
         }
     }
 
     if (stageLower.includes("semi")) {
         return {
-            win: nextStage || "Advance to Grand Final",
-            loss: isElimination ? "Eliminated (3rd-4th place)" : "Drop to losers bracket",
+            win: next || t("stakes.semi.win"),
+            loss: isElimination ? t("stakes.semi.lossElim") : t("stakes.dropLosers"),
         }
     }
 
     if (stageLower.includes("quarter")) {
         return {
-            win: nextStage || "Advance to Semi-finals",
-            loss: isElimination ? "Eliminated (5th-8th place)" : "Drop to losers bracket",
+            win: next || t("stakes.quarter.win"),
+            loss: isElimination ? t("stakes.quarter.lossElim") : t("stakes.dropLosers"),
         }
     }
 
     if (stageLower.includes("round of 16") || stageLower.includes("ro16")) {
         return {
-            win: nextStage || "Advance to Quarter-finals",
-            loss: isElimination ? "Eliminated" : "Drop to losers bracket",
+            win: next || t("stakes.ro16.win"),
+            loss: isElimination ? t("stakes.eliminated") : t("stakes.dropLosers"),
         }
     }
 
     if (stageLower.includes("round of 32") || stageLower.includes("ro32")) {
         return {
-            win: nextStage || "Advance to Round of 16",
-            loss: isElimination ? "Eliminated" : "Drop to losers bracket",
+            win: next || t("stakes.ro32.win"),
+            loss: isElimination ? t("stakes.eliminated") : t("stakes.dropLosers"),
         }
     }
 
     if (stageLower.includes("swiss")) {
         return {
-            win: "Improve record, move toward qualification",
-            loss: "Record worsens, risk elimination at 0-3",
+            win: t("stakes.swiss.win"),
+            loss: t("stakes.swiss.loss"),
         }
     }
 
     if (stageLower.includes("group")) {
         return {
-            win: "Improve group standings",
-            loss: "Drop in group standings",
+            win: t("stakes.group.win"),
+            loss: t("stakes.group.loss"),
         }
     }
 
     return {
-        win: nextStage || "Advance to next round",
-        loss: isElimination ? "Eliminated from tournament" : "Continue in bracket",
+        win: next || t("stakes.next.win"),
+        loss: isElimination ? t("stakes.next.lossElim") : t("stakes.next.loss"),
     }
 }
 
@@ -132,17 +135,17 @@ export function getMatchHeadline(
     const tone = getMatchTone(stage, isElimination)
     switch (tone) {
         case "championship":
-            return `Championship match — ${opponentName} stands between you and the trophy.`
+            return t("stakes.headline.championship", { team: opponentName })
         case "elimination":
-            return `Win-or-go-home against ${opponentName}.`
+            return t("stakes.headline.elimination", { team: opponentName })
         case "advancement":
-            return `Win to advance; a loss drops you to the losers' bracket.`
+            return t("stakes.headline.advancement")
         case "ladder":
-            return `${(stage || "").toLowerCase().includes("swiss") ? "Swiss round" : "Group stage"} — every result moves the standings.`
+            return t((stage || "").toLowerCase().includes("swiss") ? "stakes.headline.swiss" : "stakes.headline.group")
         case "league":
-            return `League match — 3 points at stake against ${opponentName}.`
+            return t("stakes.headline.league", { team: opponentName })
         case "regular":
         default:
-            return `Tournament match against ${opponentName}.`
+            return t("stakes.headline.regular", { team: opponentName })
     }
 }

@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { useEffect, useState, type CSSProperties } from "react"
 import { motion } from "framer-motion"
@@ -7,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { Button } from "@/components/ui/button"
 import { ArmorGlyph, GrenadeGlyph, KitGlyph, WeaponGlyph, weaponDisplayName } from "@/components/match/WeaponGlyph"
-import { STRATEGY_LABEL, type BuyPreviewOption, type DecisionPreview } from "@/lib/live-match-decision"
+import { strategyLabel, type BuyPreviewOption, type DecisionPreview } from "@/lib/live-match-decision"
 import type { ManagerStrategy } from "@/engine/match/legacy-series"
 import { REGROUP_ROUND_WIN_PTS, REGROUP_MIN_LOSS_STREAK } from "@/engine/match/manager-controls"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
@@ -33,7 +34,7 @@ export interface DecisionCardProps {
  */
 function BuyCell({ p, muted }: { p: BuyPreviewOption["players"][number]; muted: boolean }) {
     return (
-        <div className={cn("flex h-7 min-w-0 items-center gap-1.5 px-2 @max-[52rem]:gap-1 @max-[52rem]:px-1.5", muted && "opacity-50")} title={`${weaponDisplayName(p.weapon)}${p.armor ? (p.helmet ? " · kevlar + helmet" : " · kevlar") : ""}${p.kit ? " · kit" : ""}${p.utility.length ? ` · ${p.utility.join(", ")}` : ""} · ${money(p.cash - p.spend)} left`}>
+        <div className={cn("flex h-7 min-w-0 items-center gap-1.5 px-2 @max-[52rem]:gap-1 @max-[52rem]:px-1.5", muted && "opacity-50")} title={`${weaponDisplayName(p.weapon)}${p.armor ? ` · ${p.helmet ? t("decision.kevlarHelmet") : t("decision.kevlar")}` : ""}${p.kit ? ` · ${t("decision.kit")}` : ""}${p.utility.length ? ` · ${p.utility.join(", ")}` : ""} · ${t("decision.left", { money: money(p.cash - p.spend) })}`}>
             <WeaponGlyph weapon={p.weapon} className="h-2.5 w-7 shrink-0 text-ink-1 @max-[52rem]:w-5" />
             <span className={cn("text-xs tabular-nums", p.spend > 0 ? "text-ink-1" : "text-ink-3")}>{p.spend > 0 ? money(p.spend) : "—"}</span>
             <span className="ml-auto flex shrink-0 items-center gap-0.5 text-ink-3 @max-[52rem]:hidden">
@@ -76,7 +77,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
             transition={{ duration: 0.16, ease: "easeOut" }}
             className="tactical-decisions @container relative w-full overflow-hidden rounded-lg border border-line-strong bg-panel/[0.97] shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
-            aria-label={`Round ${preview.round} buy decision`}
+            aria-label={t("decision.aria", { n: preview.round })}
         >
             {auto.on && (
                 <div className="h-1 w-full bg-hover" aria-hidden="true">
@@ -94,21 +95,21 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
             <div className="px-3 pb-3 pt-2.5">
                 <header className="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <span className={cn("rounded-sm px-1.5 py-0.5 text-[11px] font-bold leading-none tracking-[0.06em]", sideCT ? "bg-side-ct/15 text-side-ct" : "bg-side-t/15 text-side-t")}>{preview.side}</span>
-                    <h3 className="font-display text-xl font-bold uppercase leading-none text-ink-1">Round {preview.round} · Select strategy</h3>
+                    <h3 className="font-display text-xl font-bold uppercase leading-none text-ink-1">{t("decision.title", { n: preview.round })}</h3>
                     {overtimeNote && <span className="rounded-sm border border-gold/40 px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-gold">{overtimeNote}</span>}
                     <span className="ml-auto text-xs text-ink-3">
-                        Team <span className="font-semibold tabular-nums text-ink-1">{money(preview.teamCash)}</span>
-                        <span className="mx-1.5">·</span>avg <span className="tabular-nums text-ink-2">{money(preview.avgCash)}</span>
+                        {t("decision.team")} <span className="font-semibold tabular-nums text-ink-1">{money(preview.teamCash)}</span>
+                        <span className="mx-1.5">·</span>{t("decision.avg")} <span className="tabular-nums text-ink-2">{money(preview.avgCash)}</span>
                     </span>
                     <button
                         type="button"
                         onClick={() => setFolded(f => !f)}
                         aria-expanded={!folded}
                         className="flex h-7 items-center gap-1 rounded px-1.5 text-xs font-semibold text-ink-3 hover:bg-hover hover:text-ink-1"
-                        title={folded ? "Show what each call buys per player" : "Fold the card to see the radar"}
+                        title={folded ? t("decision.unfoldTitle") : t("decision.foldTitle")}
                     >
                         {folded ? <ChevronUp size={14} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}
-                        {folded ? "Players" : "Fold"}
+                        {folded ? t("decision.players") : t("decision.fold")}
                     </button>
                     {recommended && (
                         <button
@@ -116,7 +117,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                             onClick={() => onEditLoadout(recommended)}
                             className="hidden h-7 items-center gap-1 rounded px-1.5 text-xs font-semibold text-ink-3 hover:bg-hover hover:text-ink-1 @max-[52rem]:flex"
                         >
-                            <Settings2 size={13} aria-hidden="true" /> Edit loadouts
+                            <Settings2 size={13} aria-hidden="true" /> {t("decision.editLoadouts")}
                         </button>
                     )}
                     {auto.on && (
@@ -124,25 +125,25 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                             type="button"
                             onClick={auto.onToggleHold}
                             className="flex h-7 items-center gap-1.5 rounded border border-line-strong bg-raised px-2 text-xs font-semibold text-ink-2 hover:bg-hover hover:text-ink-1"
-                            title={auto.hold ? "Let auto tactics confirm the call (Space)" : "Hold the auto call to decide yourself (Space)"}
+                            title={auto.hold ? t("decision.releaseTitle") : t("decision.holdTitle")}
                         >
                             {auto.hold ? <Play size={12} aria-hidden="true" /> : <Pause size={12} aria-hidden="true" />}
-                            {auto.hold ? "Auto held" : "Hold auto"}
+                            {auto.hold ? t("decision.autoHeld") : t("decision.holdAuto")}
                         </button>
                     )}
                 </header>
 
                 <p className="mt-1.5 text-xs leading-snug text-ink-2">
-                    <span className="mr-1.5 rounded-sm bg-gold/15 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-gold">Recommended{recommended ? `: ${STRATEGY_LABEL[recommended]}` : ""}</span>
+                    <span className="mr-1.5 rounded-sm bg-gold/15 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-gold">{recommended ? t("decision.recommendedCall", { call: strategyLabel(recommended) }) : t("decision.recommended")}</span>
                     {preview.reason}
                 </p>
 
                 {/* Calls × players: what each call buys each player, at its real cost. */}
                 <div className="mt-2.5 overflow-hidden rounded-md border border-line">
                     <div className="grid grid-cols-[132px_repeat(var(--cols),minmax(0,1fr))] border-b border-line bg-shell @max-[52rem]:grid-cols-[112px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
-                        <div className="flex items-end px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">Player · cash</div>
+                        <div className="flex items-end px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">{t("decision.playerCash")}</div>
                         {calls.map(o => {
-                            const label = STRATEGY_LABEL[o.id]
+                            const label = strategyLabel(o.id)
                             const isRec = o.id === recommended
                             return (
                                 <div key={o.id} className="relative border-l border-line p-1">
@@ -150,7 +151,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                                         // The recommended call is the screen's one primary (gold) action; the theme styles buttons by variant.
                                         variant={isRec ? "default" : "secondary"}
                                         onClick={() => onPick(o.id)}
-                                        title={`${label}: ${money(o.total)} total${isRec ? " (recommended)" : ""}`}
+                                        title={isRec ? t("decision.optionTitleRec", { call: label, money: money(o.total) }) : t("decision.optionTitle", { call: label, money: money(o.total) })}
                                         className={cn(
                                             "flex h-[50px] w-full flex-col items-start justify-center gap-0.5 rounded-[4px] border pl-2 pr-7 text-left @max-[52rem]:pl-1.5 @max-[52rem]:pr-1.5",
                                             isRec ? "border-gold bg-gold hover:border-gold-hover hover:bg-gold-hover" : "border-line bg-raised hover:border-gold hover:bg-hover",
@@ -158,13 +159,13 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                                     >
                                         <span className={cn("whitespace-nowrap text-sm font-semibold leading-none @max-[52rem]:text-xs", isRec ? "text-gold-on" : "text-ink-1")}>{label}</span>
                                         <span className={cn("whitespace-nowrap text-xs leading-none tabular-nums", isRec ? "text-gold-on/80" : "text-ink-3")}>
-                                            {isRec && counting ? <>Auto in <Countdown ms={auto.durationMs} restart={auto.key} /> s</> : o.total > 0 ? <>{money(o.total)}<span className="@max-[52rem]:hidden"> total</span></> : "No spend"}
+                                            {isRec && counting ? <>{t("decision.autoIn")} <Countdown ms={auto.durationMs} restart={auto.key} /> {t("decision.seconds")}</> : o.total > 0 ? <>{money(o.total)}<span className="@max-[52rem]:hidden"> {t("decision.total")}</span></> : t("decision.noSpend")}
                                         </span>
                                     </Button>
                                     <button
                                         type="button"
-                                        aria-label={`Edit ${label} loadout`}
-                                        title={`Edit ${label} loadout`}
+                                        aria-label={t("decision.editLoadout", { call: label })}
+                                        title={t("decision.editLoadout", { call: label })}
                                         onClick={e => { e.stopPropagation(); onEditLoadout(o.id) }}
                                         className={cn("absolute right-2 top-2 rounded p-1 transition-colors @max-[52rem]:hidden", isRec ? "text-gold-on/80 hover:bg-black/10 hover:text-gold-on" : "text-ink-3 hover:bg-hover hover:text-ink-1")}
                                     >
@@ -190,7 +191,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                 </div>
                 {same.length > 0 && (
                     <p className="mt-1.5 text-xs text-ink-3">
-                        {same.map(o => `${STRATEGY_LABEL[o.id]} buys the same as ${STRATEGY_LABEL[o.sameAs!]}`).join(" · ")}.
+                        {same.map(o => t("decision.sameAs", { a: strategyLabel(o.id), b: strategyLabel(o.sameAs!) })).join(" · ")}
                     </p>
                 )}
 
@@ -200,20 +201,20 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                         size="sm"
                         onClick={timeout.onCall}
                         disabled={timeout.disabled}
-                        title={`Between rounds only: regroup — about +${REGROUP_ROUND_WIN_PTS}% round-win chance for 2 rounds while you have lost ${REGROUP_MIN_LOSS_STREAK}+ in a row. Two per series; no benefit without a losing streak.`}
+                        title={t("decision.timeoutTitle", { pts: REGROUP_ROUND_WIN_PTS, streak: REGROUP_MIN_LOSS_STREAK })}
                         className="h-8 shrink-0 gap-1.5 px-3 text-xs"
                     >
-                        <Timer size={13} aria-hidden="true" /> Tactical timeout ({timeout.remaining})
+                        <Timer size={13} aria-hidden="true" /> {t("decision.timeout", { n: timeout.remaining })}
                     </Button>
                     <p className="min-w-0 flex-1 text-xs leading-snug text-ink-3 @max-[52rem]:hidden">
                         {timeout.active
-                            ? <span className="font-semibold text-ink-1">Regrouping: about +{REGROUP_ROUND_WIN_PTS}% round-win chance while on a {REGROUP_MIN_LOSS_STREAK}+ loss streak.</span>
-                            : <>About +{REGROUP_ROUND_WIN_PTS}% round-win chance for two rounds, only after {REGROUP_MIN_LOSS_STREAK}+ losses in a row.</>}
+                            ? <span className="font-semibold text-ink-1">{t("decision.regrouping", { pts: REGROUP_ROUND_WIN_PTS, streak: REGROUP_MIN_LOSS_STREAK })}</span>
+                            : t("decision.timeoutHint", { pts: REGROUP_ROUND_WIN_PTS, streak: REGROUP_MIN_LOSS_STREAK })}
                     </p>
                     {(preview.lossBonus !== undefined || preview.winReward !== undefined) && (
                         <p className="shrink-0 text-xs text-ink-3">
-                            {preview.winReward !== undefined && <>Win <span className="tabular-nums text-ink-2">+{money(preview.winReward)}</span></>}
-                            {preview.lossBonus !== undefined && <><span className="mx-1.5">·</span>Loss <span className="tabular-nums text-ink-2">+{money(preview.lossBonus)}</span> each</>}
+                            {preview.winReward !== undefined && <>{t("decision.win")} <span className="tabular-nums text-ink-2">+{money(preview.winReward)}</span></>}
+                            {preview.lossBonus !== undefined && <><span className="mx-1.5">·</span>{t("decision.loss")} <span className="tabular-nums text-ink-2">+{money(preview.lossBonus)}</span> {t("decision.each")}</>}
                         </p>
                     )}
                 </footer>

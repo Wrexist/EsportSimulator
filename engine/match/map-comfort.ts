@@ -12,6 +12,7 @@
 
 import { ROTATION_MAP_POOL } from "@/data/map-pool"
 import { SeededRNG, deriveSeed } from "../rng"
+import { t } from "@/lib/i18n"
 
 /**
  * Team edge on a club's maps, best first; the worst maps mirror the best.
@@ -54,9 +55,9 @@ export function mapComfort(teamId: string | undefined, mapId: string | undefined
 
 /** Short label for a club's comfort on a map. */
 export function mapComfortLabel(edge: number): string {
-    if (edge >= MAP_COMFORT_STEPS[0]) return "Best map"
-    if (edge > 0) return "Strong"
-    if (edge <= -MAP_COMFORT_STEPS[0]) return "Worst map"
-    if (edge < 0) return "Weak"
-    return "Neutral"
+    if (edge >= MAP_COMFORT_STEPS[0]) return t("comfort.best")
+    if (edge > 0) return t("comfort.strong")
+    if (edge <= -MAP_COMFORT_STEPS[0]) return t("comfort.worst")
+    if (edge < 0) return t("comfort.weak")
+    return t("comfort.neutral")
 }

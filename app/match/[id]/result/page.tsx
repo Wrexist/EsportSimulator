@@ -1,4 +1,9 @@
 "use client"
+import { stageName } from "@/lib/display-names"
+import { Trans } from "@/lib/trans"
+import { t, tn } from "@/lib/i18n"
+import { winTypeText } from "@/lib/live-match-roster"
+import { buyShortLabel } from "@/lib/live-match-decision"
 
 import { resultLineup, matchFollowup } from '@/lib/match-followup'
 import { buildMatchInsights, buyWinRate } from '@/lib/match-insights'
@@ -204,9 +209,9 @@ export default function MatchResultPage() {
             // Delay showing the advancement animation to let victory confetti play first
             setTimeout(() => {
                 setAdvancementData({
-                    fromStage: currentBracketMatch.stage || "Current Round",
-                    toStage: nextMatch.stage || "Next Round",
-                    tournamentName: tournamentDef?.name || tournament.name || "Tournament",
+                    fromStage: currentBracketMatch.stage ? stageName(currentBracketMatch.stage) : t("result.currentRound"),
+                    toStage: nextMatch.stage ? stageName(nextMatch.stage) : t("result.nextRound"),
+                    tournamentName: tournamentDef?.name || tournament.name || t("intro.tournament"),
                     isChampionship
                 })
                 setShowAdvancement(true)
@@ -268,21 +273,21 @@ export default function MatchResultPage() {
         <div className="flex min-h-[60vh] items-center justify-center">
             {notFound || stillScheduled ? (
                 <div role="alert" className="max-w-sm px-6 text-center">
-                    <p className="font-display text-3xl font-bold uppercase text-ink-1">{stillScheduled ? "Match not played yet" : "Match not found"}</p>
+                    <p className="font-display text-3xl font-bold uppercase text-ink-1">{stillScheduled ? t("result.notPlayed") : t("prep.notFound")}</p>
                     <p className="mb-6 mt-2 text-sm text-ink-3">
                         {stillScheduled
-                            ? "This match has no result yet. Return to match prep to play it; if it can't be played, advancing the week resolves it."
-                            : <>This match result isn&apos;t available — it may belong to a different save or has aged out of match history.</>}
+                            ? t("result.notPlayedBody")
+                            : t("result.notFoundBody")}
                     </p>
                     <div className="flex justify-center gap-3">
                         {stillScheduled && (
-                            <Button onClick={() => router.push(`/match/${id}/tactics`)}>Back to match prep</Button>
+                            <Button onClick={() => router.push(`/match/${id}/tactics`)}>{t("result.backToPrep")}</Button>
                         )}
-                        <Button variant={stillScheduled ? "outline" : "default"} onClick={() => router.push("/schedule")}>Back to schedule</Button>
+                        <Button variant={stillScheduled ? "outline" : "default"} onClick={() => router.push("/schedule")}>{t("prep.backToSchedule")}</Button>
                     </div>
                 </div>
             ) : (
-                <LoadingState message="Loading match data…" size="lg" />
+                <LoadingState message={t("result.loading")} size="lg" />
             )}
         </div>
     )
@@ -330,18 +335,22 @@ export default function MatchResultPage() {
     const isTournament = !leagueStage && !!match.tournamentId && match.tournamentId !== "SCRIM"
     const liveTournament = isTournament ? tournaments?.find(t => t.id === match.tournamentId) : undefined
     const tournamentDef = isTournament ? FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId!.replace(/_s\d+$/, '') || t.id === match.tournamentId) : undefined
-    const competitionName = leagueStage ?? (isTournament ? (tournamentDef?.name || liveTournament?.name || "Tournament") : match.tournamentId === "SCRIM" ? "Scrim" : "Friendly")
+    const competitionName = leagueStage ?? (isTournament ? (tournamentDef?.name || liveTournament?.name || t("intro.tournament")) : match.tournamentId === "SCRIM" ? t("result.scrim") : t("intro.friendly"))
     let tournamentLine: string | null = null
-    if (isPlayerMatch && leagueStage) tournamentLine = playerWon ? "3 league points" : "No league points"
+    let tournamentTone = "text-positive"
+    if (isPlayerMatch && leagueStage) {
+        tournamentLine = playerWon ? t("result.leaguePoints") : t("result.noLeaguePoints")
+        if (!playerWon) tournamentTone = "text-ink-3"
+    }
     if (isPlayerMatch && liveTournament?.playoffBracket) {
         const bracketMatch = liveTournament.playoffBracket.find(m => m.id === match.id)
         if (bracketMatch) {
             const stageLower = bracketMatch.stage?.toLowerCase() || ""
             const isFinal = stageLower.includes("final") && !stageLower.includes("semi") && !stageLower.includes("quarter")
             const next = liveTournament.playoffBracket.find(m => m.sourceMatchIds?.includes(match.id))
-            if (playerWon && isFinal) tournamentLine = "Tournament champions"
-            else if (playerWon && next) tournamentLine = `Advanced to ${next.stage || "the next round"}`
-            else if (!playerWon && tournamentDef?.format === "bracket") tournamentLine = "Eliminated"
+            if (playerWon && isFinal) { tournamentLine = t("result.champions"); tournamentTone = "text-gold" }
+            else if (playerWon && next) { tournamentLine = next.stage ? t("result.advancedTo", { stage: stageName(next.stage) }) : t("result.advancedNext"); tournamentTone = "text-positive" }
+            else if (!playerWon && tournamentDef?.format === "bracket") { tournamentLine = t("result.eliminated"); tournamentTone = "text-negative" }
         }
     }
 
@@ -354,7 +363,7 @@ export default function MatchResultPage() {
     const moneyLines = financeLedger.filter(e => e.teamId === playerTeamId && e.id.includes(match.id))
     const moneyNet = moneyLines.reduce((s, e) => s + (e.type === "INCOME" ? e.amount : -e.amount), 0)
 
-    const headline = isPlayerMatch ? (playerWon ? "Victory" : "Defeat") : `${winnerTeam?.name ?? "Winner"} win`
+    const headline = isPlayerMatch ? (playerWon ? t("endBeat.victory") : t("endBeat.defeat")) : t("live.teamWins", { team: winnerTeam?.name ?? t("live.winner") })
     const headlineTone = isPlayerMatch ? (playerWon ? "text-positive" : "text-negative") : "text-ink-1"
     const best = (stats: PlayerMatchStats[]) => stats.length ? stats.reduce((a, b) => (b.rating > a.rating ? b : a)) : undefined
     const ownMvp = best(isPlayerMatch ? ownStats : homeStats)
@@ -368,7 +377,7 @@ export default function MatchResultPage() {
             <div className="min-w-0">
                 <p className={cn("truncate font-display text-[36px] font-bold uppercase leading-none", won ? "text-ink-1" : "text-ink-2")}><TeamLink id={team?.id}>{team?.name}</TeamLink></p>
                 <p className={cn("mt-2 flex items-center gap-2 text-sm text-ink-3", align === "right" && "justify-end")}>
-                    World <span className="font-semibold tabular-nums text-ink-2">#{team?.worldRanking || "—"}</span>
+                    {t("intro.world")} <span className="font-semibold tabular-nums text-ink-2">#{team?.worldRanking || "—"}</span>
                 </p>
             </div>
         </div>
@@ -380,19 +389,19 @@ export default function MatchResultPage() {
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-1">
                     <Button variant="ghost" onClick={() => router.push("/")} className="h-9 gap-1.5 px-3 text-sm">
-                        <Home size={15} aria-hidden="true" /> Back to dashboard
+                        <Home size={15} aria-hidden="true" /> {t("result.backToDashboard")}
                     </Button>
                     <Button variant="ghost" onClick={() => router.push("/schedule")} className="h-9 gap-1.5 px-3 text-sm">
-                        <Calendar size={15} aria-hidden="true" /> Schedule
+                        <Calendar size={15} aria-hidden="true" /> {t("result.schedule")}
                     </Button>
                     {isTournament && (
                         <Button variant="ghost" onClick={() => router.push(`/tournaments/${match.tournamentId}`)} className="h-9 gap-1.5 px-3 text-sm">
-                            <Trophy size={15} aria-hidden="true" /> Tournament
+                            <Trophy size={15} aria-hidden="true" /> {t("intro.tournament")}
                         </Button>
                     )}
                     {leagueStage && (
                         <Button variant="ghost" onClick={() => router.push("/league")} className="h-9 gap-1.5 px-3 text-sm">
-                            <ListOrdered size={15} aria-hidden="true" /> League table
+                            <ListOrdered size={15} aria-hidden="true" /> {t("result.leagueTable")}
                         </Button>
                     )}
                 </div>
@@ -400,11 +409,11 @@ export default function MatchResultPage() {
                     primary action; the page offers the same step as a secondary. */}
                 {nextPlayerMatch && nextMatchPlayableNow ? (
                     <Button variant="outline" onClick={() => router.push(`/match/${nextPlayerMatch.id}/tactics`)} className="h-10 gap-2 px-5">
-                        <Swords size={16} aria-hidden="true" /> Play next match
+                        <Swords size={16} aria-hidden="true" /> {t("result.playNext")}
                     </Button>
                 ) : (
                     <Button variant="outline" onClick={() => router.push("/")} className="h-10 gap-2 px-5">
-                        Done <ArrowRight size={16} aria-hidden="true" />
+                        {t("result.done")} <ArrowRight size={16} aria-hidden="true" />
                     </Button>
                 )}
             </div>
@@ -414,9 +423,9 @@ export default function MatchResultPage() {
                 <div className="flex items-center justify-between gap-4 border-b border-line bg-shell px-8 py-2.5 text-xs text-ink-3">
                     <span className="flex items-center gap-2">
                         {isTournament && <TierTag tier={tournamentDef?.tier || liveTournament?.tier} />}
-                        {leagueStage && <span className="inline-flex items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">League</span>}
+                        {leagueStage && <span className="inline-flex items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">{t("result.league")}</span>}
                         <span className="font-semibold text-ink-2">{competitionName}</span>
-                        {match.stage && !leagueStage && <><span aria-hidden="true">·</span><span>{match.stage}</span></>}
+                        {match.stage && !leagueStage && <><span aria-hidden="true">·</span><span>{stageName(match.stage)}</span></>}
                         <span aria-hidden="true">·</span><span>{String(match.format || "BO1").toUpperCase()}</span>
                     </span>
                     <span className="flex items-center gap-1.5"><Calendar size={12} aria-hidden="true" />{formatGameCalendarDate(matchDate, { month: "short", day: "numeric", year: "numeric" })}</span>
@@ -451,55 +460,55 @@ export default function MatchResultPage() {
                                 </span>
                             ))}
                         </div>
-                        {tournamentLine && <p className={cn("mt-3 text-sm font-semibold", tournamentLine === "Eliminated" ? "text-negative" : tournamentLine === "No league points" ? "text-ink-3" : tournamentLine === "Tournament champions" ? "text-gold" : "text-positive")}>{tournamentLine}</p>}
+                        {tournamentLine && <p className={cn("mt-3 text-sm font-semibold", tournamentTone)}>{tournamentLine}</p>}
                     </div>
                     {crest(awayTeam, "right", !homeWon)}
                 </div>
             </section>
 
             {pro && isPlayerMatch && (
-                <Panel title="Your match">
+                <Panel title={t("result.yourMatch")}>
                     <ProGoalVerdict result={pro.last?.matchId === match.id ? pro.last : undefined} rating={result.playerStats?.[pro.playerId]?.rating} />
                 </Panel>
             )}
 
             {/* Beat 2: who did what */}
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
-                <Panel title="Scoreboard" padded={false} className="overflow-hidden" actions={<span className="text-xs text-ink-3">Sorted by rating</span>}>
+                <Panel title={t("result.scoreboard")} padded={false} className="overflow-hidden" actions={<span className="text-xs text-ink-3">{t("result.sortedByRating")}</span>}>
                     {[{ team: homeTeam, stats: homeStats, won: homeWon }, { team: awayTeam, stats: awayStats, won: !homeWon }].map(({ team, stats, won }) => (
                         <PlayerStatsTable key={team?.id ?? String(won)} team={team} won={won} stats={stats} playersById={playersById} result={result} mvpId={result.mvpPlayerId} />
                     ))}
                 </Panel>
 
                 <aside className="min-w-0 space-y-4">
-                    <Panel title="Standouts" padded={false}>
+                    <Panel title={t("result.standouts")} padded={false}>
                         <div className="divide-y divide-line">
-                            {ownMvp && <MvpCard label={isPlayerMatch ? "Your MVP" : `${homeTeam?.name} MVP`} stat={ownMvp} player={getPlayer(ownMvp.playerId)} isMatchMvp={ownMvp.playerId === result.mvpPlayerId} />}
-                            {otherMvp && <MvpCard label={isPlayerMatch ? "Opponent MVP" : `${awayTeam?.name} MVP`} stat={otherMvp} player={getPlayer(otherMvp.playerId)} isMatchMvp={otherMvp.playerId === result.mvpPlayerId} />}
+                            {ownMvp && <MvpCard label={isPlayerMatch ? t("result.yourMvp") : t("result.teamMvp", { team: homeTeam?.name ?? "" })} stat={ownMvp} player={getPlayer(ownMvp.playerId)} isMatchMvp={ownMvp.playerId === result.mvpPlayerId} />}
+                            {otherMvp && <MvpCard label={isPlayerMatch ? t("result.opponentMvp") : t("result.teamMvp", { team: awayTeam?.name ?? "" })} stat={otherMvp} player={getPlayer(otherMvp.playerId)} isMatchMvp={otherMvp.playerId === result.mvpPlayerId} />}
                         </div>
                     </Panel>
 
                     {isPlayerMatch && (
-                        <Panel title="Rewards and changes" padded={false}>
+                        <Panel title={t("result.rewards")} padded={false}>
                             <dl className="divide-y divide-line text-sm">
                                 <div className="flex items-center justify-between px-4 py-2.5">
                                     <dt className="text-ink-3">Elo</dt>
                                     <dd className={cn("font-semibold tabular-nums", elo == null ? "text-ink-3" : elo >= 0 ? "text-positive" : "text-negative")}>{elo == null ? "—" : `${elo > 0 ? "+" : ""}${elo}`}</dd>
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2.5">
-                                    <dt className="text-ink-3">World ranking</dt>
+                                    <dt className="text-ink-3">{t("result.worldRanking")}</dt>
                                     <dd className="flex items-center gap-2 tabular-nums">
                                         <span className="font-semibold text-ink-1">#{ownTeam?.worldRanking || "—"}</span>
                                         {!!rankDelta && <span className={rankDelta > 0 ? "text-positive" : "text-negative"}>{rankDelta > 0 ? "▲" : "▼"}{Math.abs(rankDelta)}</span>}
                                     </dd>
                                 </div>
                                 <div className="flex items-center justify-between px-4 py-2.5">
-                                    <dt className="text-ink-3">Player XP</dt>
+                                    <dt className="text-ink-3">{t("result.playerXp")}</dt>
                                     <dd className="font-semibold tabular-nums text-ink-1">+{xpEarned.toLocaleString("en-US")}</dd>
                                 </div>
                                 <div className="px-4 py-2.5">
                                     <div className="flex items-center justify-between">
-                                        <dt className="text-ink-3">Money for this match</dt>
+                                        <dt className="text-ink-3">{t("result.money")}</dt>
                                         <dd className={cn("font-semibold tabular-nums", moneyNet > 0 ? "text-positive" : moneyNet < 0 ? "text-ink-1" : "text-ink-3")}>
                                             {moneyLines.length ? `${moneyNet > 0 ? "+" : moneyNet < 0 ? "−" : ""}${formatCurrency(Math.abs(moneyNet), "$", false)}` : "—"}
                                         </dd>
@@ -514,7 +523,7 @@ export default function MatchResultPage() {
                                             ))}
                                         </ul>
                                     )}
-                                    {moneyLines.length === 0 && <p className="mt-1 text-xs text-ink-3">No prep costs or bonuses. {leagueStage ? "League prize money is paid when the split ends." : "Prize money is paid when the event ends."}</p>}
+                                    {moneyLines.length === 0 && <p className="mt-1 text-xs text-ink-3">{t("result.noMoney")} {leagueStage ? t("result.prizeLeague") : t("result.prizeEvent")}</p>}
                                 </div>
                             </dl>
                         </Panel>
@@ -531,7 +540,7 @@ export default function MatchResultPage() {
                     opponentLineup: resultLineup(result, otherTeam?.id, otherTeam?.rosterIds),
                     nextMatchId: nextPlayerMatch?.id,
                 })
-                const name = (pid?: string) => (pid && (playersById.get(pid)?.nickname || playersById.get(pid)?.name)) || "Former player"
+                const name = (pid?: string) => (pid && (playersById.get(pid)?.nickname || playersById.get(pid)?.name)) || t("result.formerPlayer")
                 const why = buildMatchReasons({
                     result,
                     teamId: playerTeamId!,
@@ -540,14 +549,14 @@ export default function MatchResultPage() {
                     opponentLineup: resultLineup(result, otherTeam?.id, otherTeam?.rosterIds),
                 })
                 const standout = (label: string, s?: { playerId: string; rating: number; kills: number; deaths: number }) => s && (
-                    <li>{label}: <span className="font-semibold text-ink-1">{name(s.playerId)}</span> <span className="tabular-nums">{s.rating.toFixed(2)}</span> rating, <span className="tabular-nums">{s.kills}–{s.deaths}</span></li>
+                    <li>{label}: <span className="font-semibold text-ink-1">{name(s.playerId)}</span> <Trans k="result.standoutLine" params={{ rating: s.rating.toFixed(2), kd: `${s.kills}–${s.deaths}` }} tags={{ n: v => <span className="tabular-nums">{v}</span> }} /></li>
                 )
                 const card = "rounded-lg border border-line bg-panel p-4"
                 return (
                     <section aria-labelledby="match-decided-heading" className="space-y-3">
                         <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                            <h2 id="match-decided-heading" className="font-display text-2xl font-bold uppercase text-ink-1">What decided the match</h2>
-                            <p className="text-xs text-ink-3">Built from the recorded rounds, the public scoreboard and visible buys; review prompts, not proof of cause.</p>
+                            <h2 id="match-decided-heading" className="font-display text-2xl font-bold uppercase text-ink-1">{t("result.decided")}</h2>
+                            <p className="text-xs text-ink-3">{t("result.decidedNote")}</p>
                         </div>
                         <p className="text-sm text-ink-2">{insights.headline}</p>
                         {(() => {
@@ -558,7 +567,7 @@ export default function MatchResultPage() {
                             <div className="grid gap-3 md:grid-cols-2">
                                 {why.reasons.length > 0 && (
                                     <div className={card} data-testid="match-reasons">
-                                        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{insights.won ? "Why you won" : "Why you lost"}</h3>
+                                        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{insights.won ? t("result.whyWon") : t("result.whyLost")}</h3>
                                         <ol className="space-y-2 text-sm text-ink-2">
                                             {why.reasons.map((r, i) => (
                                                 <li key={r.key} className="flex gap-2">
@@ -571,7 +580,7 @@ export default function MatchResultPage() {
                                 )}
                                 {why.players.length > 0 && (
                                     <div className={card} data-testid="rating-reasons">
-                                        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Your ratings explained</h3>
+                                        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("result.ratingsExplained")}</h3>
                                         <ul className="space-y-1.5 text-sm text-ink-2">
                                             {why.players.map(p => (
                                                 <li key={p.playerId} className="flex gap-2">
@@ -586,7 +595,7 @@ export default function MatchResultPage() {
                         )}
                         {why.counters.length > 0 && (
                             <div className={card} data-testid="counter-reasons">
-                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Your counters</h3>
+                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("result.yourCounters")}</h3>
                                 <ul className="space-y-1.5 text-sm text-ink-2">
                                     {why.counters.map(c => (
                                         <li key={`${c.map}-${c.side}`} className="flex gap-2">
@@ -599,13 +608,13 @@ export default function MatchResultPage() {
                         )}
                         {why.calls && (
                             <div className={card} data-testid="call-reasons">
-                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Your calls</h3>
+                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("result.yourCalls")}</h3>
                                 <p className="mb-2 text-sm text-ink-2">{why.calls.text}</p>
                                 <ul className="space-y-1.5 text-sm text-ink-2">
                                     {why.calls.calls.map((c, i) => (
                                         <li key={`${c.map}-${c.round}-${i}`} className="flex gap-2">
                                             <span className={cn("w-24 shrink-0 font-semibold", c.flipped === "won" ? "text-positive" : c.flipped === "lost" ? "text-negative" : "text-ink-3")}>
-                                                {c.flipped === "won" ? "Won the round" : c.flipped === "lost" ? "Cost the round" : "No change"}
+                                                {c.flipped === "won" ? t("result.callWon") : c.flipped === "lost" ? t("result.callLost") : t("result.callNone")}
                                             </span>
                                             <span><span className="tabular-nums text-ink-3">{MAP_NAMES[c.map] ?? c.map} R{c.round}</span> · {c.label}</span>
                                         </li>
@@ -615,44 +624,44 @@ export default function MatchResultPage() {
                         )}
                         <div className="grid gap-3 md:grid-cols-3">
                             <div className={card}>
-                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Key rounds</h3>
+                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("result.keyRounds")}</h3>
                                 <ul className="space-y-1.5 text-sm text-ink-2">
                                     {insights.keyRounds.map(k => (
                                         <li key={`${k.map}-${k.round}-${k.label}`} className="flex gap-2">
-                                            <span className={cn("w-9 shrink-0 font-semibold", k.won ? "text-positive" : "text-negative")}>{k.won ? "Won" : "Lost"}</span>
+                                            <span className={cn("w-9 shrink-0 font-semibold", k.won ? "text-positive" : "text-negative")}>{k.won ? t("result.won") : t("result.lost")}</span>
                                             <span><span className="tabular-nums text-ink-3">{MAP_NAMES[k.map] ?? k.map} R{k.round}</span> · {k.label}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
                             <div className={card}>
-                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Economy</h3>
+                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("result.economy")}</h3>
                                 <ul className="space-y-1.5 text-sm text-ink-2">
                                     {insights.economy.buys.map(b => (
                                         <li key={b.buy} className="flex justify-between gap-3">
-                                            <span className="capitalize">{b.buy.toLowerCase()} buys</span>
-                                            <span className="tabular-nums">{b.won}/{b.played} won <span className="text-ink-3">({buyWinRate(b)}%)</span></span>
+                                            <span>{t("result.buysOf", { buy: buyShortLabel(b.buy) })}</span>
+                                            <span className="tabular-nums">{t("result.wonOf", { won: b.won, played: b.played })} <span className="text-ink-3">({buyWinRate(b)}%)</span></span>
                                         </li>
                                     ))}
                                     <li className="flex justify-between gap-3 border-t border-line pt-1.5">
-                                        <span>Avg spend per player per round</span>
+                                        <span>{t("result.avgSpend")}</span>
                                         <span className="tabular-nums">{formatCurrency(insights.economy.avgSpend, "$", false)}</span>
                                     </li>
                                 </ul>
                             </div>
                             <div className={card}>
-                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Players and plan</h3>
+                                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("result.playersPlan")}</h3>
                                 <ul className="space-y-1.5 text-sm text-ink-2">
-                                    {standout("Your best", insights.standouts.best)}
-                                    {standout("Struggled", insights.standouts.struggled)}
-                                    {standout("Opponent top performer", insights.standouts.opponentBest)}
-                                    {insights.tactics.map(t => <li key={t}>{t}</li>)}
+                                    {standout(t("result.yourBest"), insights.standouts.best)}
+                                    {standout(t("result.struggled"), insights.standouts.struggled)}
+                                    {standout(t("result.opponentTop"), insights.standouts.opponentBest)}
+                                    {insights.tactics.map(line => <li key={line}>{line}</li>)}
                                 </ul>
                             </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                             <p className="text-sm text-ink-2">{matchFollowup(isPlayerHome ? homeStats : awayStats)}</p>
-                            {!result.lineups && <p className="text-xs text-ink-3">Older report: player grouping uses current rosters.</p>}
+                            {!result.lineups && <p className="text-xs text-ink-3">{t("result.olderReport")}</p>}
                             <div className="ml-auto flex flex-wrap gap-2">
                                 {insights.actions.map(a => (
                                     <Button key={a.href + a.label} variant="outline" size="sm" title={a.reason} aria-label={`${a.label}: ${a.reason}`} onClick={() => router.push(a.href)} className="h-8 text-xs">{a.label}</Button>
@@ -666,8 +675,8 @@ export default function MatchResultPage() {
             {/* Detail */}
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
                 <TabsList>
-                    <TabsTrigger value="overview">Round history</TabsTrigger>
-                    <TabsTrigger value="analysis">Analysis</TabsTrigger>
+                    <TabsTrigger value="overview">{t("scoreboard.history")}</TabsTrigger>
+                    <TabsTrigger value="analysis">{t("result.analysis")}</TabsTrigger>
                 </TabsList>
             </Tabs>
 
@@ -681,7 +690,7 @@ export default function MatchResultPage() {
                         return (
                             <Panel
                                 key={mapIndex}
-                                title={<><span className="text-ink-3">Map {mapIndex + 1} ·</span> {MAP_NAMES[mapResult.map] ?? mapResult.map}</>}
+                                title={<><span className="text-ink-3">{t("intro.mapN", { n: mapIndex + 1 })} ·</span> {MAP_NAMES[mapResult.map] ?? mapResult.map}</>}
                                 actions={<span className="font-display text-2xl font-bold tabular-nums text-ink-1">{mHome}<span className="mx-1 text-ink-3">–</span>{mAway}</span>}
                             >
                                 <div className="flex flex-wrap items-end gap-[3px]">
@@ -696,7 +705,7 @@ export default function MatchResultPage() {
                                             <div
                                                 key={round.roundNumber}
                                                 className={cn("flex flex-col items-center gap-[3px]", (round.roundNumber === 13 || (round.roundNumber > 24 && (round.roundNumber - 25) % 6 === 0)) && "ml-2")}
-                                                title={`Round ${round.roundNumber}: ${homeWin ? homeTeam?.name : awayTeam?.name} (${round.winner.toUpperCase()}, ${String(round.winType).toLowerCase().replace(/_/g, " ")}) · ${runHome}–${runAway}`}
+                                                title={`${t("live.roundN", { n: round.roundNumber })}: ${homeWin ? homeTeam?.name : awayTeam?.name} (${round.winner.toUpperCase()}, ${winTypeText(String(round.winType)).toLowerCase()}) · ${runHome}–${runAway}`}
                                             >
                                                 <span className={cn("h-3 w-3.5 rounded-[2px]", homeWin ? sideFill : "bg-hover")} />
                                                 <span className={cn("h-3 w-3.5 rounded-[2px]", !homeWin ? sideFill : "bg-hover")} />
@@ -706,12 +715,12 @@ export default function MatchResultPage() {
                                     })}
                                 </div>
                                 <div className="mt-3 flex justify-between border-t border-line pt-2 text-xs text-ink-3">
-                                    <span>Top row: {homeTeam?.name || "Home"}</span>
+                                    <span>{t("result.topRow", { team: homeTeam?.name || t("result.home") })}</span>
                                     <span className="flex items-center gap-3">
-                                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-[1px] bg-side-ct" />CT win</span>
-                                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-[1px] bg-side-t" />T win</span>
+                                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-[1px] bg-side-ct" />{t("result.ctWin")}</span>
+                                        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-[1px] bg-side-t" />{t("result.tWin")}</span>
                                     </span>
-                                    <span>Bottom row: {awayTeam?.name || "Away"}</span>
+                                    <span>{t("result.bottomRow", { team: awayTeam?.name || t("result.away") })}</span>
                                 </div>
                             </Panel>
                         )
@@ -743,7 +752,7 @@ export default function MatchResultPage() {
 
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         {/* Opening Duels */}
-                        <Panel title="Opening duels" actions={<span className="text-xs text-ink-3">First kills / first deaths</span>}>
+                        <Panel title={t("result.openingDuels")} actions={<span className="text-xs text-ink-3">{t("result.openingDuelsNote")}</span>}>
                             {[homeTeam, awayTeam].map((team, teamIdx) => {
                                 if (!team) return null
                                 const teamStats = Object.values(result.playerStats || {})
@@ -777,7 +786,7 @@ export default function MatchResultPage() {
                         </Panel>
 
                         {/* KAST & Clutches */}
-                        <Panel title="KAST and clutches" actions={<span className="text-xs text-ink-3">Rounds with a kill, assist, survival or trade</span>}>
+                        <Panel title={t("result.kast")} actions={<span className="text-xs text-ink-3">{t("result.kastNote")}</span>}>
                             {[homeTeam, awayTeam].map((team, teamIdx) => {
                                 if (!team) return null
                                 const teamStats = Object.values(result.playerStats || {})
@@ -799,7 +808,7 @@ export default function MatchResultPage() {
                                                             <div className={cn("h-full rounded-full", kast >= 75 ? "bg-positive" : "bg-ink-2")} style={{ width: `${kast}%` }} />
                                                         </div>
                                                         <span className="text-right text-xs tabular-nums text-ink-2">{Math.round(kast)}%</span>
-                                                        <span className="text-right text-xs text-ink-3">{clutches > 0 ? `${clutches} clutch${clutches > 1 ? "es" : ""}` : ""}</span>
+                                                        <span className="text-right text-xs text-ink-3">{clutches > 0 ? tn("result.clutches", clutches) : ""}</span>
                                                     </div>
                                                 )
                                             })}
@@ -836,14 +845,14 @@ export default function MatchResultPage() {
                                             key={i}
                                             className={cn("flex-1", flip ? "rounded-b-[2px]" : "rounded-t-[2px]", won ? "bg-ink-1" : "bg-ink-3/50")}
                                             style={{ height: `${height}%` }}
-                                            title={`R${i + 1}: ${formatCurrency(Math.round(avgMoney), "$", false)} avg${won ? " · won" : ""}`}
+                                            title={`R${i + 1}: ${t("result.avgMoney", { money: formatCurrency(Math.round(avgMoney), "$", false) })}${won ? ` · ${t("result.wonLower")}` : ""}`}
                                         />
                                     )
                                 })}
                             </div>
                         )
                         return (
-                            <Panel title={`Round economy · ${MAP_NAMES[selectedMap.map] ?? selectedMap.map}`} actions={<span className="text-xs text-ink-3">Average money per player at round start · bright = round won</span>}>
+                            <Panel title={`${t("result.roundEconomy")} · ${MAP_NAMES[selectedMap.map] ?? selectedMap.map}`} actions={<span className="text-xs text-ink-3">{t("result.roundEconomyNote")}</span>}>
                                 <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{homeTeam?.name}</p>
                                 {bars(match.homeTeamId, false)}
                                 <div className="my-1 flex gap-[3px]">
@@ -865,7 +874,7 @@ export default function MatchResultPage() {
                     show={showAdvancement}
                     fromStage={advancementData.fromStage}
                     toStage={advancementData.toStage}
-                    teamName={teams.find(t => t.id === playerTeamId)?.name || "Your Team"}
+                    teamName={teams.find(tm => tm.id === playerTeamId)?.name || t("live.yourTeam")}
                     teamLogo={teams.find(t => t.id === playerTeamId)?.logoPath}
                     tournamentName={advancementData.tournamentName}
                     isChampionship={advancementData.isChampionship}
@@ -885,16 +894,16 @@ function MvpCard({ label, stat, player, isMatchMvp }: { label: string; stat: Pla
             <div className="min-w-0 flex-1">
                 <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
                     {label}
-                    {isMatchMvp && <span className="inline-flex items-center gap-1 text-gold"><Trophy size={11} aria-hidden="true" /> Match MVP</span>}
+                    {isMatchMvp && <span className="inline-flex items-center gap-1 text-gold"><Trophy size={11} aria-hidden="true" /> {t("endBeat.matchMvp")}</span>}
                 </p>
-                <p className="truncate font-display text-[26px] font-bold uppercase leading-tight text-ink-1"><PlayerLink id={player?.id}>{player?.nickname ?? "Former player"}</PlayerLink></p>
+                <p className="truncate font-display text-[26px] font-bold uppercase leading-tight text-ink-1"><PlayerLink id={player?.id}>{player?.nickname ?? t("result.formerPlayer")}</PlayerLink></p>
                 <p className="text-xs tabular-nums text-ink-3">
                     {stat.kills}–{stat.deaths} · {Math.round(stat.adr)} ADR{typeof stat.kast === "number" ? ` · ${Math.round(stat.kast)}% KAST` : ""}
                 </p>
             </div>
             <div className="text-right">
                 <p className="font-display text-[32px] font-bold leading-none tabular-nums text-ink-1">{stat.rating.toFixed(2)}</p>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Rating</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("endBeat.rating")}</p>
             </div>
         </div>
     )
@@ -919,7 +928,7 @@ function PlayerStatsTable({ team, won, stats, playersById, result, mvpId }: {
                         <span className="flex items-center gap-2 normal-case tracking-normal">
                             <TeamLogoImage src={team?.logoPath} alt="" team={team as any} size={18} />
                             <TeamLink id={team?.id} className="font-display text-base font-bold uppercase text-ink-1">{team?.name}</TeamLink>
-                            <span className={cn("text-[11px] font-semibold uppercase tracking-[0.06em]", won ? "text-positive" : "text-ink-3")}>{won ? "Won" : "Lost"}</span>
+                            <span className={cn("text-[11px] font-semibold uppercase tracking-[0.06em]", won ? "text-positive" : "text-ink-3")}>{won ? t("result.won") : t("result.lost")}</span>
                         </span>
                     </th>
                     <th data-slot="table-head" className="px-2 text-right">K</th>
@@ -929,7 +938,7 @@ function PlayerStatsTable({ team, won, stats, playersById, result, mvpId }: {
                     <th data-slot="table-head" className="px-2 text-right">ADR</th>
                     <th data-slot="table-head" className="px-2 text-right">KAST</th>
                     <th data-slot="table-head" className="px-2 text-right">XP</th>
-                    <th data-slot="table-head" className="pr-4 text-right">Rating</th>
+                    <th data-slot="table-head" className="pr-4 text-right">{t("endBeat.rating")}</th>
                 </tr>
             </thead>
             <tbody>
@@ -944,8 +953,8 @@ function PlayerStatsTable({ team, won, stats, playersById, result, mvpId }: {
                                         <PlayerPortrait src={player?.portraitPath} seed={player?.id} alt={player?.nickname || "Player"} size={32} />
                                     </div>
                                     <CountryFlag country={player?.nationality || ""} size={14} />
-                                    <PlayerLink id={player?.id} className="truncate text-sm font-semibold text-ink-1">{player?.nickname ?? "Former player"}</PlayerLink>
-                                    {stat.playerId === mvpId && <Trophy size={13} className="shrink-0 text-gold" aria-label="Match MVP" />}
+                                    <PlayerLink id={player?.id} className="truncate text-sm font-semibold text-ink-1">{player?.nickname ?? t("result.formerPlayer")}</PlayerLink>
+                                    {stat.playerId === mvpId && <Trophy size={13} className="shrink-0 text-gold" aria-label={t("endBeat.matchMvp")} />}
                                     <RoleTag role={player?.role} className="ml-1" />
                                 </div>
                             </td>

@@ -88856,8 +88856,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "4ce199c3ea751ef28c4da2f567552f0c0bddd329ebdb06e6845f545dc30e3079",
-      "bytes": 34765,
+      "sha256": "3babcd5af45d8bb23d633742cae2945d9c66642ed9b70191ee658a59f4eb0abd",
+      "bytes": 71679,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88872,13 +88872,18 @@
           "date": "2026-11-03",
           "previousSha256": null,
           "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "4ce199c3ea751ef28c4da2f567552f0c0bddd329ebdb06e6845f545dc30e3079",
+          "change": "Interface languages, match day screens (tactics, veto, live match, result): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "5a0ab252279402f1ca155da395a948304883993782fedda03b7dd36189feed0d",
-      "bytes": 35978,
+      "sha256": "307bacf33c91b22d4c3933478d74c5d6901df4f3b06c4fd0cd297f4e19afee77",
+      "bytes": 74037,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88893,13 +88898,18 @@
           "date": "2026-11-03",
           "previousSha256": null,
           "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "5a0ab252279402f1ca155da395a948304883993782fedda03b7dd36189feed0d",
+          "change": "Interface languages, match day screens (tactics, veto, live match, result): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "76b325609710d1940ac7d6c64096d32c00cf924f4c77d65d724314aa8a8f546b",
-      "bytes": 36914,
+      "sha256": "0e406d839217783ced34ae3a9a6db373117ce4d17f9f9fb13cfc0091cedde602",
+      "bytes": 75295,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88914,13 +88924,18 @@
           "date": "2026-11-03",
           "previousSha256": null,
           "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "76b325609710d1940ac7d6c64096d32c00cf924f4c77d65d724314aa8a8f546b",
+          "change": "Interface languages, match day screens (tactics, veto, live match, result): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "ceb704364e4b1fe10172224882fcd82be4adb3af8142b23ed04f2db49b8c4a78",
-      "bytes": 36696,
+      "sha256": "b968e9a206310a457d703a7c78e36d0ad88dc16009510b280f4043c6ebbd6cd8",
+      "bytes": 74310,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88935,13 +88950,18 @@
           "date": "2026-11-03",
           "previousSha256": null,
           "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "ceb704364e4b1fe10172224882fcd82be4adb3af8142b23ed04f2db49b8c4a78",
+          "change": "Interface languages, match day screens (tactics, veto, live match, result): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "8fb80473d87f000a165239e43eac676ccbb8e5fea5617dfea25708274a942174",
-      "bytes": 35344,
+      "sha256": "b1ef0d4bf2c8a4f3528fb3905295d453e536dae40c02ba2fc592510771f3d783",
+      "bytes": 72924,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88956,13 +88976,18 @@
           "date": "2026-11-03",
           "previousSha256": null,
           "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "8fb80473d87f000a165239e43eac676ccbb8e5fea5617dfea25708274a942174",
+          "change": "Interface languages, match day screens (tactics, veto, live match, result): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "c4864173d6abcda10cee1eff64f95eee1e185835c75e3f399aec549aa6861c60",
-      "bytes": 49239,
+      "sha256": "f96a20128c403b836cf09315037b0f7860988be49ffba3e28729bd53e6f8a2f1",
+      "bytes": 100201,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88977,6 +89002,11 @@
           "date": "2026-11-03",
           "previousSha256": null,
           "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "c4864173d6abcda10cee1eff64f95eee1e185835c75e3f399aec549aa6861c60",
+          "change": "Interface languages, match day screens (tactics, veto, live match, result): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
