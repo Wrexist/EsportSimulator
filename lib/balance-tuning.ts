@@ -60,14 +60,26 @@ export const SPONSOR_TUNING = {
     ELITE_MULTIPLIER: 2.2,
     /**
      * One offer's effective weekly income (payout x reputation factor) may not
-     * exceed this share of the club's weekly running costs (players + staff +
-     * operations), with the base floored at WAGE_BILL_FLOOR so lean small
-     * clubs still get normal offers. Three such sponsors cover at most ~0.9x
-     * of running costs (Phase 4.4: was 0.34 of a $20k + $1k x rep floor,
-     * which paid a $1.7k/week semi-pro club up to $27k per deal), so raising
-     * wages never pays for itself through sponsors.
+     * exceed its tier's share of the club's weekly running costs (players +
+     * staff + operations), with the base floored at WAGE_BILL_FLOOR so lean
+     * small clubs still get normal offers. One deal of each tier covers at
+     * most ~1x of running costs (Phase 4.4: was 0.34 of a $20k + $1k x rep
+     * floor, which paid a $1.7k/week semi-pro club up to $27k per deal), so
+     * raising wages never pays for itself through sponsors.
+     *
+     * MARKET-03 (2026-11-03): the cap binds for almost every club and was one
+     * flat 0.3 for every tier, so every offer paid the same. It is now set per
+     * tier, spread by the offer's own roll and lifted for betting money, with
+     * the median sponsor income of low, mid and top clubs kept within a few
+     * percent of the flat cap (scripts/audit/sponsor-income.ts).
      */
-    MAX_SHARE_OF_WAGE_BILL: 0.3,
+    TIER_SHARE_OF_WAGE_BILL: { STANDARD: 0.26, PREMIUM: 0.29, ELITE: 0.32 } as const,
+    /** Each offer's cap moves by up to +/- this share with its base roll (mean unchanged). */
+    OFFER_CAP_SPREAD: 0.1,
+    /** A betting offer's cap is this much higher: its money pays for its reputation and morale cost. */
+    BETTING_CAP_PREMIUM: 1.15,
+    /** No single offer, whatever its tier, roll or brand, passes this share. */
+    MAX_SHARE_OF_WAGE_BILL: 0.34,
     /** Base floor = BASE + PER_REP x reputation: a famous club with a lean payroll still sells exposure. */
     WAGE_BILL_FLOOR: 2_000,
     WAGE_BILL_FLOOR_PER_REP: 100,
