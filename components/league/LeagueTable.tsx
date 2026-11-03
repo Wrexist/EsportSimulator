@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { Trophy } from "lucide-react"
 import type { LeagueDivision, TeamSaveData } from "@/engine/save-types"
@@ -36,14 +37,14 @@ export function LeagueTable({ division, bottomLevel, teamsById, playerTeamId }: 
                     <thead data-slot="table-header">
                         <tr className="border-b border-line">
                             <th data-slot="table-head" className="w-14 pl-4">#</th>
-                            <th data-slot="table-head">Team</th>
-                            <th data-slot="table-head" className="w-10 px-2 text-center"><abbr title="Played" className="no-underline">P</abbr></th>
-                            <th data-slot="table-head" className="w-10 px-2 text-center"><abbr title="Won" className="no-underline">W</abbr></th>
-                            <th data-slot="table-head" className="w-10 px-2 text-center"><abbr title="Lost" className="no-underline">L</abbr></th>
-                            {mapDiff && <th data-slot="table-head" className="w-14 px-2 text-right"><abbr title="Map difference" className="no-underline">Maps</abbr></th>}
-                            <th data-slot="table-head" className="w-16 px-2 text-right"><abbr title="Round difference" className="no-underline">Rounds</abbr></th>
-                            <th data-slot="table-head" className="w-14 px-2 text-right"><abbr title="Points (3 a win)" className="no-underline">Pts</abbr></th>
-                            <th data-slot="table-head" className="w-36 pl-4 pr-4">Form</th>
+                            <th data-slot="table-head">{t("lgp.col.team")}</th>
+                            <th data-slot="table-head" className="w-10 px-2 text-center"><abbr title={t("lgp.col.playedLong")} className="no-underline">{t("lgp.col.played")}</abbr></th>
+                            <th data-slot="table-head" className="w-10 px-2 text-center"><abbr title={t("lgp.col.wonLong")} className="no-underline">{t("lgp.col.won")}</abbr></th>
+                            <th data-slot="table-head" className="w-10 px-2 text-center"><abbr title={t("lgp.col.lostLong")} className="no-underline">{t("lgp.col.lost")}</abbr></th>
+                            {mapDiff && <th data-slot="table-head" className="w-14 px-2 text-right"><abbr title={t("lgp.col.mapsLong")} className="no-underline">{t("lgp.col.maps")}</abbr></th>}
+                            <th data-slot="table-head" className="w-16 px-2 text-right"><abbr title={t("lgp.col.roundsLong")} className="no-underline">{t("lgp.col.rounds")}</abbr></th>
+                            <th data-slot="table-head" className="w-14 px-2 text-right"><abbr title={t("lgp.col.ptsLong")} className="no-underline">{t("lgp.col.pts")}</abbr></th>
+                            <th data-slot="table-head" className="w-36 pl-4 pr-4">{t("lgp.col.form")}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,14 +68,14 @@ export function LeagueTable({ division, bottomLevel, teamsById, playerTeamId }: 
                                         <span className="flex items-center gap-2.5">
                                             <span aria-hidden="true" className={cn("h-5 w-1 rounded-full", r.zone ? ZONE_BAR[r.zone] : "bg-transparent")} />
                                             <span className={cn("font-display text-lg font-bold tabular-nums", r.isPlayer ? "text-ink-1" : "text-ink-2")}>{r.position}</span>
-                                            {r.zone && <span className="sr-only">{r.zone === "promotion" ? "promotion place" : "relegation place"}</span>}
+                                            {r.zone && <span className="sr-only">{r.zone === "promotion" ? t("lgp.promoPlace") : t("lgp.relegPlace")}</span>}
                                         </span>
                                     </td>
                                     <td className="min-w-0 pr-3">
                                         <span className="flex min-w-0 items-center gap-2.5">
                                             <TeamLogoDisplay team={team} size={22} className="shrink-0" />
                                             <TeamLink id={team ? r.teamId : null} className={cn("truncate text-sm font-semibold", r.isPlayer ? "text-gold" : "text-ink-1")}>{team?.name ?? r.teamId}</TeamLink>
-                                            {champion && <Trophy size={13} className="shrink-0 text-gold" aria-label="Division champions" />}
+                                            {champion && <Trophy size={13} className="shrink-0 text-gold" aria-label={t("lgp.divChampions")} />}
                                         </span>
                                     </td>
                                     <td className="px-2 text-center text-sm tabular-nums text-ink-2">{r.played}</td>
@@ -94,7 +95,7 @@ export function LeagueTable({ division, bottomLevel, teamsById, playerTeamId }: 
                 {hasPromotion && <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="h-3 w-1 rounded-full bg-positive" />{rules[0]}</span>}
                 {!hasPromotion && <span className="inline-flex items-center gap-1.5"><Trophy size={12} className="text-gold" aria-hidden="true" />{rules[0]}</span>}
                 {hasRelegation && <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="h-3 w-1 rounded-full bg-negative" />{rules[1]}</span>}
-                <span>3 points a win · ties: head-to-head, then map and round difference</span>
+                <span>{t("lgp.tiebreak")}</span>
             </div>
         </div>
     )

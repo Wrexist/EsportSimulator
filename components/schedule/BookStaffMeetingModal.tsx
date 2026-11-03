@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
@@ -12,7 +13,7 @@ import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
 import { ScheduleDialog } from "./ScheduleDialog"
-import { MEETING_TYPES, meetingActivityId, meetingEffectLabels, meetingStatus, type MeetingContext, type MeetingType } from "./staff-meetings"
+import { MEETING_TYPES, meetingActivityId, meetingEffectLabels, meetingStatus, type MeetingContext, type MeetingType, meetingName, meetingDescription } from "./staff-meetings"
 
 interface BookStaffMeetingModalProps {
     isOpen: boolean
@@ -93,7 +94,7 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
             data: { meetingType: meeting.id, effects: meeting.effects },
         })
         if (result.success) {
-            toast.success(`${meeting.name} booked`, { description: `${days[day]?.weekday ?? ""} ${days[day]?.date ?? ""} · ${formatCurrency(meeting.cost, "$", false)} paid` })
+            toast.success(t("sch.meet.booked", { name: meetingName(meeting) }), { description: t("sch.meet.bookedBody", { day: `${days[day]?.weekday ?? ""} ${days[day]?.date ?? ""}`.trim(), amount: formatCurrency(meeting.cost, "$", false) }) })
             onClose()
         } else {
             setError(result.message)
@@ -105,21 +106,21 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
             isOpen={isOpen}
             onClose={onClose}
             titleId="modal-title-book-meeting"
-            title="Staff meeting"
-            subtitle={`Week ${((week - 1) % 52) + 1} · one day · paid when booked; every roster player gets the effects at the weekly update`}
+            title={t("sch.pick.MEETING")}
+            subtitle={t("sch.meet.subtitle", { week: ((week - 1) % 52) + 1 })}
             className="max-w-2xl"
             footer={
                 <>
                     {error
                         ? <p role="alert" className="mr-auto text-xs font-medium text-negative">{error}</p>
-                        : <span className="mr-auto text-xs tabular-nums text-ink-3">Funds {formatCurrency(budget, "$", false)}</span>}
-                    <Button variant="ghost" onClick={onClose}>Close</Button>
+                        : <span className="mr-auto text-xs tabular-nums text-ink-3">{t("common.funds")} {formatCurrency(budget, "$", false)}</span>}
+                    <Button variant="ghost" onClick={onClose}>{t("common.close")}</Button>
                 </>
             }
         >
             <div className="border-b border-line px-6 py-4">
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Day</p>
-                <div className="grid grid-cols-7 gap-1.5" role="radiogroup" aria-label="Meeting day">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("sch.scrim.day")}</p>
+                <div className="grid grid-cols-7 gap-1.5" role="radiogroup" aria-label={t("sch.meet.dayAria")}>
                     {days.map(d => (
                         <button
                             key={d.idx}
@@ -138,7 +139,7 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
                         </button>
                     ))}
                 </div>
-                <p className="mt-2 text-xs text-ink-3">The meeting day doesn&apos;t count as a rest day (no idle-day recovery).</p>
+                <p className="mt-2 text-xs text-ink-3">{t("sch.meet.noRest")}</p>
             </div>
 
             <ul className="divide-y divide-line">
@@ -150,10 +151,10 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
                         <li key={meeting.id} className={cn("flex items-center gap-4 px-6 py-3", !status.unlocked && "opacity-60")}>
                             <div className="min-w-0 flex-1">
                                 <p className="flex items-center gap-2 text-sm font-semibold text-ink-1">
-                                    {meeting.name}
+                                    {meetingName(meeting)}
                                     {!status.unlocked && <Lock size={12} className="text-ink-3" aria-hidden="true" />}
                                 </p>
-                                <p className="text-xs text-ink-3">{meeting.description}</p>
+                                <p className="text-xs text-ink-3">{meetingDescription(meeting)}</p>
                                 <p className="mt-1 text-xs">
                                     {meetingEffectLabels(meeting.effects).map((fx, i) => (
                                         <span key={fx.label}>
@@ -168,10 +169,10 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
                             </span>
                             <div className="w-36 shrink-0 text-right">
                                 {already ? (
-                                    <span className="text-xs font-semibold text-positive">Booked this week</span>
+                                    <span className="text-xs font-semibold text-positive">{t("sch.meet.bookedWeek")}</span>
                                 ) : status.unlocked ? (
                                     <Button variant="outline" size="sm" disabled={!affordable || !!days[day]?.closed} onClick={() => book(meeting)}>
-                                        {affordable ? "Book" : "Can't afford"}
+                                        {affordable ? t("sch.book") : t("sch.cantAfford")}
                                     </Button>
                                 ) : (
                                     <p className="text-xs leading-snug text-ink-3">{status.reason}</p>
@@ -183,7 +184,7 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
             </ul>
             {!ctx.staffRoles.length && (
                 <p className="border-t border-line px-6 py-3 text-xs text-ink-3">
-                    Two sessions need staff. <Link href="/staff" className="font-semibold text-ink-1 underline underline-offset-2">Hire staff</Link>
+                    {t("sch.meet.needStaff")} <Link href="/staff" className="font-semibold text-ink-1 underline underline-offset-2">{t("sch.meet.hire")}</Link>
                 </p>
             )}
         </ScheduleDialog>

@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import type { ReactNode } from "react"
 import { motion } from "framer-motion"
@@ -26,7 +27,7 @@ interface ScheduleDialogProps {
  * display-face title, footer actions on the right. Escape closes and focus
  * stays inside (shared useFocusTrap contract).
  */
-export function ScheduleDialog({ isOpen, onClose, titleId, title, subtitle, children, footer, className, bodyClassName, closeLabel = "Close dialog" }: ScheduleDialogProps) {
+export function ScheduleDialog({ isOpen, onClose, titleId, title, subtitle, children, footer, className, bodyClassName, closeLabel }: ScheduleDialogProps) {
     const dialogRef = useFocusTrap(isOpen, onClose)
 
     if (!isOpen) return null
@@ -51,7 +52,7 @@ export function ScheduleDialog({ isOpen, onClose, titleId, title, subtitle, chil
                         <h2 id={titleId} className="font-display text-2xl font-bold uppercase leading-none tracking-[0.01em] text-ink-1">{title}</h2>
                         {subtitle != null && <p className="mt-1.5 text-sm text-ink-3">{subtitle}</p>}
                     </div>
-                    <button type="button" onClick={onClose} aria-label={closeLabel} className="-mr-1.5 rounded-md p-1.5 text-ink-3 transition-colors hover:bg-raised hover:text-ink-1">
+                    <button type="button" onClick={onClose} aria-label={closeLabel ?? t("st.neg.close")} className="-mr-1.5 rounded-md p-1.5 text-ink-3 transition-colors hover:bg-raised hover:text-ink-1">
                         <X size={18} />
                     </button>
                 </header>

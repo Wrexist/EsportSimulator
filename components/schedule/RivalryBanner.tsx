@@ -1,4 +1,5 @@
 "use client"
+import { t, tn } from "@/lib/i18n"
 
 import { Flame, Swords } from "lucide-react"
 import type { RivalryData, CompletedMatchSaveData } from "@/engine/save-types"
@@ -57,33 +58,27 @@ export function RivalryBanner({ rivalry, recentH2H, playerTeamId, opponentName }
     const isHeated = rivalry.intensity === "HEATED" || rivalry.intensity === "FIERCE"
     const losingRun = streak.type === "losses" && streak.length >= 3
 
-    const intensityLabel: Record<RivalryData["intensity"], string> = {
-        FRIENDLY: "Familiar",
-        NEUTRAL: "Met before",
-        HEATED: "Heated",
-        FIERCE: "Bitter rivalry",
-    }
 
     // Build the headline line. Streaks always win — that's what makes the
     // match feel personal. Fall through to aggregate record otherwise.
     let headline: string
     if (streak.type === "losses" && streak.length >= 3) {
-        headline = `You have lost ${streak.length} straight to ${opponentName}.`
+        headline = t("sch.riv.lostStraight", { n: streak.length, team: opponentName })
     } else if (streak.type === "wins" && streak.length >= 3) {
-        headline = `You have won ${streak.length} straight against ${opponentName}.`
+        headline = t("sch.riv.wonStraight", { n: streak.length, team: opponentName })
     } else if (rivalry.wins > rivalry.losses) {
-        headline = `You lead ${opponentName} ${rivalry.wins}-${rivalry.losses} all-time.`
+        headline = t("sch.riv.lead", { team: opponentName, w: rivalry.wins, l: rivalry.losses })
     } else if (rivalry.losses > rivalry.wins) {
-        headline = `${opponentName} leads the series ${rivalry.losses}-${rivalry.wins}.`
+        headline = t("sch.riv.trail", { team: opponentName, w: rivalry.losses, l: rivalry.wins })
     } else {
-        headline = `${rivalry.wins}-${rivalry.losses} all-time — the series is even.`
+        headline = t("sch.riv.even", { w: rivalry.wins, l: rivalry.losses })
     }
 
     return (
         <div
             className="flex items-center gap-3 rounded-md border border-line bg-shell px-3 py-2"
             role="region"
-            aria-label="Rivalry summary"
+            aria-label={t("sch.riv.aria")}
         >
             {losingRun || isHeated
                 ? <Flame className={cn("h-4 w-4 shrink-0", losingRun ? "text-caution" : "text-ink-2")} aria-hidden="true" />
@@ -91,9 +86,9 @@ export function RivalryBanner({ rivalry, recentH2H, playerTeamId, opponentName }
             <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold leading-tight text-ink-1">{headline}</p>
                 <p className="mt-0.5 text-xs text-ink-3">
-                    {intensityLabel[rivalry.intensity]} · {rivalry.matchesPlayed} meetings
+                    {t(`sch.riv.${rivalry.intensity}`)} · {tn("sch.riv.meetings", rivalry.matchesPlayed)}
                     {rivalry.highStakesCount && rivalry.highStakesCount > 0
-                        ? ` · ${rivalry.highStakesCount} in playoffs`
+                        ? ` · ${t("sch.riv.playoffs", { n: rivalry.highStakesCount })}`
                         : ""}
                 </p>
             </div>

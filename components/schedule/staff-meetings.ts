@@ -9,6 +9,7 @@
  * when booked (scheduleActivity). Was the separate `/schedule/staff-meeting`
  * screen; Phase 4.2 made it a booking in the week plan.
  */
+import { t } from "@/lib/i18n"
 
 export interface MeetingEffects {
     morale?: number
@@ -111,12 +112,12 @@ export interface EffectLabel { label: string; good: boolean }
 /** Per-player effects in the processor's own terms. */
 export function meetingEffectLabels(e: MeetingEffects): EffectLabel[] {
     const out: EffectLabel[] = []
-    if (e.morale) out.push({ label: `+${e.morale} morale`, good: true })
-    if (e.xp) out.push({ label: `+${e.xp} XP`, good: true })
-    if (e.fatigue) out.push({ label: `${e.fatigue > 0 ? "+" : "−"}${Math.abs(e.fatigue)} fatigue`, good: e.fatigue < 0 })
-    if (e.chemistry) out.push({ label: `+${e.chemistry} team chemistry`, good: true })
-    if (e.stressResistance) out.push({ label: `+${e.stressResistance} composure`, good: true })
-    if (e.tacticXp) out.push({ label: `+${Math.floor(e.tacticXp / TACTIC_XP_PER_POINT)} tactics`, good: true })
+    if (e.morale) out.push({ label: t("sch.meetFx.morale", { n: `+${e.morale}` }), good: true })
+    if (e.xp) out.push({ label: t("sch.meetFx.xp", { n: `+${e.xp}` }), good: true })
+    if (e.fatigue) out.push({ label: t("sch.meetFx.fatigue", { n: `${e.fatigue > 0 ? "+" : "−"}${Math.abs(e.fatigue)}` }), good: e.fatigue < 0 })
+    if (e.chemistry) out.push({ label: t("sch.meetFx.chemistry", { n: `+${e.chemistry}` }), good: true })
+    if (e.stressResistance) out.push({ label: t("sch.meetFx.composure", { n: `+${e.stressResistance}` }), good: true })
+    if (e.tacticXp) out.push({ label: t("sch.meetFx.tactics", { n: `+${Math.floor(e.tacticXp / TACTIC_XP_PER_POINT)}` }), good: true })
     return out
 }
 
@@ -140,15 +141,24 @@ export function consecutiveLosses(results: MeetingContext["results"]): number {
     return count
 }
 
+/** A meeting's name and description in the active language. */
+export const meetingName = (meeting: MeetingType): string => translatedOr(`sch.meet.${meeting.id}`, meeting.name)
+export const meetingDescription = (meeting: MeetingType): string => translatedOr(`sch.meet.${meeting.id}.desc`, meeting.description)
+function translatedOr(key: string, fallback: string): string {
+    const text = t(key)
+    return text === key ? fallback : text
+}
+
 export function meetingStatus(meeting: MeetingType, ctx: MeetingContext): { unlocked: boolean; reason?: string } {
     const u = meeting.unlock
+    const reason = meeting.unlockMessage ? translatedOr(`sch.meet.${meeting.id}.unlock`, meeting.unlockMessage) : undefined
     switch (u.type) {
         case "always": return { unlocked: true }
-        case "consecutive_losses": return { unlocked: consecutiveLosses(ctx.results) >= u.value, reason: meeting.unlockMessage }
-        case "manager_level": return { unlocked: ctx.managerLevel >= u.value, reason: meeting.unlockMessage }
-        case "has_staff": return { unlocked: ctx.staffRoles.includes(u.value), reason: meeting.unlockMessage }
-        case "after_match": return { unlocked: ctx.results.some(r => r.week === ctx.currentWeek || r.week === ctx.currentWeek - 1), reason: meeting.unlockMessage }
-        case "low_morale": return { unlocked: ctx.rosterMorale.some(m => m < u.value), reason: meeting.unlockMessage }
+        case "consecutive_losses": return { unlocked: consecutiveLosses(ctx.results) >= u.value, reason }
+        case "manager_level": return { unlocked: ctx.managerLevel >= u.value, reason }
+        case "has_staff": return { unlocked: ctx.staffRoles.includes(u.value), reason }
+        case "after_match": return { unlocked: ctx.results.some(r => r.week === ctx.currentWeek || r.week === ctx.currentWeek - 1), reason }
+        case "low_morale": return { unlocked: ctx.rosterMorale.some(m => m < u.value), reason }
     }
 }
 

@@ -1,4 +1,6 @@
 "use client"
+import { stageName } from "@/lib/display-names"
+import { t } from "@/lib/i18n"
 
 import React, { memo } from "react"
 import { useRouter } from "next/navigation"
@@ -65,18 +67,20 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
         const won = !!r && (r.winnerId ? r.winnerId === playerTeamId : isHome ? r.homeScore > r.awayScore : r.awayScore > r.homeScore)
         // Fixtures between two other clubs (tournament lists) read "A vs B" with a neutral score.
         const score = involvesPlayer ? playerScore(match, playerTeamId) : r ? `${r.homeScore}–${r.awayScore}` : null
-        const label = isScrim ? "Scrim" : tournamentName || match.stage || "Match"
+        const label = isScrim ? t("common.scrim") : tournamentName || (match.stage ? stageName(match.stage) : t("common.match"))
         const opponentName = involvesPlayer
-            ? opponent?.name || "Unknown"
-            : `${opponent?.name || "TBD"} vs ${teams.find(t => t.id === match.awayTeamId)?.name || "TBD"}`
+            ? opponent?.name || t("common.unknown")
+            : `${opponent?.name || t("common.tbd")} ${t("common.vsLower")} ${teams.find(tm => tm.id === match.awayTeamId)?.name || t("common.tbd")}`
 
         return (
             <div
                 {...pressable(() => {
                     if (onClick) onClick()
                     else if (match.result) router.push(`/match/${match.id}/result`)
-                }, { disabled: isLocked, label: `${involvesPlayer ? `${isScrim ? "Scrim" : "Match"} vs ` : ""}${opponentName}${score ? `, ${involvesPlayer ? (won ? "won " : "lost ") : ""}${score}` : ""}` })}
-                title={`${involvesPlayer ? "vs " : ""}${opponentName} · ${label}`}
+                }, { disabled: isLocked, label: involvesPlayer
+                    ? t(score ? (won ? "sch.card.ariaWon" : "sch.card.ariaLost") : "sch.card.aria", { kind: isScrim ? t("common.scrim") : t("common.match"), team: opponentName, score: score ?? "" })
+                    : `${opponentName}${score ? `, ${score}` : ""}` })}
+                title={`${involvesPlayer ? `${t("common.vsLower")} ` : ""}${opponentName} · ${label}`}
                 className={cn(
                     "flex w-full min-w-0 cursor-pointer select-none items-center gap-2 rounded-sm border-l-2 px-2 py-1.5 text-left transition-colors",
                     isScrim ? "bg-shell hover:bg-raised" : "bg-raised hover:bg-hover",
@@ -103,12 +107,12 @@ export const ScheduleMatchCard = memo(function ScheduleMatchCard({
     if (projected) {
         return (
             <div
-                title={`${projected.tournamentName} · ${projected.stage} · opponent not drawn yet`}
+                title={`${projected.tournamentName} · ${stageName(projected.stage)} · ${t("sch.card.notDrawn")}`}
                 className="flex w-full min-w-0 items-center gap-2 rounded-sm border border-dashed border-line-strong px-2 py-1.5 text-left"
             >
                 <span className="min-w-0 flex-1">
                     <span className="block truncate text-xs font-semibold leading-tight text-ink-2">{projected.tournamentName}</span>
-                    <span className="block truncate text-[11px] leading-tight text-ink-3">{projected.stage} · TBD</span>
+                    <span className="block truncate text-[11px] leading-tight text-ink-3">{stageName(projected.stage)} · {t("common.tbd")}</span>
                 </span>
                 {projected.reason && <span className="shrink-0 text-[11px] text-ink-3">{projected.reason}</span>}
             </div>

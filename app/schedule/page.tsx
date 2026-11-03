@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { t, tn } from "@/lib/i18n"
 
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
 
@@ -23,6 +25,7 @@ import { ScheduleMatchCard } from "@/components/schedule/ScheduleMatchCard"
 import { ScheduleActivityCard } from "@/components/schedule/ScheduleActivityCard"
 import { TeamMatchPopup } from "@/components/schedule/TeamMatchPopup"
 import { leagueStageLabel } from "@/components/league/league-view"
+import { activityDescription, activityKind, activityName } from "@/components/schedule/activity-labels"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 
 import { WEEKS_PER_YEAR } from "@/lib/constants"
@@ -32,7 +35,6 @@ const VISIBLE_WEEKS = 6
 /** Prev/next jump; keeps two rows of overlap for context. */
 const PAGE_STEP = 4
 
-const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier" }
 
 // Helper for projected matches type
 interface ProjectedMatch {
@@ -190,8 +192,8 @@ export default function SchedulePage() {
           week: match.week,
           tournamentId: instance.id,
           tournamentName: definition?.shortName || instance.shortName || instance.name,
-          stage: match.stage || instance.currentStage || "Next stage",
-          reason: "Forecast"
+          stage: match.stage || instance.currentStage || t("tm.nextStageShort"),
+          reason: t("sch.forecast")
         })
       })
 
@@ -216,8 +218,8 @@ export default function SchedulePage() {
           week,
           tournamentId: instance.id,
           tournamentName: definition?.shortName || instance.shortName || instance.name,
-          stage: instance.currentStage || "Upcoming stage",
-          reason: "Forecast"
+          stage: instance.currentStage || t("sch.upcomingStage"),
+          reason: t("sch.forecast")
         })
       }
     })
@@ -271,19 +273,19 @@ export default function SchedulePage() {
 
   // The store rehydrates after a full load; don't draw a week-0 calendar meanwhile.
   if (!hydrated || !playerTeam) {
-    return <p className="py-16 text-center text-sm text-ink-3" role="status">Loading calendar…</p>
+    return <p className="py-16 text-center text-sm text-ink-3" role="status">{t("sch.loading")}</p>
   }
 
   return (
     <div className="space-y-4 pb-10">
       <ScreenHeader
-        eyebrow={`Season ${currentYear} · Week ${currentWeekInYear}${daily ? ` · ${dayLabel(currentWeek, currentDay)}` : ""}`}
-        title="Calendar"
-        subtitle={<>The season week by week: matches, scrims and bookings. Pick an empty day to book something; plan this week in the <Link href="/week" className="font-semibold text-ink-1 underline underline-offset-2">week plan</Link>.</>}
+        eyebrow={`${t("lg.seasonWeek", { season: currentYear, week: currentWeekInYear })}${daily ? ` · ${dayLabel(currentWeek, currentDay)}` : ""}`}
+        title={t("sch.title")}
+        subtitle={<Trans k="sch.subtitle" tags={{ link: x => <Link href="/week" className="font-semibold text-ink-1 underline underline-offset-2">{x}</Link> }} />}
         aside={
           <>
             <Button variant="outline" onClick={() => handleOpenPicker(currentWeek, daily ? currentDay : 0)} className="gap-1.5">
-              <Plus size={15} /> Book activity
+              <Plus size={15} /> {t("sch.bookActivity")}
             </Button>
           </>
         }
@@ -294,23 +296,23 @@ export default function SchedulePage() {
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
           {playerTeam && (playerTeam.rosterIds?.length || 0) < 5 && (
             <p className="text-caution">
-              You need five players to compete.{" "}
-              <Link href="/transfers" className="font-semibold underline underline-offset-2">Go to transfers</Link>
+              {t("sch.needFive")}{" "}
+              <Link href="/transfers" className="font-semibold underline underline-offset-2">{t("sch.toTransfers")}</Link>
             </p>
           )}
           {upcomingRegisteredTournaments.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Registered</span>
-              {upcomingRegisteredTournaments.slice(0, 4).map(t => (
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("tm.registeredCount")}</span>
+              {upcomingRegisteredTournaments.slice(0, 4).map(ev => (
                 <button
-                  key={t.id}
+                  key={ev.id}
                   type="button"
-                  onClick={() => setSelectedTournamentId(t.id)}
+                  onClick={() => setSelectedTournamentId(ev.id)}
                   className="inline-flex items-center gap-2 rounded-sm border border-line bg-panel px-2.5 py-1 text-xs transition-colors hover:bg-raised"
                 >
                   <Trophy size={12} className="text-ink-3" />
-                  <span className="font-semibold text-ink-1">{t.shortName}</span>
-                  <span className="tabular-nums text-ink-3">Week {t.startWeek} · in {t.startWeek - currentCalendarWeek}w</span>
+                  <span className="font-semibold text-ink-1">{ev.shortName}</span>
+                  <span className="tabular-nums text-ink-3">{t("common.week", { n: ev.startWeek })} · {tn("tm.inWeeks", ev.startWeek - currentCalendarWeek)}</span>
                 </button>
               ))}
             </div>
@@ -324,11 +326,11 @@ export default function SchedulePage() {
         title={rangeLabel}
         actions={
           <>
-            <Button variant="outline" size="icon-sm" aria-label="Earlier weeks" onClick={() => setViewOffset(v => Math.max(0, v - PAGE_STEP))} disabled={viewOffset <= 0}>
+            <Button variant="outline" size="icon-sm" aria-label={t("sch.earlier")} onClick={() => setViewOffset(v => Math.max(0, v - PAGE_STEP))} disabled={viewOffset <= 0}>
               <ChevronLeft size={16} />
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setViewOffset(defaultOffset(currentWeek))}>This week</Button>
-            <Button variant="outline" size="icon-sm" aria-label="Later weeks" onClick={() => setViewOffset(v => Math.min(maxOffset, v + PAGE_STEP))} disabled={viewOffset >= maxOffset}>
+            <Button variant="outline" size="sm" onClick={() => setViewOffset(defaultOffset(currentWeek))}>{t("sch.thisWeek")}</Button>
+            <Button variant="outline" size="icon-sm" aria-label={t("sch.later")} onClick={() => setViewOffset(v => Math.min(maxOffset, v + PAGE_STEP))} disabled={viewOffset >= maxOffset}>
               <ChevronRight size={16} />
             </Button>
           </>
@@ -337,7 +339,7 @@ export default function SchedulePage() {
         <table data-slot="table" className="w-full table-fixed border-collapse text-left">
           <thead data-slot="table-header">
             <tr className="border-b border-line">
-              <th data-slot="table-head" className="w-[200px] pl-4">Week</th>
+              <th data-slot="table-head" className="w-[200px] pl-4">{t("sx.col.week")}</th>
               {weekdayHeaders.map((d, i) => (
                 <th key={i} data-slot="table-head" className="border-l border-line px-3">{d}</th>
               ))}
@@ -389,20 +391,20 @@ export default function SchedulePage() {
                 <tr key={weekNum} className={cn("border-b border-line align-top last:border-b-0", isPast && "bg-shell/60")}>
                   <th scope="row" className={cn("px-4 py-3 text-left font-normal", isCurrent && "bg-hover/40")}>
                     <div className="flex items-baseline gap-2">
-                      <span className={cn("font-display text-xl font-bold uppercase leading-none", isCurrent ? "text-gold" : isPast ? "text-ink-3" : "text-ink-1")}>Week {displayWeek}</span>
-                      <span className="text-xs text-ink-3">{isCurrent ? "This week" : `S${displayYear}`}</span>
+                      <span className={cn("font-display text-xl font-bold uppercase leading-none", isCurrent ? "text-gold" : isPast ? "text-ink-3" : "text-ink-1")}>{t("common.week", { n: displayWeek })}</span>
+                      <span className="text-xs text-ink-3">{isCurrent ? t("sch.thisWeek") : t("sch.seasonShort", { n: displayYear })}</span>
                     </div>
                     <div className="mt-2 space-y-1">
-                      {participatingTournaments.slice(0, 1).map(t => (
+                      {participatingTournaments.slice(0, 1).map(ev => (
                         <button
-                          key={t.id}
+                          key={ev.id}
                           type="button"
-                          onClick={() => setSelectedTournamentId(t.id)}
+                          onClick={() => setSelectedTournamentId(ev.id)}
                           className="flex w-full items-center gap-1.5 rounded-sm bg-raised px-2 py-1 text-left text-xs transition-colors hover:bg-hover"
                         >
                           <Trophy size={12} className="shrink-0 text-gold" />
-                          <span className="truncate font-semibold text-ink-1">{getDynamicTournamentName(t.shortName || t.name, weekNum)}</span>
-                          <span className="ml-auto shrink-0 text-[11px] text-ink-3">{TIER_LABEL[t.tier] ?? t.tier}</span>
+                          <span className="truncate font-semibold text-ink-1">{getDynamicTournamentName(ev.shortName || ev.name, weekNum)}</span>
+                          <span className="ml-auto shrink-0 text-[11px] text-ink-3">{ev.tier === "QUALIFIER" ? t("common.tier.QUALIFIER") : t(`common.tier.${ev.tier}`)}</span>
                         </button>
                       ))}
                       {upcomingIndicator && (
@@ -412,13 +414,13 @@ export default function SchedulePage() {
                           className="flex w-full items-center gap-1.5 rounded-sm border border-dashed border-line-strong px-2 py-1 text-left text-xs text-ink-3 transition-colors hover:text-ink-1"
                         >
                           <Trophy size={12} className="shrink-0" />
-                          <span className="truncate">{upcomingIndicator.shortName} in {upcomingIndicator.startWeek - calendarWeek}w</span>
+                          <span className="truncate">{upcomingIndicator.shortName} · {tn("tm.inWeeks", upcomingIndicator.startWeek - calendarWeek)}</span>
                         </button>
                       )}
                       {weekBlocks.map(a => (
-                        <div key={a.id} className="flex items-center gap-1.5 rounded-sm border border-line bg-shell px-2 py-1 text-xs text-ink-2" title={a.description}>
+                        <div key={a.id} className="flex items-center gap-1.5 rounded-sm border border-line bg-shell px-2 py-1 text-xs text-ink-2" title={activityDescription(a.name, a.description)}>
                           {a.type === "MARKETING" ? <Megaphone size={12} className="shrink-0 text-ink-3" /> : <Plane size={12} className="shrink-0 text-ink-3" />}
-                          <span className="truncate">{a.name || a.type}</span>
+                          <span className="truncate">{activityName(a.name) || activityKind(a.type)}</span>
                         </div>
                       ))}
                       {projected.slice(0, 2).map(proj => (
@@ -429,7 +431,7 @@ export default function SchedulePage() {
                           projected={{ stage: proj.stage, tournamentName: proj.tournamentName, tournamentId: proj.tournamentId, week: proj.week, reason: proj.reason }}
                         />
                       ))}
-                      {projected.length > 2 && <p className="px-1 text-[11px] text-ink-3">+{projected.length - 2} more forecast</p>}
+                      {projected.length > 2 && <p className="px-1 text-[11px] text-ink-3">{t("sch.moreForecast", { n: projected.length - 2 })}</p>}
                     </div>
                   </th>
 
@@ -463,7 +465,7 @@ export default function SchedulePage() {
                           <span className={cn("text-xs tabular-nums", isToday ? "font-semibold text-ink-1" : isPastDay ? "text-ink-3/70" : "text-ink-3")}>
                             {formatGameCalendarDate(date, { month: "short", day: "numeric" })}
                           </span>
-                          {isToday && <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">Today</span>}
+                          {isToday && <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">{t("sch.today")}</span>}
                         </div>
                         <div className={cn("space-y-1", isPastDay && !hasItems && "opacity-60")}>
                           {dayMatches.map(match => {
@@ -492,17 +494,17 @@ export default function SchedulePage() {
                             <ScheduleActivityCard key={activity.id} activity={activity} />
                           ))}
                           {awayBlock && !hasItems && !isPastDay && (
-                            <p className="px-1 text-[11px] text-ink-3">Away · {awayBlock.type === "REST" ? "retreat" : "bootcamp"}</p>
+                            <p className="px-1 text-[11px] text-ink-3">{awayBlock.type === "REST" ? t("sch.awayRetreat") : t("sch.awayBootcamp")}</p>
                           )}
                         </div>
                         {canBook && (
                           <button
                             type="button"
                             onClick={() => handleOpenPicker(weekNum, dayIndex)}
-                            aria-label={`Book activity on ${dayLabel(weekNum, dayIndex)}`}
+                            aria-label={t("sch.bookOn", { day: dayLabel(weekNum, dayIndex) })}
                             className="absolute inset-x-1.5 bottom-1.5 flex h-7 items-center justify-center gap-1 rounded-sm border border-dashed border-line-strong text-xs text-ink-3 opacity-0 transition-opacity hover:text-ink-1 focus-visible:opacity-100 group-hover:opacity-100"
                           >
-                            <Plus size={12} /> Book
+                            <Plus size={12} /> {t("sch.book")}
                           </button>
                         )}
                       </td>

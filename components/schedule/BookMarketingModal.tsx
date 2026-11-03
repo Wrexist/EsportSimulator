@@ -1,4 +1,5 @@
 "use client"
+import { intlLocale, t, tn } from "@/lib/i18n"
 
 import React, { useState } from "react"
 import { useGameStore } from "@/store/game-store"
@@ -24,6 +25,7 @@ type MarketingType = "SOCIAL" | "SPONSORSHIP" | "INFLUENCER"
 const MARKETING_OPTIONS = {
     SOCIAL: {
         name: "Social Media Push",
+        key: "SOCIAL",
         description: "Ramp up content creation across your social channels.",
         costPerWeek: 2000,
         followersPerWeek: 800,
@@ -31,6 +33,7 @@ const MARKETING_OPTIONS = {
     },
     SPONSORSHIP: {
         name: "Sponsorship Drive",
+        key: "SPONSORSHIP",
         description: "Co-promotional campaigns with partner brands.",
         costPerWeek: 5000,
         followersPerWeek: 2000,
@@ -38,6 +41,7 @@ const MARKETING_OPTIONS = {
     },
     INFLUENCER: {
         name: "Influencer Collab Tour",
+        key: "INFLUENCER",
         description: "Collaborations with gaming creators and streamers.",
         costPerWeek: 10000,
         followersPerWeek: 4000,
@@ -79,8 +83,8 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
         })
 
         if (result.success) {
-            toast.success(`${selectedOption.name} scheduled`, {
-                description: `${duration} week${duration > 1 ? "s" : ""} · +${totalFollowerGain.toLocaleString("en-US")} followers`,
+            toast.success(t("sch.mkt.scheduled", { name: t(`sch.mkt.${selectedOption.key}`) }), {
+                description: `${tn("common.weeks", duration)} · ${t("sch.mkt.followersGain", { n: totalFollowerGain.toLocaleString(intlLocale()) })}`,
             })
             onClose()
         } else {
@@ -93,14 +97,14 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
             isOpen={isOpen}
             onClose={onClose}
             titleId="modal-title-book-marketing"
-            title="Marketing campaign"
-            subtitle={`Starts week ${week} · each week it runs adds its followers at that week's update`}
+            title={t("sch.mkt.title")}
+            subtitle={t("sch.mkt.subtitle", { week })}
             className="max-w-2xl"
             footer={
                 <>
-                    {!affordable && <p role="alert" className="mr-auto text-xs font-medium text-negative">Not enough funds ({formatCurrency(budget, "$", false)} available).</p>}
-                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleConfirm} disabled={!affordable}>Launch for {formatCurrency(totalCost, "$", false)}</Button>
+                    {!affordable && <p role="alert" className="mr-auto text-xs font-medium text-negative">{t("sch.mkt.noFunds", { amount: formatCurrency(budget, "$", false) })}</p>}
+                    <Button variant="ghost" onClick={onClose}>{t("sch.cancel")}</Button>
+                    <Button onClick={handleConfirm} disabled={!affordable}>{t("sch.mkt.launchFor", { amount: formatCurrency(totalCost, "$", false) })}</Button>
                 </>
             }
         >
@@ -123,11 +127,11 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
                                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-raised text-ink-2"><Icon size={17} /></span>
                                 <span className="min-w-0 flex-1">
                                     <span className="flex items-baseline justify-between gap-3">
-                                        <span className="text-sm font-semibold text-ink-1">{opt.name}</span>
-                                        <span className="shrink-0 text-xs tabular-nums text-ink-2">{formatCurrency(opt.costPerWeek, "$", false)} / wk</span>
+                                        <span className="text-sm font-semibold text-ink-1">{t(`sch.mkt.${opt.key}`)}</span>
+                                        <span className="shrink-0 text-xs tabular-nums text-ink-2">{t("sch.perWeek", { amount: formatCurrency(opt.costPerWeek, "$", false) })}</span>
                                     </span>
-                                    <span className="block text-xs text-ink-3">{opt.description}</span>
-                                    <span className="mt-1 block text-xs text-positive">+{opt.followersPerWeek.toLocaleString("en-US")} followers / wk</span>
+                                    <span className="block text-xs text-ink-3">{t(`sch.mkt.${opt.key}.desc`)}</span>
+                                    <span className="mt-1 block text-xs text-positive">{t("sch.mkt.followersWeek", { n: opt.followersPerWeek.toLocaleString(intlLocale()) })}</span>
                                 </span>
                             </button>
                         </li>
@@ -137,8 +141,8 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
 
             <div className="grid grid-cols-1 gap-6 border-t border-line px-6 py-5 sm:grid-cols-2">
                 <div>
-                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Duration</p>
-                    <div className="grid grid-cols-4 gap-1.5" role="radiogroup" aria-label="Duration in weeks">
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("sch.duration")}</p>
+                    <div className="grid grid-cols-4 gap-1.5" role="radiogroup" aria-label={t("sch.durationAria")}>
                         {[1, 2, 3, 4].map(w => (
                             <button
                                 key={w}
@@ -151,15 +155,15 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
                                     duration === w ? "border-gold bg-hover text-ink-1" : "border-line bg-shell text-ink-2 hover:bg-raised",
                                 )}
                             >
-                                {w}w
+                                {t("common.weeksShort", { count: w })}
                             </button>
                         ))}
                     </div>
                 </div>
                 <dl className="divide-y divide-line rounded-md border border-line text-sm">
-                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Followers now</dt><dd className="tabular-nums text-ink-1">{currentFollowers.toLocaleString("en-US")}</dd></div>
-                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Campaign adds</dt><dd className="tabular-nums text-positive">+{totalFollowerGain.toLocaleString("en-US")}</dd></div>
-                    <div className="flex justify-between px-3 py-2"><dt className="font-semibold text-ink-2">Paid when booked</dt><dd className={cn("font-semibold tabular-nums", affordable ? "text-ink-1" : "text-negative")}>{formatCurrency(totalCost, "$", false)}</dd></div>
+                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("sch.mkt.followersNow")}</dt><dd className="tabular-nums text-ink-1">{currentFollowers.toLocaleString(intlLocale())}</dd></div>
+                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("sch.mkt.adds")}</dt><dd className="tabular-nums text-positive">+{totalFollowerGain.toLocaleString(intlLocale())}</dd></div>
+                    <div className="flex justify-between px-3 py-2"><dt className="font-semibold text-ink-2">{t("sch.paidNow")}</dt><dd className={cn("font-semibold tabular-nums", affordable ? "text-ink-1" : "text-negative")}>{formatCurrency(totalCost, "$", false)}</dd></div>
                 </dl>
             </div>
         </ScheduleDialog>
