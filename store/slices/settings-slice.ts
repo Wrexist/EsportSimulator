@@ -60,6 +60,8 @@ export const createSettingsSlice: SliceCreator<SettingsActions> = (set, get) => 
   triggerTutorial: () => {
     set((state) => {
       if (!state.isInitialized || !state.playerTeamId) return
+      // A pro career and a Draft Cup run have no manager checklist (START-09).
+      if (state.proCareer || state.draftCup) return
       const team = (state.teams ?? []).find(t => t.id === state.playerTeamId)
       // Baseline = the career now, so replay asks for new actions instead of completing from history.
       state.firstSession = newFirstSession(team ? captureFirstSessionBaseline({ team, completed: state.completedMatches, currentWeek: state.currentWeek }) : undefined)

@@ -77,6 +77,7 @@ import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 import { buildSaveSnapshot } from "@/store/utils/build-save-snapshot"
 import { useSettingsStore } from "@/lib/settings-store"
 import { CAREER_DIFFICULTY } from "@/lib/balance-tuning"
+import { difficultyStartingCash, backfillTeamTags } from "@/lib/career-start-preview"
 import { markCareerSaved, hasUnsavedChanges } from "@/lib/unsaved-changes"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
@@ -311,7 +312,8 @@ export interface GameStoreState extends AdvanceState, MomentsState {
   managerDetails: ManagerDetails
   isLoading: boolean
   error: string | null
-  lastLoadError: { saveId: string; errorCode: SaveErrorCode; message: string } | null
+  /** RECOVERY_FAILED: "Recover" found no backup or cloud copy (START-16). */
+  lastLoadError: { saveId: string; errorCode: SaveErrorCode | "RECOVERY_FAILED"; message: string } | null
   isInitialized: boolean
   _hasHydrated: boolean
 
@@ -1106,12 +1108,16 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           steamAchievements.initialize(achievementToast(get))
 
           // Create new save from snapshot
-          const newSave = draftCup ? { ...draftCup.world, saveName } : snapshotLoader.createCareerFromSnapshot(saveName, playerTeamId, 1)
+          // A world the club picker built and previewed is used as it is (START-01/02).
+          const previewed = !draftCup && options?.world ? options.world : null
+          const newSave = draftCup ? { ...draftCup.world, saveName }
+            : previewed ? { ...previewed, saveName, playerTeamId, managerDetails: { ...previewed.managerDetails, name: saveName } }
+            : snapshotLoader.createCareerFromSnapshot(saveName, playerTeamId, 1)
 
           if (!newSave) {
             throw new Error("Failed to create save from snapshot")
           }
-          if (options?.randomWorld && !draftCup) randomizeWorld(newSave)
+          if (options?.randomWorld && !draftCup && !newSave.randomWorld) randomizeWorld(newSave)
 
           await steamAchievements.setActiveSave(newSave.saveId)
           // Initialize Phase 18: The Empire fields for new save
@@ -1172,8 +1178,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (selectedTeam && !unemployed && !draftCup && difficulty !== "normal") {
             const d = CAREER_DIFFICULTY[difficulty]
             const started = selectedTeam as { startingBudget?: number }
-            started.startingBudget = Math.round((started.startingBudget ?? selectedTeam.budget) * d.cash)
-            selectedTeam.budget = Math.round(selectedTeam.budget * d.cash)
+            // Same helper as the club picker's budget (lib/career-start-preview.ts).
+            started.startingBudget = difficultyStartingCash(started.startingBudget ?? selectedTeam.budget, difficulty)
+            selectedTeam.budget = difficultyStartingCash(selectedTeam.budget, difficulty)
             selectedTeam.difficultySettings = { incomeMultiplier: d.incomeMultiplier, fansMultiplier: d.fansMultiplier, tournamentPrizeMultiplier: d.tournamentPrizeMultiplier }
           }
           newSave.difficulty = difficulty
@@ -1302,8 +1309,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             await snapshotLoader.loadSnapshot()
           }
 
-          // Create custom team
-          const result = createCustomTeam(teamData)
+          // Create custom team (its name and tag must not be a world club's: START-10)
+          const result = createCustomTeam(teamData, snapshotLoader.getSnapshot()?.teams ?? [])
           if (!result.success) {
             throw new Error(result.error || "Failed to create team")
           }
@@ -1687,6 +1694,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             : JSON.parse(JSON.stringify(save))
 
           refreshStockIdentities(hydratedSave)
+          // START-10: careers started before club tags were copied get them
+          // from the snapshot (no save version change: a missing tag is all it fills).
+          if (hydratedSave.teams.some(t => t.shortName === undefined && !t.customTeamData)) {
+            if (!snapshotLoader.getSnapshot()) await snapshotLoader.loadSnapshot().catch(() => undefined)
+            backfillTeamTags(hydratedSave.teams, snapshotLoader.getSnapshot()?.teams ?? [])
+          }
 
           // Augment with new fields if missing (backward compatibility)
           applyPlayerFieldDefaults(hydratedSave.players)
@@ -2404,7 +2417,30 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
 
       deleteSaveInSlot: async (saveId) => {
-        await saveManager.deleteSave(saveId)
+        // START-03: deleting the loaded career also closes it, or the next
+        // save (auto-save, Ctrl+S, advancing) would write it straight back.
+        if (saveId !== get().saveId) {
+          await saveManager.deleteSave(saveId)
+          return
+        }
+        if (get().isLoading) throw new Error("Wait for the current operation before deleting this career.")
+        careerGeneration++
+        weekProcessorBridge.reset?.()
+        set({ isLoading: true })
+        try {
+          await waitForPendingGameSave()
+          const deleted = await saveManager.deleteSave(saveId)
+          if (!deleted.success) throw new Error("The career could not be deleted. It is still open; check storage and retry.")
+          set({
+            saveId: null,
+            saveName: "",
+            isInitialized: false,
+            playerTeamId: null,
+            teams: [],
+            players: [],
+            lastLoadError: null,
+          })
+        } finally { set({ isLoading: false }) }
       },
 
       deleteAllSaves: async () => {
@@ -2436,7 +2472,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             isLoading: false,
             lastLoadError: {
               saveId,
-              errorCode: recovery.errorCode || "UNKNOWN",
+              // Its own code: the Load screen offers Delete, not a Retry that reloads the damaged file.
+              errorCode: "RECOVERY_FAILED",
               message: recovery.error || "Recovery failed",
             },
           })
