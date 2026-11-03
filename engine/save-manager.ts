@@ -48,6 +48,25 @@ export type SaveErrorCode =
     | "UNKNOWN"
 
 const TMP_SUFFIX = ".tmp"
+
+/** The disk layer's per-value ceiling (electron/main.js, electron/ipc-policy.js). */
+export const SAVE_MAX_BYTES = 32 * 1024 * 1024
+/** Warn the player from three quarters of the ceiling. */
+export const SAVE_WARN_BYTES = 24 * 1024 * 1024
+export const SAVE_TOO_LARGE_MESSAGE = "This career's save is too large to write. Your last save is safe; start a new career or contact support with this save."
+/** Cached main-menu summary of each save (see getSaveSlots). */
+const SLOT_META_PREFIX = "esports_slotmeta_"
+/** How many earlier saves each save remembers by hash (a few weeks of day-step saves). */
+const ANCESTOR_DEPTH = 64
+export const CLOUD_BEHIND_WARNING = "Steam Cloud did not take this save. Your progress is safe on this PC, but the Cloud copy is older, so another PC would load an earlier week."
+export const SAVE_SIZE_WARNING = "This career's save is getting very large. It still saves, but very long careers can reach the save size limit."
+
+/** UTF-8 size of a save text, exact only when it could be near the limits. */
+export function saveSizeBytes(text: string): number {
+    // Every UTF-16 unit is at most 3 UTF-8 bytes, so short texts skip encoding.
+    if (text.length * 3 <= SAVE_WARN_BYTES) return text.length
+    return new TextEncoder().encode(text).length
+}
 // Unreadable primary bytes are moved here before any recovery replaces them.
 // Shares the backup prefix so explicit career deletion still removes it.
 const CORRUPT_SUFFIX = "_corrupt"
@@ -60,6 +79,7 @@ import { generateSeed } from "./rng"
 import { AsyncStorage, asyncStorage } from "./storage-adapter"
 import { steamService } from "./steam-service"
 import { perfTrace } from "./perf-trace"
+import { LIVE_CHECKPOINT_PREFIX } from "../lib/live-checkpoint-store"
 import { debug } from "@/lib/debug-logger"
 import { createDefaultTactics } from "./default-tactics"
 
@@ -72,7 +92,12 @@ export class SaveManager {
     // Length + full-content hash (not the text) of the primary this manager
     // last wrote and read back. Holding the full serialized save kept a second
     // copy of the career (about 25 MB by week 52) alive all session (L27.A3).
-    private lastVerifiedPrimary: { key: string; length: number; fingerprint: string } | null = null
+    // `week` is that save's career week, so backups can step once per week.
+    private lastVerifiedPrimary: { key: string; length: number; fingerprint: string; week: number } | null = null
+    /** Per save key: the hash of the copy this career last loaded or wrote, then its ancestors. */
+    private lineage = new Map<string, string[]>()
+    /** Saves whose Steam Cloud copy is known to be behind this PC (warned once until an upload succeeds). */
+    private cloudBehindWarned = new Set<string>()
 
     constructor(storage: AsyncStorage = asyncStorage) {
         this.storage = storage
@@ -94,7 +119,7 @@ export class SaveManager {
         data: string,
         expectedSaveId: string
     ): Promise<
-        | { ok: true; migrated: GameSave; updatedAtMs: number }
+        | { ok: true; migrated: GameSave; updatedAtMs: number; fromVersion: number }
         | { ok: false; error: SaveErrorCode; message?: string }
     > {
         // Reject obviously-bogus payloads BEFORE handing them to JSON.parse —
@@ -173,7 +198,8 @@ export class SaveManager {
             ? new Date(migrated.updatedAt).getTime()
             : 0
 
-        return { ok: true, migrated, updatedAtMs }
+        const fromVersion = typeof parsed.saveVersion === "number" ? parsed.saveVersion : 0
+        return { ok: true, migrated, updatedAtMs, fromVersion }
     }
 
     /**
@@ -313,7 +339,7 @@ export class SaveManager {
     /**
      * Save game to storage with atomic backup
      */
-    async saveGame(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
+    async saveGame(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[]; sizeWarning?: string; cloudWarning?: string }> {
         // Capture at invocation, before another caller mutates its working state.
         const cloneStart = perfTrace.now()
         const snapshot = structuredClone(save)
@@ -323,7 +349,7 @@ export class SaveManager {
         return operation
     }
 
-    private async commitSave(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[] }> {
+    private async commitSave(save: GameSave): Promise<{ success: boolean; error?: string; repairs?: string[]; sizeWarning?: string; cloudWarning?: string }> {
         try {
             // saveGame captured a detached snapshot before joining the write queue.
             let stepStart = perfTrace.now()
@@ -346,6 +372,10 @@ export class SaveManager {
             const schema = validateSaveSchema(save)
             if (!schema.ok) return { success: false, error: schema.issues[0] }
             save.updatedAt = new Date().toISOString()
+            // Each save names the copies it grew from, so a later load can
+            // tell a stale Steam Cloud copy from one played on another PC.
+            const parents = this.lineage.get(STORAGE_KEYS.SAVE_PREFIX + save.saveId)
+            if (parents) save.ancestorHashes = parents.slice(0, ANCESTOR_DEPTH)
             step("02_repairValidate")
             // The signed payload is also reused for the stored text below, so
             // a commit serializes the save once instead of twice (L27).
@@ -376,7 +406,27 @@ export class SaveManager {
                 && known.fingerprint === await saveTextFingerprint(existing)
             const previous = existing && !knownPrimary ? await this.parseAndValidateSaveCandidate(existing, save.saveId) : null
             if (previous && !previous.ok && previous.error === "NEWER_VERSION") return { success: false, error: previous.message }
-            if (existing && (knownPrimary || previous?.ok)) {
+            // Serialised before the backups move: a save too large to write
+            // must not rotate the previous primary into the backups either.
+            const serialized = serializeSignedSave(save, payload)
+            step("05_stringify")
+            const sizeBytes = saveSizeBytes(serialized)
+            if (sizeBytes > SAVE_MAX_BYTES) {
+                // The disk layer refuses values this large; say why instead of "free space".
+                return { success: false, error: SAVE_TOO_LARGE_MESSAGE }
+            }
+            // Backups step once per career week, not per save: day steps and
+            // periodic saves inside a week would otherwise cycle all three
+            // copies within days and leave no older week to fall back to.
+            // The week is read from the primary on disk, so a restart inside
+            // a week does not rotate it again. A primary in an older save
+            // version always rotates: its original bytes are the copy to keep.
+            const primaryWeek = knownPrimary ? known!.week
+                : previous?.ok && previous.fromVersion === CURRENT_SAVE_VERSION ? previous.migrated.currentWeek
+                : undefined
+            if (existing && (knownPrimary || previous?.ok) && primaryWeek === save.currentWeek) {
+                // The previous primary is this week's too; overwrite it below.
+            } else if (existing && (knownPrimary || previous?.ok)) {
                 // Oldest first: partial rotation cannot replace every good backup
                 // with a corrupted primary, or overwrite a copy before it is retained.
                 if (backup2Old) await this.storage.setItem(backupKey + "_3", backup2Old)
@@ -392,8 +442,6 @@ export class SaveManager {
             // 2. Atomic write: stage to <key>.tmp first. If we crash between
             //    here and step 4, the existing primary is untouched and the
             //    stale .tmp will be discarded by clearStaleTmp() on next load.
-            const serialized = serializeSignedSave(save, payload)
-            step("05_stringify")
             // Hash the new primary while the staging/commit writes are in flight
             // (chunked, so it interleaves with storage I/O). Never rejects.
             const serializedFingerprint = saveTextFingerprint(serialized)
@@ -443,65 +491,35 @@ export class SaveManager {
             step("06_writeVerify")
 
             // 4. Update current save ID
-            this.lastVerifiedPrimary = { key, length: serialized.length, fingerprint: await serializedFingerprint }
+            this.lastVerifiedPrimary = { key, length: serialized.length, fingerprint: await serializedFingerprint, week: save.currentWeek }
             await this.storage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, save.saveId)
 
+            this.lineage.set(key, [save.integrityHash!, ...(save.ancestorHashes ?? [])].slice(0, ANCESTOR_DEPTH))
+
             // 5. Upload to Steam Cloud (non-blocking, don't fail save on cloud error)
+            let cloudWarning: string | undefined
             try {
-                await steamService.uploadSaveToCloud(save.saveId, serialized)
+                const uploaded = await steamService.uploadSaveToCloud(save.saveId, serialized)
+                if (uploaded) this.cloudBehindWarned.delete(save.saveId)
+                else if (!this.cloudBehindWarned.has(save.saveId) && (await steamService.listCloudSaveIds()).includes(save.saveId)) {
+                    // A Cloud copy exists but refused this one: say so once.
+                    this.cloudBehindWarned.add(save.saveId)
+                    cloudWarning = CLOUD_BEHIND_WARNING
+                }
             } catch (cloudError) {
                 debug.warn("[SaveManager] Cloud sync failed (save is still local):", cloudError instanceof Error ? cloudError.message : cloudError)
             }
             step("07_cloud")
 
-            // Save size monitoring: warn if approaching storage limits
-            const sizeBytes = serialized.length * 2 // UTF-16 encoding
-            const sizeMB = sizeBytes / (1024 * 1024)
-            if (sizeMB > 4) {
-                debug.warn(`[SaveManager] Save file is ${sizeMB.toFixed(1)}MB — approaching storage limits. Consider starting a new career.`)
-            }
+            // Save size monitoring: tell the player well before the hard limit.
+            const sizeWarning = sizeBytes > SAVE_WARN_BYTES ? SAVE_SIZE_WARNING : undefined
+            if (sizeWarning) debug.warn(`[SaveManager] Save is ${(sizeBytes / (1024 * 1024)).toFixed(1)} MB of ${SAVE_MAX_BYTES / (1024 * 1024)} MB`)
 
-            return { success: true, repairs: repairs && repairs.length > 0 ? repairs : undefined }
+            return { success: true, repairs: repairs && repairs.length > 0 ? repairs : undefined, sizeWarning, cloudWarning }
         } catch (error) {
             return {
                 success: false,
                 error: error instanceof Error ? error.message : "Unknown save error",
-            }
-        }
-    }
-
-    /**
-     * Fast intra-tick checkpoint write.
-     *
-     * Used by AtomicWeekProcessor between its resume-step boundaries to make
-     * mid-tick crashes recoverable. Unlike saveGame(), this skips:
-     *   - structuredClone (caller guarantees no concurrent mutation)
-     *   - repairSave / validateSaveStructure (expensive; final saveGame() does them)
-     *   - integrity hashing (only matters on load; final save recomputes it)
-     *   - 3-deep backup rotation (only makes sense for the end-of-week save)
-     *   - read-back verification (a torn single-key write is effectively
-     *     impossible on electron-store / IDB single-put)
-     *   - Steam Cloud upload (only the final save is uploaded)
-     *
-     * In practice this is roughly a JSON.stringify + one setItem, so
-     * O(serialized size) without the ~3× multiplier of the full protocol.
-     */
-    async saveGameCheckpoint(save: GameSave): Promise<{ success: boolean; error?: string }> {
-        try {
-            // Shallow-copy with a fresh timestamp instead of mutating the
-            // caller's object — the atomic week processor passes Immer-frozen
-            // draft state, and an in-place assignment would throw in strict
-            // mode (or silently mutate shared state).
-            const stamped = { ...save, updatedAt: new Date().toISOString() }
-            const key = STORAGE_KEYS.SAVE_PREFIX + stamped.saveId
-            const serialized = JSON.stringify(stamped)
-            await this.storage.setItem(key, serialized)
-            await this.storage.setItem(STORAGE_KEYS.CURRENT_SAVE_ID, save.saveId)
-            return { success: true }
-        } catch (error) {
-            return {
-                success: false,
-                error: error instanceof Error ? error.message : "Unknown checkpoint error",
             }
         }
     }
@@ -609,7 +627,15 @@ export class SaveManager {
             }
 
             if (localCandidate.ok && cloudCandidate?.ok) {
-                const comparable = (save: GameSave) => { const { updatedAt, integrityHash, ...data } = save; return JSON.stringify(data) }
+                const comparable = (save: GameSave) => { const { updatedAt, integrityHash, ancestorHashes, ...data } = save; return JSON.stringify(data) }
+                // One copy grew from the other (an upload failed, or the
+                // other PC was only behind): the newer one wins without asking.
+                const grewFrom = (child: GameSave, parent: GameSave) => !!parent.integrityHash && !!child.ancestorHashes?.includes(parent.integrityHash)
+                    && child.currentWeek >= parent.currentWeek
+                if (!cloudChoice && comparable(localCandidate.migrated) !== comparable(cloudCandidate.migrated)) {
+                    if (grewFrom(localCandidate.migrated, cloudCandidate.migrated)) cloudChoice = "local"
+                    else if (grewFrom(cloudCandidate.migrated, localCandidate.migrated)) cloudChoice = "cloud"
+                }
                 if (comparable(localCandidate.migrated) !== comparable(cloudCandidate.migrated) && !cloudChoice) {
                     const describe = (save: GameSave) => `week ${save.currentWeek}, day ${(save.currentDay || 0) + 1} (${save.updatedAt})`
                     return { save: null, errorCode: "CLOUD_CONFLICT", error: `This PC: ${describe(localCandidate.migrated)}. Steam Cloud: ${describe(cloudCandidate.migrated)}. Choose a copy; both will be retained locally before loading.` }
@@ -685,6 +711,9 @@ export class SaveManager {
                 await this.storage.setItem(key, localData)
             }
 
+            this.lineage.set(key, selected.migrated.integrityHash
+                ? [selected.migrated.integrityHash, ...(selected.migrated.ancestorHashes ?? [])].slice(0, ANCESTOR_DEPTH)
+                : (selected.migrated.ancestorHashes ?? []).slice(0, ANCESTOR_DEPTH))
             return { save: selected.migrated, restoredFromBackup: restoredFromBackup || undefined, recoveryMessage: restoredFromBackup ? recoveryMessage : undefined }
         } catch (error) {
             return {
@@ -822,6 +851,10 @@ export class SaveManager {
             await this.storage.removeItem(backupKey + "_local")
             await this.storage.removeItem(backupKey + "_cloud")
             await this.storage.removeItem(backupKey + CORRUPT_SUFFIX)
+            // A live-match checkpoint would otherwise outlive its career.
+            await this.storage.removeItem(LIVE_CHECKPOINT_PREFIX + saveId)
+            this.lineage.delete(STORAGE_KEYS.SAVE_PREFIX + saveId)
+            await this.storage.removeItem(SLOT_META_PREFIX + saveId)
 
             // Clear current if this was it
             const current = await this.storage.getItem(STORAGE_KEYS.CURRENT_SAVE_ID)
@@ -844,17 +877,38 @@ export class SaveManager {
     async deleteAllSaves(): Promise<{ success: boolean }> {
         try {
             const keys = await this.storage.getAllKeys()
+            const saveIds = new Set<string>()
             for (const key of keys) {
+                if (key.startsWith(STORAGE_KEYS.SAVE_PREFIX) && !key.endsWith(TMP_SUFFIX)) {
+                    saveIds.add(key.slice(STORAGE_KEYS.SAVE_PREFIX.length))
+                }
                 if (key.startsWith(STORAGE_KEYS.SAVE_PREFIX) ||
+                    key.startsWith(SLOT_META_PREFIX) ||
                     key.startsWith(STORAGE_KEYS.BACKUP_PREFIX) ||
+                    key.startsWith(LIVE_CHECKPOINT_PREFIX) ||
                     key === STORAGE_KEYS.CURRENT_SAVE_ID ||
                     key.startsWith(STORAGE_KEYS.WEEK_TICK_STATE)) {
                     await this.storage.removeItem(key)
                 }
             }
+            this.lineage.clear()
+            // Steam Cloud copies too, or the menu lists them again as cloud careers.
+            for (const id of await steamService.listCloudSaveIds?.() || []) saveIds.add(id)
+            for (const id of saveIds) await steamService.deleteCloudFile(`save_${id}.json`)
             return { success: true }
         } catch (e) {
             return { success: false }
+        }
+    }
+
+    private async readSlotMeta(metaKey: string, stamp: string, slotId: string): Promise<SaveSlotMetadata | null> {
+        try {
+            const raw = await this.storage.getItem(metaKey)
+            if (!raw) return null
+            const meta = JSON.parse(raw) as { stamp?: string; slot?: SaveSlotMetadata }
+            return meta.stamp === stamp && meta.slot?.slotId === slotId ? meta.slot : null
+        } catch {
+            return null
         }
     }
 
@@ -871,6 +925,13 @@ export class SaveManager {
             try {
                 const data = await this.storage.getItem(key)
                 if (!data) continue
+                // The menu summary of a save is cached next to it, keyed by the
+                // save's length and tail (which holds its integrity hash), so the
+                // menu does not parse and rate every career on each visit.
+                const metaKey = SLOT_META_PREFIX + key.slice(STORAGE_KEYS.SAVE_PREFIX.length)
+                const stamp = `${CURRENT_SAVE_VERSION}:${data.length}:${data.slice(-160)}`
+                const cached = await this.readSlotMeta(metaKey, stamp, key)
+                if (cached) { slots.push(cached); continue }
 
                 const parsed = parseUntrustedJson<GameSave>(data)
 
@@ -970,6 +1031,8 @@ export class SaveManager {
                         week: t.week
                     }))
                 })
+                try { await this.storage.setItem(metaKey, JSON.stringify({ stamp, slot: slots[slots.length - 1] })) }
+                catch { /* the cache is optional */ }
             } catch {
                 // A corrupt save must stay visible — silently dropping it
                 // hides a file that attemptRecovery could still restore.

@@ -98,7 +98,7 @@ export const contractStandoff: ArcDefinition = {
 
         if (arc.beat === 1) {
             const wage = c.salaryPerWeek
-            const ask = Math.max(wage + 1, Math.round(renewalSalary(p, wage) * S.STANDOFF_PREMIUM))
+            const ask = Math.max(wage + 1, Math.round(renewalSalary(p, wage, ctx.week) * S.STANDOFF_PREMIUM))
             const raise = Math.round((ask / Math.max(1, wage) - 1) * 100)
             const runway = (ask - wage) * S.STANDOFF_RUNWAY_WEEKS
             const newEnd = c.endWeek + S.STANDOFF_EXTENSION_WEEKS

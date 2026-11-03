@@ -1,5 +1,6 @@
 "use client"
 
+import { mapComfort, mapComfortLabel } from "@/engine/match/map-comfort"
 import { useState, useRef, useEffect, useMemo } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -23,6 +24,7 @@ import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { leagueStageLabel } from "@/components/league/league-view"
 import { rate, recentMapTally, type SideTally } from "@/engine/map-record"
+import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 
 // Map Wallpaper Paths
 const MAP_WALLPAPERS: Record<string, string> = {
@@ -291,14 +293,14 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         const activePlayers = activeTeam.rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean) as unknown as Player[]
 
         // Use Engine Helper
-        const strengths = simulationEngineV2.calculateMapStrengths(activePlayers)
+        const strengths = simulationEngineV2.calculateMapStrengths(activePlayers, activeTeam.id)
 
         let targetStrengths = strengths
         const opponentPlayers = (side === "home" ? awayTeam : homeTeam).rosterIds.map(id => players.find(p => p.id === id)).filter(Boolean) as unknown as Player[]
 
         if (action === "BAN") {
             // Calculate opponent strengths to ban their best
-            targetStrengths = simulationEngineV2.calculateMapStrengths(opponentPlayers)
+            targetStrengths = simulationEngineV2.calculateMapStrengths(opponentPlayers, (side === "home" ? awayTeam : homeTeam).id)
         }
 
         const selectedMap = simulationEngineV2.selectMapForVeto(
@@ -442,6 +444,8 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                 </p>
             </div>
 
+            <FirstVisitTip tip={SCREEN_TIPS.veto} />
+
             {/* Header: teams + turn */}
             <section className="rounded-[10px] border border-line bg-panel">
                 <div className="flex items-center gap-8 px-8 py-5">
@@ -569,6 +573,13 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                                         <div className="flex justify-between gap-2" title="How much more often (percentage points) your IGL reads their plan on this map than theirs reads yours: tactics and leadership, weighted by how tactical the map is.">
                                             <dt>Your read edge</dt>
                                             <dd className="tabular-nums text-ink-2">{edge >= 0 ? "+" : "−"}{Math.abs(edge).toFixed(1)}%</dd>
+                                        </div>
+                                        <div className="flex justify-between gap-2" title="Every club has maps it is at home on and maps it avoids. On its best map a club plays with a small edge, on its worst with the same edge against it.">
+                                            <dt>Comfort</dt>
+                                            <dd className="text-ink-2">
+                                                {mapComfortLabel(mapComfort(homeTeam.id, mapId))} <span className="text-ink-3">/</span> {mapComfortLabel(mapComfort(awayTeam.id, mapId))}
+                                                <span className="sr-only"> ({homeTeam.name} / {awayTeam.name})</span>
+                                            </dd>
                                         </div>
                                         <div className="flex justify-between gap-2" title="Official CT and T round win rates on this map, this season and last. History only; it does not change the odds.">
                                             <dt>CT / T</dt>

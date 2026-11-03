@@ -11,6 +11,10 @@ interface SessionPersistenceOptions {
   confirm: (variant: "simulationRunning" | "saveFailed") => Promise<boolean>
   showSaving: (saving: boolean) => void
   onError: (error: unknown) => void
+  /** True when the loaded career holds progress that is not on disk. */
+  hasUnsavedChanges?: () => boolean
+  /** Auto-save off and unsaved progress: save and quit, quit anyway, or stay. */
+  chooseUnsaved?: () => Promise<"save" | "discard" | "stay">
 }
 
 // Own the timer and the close operation together. Canceling close resumes the
@@ -49,7 +53,14 @@ export function createSessionPersistence(options: SessionPersistenceOptions) {
       if (options.getState().isLoading && !await options.confirm("simulationRunning")) return false
       if (disposed) return false
       const state = options.getState()
-      if (!state.isLoading && state.saveId && options.getSettings().autoSave) {
+      let saveOnClose = !!state.saveId && options.getSettings().autoSave
+      if (!state.isLoading && state.saveId && !saveOnClose && options.chooseUnsaved && options.hasUnsavedChanges?.()) {
+        // Auto-save is off, so nothing writes this progress unless the player asks.
+        const choice = await options.chooseUnsaved()
+        if (disposed || choice === "stay") return false
+        saveOnClose = choice === "save"
+      }
+      if (!state.isLoading && state.saveId && saveOnClose) {
         options.showSaving(true)
         let saved = false
         try {

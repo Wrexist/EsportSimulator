@@ -17,6 +17,10 @@ import { WIN_REPUTATION_BONUS, LOSS_REPUTATION_PENALTY } from "@/engine/processo
 import { Panel } from "@/src/components/ui/Panel"
 import { Meter } from "@/src/components/ui/Meter"
 import { cn } from "@/lib/utils"
+import { LEGACY_GOALS } from "@/engine/legacy-goals"
+
+const LEGACY_REP_MIN = Math.min(...LEGACY_GOALS.flatMap(g => g.reputation))
+const LEGACY_REP_MAX = Math.max(...LEGACY_GOALS.flatMap(g => g.reputation))
 
 const ENDED_LABEL: Record<StintEnd, string> = { moved: "Moved on", sacked: "Sacked", folded: "Club folded" }
 const signed = (n: number) => `${n > 0 ? "+" : ""}${n}`
@@ -52,6 +56,7 @@ export function ReputationPanel() {
                 <li className="flex justify-between gap-3"><span>Season board review: exceeded / met</span><span className="tabular-nums text-positive">{signed(REPUTATION_DELTA.EXCEEDED)} / {signed(REPUTATION_DELTA.MET)}</span></li>
                 <li className="flex justify-between gap-3"><span>Season board review: missed / failed</span><span className="tabular-nums text-negative">{signed(REPUTATION_DELTA.MISSED)} / {signed(REPUTATION_DELTA.FAILED)}</span></li>
                 <li className="flex justify-between gap-3"><span>Dismissed by the board</span><span className="tabular-nums text-negative">{signed(REPUTATION_DELTA.FAILED)}</span></li>
+                <li className="flex justify-between gap-3"><span>A legacy goal level reached</span><span className="tabular-nums text-positive">+{LEGACY_REP_MIN} to +{LEGACY_REP_MAX}</span></li>
                 <li className="flex justify-between gap-3"><span>A fixture the week plays without you: win / loss</span><span className="tabular-nums text-ink-1">{signed(WIN_REPUTATION_BONUS)} / {signed(-LOSS_REPUTATION_PENALTY)}</span></li>
             </ul>
             <h3 className="mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Recent changes</h3>

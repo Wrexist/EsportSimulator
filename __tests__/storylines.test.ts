@@ -14,7 +14,7 @@ import type { StoryArc } from "@/engine/storylines/types"
 import { PERSONALITY_TUNING as P, STORY_TUNING as S } from "@/lib/balance-tuning"
 import { ARC_DEFINITIONS, eligible, processStorylines } from "@/engine/storylines"
 import { buildContext } from "@/engine/storylines/common"
-import { answerPressConference, bigMatchReason, closePressConference, createPressConference, pressDataOf, type PressTarget } from "@/engine/storylines/press"
+import { answerPressConference, bigMatchReason, closePressConference, settlePressStakes, createPressConference, pressDataOf, type PressTarget } from "@/engine/storylines/press"
 import { finalPreview } from "@/engine/storylines/narrative"
 import { arcsForPlayer, leadingBeat } from "@/engine/storylines/view"
 import { applyChoiceEffects, type ChoiceEffects } from "@/engine/event-choice"
@@ -563,6 +563,31 @@ describe("press conferences", () => {
         expect(save.boardState!.history![0].cause).toBe('Press conference: "We are here to lift the trophy."')
         expect(e).toMatchObject({ selectedChoiceId: "answered", acknowledged: true })
         expect(answerPressConference(save as unknown as PressTarget, e.id, { match: "bold" }).ok).toBe(false)
+    })
+
+    test("a bold claim about the match is settled once by the result", () => {
+        const play = (won: boolean) => {
+            const save = finalWeek()
+            const e = createPressConference(save)!
+            answerPressConference(save as unknown as PressTarget, e.id, { match: "bold" })
+            const board = save.boardState!.confidence
+            const fans = T_(save, "us").followers!
+            const morale = IDS.map(id => P_(save, id).morale)
+            expect(settlePressStakes(save as never, "m_final", won)).toBe(won ? "win" : "loss")
+            expect(settlePressStakes(save as never, "m_final", won)).toBeNull()
+            return { save, board, fans, morale }
+        }
+        const w = play(true)
+        expect(w.save.boardState!.confidence).toBe(w.board + S.PRESS_BOLD_WIN_BOARD)
+        expect(T_(w.save, "us").followers).toBe(w.fans + S.PRESS_BOLD_WIN_FANS)
+        const l = play(false)
+        expect(l.save.boardState!.confidence).toBe(l.board + S.PRESS_BOLD_LOSS_BOARD)
+        expect(IDS.map(id => P_(l.save, id).morale)).toEqual(l.morale.map(m => m + S.PRESS_BOLD_LOSS_MORALE))
+        // A measured answer has nothing riding on the result.
+        const save = finalWeek()
+        const e = createPressConference(save)!
+        answerPressConference(save as unknown as PressTarget, e.id, { match: "measured" })
+        expect(settlePressStakes(save as never, "m_final", false)).toBeNull()
     })
 
     test("a storyline question logs the answer on the arc; the press room closes once the match is played", () => {

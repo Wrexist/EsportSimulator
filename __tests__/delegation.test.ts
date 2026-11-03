@@ -123,3 +123,49 @@ test("advancing the week runs the delegated drills first; the week report credit
     spy.mockRestore()
     await debouncedStorage.flush()
 }, 120_000)
+
+test("League matches delegated: the assistant plays a due league round and the week moves on; cup matches still wait", async () => {
+    const { createLaunchFixture } = jest.requireActual("@/scripts/launch/fixtures")
+    const { saveManager } = jest.requireActual("@/engine")
+    const { debouncedStorage } = jest.requireActual("@/engine/storage-adapter")
+    const { isDelegableMatch } = jest.requireActual("@/engine/delegation")
+    const save = createLaunchFixture("first-week")
+    save.currentWeek = 8
+    save.timeMode = "WEEKLY"
+    save.currentDay = 6
+    save.delegation = { matches: true }
+    const me = save.playerTeamId
+    const opp = save.teams.find((t: { id: string; rosterIds: string[] }) => t.id !== me && t.rosterIds.length >= 5)!.id
+    const fixture = (id: string, over: Record<string, unknown>) => ({ id, homeTeamId: me, awayTeamId: opp, week: 8, day: 6, format: "BO1", seed: 7, tournamentId: null, stage: null, ...over })
+    const league = fixture("m_league", { tournamentId: "league_EUROPE_s1", stage: "Europe Division 1 · Round 3" })
+    const cup = fixture("m_cup", { tournamentId: "cup_1", stage: "Quarter-final" })
+    expect(isDelegableMatch(league)).toBe(true)
+    expect(isDelegableMatch(cup)).toBe(false)
+    expect(isDelegableMatch({ ...league, isHighPressure: true })).toBe(false)
+    const load = (matches: unknown[]) => useGameStore.setState({
+        ...useGameStore.getState(), ...structuredClone({ ...save, scheduledMatches: matches, completedMatches: [] }), league: undefined, boardState: undefined,
+        weekReports: null, continueRun: null, advanceStop: null, advanceSeenKeys: [], weekReportOpen: null, weekReportToast: null,
+        isLoading: false, isInitialized: true, _completedMatchIds: new Set(), activeMatchId: null, activeMatchState: null,
+    } as never)
+    const spy = jest.spyOn(saveManager, "saveGame").mockResolvedValue({ success: true })
+
+    load([league])
+    await useGameStore.getState().advanceWeek()
+    let s = useGameStore.getState()
+    expect(s.completedMatches.some(m => m.id === "m_league")).toBe(true)
+    expect(s.currentWeek).toBe(9)
+
+    load([cup])
+    await useGameStore.getState().advanceWeek()
+    s = useGameStore.getState()
+    expect(s.completedMatches.some(m => m.id === "m_cup")).toBe(false)
+    expect(s.currentWeek).toBe(8)
+
+    // Switched off: the league round waits for the manager.
+    save.delegation = {}
+    load([league])
+    await useGameStore.getState().advanceWeek()
+    expect(useGameStore.getState().currentWeek).toBe(8)
+    spy.mockRestore()
+    await debouncedStorage.flush()
+}, 180_000)

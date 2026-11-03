@@ -55,12 +55,14 @@ export function matchRating(player: RatedPlayer): number {
 }
 
 /**
- * Places the OVR scale where it was: without it a new world's median OVR
- * drops from 58 to 52, and the tier thresholds, wage levels and price curve
- * (all set on the old scale) would all shift. A constant, so it changes no
- * comparison between two players or clubs.
+ * Places the OVR scale where it was. A new world's pros now start with the
+ * weapon mastery their careers have earned (engine/development-rates.ts
+ * STARTING_MASTERY), which is what the old +6 stood in for: the median OVR
+ * of a new world is 58 with no offset, so the tier thresholds, wage levels
+ * and price curve set on that scale still hold. Kept as a named constant so
+ * a future re-anchoring changes no comparison between two players or clubs.
  */
-export const OVR_SCALE_OFFSET = 6
+export const OVR_SCALE_OFFSET = 0
 
 /** The shown OVR: match rating on the OVR scale, rounded, 1-99. */
 export function overallFromMatchRating(rating: number): number {

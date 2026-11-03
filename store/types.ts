@@ -180,6 +180,8 @@ export interface NewGameOptions {
   unemployed?: boolean
   /** G14: randomise the world (engine/random-world.ts). */
   randomWorld?: boolean
+  /** Career difficulty for the club taken over (lib/balance-tuning.ts CAREER_DIFFICULTY). */
+  difficulty?: import("@/lib/balance-tuning").CareerDifficulty
   draftCup?: { world: import("@/engine/save-types").GameSave; setup: DraftCupSetup }
 }
 
@@ -223,6 +225,7 @@ export interface EntitiesActions {
   setPlaybook: (teamId: string, playbook: import("@/engine/match/playbook").Playbook) => void
   setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
   runDelegatedChores: () => string[]
+  playDelegatedMatch: () => Promise<boolean>
   settleDraftCup: () => Promise<boolean>
   purchaseEquipment: (catalogId: string) => { success: boolean; error?: string }
   upgradeMerchStore: (teamId: string) => { success: boolean, message: string }
@@ -246,6 +249,7 @@ export interface MatchActions extends PhysicalPreviewActions {
   scheduleActivity: (activity: ActivitySaveData) => { success: boolean, message: string }
   updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
   simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
+  prepAndSimMatch: (matchId: string) => Promise<boolean>
   saveMatchResult: (matchId: string, result: MatchResult) => void
   performVODReview: (matchId: string) => void
   performMentalReset: (matchId?: string) => void

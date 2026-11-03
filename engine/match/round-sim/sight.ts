@@ -477,6 +477,8 @@ function sidePts(C: Ctx, me: Body, foe: Body, f: Fight, t: number): number {
     if (t - me.killedAt <= T.SIGHT_EXPOSED_SECONDS) s -= T.EXPOSED
     // A rush beats a defence that is not set; CTs who read it are waiting (G1: repeated playbook rushes).
     if (!a.ct && surpriseRush(C.plan) && !R.bomb.planted) s += T.RUSH_SPEED
+    // A rush the CTs saw coming runs into set crossfires and held utility.
+    if (a.ct && C.plan.read === "right" && (C.plan.strategy === "rush" || C.plan.ecoRush) && !R.bomb.planted) s += T.SIGHT_RUSH_READ
     if (me.task === "push" && isMoving) s += T.PUSH_SURPRISE + (a.p.creativity - 50) * 0.05
     if (me.task === "lurk" && foe.task === "rotate") s += T.LURK + (a.p.creativity - 50) * T.LURK_CREATIVITY
     if (a.ct && C.retakeStarted && t > retakeDeadline(C) - 8) s -= T.RUSHED

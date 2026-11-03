@@ -295,7 +295,28 @@ export function calculateProReputationScore(
 
     if (weightTotal === 0) return 0
 
-    return Math.min(Math.round(weightedSum / weightTotal), 100)
+    // At least a full year's weight: a lone entry from years ago no longer
+    // scores like a current one (it used to normalise itself back to 100).
+    return Math.min(Math.round(weightedSum / Math.max(1, weightTotal)), 100)
+}
+
+/** Share of a player's reputation that carries into the next season. */
+export const REPUTATION_YEARLY_KEEP = 0.75
+
+/**
+ * Season end: reputation fades, and the closed season's Top 20 earns it
+ * (rank 1-3 as much as the best-known stars of the starting world). Before,
+ * a starting star kept his price premium for good and a player who became
+ * the best in the world never got one.
+ */
+export function updateReputationAtSeasonEnd(players: PlayerSaveData[], top20: ReadonlyArray<{ playerId: string; rank?: number }>): void {
+    const ranked = new Map(top20.map((w, i) => [w.playerId, w.rank || i + 1]))
+    for (const p of players) {
+        if (p.isRetired || p.isLegendary) continue
+        const faded = Math.round((p.prestigeScore ?? 0) * REPUTATION_YEARLY_KEEP)
+        const rank = ranked.get(p.id)
+        p.prestigeScore = rank ? Math.max(faded, rankToBaseValue(rank)) : faded
+    }
 }
 
 /** A player's Pro reputation: from their top-20 history, else their stored prestige score. */
@@ -318,6 +339,18 @@ export function applyReputationLift(player: PlayerSaveData, currentYear: number 
 // ===== MARKET VALUE CALCULATION =====
 
 /**
+ * Market value scale. Values used to run to $8M base (top players $15-20M)
+ * while a club earns about $5k a week and pays an OVR 70 starter about $1.3k:
+ * a median club's best player cost eleven seasons of its income, so stars
+ * only moved as free agents, and a signing asked (value / 100 a week) twenty
+ * to a hundred times the wage of a player already on the books. On this
+ * scale an OVR 70 player is worth about two seasons of a club's income and
+ * asks about what such players earn (value / 100 a week).
+ */
+export const MARKET_VALUE_FLOOR = 4_000
+export const MARKET_VALUE_TOP = 600_000
+
+/**
  * Calculate player market value in dollars
  * Based on: overallRating (cubic curve), futureValue, role scarcity, reliability, Pro prestige
  */
@@ -332,10 +365,10 @@ export function calculateMarketValue(
     // Falls back to matchDayRating for backward compatibility.
     const effectiveRating = overallRating ?? evaluation.matchDayRating
 
-    // Cubic curve: $50k floor at OVR≤25, scaling to ~$8M base at OVR 100.
-    // After role/Pro multipliers, top players reach $15-20M+.
+    // Cubic curve from a small floor at OVR≤25 to MARKET_VALUE_TOP at OVR 100,
+    // before the role, potential and Pro multipliers.
     const normalizedRating = Math.max(0, (effectiveRating - 25)) / 75
-    const baseValue = 50_000 + Math.pow(normalizedRating, 3) * 8_000_000
+    const baseValue = MARKET_VALUE_FLOOR + Math.pow(normalizedRating, 3) * MARKET_VALUE_TOP
 
     // Future value multiplier (young + high potential = premium)
     const futureMultiplier = 0.7 + (evaluation.futureValue / 100) * 0.6
@@ -360,8 +393,8 @@ export function calculateMarketValue(
 
     const totalValue = baseValue * futureMultiplier * roleMultiplier * reliabilityBonus * proBonus
 
-    // Round to nearest $10k
-    return Math.round(totalValue / 10000) * 10000
+    // Round to nearest $1k
+    return Math.round(totalValue / 1000) * 1000
 }
 
 // ===== MAIN EVALUATION FUNCTION =====

@@ -1,15 +1,16 @@
 # Free demo
 
 The demo is the full game with a calendar cap. A career plays the first
-**12 weeks of season one**: the club brief, the league split draw and its
-first rounds, the first events, transfers, training, playbook and live
-matches. When week 12 has been processed the career stops on a "Demo
+**24 weeks of season one**, the whole first league split: the club brief,
+the split draw, every round up to the final table with promotion,
+relegation and split prizes, the first events, transfers, training,
+playbook and live matches. When week 24 has been processed the career stops on a "Demo
 complete" screen with a link to the full game. Draft Cup runs are short and
 end on their own, so the demo leaves them open.
 
 The demo writes its careers to the same save folder as the full game, so a
 player who buys the game finds the career in **Load game** and plays on from
-week 13. Achievements, stats, leaderboards, Steam Cloud and the Workshop are
+week 25 (on the same PC: the demo has no Steam Cloud). Achievements, stats, leaderboards, Steam Cloud and the Workshop are
 off in the demo.
 
 Code: `lib/edition.ts` (week cap, renderer), `electron/edition.cjs` (Steam

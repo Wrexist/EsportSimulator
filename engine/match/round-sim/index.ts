@@ -22,7 +22,8 @@ import type { PlayerSimulationState } from "../round-outcome"
 import { scriptBuyPhase } from "./buy"
 import { buildProfile, callQuality, type SimProfile } from "./profile"
 import { BUY_OF, simulateScriptRound, type Contact, type SimInput, type SimOutput, type SimSide } from "./simulate"
-import { counterSite, teamHabits, type MatchCounters, type RoundCounter } from "../habits"
+import { mapComfort } from "../map-comfort"
+import { counterSite, sanitizeHabitState, teamHabits, type MatchCounters, type RoundCounter, type TeamHabitState } from "../habits"
 import { playSituation, sanitizePlaybook, tCallKey, type Playbook, type RoundCalls } from "../playbook"
 import { findContacts } from "./contacts"
 import { sightMapFor, simulateSightRound } from "./sight"
@@ -48,6 +49,8 @@ export interface ScriptSeriesSide {
     playbook?: Playbook
     /** R3: an AI club playing the manager's team runs its map habits (habits.ts). */
     habitual?: boolean
+    /** R3: that club's habit state (season drawn, habits it changed). */
+    habitState?: TeamHabitState
     /** R3: the manager's anti-strat counters for this match, per map. */
     counters?: MatchCounters
 }
@@ -120,7 +123,7 @@ export function buildScriptSeries(args: { seed: number; matchId: string; home: S
             profiles,
             call: callQuality([...profiles.values()]),
             ...(playbook && Object.keys(playbook).length ? { playbook } : {}),
-            ...(managed && s.team.id !== args.managedTeamId ? { habitual: true } : {}),
+            ...(managed && s.team.id !== args.managedTeamId ? { habitual: true, ...(sanitizeHabitState(s.team.habits) ? { habitState: sanitizeHabitState(s.team.habits) } : {}) } : {}),
             ...(counters ? { counters } : {}),
             edge: teamEdgeBreakdown(s.team, s.players, s.staff, { counterMod: s.counterMod, mentalPrep: s.mentalPrep, implicitGear: s.implicitGear }),
         }
@@ -200,7 +203,8 @@ export class ScriptRoundEngine {
             away: { team: awayTeam ?? ({ id: "away" } as Team), players: awayPlayers, staff: awayStaff ?? {}, counterMod: 1, mentalPrep: false, implicitGear: false },
         })
         const mapIndex = extra?.mapIndex ?? 0
-        const edge = cappedEdge(series.home.edge.total, series.away.edge.total) * TUNING.EDGE_DUEL_POINTS / 2
+        // Map identity (map-comfort.ts) joins the non-player edge under the same cap.
+        const edge = cappedEdge(series.home.edge.total + mapComfort(series.home.teamId, mapId), series.away.edge.total + mapComfort(series.away.teamId, mapId)) * TUNING.EDGE_DUEL_POINTS / 2
         const regroup = TUNING.REGROUP_POINTS_PER_PROB
         const side = (players: Player[], s: ScriptSeriesSide, other: ScriptSeriesSide, economy: Record<string, PlayerSimulationState>, strategy: BuyStrategy, sign: 1 | -1, regroupEdge: number): SimSide => ({
             teamId: s.teamId,
@@ -273,7 +277,7 @@ function roundCalls(series: ScriptSeries, mapIndex: number, mapId: MapId | undef
 function roundHabits(series: ScriptSeries, mapId: MapId | undefined, homeIsCT: boolean): { habits?: SimInput["habits"]; counter?: RoundCounter } {
     if (!mapId || habitsOverride === false) return {}
     const [tSide, ctSide] = homeIsCT ? [series.away, series.home] : [series.home, series.away]
-    const habitsOf = (s: ScriptSeriesSide) => teamHabits(s.teamId, mapId)
+    const habitsOf = (s: ScriptSeriesSide) => teamHabits(s.teamId, mapId, s.habitState)
     const out: { habits?: SimInput["habits"]; counter?: RoundCounter } = {}
     if (tSide.habitual || ctSide.habitual) out.habits = {
         ...(tSide.habitual ? { t: habitsOf(tSide).t } : {}),

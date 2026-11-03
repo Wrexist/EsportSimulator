@@ -1,5 +1,6 @@
 "use client"
 
+import { CAREER_DIFFICULTY, type CareerDifficulty } from "@/lib/balance-tuning"
 import { loadCareerDraft, saveCareerDraft, clearCareerDraft } from '@/lib/new-career-draft'
 import { useEffect, useState, useMemo, useRef, type KeyboardEvent } from "react"
 import Image from "next/image"
@@ -130,6 +131,7 @@ export default function TeamSelectionPage() {
     const [sandboxMode, setSandboxMode] = useState(false)
     // G14: new players and rosters shuffled between clubs of the same tier.
     const [randomWorld, setRandomWorld] = useState(false)
+    const [difficulty, setDifficulty] = useState<CareerDifficulty>("normal")
 
     useEffect(() => {
         loadCareerProfile().then(p => setManagerLevel(Math.max(1, p.peakLevel))).catch(() => { })
@@ -363,7 +365,7 @@ export default function TeamSelectionPage() {
         setIsStarting(true)
         try {
             // Pass manager name to initializeNewGame (using it as save name for now)
-            await initializeNewGame(managerName.trim() || "My Career", selectedTeam.id, undefined, { randomWorld })
+            await initializeNewGame(managerName.trim() || "My Career", selectedTeam.id, undefined, { randomWorld, difficulty })
             if (useGameStore.getState().error) throw Error(useGameStore.getState().error!)
             clearCareerDraft()
             void recordNewCampaign()
@@ -452,6 +454,20 @@ export default function TeamSelectionPage() {
                                 <span id="random-world-hint" className="mt-0.5 block text-xs text-ink-3">New player names and faces, ratings moved a little, and rosters shuffled between clubs of the same tier and region. For existing-team and no-club starts.</span>
                             </span>
                         </label>
+
+                        <fieldset className="mt-5">
+                            <legend className="text-sm font-semibold text-ink-1">Difficulty</legend>
+                            <div role="radiogroup" aria-label="Difficulty" className="mt-2 grid grid-cols-3 gap-2">
+                                {(Object.keys(CAREER_DIFFICULTY) as CareerDifficulty[]).map(key => (
+                                    <Button key={key} type="button" role="radio" aria-checked={difficulty === key}
+                                        variant={difficulty === key ? "default" : "outline"} className="h-10"
+                                        onClick={() => setDifficulty(key)}>
+                                        {CAREER_DIFFICULTY[key].label}
+                                    </Button>
+                                ))}
+                            </div>
+                            <p className="mt-1.5 text-xs text-ink-3">{CAREER_DIFFICULTY[difficulty].hint} For existing-team starts; a club you create has its own setting.</p>
+                        </fieldset>
 
                         <div className="mt-8 space-y-2">
                             <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between px-4 py-3 text-left">

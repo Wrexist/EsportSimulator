@@ -29,6 +29,7 @@ import type {
     TeamSaveData,
 } from "./save-types"
 import { AI_SQUAD_TUNING, PERSONALITY_TUNING as T } from "@/lib/balance-tuning"
+import { evaluatePlayer } from "./player-evaluation"
 
 export type { PersonalityArchetype, PlayerPersonality, PlayerPromise, PromiseKind }
 
@@ -296,10 +297,19 @@ export function renewalMultiplier(archetype: PersonalityArchetype, base: number)
 /**
  * Renewed weekly wage, the same rule for the manager's Renew button and AI
  * renewals: the usual raise (AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER) scaled
- * by his archetype.
+ * by his archetype, and at least a share of what the market pays a player of
+ * his level (RENEWAL_MARKET_SHARE of the opening ask a new club would hear),
+ * moving at most RENEWAL_MAX_STEP times his current wage per renewal. Before,
+ * a player who grew into a star renewed for his old wage plus a tenth forever.
  */
-export function renewalSalary(p: Pick<PlayerSaveData, "id"> & Partial<PlayerSaveData>, currentSalary: number): number {
-    return Math.round(currentSalary * renewalMultiplier(getArchetype(p), AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER))
+export function renewalSalary(p: Pick<PlayerSaveData, "id"> & Partial<PlayerSaveData>, currentSalary: number, currentWeek?: number): number {
+    const archetype = getArchetype(p)
+    const raised = currentSalary * renewalMultiplier(archetype, AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER)
+    if (typeof p.skill !== "number") return Math.round(raised)
+    const evaluation = evaluatePlayer(p as PlayerSaveData, undefined, undefined, currentWeek)
+    const market = evaluation.transferValue / 100 * archetypeWageFactor(archetype, evaluation.overallRating) * AI_SQUAD_TUNING.RENEWAL_MARKET_SHARE
+    const capped = Math.min(market, Math.max(raised, currentSalary * AI_SQUAD_TUNING.RENEWAL_MAX_STEP))
+    return Math.round(Math.max(raised, capped))
 }
 
 // ---------------------------------------------------------------- captain & mentor

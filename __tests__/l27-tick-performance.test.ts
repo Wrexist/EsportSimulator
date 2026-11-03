@@ -101,7 +101,8 @@ describe('verified-primary fingerprint (L27.A3: no retained save text)', () => {
         const held = (manager as unknown as { lastVerifiedPrimary: Record<string, unknown> }).lastVerifiedPrimary
         expect(Object.values(held).some(v => v === first)).toBe(false)
         const parse = jest.spyOn(manager as unknown as { parseAndValidateSaveCandidate: () => unknown }, 'parseAndValidateSaveCandidate')
-        save.currentDay = (save.currentDay ?? 0) + 1
+        // A new week, so the backups step (saves inside one week overwrite the primary).
+        save.currentWeek += 1
         expect((await manager.saveGame(save)).success).toBe(true)
         expect(parse).not.toHaveBeenCalled()
         expect([...store].some(([k, v]) => k.includes('backup') && k.endsWith('_1') && v === first)).toBe(true)
@@ -172,7 +173,7 @@ describe('role-filtered free-agent quotes', () => {
         const free = save.players.filter(p => !owned.has(p.id) && !p.isRetired && !contracted.has(p.id) && !held.has(p.id))
         const missing = new Set(['IGL', 'AWPER', 'ENTRY_FRAGGER', 'SUPPORT'])
         const eligible = free.filter(p => missing.has(recruitment.recruitmentRole(p.role)))
-        const expected = [...eligible].sort((a, b) => scoreSigningCandidate(b, recruitment.recruitmentSalary(b, save.currentWeek), missing) - scoreSigningCandidate(a, recruitment.recruitmentSalary(a, save.currentWeek), missing))[0]
+        const expected = [...eligible].sort((a, b) => scoreSigningCandidate(b, recruitment.recruitmentSalary(b, save.currentWeek, team), missing) - scoreSigningCandidate(a, recruitment.recruitmentSalary(a, save.currentWeek, team), missing))[0]
         const spy = jest.spyOn(recruitment, 'recruitmentSalary')
         try {
             signFreeAgent(team, save)

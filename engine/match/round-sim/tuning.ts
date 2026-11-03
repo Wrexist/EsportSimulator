@@ -166,6 +166,8 @@ export const TUNING = {
     // ── sight engine (sight.ts) ──
     /** CT side bias on the sight engine (replaces CT_BIAS there). */
     SIGHT_CT_BIAS: 5,
+    /** CTs who read a rush coming (they wait on close angles with utility); before the plant only. */
+    SIGHT_RUSH_READ: 10,
     /** CTs before the plant (they defend ground they know; after the plant SIGHT_POST is the T side's). */
     SIGHT_CT_DEFEND: 7,
     /** Share of the aim-skill points that counts on the sight engine (1 = the resolver's). */

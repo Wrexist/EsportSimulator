@@ -164,6 +164,10 @@ export const AI_SQUAD_TUNING = {
     MAX_SPONSORS: 3,
     /** Human Renew button terms (store/slices/transfer-contract-slice.ts). */
     RENEWAL_SALARY_MULTIPLIER: 1.1,
+    /** A renewal pays at least this share of the market ask for a player of his level (engine/personality.ts renewalSalary). */
+    RENEWAL_MARKET_SHARE: 0.8,
+    /** Most a renewal multiplies the current wage by when it catches up with the market. */
+    RENEWAL_MAX_STEP: 2.5,
     RENEWAL_EXTENSION_WEEKS: 52,
     RENEWAL_RUNWAY_WEEKS: 26,
     /** Upgrade attempt cadence during transfer windows (spread by team id). */
@@ -246,6 +250,18 @@ export const LEAGUE_TUNING = {
  * so every tier starts with the same runway and has to earn (sponsors,
  * prizes, league finish) to grow. Same rules for the managed and AI clubs.
  */
+/**
+ * Career difficulty for a club you take over (the new-game picker). It moves
+ * the same levers a custom club's difficulty does: starting cash and the
+ * club's recurring income, fans and prize money (team.difficultySettings).
+ */
+export const CAREER_DIFFICULTY = {
+    easy: { label: "Relaxed", hint: "More starting cash and more income every week. Room for mistakes.", cash: 1.5, incomeMultiplier: 1.2, fansMultiplier: 1.25, tournamentPrizeMultiplier: 1 },
+    normal: { label: "Normal", hint: "The club as it is.", cash: 1, incomeMultiplier: 1, fansMultiplier: 1, tournamentPrizeMultiplier: 1 },
+    hard: { label: "Hard", hint: "Less starting cash and less income. Every wage matters.", cash: 0.6, incomeMultiplier: 0.85, fansMultiplier: 0.85, tournamentPrizeMultiplier: 1 },
+} as const
+export type CareerDifficulty = keyof typeof CAREER_DIFFICULTY
+
 export const CLUB_ECONOMY_TUNING = {
     /**
      * Base partner income (minor partners, platform revenue): BASE + PER_REP x
@@ -295,6 +311,8 @@ export const CLUB_ECONOMY_TUNING = {
  * (engine/ai/club-budget.ts).
  */
 export const AI_ECONOMY_TUNING = {
+    /** A club that must sell (cost cutting, administration) lists the player at this share of his market value. */
+    DISTRESSED_LISTING_SHARE: 0.8,
     /** Share of weekly income an AI club keeps as surplus when it takes on a new recurring cost. */
     SURPLUS_SHARE: 0.05,
     /** A transfer fee leaves at least this many weeks of running costs in the bank. */
@@ -374,6 +392,10 @@ export const BOARD_TUNING = {
     REVIEW_RANK_MISSED: -6,
     REVIEW_RANK_FAILED: -12,
     REVIEW_FINANCE_MET: 4,
+    /** Title-winning clubs: the board's trophy ambition (a club that won N last season is asked for N, capped). */
+    REVIEW_TROPHIES_MET: 6,
+    REVIEW_TROPHIES_MISSED: -6,
+    TROPHY_AMBITION_MAX: 3,
     REVIEW_FINANCE_MISSED: -8,
     /** Finance objective: end the season with at least max(SHARE x season-start cash, WEEKS x running costs). */
     FINANCE_CASH_SHARE: 0.5,
@@ -765,6 +787,11 @@ export const STORY_TUNING = {
     PRESS_BOLD_FANS: 1000,
     PRESS_BOLD_BOARD: -1,
     PRESS_MEASURED_BOARD: 1,
+    /** A bold match answer is settled by the result: backed up, or thrown back at you. */
+    PRESS_BOLD_WIN_FANS: 2000,
+    PRESS_BOLD_WIN_BOARD: 2,
+    PRESS_BOLD_LOSS_MORALE: -4,
+    PRESS_BOLD_LOSS_BOARD: -3,
     PRESS_PLAYER_BACK_MORALE: 4,
     PRESS_PLAYER_CRITICISE_MORALE: -4,
     PRESS_PLAYER_CRITICISE_BOARD: 1,

@@ -97,6 +97,7 @@ const STATUS: Record<NonNullable<BoardObjective["status"]>, { label: string; ton
 }
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`
+const trophies = (n: number) => `${n} ${n === 1 ? "trophy" : "trophies"}`
 
 export function objectiveView(o: BoardObjective): ObjectiveView {
     const status = o.status ? STATUS[o.status] : { label: "Not started", tone: "neutral" as BoardTone }
@@ -114,6 +115,14 @@ export function objectiveView(o: BoardObjective): ObjectiveView {
             id: o.id, label: o.label, target: `#${o.target} or better`,
             current: cur === undefined ? "—" : `#${cur}`,
             gap: cur === undefined ? null : cur > o.target ? `${plural(cur - o.target, "place")} to climb` : cur < o.target ? `${plural(o.target - cur, "place")} to spare` : "On the line",
+            status: status.label, tone: status.tone,
+        }
+    }
+    if (o.id === "trophies") {
+        return {
+            id: o.id, label: o.label, target: trophies(o.target),
+            current: cur === undefined ? "—" : `${cur}`,
+            gap: cur === undefined ? null : cur < o.target ? `${trophies(o.target - cur)} to win` : "Done",
             status: status.label, tone: status.tone,
         }
     }

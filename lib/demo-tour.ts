@@ -1,5 +1,5 @@
 /**
- * Demo tour: the headline features a demo player should meet in the twelve
+ * Demo tour: the headline features a demo player should meet in the
  * demo weeks (lib/edition.ts). Shown on Home in demo builds only
  * (components/demo/DemoTour.tsx). A stop is done once the player has opened
  * its screen (recorded per device in the settings store) or the career shows

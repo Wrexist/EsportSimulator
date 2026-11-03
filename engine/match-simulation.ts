@@ -210,8 +210,8 @@ export class SimulationEngineV2 {
         if (!activeHomePlayers.length || !activeAwayPlayers.length) throw Error('Both teams need players')
         const hStaff = homeStaff || this.getTeamStaff(homeTeam)
         const aStaff = awayStaff || this.getTeamStaff(awayTeam)
-        const homeMapStrengths = this.calculateMapStrengths(activeHomePlayers)
-        const awayMapStrengths = this.calculateMapStrengths(activeAwayPlayers)
+        const homeMapStrengths = this.calculateMapStrengths(activeHomePlayers, homeTeam.id)
+        const awayMapStrengths = this.calculateMapStrengths(activeAwayPlayers, awayTeam.id)
 
         let maps: MapId[]
         if (forcedMaps && forcedMaps.length > 0) {
@@ -322,8 +322,8 @@ export class SimulationEngineV2 {
         )
     }
 
-    public calculateMapStrengths(players: Player[]): Map<MapId, number> {
-        return calculateMapStrengthsFn(players)
+    public calculateMapStrengths(players: Player[], teamId?: string): Map<MapId, number> {
+        return calculateMapStrengthsFn(players, teamId)
     }
 
     public selectMapForVeto(

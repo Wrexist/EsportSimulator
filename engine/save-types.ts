@@ -31,7 +31,7 @@ import { logger } from "@/lib/logger"
 /**
  * Current save version - increment when schema changes
  */
-export const CURRENT_SAVE_VERSION = 11
+export const CURRENT_SAVE_VERSION = 12
 
 /**
  * Minimum supported save version for migration
@@ -78,6 +78,8 @@ export interface GameSave {
     createdAt: string // ISO date
     updatedAt: string // ISO date
     integrityHash?: string // Tamper/corruption detection
+    /** Integrity hashes of earlier saves of this career, newest first (lets a load tell a stale copy from a diverged one). */
+    ancestorHashes?: string[]
 
     // === GAME STATE ===
     currentWeek: number
@@ -261,9 +263,9 @@ export interface BoardState {
 
 /** A board objective for the current season. */
 export interface BoardObjective {
-    id: "league" | "ranking" | "finance"
+    id: "league" | "ranking" | "finance" | "trophies"
     label: string
-    /** league: max table position; ranking: max world ranking; finance: min cash at season end. */
+    /** league: max table position; ranking: max world ranking; finance: min cash at season end; trophies: titles this season. */
     target: number
     /** Live progress in the same unit as target (table position, world ranking, cash). */
     current?: number
@@ -606,6 +608,8 @@ export interface TeamSaveData {
     // === PHASE 20: TACTICAL PERFECTION ===
     playstyle?: "balanced" | "aggressive" | "structured" | "default"
     playbook?: import("@/engine/match/playbook").Playbook // G1: named calls per map, side and buy
+    /** R3: this club's anti-strat habits: the season drawn for and what it changed after being countered. */
+    habits?: import("@/engine/match/habits").TeamHabitState
     tacticalPrep?: number // 0-100 bonus from VOD reviews
     prepPenalty?: number // transient quick-sim differential (B4); set only on a sim copy, never persisted
     economyStyle?: "standard" | "force" | "eco" // Phase 60: Economy aggressiveness

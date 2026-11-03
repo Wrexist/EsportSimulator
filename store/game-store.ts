@@ -102,11 +102,15 @@ import { createTeamDrillsSlice } from "@/store/slices/team-drills-slice"
 import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 import { buildSaveSnapshot } from "@/store/utils/build-save-snapshot"
 import { useSettingsStore } from "@/lib/settings-store"
+import { CAREER_DIFFICULTY } from "@/lib/balance-tuning"
+import { markCareerSaved, hasUnsavedChanges } from "@/lib/unsaved-changes"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
 import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
 import { checkMilestones } from "@/engine/milestone-checker"
+import { checkLegacyGoals, LEGACY_INIT_ID } from "@/engine/legacy-goals"
+import { adjustManagerReputation } from "@/engine/manager-timeline"
 import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
 import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
@@ -169,6 +173,8 @@ let saveChain: Promise<void> = Promise.resolve()
 let pendingGameSave: Promise<void> | null = null
 export async function waitForPendingGameSave(): Promise<void> { await pendingGameSave }
 let careerGeneration = 0
+/** Career already told this session that its save is getting large. */
+let sizeWarnedSaveId: string | null = null
 
 const nextDeterministicId = (
   state: RngBackedState,
@@ -629,6 +635,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   setPlaybook: (teamId: string, playbook: import("@/engine/match/playbook").Playbook) => void
   setDelegation: (area: import("@/engine/delegation").DelegationArea, on: boolean) => void
   runDelegatedChores: () => string[]
+  playDelegatedMatch: () => Promise<boolean>
   enableSandbox: () => void
   sandboxEdit: (edit: import("@/engine/sandbox").SandboxEdit) => import("@/engine/sandbox").SandboxResult
   startProCareer: (input: import("@/engine/pro-career").ProStartInput) => boolean
@@ -730,6 +737,7 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   // Match Management
   updateScheduledMatch: (matchId: string, updates: Partial<MatchSaveData>) => void
   simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
+  prepAndSimMatch: (matchId: string) => Promise<boolean>
 
   // Generic Updates (Added for Flexibility)
   updatePlayer: (playerId: string, updates: Partial<PlayerSaveData>) => void
@@ -1312,6 +1320,16 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
           // Get the selected team for welcome message
           const selectedTeam = newSave.teams.find((t: any) => t.id === playerTeamId)
+          // Career difficulty (new-game picker): starting cash and the club's recurring income.
+          const difficulty = options?.difficulty && Object.hasOwn(CAREER_DIFFICULTY, options.difficulty) ? options.difficulty : "normal"
+          if (selectedTeam && !unemployed && !draftCup && difficulty !== "normal") {
+            const d = CAREER_DIFFICULTY[difficulty]
+            const started = selectedTeam as { startingBudget?: number }
+            started.startingBudget = Math.round((started.startingBudget ?? selectedTeam.budget) * d.cash)
+            selectedTeam.budget = Math.round(selectedTeam.budget * d.cash)
+            selectedTeam.difficultySettings = { incomeMultiplier: d.incomeMultiplier, fansMultiplier: d.fansMultiplier, tournamentPrizeMultiplier: d.tournamentPrizeMultiplier }
+          }
+          newSave.difficulty = difficulty
           // Snapshot the starting tier so ZERO_TO_HERO can detect a
           // career-long climb. Set exactly once at career creation;
           // post-tick achievement evaluation reads it without mutation.
@@ -1410,6 +1428,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Rebuild entity indexes after new game initialization
           const newState = get()
           set(buildEntityIndexes(newState.teams, newState.players, newState.contracts, newState.staff, newState.completedMatches))
+          markCareerSaved(get())
           get().refreshStaffMarket()
         } catch (err) {
           const message = err instanceof Error ? err.message : "Initialization failed"
@@ -1732,6 +1751,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Rebuild entity indexes after custom team initialization
           const customState = get()
           set(buildEntityIndexes(customState.teams, customState.players, customState.contracts, customState.staff, customState.completedMatches))
+          markCareerSaved(get())
 
           get().refreshStaffMarket()
         } catch (err) {
@@ -1763,7 +1783,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
 
       loadGame: async (saveId, cloudChoice) => {
-        careerGeneration++
+        const loadGeneration = ++careerGeneration
         weekProcessorBridge.reset?.()
         set({ isLoading: true, error: null, lastLoadError: null })
         try {
@@ -1774,6 +1794,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             set({ lastLoadError: { saveId, errorCode: errorCode || "UNKNOWN", message } })
             throw new Error(message)
           }
+
+          // A newer load (boot auto-load racing Continue) owns the store now.
+          if (loadGeneration !== careerGeneration) return
 
           // A live match checkpointed after this save was written (reload or
           // crash mid-match) resumes where it was, not from round 1.
@@ -1786,6 +1809,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             savedActive: save.activeMatchState,
           })
 
+          if (loadGeneration !== careerGeneration) return
           await steamAchievements.setActiveSave(save.saveId)
 
           // Initialize Steam Achievements with UI callback
@@ -1852,6 +1876,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // repeats): give each its deadline and default, merge repeats (Phase 4.9).
           normalizeDecisions(hydratedSave, { arrivals: false })
 
+          if (loadGeneration !== careerGeneration) return
           set({
             ...hydratedSave,
             ...careerAdvanceState(hydratedSave, inferredTeamId, false),
@@ -1911,6 +1936,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // Rebuild entity indexes after loading game
           const loadedState = get()
           set(buildEntityIndexes(loadedState.teams, loadedState.players, loadedState.contracts, loadedState.staff, loadedState.completedMatches))
+          markCareerSaved(get())
 
           // Welcome back toast if player was away for 24+ hours
           const lastPlayed = hydratedSave.lastPlayedAt
@@ -1953,6 +1979,15 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (saveResult.repairs && saveResult.repairs.length > 0) {
             get().addToast({ message: `Save auto-repaired: ${saveResult.repairs[0]}`, type: "warning", duration: 8000 })
           }
+          if (saveResult.sizeWarning && sizeWarnedSaveId !== state.saveId) {
+            sizeWarnedSaveId = state.saveId
+            get().addToast({ message: saveResult.sizeWarning, type: "warning", duration: 10000 })
+          }
+          if (saveResult.cloudWarning) {
+            get().addToast({ message: saveResult.cloudWarning, type: "warning", duration: 10000 })
+          }
+          // What was written is the state this snapshot was built from.
+          markCareerSaved(state)
         } catch (err) {
           const message = err instanceof Error ? err.message : "Save failed"
           logger.error("[saveGame] Error", message)
@@ -2031,9 +2066,13 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             await new Promise(resolve => setTimeout(resolve, 0))
             set(draft => { simulateDueAIMatchesForDay(draft, matchDay) })
             persistDayCursor()
+            // "League matches" delegated: the assistant plays it and the week runs on.
+            if (await get().playDelegatedMatch()) return get().advanceToWeekEnd()
             return
           }
           // Already on or past match day — match still unplayed, don't skip
+          // (unless the assistant plays it).
+          if (await get().playDelegatedMatch()) return get().advanceToWeekEnd()
           return
         }
 
@@ -2081,6 +2120,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         // Guard: prevent advancing if the player has an unplayed match this week
         const completedIds = state._completedMatchIds || new Set(state.completedMatches.map(cm => cm.id))
         const unplayedPlayerMatch = weekBlockingMatch(state, completedIds)
+        // "League matches" delegated: the assistant plays a due league round, then the week goes on.
+        if (unplayedPlayerMatch && await get().playDelegatedMatch()) {
+          if (generation !== careerGeneration) return
+          return get().advanceWeek()
+        }
         if (unplayedPlayerMatch) {
           get().addToast({ message: "You have a match to play this week!", type: "warning" })
           set({ isLoading: false })
@@ -2313,6 +2357,32 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             } catch (msErr) {
               logger.error("[advanceWeek] milestone check failed", msErr)
             }
+            // Legacy goals: each level fires once per career and raises the
+            // manager's reputation. A career from before legacy goals existed
+            // records the levels it already holds quietly, without a reward.
+            try {
+              const lgState = get()
+              const fired = new Set<string>(lgState.acknowledgedEventIds)
+              const hits = checkLegacyGoals(lgState as unknown as GameSave, fired)
+              // "legacy:init" marks a career whose legacy has been checked once.
+              const retro = !fired.has(LEGACY_INIT_ID) && lgState.currentWeek > 2
+              if (!fired.has(LEGACY_INIT_ID)) set((s) => { if (!s.acknowledgedEventIds.includes(LEGACY_INIT_ID)) s.acknowledgedEventIds.push(LEGACY_INIT_ID) })
+              if (hits.length) {
+                set((s) => {
+                  for (const hit of hits) {
+                    if (!retro) {
+                      adjustManagerReputation(s as unknown as GameSave, hit.reputation, hit.message)
+                      s.eventsLog.unshift({ id: hit.id, week: s.currentWeek, type: "MILESTONE", data: { description: hit.message, importance: "HIGH" }, acknowledged: true })
+                    }
+                    if (!s.acknowledgedEventIds.includes(hit.id)) s.acknowledgedEventIds.push(hit.id)
+                  }
+                })
+                if (retro) get().addToast({ message: "Legacy goals are on your manager profile. The levels your career already holds are marked.", type: "info", duration: 8000 })
+                else hits.forEach(hit => get().addToast({ message: `${hit.message} Reputation +${hit.reputation}.`, type: "achievement" }))
+              }
+            } catch (lgErr) {
+              logger.error("[advanceWeek] legacy goal check failed", lgErr)
+            }
             phase("09_milestones")
 
             // Route transient (one-shot UI) events to in-game toasts and
@@ -2373,7 +2443,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                   state: reportState,
                 })
                 const presentation = reportState.continueRun ? {}
-                  : reportState.timeMode === "WEEKLY" ? { weekReportOpen: playedWeek, weekReportToast: null }
+                  : reportState.timeMode === "WEEKLY" && useSettingsStore.getState().openWeekReport !== false ? { weekReportOpen: playedWeek, weekReportToast: null }
                     : { weekReportToast: playedWeek }
                 set({
                   weekReports: pushWeekReport(reportState.weekReports, report, finalClub ? newTracker(finalClub) : null),
@@ -2457,6 +2527,15 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       switchSave: async (saveId, cloudChoice) => {
         try {
+          // Leaving a loaded career: with auto-save on, its in-memory progress
+          // is written first instead of being dropped by the load.
+          const current = get()
+          if (hasLoadedCareer(current) && !current.isLoading && current.saveId !== saveId
+            && useSettingsStore.getState().autoSave && hasUnsavedChanges(current)) {
+            // A failed save (shown by saveGame) must not lock every other
+            // career away: the last saved copy of this one stays on disk.
+            await current.saveGame().catch(() => { /* surfaced by saveGame */ })
+          }
           await get().loadGame(saveId, cloudChoice)
           if (get().lastLoadError) return false
           const loadedSaveId = get().saveId

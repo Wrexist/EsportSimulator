@@ -9,6 +9,7 @@ import {
     ensureBoardState,
     processSeasonBoardReview,
     trophiesInSeason,
+    trophyAmbition,
 } from "@/engine/board-expectations"
 import type { GameSave, BoardState } from "@/engine/save-types"
 import { divisionOfTeam, drawDueLeagueSplit, processLeagueWeek } from "@/engine/season/regional-league"
@@ -193,7 +194,8 @@ describe("weekly board (Phase 4.4): objectives, moves with causes, reviews, warn
     test("objectives scale with the club: league finish in its division, world ranking, budget discipline", () => {
         const save = league(1)
         const board = ensureBoardState(save)
-        expect(board.objectives!.map(o => o.id)).toEqual(["league", "ranking", "finance"])
+        // A club expected to win silverware also gets the trophy ambition.
+        expect(board.objectives!.map(o => o.id)).toEqual(["league", "ranking", "finance", ...(board.seasonExpectation === "WIN" ? ["trophies"] : [])])
         const lo = board.objectives![0]
         const division = divisionOfTeam(save, save.playerTeamId)!
         expect(lo.divisionId).toBe(division.id)
@@ -208,6 +210,30 @@ describe("weekly board (Phase 4.4): objectives, moves with causes, reviews, warn
         const strong = leagueObjective(save, division.teamIds[0])!
         const weak = leagueObjective(save, division.teamIds.at(-1)!)!
         expect(strong.target).toBeLessThan(weak.target)
+    })
+
+    test("a title-winning club is asked to keep winning: the ambition follows last season's haul, capped", () => {
+        const save = league(53)
+        const team = save.teams.find(t => t.id === save.playerTeamId)!
+        team.worldRanking = 1
+        team.trophies = [3, 20, 40, 50].map((week, i) => ({ tournamentId: `cup_${i}`, tournamentName: "Cup", tier: "A_TIER", week })) as never
+        expect(trophyAmbition(save, 2)).toBe(BOARD_TUNING.TROPHY_AMBITION_MAX)
+        team.trophies = team.trophies.slice(0, 2)
+        expect(trophyAmbition(save, 2)).toBe(2)
+        team.trophies = []
+        expect(trophyAmbition(save, 2)).toBe(1)
+
+        const board = ensureBoardState(save)
+        expect(board.seasonExpectation).toBe("WIN")
+        const ambition = board.objectives!.find(o => o.id === "trophies")!
+        expect(ambition.target).toBe(1)
+        // Judged at the season review: none won is a missed ambition with its cause.
+        save.currentWeek = 104
+        board.objectivesSeason = 2
+        const review = processSeasonBoardReview(save)
+        const move = review.moves!.find(m => m.cause.startsWith("Trophy ambition"))!
+        expect(move.delta).toBe(BOARD_TUNING.REVIEW_TROPHIES_MISSED)
+        expect(ambition.status).toBe("MISSED")
     })
 
     test("each weekly move names its cause: results by opponent strength, the table vs the objective, finances", () => {

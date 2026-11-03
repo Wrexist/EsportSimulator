@@ -116,8 +116,17 @@ export function listPlayerForTransfer(team: TeamSaveData, save: GameSave): void 
         notForSale[0],
     )
     target.forSale = true
-    target.transferListingPrice = (target.prestigeScore || 50) * 1000
+    target.transferListingPrice = distressedListingPrice(target, save.currentWeek)
     target.weeksOnTransferList = 0
+}
+
+/**
+ * A club that has to sell lists below market value (it used to list at
+ * prestige × $1000, a fixed ~$50k whatever the player was worth).
+ */
+export function distressedListingPrice(player: PlayerSaveData, currentWeek: number): number {
+    const value = evaluatePlayer(player, undefined, undefined, currentWeek).transferValue
+    return Math.max(1_000, Math.round(value * AI_ECONOMY_TUNING.DISTRESSED_LISTING_SHARE / 1000) * 1000)
 }
 
 /**

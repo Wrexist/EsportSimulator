@@ -189,6 +189,7 @@ export function GameplaySettings({ includeCareerOptions = true }: { includeCaree
         autoSave: state.autoSave, setAutoSave: state.setAutoSave,
         autoSaveInterval: state.autoSaveInterval, setAutoSaveInterval: state.setAutoSaveInterval,
         notifications: state.notifications, setNotifications: state.setNotifications,
+        openWeekReport: state.openWeekReport, setOpenWeekReport: state.setOpenWeekReport,
     })))
     const { showTutorialOnNewGame, setShowTutorialOnNewGame, showBugReportButton, setShowBugReportButton } = useGameStore(useShallow(state => ({
         showTutorialOnNewGame: state.showTutorialOnNewGame,
@@ -211,6 +212,9 @@ export function GameplaySettings({ includeCareerOptions = true }: { includeCaree
             </SettingRow>
             <SettingRow id="set-autosave-interval" label="Auto-save interval">
                 <SettingSelect id="set-autosave-interval" label="Auto-save interval" value={s.autoSaveInterval} options={intervals} disabled={!s.autoSave} onChange={s.setAutoSaveInterval} />
+            </SettingRow>
+            <SettingRow id="set-week-report" label="Open the week report" hint="Shows what changed after each week. Off: a small notice you can open instead.">
+                <Switch id="set-week-report" checked={s.openWeekReport} onCheckedChange={s.setOpenWeekReport} />
             </SettingRow>
             <SettingRow id="set-notifications" label="Minor notifications" hint="Info and XP pop-ups. Important alerts always show.">
                 <Switch id="set-notifications" checked={s.notifications} onCheckedChange={s.setNotifications} />

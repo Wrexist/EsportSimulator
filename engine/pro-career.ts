@@ -29,6 +29,16 @@ export interface ProCareerState {
     lastOfferWeek?: number
     /** Set when the pro retires; the save carries on as a manager career. */
     retiredWeek?: number
+    /** Personal match goals: rating targets set and met in the matches the pro played. */
+    goals?: { set: number; hit: number; last?: ProGoalResult }
+}
+
+export interface ProGoalResult {
+    matchId: string
+    week: number
+    rating: number
+    target: number
+    hit: boolean
 }
 
 export const PRO_TUNING = {
@@ -48,6 +58,12 @@ export const PRO_TUNING = {
     /** The club renews the pro's contract with this many weeks left, for RENEW_WEEKS. */
     RENEW_WITHIN: 12,
     RENEW_WEEKS: 104,
+    /** Personal match goal: the rating a starter is asked for, by squad rank (best player first, then everyone else). */
+    GOAL_RATING_BY_RANK: [1.1, 1.05] as const,
+    GOAL_RATING_BASE: 1.0,
+    /** Meeting the goal: clubs scout the pro this many weeks sooner, and his morale rises. */
+    GOAL_SCOUT_WEEKS: 1,
+    GOAL_MORALE: 3,
 }
 
 export const PRO_ROLES: { role: PlayerRole; label: string }[] = [
@@ -137,6 +153,42 @@ export function proStatus(save: GameSave): ProStatus | null {
         starter: team.rosterIds.indexOf(player.id) > -1 && team.rosterIds.indexOf(player.id) < 5,
         weeksUntilOffers: Math.max(0, since + PRO_TUNING.OFFER_EVERY - save.currentWeek),
     }
+}
+
+/**
+ * The rating the pro is asked for in his next match: higher for the squad's
+ * best players. Null when he is not in the starting five (or no pro career).
+ */
+export function proMatchGoal(save: GameSave): number | null {
+    if (!isProActive(save)) return null
+    const status = proStatus(save)
+    if (!status || !status.starter) return null
+    return PRO_TUNING.GOAL_RATING_BY_RANK[status.squadRank - 1] ?? PRO_TUNING.GOAL_RATING_BASE
+}
+
+/**
+ * Judges the pro's rating in a finished match against his goal. Meeting it
+ * brings the next club scouting a week closer and lifts his morale. Returns
+ * the result, or null when he did not play or there is no goal (bench,
+ * no active pro career, match already judged). Pass the goal read before
+ * the match's results were applied, so the target judged is the one shown.
+ */
+export function recordProMatch(save: GameSave, matchId: string, rating: number | undefined, goal?: number | null): ProGoalResult | null {
+    if (rating == null || !Number.isFinite(rating) || !save.proCareer || !isProActive(save)) return null
+    // The goal as it stood before the match (the match's XP can move the squad order).
+    const target = goal === undefined ? proMatchGoal(save) : goal
+    if (target == null) return null
+    const goals = save.proCareer.goals ?? { set: 0, hit: 0 }
+    if (goals.last?.matchId === matchId) return null
+    const hit = rating >= target
+    const result: ProGoalResult = { matchId, week: save.currentWeek, rating: Math.round(rating * 100) / 100, target, hit }
+    save.proCareer.goals = { set: goals.set + 1, hit: goals.hit + (hit ? 1 : 0), last: result }
+    if (hit) {
+        save.proCareer.lastOfferWeek = (save.proCareer.lastOfferWeek ?? save.proCareer.startWeek) - PRO_TUNING.GOAL_SCOUT_WEEKS
+        const player = proPlayer(save)
+        if (player) player.morale = Math.min(100, (player.morale ?? 50) + PRO_TUNING.GOAL_MORALE)
+    }
+    return result
 }
 
 /** Weekly wage the club pays its pro, by rating. */

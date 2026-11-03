@@ -14,6 +14,7 @@ import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { Meter } from "@/src/components/ui/Meter"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { CareerLegacyCard } from "@/components/career/CareerLegacyCard"
+import { LegacyGoalsPanel } from "@/components/career/LegacyGoalsPanel"
 import { ClubTimelinePanel, ReputationPanel, stintTitles } from "@/components/career/ManagerRecord"
 import { ManagerProgression } from "@/engine/manager-progression"
 import type { SaveSlotMetadata } from "@/engine/save-types"
@@ -135,6 +136,8 @@ export default function CareerPage() {
                     </Panel>
 
                     <ClubTimelinePanel />
+
+                    <LegacyGoalsPanel />
 
                     <CareerLegacyCard />
 

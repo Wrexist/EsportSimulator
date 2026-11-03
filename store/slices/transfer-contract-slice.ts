@@ -555,7 +555,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             // Require at least 26 weeks of runway against the *delta* (not the
             // full salary) so renewals aren't gated by absolute wage levels.
             const renewing = state.players.find(p => p.id === playerId)
-            const newSalary = renewing ? renewalSalary(renewing, contract.salaryPerWeek) : Math.round(contract.salaryPerWeek * AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER)
+            const newSalary = renewing ? renewalSalary(renewing, contract.salaryPerWeek, state.currentWeek) : Math.round(contract.salaryPerWeek * AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER)
             if (!team.rosterIds.includes(playerId)) {
                 toastMsg = "Player is no longer on your roster."
                 toastType = "warning"

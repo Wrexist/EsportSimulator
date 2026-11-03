@@ -11,7 +11,9 @@
  * (or a player in form), and the club's form. Every answer applies exactly
  * the effects it shows, through engine/event-choice.ts: squad morale, one
  * named player's morale or loyalty, board confidence, followers. Nothing
- * touches the opponent.
+ * touches the opponent. A bold claim about the match is also settled by the
+ * result (settlePressStakes): backed up with a win, thrown back at you after
+ * a loss.
  *
  * Engine safe: no store, no React. Deterministic: no RNG.
  */
@@ -68,6 +70,11 @@ export function bigMatchReason(save: Pick<GameSave, "teams" | "tournaments" | "l
 // ---------------------------------------------------------------- questions
 
 const bold = (): ChoiceEffects => ({ morale: S.PRESS_BOLD_MORALE, fans: S.PRESS_BOLD_FANS, board: S.PRESS_BOLD_BOARD })
+/** What a bold claim about the match costs or earns once it is played. */
+const boldStakes = (): NonNullable<PressAnswer["afterResult"]> => ({
+    win: { fans: S.PRESS_BOLD_WIN_FANS, board: S.PRESS_BOLD_WIN_BOARD },
+    loss: { morale: S.PRESS_BOLD_LOSS_MORALE, board: S.PRESS_BOLD_LOSS_BOARD },
+})
 const measured = (): ChoiceEffects => ({ board: S.PRESS_MEASURED_BOARD })
 const NO_COMMENT: PressAnswer = { id: "no_comment", text: "No comment.", effects: {} }
 
@@ -78,7 +85,7 @@ function matchQuestion(save: GameSave, team: TeamSaveData, opp: TeamSaveData, ma
             id: "match", topic: "MATCH",
             text: `${event?.name ?? "The"} final against ${opp.name} (#${rankOf(opp)}). What is the target?`,
             answers: [
-                { id: "bold", text: "We are here to lift the trophy.", effects: bold() },
+                { id: "bold", text: "We are here to lift the trophy.", effects: bold(), afterResult: boldStakes() },
                 { id: "measured", text: "One match at a time. They are a fine side.", effects: measured() },
             ],
         }
@@ -88,7 +95,7 @@ function matchQuestion(save: GameSave, team: TeamSaveData, opp: TeamSaveData, ma
                 id: "match", topic: "MATCH",
                 text: r ? `${opp.name} again: meeting number ${r.matchesPlayed + 1}, and ${team.name} ${headToHead(r)}. What does this one mean?` : `${opp.name} again. What does this one mean?`,
                 answers: [
-                    { id: "bold", text: "It's the one our fans wait for, and we'll win it.", effects: bold() },
+                    { id: "bold", text: "It's the one our fans wait for, and we'll win it.", effects: bold(), afterResult: boldStakes() },
                     { id: "measured", text: "It's one more match. Our preparation doesn't change.", effects: measured() },
                 ],
             }
@@ -97,7 +104,7 @@ function matchQuestion(save: GameSave, team: TeamSaveData, opp: TeamSaveData, ma
             id: "match", topic: "MATCH",
             text: `${opp.name} are ranked #${rankOf(opp)}, ${team.name} #${rankOf(team)}. Who are the favourites?`,
             answers: [
-                { id: "bold", text: "We are.", effects: bold() },
+                { id: "bold", text: "We are.", effects: bold(), afterResult: boldStakes() },
                 { id: "measured", text: "They are, on paper. We'll see on the server.", effects: measured() },
             ],
         }
@@ -105,7 +112,7 @@ function matchQuestion(save: GameSave, team: TeamSaveData, opp: TeamSaveData, ma
             id: "match", topic: "MATCH",
             text: `${team.name} are ${big.detail}. How do you handle the pressure?`,
             answers: [
-                { id: "bold", text: "We'll go out and take it.", effects: bold() },
+                { id: "bold", text: "We'll go out and take it.", effects: bold(), afterResult: boldStakes() },
                 { id: "measured", text: "We focus on our own job.", effects: measured() },
             ],
         }
@@ -368,9 +375,26 @@ export function answerPressConference(target: PressTarget, eventId: string, answ
         const line = `${PRESS_LINE}"${a.text}"`
         if (arc && a.id !== NO_COMMENT.id && !arc.log.some(l => l.text === line)) logBeat(arc, target.currentWeek, line)
     }
+    // A bold claim about the match waits for the result (settlePressStakes).
+    const stakes = press.questions.map(q => q.answers.find(x => x.id === chosen[q.id])?.afterResult).find(Boolean)
     e.selectedChoiceId = "answered"
-    e.data = { ...(e.data ?? {}), pressAnswers: chosen, resolvedWeek: target.currentWeek }
+    e.data = { ...(e.data ?? {}), pressAnswers: chosen, resolvedWeek: target.currentWeek, ...(stakes ? { pressStakes: stakes } : {}) }
     e.acknowledged = true
     if (!target.acknowledgedEventIds.includes(e.id)) target.acknowledgedEventIds.push(e.id)
     return { ok: true, message: applied ? `You answered ${Object.keys(chosen).length} question${Object.keys(chosen).length === 1 ? "" : "s"}.` : "You faced the press.", applied }
+}
+
+/**
+ * The match a press conference was about has been played: settle the bold
+ * claim made there, once. Returns what was applied ("win" / "loss"), or null.
+ */
+export function settlePressStakes(target: Pick<PressTarget, "eventsLog" | "currentWeek" | "playerTeamId" | "teams" | "players" | "financeLedger" | "boardState">, matchId: string, won: boolean): "win" | "loss" | null {
+    const e = target.eventsLog.find(x => x.id === pressEventId(matchId))
+    const data = (e?.data ?? {}) as { pressStakes?: PressAnswer["afterResult"]; pressSettled?: string }
+    if (!e || e.selectedChoiceId !== "answered" || !data.pressStakes || data.pressSettled) return null
+    const outcome = won ? "win" : "loss"
+    const pseudo = { id: `${e.id}_result`, type: "PRESS", week: target.currentWeek, acknowledged: true, data: { teamId: target.playerTeamId } } as unknown as GameEventSaveData
+    applyChoiceEffects(target, pseudo, data.pressStakes[outcome], { id: () => `fin_${pseudo.id}`, description: won ? "Press conference: the claim was backed up" : "Press conference: the claim came back to bite" })
+    e.data = { ...(e.data ?? {}), pressSettled: outcome }
+    return outcome
 }

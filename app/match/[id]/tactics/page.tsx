@@ -22,7 +22,7 @@ import { Meter } from "@/src/components/ui/Meter"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { TierTag } from "@/src/components/ui/TierTag"
 import { PressPanel } from "@/components/storylines/PressConference"
-import { cn, deterministicSeed } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { formatGameCalendarDate } from "@/lib/game-calendar"
 import { getStakes } from "@/lib/match-stakes"
@@ -31,17 +31,17 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 // Engine Imports for Auto-Veto
-import { simulationEngineV2, SeededRNG } from "@/engine"
-import { MapId } from "@/types/enums"
 import { Player } from "@/types"
-import { getMapAssetName, ACTIVE_MAP_POOL, MAP_NAMES } from "@/data/map-pool"
+import { getMapAssetName, MAP_NAMES } from "@/data/map-pool"
 import { MATCH_BALANCE, COST_CONSTANTS } from "@/lib/constants"
 import { ROUND_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import { ANTI_STRAT_SELF_PENALTY, MAP_POINTS_PER_EDGE, MENTAL_PREP_EDGE, NON_PLAYER_BONUS_CAP, PREP_STRENGTH_PER_POINT, ROUND_SHARE_PER_EDGE, STYLE_SPECIALISATION_EDGE } from "@/engine/match/round-sim/team-edge"
 import { TUNING } from "@/engine/match/round-sim/tuning"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { PlaybookEditor } from "@/components/tactics/PlaybookEditor"
-import { COUNTER_EFFECT, COUNTER_LABEL, habitLine, teamHabits } from "@/engine/match/habits"
+import { COUNTER_EFFECT, COUNTER_LABEL, habitLine, sanitizeHabitState, teamHabits } from "@/engine/match/habits"
+import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
+import { autoVetoMaps } from "@/lib/auto-veto"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
@@ -312,113 +312,12 @@ export default function TacticalHQPage() {
     const handleAutoVeto = async () => {
         if (!match || !myTeam || !opponent) return
         setIsSimulatingVeto(true)
-
-        const rng = new SeededRNG(
-            deterministicSeed(
-                match.id,
-                match.seed,
-                match.week,
-                match.format,
-                match.homeTeamId,
-                match.awayTeamId
-            )
-        )
-        const availableMaps = [...ACTIVE_MAP_POOL]
-
         const homeTeam = match.homeTeamId === myTeam.id ? myTeam : opponent
         const awayTeam = match.homeTeamId === myTeam.id ? opponent : myTeam
-
         // O(1) lookup via memoized playersById map instead of N players.find()
         const homePlayers = homeTeam?.rosterIds.map(id => playersById.get(id)).filter(Boolean) as unknown as Player[]
         const awayPlayers = awayTeam?.rosterIds.map(id => playersById.get(id)).filter(Boolean) as unknown as Player[]
-
-        // We will just simulate a standard ban/pick phase purely using engine logic
-        // BO3 Sequence: Ban, Ban, Pick, Pick, Ban, Ban, Decider
-        // Result: [HomePick, AwayPick, Decider]
-
-        // Simulate Veto Sequence based on Format
-        // The season's pool (seven maps, six when one is benched; C6)
-
-        let picks: MapId[] = []
-        let currentPool = [...availableMaps]
-
-        // Helper to get engine selection
-        const getEngineSelection = (chooserPlayers: Player[], enemyPlayers: Player[], pool: MapId[], action: "BAN" | "PICK") => {
-            const strengths = simulationEngineV2.calculateMapStrengths(chooserPlayers)
-            let targetStrengths = strengths
-            if (action === "BAN") {
-                // If banning, we look at enemy strengths to ban their best
-                targetStrengths = simulationEngineV2.calculateMapStrengths(enemyPlayers)
-            }
-            return simulationEngineV2.selectMapForVeto(rng, pool, targetStrengths, action, 3)
-        }
-
-        const runBan = (team: "home" | "away") => {
-            const chooser = team === "home" ? homePlayers : awayPlayers
-            const enemy = team === "home" ? awayPlayers : homePlayers
-            const ban = getEngineSelection(chooser, enemy, currentPool, "BAN")
-            currentPool = currentPool.filter(m => m !== ban)
-        }
-
-        const runPick = (team: "home" | "away") => {
-            const chooser = team === "home" ? homePlayers : awayPlayers
-            const enemy = team === "home" ? awayPlayers : homePlayers
-            const pick = getEngineSelection(chooser, enemy, currentPool, "PICK")
-            currentPool = currentPool.filter(m => m !== pick)
-            picks.push(pick)
-        }
-
-        if (match.format === "BO1") {
-            // BO1: Ban A, Ban B, Ban A, Ban B, Ban A, Ban B, Decider (Remaining)
-            // Or simpler: each bans 3 times.
-            // C6: ban down to one map whatever the season's pool size.
-            for (let i = 0; currentPool.length > 1; i++) runBan(i % 2 === 0 ? "home" : "away")
-            // Last map is the pick
-            if (currentPool.length > 0) picks.push(currentPool[0])
-
-        } else if (match.format === "BO5") {
-            // BO5 (from pool of 7): Ban A, Ban B. 5 maps remain.
-            // C6: pool − 5 bans (two from seven, one from a six-map season).
-            for (let i = 0; currentPool.length > 5; i++) runBan(i % 2 === 0 ? "home" : "away")
-            // All remaining 5 are played
-            picks = [...currentPool]
-            // Shuffle or keep order? Usually Pick A, Pick B... 
-            // Let's just create a logical order: Pick A, Pick B, Pick A, Pick B, Decider
-            // But for simplicity, we just use the remaining pool.
-            // Ideally we want to order them by "pick" preference.
-            // Let's just simulate picks for the first 4, last is decider.
-            const orderedPicks: MapId[] = []
-            let tempPool = [...currentPool]
-
-            // 4 picks
-            const pickSequence = ["home", "away", "home", "away"]
-            for (const team of pickSequence) {
-                const chooser = team === "home" ? homePlayers : awayPlayers
-                const enemy = team === "home" ? awayPlayers : homePlayers
-                const pick = getEngineSelection(chooser, enemy, tempPool, "PICK")
-                tempPool = tempPool.filter(m => m !== pick)
-                orderedPicks.push(pick)
-            }
-            // Last one
-            if (tempPool.length > 0) orderedPicks.push(tempPool[0])
-            picks = orderedPicks
-
-        } else {
-            // Default BO3
-            // Ban A, Ban B
-            runBan("home")
-            runBan("away")
-
-            // Pick A, Pick B
-            runPick("home")
-            runPick("away")
-
-            // Ban down to the decider (two bans from seven, one from six; C6)
-            for (let i = 0; currentPool.length > 1; i++) runBan(i % 2 === 0 ? "home" : "away")
-
-            // Decider
-            if (currentPool.length > 0) picks.push(currentPool[0])
-        }
+        const picks = autoVetoMaps(match, homePlayers, awayPlayers)
 
         // Save to store and refresh
         updateScheduledMatch(matchId, {
@@ -619,6 +518,8 @@ export default function TacticalHQPage() {
                 </p>
             </div>
 
+            {!isCompleted && <FirstVisitTip tip={SCREEN_TIPS.tactics} />}
+
             {/* Broadcast header */}
             <section className="overflow-hidden rounded-[10px] border border-line bg-panel" aria-label={`${myTeam.name} versus ${opponent.name}`}>
                 <div className="flex items-center gap-8 px-8 py-6">
@@ -635,7 +536,7 @@ export default function TacticalHQPage() {
                         {winChance !== null && (
                             <p
                                 className="mt-2 text-xs text-ink-3"
-                                title={`Your chance to win this ${bestOfLabel(match.format)}, from both lineups' aim, form and condition and the team edge. Checked against ${WIN_ODDS_CHECK.maps.toLocaleString("en-US")} simulated maps between the game's clubs: shown chances landed within ${WIN_ODDS_CHECK.meanErrorPts} points of the real results on average.`}
+                                title={`Your chance to win this ${bestOfLabel(match.format)}, from both lineups' aim, form and condition, the team edge and your anti-strat counters. Checked against ${WIN_ODDS_CHECK.maps.toLocaleString("en-US")} simulated maps between the game's clubs: shown chances landed within ${WIN_ODDS_CHECK.meanErrorPts} points of the real results on average.`}
                             >
                                 Win chance <span className="font-semibold tabular-nums text-ink-1">{Math.round(winChance * 100)}%</span>
                             </p>
@@ -754,8 +655,9 @@ export default function TacticalHQPage() {
                                 <p className="text-sm text-ink-3">Set the maps first: habits and counters are per map.</p>
                             ) : (
                                 <div className="space-y-4" data-testid="counter-prep">
+                                    <p className="text-xs text-ink-3">A club you counter often changes that habit before you meet again, and every club's habits change each season.</p>
                                     {[...new Set(match.maps ?? [])].map((map: string) => {
-                                        const habits = teamHabits(opponent.id, map)
+                                        const habits = teamHabits(opponent.id, map, sanitizeHabitState(opponent.habits))
                                         const picked = match.counters?.[map] ?? {}
                                         return (
                                             <div key={map}>

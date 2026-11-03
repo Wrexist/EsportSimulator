@@ -9,7 +9,7 @@ import Link from "next/link"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import type { GameSave } from "@/engine/save-types"
-import { isProActive, proStatus } from "@/engine/pro-career"
+import { isProActive, proMatchGoal, proStatus } from "@/engine/pro-career"
 import { Panel } from "@/src/components/ui/Panel"
 import { RatingChip } from "@/src/components/ui/RatingChip"
 import { RoleTag } from "@/src/components/ui/RoleTag"
@@ -27,6 +27,8 @@ export function ProCareerPanel() {
     const { player, team, ovr, squadRank, squadSize, starter, weeksUntilOffers } = status
     const contract = view.contracts.find(c => c.playerId === player.id)
     const clubs = view.proCareer?.clubs.length ?? 1
+    const goal = proMatchGoal(save)
+    const goals = view.proCareer?.goals
     const stat = (label: string, value: React.ReactNode) => (
         <div className="min-w-0">
             <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{label}</div>
@@ -52,7 +54,13 @@ export function ProCareerPanel() {
                 {stat("Contract", contract ? `${formatCurrency(contract.salaryPerWeek, "$", false)}/wk to wk ${contract.endWeek}` : "–")}
                 {stat("Clubs scout you", weeksUntilOffers === 0 ? "This week" : `In ${weeksUntilOffers} week${weeksUntilOffers === 1 ? "" : "s"}`)}
             </div>
-            <p className="mt-3 text-xs text-ink-3">
+            <p className="mt-3 text-sm text-ink-2" data-testid="pro-goal-line">
+                {goal != null
+                    ? <>Next match goal: a rating of <span className="font-semibold tabular-nums text-ink-1">{goal.toFixed(2)}</span> or better. Meet it and clubs scout you sooner.</>
+                    : "Win a starting place to get a personal goal for each match."}
+                {goals && goals.set > 0 && <span className="text-ink-3"> Goals met: {goals.hit} of {goals.set}.</span>}
+            </p>
+            <p className="mt-2 text-xs text-ink-3">
                 {starter
                     ? "The coach starts the five best players. Keep improving to keep your place and catch a bigger club's eye."
                     : `The coach starts the five best players; you are number ${squadRank}. Train hard to pass the player above you.`}

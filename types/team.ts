@@ -47,6 +47,8 @@ export interface Team {
     playstyle?: "balanced" | "aggressive" | "structured" | "default"
     /** G1: named calls per map, side and buy (engine/match/playbook.ts). */
     playbook?: import("@/engine/match/playbook").Playbook
+    /** R3: anti-strat habit state (engine/match/habits.ts). */
+    habits?: import("@/engine/match/habits").TeamHabitState
     tacticalPrep?: number // 0-100 bonus from VOD reviews
     prepPenalty?: number // transient quick-sim differential (B4); set only on a sim copy, never persisted
     economyStyle?: "standard" | "force" | "eco" // Phase 60: Economy aggressiveness

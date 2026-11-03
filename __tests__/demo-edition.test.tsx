@@ -36,16 +36,16 @@ function career(currentWeek: number, extra: Record<string, unknown> = {}) {
 
 test('the demo cap starts once the last demo week has been processed', () => {
     expect(IS_DEMO).toBe(true)
-    expect(DEMO_LAST_WEEK).toBe(12)
-    expect(demoWeekCapReached({ saveId: 's', currentWeek: 12 })).toBe(false)
-    expect(demoWeekCapReached({ saveId: 's', currentWeek: 13 })).toBe(true)
-    expect(demoWeekCapReached({ saveId: 's', currentWeek: 13 }, false)).toBe(false)
+    expect(DEMO_LAST_WEEK).toBe(24)
+    expect(demoWeekCapReached({ saveId: 's', currentWeek: 24 })).toBe(false)
+    expect(demoWeekCapReached({ saveId: 's', currentWeek: 25 })).toBe(true)
+    expect(demoWeekCapReached({ saveId: 's', currentWeek: 25 }, false)).toBe(false)
     expect(demoWeekCapReached({ saveId: null, currentWeek: 40 })).toBe(false)
     // Draft Cup runs end on their own and are not capped.
     expect(demoWeekCapReached({ saveId: 's', currentWeek: 40, draftCup: { teamId: 't' } })).toBe(false)
-    expect(demoWeeksLeft(1)).toBe(12)
-    expect(demoWeeksLeft(12)).toBe(1)
-    expect(demoWeeksLeft(13)).toBe(0)
+    expect(demoWeeksLeft(1)).toBe(24)
+    expect(demoWeeksLeft(24)).toBe(1)
+    expect(demoWeeksLeft(25)).toBe(0)
 })
 
 test('a demo career past its last week cannot advance', async () => {
@@ -131,6 +131,12 @@ test('Home shows the demo tour with every stop and the weeks left', () => {
     Object.assign(useGameStore.getInitialState(), useGameStore.getState())
     const html = renderToStaticMarkup(<DemoTour demo />)
     for (const item of DEMO_TOUR) expect(html).toContain(item.label)
-    expect(html).toContain('9 demo weeks left')
+    expect(html).toContain('21 demo weeks left')
     expect(renderToStaticMarkup(<DemoTour demo={false} />)).toBe('')
+})
+
+test('the demo ends on the last week of the first league split', () => {
+    const { LEAGUE_TUNING } = require('@/lib/balance-tuning')
+    const first = LEAGUE_TUNING.SPLITS.find((s: { split: number }) => s.split === 1)
+    expect(DEMO_LAST_WEEK).toBe(first.lastWeek)
 })

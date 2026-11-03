@@ -21,6 +21,7 @@ import { CLUB_ECONOMY_TUNING } from "@/lib/balance-tuning"
 import { EconomyEngine } from "../economy-engine"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
 import { aiClubBudget, aiCostControl, ensureAIRosterViability, releaseAIPlayer, signableFreeAgents, swapOverpaidStarter } from "../ai/club-budget"
+import { distressedListingPrice } from "../ai/transfer-market"
 
 /** Weekly running costs at the next settlement (the runway denominator). */
 export function weeklyCosts(save: Pick<GameSave, "players" | "contracts" | "staff" | "currentWeek"> & { playerTeamId?: string }, team: TeamSaveData): number {
@@ -119,7 +120,7 @@ export function processAIAdministration(save: GameSave, playerTeamId: string): s
         const topPlayer = top ? players.get(top) ?? save.players.find(p => p.id === top) : undefined
         if (topPlayer && !topPlayer.forSale) {
             topPlayer.forSale = true
-            topPlayer.transferListingPrice = (topPlayer.prestigeScore || 50) * 1000
+            topPlayer.transferListingPrice = distressedListingPrice(topPlayer, save.currentWeek)
             topPlayer.weeksOnTransferList = 0
         }
         recalculateTeamSynergy(team, save.players)

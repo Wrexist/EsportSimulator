@@ -44,8 +44,9 @@ export function pruneGameState(state: {
   if (state.transferHistory.length > ARRAY_CAPS.transferHistory) {
     state.transferHistory = state.transferHistory.slice(-ARRAY_CAPS.transferHistory)
   }
+  // News is newest-first (unshift), like the academy arrays below.
   if (state.newsFeed.length > ARRAY_CAPS.newsFeed) {
-    state.newsFeed = state.newsFeed.slice(-ARRAY_CAPS.newsFeed)
+    state.newsFeed = state.newsFeed.slice(0, ARRAY_CAPS.newsFeed)
   }
   // Academy arrays are newest-FIRST (populated via unshift), so keep the head,
   // not the tail — slice(-cap) here would discard the most recent entries.

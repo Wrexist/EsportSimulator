@@ -69,6 +69,9 @@ interface GameSettings {
     livePacing: LivePacing
     /** Live match: play only the rounds worth watching; the rest finish at once. */
     liveKeyRoundsOnly: boolean
+    /** Weekly mode: open the week report after each week (off: a small notice you can open). */
+    openWeekReport: boolean
+    setOpenWeekReport: (enabled: boolean) => void
     notifications: boolean
     difficulty: Difficulty
     language: string
@@ -78,6 +81,9 @@ interface GameSettings {
     /** Demo tour stops opened on this device (lib/demo-tour.ts; demo builds only). */
     demoTourVisited: string[]
     markDemoTourVisited: (stop: string) => void
+    /** One-time screen tips already dismissed on this device (components/ui/FirstVisitTip.tsx). */
+    seenTips: string[]
+    markTipSeen: (tip: string) => void
 
     // Actions
     setWindowMode: (mode: WindowMode) => void
@@ -132,6 +138,8 @@ export const useSettingsStore = create<GameSettings>()(
             gameSpeed: 'normal',
             livePacing: 'moments',
             liveKeyRoundsOnly: false,
+            openWeekReport: true,
+            setOpenWeekReport: (enabled) => set({ openWeekReport: enabled !== false }),
             notifications: true,
             difficulty: 'normal',
             language: 'en',
@@ -139,6 +147,8 @@ export const useSettingsStore = create<GameSettings>()(
             setReviewAskDone: () => set({ reviewAskDone: true }),
             demoTourVisited: [],
             markDemoTourVisited: (stop) => set(state => state.demoTourVisited.includes(stop) ? state : { demoTourVisited: [...state.demoTourVisited, stop].slice(-20) }),
+            seenTips: [],
+            markTipSeen: (tip) => set(state => state.seenTips.includes(tip) ? state : { seenTips: [...state.seenTips, tip].slice(-50) }),
 
             // Setters
             setWindowMode: (mode) => set({ windowMode: mode }),
@@ -268,6 +278,7 @@ export const useSettingsStore = create<GameSettings>()(
                     gameSpeed: ['normal', 'fast', 'very-fast'].includes(stored?.gameSpeed ?? '') ? stored!.gameSpeed! : current.gameSpeed,
                     livePacing: stored?.livePacing === 'full' ? 'full' : 'moments',
                     liveKeyRoundsOnly: stored?.liveKeyRoundsOnly === true,
+                    openWeekReport: stored?.openWeekReport !== false,
                     notifications: typeof stored?.notifications === 'boolean' ? stored.notifications : current.notifications,
                     difficulty: ['easy', 'normal', 'hard', 'legendary'].includes(stored?.difficulty ?? '') ? stored!.difficulty! : current.difficulty,
                     language: SUPPORTED_UI_LANGUAGE,
@@ -287,6 +298,7 @@ export const useSettingsStore = create<GameSettings>()(
                     autoSavePreferenceSet: typeof stored?.autoSave === 'boolean',
                     reviewAskDone: stored?.reviewAskDone === true,
                     demoTourVisited: Array.isArray(stored?.demoTourVisited) ? stored.demoTourVisited.filter((v): v is string => typeof v === 'string').slice(-20) : [],
+                    seenTips: Array.isArray(stored?.seenTips) ? stored.seenTips.filter((v): v is string => typeof v === 'string').slice(-50) : [],
                 }
             },
         }

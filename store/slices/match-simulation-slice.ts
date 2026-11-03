@@ -25,6 +25,8 @@
  * actions live in the same slice.
  */
 
+import { adaptHabits } from "@/engine/match/habits"
+import { autoVetoMaps } from "@/lib/auto-veto"
 import type { SliceCreator } from "@/store/types"
 import { getActivePlayersByRosterOrder } from '@/lib/live-match-builders'
 import type {
@@ -45,8 +47,9 @@ import { processMatchWeaponMastery } from "@/engine/processors/match-weapon-mast
 import { recordOfficialMatch } from "@/engine/official-stats"
 import { queueDecidedTitle } from "@/engine/processors/standings-processor"
 import { updateRivalries } from "@/engine/history-tracker"
-import { closePressConference } from "@/engine/storylines/press"
+import { closePressConference, settlePressStakes } from "@/engine/storylines/press"
 import type { GameSave } from "@/engine/save-types"
+import { proMatchGoal, recordProMatch } from "@/engine/pro-career"
 import { prepareLegacySeries, buildManagementRecord } from "@/engine/match/legacy-prepare"
 import { isEngineVersion, LEGACY_ENGINE_VERSION, type EngineVersion } from "@/engine/match/engine-version"
 import { runLegacySeries, finalizeLegacySeries } from "@/engine/match/legacy-series"
@@ -74,6 +77,8 @@ export interface MatchSimulationActions {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- MatchResult shape lives in @/types but is loosely typed
     saveMatchResult: (matchId: string, result: any) => void
     simulateInstantMatch: (matchId: string, opts?: { skippedPrep?: boolean }) => Promise<boolean>
+    /** One click from a match stop: the engine's veto if none was made, the counters the VOD review found, then Quick sim. */
+    prepAndSimMatch: (matchId: string) => Promise<boolean>
 }
 
 export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = (set, get) => ({
@@ -100,6 +105,8 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
 
             const rosterIds = [...new Set([...homeTeam.rosterIds.slice(0, 5), ...awayTeam.rosterIds.slice(0, 5)])]
             if (rosterIds.length === 0) return
+            // C10: the pro's personal goal as shown before the match.
+            const proGoal = proMatchGoal(state as unknown as GameSave)
             const rosterSet = new Set(rosterIds)
 
             const maxMapsForFormat = match.format === "BO1" ? 1 : match.format === "BO5" ? 5 : 3
@@ -320,6 +327,14 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             // path already did), and the match's press conference closes.
             updateRivalries(state as unknown as GameSave, completedMatch)
             closePressConference(state, matchId)
+            // A bold claim made to the press is settled by the result.
+            // A draw settles nothing.
+            if (completedMatch.result?.winnerId) settlePressStakes(state as never, matchId, completedMatch.result.winnerId === state.playerTeamId)
+            // R3: the other club reads the counters it faced and may change those habits.
+            if (match.counters && Object.keys(match.counters).length) {
+                const rival = match.homeTeamId === state.playerTeamId ? awayTeam : homeTeam
+                rival.habits = adaptHabits(rival.habits, match.counters, rival.id, matchSeed)
+            }
 
             // Careers, season tallies and records (Phase 5.1): one shared
             // path with the week tick's AI matches. Friendlies don't count.
@@ -508,6 +523,9 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             // +8 damage (~+10 equipment power per player). Parity fix.
             processMatchWeaponMastery(state as unknown as GameSave, result)
 
+            // C10: judge the pro's rating against his personal goal (shown on the result screen and Home).
+            if (state.proCareer) recordProMatch(state as unknown as GameSave, matchId, result.playerStats?.[state.proCareer.playerId]?.rating, proGoal)
+
             // Manager stats + achievements + XP, only when player team was in the match.
             if (homeTeam.id === state.playerTeamId || awayTeam.id === state.playerTeamId) {
                 const pWon = (homeTeam.id === state.playerTeamId && homeWon)
@@ -600,6 +618,32 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
         })
+    },
+
+    prepAndSimMatch: async (matchId: string) => {
+        const state = get()
+        const match = state.scheduledMatches.find(m => m.id === matchId)
+        if (!match || !state.playerTeamId) return false
+        if (!match.vetoComplete || !match.maps?.length) {
+            const home = state.teams.find(t => t.id === match.homeTeamId)
+            const away = state.teams.find(t => t.id === match.awayTeamId)
+            if (home && away) {
+                const maps = autoVetoMaps(match, getActivePlayersByRosterOrder(home, state.players), getActivePlayersByRosterOrder(away, state.players))
+                if (maps.length) get().updateScheduledMatch(matchId, { vetoComplete: true, maps })
+            }
+        }
+        // Counters the manager has not set on a map yet: apply what the VOD
+        // review found, as the prep screen would offer (never on its own
+        // without the review, and never over a choice already made).
+        const prepped = get().scheduledMatches.find(m => m.id === matchId)
+        if (prepped?.vodReviewed) {
+            for (const map of new Set(prepped.maps ?? [])) {
+                if (prepped.counters?.[map]) continue
+                get().setMatchCounter(matchId, map, "ct", true)
+                get().setMatchCounter(matchId, map, "t", true)
+            }
+        }
+        return get().simulateInstantMatch(matchId)
     },
 
     simulateInstantMatch: async (matchId: string, opts: { skippedPrep?: boolean } = {}) => {

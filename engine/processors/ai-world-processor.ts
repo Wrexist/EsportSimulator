@@ -16,6 +16,7 @@
  * Extracted from atomic-week-processor.ts. Signature unchanged.
  */
 
+import { aiProspectPotential } from "../development-rates"
 import type { GameSave } from "../save-types"
 import { SeededRNG } from "../rng"
 import { AIManager } from "../ai-manager"
@@ -128,7 +129,10 @@ function generateYouthIntake(save: GameSave, playerTeamId: string, rng: SeededRN
             const identity = generateProspect("LOCAL", undefined, rng)
 
             const prospectAge = 16 + Math.floor(rng.next() * 3) // 16-18
-            const potential = 60 + Math.floor(rng.next() * 30) // 60-89
+            // The user's academy keeps its 60-89 intake; AI clubs draw from the world's spread
+            // by their reputation (development-rates AI_PROSPECT_POTENTIAL).
+            const potential = isPlayerTeam ? 60 + Math.floor(rng.next() * 30)
+                : aiProspectPotential(team.reputation >= 75 ? "INTERNATIONAL" : team.reputation >= 40 ? "REGIONAL" : "LOCAL", rng)
             const role = identity.role
             const currentSkill = Math.max(40, potential - 25 - Math.floor(rng.next() * 10))
 

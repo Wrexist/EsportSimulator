@@ -14,7 +14,8 @@ import { Button } from "@/components/ui/button"
 import { PlayerSaveData } from "@/engine/save-types"
 import { ArrowRight } from "lucide-react"
 import { formatCurrency } from "@/lib/utils-extended"
-import { ARCHETYPE_INFO, getArchetype, renewalSalary } from "@/engine/personality"
+import { ARCHETYPE_INFO, getArchetype, renewalMultiplier, renewalSalary } from "@/engine/personality"
+import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 
 interface RenewContractModalProps {
     player: PlayerSaveData
@@ -25,13 +26,16 @@ interface RenewContractModalProps {
     trigger?: React.ReactNode
 }
 
-/** Renewal terms mirror the store: the archetype's raise (+10%; Loyal +5%, Mercenary +20%), +52 weeks (renewContract). */
+/** Renewal terms mirror the store: the archetype's raise (+10%; Loyal +5%, Mercenary +20%), or more when his level now earns more on the market, +52 weeks (renewContract). */
 export function RenewContractModal({ player, currentSalary, currentEndWeek, currentWeek, onConfirm, trigger }: RenewContractModalProps) {
     const [open, setOpen] = React.useState(false)
 
-    const newSalary = renewalSalary(player, currentSalary)
+    const newSalary = renewalSalary(player, currentSalary, currentWeek)
     const raisePct = currentSalary > 0 ? Math.round((newSalary / currentSalary - 1) * 100) : 0
     const archetype = ARCHETYPE_INFO[getArchetype(player)].label
+    const usualRaise = Math.round(currentSalary * renewalMultiplier(getArchetype(player), AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER))
+    const reason = newSalary > usualRaise ? "his level now earns more on the market"
+        : raisePct === 10 ? "" : raisePct < 10 ? "loyal players take less" : "he wants more"
     const weeksRemaining = Math.max(0, currentEndWeek - currentWeek)
     const newWeeksRemaining = weeksRemaining + 52
 
@@ -49,7 +53,7 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
                 <DialogHeader>
                     <DialogTitle>Renew contract</DialogTitle>
                     <DialogDescription className="text-ink-3">
-                        One more year for {player.nickname}, at a {raisePct}% raise ({archetype}{raisePct === 10 ? "" : raisePct < 10 ? ": loyal players take less" : ": he wants more"}).
+                        One more year for {player.nickname}, at a {raisePct}% raise ({archetype}{reason ? `: ${reason}` : ""}).
                     </DialogDescription>
                 </DialogHeader>
 
