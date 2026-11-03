@@ -10,11 +10,12 @@ import { Panel } from "@/src/components/ui/Panel"
 import { TeamStanding } from "@/src/components/ui/TeamStanding"
 import { teamOvrMap } from "@/lib/team-ovr"
 import { cn } from "@/lib/utils"
+import { t } from "@/lib/i18n"
 
 const ROUNDS = [
-    { label: "Quarter-finals", match: /^Quarter/ },
-    { label: "Semi-finals", match: /^Semi/ },
-    { label: "Grand final", match: /^Grand Final/ },
+    { label: "stage.quarterfinals", match: /^Quarter/ },
+    { label: "stage.semifinals", match: /^Semi/ },
+    { label: "stage.grandFinal", match: /^Grand Final/ },
 ]
 
 export function DraftCupBracket() {
@@ -27,31 +28,31 @@ export function DraftCupBracket() {
     const team = (id?: string) => teams.find(t => t.id === id)
 
     return (
-        <Panel eyebrow="Draft Cup" title="Bracket" padded={false}>
+        <Panel eyebrow="Draft Cup" title={t("bracket.title")} padded={false}>
             <div className="divide-y divide-line">
                 {ROUNDS.map(round => {
                     const matches = bracket.filter(m => round.match.test(m.stage)).sort((a, b) => a.id.localeCompare(b.id))
                     return (
                         <section key={round.label} className="px-4 py-2.5">
-                            <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{round.label}</h3>
+                            <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t(round.label)}</h3>
                             <ul className="mt-1.5 space-y-1">
                                 {matches.map(m => (
                                     <li key={m.id} className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
                                         {[m.homeTeamId, m.awayTeamId].map((id, i) => {
-                                            const t = team(id)
+                                            const side = team(id)
                                             const mine = id === draftCup.teamId
                                             const won = m.isCompleted && m.winnerId === id
                                             const lost = m.isCompleted && !!id && m.winnerId !== id
                                             const cell = (
                                                 <span key={i} className={cn("flex min-w-0 items-center gap-1.5", i === 0 ? "justify-end text-right" : "", lost && "opacity-45")}>
-                                                    {i === 1 && <TeamLogoDisplay team={t} size={16} />}
-                                                    {i === 0 && t && <TeamStanding rank={t.worldRanking} ovr={ovrs.get(t.id)} />}
-                                                    <span className={cn("truncate", mine ? "font-semibold text-gold" : won ? "font-semibold text-ink-1" : "text-ink-2")}>{t?.name ?? "To be decided"}</span>
-                                                    {i === 1 && t && <TeamStanding rank={t.worldRanking} ovr={ovrs.get(t.id)} />}
-                                                    {i === 0 && <TeamLogoDisplay team={t} size={16} />}
+                                                    {i === 1 && <TeamLogoDisplay team={side} size={16} />}
+                                                    {i === 0 && side && <TeamStanding rank={side.worldRanking} ovr={ovrs.get(side.id)} />}
+                                                    <span className={cn("truncate", mine ? "font-semibold text-gold" : won ? "font-semibold text-ink-1" : "text-ink-2")}>{side?.name ?? t("bracket.tbd")}</span>
+                                                    {i === 1 && side && <TeamStanding rank={side.worldRanking} ovr={ovrs.get(side.id)} />}
+                                                    {i === 0 && <TeamLogoDisplay team={side} size={16} />}
                                                 </span>
                                             )
-                                            return i === 0 ? [cell, <span key="vs" className="text-xs text-ink-3">vs</span>] : cell
+                                            return i === 0 ? [cell, <span key="vs" className="text-xs text-ink-3">{t("common.vsLower")}</span>] : cell
                                         })}
                                     </li>
                                 ))}

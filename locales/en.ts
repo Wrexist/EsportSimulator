@@ -7,6 +7,11 @@
  * (and .few/.many/.two/.zero where a language needs them) is a plural: the
  * game picks the form for the count by the language's plural rules.
  */
+import { COMMON } from "./en/common"
+import { HOME } from "./en/home"
+import { LEAGUE } from "./en/league"
+import { SETTINGS } from "./en/settings"
+
 export const EN = {
     // Navigation: top-bar hubs and their tabs (lib/navigation.ts)
     "nav.hub.home": "Home",
@@ -76,12 +81,18 @@ export const EN = {
     "menu.credits": "Credits",
     "menu.discord": "Discord",
     "menu.demo": "Free demo",
-    "menu.demoWeeks": "First {{count}} weeks of a career",
+    "menu.demoWeeks.one": "First week of a career",
+    "menu.demoWeeks.other": "First {{count}} weeks of a career",
     "menu.fullGame": "Get the full game",
 
     // Shared
     "common.save": "Save",
     "match.round": "Round {{n}}",
+
+    ...COMMON,
+    ...HOME,
+    ...LEAGUE,
+    ...SETTINGS,
 } as const
 
 export type TranslationKey = keyof typeof EN

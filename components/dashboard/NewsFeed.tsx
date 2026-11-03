@@ -3,10 +3,10 @@
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
 import { Newspaper, Trophy, Users, Zap, Award, Briefcase, Building2, DollarSign, Stethoscope } from "lucide-react"
-import { format } from "date-fns"
 import { useMemo, type ReactNode } from "react"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
+import { intlLocale, t } from "@/lib/i18n"
 
 // Hoisted: built once at module load instead of per item per render.
 const CATEGORY_ICON_MAP: Record<string, ReactNode> = {
@@ -21,18 +21,7 @@ const CATEGORY_ICON_MAP: Record<string, ReactNode> = {
     STAFF: <Briefcase size={14} />,
     RETIREMENT: <Award size={14} />,
 }
-const CATEGORY_LABEL: Record<string, string> = {
-    MATCH: "Match",
-    TRANSFER: "Transfer",
-    TOURNAMENT: "Tournament",
-    ACHIEVEMENT: "Achievement",
-    LEVEL_UP: "Progress",
-    INJURY: "Injury",
-    FINANCE: "Finance",
-    FACILITY: "Facility",
-    STAFF: "Staff",
-    RETIREMENT: "Retirement",
-}
+const CATEGORIES = new Set(["MATCH", "TRANSFER", "TOURNAMENT", "ACHIEVEMENT", "LEVEL_UP", "INJURY", "FINANCE", "FACILITY", "STAFF", "RETIREMENT"])
 const FALLBACK_ICON = <Newspaper size={14} />
 
 /** News list: crest or category icon, headline, source line, two-line summary. */
@@ -56,7 +45,7 @@ export function NewsFeed({ limit }: { limit?: number }) {
     if (!newsFeed || newsFeed.length === 0) {
         return (
             <p className="px-4 py-3 text-sm text-ink-3" role="status" aria-live="polite">
-                No headlines yet. Results, signings and upgrades make the news.
+                {t("news.empty")}
             </p>
         )
     }
@@ -74,12 +63,12 @@ export function NewsFeed({ limit }: { limit?: number }) {
 
                 const categoryKey = item.category ?? "MATCH"
                 const categoryIcon = CATEGORY_ICON_MAP[categoryKey] || FALLBACK_ICON
-                const categoryLabel = CATEGORY_LABEL[categoryKey] || "News"
+                const categoryLabel = CATEGORIES.has(categoryKey) ? t(`news.category.${categoryKey}`) : t("home.news")
 
                 let dateStr = ""
                 try {
                     const d = getDateForWeek(item.week)
-                    if (d && !isNaN(d.getTime())) dateStr = format(d, "MMM d")
+                    if (d && !isNaN(d.getTime())) dateStr = d.toLocaleDateString(intlLocale(), { month: "short", day: "numeric" })
                 } catch {
                     // Date parsing failed - leave blank
                 }

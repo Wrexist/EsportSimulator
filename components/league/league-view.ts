@@ -13,8 +13,10 @@ import type {
     LeagueSplitSummary,
     LeagueState,
 } from "@/engine/save-types"
-import { isLeagueMatchId, ordinal, weekOfSeason } from "@/engine/season/regional-league"
+import { isLeagueMatchId, weekOfSeason } from "@/engine/season/regional-league"
 import { LEAGUE_TUNING } from "@/lib/balance-tuning"
+import { ordinalLabel, t, tn } from "@/lib/i18n"
+import { divisionLevelName, divisionName, stageName } from "@/lib/display-names"
 
 export const LEAGUE_REGIONS: LeagueRegion[] = ["EUROPE", "CIS", "AMERICAS", "ASIA_PACIFIC"]
 
@@ -42,7 +44,7 @@ export function isLeagueFixture(m: FixtureLike | null | undefined): boolean {
  */
 export function leagueStageLabel(m: FixtureLike | null | undefined): string | null {
     if (!isLeagueFixture(m)) return null
-    return m?.stage?.trim() || "Regional league"
+    return m?.stage?.trim() ? stageName(m.stage) : t("common.regionalLeague")
 }
 
 /** "Europe Division 3 · Round 5" → "Europe Division 3" (the division part of the stage). */
@@ -76,9 +78,9 @@ export function zoneFor(position: number, size: number, level: number, bottomLev
 /** One line per zone rule of a division, e.g. "Top 2 promoted to Division 2". */
 export function zoneRules(level: number, bottomLevel: number): string[] {
     const rules: string[] = []
-    if (level > 1) rules.push(`Top ${LEAGUE_TUNING.PROMOTED} promoted to Division ${level - 1}`)
-    else rules.push("Winner takes the title")
-    if (level < bottomLevel) rules.push(`Bottom ${LEAGUE_TUNING.RELEGATED} relegated to Division ${level + 1}`)
+    if (level > 1) rules.push(t("league.rule.promoted", { count: LEAGUE_TUNING.PROMOTED, division: divisionLevelName(level - 1) }))
+    else rules.push(t("league.rule.title"))
+    if (level < bottomLevel) rules.push(t("league.rule.relegated", { count: LEAGUE_TUNING.RELEGATED, division: divisionLevelName(level + 1) }))
     return rules
 }
 
@@ -138,23 +140,23 @@ export interface TableSituation {
 export function tableSituation(rows: LeagueTableRow[], teamId: string, level: number): TableSituation | null {
     const me = rows.find(r => r.teamId === teamId)
     if (!me) return null
-    if (rows.every(r => r.played === 0)) return { text: "No rounds played yet", tone: "neutral" }
-    const pts = (n: number) => `${n} pt${n === 1 ? "" : "s"}`
+    if (rows.every(r => r.played === 0)) return { text: t("league.situation.noRounds"), tone: "neutral" }
+    const pts = (n: number) => tn("league.points", n)
     const size = rows.length
-    if (me.zone === "promotion") return { text: "In the promotion places", tone: "positive" }
+    if (me.zone === "promotion") return { text: t("league.situation.promotion"), tone: "positive" }
     if (me.zone === "relegation") {
         const safe = rows[size - LEAGUE_TUNING.RELEGATED - 1]
         const gap = safe ? safe.points - me.points : 0
-        return { text: gap > 0 ? `In the relegation places · ${pts(gap)} from safety` : "In the relegation places · level on points with safety", tone: "negative" }
+        return { text: gap > 0 ? t("league.situation.relegationGap", { points: pts(gap) }) : t("league.situation.relegationLevel"), tone: "negative" }
     }
     if (level === 1) {
-        if (me.position === 1) return { text: "Top of the table", tone: "positive" }
+        if (me.position === 1) return { text: t("league.situation.top"), tone: "positive" }
         const gap = rows[0].points - me.points
-        return { text: gap > 0 ? `${pts(gap)} behind the leader` : "Level on points with the leader", tone: "neutral" }
+        return { text: gap > 0 ? t("league.situation.behindLeader", { points: pts(gap) }) : t("league.situation.levelLeader"), tone: "neutral" }
     }
     const last = rows[LEAGUE_TUNING.PROMOTED - 1]
     const gap = last ? last.points - me.points : 0
-    return { text: gap > 0 ? `${pts(gap)} off the promotion places` : "Level on points with the promotion places", tone: "neutral" }
+    return { text: gap > 0 ? t("league.situation.offPromotion", { points: pts(gap) }) : t("league.situation.levelPromotion"), tone: "neutral" }
 }
 
 /** Map difference only says something beyond W–L when series are longer than one map. */
@@ -189,21 +191,21 @@ export function divisionRounds(division: Pick<LeagueDivision, "fixtures" | "comp
 /** "Split 1 · Round 5 of 18" / "Split 1 · Final table". */
 export function splitProgressLabel(split: Pick<LeagueSplit, "split">, division: Pick<LeagueDivision, "fixtures" | "completed">): string {
     const r = divisionRounds(division)
-    if (r.total === 0) return `Split ${split.split}`
-    return r.completed ? `Split ${split.split} · Final table` : `Split ${split.split} · Round ${r.current} of ${r.total}`
+    if (r.total === 0) return t("league.split", { n: split.split })
+    return r.completed ? t("league.splitFinal", { n: split.split }) : t("league.splitRound", { n: split.split, round: r.current, total: r.total })
 }
 
 /** "Weeks 2–24" in season weeks (the split stores absolute weeks). */
 export function splitWeeksLabel(split: Pick<LeagueSplit, "firstWeek" | "lastWeek">): string {
-    return `Weeks ${weekOfSeason(split.firstWeek)}–${weekOfSeason(split.lastWeek)}`
+    return t("league.weeksRange", { from: weekOfSeason(split.firstWeek), to: weekOfSeason(split.lastWeek) })
 }
 
 /** When the next split is drawn, e.g. "Split 2 is drawn in week 26" / "Season 2 split 1 is drawn in week 1". */
 export function nextDrawLabel(split: Pick<LeagueSplit, "split" | "season">): string {
     const next = LEAGUE_TUNING.SPLITS.find(s => s.split > split.split)
     return next
-        ? `Split ${next.split} is drawn in week ${next.drawWeek}`
-        : `Season ${split.season + 1} split 1 is drawn in week ${LEAGUE_TUNING.SPLITS[0].drawWeek}`
+        ? t("league.nextDraw", { n: next.split, week: next.drawWeek })
+        : t("league.nextSeasonDraw", { season: split.season + 1, week: LEAGUE_TUNING.SPLITS[0].drawWeek })
 }
 
 // ---------------------------------------------------------------- divisions
@@ -237,7 +239,7 @@ export function clubFixtures(division: Pick<LeagueDivision, "fixtures">, teamId:
         const [us, them] = singleMap
             ? (home ? [r.homeRounds, r.awayRounds] : [r.awayRounds, r.homeRounds])
             : (home ? [r.homeMaps, r.awayMaps] : [r.awayMaps, r.homeMaps])
-        return { fixture: f, opponentId: home ? f.away : f.home, home, won: r.winnerId === teamId, score: r.forfeit ? "FF" : `${us}–${them}` }
+        return { fixture: f, opponentId: home ? f.away : f.home, home, won: r.winnerId === teamId, score: r.forfeit ? t("league.forfeitShort") : `${us}–${them}` }
     })
     return {
         upcoming: mine.filter(c => !c.fixture.result).sort((a, b) => a.fixture.week - b.fixture.week || a.fixture.round - b.fixture.round),
@@ -261,10 +263,10 @@ export function leagueMatchContext(
     const secondTeamId = firstTeamId === m.homeTeamId ? m.awayTeamId : m.homeTeamId
     const at = (id: string) => {
         const i = division.standings.findIndex(s => s.teamId === id)
-        return i < 0 ? null : `${ordinal(i + 1)}, ${division.standings[i].points} pts`
+        return i < 0 ? null : t("league.contextSide", { position: ordinalLabel(i + 1), points: tn("league.points", division.standings[i].points) })
     }
     const a = at(firstTeamId), b = at(secondTeamId)
-    return a && b ? `${a} v ${b}` : null
+    return a && b ? t("league.contextVs", { a, b }) : null
 }
 
 // ---------------------------------------------------------------- history
@@ -302,7 +304,7 @@ export function previousSplitOutcome(league: Pick<LeagueState, "history"> | unde
                 splitId: summary.id, season: summary.season, split: summary.split,
                 divisionName: d.name, level: d.level, position: idx + 1, size: d.table.length,
                 points, wins, losses, champion: d.championId === teamId, fate,
-                movedTo: fate === "promoted" ? `Division ${d.level - 1}` : fate === "relegated" ? `Division ${d.level + 1}` : null,
+                movedTo: fate === "promoted" ? divisionLevelName(d.level - 1) : fate === "relegated" ? divisionLevelName(d.level + 1) : null,
             }
         }
     }
@@ -311,8 +313,10 @@ export function previousSplitOutcome(league: Pick<LeagueState, "history"> | unde
 
 /** One sentence for a finished split, e.g. "3rd of 10 in Europe Division 3 (7W–2L, 21 pts). Promoted to Division 2." */
 export function splitOutcomeText(o: SplitOutcome): string {
-    const head = `${o.champion ? "Champions" : ordinal(o.position)} of ${o.size} in ${o.divisionName} (${o.wins}W–${o.losses}L, ${o.points} pts).`
-    if (o.fate === "promoted") return `${head} Promoted to ${o.movedTo}.`
-    if (o.fate === "relegated") return `${head} Relegated to ${o.movedTo}.`
-    return `${head} Stayed in Division ${o.level}.`
+    const head = t(o.champion ? "league.outcome.champions" : "league.outcome.place", {
+        position: ordinalLabel(o.position), size: o.size, division: divisionName(o.divisionName), wins: o.wins, losses: o.losses, points: tn("league.points", o.points),
+    })
+    if (o.fate === "promoted") return t("league.outcome.promoted", { head, division: o.movedTo ?? "" })
+    if (o.fate === "relegated") return t("league.outcome.relegated", { head, division: o.movedTo ?? "" })
+    return t("league.outcome.stayed", { head, division: divisionLevelName(o.level) })
 }

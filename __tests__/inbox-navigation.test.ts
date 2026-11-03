@@ -8,6 +8,7 @@ import path from "path"
 import {
     desktopRedirectHref, hubForPath, inboxHref, isNavItemActive, menuGroups, navHubs, parseInboxTab,
 } from "@/lib/navigation"
+import { t } from "@/lib/i18n"
 import { INBOX_OPEN_KEY, INBOX_TOGGLE_KEY, NUMBER_KEY_ROUTES, SHORTCUT_GROUPS } from "@/lib/keyboard-shortcuts"
 import { useInboxDrawer } from "@/components/inbox/inbox-drawer-store"
 
@@ -65,9 +66,9 @@ describe("inbox entry points", () => {
         expect(INBOX_OPEN_KEY).toBe("2")
         expect(INBOX_TOGGLE_KEY).toBe("i")
         expect(NUMBER_KEY_ROUTES["2"]).toBeUndefined()
-        const nav = SHORTCUT_GROUPS.find(g => g.label === "Navigation")!.shortcuts
-        expect(nav.find(s => s.keys[0] === "2")?.description).toMatch(/inbox/i)
-        expect(nav.find(s => s.keys[0] === "I")?.description).toMatch(/inbox/i)
+        const nav = SHORTCUT_GROUPS.find(g => g.label === "shortcuts.group.navigation")!.shortcuts
+        expect(t(nav.find(s => s.keys[0] === "2")!.description)).toMatch(/inbox/i)
+        expect(t(nav.find(s => s.keys[0] === "I")!.description)).toMatch(/inbox/i)
     })
 
     test("drawer store: open on a tab, toggle, switching tab clears the selection", () => {

@@ -6,6 +6,7 @@ import type { BoardState } from "@/engine/save-types"
 import { BOARD_TUNING } from "@/lib/balance-tuning"
 import { cn } from "@/lib/utils"
 import { boardStatus, type BoardTone } from "./board-view"
+import { t } from "@/lib/i18n"
 
 export const BOARD_TONE_TEXT: Record<BoardTone, string> = {
     positive: "text-positive",
@@ -36,16 +37,16 @@ export function BoardConfidenceScale({ value, className }: { value: number; clas
         { from: recovered, to: 100, className: "bg-positive/20" },
     ]
     const ticks = [
-        { at: sack, label: "Dismissal" },
-        { at: notice, label: "Notice" },
-        { at: warn, label: "Warning" },
-        { at: recovered, label: "Recovery" },
+        { at: sack, label: t("board.tick.dismissal") },
+        { at: notice, label: t("board.tick.notice") },
+        { at: warn, label: t("board.tick.warning") },
+        { at: recovered, label: t("board.tick.recovery") },
     ]
     return (
         <div className={cn("pb-5", className)}>
             <div
                 role="meter"
-                aria-label="Board confidence"
+                aria-label={t("board.confidence")}
                 aria-valuenow={c}
                 aria-valuemin={0}
                 aria-valuemax={100}
@@ -54,13 +55,13 @@ export function BoardConfidenceScale({ value, className }: { value: number; clas
                 <div className="absolute inset-0 flex overflow-hidden rounded-full">
                     {bands.map(b => <div key={b.from} className={b.className} style={{ width: `${b.to - b.from}%` }} />)}
                 </div>
-                {ticks.map(t => (
-                    <span key={t.at} aria-hidden="true" className="absolute top-0 h-2.5 w-px bg-line-strong" style={{ left: `${t.at}%` }} />
+                {ticks.map(tick => (
+                    <span key={tick.at} aria-hidden="true" className="absolute top-0 h-2.5 w-px bg-line-strong" style={{ left: `${tick.at}%` }} />
                 ))}
                 <span aria-hidden="true" className="absolute -top-1 h-[18px] w-1 -translate-x-1/2 rounded-full bg-ink-1 shadow-[0_0_0_2px_#12161C]" style={{ left: `${c}%` }} />
-                {ticks.map(t => (
-                    <span key={`l${t.at}`} aria-hidden="true" className="absolute top-4 -translate-x-1/2 whitespace-nowrap text-[11px] tabular-nums text-ink-3" style={{ left: `${t.at}%` }}>
-                        {t.at}
+                {ticks.map(tick => (
+                    <span key={`l${tick.at}`} aria-hidden="true" className="absolute top-4 -translate-x-1/2 whitespace-nowrap text-[11px] tabular-nums text-ink-3" style={{ left: `${tick.at}%` }}>
+                        {tick.at}
                     </span>
                 ))}
             </div>
@@ -76,11 +77,11 @@ export function BoardConfidenceChip({ board, graceLeft = 0, className }: { board
     return (
         <Link
             href="/career/board"
-            title={`Board confidence ${value}/100 · ${status.label}. ${status.detail}`}
+            title={t("board.chipTitle", { value, status: status.label, detail: status.detail })}
             className={cn("inline-flex h-7 items-center gap-1.5 rounded-sm border px-2 text-xs font-semibold transition-colors hover:bg-raised", BOARD_TONE_CHIP[status.tone], className)}
         >
             {alarm && <AlertTriangle size={12} aria-hidden="true" />}
-            <span className="text-ink-3">Board</span>
+            <span className="text-ink-3">{t("home.board")}</span>
             <span className="tabular-nums text-ink-1">{value}</span>
             <span>{status.label}</span>
         </Link>

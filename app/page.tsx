@@ -38,14 +38,15 @@ import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
 import { EconomyEngine } from "@/engine/economy-engine"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getBoardSanctionedFee, getTierTargets } from "@/engine/board-expectations"
-import { isLeagueMatchId, ordinal } from "@/engine/season/regional-league"
+import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { boardStartTargets } from "@/lib/club-expectations"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { fixtureBlockReason } from "@/lib/playable-match"
+import { ordinalLabel, t, tn } from "@/lib/i18n"
 
-const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier" }
+const tierLabel = (tier: string) => ["S_TIER", "A_TIER", "B_TIER", "C_TIER"].includes(tier) ? t(`common.tier.${tier}`) : tier
 /** Short names for the board's objectives (the full sentence is the row's tooltip and on Club → Board). */
-const OBJECTIVE_SHORT: Record<string, string> = { league: "League finish", ranking: "World ranking", finance: "Cash at season end" }
+const OBJECTIVE_SHORT = new Set(["league", "ranking", "finance"])
 
 /** Small link for panel headers. */
 function PanelLink({ href, children }: { href: string; children: ReactNode }) {
@@ -56,12 +57,12 @@ function PanelLink({ href, children }: { href: string; children: ReactNode }) {
   )
 }
 
-const FINANCE_STATE: Record<string, { label: string; className: string }> = {
-  STABLE: { label: "Stable", className: "text-positive" },
-  TIGHT: { label: "Tight", className: "text-caution" },
-  RISK: { label: "At risk", className: "text-caution" },
-  CRISIS: { label: "Crisis", className: "text-negative" },
-  INSOLVENT: { label: "Insolvent", className: "text-negative" },
+const FINANCE_STATE: Record<string, { className: string }> = {
+  STABLE: { className: "text-positive" },
+  TIGHT: { className: "text-caution" },
+  RISK: { className: "text-caution" },
+  CRISIS: { className: "text-negative" },
+  INSOLVENT: { className: "text-negative" },
 }
 
 type MatchLike = {
@@ -250,7 +251,7 @@ export default function Page() {
   if (!_hasHydrated || (storeLoading && !isSessionActive)) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center gap-3 text-sm text-ink-3" role="status">
-        <Loader2 size={16} className="animate-spin" /> Loading your career…
+        <Loader2 size={16} className="animate-spin" /> {t("home.loading")}
       </div>
     )
   }
@@ -269,53 +270,53 @@ export default function Page() {
         ? formatGameCalendarDate(gameCalendarDate(gameStartDate, nextMatch.week, nextMatch.day ?? 6), { weekday: "short", month: "short", day: "numeric" })
         : null
       const countdown = (() => {
-        if (isMatchLive) return "Match day"
+        if (isMatchLive) return t("home.matchDay")
         const daily = timeMode === "HYBRID_DAILY"
         if (daily) {
           const days = Math.max(0, (nextMatch.week - currentWeek) * 7 + (nextMatch.day ?? 6) - currentDay)
-          return days === 0 ? "Today" : `Match in ${days} day${days === 1 ? "" : "s"}`
+          return days === 0 ? t("home.today") : tn("home.matchInDays", days)
         }
         const weeks = Math.max(0, nextMatch.week - currentWeek)
-        return weeks === 0 ? "This week" : `Match in ${weeks} week${weeks === 1 ? "" : "s"}`
+        return weeks === 0 ? t("home.thisWeek") : tn("home.matchInWeeks", weeks)
       })()
       const leagueStage = leagueStageLabel(nextMatch)
-      const competitionName = nextMatch.isScrim ? "Scrim" : leagueStage ?? tournament?.name ?? nextMatch.stage ?? "Match"
+      const competitionName = nextMatch.isScrim ? t("common.scrim") : leagueStage ?? tournament?.name ?? nextMatch.stage ?? t("common.match")
       const competition = (
         <span className="flex min-w-0 items-center gap-2.5">
-          {leagueStage && <span className="shrink-0 rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">League</span>}
+          {leagueStage && <span className="shrink-0 rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">{t("common.league")}</span>}
           {!nextMatch.isScrim && tournament?.logoPath && (
             <Image src={tournament.logoPath} alt="" width={20} height={20} className="h-5 w-5 object-contain" />
           )}
           <span className="truncate font-semibold text-ink-1">{competitionName}</span>
-          {!nextMatch.isScrim && tournament && <span className="text-ink-3">{TIER_LABEL[tournament.tier] ?? tournament.tier}</span>}
+          {!nextMatch.isScrim && tournament && <span className="text-ink-3">{tierLabel(tournament.tier)}</span>}
           {nextMatch.stage && !nextMatch.isScrim && tournament && <span className="truncate text-ink-3">· {nextMatch.stage}</span>}
-          {nextMatch.isScrim && <span className="text-ink-3">Practice match</span>}
+          {nextMatch.isScrim && <span className="text-ink-3">{t("home.practiceMatch")}</span>}
         </span>
       )
       const when = (
         <span className="flex items-center gap-2">
           <span className={cn("font-semibold", isMatchLive ? "text-gold" : "text-ink-1")}>{countdown}</span>
-          <span className="text-ink-3">· Week {nextMatch.week}{matchDate ? `, ${matchDate}` : ""}</span>
+          <span className="text-ink-3">{matchDate ? t("home.whenWeekDate", { week: nextMatch.week, date: matchDate }) : t("home.whenWeek", { week: nextMatch.week })}</span>
         </span>
       )
       const action = isMatchLive && matchBlockReason
-        ? <Button asChild variant="outline" className="h-10 px-6"><Link href="/transfers">Find a player</Link></Button>
+        ? <Button asChild variant="outline" className="h-10 px-6"><Link href="/transfers">{t("home.findPlayer")}</Link></Button>
         : isMatchLive
-          ? <Button asChild variant="outline" className="h-10 px-6"><Link href={`/match/${nextMatch.id}/tactics`}>Go to match</Link></Button>
-          : <Button asChild variant="outline" className="h-10 px-6"><Link href="/squad">Prepare lineup</Link></Button>
+          ? <Button asChild variant="outline" className="h-10 px-6"><Link href={`/match/${nextMatch.id}/tactics`}>{t("home.goToMatch")}</Link></Button>
+          : <Button asChild variant="outline" className="h-10 px-6"><Link href="/squad">{t("home.prepareLineup")}</Link></Button>
       const footnote = isMatchLive && matchBlockReason
         ? <span role="status" className="text-caution">{matchBlockReason}</span>
-        : isMatchLive ? "Veto, tactics and quick sim are on the match screen." : undefined
+        : isMatchLive ? t("home.matchFootnote") : undefined
       return (
         <FixtureBanner
           art="/esport-ui-assets/backgrounds/match-command-arena.webp"
           competition={competition}
           when={when}
-          home={{ team: playerTeam, name: playerTeam.name, meta: draftCup ? "Drafted side" : `World #${playerTeam.worldRanking ?? "—"}`, form: formFor(playerTeamId), ovr: teamOvr }}
-          away={{ team: opponent, name: opponent?.name ?? "TBD", meta: opponent ? `World #${opponent.worldRanking ?? "—"}` : undefined, form: opponent ? formFor(opponent.id) : [], ovr: opponentOvr }}
+          home={{ team: playerTeam, name: playerTeam.name, meta: draftCup ? t("home.draftedSide") : t("common.worldRank", { rank: playerTeam.worldRanking ?? "—" }), form: formFor(playerTeamId), ovr: teamOvr }}
+          away={{ team: opponent, name: opponent?.name ?? t("common.tbd"), meta: opponent ? t("common.worldRank", { rank: opponent.worldRanking ?? "—" }) : undefined, form: opponent ? formFor(opponent.id) : [], ovr: opponentOvr }}
           center={
             <>
-              <span className="font-display text-4xl font-bold uppercase leading-none text-ink-3">VS</span>
+              <span className="font-display text-4xl font-bold uppercase leading-none text-ink-3">{t("common.vs")}</span>
               <span className="mt-1 rounded-sm border border-line-strong px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-2">{nextMatch.format}</span>
             </>
           }
@@ -326,22 +327,22 @@ export default function Page() {
     }
 
     if (upcomingTournaments.length > 0 && playerTeam) {
-      const t = upcomingTournaments[0]
+      const ev = upcomingTournaments[0]
       return (
         <FixtureBanner
           art="/esport-ui-assets/backgrounds/match-command-arena.webp"
           competition={
             <span className="flex items-center gap-2.5">
-              {t.logoPath && <Image src={t.logoPath} alt="" width={20} height={20} className="h-5 w-5 object-contain" />}
-              <span className="font-semibold text-ink-1">{t.name}</span>
-              <span className="text-ink-3">{TIER_LABEL[t.tier] ?? t.tier}</span>
+              {ev.logoPath && <Image src={ev.logoPath} alt="" width={20} height={20} className="h-5 w-5 object-contain" />}
+              <span className="font-semibold text-ink-1">{ev.name}</span>
+              <span className="text-ink-3">{tierLabel(ev.tier)}</span>
             </span>
           }
-          when={<span className="font-semibold text-ink-1">Starts in {t.weeksUntil} week{t.weeksUntil === 1 ? "" : "s"}</span>}
-          home={{ team: playerTeam, name: playerTeam.name, meta: draftCup ? "Drafted side" : `World #${playerTeam.worldRanking ?? "—"}`, form: formFor(playerTeamId), ovr: teamOvr }}
-          away={{ team: null, name: "TBD", meta: "Drawn when the event starts" }}
-          action={<Button asChild variant="outline" className="h-10 px-6"><Link href="/schedule">View schedule</Link></Button>}
-          footnote={upcomingTournaments[1] ? `Then ${upcomingTournaments[1].name} in ${upcomingTournaments[1].weeksUntil} weeks` : undefined}
+          when={<span className="font-semibold text-ink-1">{tn("home.startsIn", ev.weeksUntil)}</span>}
+          home={{ team: playerTeam, name: playerTeam.name, meta: draftCup ? t("home.draftedSide") : t("common.worldRank", { rank: playerTeam.worldRanking ?? "—" }), form: formFor(playerTeamId), ovr: teamOvr }}
+          away={{ team: null, name: t("common.tbd"), meta: t("home.drawnAtStart") }}
+          action={<Button asChild variant="outline" className="h-10 px-6"><Link href="/schedule">{t("home.viewSchedule")}</Link></Button>}
+          footnote={upcomingTournaments[1] ? tn("home.thenEvent", upcomingTournaments[1].weeksUntil, { name: upcomingTournaments[1].name }) : undefined}
         />
       )
     }
@@ -350,11 +351,11 @@ export default function Page() {
       <Panel className="rounded-[10px] border-line-strong" padded={false}>
         <div className="flex flex-wrap items-center justify-between gap-6 p-6">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Next fixture</p>
-            <p className="mt-1 font-display text-3xl font-bold uppercase leading-none text-ink-1">No match scheduled</p>
-            <p className="mt-2 text-sm text-ink-2">Register for an event or book a scrim to get games on the calendar.</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("home.nextFixture")}</p>
+            <p className="mt-1 font-display text-3xl font-bold uppercase leading-none text-ink-1">{t("home.noMatch")}</p>
+            <p className="mt-2 text-sm text-ink-2">{t("home.noMatchHint")}</p>
           </div>
-          <Button asChild variant="outline" className="h-10 px-6"><Link href="/schedule">Open schedule</Link></Button>
+          <Button asChild variant="outline" className="h-10 px-6"><Link href="/schedule">{t("home.openSchedule")}</Link></Button>
         </div>
       </Panel>
     )
@@ -372,9 +373,9 @@ export default function Page() {
   // Phase 4.4: the board's real objectives (league finish, ranking, budget).
   const objectives = boardState?.objectives ?? []
   const objectiveProgress = (o: (typeof objectives)[number]) => o.current === undefined ? "—"
-    : o.id === "finance" ? formatCurrency(o.current) : o.id === "ranking" ? `#${o.current}` : o.id === "trophies" ? `${o.current}` : ordinal(o.current)
+    : o.id === "finance" ? formatCurrency(o.current) : o.id === "ranking" ? `#${o.current}` : o.id === "trophies" ? `${o.current}` : ordinalLabel(o.current)
   const objectiveTarget = (o: (typeof objectives)[number]) =>
-    o.id === "finance" ? formatCurrency(o.target) : o.id === "ranking" ? `#${o.target}` : o.id === "trophies" ? `${o.target}` : ordinal(o.target)
+    o.id === "finance" ? formatCurrency(o.target) : o.id === "ranking" ? `#${o.target}` : o.id === "trophies" ? `${o.target}` : ordinalLabel(o.target)
 
   const finance = financialReport
   const financeState = FINANCE_STATE[finance?.state ?? "STABLE"] ?? FINANCE_STATE.STABLE
@@ -388,9 +389,11 @@ export default function Page() {
     <div className="space-y-5 pb-12">
       {draftCup ? (
       <ScreenHeader
-        eyebrow={`Draft Cup · ${DRAFT_CUP_DIFFICULTY[draftCup.difficulty].label}${timeMode === "HYBRID_DAILY" ? ` · Day ${currentDay + 1}` : ""}`}
+        eyebrow={timeMode === "HYBRID_DAILY"
+          ? t("home.cupEyebrowDay", { difficulty: DRAFT_CUP_DIFFICULTY[draftCup.difficulty].label, day: currentDay + 1 })
+          : t("home.cupEyebrow", { difficulty: DRAFT_CUP_DIFFICULTY[draftCup.difficulty].label })}
         title={playerTeam?.name ?? "Draft Cup"}
-        subtitle="Eight teams, one round a week, best of three with a best-of-five final. One loss ends the run."
+        subtitle={t("home.cupSubtitle")}
         leading={playerTeam && (
           <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-line bg-panel">
             <TeamLogoDisplay team={playerTeam} size={52} />
@@ -398,16 +401,18 @@ export default function Page() {
         )}
         aside={
           <KpiStrip>
-            <Kpi label="Round" value={cupRound ?? "—"} />
-            <Kpi label="Series won" value={`${cupWins} of 3`} />
-            <Kpi label="Team OVR" value={<RatingChip value={teamOvr} size="lg" bare />} />
+            <Kpi label={t("common.round")} value={cupRound ?? "—"} />
+            <Kpi label={t("home.seriesWon")} value={t("home.seriesWonValue", { wins: cupWins })} />
+            <Kpi label={t("common.teamOvr")} value={<RatingChip value={teamOvr} size="lg" bare />} />
           </KpiStrip>
         }
       />
       ) : (
       <ScreenHeader
-        eyebrow={`Season ${season} · Week ${weekInSeason}${timeMode === "HYBRID_DAILY" ? ` · Day ${currentDay + 1}` : ""}`}
-        title="Club overview"
+        eyebrow={timeMode === "HYBRID_DAILY"
+          ? t("home.eyebrowDay", { season, week: weekInSeason, day: currentDay + 1 })
+          : t("home.eyebrow", { season, week: weekInSeason })}
+        title={t("home.title")}
         subtitle={playerTeam ? [playerTeam.name, playerTeam.region].filter(Boolean).join(" · ") : undefined}
         leading={playerTeam && (
           <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-line bg-panel">
@@ -416,10 +421,10 @@ export default function Page() {
         )}
         aside={
           <KpiStrip>
-            <Kpi label="World rank" value={`#${worldRank || "—"}`} />
-            <Kpi label="Team OVR" value={<RatingChip value={teamOvr} size="lg" bare />} />
-            <Kpi label="Season record" value={`${seasonRecord.wins}–${seasonRecord.losses}`} />
-            <Kpi label="Trophies" value={playerTeam?.trophies?.length ?? 0} />
+            <Kpi label={t("home.worldRank")} value={`#${worldRank || "—"}`} />
+            <Kpi label={t("common.teamOvr")} value={<RatingChip value={teamOvr} size="lg" bare />} />
+            <Kpi label={t("home.seasonRecord")} value={`${seasonRecord.wins}–${seasonRecord.losses}`} />
+            <Kpi label={t("common.trophies")} value={playerTeam?.trophies?.length ?? 0} />
           </KpiStrip>
         }
       />
@@ -433,15 +438,15 @@ export default function Page() {
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
             {/* Squad status */}
-            <Panel title="Squad status" actions={<PanelLink href="/squad">Squad</PanelLink>} padded={false} className="overflow-hidden">
+            <Panel title={t("home.squadStatus")} actions={<PanelLink href="/squad">{t("home.squad")}</PanelLink>} padded={false} className="overflow-hidden">
               <table data-slot="table" className="w-full border-collapse text-left">
                 <thead data-slot="table-header">
                   <tr className="border-b border-line">
-                    <th data-slot="table-head" className="pl-4">Starter</th>
-                    <th data-slot="table-head" className="px-2">Role</th>
-                    <th data-slot="table-head" className="px-2 text-center">OVR</th>
-                    <th data-slot="table-head" className="px-2">Morale</th>
-                    <th data-slot="table-head" className="pr-4">Energy</th>
+                    <th data-slot="table-head" className="pl-4">{t("home.starter")}</th>
+                    <th data-slot="table-head" className="px-2">{t("common.role")}</th>
+                    <th data-slot="table-head" className="px-2 text-center">{t("common.ovr")}</th>
+                    <th data-slot="table-head" className="px-2">{t("common.morale")}</th>
+                    <th data-slot="table-head" className="pr-4">{t("common.energy")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -455,22 +460,22 @@ export default function Page() {
                           <span className="truncate text-sm font-semibold text-ink-1">{player.nickname}</span>
                           {player.injury && (
                             <span className="inline-flex shrink-0 items-center gap-1 rounded-sm bg-negative/15 px-1.5 py-0.5 text-[11px] font-semibold text-negative">
-                              <Activity size={11} /> {player.injury.weeksRemaining}w
+                              <Activity size={11} /> {t("common.weeksShort", { count: player.injury.weeksRemaining })}
                             </span>
                           )}
                         </Link>
                       </td>
                       <td className="px-2"><RoleTag role={player.role} /></td>
                       <td className="px-2 text-center"><RatingChip value={ovr} size="sm" /></td>
-                      <td className="px-2"><Meter value={player.morale} label="Morale" trackClassName="w-12" /></td>
-                      <td className="pr-4"><Meter value={playerEnergyPercent(player)} label="Energy" trackClassName="w-12" /></td>
+                      <td className="px-2"><Meter value={player.morale} label={t("common.morale")} trackClassName="w-12" /></td>
+                      <td className="pr-4"><Meter value={playerEnergyPercent(player)} label={t("common.energy")} trackClassName="w-12" /></td>
                     </tr>
                   ))}
                   {starters.length < 5 && (
                     <tr>
                       <td colSpan={5} className="px-4 py-3 text-sm text-caution">
-                        {5 - starters.length} starter{5 - starters.length === 1 ? "" : "s"} missing. You need five players to play a match.{" "}
-                        <Link href="/transfers" className="font-semibold underline underline-offset-2">Find players</Link>
+                        {tn("home.startersMissing", 5 - starters.length)}{" "}
+                        <Link href="/transfers" className="font-semibold underline underline-offset-2">{t("home.findPlayers")}</Link>
                       </td>
                     </tr>
                   )}
@@ -487,29 +492,29 @@ export default function Page() {
             )}
 
             {/* Board objectives; the chip opens Club → Board */}
-            <Panel eyebrow="Board" title={tierTargets.label} actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />} bodyClassName="pt-1">
+            <Panel eyebrow={t("home.board")} title={t(`board.expectation.${expectationTier}`)} actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />} bodyClassName="pt-1">
               <dl className="divide-y divide-line text-sm">
                 {objectives.length > 0 ? objectives.map(o => (
                   <div key={o.id} className="flex items-center justify-between gap-3 py-2">
-                    <dt className="min-w-0 truncate text-ink-3" title={o.label}>{OBJECTIVE_SHORT[o.id] ?? o.label}</dt>
+                    <dt className="min-w-0 truncate text-ink-3" title={o.label}>{OBJECTIVE_SHORT.has(o.id) ? t(`home.objective.${o.id}`) : o.label}</dt>
                     <dd className="shrink-0 text-xs tabular-nums">
-                      <span className="text-ink-3">target {objectiveTarget(o)}</span>
-                      <span className={cn("ml-2", o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>now {objectiveProgress(o)}</span>
+                      <span className="text-ink-3">{t("home.target", { value: objectiveTarget(o) })}</span>
+                      <span className={cn("ml-2", o.status === "ON_TRACK" || o.status === "MET" ? "text-positive" : "text-caution")}>{t("home.now", { value: objectiveProgress(o) })}</span>
                     </dd>
                   </div>
                 )) : (
                   <>
                     <div className="flex items-center justify-between py-2">
-                      <dt className="text-ink-3">Finish ranked</dt>
+                      <dt className="text-ink-3">{t("home.finishRanked")}</dt>
                       <dd className="tabular-nums text-ink-1">
-                        #{rankTarget} or better
-                        <span className={cn("ml-2 text-xs", rankOnTrack ? "text-positive" : "text-ink-3")}>now #{worldRank || "—"}</span>
+                        {t("home.rankOrBetter", { rank: rankTarget })}
+                        <span className={cn("ml-2 text-xs", rankOnTrack ? "text-positive" : "text-ink-3")}>{t("home.now", { value: `#${worldRank || "—"}` })}</span>
                       </dd>
                     </div>
                     <div className="flex items-center justify-between py-2">
-                      <dt className="text-ink-3">Trophies</dt>
+                      <dt className="text-ink-3">{t("common.trophies")}</dt>
                       <dd className="tabular-nums text-ink-1">
-                        {tierTargets.trophyTarget > 0 ? `${trophiesThisSeason} of ${tierTargets.trophyTarget}` : `${trophiesThisSeason} won · none required`}
+                        {tierTargets.trophyTarget > 0 ? t("home.trophiesOf", { won: trophiesThisSeason, target: tierTargets.trophyTarget }) : t("home.trophiesNoneRequired", { won: trophiesThisSeason })}
                       </dd>
                     </div>
                   </>
@@ -517,7 +522,7 @@ export default function Page() {
               </dl>
               {sanctioned && sanctioned.fraction < 1 && (
                 <p className="mt-3 text-xs text-ink-3">
-                  Transfer fees capped at {Math.round(sanctioned.fraction * 100)}% of funds ({formatCurrency(sanctioned.maxFee)}) until board confidence reaches 70.
+                  {t("home.feeCap", { pct: Math.round(sanctioned.fraction * 100), max: formatCurrency(sanctioned.maxFee) })}
                 </p>
               )}
             </Panel>
@@ -528,53 +533,53 @@ export default function Page() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Finances strip */}
             {!draftCup && <Panel
-              title="Finances"
-              actions={<><span className={cn("text-xs font-semibold", financeState.className)}>{financeState.label}</span><PanelLink href="/finances">Ledger</PanelLink></>}
+              title={t("home.finances")}
+              actions={<><span className={cn("text-xs font-semibold", financeState.className)}>{t(`home.finance.${FINANCE_STATE[finance?.state ?? "STABLE"] ? finance?.state ?? "STABLE" : "STABLE"}`)}</span><PanelLink href="/finances">{t("home.ledger")}</PanelLink></>}
               padded={false}
             >
               <div className="grid grid-cols-2 divide-x divide-line border-b border-line">
-                <Kpi className="px-4 py-3" label="Funds" value={formatCurrency(playerTeam?.budget ?? 0, "$", Math.abs(playerTeam?.budget ?? 0) >= 1_000_000)} />
+                <Kpi className="px-4 py-3" label={t("common.funds")} value={formatCurrency(playerTeam?.budget ?? 0, "$", Math.abs(playerTeam?.budget ?? 0) >= 1_000_000)} />
                 <Kpi
                   className="px-4 py-3"
-                  label="Net / week"
+                  label={t("home.netWeek")}
                   value={<span className={(finance?.net ?? 0) < 0 ? "text-negative" : "text-ink-1"}>{formatSignedCurrency(finance?.net ?? 0)}</span>}
-                  hint={finance && finance.net < 0 && Number.isFinite(finance.runwayWeeks) ? `Runway ${finance.runwayWeeks} weeks` : "Projected next settlement"}
+                  hint={finance && finance.net < 0 && Number.isFinite(finance.runwayWeeks) ? tn("home.runway", finance.runwayWeeks) : t("home.projected")}
                 />
               </div>
               <dl className="grid grid-cols-3 divide-x divide-line text-sm">
                 <div className="px-4 py-2.5">
-                  <dt className="text-xs text-ink-3">Income</dt>
+                  <dt className="text-xs text-ink-3">{t("home.income")}</dt>
                   <dd className="tabular-nums text-ink-1">{formatSignedCurrency(finance?.income.total ?? 0)}</dd>
                 </div>
                 <div className="px-4 py-2.5">
-                  <dt className="text-xs text-ink-3">Wages</dt>
+                  <dt className="text-xs text-ink-3">{t("home.wages")}</dt>
                   <dd className="tabular-nums text-ink-1">{formatCurrency(-((finance?.expenses.playerWages ?? 0) + (finance?.expenses.staffWages ?? 0)))}</dd>
                 </div>
                 <div className="px-4 py-2.5">
-                  <dt className="text-xs text-ink-3">Upkeep</dt>
+                  <dt className="text-xs text-ink-3">{t("home.upkeep")}</dt>
                   <dd className="tabular-nums text-ink-1">{formatCurrency(-((finance?.expenses.facilities ?? 0) + (finance?.expenses.equipment ?? 0) + (finance?.expenses.academy ?? 0)))}</dd>
                 </div>
               </dl>
             </Panel>}
 
             {/* Recent results */}
-            <Panel title="Recent results" actions={<PanelLink href="/schedule">Schedule</PanelLink>} padded={false}>
+            <Panel title={t("home.recentResults")} actions={<PanelLink href="/schedule">{t("home.schedule")}</PanelLink>} padded={false}>
               {recentResults.length === 0 ? (
-                <p className="px-4 py-3 text-sm text-ink-3">No matches played yet.</p>
+                <p className="px-4 py-3 text-sm text-ink-3">{t("home.noMatchesPlayed")}</p>
               ) : (
                 <ul className="divide-y divide-line">
                   {recentResults.map(m => {
                     const won = m.result.winnerId === playerTeamId
                     const oppId = m.homeTeamId === playerTeamId ? m.awayTeamId : m.homeTeamId
                     const opp = teams.find(t => t.id === oppId)
-                    const comp = m.isScrim ? "Scrim" : leagueStageLabel(m) ?? tournamentFor(m.tournamentId)?.shortName ?? m.stage ?? "Match"
+                    const comp = m.isScrim ? t("common.scrim") : leagueStageLabel(m) ?? tournamentFor(m.tournamentId)?.shortName ?? m.stage ?? t("common.match")
                     return (
                       <li key={m.id}>
                         <Link href={`/match/${m.id}/result`} className="flex h-11 items-center gap-3 px-4 transition-colors hover:bg-raised">
                           <FormGuide results={[won ? "W" : "L"]} />
                           <TeamLogoDisplay team={opp} size={22} />
-                          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? "Unknown"}</span>
-                          <span className="hidden truncate text-xs text-ink-3 sm:inline">{comp} · Wk {m.week}</span>
+                          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{opp?.name ?? t("common.unknown")}</span>
+                          <span className="hidden truncate text-xs text-ink-3 sm:inline">{comp} · {t("common.weekShort", { n: m.week })}</span>
                           <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{scoreFor(m as MatchLike, playerTeamId || "")}</span>
                         </Link>
                       </li>
@@ -593,7 +598,7 @@ export default function Page() {
           <ActionCenter />
           <StorylinesPanel />
           <LastWeekPanel />
-          <Panel title="News" padded={false}>
+          <Panel title={t("home.news")} padded={false}>
             <div className="max-h-[420px] overflow-y-auto">
               <NewsFeed limit={8} />
             </div>

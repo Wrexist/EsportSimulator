@@ -6,9 +6,9 @@
  */
 
 import type { BoardMove, BoardObjective, BoardState } from "@/engine/save-types"
-import { ordinal } from "@/engine/season/regional-league"
 import { BOARD_TUNING } from "@/lib/balance-tuning"
 import { formatCurrency } from "@/lib/utils-extended"
+import { ordinalLabel, t, tn } from "@/lib/i18n"
 
 export type BoardTone = "positive" | "neutral" | "caution" | "negative"
 export type BoardStanding = "secure" | "uneasy" | "pressure" | "warning" | "notice"
@@ -38,42 +38,42 @@ export function graceWeeksLeft(currentWeek: number, tenureStartWeek: number | un
 export function boardStatus(board: BoardLike | undefined, graceLeft = 0): BoardStatus {
     const { WARN_BELOW, NOTICE_BELOW, SACK_AT_OR_BELOW, RECOVERED_AT } = BOARD_TUNING
     if (!board) {
-        return { standing: "secure", label: "New board", tone: "neutral", detail: "The board sets its objectives after the first week." }
+        return { standing: "secure", label: t("board.status.new"), tone: "neutral", detail: t("board.status.newDetail") }
     }
     const c = Math.round(board.confidence)
     const warnings = board.warnings ?? (board.onNotice ? 2 : 0)
     if (board.onNotice || warnings >= 2) {
         return {
-            standing: "notice", label: "On notice", tone: "negative",
-            detail: `Final warning. If confidence reaches ${SACK_AT_OR_BELOW} the board dismisses you. Back to ${RECOVERED_AT} lifts the notice.`,
+            standing: "notice", label: t("board.status.notice"), tone: "negative",
+            detail: t("board.status.noticeDetail", { sack: SACK_AT_OR_BELOW, recovered: RECOVERED_AT }),
         }
     }
     if (warnings === 1) {
         return {
-            standing: "warning", label: "Warning", tone: "caution",
-            detail: `Below ${NOTICE_BELOW} you go on notice. Back to ${RECOVERED_AT} clears the warning.`,
+            standing: "warning", label: t("board.status.warning"), tone: "caution",
+            detail: t("board.status.warningDetail", { notice: NOTICE_BELOW, recovered: RECOVERED_AT }),
         }
     }
     if (c < WARN_BELOW) {
         return {
-            standing: "pressure", label: "Under pressure", tone: "caution",
+            standing: "pressure", label: t("board.status.pressure"), tone: "caution",
             detail: graceLeft > 0
-                ? `Below ${WARN_BELOW}, but no warnings in the first ${BOARD_TUNING.TENURE_GRACE_WEEKS} weeks of a job (${graceLeft} left).`
-                : `Below ${WARN_BELOW}: the next weekly update brings a formal warning.`,
+                ? t("board.status.pressureGrace", { warn: WARN_BELOW, weeks: BOARD_TUNING.TENURE_GRACE_WEEKS, left: graceLeft })
+                : t("board.status.pressureDetail", { warn: WARN_BELOW }),
         }
     }
     if (c < RECOVERED_AT) {
-        return { standing: "uneasy", label: "Uneasy", tone: "neutral", detail: `A warning comes below ${WARN_BELOW}.` }
+        return { standing: "uneasy", label: t("board.status.uneasy"), tone: "neutral", detail: t("board.status.uneasyDetail", { warn: WARN_BELOW }) }
     }
-    return { standing: "secure", label: "Secure", tone: "positive", detail: `No action while confidence stays at ${WARN_BELOW} or above.` }
+    return { standing: "secure", label: t("board.status.secure"), tone: "positive", detail: t("board.status.secureDetail", { warn: WARN_BELOW }) }
 }
 
 /** The consequence ladder, top to bottom, for the confidence scale. */
-export const BOARD_THRESHOLDS: Array<{ at: number; label: string; rule: string }> = [
-    { at: BOARD_TUNING.RECOVERED_AT, label: "Recovery", rule: `Back to ${BOARD_TUNING.RECOVERED_AT} clears warnings and notice` },
-    { at: BOARD_TUNING.WARN_BELOW, label: "Warning", rule: `Below ${BOARD_TUNING.WARN_BELOW}: a formal warning` },
-    { at: BOARD_TUNING.NOTICE_BELOW, label: "On notice", rule: `Below ${BOARD_TUNING.NOTICE_BELOW} after a warning: on notice (final warning)` },
-    { at: BOARD_TUNING.SACK_AT_OR_BELOW, label: "Dismissal", rule: `${BOARD_TUNING.SACK_AT_OR_BELOW} or lower while on notice: dismissed` },
+export const boardThresholds = (): Array<{ id: "recovery" | "warning" | "notice" | "dismissal"; at: number; label: string; rule: string }> => [
+    { id: "recovery", at: BOARD_TUNING.RECOVERED_AT, label: t("board.tick.recovery"), rule: t("board.rule.recovery", { n: BOARD_TUNING.RECOVERED_AT }) },
+    { id: "warning", at: BOARD_TUNING.WARN_BELOW, label: t("board.tick.warning"), rule: t("board.rule.warning", { n: BOARD_TUNING.WARN_BELOW }) },
+    { id: "notice", at: BOARD_TUNING.NOTICE_BELOW, label: t("board.status.notice"), rule: t("board.rule.notice", { n: BOARD_TUNING.NOTICE_BELOW }) },
+    { id: "dismissal", at: BOARD_TUNING.SACK_AT_OR_BELOW, label: t("board.tick.dismissal"), rule: t("board.rule.dismissal", { n: BOARD_TUNING.SACK_AT_OR_BELOW }) },
 ]
 
 // ---------------------------------------------------------------- objectives
@@ -89,32 +89,32 @@ export interface ObjectiveView {
     tone: BoardTone
 }
 
-const STATUS: Record<NonNullable<BoardObjective["status"]>, { label: string; tone: BoardTone }> = {
-    ON_TRACK: { label: "On track", tone: "positive" },
-    AT_RISK: { label: "At risk", tone: "caution" },
-    MET: { label: "Met", tone: "positive" },
-    MISSED: { label: "Missed", tone: "negative" },
+const STATUS: Record<NonNullable<BoardObjective["status"]>, BoardTone> = {
+    ON_TRACK: "positive",
+    AT_RISK: "caution",
+    MET: "positive",
+    MISSED: "negative",
 }
 
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`
-const trophies = (n: number) => `${n} ${n === 1 ? "trophy" : "trophies"}`
+const places = (n: number) => tn("board.places", n)
+const trophies = (n: number) => tn("board.trophies", n)
 
 export function objectiveView(o: BoardObjective): ObjectiveView {
-    const status = o.status ? STATUS[o.status] : { label: "Not started", tone: "neutral" as BoardTone }
+    const status = o.status ? { label: t(`board.objective.${o.status}`), tone: STATUS[o.status] } : { label: t("board.objective.notStarted"), tone: "neutral" as BoardTone }
     const cur = o.current
     if (o.id === "league") {
         return {
-            id: o.id, label: o.label, target: `${ordinal(o.target)} or better`,
-            current: cur === undefined ? "—" : ordinal(cur),
-            gap: cur === undefined ? null : cur > o.target ? `${plural(cur - o.target, "place")} to make up` : cur < o.target ? `${plural(o.target - cur, "place")} to spare` : "On the line",
+            id: o.id, label: o.label, target: t("board.orBetter", { value: ordinalLabel(o.target) }),
+            current: cur === undefined ? "—" : ordinalLabel(cur),
+            gap: cur === undefined ? null : cur > o.target ? t("board.gap.makeUp", { places: places(cur - o.target) }) : cur < o.target ? t("board.gap.spare", { places: places(o.target - cur) }) : t("board.gap.onLine"),
             status: status.label, tone: status.tone,
         }
     }
     if (o.id === "ranking") {
         return {
-            id: o.id, label: o.label, target: `#${o.target} or better`,
+            id: o.id, label: o.label, target: t("board.orBetter", { value: `#${o.target}` }),
             current: cur === undefined ? "—" : `#${cur}`,
-            gap: cur === undefined ? null : cur > o.target ? `${plural(cur - o.target, "place")} to climb` : cur < o.target ? `${plural(o.target - cur, "place")} to spare` : "On the line",
+            gap: cur === undefined ? null : cur > o.target ? t("board.gap.climb", { places: places(cur - o.target) }) : cur < o.target ? t("board.gap.spare", { places: places(o.target - cur) }) : t("board.gap.onLine"),
             status: status.label, tone: status.tone,
         }
     }
@@ -122,14 +122,14 @@ export function objectiveView(o: BoardObjective): ObjectiveView {
         return {
             id: o.id, label: o.label, target: trophies(o.target),
             current: cur === undefined ? "—" : `${cur}`,
-            gap: cur === undefined ? null : cur < o.target ? `${trophies(o.target - cur)} to win` : "Done",
+            gap: cur === undefined ? null : cur < o.target ? t("board.gap.toWin", { trophies: trophies(o.target - cur) }) : t("board.gap.done"),
             status: status.label, tone: status.tone,
         }
     }
     return {
-        id: o.id, label: o.label, target: `${formatCurrency(o.target)} or more`,
+        id: o.id, label: o.label, target: t("board.orMore", { value: formatCurrency(o.target) }),
         current: cur === undefined ? "—" : formatCurrency(cur),
-        gap: cur === undefined ? null : cur < o.target ? `${formatCurrency(o.target - cur)} short` : `${formatCurrency(cur - o.target)} above`,
+        gap: cur === undefined ? null : cur < o.target ? t("board.gap.short", { value: formatCurrency(o.target - cur) }) : t("board.gap.above", { value: formatCurrency(cur - o.target) }),
         status: status.label, tone: status.tone,
     }
 }

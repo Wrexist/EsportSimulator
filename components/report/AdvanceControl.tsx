@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { draftCupOutcome } from "@/engine/draft-cup"
 import { demoWeekCapReached } from "@/lib/edition"
+import { t } from "@/lib/i18n"
 
 export function AdvanceControl() {
     const router = useRouter()
@@ -70,7 +71,7 @@ export function AdvanceControl() {
                 <span className="flex h-10 items-center gap-2 rounded-lg border border-line bg-raised px-3 text-xs font-semibold text-ink-2">
                     <Loader2 size={14} className="animate-spin text-gold" />
                     <span className="whitespace-nowrap tabular-nums">
-                        Advancing · {daily ? `Day ${currentDay + 1}` : `Week ${currentWeek}`}
+                        {t("advance.running", { when: daily ? t("common.day", { n: currentDay + 1 }) : t("common.week", { n: currentWeek }) })}
                     </span>
                 </span>
                 <Button
@@ -78,9 +79,9 @@ export function AdvanceControl() {
                     onClick={cancelContinue}
                     disabled={continueRun?.cancelRequested}
                     className="h-10 px-3 text-xs font-semibold"
-                    title="Stop after the current day"
+                    title={t("advance.stopTitle")}
                 >
-                    {continueRun?.cancelRequested ? "Stopping…" : "Stop"}
+                    {continueRun?.cancelRequested ? t("advance.stopping") : t("advance.stop")}
                 </Button>
             </div>
         )
@@ -95,16 +96,17 @@ export function AdvanceControl() {
                 disabled={locked}
                 className="h-10 px-5 shrink-0"
             >
-                <span className="tracking-wide">Play match</span>
+                <span className="tracking-wide">{t("advance.playMatch")}</span>
                 <Swords size={16} />
             </Button>
         )
     } else {
         const secondary = [
-            ...(daily ? [{ label: "Next day", title: "Advance one day", run: step(advanceDay) }] : []),
+            ...(daily ? [{ id: "day", label: t("advance.nextDay"), title: t("advance.nextDayTitle"), run: step(advanceDay) }] : []),
             {
-                label: "Skip week",
-                title: daily ? "Advance to the end of the week (stops on match day)" : "Advance exactly one week",
+                id: "week",
+                label: t("advance.skipWeek"),
+                title: daily ? t("advance.skipWeekDailyTitle") : t("advance.skipWeekTitle"),
                 run: step(daily ? advanceToWeekEnd : advanceWeek),
             },
         ]
@@ -113,7 +115,7 @@ export function AdvanceControl() {
                 {/* Wide screens: secondary actions inline. */}
                 <div className="hidden items-center gap-1.5 2xl:flex">
                     {secondary.map(a => (
-                        <Button key={a.label} variant="outline" onClick={a.run} disabled={locked} className="h-10 px-2.5 text-xs font-semibold" title={a.title}>
+                        <Button key={a.id} variant="outline" onClick={a.run} disabled={locked} className="h-10 px-2.5 text-xs font-semibold" title={a.title}>
                             {a.label}
                         </Button>
                     ))}
@@ -125,10 +127,10 @@ export function AdvanceControl() {
                     onClick={step(continueToNextDecision)}
                     disabled={locked}
                     className="h-10 px-4 2xl:px-5"
-                    title="Advance until something needs your decision"
+                    title={t("advance.continueTitle")}
                 >
                     <span className="flex items-center gap-2">
-                        <span className="tracking-wide">CONTINUE</span>
+                        <span className="tracking-wide uppercase">{t("advance.continue")}</span>
                         <Play size={15} fill="currentColor" />
                     </span>
                 </Button>
@@ -145,7 +147,7 @@ export function AdvanceControl() {
 }
 
 /** Next day / Skip week behind one button below the 2xl breakpoint. */
-function SecondaryMenu({ actions, disabled }: { actions: { label: string; title: string; run: () => void }[]; disabled: boolean }) {
+function SecondaryMenu({ actions, disabled }: { actions: { id: string; label: string; title: string; run: () => void }[]; disabled: boolean }) {
     const [open, setOpen] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
     useEffect(() => {
@@ -163,7 +165,7 @@ function SecondaryMenu({ actions, disabled }: { actions: { label: string; title:
                 onClick={() => setOpen(o => !o)}
                 disabled={disabled}
                 className="h-10 w-10 px-0"
-                aria-label="More advance options"
+                aria-label={t("advance.moreOptions")}
                 aria-haspopup="menu"
                 aria-expanded={open}
                 title={actions.map(a => a.label).join(" / ")}
@@ -174,7 +176,7 @@ function SecondaryMenu({ actions, disabled }: { actions: { label: string; title:
                 <div role="menu" className="absolute right-0 top-[calc(100%+6px)] z-50 w-56 overflow-hidden rounded-lg border border-line-strong bg-panel py-1 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.8)]">
                     {actions.map(a => (
                         <button
-                            key={a.label}
+                            key={a.id}
                             type="button"
                             role="menuitem"
                             onClick={() => { setOpen(false); a.run() }}
@@ -195,7 +197,7 @@ function StopNotice() {
     const stop = useGameStore(s => s.advanceStop)
     const dismiss = useGameStore(s => s.dismissAdvanceStop)
     if (!stop) return null
-    const headline = stop.kind === "match" ? "Match day" : stop.kind === "cancelled" ? "Paused" : "Stopped"
+    const headline = stop.kind === "match" ? t("home.matchDay") : stop.kind === "cancelled" ? t("advance.paused") : t("advance.stopped")
     return (
         <div
             role="status"
@@ -205,9 +207,9 @@ function StopNotice() {
             <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                     <p className={cn("text-[11px] font-semibold uppercase tracking-[0.08em]", stop.kind === "match" ? "text-gold" : "text-ink-3")}>{headline}</p>
-                    <p className="mt-1 text-sm font-semibold leading-snug text-ink-1">{stop.kind === "cancelled" ? "You paused advancing." : stop.reason}</p>
+                    <p className="mt-1 text-sm font-semibold leading-snug text-ink-1">{stop.kind === "cancelled" ? t("advance.youPaused") : stop.reason}</p>
                 </div>
-                <button type="button" onClick={dismiss} aria-label="Dismiss" className="-mr-1 -mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1">
+                <button type="button" onClick={dismiss} aria-label={t("advance.dismiss")} className="-mr-1 -mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1">
                     <X size={14} />
                 </button>
             </div>
@@ -250,11 +252,11 @@ function MatchStopActions({ href, onDone }: { href: string; onDone: () => void }
     return (
         <div className="mt-2 flex items-center gap-3">
             <Link href={href} onClick={onDone} className="inline-flex items-center gap-1 text-xs font-semibold text-gold underline-offset-2 hover:underline">
-                Prepare <ArrowRight size={12} />
+                {t("advance.prepare")} <ArrowRight size={12} />
             </Link>
             {matchId && (
-                <button type="button" onClick={sim} disabled={busy} className="text-xs font-semibold text-ink-2 underline-offset-2 hover:text-ink-1 hover:underline disabled:opacity-50" title="Plays it now: the engine's veto, plus the anti-strat counters if you reviewed their demos">
-                    {busy ? "Simulating…" : "Sim match"}
+                <button type="button" onClick={sim} disabled={busy} className="text-xs font-semibold text-ink-2 underline-offset-2 hover:text-ink-1 hover:underline disabled:opacity-50" title={t("advance.simTitle")}>
+                    {busy ? t("advance.simulating") : t("advance.simMatch")}
                 </button>
             )}
         </div>

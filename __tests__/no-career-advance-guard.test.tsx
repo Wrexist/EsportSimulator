@@ -42,6 +42,6 @@ test('the TopBar advance control is disabled without a loaded career', () => {
     noCareer('WEEKLY')
     Object.assign(useGameStore.getInitialState(), useGameStore.getState())
     const html = renderToStaticMarkup(<TopBar />)
-    const continueButton = html.match(/<button[^>]*>(?:(?!<\/button>).)*CONTINUE(?:(?!<\/button>).)*<\/button>/)?.[0]
+    const continueButton = html.match(/<button[^>]*>(?:(?!<\/button>).)*>Continue<(?:(?!<\/button>).)*<\/button>/)?.[0]
     expect(continueButton).toMatch(/disabled=""/)
 })

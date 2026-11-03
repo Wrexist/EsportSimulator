@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react"
 import { DRAFT_CUP_DIFFICULTY, DRAFT_CUP_FINISH_LABEL, type DraftCupDifficulty, type DraftCupFinish } from "@/engine/draft-cup"
 import Link from "next/link"
 import { debug } from "@/lib/debug-logger"
+import { intlLocale } from "@/lib/i18n"
 import { useGameStore } from "@/store/game-store"
 import { useSettingsStore } from "@/lib/settings-store"
 import { useShallow } from "zustand/react/shallow"
@@ -73,7 +74,7 @@ const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return "—"
     const d = new Date(dateStr)
     if (isNaN(d.getTime())) return "—"
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+    return d.toLocaleDateString(intlLocale(), { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
 }
 
 function LoadGamePageInner() {

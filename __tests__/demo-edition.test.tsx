@@ -69,7 +69,7 @@ test('the TopBar advance control is disabled at the end of the demo', () => {
     career(DEMO_LAST_WEEK + 1)
     Object.assign(useGameStore.getInitialState(), useGameStore.getState())
     const html = renderToStaticMarkup(<TopBar />)
-    const continueButton = html.match(/<button[^>]*>(?:(?!<\/button>).)*CONTINUE(?:(?!<\/button>).)*<\/button>/)?.[0]
+    const continueButton = html.match(/<button[^>]*>(?:(?!<\/button>).)*>Continue<(?:(?!<\/button>).)*<\/button>/)?.[0]
     expect(continueButton).toMatch(/disabled=""/)
 })
 

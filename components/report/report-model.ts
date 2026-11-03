@@ -7,6 +7,7 @@
 import type { ChangeEntry } from "@/lib/week-changes"
 import { fmtDelta, formatMoney, moneyNet, signedDelta, type WeekReport } from "@/lib/week-report"
 import { choiceLabel } from "@/components/inbox/inbox-model"
+import { t } from "@/lib/i18n"
 
 export type Tone = "up" | "down" | "neutral"
 
@@ -178,7 +179,7 @@ export function unansweredRows(report: WeekReport): { label: string; outcome: st
 }
 
 export function resultsLabel(report: WeekReport): string {
-    if (report.matches.length === 0) return "No matches"
+    if (report.matches.length === 0) return t("lastWeek.noMatches")
     const w = report.matches.filter(m => m.won).length
     return `${w}–${report.matches.length - w}`
 }

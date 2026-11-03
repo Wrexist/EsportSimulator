@@ -18,7 +18,7 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { Sparkline } from "@/src/components/ui/Sparkline"
 import { BOARD_TONE_TEXT, BoardConfidenceScale } from "@/components/career/BoardConfidence"
 import {
-    BOARD_THRESHOLDS,
+    boardThresholds,
     boardStatus,
     boardWeeks,
     confidenceTrail,
@@ -194,10 +194,10 @@ export default function BoardPage() {
                         <p className={cn("mt-2 text-sm", status.tone === "negative" ? "text-negative" : status.tone === "caution" ? "text-caution" : "text-ink-2")}>{status.detail}</p>
                         <BoardConfidenceScale value={confidence} className="mt-5" />
                         <ul className="mt-1 divide-y divide-line border-y border-line text-sm">
-                            {BOARD_THRESHOLDS.map(t => {
-                                const active = (t.label === "Warning" && status.standing === "warning")
-                                    || (t.label === "On notice" && status.standing === "notice")
-                                    || (t.label === "Recovery" && warnings > 0)
+                            {boardThresholds().map(t => {
+                                const active = (t.id === "warning" && status.standing === "warning")
+                                    || (t.id === "notice" && status.standing === "notice")
+                                    || (t.id === "recovery" && warnings > 0)
                                 return (
                                     <li key={t.label} className={cn("flex items-center justify-between gap-3 py-2", active ? "text-ink-1" : "text-ink-3")}>
                                         <span className="flex items-center gap-2">

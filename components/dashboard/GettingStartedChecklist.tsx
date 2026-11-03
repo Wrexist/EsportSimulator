@@ -8,7 +8,8 @@ import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '@/store/game-store'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { FIRST_SESSION_LABELS, FIRST_SESSION_STEPS, firstSessionGuidance, restoreFirstSession } from '@/lib/first-session'
+import { FIRST_SESSION_STEPS, firstSessionGuidance, firstSessionLabel, restoreFirstSession } from '@/lib/first-session'
+import { t } from '@/lib/i18n'
 
 /**
  * First-session objective chain (L22). A small, nonmodal "next step" card driven by career state.
@@ -43,12 +44,12 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
     // Away from the step's own page the compact guide is one line, so it does not push the page down.
     if (compact && !canReview && next.action.href !== pathname) {
         return (
-            <section aria-label="First session guide" className="flex min-h-10 flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-line bg-panel px-4 py-1.5 text-sm">
-                <span className="font-semibold text-ink-1">First session <span className="ml-1 text-xs font-normal tabular-nums text-ink-3">{done} / {FIRST_SESSION_STEPS.length}</span></span>
-                <span className="min-w-0 truncate text-ink-2">Next: {next.title}</span>
+            <section aria-label={t("firstSession.title")} className="flex min-h-10 flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-line bg-panel px-4 py-1.5 text-sm">
+                <span className="font-semibold text-ink-1">{t("firstSession.title")} <span className="ml-1 text-xs font-normal tabular-nums text-ink-3">{t("firstSession.progress", { done, total: FIRST_SESSION_STEPS.length })}</span></span>
+                <span className="min-w-0 truncate text-ink-2">{t("firstSession.next", { step: next.title })}</span>
                 <span className="ml-auto flex items-center gap-2">
                     <Button asChild size="sm" variant="outline"><Link href={next.action.href}>{next.action.label}</Link></Button>
-                    <button type="button" onClick={state.dismiss} className="rounded-sm text-xs font-medium text-ink-3 hover:text-ink-1" aria-label="Skip first session guide. You can replay it from Settings.">Skip guide</button>
+                    <button type="button" onClick={state.dismiss} className="rounded-sm text-xs font-medium text-ink-3 hover:text-ink-1" aria-label={t("firstSession.skipLabel")}>{t("firstSession.skip")}</button>
                 </span>
             </section>
         )
@@ -58,14 +59,14 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
         <section aria-labelledby="first-session-title" className="rounded-lg border border-line-strong bg-panel">
             <header className="flex min-h-11 items-center justify-between gap-4 border-b border-line px-4 py-2">
                 <p id="first-session-title" className="text-sm font-semibold text-ink-1">
-                    First session <span className="ml-2 text-xs font-normal tabular-nums text-ink-3">{done} / {FIRST_SESSION_STEPS.length} done</span>
+                    {t("firstSession.title")} <span className="ml-2 text-xs font-normal tabular-nums text-ink-3">{t("firstSession.progressDone", { done, total: FIRST_SESSION_STEPS.length })}</span>
                 </p>
-                <button type="button" onClick={state.dismiss} className="rounded-sm text-xs font-medium text-ink-3 hover:text-ink-1" aria-label="Skip first session guide. You can replay it from Settings.">Skip guide</button>
+                <button type="button" onClick={state.dismiss} className="rounded-sm text-xs font-medium text-ink-3 hover:text-ink-1" aria-label={t("firstSession.skipLabel")}>{t("firstSession.skip")}</button>
             </header>
 
             <div className="p-4">
                 {!compact && (
-                    <ol className="mb-3 space-y-1.5" aria-label="First session steps">
+                    <ol className="mb-3 space-y-1.5" aria-label={t("firstSession.steps")}>
                         {FIRST_SESSION_STEPS.map(step => {
                             const isDone = guide.reviewed.includes(step)
                             const isCurrent = step === next.step
@@ -74,8 +75,8 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
                                     <span aria-hidden="true" className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full border', isDone ? 'border-positive bg-positive text-ink' : isCurrent ? 'border-ink-1' : 'border-line-strong')}>
                                         {isDone && <Check size={10} strokeWidth={3} />}
                                     </span>
-                                    <span className={isDone ? 'line-through' : undefined}>{FIRST_SESSION_LABELS[step]}</span>
-                                    <span className="sr-only">{isDone ? '(done)' : isCurrent ? '(next)' : ''}</span>
+                                    <span className={isDone ? 'line-through' : undefined}>{firstSessionLabel(step)}</span>
+                                    <span className="sr-only">{isDone ? t('firstSession.stepDone') : isCurrent ? t('firstSession.stepNext') : ''}</span>
                                 </li>
                             )
                         })}
@@ -94,7 +95,7 @@ export function GettingStartedChecklist({ compact = false }: { compact?: boolean
                         ))}
                     </div>
                     <details className="mt-3 text-xs text-ink-3">
-                        <summary className="cursor-pointer rounded-sm hover:text-ink-1">Why this matters</summary>
+                        <summary className="cursor-pointer rounded-sm hover:text-ink-1">{t("firstSession.why")}</summary>
                         <p className="mt-1 leading-relaxed">{next.help}</p>
                     </details>
                 </div>

@@ -71,7 +71,7 @@ describe('display and language preferences', () => {
     })
     it('normalizes stored language claims and keeps partial dictionaries unavailable', () => {
         useSettingsStore.getState().setLanguage('sv')
-        expect(useSettingsStore.getState().language).toBe('en')
+        expect(useSettingsStore.getState().language).toBe("en")
         registerLocale('sv', { 'common.save': 'Spara' })
         expect(getLocaleCompleteness('sv').complete).toBe(false)
         expect(getAvailableLocales()).not.toContain('sv')

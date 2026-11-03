@@ -16,6 +16,9 @@ import { soundManager } from "@/lib/sound-manager"
 import { SHORTCUT_GROUPS } from "@/lib/keyboard-shortcuts"
 import { useGameStore } from "@/store/game-store"
 import { cn } from "@/lib/utils"
+import { t } from "@/lib/i18n"
+import { Trans } from "@/lib/trans"
+import { UI_LANGUAGES } from "@/lib/ui-languages"
 
 // ── Primitives ─────────────────────────────────────────────────────────────
 
@@ -77,10 +80,10 @@ function SettingSlider({ label, value, onChange, min, max, step, suffix = "%" }:
 
 // ── Sections ───────────────────────────────────────────────────────────────
 
-const WINDOW_MODES: { value: WindowMode; label: string }[] = [
-    { value: "windowed", label: "Windowed" },
-    { value: "fullscreen", label: "Fullscreen" },
-    { value: "borderless", label: "Borderless fullscreen" },
+const WINDOW_MODES = (): { value: WindowMode; label: string }[] => [
+    { value: "windowed", label: t("settings.window.windowed") },
+    { value: "fullscreen", label: t("settings.window.fullscreen") },
+    { value: "borderless", label: t("settings.window.borderless") },
 ]
 
 const RESOLUTIONS: { value: Resolution; label: string }[] = [
@@ -90,9 +93,9 @@ const RESOLUTIONS: { value: Resolution; label: string }[] = [
     { value: "1024x768", label: "1024 × 768" },
 ]
 
-const RENDERING_MODES: { value: RenderingMode; label: string }[] = [
-    { value: "compatibility", label: "Software (default)" },
-    { value: "performance", label: "GPU" },
+const RENDERING_MODES = (): { value: RenderingMode; label: string }[] => [
+    { value: "compatibility", label: t("settings.rendering.software") },
+    { value: "performance", label: t("settings.rendering.gpu") },
 ]
 
 export function DisplaySettings() {
@@ -113,21 +116,21 @@ export function DisplaySettings() {
 
     return (
         <div className="divide-y divide-line">
-            <SettingRow id="set-window-mode" label="Window mode" hint="Borderless and fullscreen both cover the whole screen.">
-                <SettingSelect id="set-window-mode" label="Window mode" value={s.windowMode} options={WINDOW_MODES}
+            <SettingRow id="set-window-mode" label={t("settings.windowMode")} hint={t("settings.windowModeHint")}>
+                <SettingSelect id="set-window-mode" label={t("settings.windowMode")} value={s.windowMode} options={WINDOW_MODES()}
                     onChange={(mode) => { s.setWindowMode(mode); s.applyWindowSettings() }} />
             </SettingRow>
-            <SettingRow id="set-resolution" label="Resolution" hint="Window size in windowed mode.">
-                <SettingSelect id="set-resolution" label="Resolution" value={s.resolution} options={RESOLUTIONS} disabled={s.windowMode !== "windowed"}
+            <SettingRow id="set-resolution" label={t("settings.resolution")} hint={t("settings.resolutionHint")}>
+                <SettingSelect id="set-resolution" label={t("settings.resolution")} value={s.resolution} options={RESOLUTIONS} disabled={s.windowMode !== "windowed"}
                     onChange={(res) => { s.setResolution(res); s.applyWindowSettings() }} />
             </SettingRow>
-            <SettingRow id="set-rendering" label="Rendering" hint="Desktop app only. Takes effect after a restart. If the window stays blank on GPU, switch back to software.">
-                <SettingSelect id="set-rendering" label="Rendering" value={s.renderingMode} options={RENDERING_MODES} onChange={s.setRenderingMode} />
+            <SettingRow id="set-rendering" label={t("settings.rendering")} hint={t("settings.renderingHint")}>
+                <SettingSelect id="set-rendering" label={t("settings.rendering")} value={s.renderingMode} options={RENDERING_MODES()} onChange={s.setRenderingMode} />
             </SettingRow>
-            <SettingRow label="UI scale" hint="Text and spacing across the whole interface.">
-                <SettingSlider label="UI scale" value={s.uiScale} onChange={s.setUiScale} min={80} max={120} step={5} />
+            <SettingRow label={t("settings.uiScale")} hint={t("settings.uiScaleHint")}>
+                <SettingSlider label={t("settings.uiScale")} value={s.uiScale} onChange={s.setUiScale} min={80} max={120} step={5} />
             </SettingRow>
-            <SettingRow id="set-reduced-motion" label="Reduced motion" hint="Turns off transitions and decorative animation.">
+            <SettingRow id="set-reduced-motion" label={t("settings.reducedMotion")} hint={t("settings.reducedMotionHint")}>
                 <Switch id="set-reduced-motion" checked={s.reducedMotion} onCheckedChange={s.setReducedMotion} />
             </SettingRow>
         </div>
@@ -147,28 +150,28 @@ export function AudioSettings() {
 
     return (
         <div className="divide-y divide-line">
-            <SettingRow id="set-sound" label="Sound" hint="All game audio: music, match and moment sounds, interface sounds.">
+            <SettingRow id="set-sound" label={t("settings.sound")} hint={t("settings.soundHint")}>
                 <Switch id="set-sound" checked={s.soundEnabled} onCheckedChange={s.setSoundEnabled} />
             </SettingRow>
-            <SettingRow label="Master volume">
-                <SettingSlider label="Master volume" value={s.masterVolume} min={0} max={100} step={1}
+            <SettingRow label={t("settings.masterVolume")}>
+                <SettingSlider label={t("settings.masterVolume")} value={s.masterVolume} min={0} max={100} step={1}
                     onChange={(v) => { s.setMasterVolume(v); soundManager.setMasterVolume(v) }} />
             </SettingRow>
-            <SettingRow label="Music volume">
-                <SettingSlider label="Music volume" value={s.musicVolume} min={0} max={100} step={1}
+            <SettingRow label={t("settings.musicVolume")}>
+                <SettingSlider label={t("settings.musicVolume")} value={s.musicVolume} min={0} max={100} step={1}
                     onChange={(v) => { s.setMusicVolume(v); soundManager.setMusicVolume(v) }} />
             </SettingRow>
-            <SettingRow label="Effects volume" hint="Match, moment and interface sounds.">
-                <SettingSlider label="Effects volume" value={s.sfxVolume} min={0} max={100} step={1}
+            <SettingRow label={t("settings.effectsVolume")} hint={t("settings.effectsVolumeHint")}>
+                <SettingSlider label={t("settings.effectsVolume")} value={s.sfxVolume} min={0} max={100} step={1}
                     onChange={(v) => { s.setSfxVolume(v); soundManager.setSfxVolume(v) }} />
             </SettingRow>
-            <SettingRow id="set-ui-sounds" label="Interface sounds" hint="Clicks, tabs, toggles and notifications.">
+            <SettingRow id="set-ui-sounds" label={t("settings.uiSounds")} hint={t("settings.uiSoundsHint")}>
                 <Switch id="set-ui-sounds" checked={s.uiSounds} onCheckedChange={(v) => { s.setUiSounds(v); soundManager.setUiSounds(v) }} />
             </SettingRow>
-            <SettingRow id="set-hover-sounds" label="Hover sounds" hint="A faint tick when the pointer moves over a button.">
+            <SettingRow id="set-hover-sounds" label={t("settings.hoverSounds")} hint={t("settings.hoverSoundsHint")}>
                 <Switch id="set-hover-sounds" checked={s.hoverSounds} disabled={!s.uiSounds} onCheckedChange={(v) => { s.setHoverSounds(v); soundManager.setHoverSounds(v) }} />
             </SettingRow>
-            <SettingRow id="set-mute-unfocused" label="Mute when the window is in the background" hint="Silences music and sounds while you use another window.">
+            <SettingRow id="set-mute-unfocused" label={t("settings.muteUnfocused")} hint={t("settings.muteUnfocusedHint")}>
                 <Switch id="set-mute-unfocused" checked={s.muteWhenUnfocused} onCheckedChange={(v) => { s.setMuteWhenUnfocused(v); soundManager.setMuteWhenUnfocused(v) }} />
             </SettingRow>
         </div>
@@ -181,7 +184,7 @@ const GAME_SPEEDS: { value: GameSpeed; label: string }[] = [
     { value: "very-fast", label: "4×" },
 ]
 
-const AUTOSAVE_INTERVALS = [2, 5, 10, 15, 30].map(m => ({ value: m, label: `Every ${m} min` }))
+const AUTOSAVE_MINUTES = [2, 5, 10, 15, 30]
 
 export function GameplaySettings({ includeCareerOptions = true }: { includeCareerOptions?: boolean }) {
     const s = useSettingsStore(useShallow(state => ({
@@ -198,33 +201,32 @@ export function GameplaySettings({ includeCareerOptions = true }: { includeCaree
         setShowBugReportButton: state.setShowBugReportButton,
     })))
     // Interval options must include the stored value (older builds allowed others).
-    const intervals = AUTOSAVE_INTERVALS.some(o => o.value === s.autoSaveInterval)
-        ? AUTOSAVE_INTERVALS
-        : [...AUTOSAVE_INTERVALS, { value: s.autoSaveInterval, label: `Every ${s.autoSaveInterval} min` }].sort((a, b) => a.value - b.value)
+    const intervals = [...new Set([...AUTOSAVE_MINUTES, s.autoSaveInterval])].sort((a, b) => a - b)
+        .map(m => ({ value: m, label: t("settings.everyMinutes", { count: m }) }))
 
     return (
         <div className="divide-y divide-line">
-            <SettingRow id="set-speed" label="Live match speed" hint="Playback speed a live match starts at. You can change it during the match.">
-                <SettingSelect id="set-speed" label="Live match speed" value={s.gameSpeed} options={GAME_SPEEDS} onChange={s.setGameSpeed} />
+            <SettingRow id="set-speed" label={t("settings.liveSpeed")} hint={t("settings.liveSpeedHint")}>
+                <SettingSelect id="set-speed" label={t("settings.liveSpeed")} value={s.gameSpeed} options={GAME_SPEEDS} onChange={s.setGameSpeed} />
             </SettingRow>
-            <SettingRow id="set-autosave" label="Auto-save" hint="Saves the career in the background while you play.">
+            <SettingRow id="set-autosave" label={t("settings.autoSave")} hint={t("settings.autoSaveHint")}>
                 <Switch id="set-autosave" checked={s.autoSave} onCheckedChange={s.setAutoSave} />
             </SettingRow>
-            <SettingRow id="set-autosave-interval" label="Auto-save interval">
-                <SettingSelect id="set-autosave-interval" label="Auto-save interval" value={s.autoSaveInterval} options={intervals} disabled={!s.autoSave} onChange={s.setAutoSaveInterval} />
+            <SettingRow id="set-autosave-interval" label={t("settings.autoSaveInterval")}>
+                <SettingSelect id="set-autosave-interval" label={t("settings.autoSaveInterval")} value={s.autoSaveInterval} options={intervals} disabled={!s.autoSave} onChange={s.setAutoSaveInterval} />
             </SettingRow>
-            <SettingRow id="set-week-report" label="Open the week report" hint="Shows what changed after each week. Off: a small notice you can open instead.">
+            <SettingRow id="set-week-report" label={t("settings.weekReport")} hint={t("settings.weekReportHint")}>
                 <Switch id="set-week-report" checked={s.openWeekReport} onCheckedChange={s.setOpenWeekReport} />
             </SettingRow>
-            <SettingRow id="set-notifications" label="Minor notifications" hint="Info and XP pop-ups. Important alerts always show.">
+            <SettingRow id="set-notifications" label={t("settings.notifications")} hint={t("settings.notificationsHint")}>
                 <Switch id="set-notifications" checked={s.notifications} onCheckedChange={s.setNotifications} />
             </SettingRow>
             {includeCareerOptions && (
                 <>
-                    <SettingRow id="set-tutorial" label="First-session guide for new careers" hint="Shows the five-step checklist on Home when a career starts.">
+                    <SettingRow id="set-tutorial" label={t("settings.tutorial")} hint={t("settings.tutorialHint")}>
                         <Switch id="set-tutorial" checked={showTutorialOnNewGame} onCheckedChange={setShowTutorialOnNewGame} />
                     </SettingRow>
-                    <SettingRow id="set-bug-button" label="Bug report button" hint="Floating button for sending a bug report.">
+                    <SettingRow id="set-bug-button" label={t("settings.bugButton")} hint={t("settings.bugButtonHint")}>
                         <Switch id="set-bug-button" checked={showBugReportButton} onCheckedChange={setShowBugReportButton} />
                     </SettingRow>
                 </>
@@ -233,12 +235,12 @@ export function GameplaySettings({ includeCareerOptions = true }: { includeCaree
     )
 }
 
-const COLOR_MODES = [
-    { value: "off", label: "Off" },
-    { value: "colorblind-deuteranopia", label: "Deuteranopia (red-green)" },
-    { value: "colorblind-protanopia", label: "Protanopia (red-blind)" },
-    { value: "colorblind-tritanopia", label: "Tritanopia (blue-yellow)" },
-    { value: "high-contrast", label: "High contrast" },
+const COLOR_MODES = () => [
+    { value: "off", label: t("settings.color.off") },
+    { value: "colorblind-deuteranopia", label: t("settings.color.deuteranopia") },
+    { value: "colorblind-protanopia", label: t("settings.color.protanopia") },
+    { value: "colorblind-tritanopia", label: t("settings.color.tritanopia") },
+    { value: "high-contrast", label: t("settings.color.highContrast") },
 ]
 
 export function AccessibilitySettings() {
@@ -246,8 +248,8 @@ export function AccessibilitySettings() {
     const setColorVisionMode = useSettingsStore(state => state.setColorVisionMode)
     return (
         <div className="divide-y divide-line">
-            <SettingRow id="set-color-mode" label="Colour vision" hint="Adjusts colours for colour vision deficiency, or switches to high contrast. Text size is UI scale under Display.">
-                <SettingSelect id="set-color-mode" label="Colour vision" value={colorVisionMode as string} options={COLOR_MODES} onChange={(v) => setColorVisionMode(v as typeof colorVisionMode)} />
+            <SettingRow id="set-color-mode" label={t("settings.colorVision")} hint={t("settings.colorVisionHint")}>
+                <SettingSelect id="set-color-mode" label={t("settings.colorVision")} value={colorVisionMode as string} options={COLOR_MODES()} onChange={(v) => setColorVisionMode(v as typeof colorVisionMode)} />
             </SettingRow>
         </div>
     )
@@ -257,23 +259,41 @@ function Kbd({ children }: { children: ReactNode }) {
     return <kbd className="inline-flex min-w-6 items-center justify-center rounded-sm border border-line-strong bg-shell px-1.5 py-0.5 font-mono text-xs text-ink-2">{children}</kbd>
 }
 
+/** Named keys (Space, Esc) are translated; letters and symbols are not. */
+export const keyLabel = (key: string) => ({ Space: t("key.space"), Esc: t("key.esc"), Enter: t("key.enter"), Ctrl: t("key.ctrl") } as Record<string, string>)[key] ?? key
+
+/** Interface language. Only languages whose file is complete are listed. */
+export function LanguageSettings() {
+    const language = useSettingsStore(state => state.language)
+    const setLanguage = useSettingsStore(state => state.setLanguage)
+    return (
+        <div className="divide-y divide-line">
+            <SettingRow id="set-language" label={t("settings.language")} hint={t("settings.languageHint")}>
+                <SettingSelect id="set-language" label={t("settings.language")} value={language}
+                    options={UI_LANGUAGES.map(l => ({ value: l.code as string, label: l.name }))} onChange={setLanguage} />
+            </SettingRow>
+            {language !== "en" && <p className="px-4 py-3 text-xs text-ink-3">{t("settings.languageDraft")}</p>}
+        </div>
+    )
+}
+
 export function ControlsSettings() {
     return (
         <div>
             <p className="px-4 pb-1 pt-3 text-xs text-ink-3">
-                Keyboard and mouse. Press <Kbd>F1</Kbd> or <Kbd>?</Kbd> anywhere for this list. On macOS use <Kbd>⌘</Kbd> for <Kbd>Ctrl</Kbd>. Shortcuts can&apos;t be remapped yet, and there is no controller support.
+                <Trans k="settings.controlsIntro" tags={{ kbd: key => <Kbd>{key}</Kbd> }} />
             </p>
             {SHORTCUT_GROUPS.map(group => (
                 <section key={group.label} className="px-4 pb-2 pt-3">
-                    <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{group.label}</h3>
+                    <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t(group.label)}</h3>
                     <ul className="divide-y divide-line">
                         {group.shortcuts.map(shortcut => (
                             <li key={shortcut.description + shortcut.keys.join("+")} className="flex items-center justify-between gap-4 py-1.5">
-                                <span className="text-sm text-ink-2">{shortcut.description}</span>
+                                <span className="text-sm text-ink-2">{t(shortcut.description)}</span>
                                 <span className="flex shrink-0 items-center gap-1">
                                     {shortcut.keys.map((key, i) => (
                                         <span key={i} className="flex items-center gap-1">
-                                            <Kbd>{key}</Kbd>
+                                            <Kbd>{keyLabel(key)}</Kbd>
                                             {i < shortcut.keys.length - 1 && <span className="text-xs text-ink-3">+</span>}
                                         </span>
                                     ))}

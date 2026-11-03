@@ -88855,6 +88855,132 @@
       "releaseDisposition": "include"
     },
     {
+      "path": "public/locales/de.json",
+      "sha256": "4ce199c3ea751ef28c4da2f567552f0c0bddd329ebdb06e6845f545dc30e3079",
+      "bytes": 34765,
+      "kind": "code-and-player-text",
+      "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
+      "evidence": "locales/README.md",
+      "license": "Project original",
+      "permission": "Owner-requested translation of owner-original game text, written in-repo",
+      "attribution": null,
+      "allowedUse": "Include in the game and Steam release.",
+      "releaseDisposition": "include",
+      "reviewBasis": "project-authored",
+      "reviewHistory": [
+        {
+          "date": "2026-11-03",
+          "previousSha256": null,
+          "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
+    },
+    {
+      "path": "public/locales/es.json",
+      "sha256": "5a0ab252279402f1ca155da395a948304883993782fedda03b7dd36189feed0d",
+      "bytes": 35978,
+      "kind": "code-and-player-text",
+      "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
+      "evidence": "locales/README.md",
+      "license": "Project original",
+      "permission": "Owner-requested translation of owner-original game text, written in-repo",
+      "attribution": null,
+      "allowedUse": "Include in the game and Steam release.",
+      "releaseDisposition": "include",
+      "reviewBasis": "project-authored",
+      "reviewHistory": [
+        {
+          "date": "2026-11-03",
+          "previousSha256": null,
+          "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
+    },
+    {
+      "path": "public/locales/fr.json",
+      "sha256": "76b325609710d1940ac7d6c64096d32c00cf924f4c77d65d724314aa8a8f546b",
+      "bytes": 36914,
+      "kind": "code-and-player-text",
+      "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
+      "evidence": "locales/README.md",
+      "license": "Project original",
+      "permission": "Owner-requested translation of owner-original game text, written in-repo",
+      "attribution": null,
+      "allowedUse": "Include in the game and Steam release.",
+      "releaseDisposition": "include",
+      "reviewBasis": "project-authored",
+      "reviewHistory": [
+        {
+          "date": "2026-11-03",
+          "previousSha256": null,
+          "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
+    },
+    {
+      "path": "public/locales/pl.json",
+      "sha256": "ceb704364e4b1fe10172224882fcd82be4adb3af8142b23ed04f2db49b8c4a78",
+      "bytes": 36696,
+      "kind": "code-and-player-text",
+      "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
+      "evidence": "locales/README.md",
+      "license": "Project original",
+      "permission": "Owner-requested translation of owner-original game text, written in-repo",
+      "attribution": null,
+      "allowedUse": "Include in the game and Steam release.",
+      "releaseDisposition": "include",
+      "reviewBasis": "project-authored",
+      "reviewHistory": [
+        {
+          "date": "2026-11-03",
+          "previousSha256": null,
+          "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
+    },
+    {
+      "path": "public/locales/pt-BR.json",
+      "sha256": "8fb80473d87f000a165239e43eac676ccbb8e5fea5617dfea25708274a942174",
+      "bytes": 35344,
+      "kind": "code-and-player-text",
+      "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
+      "evidence": "locales/README.md",
+      "license": "Project original",
+      "permission": "Owner-requested translation of owner-original game text, written in-repo",
+      "attribution": null,
+      "allowedUse": "Include in the game and Steam release.",
+      "releaseDisposition": "include",
+      "reviewBasis": "project-authored",
+      "reviewHistory": [
+        {
+          "date": "2026-11-03",
+          "previousSha256": null,
+          "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
+    },
+    {
+      "path": "public/locales/ru.json",
+      "sha256": "c4864173d6abcda10cee1eff64f95eee1e185835c75e3f399aec549aa6861c60",
+      "bytes": 49239,
+      "kind": "code-and-player-text",
+      "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
+      "evidence": "locales/README.md",
+      "license": "Project original",
+      "permission": "Owner-requested translation of owner-original game text, written in-repo",
+      "attribution": null,
+      "allowedUse": "Include in the game and Steam release.",
+      "releaseDisposition": "include",
+      "reviewBasis": "project-authored",
+      "reviewHistory": [
+        {
+          "date": "2026-11-03",
+          "previousSha256": null,
+          "change": "Interface languages (PR #94): new translation file. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
+    },
+    {
       "path": "public/logo.ico",
       "sha256": "d3350e3c6a36307db398a798c29fd4ed6b833520568f9ec2db8a8b7d40d8a7d7",
       "bytes": 89293,

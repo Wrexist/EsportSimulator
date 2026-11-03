@@ -6,6 +6,7 @@
  */
 import fs from "fs"
 import path from "path"
+import { t } from "@/lib/i18n"
 import { GEAR_HREF, PRO_HIDDEN_HREFS, hubForPath, menuGroups, menuGroupsFor, navHubs, staffMeetingHref } from "@/lib/navigation"
 import { NUMBER_KEY_ROUTES, SHORTCUT_GROUPS } from "@/lib/keyboard-shortcuts"
 import { matchCentreHref, type MatchCentreState } from "@/app/match/match-centre"
@@ -99,8 +100,8 @@ describe("number keys follow the hubs", () => {
     })
 
     test("the shortcut list describes the same keys", () => {
-        const nav = SHORTCUT_GROUPS.find(g => g.label === "Navigation")!.shortcuts
-        const describe = (key: string) => nav.find(s => s.keys[0] === key)?.description ?? ""
+        const nav = SHORTCUT_GROUPS.find(g => g.label === "shortcuts.group.navigation")!.shortcuts
+        const describe = (key: string) => t(nav.find(s => s.keys[0] === key)?.description ?? "")
         expect(describe("4")).toMatch(/week/i)
         expect(describe("5")).toMatch(/match/i)
         expect(describe("8")).toMatch(/club/i)

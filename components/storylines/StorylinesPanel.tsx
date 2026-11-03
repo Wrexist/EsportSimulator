@@ -15,7 +15,9 @@ import { Button } from "@/components/ui/button"
 import { useInboxDrawer } from "@/components/inbox/inbox-drawer-store"
 import type { GameSave } from "@/engine/save-types"
 import type { StoryArc } from "@/engine/storylines/types"
-import { STORY_KIND_LABEL, activeArcs, arcHeadline, nextHint, worldArcs } from "@/engine/storylines/view"
+import { activeArcs, arcHeadline, nextHint, worldArcs } from "@/engine/storylines/view"
+import { t } from "@/lib/i18n"
+import { Trans } from "@/lib/trans"
 import { getRivalriesWithNames } from "@/engine/history-tracker"
 import { cn } from "@/lib/utils"
 
@@ -27,8 +29,8 @@ function ArcRow({ arc, decision, names, currentWeek }: { arc: StoryArc; decision
     return (
         <li className="space-y-1.5 px-4 py-3">
             <div className="flex items-baseline justify-between gap-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">{STORY_KIND_LABEL[arc.kind]}</p>
-                <span className="shrink-0 text-[11px] tabular-nums text-ink-3">Since week {((arc.startedWeek - 1) % 52) + 1}</span>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">{t(`stories.kind.${arc.kind}`)}</p>
+                <span className="shrink-0 text-[11px] tabular-nums text-ink-3">{t("stories.since", { week: ((arc.startedWeek - 1) % 52) + 1 })}</span>
             </div>
             <p className="text-sm font-semibold leading-snug text-ink-1">{arcHeadline(arc)}</p>
             {subjects.length > 0 && (
@@ -39,12 +41,12 @@ function ArcRow({ arc, decision, names, currentWeek }: { arc: StoryArc; decision
             {decision ? (
                 <div className="flex items-center justify-between gap-3 pt-0.5">
                     <span className={cn("text-xs", decision.deadline != null && decision.deadline <= currentWeek ? "text-caution" : "text-ink-3")}>
-                        Your call{decision.deadline != null ? ` · answer by week ${((decision.deadline - 1) % 52) + 1}` : ""}
+                        {decision.deadline != null ? t("stories.answerBy", { week: ((decision.deadline - 1) % 52) + 1 }) : t("stories.yourCall")}
                     </span>
-                    <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs" onClick={() => openInbox("decisions", decision.id)}>Decide</Button>
+                    <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs" onClick={() => openInbox("decisions", decision.id)}>{t("stories.decide")}</Button>
                 </div>
             ) : (
-                <p className="text-xs text-ink-3">Next: {nextHint(arc)}</p>
+                <p className="text-xs text-ink-3">{t("stories.next", { hint: nextHint(arc) })}</p>
             )}
         </li>
     )
@@ -85,13 +87,13 @@ export function StorylinesPanel({ className }: { className?: string }) {
 
     return (
         <Panel
-            title="Storylines"
+            title={t("stories.title")}
             className={className}
             padded={false}
-            actions={<span className="text-xs tabular-nums text-ink-3">{active.length ? `${active.length} active` : "None active"}</span>}
+            actions={<span className="text-xs tabular-nums text-ink-3">{active.length ? t("stories.active", { count: active.length }) : t("stories.noneActive")}</span>}
         >
             {active.length === 0 ? (
-                <p className="px-4 py-3 text-sm text-ink-3">No story is running at your club. They start from real events: form, contracts, rivalries, veterans and the board.</p>
+                <p className="px-4 py-3 text-sm text-ink-3">{t("stories.empty")}</p>
             ) : (
                 <ul className="divide-y divide-line">
                     {active.map(arc => <ArcRow key={arc.id} arc={arc} decision={decisions.get(arc.id) ?? null} names={names} currentWeek={currentWeek} />)}
@@ -99,14 +101,14 @@ export function StorylinesPanel({ className }: { className?: string }) {
             )}
             {elsewhere.length > 0 && (
                 <div className="space-y-1 border-t border-line px-4 py-2.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Around the scene</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("stories.elsewhere")}</p>
                     {elsewhere.map(a => <p key={a.id} className="text-xs leading-snug text-ink-2">{arcHeadline(a)}</p>)}
                 </div>
             )}
             {rival && (
                 <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">
-                    Biggest rival: <span className="font-semibold text-ink-2">{rival.opponentName}</span>
-                    <span className="tabular-nums"> · {rival.wins}–{rival.losses} in {rival.matchesPlayed} meetings · {rival.intensity.toLowerCase()}</span>
+                    <Trans k="stories.rival" params={{ name: rival.opponentName }} tags={{ b: v => <span className="font-semibold text-ink-2">{v}</span> }} />
+                    <span className="tabular-nums">{t("stories.rivalRecord", { wins: rival.wins, losses: rival.losses, count: rival.matchesPlayed, intensity: t(`rivalry.intensity.${rival.intensity}`) })}</span>
                 </p>
             )}
         </Panel>
