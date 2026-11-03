@@ -492,7 +492,7 @@ export default function Page() {
             )}
 
             {/* Board objectives; the chip opens Club → Board */}
-            <Panel eyebrow={t("home.board")} title={tierTargets.label} actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />} bodyClassName="pt-1">
+            <Panel eyebrow={t("home.board")} title={t(`board.expectation.${expectationTier}`)} actions={<BoardConfidenceChip board={boardState} graceLeft={graceWeeksLeft(currentWeek, tenureStartWeek)} />} bodyClassName="pt-1">
               <dl className="divide-y divide-line text-sm">
                 {objectives.length > 0 ? objectives.map(o => (
                   <div key={o.id} className="flex items-center justify-between gap-3 py-2">
