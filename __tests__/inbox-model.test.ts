@@ -7,7 +7,7 @@ import type { GameEventSaveData, TeamSaveData } from "@/engine/save-types"
 import type { StoreState } from "@/store/types"
 import { createEventsSlice } from "@/store/slices/events-slice"
 import {
-    buildInboxItems, choiceLabel, countInbox, describeChoice, getDecisionKind, getEventSubject, getInboxKind, homeDecisions,
+    buildInboxItems, choiceLabel, countInbox, describeChoice, getDecisionKind, getEventBody, getEventSubject, getInboxKind, homeDecisions,
     inboxBadgeCount, itemsForTab, parseMessageBody, type InboxContext,
 } from "@/components/inbox/inbox-model"
 import { selectInboxCounts } from "@/components/inbox/inbox-store-bindings"
@@ -224,6 +224,18 @@ describe("describeChoice matches resolveEventChoice", () => {
 })
 
 describe("copy helpers", () => {
+    test("HOME-11: a title-win event reads as one, not 'Media update'", () => {
+        const c = ctx()
+        const own = ev("trophy_cup_mine", { type: "MEDIA", data: { teamId: "mine", tournamentName: "Kato Open", fanGain: 1200 } })
+        expect(getEventSubject(own, c)).toBe("You won Kato Open")
+        expect(getEventBody(own, c)).toBe("Your team won Kato Open. The title brought 1,200 new followers.")
+        const other = ev("trophy_cup_ai", { type: "MEDIA", data: { teamId: "ai", teamName: "MOERTA", tournamentName: "Kato Open", fanGain: 900 } })
+        expect(getEventSubject(other, c)).toBe("MOERTA win Kato Open")
+        expect(getEventBody(other, c)).toBe("MOERTA won Kato Open.")
+        // Older saves have no teamName.
+        expect(getEventSubject(ev("trophy_x", { type: "MEDIA", data: { teamId: "ai", tournamentName: "Kato Open" } }), c)).toBe("Kato Open has a winner")
+    })
+
     test("choiceLabel drops inline effect notes the chips replace", () => {
         expect(choiceLabel({ id: "a", text: "Throw a Party (-$1k, Morale +10)" })).toBe("Throw a Party")
         expect(choiceLabel({ id: "b", text: "Support session: $500, morale +8, loyalty +2" })).toBe("Support session")

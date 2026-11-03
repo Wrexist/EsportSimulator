@@ -410,7 +410,7 @@ export function updateStandings(
                 id: trophyEventId,
                 type: EventType.MEDIA,
                 week: save.currentWeek,
-                data: { teamId: winningTeam.id, tournamentName: tournament.name, fanGain },
+                data: { teamId: winningTeam.id, teamName: winningTeam.name, tournamentName: tournament.name, fanGain },
                 acknowledged: false,
             })
             eventIdSet?.add(trophyEventId)
