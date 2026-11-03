@@ -111,7 +111,7 @@ export default function TrophyRoomPage() {
         const when = key === "longestWinStreak" && r.fromWeek ? `${weekLabel(r.fromWeek)}–${weekLabel(r.week)}${r.endedBy ? `, ended by ${teamName(r.endedBy)}` : ", running"}` : weekLabel(r.week)
         return { value, detail: `${who}vs ${teamName(r.opponentId)}${r.map ? ` · ${r.map}` : ""} · ${when}` }
     }
-    const season = Math.floor((currentWeek - 1) / WEEKS_PER_YEAR) + 1
+    const season = Math.max(1, Math.floor((currentWeek - 1) / WEEKS_PER_YEAR) + 1)
 
     // Closed seasons (stored honours), newest first: each replays its season review.
     const [replaySeason, setReplaySeason] = useState<number | null>(null)

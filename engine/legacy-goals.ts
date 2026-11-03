@@ -56,7 +56,7 @@ export const LEGACY_GOALS: readonly LegacyGoal[] = [
     {
         id: "silverware",
         name: "Silverware",
-        describe: n => `Win ${n} trophies as a manager`,
+        describe: n => n === 1 ? "Win a trophy as a manager" : `Win ${n} trophies as a manager`,
         levels: [1, 10, 25],
         reputation: STEP_REPUTATION,
         progress: save => trophiesWon(save).length,

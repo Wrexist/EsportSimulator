@@ -145,7 +145,9 @@ export function useNegotiation(playerId: string | null, active = true) {
             } else {
                 setStage("BUYOUT")
                 const contract = contracts.find(c => c.playerId === playerId && c.teamId === initialTeam.id && c.endWeek > currentWeek)
-                setBuyoutOfferRaw(Math.round((contract?.buyout || evaluatePlayer(playerSave, undefined, undefined, currentWeek).transferValue) * 0.8))
+                // Open at 80% of the price, but never above what the club can pay (the field caps edits there too).
+                const opener = Math.round((contract?.buyout || evaluatePlayer(playerSave, undefined, undefined, currentWeek).transferValue) * 0.8)
+                setBuyoutOfferRaw(Math.max(0, Math.min(opener, Math.floor(budget))))
             }
 
             setSalaryOfferRaw(recruitmentSalary(playerSave, currentWeek, myTeam))
@@ -156,7 +158,7 @@ export function useNegotiation(playerId: string | null, active = true) {
             setFailureMessage(null)
             dealSubmittedRef.current = false
         }
-    }, [active, initializedKey, sessionKey, playerSave, playerId, teams, contracts, currentWeek, myTeam])
+    }, [active, initializedKey, sessionKey, playerSave, playerId, teams, contracts, currentWeek, myTeam, budget])
 
     const ready = !!playerSave && initializedKey === sessionKey
     const evaluation = useMemo(() => playerSave ? evaluatePlayer(playerSave, undefined, undefined, currentWeek) : null, [playerSave, currentWeek])

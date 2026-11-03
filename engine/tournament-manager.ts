@@ -1373,7 +1373,7 @@ export class TournamentManager {
         const { FULL_TOURNAMENT_CALENDAR } = require("@/data/tournament-calendar")
         const idx = buildSaveIndexes(save)
 
-        const currentSeason = Math.floor((currentWeek - 1) / 52) + 1
+        const currentSeason = Math.max(1, Math.floor((currentWeek - 1) / 52) + 1)
 
         FULL_TOURNAMENT_CALENDAR.forEach((def: TournamentDefinition) => {
             // Calculate absolute start week for this season
