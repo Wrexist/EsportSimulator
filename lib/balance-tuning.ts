@@ -145,6 +145,13 @@ export const AI_SQUAD_TUNING = {
     /** ...below this age (older players are left to retire or move on). */
     RENEW_MAX_AGE: 33,
     /**
+     * ...and a bench player from this age is left to move on, so his place
+     * goes to someone younger. Without it a squad kept its veterans until
+     * they retired: over ten seasons the median rostered age rose from 23
+     * to 29 (scripts/audit/world-drift.ts 521).
+     */
+    RENEW_BENCH_MAX_AGE: 29,
+    /**
      * Opening snapshot contracts were signed before the career began: weeks
      * left are drawn (seeded) between MIN and the nominal length + STAGGER.
      * Phase 5 fix: before, it was the nominal length +/- STAGGER, so no deal

@@ -54,6 +54,7 @@ export function renewExpiringContracts(team: TeamSaveData, save: GameSave, playe
         if (weeksLeft <= 0 || weeksLeft > AI_SQUAD_TUNING.RENEW_WINDOW_WEEKS) continue
         const p = players.get(contract.playerId)
         if (!p || (p.age ?? 22) >= AI_SQUAD_TUNING.RENEW_MAX_AGE) continue
+        if ((p.age ?? 22) >= AI_SQUAD_TUNING.RENEW_BENCH_MAX_AGE && !starters.has(p.id)) continue
         // Phase 5.2: the raise follows his archetype (Loyal half, Mercenary double).
         const newSalary = renewalSalary(p, contract.salaryPerWeek, week)
         if (!Number.isSafeInteger(newSalary) || newSalary < 1) continue
