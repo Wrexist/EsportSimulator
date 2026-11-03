@@ -5,6 +5,7 @@
 
 import { TournamentDefinition, CIRCUIT_POINTS, getTournamentById, formatPrizePool } from "@/data/tournament-calendar"
 import { debug } from "@/lib/debug-logger"
+import { intlLocale, t, tn } from "@/lib/i18n"
 import { TeamSaveData, QualificationStatus, CircuitPointsEntry } from "./save-types"
 import {
     buildInstanceId,
@@ -185,14 +186,14 @@ export class QualificationEngine {
         if (rosterSize < 5) {
             requirements.push({
                 type: "RANKING",
-                description: "Minimum 5 players required",
+                description: t("tm.req.minPlayers"),
                 required: 5,
                 current: rosterSize,
                 met: false
             })
             return {
                 eligible: false,
-                reason: `Need ${5 - rosterSize} more player${5 - rosterSize > 1 ? 's' : ''} to compete`,
+                reason: tn("tm.req.needPlayers", 5 - rosterSize),
                 requirements,
                 canRegister: false
             }
@@ -204,7 +205,7 @@ export class QualificationEngine {
                 canRegister = true
                 requirements.push({
                     type: "RANKING",
-                    description: "Open to all teams",
+                    description: t("tm.req.open"),
                     required: "Any",
                     current: `#${worldRanking}`,
                     met: true
@@ -216,7 +217,7 @@ export class QualificationEngine {
                     const met = worldRanking <= tournament.requiredRanking
                     requirements.push({
                         type: "RANKING",
-                        description: `World Ranking Top ${tournament.requiredRanking}`,
+                        description: t("tm.req.rankTop", { n: tournament.requiredRanking }),
                         required: tournament.requiredRanking,
                         current: worldRanking,
                         met
@@ -231,7 +232,7 @@ export class QualificationEngine {
                     )
                     requirements.push({
                         type: "INVITE",
-                        description: "Direct invitation required",
+                        description: t("tm.req.invite"),
                         required: "Invite",
                         current: isQualified ? "Invited" : "Not Invited",
                         met: isQualified
@@ -247,7 +248,7 @@ export class QualificationEngine {
                 const hasQualified = qualifierStatus?.status === "QUALIFIED"
                 requirements.push({
                     type: "QUALIFIER",
-                    description: "Must qualify through qualifier event",
+                    description: t("tm.req.qualifier"),
                     required: "Qualified",
                     current: hasQualified ? "Qualified" : "Not Qualified",
                     met: hasQualified
@@ -261,7 +262,7 @@ export class QualificationEngine {
                     const met = teamPoints >= tournament.requiredPoints
                     requirements.push({
                         type: "POINTS",
-                        description: `Minimum ${tournament.requiredPoints.toLocaleString()} circuit points`,
+                        description: t("tm.req.points", { n: tournament.requiredPoints.toLocaleString(intlLocale()) }),
                         required: tournament.requiredPoints,
                         current: teamPoints,
                         met
@@ -276,7 +277,7 @@ export class QualificationEngine {
                     const met = team.leagueTier === tournament.requiredLeagueTier
                     requirements.push({
                         type: "LEAGUE_TIER",
-                        description: `Must be in ${tournament.requiredLeagueTier} league`,
+                        description: t("tm.req.league", { tier: t(`common.tier.${tournament.requiredLeagueTier}`) }),
                         required: tournament.requiredLeagueTier,
                         current: team.leagueTier || "B_TIER",
                         met
@@ -290,12 +291,12 @@ export class QualificationEngine {
         let reason: string
         if (allMet) {
             reason = canRegister
-                ? "You can register for this tournament"
+                ? t("tm.reason.canRegister")
                 : tournament.entryType === "INVITE"
-                    ? "You have been invited"
+                    ? t("tm.reason.invited")
                     : tournament.entryType === "QUALIFIER"
-                        ? "You have qualified"
-                        : "You meet all requirements"
+                        ? t("tm.reason.qualified")
+                        : t("tm.reason.allMet")
         } else {
             const unmetReqs = requirements.filter(r => !r.met)
             reason = unmetReqs.map(r => r.description).join(", ")

@@ -1,4 +1,6 @@
 "use client"
+import { stageName } from "@/lib/display-names"
+import { t } from "@/lib/i18n"
 
 import React, { useEffect, useRef, useState } from "react"
 import Image from "next/image"
@@ -87,16 +89,16 @@ export function AdvancementAnimation({
 
     // Get display name for stage with cleaner formatting
     const formatStage = (stage: string) => {
-        if (!stage) return "Next Round"
+        if (!stage) return t("tm.nextRound")
         const lower = stage.toLowerCase()
-        if (lower.includes("grand final")) return "Grand Final"
-        if (lower === "final" || lower === "finals") return "Finals"
-        if (lower.includes("semi")) return "Semi-Finals"
-        if (lower.includes("quarter")) return "Quarter-Finals"
-        if (lower.includes("round of 16") || lower.includes("ro16")) return "Round of 16"
-        if (lower.includes("round of 32") || lower.includes("ro32")) return "Round of 32"
+        if (lower.includes("grand final")) return t("stage.grandFinal")
+        if (lower === "final" || lower === "finals") return t("tm.finals")
+        if (lower.includes("semi")) return t("stage.semifinals")
+        if (lower.includes("quarter")) return t("stage.quarterfinals")
+        if (lower.includes("round of 16") || lower.includes("ro16")) return t("stage.roundOf", { size: 16 })
+        if (lower.includes("round of 32") || lower.includes("ro32")) return t("stage.roundOf", { size: 32 })
         // Handle numbered stages like "Round 1", "Stage 2", etc.
-        return stage.charAt(0).toUpperCase() + stage.slice(1)
+        return stageName(stage.charAt(0).toUpperCase() + stage.slice(1))
     }
 
     // Determine if advancing to finals
@@ -116,13 +118,13 @@ export function AdvancementAnimation({
                     ref={dialogRef} tabIndex={-1}
                     role="dialog"
                     aria-modal="true"
-                    aria-label={isChampionship ? `${teamName} are champions` : `${teamName} advance${toStage ? ` to ${toStage}` : ""}`}
+                    aria-label={isChampionship ? t("tm.adv.champions", { team: teamName }) : toStage ? t("tm.adv.advanceTo", { team: teamName, stage: formatStage(toStage) }) : t("tm.adv.advance", { team: teamName })}
                     aria-describedby="advancement-skip-hint"
                     onKeyDown={event => {
                         if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onComplete?.() }
                     }}
                 >
-                    <span id="advancement-skip-hint" className="sr-only">Press Enter or Escape to continue.</span>
+                    <span id="advancement-skip-hint" className="sr-only">{t("tm.adv.skipHint")}</span>
                     <div className="relative flex flex-col items-center gap-6 max-w-3xl px-8">
                         {/* Tournament Badge */}
                         {tournamentName && (
@@ -194,7 +196,7 @@ export function AdvancementAnimation({
                                 transition={{ duration: 0.4 }}
                                 className="text-center min-w-[140px]"
                             >
-                                <p className="text-ink-3 text-[11px] font-bold uppercase tracking-[0.08em] mb-1">Completed</p>
+                                <p className="text-ink-3 text-[11px] font-bold uppercase tracking-[0.08em] mb-1">{t("tm.status.completed")}</p>
                                 <p className="text-ink-2 text-lg font-semibold">{formatStage(fromStage)}</p>
                             </motion.div>
 
@@ -243,7 +245,7 @@ export function AdvancementAnimation({
                                 <p className={cn(
                                     "text-[11px] font-bold uppercase tracking-[0.08em] mb-1",
                                     isAdvancingToFinals || isChampionship ? "text-gold/70" : "text-positive/70"
-                                )}>Next Stage</p>
+                                )}>{t("tm.nextStageShort")}</p>
                                 <p className={cn(
                                     "text-xl font-bold",
                                     isAdvancingToFinals || isChampionship ? "text-gold" : "text-positive"
@@ -274,7 +276,7 @@ export function AdvancementAnimation({
                                     "font-display text-5xl font-extrabold uppercase leading-none",
                                     isAdvancingToFinals || isChampionship ? "text-gold" : "text-ink-1"
                                 )}>
-                                    {isAdvancingToFinals || isChampionship ? "Into the final" : "Advancing"}
+                                    {isAdvancingToFinals || isChampionship ? t("tm.adv.final") : t("tm.adv.advancing")}
                                 </h2>
                                 {isAdvancingToFinals || isChampionship ? (
                                     <Trophy className="w-8 h-8 text-gold" />
@@ -289,7 +291,7 @@ export function AdvancementAnimation({
                                 transition={{ delay: 0.8 }}
                                 className="mt-8 text-xs text-ink-3"
                             >
-                                Click anywhere to continue
+                                {t("tm.adv.click")}
                             </motion.p>
                         </motion.div>
 

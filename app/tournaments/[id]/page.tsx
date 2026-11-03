@@ -1,4 +1,7 @@
 "use client"
+import { eventFormatName, eventRegionName, stageName } from "@/lib/display-names"
+import { Trans } from "@/lib/trans"
+import { ordinalLabel, t, tn } from "@/lib/i18n"
 
 import React, { useState, useMemo, useEffect, type ReactNode } from "react"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
@@ -64,7 +67,6 @@ const PRIZE_SPLIT_16: Record<number, number> = {
     9: 0.02, 10: 0.02, 11: 0.02, 12: 0.02, 13: 0.01, 14: 0.01, 15: 0.01, 16: 0.01,
 }
 const prizeSplitFor = (slots: number | undefined) => ((slots ?? 0) > 8 ? PRIZE_SPLIT_16 : PRIZE_SPLIT_8)
-const ordinal = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`
 /** Collapse equal consecutive shares into rows like "5th–8th · 4% each". */
 function splitRows(split: Record<number, number>): { label: string; pct: number; count: number }[] {
     const places = Object.keys(split).map(Number).sort((a, b) => a - b)
@@ -74,7 +76,7 @@ function splitRows(split: Record<number, number>): { label: string; pct: number;
         if (last && last.pct === split[place] && place > 2) last.to = place
         else rows.push({ from: place, to: place, pct: split[place] })
     }
-    return rows.map(r => ({ label: r.from === r.to ? ordinal(r.from) : `${ordinal(r.from)}–${ordinal(r.to)}`, pct: r.pct, count: r.to - r.from + 1 }))
+    return rows.map(r => ({ label: r.from === r.to ? ordinalLabel(r.from) : `${ordinalLabel(r.from)}–${ordinalLabel(r.to)}`, pct: r.pct, count: r.to - r.from + 1 }))
 }
 
 // Format display helper
@@ -86,15 +88,7 @@ const isQualificationForTournament = (q: any, tournamentId: string) =>
 const isMatchForTournament = (matchTournamentId: string | null | undefined, tournamentId: string) =>
     toSeriesId(matchTournamentId || "") === toSeriesId(tournamentId)
 
-const formatDisplayName = (format: string): string => {
-    const formatMap: Record<string, string> = {
-        "league": "Round Robin",
-        "swiss": "Swiss System",
-        "bracket": "Single Elimination",
-        "double_elim": "Double Elimination",
-    }
-    return formatMap[format?.toLowerCase()] || format || "TBD"
-}
+const formatDisplayName = (format: string): string => eventFormatName(format, true)
 
 type TimelineNodeStatus = "UPCOMING" | "LIVE" | "COMPLETED"
 type TimelineNodeRole = "OPEN_QUALIFIER" | "CLOSED_QUALIFIER" | "MAIN_EVENT"
@@ -122,15 +116,15 @@ const getTimelineNodeRole = (tournament: TournamentDefinition): TimelineNodeRole
     return "CLOSED_QUALIFIER"
 }
 
+/** QUALIFIED, REGISTERED, … as a word. */
+const qualStatusLabel = (status: string): string => {
+    const key = `tm.qual.${status}`
+    const label = t(key)
+    return label === key ? status.toLowerCase() : label
+}
+
 const getTimelineRoleLabel = (role: TimelineNodeRole): string => {
-    switch (role) {
-        case "OPEN_QUALIFIER":
-            return "Open Qualifier"
-        case "CLOSED_QUALIFIER":
-            return "Closed Qualifier"
-        default:
-            return "Main Event"
-    }
+    return t(`tm.role.${role}`)
 }
 
 // Helper to map match data to bracket format
@@ -364,9 +358,9 @@ export default function TournamentDetailPage() {
     if (!displayTournament) {
         return (
             <div className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
-                <h1 className="font-display text-3xl font-bold uppercase text-ink-1">Tournament not found</h1>
+                <h1 className="font-display text-3xl font-bold uppercase text-ink-1">{t("tm.notFound")}</h1>
                 <Button onClick={() => router.push("/tournaments")} variant="outline" className="mt-5 gap-2">
-                    <ArrowLeft className="h-4 w-4" /> Back to tournaments
+                    <ArrowLeft className="h-4 w-4" /> {t("tm.back")}
                 </Button>
             </div>
         )
@@ -401,13 +395,13 @@ export default function TournamentDetailPage() {
             (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId) &&
             m.result && m.result.winnerId && m.result.winnerId !== playerTeamId
     )
-    const status: { label: string; tone: string } = currentWeek < startWeek
-        ? { label: `Starts in ${weeksUntil} week${weeksUntil !== 1 ? "s" : ""}`, tone: "text-ink-2" }
+    const status: { label: string; tone: string; live?: boolean } = currentWeek < startWeek
+        ? { label: tn("tm.startsIn", weeksUntil), tone: "text-ink-2" }
         : isPlayerEliminated && currentWeek <= endWeek
-            ? { label: "Eliminated", tone: "text-negative" }
+            ? { label: t("tm.status.eliminated"), tone: "text-negative" }
             : currentWeek <= endWeek && !displayTournament.isCompleted
-                ? { label: "Live", tone: "text-negative" }
-                : { label: "Completed", tone: "text-ink-3" }
+                ? { label: t("tm.status.live"), tone: "text-negative", live: true }
+                : { label: t("tm.status.completed"), tone: "text-ink-3" }
 
     const registeredCount = tournamentQualifications.filter(q => isQualificationForTournament(q, (definition?.id || id) as string)).length
     const participantCount = isStarted ? (displayTournament.teamIds?.length || 0) : registeredCount
@@ -416,13 +410,13 @@ export default function TournamentDetailPage() {
     // Tabs depend on the format.
     const format = displayTournament.format
     const slots = displayTournament.slots || 32
-    const tabs: { id: typeof activeTab; label: string }[] = [{ id: "overview", label: "Overview" }]
-    if (format !== "league" && (format === "swiss" || slots === 16 || slots === 24)) tabs.push({ id: "groups", label: "Group stage" })
-    if (format !== "league") tabs.push({ id: "playoffs", label: "Bracket" })
-    if (format === "league") tabs.push({ id: "groups", label: "Standings" })
-    tabs.push({ id: "schedule", label: format === "league" ? "Schedule" : "All matches" })
-    tabs.push({ id: "history", label: "Your matches" })
-    tabs.push({ id: "stats", label: "Stats" })
+    const tabs: { id: typeof activeTab; label: string }[] = [{ id: "overview", label: t("tm.tab.overview") }]
+    if (format !== "league" && (format === "swiss" || slots === 16 || slots === 24)) tabs.push({ id: "groups", label: t("stage.groupStage") })
+    if (format !== "league") tabs.push({ id: "playoffs", label: t("tm.tab.bracket") })
+    if (format === "league") tabs.push({ id: "groups", label: t("tm.tab.standings") })
+    tabs.push({ id: "schedule", label: format === "league" ? t("tm.schedule") : t("tm.tab.allMatches") })
+    tabs.push({ id: "history", label: t("tm.tab.yours") })
+    tabs.push({ id: "stats", label: t("sx.title") })
 
     const overline = "text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3"
     const emptyBlock = (Icon: any, title: string, text: ReactNode, action?: ReactNode) => (
@@ -437,16 +431,16 @@ export default function TournamentDetailPage() {
     )
 
     const prizeSplitPanel = (
-                    <Panel title={isQualifierEvent ? "Qualification" : "Prize split"} padded={false} actions={!isQualifierEvent ? <span className="text-xs text-ink-3">{formatCurrency(prizePool, "$", false)} total</span> : undefined}>
+                    <Panel title={isQualifierEvent ? t("tm.qualification") : t("tm.prizeSplit")} padded={false} actions={!isQualifierEvent ? <span className="text-xs text-ink-3">{t("tm.total", { amount: formatCurrency(prizePool, "$", false) })}</span> : undefined}>
                         {isQualifierEvent ? (
-                            <p className="px-4 py-3 text-sm text-ink-2">Top <span className="font-semibold tabular-nums text-ink-1">{displayTournament.qualifierSlots || 1}</span> advance to <span className="font-semibold text-ink-1">{qualifierDest?.name ?? "the next stage"}</span>.</p>
+                            <p className="px-4 py-3 text-sm text-ink-2"><Trans k="tm.advance" params={{ n: displayTournament.qualifierSlots || 1, event: qualifierDest?.name ?? t("tm.nextStage") }} tags={{ b: x => <span className="font-semibold tabular-nums text-ink-1">{x}</span> }} /></p>
                         ) : (
                             <table data-slot="table" className="w-full border-collapse text-left">
                                 <tbody>
                                     {splitRows(split).map(row => (
                                         <tr key={row.label} className="h-9 border-b border-line last:border-b-0">
                                             <td className="pl-4 text-sm text-ink-2">{row.label}</td>
-                                            <td className="text-right text-xs tabular-nums text-ink-3">{Math.round(row.pct * 100)}%{row.count > 1 ? " each" : ""}</td>
+                                            <td className="text-right text-xs tabular-nums text-ink-3">{row.count > 1 ? t("tm.pctEach", { pct: Math.round(row.pct * 100) }) : `${Math.round(row.pct * 100)}%`}</td>
                                             <td className="pr-4 text-right font-display text-lg font-bold tabular-nums text-ink-1">{formatCurrency(Math.round(prizePool * row.pct), "$", false)}</td>
                                         </tr>
                                     ))}
@@ -461,18 +455,18 @@ export default function TournamentDetailPage() {
             <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
                 <div className="flex items-center justify-between">
                     <button onClick={() => router.push("/tournaments")} className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-3 transition-colors hover:text-ink-1">
-                        <ArrowLeft size={15} aria-hidden="true" /> Tournaments
+                        <ArrowLeft size={15} aria-hidden="true" /> {t("tm.title")}
                     </button>
                     {seasonalInstances.length > 1 && (
-                        <div className="flex items-center gap-1.5" role="group" aria-label="Season">
-                            <span className={overline}>Season</span>
-                            {seasonalInstances.map(t => {
-                                const seasonNum = t.id.split('_s')[1] || "1"
-                                const active = displayTournament.id === t.id
+                        <div className="flex items-center gap-1.5" role="group" aria-label={t("md.season")}>
+                            <span className={overline}>{t("md.season")}</span>
+                            {seasonalInstances.map(inst => {
+                                const seasonNum = inst.id.split('_s')[1] || "1"
+                                const active = displayTournament.id === inst.id
                                 return (
                                     <button
-                                        key={t.id}
-                                        onClick={() => setSelectedSeason(t.id)}
+                                        key={inst.id}
+                                        onClick={() => setSelectedSeason(inst.id)}
                                         aria-pressed={active}
                                         className={cn("h-7 min-w-7 rounded-[3px] border px-1.5 text-xs font-semibold tabular-nums transition-colors", active ? "border-gold text-ink-1" : "border-line text-ink-3 hover:text-ink-1")}
                                     >
@@ -495,12 +489,12 @@ export default function TournamentDetailPage() {
                         <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2 text-xs text-ink-3">
                                 <TierTag tier={displayTournament.tier} />
-                                <span className="flex items-center gap-1.5"><CountryFlag country={displayTournament.region} size={12} />{displayTournament.region}</span>
+                                <span className="flex items-center gap-1.5"><CountryFlag country={displayTournament.region} size={12} />{eventRegionName(displayTournament.region)}</span>
                                 <span aria-hidden="true">·</span>
-                                <span className="flex items-center gap-1"><Calendar size={12} aria-hidden="true" />Week {startWeek}–{endWeek}</span>
+                                <span className="flex items-center gap-1"><Calendar size={12} aria-hidden="true" />{t("tm.weekRange", { from: startWeek, to: endWeek })}</span>
                                 <span aria-hidden="true">·</span>
                                 <span className={cn("flex items-center gap-1.5 font-semibold", status.tone)}>
-                                    {status.label === "Live" && <span className="h-1.5 w-1.5 rounded-full bg-negative" aria-hidden="true" />}
+                                    {status.live && <span className="h-1.5 w-1.5 rounded-full bg-negative" aria-hidden="true" />}
                                     {status.label}
                                 </span>
                             </div>
@@ -508,27 +502,27 @@ export default function TournamentDetailPage() {
                         </div>
                         {!isStarted && (
                             isRegistered ? (
-                                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-positive"><CheckCircle2 size={16} aria-hidden="true" /> Registered</span>
+                                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-positive"><CheckCircle2 size={16} aria-hidden="true" /> {t("tm.status.registered")}</span>
                             ) : eligibility?.canRegister ? (
                                 <Button onClick={() => registerForTournament(displayTournament?.id || definition?.id || (id as string))} className="h-11 px-6 text-base">
-                                    Register team
+                                    {t("tm.registerTeam")}
                                 </Button>
                             ) : null
                         )}
                     </div>
                     <div className="grid grid-cols-2 divide-x divide-line border-t border-line md:grid-cols-4">
-                        <Kpi className="px-6 py-3" label={isQualifierEvent ? "Reward" : "Prize pool"} value={isQualifierEvent ? `${qualifierDest?.shortName ?? "Next stage"} spot` : formatCurrency(prizePool, "$", false)} />
-                        <Kpi className="px-6 py-3" label={isStarted ? "Teams" : "Registered"} value={<>{participantCount}<span className="text-ink-3"> / {displayTournament.slots}</span></>} />
-                        <Kpi className="px-6 py-3" label="Stage" value={displayTournament.currentStage || (isStarted ? "In progress" : "Not started")} valueClassName="text-[22px]" />
-                        <Kpi className="px-6 py-3" label="Format" value={formatDisplayName(displayTournament.format)} valueClassName="text-[22px]" />
+                        <Kpi className="px-6 py-3" label={isQualifierEvent ? t("tm.reward") : t("tm.col.prizePool")} value={isQualifierEvent ? t("tm.spot", { event: qualifierDest?.shortName ?? t("tm.nextStageShort") }) : formatCurrency(prizePool, "$", false)} />
+                        <Kpi className="px-6 py-3" label={isStarted ? t("tm.col.teams") : t("tm.registeredCount")} value={<>{participantCount}<span className="text-ink-3"> / {displayTournament.slots}</span></>} />
+                        <Kpi className="px-6 py-3" label={t("tm.stage")} value={displayTournament.currentStage ? stageName(displayTournament.currentStage) : (isStarted ? t("tm.inProgress") : t("tm.notStarted"))} valueClassName="text-[22px]" />
+                        <Kpi className="px-6 py-3" label={t("tm.format")} value={formatDisplayName(displayTournament.format)} valueClassName="text-[22px]" />
                     </div>
                     {currentWeek >= startWeek && (
                         <div className="flex items-center gap-3 border-t border-line px-6 py-2.5 text-xs tabular-nums text-ink-3">
-                            <span>Week {startWeek}</span>
+                            <span>{t("common.week", { n: startWeek })}</span>
                             <div className="h-1 flex-1 overflow-hidden rounded-full bg-hover">
                                 <div className="h-full rounded-full bg-ink-2" style={{ width: `${progress}%` }} />
                             </div>
-                            <span>Week {Math.min(currentWeek, endWeek)} of {endWeek}</span>
+                            <span>{t("tm.weekOf", { n: Math.min(currentWeek, endWeek), total: endWeek })}</span>
                         </div>
                     )}
                 </section>
@@ -542,18 +536,18 @@ export default function TournamentDetailPage() {
                 {activeTab === "overview" && (
                     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
                         <div className="min-w-0 space-y-4">
-                            <Panel title="About">
-                                <p className="max-w-3xl text-sm leading-relaxed text-ink-2">{displayTournament.description || "No description available."}</p>
+                            <Panel title={t("tm.about")}>
+                                <p className="max-w-3xl text-sm leading-relaxed text-ink-2">{displayTournament.description || t("tm.noDescription")}</p>
                                 <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm md:grid-cols-4">
-                                    <div><dt className={overline}>Entry</dt><dd className="mt-0.5 text-ink-1">{getEntryTypeLabel(displayTournament.entryType)}</dd></div>
-                                    <div><dt className={overline}>Region</dt><dd className="mt-0.5 text-ink-1">{displayTournament.region}</dd></div>
-                                    <div><dt className={overline}>Status</dt><dd className="mt-0.5 text-ink-1">{isCompleted ? "Completed" : isStarted ? "In progress" : "Registration open"}</dd></div>
-                                    <div><dt className={overline}>Format</dt><dd className="mt-0.5 text-ink-1">{formatDisplayName(displayTournament.format)}</dd></div>
+                                    <div><dt className={overline}>{t("tm.col.entry")}</dt><dd className="mt-0.5 text-ink-1">{getEntryTypeLabel(displayTournament.entryType)}</dd></div>
+                                    <div><dt className={overline}>{t("tm.region")}</dt><dd className="mt-0.5 text-ink-1">{eventRegionName(displayTournament.region)}</dd></div>
+                                    <div><dt className={overline}>{t("tm.col.status")}</dt><dd className="mt-0.5 text-ink-1">{isCompleted ? t("tm.status.completed") : isStarted ? t("tm.inProgress") : t("tm.registrationOpen")}</dd></div>
+                                    <div><dt className={overline}>{t("tm.format")}</dt><dd className="mt-0.5 text-ink-1">{formatDisplayName(displayTournament.format)}</dd></div>
                                 </dl>
                             </Panel>
 
                             {pathToEvent.length > 0 && (
-                                <Panel title="Path to the event">
+                                <Panel title={t("tm.path")}>
                                     <ol className="flex items-stretch gap-2 overflow-x-auto pb-1">
                                         {pathToEvent.map((node, index) => {
                                             const weekStart = node.tournament.startWeek
@@ -561,11 +555,11 @@ export default function TournamentDetailPage() {
                                             return (
                                                 <React.Fragment key={node.tournament.id}>
                                                     <li className={cn("min-w-[200px] rounded-[4px] border p-3", node.isCurrent ? "border-gold bg-gold/[0.04]" : "border-line bg-raised")}>
-                                                        <p className={overline}>{getTimelineRoleLabel(node.role)}{node.isCurrent ? " · this event" : ""}</p>
+                                                        <p className={overline}>{getTimelineRoleLabel(node.role)}{node.isCurrent ? ` · ${t("tm.thisEvent")}` : ""}</p>
                                                         <p className="mt-1 text-sm font-semibold text-ink-1">{node.tournament.shortName}</p>
-                                                        <p className="mt-0.5 text-xs tabular-nums text-ink-3">Week {weekStart}–{weekEnd} · <span className={node.status === "LIVE" ? "text-negative" : undefined}>{node.status.toLowerCase()}</span></p>
-                                                        {node.incomingQualifierCount > 1 && <p className="mt-0.5 text-xs text-ink-3">{node.incomingQualifierCount} feeder qualifiers</p>}
-                                                        {node.playerStatus && <p className="mt-1 text-xs font-semibold text-positive">You: {node.playerStatus.toLowerCase()}</p>}
+                                                        <p className="mt-0.5 text-xs tabular-nums text-ink-3">{t("tm.weekRange", { from: weekStart, to: weekEnd })} · <span className={node.status === "LIVE" ? "text-negative" : undefined}>{t(`tm.node.${node.status}`)}</span></p>
+                                                        {node.incomingQualifierCount > 1 && <p className="mt-0.5 text-xs text-ink-3">{tn("tm.feeders", node.incomingQualifierCount)}</p>}
+                                                        {node.playerStatus && <p className="mt-1 text-xs font-semibold text-positive">{t("tm.you", { status: qualStatusLabel(node.playerStatus) })}</p>}
                                                     </li>
                                                     {index < pathToEvent.length - 1 && <ChevronRight className="h-4 w-4 shrink-0 self-center text-ink-3" aria-hidden="true" />}
                                                 </React.Fragment>
@@ -605,8 +599,8 @@ export default function TournamentDetailPage() {
                                         semiFinals.forEach(m => {
                                             const loserId = m.result.homeScore > m.result.awayScore ? m.awayTeamId : m.homeTeamId
                                             if (loserId && !standings.some(s => s.team.id === loserId)) {
-                                                const t = teamsById.get(loserId)
-                                                if (t) { standings.push({ team: t, place: semiPlace }); semiPlace++ }
+                                                const tm = teamsById.get(loserId)
+                                                if (tm) { standings.push({ team: tm, place: semiPlace }); semiPlace++ }
                                             }
                                         })
                                     }
@@ -614,8 +608,8 @@ export default function TournamentDetailPage() {
                                     quarterFinals.forEach(m => {
                                         const loserId = m.result.homeScore > m.result.awayScore ? m.awayTeamId : m.homeTeamId
                                         if (loserId && !standings.some(s => s.team.id === loserId)) {
-                                            const t = teamsById.get(loserId)
-                                            if (t) { standings.push({ team: t, place: qfPlace }); qfPlace++ }
+                                            const tm = teamsById.get(loserId)
+                                            if (tm) { standings.push({ team: tm, place: qfPlace }); qfPlace++ }
                                         }
                                     })
                                 } else {
@@ -629,13 +623,13 @@ export default function TournamentDetailPage() {
                                 standings.sort((a, b) => a.place - b.place)
                                 const qSlots = displayTournament?.qualifierSlots || 0
                                 return (
-                                    <Panel title="Final standings" padded={false} actions={<span className="text-xs text-ink-3">{isQualifierEvent ? `Top ${qSlots || 1} qualify` : "Prize by placement"}</span>}>
+                                    <Panel title={t("tm.finalStandings")} padded={false} actions={<span className="text-xs text-ink-3">{isQualifierEvent ? tn("tm.topQualify", qSlots || 1) : t("tm.prizeByPlace")}</span>}>
                                         <table data-slot="table" className="w-full border-collapse text-left">
                                             <thead data-slot="table-header">
                                                 <tr className="border-b border-line">
                                                     <th data-slot="table-head" className="w-14 pl-4">#</th>
-                                                    <th data-slot="table-head">Team</th>
-                                                    <th data-slot="table-head" className="pr-4 text-right">{isQualifierEvent ? "Outcome" : "Prize"}</th>
+                                                    <th data-slot="table-head">{t("rk.col.team")}</th>
+                                                    <th data-slot="table-head" className="pr-4 text-right">{isQualifierEvent ? t("tm.outcome") : t("tm.prize")}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -644,7 +638,7 @@ export default function TournamentDetailPage() {
                                                     const own = s.team.id === playerTeamId
                                                     return (
                                                         <tr key={s.team.id} data-slot="table-row" className={cn("h-11 border-b border-line last:border-b-0", own && "bg-gold/[0.05] shadow-[inset_2px_0_0_var(--gold)]")}>
-                                                            <td className="pl-4 font-display text-lg font-bold tabular-nums text-ink-2">{s.place === 1 ? <Trophy size={16} className="text-gold" aria-label="Champion" /> : s.place}</td>
+                                                            <td className="pl-4 font-display text-lg font-bold tabular-nums text-ink-2">{s.place === 1 ? <Trophy size={16} className="text-gold" aria-label={t("tm.champion")} /> : s.place}</td>
                                                             <td>
                                                                 <span className="flex items-center gap-2.5">
                                                                     <TeamLogoImage src={s.team.logoPath} alt="" size={22} />
@@ -653,7 +647,7 @@ export default function TournamentDetailPage() {
                                                             </td>
                                                             <td className="pr-4 text-right text-sm tabular-nums">
                                                                 {isQualifierEvent
-                                                                    ? (qSlots > 0 && s.place <= qSlots ? <span className="font-semibold text-positive">Qualified for {qualifierDest?.shortName ?? "next stage"}</span> : <span className="text-ink-3">—</span>)
+                                                                    ? (qSlots > 0 && s.place <= qSlots ? <span className="font-semibold text-positive">{t("tm.qualifiedFor", { event: qualifierDest?.shortName ?? t("tm.nextStageShort") })}</span> : <span className="text-ink-3">—</span>)
                                                                     : prize > 0 ? <span className="font-semibold text-ink-1">{formatCurrency(prize, "$", false)}</span> : <span className="text-ink-3">—</span>}
                                                             </td>
                                                         </tr>
@@ -666,7 +660,7 @@ export default function TournamentDetailPage() {
                             })()}
 
                             {/* Participants */}
-                            <Panel title={isStarted ? "Teams" : "Registered teams"} actions={<span className="text-xs tabular-nums text-ink-3">{participantCount} / {displayTournament.slots}</span>} padded={false}>
+                            <Panel title={isStarted ? t("tm.col.teams") : t("tm.registeredTeams")} actions={<span className="text-xs tabular-nums text-ink-3">{participantCount} / {displayTournament.slots}</span>} padded={false}>
                                 {(() => {
                                     const rawParticipants = isStarted
                                         ? (tournament?.teamIds || [])
@@ -675,7 +669,7 @@ export default function TournamentDetailPage() {
                                         .map(tid => teamsById.get(tid))
                                         .filter(Boolean)
                                         .sort((a, b) => (a?.worldRanking || 999) - (b?.worldRanking || 999))
-                                    if (participants.length === 0) return <p className="px-4 py-4 text-sm text-ink-3">No teams yet.</p>
+                                    if (participants.length === 0) return <p className="px-4 py-4 text-sm text-ink-3">{t("tm.noTeams")}</p>
                                     return (
                                         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                                             {participants.map(team => (
@@ -694,13 +688,13 @@ export default function TournamentDetailPage() {
                         <aside className="min-w-0 space-y-4">
                             {/* Registration */}
                             {tournament && !isStarted && !isRegistered && (
-                                <Panel title="Entry">
+                                <Panel title={t("tm.col.entry")}>
                                     {eligibility?.canRegister ? (
-                                        <p className="text-sm text-ink-2">You can enter this event. Register from the header before week {startWeek}.</p>
+                                        <p className="text-sm text-ink-2">{t("tm.canEnter", { week: startWeek })}</p>
                                     ) : eligibility?.eligible ? (
-                                        <p className="text-sm text-ink-2"><span className="font-semibold text-ink-1">Invitation pending.</span> You meet the requirements; an invitation arrives in your inbox.</p>
+                                        <p className="text-sm text-ink-2"><Trans k="tm.invitePending" tags={{ b: x => <span className="font-semibold text-ink-1">{x}</span> }} /></p>
                                     ) : (
-                                        <p className="text-sm text-ink-2"><span className="font-semibold text-negative">Not eligible.</span> {eligibility?.reason || "You do not meet the requirements for this tournament."}</p>
+                                        <p className="text-sm text-ink-2"><span className="font-semibold text-negative">{t("tm.notEligible")}</span> {eligibility?.reason || t("tm.notEligibleBody")}</p>
                                     )}
                                 </Panel>
                             )}
@@ -708,22 +702,22 @@ export default function TournamentDetailPage() {
                             {prizeSplitPanel}
 
                             {/* Past winners */}
-                            {seasonalInstances.some(t => (t as any).isCompleted) && (
-                                <Panel title="Past winners" padded={false}>
+                            {seasonalInstances.some(inst => (inst as any).isCompleted) && (
+                                <Panel title={t("tm.pastWinners")} padded={false}>
                                     <ul>
-                                        {seasonalInstances.filter(t => (t as any).isCompleted).map((t: any) => {
-                                            const winner = teamsById.get(t.winnerId)
-                                            const seasonNum = t.id.split('_s')[1]
+                                        {seasonalInstances.filter(inst => (inst as any).isCompleted).map((inst: any) => {
+                                            const winner = teamsById.get(inst.winnerId)
+                                            const seasonNum = inst.id.split('_s')[1]
                                             return (
-                                                <li key={t.id}>
+                                                <li key={inst.id}>
                                                     <button
-                                                        onClick={() => setSelectedSeason(t.id)}
-                                                        aria-label={`View Season ${seasonNum} results`}
+                                                        onClick={() => setSelectedSeason(inst.id)}
+                                                        aria-label={t("tm.viewSeason", { n: seasonNum })}
                                                         className="flex h-10 w-full items-center gap-3 border-b border-line px-4 text-left transition-colors hover:bg-hover"
                                                     >
-                                                        <span className="w-16 text-xs tabular-nums text-ink-3">Season {seasonNum}</span>
+                                                        <span className="w-16 text-xs tabular-nums text-ink-3">{t("common.season", { n: seasonNum })}</span>
                                                         <Trophy size={13} className="text-gold" aria-hidden="true" />
-                                                        <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{winner?.name || "Unknown winner"}</span>
+                                                        <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{winner?.name || t("tm.unknownWinner")}</span>
                                                     </button>
                                                 </li>
                                             )
@@ -738,7 +732,7 @@ export default function TournamentDetailPage() {
                 {activeTab === "groups" && (
                     displayTournament?.format === "league" ? (
                         <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
-                        <Panel title="League standings" actions={<span className="text-xs text-ink-3">Round robin · top teams advance to playoffs</span>} padded={false}>
+                        <Panel title={t("tm.leagueStandings")} actions={<span className="text-xs text-ink-3">{t("tm.leagueStandingsNote")}</span>} padded={false}>
                             {(() => {
                                 // Prefer the engine's authoritative standings (points → wins →
                                 // head-to-head → map/round diff); recompute only if missing.
@@ -762,12 +756,12 @@ export default function TournamentDetailPage() {
                                         <thead data-slot="table-header">
                                             <tr className="border-b border-line">
                                                 <th data-slot="table-head" className="w-14 pl-4">#</th>
-                                                <th data-slot="table-head">Team</th>
-                                                <th data-slot="table-head" className="px-3">Last 5</th>
-                                                <th data-slot="table-head" className="px-3 text-right">P</th>
-                                                <th data-slot="table-head" className="px-3 text-right">W</th>
-                                                <th data-slot="table-head" className="px-3 text-right">L</th>
-                                                <th data-slot="table-head" className="pr-4 text-right">Pts</th>
+                                                <th data-slot="table-head">{t("rk.col.team")}</th>
+                                                <th data-slot="table-head" className="px-3">{t("rk.col.last5")}</th>
+                                                <th data-slot="table-head" className="px-3 text-right" title={t("tm.col.playedLong")}>{t("tm.col.played")}</th>
+                                                <th data-slot="table-head" className="px-3 text-right">{t("common.win.short")}</th>
+                                                <th data-slot="table-head" className="px-3 text-right">{t("common.loss.short")}</th>
+                                                <th data-slot="table-head" className="pr-4 text-right">{t("tm.col.pts")}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -784,7 +778,7 @@ export default function TournamentDetailPage() {
                                                         <td>
                                                             <span className="flex items-center gap-2.5">
                                                                 <TeamLogoImage src={entry.team?.logoPath} alt="" size={22} />
-                                                                <span className="text-sm font-semibold text-ink-1">{entry.team?.name || "Unknown team"}</span>
+                                                                <span className="text-sm font-semibold text-ink-1">{entry.team?.name || t("tm.unknownTeam")}</span>
                                                             </span>
                                                         </td>
                                                         <td className="px-3">
@@ -793,10 +787,10 @@ export default function TournamentDetailPage() {
                                                                     const isHome = m.homeTeamId === entry.team?.id
                                                                     const isWin = isHome ? m.result.homeScore > m.result.awayScore : m.result.awayScore > m.result.homeScore
                                                                     const opponent = teamsById.get(isHome ? m.awayTeamId : m.homeTeamId)
-                                                                    const label = `${isWin ? "Win" : "Loss"} vs ${opponent?.name || "unknown"} ${m.result.homeScore}–${m.result.awayScore}`
+                                                                    const label = t(isWin ? "tm.formWin" : "tm.formLoss", { team: opponent?.name || t("common.unknown"), score: `${m.result.homeScore}–${m.result.awayScore}` })
                                                                     return (
                                                                         <span key={m.id} title={label} aria-label={label} className={cn("flex h-5 w-5 items-center justify-center rounded-sm text-[11px] font-bold", isWin ? "bg-positive/15 text-positive" : "bg-negative/15 text-negative")}>
-                                                                            {isWin ? "W" : "L"}
+                                                                            {isWin ? t("common.win.short") : t("common.loss.short")}
                                                                         </span>
                                                                     )
                                                                 })}
@@ -819,10 +813,10 @@ export default function TournamentDetailPage() {
                     ) : displayTournament?.groups ? (
                         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                             {displayTournament?.groups?.map((group: any, idx: number) => (
-                                <Panel key={group.id || idx} title={group.name} actions={<span className="text-xs text-ink-3">8 teams · double elimination</span>}>
+                                <Panel key={group.id || idx} title={stageName(group.name)} actions={<span className="text-xs text-ink-3">{t("tm.groupNote")}</span>}>
                                     <div className="space-y-5">
                                         <div>
-                                            <p className={cn(overline, "mb-2")}>Upper bracket</p>
+                                            <p className={cn(overline, "mb-2")}>{t("tm.upper")}</p>
                                             <div className="grid grid-cols-1 gap-2 xl:grid-cols-3">
                                                 <div className="space-y-2">
                                                     {group.matches.filter((m: string) => m.includes("opening")).map((mid: string) => <MatchCardComponent key={mid} matchId={mid} tournament={tournament} />)}
@@ -836,7 +830,7 @@ export default function TournamentDetailPage() {
                                             </div>
                                         </div>
                                         <div>
-                                            <p className={cn(overline, "mb-2")}>Lower bracket</p>
+                                            <p className={cn(overline, "mb-2")}>{t("tm.lower")}</p>
                                             <div className="grid grid-cols-1 gap-2 xl:grid-cols-3">
                                                 <div className="space-y-2">
                                                     {displayTournament?.playoffBracket?.filter((m: any) => m.id.includes(group.id) && m.id.includes("lower_r1")).map((m: any) => <MatchCardComponent key={m.id} matchId={m.id} tournament={displayTournament as DisplayTournament} />)}
@@ -854,16 +848,16 @@ export default function TournamentDetailPage() {
                             ))}
                         </div>
                     ) : displayTournament?.id ? (
-                        emptyBlock(Trophy, "Direct bracket format", "This tournament goes straight to a single-elimination bracket without a group stage.",
-                            <Button onClick={() => setActiveTab("playoffs")} className="mt-4" variant="outline">View bracket</Button>)
+                        emptyBlock(Trophy, t("tm.direct"), t("tm.directBody"),
+                            <Button onClick={() => setActiveTab("playoffs")} className="mt-4" variant="outline">{t("tm.viewBracket")}</Button>)
                     ) : (
-                        emptyBlock(LayoutGrid, "Group stage not generated", `Groups are drawn when the event begins in week ${displayTournament.startWeek}.`)
+                        emptyBlock(LayoutGrid, t("tm.noGroups"), t("tm.noGroupsBody", { week: displayTournament.startWeek }))
                     )
                 )}
 
                 {activeTab === "playoffs" && (
                     displayTournament?.playoffBracket && displayTournament?.playoffBracket.length > 0 ? (
-                        <Panel title="Bracket" padded={false}>
+                        <Panel title={t("tm.tab.bracket")} padded={false}>
                             <div className="overflow-x-auto">
                                 <div className="min-w-max">
                                     {(() => {
@@ -885,7 +879,7 @@ export default function TournamentDetailPage() {
                             </div>
                         </Panel>
                     ) : (
-                        emptyBlock(Layers, "Bracket not drawn yet", "The playoff bracket is set from the group or league results.")
+                        emptyBlock(Layers, t("tm.noBracket"), t("tm.noBracketBody"))
                     )
                 )}
 
@@ -913,7 +907,7 @@ export default function TournamentDetailPage() {
                             ? teamsById.get(playerNextMatch.homeTeamId === playerTeamId ? playerNextMatch.awayTeamId : playerNextMatch.homeTeamId)
                             : null
 
-                        if (allMatches.length === 0) return emptyBlock(Calendar, "No matches scheduled", "Matches appear here once the bracket is drawn.")
+                        if (allMatches.length === 0) return emptyBlock(Calendar, t("tm.noMatches"), t("tm.noMatchesBody"))
 
                         const matchesByWeek: Record<number, any[]> = {}
                         allMatches.forEach(m => {
@@ -926,20 +920,20 @@ export default function TournamentDetailPage() {
                         return (
                             <div className="space-y-4">
                                 {playerNextMatch && opponent && (
-                                    <Panel title="Your next match" actions={<span className="text-xs text-ink-3">Week {playerNextMatch.week} · {playerNextMatch.stage || "Tournament match"}</span>}>
+                                    <Panel title={t("tm.nextMatch")} actions={<span className="text-xs text-ink-3">{t("common.week", { n: playerNextMatch.week })} · {playerNextMatch.stage ? stageName(playerNextMatch.stage) : t("tm.match")}</span>}>
                                         <div className="flex items-center gap-6">
                                             <span className="flex flex-1 items-center gap-3">
                                                 <TeamLogoImage src={playerTeam?.logoPath} alt="" size={36} />
                                                 <span>
-                                                    <span className="block font-display text-2xl font-bold uppercase leading-none text-ink-1">{playerTeam?.name || "Your team"}</span>
-                                                    <span className="text-xs text-ink-3">World #{playerTeam?.worldRanking || "—"}</span>
+                                                    <span className="block font-display text-2xl font-bold uppercase leading-none text-ink-1">{playerTeam?.name || t("tm.yourTeam")}</span>
+                                                    <span className="text-xs text-ink-3">{t("common.worldRank", { rank: playerTeam?.worldRanking || "—" })}</span>
                                                 </span>
                                             </span>
-                                            <span className="font-display text-xl font-bold text-ink-3">VS</span>
+                                            <span className="font-display text-xl font-bold text-ink-3">{t("common.vs")}</span>
                                             <span className="flex flex-1 items-center justify-end gap-3 text-right">
                                                 <span>
                                                     <TeamLink id={opponent.id} className="block font-display text-2xl font-bold uppercase leading-none text-ink-1">{opponent.name}</TeamLink>
-                                                    <span className="text-xs text-ink-3">World #{opponent.worldRanking || "—"}</span>
+                                                    <span className="text-xs text-ink-3">{t("common.worldRank", { rank: opponent.worldRanking || "—" })}</span>
                                                 </span>
                                                 <TeamLogoImage src={opponent.logoPath} alt="" size={36} />
                                             </span>
@@ -950,9 +944,9 @@ export default function TournamentDetailPage() {
                                     <section key={week} className="space-y-2">
                                         <div className="flex items-baseline justify-between border-b border-line pb-1.5">
                                             <h3 className="text-sm font-semibold text-ink-1">
-                                                Week {week} <span className="font-normal text-ink-3">{week === currentWeek ? "· this week" : week < currentWeek ? "· played" : "· upcoming"}</span>
+                                                {t("common.week", { n: week })} <span className="font-normal text-ink-3">· {week === currentWeek ? t("tm.thisWeek") : week < currentWeek ? t("tm.played") : t("tm.upcoming")}</span>
                                             </h3>
-                                            <span className="text-xs text-ink-3">{matchesByWeek[week][0].stage || "Group stage"}</span>
+                                            <span className="text-xs text-ink-3">{matchesByWeek[week][0].stage ? stageName(matchesByWeek[week][0].stage) : t("stage.groupStage")}</span>
                                         </div>
                                         <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
                                             {matchesByWeek[week].map((match: any) => <MatchCardComponent key={match.id} matchId={match.id} tournament={tournament} />)}
@@ -962,7 +956,7 @@ export default function TournamentDetailPage() {
                             </div>
                         )
                     })() : (
-                        emptyBlock(Calendar, "Schedule not out yet", "The full match schedule is released when the tournament begins.")
+                        emptyBlock(Calendar, t("tm.noSchedule"), t("tm.noScheduleBody"))
                     )
                 )}
 
@@ -970,17 +964,17 @@ export default function TournamentDetailPage() {
                     const playerMatches = completedMatches
                         .filter(m => isMatchForTournament(m.tournamentId, displayTournament.id) && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId))
                         .sort((a, b) => b.week - a.week)
-                    if (playerMatches.length === 0) return emptyBlock(History, "No matches yet", "Your results in this event appear here after you play.")
+                    if (playerMatches.length === 0) return emptyBlock(History, t("common.noMatchesYet"), t("tm.noResultsBody"))
                     return (
-                        <Panel title="Your matches" padded={false}>
+                        <Panel title={t("tm.tab.yours")} padded={false}>
                             <table data-slot="table" className="w-full border-collapse text-left">
                                 <thead data-slot="table-header">
                                     <tr className="border-b border-line">
-                                        <th data-slot="table-head" className="w-16 pl-4">Result</th>
-                                        <th data-slot="table-head">Opponent</th>
-                                        <th data-slot="table-head" className="px-3">Stage</th>
-                                        <th data-slot="table-head" className="px-3">Week</th>
-                                        <th data-slot="table-head" className="pr-4 text-right">Score</th>
+                                        <th data-slot="table-head" className="w-16 pl-4">{t("sx.col.result")}</th>
+                                        <th data-slot="table-head">{t("sx.col.opponent")}</th>
+                                        <th data-slot="table-head" className="px-3">{t("tm.stage")}</th>
+                                        <th data-slot="table-head" className="px-3">{t("sx.col.week")}</th>
+                                        <th data-slot="table-head" className="pr-4 text-right">{t("tm.score")}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -995,17 +989,17 @@ export default function TournamentDetailPage() {
                                                 key={match.id}
                                                 data-slot="table-row"
                                                 className="h-11 cursor-pointer border-b border-line last:border-b-0"
-                                                {...pressable(() => router.push(`/match/${match.id}/result`), { label: `Open result vs ${opponent?.name || "unknown"}` })}
+                                                {...pressable(() => router.push(`/match/${match.id}/result`), { label: t("tm.openResult", { team: opponent?.name || t("common.unknown") }) })}
                                             >
-                                                <td className={cn("pl-4 text-sm font-bold", isWin ? "text-positive" : "text-negative")}>{isWin ? "W" : "L"}</td>
+                                                <td className={cn("pl-4 text-sm font-bold", isWin ? "text-positive" : "text-negative")}>{isWin ? t("common.win.short") : t("common.loss.short")}</td>
                                                 <td>
                                                     <span className="flex items-center gap-2.5">
                                                         <TeamLogoImage src={opponent?.logoPath} alt="" size={22} />
-                                                        <span className="text-sm font-semibold text-ink-1">{opponent?.name || "Unknown"}</span>
+                                                        <span className="text-sm font-semibold text-ink-1">{opponent?.name || t("common.unknown")}</span>
                                                         <span className="text-xs tabular-nums text-ink-3">#{opponent?.worldRanking || "—"}</span>
                                                     </span>
                                                 </td>
-                                                <td className="px-3 text-sm text-ink-2">{match.stage || "Tournament match"}</td>
+                                                <td className="px-3 text-sm text-ink-2">{match.stage ? stageName(match.stage) : t("tm.match")}</td>
                                                 <td className="px-3 text-sm tabular-nums text-ink-3">{match.week}</td>
                                                 <td className="pr-4 text-right font-display text-lg font-bold tabular-nums text-ink-1">{playerScore}–{opponentScore}</td>
                                             </tr>
@@ -1065,7 +1059,7 @@ function MatchCardComponent({
     const row = (team: any, score: number | undefined, won: boolean, lost: boolean) => (
         <div className="flex h-8 items-center gap-2.5 px-3">
             {team ? <TeamLogoImage src={team.logoPath} alt="" size={18} /> : <span className="h-[18px] w-[18px] rounded-sm bg-hover" />}
-            <span className={cn("min-w-0 flex-1 truncate text-sm", team ? (lost ? "text-ink-3" : "font-semibold text-ink-1") : "text-ink-3")}>{team?.name ?? "TBD"}</span>
+            <span className={cn("min-w-0 flex-1 truncate text-sm", team ? (lost ? "text-ink-3" : "font-semibold text-ink-1") : "text-ink-3")}>{team?.name ?? t("common.tbd")}</span>
             <span className={cn("w-6 text-right font-display text-base font-bold tabular-nums", won ? "text-ink-1" : "text-ink-3")}>{isCompleted ? score : ""}</span>
         </div>
     )

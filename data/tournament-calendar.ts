@@ -5,6 +5,7 @@
 // ============================================================================
 
 import type { EntryPolicy } from "@/types/circuit"
+import { t } from "@/lib/i18n"
 
 export type TournamentTier = "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "QUALIFIER"
 export type TournamentRegion = "INTERNATIONAL" | "EU" | "NA" | "SA" | "ASIA" | "CIS" | "OCEANIA" | "MENA"
@@ -182,14 +183,7 @@ export function formatPrizePool(amount: number): string {
 }
 
 export function getEntryTypeLabel(entryType: EntryType): string {
-    switch (entryType) {
-        case "OPEN": return "Open Entry"
-        case "INVITE": return "Invite Only"
-        case "QUALIFIER": return "Via Qualifier"
-        case "POINTS": return "Points Required"
-        case "LEAGUE": return "League Qualification"
-        default: return "Unknown"
-    }
+    return ["OPEN", "INVITE", "QUALIFIER", "POINTS", "LEAGUE"].includes(entryType) ? t(`tm.entry.${entryType}`) : t("common.unknown")
 }
 
 export function getEntryTypeColor(entryType: EntryType): { bg: string; text: string; border: string } {

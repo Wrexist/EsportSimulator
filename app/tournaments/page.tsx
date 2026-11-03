@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
+import { intlLocale, t, tn } from "@/lib/i18n"
+import { eventFormatName, eventRegionName } from "@/lib/display-names"
 import { getDynamicTournamentName } from "@/lib/utils-extended"
 import {
     FULL_TOURNAMENT_CALENDAR,
@@ -41,10 +43,8 @@ import { EmptyState } from "@/src/components/ui/EmptyState"
 // Tab types
 type ViewTab = "ALL" | "S_TIER" | "A_TIER" | "B_TIER" | "C_TIER" | "QUALIFIERS" | "MY_TOURNAMENTS"
 
-const FORMAT_LABEL: Record<string, string> = { bracket: "Single elim", double_elim: "Double elim", swiss: "Swiss", league: "League" }
-const REGION_LABEL: Record<string, string> = { INTERNATIONAL: "International", EU: "Europe", NA: "North America", SA: "South America", ASIA: "Asia", CIS: "CIS", OCEANIA: "Oceania", MENA: "MENA" }
 
-type RowStatus = { label: string; tone: "live" | "good" | "muted" | "bad" | "neutral"; detail?: string }
+type RowStatus = { key: "eliminated" | "live" | "completed" | "qualified" | "registered" | "onSchedule" | "inviteOnly" | "locked" | "open"; tone: "live" | "good" | "muted" | "bad" | "neutral"; detail?: string }
 
 const STATUS_TONE: Record<RowStatus["tone"], string> = {
     live: "text-negative",
@@ -264,14 +264,14 @@ export default function TournamentsPage() {
         const isTournamentCompleted = liveTournament?.isCompleted === true
 
         const status: RowStatus =
-            isActive && isEliminated ? { label: "Eliminated", tone: "bad" }
-                : isActive && !isTournamentCompleted ? { label: "Live", tone: "live" }
-                    : isPast || (isActive && isTournamentCompleted) ? { label: "Completed", tone: "muted" }
-                        : isQualified ? { label: "Qualified", tone: "good" }
-                            : isRegistered ? { label: "Registered", tone: "good" }
-                                : isOnSchedule ? { label: "On your schedule", tone: "neutral" }
-                                    : isLocked ? { label: tournament.entryType === "INVITE" ? "Invite only" : "Locked", tone: "muted", detail: eligibility?.reason }
-                                        : { label: "Open", tone: "neutral" }
+            isActive && isEliminated ? { key: "eliminated", tone: "bad" }
+                : isActive && !isTournamentCompleted ? { key: "live", tone: "live" }
+                    : isPast || (isActive && isTournamentCompleted) ? { key: "completed", tone: "muted" }
+                        : isQualified ? { key: "qualified", tone: "good" }
+                            : isRegistered ? { key: "registered", tone: "good" }
+                                : isOnSchedule ? { key: "onSchedule", tone: "neutral" }
+                                    : isLocked ? { key: tournament.entryType === "INVITE" ? "inviteOnly" : "locked", tone: "muted", detail: eligibility?.reason }
+                                        : { key: "open", tone: "neutral" }
 
         const teamsEntered = liveTournament?.teamIds?.length || 0
         const canRegister = !!eligibility?.canRegister && !isRegistered && !isQualified && !isPast && !isEliminated
@@ -282,7 +282,7 @@ export default function TournamentsPage() {
                 key={tournament.id}
                 data-slot="table-row"
                 className={cn("group h-14 cursor-pointer border-b border-line outline-none transition-colors focus-visible:bg-hover", isLocked && "opacity-60")}
-                {...pressable(() => router.push(`/tournaments/${displayId}`), { label: `Open ${tournament.name}` })}
+                {...pressable(() => router.push(`/tournaments/${displayId}`), { label: t("tm.openEvent", { name }) })}
             >
                 <td className="py-2 pl-4 pr-3">
                     <div className="flex min-w-0 items-center gap-3">
@@ -295,9 +295,9 @@ export default function TournamentsPage() {
                             <p className="truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{name}</p>
                             <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
                                 <CountryFlag country={tournament.region} size={12} />
-                                <span>{REGION_LABEL[tournament.region] ?? tournament.region}</span>
+                                <span>{eventRegionName(tournament.region)}</span>
                                 <span aria-hidden="true">·</span>
-                                <span>{FORMAT_LABEL[tournament.format] ?? tournament.format}</span>
+                                <span>{eventFormatName(tournament.format)}</span>
                             </div>
                         </div>
                     </div>
@@ -307,33 +307,33 @@ export default function TournamentsPage() {
                     <span className={cn("inline-flex items-center gap-1.5 text-sm font-semibold", STATUS_TONE[status.tone])}>
                         {status.tone === "live" && <span className="h-1.5 w-1.5 rounded-full bg-negative" aria-hidden="true" />}
                         {status.tone === "good" && <CheckCircle2 size={13} aria-hidden="true" />}
-                        {status.label === "Locked" || status.label === "Invite only" ? <Lock size={12} aria-hidden="true" /> : null}
-                        {status.label}
+                        {status.key === "locked" || status.key === "inviteOnly" ? <Lock size={12} aria-hidden="true" /> : null}
+                        {t(`tm.status.${status.key}`)}
                     </span>
                     {status.detail && <p className="mt-0.5 max-w-[220px] truncate text-xs text-ink-3" title={status.detail}>{status.detail}</p>}
                 </td>
-                <td className="px-3 text-sm tabular-nums text-ink-2">
-                    W{tournament.startWeek}
-                    {!isPast && !isActive && <span className="block text-xs text-ink-3">{weeksUntil > 0 ? `in ${weeksUntil} wk${weeksUntil === 1 ? "" : "s"}` : "starting"}</span>}
-                    {isActive && <span className="block text-xs text-ink-3">{tournament.duration} wk event</span>}
+                <td className="whitespace-nowrap px-3 text-sm tabular-nums text-ink-2">
+                    {t("common.weekShort", { n: tournament.startWeek })}
+                    {!isPast && !isActive && <span className="block text-xs text-ink-3">{weeksUntil > 0 ? tn("tm.inWeeks", weeksUntil) : t("tm.starting")}</span>}
+                    {isActive && <span className="block text-xs text-ink-3">{tn("tm.eventLength", tournament.duration)}</span>}
                 </td>
                 <td className="px-3 text-right text-sm tabular-nums text-ink-2">
                     {liveTournament && teamsEntered > 0 ? `${teamsEntered}/${tournament.slots}` : tournament.slots}
                 </td>
                 <td className="px-3 text-right font-display text-lg font-bold tabular-nums text-ink-1">
                     {tournament.tier === "QUALIFIER" || tournament.prizePool === 0
-                        ? <span className="font-sans text-xs font-normal text-ink-3">Qualification</span>
+                        ? <span className="font-sans text-xs font-normal text-ink-3">{t("tm.qualification")}</span>
                         : formatPrizePool(tournament.prizePool)}
                 </td>
                 <td className="px-3 text-xs text-ink-3">{getEntryTypeLabel(tournament.entryType)}</td>
                 <td className="w-32 pr-4 text-right" onClick={e => e.stopPropagation()}>
                     {canRegister ? (
                         <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={() => registerForTournament(displayId)}>
-                            Register
+                            {t("tm.register")}
                         </Button>
                     ) : isOnSchedule && !isPast ? (
                         <Button size="sm" variant="ghost" className="h-8 gap-1 px-2 text-xs" onClick={() => router.push("/schedule")}>
-                            <Calendar size={13} aria-hidden="true" /> Schedule
+                            <Calendar size={13} aria-hidden="true" /> {t("tm.schedule")}
                         </Button>
                     ) : (
                         <ChevronRight size={16} className="ml-auto text-ink-3 group-hover:text-ink-1" aria-hidden="true" />
@@ -344,13 +344,13 @@ export default function TournamentsPage() {
     }
 
     const tabs: { id: ViewTab; label: string; count: number }[] = [
-        { id: "ALL", label: "All", count: counts.all },
-        { id: "S_TIER", label: "S-tier", count: counts.s_tier },
-        { id: "A_TIER", label: "A-tier", count: counts.a_tier },
-        { id: "B_TIER", label: "B-tier", count: counts.b_tier },
-        { id: "C_TIER", label: "C-tier", count: counts.c_tier },
-        { id: "QUALIFIERS", label: "Qualifiers", count: counts.qualifiers },
-        { id: "MY_TOURNAMENTS", label: "My tournaments", count: counts.myTournaments },
+        { id: "ALL", label: t("tm.tab.all"), count: counts.all },
+        { id: "S_TIER", label: t("common.tier.S_TIER"), count: counts.s_tier },
+        { id: "A_TIER", label: t("common.tier.A_TIER"), count: counts.a_tier },
+        { id: "B_TIER", label: t("common.tier.B_TIER"), count: counts.b_tier },
+        { id: "C_TIER", label: t("common.tier.C_TIER"), count: counts.c_tier },
+        { id: "QUALIFIERS", label: t("tm.tab.qualifiers"), count: counts.qualifiers },
+        { id: "MY_TOURNAMENTS", label: t("tm.tab.mine"), count: counts.myTournaments },
     ]
 
     const leaders = [...teams].sort((a, b) => (a.worldRanking || 9999) - (b.worldRanking || 9999)).slice(0, 10)
@@ -358,14 +358,14 @@ export default function TournamentsPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={`Season ${getSeasonFromWeek(currentWeek)} · Competition`}
-                title="Tournaments"
-                subtitle={`${discovered.length} of ${FULL_TOURNAMENT_CALENDAR.length} events announced. More appear as the season goes on; open one for its bracket and standings.`}
+                eyebrow={t("rk.eyebrow", { n: getSeasonFromWeek(currentWeek) })}
+                title={t("tm.title")}
+                subtitle={t("tm.subtitle", { n: discovered.length, total: FULL_TOURNAMENT_CALENDAR.length })}
                 aside={playerTeam && (
                     <KpiStrip>
-                        <Kpi label="World rank" value={`#${playerRanking}`} />
-                        <Kpi label="Circuit pts" value={CircuitPointsManager.getTeamPoints(circuitPoints, playerTeam.id).toLocaleString("en-US")} />
-                        <Kpi label="Qualified" value={qualificationStatuses.filter(qs => qs.teamId === playerTeam.id && qs.status === "QUALIFIED").length} />
+                        <Kpi label={t("rk.kpi.world")} value={`#${playerRanking}`} />
+                        <Kpi label={t("tm.kpi.circuit")} value={CircuitPointsManager.getTeamPoints(circuitPoints, playerTeam.id).toLocaleString(intlLocale())} />
+                        <Kpi label={t("tm.kpi.qualified")} value={qualificationStatuses.filter(qs => qs.teamId === playerTeam.id && qs.status === "QUALIFIED").length} />
                     </KpiStrip>
                 )}
             />
@@ -383,7 +383,7 @@ export default function TournamentsPage() {
                 <div className="relative w-full max-w-[320px]">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" size={15} />
                     <Input
-                        placeholder="Search tournaments"
+                        placeholder={t("tm.search")}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="h-9 pl-9 text-sm"
@@ -398,28 +398,28 @@ export default function TournamentsPage() {
                             <table data-slot="table" className="w-full min-w-[980px] border-collapse text-left">
                                 <thead data-slot="table-header">
                                     <tr className="border-b border-line">
-                                        <th data-slot="table-head" className="pl-4">Event</th>
-                                        <th data-slot="table-head" className="px-3">Tier</th>
-                                        <th data-slot="table-head" className="px-3">Status</th>
-                                        <th data-slot="table-head" className="px-3">Starts</th>
-                                        <th data-slot="table-head" className="px-3 text-right">Teams</th>
-                                        <th data-slot="table-head" className="px-3 text-right">Prize pool</th>
-                                        <th data-slot="table-head" className="px-3">Entry</th>
-                                        <th data-slot="table-head" className="pr-4"><span className="sr-only">Actions</span></th>
+                                        <th data-slot="table-head" className="pl-4">{t("tm.col.event")}</th>
+                                        <th data-slot="table-head" className="px-3">{t("rk.col.tier")}</th>
+                                        <th data-slot="table-head" className="px-3">{t("tm.col.status")}</th>
+                                        <th data-slot="table-head" className="px-3">{t("tm.col.starts")}</th>
+                                        <th data-slot="table-head" className="px-3 text-right">{t("tm.col.teams")}</th>
+                                        <th data-slot="table-head" className="px-3 text-right">{t("tm.col.prizePool")}</th>
+                                        <th data-slot="table-head" className="px-3">{t("tm.col.entry")}</th>
+                                        <th data-slot="table-head" className="pr-4"><span className="sr-only">{t("sp.col.actions")}</span></th>
                                     </tr>
                                 </thead>
                                 <tbody>{filteredTournaments.map(renderRow)}</tbody>
                             </table>
                         </div>
                     ) : (
-                        <div className="p-8"><EmptyState icon={Trophy} title="No tournaments found" description="Try another tier or clear the search." /></div>
+                        <div className="p-8"><EmptyState icon={Trophy} title={t("tm.noneFound")} description={t("tm.noneFoundBody")} /></div>
                     )}
                 </Panel>
 
                 <aside className="min-w-0">
-                    <Panel title="World ranking" actions={<Link href="/rankings" className="text-xs font-semibold text-ink-3 hover:text-gold">Full table</Link>} padded={false}>
+                    <Panel title={t("rk.kpi.world")} actions={<Link href="/rankings" className="text-xs font-semibold text-ink-3 hover:text-gold">{t("tm.fullTable")}</Link>} padded={false}>
                         {leaders.length === 0 && (
-                            <p className="px-4 py-4 text-sm text-ink-3">The top ten clubs by Elo appear here once the world&apos;s clubs are loaded.</p>
+                            <p className="px-4 py-4 text-sm text-ink-3">{t("tm.leadersEmpty")}</p>
                         )}
                         <ol className="divide-y divide-line">
                             {leaders.map((team) => {
