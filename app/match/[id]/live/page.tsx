@@ -109,6 +109,12 @@ export default function LiveMatchPage() {
     const pro = useProGoal()
     const proId = pro?.playerId
     const matchMissing = useGameStore(state => state.teams.length > 0 && !state.scheduledMatches.some(m => m.id === params.id))
+    // Already recorded (e.g. a reload on the end screen, MATCHDAY-03): show its result.
+    const matchRecorded = useGameStore(state => state.completedMatches.some(m => m.id === params.id))
+    const openRecordedResult = matchMissing && matchRecorded && !matchData.current
+    useEffect(() => {
+        if (openRecordedResult) router.replace(`/match/${params.id}/result`)
+    }, [openRecordedResult, router, params.id])
 
     // Local UI State for Loadout Editor (UI Concern)
     const [isEditingLoadout, setIsEditingLoadout] = useState(false)
@@ -272,7 +278,7 @@ export default function LiveMatchPage() {
     const pauseForLeave = useCallback(() => setIsPlaying(false), [setIsPlaying])
 
     if (!matchData.current || !simState) {
-        if (matchMissing) {
+        if (matchMissing && !matchRecorded) {
             return (
                 <div role="alert" className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
                     <p className="font-display text-3xl font-bold uppercase text-ink-1">{t("prep.notFound")}</p>

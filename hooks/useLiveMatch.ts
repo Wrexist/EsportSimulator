@@ -35,6 +35,7 @@ import { MAP_NAMES } from "@/data/map-pool"
 import { t, tn } from "@/lib/i18n"
 import { strategyLabel } from "@/lib/live-match-decision"
 import { liveCheckpointStore, persistCommittedMatch } from "@/lib/live-checkpoint-store"
+import { commitLiveMatch } from "@/lib/live-match-commit"
 import {
     ROUND_SECONDS,
     BOMB_SECONDS,
@@ -1302,29 +1303,44 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         return null
     }, [liveClock, setRoundScript, setRoundView])
 
-    const handleFinish = useCallback(() => {
+    // MATCHDAY-03: the result is committed (and the career saved) as soon as
+    // the series is over, while the end beat shows; "Continue to results" then
+    // only navigates. A second call never records or saves the match again.
+    const commitFinished = useCallback((): boolean => {
+        if (matchCommittedRef.current) return true
         const runtime = matchData.current
         const sim = latestSimStateRef.current
-        if (!runtime || !sim || latestGameStateRef.current?.status !== "FINISHED") return
-
-        // Canonical result from the rounds actually played (same finaliser as
-        // instant simulation: map MVPs, stats stream, lineups, management).
-        const result = finalizeLegacySeries(runtime.ctx, { sim, maps: runtime.result.maps, finished: true }, buildManagementRecord({
-            ctx: runtime.ctx, match: runtime.match, mode: "live", timeoutsUsed: 2 - timeoutsRemainingRef.current, maps: runtime.result.maps,
-        }))
-        saveMatchResult(runtime.match.id, result)
-        if (!useGameStore.getState().completedMatches.some(m => m.id === runtime.match.id)) {
+        if (!runtime || !sim || latestGameStateRef.current?.status !== "FINISHED") return false
+        const matchId = runtime.match.id as string
+        const outcome = commitLiveMatch({
+            matchId,
+            ownerSaveId: runtime.ownerSaveId,
+            isRecorded: () => useGameStore.getState().completedMatches.some(m => m.id === matchId),
+            // Canonical result from the rounds actually played (same finaliser as
+            // instant simulation: map MVPs, stats stream, lineups, management).
+            buildResult: () => finalizeLegacySeries(runtime.ctx, { sim, maps: runtime.result.maps, finished: true }, buildManagementRecord({
+                ctx: runtime.ctx, match: runtime.match, mode: "live", timeoutsUsed: 2 - timeoutsRemainingRef.current, maps: runtime.result.maps,
+            })),
+            saveMatchResult,
+            clearActive: clearActiveMatchState,
+            persist: (saveId, committedId) => persistCommittedMatch(saveId, committedId, useGameStore.getState().saveGame),
+        })
+        if (outcome === "failed") {
             useGameStore.getState().addToast({ message: t("feed.commitFailed"), type: "warning" })
-            return
+            return false
         }
         matchCommittedRef.current = true
         pendingCheckpoint.current = null
-        clearActiveMatchState()
-        // Save the career now: until then a reload would load the save from
-        // before this match and play it again.
-        void persistCommittedMatch(runtime.ownerSaveId, runtime.match.id, useGameStore.getState().saveGame)
-        router.push(`/match/${id}/result`)
-    }, [id, saveMatchResult, clearActiveMatchState, router])
+        return true
+    }, [saveMatchResult, clearActiveMatchState])
+
+    useEffect(() => {
+        if (gameState.status === "FINISHED") commitFinished()
+    }, [gameState.status, commitFinished])
+
+    const handleFinish = useCallback(() => {
+        if (commitFinished()) router.push(`/match/${id}/result`)
+    }, [id, commitFinished, router])
 
     // The finished series as the result screen will record it (same pure
     // finaliser handleFinish commits): the end-of-match beat's score and MVP.
