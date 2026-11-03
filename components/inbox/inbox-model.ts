@@ -564,6 +564,25 @@ export function countInbox(eventsLog: readonly GameEventSaveData[], ctx: InboxCo
     return counts
 }
 
+/**
+ * Home's Decisions panel: the same open decisions the inbox counts, split
+ * into inline-answerable choices and offers (job / transfer bids, answered in
+ * the inbox). Uses getDecisionKind, so a bid for a player who has already
+ * left, an expired or withdrawn offer, or a rumour is not listed (SQUAD-07),
+ * and choices + offers always equal the inbox's decision count (HOME-13).
+ */
+export function homeDecisions(eventsLog: readonly GameEventSaveData[], ctx: InboxContext): { choices: GameEventSaveData[]; offers: number } {
+    const choices: GameEventSaveData[] = []
+    let offers = 0
+    for (const event of eventsLog) {
+        if (isFolded(event)) continue
+        const kind = getDecisionKind(event, ctx)
+        if (kind === "choice") choices.push(event)
+        else if (kind) offers++
+    }
+    return { choices, offers }
+}
+
 /** Top-bar badge: what needs the manager — open decisions plus unread messages. */
 export function inboxBadgeCount(counts: InboxCounts): number {
     return counts.decisions + counts.unreadMessages
