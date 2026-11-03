@@ -397,6 +397,7 @@ export interface GameStoreState extends AdvanceState, MomentsState {
     imageUrl?: string;
     teamId?: string;
     playerId?: string;
+    matchId?: string;
     link?: string;
     engagement?: { likes: number; views: number; };
   }[]

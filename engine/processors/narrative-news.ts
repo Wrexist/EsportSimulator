@@ -84,7 +84,11 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
         const league = m.tournamentId!.startsWith("league_") ? 0 : 40
         return own + upset + stature + league
     }
-    const headlined = recentMatches.map(m => ({ m, score: notability(m) })).sort((a, b) => b.score - a.score || a.m.id.localeCompare(b.m.id)).slice(0, 2).map(x => x.m)
+    // The managed club's own match already got its news item when it was
+    // played (match-simulation-slice, tagged with matchId): no second one (HOME-10).
+    const alreadyReported = new Set<string>()
+    for (const n of save.newsFeed) if (n.matchId) alreadyReported.add(n.matchId)
+    const headlined = recentMatches.filter(m => !alreadyReported.has(m.id)).map(m => ({ m, score: notability(m) })).sort((a, b) => b.score - a.score || a.m.id.localeCompare(b.m.id)).slice(0, 2).map(x => x.m)
     for (const match of headlined) {
         const homeTeam = idx?.teamIndex.get(match.homeTeamId) ?? save.teams.find(t => t.id === match.homeTeamId)
         const awayTeam = idx?.teamIndex.get(match.awayTeamId) ?? save.teams.find(t => t.id === match.awayTeamId)
@@ -109,7 +113,11 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
                 })
             }
 
-            const scoreLine = `${homeScore}-${awayScore}`
+            // Winner's score first: the sentence reads "winner defeats loser" (HOME-03).
+            const winnerIsHome = winner.id === match.homeTeamId
+            const scoreLine = winnerIsHome ? `${homeScore}-${awayScore}` : `${awayScore}-${homeScore}`
+            const competition = tournament?.name
+                || (match.tournamentId.startsWith("league_") ? (match.stage?.split(" · ")[0]?.trim() || "the regional league") : "tournament play")
             const isUpset = (loser?.elo || 0) > (winner?.elo || 0) + 100
 
             const headlines = isUpset
@@ -119,10 +127,12 @@ export function generateNarrativeNews(save: GameSave, rng: SeededRNG, idx?: Save
             save.newsFeed.unshift({
                 id: `headline_${match.id}_${Math.floor(rng.next() * 1_000_000_000).toString(36)}`,
                 title: headlines[Math.floor(rng.next() * headlines.length)],
-                content: `${winner.name} defeats ${loser.name} ${scoreLine} in ${tournament?.name || 'tournament play'}. ${isUpset ? 'A stunning upset that nobody saw coming!' : 'A well-deserved victory.'}`,
+                content: `${winner.name} defeats ${loser.name} ${scoreLine} in ${competition}. ${isUpset ? 'A stunning upset that nobody saw coming!' : 'A well-deserved victory.'}`,
                 category: "MATCH",
                 teamId: winner.id,
-                week: save.currentWeek,
+                matchId: match.id,
+                // Dated to the match's week, not the tick that wrote it (HOME-03).
+                week: match.week,
                 engagement: { likes: 500 + Math.floor(rng.next() * 1500), views: 8000 + Math.floor(rng.next() * 12000) },
             })
         }

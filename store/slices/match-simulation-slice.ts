@@ -617,6 +617,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 content: `${winner.name} secured a ${scoreStr} victory against ${loser.name}.`,
                 category: "MATCH",
                 teamId: winner.id,
+                matchId: match.id,
                 week: state.currentWeek,
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()

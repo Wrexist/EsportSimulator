@@ -502,6 +502,8 @@ export interface NewsFeedItem {
     imageUrl?: string
     teamId?: string
     playerId?: string
+    /** The match this item reports on (so a result is reported once). */
+    matchId?: string
     link?: string
     engagement?: {
         likes: number

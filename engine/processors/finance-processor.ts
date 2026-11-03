@@ -282,26 +282,13 @@ export class FinanceProcessor {
                     entry.balance = runningBalance
                 }
 
-                // Phase 21: News (Finance Summary)
-                if (save.newsFeed) {
-                    const net = report.income.total - report.expenses.total
-                    const isProfit = net >= 0
-                    const newsId = `news_fin_${save.currentWeek}_${team.id}`
-
-                    save.newsFeed.unshift({
-                        id: newsId,
-                        title: isProfit ? `Positive Earnings Reported for ${team.name}` : `${team.name} Reports Financial Deficit`,
-                        content: `${team.name} finished the week with a net ${isProfit ? 'gain' : 'loss'} of $${Math.abs(net).toLocaleString()}. ${isProfit ? 'Management expresses confidence in the current growth trajectory.' : 'Questions are being raised regarding the team\'s current spending levels.'}`,
-                        category: "FINANCE",
-                        teamId: team.id,
-                        week: save.currentWeek,
-                        engagement: {
-                            likes: rng.int(10, 209) + (isProfit ? 50 : 0),
-                            views: rng.int(500, 2499)
-                        }
-                    })
-                    if (save.newsFeed.length > 50) save.newsFeed.pop()
-                }
+                // The weekly "Positive Earnings / Financial Deficit" news item
+                // was dropped: the week report already shows the money and the
+                // filler made half the feed repeat itself (HOME-10). Its two
+                // engagement draws are kept so the RNG stream (and every
+                // later roll this week) is unchanged.
+                rng.int(10, 209)
+                rng.int(500, 2499)
             }
             team.financeSettlement = { week: save.currentWeek, income: report.income.total, expenses: report.expenses.total }
         })
