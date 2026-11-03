@@ -88949,8 +88949,8 @@
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "b7d8cead27688c5b3bb554b5f6f6b0b0898d1b6c4d35f4d74cb9c592f2366a32",
-      "bytes": 87614,
+      "sha256": "f44ce2858efedb2601a9744375373dcb17e7110bea10e75d73d216eed81c7e31",
+      "bytes": 87592,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89011,8 +89011,8 @@
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "4305a5a10bea52b08467b9139ed734c7170e2c4dc8b81436e9fabf16a8900daf",
-      "bytes": 118766,
+      "sha256": "fca6af7c8dd3e03bd24f6dc2e7cd299491e2f017c61f8ab4017acf752b672f56",
+      "bytes": 118767,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
