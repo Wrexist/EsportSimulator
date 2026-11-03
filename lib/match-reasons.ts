@@ -9,7 +9,7 @@
  * happened, not a proof of cause.
  */
 import type { MatchEvent, MatchResult, PlayerMatchStats, RoundResult } from '@/types'
-import { COACH_CALL_LABEL } from '@/engine/match/coach-calls'
+import { coachCallLabel } from '@/engine/match/coach-calls'
 
 export interface MatchReason {
     key: 'opening' | 'trades' | 'clutches' | 'pistols' | 'buys' | 'utility' | 'multikills'
@@ -95,7 +95,7 @@ export function coachCallsReason(result: MatchResult, teamId: string): CallsReas
             made.forEach((c, i) => {
                 const withIt = i + 1 < made.length ? made[i + 1].without === 'won' : won
                 const without = c.without === 'won'
-                calls.push({ map: map.map, round: r.roundNumber, label: COACH_CALL_LABEL[c.kind], flipped: withIt === without ? null : withIt ? 'won' : 'lost' })
+                calls.push({ map: map.map, round: r.roundNumber, label: coachCallLabel(c.kind), flipped: withIt === without ? null : withIt ? 'won' : 'lost' })
             })
         }
     }

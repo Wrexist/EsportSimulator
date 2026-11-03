@@ -39,14 +39,17 @@ import { ANTI_STRAT_SELF_PENALTY, MAP_POINTS_PER_EDGE, MENTAL_PREP_EDGE, NON_PLA
 import { TUNING } from "@/engine/match/round-sim/tuning"
 import { PlayerLink, TeamLink } from "@/components/ui/EntityLink"
 import { PlaybookEditor } from "@/components/tactics/PlaybookEditor"
-import { COUNTER_EFFECT, COUNTER_LABEL, habitLine, sanitizeHabitState, teamHabits } from "@/engine/match/habits"
+import { COUNTER_EFFECT, counterSite, sanitizeHabitState, teamHabits } from "@/engine/match/habits"
+import { t } from "@/lib/i18n"
+import { Trans } from "@/lib/trans"
+import { stageName } from "@/lib/display-names"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 import { autoVetoMaps } from "@/lib/auto-veto"
 
 // Playstyle counter triangle, same as the sim (calculatePlaystyleCounterMod):
 // each key beats its value; "default" is neutral against everything.
 const PLAYSTYLE_BEATS: Record<string, string> = { aggressive: "structured", structured: "balanced", balanced: "aggressive" }
-const PLAYSTYLE_LABELS: Record<string, string> = { aggressive: "Aggressive", structured: "Structured", balanced: "Balanced", default: "Default" }
+const playstyleLabel = (style: string) => ["aggressive", "structured", "balanced", "default"].includes(style) ? t(`playstyle.${style}`) : style
 const pct = (n: number) => `${Math.round(n * 100)}%`
 
 // Real effects, read from the constants the match engine (script-v1,
@@ -87,11 +90,11 @@ function LineupTable({ title, team, players }: { title: string; team: { name: st
             <table data-slot="table" className="w-full border-collapse text-left">
                 <thead data-slot="table-header">
                     <tr className="border-y border-line">
-                        <th data-slot="table-head" className="pl-4">Player</th>
-                        <th data-slot="table-head" className="px-2">Role</th>
-                        <th data-slot="table-head" className="px-2 text-center">OVR</th>
-                        <th data-slot="table-head" className="px-2">Morale</th>
-                        <th data-slot="table-head" className="pr-4">Energy</th>
+                        <th data-slot="table-head" className="pl-4">{t("prep.player")}</th>
+                        <th data-slot="table-head" className="px-2">{t("common.role")}</th>
+                        <th data-slot="table-head" className="px-2 text-center">{t("common.ovr")}</th>
+                        <th data-slot="table-head" className="px-2">{t("common.morale")}</th>
+                        <th data-slot="table-head" className="pr-4">{t("common.energy")}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -108,12 +111,12 @@ function LineupTable({ title, team, players }: { title: string; team: { name: st
                             </td>
                             <td className="px-2"><RoleTag role={p.role} /></td>
                             <td className="px-2 text-center"><RatingChip value={p.ovr} size="sm" /></td>
-                            <td className="px-2"><Meter value={p.morale ?? 50} label="Morale" trackClassName="w-10" /></td>
-                            <td className="pr-4"><Meter value={playerEnergyPercent(p)} label="Energy" trackClassName="w-10" /></td>
+                            <td className="px-2"><Meter value={p.morale ?? 50} label={t("common.morale")} trackClassName="w-10" /></td>
+                            <td className="pr-4"><Meter value={playerEnergyPercent(p)} label={t("common.energy")} trackClassName="w-10" /></td>
                         </tr>
                     ))}
                     {players.length === 0 && (
-                        <tr><td colSpan={5} className="px-4 py-4 text-sm text-ink-3">No eligible players.</td></tr>
+                        <tr><td colSpan={5} className="px-4 py-4 text-sm text-ink-3">{t("prep.noEligible")}</td></tr>
                     )}
                 </tbody>
             </table>
@@ -179,9 +182,9 @@ function TeamBlock({ team, ovr, rank, align }: { team: any; ovr: number; rank?: 
             <div className="min-w-0">
                 <h2 className="truncate font-display text-[40px] font-bold uppercase leading-none text-ink-1"><TeamLink id={team.id}>{team.name}</TeamLink></h2>
                 <div className={cn("mt-2 flex items-center gap-3 text-sm text-ink-3", align === "right" && "justify-end")}>
-                    <span>World <span className="font-semibold tabular-nums text-ink-2">#{rank || "—"}</span></span>
+                    <span><Trans k="prep.worldRank" params={{ rank: rank || "—" }} tags={{ b: v => <span className="font-semibold tabular-nums text-ink-2">{v}</span> }} /></span>
                     <span className="h-3 w-px bg-line-strong" aria-hidden="true" />
-                    <span className="flex items-center gap-1.5">Team OVR <RatingChip value={ovr} size="sm" bare /></span>
+                    <span className="flex items-center gap-1.5">{t("common.teamOvr")} <RatingChip value={ovr} size="sm" bare /></span>
                 </div>
             </div>
         </div>
@@ -348,7 +351,7 @@ export default function TacticalHQPage() {
         if (timeMode === "HYBRID_DAILY" && match.week === currentWeek && (match.day ?? 6) > currentDay) {
             addToast({
                 type: "warning",
-                message: "This match unlocks later this week — advance the day to play it.",
+                message: t("prep.unlocksLater"),
             })
             return
         }
@@ -364,7 +367,7 @@ export default function TacticalHQPage() {
             const shorthanded = homeActive < 5 ? homeTeam : awayTeam
             addToast({
                 type: "warning",
-                message: `${shorthanded?.name || "A team"} can't field 5 players — advance the week to resolve this match by forfeit.`,
+                message: t("prep.cantField", { team: shorthanded?.name || t("prep.aTeam") }),
             })
             return
         }
@@ -388,7 +391,7 @@ export default function TacticalHQPage() {
             if (myTeam && myTeam.budget < 5000) {
                 addToast({
                     type: "warning",
-                    message: "Insufficient funds — Mental Reset costs $5,000.",
+                    message: t("prep.mentalFunds", { cost: formatCurrency(5000, "$", false) }),
                 })
                 return
             }
@@ -404,14 +407,14 @@ export default function TacticalHQPage() {
         if (teams.length > 0 && !match) {
             return (
                 <div role="alert" className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
-                    <p className="font-display text-3xl font-bold uppercase text-ink-1">Match not found</p>
-                    <p className="mb-6 mt-2 max-w-sm text-sm text-ink-3">This match is no longer on your schedule. It may already have been played or resolved when the week advanced.</p>
-                    <Button onClick={() => router.push("/schedule")}>Back to schedule</Button>
+                    <p className="font-display text-3xl font-bold uppercase text-ink-1">{t("prep.notFound")}</p>
+                    <p className="mb-6 mt-2 max-w-sm text-sm text-ink-3">{t("prep.notFoundBody")}</p>
+                    <Button onClick={() => router.push("/schedule")}>{t("prep.backToSchedule")}</Button>
                 </div>
             )
         }
         return (
-            <LoadingState message="Loading match day…" size="lg" fullScreen />
+            <LoadingState message={t("prep.loading")} size="lg" fullScreen />
         )
     }
 
@@ -451,7 +454,7 @@ export default function TacticalHQPage() {
             const single = m.result.maps.length === 1 ? m.result.maps[0]?.finalScore : undefined
             const [us, them] = single ? (isHome ? [single.team1, single.team2] : [single.team2, single.team1])
                 : (isHome ? [m.result.homeScore, m.result.awayScore] : [m.result.awayScore, m.result.homeScore])
-            return { id: m.id, won: isHome === homeWon, label: `${isHome === homeWon ? "Won" : "Lost"} ${us}–${them} vs ${other?.name ?? "unknown"}` }
+            return { id: m.id, won: isHome === homeWon, label: t(isHome === homeWon ? "prep.formWon" : "prep.formLost", { us, them, team: other?.name ?? t("common.unknown") }) }
         })
     const formWins = opponentForm.filter(f => f.won).length
 
@@ -463,11 +466,11 @@ export default function TacticalHQPage() {
     const tournamentDef = isTournament
         ? FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId!.replace(/_s\d+$/, '') || t.id === match.tournamentId)
         : undefined
-    const competitionName = leagueStage ?? (isTournament ? (tournamentDef?.name || liveTournament?.name || "Tournament") : match.tournamentId === "SCRIM" ? "Scrim" : "Friendly")
+    const competitionName = leagueStage ?? (isTournament ? (tournamentDef?.name || liveTournament?.name || t("prep.tournament")) : match.tournamentId === "SCRIM" ? t("common.scrim") : t("prep.friendly"))
     const tableContext = leagueStage ? leagueMatchContext(league, match, myTeam.id) : null
     const competitionDetail = leagueStage
-        ? (tableContext ? `Table: ${tableContext}` : "Regional league")
-        : match.stage || (isTournament ? "Tournament match" : "Week " + match.week)
+        ? (tableContext ? t("prep.tableContext", { context: tableContext }) : t("common.regionalLeague"))
+        : (match.stage ? stageName(match.stage) : (isTournament ? t("prep.tournamentMatch") : t("common.week", { n: match.week })))
     const nextStage = liveTournament?.playoffBracket?.find(m => m.sourceMatchIds?.includes(match.id))?.stage
     const stakes = leagueStage ? getStakes(match.stage || leagueStage, false)
         : isTournament ? getStakes(match.stage || "", (tournamentDef?.format ?? liveTournament?.format) === "bracket", nextStage || undefined) : null
@@ -476,69 +479,73 @@ export default function TacticalHQPage() {
     const dateLabel = formatGameCalendarDate(matchDate, { weekday: "short", month: "short", day: "numeric" })
 
     const matchupNote = playstyleMatchup === "advantage"
-        ? <span className="font-semibold text-positive">You counter them · +{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS)} team strength, better read</span>
+        ? <span className="font-semibold text-positive">{t("prep.youCounter", { pct: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS) })}</span>
         : playstyleMatchup === "disadvantage"
-            ? <span className="font-semibold text-negative">They counter you · −{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY)} team strength, worse read</span>
-            : <span className="text-ink-2">No counter either way</span>
+            ? <span className="font-semibold text-negative">{t("prep.theyCounter", { pct: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY) })}</span>
+            : <span className="text-ink-2">{t("prep.noCounter")}</span>
 
     const PLAYSTYLE_OPTIONS = [
-        { id: "balanced", label: "Balanced", effect: "Beats Aggressive" },
+        { id: "balanced", label: playstyleLabel("balanced"), effect: t("prep.beats", { style: playstyleLabel("aggressive") }) },
         {
-            id: "aggressive", label: "Aggressive", effect: "Beats Structured",
-            note: <>+{STYLE_SPECIALISATION_PCT}% at 80+ avg morale · now <span className={myAvgMorale > 80 ? "text-positive" : "text-ink-2"}>{Math.round(myAvgMorale)}</span></>,
+            id: "aggressive", label: playstyleLabel("aggressive"), effect: t("prep.beats", { style: playstyleLabel("structured") }),
+            note: <Trans k="prep.moraleNote" params={{ pct: STYLE_SPECIALISATION_PCT, value: Math.round(myAvgMorale) }} tags={{ v: v => <span className={myAvgMorale > 80 ? "text-positive" : "text-ink-2"}>{v}</span> }} />,
         },
         {
-            id: "structured", label: "Structured", effect: "Beats Balanced",
-            note: <>+{STYLE_SPECIALISATION_PCT}% at 80+ chemistry · now <span className={myChemistry > 80 ? "text-positive" : "text-ink-2"}>{myChemistry}</span></>,
+            id: "structured", label: playstyleLabel("structured"), effect: t("prep.beats", { style: playstyleLabel("balanced") }),
+            note: <Trans k="prep.chemistryNote" params={{ pct: STYLE_SPECIALISATION_PCT, value: myChemistry }} tags={{ v: v => <span className={myChemistry > 80 ? "text-positive" : "text-ink-2"}>{v}</span> }} />,
         },
-        { id: "default", label: "Default", effect: "Neutral against every style" },
+        { id: "default", label: playstyleLabel("default"), effect: t("prep.neutralAll") },
     ]
     const ECONOMY_OPTIONS = [
-        { id: "standard", label: "Standard", effect: <>Full buy from <span className="tabular-nums text-ink-2">{formatCurrency(FULL_BUY_FROM, "$", false)}</span> avg cash</> },
-        { id: "force", label: "Force", effect: <>Buys $500 earlier · full buy from <span className="tabular-nums text-ink-2">{formatCurrency(FULL_BUY_FROM - 500, "$", false)}</span></> },
-        { id: "eco", label: "Eco", effect: <>Saves $500 longer · full buy from <span className="tabular-nums text-ink-2">{formatCurrency(FULL_BUY_FROM + 500, "$", false)}</span></> },
-    ]
+        { id: "standard", cash: FULL_BUY_FROM },
+        { id: "force", cash: FULL_BUY_FROM - 500 },
+        { id: "eco", cash: FULL_BUY_FROM + 500 },
+    ].map(o => ({
+        id: o.id,
+        label: t(`economy.${o.id}`),
+        effect: <Trans k={`prep.eco.${o.id}`} params={{ cash: formatCurrency(o.cash, "$", false) }} tags={{ v: v => <span className="tabular-nums text-ink-2">{v}</span> }} />,
+    }))
 
     const mapsLocked = match.vetoComplete && (match.maps?.length ?? 0) > 0
     const sides = (match as { mapStartingSides?: Record<string, string> }).mapStartingSides || {}
 
     const statusLine = isSimulatingVeto
-        ? "Running the veto…"
-        : mapsLocked ? "Maps locked in · ready to play" : "Map veto comes first"
+        ? t("prep.status.veto")
+        : mapsLocked ? t("prep.status.locked") : t("prep.status.vetoFirst")
 
     return (
         <div className="mx-auto max-w-[1600px] space-y-4 pb-16">
             {/* Back + status */}
             <div className="flex items-center justify-between">
                 <Link href="/schedule" className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-3 transition-colors hover:text-ink-1">
-                    <ArrowLeft size={15} aria-hidden="true" /> Schedule
+                    <ArrowLeft size={15} aria-hidden="true" /> {t("prep.schedule")}
                 </Link>
                 <p className={overline}>
-                    {isCompleted ? "Played" : isMatchWeek ? "Match day" : isFuture ? `Scheduled · week ${match.week}` : "Expired"}
+                    {isCompleted ? t("prep.played") : isMatchWeek ? t("home.matchDay") : isFuture ? t("prep.scheduledWeek", { week: match.week }) : t("prep.expired")}
                 </p>
             </div>
 
             {!isCompleted && <FirstVisitTip tip={SCREEN_TIPS.tactics} />}
 
             {/* Broadcast header */}
-            <section className="overflow-hidden rounded-[10px] border border-line bg-panel" aria-label={`${myTeam.name} versus ${opponent.name}`}>
+            <section className="overflow-hidden rounded-[10px] border border-line bg-panel" aria-label={t("prep.versus", { a: myTeam.name, b: opponent.name })}>
                 <div className="flex items-center gap-8 px-8 py-6">
                     <TeamBlock team={myTeam} ovr={avgOvr(myLineup)} rank={myTeam.worldRanking} align="left" />
                     <div className="flex w-[300px] shrink-0 flex-col items-center text-center">
                         <div className="flex items-center gap-2">
                             {isTournament && <TierTag tier={tournamentDef?.tier || liveTournament?.tier} />}
-                            {leagueStage && <span className="inline-flex shrink-0 items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">League</span>}
+                            {leagueStage && <span className="inline-flex shrink-0 items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase leading-none tracking-[0.06em] text-ink-2">{t("common.league")}</span>}
                             <p className="truncate text-sm font-semibold text-ink-1">{competitionName}</p>
                         </div>
                         <p className="mt-1 text-xs text-ink-3">{competitionDetail}</p>
                         <p className="mt-2 font-display text-[56px] font-bold leading-none tabular-nums text-ink-1">{(match.format || "BO3").toUpperCase()}</p>
-                        <p className="mt-2 text-xs text-ink-3">{dateLabel} · week {match.week}</p>
+                        <p className="mt-2 text-xs text-ink-3">{t("prep.dateWeek", { date: dateLabel, week: match.week })}</p>
                         {winChance !== null && (
                             <p
                                 className="mt-2 text-xs text-ink-3"
-                                title={`Your chance to win this ${bestOfLabel(match.format)}, from both lineups' aim, form and condition, the team edge and your anti-strat counters. Checked against ${WIN_ODDS_CHECK.maps.toLocaleString("en-US")} simulated maps between the game's clubs: shown chances landed within ${WIN_ODDS_CHECK.meanErrorPts} points of the real results on average.`}
+                                title={t("prep.winChanceTitle", { format: bestOfLabel(match.format), maps: WIN_ODDS_CHECK.maps.toLocaleString("en-US"), error: WIN_ODDS_CHECK.meanErrorPts })}
                             >
-                                Win chance <span className="font-semibold tabular-nums text-ink-1">{Math.round(winChance * 100)}%</span>
+                                <Trans k="prep.winChance" params={{ pct: Math.round(winChance * 100) }} tags={{ b: v => <span className="font-semibold tabular-nums text-ink-1">{v}</span> }} />
                             </p>
                         )}
                     </div>
@@ -546,8 +553,8 @@ export default function TacticalHQPage() {
                 </div>
                 {stakes && (
                     <div className="grid grid-cols-2 divide-x divide-line border-t border-line bg-shell text-sm">
-                        <p className="px-8 py-2.5 text-ink-2"><span className={cn(overline, "mr-2")}>If you win</span>{stakes.win}</p>
-                        <p className="px-8 py-2.5 text-right text-ink-2"><span className={cn(overline, "mr-2")}>If you lose</span>{stakes.loss}</p>
+                        <p className="px-8 py-2.5 text-ink-2"><span className={cn(overline, "mr-2")}>{t("prep.ifWin")}</span>{stakes.win}</p>
+                        <p className="px-8 py-2.5 text-right text-ink-2"><span className={cn(overline, "mr-2")}>{t("prep.ifLose")}</span>{stakes.loss}</p>
                     </div>
                 )}
             </section>
@@ -557,20 +564,20 @@ export default function TacticalHQPage() {
                     {/* Lineups */}
                     <Panel padded={false} className="overflow-hidden">
                         <div className="grid grid-cols-1 divide-line lg:grid-cols-2 lg:divide-x">
-                            <LineupTable title="Your five" team={myTeam} players={myLineup} />
-                            <LineupTable title="Their five" team={opponent} players={theirLineup} />
+                            <LineupTable title={t("prep.yourFive")} team={myTeam} players={myLineup} />
+                            <LineupTable title={t("prep.theirFive")} team={opponent} players={theirLineup} />
                         </div>
                     </Panel>
 
                     {/* Game plan */}
-                    <Panel title="Game plan" actions={<span className="text-xs text-ink-3">Every number below is what the match engine applies.</span>}>
+                    <Panel title={t("prep.gamePlan")} actions={<span className="text-xs text-ink-3">{t("prep.gamePlanNote")}</span>}>
                         <div className="space-y-5">
                             <div>
                                 <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                                    <p className={overline}>Playstyle</p>
+                                    <p className={overline}>{t("prep.playstyle")}</p>
                                     <p className="text-xs text-ink-3">
-                                        {opponent.name} plays <span className="font-semibold text-ink-2">{PLAYSTYLE_LABELS[opponentStyle] ?? opponentStyle}</span>
-                                        {counterPick && <> · counter with <span className="font-semibold text-ink-2">{PLAYSTYLE_LABELS[counterPick]}</span></>}
+                                        <Trans k="prep.theyPlay" params={{ team: opponent.name, style: playstyleLabel(opponentStyle) }} tags={{ b: v => <span className="font-semibold text-ink-2">{v}</span> }} />
+                                        {counterPick && <Trans k="prep.counterWith" params={{ style: playstyleLabel(counterPick) }} tags={{ b: v => <span className="font-semibold text-ink-2">{v}</span> }} />}
                                         <span className="mx-2 text-ink-3">·</span>{matchupNote}
                                     </p>
                                 </div>
@@ -587,15 +594,15 @@ export default function TacticalHQPage() {
                                     ))}
                                 </div>
                                 <p className="mt-1.5 text-[11px] text-ink-3">
-                                    Countering their style is worth +{pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS)} team strength and a sharper read of their plan; being countered costs {pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY)} and blunts your read. The counter shares a +10% cap with staff bonuses. +1% team strength ≈ +{ROUNDS_PER_STRENGTH_PCT.toFixed(2)}% of rounds ≈ +{MAP_POINTS_PER_STRENGTH_PCT.toFixed(2)} map-win points; all non-player factors together are capped at ±{pct(NON_PLAYER_BONUS_CAP)}.
+                                    {t("prep.counterExplain", { bonus: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_BONUS), penalty: pct(MATCH_BALANCE.PLAYSTYLE_COUNTER_PENALTY), rounds: ROUNDS_PER_STRENGTH_PCT.toFixed(2), points: MAP_POINTS_PER_STRENGTH_PCT.toFixed(2), cap: pct(NON_PLAYER_BONUS_CAP) })}
                                 </p>
                             </div>
 
                             {/* Economy Style (B12) — read by the sim (getTeamStrategy). */}
                             <div>
                                 <div className="mb-2 flex items-baseline justify-between gap-4">
-                                    <p className={overline}>Economy</p>
-                                    <p className="text-xs text-ink-3">Used for automatic buys. Your buy calls in the live match override it.</p>
+                                    <p className={overline}>{t("prep.economy")}</p>
+                                    <p className="text-xs text-ink-3">{t("prep.economyNote")}</p>
                                 </div>
                                 <div className="grid grid-cols-3 gap-2">
                                     {ECONOMY_OPTIONS.map(style => (
@@ -613,8 +620,8 @@ export default function TacticalHQPage() {
                             {/* Antistrat */}
                             <div>
                                 <div className="mb-2 flex items-baseline justify-between gap-4">
-                                    <p className={overline}>Anti-strat</p>
-                                    <p className="text-xs text-ink-3">Pick one of their players. Their duels −{TUNING.TARGETED} rating (a 50/50 duel becomes {TARGET_DUEL_PCT}/{100 - TARGET_DUEL_PCT}) · your team strength −{ANTI_STRAT_SELF_PCT}%</p>
+                                    <p className={overline}>{t("prep.antiStrat")}</p>
+                                    <p className="text-xs text-ink-3">{t("prep.antiStratNote", { rating: TUNING.TARGETED, a: TARGET_DUEL_PCT, b: 100 - TARGET_DUEL_PCT, self: ANTI_STRAT_SELF_PCT })}</p>
                                 </div>
                                 <div className="grid grid-cols-5 gap-2">
                                     {opponentPlayers.slice(0, 5).map((player: any) => {
@@ -637,7 +644,7 @@ export default function TacticalHQPage() {
                                                     <p className={cn("truncate text-sm font-semibold", targeted ? "text-ink-1" : "text-ink-2")}>{player.nickname}</p>
                                                     <RoleTag role={player.role} className="mt-0.5 px-1 py-0" />
                                                 </div>
-                                                {targeted && <Crosshair size={16} className="shrink-0 text-gold" aria-label="Targeted" />}
+                                                {targeted && <Crosshair size={16} className="shrink-0 text-gold" aria-label={t("prep.targeted")} />}
                                             </button>
                                         )
                                     })}
@@ -648,14 +655,14 @@ export default function TacticalHQPage() {
 
                     {/* R3: their habits (shown by the VOD review) and the counters for this match */}
                     {!isCompleted && (
-                        <Panel title="Anti-strat prep" actions={<span className="text-xs text-ink-3">{vodReviewed ? "From the VOD review" : "Needs the VOD review"}</span>}>
+                        <Panel title={t("prep.antiStratPrep")} actions={<span className="text-xs text-ink-3">{vodReviewed ? t("prep.fromVod") : t("prep.needsVod")}</span>}>
                             {!vodReviewed ? (
-                                <p className="text-sm text-ink-3">Review their demos (Preparation, VOD review) to see which site their Ts favour and which site their CTs stack on each map. Then pick counters for this match.</p>
+                                <p className="text-sm text-ink-3">{t("prep.needsVodBody")}</p>
                             ) : !mapsLocked ? (
-                                <p className="text-sm text-ink-3">Set the maps first: habits and counters are per map.</p>
+                                <p className="text-sm text-ink-3">{t("prep.mapsFirst")}</p>
                             ) : (
                                 <div className="space-y-4" data-testid="counter-prep">
-                                    <p className="text-xs text-ink-3">A club you counter often changes that habit before you meet again, and every club's habits change each season.</p>
+                                    <p className="text-xs text-ink-3">{t("prep.habitsChange")}</p>
                                     {[...new Set(match.maps ?? [])].map((map: string) => {
                                         const habits = teamHabits(opponent.id, map, sanitizeHabitState(opponent.habits))
                                         const picked = match.counters?.[map] ?? {}
@@ -663,22 +670,22 @@ export default function TacticalHQPage() {
                                             <div key={map}>
                                                 <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                                                     <p className={overline}>{MAP_NAMES[map] ?? map}</p>
-                                                    <p className="text-xs text-ink-3">{habitLine.t(habits)} {habitLine.ct(habits)}</p>
+                                                    <p className="text-xs text-ink-3">{t("prep.habit.t", { site: habits.t.site })} {t("prep.habit.ct", { site: habits.ct.stack })}</p>
                                                 </div>
                                                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                                     <OptionCard
                                                         selected={!!picked.ct}
                                                         onClick={() => setMatchCounter(match.id, map, "ct", !picked.ct)}
-                                                        label={`CT: ${COUNTER_LABEL.ct(habits)}`}
-                                                        effect={<>On your CT full buys. Measured: about +{COUNTER_EFFECT.ct.rounds} of every 100 of those rounds, +{COUNTER_EFFECT.ct.maps} map-win points.</>}
-                                                        note="When they hit the other site, you are stacked on the wrong one."
+                                                        label={t("prep.counter.ct", { site: counterSite("ct", habits) })}
+                                                        effect={t("prep.counter.ctEffect", { rounds: COUNTER_EFFECT.ct.rounds, maps: COUNTER_EFFECT.ct.maps })}
+                                                        note={t("prep.counter.ctNote")}
                                                     />
                                                     <OptionCard
                                                         selected={!!picked.t}
                                                         onClick={() => setMatchCounter(match.id, map, "t", !picked.t)}
-                                                        label={`T: ${COUNTER_LABEL.t(habits)}`}
-                                                        effect={<>On your T full buys. Measured: about +{COUNTER_EFFECT.t.rounds} of every 100 of those rounds, +{COUNTER_EFFECT.t.maps} map-win points.</>}
-                                                        note="Replaces the site of your playbook calls on those rounds."
+                                                        label={t("prep.counter.t", { site: counterSite("t", habits) })}
+                                                        effect={t("prep.counter.tEffect", { rounds: COUNTER_EFFECT.t.rounds, maps: COUNTER_EFFECT.t.maps })}
+                                                        note={t("prep.counter.tNote")}
                                                     />
                                                 </div>
                                             </div>
@@ -694,7 +701,7 @@ export default function TacticalHQPage() {
 
                 <aside className="min-w-0 space-y-4">
                     {/* Primary action */}
-                    <Panel title={mapsLocked ? "Ready" : "Next step"} actions={<span className="text-xs text-ink-3">{statusLine}</span>}>
+                    <Panel title={mapsLocked ? t("prep.ready") : t("prep.nextStep")} actions={<span className="text-xs text-ink-3">{statusLine}</span>}>
                         <div className="space-y-3">
                             {mapsLocked && (
                                 <ul className="space-y-2">
@@ -707,11 +714,11 @@ export default function TacticalHQPage() {
                                                 <Image src={`/maps/${getMapAssetName(map)}.png`} alt="" fill sizes="340px" className="object-cover opacity-30" />
                                                 <div className="relative flex w-full items-center justify-between px-3">
                                                     <div>
-                                                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{isDecider ? "Decider" : `Map ${i + 1}`}</p>
+                                                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{isDecider ? t("prep.decider") : t("prep.mapN", { n: i + 1 })}</p>
                                                         <p className="font-display text-xl font-bold uppercase leading-none text-ink-1">{MAP_NAMES[map] ?? map}</p>
                                                     </div>
                                                     {startSide && (
-                                                        <span className={cn("text-xs font-semibold", startSide === "CT" ? "text-side-ct" : "text-side-t")}>You start {startSide}</span>
+                                                        <span className={cn("text-xs font-semibold", startSide === "CT" ? "text-side-ct" : "text-side-t")}>{t("prep.youStart", { side: startSide })}</span>
                                                     )}
                                                 </div>
                                             </li>
@@ -722,45 +729,45 @@ export default function TacticalHQPage() {
 
                             {isCompleted ? (
                                 <Button onClick={() => router.push(`/match/${match.id}/result`)} className="h-12 w-full text-base">
-                                    View result
+                                    {t("prep.viewResult")}
                                 </Button>
                             ) : blockReason ? (
                                 <div role="alert" className="space-y-3">
                                     <p className="text-sm text-caution">{blockReason}</p>
                                     <div className="grid grid-cols-2 gap-2">
-                                        <Button onClick={() => router.push("/transfers")} className="h-10">Find a player</Button>
-                                        <Button variant="outline" onClick={() => router.push("/schedule")} className="h-10">Back to schedule</Button>
+                                        <Button onClick={() => router.push("/transfers")} className="h-10">{t("home.findPlayer")}</Button>
+                                        <Button variant="outline" onClick={() => router.push("/schedule")} className="h-10">{t("prep.backToSchedule")}</Button>
                                     </div>
                                 </div>
                             ) : isFuture ? (
                                 <Button disabled variant="outline" className="h-12 w-full">
-                                    <Lock size={16} aria-hidden="true" /> Match is in week {match.week}
+                                    <Lock size={16} aria-hidden="true" /> {t("prep.matchInWeek", { week: match.week })}
                                 </Button>
                             ) : isPast ? (
-                                <Button disabled variant="outline" className="h-12 w-full">Match expired</Button>
+                                <Button disabled variant="outline" className="h-12 w-full">{t("prep.matchExpired")}</Button>
                             ) : mapsLocked ? (
                                 <div className="flex gap-2">
                                     <Button onClick={handleStartMatch} className="h-12 flex-1 text-base">
-                                        Start match <ChevronRight size={18} aria-hidden="true" />
+                                        {t("prep.startMatch")} <ChevronRight size={18} aria-hidden="true" />
                                     </Button>
                                     <Button
                                         onClick={handleQuickSim}
                                         disabled={isQuickSimulating}
                                         variant="outline"
                                         className="h-12 gap-1.5 px-4"
-                                        title="Simulate Result Instantly"
-                                        aria-label="Quick sim: simulate the result instantly"
+                                        title={t("prep.quickSimTitle")}
+                                        aria-label={t("prep.quickSimAria")}
                                     >
-                                        <Zap size={16} aria-hidden="true" /> {isQuickSimulating ? "Simulating…" : "Quick sim"}
+                                        <Zap size={16} aria-hidden="true" /> {isQuickSimulating ? t("advance.simulating") : t("prep.quickSim")}
                                     </Button>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
                                     <Button onClick={handleManualVeto} disabled={isSimulatingVeto} className="h-12 w-full text-base">
-                                        Start veto <ChevronRight size={18} aria-hidden="true" />
+                                        {t("prep.startVeto")} <ChevronRight size={18} aria-hidden="true" />
                                     </Button>
                                     <Button onClick={handleAutoVeto} disabled={isSimulatingVeto} variant="outline" className="h-10 w-full">
-                                        {isSimulatingVeto ? "Simulating…" : "Quick sim veto"}
+                                        {isSimulatingVeto ? t("advance.simulating") : t("prep.quickSimVeto")}
                                     </Button>
                                 </div>
                             )}
@@ -771,14 +778,14 @@ export default function TacticalHQPage() {
                     <PressPanel matchId={match.id} />
 
                     {/* Opponent intel */}
-                    <Panel title="Opponent intel" actions={<span className="text-xs text-ink-3">{opponent.name}</span>} padded={false}>
+                    <Panel title={t("prep.intel")} actions={<span className="text-xs text-ink-3">{opponent.name}</span>} padded={false}>
                         <dl className="divide-y divide-line text-sm">
                             <div className="flex items-center justify-between px-4 py-2.5">
-                                <dt className="text-ink-3">World ranking</dt>
+                                <dt className="text-ink-3">{t("prep.worldRanking")}</dt>
                                 <dd className="font-display text-xl font-bold tabular-nums text-ink-1">#{opponent.worldRanking || "—"}</dd>
                             </div>
                             <div className="flex items-center justify-between gap-3 px-4 py-2.5">
-                                <dt className="text-ink-3">Form</dt>
+                                <dt className="text-ink-3">{t("prep.form")}</dt>
                                 <dd className="flex items-center gap-2">
                                     {opponentForm.length > 0 ? (
                                         <>
@@ -790,26 +797,26 @@ export default function TacticalHQPage() {
                                                         aria-label={f.label}
                                                         className={cn("flex h-6 w-6 items-center justify-center rounded-sm text-[11px] font-bold", f.won ? "bg-positive/15 text-positive" : "bg-negative/15 text-negative")}
                                                     >
-                                                        {f.won ? "W" : "L"}
+                                                        {f.won ? t("common.win.short") : t("common.loss.short")}
                                                     </span>
                                                 ))}
                                             </span>
                                             <span className="text-xs tabular-nums text-ink-3">{formWins}–{opponentForm.length - formWins}</span>
                                         </>
-                                    ) : <span className="text-ink-3">No matches yet</span>}
+                                    ) : <span className="text-ink-3">{t("common.noMatchesYet")}</span>}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between px-4 py-2.5">
-                                <dt className="text-ink-3">Playstyle</dt>
-                                <dd className="font-semibold text-ink-1">{PLAYSTYLE_LABELS[opponentStyle] ?? opponentStyle}</dd>
+                                <dt className="text-ink-3">{t("prep.playstyle")}</dt>
+                                <dd className="font-semibold text-ink-1">{playstyleLabel(opponentStyle)}</dd>
                             </div>
                             <div className="flex items-center justify-between px-4 py-2.5">
-                                <dt className="text-ink-3">Avg OVR</dt>
+                                <dt className="text-ink-3">{t("prep.avgOvr")}</dt>
                                 <dd><RatingChip value={avgOvr(theirLineup)} size="sm" /></dd>
                             </div>
                             {threat && (
                                 <div className="px-4 py-3">
-                                    <dt className={cn(overline, "mb-2")}>Threat player</dt>
+                                    <dt className={cn(overline, "mb-2")}>{t("prep.threat")}</dt>
                                     <dd className="flex items-center gap-3">
                                         <div className="h-11 w-11 shrink-0 overflow-hidden rounded bg-raised">
                                             <PlayerPortrait src={threat.portraitPath} seed={threat.id} alt={threat.nickname} size={44} />
@@ -826,28 +833,28 @@ export default function TacticalHQPage() {
                     </Panel>
 
                     {/* Preparation: one-off paid sessions for this match */}
-                    <Panel title="Preparation" actions={<span className="text-xs text-ink-3">Paid once, this match only</span>}>
+                    <Panel title={t("prep.preparation")} actions={<span className="text-xs text-ink-3">{t("prep.paidOnce")}</span>}>
                         <div className="space-y-2">
                             <ActionCard
                                 icon={<Video size={16} />}
-                                title="VOD review"
+                                title={t("prep.vod")}
                                 cost={COST_CONSTANTS.VOD_REVIEW_COST}
-                                effect={<>+25 tactical prep: <span className="text-ink-2">+{VOD_STRENGTH_PCT}% team strength</span> for this match, and their habits on each map.</>}
+                                effect={<Trans k="prep.vodEffect" params={{ pct: VOD_STRENGTH_PCT }} tags={{ v: v => <span className="text-ink-2">{v}</span> }} />}
                                 done={vodReviewed}
-                                doneLabel="Done"
+                                doneLabel={t("prep.done")}
                                 disabled={!isMatchWeek}
                                 onClick={handleVODReview}
-                                ariaLabel={`Review VOD for ${formatCurrency(COST_CONSTANTS.VOD_REVIEW_COST, "$", false)}`}
+                                ariaLabel={t("prep.vodAria", { cost: formatCurrency(COST_CONSTANTS.VOD_REVIEW_COST, "$", false) })}
                             />
                             <ActionCard
                                 icon={<Brain size={16} />}
-                                title="Mental reset"
+                                title={t("prep.mental")}
                                 cost={COST_CONSTANTS.MENTAL_RESET_COST}
-                                effect={<>+{MENTAL_RESET_MORALE} squad morale and <span className="text-ink-2">+{MENTAL_RESET_STRENGTH_PCT}% team strength</span> for this match.</>}
+                                effect={<Trans k="prep.mentalEffect" params={{ morale: MENTAL_RESET_MORALE, pct: MENTAL_RESET_STRENGTH_PCT }} tags={{ v: v => <span className="text-ink-2">{v}</span> }} />}
                                 done={mentalBoosted}
-                                doneLabel="Done"
+                                doneLabel={t("prep.done")}
                                 onClick={handleMentalPrep}
-                                ariaLabel={`Apply Mental Reset (${formatCurrency(COST_CONSTANTS.MENTAL_RESET_COST, "$", false)}) to boost morale`}
+                                ariaLabel={t("prep.mentalAria", { cost: formatCurrency(COST_CONSTANTS.MENTAL_RESET_COST, "$", false) })}
                             />
                         </div>
                     </Panel>

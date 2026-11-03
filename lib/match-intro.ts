@@ -1,3 +1,5 @@
+import { stageName } from "@/lib/display-names"
+import { t } from "@/lib/i18n"
 /**
  * Facts for the match intro (Phase 5.4a): the head-to-head record and the
  * one context line, built only from what the career holds.
@@ -56,18 +58,18 @@ export interface IntroContextInput {
  */
 export function introContextLine(input: IntroContextInput): string | null {
     const { home, away, playerTeamId, stage, competitionName, h2h } = input
-    if (stage && isTerminalBracketStage(stage)) return `${stage}: the winner lifts the ${competitionName} trophy`
+    if (stage && isTerminalBracketStage(stage)) return t("intro.ctx.final", { stage: stageName(stage), competition: competitionName })
 
     const rivalry = getRivalryBetween(home as TeamSaveData, away.id) ?? getRivalryBetween(away as TeamSaveData, home.id)
-    if (rivalry && isDerby(rivalry.intensity)) return `${rivalry.intensity === "FIERCE" ? "Fierce" : "Heated"} rivalry: a derby between ${home.name} and ${away.name}`
+    if (rivalry && isDerby(rivalry.intensity)) return t(rivalry.intensity === "FIERCE" ? "intro.ctx.fierce" : "intro.ctx.heated", { home: home.name, away: away.name })
 
     const mine = playerTeamId === home.id ? home : playerTeamId === away.id ? away : null
     const other = mine ? (mine.id === home.id ? away : home) : null
     if (mine && other && h2h.last && h2h.last.winnerId === other.id) {
-        return `Rematch: ${other.name} won the last meeting ${h2h.last.winnerScore}–${h2h.last.loserScore} in week ${h2h.last.week}`
+        return t("intro.ctx.rematch", { team: other.name, score: `${h2h.last.winnerScore}–${h2h.last.loserScore}`, week: h2h.last.week })
     }
 
     const hr = home.worldRanking ?? 999, ar = away.worldRanking ?? 999
-    if (hr <= 10 && ar <= 10) return `Top-10 clash: world #${Math.min(hr, ar)} meets world #${Math.max(hr, ar)}`
+    if (hr <= 10 && ar <= 10) return t("intro.ctx.top10", { a: Math.min(hr, ar), b: Math.max(hr, ar) })
     return null
 }

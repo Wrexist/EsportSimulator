@@ -9,6 +9,8 @@
  * whether the call won or lost the round.
  */
 
+import { t } from "@/lib/i18n"
+
 export type CoachCallKind = "go" | "swing" | "rotateA" | "rotateB" | "hold" | "save"
 
 export interface CoachCall {
@@ -32,23 +34,11 @@ export const COACH_CALL_FIRST = 3
 export const T_CALLS: readonly CoachCallKind[] = ["go", "swing", "save"]
 export const CT_CALLS: readonly CoachCallKind[] = ["rotateA", "rotateB", "hold", "save"]
 
-export const COACH_CALL_LABEL: Record<CoachCallKind, string> = {
-    go: "Go now",
-    swing: "Fake and swing",
-    rotateA: "Rotate to A",
-    rotateB: "Rotate to B",
-    hold: "Hold for retake",
-    save: "Save",
-}
+/** The call's button label in the active language. */
+export const coachCallLabel = (kind: CoachCallKind): string => t(`coach.${kind}`)
 
-export const COACH_CALL_HINT: Record<CoachCallKind, string> = {
-    go: "Hit the site now with everyone, before the defence sets up.",
-    swing: "Turn the hit around and take the other site.",
-    rotateA: "Everyone not on A moves to A.",
-    rotateB: "Everyone not on B moves to B.",
-    hold: "A site that is lost is given up: fall back and retake it together.",
-    save: "Give the round up and keep the weapons.",
-}
+/** What the call does, in the active language. */
+export const coachCallHint = (kind: CoachCallKind): string => t(`coach.hint.${kind}`)
 
 export function coachCallsFor(ct: boolean): readonly CoachCallKind[] {
     return ct ? CT_CALLS : T_CALLS
@@ -65,13 +55,19 @@ export interface CoachCallState {
 
 /** Why a call cannot be made now, or null when it can. */
 export function coachCallBlocked(kind: CoachCallKind, s: CoachCallState): string | null {
-    if (s.over) return "The round is over"
-    if (!coachCallsFor(s.ct).includes(kind)) return "Not a call for this side"
-    if (s.calls.length >= COACH_CALLS_PER_ROUND) return `${COACH_CALLS_PER_ROUND} calls per round`
-    if (s.t < COACH_CALL_FIRST) return "Let the round start"
-    const last = s.calls[s.calls.length - 1]
-    if (last && s.t - last.t < COACH_CALL_COOLDOWN) return `Wait ${Math.ceil(COACH_CALL_COOLDOWN - (s.t - last.t))} s`
+    if (s.over) return t("coach.blocked.over")
+    if (!coachCallsFor(s.ct).includes(kind)) return t("coach.blocked.side")
+    if (s.calls.length >= COACH_CALLS_PER_ROUND) return t("coach.blocked.limit", { n: COACH_CALLS_PER_ROUND })
+    if (s.t < COACH_CALL_FIRST) return t("coach.blocked.start")
+    const wait = coachCallWait(s)
+    if (wait !== null) return t("coach.blocked.wait", { s: wait })
     // After the plant only the CTs can still save; the Ts play it out.
-    if (s.planted && (kind !== "save" || !s.ct)) return "The bomb is down"
+    if (s.planted && (kind !== "save" || !s.ct)) return t("coach.blocked.planted")
     return null
+}
+
+/** Whole seconds until the next call is allowed after the last one, or null when there is no wait. */
+export function coachCallWait(s: CoachCallState): number | null {
+    const last = s.calls[s.calls.length - 1]
+    return last && s.t - last.t < COACH_CALL_COOLDOWN ? Math.ceil(COACH_CALL_COOLDOWN - (s.t - last.t)) : null
 }

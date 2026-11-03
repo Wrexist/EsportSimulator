@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { useCallback, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
@@ -96,7 +97,7 @@ export function MatchEndBeat({ result, format, homeTeam, awayTeam, playerTeamId,
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-radial-[ellipse_60%_50%_at_50%_40%] from-gold/10 to-transparent" />
             <div className="relative flex w-full max-w-5xl flex-col items-center px-10 text-center">
                 <motion.p {...fade(0.05)} className={cn("text-[13px] font-semibold uppercase tracking-[0.28em]", tone)}>
-                    {series ? "Series over" : "Map over"}{mine ? ` · ${won ? "Victory" : "Defeat"}` : ""}
+                    {series ? t("endBeat.seriesOver") : t("endBeat.mapOver")}{mine ? ` · ${won ? t("endBeat.victory") : t("endBeat.defeat")}` : ""}
                 </motion.p>
 
                 <div className="mt-6 flex w-full items-center justify-center gap-10">
@@ -121,7 +122,7 @@ export function MatchEndBeat({ result, format, homeTeam, awayTeam, playerTeamId,
                 </div>
 
                 <motion.h2 {...fade(0.35)} id="end-beat-title" className="mt-5 font-display text-[clamp(36px,4vw,60px)] font-extrabold uppercase leading-none text-gold">
-                    {winner.name} win
+                    {t("live.teamWins", { team: winner.name })}
                 </motion.h2>
 
                 {series && played.length > 0 && (
@@ -141,12 +142,12 @@ export function MatchEndBeat({ result, format, homeTeam, awayTeam, playerTeamId,
                             <PlayerPortrait src={mvp?.portraitPath} alt={mvp?.nickname ?? "MVP"} seed={mvpId} fill className="object-cover object-top" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-gold">{series ? "Series MVP" : "Match MVP"}</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-gold">{series ? t("endBeat.seriesMvp") : t("endBeat.matchMvp")}</p>
                             <p className="mt-1 truncate font-display text-[40px] font-extrabold uppercase leading-none text-ink-1">{mvp?.nickname ?? "MVP"}</p>
                         </div>
                         <dl className="ml-4 grid grid-cols-3 divide-x divide-line border-l border-line">
                             {[
-                                { label: "Rating", value: mvpStats.rating.toFixed(2) },
+                                { label: t("endBeat.rating"), value: mvpStats.rating.toFixed(2) },
                                 { label: "K–D", value: `${mvpStats.kills}–${mvpStats.deaths}` },
                                 { label: "ADR", value: Number.isFinite(mvpStats.adr) ? mvpStats.adr.toFixed(1) : "—" },
                             ].map(s => (
@@ -158,7 +159,7 @@ export function MatchEndBeat({ result, format, homeTeam, awayTeam, playerTeamId,
                         </dl>
                     </motion.div>
                 )}
-                <motion.p {...fade(1, 0)} className="mt-8 text-xs text-ink-3">Space, Enter or click to continue</motion.p>
+                <motion.p {...fade(1, 0)} className="mt-8 text-xs text-ink-3">{t("endBeat.continue")}</motion.p>
             </div>
             <motion.div
                 aria-hidden="true"

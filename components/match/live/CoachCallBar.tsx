@@ -5,8 +5,9 @@ import { AnimatePresence, motion } from "framer-motion"
 import { Megaphone } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
-import { COACH_CALL_HINT, COACH_CALL_LABEL, COACH_CALLS_PER_ROUND, coachCallBlocked, coachCallsFor, type CoachCallKind, type CoachCallRecord } from "@/engine/match/coach-calls"
+import { coachCallHint, coachCallLabel, COACH_CALLS_PER_ROUND, coachCallBlocked, coachCallsFor, coachCallWait, type CoachCallKind, type CoachCallRecord } from "@/engine/match/coach-calls"
 import type { LiveTimeSource } from "@/lib/live-clock"
+import { t } from "@/lib/i18n"
 
 interface CoachCallBarProps {
     /** The managed team plays CT this round. */
@@ -35,15 +36,15 @@ export function CoachCallBar({ ct, calls, clock, planted, roundEnd, onCall }: Co
         const id = setTimeout(() => setNote(null), 2500)
         return () => clearTimeout(id)
     }, [note])
-    const t = clock.now()
+    const now = clock.now()
     const left = COACH_CALLS_PER_ROUND - calls.length
-    const state = { t, ct, calls, planted, over: t >= roundEnd - 0.5 }
-    const cooldown = calls.length && left > 0 ? coachCallBlocked(coachCallsFor(ct)[0], state) : null
+    const state = { t: now, ct, calls, planted, over: now >= roundEnd - 0.5 }
+    const wait = calls.length && left > 0 ? coachCallWait(state) : null
     return (
         <div className="flex justify-center pb-2" data-testid="coach-call-bar">
             <div className="flex max-w-full flex-wrap items-center gap-1.5 rounded-md border border-line-strong bg-panel/95 px-2 py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.45)]">
                 <span className="flex items-center gap-1 px-1 text-xs font-semibold uppercase tracking-wide text-ink-3">
-                    <Megaphone size={14} aria-hidden="true" /> Call
+                    <Megaphone size={14} aria-hidden="true" /> {t("coach.call")}
                 </span>
                 {coachCallsFor(ct).map(kind => {
                     const blocked = coachCallBlocked(kind, state)
@@ -51,7 +52,7 @@ export function CoachCallBar({ ct, calls, clock, planted, roundEnd, onCall }: Co
                         <button
                             key={kind}
                             type="button"
-                            title={blocked ?? COACH_CALL_HINT[kind]}
+                            title={blocked ?? coachCallHint(kind)}
                             disabled={!!blocked}
                             onClick={() => setNote(onCall(kind))}
                             className={cn(
@@ -60,12 +61,12 @@ export function CoachCallBar({ ct, calls, clock, planted, roundEnd, onCall }: Co
                             )}
                             data-coach-call={kind}
                         >
-                            {COACH_CALL_LABEL[kind]}
+                            {coachCallLabel(kind)}
                         </button>
                     )
                 })}
                 <span className="px-1 text-xs text-ink-3" aria-live="polite">
-                    {note ?? (left <= 0 ? "No calls left" : cooldown && /^Wait/.test(cooldown) ? cooldown : `${left} left`)}
+                    {note ?? (left <= 0 ? t("coach.noneLeft") : wait !== null ? t("coach.blocked.wait", { s: wait }) : t("coach.left", { n: left }))}
                 </span>
             </div>
         </div>
@@ -96,7 +97,7 @@ export function CoachCallBanner({ call, ct }: { call: CoachCallRecord | null; ct
                         data-coach-call-banner=""
                     >
                         <Megaphone size={16} className={ct ? "text-side-ct" : "text-side-t"} aria-hidden="true" />
-                        <span className="font-display text-lg font-bold uppercase leading-none text-ink-1">{COACH_CALL_LABEL[shown.kind]}</span>
+                        <span className="font-display text-lg font-bold uppercase leading-none text-ink-1">{coachCallLabel(shown.kind)}</span>
                     </motion.div>
                 )}
             </AnimatePresence>

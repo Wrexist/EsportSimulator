@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import React, { useEffect, useState } from "react"
 import { Shield, Sword, X, Save, User, Info, Copy, ClipboardPaste, Check } from "lucide-react"
@@ -13,6 +14,7 @@ import { PlayerPortrait } from "@/components/ui/asset-images"
 import { useFocusTrap } from "@/lib/accessibility"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { strategyLabel } from "@/lib/live-match-decision"
 interface TacticalLoadoutEditorProps {
     side: "ct" | "t"
     strategyId: keyof CustomTactics
@@ -82,10 +84,11 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
         return () => window.removeEventListener("keydown", handler)
     }, [])
 
+    const callName = strategyLabel(strategyId)
     const equipOptions = [
-        { id: "kevlar", name: "Kevlar Vest", price: 650, tier: "LIGHT" as const, image: EQUIPMENT.armorKevlar },
-        { id: "helmet", name: "Kevlar + Helmet", price: 1000, tier: "HEAVY" as const, image: EQUIPMENT.armor },
-        { id: "kit", name: "Defuse Kit", price: 400, special: "KIT", image: EQUIPMENT.defuse }
+        { id: "kevlar", name: t("loadout.kevlarVest"), price: 650, tier: "LIGHT" as const, image: EQUIPMENT.armorKevlar },
+        { id: "helmet", name: t("glyph.kevlarHelmet"), price: 1000, tier: "HEAVY" as const, image: EQUIPMENT.armor },
+        { id: "kit", name: t("glyph.kit"), price: 400, special: "KIT", image: EQUIPMENT.defuse }
     ]
 
     const EXCLUDED_WEAPONS = new Set(["dualies", "nova", "mag7", "ssg08", "aug"])
@@ -201,7 +204,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
     }
 
     return (
-        <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${strategyId} ${side.toUpperCase()} loadout editor`} tabIndex={-1} className="flex flex-col h-full max-h-[calc(100dvh-112px)] w-full max-w-[1400px] text-ink-1 rounded-[10px] border border-line-strong bg-panel overflow-hidden">
+        <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={t("loadout.aria", { call: callName, side: side.toUpperCase() })} tabIndex={-1} className="flex flex-col h-full max-h-[calc(100dvh-112px)] w-full max-w-[1400px] text-ink-1 rounded-[10px] border border-line-strong bg-panel overflow-hidden">
             <style jsx global>{`
                 .custom-scrollbar [data-radix-scroll-area-viewport]::-webkit-scrollbar {
                     width: 6px;
@@ -243,28 +246,28 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                     <div className="text-left flex-1">
                         <div className="flex items-center gap-2">
                             <input
-                                aria-label="Strategy name"
+                                aria-label={t("loadout.nameAria")}
                                 value={strategyName}
                                 onChange={(e) => setStrategyName(e.target.value)}
-                                placeholder={`${strategyId} LOADOUT`}
+                                placeholder={t("loadout.placeholder", { call: callName })}
                                 className="w-full rounded-sm border-none bg-transparent font-display text-3xl font-bold uppercase leading-none text-ink-1 placeholder:text-ink-3"
                             />
                         </div>
                         <p className="mt-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
-                            <span>{strategyId} ({side.toUpperCase()})</span>
+                            <span>{callName} ({side.toUpperCase()})</span>
                             <span className="opacity-30">•</span>
                             <span className={cn(selectedPlayer !== null ? "text-ink-1" : "text-ink-3")}>
-                                {selectedPlayer !== null ? `Editing ${playerNames[selectedPlayer]}` : "Select a player to configure"}
+                                {selectedPlayer !== null ? t("loadout.editing", { name: playerNames[selectedPlayer] }) : t("loadout.selectPlayer")}
                             </span>
                             <span className="opacity-30">•</span>
                             <span className="flex items-center gap-1 capitalize text-ink-1">
                                 <Info className="w-3 h-3" />
-                                Hover player for Copy/Paste
+                                {t("loadout.hoverHint")}
                             </span>
                         </p>
                     </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close loadout editor" className="h-10 w-10">
+                <Button variant="ghost" size="icon" onClick={onClose} aria-label={t("loadout.close")} className="h-10 w-10">
                     <X className="w-6 h-6 text-ink-3" />
                 </Button>
             </div>
@@ -276,8 +279,8 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                         const cost = getLoadoutCost(loadout)
                         const isSelected = selectedPlayer === idx
                         const weaponName = WEAPONS[loadout.primaryWeaponId.toUpperCase()]?.name || loadout.primaryWeaponId
-                        const armorLabel = loadout.armorTier === "HEAVY" ? "Helmet" : (loadout.armorTier === "LIGHT" ? "Kevlar" : "")
-                        const kitLabel = loadout.hasKit && side === "ct" ? "Kit" : ""
+                        const armorLabel = loadout.armorTier === "HEAVY" ? t("loadout.helmet") : (loadout.armorTier === "LIGHT" ? t("glyph.kevlar") : "")
+                        const kitLabel = loadout.hasKit && side === "ct" ? t("loadout.kit") : ""
                         const loadoutParts = [weaponName, armorLabel, kitLabel].filter(Boolean)
 
                         return (
@@ -311,7 +314,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                     <div className="flex-1 min-w-0">
                                         <div className="font-normal text-sm truncate">{playerNames[idx]}</div>
                                         <div className="text-[11px] text-ink-3 truncate mt-0.5 font-medium">
-                                            {loadoutParts.join(" • ") || "No Loadout"}
+                                            {loadoutParts.join(" • ") || t("loadout.none")}
                                         </div>
                                     </div>
                                     {playerCash[idx] != null ? (
@@ -328,7 +331,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleCopy(idx); }}
                                         className="p-1.5 rounded-lg bg-hover hover:bg-hover text-ink-2 transition-colors"
-                                        title="Copy Loadout"
+                                        title={t("loadout.copy")}
                                     >
                                         {copiedIndex === idx ? <Check className="w-3.5 h-3.5 text-positive" /> : <Copy className="w-3.5 h-3.5" />}
                                     </button>
@@ -336,7 +339,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handlePaste(idx); }}
                                             className="p-1.5 rounded-lg bg-hover hover:bg-hover text-ink-2 transition-colors"
-                                            title="Paste Loadout"
+                                            title={t("loadout.paste")}
                                         >
                                             <ClipboardPaste className="w-3.5 h-3.5" />
                                         </button>
@@ -349,7 +352,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                     <div className="pt-6 border-t border-line mt-6">
                         {teamBudget != null ? (
                             <>
-                                <div className="text-[11px] font-bold text-ink-3 uppercase tracking-wider mb-1">Remaining Budget</div>
+                                <div className="text-[11px] font-bold text-ink-3 uppercase tracking-wider mb-1">{t("loadout.remaining")}</div>
                                 <div className={cn("text-2xl font-normal", teamBudget - totalCost < 0 ? "text-negative" : "text-ink-1")}>
                                     {formatCurrency((teamBudget - totalCost), "$", false)}
                                 </div>
@@ -357,7 +360,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                             </>
                         ) : (
                             <>
-                                <div className="text-[11px] font-bold text-ink-3 uppercase tracking-wider mb-1">Total Team Cost</div>
+                                <div className="text-[11px] font-bold text-ink-3 uppercase tracking-wider mb-1">{t("loadout.teamCost")}</div>
                                 <div className="text-2xl font-normal text-ink-3">
                                     {formatCurrency(totalCost, "$", false)}
                                 </div>
@@ -372,7 +375,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                         <div className="grid grid-cols-3 xl:grid-cols-5 gap-3 xl:gap-6">
                             {/* 1. Equipment */}
                             <div className="space-y-4">
-                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">1 Equipment</h3>
+                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">1 {t("loadout.equipment")}</h3>
                                 <div className="space-y-3">
                                     {equipOptions.map(opt => {
                                         const isSelected = opt.tier ? currentLoadout.armorTier === opt.tier : (opt.special === "KIT" ? currentLoadout.hasKit : false)
@@ -412,7 +415,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
 
                             {/* 2. Pistols */}
                             <div className="space-y-4">
-                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">2 Pistols</h3>
+                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">2 {t("loadout.pistols")}</h3>
                                 <div className="space-y-3">
                                     {getWeaponsInCategory(WeaponType.PISTOL).map(w => {
                                         const isSelected = currentLoadout.secondaryWeaponId === w.id
@@ -456,7 +459,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
 
                             {/* 3. Mid-Tier */}
                             <div className="space-y-4">
-                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">3 Mid-Tier</h3>
+                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">3 {t("loadout.midTier")}</h3>
                                 <div className="space-y-3">
                                     {getWeaponsInCategory([WeaponType.SMG, WeaponType.SHOTGUN]).map(w => {
                                         const isSelected = currentLoadout.primaryWeaponId === w.id
@@ -500,7 +503,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
 
                             {/* 4. Rifles */}
                             <div className="space-y-4">
-                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">4 Rifles</h3>
+                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-4">4 {t("loadout.rifles")}</h3>
                                 <div className="space-y-3">
                                     {getWeaponsInCategory([WeaponType.RIFLE, WeaponType.SNIPER]).map(w => {
                                         const isSelected = currentLoadout.primaryWeaponId === w.id
@@ -544,8 +547,8 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
 
                             {/* 5. Grenades */}
                             <div className="space-y-4">
-                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-1">5 Grenades</h3>
-                                <p className="px-2 mb-4 text-[11px] text-ink-3">None picked: the player buys a grenade set for his role with the money left. Picked: exactly these.</p>
+                                <h3 className="text-xs font-normal text-ink-3 uppercase tracking-[0.08em] px-2 mb-1">5 {t("loadout.grenades")}</h3>
+                                <p className="px-2 mb-4 text-[11px] text-ink-3">{t("loadout.grenadesHint")}</p>
                                 <div className="grid grid-cols-2 gap-3">
                                     {Object.entries(GRENADES).map(([id, icon]) => {
                                         const isSelected = currentLoadout.utility?.includes(id)
@@ -586,7 +589,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                         <div className="flex items-center justify-center h-full text-ink-3">
                             <div className="text-center">
                                 <User className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                                <div className="text-sm font-bold">Select a player to configure their loadout</div>
+                                <div className="text-sm font-bold">{t("loadout.selectPlayerLong")}</div>
                             </div>
                         </div>
                     )}
@@ -598,7 +601,7 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                 <div>
                     {teamBudget !== undefined && (
                         <div className="text-[11px] font-bold text-ink-3">
-                            Team Budget: {formatCurrency(teamBudget, "$", false)}
+                            {t("loadout.teamBudget", { money: formatCurrency(teamBudget, "$", false) })}
                         </div>
                     )}
                 </div>
@@ -610,16 +613,16 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
                             className="rounded-[4px] border-line-strong bg-raised hover:bg-hover text-ink-2 font-normal text-[11px] uppercase h-9 px-4 flex items-center gap-2"
                         >
                             <ClipboardPaste className="w-3.5 h-3.5" />
-                            Paste to All
+                            {t("loadout.pasteAll")}
                         </Button>
                     )}
                     <div className="flex gap-3 border-l border-line-strong pl-4">
                         <Button variant="ghost" onClick={onClose} className="h-10 px-6 text-sm">
-                            Cancel
+                            {t("loadout.cancel")}
                         </Button>
                         <Button onClick={handleSave} className="h-10 gap-2 px-6 text-sm">
                             <Save className="w-4 h-4" />
-                            Apply loadouts
+                            {t("loadout.apply")}
                         </Button>
                     </div>
                 </div>

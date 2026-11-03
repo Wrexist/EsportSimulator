@@ -1,5 +1,7 @@
 "use client"
 
+import { t as tr } from "@/lib/i18n"
+
 import { memo, useEffect, useMemo, useRef } from "react"
 import { ChevronLeft, ChevronRight, Pause, Play, Radio } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -120,8 +122,8 @@ function RadarScrubberComponent(p: RadarScrubberProps) {
 
     return (
         <div className="radar-scrubber flex shrink-0 items-center gap-2 border-t border-line px-3 py-1.5" data-review={p.reviewActive ? "on" : "off"}>
-            <div className="flex items-center gap-0.5" role="group" aria-label="Round to review">
-                <button type="button" aria-label="Review the previous round" disabled={prevRound === null}
+            <div className="flex items-center gap-0.5" role="group" aria-label={tr("radar.roundToReview")}>
+                <button type="button" aria-label={tr("radar.prevRound")} disabled={prevRound === null}
                     onClick={() => prevRound !== null && p.onSelectRound(prevRound)}
                     className="rounded p-1 text-ink-2 hover:bg-hover hover:text-ink-1 disabled:opacity-30">
                     <ChevronLeft size={14} />
@@ -129,13 +131,13 @@ function RadarScrubberComponent(p: RadarScrubberProps) {
                 <span className="min-w-[2.75rem] text-center text-xs font-semibold tabular-nums text-ink-1">
                     {shownRound !== null ? `R${shownRound}` : "R–"}
                 </span>
-                <button type="button" aria-label={nextRound === null ? "Back to the live round" : "Review the next round"} disabled={nextRound === undefined}
+                <button type="button" aria-label={nextRound === null ? tr("radar.backToLiveRound") : tr("radar.nextRound")} disabled={nextRound === undefined}
                     onClick={() => nextRound === null ? p.onBackToLive() : nextRound !== undefined && p.onSelectRound(nextRound)}
                     className="rounded p-1 text-ink-2 hover:bg-hover hover:text-ink-1 disabled:opacity-30">
                     <ChevronRight size={14} />
                 </button>
             </div>
-            <button type="button" aria-label={p.playing ? "Pause review" : "Play review"} disabled={!p.prep}
+            <button type="button" aria-label={p.playing ? tr("radar.pauseReview") : tr("radar.playReview")} disabled={!p.prep}
                 onClick={p.onTogglePlay}
                 className="rounded p-1.5 text-ink-2 hover:bg-hover hover:text-ink-1 disabled:opacity-30">
                 {p.playing ? <Pause size={14} /> : <Play size={14} />}
@@ -145,7 +147,7 @@ function RadarScrubberComponent(p: RadarScrubberProps) {
                 ref={sliderRef}
                 role="slider"
                 tabIndex={p.prep ? 0 : -1}
-                aria-label={p.isLiveRound ? "Review this round (the match keeps playing)" : `Review round ${shownRound ?? ""}`}
+                aria-label={p.isLiveRound ? tr("radar.reviewLive") : tr("radar.reviewRound", { n: shownRound ?? "" })}
                 aria-valuemin={0}
                 aria-valuemax={Math.round(span)}
                 aria-valuenow={0}
@@ -169,14 +171,14 @@ function RadarScrubberComponent(p: RadarScrubberProps) {
             {p.reviewActive ? (
                 <button type="button" onClick={p.onBackToLive}
                     className="flex min-h-7 items-center gap-1.5 rounded bg-gold px-2.5 text-xs font-semibold text-gold-on hover:bg-gold-hover">
-                    <Radio size={13} aria-hidden="true" /> Back to live
+                    <Radio size={13} aria-hidden="true" /> {tr("radar.backToLive")}
                 </button>
             ) : p.isLiveRound ? (
                 <span className="flex min-h-7 items-center gap-1.5 rounded px-2 text-[11px] font-bold tracking-[0.06em] text-positive">
-                    <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-positive" /> LIVE
+                    <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-positive" /> {tr("dock.live")}
                 </span>
             ) : (
-                <span className="flex min-h-7 items-center rounded px-2 text-[11px] font-bold tracking-[0.06em] text-ink-3">ROUND OVER</span>
+                <span className="flex min-h-7 items-center rounded px-2 text-[11px] font-bold tracking-[0.06em] text-ink-3">{tr("radar.roundOver")}</span>
             )}
         </div>
     )

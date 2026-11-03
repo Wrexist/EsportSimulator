@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 import { memo, useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { scorebugTime, type LiveTimeSource, type ScorebugTime } from "@/lib/live-clock"
@@ -74,11 +75,11 @@ export interface ScorebugClock {
  */
 const TIMER_POLL_MS = 125
 
-const WIN_TYPE_LABEL: Record<string, string> = {
-    ELIMINATION: "Elimination", elimination: "Elimination",
-    BOMB_EXPLODED: "Bomb exploded", bomb: "Bomb exploded",
-    BOMB_DEFUSE: "Bomb defused", defuse: "Bomb defused",
-    TIME: "Time ran out", time: "Time ran out",
+const WIN_TYPE_ID: Record<string, string> = {
+    ELIMINATION: "ELIMINATION", elimination: "ELIMINATION",
+    BOMB_EXPLODED: "BOMB_EXPLODED", bomb: "BOMB_EXPLODED",
+    BOMB_DEFUSE: "BOMB_DEFUSE", defuse: "BOMB_DEFUSE",
+    TIME: "TIME", time: "TIME",
 }
 /** One-letter marks inside the history cells: E(lim), B(omb), D(efuse), T(ime). */
 const WIN_TYPE_MARK: Record<string, string> = { ELIMINATION: "", BOMB_EXPLODED: "B", BOMB_DEFUSE: "D", TIME: "T" }
@@ -108,9 +109,9 @@ function LossBonus({ level, align }: { level?: number; align: "left" | "right" }
     const bonus = lossBonusAt(level)
     return (
         <div className={cn("flex items-center gap-1.5 text-[11px] leading-none text-ink-3", align === "right" && "flex-row-reverse")}
-            title={`Loss bonus level ${level + 1} of 5: a lost round pays $${bonus.toLocaleString("en-US")} each. A loss moves it up, a win down.`}
+            title={t("scoreboard.lossBonusTitle", { level: level + 1, money: `$${bonus.toLocaleString("en-US")}` })}
             data-loss-level={level}>
-            <span className="uppercase tracking-[0.06em]">Loss bonus</span>
+            <span className="uppercase tracking-[0.06em]">{t("scoreboard.lossBonus")}</span>
             <span className={cn("flex gap-0.5", align === "right" && "flex-row-reverse")} aria-hidden="true">
                 {Array.from({ length: 5 }, (_, i) => <span key={i} className={cn("h-2 w-1 rounded-[1px]", i <= level ? "bg-ink-2" : "bg-hover")} />)}
             </span>
@@ -129,13 +130,14 @@ const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName }: 
     const slots = Math.max(24, rounds.length)
     const byRound = new Map(rounds.map(r => [r.round, r]))
     return (
-        <div className="flex items-center gap-[3px]" aria-label="Round history">
+        <div className="flex items-center gap-[3px]" aria-label={t("scoreboard.history")}>
             {Array.from({ length: slots }, (_, i) => {
                 const n = i + 1
                 const r = byRound.get(n)
                 const fill = r ? (r.side === "ct" ? "bg-side-ct text-ink" : "bg-side-t text-ink") : ""
                 const mark = r ? WIN_TYPE_MARK[r.winType ?? ""] ?? "" : ""
-                const how = r ? WIN_TYPE_LABEL[r.winType ?? ""] ?? "Won" : ""
+                const winId = r ? WIN_TYPE_ID[r.winType ?? ""] : undefined
+                const how = r ? (winId ? t(`live.win.${winId}`) : t("scoreboard.won")) : ""
                 const cell = (mine: boolean) => (
                     <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded-[2px] text-[11px] font-bold leading-none", mine ? fill : "bg-hover")}>{mine ? mark : ""}</span>
                 )
@@ -143,19 +145,19 @@ const RoundHistory = memo(function RoundHistory({ rounds, homeName, awayName }: 
                     <div
                         key={n}
                         className={cn("group relative flex flex-col gap-[3px]", (n === 13 || (n > 24 && (n - 25) % 6 === 0)) && "ml-2")}
-                        aria-label={r ? `Round ${n}: ${r.winner === "home" ? homeName : awayName} (${r.side.toUpperCase()}), ${how.toLowerCase()}` : `Round ${n}`}
+                        aria-label={r ? `${t("live.roundN", { n })}: ${r.winner === "home" ? homeName : awayName} (${r.side.toUpperCase()}), ${how}` : t("live.roundN", { n })}
                         data-round-dot={r ? r.winner : undefined}
                     >
                         {cell(r?.winner === "home")}
                         {cell(r?.winner === "away")}
                         {r && (
                             <div className="pointer-events-none invisible absolute left-1/2 top-full z-50 mt-1.5 w-max -translate-x-1/2 rounded-md border border-line-strong bg-raised px-2.5 py-2 text-left opacity-0 shadow-[0_8px_24px_rgba(0,0,0,0.5)] transition-opacity duration-100 group-hover:visible group-hover:opacity-100" role="tooltip">
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">Round {n}{r.homeScore !== undefined ? ` · ${r.homeScore}–${r.awayScore}` : ""}</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3">{t("live.roundN", { n })}{r.homeScore !== undefined ? ` · ${r.homeScore}–${r.awayScore}` : ""}</p>
                                 <p className="mt-0.5 text-sm font-semibold text-ink-1">
                                     {r.winner === "home" ? homeName : awayName} <span className={r.side === "ct" ? "text-side-ct" : "text-side-t"}>({r.side.toUpperCase()})</span>
                                 </p>
                                 <p className="text-xs text-ink-2">{how}</p>
-                                {(r.homeBuy || r.awayBuy) && <p className="mt-0.5 text-xs text-ink-3">Buys: {buyShortLabel(r.homeBuy)} / {buyShortLabel(r.awayBuy)}</p>}
+                                {(r.homeBuy || r.awayBuy) && <p className="mt-0.5 text-xs text-ink-3">{t("scoreboard.buys", { home: buyShortLabel(r.homeBuy), away: buyShortLabel(r.awayBuy) })}</p>}
                             </div>
                         )}
                     </div>
@@ -172,7 +174,7 @@ function TimerText({ seconds, planted, paused }: { seconds: number; planted: boo
             "ml-1 font-display text-[22px] font-bold normal-case leading-none tracking-normal tabular-nums",
             paused ? "text-ink-3" : planted ? "text-negative" : isUrgent ? "text-caution" : "text-ink-1",
         )} data-round-timer="">
-            {planted && <span className="mr-1.5 align-middle font-sans text-[11px] font-semibold uppercase tracking-[0.08em]">Bomb</span>}
+            {planted && <span className="mr-1.5 align-middle font-sans text-[11px] font-semibold uppercase tracking-[0.08em]">{t("scoreboard.bomb")}</span>}
             {Math.floor(seconds / 60)}:{(seconds % 60).toString().padStart(2, '0')}
         </span>
     )
@@ -229,7 +231,8 @@ function LiveMatchScoreboardImpl({
     const reduceMotion = useAppReducedMotion()
     const finished = gameState.status === "FINISHED"
     const toWin = mapsToWinForFormat(matchFormat)
-    const phase = roundPhaseLabel(gameState.round, homeScore, awayScore)
+    const phaseId = roundPhaseLabel(gameState.round, homeScore, awayScore)
+    const phase = phaseId ? t(`scoreboard.phase.${phaseId}`) : null
 
     const score = (value: number, leading: boolean) => (
         <div className="relative flex h-[52px] w-[68px] items-center justify-center overflow-hidden">
@@ -249,7 +252,7 @@ function LiveMatchScoreboardImpl({
         <div
             className="relative z-10 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch rounded-lg border border-line bg-panel"
             role="region"
-            aria-label="Match scoreboard"
+            aria-label={t("scoreboard.aria")}
         >
             {/* Screen readers hear the score change, not every second of the timer. */}
             <span className="sr-only" aria-live="polite">{`${homeTeam.name} ${homeScore}, ${awayTeam.name} ${awayScore}`}</span>
@@ -266,7 +269,7 @@ function LiveMatchScoreboardImpl({
                         {ownTeam === "home" && <YouTag />}
                     </div>
                     <div className="flex items-center gap-3">
-                        <SeriesPips won={homeSeriesScore} toWin={toWin} label={`Maps won: ${homeSeriesScore} of ${toWin}`} align="left" />
+                        <SeriesPips won={homeSeriesScore} toWin={toWin} label={t("scoreboard.mapsWon", { n: homeSeriesScore, of: toWin })} align="left" />
                         {!finished && <LossBonus level={homeLossLevel} align="left" />}
                     </div>
                 </div>
@@ -278,8 +281,8 @@ function LiveMatchScoreboardImpl({
                 <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
                     <span className="text-ink-2">{mapName}</span>
                     <span aria-hidden="true">·</span>
-                    <span className={finished ? "text-ink-1" : undefined}>{finished ? "Final" : `RND ${gameState.round} / 24`}</span>
-                    {!finished && phase && <><span aria-hidden="true">·</span><span className={phase === "Match point" ? "text-ink-1" : undefined}>{phase}</span></>}
+                    <span className={finished ? "text-ink-1" : undefined}>{finished ? t("dock.final") : t("scoreboard.rnd", { n: gameState.round })}</span>
+                    {!finished && phase && <><span aria-hidden="true">·</span><span className={phaseId === "matchPoint" ? "text-ink-1" : undefined}>{phase}</span></>}
                     {showTimer && !finished && (clock
                         ? <LiveTimer clock={clock} paused={!!gameState.isPaused} />
                         : <TimerText seconds={displaySeconds} planted={!!isBombPlanted} paused={!!gameState.isPaused} />)}
@@ -300,7 +303,7 @@ function LiveMatchScoreboardImpl({
                         {ownTeam === "away" && <YouTag />}
                     </div>
                     <div className="flex flex-row-reverse items-center gap-3">
-                        <SeriesPips won={awaySeriesScore} toWin={toWin} label={`Maps won: ${awaySeriesScore} of ${toWin}`} align="right" />
+                        <SeriesPips won={awaySeriesScore} toWin={toWin} label={t("scoreboard.mapsWon", { n: awaySeriesScore, of: toWin })} align="right" />
                         {!finished && <LossBonus level={awayLossLevel} align="right" />}
                     </div>
                 </div>
@@ -323,9 +326,9 @@ function mapsToWinForFormat(format: string): number {
  * not what either team bought.
  */
 function roundPhaseLabel(round: number, homeScore: number, awayScore: number): string | null {
-    if (round > 24) return "Overtime"
-    if (round === 1 || round === 13) return "Pistol"
-    if (Math.max(homeScore, awayScore) === 12) return "Match point"
+    if (round > 24) return "overtime"
+    if (round === 1 || round === 13) return "pistol"
+    if (Math.max(homeScore, awayScore) === 12) return "matchPoint"
     return null
 }
 

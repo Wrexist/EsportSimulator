@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 /**
  * Live roster state for the round on screen (Phase 3, stream K): HP,
  * deaths (with the killer), grenades held, multi-kills, the round's MVP and
@@ -209,9 +210,6 @@ export function summarizeRound(round: RoundResult, homeTeamId: string, homeIds: 
     return { winner, winnerSide: round.winner, winType: round.winType, mvp, callouts }
 }
 
-export const WIN_TYPE_TEXT: Record<string, string> = {
-    ELIMINATION: "Elimination",
-    BOMB_EXPLODED: "Bomb exploded",
-    BOMB_DEFUSE: "Bomb defused",
-    TIME: "Time ran out",
-}
+/** How a round ended, in the active language. */
+export const winTypeText = (type: string): string =>
+    ["ELIMINATION", "BOMB_EXPLODED", "BOMB_DEFUSE", "TIME"].includes(type) ? t(`live.win.${type}`) : type

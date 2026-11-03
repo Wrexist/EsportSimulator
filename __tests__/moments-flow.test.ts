@@ -82,7 +82,7 @@ describe("match intro facts", () => {
         const me = team("me", 4), op = team("op", 9)
         const lost = headToHeadOf([played("b", "op", "me", 2, 0, 9)], "me", "op")
         const base = { home: me, away: op, playerTeamId: "me", competitionName: "Nordic Cup", h2h: lost }
-        expect(introContextLine({ ...base, stage: "Grand Final" })).toBe("Grand Final: the winner lifts the Nordic Cup trophy")
+        expect(introContextLine({ ...base, stage: "Grand Final" })).toBe("Grand final: the winner lifts the Nordic Cup trophy")
         const derby = { ...base, home: team("me", 4, [{ opponentTeamId: "op", matchesPlayed: 8, wins: 4, losses: 4, lastPlayed: 9, intensity: "FIERCE" }]) }
         expect(introContextLine({ ...derby, stage: "Semi-final 1" })).toBe("Fierce rivalry: a derby between Team me and Team op")
         expect(introContextLine({ ...base, stage: "Group A" })).toBe("Rematch: Team op won the last meeting 2–0 in week 9")

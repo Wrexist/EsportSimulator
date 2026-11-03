@@ -27,7 +27,7 @@ import {
     zoneFor,
     zoneRules,
 } from "@/components/league/league-view"
-import { getMatchHeadline, getMatchTone, getStakes, isLeagueStage, LEAGUE_STAKES } from "@/lib/match-stakes"
+import { getMatchHeadline, getMatchTone, getStakes, isLeagueStage, leagueStakes } from "@/lib/match-stakes"
 import { makeWorld, playLeagueWeek } from "./league-fixtures"
 
 /** A drawn European league of 40 clubs (four divisions of ten); the managed club is in division 3. */
@@ -211,15 +211,15 @@ describe("fixture labels", () => {
         expect(isLeagueStage(stage)).toBe(true)
         expect(isLeagueStage("Round of 16")).toBe(false)
         expect(isLeagueStage("Swiss Round 2")).toBe(false)
-        expect(getStakes(stage, true)).toEqual(LEAGUE_STAKES)
+        expect(getStakes(stage, true)).toEqual(leagueStakes())
         expect(getMatchTone(stage, true)).toBe("league")
         const headline = getMatchHeadline(stage, true, "Rivals")
         expect(headline).not.toMatch(/tournament/i)
-        expect(headline).toBe("League match — 3 points at stake against Rivals.")
+        expect(headline).toBe("League match: 3 points at stake against Rivals.")
         // Tournament stages keep their wording.
         expect(getMatchTone("Grand Final", true)).toBe("championship")
-        expect(getMatchHeadline("Quarter-final", true, "X")).toBe("Win-or-go-home against X.")
-        expect(getMatchHeadline("Swiss Round 2", false, "X")).toBe("Swiss round — every result moves the standings.")
+        expect(getMatchHeadline("Quarter-final", true, "X")).toBe("Win or go home against X.")
+        expect(getMatchHeadline("Swiss Round 2", false, "X")).toBe("Swiss round: every result moves the standings.")
         expect(getMatchHeadline("Opening match", false, "X")).toBe("Tournament match against X.")
     })
 

@@ -1,3 +1,4 @@
+import { t as tr } from "@/lib/i18n"
 /**
  * Round scrubber model: tick marks for one round's script (kills, plant,
  * defuse / explosion, grenades), the span of the timeline and clamping of a
@@ -23,7 +24,7 @@ export interface ScrubTick {
 /** Default round length shown for a live round (1:55). */
 export const ROUND_SECONDS = 115
 
-const UTILITY_NAME: Record<UtilityKind, string> = { smoke: "Smoke", flash: "Flash", molotov: "Molotov", he: "HE grenade" }
+const utilityName = (kind: UtilityKind): string => tr(`radar.util.${kind}`)
 
 export function formatRoundClock(t: number): string {
     const s = Math.max(0, Math.floor(t))
@@ -38,7 +39,7 @@ export function formatRoundClock(t: number): string {
 export function scrubberClock(prep: Pick<PreparedRadarScript, "plant" | "defuse" | "explodeAt"> | null, t: number): string {
     const end = prep?.defuse?.success ? prep.defuse.tEnd : prep?.explodeAt
     const c = scorebugTime(t, prep?.plant?.t, end)
-    return c.planted ? `Bomb ${formatRoundClock(c.seconds)}` : formatRoundClock(c.seconds)
+    return c.planted ? tr("radar.bombClock", { time: formatRoundClock(c.seconds) }) : formatRoundClock(c.seconds)
 }
 
 /**
@@ -50,20 +51,20 @@ export function scrubberTicks(prep: PreparedRadarScript, upTo = Infinity): Scrub
     const out: ScrubTick[] = []
     for (const d of prep.deaths) {
         if (d.t > upTo) continue
-        out.push({ t: d.t, kind: "kill", side: d.killerSide, label: `${scrubberClock(prep, d.t)} ${name(d.killer)} killed ${name(d.victim)}${d.headshot ? " (headshot)" : ""}`, headshot: d.headshot })
+        out.push({ t: d.t, kind: "kill", side: d.killerSide, label: `${scrubberClock(prep, d.t)} ${tr(d.headshot ? "radar.tick.killHs" : "radar.tick.kill", { killer: name(d.killer), victim: name(d.victim) })}`, headshot: d.headshot })
     }
     for (const u of prep.utility) {
         if (u.t > upTo) continue
-        out.push({ t: u.t, kind: "utility", side: u.side, utility: u.kind, label: `${scrubberClock(prep, u.t)} ${UTILITY_NAME[u.kind]} by ${name(u.thrower)}` })
+        out.push({ t: u.t, kind: "utility", side: u.side, utility: u.kind, label: `${scrubberClock(prep, u.t)} ${tr("radar.tick.utility", { util: utilityName(u.kind), player: name(u.thrower) })}` })
     }
     if (prep.plant && prep.plant.t <= upTo) {
-        out.push({ t: prep.plant.t, kind: "plant", side: "T", label: `${scrubberClock(prep, prep.plant.t)} Bomb planted at ${prep.plant.site} by ${name(prep.plant.planter)}` })
+        out.push({ t: prep.plant.t, kind: "plant", side: "T", label: `${scrubberClock(prep, prep.plant.t)} ${tr("radar.tick.plant", { site: prep.plant.site, player: name(prep.plant.planter) })}` })
     }
     if (prep.defuse?.success && prep.defuse.tEnd <= upTo) {
-        out.push({ t: prep.defuse.tEnd, kind: "defuse", side: "CT", label: `${scrubberClock(prep, prep.defuse.tEnd)} Bomb defused by ${name(prep.defuse.defuser)}` })
+        out.push({ t: prep.defuse.tEnd, kind: "defuse", side: "CT", label: `${scrubberClock(prep, prep.defuse.tEnd)} ${tr("radar.tick.defuse", { player: name(prep.defuse.defuser) })}` })
     }
     if (prep.explodeAt !== undefined && prep.explodeAt <= upTo) {
-        out.push({ t: prep.explodeAt, kind: "explode", side: "T", label: `${scrubberClock(prep, prep.explodeAt)} Bomb exploded` })
+        out.push({ t: prep.explodeAt, kind: "explode", side: "T", label: `${scrubberClock(prep, prep.explodeAt)} ${tr("live.win.BOMB_EXPLODED")}` })
     }
     return out.sort((a, b) => a.t - b.t || order(a.kind) - order(b.kind))
 }

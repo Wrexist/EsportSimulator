@@ -1,3 +1,4 @@
+import { t, tn } from "@/lib/i18n"
 /**
  * Which of the manager's fixtures can actually be played right now.
  *
@@ -52,10 +53,10 @@ export function fixtureBlockReason(state: PlayableMatchState, match: FixtureLike
         const count = fieldablePlayerCount(state, teamId)
         if (count >= PLAYERS_NEEDED) continue
         if (teamId === state.playerTeamId) {
-            return `Your roster has ${count} active player${count === 1 ? "" : "s"}; you need ${PLAYERS_NEEDED} to play. Sign a player, or advance the week and this match is forfeited.`
+            return tn("block.ownRoster", count, { need: PLAYERS_NEEDED })
         }
-        const name = state.teams.find(t => t.id === teamId)?.name ?? "Your opponent"
-        return `${name} can't field ${PLAYERS_NEEDED} players. Advance the week to resolve this match by forfeit.`
+        const name = state.teams.find(tm => tm.id === teamId)?.name ?? t("block.opponent")
+        return t("block.otherRoster", { team: name, need: PLAYERS_NEEDED })
     }
     return null
 }

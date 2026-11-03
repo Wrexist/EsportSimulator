@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
@@ -14,7 +15,6 @@ export interface MomentCalloutData {
 }
 
 const SHOW_MS = 2200
-const LABEL: Record<number, string> = { 3: "Triple kill", 4: "Quad kill", 5: "ACE" }
 
 /**
  * Multi-kill callout over the top of the radar ("NAME · TRIPLE KILL"),
@@ -48,7 +48,7 @@ export function MomentCallout({ callout }: { callout: MomentCalloutData | null }
                         data-moment-callout=""
                     >
                         <span className={cn("text-sm font-semibold", shown.side === "CT" ? "text-side-ct" : "text-side-t")}>{shown.playerName}</span>
-                        <span className={cn("font-display text-lg font-bold uppercase leading-none", shown.count >= 5 ? "text-gold" : "text-ink-1")}>{LABEL[Math.min(5, shown.count)] ?? `${shown.count} kills`}</span>
+                        <span className={cn("font-display text-lg font-bold uppercase leading-none", shown.count >= 5 ? "text-gold" : "text-ink-1")}>{shown.count >= 5 ? t("live.ace") : shown.count === 4 ? t("live.quadKill") : t("live.tripleKill")}</span>
                     </motion.div>
                 )}
             </AnimatePresence>

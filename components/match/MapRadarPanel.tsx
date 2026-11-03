@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { t } from "@/lib/i18n"
 
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react"
 import { MapId } from "@/types"
@@ -210,7 +212,7 @@ function MapRadarPanelComponent({
     // Clutch detection (live rounds only: after the round ends it would
     // label the end-of-round survivors, e.g. "1v4" after a bomb win).
     const clutchText = !shownOver && !reviewUi.active
-        ? ctAlive === 1 && tAlive >= 2 ? `1v${tAlive} CLUTCH` : tAlive === 1 && ctAlive >= 2 ? `1v${ctAlive} CLUTCH` : null
+        ? ctAlive === 1 && tAlive >= 2 ? t("radar.clutch", { n: tAlive }) : tAlive === 1 && ctAlive >= 2 ? t("radar.clutch", { n: ctAlive }) : null
         : null
     const clutchSide = ctAlive === 1 && tAlive >= 2 ? "ct" : "t"
 
@@ -218,15 +220,15 @@ function MapRadarPanelComponent({
         const bomb = headerScene?.bomb
         if (bomb && bomb.phase !== "none") {
             const site = bomb.site ? ` ${bomb.site}` : ""
-            if (bomb.phase === "defused") return { label: "DEFUSED", color: "#5AA9FF" }
-            if (bomb.phase === "exploded") return { label: "BOMB EXPLODED", color: "#FF8A3D" }
-            if (shownOver && !reviewUi.active) return { label: "ROUND OVER", color: "#AEB6C2" }
-            if (bomb.phase === "defusing") return { label: `DEFUSING${site}`, color: "#5AA9FF" }
-            if (bomb.phase === "planted") return { label: `BOMB PLANTED${site}`, color: "#FF5468" }
+            if (bomb.phase === "defused") return { label: t("radar.defused"), color: "#5AA9FF" }
+            if (bomb.phase === "exploded") return { label: t("radar.exploded"), color: "#FF8A3D" }
+            if (shownOver && !reviewUi.active) return { label: t("radar.roundOver"), color: "#AEB6C2" }
+            if (bomb.phase === "defusing") return { label: `${t("radar.defusing")}${site}`, color: "#5AA9FF" }
+            if (bomb.phase === "planted") return { label: `${t("radar.planted")}${site}`, color: "#FF5468" }
         }
-        if (shownOver && !reviewUi.active) return { label: "ROUND OVER", color: "#AEB6C2" }
+        if (shownOver && !reviewUi.active) return { label: t("radar.roundOver"), color: "#AEB6C2" }
         if (positionSource === 'physical-replay') return { label: "REPLAY", color: "#AEB6C2" }
-        if (!reviewUi.active && currentTime != null && currentTime < FREEZE_LABEL_SECONDS) return { label: "FREEZE TIME", color: "#5AA9FF" }
+        if (!reviewUi.active && currentTime != null && currentTime < FREEZE_LABEL_SECONDS) return { label: t("radar.freeze"), color: "#5AA9FF" }
         // Live play needs no chip: the control bar and the scrubber already say LIVE.
         return null
     })()
@@ -309,36 +311,36 @@ function MapRadarPanelComponent({
     const scrubberRound = reviewUi.active ? reviewUi.round : activeScript?.round ?? null
     const scrubberPrep = reviewUi.active ? reviewPrep : livePrep
     const source = activeScript ? "round-script" : radarDots ? "snapshot" : undefined
-    const floorLabel = isDualLevel ? (shownFloor === "upper" ? "Upper floor" : "Lower floor") : "Single level"
-    const ariaLabel = `${mapName} radar${headerScene ? `: CT ${ctAlive} alive, T ${tAlive} alive` : ""}${roundPhase ? `, ${roundPhase.label.toLowerCase()}` : reviewUi.active ? "" : ", live"}`
+    const floorLabel = isDualLevel ? (shownFloor === "upper" ? t("radar.upperFloor") : t("radar.lowerFloor")) : t("radar.singleLevel")
+    const ariaLabel = `${t("radar.aria", { map: mapName })}${headerScene ? `: ${t("radar.ariaAlive", { ct: ctAlive, t: tAlive })}` : ""}${roundPhase ? `, ${roundPhase.label.toLowerCase()}` : reviewUi.active ? "" : `, ${t("radar.ariaLive")}`}`
 
     return (
         <div className={cn("map-radar-panel overflow-hidden rounded-lg border border-line bg-panel", fillHeight && "flex h-full min-h-0 flex-col")}>
             {/* One compact header row: title, round phase, then view controls. */}
             <div className="radar-panel-header flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-line px-3 py-1.5">
-                <button type="button" onClick={() => setIsExpanded(!isExpanded)} aria-label={`${mapName} radar`} aria-expanded={isExpanded} aria-controls={panelId}
+                <button type="button" onClick={() => setIsExpanded(!isExpanded)} aria-label={t("radar.aria", { map: mapName })} aria-expanded={isExpanded} aria-controls={panelId}
                     className="flex min-h-8 items-center gap-2 text-left text-sm font-semibold text-ink-1">
                     <Map size={16} className="text-ink-3" />
-                    <span>{mapName} <span className="font-normal text-ink-3">radar</span></span>
+                    <span><Trans k="radar.title" params={{ map: mapName }} tags={{ b: v => <span className="font-normal text-ink-3">{v}</span> }} /></span>
                     <ChevronUp size={14} className={cn("text-ink-3 transition-transform", !isExpanded && "rotate-180")} />
                 </button>
-                {isExpanded && reviewUi.active && <span className="rounded-sm bg-gold/15 px-1.5 py-0.5 text-[11px] font-bold tracking-[0.06em] text-gold">REVIEW · R{scrubberRound ?? "–"} {scrubberClock(reviewPrep, shownT)}</span>}
+                {isExpanded && reviewUi.active && <span className="rounded-sm bg-gold/15 px-1.5 py-0.5 text-[11px] font-bold tracking-[0.06em] text-gold">{t("radar.review")} · R{scrubberRound ?? "–"} {scrubberClock(reviewPrep, shownT)}</span>}
                 {isExpanded && roundPhase && <span className="rounded-sm px-1.5 py-0.5 text-[11px] font-bold tracking-[0.06em]" style={{ backgroundColor: `${roundPhase.color}20`, color: roundPhase.color }}>{roundPhase.label}</span>}
                 {isExpanded && <div className="ml-auto flex flex-wrap items-center gap-2">
-                    {isDualLevel && <div role="group" aria-label="Radar floor" className="flex items-center gap-1">
+                    {isDualLevel && <div role="group" aria-label={t("radar.floor")} className="flex items-center gap-1">
                         {(["auto", "upper", "lower"] as const).map(level => <button key={level} type="button"
                             onClick={() => setFloorMode(level)}
                             aria-pressed={floorMode === level}
-                            className={cn("min-h-7 rounded px-2 text-xs capitalize", floorMode === level ? "bg-hover text-ink-1" : "text-ink-3 hover:text-ink-1")}>
-                            {level}
+                            className={cn("min-h-7 rounded px-2 text-xs", floorMode === level ? "bg-hover text-ink-1" : "text-ink-3 hover:text-ink-1")}>
+                            {t(`radar.level.${level}`)}
                         </button>)}
                     </div>}
-                    <button type="button" aria-pressed={showNames} onClick={() => setShowNames(value => !value)} className="min-h-7 rounded px-2 text-xs text-ink-2 hover:bg-hover hover:text-ink-1">Names {showNames ? "on" : "off"}</button>
-                    <div role="group" aria-label="Radar zoom" className="flex items-center gap-1 text-xs text-ink-2">
-                        <button type="button" aria-label="Zoom radar out" disabled={zoom <= 1.001} onClick={() => canvasRef.current?.zoomBy(1 / 1.5)} className="rounded p-1.5 hover:bg-hover disabled:opacity-40"><Minus size={14} /></button>
+                    <button type="button" aria-pressed={showNames} onClick={() => setShowNames(value => !value)} className="min-h-7 rounded px-2 text-xs text-ink-2 hover:bg-hover hover:text-ink-1">{showNames ? t("radar.namesOn") : t("radar.namesOff")}</button>
+                    <div role="group" aria-label={t("radar.zoom")} className="flex items-center gap-1 text-xs text-ink-2">
+                        <button type="button" aria-label={t("radar.zoomOut")} disabled={zoom <= 1.001} onClick={() => canvasRef.current?.zoomBy(1 / 1.5)} className="rounded p-1.5 hover:bg-hover disabled:opacity-40"><Minus size={14} /></button>
                         <span className="w-9 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
-                        <button type="button" aria-label="Zoom radar in" disabled={!canZoomIn} onClick={() => canvasRef.current?.zoomBy(1.5)} className="rounded p-1.5 hover:bg-hover disabled:opacity-40"><Plus size={14} /></button>
-                        <button type="button" aria-label="Reset radar view" title="Reset view (double-click the radar)" disabled={zoom <= 1.001} onClick={() => canvasRef.current?.resetView()} className="rounded p-1.5 hover:bg-hover disabled:opacity-40"><Maximize2 size={13} /></button>
+                        <button type="button" aria-label={t("radar.zoomIn")} disabled={!canZoomIn} onClick={() => canvasRef.current?.zoomBy(1.5)} className="rounded p-1.5 hover:bg-hover disabled:opacity-40"><Plus size={14} /></button>
+                        <button type="button" aria-label={t("radar.reset")} title={t("radar.resetTitle")} disabled={zoom <= 1.001} onClick={() => canvasRef.current?.resetView()} className="rounded p-1.5 hover:bg-hover disabled:opacity-40"><Maximize2 size={13} /></button>
                     </div>
                 </div>}
             </div>
@@ -417,9 +419,9 @@ function MapRadarPanelComponent({
                             />
                         )}
                         <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-line px-3 py-2 text-xs text-ink-3">
-                            <span className="flex items-center gap-3"><span className="font-semibold text-side-ct"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="font-semibold text-side-t"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>{shownOver ? "at round end" : "alive"}</span></span>
-                            <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : activeScript ? 'Positions follow the round script: routes, duels, grenades and the bomb are placed to match what happened in the round. Scroll to zoom, drag to pan, click a player to highlight.' : 'Career match positions are estimated from recorded round events.'}>
-                                {positionSource === 'physical-replay' ? 'Recorded positions' : activeScript ? 'Round script' : 'Estimated positions'} · {floorLabel}
+                            <span className="flex items-center gap-3"><span className="font-semibold text-side-ct"><span aria-hidden="true">● </span>CT {ctAlive}</span><span className="font-semibold text-side-t"><span aria-hidden="true">◆ </span>T {tAlive}</span><span>{shownOver ? t("radar.atRoundEnd") : t("radar.alive")}</span></span>
+                            <span title={positionSource === 'physical-replay' ? 'Recorded physical simulation snapshots. This rehearsal does not settle the career match.' : activeScript ? t("radar.scriptTitle") : t("radar.estimatedTitle")}>
+                                {positionSource === 'physical-replay' ? 'Recorded positions' : activeScript ? t("radar.script") : t("radar.estimated")} · {floorLabel}
                             </span>
                         </div>
                     </motion.div>

@@ -1,8 +1,9 @@
+import { t } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
 /** Original code-built side marks; no raster backdrop or external faction insignia. */
 export function SideEmblem({ side, className }: { side: "CT" | "T"; className?: string }) {
-    return <svg viewBox="0 0 64 64" role="img" aria-label={side === "CT" ? "Defending side" : "Attacking side"}
+    return <svg viewBox="0 0 64 64" role="img" aria-label={side === "CT" ? t("glyph.defending") : t("glyph.attacking")}
         className={cn("shrink-0", side === "CT" ? "text-side-ct" : "text-side-t", className)}>
         <path d="M32 4 55 16v29L32 60 9 45V16Z" fill="currentColor" fillOpacity=".08" stroke="currentColor" strokeOpacity=".45" strokeWidth="1.5" />
         {side === "CT" ? <>

@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { getRivalryBetween, isDerby } from "@/engine/history-tracker"
 import type { TeamSaveData } from "@/engine/save-types"
@@ -16,7 +17,7 @@ export function DerbyBanner({ homeTeam, awayTeam }: { homeTeam?: TeamSaveData; a
     if (!rivalry || !isDerby(rivalry.intensity)) return null
 
     const fierce = rivalry.intensity === "FIERCE"
-    const label = fierce ? "Fierce rivalry" : "Heated rivalry"
+    const label = fierce ? t("live.fierceRivalry") : t("live.heatedRivalry")
 
     return (
         <motion.div
@@ -28,7 +29,7 @@ export function DerbyBanner({ homeTeam, awayTeam }: { homeTeam?: TeamSaveData; a
             <Flame className={fierce ? "h-3.5 w-3.5 text-negative" : "h-3.5 w-3.5 text-caution"} aria-hidden="true" />
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-1">{label}</span>
             <span className="text-xs tabular-nums text-ink-3">
-                Head to head {rivalry.wins}–{rivalry.losses}
+                {t("live.headToHead", { wins: rivalry.wins, losses: rivalry.losses })}
             </span>
         </motion.div>
     )

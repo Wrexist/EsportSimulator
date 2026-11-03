@@ -1,4 +1,5 @@
 "use client"
+import { t, tn } from "@/lib/i18n"
 
 /**
  * G1: the playbook — one call per map, side and buy. "IGL decides" leaves
@@ -12,7 +13,7 @@ import { useGameStore } from "@/store/game-store"
 import { ACTIVE_MAP_POOL, getMapName } from "@/data/map-pool"
 import { ownMapDetail, rate, type RateCell } from "@/engine/map-record"
 import {
-    CT_SETUP_HINT, CT_SETUP_LABEL, CT_SETUPS, PLAY_SITUATIONS, decodePlaybook, encodePlaybook, sanitizePlaybook, SITUATION_LABEL, T_CALL_HINT, T_CALL_LABEL, T_CALL_STRATEGIES,
+    ctSetupHint, ctSetupLabel, CT_SETUPS, PLAY_SITUATIONS, decodePlaybook, encodePlaybook, sanitizePlaybook, situationLabel, tCallHint, tCallLabel, T_CALL_STRATEGIES,
     type MapPlaybook, type PlaySituation, type Playbook, type TCall, type TCallStrategy,
 } from "@/engine/match/playbook"
 import type { CtSetup, SiteId } from "@/engine/match/round-script-types"
@@ -27,11 +28,11 @@ const AUTO = "auto"
 const ANY = "any"
 
 function RateNote({ cell }: { cell?: RateCell }) {
-    if (!cell?.n) return <span className="text-xs text-ink-3">No rounds yet</span>
+    if (!cell?.n) return <span className="text-xs text-ink-3">{t("playbook.noRounds")}</span>
     return (
         <span className={cn("text-xs tabular-nums text-ink-3", cell.n < 8 && "opacity-60")}
-            title="Every round you played this plan on this map this season, at any buy and whoever made the call">
-            {rate(cell.won, cell.n)}% of {cell.n} rounds with this plan here
+            title={t("playbook.rateTitle")}>
+            {tn("playbook.rate", cell.n, { pct: rate(cell.won, cell.n) ?? 0 })}
         </span>
     )
 }
@@ -83,21 +84,21 @@ export function PlaybookEditor({ maps = ACTIVE_MAP_POOL, className }: PlaybookEd
         if (!book.t && !book.ct) return
         for (const m of allMaps) all[m] = book
         setPlaybook(playerTeamId, all)
-        toast.success("Playbook copied", { description: `${getMapName(mapId)}'s calls now apply on every map.` })
+        toast.success(t("playbook.copied"), { description: t("playbook.copiedBody", { map: getMapName(mapId) }) })
     }
     const copyCode = async () => {
         const text = encodePlaybook(playbook)
         try {
             await navigator.clipboard.writeText(text)
-            toast.success("Share code copied", { description: text })
+            toast.success(t("playbook.codeCopied"), { description: text })
         } catch {
-            toast.info("Share code", { description: text })
+            toast.info(t("playbook.code"), { description: text })
         }
     }
     const importCode = () => {
         const read = decodePlaybook(code, allMaps)
         if (!read || !Object.keys(read).length) {
-            toast.error("Not a playbook code", { description: "Codes start with PB1 and name at least one map in the pool." })
+            toast.error(t("playbook.badCode"), { description: t("playbook.badCodeBody") })
             return
         }
         setPlaybook(playerTeamId, { ...playbook, ...read })
@@ -108,10 +109,10 @@ export function PlaybookEditor({ maps = ACTIVE_MAP_POOL, className }: PlaybookEd
     const setCount = (m: string) => Object.keys(playbook[m]?.t ?? {}).length + Object.keys(playbook[m]?.ct ?? {}).length
 
     return (
-        <Panel title="Playbook" className={className}
-            actions={<span className="text-xs text-ink-3">Applies from the next match you start</span>}>
+        <Panel title={t("playbook.title")} className={className}
+            actions={<span className="text-xs text-ink-3">{t("playbook.applies")}</span>}>
             <div className="space-y-4">
-                <div role="group" aria-label="Map" className="flex flex-wrap gap-1.5">
+                <div role="group" aria-label={t("intro.map")} className="flex flex-wrap gap-1.5">
                     {maps.map(m => (
                         <button key={m} type="button" aria-pressed={m === mapId} onClick={() => setMapId(m)}
                             className={cn("rounded border px-2.5 py-1 text-xs font-semibold transition-colors",
@@ -122,65 +123,65 @@ export function PlaybookEditor({ maps = ACTIVE_MAP_POOL, className }: PlaybookEd
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                    <section aria-label="T side calls" className="min-w-0">
-                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-side-t">T side</h3>
+                    <section aria-label={t("playbook.tCalls")} className="min-w-0">
+                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-side-t">{t("playbook.tSide")}</h3>
                         <ul className="mt-2 space-y-3">
                             {PLAY_SITUATIONS.map(sit => {
                                 const call = book.t?.[sit]
                                 return (
                                     <li key={sit} className="space-y-1">
-                                        <div className="text-sm font-semibold text-ink-1">{SITUATION_LABEL[sit]}</div>
+                                        <div className="text-sm font-semibold text-ink-1">{situationLabel(sit)}</div>
                                         <div className="flex flex-wrap items-center gap-2">
                                             <Select value={call?.strategy ?? AUTO} onValueChange={v => setT(sit, v === AUTO ? null : { strategy: v as TCallStrategy, ...(call?.site ? { site: call.site } : {}) })}>
-                                                <SelectTrigger className="h-9 w-[150px] text-sm" aria-label={`T call, ${SITUATION_LABEL[sit]}`}>
-                                                    <SelectValue>{call ? T_CALL_LABEL[call.strategy] : "IGL decides"}</SelectValue>
+                                                <SelectTrigger className="h-9 w-[150px] text-sm" aria-label={t("playbook.tCallAria", { situation: situationLabel(sit) })}>
+                                                    <SelectValue>{call ? tCallLabel(call.strategy) : t("playbook.igl")}</SelectValue>
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value={AUTO}>IGL decides</SelectItem>
-                                                    {T_CALL_STRATEGIES.map(s => <SelectItem key={s} value={s}>{T_CALL_LABEL[s]}</SelectItem>)}
+                                                    <SelectItem value={AUTO}>{t("playbook.igl")}</SelectItem>
+                                                    {T_CALL_STRATEGIES.map(s => <SelectItem key={s} value={s}>{tCallLabel(s)}</SelectItem>)}
                                                 </SelectContent>
                                             </Select>
                                             <Select value={call?.site ?? ANY} disabled={!call} onValueChange={v => call && setT(sit, { strategy: call.strategy, ...(v === ANY ? {} : { site: v as SiteId }) })}>
-                                                <SelectTrigger className="h-9 w-[110px] text-sm" aria-label={`T site, ${SITUATION_LABEL[sit]}`}>
-                                                    <SelectValue>{call?.site ? `${call.site} site` : "IGL's site"}</SelectValue>
+                                                <SelectTrigger className="h-9 w-[110px] text-sm" aria-label={t("playbook.tSiteAria", { situation: situationLabel(sit) })}>
+                                                    <SelectValue>{call?.site ? t("playbook.site", { site: call.site }) : t("playbook.iglSite")}</SelectValue>
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value={ANY}>IGL&apos;s site</SelectItem>
-                                                    <SelectItem value="A">A site</SelectItem>
-                                                    <SelectItem value="B">B site</SelectItem>
+                                                    <SelectItem value={ANY}>{t("playbook.iglSite")}</SelectItem>
+                                                    <SelectItem value="A">{t("playbook.site", { site: "A" })}</SelectItem>
+                                                    <SelectItem value="B">{t("playbook.site", { site: "B" })}</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                             {call && <RateNote cell={detail?.tPlans[call.strategy]} />}
                                         </div>
-                                        {call && <p className="text-xs text-ink-3">{T_CALL_HINT[call.strategy]}.</p>}
+                                        {call && <p className="text-xs text-ink-3">{tCallHint(call.strategy)}</p>}
                                     </li>
                                 )
                             })}
                         </ul>
-                        <p className="mt-2 text-xs text-ink-3">Eco rounds stay with the IGL: a save or an eco rush.</p>
+                        <p className="mt-2 text-xs text-ink-3">{t("playbook.ecoNote")}</p>
                     </section>
 
-                    <section aria-label="CT side setups" className="min-w-0">
-                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-side-ct">CT side</h3>
+                    <section aria-label={t("playbook.ctSetups")} className="min-w-0">
+                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-side-ct">{t("playbook.ctSide")}</h3>
                         <ul className="mt-2 space-y-3">
                             {PLAY_SITUATIONS.map(sit => {
                                 const setup = book.ct?.[sit]
                                 return (
                                     <li key={sit} className="space-y-1">
-                                        <div className="text-sm font-semibold text-ink-1">{sit === "force" ? "Eco / force buy" : SITUATION_LABEL[sit]}</div>
+                                        <div className="text-sm font-semibold text-ink-1">{sit === "force" ? t("playbook.situation.ctForce") : situationLabel(sit)}</div>
                                         <div className="flex flex-wrap items-center gap-2">
                                             <Select value={setup ?? AUTO} onValueChange={v => setCt(sit, v === AUTO ? null : v as CtSetup)}>
-                                                <SelectTrigger className="h-9 w-[150px] text-sm" aria-label={`CT setup, ${SITUATION_LABEL[sit]}`}>
-                                                    <SelectValue>{setup ? CT_SETUP_LABEL[setup] : "IGL decides"}</SelectValue>
+                                                <SelectTrigger className="h-9 w-[150px] text-sm" aria-label={t("playbook.ctSetupAria", { situation: situationLabel(sit) })}>
+                                                    <SelectValue>{setup ? ctSetupLabel(setup) : t("playbook.igl")}</SelectValue>
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value={AUTO}>IGL decides</SelectItem>
-                                                    {CT_SETUPS.map(s => <SelectItem key={s} value={s}>{CT_SETUP_LABEL[s]}</SelectItem>)}
+                                                    <SelectItem value={AUTO}>{t("playbook.igl")}</SelectItem>
+                                                    {CT_SETUPS.map(s => <SelectItem key={s} value={s}>{ctSetupLabel(s)}</SelectItem>)}
                                                 </SelectContent>
                                             </Select>
                                             {setup && <RateNote cell={detail?.ctSetups[setup]} />}
                                         </div>
-                                        {setup && <p className="text-xs text-ink-3">{CT_SETUP_HINT[setup]}.</p>}
+                                        {setup && <p className="text-xs text-ink-3">{ctSetupHint(setup)}</p>}
                                     </li>
                                 )
                             })}
@@ -189,19 +190,18 @@ export function PlaybookEditor({ maps = ACTIVE_MAP_POOL, className }: PlaybookEd
                 </div>
 
                 <p className="border-t border-line pt-3 text-xs leading-relaxed text-ink-3">
-                    A fixed call is predictable. Each time the same T call runs again on a map, the other side reads it more often
-                    (a rush they see coming runs into set crossfires), and a stack that keeps sitting on one site gets hit on the other. &ldquo;IGL decides&rdquo; mixes the calls for you.
+                    {t("playbook.predictable")}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!book.t && !book.ct} onClick={copyToAll}>Use these calls on every map</Button>
-                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!book.t && !book.ct} onClick={() => save({})}>Clear {getMapName(mapId)}</Button>
-                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!Object.keys(playbook).length} onClick={copyCode}>Copy share code</Button>
-                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" aria-expanded={importing} onClick={() => setImporting(v => !v)}>Paste a code</Button>
+                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!book.t && !book.ct} onClick={copyToAll}>{t("playbook.useEverywhere")}</Button>
+                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!book.t && !book.ct} onClick={() => save({})}>{t("playbook.clear", { map: getMapName(mapId) })}</Button>
+                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!Object.keys(playbook).length} onClick={copyCode}>{t("playbook.copyCode")}</Button>
+                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" aria-expanded={importing} onClick={() => setImporting(v => !v)}>{t("playbook.paste")}</Button>
                 </div>
                 {importing && (
                     <form className="flex flex-wrap gap-2" onSubmit={e => { e.preventDefault(); importCode() }}>
-                        <Input value={code} onChange={e => setCode(e.target.value)} placeholder="PB1 Mirage:r.r.eA/2.g.g" aria-label="Playbook share code" className="h-8 min-w-0 flex-1 font-mono text-xs" />
-                        <Button type="submit" size="sm" className="h-8 px-3 text-xs" disabled={!code.trim()}>Import</Button>
+                        <Input value={code} onChange={e => setCode(e.target.value)} placeholder="PB1 Mirage:r.r.eA/2.g.g" aria-label={t("playbook.codeAria")} className="h-8 min-w-0 flex-1 font-mono text-xs" />
+                        <Button type="submit" size="sm" className="h-8 px-3 text-xs" disabled={!code.trim()}>{t("playbook.import")}</Button>
                     </form>
                 )}
             </div>
