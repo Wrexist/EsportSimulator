@@ -1319,6 +1319,7 @@
  "why.odds.expected": "Lo esperado: los puntos de ranking te daban como favorito con un {{pct}}%. La moral y la forma suben menos que tras una victoria igualada.",
  "why.odds.setback": "Un tropiezo: los puntos de ranking te daban como favorito con un {{pct}}%. La moral y la forma bajan más que tras una derrota igualada.",
  "why.odds.stronger": "Ellos eran el equipo más fuerte ({{pct}}% para ti por puntos de ranking), así que la derrota cuesta menos moral y forma que una igualada.",
+ "why.odds.note": "(Solo puntos de clasificación. La probabilidad de victoria de la preparación también tiene en cuenta ambas alineaciones, la forma y la preparación.)",
  "followup.none": "Revisa tu alineación y tu preparación antes del próximo partido.",
  "followup.openings": "Tu alineación sumó {{kills}} bajas de apertura y {{deaths}} muertes de apertura. Revisa los roles de entry y la práctica de trades.",
  "followup.adr": "Tu alineación promedió {{adr}} de daño por ronda. Revisa el rendimiento individual, las necesidades de entrenamiento y a tu próximo rival.",

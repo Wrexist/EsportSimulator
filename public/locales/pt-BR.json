@@ -1319,6 +1319,7 @@
  "why.odds.expected": "O esperado: pelos pontos de ranking você era favorito com {{pct}}%. Moral e forma sobem menos do que após uma vitória equilibrada.",
  "why.odds.setback": "Um tropeço: pelos pontos de ranking você era favorito com {{pct}}%. Moral e forma caem mais do que após uma derrota equilibrada.",
  "why.odds.stronger": "Eles eram o time mais forte ({{pct}}% para você pelos pontos de ranking), então a derrota custa menos moral e forma do que uma equilibrada.",
+ "why.odds.note": "(Só pontos de ranking. A chance de vitória da tela de preparação também conta as duas escalações, a forma e a preparação.)",
  "followup.none": "Revise sua escalação e sua preparação antes da próxima partida.",
  "followup.openings": "Sua escalação registrou {{kills}} kills de abertura e {{deaths}} mortes de abertura. Revise as funções de entry e o treino de trades.",
  "followup.adr": "Sua escalação teve média de {{adr}} de dano por round. Revise as atuações individuais, as necessidades de treino e seu próximo adversário.",

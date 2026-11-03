@@ -6058,5 +6058,6 @@
  "sl.bp.logResults": "Der Vorstand fordert bessere Ergebnisse.",
  "sl.bp.hangsOn": "{{manager}} ist weiter im Amt bei {{club}}, Vorstandsvertrauen {{confidence}}/100.",
  "sl.bp.hangsOnNotice": "{{manager}} ist weiter im Amt bei {{club}}, Vorstandsvertrauen {{confidence}}/100, auf Bewährung.",
- "sl.bp.hangsOnTitle": "{{manager}} hält sich bei {{club}}"
+ "sl.bp.hangsOnTitle": "{{manager}} hält sich bei {{club}}",
+ "why.odds.note": "(Nur Ranglistenpunkte. Die Siegchance in der Matchvorbereitung berücksichtigt auch beide Aufstellungen, Form und Vorbereitung.)"
 }

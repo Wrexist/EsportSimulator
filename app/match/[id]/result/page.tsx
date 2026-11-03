@@ -563,7 +563,8 @@ export default function MatchResultPage() {
                         <p className="text-sm text-ink-2">{insights.headline}</p>
                         {(() => {
                             const odds = oddsLine(match.homeExpected === undefined ? undefined : (isPlayerHome ? match.homeExpected : 1 - match.homeExpected), !!insights.won)
-                            return odds ? <p className="text-sm text-ink-3" data-testid="odds-line">{odds}</p> : null
+                            // MATCHDAY-11: not the prep screen's win chance; say which odds these are.
+                            return odds ? <p className="text-sm text-ink-3" data-testid="odds-line">{odds} <span className="text-ink-3">{t("why.odds.note")}</span></p> : null
                         })()}
                         {(why.reasons.length > 0 || why.players.length > 0) && (
                             <div className="grid gap-3 md:grid-cols-2">

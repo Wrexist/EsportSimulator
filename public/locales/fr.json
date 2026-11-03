@@ -6242,5 +6242,6 @@
  "lg.deleteSave": "Supprimer la sauvegarde",
  "tm.swissStage": "Phase suisse",
  "tm.swissNote": "3 victoires : qualifié · 3 défaites : éliminé",
- "tm.swiss.advanced": "Qualifié"
+ "tm.swiss.advanced": "Qualifié",
+ "why.odds.note": "(Points de classement uniquement. La chance de victoire de l'écran de préparation compte aussi les deux compositions, la forme et la préparation.)"
 }

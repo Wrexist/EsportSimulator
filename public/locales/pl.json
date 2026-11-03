@@ -1357,6 +1357,7 @@
  "why.odds.expected": "Zgodnie z oczekiwaniami: punkty rankingowe dawały ci {{pct}}% i rolę faworyta. Morale i forma rosną mniej niż po wyrównanej wygranej.",
  "why.odds.setback": "Wpadka: punkty rankingowe dawały ci {{pct}}% i rolę faworyta. Morale i forma spadają bardziej niż po wyrównanej porażce.",
  "why.odds.stronger": "Rywale byli silniejsi ({{pct}}% dla ciebie według punktów rankingowych), więc porażka kosztuje mniej morale i formy niż wyrównana.",
+ "why.odds.note": "(Tylko punkty rankingowe. Szansa na wygraną z ekranu przygotowań uwzględnia też oba składy, formę i przygotowanie.)",
  "followup.none": "Przejrzyj skład i przygotowanie przed następnym meczem.",
  "followup.openings": "Kille i śmierci otwierające twojego składu: {{kills}} i {{deaths}}. Przejrzyj role entry i trening trade'ów.",
  "followup.adr": "Twój skład zadawał średnio {{adr}} obrażeń na rundę. Przejrzyj występy indywidualne, potrzeby treningowe i najbliższego rywala.",
