@@ -431,8 +431,14 @@ export default function Page() {
       )}
 
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
-        <div className="min-w-0 space-y-4">
+      {/* The first-session guide sits at the top of the right rail but comes
+          first in the DOM, so keyboard order matches what the eye reads first
+          (CROSSCUT-11). Below xl it simply leads the single column. */}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_400px] xl:grid-rows-[auto_1fr] xl:gap-y-0">
+        <div className="min-w-0 empty:hidden xl:col-start-2 xl:row-start-1 xl:pb-4">
+          <GettingStartedChecklist />
+        </div>
+        <div className="min-w-0 space-y-4 xl:col-start-1 xl:row-span-2 xl:row-start-1">
           <ProCareerPanel />
           {renderHero()}
 
@@ -592,8 +598,7 @@ export default function Page() {
         </div>
 
         {/* Right rail: decisions first */}
-        <aside className="min-w-0 space-y-4">
-          <GettingStartedChecklist />
+        <aside className="min-w-0 space-y-4 xl:col-start-2 xl:row-start-2">
           <DemoTour />
           <ActionCenter />
           <StorylinesPanel />

@@ -527,6 +527,9 @@ export default function TacticalHQPage() {
 
             {!isCompleted && <FirstVisitTip tip={SCREEN_TIPS.tactics} />}
 
+            {/* Every screen has an h1; here it is for screen readers only (CROSSCUT-11). */}
+            <h1 className="sr-only">{t("prep.versus", { a: myTeam.name, b: opponent.name })}</h1>
+
             {/* Broadcast header */}
             <section className="overflow-hidden rounded-[10px] border border-line bg-panel" aria-label={t("prep.versus", { a: myTeam.name, b: opponent.name })}>
                 <div className="flex items-center gap-8 px-8 py-6">
