@@ -9,7 +9,8 @@ import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { getVisibleStats, formatScoutedRating } from "@/engine/scouting-system"
-import { academyHeldPlayerIds, employedScout, recruitmentSalary } from "@/engine/recruitment"
+import { academyHeldPlayerIds, employedScout } from "@/engine/recruitment"
+import { signingWageAsk } from "@/components/transfer/negotiation-rules"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
@@ -98,7 +99,7 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
                         <div className="bg-panel px-3 py-2.5">
                             <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("recruit.wageAsk")}</dt>
                             <dd className="mt-1 font-display text-2xl font-bold tabular-nums text-ink-1">
-                                {formatCurrency(recruitmentSalary(player, state.currentWeek, ownTeam), "$", false)}<span className="ml-1 font-sans text-xs font-normal text-ink-3">{t("recruit.perWeek")}</span>
+                                {formatCurrency(signingWageAsk(player, state.currentWeek, ownTeam), "$", false)}<span className="ml-1 font-sans text-xs font-normal text-ink-3">{t("recruit.perWeek")}</span>
                             </dd>
                         </div>
                         <div className="bg-panel px-3 py-2.5">

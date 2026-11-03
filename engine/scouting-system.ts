@@ -86,6 +86,24 @@ export function scoutedRatingSortValue(value: number | [number, number]): number
 }
 
 /**
+ * MARKET-09: OVR order for a market list. An unscouted player shows no
+ * rating ("Scout to reveal"), so he has none to sort by either: the midpoint
+ * of his hidden band still ranked the real ratings. Unscouted players go after
+ * every scouted one in either direction, by name among themselves.
+ */
+export function compareByScoutedRating(
+    a: { knowledge: Pick<VisibleStats, "ovrRange" | "scoutingLevel">; name: string },
+    b: { knowledge: Pick<VisibleStats, "ovrRange" | "scoutingLevel">; name: string },
+    dir: "asc" | "desc",
+): number {
+    const aHidden = a.knowledge.scoutingLevel === "NONE", bHidden = b.knowledge.scoutingLevel === "NONE"
+    if (aHidden !== bHidden) return aHidden ? 1 : -1
+    if (aHidden) return a.name.localeCompare(b.name)
+    const cmp = scoutedRatingSortValue(a.knowledge.ovrRange) - scoutedRatingSortValue(b.knowledge.ovrRange)
+    return dir === "asc" ? cmp : -cmp
+}
+
+/**
  * Get visible stats for a player based on scouting level
  */
 export function getVisibleStats(

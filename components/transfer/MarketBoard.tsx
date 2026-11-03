@@ -18,8 +18,9 @@ import { Panel } from "@/src/components/ui/Panel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
-import { getVisibleStats, scoutedRatingSortValue, type VisibleStats } from "@/engine/scouting-system"
-import { academyHeldPlayerIds, employedScout, recruitmentSalary } from "@/engine/recruitment"
+import { compareByScoutedRating, getVisibleStats, type VisibleStats } from "@/engine/scouting-system"
+import { academyHeldPlayerIds, employedScout } from "@/engine/recruitment"
+import { signingWageAsk } from "./negotiation-rules"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
 import { ALL_REGIONS } from "@/engine/scouting-helpers"
@@ -154,12 +155,16 @@ const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, sc
                         </div>
                         <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
                             <CountryFlag country={player.nationality} size={12} />
-                            <span className="truncate">{player.name && player.name !== player.nickname ? player.name : countryName(player.nationality).toUpperCase()}</span>
+                            <span className="truncate xl:max-2xl:hidden">{player.name && player.name !== player.nickname ? player.name : countryName(player.nationality).toUpperCase()}</span>
+                            {/* MARKET-13: with the deal panel docked (xl to 2xl) the club and status columns fold in here. */}
+                            <span className="hidden truncate xl:max-2xl:inline">
+                                {team ? team.name : t("market.row.free")}{scouting ? ` · ${t("market.scouting")}` : status === "listed" ? ` · ${t("market.row.listed")}` : ""}
+                            </span>
                         </div>
                     </div>
                 </div>
             </td>
-            <td className="px-3">
+            <td className="px-3 xl:max-2xl:hidden">
                 {team ? (
                     <span className="flex min-w-0 items-center gap-2 text-sm text-ink-2">
                         <TeamLogoImage src={(team as { logoPath?: string }).logoPath} alt={team.name} team={team as never} size={18} />
@@ -172,7 +177,7 @@ const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, sc
             <td className="px-3 text-center"><ScoutedRating knowledge={knowledge} size="sm" /></td>
             <td className="px-3 text-right text-sm tabular-nums text-ink-1">{team ? formatCurrency(value, "$", true) : <span className="text-ink-3">{t("market.free")}</span>}</td>
             <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(wage, "$", true)}</td>
-            <td className="pl-3 pr-4 text-xs text-ink-3">
+            <td className="pl-3 pr-4 text-xs text-ink-3 xl:max-2xl:hidden">
                 {scouting ? <span className="text-ink-2">{t("market.scouting")}</span> : <span className={cn(status === "listed" && "text-ink-2")}>{t(`market.row.${status}`)}</span>}
             </td>
         </tr>
@@ -311,9 +316,9 @@ export function MarketBoard({ mode }: { mode: Mode }) {
         }, { query: debouncedSearch, role, status, age, maxFee, contractMax, region }))
         const sign = dir === "asc" ? 1 : -1
         list.sort((a, b) => {
+            if (sort === "ovr") return compareByScoutedRating({ knowledge: a.knowledge, name: a.player.nickname }, { knowledge: b.knowledge, name: b.player.nickname }, dir)
             let cmp = 0
-            if (sort === "ovr") cmp = scoutedRatingSortValue(a.knowledge.ovrRange) - scoutedRatingSortValue(b.knowledge.ovrRange)
-            else if (sort === "age") cmp = a.player.age - b.player.age
+            if (sort === "age") cmp = a.player.age - b.player.age
             else if (sort === "value") cmp = (a.team ? a.value : 0) - (b.team ? b.value : 0)
             else cmp = a.player.nickname.localeCompare(b.player.nickname)
             return cmp * sign
@@ -465,17 +470,17 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                     {/* Market table */}
                     <Panel padded={false} className="overflow-hidden">
                         <div className="overflow-x-auto">
-                            <table data-slot="table" className="w-full min-w-[920px] border-collapse text-left">
+                            <table data-slot="table" className="w-full min-w-[920px] border-collapse text-left xl:max-2xl:min-w-0">
                                 <thead data-slot="table-header">
                                     <tr className="border-b border-line">
                                         <SortHead field="name" label={t("market.col.player")} sort={sort} dir={dir} onSort={onSort} className="pl-4" />
-                                        <th data-slot="table-head" className="px-3">{t("market.col.club")}</th>
+                                        <th data-slot="table-head" className="px-3 xl:max-2xl:hidden">{t("market.col.club")}</th>
                                         <th data-slot="table-head" className="px-3">{t("common.role")}</th>
                                         <SortHead field="age" label={t("market.col.age")} sort={sort} dir={dir} onSort={onSort} className="text-center" />
                                         <SortHead field="ovr" label={t("common.ovr")} sort={sort} dir={dir} onSort={onSort} className="text-center" />
                                         <SortHead field="value" label={t("market.col.value")} sort={sort} dir={dir} onSort={onSort} className="text-right" />
                                         <th data-slot="table-head" className="px-3 text-right">{t("market.col.wageAsk")}</th>
-                                        <th data-slot="table-head" className="pl-3 pr-4">{t("market.col.status")}</th>
+                                        <th data-slot="table-head" className="pl-3 pr-4 xl:max-2xl:hidden">{t("market.col.status")}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -484,7 +489,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                                             key={row.player.id}
                                             row={row}
                                             selected={row.player.id === activeId}
-                                            wage={recruitmentSalary(row.player, currentWeek, myTeam)}
+                                            wage={signingWageAsk(row.player, currentWeek, myTeam)}
                                             watchlisted={watchSet.has(row.player.id)}
                                             scouting={activeScoutingMission?.playerId === row.player.id}
                                             standing={standings.get(row.player.id)}

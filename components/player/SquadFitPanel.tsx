@@ -6,7 +6,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { squadFit, type FitTone } from "@/engine/squad-fit"
-import { recruitmentSalary } from "@/engine/recruitment"
+import { signingWageAsk } from "@/components/transfer/negotiation-rules"
 import { formatCurrency } from "@/lib/utils-extended"
 import { Panel } from "@/src/components/ui/Panel"
 import { cn } from "@/lib/utils"
@@ -25,7 +25,7 @@ export function SquadFitPanel({ player, rating, exact, leader }: { player: Playe
     const result = useMemo(() => {
         if (!team) return null
         const byId = new Map(players.map(p => [p.id, p]))
-        const wage = recruitmentSalary(player, currentWeek, team)
+        const wage = signingWageAsk(player, currentWeek, team)
         return { wage, lines: squadFit({ target: player, team, lookup: id => byId.get(id), contracts, currentWeek, wage, visible: { rating, exact, leader } }) }
     }, [team, players, player, contracts, currentWeek, rating, exact, leader])
     if (!result) return null

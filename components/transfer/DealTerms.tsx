@@ -16,6 +16,7 @@ import { SENIOR_ROSTER_MAX, squadFullMessage } from "@/engine/roster-rules"
 import { releaseClauseFee, releaseTriggerChance, type ReleaseClause } from "@/engine/contract-clauses"
 import type { MarketStanding } from "@/engine/transfer-hype"
 import { ContractPaper } from "./ContractPaper"
+import { feeOfferBlock } from "./negotiation-rules"
 
 const money = (value: number) => formatCurrency(value, "$", false)
 
@@ -151,9 +152,10 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
     const clubName = n.currentTeam?.name ?? t("nego.theClub")
 
     if (n.stage === "BUYOUT") {
-        const overBudget = n.buyoutOffer > n.budget
-        const overBoard = n.boardSanction.fraction < 1 && n.buyoutOffer > n.boardSanction.maxFee
-        const blocked = n.buyoutOffer <= 0 || overBudget
+        // MARKET-02: a fee over the board's limit is blocked here like one over the funds.
+        const block = feeOfferBlock(n.buyoutOffer, n.budget, n.boardSanction)
+        const overBoard = block === "overBoard"
+        const boardLimitLabel = t("terms.boardLimit", { pct: Math.round(n.boardSanction.fraction * 100) })
         return (
             <div className="space-y-3">
                 <Overline>{t("terms.step1", { club: clubName })}</Overline>
@@ -163,7 +165,7 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
                     {n.feePremium > 0 && <Row label={tn("terms.rivalPremium", n.rivals.length)} value={`+${Math.round(n.feePremium * 100)}% · ${money(n.askingValue)}`} tone="text-gold" />}
                     <Row label={t("terms.yourFunds")} value={money(n.budget)} tone={n.budget < value * 0.5 ? "text-caution" : undefined} />
                     {n.boardSanction.fraction < 1 && (
-                        <Row label={t("terms.boardLimit", { pct: Math.round(n.boardSanction.fraction * 100) })} value={money(n.boardSanction.maxFee)} tone={overBoard ? "text-negative" : "text-caution"} />
+                        <Row label={boardLimitLabel} value={money(n.boardSanction.maxFee)} tone={overBoard ? "text-negative" : "text-caution"} />
                     )}
                 </dl>
                 <Chance
@@ -172,10 +174,12 @@ export function DealTerms({ n, onDone, standing }: { n: NegotiationState; onDone
                     hint={t("terms.feeHint", { min: money(n.feeRange[0]), max: money(n.feeRange[1]) })}
                 />
                 <Log lines={n.negotiationLog} />
-                {blocked ? (
+                {block ? (
                     // A readable "why not" instead of a faded gold button.
                     <div role="status" className="flex h-10 items-center justify-center rounded border border-line bg-shell px-3 text-sm text-ink-2">
-                        {n.buyoutOffer <= 0 ? t("terms.enterFee") : t("terms.overFunds", { amount: money(n.buyoutOffer - n.budget) })}
+                        {block === "enterFee" ? t("terms.enterFee")
+                            : block === "overFunds" ? t("terms.overFunds", { amount: money(n.buyoutOffer - n.budget) })
+                            : `${boardLimitLabel}: ${money(n.boardSanction.maxFee)}`}
                     </div>
                 ) : (
                     <Button className="h-10 w-full" onClick={n.submitBuyout}>
