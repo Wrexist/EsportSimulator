@@ -149,7 +149,7 @@ export function GearCatalog({ team }: { team: TeamSaveData }) {
                     <ul className="space-y-3 text-sm text-ink-2">
                         <li>One item per slot. Buying replaces the current item at once, with no refund for the old one.</li>
                         <li>Each item adds a fixed share of team strength; a full elite set reaches the +{cap.toFixed(0)}% cap. It doesn&apos;t change player attributes or training.</li>
-                        <li>AI clubs count as owning gear that scales with reputation, up to +{aiGear.toFixed(0)}% for the best known clubs.</li>
+                        <li>Rival clubs count as owning gear that scales with reputation, up to +{aiGear.toFixed(0)}% for the best known clubs.</li>
                         <li>Gear, facilities, staff and prep are summed per side; the difference between the two sides is capped at ±{Math.round(NON_PLAYER_BONUS_CAP * 100)}%.</li>
                         <li>Upkeep is charged every weekly settlement. A cheaper item lowers it.</li>
                     </ul>

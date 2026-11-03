@@ -52,6 +52,7 @@ export function buildSaveSnapshot(state: SaveSnapshotState): GameSave {
         staff: state.staff,
         marketStaff: state.marketStaff || [],
         nextMarketRefreshWeek: state.nextMarketRefreshWeek,
+        randomWorld: state.randomWorld,
         scheduledMatches: state.scheduledMatches,
         completedMatches: state.completedMatches,
         firstSession: state.firstSession,

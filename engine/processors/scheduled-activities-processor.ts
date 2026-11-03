@@ -113,7 +113,7 @@ function applyStaffMeeting(save: GameSave, act: any, ctx: ScheduledActivitiesCon
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     roster.forEach((p: any) => {
         if (effects.morale) {
-            p.morale = Math.min(100, Math.max(0, (p.morale || 50) + effects.morale))
+            p.morale = Math.min(100, Math.max(0, (p.morale ?? 50) + effects.morale))
         }
         if (effects.xp) {
             p.xp = (p.xp || 0) + effects.xp

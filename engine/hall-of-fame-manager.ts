@@ -12,8 +12,16 @@ import { HALL_OF_FAME_TUNING as HOF } from "@/lib/balance-tuning"
  * on one (HALL_OF_FAME_TUNING).
  *
  * The induction itself is written by EventProcessor.processRetirements /
- * processMidSeasonRetirements through hallOfFameEntry().
+ * processMidSeasonRetirements / AIManager.processSeasonEnd through
+ * inductIntoHallOfFame().
  */
+
+/**
+ * A legend (granted at 38) keeps playing until this age, then retires
+ * through the normal season-end path. Without a cap legends played on into
+ * their fifties.
+ */
+export const LEGEND_RETIREMENT_AGE = 42
 
 export type CareerTotals = Pick<PlayerSaveData, "majorWins" | "totalKills" | "avgRating" | "matchesPlayed">
     & Partial<Pick<PlayerSaveData, "mapsPlayed" | "careerTrophies" | "honours" | "totalMVPs">>
@@ -81,5 +89,27 @@ export function hallOfFameEntry(player: PlayerSaveData, currentWeek: number, las
             matches: player.matchesPlayed || 0,
             ...(lastClubId ? { lastClubId } : {}),
         },
+    }
+}
+
+/**
+ * Write (or refresh) a player's Hall of Fame entry. Dedups against the
+ * legacy `hof_` id scheme of older saves; an existing entry is replaced so a
+ * legend inducted at 38 shows his full career once he retires.
+ */
+export function inductIntoHallOfFame(
+    save: { hallOfFame?: HallOfFameEntry[] },
+    player: PlayerSaveData,
+    currentWeek: number,
+    lastClubId?: string,
+): void {
+    if (!save.hallOfFame) save.hallOfFame = []
+    const entry = hallOfFameEntry(player, currentWeek, lastClubId)
+    const i = save.hallOfFame.findIndex(h => h.id === player.id || h.id === `hof_${player.id}`)
+    if (i === -1) {
+        save.hallOfFame.push(entry)
+    } else if (save.hallOfFame[i].category === "INDUCTED") {
+        const prev = save.hallOfFame[i]
+        save.hallOfFame[i] = { ...entry, id: prev.id, eraStart: Math.min(prev.eraStart, entry.eraStart) }
     }
 }

@@ -240,3 +240,14 @@ describe("applyWeeklyActivity — edge cases", () => {
         expect((save.players[0] as any).fatigue).toBe(100)
     })
 })
+
+describe("applyWeeklyActivity — morale 0 (ENGINE-08)", () => {
+    test("regression: a player at morale 0 gets the bonus on top of 0, not on top of 50", () => {
+        const save = makeSave(5, 1, 100_000)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(save.players[0] as any).morale = 0
+        applyWeeklyActivity(save, { playerTeamId: "player", selectedActivity: WeeklyActivityType.TEAM_BONDING, nextId })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((save.players[0] as any).morale).toBe(15)
+    })
+})

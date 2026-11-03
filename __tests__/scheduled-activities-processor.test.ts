@@ -265,3 +265,14 @@ describe("applyScheduledActivities — filtering + edge cases", () => {
         expect(() => applyScheduledActivities(save, { playerTeamId: "player", nextId })).not.toThrow()
     })
 })
+
+describe("applyScheduledActivities — morale 0 (ENGINE-08)", () => {
+    test("regression: a staff meeting lifts a morale-0 player to 10, not 60", () => {
+        const save = makeSave([{ id: "a1", type: "STAFF_MEETING", week: 5 }], 1)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(save.players[0] as any).morale = 0
+        applyScheduledActivities(save, { playerTeamId: "player", nextId })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((save.players[0] as any).morale).toBe(10)
+    })
+})

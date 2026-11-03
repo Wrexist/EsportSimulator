@@ -71,10 +71,13 @@ export function processAIWorldLogic(save: GameSave, playerTeamId: string, rng: S
         processReleaseClauses(save, playerTeamId)
     }
 
-    // 4. Staff market auto-refresh every 4 weeks.
+    // 4. Staff market refresh every 4 weeks (the one refresh path): keep
+    // half, replace half, and keep staff released by clubs for a few weeks
+    // (StaffGenerator.rotateMarket). A full regeneration here used to wipe
+    // staff whose contracts had just ended.
     if (save.currentWeek > 0 && save.currentWeek % 4 === 0) {
         const staffRng = new SeededRNG(rng.next() * 2147483646 || 1)
-        save.marketStaff = StaffGenerator.generateWeeklyMarket(save.currentWeek, 20, staffRng)
+        save.marketStaff = StaffGenerator.rotateMarket(save.marketStaff ?? [], save.currentWeek, staffRng)
         save.nextMarketRefreshWeek = save.currentWeek + 4
     }
 

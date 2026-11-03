@@ -149,30 +149,15 @@ describe("applyPreTickMutations — scouting completion", () => {
     })
 })
 
-describe("applyPreTickMutations — staff market rotation", () => {
-    test("first tick with no nextMarketRefreshWeek sets it 4 weeks out", () => {
-        const draft = makeDraft({ currentWeek: 5 })
-        applyPreTickMutations(draft, {
-            playerTeamId: "player", currentWeek: 5, rng: new SeededRNG(1), nextId,
-        })
-        expect(draft.nextMarketRefreshWeek).toBe(9)
-    })
-
-    test("when current week >= refresh week, rotation fires and schedules next 4-8 weeks out", () => {
-        const draft = makeDraft({ currentWeek: 9, nextMarketRefreshWeek: 9 })
+describe("applyPreTickMutations — staff market (ENGINE-03)", () => {
+    test("the pre-tick leaves the staff market alone: the AI world step owns the one refresh", () => {
+        const market = [{ id: "s1" }, { id: "s2" }] as never
+        const draft = makeDraft({ currentWeek: 9, nextMarketRefreshWeek: 9, marketStaff: market })
         applyPreTickMutations(draft, {
             playerTeamId: "player", currentWeek: 9, rng: new SeededRNG(99), nextId,
         })
-        expect(draft.nextMarketRefreshWeek).toBeGreaterThanOrEqual(9 + 4)
-        expect(draft.nextMarketRefreshWeek).toBeLessThanOrEqual(9 + 8)
-    })
-
-    test("before refresh week, rotation is skipped", () => {
-        const draft = makeDraft({ currentWeek: 7, nextMarketRefreshWeek: 9 })
-        applyPreTickMutations(draft, {
-            playerTeamId: "player", currentWeek: 7, rng: new SeededRNG(1), nextId,
-        })
-        expect(draft.nextMarketRefreshWeek).toBe(9) // unchanged
+        expect(draft.marketStaff).toBe(market)
+        expect(draft.nextMarketRefreshWeek).toBe(9)
     })
 })
 

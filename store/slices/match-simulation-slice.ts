@@ -430,7 +430,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                             default: return won ? 5 : -5
                         }
                     })()
-                    player.morale = applyMoraleResult(player.morale || 50, playerResultMorale(player, moraleChange * surprise, shield))
+                    player.morale = applyMoraleResult(player.morale ?? 50, playerResultMorale(player, moraleChange * surprise, shield))
                     player.form = applyFormResult(player.form, won, surprise)
 
                     const stats = result.playerStats[pid]

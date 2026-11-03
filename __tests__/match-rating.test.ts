@@ -5,7 +5,7 @@
  */
 import path from "path"
 import { SnapshotLoader } from "@/data/snapshot-loader"
-import { applyReputationLift, evaluatePlayer } from "@/engine/player-evaluation"
+import { applyReputationLift, calculateContextModifier, evaluatePlayer } from "@/engine/player-evaluation"
 import { matchRating, overallFromMatchRating, reputationLift, MATCH_RATING_SIDE_CAP } from "@/engine/match-rating"
 import { migrateToV11, runMigrationLadder } from "@/engine/save-migrations"
 import { CURRENT_SAVE_VERSION, type GameSave, type PlayerSaveData } from "@/engine/save-types"
@@ -103,5 +103,14 @@ describe("new career: club OVR orders clubs the way the engine does", () => {
         let sxy = 0, sxx = 0, syy = 0
         xs.forEach((x, i) => { sxy += (x - mx) * (ys[i] - my); sxx += (x - mx) ** 2; syy += (ys[i] - my) ** 2 })
         expect(sxy / Math.sqrt(sxx * syy)).toBeGreaterThan(0.98)
+    })
+})
+
+describe("context modifier — morale 0 (ENGINE-08)", () => {
+    test("regression: morale 0 gives the full -8% morale penalty, not the neutral value", () => {
+        const neutral = calculateContextModifier(base({ morale: 50, form: 50, fatigue: 0 }))
+        const broken = calculateContextModifier(base({ morale: 0, form: 50, fatigue: 0 }))
+        expect(neutral).toBeCloseTo(1, 5)
+        expect(broken).toBeCloseTo(0.92, 5)
     })
 })

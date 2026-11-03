@@ -27,7 +27,7 @@ export const DURABLE_CAREER_KEYS = [
     "difficulty", "firstSession", "gameOverWeek", "gameStartDate", "hallOfFame",
     "lastCommittedWeekTick", "lastRngSeed", "legendaryPlayers", "mapRotation", "marketStaff",
     "nextMarketRefreshWeek", "pendingCelebration", "pendingLegendPick", "physicalMatchPreview",
-    "playerTeamId", "sandbox", "savedSearches", "seenMomentKeys", "signedLegendIds", "socialFeed",
+    "playerTeamId", "randomWorld", "sandbox", "savedSearches", "seenMomentKeys", "signedLegendIds", "socialFeed",
     "tournamentQualifications", "weekReports",
 ] as const
 
