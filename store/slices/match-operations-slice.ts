@@ -14,7 +14,8 @@
  *     and optionally flags one match's mentalPrep. Deducts
  *     MENTAL_RESET_COST.
  *
- * All three log a FinanceLedger entry. None call other store actions.
+ * The VOD review and resets log a FinanceLedger entry. A completed veto
+ * saves the career (saveGame); nothing else calls other store actions.
  * Entity lookups inside set() go through state.teams.find() — see
  * ARCHITECTURE.md on the index-vs-array draft propagation bug.
  */
@@ -44,8 +45,15 @@ function canPrepare(state: StoreState, match: MatchSaveData): boolean {
         && !(state.timeMode === 'HYBRID_DAILY' && match.week === state.currentWeek && (match.day ?? 6) < state.currentDay)
 }
 
-export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = (set) => ({
+/** The parts of a fixture the veto writes: maps, starting sides, sealed flag. */
+function vetoSnapshot(state: StoreState, matchId: string): string {
+    const m = state.scheduledMatches.find(x => x.id === matchId)
+    return m ? JSON.stringify([!!m.vetoComplete, m.maps ?? [], m.mapStartingSides ?? {}]) : ""
+}
+
+export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = (set, get) => ({
     updateScheduledMatch: (matchId, updates) => {
+        const before = vetoSnapshot(get(), matchId)
         set((state) => {
             const match = state.scheduledMatches.find(m => m.id === matchId)
             if (!match || !canPrepare(state, match)) return
@@ -109,6 +117,13 @@ export const createMatchOperationsSlice: SliceCreator<MatchOperationsActions> = 
                 Object.assign(match, sanitizedUpdates)
             }
         })
+        // A finished veto (maps and sides) is written to the save at once: a
+        // reload or quitting before "Start match" must not redo it (MATCHDAY-02).
+        const after = get()
+        if (after.scheduledMatches.find(m => m.id === matchId)?.vetoComplete && vetoSnapshot(after, matchId) !== before
+            && after.isInitialized && after.saveId && typeof after.saveGame === "function") {
+            void after.saveGame().catch(() => { /* surfaced by saveGame */ })
+        }
     },
 
     performVODReview: (matchId) => {

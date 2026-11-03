@@ -206,8 +206,9 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
     useEffect(() => {
         if (!match || !homeTeam || !awayTeam) return
 
-        // Auto-redirect with delay when complete
+        // Auto-redirect with delay when complete; the veto is saved at once.
         if (vetoSequence.length > 0 && vetoHistory.length >= vetoSequence.length) {
+            saveVeto()
             const timer = setTimeout(() => {
                 handleCompletion()
             }, 2000)
@@ -346,21 +347,26 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
         setAvailableMaps(prev => prev.filter(m => m !== mapId))
     }
 
-    const handleCompletion = () => {
-        // Navigate to Match Hub (Tactics) with picked maps
+    // Written once, as soon as the last turn is made (the store saves the
+    // career): a reload during the 2 s hold or on the hub keeps the veto.
+    const vetoSavedRef = useRef(false)
+    const saveVeto = () => {
+        if (vetoSavedRef.current) return
+        vetoSavedRef.current = true
         // Maps = Picks + Decider
         const picks = vetoHistory
             .filter(v => v.action === "PICK" || (v.action as string) === "DECIDER")
             .map(v => v.mapId)
             .filter((m): m is MapId => !!m)
-
-        // Save to store
         updateScheduledMatch(id, {
             vetoComplete: true,
             maps: picks as string[],
             mapStartingSides: mapStartingSides
         })
+    }
 
+    const handleCompletion = () => {
+        saveVeto()
         // Redirect to Hub
         router.push(`/match/${id}/tactics`)
     }
