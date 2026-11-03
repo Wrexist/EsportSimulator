@@ -1,10 +1,12 @@
 "use client"
+import { divisionName } from "@/lib/display-names"
+import { ordinalLabel, t, tn } from "@/lib/i18n"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { ListOrdered } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
-import { isLeagueMatchId, ordinal } from "@/engine/season/regional-league"
+import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { LEAGUE_TUNING, leagueCentralPayment } from "@/lib/balance-tuning"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
@@ -78,7 +80,7 @@ export default function LeaguePage() {
     const completedIds = useMemo(() => new Set(completedMatches.filter(m => isLeagueMatchId(m.id) && (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId)).map(m => m.id)), [completedMatches, playerTeamId])
     const outcome = useMemo(() => (playerTeamId ? previousSplitOutcome(league, playerTeamId) : null), [league, playerTeamId])
 
-    if (!hydrated || (isLoading && !playerTeamId)) return <LoadingState message="Loading the league…" size="lg" className="min-h-[50vh]" />
+    if (!hydrated || (isLoading && !playerTeamId)) return <LoadingState message={t("lgp.loading")} size="lg" className="min-h-[50vh]" />
 
     const playerTeam = playerTeamId ? teamsById.get(playerTeamId) : undefined
     const season = Math.floor((Math.max(1, currentWeek) - 1) / 52) + 1
@@ -86,11 +88,11 @@ export default function LeaguePage() {
     if (!split || !viewed) {
         return (
             <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
-                <ScreenHeader eyebrow={`Season ${season} · Competition`} title="Regional league" subtitle="Every club plays a weekly league in its region, two splits a season." />
+                <ScreenHeader eyebrow={t("lgp.eyebrow", { season })} title={t("common.regionalLeague")} subtitle={t("lgp.subtitle")} />
                 <EmptyState
                     icon={ListOrdered}
-                    title="No league split drawn yet"
-                    description={`Clubs are drawn into divisions of about ten at the start of each split (season weeks ${LEAGUE_TUNING.SPLITS.map(s => s.drawWeek).join(" and ")}). Top ${LEAGUE_TUNING.PROMOTED} go up, bottom ${LEAGUE_TUNING.RELEGATED} go down.`}
+                    title={t("lgp.noSplit")}
+                    description={t("lgp.noSplitBody", { a: LEAGUE_TUNING.SPLITS[0].drawWeek, b: LEAGUE_TUNING.SPLITS[1]?.drawWeek ?? LEAGUE_TUNING.SPLITS[0].drawWeek, up: LEAGUE_TUNING.PROMOTED, down: LEAGUE_TUNING.RELEGATED })}
                 />
             </div>
         )
@@ -112,11 +114,11 @@ export default function LeaguePage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
             <ScreenHeader
-                eyebrow={`Season ${split.season} · ${own ? splitProgressLabel(split, own) : `Split ${split.split}`}`}
-                title={own?.name ?? "Regional league"}
+                eyebrow={`${t("lgp.season", { n: split.season })} · ${own ? splitProgressLabel(split, own) : t("league.split", { n: split.split })}`}
+                title={own ? divisionName(own.name) : t("common.regionalLeague")}
                 subtitle={own
-                    ? [splitWeeksLabel(split), own.format === "DOUBLE" ? "home and away" : "single round robin", ...zoneRules(own.level, ownBottom)].join(" · ")
-                    : "Your club is not in this split's draw; it joins at the next one."}
+                    ? [splitWeeksLabel(split), own.format === "DOUBLE" ? t("lgp.double") : t("lgp.single"), ...zoneRules(own.level, ownBottom)].join(" · ")
+                    : t("lgp.notInDraw")}
                 leading={playerTeam && (
                     <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-line bg-panel">
                         <TeamLogoDisplay team={playerTeam} size={52} />
@@ -125,15 +127,15 @@ export default function LeaguePage() {
                 aside={me && own && (
                     <KpiStrip>
                         <Kpi
-                            label="Position"
-                            value={started ? <>{ordinal(me.position)}<span className="text-ink-3">/{own.standings.length}</span></> : "—"}
+                            label={t("lgp.position")}
+                            value={started ? <>{ordinalLabel(me.position)}<span className="text-ink-3">/{own.standings.length}</span></> : "—"}
                             hint={started
                                 ? situation && <span className={TONE_TEXT[situation.tone]}>{situation.text}</span>
-                                : `Seeded ${ordinal(me.position)} of ${own.standings.length}`}
+                                : t("lgp.seeded", { position: ordinalLabel(me.position), size: own.standings.length })}
                         />
-                        <Kpi label="Points" value={me.points} hint={`${me.wins}W–${me.losses}L · ${me.played} played`} />
-                        <Kpi label="Round diff" value={signed(me.roundDiff)} />
-                        <Kpi label="League pay" value={formatCurrency(leagueCentralPayment(own.level), "$", true)} hint="per week at this level" />
+                        <Kpi label={t("leagueCard.points")} value={me.points} hint={t("lgp.recordPlayed", { w: me.wins, l: me.losses, n: me.played })} />
+                        <Kpi label={t("leagueCard.roundDiff")} value={signed(me.roundDiff)} />
+                        <Kpi label={t("lgp.pay")} value={formatCurrency(leagueCentralPayment(own.level), "$", true)} hint={t("lgp.payHint")} />
                     </KpiStrip>
                 )}
             />
@@ -143,15 +145,15 @@ export default function LeaguePage() {
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
                 <div className="min-w-0 space-y-4">
                     <Panel
-                        eyebrow={viewingOwn ? "Your division" : undefined}
-                        title={viewed.name}
+                        eyebrow={viewingOwn ? t("lgp.yourDivision") : undefined}
+                        title={divisionName(viewed.name)}
                         actions={
                             <>
                                 <span className="text-xs tabular-nums text-ink-3">
-                                    {splitProgressLabel(split, viewed)} · {viewed.standings.length} clubs · {viewed.format === "DOUBLE" ? "home and away" : "single round robin"}
+                                    {splitProgressLabel(split, viewed)} · {tn("lgp.clubs", viewed.standings.length)} · {viewed.format === "DOUBLE" ? t("lgp.double") : t("lgp.single")}
                                 </span>
                                 {!viewingOwn && own && (
-                                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={() => select(own.id)}>My division</Button>
+                                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={() => select(own.id)}>{t("lgp.myDivision")}</Button>
                                 )}
                             </>
                         }
@@ -161,7 +163,7 @@ export default function LeaguePage() {
                         <LeagueTable division={viewed} bottomLevel={bottomLevelOf(split, viewed.region)} teamsById={teamsById} playerTeamId={playerTeamId} />
                     </Panel>
                     {split.completed && (
-                        <p className="text-sm text-ink-3">Split {split.split} is over; these are the final tables. {nextDrawLabel(split)}.</p>
+                        <p className="text-sm text-ink-3">{t("lgp.splitOver", { n: split.split, next: nextDrawLabel(split) })}</p>
                     )}
                 </div>
 
@@ -177,43 +179,43 @@ export default function LeaguePage() {
                         />
                     )}
 
-                    <Panel title="Last split">
+                    <Panel title={t("lgp.lastSplit")}>
                         {outcome ? (
                             <div className="space-y-2">
                                 <p className="text-sm text-ink-1">{splitOutcomeText(outcome)}</p>
                                 <p className="flex flex-wrap items-center gap-2 text-xs text-ink-3">
-                                    <span>Season {outcome.season}, split {outcome.split}</span>
+                                    <span>{t("lgp.seasonSplit", { season: outcome.season, split: outcome.split })}</span>
                                     {outcome.fate !== "stayed" && (
                                         <span className={cn("rounded-sm px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em]", outcome.fate === "promoted" ? "bg-positive/15 text-positive" : "bg-negative/15 text-negative")}>
-                                            {outcome.fate === "promoted" ? "Promoted" : "Relegated"}
+                                            {outcome.fate === "promoted" ? t("lgp.promoted") : t("lgp.relegated")}
                                         </span>
                                     )}
-                                    {outcome.champion && <span className="rounded-sm border border-gold/50 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">Champions</span>}
+                                    {outcome.champion && <span className="rounded-sm border border-gold/50 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-gold">{t("lgp.champions")}</span>}
                                 </p>
                             </div>
                         ) : (
-                            <p className="text-sm text-ink-3">This is your first split. Divisions were seeded from the world ranking; from now on the tables decide.</p>
+                            <p className="text-sm text-ink-3">{t("lgp.firstSplit")}</p>
                         )}
                     </Panel>
 
                     {own && pool !== undefined && (
-                        <Panel title="League money" padded={false}>
+                        <Panel title={t("lgp.money")} padded={false}>
                             <dl className="divide-y divide-line text-sm">
                                 <div className="flex items-center justify-between gap-3 px-4 py-2.5">
-                                    <dt className="text-ink-3">Central payment</dt>
-                                    <dd className="tabular-nums text-ink-1">{formatCurrency(leagueCentralPayment(own.level), "$", false)} / week</dd>
+                                    <dt className="text-ink-3">{t("lgp.central")}</dt>
+                                    <dd className="tabular-nums text-ink-1">{t("lgp.perWeek", { amount: formatCurrency(leagueCentralPayment(own.level), "$", false) })}</dd>
                                 </div>
                                 <div className="flex items-center justify-between gap-3 px-4 py-2.5">
-                                    <dt className="text-ink-3">Split prize pool</dt>
+                                    <dt className="text-ink-3">{t("lgp.prizePool")}</dt>
                                     <dd className="tabular-nums text-ink-1">{formatCurrency(pool, "$", false)}</dd>
                                 </div>
                                 <div className="flex items-center justify-between gap-3 px-4 py-2.5">
-                                    <dt className="text-ink-3">Prize at {me && started ? ordinal(me.position) : "your place"} now</dt>
-                                    <dd className={cn("tabular-nums", prizeNow > 0 ? "text-ink-1" : "text-ink-3")}>{prizeNow > 0 ? formatCurrency(prizeNow, "$", false) : started ? "None" : "—"}</dd>
+                                    <dt className="text-ink-3">{me && started ? t("lgp.prizeAt", { position: ordinalLabel(me.position) }) : t("lgp.prizeAtYours")}</dt>
+                                    <dd className={cn("tabular-nums", prizeNow > 0 ? "text-ink-1" : "text-ink-3")}>{prizeNow > 0 ? formatCurrency(prizeNow, "$", false) : started ? t("lgp.none") : "—"}</dd>
                                 </div>
                             </dl>
                             <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">
-                                Paid when the split ends: {shares.map((s, i) => `${ordinal(i + 1)} ${Math.round(s * 100)}%`).join(", ")}. Promotion raises the weekly payment.
+                                {t("lgp.paidWhen", { shares: shares.map((s, i) => t("lgp.share", { position: ordinalLabel(i + 1), pct: Math.round(s * 100) })).join(", ") })}
                             </p>
                         </Panel>
                     )}

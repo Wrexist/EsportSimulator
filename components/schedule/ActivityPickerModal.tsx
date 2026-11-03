@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import React from "react"
 import { ChevronRight, Swords, Plane, Briefcase, Megaphone } from "lucide-react"
@@ -15,11 +16,11 @@ interface ActivityPickerModalProps {
     onSelectType: (type: ActivityKind) => void
 }
 
-const OPTIONS: { type: ActivityKind; title: string; detail: string; icon: typeof Swords }[] = [
-    { type: "SCRIM", title: "Scrim", detail: "Practice match against another club on this day.", icon: Swords },
-    { type: "BOOTCAMP", title: "Bootcamp", detail: "1–4 weeks away: XP, morale and fatigue every week, paid up front.", icon: Plane },
-    { type: "MEETING", title: "Staff meeting", detail: "One-day session for morale, XP or chemistry.", icon: Briefcase },
-    { type: "MARKETING", title: "Marketing campaign", detail: "Paid campaign that adds followers each week it runs.", icon: Megaphone },
+const OPTIONS: { type: ActivityKind; icon: typeof Swords }[] = [
+    { type: "SCRIM", icon: Swords },
+    { type: "BOOTCAMP", icon: Plane },
+    { type: "MEETING", icon: Briefcase },
+    { type: "MARKETING", icon: Megaphone },
 ]
 
 export function ActivityPickerModal({ isOpen, onClose, week, dayLabel, onSelectType }: ActivityPickerModalProps) {
@@ -33,11 +34,11 @@ export function ActivityPickerModal({ isOpen, onClose, week, dayLabel, onSelectT
             isOpen={isOpen}
             onClose={onClose}
             titleId="modal-title-activity-picker"
-            title="Book activity"
-            subtitle={dayLabel ? `Week ${week} · ${dayLabel}` : `Week ${week}`}
+            title={t("sch.bookActivity")}
+            subtitle={dayLabel ? `${t("common.week", { n: week })} · ${dayLabel}` : t("common.week", { n: week })}
         >
             <ul className="divide-y divide-line">
-                {OPTIONS.map(({ type, title, detail, icon: Icon }) => (
+                {OPTIONS.map(({ type, icon: Icon }) => (
                     <li key={type}>
                         <button
                             type="button"
@@ -48,8 +49,8 @@ export function ActivityPickerModal({ isOpen, onClose, week, dayLabel, onSelectT
                                 <Icon size={17} />
                             </span>
                             <span className="min-w-0 flex-1">
-                                <span className="block text-sm font-semibold text-ink-1">{title}</span>
-                                <span className="block text-xs text-ink-3">{detail}</span>
+                                <span className="block text-sm font-semibold text-ink-1">{t(`sch.pick.${type}`)}</span>
+                                <span className="block text-xs text-ink-3">{t(`sch.pick.${type}.desc`)}</span>
                             </span>
                             <ChevronRight size={16} className="shrink-0 text-ink-3" />
                         </button>

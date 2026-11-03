@@ -1,4 +1,6 @@
 "use client"
+import { eventFormatName, eventRegionName, stageName } from "@/lib/display-names"
+import { t, tn } from "@/lib/i18n"
 
 import React, { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
@@ -28,14 +30,12 @@ interface TournamentDetailsModalProps {
 
 type Tab = "overview" | "matches" | "standings" | "bracket"
 
-const TIER_LABEL: Record<string, string> = { S_TIER: "S-tier", A_TIER: "A-tier", B_TIER: "B-tier", C_TIER: "C-tier" }
-
-const STATUS_COPY: Record<NonNullable<TournamentDetailsModalProps["status"]>, { label: string; detail: string; className: string }> = {
-    QUALIFIED: { label: "Qualified", detail: "Your team plays in this event.", className: "text-positive" },
-    REGISTERED: { label: "Registered", detail: "Your team is entered in this event.", className: "text-positive" },
-    INVITED: { label: "Invited", detail: "Accept the invite to take part.", className: "text-gold" },
-    PENDING: { label: "Pending", detail: "Your entry has not been confirmed yet.", className: "text-ink-2" },
-    ELIMINATED: { label: "Eliminated", detail: "Your team is out of this event.", className: "text-ink-3" },
+const STATUS_CLASS: Record<NonNullable<TournamentDetailsModalProps["status"]>, string> = {
+    QUALIFIED: "text-positive",
+    REGISTERED: "text-positive",
+    INVITED: "text-gold",
+    PENDING: "text-ink-2",
+    ELIMINATED: "text-ink-3",
 }
 
 /** Playoff stage → bracket round name. */
@@ -101,7 +101,7 @@ export function TournamentDetailsModal({
         : []
 
     const endWeek = tournament.startWeek + Math.max(1, tournament.duration) - 1
-    const statusCopy = status ? STATUS_COPY[status] : null
+    const statusCopy = status ? { label: t(`sch.td.${status}`), detail: t(`sch.td.${status}.detail`), className: STATUS_CLASS[status] } : null
 
     return (
         <ScheduleDialog
@@ -109,19 +109,19 @@ export function TournamentDetailsModal({
             onClose={onClose}
             titleId="modal-title-tournament-details"
             title={getDynamicTournamentName(tournament.name, currentWeek)}
-            subtitle={`${TIER_LABEL[tournament.tier] ?? tournament.tier} · ${getEntryTypeLabel(tournament.entryType)} · Weeks ${tournament.startWeek}–${endWeek} · ${formatPrizePool(tournament.prizePool)} prize pool`}
-            closeLabel="Close tournament details"
+            subtitle={`${t(`common.tier.${tournament.tier}`)} · ${getEntryTypeLabel(tournament.entryType)} · ${t("tm.weekRange", { from: tournament.startWeek, to: endWeek })} · ${t("sch.td.prizePool", { amount: formatPrizePool(tournament.prizePool) })}`}
+            closeLabel={t("sch.td.close")}
             className={activeTab === "bracket" ? "max-w-[90vw]" : "max-w-3xl"}
         >
             <div className="sticky top-0 z-10 border-b border-line bg-panel px-6">
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as Tab)}>
-                    <TabsList aria-label="Tournament sections" className="border-b-0!">
-                        <TabsTrigger value="standings">Standings</TabsTrigger>
+                    <TabsList aria-label={t("sch.td.sections")} className="border-b-0!">
+                        <TabsTrigger value="standings">{t("tm.tab.standings")}</TabsTrigger>
                         <TabsTrigger value="matches">
-                            Matches {tournamentMatches.length > 0 && <span className="tabular-nums text-ink-3">{tournamentMatches.length}</span>}
+                            {t("sch.td.matches")} {tournamentMatches.length > 0 && <span className="tabular-nums text-ink-3">{tournamentMatches.length}</span>}
                         </TabsTrigger>
-                        <TabsTrigger value="bracket">Bracket</TabsTrigger>
-                        <TabsTrigger value="overview">Overview</TabsTrigger>
+                        <TabsTrigger value="bracket">{t("tm.tab.bracket")}</TabsTrigger>
+                        <TabsTrigger value="overview">{t("tm.tab.overview")}</TabsTrigger>
                     </TabsList>
                 </Tabs>
             </div>
@@ -137,7 +137,7 @@ export function TournamentDetailsModal({
                                 </div>
                                 {status === "INVITED" && (
                                     <Button size="sm" onClick={() => { registerForTournament(tournament.id); onClose() }}>
-                                        Accept invite
+                                        {t("sch.td.accept")}
                                     </Button>
                                 )}
                             </div>
@@ -145,16 +145,16 @@ export function TournamentDetailsModal({
 
                         <dl className="grid grid-cols-2 gap-x-8 text-sm">
                             {[
-                                ["Start", `Week ${tournament.startWeek}`],
-                                ["Region", tournament.region],
-                                ["Duration", `${tournament.duration} week${tournament.duration === 1 ? "" : "s"}`],
-                                ["Teams", tournament.slots],
-                                ["Format", tournament.format.replace(/_/g, " ").toLowerCase()],
-                                ["Invites", tournament.inviteSlots || 0],
+                                [t("tm.col.starts"), t("common.week", { n: tournament.startWeek })],
+                                [t("tm.region"), eventRegionName(tournament.region)],
+                                [t("sch.duration"), tn("tm.eventLength", tournament.duration)],
+                                [t("tm.col.teams"), tournament.slots],
+                                [t("tm.format"), eventFormatName(tournament.format, true)],
+                                [t("sch.td.invites"), tournament.inviteSlots || 0],
                             ].map(([label, value]) => (
                                 <div key={label as string} className="flex justify-between border-b border-line py-2">
                                     <dt className="text-ink-3">{label}</dt>
-                                    <dd className="font-semibold capitalize tabular-nums text-ink-1">{value}</dd>
+                                    <dd className="font-semibold tabular-nums text-ink-1">{value}</dd>
                                 </div>
                             ))}
                         </dl>
@@ -207,7 +207,7 @@ export function TournamentDetailsModal({
                                 rounds={Array.from(new Set(seasonalTournament.playoffBracket.map(m => roundName(m.stage))))}
                             />
                         ) : (
-                            <p className="p-6 text-sm text-ink-3">The bracket is drawn when the qualification stage ends or the event starts.</p>
+                            <p className="p-6 text-sm text-ink-3">{t("sch.td.noBracket")}</p>
                         )}
                     </div>
                 ) : (
@@ -220,12 +220,12 @@ export function TournamentDetailsModal({
                                     teams={teams}
                                     playerTeamId={playerTeamId || ""}
                                     isScrim={match.isScrim}
-                                    tournamentName={`Week ${match.week}${match.stage ? ` · ${match.stage}` : ""}`}
+                                    tournamentName={`${t("common.week", { n: match.week })}${match.stage ? ` · ${stageName(match.stage)}` : ""}`}
                                 />
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-ink-3">Matches are generated when the event starts.</p>
+                        <p className="text-sm text-ink-3">{t("sch.td.noMatches")}</p>
                     )
                 )}
             </div>

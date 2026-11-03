@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import React, { useState, useMemo, useEffect } from "react"
 import { useGameStore } from "@/store/game-store"
@@ -22,7 +23,7 @@ interface BookScrimModalProps {
     initialDay?: number
 }
 
-const TIER_LABEL: Record<TierLevel, string> = { ELITE: "Elite", PRO: "Pro", SEMI_PRO: "Semi-pro", AMATEUR: "Amateur" }
+const tierLabel = (tier: TierLevel) => t(`rk.teamTier.${tier}`)
 
 export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookScrimModalProps) {
     const { teams, playerTeamId, players, scheduleScrim, currentWeek, currentDay, timeMode, gameStartDate } = useGameStore(useShallow(state => ({
@@ -92,7 +93,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
         const opponent = teams.find(t => t.id === selectedTeamId)
         const result = scheduleScrim(selectedTeamId, week, selectedDay) as unknown as { success: boolean, message: string }
         if (result.success) {
-            toast.success(`Scrim booked vs ${opponent?.name || "opponent"}`)
+            toast.success(t("sch.scrim.booked", { team: opponent?.name || t("sx.col.opponent") }))
             onClose()
         } else {
             setError(result.message)
@@ -104,22 +105,22 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
             isOpen={isOpen}
             onClose={onClose}
             titleId="modal-title-book-scrim"
-            title="Book scrim"
-            subtitle={`Week ${week} · practice match`}
+            title={t("sch.scrim.title")}
+            subtitle={t("sch.scrim.subtitle", { week })}
             className="max-w-2xl"
             footer={
                 <>
                     {error && <p role="alert" className="mr-auto text-xs font-medium text-negative">{error}</p>}
-                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button variant="ghost" onClick={onClose}>{t("sch.cancel")}</Button>
                     <Button onClick={handleBook} disabled={!selectedTeamId || !!selectedDayInfo?.closed}>
-                        Book for {selectedDayInfo ? `${selectedDayInfo.weekday}, ${selectedDayInfo.date}` : "this day"}
+                        {t("sch.scrim.bookFor", { day: selectedDayInfo ? `${selectedDayInfo.weekday}, ${selectedDayInfo.date}` : t("sch.scrim.thisDay") })}
                     </Button>
                 </>
             }
         >
             <div className="border-b border-line px-6 py-4">
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Day</p>
-                <div className="grid grid-cols-7 gap-1.5" role="radiogroup" aria-label="Day">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("sch.scrim.day")}</p>
+                <div className="grid grid-cols-7 gap-1.5" role="radiogroup" aria-label={t("sch.scrim.day")}>
                     {days.map(d => (
                         <button
                             key={d.idx}
@@ -145,8 +146,8 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
                     <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" size={15} />
                     <Input
                         type="text"
-                        placeholder="Search clubs"
-                        aria-label="Search clubs"
+                        placeholder={t("sch.scrim.search")}
+                        aria-label={t("sch.scrim.search")}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="h-9 pl-9 text-sm"
@@ -156,9 +157,9 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
 
             <div className="max-h-[340px] overflow-y-auto px-3 py-3">
                 {opponents.length === 0 ? (
-                    <p className="px-3 py-4 text-sm text-ink-3">No clubs match “{searchTerm}”.</p>
+                    <p className="px-3 py-4 text-sm text-ink-3">{t("sch.scrim.noMatch", { q: searchTerm })}</p>
                 ) : (
-                    <ul aria-label="Opponents">
+                    <ul aria-label={t("sch.scrim.opponents")}>
                         {opponents.map(team => {
                             const isSelected = selectedTeamId === team.id
                             return (
@@ -175,7 +176,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
                                         <TeamLogoDisplay team={team} size={28} />
                                         <span className={cn("min-w-0 flex-1 truncate text-sm font-semibold", isSelected ? "text-gold" : "text-ink-1")}>{team.name}</span>
                                         <span className="w-16 text-xs text-ink-3">#{team.worldRanking || "—"}</span>
-                                        <span className="w-20 text-xs text-ink-2">{TIER_LABEL[calculateTeamTier(team.worldRanking || 100)]}</span>
+                                        <span className="w-20 text-xs text-ink-2">{tierLabel(calculateTeamTier(team.worldRanking || 100))}</span>
                                         <RatingChip value={teamAvgRatings.get(team.id) || 0} size="sm" />
                                     </button>
                                 </li>

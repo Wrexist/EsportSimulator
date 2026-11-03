@@ -1,4 +1,5 @@
 "use client"
+import { t, tn } from "@/lib/i18n"
 
 import React, { useState } from "react"
 import { useGameStore } from "@/store/game-store"
@@ -26,6 +27,7 @@ const BOOTCAMP_OPTIONS = {
     LOCAL: {
         name: "Local Bootcamp",
         description: "Intensive training at a specialized local facility.",
+        key: "LOCAL",
         costPerWeek: 5000,
         icon: Dumbbell,
         activity: "BOOTCAMP",
@@ -34,6 +36,7 @@ const BOOTCAMP_OPTIONS = {
     INTERNATIONAL: {
         name: "International Bootcamp",
         description: "Travel abroad to practice against strong opposition.",
+        key: "INTERNATIONAL",
         costPerWeek: 15000,
         icon: Plane,
         activity: "TRAVEL",
@@ -42,6 +45,7 @@ const BOOTCAMP_OPTIONS = {
     RETREAT: {
         name: "Team Building Retreat",
         description: "Rest and recovery away from the server room.",
+        key: "RETREAT",
         costPerWeek: 8000,
         icon: Sparkles,
         activity: "REST",
@@ -54,11 +58,11 @@ const signed = (n: number) => (n > 0 ? `+${n}` : `${n}`)
 /** Real per-week effects plus the start-week chemistry bonus. */
 function effectList(option: typeof BOOTCAMP_OPTIONS[BootcampType]) {
     const out: { label: string; good: boolean }[] = []
-    if (option.perWeek.xp > 0) out.push({ label: `${signed(option.perWeek.xp)} XP / wk`, good: true })
-    out.push({ label: `${signed(option.perWeek.morale)} morale / wk`, good: option.perWeek.morale > 0 })
-    out.push({ label: `${signed(option.perWeek.fatigue)} fatigue / wk`, good: option.perWeek.fatigue < 0 })
+    if (option.perWeek.xp > 0) out.push({ label: t("sch.fx.xp", { n: signed(option.perWeek.xp) }), good: true })
+    out.push({ label: t("sch.fx.morale", { n: signed(option.perWeek.morale) }), good: option.perWeek.morale > 0 })
+    out.push({ label: t("sch.fx.fatigue", { n: signed(option.perWeek.fatigue) }), good: option.perWeek.fatigue < 0 })
     const chem = BOOTCAMP_CHEMISTRY_BONUS[option.activity] ?? 0
-    if (chem > 0) out.push({ label: `+${chem} chemistry`, good: true })
+    if (chem > 0) out.push({ label: t("sch.fx.chemistry", { n: chem }), good: true })
     return out
 }
 
@@ -93,7 +97,7 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
         }) as unknown as { success: boolean, message: string }
 
         if (result.success) {
-            toast.success(`${selectedOption.name} booked for ${duration} week${duration > 1 ? "s" : ""}`)
+            toast.success(tn("sch.boot.booked", duration, { name: t(`sch.boot.${selectedOption.key}`) }))
             onClose()
         } else {
             setError(result.message)
@@ -105,18 +109,18 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
             isOpen={isOpen}
             onClose={onClose}
             titleId="modal-title-book-bootcamp"
-            title="Book bootcamp"
-            subtitle={`Starts week ${week} · effects apply to every roster player each week`}
+            title={t("sch.boot.title")}
+            subtitle={t("sch.boot.subtitle", { week })}
             className="max-w-2xl"
             footer={
                 <>
                     {(error || !affordable) && (
                         <p role="alert" className="mr-auto text-xs font-medium text-negative">
-                            {error ?? `Not enough funds: ${formatCurrency(totalCost - budget, "$", false)} short.`}
+                            {error ?? t("sch.short", { amount: formatCurrency(totalCost - budget, "$", false) })}
                         </p>
                     )}
-                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleConfirm} disabled={!affordable}>Book for {formatCurrency(totalCost, "$", false)}</Button>
+                    <Button variant="ghost" onClick={onClose}>{t("sch.cancel")}</Button>
+                    <Button onClick={handleConfirm} disabled={!affordable}>{t("sch.bookFor", { amount: formatCurrency(totalCost, "$", false) })}</Button>
                 </>
             }
         >
@@ -138,10 +142,10 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-raised text-ink-2"><Icon size={17} /></span>
                                 <span className="min-w-0 flex-1">
                                     <span className="flex items-baseline justify-between gap-3">
-                                        <span className="text-sm font-semibold text-ink-1">{option.name}</span>
-                                        <span className="shrink-0 text-xs tabular-nums text-ink-2">{formatCurrency(option.costPerWeek, "$", false)} / wk</span>
+                                        <span className="text-sm font-semibold text-ink-1">{t(`sch.boot.${option.key}`)}</span>
+                                        <span className="shrink-0 text-xs tabular-nums text-ink-2">{t("sch.perWeek", { amount: formatCurrency(option.costPerWeek, "$", false) })}</span>
                                     </span>
-                                    <span className="block text-xs text-ink-3">{option.description}</span>
+                                    <span className="block text-xs text-ink-3">{t(`sch.boot.${option.key}.desc`)}</span>
                                     <span className="mt-1 block text-xs">
                                         {effectList(option).map((fx, i) => (
                                             <span key={fx.label}>
@@ -159,8 +163,8 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
 
             <div className="grid grid-cols-1 gap-6 border-t border-line px-6 py-5 sm:grid-cols-2">
                 <div>
-                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Duration</p>
-                    <div className="grid grid-cols-4 gap-1.5" role="radiogroup" aria-label="Duration in weeks">
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("sch.duration")}</p>
+                    <div className="grid grid-cols-4 gap-1.5" role="radiogroup" aria-label={t("sch.durationAria")}>
                         {[1, 2, 3, 4].map(w => (
                             <button
                                 key={w}
@@ -173,16 +177,16 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
                                     duration === w ? "border-gold bg-hover text-ink-1" : "border-line bg-shell text-ink-2 hover:bg-raised",
                                 )}
                             >
-                                {w}w
+                                {t("common.weeksShort", { count: w })}
                             </button>
                         ))}
                     </div>
-                    {selectedType === "LOCAL" && <p className="mt-2 text-xs text-ink-3">Refused if the squad&apos;s average fatigue is above 80.</p>}
+                    {selectedType === "LOCAL" && <p className="mt-2 text-xs text-ink-3">{t("sch.boot.fatigueRule")}</p>}
                 </div>
                 <dl className="divide-y divide-line rounded-md border border-line text-sm">
-                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Weekly cost</dt><dd className="tabular-nums text-ink-1">{formatCurrency(selectedOption.costPerWeek, "$", false)}</dd></div>
-                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Weeks</dt><dd className="tabular-nums text-ink-1">{duration}</dd></div>
-                    <div className="flex justify-between px-3 py-2"><dt className="font-semibold text-ink-2">Paid when booked</dt><dd className={cn("font-semibold tabular-nums", affordable ? "text-ink-1" : "text-negative")}>{formatCurrency(totalCost, "$", false)}</dd></div>
+                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("sch.weeklyCost")}</dt><dd className="tabular-nums text-ink-1">{formatCurrency(selectedOption.costPerWeek, "$", false)}</dd></div>
+                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("sch.weeks")}</dt><dd className="tabular-nums text-ink-1">{duration}</dd></div>
+                    <div className="flex justify-between px-3 py-2"><dt className="font-semibold text-ink-2">{t("sch.paidNow")}</dt><dd className={cn("font-semibold tabular-nums", affordable ? "text-ink-1" : "text-negative")}>{formatCurrency(totalCost, "$", false)}</dd></div>
                 </dl>
             </div>
         </ScheduleDialog>

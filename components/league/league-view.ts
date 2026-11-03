@@ -16,12 +16,13 @@ import type {
 import { isLeagueMatchId, weekOfSeason } from "@/engine/season/regional-league"
 import { LEAGUE_TUNING } from "@/lib/balance-tuning"
 import { ordinalLabel, t, tn } from "@/lib/i18n"
-import { divisionLevelName, divisionName, stageName } from "@/lib/display-names"
+import { divisionLevelName, divisionName, regionName as displayRegionName, stageName } from "@/lib/display-names"
 
 export const LEAGUE_REGIONS: LeagueRegion[] = ["EUROPE", "CIS", "AMERICAS", "ASIA_PACIFIC"]
 
+/** A league region's name in the active language. */
 export function regionName(region: LeagueRegion): string {
-    return LEAGUE_TUNING.REGION_NAMES[region] ?? region
+    return displayRegionName(region)
 }
 
 // ---------------------------------------------------------------- labels

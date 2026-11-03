@@ -1,4 +1,5 @@
 "use client"
+import { intlLocale, t } from "@/lib/i18n"
 
 import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
@@ -19,8 +20,8 @@ interface Finding {
     rating?: number
 }
 
-const pct = (fraction: number) => `${fraction > 0 ? "+" : ""}${Math.round(fraction * 100)}%`
-const pts = (v: number) => `${v > 0 ? "+" : ""}${v.toFixed(1)}`
+const pct = (fraction: number) => `${fraction > 0 ? "+" : ""}${Math.round(fraction * 100)}`
+const pts = (v: number) => `${v > 0 ? "+" : ""}${v.toLocaleString(intlLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`
 
 /**
  * Pre-match read on the opponent. Only reports what the match engine
@@ -38,8 +39,8 @@ function deriveFindings(opponent: TeamSaveData, roster: PlayerSaveData[]): Findi
     const rated = active.map(p => ({ player: p, ovr: evaluatePlayer(p).overallRating })).sort((a, b) => b.ovr - a.ovr)
     if (rated.length >= 5 && rated[0].ovr - rated[2].ovr >= 12) {
         findings.push({
-            title: `Built around ${rated[0].player.nickname}`,
-            body: `Rated ${rated[0].ovr}, ${rated[0].ovr - rated[2].ovr} above the middle of the lineup.`,
+            title: t("sch.sc.star", { name: rated[0].player.nickname }),
+            body: t("sch.sc.starBody", { ovr: rated[0].ovr, gap: rated[0].ovr - rated[2].ovr }),
         })
     }
 
@@ -48,7 +49,7 @@ function deriveFindings(opponent: TeamSaveData, roster: PlayerSaveData[]): Findi
     if (chemistry !== null) {
         const effect = ((Math.max(0, Math.min(100, chemistry)) - 50) / 50) * CHEMISTRY_EDGE_RANGE
         if (Math.abs(effect) >= 0.02) {
-            findings.push({ title: `Chemistry ${Math.round(chemistry)}`, body: effect > 0 ? "A settled lineup." : "The lineup has not gelled yet.", effect })
+            findings.push({ title: t("sch.sc.chem", { n: Math.round(chemistry) }), body: effect > 0 ? t("sch.sc.chemUp") : t("sch.sc.chemDown"), effect })
         }
     }
 
@@ -57,20 +58,20 @@ function deriveFindings(opponent: TeamSaveData, roster: PlayerSaveData[]): Findi
     const neutral = { form: 55, energy: 100, fatigue: 0 }
     const moraleRating = conditionPoints({ ...neutral, morale: avgMorale })
     if (Math.abs(moraleRating) >= 0.7) {
-        findings.push({ title: `Morale ${Math.round(avgMorale)}`, body: moraleRating > 0 ? "Confident going in." : "Low confidence.", rating: moraleRating })
+        findings.push({ title: t("sch.sc.morale", { n: Math.round(avgMorale) }), body: moraleRating > 0 ? t("sch.sc.moraleUp") : t("sch.sc.moraleDown"), rating: moraleRating })
     }
 
     // Fatigue (condition).
     const avgFatigue = active.reduce((s, p) => s + (p.fatigue ?? 0), 0) / active.length
     const fatigueRating = conditionPoints({ ...neutral, morale: 65, fatigue: avgFatigue })
     if (fatigueRating <= -1) {
-        findings.push({ title: `Fatigue ${Math.round(avgFatigue)}`, body: "Tired legs.", rating: fatigueRating })
+        findings.push({ title: t("sch.sc.fatigue", { n: Math.round(avgFatigue) }), body: t("sch.sc.fatigueBody"), rating: fatigueRating })
     }
 
     // Role coverage: -4% team strength per role missing from the five.
     const missing = missingRoles(active)
     if (missing >= 2) {
-        findings.push({ title: `${5 - missing} of 5 roles`, body: "Overlapping roles in the starting five.", effect: -missing * ROLE_MISSING_EDGE })
+        findings.push({ title: t("sch.sc.roles", { n: 5 - missing }), body: t("sch.sc.rolesBody"), effect: -missing * ROLE_MISSING_EDGE })
     }
 
     return findings.slice(0, 4)
@@ -81,9 +82,9 @@ export function ScoutingReport({ opponent, opponentRoster }: ScoutingReportProps
 
     return (
         <section aria-labelledby="scouting-report-title">
-            <p id="scouting-report-title" className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Opponent read</p>
+            <p id="scouting-report-title" className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("sch.sc.title")}</p>
             {findings.length === 0 ? (
-                <p className="text-sm text-ink-3">Nothing stands out: no star dependency, and chemistry, morale and fatigue are near neutral.</p>
+                <p className="text-sm text-ink-3">{t("sch.sc.none")}</p>
             ) : (
                 <ul className="divide-y divide-line rounded-md border border-line">
                     {findings.map(f => (
@@ -93,10 +94,10 @@ export function ScoutingReport({ opponent, opponentRoster }: ScoutingReportProps
                                 <span className="ml-2 text-xs text-ink-3">{f.body}</span>
                             </span>
                             {f.effect !== undefined && (
-                                <span className="shrink-0 text-xs font-semibold tabular-nums text-ink-2" title="Effect on their team strength">{pct(f.effect)} strength</span>
+                                <span className="shrink-0 text-xs font-semibold tabular-nums text-ink-2" title={t("sch.sc.strengthTip")}>{t("sch.sc.strength", { n: pct(f.effect) })}</span>
                             )}
                             {f.rating !== undefined && (
-                                <span className="shrink-0 text-xs font-semibold tabular-nums text-ink-2" title="Effect on each of their duels (rating points; 30 points is a 73/27 duel)">{pts(f.rating)} duel rating</span>
+                                <span className="shrink-0 text-xs font-semibold tabular-nums text-ink-2" title={t("sch.sc.duelTip")}>{t("sch.sc.duel", { n: pts(f.rating) })}</span>
                             )}
                         </li>
                     ))}

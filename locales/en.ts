@@ -23,6 +23,7 @@ import { TRAINING } from "./en/training"
 import { STAFF } from "./en/staff"
 import { CLUB } from "./en/club"
 import { TOURNAMENTS } from "./en/tournaments"
+import { SCHEDULE } from "./en/schedule"
 
 export const EN = {
     // Navigation: top-bar hubs and their tabs (lib/navigation.ts)
@@ -113,7 +114,7 @@ export const EN = {
     ...MARKET,
     ...NEWGAME,
     ...ACADEMY,
-    ...TRAINING, ...STAFF, ...CLUB, ...TOURNAMENTS,
+    ...TRAINING, ...STAFF, ...CLUB, ...TOURNAMENTS, ...SCHEDULE,
 } as const
 
 export type TranslationKey = keyof typeof EN
