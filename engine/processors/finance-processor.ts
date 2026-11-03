@@ -340,7 +340,7 @@ export class FinanceProcessor {
                 const team = save.teams.find(t => t.id === member.teamId)
                 if (team) team.staffIds = team.staffIds.filter(id => id !== member.id)
                 save.marketStaff ??= []
-                if (!save.marketStaff.some(s => s.id === member.id)) save.marketStaff.push({ ...member, teamId: "", contractEndWeek: undefined, yearsRemaining: 0 })
+                if (!save.marketStaff.some(s => s.id === member.id)) save.marketStaff.push({ ...member, teamId: "", contractEndWeek: undefined, yearsRemaining: 0, releasedWeek: save.currentWeek })
             }
         }
         save.staff = save.staff.filter(s => s.contractEndWeek === undefined || s.contractEndWeek > save.currentWeek)

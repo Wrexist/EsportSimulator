@@ -2176,7 +2176,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (generation !== careerGeneration || get().saveId !== state.saveId) return
           phaseStart = perfTrace.now()
 
-          // Pre-tick mutations: scouting completion, staff-market rotation,
+          // Pre-tick mutations: scouting completion,
           // staff XP, player XP (engine/processors/pre-tick-mutations.ts).
           // These are applied to the DETACHED snapshot, not committed to the
           // live store up-front: a previous version set() them into the store

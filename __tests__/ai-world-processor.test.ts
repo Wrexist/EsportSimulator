@@ -28,6 +28,8 @@
  */
 
 import { processAIWorldLogic } from "@/engine/processors/ai-world-processor"
+import { FinanceProcessor } from "@/engine/processors/finance-processor"
+import { RELEASED_STAFF_MARKET_WEEKS, StaffGenerator } from "@/engine/staff-generator"
 import { SeededRNG } from "@/engine/rng"
 import type { GameSave, TeamSaveData } from "@/engine/save-types"
 
@@ -239,5 +241,53 @@ describe("processAIWorldLogic — determinism", () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const ids2 = save2.players.map(p => (p as any).id).sort()
         expect(ids1).toEqual(ids2)
+    })
+})
+
+describe("processAIWorldLogic — staff market refresh (ENGINE-03)", () => {
+    function expiringCoach(week: number) {
+        return {
+            id: "staff_veteran_coach", name: "Veteran Coach", role: "coach", level: 4, specialization: "Player Dev",
+            salaryPerWeek: 3000, teamId: "player", yearsRemaining: 0, contractEndWeek: week,
+            xp: 0, xpToNextLevel: 1000, talentPoints: 2, unlockedTalentIds: ["t1"],
+        }
+    }
+
+    test("regression: a staff member whose contract ends in a refresh week is still on the market after the tick", () => {
+        const save = makeSave(8, [makeTeam("player", { staffIds: ["staff_veteran_coach"] })])
+        save.staff = [expiringCoach(8)] as never
+        save.marketStaff = StaffGenerator.generateWeeklyMarket(4, 20, new SeededRNG(4))
+        // Same order as the tick: finance (contract expiry), then the AI world step.
+        FinanceProcessor.processContractExpiry(save, "player")
+        processAIWorldLogic(save, "player", new SeededRNG(1))
+        const listed = save.marketStaff.find(s => s.id === "staff_veteran_coach")
+        expect(listed).toBeDefined()
+        expect(listed).toMatchObject({ level: 4, talentPoints: 2, unlockedTalentIds: ["t1"], teamId: "", releasedWeek: 8 })
+        expect(save.nextMarketRefreshWeek).toBe(12)
+    })
+
+    test("regression: released staff survive refreshes for RELEASED_STAFF_MARKET_WEEKS, then rotate like everyone else", () => {
+        const save = makeSave(8, [makeTeam("player", { staffIds: ["staff_veteran_coach"] })])
+        save.staff = [expiringCoach(8)] as never
+        FinanceProcessor.processContractExpiry(save, "player")
+        for (let week = 12; week < 8 + RELEASED_STAFF_MARKET_WEEKS; week += 4) {
+            save.currentWeek = week
+            processAIWorldLogic(save, "player", new SeededRNG(week))
+            expect(save.marketStaff.some(s => s.id === "staff_veteran_coach")).toBe(true)
+        }
+        // Past the window he is an ordinary listing again (kept at random).
+        expect(StaffGenerator.recentlyReleased(save.marketStaff, 8 + RELEASED_STAFF_MARKET_WEEKS)).toHaveLength(0)
+    })
+
+    test("the refresh rotates the market (keeps some listings) instead of regenerating all of it", () => {
+        const save = makeSave(12, [makeTeam("player")])
+        save.marketStaff = StaffGenerator.generateWeeklyMarket(8, 20, new SeededRNG(8))
+        const before = new Set(save.marketStaff.map(s => s.id))
+        processAIWorldLogic(save, "player", new SeededRNG(3))
+        const kept = save.marketStaff.filter(s => before.has(s.id)).length
+        expect(kept).toBeGreaterThan(0)
+        expect(kept).toBeLessThanOrEqual(10)
+        expect(save.marketStaff.length).toBeGreaterThanOrEqual(20)
+        expect(new Set(save.marketStaff.map(s => s.id)).size).toBe(save.marketStaff.length)
     })
 })

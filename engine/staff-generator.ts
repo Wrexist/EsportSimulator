@@ -4,6 +4,12 @@ import { LEGACY_STAFF_POOL } from "./staff-db"
 import { SeededRNG } from "./rng"
 import { STAFF_SALARY_RANGES } from "../lib/constants"
 
+/** Weeks a staff member released by a club stays on the market through refreshes. */
+export const RELEASED_STAFF_MARKET_WEEKS = 8
+
+const isRecentlyReleased = (s: StaffSaveData, week: number) =>
+    s.releasedWeek !== undefined && week - s.releasedWeek < RELEASED_STAFF_MARKET_WEEKS
+
 export class StaffGenerator {
     private static NAMES = ["Anderson", "Smith", "Zhang", "Popov", "Kovac", "Muller", "Jensen", "Dubois", "Silva"]
     private static NATIONALITIES = ["USA", "UK", "China", "Russia", "Serbia", "Germany", "Denmark", "France", "Brazil"]
@@ -128,13 +134,23 @@ export class StaffGenerator {
         }
     }
 
+    /** Staff released by clubs in the last RELEASED_STAFF_MARKET_WEEKS weeks (kept by every refresh). */
+    static recentlyReleased(currentMarket: StaffSaveData[], week: number): StaffSaveData[] {
+        return currentMarket.filter(s => isRecentlyReleased(s, week))
+    }
+
     /**
-     * Partially rotates the market (keeps some, replaces others)
+     * Partially rotates the market (keeps some, replaces others). Staff
+     * released by clubs stay for RELEASED_STAFF_MARKET_WEEKS on top of that.
      */
     static rotateMarket(currentMarket: StaffSaveData[], week: number, rng?: SeededRNG): StaffSaveData[] {
         const localRng = rng ?? new SeededRNG((((week + 97) * 2654435761) >>> 0))
-        // Keep 50% of existing, but limit to max 10
-        const kept = currentMarket.filter(() => localRng.next() > 0.5).slice(0, 10)
+        const released = this.recentlyReleased(currentMarket, week)
+        // Keep 50% of the rest, but limit to max 10
+        const kept = [
+            ...released,
+            ...currentMarket.filter(s => !isRecentlyReleased(s, week)).filter(() => localRng.next() > 0.5).slice(0, 10),
+        ]
 
         // Generate replacements (Target 20-25 total)
         const targetCount = 20 + localRng.int(0, 4)
@@ -142,8 +158,11 @@ export class StaffGenerator {
 
         if (needed === 0) return kept
 
-        // Generate new batch
+        // Generate new batch (never a second copy of someone still listed)
+        const keptIds = new Set(kept.map(s => s.id))
+        const keptNames = new Set(kept.filter(s => !s.id.startsWith("gen_")).map(s => s.name))
         const newBatch = this.generateWeeklyMarket(week, needed, localRng)
+            .filter(s => !keptIds.has(s.id) && (s.id.startsWith("gen_") || !keptNames.has(s.name)))
 
         return [...kept, ...newBatch]
     }

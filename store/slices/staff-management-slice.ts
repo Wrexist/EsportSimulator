@@ -61,11 +61,16 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
     refreshStaffMarket: () => {
         set((state) => {
             const rng = new SeededRNG(state.lastRngSeed ?? generateSeed())
-            state.marketStaff = StaffGenerator.generateWeeklyMarket(
-                state.currentWeek,
-                MARKET_SLOT_COUNT,
-                rng,
-            )
+            // Staff released by clubs stay listed (ENGINE-03).
+            const released = StaffGenerator.recentlyReleased(state.marketStaff ?? [], state.currentWeek)
+            state.marketStaff = [
+                ...released,
+                ...StaffGenerator.generateWeeklyMarket(
+                    state.currentWeek,
+                    Math.max(0, MARKET_SLOT_COUNT - released.length),
+                    rng,
+                ),
+            ]
             state.lastRngSeed = rng.getState()
         })
     },
@@ -152,6 +157,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
                 yearsRemaining: Math.max(1, Math.ceil(duration / 52)),
                 contractEndWeek: state.currentWeek + duration,
                 signingBonus: signingFee,
+                releasedWeek: undefined,
             })
             team.staffIds.push(staffMember.id)
 

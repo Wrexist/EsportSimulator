@@ -2,16 +2,16 @@
  * Pre-tick mutations applied at the very start of advanceWeek, before
  * the GameSave snapshot is built and shipped off to the week processor.
  *
- * All four sub-phases mutate a single immer draft:
+ * All three sub-phases mutate a single immer draft:
  *   1. Scouting completion — if the active mission's completionWeek has
  *      arrived, mark the player as scouted (EXPERT tier) and surface an
  *      events-log entry. Missing players produce a "mission failed"
  *      event instead so the user knows the mission didn't pay out.
- *   2. Market rotation — every 4-8 weeks, rotate the staff market and
- *      pick a new random refresh window (4-8 weeks ahead).
- *   3. Staff XP — every staff member on the player team gains 50-100 XP
+ *   (The staff market refresh lives in the engine's AI world step,
+ *   ai-world-processor.ts; the rotation that used to sit here never ran.)
+ *   2. Staff XP — every staff member on the player team gains 50-100 XP
  *      with level-up handling (1.5× cap, +1 talent point per level).
- *   4. Player XP — every player team roster player gains 40-80 XP with
+ *   3. Player XP — every player team roster player gains 40-80 XP with
  *      the same level-up handling as staff.
  *
  * Extracted from store/game-store.ts. Caller passes the immer draft +
@@ -19,7 +19,6 @@
  */
 
 import type { GameSave } from "../save-types"
-import { StaffGenerator } from "../staff-generator"
 import type { SeededRNG } from "../rng"
 import { getStaffPassiveBonuses, isFeatureUnlocked } from "../talent-trees"
 import { processScoutingMissions } from "./scouting-mission-processor"
@@ -46,24 +45,10 @@ interface PreTickContext {
 
 export function applyPreTickMutations(draft: PreTickDraft, ctx: PreTickContext): void {
     processScoutingMissions(draft)
-    applyMarketRotation(draft, ctx)
     applyStaffXP(draft, ctx)
     applyPlayerXP(draft, ctx)
 }
 
-
-function applyMarketRotation(draft: PreTickDraft, ctx: PreTickContext): void {
-    if (!draft.nextMarketRefreshWeek) {
-        draft.nextMarketRefreshWeek = ctx.currentWeek + 4
-        return
-    }
-    if (ctx.currentWeek < draft.nextMarketRefreshWeek) return
-
-    const rotated = StaffGenerator.rotateMarket(draft.marketStaff, ctx.currentWeek, ctx.rng)
-    draft.marketStaff = rotated
-    // Next refresh in 4-8 weeks.
-    draft.nextMarketRefreshWeek = ctx.currentWeek + 4 + Math.floor(ctx.rng.next() * 5)
-}
 
 function applyStaffXP(draft: PreTickDraft, ctx: PreTickContext): void {
     if (!draft.staff) return

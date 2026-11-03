@@ -988,6 +988,8 @@ export interface StaffSaveData {
     // Phase 59: Contracts
     contractEndWeek?: number // Keeps track of when the contract expires (Week #)
     signingBonus?: number // For historical records
+    /** Market entry only: the week a club let him go. Market refreshes keep him for RELEASED_STAFF_MARKET_WEEKS. */
+    releasedWeek?: number
 
     // Phase 60: Talent Tree
     xp: number
