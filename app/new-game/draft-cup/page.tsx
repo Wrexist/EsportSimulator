@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation"
 import { useShallow } from "zustand/react/shallow"
 import { ArrowLeft, Check, Loader2, RefreshCw } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
-import { loadCareerDraft, clearCareerDraft } from "@/lib/new-career-draft"
+import { loadCareerDraft, clearCareerDraft, saveCareerDraft } from "@/lib/new-career-draft"
 import { buildDraftCupWorld } from "@/lib/draft-cup-world"
 import {
     buildDraftPool, clubStrength, draftSpent, pickCupField,
@@ -55,6 +55,8 @@ export default function DraftCupPage() {
     const [rerolls, setRerolls] = useState(DRAFT_REROLLS)
     /** Difficulty the current pool was dealt for: going Back keeps the deal, so Back is not a free reroll. */
     const [dealtFor, setDealtFor] = useState<DraftCupDifficulty | null>(null)
+    /** Every deal so far, by difficulty: switching away and back restores it instead of dealing a fresh pool (START-19). */
+    const dealsRef = useRef<Partial<Record<DraftCupDifficulty, { opponentIds: string[]; pool: DraftPool; picks: Picks }>>>({})
     const [busy, setBusy] = useState<null | "world" | "start">(null)
     const startingRef = useRef(false)
 
@@ -89,7 +91,17 @@ export default function DraftCupPage() {
             const w = world ?? await buildDraftCupWorld()
             setWorld(w)
             // A new difficulty needs a new field; the reroll count carries over.
-            if (!pool || dealtFor !== difficulty) deal(w, difficulty)
+            // A difficulty dealt before gets its old deal back (no free reroll).
+            if (!pool || dealtFor !== difficulty) {
+                if (pool && dealtFor) dealsRef.current[dealtFor] = { opponentIds, pool, picks }
+                const earlier = dealsRef.current[difficulty]
+                if (earlier) {
+                    setOpponentIds(earlier.opponentIds)
+                    setPool(earlier.pool)
+                    setPicks(earlier.picks)
+                    setDealtFor(difficulty)
+                } else deal(w, difficulty)
+            }
             setStep("draft")
         } catch (err) {
             debug.error("Draft Cup world failed:", err)
@@ -131,7 +143,8 @@ export default function DraftCupPage() {
             await initializeNewGame(managerName.trim(), world.playerTeamId, undefined, { draftCup: { world: structuredClone(world), setup } })
             if (useGameStore.getState().error) throw Error(useGameStore.getState().error!)
             clearCareerDraft()
-            router.push("/")
+            // Replace: Back/Escape from Home must not reopen the draft (START-05).
+            router.replace("/")
         } catch (err) {
             debug.error("Draft Cup start failed:", err)
             toast.error(t("dc.err.start"), { description: t("dc.err.startBody") })
@@ -143,7 +156,7 @@ export default function DraftCupPage() {
     if (step === "setup") {
         return (
             <div className="mx-auto flex min-h-dvh w-full max-w-[880px] flex-col gap-6 bg-ink px-8 py-8">
-                <Link href="/new-game" className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
+                <Link href="/new-game" onClick={() => saveCareerDraft({ step: "welcome" })} className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
                     <ArrowLeft size={16} /> {t("dc.newGame")}
                 </Link>
                 <ScreenHeader eyebrow={t("dc.step1")} title={t("dc.title")}

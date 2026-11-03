@@ -2,10 +2,12 @@
 
 import { normalizeColorVision, type ColorVisionMode } from './accessibility-preferences'
 import { normalizeUiLanguage } from './ui-languages'
+import { normalizeWindowMode, type WindowModeChoice } from './window-mode'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-export type WindowMode = 'fullscreen' | 'windowed' | 'borderless'
+/** Windowed or fullscreen (START-18: "borderless" was the same as fullscreen and reads as it). */
+export type WindowMode = WindowModeChoice
 export type Resolution = '1920x1080' | '1600x900' | '1280x720' | '1024x768'
 export type GameSpeed = 'normal' | 'fast' | 'very-fast'
 export type Difficulty = 'easy' | 'normal' | 'hard' | 'legendary'
@@ -152,7 +154,7 @@ export const useSettingsStore = create<GameSettings>()(
             markTipSeen: (tip) => set(state => state.seenTips.includes(tip) ? state : { seenTips: [...state.seenTips, tip].slice(-50) }),
 
             // Setters
-            setWindowMode: (mode) => set({ windowMode: mode }),
+            setWindowMode: (mode) => set({ windowMode: normalizeWindowMode(mode, get().windowMode) }),
             setResolution: (res) => set({ resolution: res }),
             setRenderingMode: (mode) => {
                 set({ renderingMode: mode })
@@ -210,7 +212,7 @@ export const useSettingsStore = create<GameSettings>()(
                     const api = electronBridge.window
 
                     // Set fullscreen via Electron
-                    if (windowMode === 'fullscreen' || windowMode === 'borderless') {
+                    if (windowMode === 'fullscreen') {
                         api.setFullscreen?.(true)
                     } else {
                         api.setFullscreen?.(false)
@@ -270,7 +272,7 @@ export const useSettingsStore = create<GameSettings>()(
                 const stored = persisted as Partial<GameSettings> | undefined
                 return {
                     ...current,
-                    windowMode: ['windowed', 'fullscreen', 'borderless'].includes(stored?.windowMode ?? '') ? stored!.windowMode! : current.windowMode,
+                    windowMode: normalizeWindowMode(stored?.windowMode, current.windowMode),
                     resolution: ['1920x1080', '1600x900', '1280x720', '1024x768'].includes(stored?.resolution ?? '') ? stored!.resolution! : current.resolution,
                     renderingMode: stored?.renderingMode === 'performance' ? 'performance' : 'compatibility',
                     reducedMotion: typeof stored?.reducedMotion === 'boolean' ? stored.reducedMotion : current.reducedMotion,
