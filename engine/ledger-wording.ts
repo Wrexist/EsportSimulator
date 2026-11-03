@@ -17,6 +17,12 @@ export function facilityLabel(type: string): string {
     return `${FACILITY_LABELS[type] ?? type.toLowerCase().replace(/_/g, " ")} facility`
 }
 
+/** Stored description of a facility another club built: "Training facility". */
+export function builtFacilityDescription(type: string): string {
+    const label = facilityLabel(type)
+    return label.charAt(0).toUpperCase() + label.slice(1)
+}
+
 export const ledgerText = {
     hiredStaff: (name: string, role: string) => `Hired ${name} (${role})`,
     builtFacility: (type: string) => `Built ${facilityLabel(type)}`,
@@ -40,4 +46,15 @@ export function modernizeLedgerDescription(description: string): string {
     if ((m = description.match(/^AI upgraded (\w+) facility to Level (\d+)$/))) return ledgerText.upgradedFacility(m[1], Number(m[2]))
     const rest = description.slice(3)
     return rest.charAt(0).toUpperCase() + rest.slice(1)
+}
+
+/**
+ * Facility descriptions stored by older builds: the level-4 tactical text
+ * said "AI-assisted", and facilities built by other clubs stored the raw
+ * enum ("TRAINING facility").
+ */
+export function modernizeFacilityDescription(description: string): string {
+    if (description === "AI-assisted strategic simulator.") return "Data-driven strategic simulator."
+    const m = description.match(/^(TRAINING|RECOVERY|TACTICAL|FANZONE) facility$/)
+    return m ? builtFacilityDescription(m[1]) : description
 }

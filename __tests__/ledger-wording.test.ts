@@ -6,9 +6,11 @@
  */
 
 import { manageAcademy, manageFacilities, manageStaff } from "@/engine/ai/infrastructure"
-import { modernizeLedgerDescription } from "@/engine/ledger-wording"
+import { modernizeFacilityDescription, modernizeLedgerDescription } from "@/engine/ledger-wording"
 import { runMigrationLadder } from "@/engine/save-migrations"
 import { SeededRNG } from "@/engine/rng"
+import { readFileSync } from "fs"
+import { join } from "path"
 import { createLaunchFixture } from "../scripts/launch/fixtures"
 import type { GameSave, TeamSaveData } from "@/engine/save-types"
 
@@ -71,6 +73,9 @@ describe("AI club ledger rows use neutral wording", () => {
         expect(modernizeLedgerDescription("AI upgraded Youth Academy to Level 2")).toBe("Upgraded youth academy to level 2")
         expect(modernizeLedgerDescription("AI something else")).toBe("Something else")
         expect(modernizeLedgerDescription("Weekly wages")).toBe("Weekly wages")
+        expect(modernizeFacilityDescription("AI-assisted strategic simulator.")).toBe("Data-driven strategic simulator.")
+        expect(modernizeFacilityDescription("TRAINING facility")).toBe("Training facility")
+        expect(modernizeFacilityDescription("Basic training setup")).toBe("Basic training setup")
     })
 
     test("regression: loading an existing save rewrites its old 'AI …' ledger rows", () => {
@@ -82,11 +87,41 @@ describe("AI club ledger rows use neutral wording", () => {
             row("b", "AI hired Dr. Kovac (analyst)") as never,
             row("c", "Prize money") as never,
         )
+        const club = save.teams.find(t => t.id === other)!
+        club.facilities = [
+            ...(club.facilities ?? []),
+            { id: "old_tac", type: "TACTICAL", level: 4, monthlyCost: 1, description: "AI-assisted strategic simulator." },
+            { id: "old_ai_built", type: "FANZONE", level: 1, monthlyCost: 1, description: "FANZONE facility" },
+        ] as never
         const loaded = runMigrationLadder(JSON.parse(JSON.stringify(save)))
         const byId = new Map(loaded.financeLedger.map(r => [r.id, r.description]))
         expect(byId.get("a")).toBe("Built recovery facility")
         expect(byId.get("b")).toBe("Hired Dr. Kovac (analyst)")
         expect(byId.get("c")).toBe("Prize money")
+        const facilities = loaded.teams.flatMap(t => t.facilities ?? [])
+        expect(facilities.find(f => f.id === "old_tac")?.description).toBe("Data-driven strategic simulator.")
+        expect(facilities.find(f => f.id === "old_ai_built")?.description).toBe("Fan zone facility")
         expect(loaded.financeLedger.some(r => r.description.startsWith("AI "))).toBe(false)
+    })
+})
+
+describe("no player-facing 'AI' wording (CROSSCUT-04)", () => {
+    // Strings only: identifiers (aiRoll, AIManager) and comments are fine.
+    const stringsIn = (file: string): string[] => {
+        const src = readFileSync(join(__dirname, "..", file), "utf8")
+            .replace(/\/\*[\s\S]*?\*\//g, "")
+            .replace(/^\s*\/\/.*$/gm, "")
+            .replace(/\s\/\/.*$/gm, "")
+        const jsx = Array.from(src.matchAll(/>([^<>]+)</g), m => m[1])
+        const literals = Array.from(src.matchAll(/(["'`])((?:\\.|(?!\1)[^\\\n])*)\1/g), m => m[2])
+        return [...jsx, ...literals]
+    }
+
+    test.each([
+        "app/basecamp/_components/GearCatalog.tsx",
+        "store/slices/team-facilities-slice.ts",
+        "engine/ai/infrastructure.ts",
+    ])("%s", file => {
+        expect(stringsIn(file).filter(s => /\bAI\b/.test(s))).toEqual([])
     })
 })

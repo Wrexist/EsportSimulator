@@ -25,7 +25,7 @@ import { EconomyEngine } from "../economy-engine"
 import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { aiCanCommit, aiClubBudget } from "./club-budget"
 import { aiRoll, hashTeamId } from "./rng-helpers"
-import { facilityLabel, ledgerText } from "../ledger-wording"
+import { builtFacilityDescription, ledgerText } from "../ledger-wording"
 
 /**
  * AI staff hiring. 3% per week, max 3 staff, priority order
@@ -165,7 +165,7 @@ export function manageFacilities(team: TeamSaveData, save: GameSave, rng: Seeded
             id: `fac_ai_${team.id}_${missingType}_${save.currentWeek}`,
             type: missingType,
             level: 1,
-            description: facilityLabel(missingType).replace(/^./, c => c.toUpperCase()),
+            description: builtFacilityDescription(missingType),
             monthlyCost: 2000,
         })
         save.financeLedger.push({

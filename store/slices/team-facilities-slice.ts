@@ -94,7 +94,7 @@ function getFacilityDescription(type: string, level: number): string {
             if (level === 1) return "Whiteboard and projector setup."
             if (level === 2) return "VOD review station with basic software."
             if (level === 3) return "War room with multi-screen data analysis."
-            if (level === 4) return "AI-assisted strategic simulator."
+            if (level === 4) return "Data-driven strategic simulator."
             if (level === 5) return "Empire Command Hub: Advanced tactical training."
             return "Inactive"
         default:
