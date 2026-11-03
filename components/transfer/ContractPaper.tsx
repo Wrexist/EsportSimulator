@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { t } from "@/lib/i18n"
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react"
 import { createPortal } from "react-dom"
@@ -13,7 +15,7 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { TeamLogoImage } from "@/components/ui/asset-images"
-import { RELEASE_LABEL, releaseClauseFee } from "@/engine/contract-clauses"
+import { releaseClauseFee } from "@/engine/contract-clauses"
 import type { SigningSignature } from "@/engine/moments"
 import type { MarketStanding } from "@/engine/transfer-hype"
 import { formatWeeksAsYears, type NegotiationState } from "./useNegotiation"
@@ -99,7 +101,7 @@ function SignaturePad({ strokes, setStrokes, disabled }: { strokes: Point[][]; s
             ref={svgRef}
             viewBox={`0 0 ${PAD_W} ${PAD_H}`}
             role="img"
-            aria-label="Signature pad: draw your signature with the mouse, a pen or a finger"
+            aria-label={t("paper.padAria")}
             onPointerDown={onDown}
             onPointerMove={onMove}
             onPointerUp={onUp}
@@ -134,7 +136,7 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
 
     if (!deal || !player || !club || typeof document === "undefined") return null
 
-    const date = (week: number) => gameStartDate ? formatGameCalendarDate(gameCalendarDate(gameStartDate, week), { day: "numeric", month: "long", year: "numeric" }) : `Week ${week}`
+    const date = (week: number) => gameStartDate ? formatGameCalendarDate(gameCalendarDate(gameStartDate, week), { day: "numeric", month: "long", year: "numeric" }) : t("common.week", { n: week })
     const endWeek = currentWeek + deal.duration
     const release = releaseClauseFee(deal.clauses.release, deal.salary)
     const contractNo = `${String(currentWeek).padStart(3, "0")}-${(player.id + (saveId ?? "")).split("").reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7).toString(36).toUpperCase().slice(0, 6)}`
@@ -151,15 +153,15 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
     }
 
     const terms: { title: string; body: React.ReactNode }[] = [
-        { title: "Term", body: <>For {deal.duration} weeks ({formatWeeksAsYears(deal.duration)}), from {date(currentWeek)} until {date(endWeek)}.</> },
-        { title: "Wage", body: <>The Club pays the Player <b>{money(deal.salary)}</b> every week of the term.</> },
+        { title: t("paper.term"), body: <>{t("paper.termBody", { weeks: deal.duration, length: formatWeeksAsYears(deal.duration), from: date(currentWeek), until: date(endWeek) })}</> },
+        { title: t("paper.wage"), body: <Trans k="paper.wageBody" params={{ wage: money(deal.salary) }} tags={{ b: s => <b>{s}</b> }} /> },
         n.currentTeam
-            ? { title: "Transfer", body: <>The Club pays <b>{money(deal.fee)}</b> to {n.currentTeam.name} for the Player&apos;s registration, due on signing.</> }
-            : { title: "Free transfer", body: <>The Player joins as a free agent. No transfer fee is due.</> },
-        { title: "Release clause", body: deal.clauses.release === "none" ? <>None. No club may take the Player without the Club&apos;s consent.</> : <>{RELEASE_LABEL[deal.clauses.release]}: any club may pay <b>{money(release)}</b> to take the Player.</> },
-        { title: "Bonuses", body: deal.clauses.appearanceBonus > 0 || deal.clauses.titleBonus > 0
-            ? <>{deal.clauses.appearanceBonus > 0 && <><b>{money(deal.clauses.appearanceBonus)}</b> per official match played. </>}{deal.clauses.titleBonus > 0 && <><b>{money(deal.clauses.titleBonus)}</b> per title won.</>}</>
-            : <>None.</> },
+            ? { title: t("paper.transfer"), body: <Trans k="paper.transferBody" params={{ fee: money(deal.fee), club: n.currentTeam.name }} tags={{ b: s => <b>{s}</b> }} /> }
+            : { title: t("paper.freeTransfer"), body: <>{t("paper.freeTransferBody")}</> },
+        { title: t("paper.release"), body: deal.clauses.release === "none" ? <>{t("paper.releaseNone")}</> : <Trans k="paper.releaseBody" params={{ label: t(`clause.release.${deal.clauses.release}`), fee: money(release) }} tags={{ b: s => <b>{s}</b> }} /> },
+        { title: t("paper.bonuses"), body: deal.clauses.appearanceBonus > 0 || deal.clauses.titleBonus > 0
+            ? <>{deal.clauses.appearanceBonus > 0 && <><Trans k="paper.appearance" params={{ amount: money(deal.clauses.appearanceBonus) }} tags={{ b: s => <b>{s}</b> }} />{" "}</>}{deal.clauses.titleBonus > 0 && <Trans k="paper.titleBonus" params={{ amount: money(deal.clauses.titleBonus) }} tags={{ b: s => <b>{s}</b> }} />}</>
+            : <>{t("paper.none")}</> },
     ]
 
     return createPortal(
@@ -181,11 +183,11 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
                 <div aria-hidden="true" className="pointer-events-none absolute inset-3.5 rounded-[2px] border border-[#b8892c]/35" />
                 {/* Watermark */}
                 <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
-                    <span className="-rotate-[28deg] whitespace-nowrap text-[88px] font-bold uppercase tracking-[0.2em] text-[#1a1712]/[0.035]">Confidential</span>
+                    <span className="-rotate-[28deg] whitespace-nowrap text-[88px] font-bold uppercase tracking-[0.2em] text-[#1a1712]/[0.035]">{t("paper.confidential")}</span>
                 </div>
 
                 {phase === "draw" && (
-                    <button onClick={n.cancelSigning} className="absolute right-5 top-5 z-10 rounded p-1.5 text-[#1a1712]/50 transition-colors hover:bg-[#1a1712]/5 hover:text-[#1a1712]" aria-label="Put the contract down">
+                    <button onClick={n.cancelSigning} className="absolute right-5 top-5 z-10 rounded p-1.5 text-[#1a1712]/50 transition-colors hover:bg-[#1a1712]/5 hover:text-[#1a1712]" aria-label={t("paper.putDown")}>
                         <X size={18} />
                     </button>
                 )}
@@ -198,27 +200,26 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
                             </div>
                             <div>
                                 <p className="text-[11px] uppercase tracking-[0.28em] text-[#1a1712]/60">{club.name}</p>
-                                <h2 id="contract-title" className="text-2xl font-bold uppercase tracking-[0.12em]">Player Contract</h2>
+                                <h2 id="contract-title" className="text-2xl font-bold uppercase tracking-[0.12em]">{t("paper.title")}</h2>
                             </div>
                         </div>
                         <div className="text-right text-[11px] leading-relaxed text-[#1a1712]/60">
-                            <p>No. {contractNo}</p>
+                            <p>{t("paper.number", { no: contractNo })}</p>
                             <p>{date(currentWeek)}</p>
-                            {elite && <p className="mt-0.5 font-bold uppercase tracking-[0.2em] text-[#9a6f16]">{standing === "ICON" ? "Icon terms" : "Star terms"}</p>}
+                            {elite && <p className="mt-0.5 font-bold uppercase tracking-[0.2em] text-[#9a6f16]">{standing === "ICON" ? t("paper.iconTerms") : t("paper.starTerms")}</p>}
                         </div>
                     </header>
 
                     <p className="mt-4 text-[13.5px] leading-relaxed">
-                        This agreement is made between <b>{club.name}</b> (&ldquo;the Club&rdquo;) and <b>{fullName}</b>, known as <b>&ldquo;{player.nickname}&rdquo;</b> (&ldquo;the Player&rdquo;),
-                        who joins the Club&apos;s senior roster on the following terms.
+                        <Trans k="paper.preamble" params={{ club: club.name, name: fullName, nick: player.nickname }} tags={{ b: s => <b>{s}</b> }} />
                     </p>
 
                     <ol className="mt-4 space-y-2 text-[13px] leading-relaxed">
-                        {terms.map((t, i) => (
-                            <li key={t.title} className="grid grid-cols-[22px_112px_minmax(0,1fr)] gap-x-2">
+                        {terms.map((term, i) => (
+                            <li key={term.title} className="grid grid-cols-[22px_112px_minmax(0,1fr)] gap-x-2">
                                 <span className="text-[#1a1712]/50">{i + 1}.</span>
-                                <span className="font-bold uppercase tracking-[0.06em] text-[11.5px] leading-[1.6]">{t.title}</span>
-                                <span>{t.body}</span>
+                                <span className="font-bold uppercase tracking-[0.06em] text-[11.5px] leading-[1.6]">{term.title}</span>
+                                <span>{term.body}</span>
                             </li>
                         ))}
                     </ol>
@@ -228,7 +229,7 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
                         <div>
                             <div className={cn("relative rounded-[2px] border border-dashed", phase === "draw" ? "border-[#1d2b64]/35 bg-white/40" : "border-transparent")}>
                                 {useSaved && saved ? (
-                                    <svg viewBox={`0 0 ${saved.w} ${saved.h}`} className="block h-[120px] w-full" aria-label="Your saved signature" role="img">
+                                    <svg viewBox={`0 0 ${saved.w} ${saved.h}`} className="block h-[120px] w-full" aria-label={t("paper.savedSignature")} role="img">
                                         <path d={saved.d} fill="none" stroke={INK} strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 ) : (
@@ -236,21 +237,21 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
                                 )}
                                 {phase === "draw" && strokes.length === 0 && !useSaved && (
                                     <span className="pointer-events-none absolute inset-0 flex items-center justify-center gap-1.5 text-[13px] italic text-[#1d2b64]/45">
-                                        <PenLine size={14} aria-hidden="true" /> Sign here
+                                        <PenLine size={14} aria-hidden="true" /> {t("paper.signHere")}
                                     </span>
                                 )}
                             </div>
-                            <div className="border-t border-[#1a1712]/60 pt-1 text-[11px] uppercase tracking-[0.14em] text-[#1a1712]/60">For the Club · Manager</div>
+                            <div className="border-t border-[#1a1712]/60 pt-1 text-[11px] uppercase tracking-[0.14em] text-[#1a1712]/60">{t("paper.forClub")}</div>
                             {phase === "draw" && (
                                 <div className="mt-1.5 flex flex-wrap gap-3 text-[11.5px]" style={{ fontFamily: "inherit" }}>
                                     {!useSaved && strokes.length > 0 && (
-                                        <button type="button" onClick={() => setStrokes([])} className="inline-flex items-center gap-1 text-[#1a1712]/60 underline-offset-2 hover:text-[#1a1712] hover:underline"><Eraser size={12} aria-hidden="true" />Clear</button>
+                                        <button type="button" onClick={() => setStrokes([])} className="inline-flex items-center gap-1 text-[#1a1712]/60 underline-offset-2 hover:text-[#1a1712] hover:underline"><Eraser size={12} aria-hidden="true" />{t("paper.clear")}</button>
                                     )}
                                     {saved && !useSaved && (
-                                        <button type="button" onClick={() => setUseSaved(true)} className="inline-flex items-center gap-1 text-[#1a1712]/60 underline-offset-2 hover:text-[#1a1712] hover:underline"><History size={12} aria-hidden="true" />Use my last signature</button>
+                                        <button type="button" onClick={() => setUseSaved(true)} className="inline-flex items-center gap-1 text-[#1a1712]/60 underline-offset-2 hover:text-[#1a1712] hover:underline"><History size={12} aria-hidden="true" />{t("paper.useLast")}</button>
                                     )}
                                     {useSaved && (
-                                        <button type="button" onClick={() => setUseSaved(false)} className="inline-flex items-center gap-1 text-[#1a1712]/60 underline-offset-2 hover:text-[#1a1712] hover:underline"><PenLine size={12} aria-hidden="true" />Draw a new one</button>
+                                        <button type="button" onClick={() => setUseSaved(false)} className="inline-flex items-center gap-1 text-[#1a1712]/60 underline-offset-2 hover:text-[#1a1712] hover:underline"><PenLine size={12} aria-hidden="true" />{t("paper.drawNew")}</button>
                                     )}
                                 </div>
                             )}
@@ -280,14 +281,14 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
                                         style={{ background: "radial-gradient(circle at 35% 30%, rgb(180 40 40 / 0.20), rgb(143 29 29 / 0.10))" }}
                                     >
                                         <div className="leading-tight">
-                                            <p className="text-[9px] font-bold uppercase tracking-[0.18em]">Official</p>
+                                            <p className="text-[9px] font-bold uppercase tracking-[0.18em]">{t("paper.sealOfficial")}</p>
                                             <p className="text-[18px] font-bold">{initials}</p>
-                                            <p className="text-[9px] font-bold uppercase tracking-[0.18em]">Signed</p>
+                                            <p className="text-[9px] font-bold uppercase tracking-[0.18em]">{t("paper.sealSigned")}</p>
                                         </div>
                                     </motion.div>
                                 )}
                             </div>
-                            <div className="border-t border-[#1a1712]/60 pt-1 text-[11px] uppercase tracking-[0.14em] text-[#1a1712]/60">The Player · {player.nickname}</div>
+                            <div className="border-t border-[#1a1712]/60 pt-1 text-[11px] uppercase tracking-[0.14em] text-[#1a1712]/60">{t("paper.thePlayer", { name: player.nickname })}</div>
                         </div>
                     </div>
 
@@ -295,14 +296,14 @@ export function ContractPaper({ n, standing }: { n: NegotiationState; standing?:
                         {phase === "draw" ? (
                             <>
                                 <Button className="h-11 min-w-[240px] px-8 text-base" disabled={!signature} onClick={sign}>
-                                    Sign the contract
+                                    {t("paper.sign")}
                                 </Button>
                                 <p className="text-[12px] text-[#1a1712]/55" style={{ fontFamily: SERIF }}>
-                                    {signature ? "Your signature completes the deal." : "Draw your signature in the box to sign."}
+                                    {signature ? t("paper.completes") : t("paper.drawToSign")}
                                 </p>
                             </>
                         ) : (
-                            <p role="status" className="text-[13px] italic text-[#1a1712]/70" style={{ fontFamily: SERIF }}>{player.nickname} is signing…</p>
+                            <p role="status" className="text-[13px] italic text-[#1a1712]/70" style={{ fontFamily: SERIF }}>{t("paper.signing", { name: player.nickname })}</p>
                         )}
                     </div>
                 </div>

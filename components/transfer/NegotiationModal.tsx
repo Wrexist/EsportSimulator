@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { createPortal } from "react-dom"
 import { X } from "lucide-react"
@@ -13,7 +14,7 @@ import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { useNegotiation } from "./useNegotiation"
 import { DealTerms } from "./DealTerms"
-import { ScoutedRating, REPORT_LABEL } from "./ScoutedRating"
+import { ScoutedRating } from "./ScoutedRating"
 
 interface NegotiationModalProps {
     playerId: string
@@ -34,7 +35,7 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
 
     const player = n.playerSave
     const knowledge = getVisibleStats(player, scoutedPlayers, n.myTeam?.rosterIds || [], currentWeek)
-    const title = n.stage === "BUYOUT" ? `Fee talks with ${n.currentTeam?.name ?? "the club"}` : n.currentTeam ? "Contract offer" : "Sign free agent"
+    const title = n.stage === "BUYOUT" ? t("nego.feeTalks", { club: n.currentTeam?.name ?? t("nego.theClub") }) : n.currentTeam ? t("nego.contractOffer") : t("nego.signFree")
 
     return createPortal(
         <div className={cn(className, "fixed inset-0 z-modal flex items-center justify-center bg-ink/80 p-4")}>
@@ -53,23 +54,23 @@ export function NegotiationModal({ playerId, isOpen, onClose, className }: Negot
                     <div className="min-w-0">
                         <p className="truncate font-display text-2xl font-bold uppercase leading-none text-ink-1">{player.nickname}</p>
                         {player.name && player.name !== player.nickname && <p className="mt-1 truncate text-xs text-ink-3">{player.name}</p>}
-                        <div className="mt-2 flex items-center gap-2"><RoleTag role={player.role} /><span className="text-xs tabular-nums text-ink-3">Age {player.age}</span></div>
+                        <div className="mt-2 flex items-center gap-2"><RoleTag role={player.role} /><span className="text-xs tabular-nums text-ink-3">{t("deal.age", { age: player.age })}</span></div>
                     </div>
                     <dl className="space-y-2 text-xs">
-                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">Rating</dt><dd><ScoutedRating knowledge={knowledge} size="sm" /></dd></div>
-                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">Report</dt><dd className="text-ink-2">{REPORT_LABEL[knowledge.scoutingLevel]}</dd></div>
-                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">Country</dt><dd><CountryFlag country={player.nationality} showName size={14} /></dd></div>
-                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">Club</dt><dd className="max-w-[120px] truncate text-ink-2">{n.currentTeam?.name ?? "Free agent"}</dd></div>
-                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">Value</dt><dd className="tabular-nums text-ink-1">{formatCurrency(n.evaluation.transferValue, "$", false)}</dd></div>
+                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">{t("nego.rating")}</dt><dd><ScoutedRating knowledge={knowledge} size="sm" /></dd></div>
+                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">{t("nego.report")}</dt><dd className="text-ink-2">{t(`report.${knowledge.scoutingLevel}`)}</dd></div>
+                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">{t("nego.country")}</dt><dd><CountryFlag country={player.nationality} showName size={14} /></dd></div>
+                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">{t("market.col.club")}</dt><dd className="max-w-[120px] truncate text-ink-2">{n.currentTeam?.name ?? t("market.row.free")}</dd></div>
+                        <div className="flex items-center justify-between gap-2"><dt className="text-ink-3">{t("market.col.value")}</dt><dd className="tabular-nums text-ink-1">{formatCurrency(n.evaluation.transferValue, "$", false)}</dd></div>
                     </dl>
                 </aside>
                 <div className="flex min-w-0 flex-1 flex-col">
                     <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
                         <div className="min-w-0">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">Negotiation</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">{t("nego.eyebrow")}</p>
                             <h2 id="modal-title-negotiation" className="truncate font-display text-2xl font-bold uppercase text-ink-1">{title}</h2>
                         </div>
-                        <button onClick={onClose} className="rounded p-2 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1" aria-label="Close dialog">
+                        <button onClick={onClose} className="rounded p-2 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1" aria-label={t("nego.close")}>
                             <X size={18} />
                         </button>
                     </header>

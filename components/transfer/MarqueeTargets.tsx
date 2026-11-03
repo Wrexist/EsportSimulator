@@ -1,4 +1,5 @@
 "use client"
+import { t, tn } from "@/lib/i18n"
 
 import { Swords } from "lucide-react"
 import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
@@ -31,50 +32,50 @@ export function MarqueeTargets({ targets, selectedId, onSelect }: { targets: Mar
     if (targets.length === 0) return null
     return (
         <Panel
-            eyebrow="Marquee targets"
-            title="The most wanted players you can move for now"
-            actions={<span className="text-xs text-ink-3">Free, listed or in their last 26 weeks</span>}
+            eyebrow={t("marquee.eyebrow")}
+            title={t("marquee.title")}
+            actions={<span className="text-xs text-ink-3">{t("marquee.actions", { weeks: 26 })}</span>}
         >
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-4">
-                {targets.map(t => {
-                    const selected = t.player.id === selectedId
+                {targets.map(tg => {
+                    const selected = tg.player.id === selectedId
                     return (
-                        <li key={t.player.id}>
+                        <li key={tg.player.id}>
                             <button
                                 type="button"
-                                onClick={() => onSelect(t.player.id)}
+                                onClick={() => onSelect(tg.player.id)}
                                 aria-pressed={selected}
-                                aria-label={`${t.player.nickname}, show deal`}
+                                aria-label={t("market.showDeal", { name: tg.player.nickname })}
                                 className={cn(
                                     "group relative flex w-full items-stretch overflow-hidden rounded-lg border bg-raised text-left transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-gold",
-                                    STANDING_FRAME[t.standing],
+                                    STANDING_FRAME[tg.standing],
                                     selected && "ring-1 ring-gold",
                                 )}
                             >
                                 <div className="relative h-[116px] w-[92px] shrink-0 overflow-hidden bg-shell">
-                                    <PlayerPortrait src={t.player.portraitPath} seed={t.player.id} alt={t.player.nickname} fill className="object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+                                    <PlayerPortrait src={tg.player.portraitPath} seed={tg.player.id} alt={tg.player.nickname} fill className="object-cover object-top transition-transform duration-500 group-hover:scale-105" />
                                     <div aria-hidden="true" className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                                 </div>
                                 <div className="flex min-w-0 flex-1 flex-col justify-between gap-1.5 px-3 py-2.5">
                                     <div className="min-w-0">
-                                        <StandingBadge standing={t.standing} size="xs" />
-                                        <p className={cn("mt-1 truncate font-display text-xl font-bold uppercase leading-none", selected ? "text-gold" : "text-ink-1 group-hover:text-gold")}>{t.player.nickname}</p>
+                                        <StandingBadge standing={tg.standing} size="xs" />
+                                        <p className={cn("mt-1 truncate font-display text-xl font-bold uppercase leading-none", selected ? "text-gold" : "text-ink-1 group-hover:text-gold")}>{tg.player.nickname}</p>
                                         <div className="mt-1 flex items-center gap-1.5 text-xs text-ink-3">
-                                            <CountryFlag country={t.player.nationality} size={12} />
-                                            <RoleTag role={t.player.role} />
-                                            <span className="tabular-nums">{t.player.age}</span>
+                                            <CountryFlag country={tg.player.nationality} size={12} />
+                                            <RoleTag role={tg.player.role} />
+                                            <span className="tabular-nums">{tg.player.age}</span>
                                         </div>
                                     </div>
                                     <div className="flex items-end justify-between gap-2 text-xs">
                                         <div className="min-w-0">
                                             <p className="truncate text-ink-3">
-                                                {t.reason === "free" ? "Free agent" : t.reason === "listed" ? `Listed · ${t.team?.name ?? ""}` : `${t.contractWeeksLeft} wks left · ${t.team?.name ?? ""}`}
+                                                {tg.reason === "free" ? t("market.row.free") : tg.reason === "listed" ? t("marquee.listed", { club: tg.team?.name ?? "" }) : tn("marquee.weeksLeft", tg.contractWeeksLeft ?? 0, { club: tg.team?.name ?? "" })}
                                             </p>
-                                            <p className="font-semibold tabular-nums text-ink-1">{t.reason === "free" ? "No fee" : formatCurrency(t.value, "$", true)}</p>
+                                            <p className="font-semibold tabular-nums text-ink-1">{tg.reason === "free" ? t("marquee.noFee") : formatCurrency(tg.value, "$", true)}</p>
                                         </div>
-                                        {t.rivalCount > 0 && (
-                                            <span className="inline-flex shrink-0 items-center gap-1 font-semibold text-gold" title={`${t.rivalCount} other club${t.rivalCount === 1 ? " is" : "s are"} in for him this week`}>
-                                                <Swords size={11} aria-hidden="true" />{t.rivalCount}
+                                        {tg.rivalCount > 0 && (
+                                            <span className="inline-flex shrink-0 items-center gap-1 font-semibold text-gold" title={tn("marquee.rivals", tg.rivalCount)}>
+                                                <Swords size={11} aria-hidden="true" />{tg.rivalCount}
                                             </span>
                                         )}
                                     </div>

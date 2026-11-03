@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 import { formatCurrency } from "@/lib/utils-extended"
 
 export interface CashPoint {
@@ -25,7 +26,7 @@ const short = (v: number) => formatCurrency(v, "$", true)
  * projection dashed/lighter, sharing one week axis. Plain SVG: no chart lib.
  */
 export function CashChart({ points, nowWeek }: { points: CashPoint[]; nowWeek: number }) {
-    if (points.length < 2) return <p className="py-10 text-center text-sm text-ink-3">Not enough weeks to chart yet.</p>
+    if (points.length < 2) return <p className="py-10 text-center text-sm text-ink-3">{t("fin.chartEmpty")}</p>
 
     const n = points.length
     const plotW = W - PAD_L - PAD_R
@@ -60,7 +61,7 @@ export function CashChart({ points, nowWeek }: { points: CashPoint[]; nowWeek: n
     const labelEvery = n > 16 ? 4 : 2
 
     return (
-        <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Club balance by week, with weekly net below; projected weeks are dashed">
+        <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={t("fin.chartAria")}>
             {ticks.map((t, i) => (
                 <g key={i}>
                     <line x1={PAD_L} x2={W - PAD_R} y1={yB(t)} y2={yB(t)} className="stroke-line" />
@@ -72,7 +73,7 @@ export function CashChart({ points, nowWeek }: { points: CashPoint[]; nowWeek: n
             {nowIndex >= 0 && (
                 <g>
                     <line x1={x(nowIndex)} x2={x(nowIndex)} y1={PAD_T} y2={barTop + BAR_H} className="stroke-line-strong" />
-                    <text x={x(nowIndex) + 5} y={PAD_T + 10} fontSize="11" className="fill-ink-2">Now</text>
+                    <text x={x(nowIndex) + 5} y={PAD_T + 10} fontSize="11" className="fill-ink-2">{t("fin.now")}</text>
                 </g>
             )}
 
@@ -80,11 +81,11 @@ export function CashChart({ points, nowWeek }: { points: CashPoint[]; nowWeek: n
             {firstProjected !== -1 && <path d={pathFrom(Math.max(0, firstProjected - 1), n)} fill="none" className="stroke-gold" strokeWidth="2" strokeDasharray="5 4" strokeOpacity="0.8" />}
             {points.map((p, i) => (
                 <circle key={i} cx={x(i)} cy={yB(p.balance)} r={i === nowIndex ? 3.5 : 2.2} strokeWidth="1.5" className={p.projected ? "fill-panel stroke-gold" : "fill-gold stroke-gold"}>
-                    <title>{`Week ${p.week}${p.projected ? " (projected)" : ""}: ${formatCurrency(p.balance, "$", false)}`}</title>
+                    <title>{t(p.projected ? "fin.tipBalanceProjected" : "fin.tipBalance", { week: p.week, amount: formatCurrency(p.balance, "$", false) })}</title>
                 </circle>
             ))}
 
-            <text x={PAD_L - 8} y={barMid + 4} textAnchor="end" fontSize="11" className="fill-ink-3">Net</text>
+            <text x={PAD_L - 8} y={barMid + 4} textAnchor="end" fontSize="11" className="fill-ink-3">{t("fin.net")}</text>
             <line x1={PAD_L} x2={W - PAD_R} y1={barMid} y2={barMid} className="stroke-line-strong" />
             {points.map((p, i) => {
                 const top = Math.min(yN(p.net), barMid)
@@ -100,13 +101,13 @@ export function CashChart({ points, nowWeek }: { points: CashPoint[]; nowWeek: n
                         className={p.net < 0 ? "fill-negative" : "fill-ink-2"}
                         fillOpacity={p.projected ? 0.2 : 0.55}
                     >
-                        <title>{`Week ${p.week}${p.projected ? " (projected)" : ""}: net ${formatCurrency(p.net, "$", false)}`}</title>
+                        <title>{t(p.projected ? "fin.tipNetProjected" : "fin.tipNet", { week: p.week, amount: formatCurrency(p.net, "$", false) })}</title>
                     </rect>
                 )
             })}
 
             {points.map((p, i) => (i % labelEvery === 0 || i === nowIndex) && (
-                <text key={i} x={x(i)} y={H - 4} textAnchor="middle" fontSize="11" className={i === nowIndex ? "fill-ink-2" : "fill-ink-3"}>W{p.week}</text>
+                <text key={i} x={x(i)} y={H - 4} textAnchor="middle" fontSize="11" className={i === nowIndex ? "fill-ink-2" : "fill-ink-3"}>{t("fin.axisWeek", { n: p.week })}</text>
             ))}
         </svg>
     )
