@@ -494,7 +494,7 @@ export default function Page() {
             {draftCup ? <DraftCupBracket /> : <>
             {/* League position (Phase 4.7) */}
             {playerTeamId && (
-              <LeagueSnapshot league={league} playerTeamId={playerTeamId} teamsById={teamsById} dayById={leagueDayById} gameStartDate={gameStartDate} />
+              <LeagueSnapshot league={league} playerTeamId={playerTeamId} teamsById={teamsById} dayById={leagueDayById} gameStartDate={gameStartDate} completedMatches={completedMatches} />
             )}
 
             {/* Board objectives; the chip opens Club → Board */}
