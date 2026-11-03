@@ -34,7 +34,7 @@ import {
 import { EconomyEngine } from "./economy-engine"
 import { LegendEventsManager } from "./legend-events-manager"
 import { EventsManager } from "./events-manager"
-import { TrainingManager } from "./training-manager"
+import { TrainingManager, managerTrainingSlots } from "./training-manager"
 import { TrainingProcessor } from "./processors/training-processor"
 import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { FinanceProcessor } from "./processors/finance-processor"
@@ -616,7 +616,7 @@ export class AtomicWeekProcessor {
                 // progress toward potential (drills are potential-capped, G3).
                 // Synced every week so existing saves heal on first tick.
                 const playerTeam = save.teams.find(t => t.id === config.playerTeamId)
-                const derivedMaxSlots = 10 + Math.floor((save.managerDetails.level || 1) / 3)
+                const derivedMaxSlots = managerTrainingSlots(save.managerDetails.level)
                 const oldMaxSlots = playerTeam?.maxTrainingSlots ?? 10
                 const slotIncreased = playerTeam && oldMaxSlots < derivedMaxSlots
                 if (playerTeam && slotIncreased) {

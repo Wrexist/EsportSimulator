@@ -41,6 +41,7 @@ import {
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
 import { spreadPlaceholderAttributes } from "@/engine/placeholder-attributes"
 import { seedPreseasonFriendlies } from "@/engine/preseason-friendlies"
+import { managerTrainingSlots } from "@/engine/training-manager"
 import { recordCareerProgress } from "@/engine/manager-career-profile"
 import { PreSeasonTransferProcessor } from "@/engine/pre-season-transfers"
 import { snapshotLoader } from "@/data"
@@ -1119,6 +1120,11 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             throw new Error("Failed to create save from snapshot")
           }
           if (options?.randomWorld && !draftCup && !newSave.randomWorld) randomizeWorld(newSave)
+          if (!draftCup) {
+            // Same weekly training slots the week tick derives from the manager level (HOME-14).
+            const own = newSave.teams.find((t: any) => t.id === playerTeamId)
+            if (own) own.maxTrainingSlots = managerTrainingSlots(newSave.managerDetails?.level)
+          }
 
           await steamAchievements.setActiveSave(newSave.saveId)
           // Initialize Phase 18: The Empire fields for new save
@@ -1351,7 +1357,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             tier: "AMATEUR",
             staffIds: [],
             trainingSlotsUsed: 0,
-            maxTrainingSlots: 3,
+            maxTrainingSlots: managerTrainingSlots(newSave.managerDetails?.level),
             budget: totalBudget, // Includes recruitment bonus
             leagueTier: "C_TIER",
             startingLeagueTier: "C_TIER", // ZERO_TO_HERO baseline
