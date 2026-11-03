@@ -165,7 +165,9 @@ export function MomentFrame({ momentKey, labelledBy, sound, tone = "gold", actio
                     initial={reduce ? false : { opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: reduce ? 0 : 0.3, delay: reduce ? 0 : 0.9 }}
-                    className="mt-10 flex flex-col items-center gap-2"
+                    // Sticky: on a short window (1280x720) or with a long club
+                    // name the action stays on screen instead of below the fold.
+                    className="sticky bottom-0 z-10 mt-6 flex w-full flex-col items-center gap-2 bg-linear-to-t from-ink from-60% to-transparent pb-4 pt-6"
                 >
                     <Button ref={buttonRef} onClick={close} disabled={!armed} className="h-12 min-w-[240px] px-10 text-base">
                         {actionLabel}

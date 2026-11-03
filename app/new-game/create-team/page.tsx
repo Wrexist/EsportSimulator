@@ -254,6 +254,7 @@ export default function CreateTeamPage() {
                                 placeholder={t("ng.namePlaceholder")}
                                 value={managerName}
                                 aria-invalid={!!errors.managerName || undefined}
+                                maxLength={32}
                                 onChange={(e) => {
                                     setManagerName(e.target.value)
                                     if (errors.managerName) setErrors({ ...errors, managerName: "" })
@@ -270,6 +271,7 @@ export default function CreateTeamPage() {
                                 placeholder={t("ct.teamPlaceholder")}
                                 value={teamData.name}
                                 aria-invalid={!!errors.teamName || undefined}
+                                maxLength={32}
                                 onChange={(e) => {
                                     setTeamData({ ...teamData, name: e.target.value })
                                     if (errors.teamName) setErrors({ ...errors, teamName: "" })
