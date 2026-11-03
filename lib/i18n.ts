@@ -40,6 +40,26 @@ export function getLocale(): string {
     return currentLocale
 }
 
+/** The locale for Intl date and list formatting (English keeps the US month-day order the game always used). */
+export function intlLocale(): string {
+    return currentLocale === "en" ? "en-US" : currentLocale
+}
+
+/** "1st", "1.", "1er", "1-е": a position in a table, in the active language. */
+export function ordinalLabel(n: number): string {
+    switch (currentLocale) {
+        case "de": case "pl": return `${n}.`
+        case "es": return `${n}.º`
+        case "pt-BR": return `${n}º`
+        case "fr": return n === 1 ? "1er" : `${n}e`
+        case "ru": return `${n}-е`
+        default: {
+            const s = ["th", "st", "nd", "rd"], v = n % 100
+            return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`
+        }
+    }
+}
+
 /** Locales with a complete dictionary. */
 export function getAvailableLocales(): string[] {
     return Object.keys(translations).filter(locale => getLocaleCompleteness(locale).complete)
@@ -140,6 +160,8 @@ export function getLocaleCompleteness(locale: string) {
 }
 
 const placeholders = (text: string) => [...text.matchAll(PLACEHOLDER)].map(m => m[1]).sort()
+/** Styled-part tags (<kbd>…</kbd>, see lib/trans.tsx) a translation must keep. */
+const tags = (text: string) => [...text.matchAll(/<([a-z][a-z0-9]*)>/g)].map(m => m[1]).sort().join()
 
 /**
  * A translator's file checked against English: missing keys, keys English
@@ -157,7 +179,7 @@ export function checkTranslation(locale: string, dict: Record<string, unknown>) 
         const source = translations.en[key] ?? translations.en[`${base}.other`] ?? ""
         // A plural form may leave the count out ("une sauvegarde").
         const strip = (list: string[]) => base !== key ? list.filter(name => name !== "count") : list
-        return strip(placeholders(value)).join() !== strip(placeholders(source)).join()
+        return strip(placeholders(value)).join() !== strip(placeholders(source)).join() || tags(value) !== tags(source)
     })
     return { missing, unknown, badPlaceholders }
 }

@@ -34,6 +34,7 @@ import { createSessionPersistence } from "@/lib/session-persistence"
 import { hasUnsavedChanges } from "@/lib/unsaved-changes"
 import { waitForPendingGameSave } from "@/store/game-store"
 import { useMomentPending } from "@/components/moments/moment-state"
+import { useLocale, useUiLanguageSync } from "@/lib/use-locale"
 
 const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod => mod.ExitConfirmDialog), { ssr: false })
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
@@ -95,6 +96,10 @@ export function GameShell({ children }: { children: React.ReactNode }) {
     // Full-screen moments (titles, tier moves, signings, welcome) come first;
     // the legend pick of a major opens after its title moment.
     const momentPending = useMomentPending()
+
+    // The chosen language: its file loads, then everything below re-renders in it.
+    useUiLanguageSync(useSettingsStore(state => state.language))
+    const locale = useLocale()
 
     // Keyboard shortcuts modal state
     const [shortcutsOpen, setShortcutsOpen] = useState(false)
@@ -420,7 +425,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         // opacity/colour loops that `reducedMotion="always"` alone leaves
         // running — jumps straight to its final value via skipAnimations.
         <MotionConfig reducedMotion={reducedMotion ? "always" : "user"} skipAnimations={motionReduced}>
-        <div data-route={pathname} data-premium-ui={!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev')} className={`premium-app relative isolate flex h-dvh liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-gold/30 ${theme === "onyx" ? "onyx" : ""}`}>
+        <div key={locale} data-route={pathname} data-premium-ui={!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev')} className={`premium-app relative isolate flex h-dvh liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-gold/30 ${theme === "onyx" ? "onyx" : ""}`}>
             {/* Static light field behind the floating chrome. */}
             <div className="liquid-aurora" />
             {!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev') && <div aria-hidden="true" className="premium-atmosphere" style={{ backgroundImage: `url("${routeAtmosphere(pathname || '/')}")` }} />}

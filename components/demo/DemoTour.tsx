@@ -15,6 +15,7 @@ import { IS_DEMO, demoWeeksLeft } from "@/lib/edition"
 import { DEMO_TOUR, demoTourDone } from "@/lib/demo-tour"
 import { loadDraftCupRuns } from "@/lib/draft-cup-runs"
 import { cn } from "@/lib/utils"
+import { t, tn } from "@/lib/i18n"
 
 export function DemoTour({ demo = IS_DEMO }: { demo?: boolean }) {
     const visited = useSettingsStore(s => s.demoTourVisited)
@@ -38,10 +39,10 @@ export function DemoTour({ demo = IS_DEMO }: { demo?: boolean }) {
         <section aria-labelledby="demo-tour-title" className="rounded-lg border border-gold/50 bg-panel">
             <header className="flex min-h-11 items-center justify-between gap-4 border-b border-line px-4 py-2">
                 <p id="demo-tour-title" className="text-sm font-semibold text-ink-1">
-                    <span className="mr-2 font-bold uppercase tracking-[0.12em] text-gold">Demo</span>
-                    Try it all <span className="ml-1 text-xs font-normal tabular-nums text-ink-3">{done.size} / {DEMO_TOUR.length}</span>
+                    <span className="mr-2 font-bold uppercase tracking-[0.12em] text-gold">{t("demo.tag")}</span>
+                    {t("demo.tryAll")} <span className="ml-1 text-xs font-normal tabular-nums text-ink-3">{done.size} / {DEMO_TOUR.length}</span>
                 </p>
-                <span className="text-xs text-ink-3">{weeksLeft === 1 ? "Last demo week" : `${weeksLeft} demo weeks left`}</span>
+                <span className="text-xs text-ink-3">{weeksLeft === 1 ? t("demo.lastWeek") : tn("demo.weeksLeft", weeksLeft)}</span>
             </header>
             <ol className="divide-y divide-line">
                 {DEMO_TOUR.map(item => {
@@ -53,10 +54,10 @@ export function DemoTour({ demo = IS_DEMO }: { demo?: boolean }) {
                                     {isDone && <Check size={10} strokeWidth={3} />}
                                 </span>
                                 <span className="min-w-0">
-                                    <span className={cn("block text-sm font-semibold", isDone ? "text-ink-3" : "text-ink-1")}>{item.label}</span>
-                                    <span className="block text-xs text-ink-3">{item.detail}</span>
+                                    <span className={cn("block text-sm font-semibold", isDone ? "text-ink-3" : "text-ink-1")}>{t(`demo.tour.${item.id}.label`)}</span>
+                                    <span className="block text-xs text-ink-3">{t(`demo.tour.${item.id}.detail`)}</span>
                                 </span>
-                                <span className="sr-only">{isDone ? "(done)" : ""}</span>
+                                <span className="sr-only">{isDone ? t("firstSession.stepDone") : ""}</span>
                             </Link>
                         </li>
                     )

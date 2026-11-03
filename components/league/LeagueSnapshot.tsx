@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 import type { LeagueState, TeamSaveData } from "@/engine/save-types"
-import { ordinal } from "@/engine/season/regional-league"
+import { ordinalLabel, t } from "@/lib/i18n"
+import { divisionName } from "@/lib/display-names"
 import { formatGameCalendarDate, gameCalendarDate } from "@/lib/game-calendar"
 import { cn } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
@@ -32,9 +33,9 @@ export interface LeagueSnapshotProps {
     className?: string
 }
 
-const tableLink = (
+const TableLink = () => (
     <Link href="/league" className="inline-flex items-center gap-1 rounded-sm text-xs font-semibold text-ink-3 hover:text-ink-1">
-        Table <ArrowUpRight size={12} />
+        {t("leagueCard.table")} <ArrowUpRight size={12} />
     </Link>
 )
 
@@ -44,8 +45,8 @@ export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameS
     const own = split?.divisions.find(d => d.teamIds.includes(playerTeamId))
     if (!split || !own) {
         return (
-            <Panel eyebrow="League" title="Regional league" actions={tableLink} className={className}>
-                <p className="text-sm text-ink-3">Your club joins a division at the next split draw.</p>
+            <Panel eyebrow={t("common.league")} title={t("common.regionalLeague")} actions=<TableLink /> className={className}>
+                <p className="text-sm text-ink-3">{t("leagueCard.noDivision")}</p>
             </Panel>
         )
     }
@@ -62,27 +63,27 @@ export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameS
     const when = next
         ? (gameStartDate && day !== undefined
             ? formatGameCalendarDate(gameCalendarDate(gameStartDate, next.fixture.week, day), { weekday: "short", month: "short", day: "numeric" })
-            : `Week ${((next.fixture.week - 1) % 52) + 1}`)
+            : t("common.week", { n: ((next.fixture.week - 1) % 52) + 1 }))
         : null
     const outcome = split.completed ? previousSplitOutcome(league, playerTeamId) : null
 
     return (
-        <Panel eyebrow="League" title={own.name} actions={tableLink} className={className}>
+        <Panel eyebrow={t("common.league")} title={divisionName(own.name)} actions=<TableLink /> className={className}>
             <div className="flex items-center gap-5">
                 <p className="shrink-0 font-display text-[40px] font-bold leading-none tabular-nums text-ink-1">
-                    {me && started ? ordinal(me.position) : "—"}<span className="text-lg text-ink-3">/{rows.length}</span>
+                    {me && started ? ordinalLabel(me.position) : "—"}<span className="text-lg text-ink-3">/{rows.length}</span>
                 </p>
                 <dl className="grid min-w-0 flex-1 grid-cols-3 gap-3">
                     <div>
-                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Points</dt>
+                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("leagueCard.points")}</dt>
                         <dd className="font-display text-xl font-bold tabular-nums text-ink-1">{me?.points ?? 0}</dd>
                     </div>
                     <div>
-                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Record</dt>
+                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("leagueCard.record")}</dt>
                         <dd className="font-display text-xl font-bold tabular-nums text-ink-1">{me ? `${me.wins}–${me.losses}` : "0–0"}</dd>
                     </div>
                     <div>
-                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Round diff</dt>
+                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("leagueCard.roundDiff")}</dt>
                         <dd className="font-display text-xl font-bold tabular-nums text-ink-1">{signed(me?.roundDiff ?? 0)}</dd>
                     </div>
                 </dl>
@@ -94,16 +95,16 @@ export function LeagueSnapshot({ league, playerTeamId, teamsById, dayById, gameS
             <div className="mt-3 flex min-h-9 items-center gap-2.5 border-t border-line pt-3">
                 {next ? (
                     <>
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Next</span>
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("leagueCard.next")}</span>
                         <TeamLogoDisplay team={opp} size={22} className="shrink-0" />
                         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">
-                            {opp?.name ?? "TBD"}{oppPos ? <span className="font-normal text-ink-3"> · {ordinal(oppPos)}</span> : null}
+                            {opp?.name ?? t("common.tbd")}{oppPos ? <span className="font-normal text-ink-3"> · {ordinalLabel(oppPos)}</span> : null}
                         </span>
-                        <span className="shrink-0 text-xs tabular-nums text-ink-3">{next.home ? "H" : "A"} · {when}</span>
+                        <span className="shrink-0 text-xs tabular-nums text-ink-3">{next.home ? t("leagueCard.home") : t("leagueCard.away")} · {when}</span>
                     </>
                 ) : (
                     <span className="text-sm text-ink-3">
-                        {outcome ? `${splitOutcomeText(outcome)} ${nextDrawLabel(split)}.` : "No league fixtures left this split."}
+                        {outcome ? t("leagueCard.outcomeNext", { outcome: splitOutcomeText(outcome), draw: nextDrawLabel(split) }) : t("leagueCard.noFixtures")}
                     </span>
                 )}
             </div>

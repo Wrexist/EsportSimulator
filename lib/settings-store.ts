@@ -1,6 +1,7 @@
 "use client"
 
-import { normalizeColorVision, SUPPORTED_UI_LANGUAGE, type ColorVisionMode } from './accessibility-preferences'
+import { normalizeColorVision, type ColorVisionMode } from './accessibility-preferences'
+import { normalizeUiLanguage } from './ui-languages'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -195,7 +196,7 @@ export const useSettingsStore = create<GameSettings>()(
             setLiveKeyRoundsOnly: (enabled) => set({ liveKeyRoundsOnly: enabled === true }),
             setNotifications: (enabled) => set({ notifications: enabled }),
             setDifficulty: (diff) => set({ difficulty: diff }),
-            setLanguage: (_lang) => set({ language: SUPPORTED_UI_LANGUAGE }),
+            setLanguage: (lang) => set({ language: normalizeUiLanguage(lang) }),
 
             // Apply window settings via Electron IPC or Browser API
             applyWindowSettings: () => {
@@ -281,7 +282,7 @@ export const useSettingsStore = create<GameSettings>()(
                     openWeekReport: stored?.openWeekReport !== false,
                     notifications: typeof stored?.notifications === 'boolean' ? stored.notifications : current.notifications,
                     difficulty: ['easy', 'normal', 'hard', 'legendary'].includes(stored?.difficulty ?? '') ? stored!.difficulty! : current.difficulty,
-                    language: SUPPORTED_UI_LANGUAGE,
+                    language: normalizeUiLanguage(stored?.language),
                     colorVisionMode: normalizeColorVision(stored?.colorVisionMode),
                     colorVisionPreferenceSet: typeof stored?.colorVisionMode === 'string',
                     masterVolume: boundedVolume(stored?.masterVolume ?? current.masterVolume),

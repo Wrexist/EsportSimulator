@@ -5,7 +5,7 @@
  */
 import { BOARD_TUNING } from "@/lib/balance-tuning"
 import {
-    BOARD_THRESHOLDS,
+    boardThresholds,
     boardStatus,
     boardWeeks,
     confidenceTrail,
@@ -32,8 +32,8 @@ describe("board standing", () => {
     })
 
     test("the thresholds shown are the engine's", () => {
-        expect(BOARD_THRESHOLDS.map(t => t.at)).toEqual([BOARD_TUNING.RECOVERED_AT, BOARD_TUNING.WARN_BELOW, BOARD_TUNING.NOTICE_BELOW, BOARD_TUNING.SACK_AT_OR_BELOW])
-        expect(BOARD_THRESHOLDS.map(t => t.at)).toEqual([50, 40, 25, 10])
+        expect(boardThresholds().map(t => t.at)).toEqual([BOARD_TUNING.RECOVERED_AT, BOARD_TUNING.WARN_BELOW, BOARD_TUNING.NOTICE_BELOW, BOARD_TUNING.SACK_AT_OR_BELOW])
+        expect(boardThresholds().map(t => t.at)).toEqual([50, 40, 25, 10])
     })
 
     test("grace weeks count down from the start of the job", () => {

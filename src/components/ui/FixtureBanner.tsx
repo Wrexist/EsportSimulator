@@ -3,6 +3,10 @@ import type { ComponentProps, ReactNode } from "react"
 import { cn } from "@/lib/utils"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { RatingChip } from "@/src/components/ui/RatingChip"
+import { t } from "@/lib/i18n"
+
+/** W / L / D in the active language (S / N / U in German, etc.). */
+const formLetter = (r: FormResult) => t(r === "W" ? "common.win.short" : r === "L" ? "common.loss.short" : "common.draw.short")
 
 export type FormResult = "W" | "L" | "D"
 
@@ -13,12 +17,12 @@ const FORM_CLASS: Record<FormResult, string> = {
 }
 
 /** FormGuide — last results as W/L/D squares, oldest first. */
-export function FormGuide({ results, className, emptyLabel = "No matches yet" }: { results: FormResult[]; className?: string; emptyLabel?: string }) {
-    if (results.length === 0) return <span className={cn("text-xs text-ink-3", className)}>{emptyLabel}</span>
+export function FormGuide({ results, className, emptyLabel }: { results: FormResult[]; className?: string; emptyLabel?: string }) {
+    if (results.length === 0) return <span className={cn("text-xs text-ink-3", className)}>{emptyLabel ?? t("common.noMatchesYet")}</span>
     return (
-        <span className={cn("inline-flex items-center gap-1", className)} aria-label={`Form: ${results.join(" ")}`}>
+        <span className={cn("inline-flex items-center gap-1", className)} aria-label={t("form.label", { results: results.map(formLetter).join(" ") })}>
             {results.map((r, i) => (
-                <span key={i} aria-hidden="true" className={cn("flex h-5 w-5 items-center justify-center rounded-sm text-[11px] font-bold", FORM_CLASS[r])}>{r}</span>
+                <span key={i} aria-hidden="true" className={cn("flex h-5 w-5 items-center justify-center rounded-sm text-[11px] font-bold", FORM_CLASS[r])}>{formLetter(r)}</span>
             ))}
         </span>
     )
@@ -65,7 +69,7 @@ function Side({ side, align }: { side: FixtureSide; align: "left" | "right" }) {
                 <div className={cn("mt-3 flex items-center gap-4", right && "flex-row-reverse")}>
                     {side.ovr != null && side.ovr > 0 && (
                         <span className={cn("flex items-center gap-2", right && "flex-row-reverse")}>
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">OVR</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("common.ovr")}</span>
                             <RatingChip value={side.ovr} size="md" />
                         </span>
                     )}
@@ -99,7 +103,7 @@ export function FixtureBanner({ home, away, competition, when, center, action, f
                 <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-8 px-8 py-7">
                     <Side side={home} align="left" />
                     <div className="flex flex-col items-center gap-1 text-center">
-                        {center ?? <span className="font-display text-4xl font-bold uppercase text-ink-3">VS</span>}
+                        {center ?? <span className="font-display text-4xl font-bold uppercase text-ink-3">{t("common.vs")}</span>}
                     </div>
                     <Side side={away} align="right" />
                 </div>

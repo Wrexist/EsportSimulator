@@ -1,3 +1,4 @@
+import { t, tn } from './i18n'
 import { WeeklyActivityType } from '@/types/activities'
 import type { CompletedMatchSaveData, MatchSaveData, PlayerSaveData, TeamSaveData } from '@/engine/save-types'
 
@@ -139,12 +140,9 @@ export interface FirstSessionGuidance {
     help: string
 }
 
-export const FIRST_SESSION_LABELS: Record<FirstSessionStep, string> = {
-    squad: 'Assess your squad',
-    budget: 'Check what you can afford',
-    decision: 'Make one training or recruitment decision',
-    match: 'Play your first match',
-    week: 'Advance to next week',
+/** The step's name in the checklist (translation key first-session.label.<step>). */
+export function firstSessionLabel(step: FirstSessionStep): string {
+    return t(`firstSession.label.${step}`)
 }
 
 export function firstSessionNextStep(state: FirstSessionState): FirstSessionStep | null {
@@ -159,58 +157,56 @@ export function firstSessionGuidance(state: FirstSessionState, ctx: FirstSession
     const starters = availableStarters(team, players)
     const missing = Math.max(0, 5 - starters)
     const cash = `${formatCurrency(Math.round(team.budget), "$", false)}`
-    const base = { step, title: FIRST_SESSION_LABELS[step], alternatives: [] as FirstSessionLink[], reviewPath: '', reviewLabel: '' }
+    const base = { step, title: firstSessionLabel(step), alternatives: [] as FirstSessionLink[], reviewPath: '', reviewLabel: '' }
     if (step === 'squad') return {
         ...base,
         detail: missing > 0
-            ? `${starters}/5 starters available. You need ${missing} more before a match can be played. Look at who you have first, then sign players in Transfers.`
-            : `${starters}/5 starters available. Look at each player's role and rating to see where the team is strong or thin.`,
-        action: { href: '/squad', label: 'Open squad' },
-        reviewPath: '/squad', reviewLabel: 'Done assessing squad',
-        help: 'OVR is overall ability. Each lineup needs five players; covering the main roles (AWPer, in-game leader, entry) once each usually beats stacking one role.',
+            ? t('firstSession.squad.missing', { starters, missing })
+            : t('firstSession.squad.full', { starters }),
+        action: { href: '/squad', label: t('firstSession.openSquad') },
+        reviewPath: '/squad', reviewLabel: t('firstSession.squad.review'),
+        help: t('firstSession.squad.help'),
     }
     if (step === 'budget') return {
         ...base,
-        detail: `Cash: ${cash}. Wages and running costs come out of cash every week. Check the weekly outgoings before you add salary.`,
-        action: { href: '/finances', label: 'Open finances' },
-        reviewPath: '/finances', reviewLabel: 'Done checking finances',
-        help: 'Prize money is uncertain; sponsor and merchandise income is recurring. A free agent has no transfer fee but still needs a paid contract. Running out of cash limits what you can do.',
+        detail: t('firstSession.budget.detail', { cash }),
+        action: { href: '/finances', label: t('firstSession.openFinances') },
+        reviewPath: '/finances', reviewLabel: t('firstSession.budget.review'),
+        help: t('firstSession.budget.help'),
     }
     if (step === 'decision') {
-        const recruit = { href: '/transfers', label: 'Sign a player' }
-        const focus = { href: '/week#weekly-focus', label: 'Choose weekly focus' }
-        const training = { href: '/week#training-focus', label: 'Set training focus' }
+        const recruit = { href: '/transfers', label: t('firstSession.signPlayer') }
+        const focus = { href: '/week#weekly-focus', label: t('firstSession.chooseFocus') }
+        const training = { href: '/week#training-focus', label: t('firstSession.setTraining') }
         return {
             ...base,
-            detail: missing > 0
-                ? `You are ${missing} player${missing === 1 ? '' : 's'} short. Signing one counts as your decision. You can also pick a weekly focus or a player's training focus.`
-                : 'Pick a weekly focus or a player\'s training focus in the week plan, or sign a player. This step completes when you make the choice.',
+            detail: missing > 0 ? tn('firstSession.decision.short', missing) : t('firstSession.decision.full'),
             action: missing > 0 ? recruit : focus,
             alternatives: missing > 0 ? [focus, training] : [training, recruit],
-            help: 'Regular training is free and is a valid choice. Paid weekly plans are charged when the week is processed, and only offered when you have the cash.',
+            help: t('firstSession.decision.help'),
         }
     }
     if (step === 'match') {
-        const help = 'You can watch the match live or simulate it. Tactics are optional. Your choices and pending rounds are saved if you leave mid-match.'
-        if (activeMatchId) return { ...base, detail: 'You have a match in progress. Continue it before starting another.', action: { href: `/match/${activeMatchId}/live`, label: 'Resume match' }, help }
-        if (missing > 0) return { ...base, detail: `You need five available starters to play. Sign ${missing} more in Transfers, then check the squad order.`, action: { href: '/transfers', label: 'Find players' }, help }
+        const help = t('firstSession.match.help')
+        if (activeMatchId) return { ...base, detail: t('firstSession.match.inProgress'), action: { href: `/match/${activeMatchId}/live`, label: t('firstSession.resumeMatch') }, help }
+        if (missing > 0) return { ...base, detail: t('firstSession.match.missing', { missing }), action: { href: '/transfers', label: t('firstSession.findPlayers') }, help }
         const upcoming = matches.filter(ownsMatch(team.id)).sort((a, b) => a.week - b.week || (a.day ?? 6) - (b.day ?? 6))[0]
         return {
             ...base,
             detail: upcoming
-                ? `Next fixture: week ${upcoming.week}, day ${(upcoming.day ?? 6) + 1}. Advance time from the top bar. When the match is due, the top bar shows Play match.`
-                : 'No fixture is scheduled. Use the schedule to arrange a friendly once your squad is ready.',
-            action: { href: '/schedule', label: 'Open schedule' },
+                ? t('firstSession.match.next', { week: upcoming.week, day: (upcoming.day ?? 6) + 1 })
+                : t('firstSession.match.none'),
+            action: { href: '/schedule', label: t('firstSession.openSchedule') },
             help,
         }
     }
     const last = lastOwnPlayedResult(team.id, ctx.completed)
     return {
         ...base,
-        detail: 'Advance to next week from the top bar (Skip week in daily mode, Continue in weekly mode). Your weekly focus and wages are settled then.',
-        action: { href: '/', label: 'Back to Home' },
-        alternatives: last && state.baseline && last.id !== state.baseline.lastResultId ? [{ href: `/match/${last.id}/result`, label: 'Review your result' }] : [],
-        help: 'Processing the week applies training, wages and income, then saves the career. Check Home and Finances afterwards to see what changed.',
+        detail: t('firstSession.week.detail'),
+        action: { href: '/', label: t('firstSession.backHome') },
+        alternatives: last && state.baseline && last.id !== state.baseline.lastResultId ? [{ href: `/match/${last.id}/result`, label: t('firstSession.reviewResult') }] : [],
+        help: t('firstSession.week.help'),
     }
 }
 

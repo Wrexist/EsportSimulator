@@ -136,7 +136,7 @@ export function TopBar() {
                     <NavigationSearch compact disabled={false} pro={pro} />
 
                     {!hideCareerControls && !betweenClubs && !pro && (
-                        <div className="flex flex-col items-end leading-none" title="Club funds">
+                        <div className="flex flex-col items-end leading-none" title={t("topbar.funds")}>
                             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("topbar.funds")}</span>
                             {isMounted ? (
                                 <AnimatedNumber
@@ -161,10 +161,12 @@ export function TopBar() {
                         <button
                             type="button"
                             onClick={() => setTimeMode(timeMode === "HYBRID_DAILY" ? "WEEKLY" : "HYBRID_DAILY")}
-                            title="Switch between day-by-day and week-by-week time"
+                            title={t("topbar.timeModeHint")}
                             className="mt-1 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3 hover:text-ink-1"
                         >
-                            Week {currentWeek}{timeMode === "HYBRID_DAILY" ? ` · Day ${currentDay + 1}` : ""} · {timeMode === "HYBRID_DAILY" ? "Daily" : "Weekly"}
+                            {timeMode === "HYBRID_DAILY"
+                                ? t("topbar.weekDayLine", { week: currentWeek, day: currentDay + 1, mode: t("common.daily") })
+                                : t("topbar.weekLine", { week: currentWeek, mode: t("common.weekly") })}
                         </button>
                     </div>
 
@@ -172,7 +174,7 @@ export function TopBar() {
                     <Link
                         href={settingsItem.href}
                         aria-label={t("topbar.settings")}
-                        title="Settings"
+                        title={t("topbar.settings")}
                         className="flex h-9 w-9 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1"
                     >
                         <Settings size={18} />
@@ -182,7 +184,7 @@ export function TopBar() {
                         <Link
                             href="/career"
                             aria-label={t("topbar.managerProfile")}
-                            title={managerName ? `${managerName} — manager profile` : "Manager profile"}
+                            title={managerName ? `${managerName} · ${t("topbar.managerProfile")}` : t("topbar.managerProfile")}
                             className="flex h-8 w-8 items-center justify-center rounded-full border border-line-strong bg-raised text-[11px] font-bold text-ink-1 hover:border-gold"
                         >
                             {isMounted ? managerInitials : ""}

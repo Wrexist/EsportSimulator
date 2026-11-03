@@ -119,7 +119,7 @@ export default function MainMenuPage() {
                     {IS_DEMO && (
                         <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-gold/60 px-3 py-1 text-xs font-semibold text-ink-2">
                             <span className="font-bold uppercase tracking-[0.14em] text-gold">{t("menu.demo")}</span>
-                            <span>{t("menu.demoWeeks", { count: DEMO_LAST_WEEK })}</span>
+                            <span>{tn("menu.demoWeeks", DEMO_LAST_WEEK)}</span>
                         </p>
                     )}
                 </header>

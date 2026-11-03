@@ -17,6 +17,8 @@ import { PlayerPortrait } from "@/components/ui/asset-images"
 import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
+import { t, tn } from "@/lib/i18n"
+import { Trans } from "@/lib/trans"
 
 export function ProCareerPanel() {
     const view = useGameStore(useShallow(s => ({ proCareer: s.proCareer, players: s.players, teams: s.teams, contracts: s.contracts, playerTeamId: s.playerTeamId, currentWeek: s.currentWeek })))
@@ -36,7 +38,7 @@ export function ProCareerPanel() {
         </div>
     )
     return (
-        <Panel title="Your pro career" actions={<span className={cn("rounded-sm px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em]", starter ? "bg-positive/15 text-positive" : "bg-caution/15 text-caution")} data-testid="pro-status">{starter ? "In the starting five" : "On the bench"}</span>}>
+        <Panel title={t("pro.title")} actions={<span className={cn("rounded-sm px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em]", starter ? "bg-positive/15 text-positive" : "bg-caution/15 text-caution")} data-testid="pro-status">{starter ? t("pro.starter") : t("pro.bench")}</span>}>
             <div className="flex items-center gap-4">
                 <PlayerPortrait src={player.portraitPath} seed={player.id} alt={player.nickname} size={64} />
                 <div className="min-w-0 flex-1">
@@ -44,30 +46,30 @@ export function ProCareerPanel() {
                         <span className="truncate font-display text-2xl font-bold uppercase leading-none text-ink-1">{player.nickname}</span>
                         <RoleTag role={player.role} />
                     </div>
-                    <p className="mt-1 text-sm text-ink-3">Age {player.age} · {team.name}{clubs > 1 ? ` · club ${clubs} of your career` : ""}</p>
+                    <p className="mt-1 text-sm text-ink-3">{t("pro.age", { age: player.age })} · {team.name}{clubs > 1 ? ` · ${t("pro.clubN", { n: clubs })}` : ""}</p>
                 </div>
-                <div className="flex items-center gap-2"><RatingChip value={ovr} size="lg" /><span className="text-xs text-ink-3">ceiling {Math.round(player.potential ?? ovr)}</span></div>
+                <div className="flex items-center gap-2"><RatingChip value={ovr} size="lg" /><span className="text-xs text-ink-3">{t("pro.ceiling", { value: Math.round(player.potential ?? ovr) })}</span></div>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                {stat("Squad rank", `${squadRank} of ${squadSize}`)}
-                {stat("Matches · rating", `${player.matchesPlayed ?? 0} · ${(player.avgRating ?? 0) > 0 ? player.avgRating.toFixed(2) : "–"}`)}
-                {stat("Contract", contract ? `${formatCurrency(contract.salaryPerWeek, "$", false)}/wk to wk ${contract.endWeek}` : "–")}
-                {stat("Clubs scout you", weeksUntilOffers === 0 ? "This week" : `In ${weeksUntilOffers} week${weeksUntilOffers === 1 ? "" : "s"}`)}
+                {stat(t("pro.squadRank"), t("pro.rankOf", { rank: squadRank, size: squadSize }))}
+                {stat(t("pro.matchesRating"), `${player.matchesPlayed ?? 0} · ${(player.avgRating ?? 0) > 0 ? player.avgRating.toFixed(2) : "–"}`)}
+                {stat(t("pro.contract"), contract ? t("pro.contractValue", { wage: formatCurrency(contract.salaryPerWeek, "$", false), week: contract.endWeek }) : "–")}
+                {stat(t("pro.scoutYou"), weeksUntilOffers === 0 ? t("home.thisWeek") : tn("pro.inWeeks", weeksUntilOffers))}
             </div>
             <p className="mt-3 text-sm text-ink-2" data-testid="pro-goal-line">
                 {goal != null
-                    ? <>Next match goal: a rating of <span className="font-semibold tabular-nums text-ink-1">{goal.toFixed(2)}</span> or better. Meet it and clubs scout you sooner.</>
-                    : "Win a starting place to get a personal goal for each match."}
-                {goals && goals.set > 0 && <span className="text-ink-3"> Goals met: {goals.hit} of {goals.set}.</span>}
+                    ? <Trans k="pro.nextGoal" params={{ rating: goal.toFixed(2) }} tags={{ b: v => <span className="font-semibold tabular-nums text-ink-1">{v}</span> }} />
+                    : t("pro.noGoal")}
+                {goals && goals.set > 0 && <span className="text-ink-3"> {t("pro.goalsMet", { hit: goals.hit, set: goals.set })}</span>}
             </p>
             <p className="mt-2 text-xs text-ink-3">
                 {starter
-                    ? "The coach starts the five best players. Keep improving to keep your place and catch a bigger club's eye."
-                    : `The coach starts the five best players; you are number ${squadRank}. Train hard to pass the player above you.`}
+                    ? t("pro.starterHint")
+                    : t("pro.benchHint", { rank: squadRank })}
             </p>
             <div className="mt-3 flex gap-2">
-                <Button asChild size="sm" variant="outline"><Link href={`/player/${player.id}`}>Your profile</Link></Button>
-                <Button asChild size="sm" variant="outline"><Link href="/training">Your training</Link></Button>
+                <Button asChild size="sm" variant="outline"><Link href={`/player/${player.id}`}>{t("pro.profile")}</Link></Button>
+                <Button asChild size="sm" variant="outline"><Link href="/training">{t("pro.training")}</Link></Button>
             </div>
         </Panel>
     )

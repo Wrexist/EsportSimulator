@@ -23,7 +23,9 @@ import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { IS_DEMO } from "@/lib/edition"
-import { AccessibilitySettings, AudioSettings, ControlsSettings, DisplaySettings, GameplaySettings, SettingRow } from "@/components/settings/SettingsSections"
+import { AccessibilitySettings, AudioSettings, ControlsSettings, DisplaySettings, GameplaySettings, LanguageSettings, SettingRow } from "@/components/settings/SettingsSections"
+import { t } from "@/lib/i18n"
+import { Trans } from "@/lib/trans"
 
 type SettingsTab = "SETTINGS" | "ACHIEVEMENTS" | "DEV_TOOLS"
 
@@ -98,9 +100,9 @@ export default function SettingsPage() {
     if (!saveLocation) return
     try {
       await navigator.clipboard.writeText(saveLocation)
-      toast({ title: "Copied", description: "Save location copied to clipboard." })
+      toast({ title: t("settings.toast.copied"), description: t("settings.toast.copiedBody") })
     } catch {
-      toast({ title: "Copy failed", description: "Clipboard not available.", variant: "destructive" })
+      toast({ title: t("settings.toast.copyFailed"), description: t("settings.toast.copyFailedBody"), variant: "destructive" })
     }
   }
 
@@ -109,30 +111,30 @@ export default function SettingsPage() {
       const text = await file.text()
       const { save, error } = saveManager.importSave(text)
       if (!save || error) {
-        toast({ title: "Import failed", description: error || "Invalid save file.", variant: "destructive" })
+        toast({ title: t("settings.toast.importFailed"), description: error || t("settings.toast.invalidSave"), variant: "destructive" })
         return
       }
       const result = await saveManager.saveGame(save)
       if (!result.success) {
-        toast({ title: "Import failed", description: result.error || "Could not persist imported save.", variant: "destructive" })
+        toast({ title: t("settings.toast.importFailed"), description: result.error || t("settings.toast.persistFailed"), variant: "destructive" })
         return
       }
-      toast({ title: "Save imported", description: `Load "${save.saveName}" from the Load game screen.` })
+      toast({ title: t("settings.toast.imported"), description: t("settings.toast.importedBody", { name: save.saveName }) })
     } catch (e) {
-      toast({ title: "Import failed", description: e instanceof Error ? e.message : "Unknown error", variant: "destructive" })
+      toast({ title: t("settings.toast.importFailed"), description: e instanceof Error ? e.message : t("common.unknownError"), variant: "destructive" })
     }
   }
 
   const handleExport = async () => {
     const state = useGameStore.getState()
     if (!state.saveId) {
-      toast({ title: "Export failed", description: "No career is loaded.", variant: "destructive" })
+      toast({ title: t("settings.toast.exportFailed"), description: t("settings.toast.noCareer"), variant: "destructive" })
       return
     }
 
     const { save, error } = await saveManager.loadGame(state.saveId)
     if (!save || error) {
-      toast({ title: "Export failed", description: error || "Unable to load current save.", variant: "destructive" })
+      toast({ title: t("settings.toast.exportFailed"), description: error || t("settings.toast.loadFailed"), variant: "destructive" })
       return
     }
 
@@ -145,7 +147,7 @@ export default function SettingsPage() {
     a.click()
     URL.revokeObjectURL(url)
 
-    toast({ title: "Save exported", description: "Your save file has been downloaded." })
+    toast({ title: t("settings.toast.exported"), description: t("settings.toast.exportedBody") })
   }
 
   const handleDeleteAllSaves = async () => {
@@ -191,8 +193,8 @@ export default function SettingsPage() {
           <Icon size={17} />
         </span>
         <span className="min-w-0 flex-1">
-          <span className={cn("block truncate text-sm font-semibold", achievement.unlocked ? "text-ink-1" : "text-ink-2")}>{secret ? "Secret achievement" : achievement.name}</span>
-          <span className="block text-xs leading-snug text-ink-3">{secret ? "Keep playing to discover it." : achievement.description}</span>
+          <span className={cn("block truncate text-sm font-semibold", achievement.unlocked ? "text-ink-1" : "text-ink-2")}>{secret ? t("achievements.secret") : achievement.name}</span>
+          <span className="block text-xs leading-snug text-ink-3">{secret ? t("achievements.secretHint") : achievement.description}</span>
         </span>
       </li>
     )
@@ -201,23 +203,23 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-[1280px] space-y-5 pb-16">
       <ScreenHeader
-        eyebrow="Options"
-        title="Settings"
-        subtitle="Changes apply immediately and are stored on this device."
+        eyebrow={t("settings.eyebrow")}
+        title={t("settings.title")}
+        subtitle={t("settings.subtitle")}
         aside={
           <>
-            {!IS_DEMO && <Button asChild variant="ghost"><Link href="/settings/community-import">Community &amp; Workshop</Link></Button>}
-            <Button asChild variant="ghost"><Link href="/credits">Credits</Link></Button>
-            <Button asChild variant="outline"><Link href="/main-menu">Main menu</Link></Button>
+            {!IS_DEMO && <Button asChild variant="ghost"><Link href="/settings/community-import">{t("settings.community")}</Link></Button>}
+            <Button asChild variant="ghost"><Link href="/credits">{t("settings.credits")}</Link></Button>
+            <Button asChild variant="outline"><Link href="/main-menu">{t("settings.mainMenu")}</Link></Button>
           </>
         }
       />
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as SettingsTab)}>
-        <TabsList aria-label="Settings sections" className="w-full">
-          <TabsTrigger value="SETTINGS">Settings</TabsTrigger>
+        <TabsList aria-label={t("settings.sections")} className="w-full">
+          <TabsTrigger value="SETTINGS">{t("settings.tab.settings")}</TabsTrigger>
           <TabsTrigger value="ACHIEVEMENTS">
-            Achievements {isAchievementsInitialized && <span className="tabular-nums text-ink-3">{achievementsProgress.unlocked}/{achievementsProgress.total}</span>}
+            {t("settings.tab.achievements")} {isAchievementsInitialized && <span className="tabular-nums text-ink-3">{achievementsProgress.unlocked}/{achievementsProgress.total}</span>}
           </TabsTrigger>
           {devToolsEnabled && <TabsTrigger value="DEV_TOOLS">Dev tools</TabsTrigger>}
         </TabsList>
@@ -226,56 +228,55 @@ export default function SettingsPage() {
       {activeTab === "SETTINGS" && (
         <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
           <div className="space-y-4">
-            <Panel title="Display" padded={false}><DisplaySettings /></Panel>
-            <Panel title="Audio" padded={false}><AudioSettings /></Panel>
-            <Panel title="Accessibility" padded={false}><AccessibilitySettings /></Panel>
+            <Panel title={t("settings.panel.language")} padded={false}><LanguageSettings /></Panel>
+            <Panel title={t("settings.panel.display")} padded={false}><DisplaySettings /></Panel>
+            <Panel title={t("settings.panel.audio")} padded={false}><AudioSettings /></Panel>
+            <Panel title={t("settings.panel.accessibility")} padded={false}><AccessibilitySettings /></Panel>
           </div>
           <div className="space-y-4">
-            <Panel title="Gameplay" padded={false}><GameplaySettings /></Panel>
+            <Panel title={t("settings.panel.gameplay")} padded={false}><GameplaySettings /></Panel>
 
-            <Panel title="Saves" padded={false}>
+            <Panel title={t("settings.panel.saves")} padded={false}>
               <div className="divide-y divide-line">
-                <SettingRow label="Save location" hint={<span className="break-all font-mono">{saveLocation ?? "Browser storage (IndexedDB)"}</span>}>
+                <SettingRow label={t("settings.saveLocation")} hint={<span className="break-all font-mono">{saveLocation ?? t("settings.browserStorage")}</span>}>
                   {saveLocation && (
-                    <Button variant="outline" size="sm" onClick={handleCopySaveLocation} className="gap-1.5"><Copy size={13} /> Copy path</Button>
+                    <Button variant="outline" size="sm" onClick={handleCopySaveLocation} className="gap-1.5"><Copy size={13} /> {t("settings.copyPath")}</Button>
                   )}
                 </SettingRow>
-                <SettingRow label="Export or import" hint="Export writes the loaded career to a .json file. Imported saves appear under Load game.">
+                <SettingRow label={t("settings.exportImport")} hint={t("settings.exportImportHint")}>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={handleExport} disabled={!careerLoaded} className="gap-1.5"><Download size={13} /> Export</Button>
-                    <Button variant="outline" size="sm" onClick={() => importInputRef.current?.click()} className="gap-1.5"><Upload size={13} /> Import</Button>
+                    <Button variant="outline" size="sm" onClick={handleExport} disabled={!careerLoaded} className="gap-1.5"><Download size={13} /> {t("settings.export")}</Button>
+                    <Button variant="outline" size="sm" onClick={() => importInputRef.current?.click()} className="gap-1.5"><Upload size={13} /> {t("settings.import")}</Button>
                   </div>
                 </SettingRow>
                 <SettingRow
-                  label="Sandbox editor"
-                  hint={sandboxOn
-                    ? "On for this career: edit money, players, contracts and club names. This career earns no achievements."
-                    : careerLoaded ? "Edit money, players, contracts and names in this career. Turning it on is permanent for this career and switches its achievements off." : "Load a career to use the sandbox editor."}
+                  label={t("settings.sandbox")}
+                  hint={sandboxOn ? t("settings.sandboxOn") : careerLoaded ? t("settings.sandboxOff") : t("settings.sandboxNoCareer")}
                 >
                   {sandboxOn ? (
-                    <Button asChild variant="outline" size="sm"><Link href="/settings/sandbox">Open editor</Link></Button>
+                    <Button asChild variant="outline" size="sm"><Link href="/settings/sandbox">{t("settings.sandboxOpen")}</Link></Button>
                   ) : (
                     <ConfirmDialog
-                      title="Turn on the sandbox editor?"
-                      description="You can then edit this career's money, players, contracts and names. The career earns no achievements, Steam stats or leaderboard scores from now on, and its save slot is marked Sandbox. This cannot be turned off for this career."
+                      title={t("settings.sandboxConfirmTitle")}
+                      description={t("settings.sandboxConfirmBody")}
                       onConfirm={() => { enableSandbox(); router.push("/settings/sandbox") }}
-                      confirmText="Turn on sandbox"
+                      confirmText={t("settings.sandboxConfirm")}
                       icon="info"
                     >
-                      <Button variant="outline" size="sm" disabled={!careerLoaded}>Turn on…</Button>
+                      <Button variant="outline" size="sm" disabled={!careerLoaded}>{t("settings.sandboxTurnOn")}</Button>
                     </ConfirmDialog>
                   )}
                 </SettingRow>
-                <SettingRow label="Delete all local careers" hint="Removes every career and its backups. Preferences, your manager profile and Map Studio drafts are kept.">
+                <SettingRow label={t("settings.deleteAll")} hint={t("settings.deleteAllHint")}>
                   <ConfirmDialog
-                    title="Delete all local careers?"
-                    description="Deletes all local careers and their backups, then returns to the main menu. Device preferences, your manager profile and Map Studio drafts are kept. This cannot be undone."
+                    title={t("settings.deleteAllConfirmTitle")}
+                    description={t("settings.deleteAllConfirmBody")}
                     onConfirm={handleDeleteAllSaves}
                     destructive
-                    confirmText="Delete all careers"
+                    confirmText={t("settings.deleteAllConfirm")}
                     icon="danger"
                   >
-                    <Button variant="outline" size="sm" className="text-negative!">Delete all…</Button>
+                    <Button variant="outline" size="sm" className="text-negative!">{t("settings.deleteAllButton")}</Button>
                   </ConfirmDialog>
                 </SettingRow>
               </div>
@@ -292,13 +293,13 @@ export default function SettingsPage() {
               />
             </Panel>
 
-            <Panel title="Controls" padded={false}><ControlsSettings /></Panel>
+            <Panel title={t("settings.panel.controls")} padded={false}><ControlsSettings /></Panel>
 
-            <Panel title="About" padded={false}>
-              <SettingRow label={`Esports Manager v${process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}`} hint="Credits and the open-source components the game is built with.">
+            <Panel title={t("settings.panel.about")} padded={false}>
+              <SettingRow label={`Esports Manager v${process.env.NEXT_PUBLIC_GAME_VERSION || "1.0.0"}`} hint={t("settings.aboutHint")}>
                 <div className="flex gap-2">
-                  <Button asChild variant="outline" size="sm"><Link href="/credits">Credits</Link></Button>
-                  <Button ref={licensesButtonRef} variant="outline" size="sm" onClick={() => setLicensesOpen(true)}>Licenses</Button>
+                  <Button asChild variant="outline" size="sm"><Link href="/credits">{t("settings.credits")}</Link></Button>
+                  <Button ref={licensesButtonRef} variant="outline" size="sm" onClick={() => setLicensesOpen(true)}>{t("settings.licenses")}</Button>
                 </div>
               </SettingRow>
             </Panel>
@@ -308,18 +309,18 @@ export default function SettingsPage() {
 
       {activeTab === "ACHIEVEMENTS" && (
         !isAchievementsInitialized ? (
-          <p className="py-16 text-center text-sm text-ink-3" role="status">Loading achievements…</p>
+          <p className="py-16 text-center text-sm text-ink-3" role="status">{t("achievements.loading")}</p>
         ) : (
           <div className="space-y-4">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <KpiStrip>
-                <Kpi label="Unlocked" value={`${achievementsProgress.unlocked} / ${achievementsProgress.total}`} />
-                <Kpi label="Complete" value={`${achievementsProgress.percentage}%`} />
+                <Kpi label={t("achievements.unlocked")} value={`${achievementsProgress.unlocked} / ${achievementsProgress.total}`} />
+                <Kpi label={t("achievements.complete")} value={`${achievementsProgress.percentage}%`} />
               </KpiStrip>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setShowHidden(!showHidden)} className="gap-1.5">
                   {showHidden ? <EyeOff size={14} /> : <Eye size={14} />}
-                  {showHidden ? "Hide secret" : "Show secret"}
+                  {showHidden ? t("achievements.hideSecret") : t("achievements.showSecret")}
                 </Button>
                 {devToolsEnabled && (
                   <ConfirmDialog
@@ -342,15 +343,15 @@ export default function SettingsPage() {
             </div>
 
             <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
-              <Panel title="Unlocked" actions={<span className="text-xs tabular-nums text-ink-3">{unlockedAchievements.length}</span>} padded={false}>
+              <Panel title={t("achievements.unlocked")} actions={<span className="text-xs tabular-nums text-ink-3">{unlockedAchievements.length}</span>} padded={false}>
                 {unlockedAchievements.length > 0
                   ? <ul className="divide-y divide-line">{unlockedAchievements.map(renderAchievement)}</ul>
-                  : <p className="px-4 py-3 text-sm text-ink-3">None yet. Your first win unlocks one.</p>}
+                  : <p className="px-4 py-3 text-sm text-ink-3">{t("achievements.none")}</p>}
               </Panel>
-              <Panel title="Locked" actions={<span className="text-xs tabular-nums text-ink-3">{lockedAchievements.length}</span>} padded={false}>
+              <Panel title={t("achievements.locked")} actions={<span className="text-xs tabular-nums text-ink-3">{lockedAchievements.length}</span>} padded={false}>
                 {lockedAchievements.length > 0
                   ? <ul className="divide-y divide-line">{lockedAchievements.map(renderAchievement)}</ul>
-                  : <p className="px-4 py-3 text-sm text-ink-3">Everything unlocked.</p>}
+                  : <p className="px-4 py-3 text-sm text-ink-3">{t("achievements.all")}</p>}
               </Panel>
             </div>
           </div>
@@ -387,9 +388,9 @@ export default function SettingsPage() {
 
       <Dialog open={licensesOpen} onOpenChange={setLicensesOpen}>
         <DialogContent className="sm:max-w-lg" onCloseAutoFocus={(event) => { event.preventDefault(); licensesButtonRef.current?.focus() }}>
-          <DialogTitle>Third-party licenses</DialogTitle>
+          <DialogTitle>{t("settings.licensesTitle")}</DialogTitle>
           <DialogDescription>
-            Built with these open-source components. Full license texts ship in <span className="font-mono">THIRD_PARTY_LICENSES.txt</span> next to the executable.
+            <Trans k="settings.licensesBody" tags={{ file: name => <span className="font-mono">{name}</span> }} />
           </DialogDescription>
           <dl className="divide-y divide-line rounded-md border border-line text-sm">
             {LICENSES.map(([name, license]) => (
@@ -400,7 +401,7 @@ export default function SettingsPage() {
             ))}
           </dl>
           <div className="flex justify-end pt-2">
-            <Button variant="outline" onClick={() => setLicensesOpen(false)}>Close</Button>
+            <Button variant="outline" onClick={() => setLicensesOpen(false)}>{t("common.close")}</Button>
           </div>
         </DialogContent>
       </Dialog>

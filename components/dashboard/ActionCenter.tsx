@@ -29,6 +29,7 @@ import { ChevronRight, Mail, Dumbbell, CalendarClock, CheckCircle2, Mic } from "
 import { describeChoice, type EffectChip } from "@/components/inbox/inbox-model"
 import type { GameEventSaveData } from "@/engine/save-types"
 import { formatSignedCurrency } from "@/lib/utils-extended"
+import { t, tn } from "@/lib/i18n"
 
 const DEFAULT_MAX_TRAINING_SLOTS = 10
 
@@ -40,13 +41,13 @@ function ChoiceEffects({ effects }: { effects: any }) {
         chips.push({ label: formatSignedCurrency(effects.money, "$", false), positive: effects.money > 0 })
     }
     if (typeof effects.morale === "number" && effects.morale !== 0) {
-        chips.push({ label: `${effects.morale > 0 ? "+" : ""}${effects.morale} morale`, positive: effects.morale > 0 })
+        chips.push({ label: t("effect.morale", { value: `${effects.morale > 0 ? "+" : ""}${effects.morale}` }), positive: effects.morale > 0 })
     }
     if (typeof effects.reputation === "number" && effects.reputation !== 0) {
-        chips.push({ label: `${effects.reputation > 0 ? "+" : ""}${effects.reputation} rep`, positive: effects.reputation > 0 })
+        chips.push({ label: t("effect.reputation", { value: `${effects.reputation > 0 ? "+" : ""}${effects.reputation}` }), positive: effects.reputation > 0 })
     }
     if (typeof effects.loyalty === "number" && effects.loyalty !== 0) {
-        chips.push({ label: `${effects.loyalty > 0 ? "+" : ""}${effects.loyalty} loyalty`, positive: effects.loyalty > 0 })
+        chips.push({ label: t("effect.loyalty", { value: `${effects.loyalty > 0 ? "+" : ""}${effects.loyalty}` }), positive: effects.loyalty > 0 })
     }
     if (chips.length === 0) return null
     return (
@@ -122,14 +123,14 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
 
     return (
         <Panel
-            title="Decisions"
-            actions={<span className="text-xs tabular-nums text-ink-3">{promptCount > 0 ? `${promptCount} to do` : "All done"}</span>}
+            title={t("decisions.title")}
+            actions={<span className="text-xs tabular-nums text-ink-3">{promptCount > 0 ? t("decisions.toDo", { count: promptCount }) : t("decisions.allDone")}</span>}
             padded={false}
             className={className}
         >
             {promptCount === 0 ? (
                 <p className="flex items-center gap-2 px-4 py-3 text-sm text-ink-3">
-                    <CheckCircle2 size={16} className="text-positive" /> All caught up. Advance when you&apos;re ready.
+                    <CheckCircle2 size={16} className="text-positive" /> {t("decisions.caughtUp")}
                 </p>
             ) : (
                 <div className="divide-y divide-line">
@@ -143,7 +144,7 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                                 href={`/match/${pressMatch}/tactics`}
                                 icon={<Mic size={15} />}
                                 title={getEventTitle(event)}
-                                detail="Optional: answer before the match on the match screen"
+                                detail={t("decisions.pressDetail")}
                             />
                         )
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- choices is a runtime-only field
@@ -154,7 +155,7 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                             <div key={event.id} className="space-y-2 px-4 py-3">
                                 <div className="flex items-baseline justify-between gap-3">
                                     <span className="text-sm font-semibold text-ink-1">{getEventTitle(event)}</span>
-                                    <span className="shrink-0 text-xs text-ink-3">Week {event.week}</span>
+                                    <span className="shrink-0 text-xs text-ink-3">{t("common.week", { n: event.week })}</span>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     {choices.map(choice => {
@@ -183,8 +184,8 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                         <PromptRow
                             href="?inbox=decisions"
                             icon={<Mail size={15} />}
-                            title={`${offerCount} offer${offerCount > 1 ? "s" : ""} awaiting a response`}
-                            detail="Review them in your inbox"
+                            title={tn("decisions.offers", offerCount)}
+                            detail={t("decisions.offersDetail")}
                         />
                     )}
 
@@ -193,8 +194,8 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                         <PromptRow
                             href="/training"
                             icon={<Dumbbell size={15} />}
-                            title={`${freeTrainingSlots} training session${freeTrainingSlots > 1 ? "s" : ""} unused`}
-                            detail="Practise when rested; unused sessions are fine before a match."
+                            title={tn("decisions.training", freeTrainingSlots)}
+                            detail={t("decisions.trainingDetail")}
                         />
                     )}
 
@@ -202,8 +203,8 @@ export function ActionCenter({ children, className }: { children?: ReactNode; cl
                         <PromptRow
                             href="/week#weekly-focus"
                             icon={<CalendarClock size={15} />}
-                            title="Plan this week"
-                            detail="Pick the team focus and bookings in the week plan"
+                            title={t("decisions.planWeek")}
+                            detail={t("decisions.planWeekDetail")}
                         />
                     )}
                 </div>

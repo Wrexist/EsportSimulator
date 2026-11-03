@@ -62,7 +62,7 @@ test('a fixture the manager cannot field five for is never offered as "Play matc
     load({ managerPlayers: 4 })
     const html = topBarHtml()
     expect(html).not.toContain('Play match')
-    expect(html).toContain('CONTINUE')
+    expect(html).toContain('>Continue<')
 })
 
 test('quick sim of an unplayable fixture reports failure and explains, so no "Match Not Found" navigation', async () => {
@@ -78,7 +78,7 @@ test('a dissolved career (game over) cannot be advanced from the TopBar or the d
     const { save } = load({ managerPlayers: 4 })
     useGameStore.setState({ gameOverReason: 'BANKRUPTCY', gameOverWeek: save.currentWeek } as never)
     const html = topBarHtml()
-    const continueButton = html.match(/<button[^>]*>(?:(?!<\/button>).)*CONTINUE(?:(?!<\/button>).)*<\/button>/)?.[0]
+    const continueButton = html.match(/<button[^>]*>(?:(?!<\/button>).)*>Continue<(?:(?!<\/button>).)*<\/button>/)?.[0]
     expect(continueButton).toMatch(/disabled=""/)
     jest.mocked(weekProcessorBridge.processWeek).mockReset()
     useGameStore.setState({ timeMode: 'HYBRID_DAILY', currentDay: 2 } as never)

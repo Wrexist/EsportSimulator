@@ -4,56 +4,58 @@
 
 export interface Shortcut {
     keys: string[]
+    /** Translation key (locales/en/settings.ts); show it with t(). */
     description: string
 }
 
 export interface ShortcutGroup {
+    /** Translation key; show it with t(). */
     label: string
     shortcuts: Shortcut[]
 }
 
 export const SHORTCUT_GROUPS: ShortcutGroup[] = [
     {
-        label: "General",
+        label: "shortcuts.group.general",
         shortcuts: [
-            { keys: ["Ctrl", "S"], description: "Save game" },
-            { keys: ["Ctrl", "L"], description: "Open load game screen" },
-            { keys: ["F2"], description: "Quick save" },
-            { keys: ["F3"], description: "Open load game screen" },
-            { keys: ["F10"], description: "Open settings" },
-            { keys: ["F11"], description: "Toggle fullscreen" },
-            { keys: ["F1"], description: "Show keyboard shortcuts" },
-            { keys: ["?"], description: "Show keyboard shortcuts" },
+            { keys: ["Ctrl", "S"], description: "shortcuts.saveGame" },
+            { keys: ["Ctrl", "L"], description: "shortcuts.openLoad" },
+            { keys: ["F2"], description: "shortcuts.quickSave" },
+            { keys: ["F3"], description: "shortcuts.openLoad" },
+            { keys: ["F10"], description: "shortcuts.openSettings" },
+            { keys: ["F11"], description: "shortcuts.fullscreen" },
+            { keys: ["F1"], description: "shortcuts.showShortcuts" },
+            { keys: ["?"], description: "shortcuts.showShortcuts" },
         ],
     },
     {
-        label: "Navigation",
+        label: "shortcuts.group.navigation",
         shortcuts: [
-            { keys: ["1"], description: "Home (dashboard)" },
-            { keys: ["2"], description: "Open inbox" },
-            { keys: ["I"], description: "Open / close inbox" },
-            { keys: ["3"], description: "Squad" },
-            { keys: ["4"], description: "Week plan" },
-            { keys: ["5"], description: "Match centre (next match)" },
-            { keys: ["6"], description: "Recruitment (transfers)" },
-            { keys: ["7"], description: "Competition (league)" },
-            { keys: ["8"], description: "Club (finances)" },
-            { keys: ["9"], description: "Settings" },
-            { keys: ["Esc"], description: "Go back / Close modal" },
+            { keys: ["1"], description: "shortcuts.home" },
+            { keys: ["2"], description: "shortcuts.openInbox" },
+            { keys: ["I"], description: "shortcuts.toggleInbox" },
+            { keys: ["3"], description: "shortcuts.squad" },
+            { keys: ["4"], description: "shortcuts.weekPlan" },
+            { keys: ["5"], description: "shortcuts.matchCentre" },
+            { keys: ["6"], description: "shortcuts.recruitment" },
+            { keys: ["7"], description: "shortcuts.competition" },
+            { keys: ["8"], description: "shortcuts.club" },
+            { keys: ["9"], description: "shortcuts.settings" },
+            { keys: ["Esc"], description: "shortcuts.back" },
         ],
     },
     {
-        label: "Gameplay",
+        label: "shortcuts.group.gameplay",
         shortcuts: [
-            { keys: ["Space"], description: "Advance time (day or week)" },
-            { keys: ["Space"], description: "Pause / resume a live match" },
+            { keys: ["Space"], description: "shortcuts.advance" },
+            { keys: ["Space"], description: "shortcuts.pauseLive" },
         ],
     },
     {
-        label: "Modals",
+        label: "shortcuts.group.modals",
         shortcuts: [
-            { keys: ["Ctrl", "Enter"], description: "Confirm action" },
-            { keys: ["Esc"], description: "Cancel / Close" },
+            { keys: ["Ctrl", "Enter"], description: "shortcuts.confirm" },
+            { keys: ["Esc"], description: "shortcuts.cancel" },
         ],
     },
 ]
