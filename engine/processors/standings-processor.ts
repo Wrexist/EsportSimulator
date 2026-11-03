@@ -26,7 +26,8 @@ import { EventType } from "@/types"
 import type { SaveIndexes } from "@/store/indexes"
 import { SeededRNG } from "../rng"
 import { QualificationEngine } from "../tournament-qualification"
-import { TournamentManager } from "../tournament-manager"
+import { TournamentManager, circuitPointsForPlacement } from "../tournament-manager"
+import { ordinal } from "../season/regional-league"
 import { LEGENDARY_PLAYERS } from "../legendary-players-data"
 import { CIRCUIT_POINTS, getTournamentById } from "@/data/tournament-calendar"
 import { recordTitle } from "../official-stats"
@@ -340,7 +341,7 @@ export function updateStandings(
                     type: "INCOME",
                     category: "PRIZE",
                     amount: prizeAmount,
-                    description: `${tournament.name} - ${p.position === 1 ? "1st" : p.position === 2 ? "2nd" : p.position + "th"} Place`,
+                    description: `${tournament.name} - ${ordinal(p.position)} Place`,
                     balance: team.budget,
                 })
                 ledgerIdSet?.add(prizeLedgerId)
@@ -353,7 +354,8 @@ export function updateStandings(
         const tierKey = tournament.tier as keyof typeof CIRCUIT_POINTS
         const pointsTable = (CIRCUIT_POINTS[tierKey] || {}) as Record<number, number>
         for (const p of placements) {
-            const points = pointsTable[p.position] ?? 0
+            // Same exit round, same points (QF losers 5-8 share the block).
+            const points = circuitPointsForPlacement(pointsTable, p)
             if (points <= 0) continue
 
             const entry = save.circuitPoints.find(cp => cp.teamId === p.teamId)
@@ -363,7 +365,7 @@ export function updateStandings(
                 entry.results.push({
                     tournamentId: tournament.id,
                     tournamentName: tournament.name,
-                    placement: p.position,
+                    placement: p.tiedFrom ?? p.position,
                     points,
                     week: save.currentWeek,
                 })
@@ -374,7 +376,7 @@ export function updateStandings(
                     results: [{
                         tournamentId: tournament.id,
                         tournamentName: tournament.name,
-                        placement: p.position,
+                        placement: p.tiedFrom ?? p.position,
                         points,
                         week: save.currentWeek,
                     }],

@@ -75,6 +75,27 @@ function getCoachTacticalBonus(save: GameSave, team: { staffIds: string[] }): nu
     return coach ? STAFF_EFFECTS.COACH.tacticBonus(coach.level) : 0
 }
 
+/**
+ * A final place. Teams knocked out in the same round get consecutive
+ * positions (prize tables are per position) and share a block
+ * `tiedFrom`..`tiedThrough` (QF losers 5-8, Round-of-16 losers 9-16).
+ */
+export type Placement = { teamId: string, position: number, tiedFrom?: number, tiedThrough?: number }
+
+/**
+ * Circuit points for a place. Teams in one shared block get the same points:
+ * the block's average, so the total handed out stays the same. Without this
+ * the bracket slot decided who got 600 and who 400 for the same
+ * quarter-final exit.
+ */
+export function circuitPointsForPlacement(table: Record<number, number>, placement: Placement): number {
+    const first = placement.tiedFrom ?? placement.position
+    const last = Math.max(first, placement.tiedThrough ?? placement.position)
+    let total = 0
+    for (let pos = first; pos <= last; pos++) total += table[pos] ?? 0
+    return Math.round(total / (last - first + 1))
+}
+
 export class TournamentManager {
     /** Generate an elimination event if the eliminated team is the player's team */
     private static notifyPlayerElimination(save: GameSave, tournament: TournamentSaveData, teamId: string): void {
@@ -894,8 +915,12 @@ export class TournamentManager {
         }
     }
 
-    static calculatePlacements(save: GameSave, tournament: TournamentSaveData): { teamId: string, position: number }[] {
-        const placements: { teamId: string, position: number }[] = []
+    /**
+     * Final places. Teams knocked out in the same round share a block
+     * (`tiedFrom`..`tiedThrough`); see Placement and circuitPointsForPlacement.
+     */
+    static calculatePlacements(save: GameSave, tournament: TournamentSaveData): Placement[] {
+        const placements: Placement[] = []
 
         // Round-robin leagues have no playoff bracket stages (every match is a
         // "League Match"), so final placement is simply the standings order.
@@ -942,11 +967,10 @@ export class TournamentManager {
 
         // 3. Quarter-final losers (5th-8th) — assign unique positions
         const qfs = tournament.playoffBracket.filter(m => m.stage.includes("Quarter-final"))
+        const qfLosers = qfs.filter(m => m.isCompleted && m.loserId).map(m => m.loserId!)
         let qfPosition = 5
-        qfs.forEach(m => {
-            if (m.isCompleted && m.loserId) {
-                placements.push({ teamId: m.loserId, position: qfPosition++ })
-            }
+        qfLosers.forEach(loserId => {
+            placements.push({ teamId: loserId, position: qfPosition++, tiedFrom: 5, tiedThrough: 4 + qfLosers.length })
         })
 
         // 3b. Earlier-round losers for pure single-elim brackets.
@@ -979,7 +1003,9 @@ export class TournamentManager {
                     return d !== 0 ? d : stableTeamIdNumber(a) - stableTeamIdNumber(b)
                 })
                 let pos = size / 2 + 1
-                losers.forEach(teamId => placements.push({ teamId, position: pos++ }))
+                const blockStart = pos
+                const blockEnd = size / 2 + losers.length
+                losers.forEach(teamId => placements.push({ teamId, position: pos++, tiedFrom: blockStart, tiedThrough: blockEnd }))
             }
         }
 
