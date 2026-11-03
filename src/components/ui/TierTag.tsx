@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { t as tr } from "@/lib/i18n"
 
 /** "S_TIER" / "S" / "s-tier" → "S"; "QUALIFIER" → "Q"; unknown → null. */
 export function normalizeTier(tier: string | null | undefined): "S" | "A" | "B" | "C" | "Q" | null {
@@ -24,7 +25,7 @@ export function TierTag({ tier, className }: { tier: string | null | undefined; 
                 className,
             )}
         >
-            {t === "Q" ? "Qualifier" : `${t}-tier`}
+            {t === "Q" ? tr("common.tier.QUALIFIER") : tr(`common.tier.${t}_TIER`)}
         </span>
     )
 }

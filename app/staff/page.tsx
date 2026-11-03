@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { intlLocale, t } from "@/lib/i18n"
 
 import React, { useEffect, useMemo, useState } from "react"
 import { RefreshCw } from "lucide-react"
@@ -18,18 +20,18 @@ import { CountryFlag } from "@/components/ui/CountryFlag"
 import { StaffNegotiationModal } from "@/components/staff/StaffNegotiationModal"
 import { TalentTree } from "@/components/staff/TalentTree"
 import { DelegationPanel } from "@/components/staff/DelegationPanel"
-import { ROLE_LABEL, matchCountedIds, staffEffects, staffMatchPct, teamStaffSummary } from "@/components/staff/staff-effects"
+import { matchCountedIds, roleLabel, specializationLabel, staffEffects, staffMatchPct, staffStatLabel, teamStaffSummary } from "@/components/staff/staff-effects"
 import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 
 const MAX_STAFF = 5 // store/slices/staff-management-slice.ts MAX_STAFF_PER_TEAM
 
-/** Staff attributes the engine reads (organization-effects, staff-specialization, scouting processor). */
-const USED_STAFF_STATS: Partial<Record<StaffSaveData["role"], Record<string, string>>> = {
-    coach: { development: "Training" },
-    psychologist: { mentalRecovery: "Recovery", stressResistance: "Defeat morale" },
-    scout: { accuracy: "Report depth" },
+/** Staff attributes the engine reads (organization-effects, staff-specialization, scouting processor); label is t(`st.use.${stat}`). */
+const USED_STAFF_STATS: Partial<Record<StaffSaveData["role"], string[]>> = {
+    coach: ["development"],
+    psychologist: ["mentalRecovery", "stressResistance"],
+    scout: ["accuracy"],
 }
 
 /** Contract weeks left → tone: red inside a month, amber inside a quarter. */
@@ -49,7 +51,7 @@ function StaffIdentity({ s }: { s: StaffSaveData }) {
                 <p className="truncate text-[15px] font-semibold text-ink-1">{s.name}</p>
                 <div className="flex items-center gap-1.5 text-xs text-ink-3">
                     {s.nationality && <CountryFlag country={s.nationality} size={14} />}
-                    <span className="truncate">{s.specialization}{s.rarity && s.rarity !== "Common" ? ` · ${s.rarity}` : ""}</span>
+                    <span className="truncate">{specializationLabel(s.specialization)}{s.rarity && s.rarity !== "Common" ? ` · ${t(`st.rarity.${s.rarity}`)}` : ""}</span>
                 </div>
             </div>
         </div>
@@ -66,7 +68,7 @@ function Effects({ lines, muted }: { lines: string[]; muted?: boolean }) {
 
 function LevelPips({ level }: { level: number }) {
     return (
-        <span className="inline-flex items-center gap-2" aria-label={`Level ${level} of 5`}>
+        <span className="inline-flex items-center gap-2" aria-label={t("st.levelAria", { n: level })}>
             <span className="font-display text-lg font-bold tabular-nums text-ink-1">{level}</span>
             <span className="flex gap-0.5" aria-hidden="true">
                 {[1, 2, 3, 4, 5].map(i => <span key={i} className={cn("h-2.5 w-1 rounded-sm", i <= level ? "bg-ink-2" : "bg-hover")} />)}
@@ -108,42 +110,42 @@ export default function StaffPage() {
     }, [_hasHydrated])
 
     if (!team) {
-        return <div role="status" className="mx-auto max-w-[1600px] py-10 text-sm text-ink-3">Loading staff…</div>
+        return <div role="status" className="mx-auto max-w-[1600px] py-10 text-sm text-ink-3">{t("st.loading")}</div>
     }
 
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={`Week ${currentWeek} · Club`}
-                title="Staff"
-                subtitle="Coach, analyst and psychologist add match strength by level; each also has a development job. One per role counts in matches."
+                eyebrow={t("st.eyebrow", { n: currentWeek })}
+                title={t("st.title")}
+                subtitle={t("st.subtitle")}
                 aside={
                     <KpiStrip>
-                        <Kpi label="Staff" value={`${hired.length} / ${MAX_STAFF}`} />
-                        <Kpi label="Match strength" value={`+${summary.matchPct.toFixed(1)}%`} hint={summary.uncappedMatchPct > summary.capPct ? `Capped at +${summary.capPct}%` : `Cap +${summary.capPct}%`} />
-                        <Kpi label="Training" value={`+${Math.round(summary.trainingPct)}%`} hint="Weekly gains" />
-                        <Kpi label="Wages / wk" value={formatCurrency(wageBill, "$", false)} />
+                        <Kpi label={t("st.kpi.staff")} value={`${hired.length} / ${MAX_STAFF}`} />
+                        <Kpi label={t("st.kpi.match")} value={`+${summary.matchPct.toLocaleString(intlLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`} hint={summary.uncappedMatchPct > summary.capPct ? t("st.kpi.cappedAt", { n: summary.capPct }) : t("st.kpi.cap", { n: summary.capPct })} />
+                        <Kpi label={t("st.kpi.training")} value={`+${Math.round(summary.trainingPct)}%`} hint={t("st.kpi.trainingHint")} />
+                        <Kpi label={t("st.kpi.wages")} value={formatCurrency(wageBill, "$", false)} />
                     </KpiStrip>
                 }
             />
 
             <div className={cn("grid grid-cols-1 gap-4", hired.length > 0 && "2xl:grid-cols-[minmax(0,1fr)_540px]")}>
                 <div className="min-w-0 space-y-4">
-                    <Panel title="Your staff" actions={<span className="text-xs text-ink-3">Select a row to see talents</span>} padded={false}>
+                    <Panel title={t("st.yours")} actions={<span className="text-xs text-ink-3">{t("st.selectRow")}</span>} padded={false}>
                         {hired.length === 0 ? (
-                            <p className="px-4 py-5 text-sm text-ink-3">No staff hired. Pick someone from the market below.</p>
+                            <p className="px-4 py-5 text-sm text-ink-3">{t("st.noneHired")}</p>
                         ) : (
                             <div className="overflow-x-auto">
                                 <table data-slot="table" className="w-full min-w-[900px] border-collapse text-left">
                                     <thead data-slot="table-header">
                                         <tr className="border-b border-line">
-                                            <th data-slot="table-head" className="pl-4">Staff</th>
-                                            <th data-slot="table-head" className="px-3">Role</th>
-                                            <th data-slot="table-head" className="px-3">Level</th>
-                                            <th data-slot="table-head" className="px-3">Effect in game</th>
-                                            <th data-slot="table-head" className="px-3 text-right">Wage / wk</th>
-                                            <th data-slot="table-head" className="px-3 text-right">Contract</th>
-                                            <th data-slot="table-head" className="pr-4"><span className="sr-only">Actions</span></th>
+                                            <th data-slot="table-head" className="pl-4">{t("st.col.staff")}</th>
+                                            <th data-slot="table-head" className="px-3">{t("st.col.role")}</th>
+                                            <th data-slot="table-head" className="px-3">{t("st.col.level")}</th>
+                                            <th data-slot="table-head" className="px-3">{t("st.col.effect")}</th>
+                                            <th data-slot="table-head" className="px-3 text-right">{t("st.col.wage")}</th>
+                                            <th data-slot="table-head" className="px-3 text-right">{t("st.col.contract")}</th>
+                                            <th data-slot="table-head" className="pr-4"><span className="sr-only">{t("st.col.actions")}</span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -159,33 +161,33 @@ export default function StaffPage() {
                                                     tabIndex={0}
                                                     onClick={() => setSelectedId(s.id)}
                                                     onKeyDown={e => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setSelectedId(s.id) } }}
-                                                    aria-label={`${s.name}, ${ROLE_LABEL[s.role]}, show talents`}
+                                                    aria-label={t("st.rowAria", { name: s.name, role: roleLabel(s.role) })}
                                                     className="h-16 cursor-pointer border-b border-line outline-none focus-visible:bg-hover"
                                                 >
                                                     <td className="py-2 pl-4 pr-3"><StaffIdentity s={s} /></td>
-                                                    <td className="px-3 text-sm text-ink-2">{ROLE_LABEL[s.role]}</td>
+                                                    <td className="px-3 text-sm text-ink-2">{roleLabel(s.role)}</td>
                                                     <td className="px-3"><LevelPips level={s.level} /></td>
                                                     <td className="px-3 py-2"><Effects lines={staffEffects(s, counted.has(s.id) || s.role === "scout")} /></td>
                                                     <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(s.salaryPerWeek, "$", false)}</td>
                                                     <td className={cn("px-3 text-right text-sm tabular-nums", weeksLeft == null ? "text-ink-3" : contractTone(weeksLeft))}>
-                                                        {weeksLeft == null ? "Open" : weeksLeft >= 52 ? `${(weeksLeft / 52).toFixed(1)}y` : `${weeksLeft}w`}
+                                                        {weeksLeft == null ? t("st.open") : weeksLeft >= 52 ? t("st.years", { n: (weeksLeft / 52).toLocaleString(intlLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }) : t("st.weeks", { n: weeksLeft })}
                                                     </td>
                                                     <td className="pr-4" onClick={e => e.stopPropagation()}>
                                                         <div className="flex items-center justify-end gap-2">
                                                             <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!canRenew}
-                                                                title={canRenew ? "Open contract renewal" : "Renewal opens in the final year"}
+                                                                title={canRenew ? t("st.renewTip") : t("st.renewLater")}
                                                                 onClick={() => setNegotiating({ id: s.id, renewal: true })}>
-                                                                Renew
+                                                                {t("st.renew")}
                                                             </Button>
                                                             <ConfirmDialog
-                                                                title={`Release ${s.name}?`}
-                                                                description="Their wage stops now and their effects end. No severance is paid. This can't be undone."
+                                                                title={t("st.releaseTitle", { name: s.name })}
+                                                                description={t("st.releaseBody")}
                                                                 onConfirm={() => fireStaff(s.id)}
                                                                 destructive
-                                                                confirmText="Release"
+                                                                confirmText={t("st.release")}
                                                                 icon="danger"
                                                             >
-                                                                <Button size="sm" variant="ghost" className="h-8 px-3 text-xs">Release</Button>
+                                                                <Button size="sm" variant="ghost" className="h-8 px-3 text-xs">{t("st.release")}</Button>
                                                             </ConfirmDialog>
                                                         </div>
                                                     </td>
@@ -199,27 +201,27 @@ export default function StaffPage() {
                     </Panel>
 
                     <Panel
-                        title="Staff market"
+                        title={t("st.market")}
                         actions={
-                            <Button size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => { refreshStaffMarket(); toast.info("Market refreshed") }}>
-                                <RefreshCw size={13} /> Refresh
+                            <Button size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => { refreshStaffMarket(); toast.info(t("st.refreshed")) }}>
+                                <RefreshCw size={13} /> {t("st.refresh")}
                             </Button>
                         }
                         padded={false}
                     >
                         {marketStaff.length === 0 ? (
-                            <p className="px-4 py-5 text-sm text-ink-3">Nobody is on the market right now.</p>
+                            <p className="px-4 py-5 text-sm text-ink-3">{t("st.marketEmpty")}</p>
                         ) : (
                             <div className="overflow-x-auto">
                                 <table data-slot="table" className="w-full min-w-[900px] border-collapse text-left">
                                     <thead data-slot="table-header">
                                         <tr className="border-b border-line">
-                                            <th data-slot="table-head" className="pl-4">Staff</th>
-                                            <th data-slot="table-head" className="px-3">Role</th>
-                                            <th data-slot="table-head" className="px-3">Level</th>
-                                            <th data-slot="table-head" className="px-3">Effect if hired</th>
-                                            <th data-slot="table-head" className="px-3 text-right">Asking / wk</th>
-                                            <th data-slot="table-head" className="pr-4"><span className="sr-only">Actions</span></th>
+                                            <th data-slot="table-head" className="pl-4">{t("st.col.staff")}</th>
+                                            <th data-slot="table-head" className="px-3">{t("st.col.role")}</th>
+                                            <th data-slot="table-head" className="px-3">{t("st.col.level")}</th>
+                                            <th data-slot="table-head" className="px-3">{t("st.col.effectIfHired")}</th>
+                                            <th data-slot="table-head" className="px-3 text-right">{t("st.col.asking")}</th>
+                                            <th data-slot="table-head" className="pr-4"><span className="sr-only">{t("st.col.actions")}</span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -230,8 +232,8 @@ export default function StaffPage() {
                                                 <tr key={s.id} data-slot="table-row" className="h-16 border-b border-line">
                                                     <td className="py-2 pl-4 pr-3"><StaffIdentity s={s} /></td>
                                                     <td className="px-3 text-sm text-ink-2">
-                                                        {ROLE_LABEL[s.role]}
-                                                        {isSpecialist(s) && s.role !== "analyst" && <span className="ml-2 rounded-sm border border-line-strong px-1 text-[11px] text-ink-3" title="Specialization matches the role: +10% to training (coach), recovery (psychologist) or scouting accuracy (scout)">Specialist</span>}
+                                                        {roleLabel(s.role)}
+                                                        {isSpecialist(s) && s.role !== "analyst" && <span className="ml-2 rounded-sm border border-line-strong px-1 text-[11px] text-ink-3" title={t("st.specialistTip")}>{t("st.specialist")}</span>}
                                                     </td>
                                                     <td className="px-3"><LevelPips level={s.level} /></td>
                                                     <td className="px-3 py-2">
@@ -240,9 +242,9 @@ export default function StaffPage() {
                                                     <td className="px-3 text-right text-sm tabular-nums text-ink-1">{formatCurrency(s.salaryPerWeek, "$", false)}</td>
                                                     <td className="pr-4 text-right">
                                                         <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={hired.length >= MAX_STAFF}
-                                                            title={hired.length >= MAX_STAFF ? `Staff is full (${MAX_STAFF})` : undefined}
+                                                            title={hired.length >= MAX_STAFF ? t("st.full", { n: MAX_STAFF }) : undefined}
                                                             onClick={() => setNegotiating({ id: s.id, renewal: false })}>
-                                                            Make offer
+                                                            {t("st.makeOffer")}
                                                         </Button>
                                                     </td>
                                                 </tr>
@@ -253,7 +255,7 @@ export default function StaffPage() {
                             </div>
                         )}
                         <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
-                            Hiring costs a two-week sign-on fee. A second coach, analyst or psychologist adds training or recovery but no extra match strength.
+                            {t("st.marketNote")}
                         </p>
                     </Panel>
 
@@ -262,8 +264,8 @@ export default function StaffPage() {
 
                 {hired.length > 0 && <aside className="min-w-0">
                     <Panel
-                        title={selected ? `${selected.name} · talents` : "Talents"}
-                        actions={selected ? <span className="text-xs text-ink-3"><span className="font-semibold tabular-nums text-ink-1">{selected.talentPoints || 0}</span> points to spend</span> : null}
+                        title={selected ? t("st.talentsOf", { name: selected.name }) : t("st.talents")}
+                        actions={selected ? <span className="text-xs text-ink-3"><Trans k="st.pointsToSpend" params={{ n: selected.talentPoints || 0 }} tags={{ b: x => <span className="font-semibold tabular-nums text-ink-1">{x}</span> }} /></span> : null}
                         padded={false}
                         className="2xl:sticky 2xl:top-4"
                     >
@@ -271,21 +273,21 @@ export default function StaffPage() {
                             <>
                                 <div className="grid grid-cols-2 gap-px border-b border-line bg-line">
                                     <div className="bg-panel px-4 py-3">
-                                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Experience</p>
-                                        <p className="mt-1 text-sm tabular-nums text-ink-1">Level {selected.level} · {Math.floor(selected.xp || 0)} / {selected.xpToNextLevel || 1000} XP</p>
+                                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("st.experience")}</p>
+                                        <p className="mt-1 text-sm tabular-nums text-ink-1">{t("st.levelXp", { level: selected.level, xp: Math.floor(selected.xp || 0), next: selected.xpToNextLevel || 1000 })}</p>
                                         <div className="mt-2 h-1 overflow-hidden rounded-full bg-hover">
                                             <div className="h-full rounded-full bg-ink-2" style={{ width: `${Math.min(100, ((selected.xp || 0) / (selected.xpToNextLevel || 1000)) * 100)}%` }} />
                                         </div>
                                     </div>
                                     <div className="bg-panel px-4 py-3">
-                                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Attributes</p>
+                                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("st.attributes")}</p>
                                         <dl className="mt-1 space-y-0.5 text-sm">
                                             {Object.entries(selected.stats || {}).map(([k, v]) => {
-                                                const use = USED_STAFF_STATS[selected.role]?.[k]
+                                                const use = USED_STAFF_STATS[selected.role]?.includes(k) ? t(`st.use.${k}`) : null
                                                 return (
-                                                    <div key={k} className="flex justify-between gap-3" title={use ? `Drives ${use.toLowerCase()}` : "Not read by the game yet"}>
+                                                    <div key={k} className="flex justify-between gap-3" title={use ? t("st.drives", { use }) : t("st.notRead")}>
                                                         <dt className={use ? "text-ink-2" : "text-ink-3"}>
-                                                            {k.replace(/([A-Z])/g, " $1").replace(/^./, c => c.toUpperCase())}
+                                                            {staffStatLabel(k)}
                                                             {use && <span className="ml-1.5 rounded-sm border border-line-strong px-1 text-[11px] text-ink-3">{use}</span>}
                                                         </dt>
                                                         <dd className={cn("tabular-nums", use ? "text-ink-1" : "text-ink-3")}>{v}</dd>
@@ -304,7 +306,7 @@ export default function StaffPage() {
                                 />
                             </>
                         ) : (
-                            <p className="px-4 py-5 text-sm text-ink-3">Hire staff to unlock their talent trees.</p>
+                            <p className="px-4 py-5 text-sm text-ink-3">{t("st.hireToUnlock")}</p>
                         )}
                     </Panel>
                 </aside>}

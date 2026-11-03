@@ -88856,8 +88856,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "4f61f40bce353ba180859391b04fd0d9a8cf683701143c136cccba2cab9b349c",
-      "bytes": 177314,
+      "sha256": "257c52d7db431b01f3a2428125b156b5a43324a1ad93ff5f0250f04712e9a67f",
+      "bytes": 197781,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88902,13 +88902,18 @@
           "date": "2026-11-03",
           "previousSha256": "75050c23b2d62583cae973329a91f1ebfc1dea4e4e99de70bf11b3872ed5b771",
           "change": "Interface languages, academy and training: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "4f61f40bce353ba180859391b04fd0d9a8cf683701143c136cccba2cab9b349c",
+          "change": "Interface languages, staff, sponsors, rankings and stats: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "81865518af8ff3aa5d3662678be7a5a0651925681bca983e8df8209d26013322",
-      "bytes": 184957,
+      "sha256": "763612bac0387d51d5ff43208da1219e1cb3dcfa9c30546d08f50949bd3c0c45",
+      "bytes": 206350,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88953,13 +88958,18 @@
           "date": "2026-11-03",
           "previousSha256": "306b45d0e6788f4c82f5baa40442c4c4e6fbe9228f8c000384a76d31bc80373f",
           "change": "Interface languages, academy and training: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "81865518af8ff3aa5d3662678be7a5a0651925681bca983e8df8209d26013322",
+          "change": "Interface languages, staff, sponsors, rankings and stats: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "cdf36f817a322a73cfc522cacff88171650f459749f2ad0353c7df6decaf6bbe",
-      "bytes": 188297,
+      "sha256": "e7a577f805ec51fe2ebc308595331de49ad80461154f99f713a152fc18cd0a9b",
+      "bytes": 210274,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89004,13 +89014,18 @@
           "date": "2026-11-03",
           "previousSha256": "b9cf17c54bb9d9878a200e4e9a85fb5fe54272089809b52018fdc66aeb7d8454",
           "change": "Interface languages, academy and training: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "cdf36f817a322a73cfc522cacff88171650f459749f2ad0353c7df6decaf6bbe",
+          "change": "Interface languages, staff, sponsors, rankings and stats: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "c02e2b5e0677a5efb52454091e5f5ed11d163eec4e81494296b98e63bedb704f",
-      "bytes": 187633,
+      "sha256": "00debf408c9fe8d0918c0c2fc03769d10c5a91bc476cda572240477cac697afe",
+      "bytes": 208636,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89055,13 +89070,18 @@
           "date": "2026-11-03",
           "previousSha256": "2cb14e66549f442ffeaf80e807604d88535aa344f290b4febb70cfd5caa17dd8",
           "change": "Interface languages, academy and training: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "c02e2b5e0677a5efb52454091e5f5ed11d163eec4e81494296b98e63bedb704f",
+          "change": "Interface languages, staff, sponsors, rankings and stats: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "5ddc09da2cd81b5ebb610e0d7131457d1699e60890ce5a88046b8e3059daa07d",
-      "bytes": 182386,
+      "sha256": "684c102a01fd7f95d3dc1236e5f4af33f9877ad92e872e7806f0ed015b926fd9",
+      "bytes": 203329,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89106,13 +89126,18 @@
           "date": "2026-11-03",
           "previousSha256": "fa258951b3b1a8c3caae95bafe73b13dff384d0bcf9cb05c210492a5edf01fe8",
           "change": "Interface languages, academy and training: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "5ddc09da2cd81b5ebb610e0d7131457d1699e60890ce5a88046b8e3059daa07d",
+          "change": "Interface languages, staff, sponsors, rankings and stats: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "bd65b77d5d36c4f6e80f0de9f218462c60d4d78cc3d8266e5c10cf6f7a54060c",
-      "bytes": 254871,
+      "sha256": "e250b2464ea48f57c3100008013622b0d4d52bf1b80b37bf1ba01586374ae1f1",
+      "bytes": 283631,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89157,6 +89182,11 @@
           "date": "2026-11-03",
           "previousSha256": "36f99180d4e771a8872becf668157773fa39ffe3b462177be2112cf78756a565",
           "change": "Interface languages, academy and training: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "bd65b77d5d36c4f6e80f0de9f218462c60d4d78cc3d8266e5c10cf6f7a54060c",
+          "change": "Interface languages, staff, sponsors, rankings and stats: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },

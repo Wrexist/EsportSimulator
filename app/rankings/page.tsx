@@ -19,11 +19,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { motion, AnimatePresence } from "framer-motion"
 import { useFocusTrap } from "@/lib/accessibility"
 import { cn } from "@/lib/utils"
+import { intlLocale, ordinalLabel, t } from "@/lib/i18n"
 import { calculateTeamTier, getTierStyle } from "@/engine/tier-system"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getTeamFlag } from "@/engine/region-logic"
 import { CountryFlag } from "@/components/ui/CountryFlag"
-import { LeagueEngine, TIER_DISPLAY, LeagueTier } from "@/engine/league-engine"
+import { LeagueEngine, LeagueTier } from "@/engine/league-engine"
 import { isUnrankedTeamId, seasonEndTierMove } from "@/engine/world-ranking"
 import { CircuitPointsManager } from "@/engine/tournament-qualification"
 import { CIRCUIT_POINTS } from "@/data/tournament-calendar"
@@ -51,7 +52,14 @@ type RankingsRowProps = {
 }
 
 const GRID = "grid-cols-[72px_minmax(240px,1fr)_96px_90px_72px_128px_120px_40px]"
-const ordinal = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`
+const ordinal = (n: number) => ordinalLabel(n)
+/** Club tier label (tier-system TierLevel). */
+const teamTierLabel = (tier: string) => {
+    const key = `rk.teamTier.${tier}`
+    const v = t(key)
+    return v === key ? getTierStyle(tier as Parameters<typeof getTierStyle>[0]).label : v
+}
+const leagueTierLabel = (tier: string | undefined) => tier && ["S_TIER", "A_TIER", "B_TIER", "C_TIER"].includes(tier) ? t(`common.tier.${tier}`) : (tier ?? "")
 
 // React.memo on the row means it skips re-render when parent re-renders
 // unless one of its primitive/stable-reference props actually changed.
@@ -67,7 +75,6 @@ const RankingsRow = React.memo(function RankingsRow({
     revealPlaystyle,
     onSelect,
 }: RankingsRowProps) {
-    const tierStyle = getTierStyle(team.tier)
     // Real end-of-season rule: tiers are re-banded by world rank, so the zone
     // is "ranked inside another tier's band", not a fixed top/bottom three.
     const move = seasonEndTierMove(team.leagueTier, team.worldRanking, worldSize)
@@ -80,7 +87,7 @@ const RankingsRow = React.memo(function RankingsRow({
             tabIndex={0}
             onClick={() => onSelect(team)}
             onKeyDown={e => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onSelect(team) } }}
-            aria-label={`${team.name}, world rank ${team.worldRanking}. Open roster`}
+            aria-label={t("rk.rowAria", { name: team.name, n: team.worldRanking })}
             className={cn(
                 "group grid h-14 cursor-pointer items-center border-b border-line px-4 outline-none transition-colors hover:bg-hover focus-visible:bg-hover",
                 GRID,
@@ -93,7 +100,7 @@ const RankingsRow = React.memo(function RankingsRow({
                 {/* Career-best rank — only for the player team and only once
                     they've been higher than now, so the ladder reads as a climb. */}
                 {isPlayerTeam && team.peakWorldRanking && team.peakWorldRanking < team.worldRanking && (
-                    <span className="text-[11px] tabular-nums text-ink-3" title="Career-best ranking">best {team.peakWorldRanking}</span>
+                    <span className="text-[11px] tabular-nums text-ink-3" title={t("rk.careerBest")}>{t("rk.best", { n: team.peakWorldRanking })}</span>
                 )}
             </div>
 
@@ -107,14 +114,14 @@ const RankingsRow = React.memo(function RankingsRow({
                         <span className="truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{team.name}</span>
                         {/* Analyst "Data Entry" talent (scout_info) reveals opponent playstyle. */}
                         {revealPlaystyle && !isPlayerTeam && team.playstyle && team.playstyle !== "default" && (
-                            <span className="shrink-0 rounded-sm border border-line-strong px-1.5 text-[11px] font-semibold capitalize leading-4 text-ink-2" title="Revealed by your Analyst's Data Entry talent">
-                                {team.playstyle}
+                            <span className="shrink-0 rounded-sm border border-line-strong px-1.5 text-[11px] font-semibold capitalize leading-4 text-ink-2" title={t("rk.playstyleTip")}>
+                                {t(`rk.playstyle.${team.playstyle}`)}
                             </span>
                         )}
                     </div>
                     <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
                         <CountryFlag country={teamFlag} showName={false} size={14} />
-                        <span>{tierStyle.label}</span>
+                        <span>{teamTierLabel(team.tier)}</span>
                     </div>
                 </div>
             </div>
@@ -147,9 +154,9 @@ const RankingsRow = React.memo(function RankingsRow({
 
             {/* Division position */}
             <div className="text-right text-xs tabular-nums">
-                <span className="text-ink-2">{posInTier ? `${ordinal(posInTier)} of ${tierSize}` : "—"}</span>
-                {isPromotionZone && <span className="ml-1.5 inline-flex items-center text-positive" title="Promotion zone"><ArrowUp size={12} aria-label="Promotion zone" /></span>}
-                {isRelegationZone && <span className="ml-1.5 inline-flex items-center text-negative" title="Relegation zone"><ArrowDown size={12} aria-label="Relegation zone" /></span>}
+                <span className="text-ink-2">{posInTier ? t("rk.posOf", { pos: ordinal(posInTier), n: tierSize }) : "—"}</span>
+                {isPromotionZone && <span className="ml-1.5 inline-flex items-center text-positive" title={t("rk.promotion")}><ArrowUp size={12} aria-label={t("rk.promotion")} /></span>}
+                {isRelegationZone && <span className="ml-1.5 inline-flex items-center text-negative" title={t("rk.relegation")}><ArrowDown size={12} aria-label={t("rk.relegation")} /></span>}
             </div>
 
             <div className="flex justify-end text-ink-3 group-hover:text-ink-1" aria-hidden="true"><ChevronRight size={16} /></div>
@@ -189,13 +196,13 @@ const VirtualizedRankingsList = React.memo(function VirtualizedRankingsList({
         <Panel padded={false} className="overflow-hidden">
             {/* Header */}
             <div className={cn("grid h-9 items-center border-b border-line bg-raised px-4 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-3", GRID)} role="row">
-                <div>Rank</div>
-                <div>Team</div>
-                <div>League</div>
+                <div>{t("rk.col.rank")}</div>
+                <div>{t("rk.col.team")}</div>
+                <div>{t("rk.col.league")}</div>
                 <div className="flex items-center justify-end gap-1">Elo <HelpTooltip content={StatExplanations.elo} size={11} /></div>
                 <div className="text-right">OVR</div>
-                <div className="text-center">Last 5</div>
-                <div className="text-right">Division</div>
+                <div className="text-center">{t("rk.col.last5")}</div>
+                <div className="text-right">{t("rk.col.division")}</div>
                 <div />
             </div>
 
@@ -436,27 +443,27 @@ function RankingsPageInner() {
         }
     }, [rankedTeams, playerTeamId])
 
-    const title = activeTab === "TROPHIES" ? "Trophy room"
-        : activeTab === "CIRCUIT" ? "Circuit points"
-            : activeTab === "WORLD" ? "World rankings"
-                : `${TIER_DISPLAY[activeTab as LeagueTier]?.label} division`
-    const subtitle = activeTab === "TROPHIES" ? "Every title your organisation has won."
-        : activeTab === "CIRCUIT" ? "Points from tournament placements decide invites to the biggest events."
-            : `Ordered by Elo from match results; ties go to reputation. ${seasonInfo.weeksRemaining} weeks until the season ends: the top three of each lower division go up, the bottom three of each higher one go down.`
+    const title = activeTab === "TROPHIES" ? t("rk.title.trophies")
+        : activeTab === "CIRCUIT" ? t("rk.title.circuit")
+            : activeTab === "WORLD" ? t("rk.title.world")
+                : t("rk.title.division", { tier: leagueTierLabel(activeTab) })
+    const subtitle = activeTab === "TROPHIES" ? t("rk.sub.trophies")
+        : activeTab === "CIRCUIT" ? t("rk.sub.circuit")
+            : t("rk.sub.world", { n: seasonInfo.weeksRemaining })
 
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={`Season ${seasonInfo.season} · Competition`}
+                eyebrow={t("rk.eyebrow", { n: seasonInfo.season })}
                 title={title}
                 subtitle={subtitle}
                 aside={playerLeaguePosition && (
                     <KpiStrip>
-                        <Kpi label="World rank" value={`#${playerLeaguePosition.worldRank}`} />
+                        <Kpi label={t("rk.kpi.world")} value={`#${playerLeaguePosition.worldRank}`} />
                         <Kpi
-                            label={`${TIER_DISPLAY[playerLeaguePosition.tier as LeagueTier]?.label ?? "League"} position`}
+                            label={t("rk.kpi.position", { tier: leagueTierLabel(playerLeaguePosition.tier) || t("rk.col.league") })}
                             value={<>{playerLeaguePosition.positionInTier}<span className="text-ink-3">/{playerLeaguePosition.totalInTier}</span></>}
-                            hint={playerLeaguePosition.isPromotionZone ? <span className="text-positive">Promotion zone</span> : playerLeaguePosition.isRelegationZone ? <span className="text-negative">Relegation zone</span> : undefined}
+                            hint={playerLeaguePosition.isPromotionZone ? <span className="text-positive">{t("rk.promotion")}</span> : playerLeaguePosition.isRelegationZone ? <span className="text-negative">{t("rk.relegation")}</span> : undefined}
                         />
                         <Kpi label="Elo" value={playerLeaguePosition.elo || 1000} />
                     </KpiStrip>
@@ -466,20 +473,20 @@ function RankingsPageInner() {
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
                     <TabsList>
-                        <TabsTrigger value="WORLD">World <span className="tabular-nums text-ink-3">{rankedTeams.length}</span></TabsTrigger>
+                        <TabsTrigger value="WORLD">{t("rk.tab.world")} <span className="tabular-nums text-ink-3">{rankedTeams.length}</span></TabsTrigger>
                         {(["S_TIER", "A_TIER", "B_TIER", "C_TIER"] as const).filter(tier => leagueTierCounts[tier] > 0 || activeTab === tier).map(tier => (
-                            <TabsTrigger key={tier} value={tier}>{TIER_DISPLAY[tier].label} <span className="tabular-nums text-ink-3">{leagueTierCounts[tier]}</span></TabsTrigger>
+                            <TabsTrigger key={tier} value={tier}>{leagueTierLabel(tier)} <span className="tabular-nums text-ink-3">{leagueTierCounts[tier]}</span></TabsTrigger>
                         ))}
-                        <TabsTrigger value="CIRCUIT">Circuit points</TabsTrigger>
-                        <TabsTrigger value="TROPHIES">Trophies</TabsTrigger>
+                        <TabsTrigger value="CIRCUIT">{t("rk.tab.circuit")}</TabsTrigger>
+                        <TabsTrigger value="TROPHIES">{t("rk.tab.trophies")}</TabsTrigger>
                     </TabsList>
                 </Tabs>
                 {activeTab !== "TROPHIES" && activeTab !== "CIRCUIT" && (
                     <div className="relative w-full max-w-[320px]">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" size={15} />
                         <Input
-                            placeholder="Search teams"
-                            aria-label="Search teams"
+                            placeholder={t("rk.search")}
+                            aria-label={t("rk.search")}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="h-9 pl-9 text-sm"
@@ -498,9 +505,9 @@ function RankingsPageInner() {
                 ) : displayTeams.length === 0 ? (
                     <EmptyState
                         icon={Search}
-                        title="No teams match your search"
-                        description={debouncedSearch ? `No team named "${debouncedSearch}". Try a different query.` : "Adjust the filter to see results."}
-                        action={debouncedSearch ? { label: "Clear search", onClick: () => setSearchTerm("") } : undefined}
+                        title={t("rk.noMatch")}
+                        description={debouncedSearch ? t("rk.noMatchNamed", { q: debouncedSearch }) : t("rk.adjust")}
+                        action={debouncedSearch ? { label: t("rk.clear"), onClick: () => setSearchTerm("") } : undefined}
                     />
                 ) : (
                     <VirtualizedRankingsList
@@ -515,14 +522,14 @@ function RankingsPageInner() {
                 )
             ) : activeTab === "TROPHIES" ? (
                 playerTeam?.trophies && playerTeam.trophies.length > 0 ? (
-                    <Panel title="Titles" padded={false} actions={<span className="text-xs tabular-nums text-ink-3">{playerTeam.trophies.length}</span>}>
+                    <Panel title={t("rk.titles")} padded={false} actions={<span className="text-xs tabular-nums text-ink-3">{playerTeam.trophies.length}</span>}>
                         <table data-slot="table" className="w-full border-collapse text-left">
                             <thead data-slot="table-header">
                                 <tr className="border-b border-line">
-                                    <th data-slot="table-head" className="w-12 pl-4"><span className="sr-only">Trophy</span></th>
-                                    <th data-slot="table-head">Tournament</th>
-                                    <th data-slot="table-head" className="px-3">Tier</th>
-                                    <th data-slot="table-head" className="pr-4 text-right">Won</th>
+                                    <th data-slot="table-head" className="w-12 pl-4"><span className="sr-only">{t("rk.col.trophy")}</span></th>
+                                    <th data-slot="table-head">{t("rk.col.tournament")}</th>
+                                    <th data-slot="table-head" className="px-3">{t("rk.col.tier")}</th>
+                                    <th data-slot="table-head" className="pr-4 text-right">{t("rk.col.won")}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -531,26 +538,26 @@ function RankingsPageInner() {
                                         <td className="pl-4"><Image src={trophyArtFor(trophyArtKind(trophy)).src} alt="" aria-hidden="true" width={28} height={28} className="h-7 w-7 object-contain" /></td>
                                         <td className="text-sm font-semibold text-ink-1">{trophy.tournamentName}</td>
                                         <td className="px-3"><TierTag tier={trophy.tier} /></td>
-                                        <td className="pr-4 text-right text-sm tabular-nums text-ink-2">Week {trophy.week}</td>
+                                        <td className="pr-4 text-right text-sm tabular-nums text-ink-2">{t("rk.week", { n: trophy.week })}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </Panel>
                 ) : (
-                    <EmptyState icon={Award} title="No titles yet" description="Win tournaments to fill your trophy room." />
+                    <EmptyState icon={Award} title={t("rk.noTitles")} description={t("rk.noTitlesBody")} />
                 )
             ) : (
                 <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-                    <Panel title="Circuit leaderboard" padded={false}>
+                    <Panel title={t("rk.leaderboard")} padded={false}>
                         <table data-slot="table" className="w-full border-collapse text-left">
                             <thead data-slot="table-header">
                                 <tr className="border-b border-line">
-                                    <th data-slot="table-head" className="w-16 pl-4">Rank</th>
-                                    <th data-slot="table-head">Team</th>
-                                    <th data-slot="table-head" className="px-3 text-right">Points</th>
-                                    <th data-slot="table-head" className="px-3 text-right">Events</th>
-                                    <th data-slot="table-head" className="pr-4 text-right">Best finish</th>
+                                    <th data-slot="table-head" className="w-16 pl-4">{t("rk.col.rank")}</th>
+                                    <th data-slot="table-head">{t("rk.col.team")}</th>
+                                    <th data-slot="table-head" className="px-3 text-right">{t("rk.col.points")}</th>
+                                    <th data-slot="table-head" className="px-3 text-right">{t("rk.col.events")}</th>
+                                    <th data-slot="table-head" className="pr-4 text-right">{t("rk.col.best")}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -565,10 +572,10 @@ function RankingsPageInner() {
                                             <td>
                                                 <span className="flex items-center gap-2.5">
                                                     <TeamLogoImage src={team?.logoPath} alt="" size={22} team={team} />
-                                                    <span className="text-sm font-semibold text-ink-1">{team?.name || "Unknown"}</span>
+                                                    <span className="text-sm font-semibold text-ink-1">{team?.name || t("rk.unknown")}</span>
                                                 </span>
                                             </td>
-                                            <td className="px-3 text-right font-display text-lg font-bold tabular-nums text-ink-1">{entry.points.toLocaleString("en-US")}</td>
+                                            <td className="px-3 text-right font-display text-lg font-bold tabular-nums text-ink-1">{entry.points.toLocaleString(intlLocale())}</td>
                                             <td className="px-3 text-right text-sm tabular-nums text-ink-2">{entry.results?.length || 0}</td>
                                             <td className="pr-4 text-right text-sm">
                                                 {bestResult ? (
@@ -580,21 +587,21 @@ function RankingsPageInner() {
                                 }) : (
                                     <tr>
                                         <td colSpan={5} className="p-6">
-                                            <EmptyState icon={Award} title="No circuit points awarded yet" description="Teams earn circuit points by placing in tournaments." framed={false} />
+                                            <EmptyState icon={Award} title={t("rk.noPoints")} description={t("rk.noPointsBody")} framed={false} />
                                         </td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
                     </Panel>
-                    <Panel title="Points by placement" padded={false}>
+                    <Panel title={t("rk.byPlacement")} padded={false}>
                         <table data-slot="table" className="w-full border-collapse text-left">
                             <thead data-slot="table-header">
                                 <tr className="border-b border-line">
-                                    <th data-slot="table-head" className="pl-4">Tier</th>
-                                    <th data-slot="table-head" className="px-3 text-right">1st</th>
-                                    <th data-slot="table-head" className="px-3 text-right">2nd</th>
-                                    <th data-slot="table-head" className="pr-4 text-right">Places paid</th>
+                                    <th data-slot="table-head" className="pl-4">{t("rk.col.tier")}</th>
+                                    <th data-slot="table-head" className="px-3 text-right">{ordinal(1)}</th>
+                                    <th data-slot="table-head" className="px-3 text-right">{ordinal(2)}</th>
+                                    <th data-slot="table-head" className="pr-4 text-right">{t("rk.col.placesPaid")}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -603,15 +610,15 @@ function RankingsPageInner() {
                                     return (
                                         <tr key={tier} className="h-10 border-b border-line last:border-b-0">
                                             <td className="pl-4"><TierTag tier={tier} /></td>
-                                            <td className="px-3 text-right font-display text-lg font-bold tabular-nums text-ink-1">{table[1].toLocaleString("en-US")}</td>
-                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{table[2].toLocaleString("en-US")}</td>
+                                            <td className="px-3 text-right font-display text-lg font-bold tabular-nums text-ink-1">{table[1].toLocaleString(intlLocale())}</td>
+                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{table[2].toLocaleString(intlLocale())}</td>
                                             <td className="pr-4 text-right text-sm tabular-nums text-ink-2">{Object.keys(table).length}</td>
                                         </tr>
                                     )
                                 })}
                             </tbody>
                         </table>
-                        <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">Qualifiers award event slots, not points.</p>
+                        <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">{t("rk.qualNote")}</p>
                     </Panel>
                 </div>
             )}
@@ -641,16 +648,16 @@ function RankingsPageInner() {
                                     <div>
                                         <h2 id="modal-title-team-detail" className="font-display text-3xl font-bold uppercase leading-none text-ink-1">{selectedTeam.name}</h2>
                                         <div className="mt-1.5 flex items-center gap-2 text-xs text-ink-3">
-                                            <span className="font-semibold text-ink-2">World #{selectedTeam.worldRanking}</span>
+                                            <span className="font-semibold text-ink-2">{t("rk.worldN", { n: selectedTeam.worldRanking })}</span>
                                             <span aria-hidden="true">·</span>
-                                            <span>{getTierStyle(selectedTeam.tier).label}</span>
+                                            <span>{teamTierLabel(selectedTeam.tier)}</span>
                                             <span aria-hidden="true">·</span>
                                             <CountryFlag country={selectedTeam.region} showName={true} size={14} />
                                         </div>
                                     </div>
                                 </div>
-                                <Link href={`/team/${encodeURIComponent(selectedTeam.id)}`} className="ml-auto mr-2 rounded px-2.5 py-1.5 text-xs font-semibold text-ink-2 transition-colors hover:bg-hover hover:text-gold">Club page</Link>
-                                <button onClick={() => setSelectedTeam(null)} aria-label="Close team details" className="rounded p-2 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1">
+                                <Link href={`/team/${encodeURIComponent(selectedTeam.id)}`} className="ml-auto mr-2 rounded px-2.5 py-1.5 text-xs font-semibold text-ink-2 transition-colors hover:bg-hover hover:text-gold">{t("rk.clubPage")}</Link>
+                                <button onClick={() => setSelectedTeam(null)} aria-label={t("rk.closeTeam")} className="rounded p-2 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1">
                                     <X size={18} />
                                 </button>
                             </div>
@@ -660,8 +667,8 @@ function RankingsPageInner() {
                                 <table data-slot="table" className="w-full border-collapse text-left">
                                     <thead data-slot="table-header">
                                         <tr className="border-b border-line">
-                                            <th data-slot="table-head" className="pl-5">Player</th>
-                                            <th data-slot="table-head" className="px-3">Role</th>
+                                            <th data-slot="table-head" className="pl-5">{t("rk.col.player")}</th>
+                                            <th data-slot="table-head" className="px-3">{t("rk.col.role")}</th>
                                             <th data-slot="table-head" className="pr-5 text-right">OVR</th>
                                         </tr>
                                     </thead>
@@ -687,7 +694,7 @@ function RankingsPageInner() {
                                                     <td className="pr-5 text-right">
                                                         {isScouted
                                                             ? <RatingChip value={ev.overallRating} size="sm" />
-                                                            : <span className="text-sm tabular-nums text-ink-3" title="Scout this player to see the exact rating">{formatScoutedRating(fuzzyBand(ev.overallRating, 20, `${player.id}:ovr`))}</span>}
+                                                            : <span className="text-sm tabular-nums text-ink-3" title={t("rk.scoutTip")}>{formatScoutedRating(fuzzyBand(ev.overallRating, 20, `${player.id}:ovr`))}</span>}
                                                     </td>
                                                 </tr>
                                             )

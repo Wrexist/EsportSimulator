@@ -36,6 +36,7 @@ import {
     type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { t, tn } from '@/lib/i18n'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { TalentNode } from '@/engine/talent-trees'
 
@@ -79,6 +80,18 @@ interface TalentTreeProps {
     readonly?: boolean
     /** Horizontal distance between grid columns; narrower for side panels. */
     spacingX?: number
+}
+
+/** Translated talent name/description; talents without a key keep the engine text. */
+function talentName(node: TalentNode): string {
+    const key = `talent.${node.id}`
+    const v = t(key)
+    return v === key ? node.name : v
+}
+function talentDescription(node: TalentNode): string {
+    const key = `talent.${node.id}.desc`
+    const v = t(key)
+    return v === key ? node.description : v
 }
 
 const DEFAULT_SPACING_X = 112
@@ -129,10 +142,12 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                     const requirementsMet = node.requirements.every(req => unlockedIds.includes(req))
                     const canUnlock = !isUnlocked && requirementsMet && availablePoints >= node.cost && !readonly
                     const Icon = TALENT_ICON_MAP[node.icon] ?? Star
-                    const status = isUnlocked ? "Owned"
-                        : !requirementsMet ? "Needs the talent above"
-                            : availablePoints < node.cost ? `Needs ${node.cost} point${node.cost > 1 ? "s" : ""}`
-                                : readonly ? "Available" : "Click to unlock"
+                    const status = isUnlocked ? t("talent.owned")
+                        : !requirementsMet ? t("talent.needsAbove")
+                            : availablePoints < node.cost ? tn("talent.needsPoints", node.cost)
+                                : readonly ? t("talent.available") : t("talent.click")
+                    const name = talentName(node)
+                    const description = talentDescription(node)
 
                     return (
                         <div
@@ -147,7 +162,7 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                                             type="button"
                                             onClick={() => canUnlock && onUnlock(node.id)}
                                             aria-disabled={!canUnlock}
-                                            aria-label={`${node.name}: ${node.description} ${status}.`}
+                                            aria-label={`${name}: ${description} ${status}.`}
                                             className={cn(
                                                 "relative flex items-center justify-center rounded-md border transition-colors duration-150",
                                                 isUnlocked
@@ -174,8 +189,8 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                                         </button>
                                     </TooltipTrigger>
                                     <TooltipContent className="max-w-[220px] p-3" sideOffset={6}>
-                                        <p className="text-sm font-semibold text-ink-1">{node.name}</p>
-                                        <p className="mt-1 text-xs leading-relaxed text-ink-2">{node.description}</p>
+                                        <p className="text-sm font-semibold text-ink-1">{name}</p>
+                                        <p className="mt-1 text-xs leading-relaxed text-ink-2">{description}</p>
                                         <p className={cn("mt-2 flex items-center gap-1 text-xs font-semibold", isUnlocked ? "text-positive" : canUnlock ? "text-gold" : "text-ink-3")}>
                                             {isUnlocked ? <Check size={11} /> : canUnlock ? <Unlock size={11} /> : <Lock size={11} />} {status}
                                         </p>
@@ -183,7 +198,7 @@ export function TalentTree({ nodes, unlockedIds = [], availablePoints, onUnlock,
                                 </Tooltip>
                             </TooltipProvider>
                             <span className={cn("mt-3 text-center text-xs leading-tight", isUnlocked ? "font-semibold text-ink-1" : "text-ink-3")}>
-                                {node.name}
+                                {name}
                             </span>
                         </div>
                     )
