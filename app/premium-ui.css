@@ -48,7 +48,8 @@
 .premium-app .game-sidebar,.premium-app .game-topbar { background:var(--bg-900); border-color:var(--border-subtle); box-shadow:none; backdrop-filter:none; border-radius:0; }
 .premium-app .game-sidebar { margin:0; height:100%; border-right:1px solid var(--border-subtle); }
 .premium-app .game-topbar { min-height:56px; margin:0; padding:8px 20px; gap:8px; border-bottom:1px solid var(--border-subtle); }
-.premium-app .game-page { padding:24px; max-width:1720px; animation:premium-reveal 200ms ease-out; }
+/* rem, not px: the content column widens with the UI scale (large monitors, CROSSCUT-12). */
+.premium-app .game-page { padding:24px; max-width:107.5rem; animation:premium-reveal 200ms ease-out; }
 .premium-app .nav-route { min-height:34px; font-size:13px; border-radius:4px; }
 .premium-app .nav-route[aria-current=page] { color:var(--text-strong); }
 .premium-app .nav-lens { background:var(--surface-800); border:0; border-left:2px solid var(--gold); box-shadow:none; border-radius:4px; }

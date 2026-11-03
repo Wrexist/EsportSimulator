@@ -128,7 +128,7 @@ export function DisplaySettings() {
                 <SettingSelect id="set-rendering" label={t("settings.rendering")} value={s.renderingMode} options={RENDERING_MODES()} onChange={s.setRenderingMode} />
             </SettingRow>
             <SettingRow label={t("settings.uiScale")} hint={t("settings.uiScaleHint")}>
-                <SettingSlider label={t("settings.uiScale")} value={s.uiScale} onChange={s.setUiScale} min={80} max={120} step={5} />
+                <SettingSlider label={t("settings.uiScale")} value={s.uiScale} onChange={s.setUiScale} min={80} max={150} step={5} />
             </SettingRow>
             <SettingRow id="set-reduced-motion" label={t("settings.reducedMotion")} hint={t("settings.reducedMotionHint")}>
                 <Switch id="set-reduced-motion" checked={s.reducedMotion} onCheckedChange={s.setReducedMotion} />

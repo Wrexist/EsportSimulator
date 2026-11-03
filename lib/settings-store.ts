@@ -49,7 +49,7 @@ interface GameSettings {
     setColorVisionMode: (mode: string) => void
     adoptLegacyColorVision: (mode: string | null) => void
     reducedMotion: boolean
-    uiScale: number // 80-120, default 100
+    uiScale: number // 80-150, default 100 (above 120 for large, high-resolution monitors)
 
     // Audio (the only audio settings; the game store keeps none)
     soundEnabled: boolean
@@ -168,7 +168,7 @@ export const useSettingsStore = create<GameSettings>()(
                 }
             },
             setUiScale: (scale) => {
-                const bounded = Number.isFinite(scale) ? Math.max(80, Math.min(120, scale)) : 100
+                const bounded = Number.isFinite(scale) ? Math.max(80, Math.min(150, scale)) : 100
                 set({ uiScale: bounded })
                 if (typeof document !== 'undefined') {
                     document.documentElement.style.fontSize = `${bounded}%`
@@ -293,7 +293,7 @@ export const useSettingsStore = create<GameSettings>()(
                     uiSounds: typeof stored?.uiSounds === 'boolean' ? stored.uiSounds : current.uiSounds,
                     hoverSounds: typeof stored?.hoverSounds === 'boolean' ? stored.hoverSounds : current.hoverSounds,
                     muteWhenUnfocused: typeof stored?.muteWhenUnfocused === 'boolean' ? stored.muteWhenUnfocused : current.muteWhenUnfocused,
-                    uiScale: typeof stored?.uiScale === 'number' && Number.isFinite(stored.uiScale) ? Math.max(80, Math.min(120, stored.uiScale)) : 100,
+                    uiScale: typeof stored?.uiScale === 'number' && Number.isFinite(stored.uiScale) ? Math.max(80, Math.min(150, stored.uiScale)) : 100,
                     // A value already stored by this settings surface wins over
                     // the deprecated game-store preference, including false.
                     autoSavePreferenceSet: typeof stored?.autoSave === 'boolean',
