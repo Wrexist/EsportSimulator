@@ -26,8 +26,10 @@ import { toast } from "@/lib/toast"
 import { ManagerProgression, ManagerTier, TEAM_REP_TIERS, TIER_THRESHOLDS } from "@/engine/manager-progression"
 import { loadCareerProfile, recordNewCampaign } from "@/engine/manager-career-profile"
 import { cn } from "@/lib/utils"
-import { evaluatePlayer } from "@/engine/player-evaluation"
-import { calculateInitialPrestige } from "@/data/snapshot-loader"
+import { snapshotLoader } from "@/data"
+import type { GameSave } from "@/engine/save-types"
+import { randomizeWorld } from "@/engine/random-world"
+import { difficultyStartingCash, previewClubStart, type ClubStartPreview } from "@/lib/career-start-preview"
 import { calculateTeamTier, type TierLevel } from "@/engine/tier-system"
 import { resolvePlayerRole } from "@/engine/role-determination"
 import { describeClubChallenge } from "@/lib/club-expectations"
@@ -46,21 +48,6 @@ interface SnapshotTeam {
     startingBudget: number
 }
 
-interface SnapshotPlayer {
-    id: string
-    name: string
-    nickname: string
-    age: number
-    nationality: string
-    portraitPath: string
-    role: string
-    tier: string
-    skill: number
-    awp: number
-    rifle: number
-    [key: string]: any
-}
-
 interface RankedTeam extends SnapshotTeam {
     worldRanking: number
     calculatedTier: TierLevel
@@ -69,15 +56,6 @@ interface RankedTeam extends SnapshotTeam {
 type TierFilter = "ALL" | TierLevel
 
 const TIER_FILTERS: TierFilter[] = ["ALL", "ELITE", "PRO", "SEMI_PRO", "AMATEUR"]
-
-// Evaluate a snapshot player with computed prestigeScore (matches game initialization)
-function evaluateSnapshotPlayer(player: SnapshotPlayer, team?: SnapshotTeam) {
-    const prestigeScore = calculateInitialPrestige(
-        player.tier, team?.tier, team?.reputation,
-        player.matchesPlayed || 0, player.age
-    )
-    return evaluatePlayer({ ...player, prestigeScore } as any)
-}
 
 // Onboarding Steps
 type OnboardingStep = "welcome" | "team-select"
@@ -113,7 +91,9 @@ export default function TeamSelectionPage() {
 
     // Team selection state
     const [teams, setTeams] = useState<SnapshotTeam[]>([])
-    const [players, setPlayers] = useState<SnapshotPlayer[]>([])
+    // START-01/02: the world the career will start from. Ratings and cash in
+    // the picker are read from it, and Start Career hands it to the store.
+    const [world, setWorld] = useState<GameSave | null>(null)
     const [selectedTeam, setSelectedTeam] = useState<RankedTeam | null>(null)
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedTier, setSelectedTier] = useState<TierFilter>("ALL")
@@ -139,28 +119,35 @@ export default function TeamSelectionPage() {
     const [dataError, setDataError] = useState(false)
     useEffect(() => {
         const draft = loadCareerDraft()
-        if (draft) { setManagerName(draft.managerName); setSandboxMode(!!draft.sandbox); if (draft.managerName.trim().length >= 2) setCurrentStep('team-select') }
+        if (draft) {
+            setManagerName(draft.managerName)
+            setSandboxMode(!!draft.sandbox)
+            setRandomWorld(!!draft.randomWorld)
+            if (draft.difficulty) setDifficulty(draft.difficulty)
+            // Reopen the club list only when the player left from there (START-07).
+            if (draft.step === 'team-select' && draft.managerName.trim().length >= 2) setCurrentStep('team-select')
+        }
         setDraftReady(true)
     }, [])
     useEffect(() => {
-        if (draftReady && !isStarting) setDraftSaved(saveCareerDraft({ managerName, sandbox: sandboxMode, ...(selectedTeam ? { teamId: selectedTeam.id } : {}) }))
-    }, [draftReady, managerName, sandboxMode, selectedTeam, isStarting])
+        if (draftReady && !isStarting) setDraftSaved(saveCareerDraft({ managerName, sandbox: sandboxMode, randomWorld, difficulty, step: currentStep, ...(selectedTeam ? { teamId: selectedTeam.id } : {}) }))
+    }, [draftReady, managerName, sandboxMode, randomWorld, difficulty, currentStep, selectedTeam, isStarting])
 
     // Load snapshot data
     useEffect(() => {
         async function loadData() {
             setIsDataLoading(true)
             try {
-                const [teamsRes, playersRes] = await Promise.all([
-                    fetch("/data/snapshot/teams.json"),
-                    fetch("/data/snapshot/players.json"),
-                ])
-                if (!teamsRes.ok || !playersRes.ok) throw Error('Game data unavailable')
-                const teamsData = await teamsRes.json()
-                const playersData = await playersRes.json()
-                if (!Array.isArray(teamsData) || !Array.isArray(playersData)) throw Error('Invalid game data')
-                setTeams(teamsData)
-                setPlayers(playersData)
+                // The snapshot initializeNewGame starts from (community imports included).
+                if (!snapshotLoader.getSnapshot()) {
+                    const loaded = await snapshotLoader.loadSnapshot()
+                    if (!loaded.success) throw Error(loaded.error || 'Game data unavailable')
+                }
+                const snapshot = snapshotLoader.getSnapshot()
+                const built = snapshot?.teams.length ? snapshotLoader.createCareerFromSnapshot("", snapshot.teams[0].id, 1) : null
+                if (!snapshot || !built) throw Error('Invalid game data')
+                setTeams(snapshot.teams as unknown as SnapshotTeam[])
+                setWorld(built)
             } catch (error) {
                 setDataError(true)
                 debug.error("Failed to load snapshot data:", error)
@@ -187,75 +174,34 @@ export default function TeamSelectionPage() {
             }))
     }, [teams])
 
-    // O(1) player lookup so per-team numbers scan their own rosterIds (~5 ids)
-    // instead of filtering the full ~1000-player snapshot for every team.
-    const playersById = useMemo(
-        () => new Map(players.map(p => [p.id, p])),
-        [players],
-    )
+    // The randomised world is dealt from the previewed one (seeded by its
+    // save id), so the picker shows the shuffled rosters the career gets.
+    const startWorld = useMemo(() => {
+        if (!world || !randomWorld) return world
+        const shuffled = structuredClone(world)
+        randomizeWorld(shuffled)
+        return shuffled
+    }, [world, randomWorld])
 
-    // Calculate actual starting budget (mirrors game-store initialization logic)
-    // Teams with < 5 players get bonus funds to fill roster
-    const getCalculatedBudget = (team: RankedTeam | SnapshotTeam) => {
-        const ranking = (team as RankedTeam).worldRanking || 50
-
-        // Base budget by reputation tier AND world ranking (reputation is 0-100 scale)
-        let calculatedBudget = 250000 // Low Tier default
-        if (team.reputation > 80) calculatedBudget = 2000000 // Top Tier (Top 10)
-        else if (team.reputation > 50) calculatedBudget = 1000000 // High Tier (Top 30)
-        else if (team.reputation > 0) calculatedBudget = 500000 // Mid Tier
-
-        // Check for incomplete roster and inject funds
-        if (team.rosterIds.length < 5) {
-            const missingCount = 5 - team.rosterIds.length
-            const teammates = team.rosterIds.map(id => playersById.get(id)).filter((p): p is SnapshotPlayer => !!p)
-
-            // Calculate the MINIMUM value player on the team (that's who they'd realistically replace with)
-            let targetValue = 150000 // Bare minimum fallback
-            if (teammates.length > 0) {
-                const values = teammates.map(p => evaluateSnapshotPlayer(p, team as SnapshotTeam).transferValue).sort((a, b) => a - b)
-
-                // Use the lowest-valued player as the target (you'd buy similar or slightly worse)
-                targetValue = values[0]
-
-                // Apply world ranking modifier - lower ranked teams get budget for cheaper players
-                // Rank 1-20: 100%, Rank 21-50: 80%, Rank 51-100: 60%, Rank 100+: 40%
-                let rankingModifier = 1.0
-                if (ranking > 100) rankingModifier = 0.4
-                else if (ranking > 50) rankingModifier = 0.6
-                else if (ranking > 20) rankingModifier = 0.8
-
-                targetValue = Math.round(targetValue * rankingModifier)
-            }
-
-            // Injection: Target Value × Missing Count (no extra buffer - tight budget is more realistic)
-            calculatedBudget += Math.round(targetValue * missingCount)
-        }
-
-        // Return the higher of calculated or static value
-        return Math.max(calculatedBudget, team.startingBudget || 0)
-    }
-
-    // Per-club numbers for the picker table, computed once per data load.
+    // Per-club numbers for the picker table, computed once per world: the
+    // career's own rating and starting-cash code (lib/career-start-preview.ts).
+    // Cash is at Normal here; the chosen difficulty applies on display.
     const teamStats = useMemo(() => {
-        const map = new Map<string, { ovr: number; budget: number; value: number }>()
-        for (const team of rankedTeams) {
-            let sum = 0, n = 0, value = 0
-            for (const id of team.rosterIds || []) {
-                const player = playersById.get(id)
-                if (!player) continue
-                const evaluation = evaluateSnapshotPlayer(player, team)
-                sum += evaluation.overallRating
-                value += evaluation.transferValue
-                n++
-            }
-            map.set(team.id, { ovr: n === 0 ? 0 : Math.round(sum / n), budget: getCalculatedBudget(team), value })
+        const map = new Map<string, ClubStartPreview>()
+        if (!startWorld) return map
+        const playerMap = new Map(startWorld.players.map(p => [p.id, p]))
+        for (const team of startWorld.teams) {
+            const preview = previewClubStart(startWorld, team.id, "normal", playerMap)
+            if (preview) map.set(team.id, preview)
         }
         return map
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- getCalculatedBudget only reads playersById
-    }, [rankedTeams, playersById])
+    }, [startWorld])
+    const budgetFor = (teamId: string) => difficultyStartingCash(teamStats.get(teamId)?.budget ?? 0, difficulty)
 
-    const isLocked = (team: SnapshotTeam) => !sandboxMode && !ManagerProgression.isTeamUnlocked(team.reputation, managerLevel)
+    // START-08: a club above the manager's level can only be taken as a
+    // sandbox career (achievements off), the same meaning Sandbox has elsewhere.
+    const aboveLevel = (team: SnapshotTeam) => !ManagerProgression.isTeamUnlocked(team.reputation, managerLevel)
+    const isLocked = (team: SnapshotTeam) => !sandboxMode && aboveLevel(team)
 
     // Filter teams
     const filteredTeams = useMemo(() => {
@@ -275,15 +221,8 @@ export default function TeamSelectionPage() {
         })
     }, [rankedTeams, searchTerm, selectedTier, managerLevel, sandboxMode])
 
-    // Get roster for selected team with evaluations
-    const selectedRoster = useMemo(() => {
-        if (!selectedTeam) return []
-        return selectedTeam.rosterIds
-            .map(id => playersById.get(id))
-            .filter((p): p is SnapshotPlayer => !!p)
-            .map(p => ({ ...p, evaluation: evaluateSnapshotPlayer(p, selectedTeam) }))
-            .sort((a, b) => b.evaluation.overallRating - a.evaluation.overallRating)
-    }, [selectedTeam, playersById])
+    // Roster of the selected club as the career starts it, best first.
+    const selectedRoster = selectedTeam ? teamStats.get(selectedTeam.id)?.roster ?? [] : []
 
     const tierCounts = useMemo(() => {
         const counts: Record<TierFilter, number> = { ALL: rankedTeams.length, ELITE: 0, PRO: 0, SEMI_PRO: 0, AMATEUR: 0 }
@@ -339,11 +278,12 @@ export default function TeamSelectionPage() {
         startingRef.current = true
         setIsStarting(true)
         try {
-            await initializeNewGame(managerName.trim() || t("ng.defaultSave"), placeholder.id, undefined, { unemployed: true, randomWorld })
+            await initializeNewGame(managerName.trim() || t("ng.defaultSave"), placeholder.id, undefined, { unemployed: true, randomWorld, ...(startWorld ? { world: structuredClone(startWorld) } : {}) })
             if (useGameStore.getState().error) throw Error(useGameStore.getState().error!)
             clearCareerDraft()
             void recordNewCampaign()
-            router.push("/")
+            // Replace: Back/Escape from Home must not reopen this form (START-05).
+            router.replace("/")
         } catch (err) {
             debug.error("Failed to start game:", err)
             toast.error(t("ng.err.start"), { description: t("ng.err.startBody") })
@@ -359,14 +299,18 @@ export default function TeamSelectionPage() {
         }
         startingRef.current = true
         setIsStarting(true)
+        const sandboxCareer = sandboxMode && aboveLevel(selectedTeam)
         try {
-            // Pass manager name to initializeNewGame (using it as save name for now)
-            await initializeNewGame(managerName.trim() || t("ng.defaultSave"), selectedTeam.id, undefined, { randomWorld, difficulty })
+            // Pass manager name to initializeNewGame (using it as save name for now).
+            // The previewed world goes in as it is, so Home shows the picker's numbers.
+            await initializeNewGame(managerName.trim() || t("ng.defaultSave"), selectedTeam.id, undefined, { randomWorld, difficulty, ...(startWorld ? { world: structuredClone(startWorld) } : {}) })
             if (useGameStore.getState().error) throw Error(useGameStore.getState().error!)
+            if (sandboxCareer) useGameStore.getState().enableSandbox()
             clearCareerDraft()
             void recordNewCampaign()
-            // Use client-side navigation to preserve store state
-            router.push("/")
+            // Client-side navigation keeps the store; replace so Back/Escape
+            // from Home does not reopen this form (START-05).
+            router.replace("/")
         } catch (err) {
             debug.error("Failed to start game:", err)
             toast.error(t("ng.err.start"), {
@@ -451,20 +395,6 @@ export default function TeamSelectionPage() {
                             </span>
                         </label>
 
-                        <fieldset className="mt-5">
-                            <legend className="text-sm font-semibold text-ink-1">{t("ng.difficulty")}</legend>
-                            <div role="radiogroup" aria-label={t("ng.difficulty")} className="mt-2 grid grid-cols-3 gap-2">
-                                {(Object.keys(CAREER_DIFFICULTY) as CareerDifficulty[]).map(key => (
-                                    <Button key={key} type="button" role="radio" aria-checked={difficulty === key}
-                                        variant={difficulty === key ? "default" : "outline"} className="h-10"
-                                        onClick={() => setDifficulty(key)}>
-                                        {t(`ng.diff.${key}`)}
-                                    </Button>
-                                ))}
-                            </div>
-                            <p className="mt-1.5 text-xs text-ink-3">{t(`ng.diff.${difficulty}.hint`)} {t("ng.diffScope")}</p>
-                        </fieldset>
-
                         <div className="mt-8 space-y-2">
                             <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
                                 <span>
@@ -511,8 +441,10 @@ export default function TeamSelectionPage() {
     // ============ STEP 2: TEAM SELECTION ============
     const selectedStats = selectedTeam ? teamStats.get(selectedTeam.id) : undefined
     const selectedLocked = selectedTeam ? isLocked(selectedTeam) : false
+    const selectedBudget = selectedTeam ? budgetFor(selectedTeam.id) : 0
+    const selectedSandbox = !!selectedTeam && sandboxMode && aboveLevel(selectedTeam)
     const challenge = selectedTeam && selectedStats
-        ? describeClubChallenge({ worldRanking: selectedTeam.worldRanking, reputation: selectedTeam.reputation, starters: selectedRoster.length, budget: selectedStats.budget })
+        ? describeClubChallenge({ worldRanking: selectedTeam.worldRanking, reputation: selectedTeam.reputation, starters: selectedRoster.length, budget: selectedBudget })
         : null
 
     const onRowKeyDown = (team: RankedTeam) => (e: KeyboardEvent<HTMLTableRowElement>) => {
@@ -533,7 +465,7 @@ export default function TeamSelectionPage() {
                         <Button variant="ghost" onClick={() => setCurrentStep("welcome")} className="gap-2">
                             <ArrowLeft size={16} /> {t("ng.back")}
                         </Button>
-                        <Button variant="outline" onClick={() => router.push("/main-menu")} className="gap-2">
+                        <Button variant="outline" onClick={() => { clearCareerDraft(); router.push("/main-menu") }} className="gap-2">
                             <X size={16} /> {t("ng.cancel")}
                         </Button>
                     </>
@@ -613,7 +545,7 @@ export default function TeamSelectionPage() {
                                             <td className="px-3 text-xs font-semibold text-ink-2">{eventRegionName(team.region)}</td>
                                             <td className="px-3 text-sm text-ink-2">{t(`ng.tier.${team.calculatedTier}`)}</td>
                                             <td className="px-3 text-center"><RatingChip value={stats?.ovr ?? 0} size="sm" /></td>
-                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(stats?.budget ?? 0)}</td>
+                                            <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(budgetFor(team.id))}</td>
                                             <td className="w-28 pr-4 text-right text-xs text-ink-3">
                                                 {locked && (
                                                     <span className="inline-flex items-center gap-1"><Lock size={12} /> {t("ng.levelLock", { n: ManagerProgression.getRequiredLevel(team.reputation) })}</span>
@@ -654,7 +586,7 @@ export default function TeamSelectionPage() {
                                     {[
                                         { label: t("ng.col.rank"), value: `#${selectedTeam.worldRanking}` },
                                         { label: t("common.ovr"), value: <RatingChip value={selectedStats.ovr} size="md" bare className="min-w-0 px-0 text-2xl" /> },
-                                        { label: t("ng.col.budget"), value: formatCurrency(selectedStats.budget) },
+                                        { label: t("ng.col.budget"), value: formatCurrency(selectedBudget) },
                                         { label: t("ng.col.value"), value: formatCurrency(selectedStats.value) },
                                     ].map(kpi => (
                                         <div key={kpi.label} className="px-4 py-3">
@@ -676,7 +608,7 @@ export default function TeamSelectionPage() {
                                     ) : (
                                     <table data-slot="table" className="w-full border-collapse text-left">
                                         <tbody>
-                                            {selectedRoster.map(player => (
+                                            {selectedRoster.map(({ player, ovr }) => (
                                                 <tr key={player.id} className="h-12 border-t border-line">
                                                     <td className="py-1.5 pl-5 pr-3">
                                                         <div className="flex min-w-0 items-center gap-3">
@@ -692,7 +624,7 @@ export default function TeamSelectionPage() {
                                                         </div>
                                                     </td>
                                                     <td className="px-3"><RoleTag role={resolvePlayerRole(player as any)} /></td>
-                                                    <td className="pr-5 text-right"><RatingChip value={player.evaluation.overallRating} size="sm" /></td>
+                                                    <td className="pr-5 text-right"><RatingChip value={ovr} size="sm" /></td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -716,6 +648,24 @@ export default function TeamSelectionPage() {
                             </div>
 
                             <div className="border-t border-line p-4">
+                                <fieldset className="mb-3">
+                                    <legend className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ng.difficulty")}</legend>
+                                    <div role="radiogroup" aria-label={t("ng.difficulty")} className="mt-1.5 grid grid-cols-3 gap-2">
+                                        {(Object.keys(CAREER_DIFFICULTY) as CareerDifficulty[]).map(key => (
+                                            <Button key={key} type="button" role="radio" aria-checked={difficulty === key}
+                                                variant={difficulty === key ? "default" : "outline"} size="sm"
+                                                onClick={() => setDifficulty(key)}>
+                                                {t(`ng.diff.${key}`)}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                    <p className="mt-1.5 text-xs text-ink-3">{t(`ng.diff.${difficulty}.hint`)}</p>
+                                </fieldset>
+                                {selectedSandbox && (
+                                    <p className="mb-3 flex items-start gap-2 text-xs text-caution">
+                                        <Lock size={12} className="mt-0.5 shrink-0" /> {t("ng.sandboxCareer")}
+                                    </p>
+                                )}
                                 {selectedLocked && (
                                     <p className="mb-3 flex items-center gap-2 text-xs text-ink-3">
                                         <Lock size={12} /> {t("ng.needsLevel", { need: ManagerProgression.getRequiredLevel(selectedTeam.reputation), level: managerLevel })}
