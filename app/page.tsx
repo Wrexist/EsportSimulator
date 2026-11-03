@@ -35,7 +35,7 @@ import { cn } from "@/lib/utils"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
-import { EconomyEngine } from "@/engine/economy-engine"
+import { EconomyEngine, weeklyUpkeep } from "@/engine/economy-engine"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { startingFiveOvr } from "@/lib/team-ovr"
 import { getBoardSanctionedFee, getTierTargets } from "@/engine/board-expectations"
@@ -563,7 +563,7 @@ export default function Page() {
                 </div>
                 <div className="px-4 py-2.5">
                   <dt className="text-xs text-ink-3">{t("home.upkeep")}</dt>
-                  <dd className="tabular-nums text-ink-1">{formatCurrency(-((finance?.expenses.facilities ?? 0) + (finance?.expenses.equipment ?? 0) + (finance?.expenses.academy ?? 0)))}</dd>
+                  <dd className="tabular-nums text-ink-1">{formatCurrency(-weeklyUpkeep(finance))}</dd>
                 </div>
               </dl>
             </Panel>}

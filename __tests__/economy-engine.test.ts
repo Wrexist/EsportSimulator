@@ -10,7 +10,7 @@
  * failures. Pin every channel + the state-classification thresholds.
  */
 
-import { EconomyEngine } from "@/engine/economy-engine"
+import { EconomyEngine, weeklyUpkeep } from "@/engine/economy-engine"
 import { clubOperationsCost, leagueCentralPayment, sponsorIncomeFloor } from "@/lib/balance-tuning"
 import type { TeamSaveData, PlayerSaveData, StaffSaveData, ContractSaveData } from "@/engine/save-types"
 
@@ -303,5 +303,22 @@ describe("merch active-line bonus (wired activeMerchItems)", () => {
         // 7 lines is capped at the 5-line bonus, not 7x.
         const fiveCap = EconomyEngine.processWeeklyFinances(makeTeam({ followers: 1_000_000, activeMerchItems: ["A", "B", "C", "D", "E"] }), [], [], [])
         expect(seven.income.fanbase).toBe(fiveCap.income.fanbase)
+    })
+})
+
+describe("weeklyUpkeep — Home finance strip (HOME-01 / MARKET-07)", () => {
+    test("Income − Wages − Upkeep equals Net, club operations included", () => {
+        const team = makeTeam({ rosterIds: ["p1"], staffIds: ["s1"], reputation: 40 })
+        const r = EconomyEngine.processWeeklyFinances(team, [], [makeContract("p1", 1300)], [makeStaff("s1", 200)])
+        expect(r.expenses.operations).toBeGreaterThan(0)
+        const wages = r.expenses.playerWages + r.expenses.staffWages
+        const upkeep = weeklyUpkeep(r)
+        expect(upkeep).toBeGreaterThanOrEqual(r.expenses.operations)
+        expect(r.income.total - wages - upkeep).toBeCloseTo(r.net, 6)
+    })
+
+    test("a missing report reads as 0", () => {
+        expect(weeklyUpkeep(null)).toBe(0)
+        expect(weeklyUpkeep(undefined)).toBe(0)
     })
 })

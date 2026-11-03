@@ -42,6 +42,17 @@ export interface WeeklyFinancialReport {
     state: FinancialState
 }
 
+/**
+ * Weekly running costs other than wages (facilities, gear, academy and club
+ * operations). Derived from the total so Income − Wages − Upkeep always equals
+ * the report's net (HOME-01: the Home strip used to leave operations out).
+ */
+export function weeklyUpkeep(report: Pick<WeeklyFinancialReport, "expenses"> | null | undefined): number {
+    if (!report) return 0
+    const e = report.expenses
+    return (e.total ?? 0) - (e.playerWages ?? 0) - (e.staffWages ?? 0)
+}
+
 export class EconomyEngine {
 
     /**
