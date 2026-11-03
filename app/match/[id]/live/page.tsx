@@ -412,6 +412,7 @@ export default function LiveMatchPage() {
                 awayLossLevel={shownLossLevels.away}
                 clock={scorebugClock}
                 ownTeam={isPlayerHome ? "home" : "away"}
+                nextRound={isWaitingForStrategy && gameState.status === "IN_PROGRESS" && !roundBeat ? simState.currentRound : null}
             />
 
             <LiveMatchControlBar
