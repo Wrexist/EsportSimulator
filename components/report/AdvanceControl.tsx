@@ -25,13 +25,19 @@ import { draftCupOutcome } from "@/engine/draft-cup"
 import { demoWeekCapReached } from "@/lib/edition"
 import { t } from "@/lib/i18n"
 
+/**
+ * The match a stop notice was last restored for in this page session, so a
+ * dismissed notice does not come back on every remount (HOME-16).
+ */
+let restoredMatchStop: string | null = null
+
 export function AdvanceControl() {
     const router = useRouter()
     const pathname = usePathname()
     const {
         timeMode, currentWeek, currentDay, isLoading, gameOverReason, runOver, saveId, playerTeamId,
         continueRun, advanceStop,
-        advanceDay, advanceToWeekEnd, advanceWeek, continueToNextDecision, cancelContinue, dismissAdvanceStop,
+        advanceDay, advanceToWeekEnd, advanceWeek, continueToNextDecision, cancelContinue, dismissAdvanceStop, restoreMatchStop,
     } = useGameStore(useShallow(s => ({
         timeMode: s.timeMode,
         currentWeek: s.currentWeek,
@@ -49,6 +55,7 @@ export function AdvanceControl() {
         continueToNextDecision: s.continueToNextDecision,
         cancelContinue: s.cancelContinue,
         dismissAdvanceStop: s.dismissAdvanceStop,
+        restoreMatchStop: s.restoreMatchStop,
     })))
     // Only offer "Play match" for a fixture the store will actually simulate
     // (shared predicate with the advance-week guard); an unplayable fixture is
@@ -58,6 +65,16 @@ export function AdvanceControl() {
     const running = !!continueRun
     const locked = isLoading || !!gameOverReason || runOver || !hasCareer || running
     const daily = timeMode === "HYBRID_DAILY"
+
+    // The stop notice is transient: after a reload the one-click "Sim match"
+    // was gone while the match was still due. Show it again, once per match.
+    useEffect(() => {
+        if (!saveId || !pendingMatchId || isLoading || running) return
+        const key = `${saveId}:${pendingMatchId}`
+        if (restoredMatchStop === key) return
+        restoredMatchStop = key
+        restoreMatchStop()
+    }, [saveId, pendingMatchId, isLoading, running, restoreMatchStop])
 
     const step = (fn: () => Promise<void>, wholeWeek = false) => () => {
         // SQUAD-04: a fixture this step would forfeit (the club can't field

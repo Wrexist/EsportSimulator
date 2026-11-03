@@ -48,6 +48,11 @@ export interface AdvanceActions {
     continueToNextDecision: () => Promise<void>
     cancelContinue: () => void
     dismissAdvanceStop: () => void
+    /**
+     * After a load: show the match stop again when a playable match is due
+     * (the notice is transient, so a reload lost its one-click Sim, HOME-16).
+     */
+    restoreMatchStop: () => void
     openWeekReport: (week?: number) => void
     closeWeekReport: () => void
     dismissWeekReportToast: () => void
@@ -183,6 +188,14 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
     cancelContinue: () => set(draft => { if (draft.continueRun) draft.continueRun.cancelRequested = true }),
 
     dismissAdvanceStop: () => set({ advanceStop: null }),
+
+    restoreMatchStop: () => {
+        const s = get()
+        if (s.continueRun || s.advanceStop || s.isLoading || !s.saveId || !s.playerTeamId || s.gameOverReason) return
+        const stop = nextStop(s, new Set(s.advanceSeenKeys))
+        if (stop?.kind !== "match") return
+        set({ advanceStop: { key: stop.key, kind: stop.kind, reason: stop.reason, href: stop.href, actionLabel: stop.actionLabel, week: s.currentWeek, day: s.currentDay } })
+    },
 
     openWeekReport: (week) => {
         const history = get().weekReports?.history ?? []

@@ -3,6 +3,7 @@
  * reason the manager sees.
  */
 import { collectStopSignals, nextStop, type StopSource } from "@/lib/advance-stops"
+import { createAdvanceSlice } from "@/store/slices/advance-slice"
 import { createLaunchFixture } from "@/scripts/launch/fixtures"
 import type { GameSave } from "@/engine/save-types"
 
@@ -120,4 +121,34 @@ test("seen stops pass; the highest-priority unseen one is next", () => {
     expect(first.kind).toBe("injury")
     expect(nextStop(src(save), new Set([first.key]))?.kind).toBe("contract")
     expect(nextStop(src(save), new Set(collectStopSignals(src(save)).map(s => s.key)))).toBeNull()
+})
+
+describe("HOME-16: restoreMatchStop rebuilds the match notice after a reload", () => {
+    function harness(save: GameSave, extra: Record<string, unknown> = {}) {
+        let state = { ...save, saveId: "s1", isLoading: false, gameOverReason: null, continueRun: null, advanceStop: null, advanceSeenKeys: [], ...extra } as Record<string, unknown>
+        const set = (patch: unknown) => { state = typeof patch === "function" ? state : { ...state, ...(patch as object) } }
+        const slice = createAdvanceSlice(set as never, (() => state) as never)
+        return { slice, state: () => state }
+    }
+
+    test("a playable match due: the match notice (with its Sim shortcut) is back", () => {
+        const save = base()
+        save.scheduledMatches = [{ id: "m1", homeTeamId: save.playerTeamId, awayTeamId: "team_ai_1", week: 5, format: "BO3", stage: "Group", tournamentId: null, seed: 1 } as never]
+        const h = harness(save)
+        h.slice.restoreMatchStop()
+        expect(h.state().advanceStop).toMatchObject({ kind: "match", href: "/match/m1/tactics", week: 5 })
+    })
+
+    test("nothing due, or a notice already showing: unchanged", () => {
+        const quiet = harness(base())
+        quiet.slice.restoreMatchStop()
+        expect(quiet.state().advanceStop).toBeNull()
+
+        const save = base()
+        save.scheduledMatches = [{ id: "m1", homeTeamId: save.playerTeamId, awayTeamId: "team_ai_1", week: 5, format: "BO3", stage: "Group", tournamentId: null, seed: 1 } as never]
+        const shown = { key: "event:x", kind: "event", reason: "x", week: 5, day: 0 }
+        const h = harness(save, { advanceStop: shown })
+        h.slice.restoreMatchStop()
+        expect(h.state().advanceStop).toBe(shown)
+    })
 })
