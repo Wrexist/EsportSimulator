@@ -6,7 +6,8 @@ import {
     BracketMatchSaveData,
     TournamentGroupSaveData,
     CompletedMatchSaveData,
-    PlayerSaveData
+    PlayerSaveData,
+    TeamSaveData
 } from "./save-types"
 import { LeagueEngine } from "./league-engine"
 import { STAFF_EFFECTS } from "@/types"
@@ -468,6 +469,24 @@ export class TournamentManager {
                 // Skip if missing teams
                 if (!bracketMatch.homeTeamId || !bracketMatch.awayTeamId) continue
 
+                // Already decided elsewhere (e.g. a forfeit recorded by the
+                // week processor): never play it a second time. Close the row
+                // with the recorded winner so the bracket matches the results
+                // list and the winner advances.
+                const recorded = idx.completedMatchIndex.get(bracketMatch.id) ?? save.completedMatches.find(m => m.id === bracketMatch.id)
+                if (recorded) {
+                    const recordedWinner = recorded.result?.winnerId
+                        || (recorded.result && recorded.result.homeScore !== recorded.result.awayScore
+                            ? (recorded.result.homeScore > recorded.result.awayScore ? recorded.homeTeamId : recorded.awayTeamId)
+                            : undefined)
+                    const recordedLoser = recordedWinner === bracketMatch.homeTeamId ? bracketMatch.awayTeamId : bracketMatch.homeTeamId
+                    if (recordedWinner && (recordedWinner === bracketMatch.homeTeamId || recordedWinner === bracketMatch.awayTeamId)) {
+                        this.processMatchResult(save, tournament.id, bracketMatch.id, recordedWinner, recordedLoser)
+                        madeProgress = madeProgress || bracketMatch.isCompleted
+                    }
+                    continue
+                }
+
                 // Skip player matches
                 if (bracketMatch.homeTeamId === playerTeamId || bracketMatch.awayTeamId === playerTeamId) continue
 
@@ -484,8 +503,15 @@ export class TournamentManager {
                 const awayTeam = idx.teamIndex.get(bracketMatch.awayTeamId!) ?? save.teams.find(t => t.id === bracketMatch.awayTeamId)
                 if (!homeTeam || !awayTeam) continue
 
-                const homePlayers = homeTeam.rosterIds.map(id => idx.playerIndex.get(id) ?? save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => p !== undefined)
-                const awayPlayers = awayTeam.rosterIds.map(id => idx.playerIndex.get(id) ?? save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => p !== undefined)
+                // Same lineup rule as the week processor: injured players
+                // don't play. A side without five healthy players is left to
+                // the week processor, which records the forfeit.
+                const healthy = (team: TeamSaveData) => team.rosterIds
+                    .map(id => idx.playerIndex.get(id) ?? save.players.find(p => p.id === id))
+                    .filter((p): p is PlayerSaveData => p !== undefined && !p.injury)
+                    .slice(0, 5)
+                const homePlayers = healthy(homeTeam)
+                const awayPlayers = healthy(awayTeam)
                 if (homePlayers.length < 5 || awayPlayers.length < 5) continue
 
                 // Simulate the match
@@ -566,6 +592,8 @@ export class TournamentManager {
         const concurrentMatches = save.scheduledMatches.filter(m => {
             if (m.tournamentId !== tournamentId || m.week > save.currentWeek) return false
             if (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId) return false
+            // Already has a result (e.g. a forfeit): never play it twice.
+            if (idx.completedMatchIndex.has(m.id)) return false
 
             // Match by stage name
             if (m.stage && this.normalizeStage(m.stage) === playerStageNormalized) return true
