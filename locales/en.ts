@@ -10,6 +10,7 @@
 import { COMMON } from "./en/common"
 import { HOME } from "./en/home"
 import { LEAGUE } from "./en/league"
+import { FEED } from "./en/feed"
 import { MATCH } from "./en/match"
 import { SETTINGS } from "./en/settings"
 
@@ -94,6 +95,7 @@ export const EN = {
     ...HOME,
     ...LEAGUE,
     ...MATCH,
+    ...FEED,
     ...SETTINGS,
 } as const
 

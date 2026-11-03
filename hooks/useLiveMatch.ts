@@ -27,12 +27,13 @@ import { soundManager } from "@/lib/sound-manager"
 import { playMatchOutcomeCue } from "@/lib/match-outcome-sound"
 import { annotateRoundEvents, buildLiveRoundScript, warmRoundMap, type LiveRoundScript } from "@/lib/live-round-script"
 import { AUTO_CONFIRM_MS, BREAK_CARD_MS, PISTOL_START_MS, ROUND_BEAT_MS, computeRoundPacing, defaultLiveSpeed, type PacingMode, type RoundPacing } from "@/lib/live-match-pacing"
-import { keyRoundReason, SKIPPED_ROUND_LINE } from "@/lib/live-key-rounds"
+import { keyRoundReason } from "@/lib/live-key-rounds"
 import { buildRoundTimeline, summarizeRound, type RoundSummary, type RoundTimeline } from "@/lib/live-match-roster"
 import { LiveClock, liveWakeTimes, nextWakeAfter, roundBombTimes, roundClockSeconds, scorebugTime } from "@/lib/live-clock"
 import type { LegacyTransition } from "@/engine/match/legacy-series"
 import { MAP_NAMES } from "@/data/map-pool"
-import { t } from "@/lib/i18n"
+import { t, tn } from "@/lib/i18n"
+import { strategyLabel } from "@/lib/live-match-decision"
 import { liveCheckpointStore, persistCommittedMatch } from "@/lib/live-checkpoint-store"
 import {
     ROUND_SECONDS,
@@ -46,6 +47,13 @@ import {
 } from "@/lib/live-match-builders"
 
 type RoundStrategy = ManagerStrategy | "PISTOL"
+
+/** Feed line for a SAVE event; the engine writes "<names> saving". */
+function savingLine(details: string | undefined): string {
+    const m = details ? /^(.*) saving$/.exec(details) : null
+    if (m) return t("feed.saving", { names: m[1] })
+    return details || t("feed.playersSaving")
+}
 
 /** Max kill/event-feed rows kept in state + DOM during a live match. */
 const MAX_LIVE_LOG_ENTRIES = 200
@@ -395,7 +403,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
             if (playback?.playbookCounts && ctx.script) ctx.script.callCounts = new Map(playback.playbookCounts)
         } catch (error) {
             hasInitialized.current = true
-            useGameStore.getState().addToast({ message: error instanceof Error ? error.message : "Could not restore match", type: "warning" })
+            useGameStore.getState().addToast({ message: error instanceof Error ? error.message : t("feed.restoreFailed"), type: "warning" })
             setActiveMatch(null)
             router.replace(`/match/${id}/tactics`)
             return
@@ -687,15 +695,15 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
 
         const getStratName = (stratId: string, side: "ct" | "t", managed: boolean) => {
             const tactic = managed ? customTactics[stratId as keyof typeof customTactics]?.[side] : undefined
-            return tactic?.name ? tactic.name.toUpperCase() : stratId
+            return tactic?.name ? tactic.name.toUpperCase() : strategyLabel(stratId as ManagerStrategy)
         }
         const managedHome = runtime.ctx.managedTeamId === homeTeam.id
         const buys = step.round.buys ?? { home: "", away: "" }
         const buyLogEntries: LogEntry[] = [
-            { type: "BUY", message: `${homeTeam.name}: ${getStratName(buys.home, sideBefore ? "ct" : "t", managedHome)}` },
-            { type: "BUY", message: `${awayTeam.name}: ${getStratName(buys.away, !sideBefore ? "ct" : "t", !managedHome)}` },
+            { type: "BUY", message: t("feed.buy", { team: homeTeam.name, buy: getStratName(buys.home, sideBefore ? "ct" : "t", managedHome) }) },
+            { type: "BUY", message: t("feed.buy", { team: awayTeam.name, buy: getStratName(buys.away, !sideBefore ? "ct" : "t", !managedHome) }) },
         ]
-        if (step.round.managerCall?.regroup) buyLogEntries.push({ type: "SYSTEM", message: "Regroup: losing-streak pressure eased this round" })
+        if (step.round.managerCall?.regroup) buyLogEntries.push({ type: "SYSTEM", message: t("feed.regroup") })
 
         setGameState(prev => ({ ...prev, round: currentRoundNumber, time: 0, status: "IN_PROGRESS" }))
         const roundStartMsg = commentaryManager.generate("ROUND_START", { round: currentRoundNumber })
@@ -836,29 +844,29 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
             } else if (nextEvent.type === "PLANT") {
                 const site = nextEvent.site
                 const planter = playerName(roundScriptRef.current?.script.bomb.plant?.planterId)
-                const message = site ? `Bomb planted at ${site}${planter ? ` by ${planter}` : ""}` : commentaryManager.generate("PLANT", {})
+                const message = site ? (planter ? t("feed.plantedAtBy", { site, player: planter }) : t("feed.plantedAt", { site })) : commentaryManager.generate("PLANT", {})
                 setLogs(prev => [{ type: "PLANT", time: nextEvent.time, message, site }, ...prev])
                 if (!silentPlaybackRef.current) soundManager.play("bombPlant")
             } else if (nextEvent.type === "DEFUSE") {
                 const site = nextEvent.site
                 const defuser = playerName(roundScriptRef.current?.script.bomb.defuse?.defuserId)
-                const message = site ? `Bomb defused at ${site}${defuser ? ` by ${defuser}` : ""}` : commentaryManager.generate("DEFUSE", {})
+                const message = site ? (defuser ? t("feed.defusedAtBy", { site, player: defuser }) : t("feed.defusedAt", { site })) : commentaryManager.generate("DEFUSE", {})
                 setLogs(prev => [{ type: "DEFUSE", time: nextEvent.time, message, site }, ...prev])
                 if (!silentPlaybackRef.current) soundManager.play("bombDefuse")
             } else if (nextEvent.type === "EXPLODE") {
                 const site = nextEvent.site
-                setLogs(prev => [{ type: "EXPLODE", time: nextEvent.time, message: site ? `Bomb exploded at ${site}` : commentaryManager.generate("EXPLODE", {}), site }, ...prev])
+                setLogs(prev => [{ type: "EXPLODE", time: nextEvent.time, message: site ? t("feed.explodedAt", { site }) : commentaryManager.generate("EXPLODE", {}), site }, ...prev])
                 if (!silentPlaybackRef.current) soundManager.play("bombExplode")
             } else if (nextEvent.type === "CLUTCH") {
                 const playersInRound = [...latestHomeRosterRef.current, ...latestAwayRosterRef.current]
                 const player = playersInRound.find(roundPlayer => roundPlayer.id === nextEvent.playerId)
-                setLogs(prev => [{ type: "CLUTCH", time: nextEvent.time, message: `${player?.name || "Player"} won a ${nextEvent.details} clutch!`, playerId: nextEvent.playerId }, ...prev])
+                setLogs(prev => [{ type: "CLUTCH", time: nextEvent.time, message: t("feed.clutchWon", { player: player?.name || t("feed.aPlayer"), details: nextEvent.details ?? "" }), playerId: nextEvent.playerId }, ...prev])
                 // Sting only for the manager's own side.
                 const clutchForHome = latestHomeRosterRef.current.some(p => p.id === nextEvent.playerId)
                 const ownSide = clutchForHome ? runtime.homeTeam.id === playerTeam?.id : runtime.awayTeam.id === playerTeam?.id
                 if (ownSide && !silentPlaybackRef.current) soundManager.play("clutch")
             } else if (nextEvent.type === "SAVE") {
-                setLogs(prev => [{ type: "SAVE", time: nextEvent.time, message: nextEvent.details || "Players saving" }, ...prev])
+                setLogs(prev => [{ type: "SAVE", time: nextEvent.time, message: savingLine(nextEvent.details) }, ...prev])
             } else if (nextEvent.type === "ROUND_END") {
                 // The canonical step already applied scores, economy and any
                 // side/map transition; playback only reveals them.
@@ -895,7 +903,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                 const playedRound = lastMap?.rounds[lastMap.rounds.length - 1]
                 const winnerIsCT = playedRound ? playedRound.winner === "ct" : isHomeWinner === roundState.homeStartsCT
                 const roundEndMessage = commentaryManager.generate(winnerIsCT ? "ROUND_WIN_CT" : "ROUND_WIN_T", { team: winnerName })
-                setLogs(prev => [{ type: "ROUND_END", message: `${roundEndMessage} (Winner: ${winnerName})` }, ...prev])
+                setLogs(prev => [{ type: "ROUND_END", message: t("feed.roundEnd", { line: roundEndMessage, team: winnerName }) }, ...prev])
 
                 // Round-end beat (not while "Skip match" resolves the rest).
                 const silent = silentPlaybackRef.current
@@ -942,19 +950,19 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(false)
-                    setLogs(prev => [{ type: "SYSTEM", message: `--- NEXT MAP: ${(MAP_NAMES[nextMapId] || nextMapId).toUpperCase()} ---` }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", message: t("feed.nextMap", { map: (MAP_NAMES[nextMapId] || nextMapId).toUpperCase() }) }, ...prev])
                     // Warm the next map's walk graph before its pistol round is built.
                     if (nextMapId) warmRoundMap(nextMapId)
                     breakAt("map-end", nextMapId)
                     queueRoundStart("PISTOL", ROUND_BEAT_MS + BREAK_CARD_MS)
                 } else if (transition === "OVERTIME") {
-                    setLogs(prev => [{ type: "SYSTEM", message: "--- OVERTIME: 12-12 · MR3 · FIRST TO 16 ---" }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", message: t("feed.overtimeStart") }, ...prev])
                     breakAt("overtime")
                     settle()
                     setIsPlaying(false)
                     setIsWaitingForStrategy(true)
                 } else if (transition === "HALFTIME") {
-                    setLogs(prev => [{ type: "SYSTEM", message: "--- HALF TIME: SWITCHING SIDES ---" }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", message: t("feed.halfTime") }, ...prev])
                     breakAt("halftime")
                     settle()
                     setIsPlaying(false)
@@ -962,7 +970,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
                     queueRoundStart("PISTOL", ROUND_BEAT_MS + BREAK_CARD_MS)
                 } else if (transition === "OVERTIME_SWITCH") {
                     const newSet = (roundState.currentRound - 25) % 6 === 0
-                    setLogs(prev => [{ type: "SYSTEM", message: newSet ? "--- OVERTIME: TIED SET · NEW MR3 SET ---" : "--- OVERTIME: SWITCHING SIDES ---" }, ...prev])
+                    setLogs(prev => [{ type: "SYSTEM", message: newSet ? t("feed.overtimeNewSet") : t("feed.overtimeSwitch") }, ...prev])
                     breakAt("overtime-switch")
                     settle()
                     setIsPlaying(false)
@@ -1092,7 +1100,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
     // The round-end banner and the decision card still follow as usual.
     useEffect(() => {
         if (quietRound === 0 || !roundInFlightRef.current) return
-        setLogs(prev => [{ type: "SYSTEM", message: SKIPPED_ROUND_LINE }, ...prev])
+        setLogs(prev => [{ type: "SYSTEM", message: t("feed.skippedRound") }, ...prev])
         simulateRoundInstant()
         // Only a new quiet round triggers this; simulateRoundInstant changes with every state change.
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1207,8 +1215,8 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
             const winnerName = homeWon ? homeTeam.name : awayTeam.name
             const seriesScore = homeWon ? `${sim.homeSeriesScore}-${sim.awaySeriesScore}` : `${sim.awaySeriesScore}-${sim.homeSeriesScore}`
             setLogs(prev => [
-                { type: "SYSTEM", message: `--- FINAL: ${winnerName} win ${seriesScore} (${mapScores}) ---` },
-                { type: "SYSTEM", message: `Skipped to the end: ${done.roundsPlayed} remaining round${done.roundsPlayed === 1 ? "" : "s"} simulated` },
+                { type: "SYSTEM", message: t("feed.final", { team: winnerName, series: seriesScore, maps: mapScores }) },
+                { type: "SYSTEM", message: tn("feed.skippedEnd", done.roundsPlayed) },
                 ...prev,
             ])
             setIsPlaying(false)
@@ -1305,7 +1313,7 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
         }))
         saveMatchResult(runtime.match.id, result)
         if (!useGameStore.getState().completedMatches.some(m => m.id === runtime.match.id)) {
-            useGameStore.getState().addToast({ message: "The result could not be committed. Your match checkpoint has been preserved.", type: "warning" })
+            useGameStore.getState().addToast({ message: t("feed.commitFailed"), type: "warning" })
             return
         }
         matchCommittedRef.current = true

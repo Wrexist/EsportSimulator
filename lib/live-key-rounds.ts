@@ -49,5 +49,3 @@ export function keyRoundReason(r: KeyRoundInput): KeyRoundReason | null {
     return null
 }
 
-/** Short feed line for a skipped round. */
-export const SKIPPED_ROUND_LINE = "Quiet round: skipped to the result"

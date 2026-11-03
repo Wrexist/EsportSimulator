@@ -10,6 +10,7 @@
  */
 import type { MatchEvent, MatchResult, PlayerMatchStats, RoundResult } from '@/types'
 import { coachCallLabel } from '@/engine/match/coach-calls'
+import { t, tn } from '@/lib/i18n'
 
 export interface MatchReason {
     key: 'opening' | 'trades' | 'clutches' | 'pistols' | 'buys' | 'utility' | 'multikills'
@@ -50,7 +51,7 @@ export function counterLines(result: MatchResult, teamId: string): CounterLine[]
             if (!side || !r.plan) continue
             const site = side === 'ct' ? (r.plan.ctSetup === 'stack-A' ? 'A' : 'B') : r.plan.site
             const key = `${map.map}:${side}`
-            const line = lines.get(key) ?? { map: map.map, side, label: side === 'ct' ? `Stack ${site}` : `Hit ${site}`, rounds: 0, met: 0, won: 0, text: '' }
+            const line = lines.get(key) ?? { map: map.map, side, label: side === 'ct' ? t('why.counter.ctLabel', { site: site ?? '' }) : t('why.counter.tLabel', { site: site ?? '' }), rounds: 0, met: 0, won: 0, text: '' }
             line.rounds++
             if (side === 'ct' ? r.plan.read === 'right' : r.plan.ctHabit) line.met++
             if (r.winningTeamId === teamId) line.won++
@@ -60,8 +61,8 @@ export function counterLines(result: MatchResult, teamId: string): CounterLine[]
     return [...lines.values()].map(l => ({
         ...l,
         text: l.side === 'ct'
-            ? `${l.rounds} CT full-buy rounds: their Ts came to your stack in ${l.met}, you won ${l.won}.`
-            : `${l.rounds} T full-buy rounds: their CTs were stacked on the other site in ${l.met}, you won ${l.won}.`,
+            ? t('why.counter.ct', { rounds: l.rounds, met: l.met, won: l.won })
+            : t('why.counter.t', { rounds: l.rounds, met: l.met, won: l.won }),
     }))
 }
 
@@ -102,11 +103,10 @@ export function coachCallsReason(result: MatchResult, teamId: string): CallsReas
     if (!calls.length) return null
     const gained = calls.filter(c => c.flipped === 'won').length
     const cost = calls.filter(c => c.flipped === 'lost').length
-    const n = (k: number) => k === 1 ? '1 call' : `${k} calls`
-    const parts = [`You made ${n(calls.length)} during rounds.`]
-    if (gained) parts.push(`${n(gained)} won a round that was lost without it.`)
-    if (cost) parts.push(`${n(cost)} lost a round that was won without it.`)
-    if (!gained && !cost) parts.push(calls.length === 1 ? 'It did not change the result of its round.' : 'None of them changed the result of a round.')
+    const parts = [tn('why.calls.made', calls.length)]
+    if (gained) parts.push(tn('why.calls.gained', gained))
+    if (cost) parts.push(tn('why.calls.cost', cost))
+    if (!gained && !cost) parts.push(calls.length === 1 ? t('why.calls.noneOne') : t('why.calls.none'))
     const text = parts.join(' ')
     return { calls, swing: gained - cost, text }
 }
@@ -119,8 +119,6 @@ const emptySide = (): Side => ({ openings: 0, openingRoundsWon: 0, trades: 0, cl
 interface PlayerTally { openings: number; openingDeaths: number; trades: number; clutches: string[]; multikills: number; utility: number }
 const emptyTally = (): PlayerTally => ({ openings: 0, openingDeaths: 0, trades: 0, clutches: [], multikills: 0, utility: 0 })
 
-const plural = (n: number, one: string, many = `${one}s`) => n === 1 ? `a ${one}` : `${n} ${many}`
-
 function kills(r: RoundResult): MatchEvent[] {
     return (r.events ?? []).filter(e => e.type === 'KILL').sort((a, b) => a.time - b.time)
 }
@@ -130,7 +128,7 @@ export function buildMatchReasons(args: { result: MatchResult; teamId: string; i
     const ownSet = new Set(ownLineup), oppSet = new Set(opponentLineup)
     const own = emptySide(), opp = emptySide()
     const tally = new Map<string, PlayerTally>()
-    const t = (id: string) => { let x = tally.get(id); if (!x) { x = emptyTally(); tally.set(id, x) } return x }
+    const tallyOf = (id: string) => { let x = tally.get(id); if (!x) { x = emptyTally(); tally.set(id, x) } return x }
     const sideOf = (id?: string) => !id ? undefined : ownSet.has(id) ? own : oppSet.has(id) ? opp : undefined
     let opportunities = 0
 
@@ -145,28 +143,28 @@ export function buildMatchReasons(args: { result: MatchResult; teamId: string; i
                     s.openings++
                     if ((s === own) === ownWon) s.openingRoundsWon++
                     opportunities++
-                    t(first.playerId!).openings++
-                    if (first.victimId) t(first.victimId).openingDeaths++
+                    tallyOf(first.playerId!).openings++
+                    if (first.victimId) tallyOf(first.victimId).openingDeaths++
                 }
             }
             const perPlayer = new Map<string, number>()
             for (const e of ks) {
                 if (!e.playerId) continue
                 perPlayer.set(e.playerId, (perPlayer.get(e.playerId) ?? 0) + 1)
-                if (e.isTrade) { const s = sideOf(e.playerId); if (s) s.trades++; t(e.playerId).trades++ }
+                if (e.isTrade) { const s = sideOf(e.playerId); if (s) s.trades++; tallyOf(e.playerId).trades++ }
             }
-            for (const [pid, n] of perPlayer) if (n >= 4) { const s = sideOf(pid); if (s) s.multikills++; t(pid).multikills++ }
+            for (const [pid, n] of perPlayer) if (n >= 4) { const s = sideOf(pid); if (s) s.multikills++; tallyOf(pid).multikills++ }
             for (const e of r.events ?? []) {
                 if (e.type !== 'CLUTCH' || !e.playerId) continue
                 const s = sideOf(e.playerId)
                 if (s) s.clutches++
-                t(e.playerId).clutches.push(e.details ?? 'clutch')
+                tallyOf(e.playerId).clutches.push(e.details ?? 'clutch')
             }
             for (const u of r.utility ?? []) {
                 if (!u.dmg) continue
                 const s = sideOf(u.playerId)
                 if (s) s.utility += u.dmg
-                t(u.playerId).utility += u.dmg
+                tallyOf(u.playerId).utility += u.dmg
             }
             if (r.roundNumber === 1 || r.roundNumber === 13) (ownWon ? own : opp).pistols++
             const ownBuy = r.buys ? (isHome ? r.buys.home : r.buys.away) : undefined
@@ -184,33 +182,33 @@ export function buildMatchReasons(args: { result: MatchResult; teamId: string; i
         // An opening kill is worth about a third of a round over winning the duel 50/50.
         reasons.push({
             key: 'opening', swing: (own.openings - opp.openings) * 0.35,
-            text: `Opening duels ${own.openings}–${opp.openings}. You won ${conv(own)}% of the rounds where you struck first; they won ${conv(opp)}% of theirs.`,
+            text: t('why.opening', { own: own.openings, opp: opp.openings, ownPct: conv(own), oppPct: conv(opp) }),
         })
     }
     if (own.trades + opp.trades > 0) reasons.push({
         key: 'trades', swing: (own.trades - opp.trades) * 0.25,
-        text: `Trade kills ${own.trades}–${opp.trades}. ${own.trades >= opp.trades ? 'Your players were close enough to answer a death' : 'Their players answered deaths faster than yours'}.`,
+        text: t(own.trades >= opp.trades ? 'why.trades.ahead' : 'why.trades.behind', { own: own.trades, opp: opp.trades }),
     })
     if (own.clutches + opp.clutches > 0) reasons.push({
         key: 'clutches', swing: own.clutches - opp.clutches,
-        text: `Clutch rounds ${own.clutches}–${opp.clutches}: rounds won by the last player standing.`,
+        text: t('why.clutches', { own: own.clutches, opp: opp.clutches }),
     })
     if (own.pistols + opp.pistols > 0) reasons.push({
         key: 'pistols', swing: (own.pistols - opp.pistols) * 1.5,
-        text: `Pistol rounds ${own.pistols}–${opp.pistols}. A pistol win usually brings the next round or two with it.`,
+        text: t('why.pistols', { own: own.pistols, opp: opp.pistols }),
     })
     if (own.underdog + opp.underdog > 0) reasons.push({
         key: 'buys', swing: own.underdog - opp.underdog,
-        text: `Rounds won with the weaker buy ${own.underdog}–${opp.underdog}. ${own.underdog >= opp.underdog ? 'Your ecos and force buys stole rounds' : 'They stole rounds on cheaper buys'}.`,
+        text: t(own.underdog >= opp.underdog ? 'why.buys.ahead' : 'why.buys.behind', { own: own.underdog, opp: opp.underdog }),
     })
     if (own.utility + opp.utility > 0) reasons.push({
         key: 'utility', swing: (own.utility - opp.utility) / 300,
-        text: `Grenade damage ${own.utility}–${opp.utility} HP.`,
+        text: t('why.utility', { own: own.utility, opp: opp.utility }),
     })
     if (own.multikills + opp.multikills > 0) reasons.push({
         // A four-kill round is usually won, but often would have been anyway.
         key: 'multikills', swing: (own.multikills - opp.multikills) * 0.6,
-        text: `Four-kill rounds or better ${own.multikills}–${opp.multikills}.`,
+        text: t('why.multikills', { own: own.multikills, opp: opp.multikills }),
     })
 
     const won = result.winnerId === teamId
@@ -231,17 +229,17 @@ export function buildMatchReasons(args: { result: MatchResult; teamId: string; i
 export function playerLine(s: PlayerMatchStats, p: PlayerTally): string {
     const good: string[] = [], bad: string[] = []
     const adr = Math.round(s.adr)
-    if (p.clutches.length) good.push(p.clutches.length === 1 ? `won a ${p.clutches[0]} clutch` : `won ${p.clutches.length} clutches`)
-    if (p.multikills) good.push(plural(p.multikills, 'four-kill round'))
-    if (p.openings >= 3 && p.openings > p.openingDeaths) good.push(plural(p.openings, 'opening kill'))
-    if (adr >= 85) good.push(`${adr} damage per round`)
-    if (p.trades >= 3) good.push(plural(p.trades, 'trade kill'))
-    if (p.utility >= 150) good.push(`${p.utility} grenade damage`)
-    if (p.openingDeaths >= 3 && p.openingDeaths > p.openings) bad.push(`died first in ${p.openingDeaths} rounds`)
-    if (adr < 60) bad.push(`only ${adr} damage per round`)
-    if (s.kast < 60) bad.push(`no kill, assist, trade or survival in ${100 - Math.round(s.kast)}% of rounds`)
+    if (p.clutches.length) good.push(p.clutches.length === 1 ? t('why.p.clutch', { details: p.clutches[0] }) : tn('why.p.clutches', p.clutches.length))
+    if (p.multikills) good.push(tn('why.p.multikills', p.multikills))
+    if (p.openings >= 3 && p.openings > p.openingDeaths) good.push(tn('why.p.openings', p.openings))
+    if (adr >= 85) good.push(t('why.p.adr', { adr }))
+    if (p.trades >= 3) good.push(tn('why.p.trades', p.trades))
+    if (p.utility >= 150) good.push(t('why.p.utility', { n: p.utility }))
+    if (p.openingDeaths >= 3 && p.openingDeaths > p.openings) bad.push(tn('why.p.diedFirst', p.openingDeaths))
+    if (adr < 60) bad.push(t('why.p.lowAdr', { adr }))
+    if (s.kast < 60) bad.push(t('why.p.kast', { pct: 100 - Math.round(s.kast) }))
     const parts = [...good.slice(0, 2), ...bad.slice(0, 1)]
-    if (!parts.length) return `${s.kills}–${s.deaths}, ${adr} damage per round: a steady game.`
+    if (!parts.length) return t('why.p.steady', { kills: s.kills, deaths: s.deaths, adr })
     const text = parts.join(', ')
     return text.charAt(0).toUpperCase() + text.slice(1) + '.'
 }
@@ -254,11 +252,7 @@ export function playerLine(s: PlayerMatchStats, p: PlayerTally): string {
 export function oddsLine(expected: number | undefined, won: boolean): string | null {
     if (typeof expected !== 'number' || !Number.isFinite(expected)) return null
     const pct = Math.round(expected * 100)
-    if (pct >= 40 && pct <= 60) return `An even match by ranking points (${pct}% for you): the usual morale and form swing.`
-    if (won) return pct < 40
-        ? `An upset: ranking points gave you ${pct}%. Morale and form rise more than after an even win.`
-        : `Expected: ranking points made you ${pct}% favourites. Morale and form rise less than after an even win.`
-    return pct > 60
-        ? `A setback: ranking points made you ${pct}% favourites. Morale and form drop more than after an even defeat.`
-        : `They were the stronger side (${pct}% for you by ranking points), so the defeat costs less morale and form than an even one.`
+    if (pct >= 40 && pct <= 60) return t('why.odds.even', { pct })
+    if (won) return pct < 40 ? t('why.odds.upset', { pct }) : t('why.odds.expected', { pct })
+    return pct > 60 ? t('why.odds.setback', { pct }) : t('why.odds.stronger', { pct })
 }

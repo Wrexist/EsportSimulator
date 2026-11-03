@@ -1,4 +1,6 @@
 import { GameMap } from "@/types/game"
+import { t } from "@/lib/i18n"
+import { FEED } from "@/locales/en/feed"
 
 export type CommentaryType =
     | "MATCH_START"
@@ -77,14 +79,14 @@ class CommentaryManager {
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296
     }
 
-    private getRandom(arr: string[]): string {
+    private pickIndex(arr: string[]): number {
         let idx = Math.floor(this.nextRandom() * arr.length)
         // Avoid emitting the exact same line twice in a row (deterministic skip).
         if (arr.length > 1 && arr[idx] === this.lastTemplate) {
             idx = (idx + 1) % arr.length
         }
         this.lastTemplate = arr[idx]
-        return arr[idx]
+        return idx
     }
 
     private format(text: string, ctx: CommentaryContext): string {
@@ -100,9 +102,16 @@ class CommentaryManager {
     }
 
     public generate(type: CommentaryType, ctx: CommentaryContext): string {
-        const templates = COMMENTARY_TEMPLATES[type] || COMMENTARY_TEMPLATES["KILL_GENERIC"]
-        const template = this.getRandom(templates)
-        return this.format(template, ctx)
+        const pool = COMMENTARY_TEMPLATES[type] ? type : "KILL_GENERIC"
+        const templates = COMMENTARY_TEMPLATES[pool]
+        const idx = this.pickIndex(templates)
+        if (FEED_TYPES.has(pool)) {
+            // Feed lines read in the active language.
+            const params: Record<string, string | number> = {}
+            for (const [k, v] of Object.entries(ctx)) if (v !== undefined && v !== null) params[k] = v
+            return t(`commentary.${pool}.${idx}`, params)
+        }
+        return this.format(templates[idx], ctx)
     }
 
     /**
@@ -144,18 +153,22 @@ class CommentaryManager {
     }
 }
 
+/**
+ * Pools shown in the live feed live in locales/en/feed.ts (numbered keys) so
+ * they can be translated; the engine keeps the English text here for picking
+ * and as the fallback.
+ */
+const FEED_TYPES = new Set<CommentaryType>(["MATCH_START", "ROUND_START", "PLANT", "DEFUSE", "EXPLODE", "ROUND_WIN_T", "ROUND_WIN_CT"])
+function feedPool(type: CommentaryType): string[] {
+    const out: string[] = []
+    const dict = FEED as Record<string, string>
+    for (let i = 0; dict[`commentary.${type}.${i}`] !== undefined; i++) out.push(dict[`commentary.${type}.${i}`].replace(/\{\{(\w+)\}\}/g, "{$1}"))
+    return out
+}
+
 const COMMENTARY_TEMPLATES: Record<CommentaryType, string[]> = {
-    MATCH_START: [
-        "The match on {map} is about to begin!",
-        "Both teams are loaded into {map}. Glhf!",
-        "Atmosphere is electric here on {map} as we get underway.",
-        "Pistol round starting on {map}!",
-    ],
-    ROUND_START: [
-        "Round {round} is live.",
-        "Freezetime over, round {round} begins.",
-        "Both teams moving out for round {round}.",
-    ],
+    MATCH_START: feedPool("MATCH_START"),
+    ROUND_START: feedPool("ROUND_START"),
     KILL_GENERIC: [
         "{player} eliminates {victim}",
         "{player} takes down {victim}",
@@ -260,51 +273,11 @@ const COMMENTARY_TEMPLATES: Record<CommentaryType, string[]> = {
         "FIVE! {player} takes the whole server down!",
         "AN ACE FOR THE AGES FROM {player}!",
     ],
-    PLANT: [
-        "Bomb has been planted.",
-        "The explosive is set!",
-        "Terrorists plant the bomb.",
-        "Bomb is down!",
-    ],
-    DEFUSE: [
-        "Bomb has been defused!",
-        "CTs secure the round with a defuse.",
-        "Defuse successful. Counter-Terrorists win.",
-        "Just in time! Bomb defused.",
-    ],
-    EXPLODE: [
-        "The bomb explodes!",
-        "Terrorists win by detonation.",
-        "Too late for the CTs. Bomb detonates.",
-    ],
-    ROUND_WIN_T: [
-        "Round won by Terrorists.",
-        "Ts take the round.",
-        "Offense prevails this round.",
-        "The Terrorists close it out.",
-        "T side gets the job done.",
-        "Attackers break through for the round.",
-        "That's a round in the pocket for the Ts.",
-        "The offense executes and cashes in.",
-        "Ts stack another one on the board.",
-        "Momentum swings to the T side.",
-        "The Terrorists overwhelm the defense.",
-        "Round goes the way of the attackers.",
-    ],
-    ROUND_WIN_CT: [
-        "Round won by Counter-Terrorists.",
-        "CTs hold the line.",
-        "Defense stands strong.",
-        "The Counter-Terrorists lock it down.",
-        "CT side shuts the door.",
-        "The defense holds firm for the round.",
-        "Great hold from the CTs.",
-        "Counter-Terrorists deny the site.",
-        "The defenders read it perfectly.",
-        "CTs put another round on the board.",
-        "The retake pays off for the CT side.",
-        "Defense wins this exchange.",
-    ],
+    PLANT: feedPool("PLANT"),
+    DEFUSE: feedPool("DEFUSE"),
+    EXPLODE: feedPool("EXPLODE"),
+    ROUND_WIN_T: feedPool("ROUND_WIN_T"),
+    ROUND_WIN_CT: feedPool("ROUND_WIN_CT"),
     TIMEOUT: [
         "Time runs out! CTs win.",
         "The clock hits zero. Defense wins.",

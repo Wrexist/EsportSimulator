@@ -8,8 +8,9 @@
  * These are review prompts tied to recorded events, not causal proof.
  */
 import type { MatchResult, PlayerMatchStats, RoundResult } from '@/types'
+import { t, tn } from '@/lib/i18n'
 
-export interface KeyRound { map: string; round: number; label: string; won: boolean }
+export interface KeyRound { map: string; round: number; label: string; won: boolean; kind?: 'pistol' | 'regroup' | 'other' }
 export interface BuyRecord { buy: string; played: number; won: number }
 export interface Standout { playerId: string; rating: number; kills: number; deaths: number }
 export interface NextAction { label: string; href: string; reason: string }
@@ -25,6 +26,9 @@ export interface MatchInsights {
 
 const BUY_RANK: Record<string, number> = { PISTOL: 0, ECO: 0, FORCE: 1, SEMIBUY: 2, FULL: 3, 'DOUBLE AWP': 3 }
 const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0)
+const BUY_KEY: Record<string, string> = { PISTOL: 'pistol', ECO: 'eco', FORCE: 'force', SEMIBUY: 'semibuy', FULL: 'full', 'DOUBLE AWP': 'awp2' }
+/** A buy with its article, for review lines ("a force buy"). */
+const buyPhrase = (id: string) => (BUY_KEY[id] ? t(`insight.buy.${BUY_KEY[id]}`) : id.toLowerCase())
 
 function streaks(rounds: RoundResult[], teamId: string) {
     let best = { len: 0, from: 0, to: 0, own: true }, cur = { len: 0, from: 0, own: true }
@@ -60,19 +64,19 @@ export function buildMatchInsights(args: { result: MatchResult; teamId: string; 
                 buys.set(ownBuy, rec)
             }
             if (ownBuy && oppBuy && ownBuy !== 'PISTOL') {
-                if (ownWon && BUY_RANK[ownBuy] < BUY_RANK[oppBuy]) { underdogWins++; if (keyRounds.length < 8) keyRounds.push({ map: map.map, round: r.roundNumber, label: `Won on a ${ownBuy.toLowerCase()} buy against a ${oppBuy.toLowerCase()} buy`, won: true }) }
-                if (!ownWon && BUY_RANK[ownBuy] > BUY_RANK[oppBuy]) { favouredLosses++; if (keyRounds.length < 8) keyRounds.push({ map: map.map, round: r.roundNumber, label: `Lost a ${ownBuy.toLowerCase()} buy to a ${oppBuy.toLowerCase()} buy`, won: false }) }
+                if (ownWon && BUY_RANK[ownBuy] < BUY_RANK[oppBuy]) { underdogWins++; if (keyRounds.length < 8) keyRounds.push({ map: map.map, round: r.roundNumber, label: t('insight.kr.underdogWin', { own: buyPhrase(ownBuy), opp: buyPhrase(oppBuy) }), won: true }) }
+                if (!ownWon && BUY_RANK[ownBuy] > BUY_RANK[oppBuy]) { favouredLosses++; if (keyRounds.length < 8) keyRounds.push({ map: map.map, round: r.roundNumber, label: t('insight.kr.favouredLoss', { own: buyPhrase(ownBuy), opp: buyPhrase(oppBuy) }), won: false }) }
             }
-            if (r.managerCall?.regroup) keyRounds.push({ map: map.map, round: r.roundNumber, label: 'Round played under a tactical-timeout regroup', won: ownWon })
+            if (r.managerCall?.regroup) keyRounds.push({ map: map.map, round: r.roundNumber, label: t('insight.kr.regroup'), won: ownWon, kind: 'regroup' })
         }
         for (const pistol of rs.filter(r => r.roundNumber === 1 || r.roundNumber === 13)) {
-            keyRounds.push({ map: map.map, round: pistol.roundNumber, label: pistol.roundNumber === 1 ? 'First-half pistol round' : 'Second-half pistol round', won: pistol.winningTeamId === teamId })
+            keyRounds.push({ map: map.map, round: pistol.roundNumber, label: pistol.roundNumber === 1 ? t('insight.kr.pistol1') : t('insight.kr.pistol2'), won: pistol.winningTeamId === teamId, kind: 'pistol' })
         }
         const run = streaks(rs, teamId)
-        if (run.len >= 4) keyRounds.push({ map: map.map, round: run.from, label: `${run.own ? 'Your' : 'Opponent'} run of ${run.len} rounds (rounds ${run.from}-${run.to})`, won: run.own })
-        if (rs.length > 24) keyRounds.push({ map: map.map, round: 25, label: 'Map went to overtime', won: map.winner === teamId })
+        if (run.len >= 4) keyRounds.push({ map: map.map, round: run.from, label: t(run.own ? 'insight.kr.runOwn' : 'insight.kr.runOpp', { n: run.len, from: run.from, to: run.to }), won: run.own })
+        if (rs.length > 24) keyRounds.push({ map: map.map, round: 25, label: t('insight.kr.overtime'), won: map.winner === teamId })
         const last = rs[rs.length - 1]
-        if (last) keyRounds.push({ map: map.map, round: last.roundNumber, label: 'Map-deciding round', won: last.winningTeamId === teamId })
+        if (last) keyRounds.push({ map: map.map, round: last.roundNumber, label: t('insight.kr.decider'), won: last.winningTeamId === teamId })
     }
     keyRounds.sort((a, b) => result.maps.findIndex(m => m.map === a.map) - result.maps.findIndex(m => m.map === b.map) || a.round - b.round)
 
@@ -84,31 +88,34 @@ export function buildMatchInsights(args: { result: MatchResult; teamId: string; 
     const m = result.management
     const tactics: string[] = []
     if (m) {
-        tactics.push(`Playstyle ${m.playstyle ?? 'default'}${m.opponentScouted ? (m.counter === 'advantage' ? ' countered the scouted opponent style (+4% base strength).' : m.counter === 'disadvantage' ? ' was countered by the scouted opponent style (-3% base strength).' : ' had no counter matchup.') : '; opponent style was not scouted, so the matchup is unknown.'}`)
-        tactics.push(`Economy plan ${m.economyStyle ?? 'standard'}${m.strategyCalls ? `; you made ${m.strategyCalls} buy call${m.strategyCalls === 1 ? '' : 's'}.` : '; buys followed the plan.'}`)
-        const prep = [m.tacticalPrep ? `VOD prep ${m.tacticalPrep}%` : '', m.mentalPrep ? 'mental reset' : '', m.targetPlayerId ? 'anti-strat target set (target duels -6 rating, your team strength -2%)' : ''].filter(Boolean)
-        if (prep.length) tactics.push(`Preparation: ${prep.join(', ')}.`)
+        const style = t(`playstyle.${m.playstyle ?? 'default'}`)
+        const styleKey = !m.opponentScouted ? 'unscouted' : m.counter === 'advantage' ? 'advantage' : m.counter === 'disadvantage' ? 'disadvantage' : 'none'
+        tactics.push(t(`insight.style.${styleKey}`, { style }))
+        const plan = t(`economy.${m.economyStyle ?? 'standard'}`)
+        tactics.push(m.strategyCalls ? tn('insight.economy.calls', m.strategyCalls, { plan }) : t('insight.economy.plan', { plan }))
+        const prep = [m.tacticalPrep ? t('insight.prep.vod', { pct: m.tacticalPrep }) : '', m.mentalPrep ? t('insight.prep.mental') : '', m.targetPlayerId ? t('insight.prep.target') : ''].filter(Boolean)
+        if (prep.length) tactics.push(t('insight.prep.line', { items: prep.join(', ') }))
         if (m.timeoutsUsed) {
-            const regroup = keyRounds.filter(k => k.label.startsWith('Round played under'))
-            tactics.push(`${m.timeoutsUsed} tactical timeout${m.timeoutsUsed === 1 ? '' : 's'}: ${regroup.filter(k => k.won).length} of ${regroup.length} regroup rounds won.`)
-        } else if (m.mode === 'live') tactics.push('No tactical timeouts were used.')
-    } else tactics.push('This report predates recorded match decisions.')
+            const regroup = keyRounds.filter(k => k.kind === 'regroup')
+            tactics.push(tn('insight.timeouts', m.timeoutsUsed, { won: regroup.filter(k => k.won).length, total: regroup.length }))
+        } else if (m.mode === 'live') tactics.push(t('insight.noTimeouts'))
+    } else tactics.push(t('insight.predates'))
 
     const actions: NextAction[] = []
     const weak = own.filter(s => s.rating < 0.9)
-    if (weak.length) actions.push({ label: 'Training', href: '/training', reason: `${weak.length} starter${weak.length === 1 ? '' : 's'} rated below 0.90` })
+    if (weak.length) actions.push({ label: t('insight.action.training'), href: '/training', reason: tn('insight.reason.weak', weak.length) })
     const buyList = [...buys.values()]
     const fullRec = buyList.find(b => b.buy === 'FULL')
-    if (favouredLosses >= 3 || (fullRec && fullRec.played >= 5 && fullRec.won / fullRec.played < 0.5)) actions.push({ label: 'Tactics and loadouts', href: nextMatchId ? `/match/${nextMatchId}/tactics` : '/schedule', reason: `${favouredLosses} rounds lost while better equipped` })
-    if (own.length && own[own.length - 1].rating < 0.8) actions.push({ label: 'Transfers', href: '/transfers', reason: 'A starter struggled badly; compare replacements' })
-    actions.push({ label: 'Squad and roles', href: '/squad', reason: 'Review lineup and role coverage' })
-    if (!actions.some(a => a.href.includes('/tactics'))) actions.push({ label: 'Prepare next match', href: nextMatchId ? `/match/${nextMatchId}/tactics` : '/schedule', reason: 'Set playstyle, economy plan and preparation' })
+    if (favouredLosses >= 3 || (fullRec && fullRec.played >= 5 && fullRec.won / fullRec.played < 0.5)) actions.push({ label: t('insight.action.tactics'), href: nextMatchId ? `/match/${nextMatchId}/tactics` : '/schedule', reason: tn('insight.reason.favoured', favouredLosses) })
+    if (own.length && own[own.length - 1].rating < 0.8) actions.push({ label: t('insight.action.transfers'), href: '/transfers', reason: t('insight.reason.struggled') })
+    actions.push({ label: t('insight.action.squad'), href: '/squad', reason: t('insight.reason.squad') })
+    if (!actions.some(a => a.href.includes('/tactics'))) actions.push({ label: t('insight.action.prepare'), href: nextMatchId ? `/match/${nextMatchId}/tactics` : '/schedule', reason: t('insight.reason.prepare') })
 
     const ownRounds = result.maps.reduce((s, mp) => s + (mp.rounds ?? []).filter(r => r.winningTeamId === teamId).length, 0)
-    const pistols = keyRounds.filter(k => k.label.includes('pistol'))
+    const pistols = keyRounds.filter(k => k.kind === 'pistol')
     // Match outcome and the rounds you took are separate facts: "Lost 10 of
     // 23 rounds" read as ten rounds lost when the team had won ten.
-    const headline = `Match ${won ? 'won' : 'lost'}: you took ${ownRounds} of ${rounds} rounds; pistol rounds ${pistols.filter(k => k.won).length}/${pistols.length}; ${underdogWins} rounds won with the weaker buy, ${favouredLosses} lost with the stronger one.`
+    const headline = t(won ? 'insight.headline.won' : 'insight.headline.lost', { own: ownRounds, total: rounds, pw: pistols.filter(k => k.won).length, pt: pistols.length, under: underdogWins, fav: favouredLosses })
 
     return {
         won, headline, keyRounds: keyRounds.slice(0, 12),
