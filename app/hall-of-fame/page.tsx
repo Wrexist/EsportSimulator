@@ -58,6 +58,12 @@ function LegendsTable({ legends, playerById, activeIds }: { legends: HallOfFameE
                         const p = playerById.get(legend.id)
                         const c = careerOf(legend, p)
                         const active = activeIds.has(legend.id)
+                        // A Major is a title: never show fewer titles than Majors. Founding
+                        // legends' titles from before this world aren't recorded (like
+                        // their maps and rating), so they show "—" until they win here.
+                        const titles = !c ? undefined
+                            : legend.category === "FOUNDING" && !legend.career && c.trophies === 0 ? undefined
+                                : Math.max(c.trophies, c.majors)
                         const era = legend.category === "INDUCTED" ? `S${legend.eraStart}–${active ? t("hof.now") : `S${legend.eraEnd}`}` : `${legend.eraStart}–${active ? t("hof.now") : legend.eraEnd}`
                         return (
                             <tr key={legend.id} data-slot="table-row" className="h-14 border-b border-line">
@@ -78,7 +84,7 @@ function LegendsTable({ legends, playerById, activeIds }: { legends: HallOfFameE
                                 <td className="px-3"><RoleTag role={legend.primaryRole} /></td>
                                 <td className="px-3 text-sm tabular-nums text-ink-2">{era}</td>
                                 <td className={cn("px-3 text-right text-sm tabular-nums", (c?.majors ?? 0) > 0 ? "text-gold" : "text-ink-3")}>{c ? c.majors : dash}</td>
-                                <td className={cn("px-3 text-right text-sm tabular-nums", (c?.trophies ?? 0) > 0 ? "text-gold" : "text-ink-2")}>{c ? c.trophies : dash}</td>
+                                <td className={cn("px-3 text-right text-sm tabular-nums", (titles ?? 0) > 0 ? "text-gold" : "text-ink-2")}>{titles ?? dash}</td>
                                 <td className="px-3 text-right text-sm tabular-nums text-ink-2">{c?.maps ? c.maps.toLocaleString(intlLocale()) : dash}</td>
                                 <td className="px-3 text-right text-sm font-semibold tabular-nums text-ink-1">{c?.maps ? c.rating.toFixed(2) : dash}</td>
                                 <td className="px-3">
