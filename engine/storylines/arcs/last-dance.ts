@@ -19,6 +19,7 @@ import {
     clubOf, fmtRating, logBeat, nameOf, nextBeat, raiseDecision, resolveArc, rosterPlayers, stillAt, storyNews,
     takeAnswer, waitForDesk, weekOfSeason,
 } from "../common"
+import { plural } from "@/lib/plural"
 
 const num = (arc: StoryArc, key: string) => Number(arc.facts[key] ?? 0)
 const pct = (x: number) => Math.round(x * 100)
@@ -84,7 +85,7 @@ export const lastDance: ArcDefinition = {
         const retiree = ctx.player(id)
         if (retiree?.isRetired) {
             const trophies = retiree.careerTrophies ?? 0
-            const text = `${n} retires at ${retiree.age} after ${retiree.mapsPlayed ?? 0} official maps (career rating ${fmtRating(retiree.avgRating || 0)}${trophies ? `, ${trophies} trophies` : ""})${retiree.isLegendary ? " and goes into the Hall of Fame" : ""}.`
+            const text = `${n} retires at ${retiree.age} after ${retiree.mapsPlayed ?? 0} official maps (career rating ${fmtRating(retiree.avgRating || 0)}${trophies ? `, ${plural(trophies, "trophy", "trophies")}` : ""})${retiree.isLegendary ? " and goes into the Hall of Fame" : ""}.`
             storyNews(ctx, arc, "end", `Farewell, ${n}`, text)
             return resolveArc(arc, ctx.week, "RETIRED", text)
         }

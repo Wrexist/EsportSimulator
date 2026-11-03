@@ -5,6 +5,7 @@ import { SaveManager } from "../save-manager"
 import { hallOfFameAchievements, hallOfFameEntry, qualifiesForHallOfFame } from "../hall-of-fame-manager"
 import { retirementChance } from "../retirement-chance"
 import { WORKLOAD_TUNING, injuryRiskPerWeek, needsWorkloadWarning, riskPct } from "../workload"
+import { plural } from "@/lib/plural"
 
 export class EventProcessor {
     /**
@@ -350,7 +351,7 @@ export class EventProcessor {
                         healthLoss,
                         severity: severity,
                         title: `Injury Report: ${player.nickname}`,
-                        message: `${player.nickname} has suffered a ${injuryName} (${severity}) and will be out for ${weeksOut} weeks.`,
+                        message: `${player.nickname} has suffered a ${injuryName} (${severity}) and will be out for ${plural(weeksOut, "week")}.`,
                     },
                 })
 
@@ -359,7 +360,7 @@ export class EventProcessor {
                     save.newsFeed.unshift({
                         id: `news_inj_${save.currentWeek}_${player.id}`,
                         title: `${player.nickname} sidelined with ${injuryName}`,
-                        content: `Medical staff have confirmed that ${player.nickname} will be out of action for approximately ${weeksOut} weeks due to a ${severity.toLowerCase()} ${injuryName.toLowerCase()}.`,
+                        content: `Medical staff have confirmed that ${player.nickname} will be out of action for approximately ${plural(weeksOut, "week")} due to a ${severity.toLowerCase()} ${injuryName.toLowerCase()}.`,
                         category: "INJURY",
                         playerId: player.id,
                         teamId: playerTeam?.id,

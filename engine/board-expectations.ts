@@ -24,6 +24,7 @@ import { BOARD_TUNING, LEAGUE_TUNING } from "@/lib/balance-tuning"
 import { EconomyEngine } from "./economy-engine"
 import { divisionOfTeam, ordinal, playedInSplit, tablePosition, weekOfSeason } from "./season/regional-league"
 import { adjustManagerReputation, closeStint } from "./manager-timeline"
+import { plural } from "@/lib/plural"
 
 export type { BoardExpectationTier, BoardState } from "./save-types"
 export type BoardOutcome = "EXCEEDED" | "MET" | "MISSED" | "FAILED"
@@ -394,8 +395,8 @@ export function weeklyBoardMoves(save: GameSave, board: BoardState, sinceWeek: n
     // Finances after this week's settlement.
     const state = team.financialState
     const runway = Math.round(team.runwayWeeks ?? 0)
-    if (state === "RISK") moves.push({ week, delta: BOARD_TUNING.FINANCE_RISK, cause: `Finances at risk: ${runway} weeks of runway` })
-    else if (state === "CRISIS") moves.push({ week, delta: BOARD_TUNING.FINANCE_CRISIS, cause: `Financial crisis: ${runway} weeks of runway` })
+    if (state === "RISK") moves.push({ week, delta: BOARD_TUNING.FINANCE_RISK, cause: `Finances at risk: ${plural(runway, "week")} of runway` })
+    else if (state === "CRISIS") moves.push({ week, delta: BOARD_TUNING.FINANCE_CRISIS, cause: `Financial crisis: ${plural(runway, "week")} of runway` })
     else if (state === "INSOLVENT") moves.push({ week, delta: BOARD_TUNING.FINANCE_INSOLVENT, cause: "Club insolvent: the balance is below zero" })
 
     // Clamp the week: scale every move so the causes still add up to the total.
@@ -610,7 +611,7 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
     const rankingMove: BoardMove = {
         week,
         delta: outcome === "EXCEEDED" ? BOARD_TUNING.REVIEW_RANK_EXCEEDED : outcome === "MET" ? BOARD_TUNING.REVIEW_RANK_MET : outcome === "MISSED" ? BOARD_TUNING.REVIEW_RANK_MISSED : BOARD_TUNING.REVIEW_RANK_FAILED,
-        cause: `Season ranking ${outcome === "EXCEEDED" || outcome === "MET" ? "met" : "missed"}: #${endRank}${trophies ? `, ${trophies} trophies` : ""} (target #${reviewedTarget})`,
+        cause: `Season ranking ${outcome === "EXCEEDED" || outcome === "MET" ? "met" : "missed"}: #${endRank}${trophies ? `, ${plural(trophies, "trophy", "trophies")}` : ""} (target #${reviewedTarget})`,
     }
     const ranking = board.objectives?.find(o => o.id === "ranking")
     if (ranking) { ranking.current = endRank; ranking.status = outcome === "EXCEEDED" || outcome === "MET" ? "MET" : "MISSED" }

@@ -23,6 +23,7 @@ import {
     clubOf, departure, highestText, logBeat, nameOf, nextBeat, openTransferRequest, raiseDecision, resolveArc,
     rosterPlayers, seasonOf, stillAt, storyNews, takeAnswer, usd, waitForDesk,
 } from "../common"
+import { plural } from "@/lib/plural"
 
 const num = (arc: StoryArc, key: string) => Number(arc.facts[key] ?? 0)
 
@@ -70,9 +71,9 @@ export const contractStandoff: ArcDefinition = {
         const weeksLeft = num(arc, "endWeek") - ctx.week
         const label = ARCHETYPE_INFO[getArchetype(p ?? { id: arc.playerIds[0] })].label
         storyNews(ctx, arc, "b0", `${n}'s agent goes public`,
-            `${n} has ${weeksLeft} weeks left on his contract at ${clubOf(ctx, arc.teamId)}, which ends in Week ${num(arc, "endWeek")}, and no new deal on the table. `
+            `${n} has ${plural(weeksLeft, "week")} left on his contract at ${clubOf(ctx, arc.teamId)}, which ends in Week ${num(arc, "endWeek")}, and no new deal on the table. `
             + `His agent points to his standing: the club's ${highestText(num(arc, "rank"))}-rated player (OVR ${num(arc, "ovr")}) on ${usd(num(arc, "wage"))} a week. Personality: ${label}.`)
-        logBeat(arc, ctx.week, `${n}'s agent goes public with ${weeksLeft} weeks left on the deal and no new terms.`)
+        logBeat(arc, ctx.week, `${n}'s agent goes public with ${plural(weeksLeft, "week")} left on the deal and no new terms.`)
         nextBeat(arc, ctx.week)
     },
 
@@ -107,7 +108,7 @@ export const contractStandoff: ArcDefinition = {
             const raised = raiseDecision(ctx, arc, {
                 title: `Contract talks: ${n}`,
                 playerId: id,
-                message: `${n} wants a new deal before his contract ends in Week ${c.endWeek} (${c.endWeek - ctx.week} weeks). He earns ${usd(wage)} a week; his agent asks ${usd(ask)} (+${raise}%).\n\n`
+                message: `${n} wants a new deal before his contract ends in Week ${c.endWeek} (${plural(c.endWeek - ctx.week, "week")}). He earns ${usd(wage)} a week; his agent asks ${usd(ask)} (+${raise}%).\n\n`
                     + `• Offer the deal: ${usd(ask)} a week and ${S.STANDOFF_EXTENSION_WEEKS} more weeks, to Week ${newEnd}; morale +${S.STANDOFF_OFFER_MORALE}, loyalty +${S.STANDOFF_OFFER_LOYALTY}. The club must hold ${usd(runway)}, ${S.STANDOFF_RUNWAY_WEEKS} weeks of the raise.\n`
                     + `• Wait: nothing changes now. If his deal is still unrenewed in Week ${requestWeek}, he hands in a transfer request.\n`
                     + `• Sell: he goes on the transfer list at his market value of ${usd(value)}; clubs that can afford him may bid.`,

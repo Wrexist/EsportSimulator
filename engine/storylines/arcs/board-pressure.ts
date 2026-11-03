@@ -14,6 +14,7 @@ import type { ArcDefinition, StoryContext } from "../common"
 import type { BoardObjective } from "../../save-types"
 import { BOARD_TUNING as B, STORY_TUNING as S } from "@/lib/balance-tuning"
 import { clubOf, logBeat, nextBeat, resolveArc, storyNews, usd, weekOfSeason } from "../common"
+import { plural } from "@/lib/plural"
 
 const ordinal = (n: number) => {
     const s = ["th", "st", "nd", "rd"], v = n % 100
@@ -90,8 +91,8 @@ export const boardPressure: ArcDefinition = {
             const o = behind.find(x => x.id === "league") ?? behind.find(x => x.id === "ranking") ?? behind[0]
             const weeksLeft = 52 - weekOfSeason(ctx.week)
             const text = o
-                ? `The board's message to ${manager(ctx)}: ${demand(o.label)}. ${club} are ${standing(o)}, with ${weeksLeft} weeks of the season left. Confidence: ${c}/100.`
-                : `The board's message to ${manager(ctx)}: results must improve. Confidence: ${c}/100, with ${weeksLeft} weeks of the season left.`
+                ? `The board's message to ${manager(ctx)}: ${demand(o.label)}. ${club} are ${standing(o)}, with ${plural(weeksLeft, "week")} of the season left. Confidence: ${c}/100.`
+                : `The board's message to ${manager(ctx)}: results must improve. Confidence: ${c}/100, with ${plural(weeksLeft, "week")} of the season left.`
             storyNews(ctx, arc, "b1", `${club} board sets out its demand`, text)
             logBeat(arc, ctx.week, o ? `The board demands that the club ${demand(o.label)} (${standing(o)}).` : "The board demands better results.")
             return nextBeat(arc, ctx.week)
