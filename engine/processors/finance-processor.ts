@@ -76,7 +76,11 @@ export class FinanceProcessor {
                 save.contracts,
                 save.staff,
                 save.currentWeek,
-                team.id === playerTeamId ? (save.academyPlayers?.length ?? 0) : (team.managementState?.academyPlayers?.length ?? 0),
+                // AI youth live in team.youthAcademyIds; count them as the
+                // planners do (aiClubBudget, recruitmentBudget).
+                team.id === playerTeamId
+                    ? (save.academyPlayers?.length ?? 0)
+                    : (team.youthAcademyIds?.length ?? 0) + (team.managementState?.academyPlayers?.length ?? 0),
                 { implicitGear: team.id !== playerTeamId },
             )
 
