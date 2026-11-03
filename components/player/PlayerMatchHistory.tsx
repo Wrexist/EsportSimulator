@@ -1,4 +1,6 @@
 "use client"
+import { stageName } from "@/lib/display-names"
+import { t } from "@/lib/i18n"
 
 import { useMemo, memo } from "react"
 import Link from "next/link"
@@ -47,12 +49,12 @@ export function usePlayerPerformances(playerId: string): RecordedPerformance[] {
             const ownScore = onHome ? match.result.homeScore : match.result.awayScore
             const oppScore = onHome ? match.result.awayScore : match.result.homeScore
             const opponentId = onHome ? match.awayTeamId : match.homeTeamId
-            const event = match.isScrim ? "Scrim" : match.stage || (match.tournamentId && match.tournamentId !== "SCRIM" ? "Tournament" : "Match")
+            const event = match.isScrim ? "SCRIM" : match.stage || (match.tournamentId && match.tournamentId !== "SCRIM" ? "TOURNAMENT" : "MATCH")
             rows.push({
                 matchId: match.id,
                 week: match.week,
                 opponentId,
-                opponentName: teamById.get(opponentId)?.name ?? "Unknown",
+                opponentName: teamById.get(opponentId)?.name ?? t("common.unknown"),
                 event,
                 won: ownScore > oppScore,
                 ownScore,
@@ -83,8 +85,8 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
     if (shown.length === 0) {
         return (
             <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-5">
-                <p className="text-sm text-ink-3">No recorded matches yet. His next official match or scrim starts this record.</p>
-                <Link href="/tournaments" className="text-sm font-semibold text-ink-2 hover:text-gold">Find an event</Link>
+                <p className="text-sm text-ink-3">{t("history.empty")}</p>
+                <Link href="/tournaments" className="text-sm font-semibold text-ink-2 hover:text-gold">{t("history.findEvent")}</Link>
             </div>
         )
     }
@@ -94,13 +96,13 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
             <table data-slot="table" className="w-full min-w-[720px] border-collapse text-left">
                 <thead data-slot="table-header">
                     <tr className="border-b border-line">
-                        <th data-slot="table-head" className="pl-4">Week</th>
-                        <th data-slot="table-head" className="px-3">Opponent</th>
-                        <th data-slot="table-head" className="px-3">Event</th>
-                        <th data-slot="table-head" className="px-3 text-center">Result</th>
+                        <th data-slot="table-head" className="pl-4">{t("history.col.week")}</th>
+                        <th data-slot="table-head" className="px-3">{t("history.col.opponent")}</th>
+                        <th data-slot="table-head" className="px-3">{t("history.col.event")}</th>
+                        <th data-slot="table-head" className="px-3 text-center">{t("history.col.result")}</th>
                         <th data-slot="table-head" className="px-3 text-right">K–D–A</th>
                         <th data-slot="table-head" className="px-3 text-right">ADR</th>
-                        <th data-slot="table-head" className="pr-4 text-right">Rating</th>
+                        <th data-slot="table-head" className="pr-4 text-right">{t("career.rating")}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -111,7 +113,7 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
                             tabIndex={0}
                             onClick={() => router.push(`/match/${r.matchId}/result`)}
                             onKeyDown={e => { if (e.key === "Enter") router.push(`/match/${r.matchId}/result`) }}
-                            aria-label={`Week ${r.week} versus ${r.opponentName}, open match report`}
+                            aria-label={t("history.aria", { week: r.week, opponent: r.opponentName })}
                             className="h-11 cursor-pointer border-b border-line outline-none focus-visible:bg-hover"
                         >
                             <td className="pl-4 text-sm tabular-nums text-ink-2">
@@ -119,9 +121,9 @@ export const PlayerMatchHistory = memo(function PlayerMatchHistory({ playerId, l
                                 <span className="ml-2 text-xs text-ink-3">{format(getDateForWeek(r.week), "MMM d")}</span>
                             </td>
                             <td className="max-w-[220px] truncate px-3 text-sm font-semibold text-ink-1">{r.opponentName}</td>
-                            <td className="px-3 text-sm text-ink-3">{r.event}</td>
+                            <td className="px-3 text-sm text-ink-3">{r.event === "SCRIM" ? t("common.scrim") : r.event === "TOURNAMENT" ? t("history.tournament") : r.event === "MATCH" ? t("common.match") : stageName(r.event)}</td>
                             <td className="px-3 text-center text-sm tabular-nums">
-                                <span className={cn("mr-2 font-semibold", r.won ? "text-positive" : "text-ink-3")}>{r.won ? "W" : "L"}</span>
+                                <span className={cn("mr-2 font-semibold", r.won ? "text-positive" : "text-ink-3")}>{r.won ? t("common.win.short") : t("common.loss.short")}</span>
                                 <span className="text-ink-2">{r.ownScore}–{r.oppScore}</span>
                             </td>
                             <td className="px-3 text-right text-sm tabular-nums text-ink-2">{r.kills}–{r.deaths}–{r.assists}</td>

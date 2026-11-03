@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { useGameStore } from "@/store/game-store"
 import { useShallow } from "zustand/react/shallow"
@@ -27,7 +28,7 @@ export default function PlayerPage() {
     if (!_hasHydrated || (!player && isLoading)) {
         return (
             <div className="mx-auto max-w-[1600px]">
-                <div role="status" aria-label="Loading player profile" className="h-64 animate-pulse rounded-lg border border-line bg-panel" />
+                <div role="status" aria-label={t("player.loading")} className="h-64 animate-pulse rounded-lg border border-line bg-panel" />
             </div>
         )
     }
@@ -38,8 +39,8 @@ export default function PlayerPage() {
 
     return (
         <div className="mx-auto w-full min-w-0 max-w-[1600px] space-y-3 pb-16">
-            <Button variant="ghost" size="sm" className="-ml-2 h-8 gap-1.5 px-2 text-ink-3" aria-label="Go back" onClick={() => router.back()}>
-                <ArrowLeft className="h-4 w-4" /> Back
+            <Button variant="ghost" size="sm" className="-ml-2 h-8 gap-1.5 px-2 text-ink-3" aria-label={t("player.goBack")} onClick={() => router.back()}>
+                <ArrowLeft className="h-4 w-4" /> {t("player.back")}
             </Button>
             <PlayerDetail player={player} />
         </div>

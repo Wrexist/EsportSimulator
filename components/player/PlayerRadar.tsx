@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { memo, useMemo } from "react"
 import type { PlayerSaveData } from "@/engine/save-types"
@@ -34,7 +35,7 @@ export const PlayerRadar = memo(function PlayerRadar({ player, className }: { pl
     const shape = axes.map((ax, i) => at(i, (Math.max(0, Math.min(100, ax.value)) / 100) * R).join(",")).join(" ")
 
     return (
-        <svg viewBox={`-50 0 ${SIZE + 100} ${SIZE}`} role="img" aria-label={`Player DNA: ${axes.map(a => `${a.label} ${a.value}`).join(", ")}`} className={cn("h-auto w-full max-w-[380px]", className)}>
+        <svg viewBox={`-50 0 ${SIZE + 100} ${SIZE}`} role="img" aria-label={t("dna.aria", { axes: axes.map(a => `${t(`dna.${a.label}`)} ${a.value}`).join(", ") })} className={cn("h-auto w-full max-w-[380px]", className)}>
             {[0.25, 0.5, 0.75, 1].map(f => (
                 <polygon key={f} points={ring(R * f)} fill="none" className="stroke-line-strong" strokeWidth={f === 1 ? 1 : 0.6} />
             ))}
@@ -48,7 +49,7 @@ export const PlayerRadar = memo(function PlayerRadar({ player, className }: { pl
                 const anchor = Math.abs(x - C) < 4 ? "middle" : x < C ? "end" : "start"
                 return (
                     <text key={ax.label} x={x} y={y} textAnchor={anchor} dominantBaseline="middle" className="fill-ink-3 text-[11px]">
-                        {ax.label} <tspan className="fill-ink-1 font-semibold">{ax.value}</tspan>
+                        {t(`dna.${ax.label}`)} <tspan className="fill-ink-1 font-semibold">{ax.value}</tspan>
                     </text>
                 )
             })}

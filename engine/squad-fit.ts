@@ -1,3 +1,4 @@
+import { t, tn } from "@/lib/i18n"
 /**
  * Dressing-room fit of a transfer target, before you sign him: what the
  * weekly dressing-room step (processors/dressing-room.ts) and the captain /
@@ -52,8 +53,7 @@ export function squadFit(input: {
 
     const roster = team.rosterIds.map(lookup).filter((p): p is PlayerSaveData => !!p && !p.isRetired && p.id !== target.id)
     const targetOvr = visible.rating
-    const about = visible.exact ? "" : "about "
-    const targetType = getArchetype(target)
+        const targetType = getArchetype(target)
 
     // Wage fairness, both directions (dressing-room step 2).
     for (const mate of roster) {
@@ -61,10 +61,10 @@ export function squadFit(input: {
         if (!mateWage) continue
         const mateOvr = ovr(mate)
         if (caresAboutWages(getArchetype(mate)) && mateWage < wage * T.WAGE_FAIRNESS_SHARE && targetOvr <= mateOvr - T.WAGE_FAIRNESS_MIN_GAP) {
-            lines.push({ tone: "warn", text: `${name(mate)} (${label(mate)}, ${mateOvr}) would earn under ${pct(T.WAGE_FAIRNESS_SHARE)} of a lower-rated newcomer and lose ${T.WAGE_MORALE_PER_WEEK} morale a week until it changes.${visible.exact ? "" : " (Based on his scouted rating.)"}` })
+            lines.push({ tone: "warn", text: t("fit.mateUnderpaid", { name: name(mate), label: label(mate), ovr: mateOvr, share: pct(T.WAGE_FAIRNESS_SHARE), morale: T.WAGE_MORALE_PER_WEEK }) + (visible.exact ? "" : ` ${t("fit.scoutedNote")}`) })
         }
         if (caresAboutWages(targetType) && wage < mateWage * T.WAGE_FAIRNESS_SHARE && mateOvr <= targetOvr - T.WAGE_FAIRNESS_MIN_GAP) {
-            lines.push({ tone: "warn", text: `${label(target)}: on this wage he would earn under ${pct(T.WAGE_FAIRNESS_SHARE)} of ${name(mate)} (${mateOvr}) and lose ${T.WAGE_MORALE_PER_WEEK} morale a week.` })
+            lines.push({ tone: "warn", text: t("fit.targetUnderpaid", { label: label(target), share: pct(T.WAGE_FAIRNESS_SHARE), name: name(mate), ovr: mateOvr, morale: T.WAGE_MORALE_PER_WEEK }) })
         }
     }
 
@@ -73,18 +73,18 @@ export function squadFit(input: {
     const weakest = [...starters].sort((a, b) => ovr(a) - ovr(b))[0]
     const benchHit = (p: PlayerSaveData) => benchMoraleFactor(getArchetype(p))
     if (starters.length < 5) {
-        lines.push({ tone: "good", text: `Walks into the starting five: you have ${starters.length} starters.` })
+        lines.push({ tone: "good", text: tn("fit.walksIn", starters.length) })
     } else if (weakest && targetOvr > ovr(weakest)) {
         const f = benchHit(weakest)
         lines.push({
             tone: f > 1 ? "warn" : "info",
-            text: `Rated ${about}above ${name(weakest)} (${ovr(weakest)}), your weakest starter. Benching ${name(weakest)} for ${T.BENCH_MATCHES}+ matches costs ${T.BENCH_MORALE_PER_WEEK * f} morale a week${f !== 1 ? ` (${label(weakest)}, ${f}×)` : ""}.`,
+            text: t(`fit.${visible.exact ? "above" : "aboveAbout"}${f !== 1 ? "Factor" : ""}`, { name: name(weakest), ovr: ovr(weakest), matches: T.BENCH_MATCHES, morale: T.BENCH_MORALE_PER_WEEK * f, label: label(weakest), factor: f }),
         })
     } else {
         const f = benchHit(target)
         lines.push({
             tone: f > 1 ? "warn" : "info",
-            text: `Rated ${about}below your five, so he starts on the bench.${f > 1 ? ` As a ${label(target)} he would lose morale ${f}× as fast once he has been a regular starter.` : ""}`,
+            text: t(visible.exact ? "fit.below" : "fit.belowAbout") + (f > 1 ? ` ${t("fit.belowFactor", { label: label(target), factor: f })}` : ""),
         })
     }
 
@@ -94,25 +94,25 @@ export function squadFit(input: {
     const shieldNew = visible.leader === undefined ? 0 : captainDefeatShield({ ...target, leader: visible.leader })
     const shieldNow = currentCaptain ? captainDefeatShield(currentCaptain) : 0
     if (visible.leader !== undefined && shieldNew > shieldNow + 0.005) {
-        lines.push({ tone: "good", text: `Would make a better captain than ${currentCaptain ? name(currentCaptain) : "anyone you have"}: spares the lineup ${pct(shieldNew)} of a defeat's morale loss (now ${pct(shieldNow)}).` })
+        lines.push({ tone: "good", text: t("fit.betterCaptain", { name: currentCaptain ? name(currentCaptain) : t("fit.anyone"), new: pct(shieldNew), now: pct(shieldNow) }) })
     }
 
     // Mentorship (+training).
     if (canBeMentored(target)) {
         const mentor = roster.find(p => canMentor(p))
-        if (mentor) lines.push({ tone: "good", text: `${name(mentor)} (${label(mentor)}) can mentor him: +${pct(T.MENTOR_TRAINING - 1)} training gains.` })
+        if (mentor) lines.push({ tone: "good", text: t("fit.mentoredBy", { name: name(mentor), label: label(mentor), pct: pct(T.MENTOR_TRAINING - 1) }) })
     } else if (canMentor(target)) {
         const mentees = roster.filter(p => canBeMentored(p))
-        if (mentees.length) lines.push({ tone: "good", text: `Can mentor ${mentees.map(name).join(", ")}: +${pct(T.MENTOR_TRAINING - 1)} training gains.` })
+        if (mentees.length) lines.push({ tone: "good", text: t("fit.canMentor", { names: mentees.map(name).join(", "), pct: pct(T.MENTOR_TRAINING - 1) }) })
     }
 
     // Role overlap (fact, not an effect).
     const role = primaryRole(target)
     const sameRole = starters.filter(p => primaryRole(p) === role)
     if (sameRole.length && (role === "AWPER" || role === "IGL")) {
-        lines.push({ tone: "info", text: `Your five already has ${role === "AWPER" ? "an AWPer" : "an IGL"}: ${sameRole.map(name).join(", ")}.` })
+        lines.push({ tone: "info", text: t(role === "AWPER" ? "fit.hasAwper" : "fit.hasIgl", { names: sameRole.map(name).join(", ") }) })
     }
 
-    lines.push({ tone: "info", text: `Any signing costs ${CHEMISTRY_PENALTY_PER_SWAP} team chemistry, which grows back once the roster settles.` })
+    lines.push({ tone: "info", text: t("fit.chemistry", { n: CHEMISTRY_PENALTY_PER_SWAP }) })
     return lines
 }

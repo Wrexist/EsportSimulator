@@ -1,4 +1,5 @@
 "use client"
+import { t, tn } from "@/lib/i18n"
 
 import React, { memo } from "react"
 import Image from "next/image"
@@ -29,19 +30,19 @@ interface TrophyCabinetProps {
 }
 
 /** The club's won titles on one shelf, each with its project trophy art (lib/trophy-art). */
-function TrophyCabinetInner({ trophies, title = "Trophy cabinet", className }: TrophyCabinetProps) {
+function TrophyCabinetInner({ trophies, title, className }: TrophyCabinetProps) {
     return (
         <Panel
-            title={title}
-            actions={<span className="text-xs tabular-nums text-ink-3">{trophies.length} {trophies.length === 1 ? "title" : "titles"}</span>}
+            title={title ?? t("squad.trophies.title")}
+            actions={<span className="text-xs tabular-nums text-ink-3">{tn("squad.trophies.count", trophies.length)}</span>}
             className={className}
         >
             {trophies.length === 0 ? (
                 <EmptyState
                     icon={Trophy}
                     framed={false}
-                    title="No titles yet"
-                    description="Every tournament and league title the club wins is shelved here."
+                    title={t("squad.trophies.empty")}
+                    description={t("squad.trophies.emptyBody")}
                 />
             ) : (
                 <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
@@ -55,8 +56,8 @@ function TrophyCabinetInner({ trophies, title = "Trophy cabinet", className }: T
                                 <Image src={art.src} alt={art.label} width={64} height={64} className="h-16 w-16 object-contain" />
                                 <p className="mt-3 line-clamp-2 text-sm font-semibold leading-snug text-ink-1" title={trophy.tournamentName}>{trophy.tournamentName}</p>
                                 <p className="mt-1 text-xs tabular-nums text-ink-3">
-                                    Week {trophy.week}
-                                    {trophy.mvpId && <span className="text-gold"> · MVP awarded</span>}
+                                    {t("common.week", { n: trophy.week })}
+                                    {trophy.mvpId && <span className="text-gold"> · {t("squad.trophies.mvp")}</span>}
                                 </p>
                             </li>
                         )

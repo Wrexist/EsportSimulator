@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import { memo } from "react"
 import type { PlayerSaveData } from "@/engine/save-types"
@@ -85,12 +86,12 @@ function AttributeRow({ def, value, offRole }: { def: AttrDef; value: number; of
     return (
         <div
             className="grid grid-cols-[minmax(0,1fr)_56px_28px] items-center gap-3 py-1.5"
-            title={offRole ? `${def.label} is off-role for this player — it only matters when he takes that job.` : def.use?.detail}
+            title={offRole ? t("attr.offRole", { label: t(`attr.${def.key}`) }) : def.use ? t(`attr.use.${def.key}`) : undefined}
         >
             <span className="flex min-w-0 items-center gap-1.5 text-[13px] text-ink-2">
-                <span className="truncate">{def.label}</span>
+                <span className="truncate">{t(`attr.${def.key}`)}</span>
                 {def.use && (
-                    <span className="shrink-0 rounded-sm border border-line-strong px-1 text-[11px] leading-4 text-ink-3">{def.use.tag}</span>
+                    <span className="shrink-0 rounded-sm border border-line-strong px-1 text-[11px] leading-4 text-ink-3">{t(`attr.tag.${def.use.tag}`)}</span>
                 )}
             </span>
             <span className="h-1 overflow-hidden rounded-full bg-hover" aria-hidden="true">
@@ -111,8 +112,8 @@ export const PlayerAttributes = memo(function PlayerAttributes({ player, classNa
     return (
         <div className={cn("grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2 2xl:grid-cols-4", className)}>
             {GROUPS.map(group => (
-                <section key={group.title} aria-label={group.title} className="min-w-0">
-                    <h3 className="mb-1 border-b border-line pb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{group.title}</h3>
+                <section key={group.title} aria-label={t(`attr.group.${group.title}`)} className="min-w-0">
+                    <h3 className="mb-1 border-b border-line pb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t(`attr.group.${group.title}`)}</h3>
                     {group.attrs.map(def => (
                         <AttributeRow key={def.key} def={def} value={Number(player[def.key])} offRole={isOffRole(def.key, player.role)} />
                     ))}
@@ -122,5 +123,6 @@ export const PlayerAttributes = memo(function PlayerAttributes({ player, classNa
     )
 })
 
-export const ATTRIBUTE_FOOTNOTE =
-    "Match results read Aim and Tactics, plus form, morale, energy and fatigue. Composure counts in high-pressure matches. The other attributes decide who gets the kills, not who wins."
+export function attributeFootnote(): string {
+    return t("attr.footnote")
+}

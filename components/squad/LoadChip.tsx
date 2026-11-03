@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 /**
  * C5: a player's workload (carried fatigue) and this week's injury chance,
  * from the same formula the week rolls (engine/workload.ts).
@@ -15,12 +16,12 @@ const TONE = {
 } as const
 
 export function LoadChip({ player, className }: { player: Pick<PlayerSaveData, "fatigue" | "health" | "age"> & Partial<Pick<PlayerSaveData, "injury" | "knock">>; className?: string }) {
-    if (player.injury) return <span className={cn("text-xs text-ink-3", className)}>Injured</span>
+    if (player.injury) return <span className={cn("text-xs text-ink-3", className)}>{t("load.injured")}</span>
     const w = workloadOf(player)
-    const title = `Load ${w.load} (fatigue). Injury chance this week: ${riskPct(w.risk)}.${player.knock ? ` Playing through a ${player.knock.name.toLowerCase()}: ${Math.round(player.knock.escalateChance * 100)}% chance it worsens at the next check.` : ""}`
+    const title = t("load.title", { load: w.load, risk: riskPct(w.risk) }) + (player.knock ? " " + t("load.knockTitle", { knock: player.knock.name, pct: Math.round(player.knock.escalateChance * 100) }) : "")
     return (
         <span title={title} className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm px-1.5 py-0.5 text-[11px] font-semibold tabular-nums", TONE[w.tone], className)} data-testid="load-chip">
-            {w.label} · {riskPct(w.risk)}{player.knock ? " · knock" : ""}
+            {t(`load.band.${w.band}`)} · {riskPct(w.risk)}{player.knock ? ` · ${t("load.knock")}` : ""}
         </span>
     )
 }

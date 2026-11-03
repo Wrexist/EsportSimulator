@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 import React, { useMemo, memo } from "react"
 import { PlayerRole } from "@/types"
 import { PlayerSaveData } from "@/engine/save-types"
@@ -43,17 +44,17 @@ const SystemBonusesInner: React.FC<SystemBonusesProps> = ({ players, className }
     return (
         <Panel
             className={className}
-            title="Role coverage"
+            title={t("squad.roles.title")}
             actions={
                 <span className="text-xs text-ink-3">
-                    <span className="font-semibold tabular-nums text-ink-1">{covered}/5</span> roles · {penalty > 0
-                        ? <span className="font-semibold tabular-nums text-caution">-{penalty}% team strength</span>
-                        : <span className="font-semibold text-positive">no penalty</span>}
+                    <span className="font-semibold tabular-nums text-ink-1">{t("squad.roles.count", { covered })}</span> · {penalty > 0
+                        ? <span className="font-semibold tabular-nums text-caution">{t("squad.roles.penalty", { pct: penalty })}</span>
+                        : <span className="font-semibold text-positive">{t("squad.roles.noPenalty")}</span>}
                 </span>
             }
         >
             <p className="mb-3 text-xs text-ink-3">
-                Each role missing from the starting five costs {PER_MISSING_ROLE}% team strength. Only primary roles count, and two riflers count once.
+                {t("squad.roles.body", { pct: PER_MISSING_ROLE })}
             </p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                 {ROLES.map(r => {
@@ -70,11 +71,11 @@ const SystemBonusesInner: React.FC<SystemBonusesProps> = ({ players, className }
                             <div className="flex items-center justify-between">
                                 <r.icon size={16} className={on ? "text-ink-1" : "text-ink-3"} />
                                 {on
-                                    ? <span className="flex items-center gap-1 text-[11px] font-semibold text-positive"><Check size={12} />{n > 1 ? `×${n}` : "Covered"}</span>
-                                    : <span className="text-[11px] font-semibold text-ink-3">Missing</span>}
+                                    ? <span className="flex items-center gap-1 text-[11px] font-semibold text-positive"><Check size={12} />{n > 1 ? `×${n}` : t("squad.roles.covered")}</span>
+                                    : <span className="text-[11px] font-semibold text-ink-3">{t("squad.roles.missing")}</span>}
                             </div>
                             <span className={cn("text-sm font-semibold", on ? "text-ink-1" : "text-ink-3")}>{r.label}</span>
-                            <span className="text-[11px] text-ink-3">{r.note}</span>
+                            <span className="text-[11px] text-ink-3">{t(`squad.roles.note.${r.role}`)}</span>
                         </div>
                     )
                 })}

@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { t, tn } from "@/lib/i18n"
 
 import { useState } from "react"
 import Link from "next/link"
@@ -14,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import { NegotiationModal } from "@/components/transfer/NegotiationModal"
 import { Panel } from "@/src/components/ui/Panel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
-import { formatCurrency } from "@/lib/utils-extended"
+import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { PlayerCareerRecord } from "./PlayerCareerRecord"
 import { PersonalityChips } from "./PersonalityChips"
 import { PersonalityPanel } from "./PersonalityPanel"
@@ -53,7 +55,7 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
     const fmt = (stats: typeof report, key: (typeof ATTRIBUTES)[number][0]) =>
         stats.exactStats?.[key] !== undefined ? Math.round(stats.exactStats[key]!)
             : key === "skill" ? formatScoutedRating(stats.skillRange)
-                : <span className="text-ink-3">Unknown</span>
+                : <span className="text-ink-3">{t("recruit.unknown")}</span>
 
     return (
         <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[400px_minmax(0,1fr)]">
@@ -61,10 +63,10 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
                 <div className="relative flex h-[200px] items-end justify-center border-b border-line bg-raised">
                     <div className="absolute left-4 top-4 flex min-w-0 items-center gap-2">
                         {owner && <TeamLogoDisplay team={owner} size={24} />}
-                        <TeamLink id={owner?.id} className="truncate text-sm font-semibold text-ink-1">{owner?.name || (academyHeld ? "Academy prospect" : "Free agent")}</TeamLink>
+                        <TeamLink id={owner?.id} className="truncate text-sm font-semibold text-ink-1">{owner?.name || (academyHeld ? t("recruit.academyProspect") : t("player.freeAgent"))}</TeamLink>
                     </div>
                     <span className="absolute right-4 top-4 rounded-sm border border-line-strong bg-panel px-1.5 py-0.5 text-[11px] font-semibold text-ink-2">
-                        {report.scoutingLevel.toLowerCase()} report
+                        {t("recruit.report", { level: t(`recruit.level.${report.scoutingLevel}`) })}
                     </span>
                     <div className="h-[168px] w-[168px] overflow-hidden rounded-t-lg">
                         <PlayerPortrait src={player.portraitPath} seed={player.id} size={168} alt={player.nickname} variant="hero" className="rounded-none border-0" />
@@ -73,49 +75,49 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
                 <div className="space-y-5 p-5">
                     <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
-                            <p className="premium-eyebrow">Recruitment profile</p>
+                            <p className="premium-eyebrow">{t("recruit.eyebrow")}</p>
                             <h1 className="truncate font-display text-5xl font-bold uppercase leading-none text-ink-1">{player.nickname}</h1>
                             <div className="mt-2 flex items-center gap-2 text-sm text-ink-2">
                                 <CountryFlag country={player.nationality} size={16} />
                                 <span className="truncate">{realName ?? String(player.nationality || "").toUpperCase()}</span>
                                 <span className="text-ink-3">·</span>
-                                <span className="tabular-nums">{player.age} yrs</span>
+                                <span className="tabular-nums">{t("player.ageYrs", { age: player.age })}</span>
                             </div>
                             <div className="mt-3 flex flex-wrap items-center gap-1.5"><RoleTag role={player.role} /><PersonalityChips player={player} /></div>
                         </div>
                         <div className="shrink-0 text-right">
                             <p className="font-display text-5xl font-bold leading-none tabular-nums text-ink-1">{formatScoutedRating(report.ovrRange)}</p>
-                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Overall est.</p>
+                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("recruit.overallEst")}</p>
                         </div>
                     </div>
 
                     <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line">
                         <div className="bg-panel px-3 py-2.5">
-                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Wage ask</dt>
+                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("recruit.wageAsk")}</dt>
                             <dd className="mt-1 font-display text-2xl font-bold tabular-nums text-ink-1">
-                                {formatCurrency(recruitmentSalary(player, state.currentWeek, ownTeam), "$", false)}<span className="ml-1 font-sans text-xs font-normal text-ink-3">/ wk</span>
+                                {formatCurrency(recruitmentSalary(player, state.currentWeek, ownTeam), "$", false)}<span className="ml-1 font-sans text-xs font-normal text-ink-3">{t("recruit.perWeek")}</span>
                             </dd>
                         </div>
                         <div className="bg-panel px-3 py-2.5">
-                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Contract</dt>
-                            <dd className="mt-1 font-display text-2xl font-bold tabular-nums text-ink-1">{contract ? `${contract.endWeek - state.currentWeek} wks` : "None"}</dd>
+                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("player.contract")}</dt>
+                            <dd className="mt-1 font-display text-2xl font-bold tabular-nums text-ink-1">{contract ? tn("player.wks", contract.endWeek - state.currentWeek) : t("player.none")}</dd>
                         </div>
                     </dl>
 
                     <div className="flex flex-wrap gap-2 border-t border-line pt-4">
-                        {canNegotiate && <Button className="flex-1" onClick={() => setNegotiating(true)}>Negotiate contract</Button>}
-                        <Button variant="outline" className="flex-1" onClick={() => state.toggleWatchlistPlayer(player.id)}>{shortlisted ? "Remove from shortlist" : "Shortlist"}</Button>
+                        {canNegotiate && <Button className="flex-1" onClick={() => setNegotiating(true)}>{t("recruit.negotiate")}</Button>}
+                        <Button variant="outline" className="flex-1" onClick={() => state.toggleWatchlistPlayer(player.id)}>{shortlisted ? t("recruit.unshortlist") : t("recruit.shortlist")}</Button>
                         {!knownIds.includes(player.id) && (
                             <Button variant="outline" className="flex-1" disabled={!!mission || report.scoutingLevel === "ELITE" || player.isRetired}
                                 onClick={() => state.startScoutingMission(player.id)}>
-                                {report.isScouted ? "Improve report · $3,000" : "Scout · $3,000"}
+                                {report.isScouted ? t("recruit.improve") : t("recruit.scout")}
                             </Button>
                         )}
                     </div>
                     {mission?.playerId === player.id && (
                         <div className="flex items-center justify-between gap-4 rounded-lg border border-line bg-raised px-3 py-2.5 text-sm text-ink-2">
-                            <p>Report due in {Math.max(0, mission.completionWeek - state.currentWeek)} {mission.completionWeek - state.currentWeek === 1 ? "week" : "weeks"}. The fee is non-refundable.</p>
-                            <Button variant="ghost" size="sm" onClick={state.cancelScoutingMission}>Cancel</Button>
+                            <p>{tn("recruit.due", Math.max(0, mission.completionWeek - state.currentWeek))}</p>
+                            <Button variant="ghost" size="sm" onClick={state.cancelScoutingMission}>{t("recruit.cancel")}</Button>
                         </div>
                     )}
                 </div>
@@ -132,17 +134,17 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
                     />
                 )}
                 <Panel
-                    title="Scouting report"
+                    title={t("recruit.reportTitle")}
                     actions={
                         <label className="flex items-center gap-2 text-xs text-ink-3">
-                            Compare with
+                            {t("recruit.compare")}
                             <select
                                 className="h-8 rounded border border-line bg-shell px-2 text-sm text-ink-1"
                                 value={comparisonId}
                                 onChange={e => setComparisonId(e.target.value)}
                             >
-                                <option value="">Nobody</option>
-                                {candidates.map(p => <option value={p.id} key={p.id}>{p.nickname} · {p.role}</option>)}
+                                <option value="">{t("recruit.nobody")}</option>
+                                {candidates.map(p => <option value={p.id} key={p.id}>{p.nickname} · {formatRole(p.role)}</option>)}
                             </select>
                         </label>
                     }
@@ -151,20 +153,20 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
                     <table data-slot="table" className="w-full border-collapse text-left">
                         <thead data-slot="table-header">
                             <tr className="border-b border-line">
-                                <th data-slot="table-head" className="pl-4">Attribute</th>
+                                <th data-slot="table-head" className="pl-4">{t("recruit.col.attribute")}</th>
                                 <th data-slot="table-head" className="px-3 text-right">{player.nickname}</th>
                                 {compared && <th data-slot="table-head" className="pr-4 text-right">{compared.nickname}</th>}
                             </tr>
                         </thead>
                         <tbody>
                             <tr className="h-10 border-b border-line">
-                                <td className="pl-4 text-sm font-semibold text-ink-1">Overall</td>
+                                <td className="pl-4 text-sm font-semibold text-ink-1">{t("player.overall")}</td>
                                 <td className="px-3 text-right text-sm font-semibold tabular-nums text-ink-1">{formatScoutedRating(report.ovrRange)}</td>
                                 {other && <td className="pr-4 text-right text-sm font-semibold tabular-nums text-ink-1">{formatScoutedRating(other.ovrRange)}</td>}
                             </tr>
-                            {ATTRIBUTES.map(([key, label]) => (
+                            {ATTRIBUTES.map(([key]) => (
                                 <tr key={key} className="h-10 border-b border-line last:border-0">
-                                    <td className="pl-4 text-sm text-ink-2">{label}</td>
+                                    <td className="pl-4 text-sm text-ink-2">{key === "potential" ? t("player.potential") : t(`attr.${key}`)}</td>
                                     <td className="px-3 text-right text-sm tabular-nums text-ink-1">{fmt(report, key)}</td>
                                     {other && <td className="pr-4 text-right text-sm tabular-nums text-ink-1">{fmt(other, key)}</td>}
                                 </tr>
@@ -172,12 +174,12 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
                         </tbody>
                     </table>
                     <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
-                        Ranges are estimates. A better scout narrows them and an elite report shows every attribute. Wage and length are settled in negotiation; after signing, pick your starting five in Squad.
+                        {t("recruit.footnote")}
                     </p>
                 </Panel>
                 <PlayerCareerRecord player={player} />
                 <p className="text-sm text-ink-3">
-                    Looking for more options? <Link href="/scouting" className="font-semibold text-ink-2 hover:text-gold">Open scouting</Link>
+                    <Trans k="recruit.more" tags={{ link: s => <Link href="/scouting" className="font-semibold text-ink-2 hover:text-gold">{s}</Link> }} />
                 </p>
             </div>
             <NegotiationModal playerId={player.id} isOpen={negotiating} onClose={() => setNegotiating(false)} />

@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { ARCHETYPE_INFO, PLAYSTYLE_TRAITS, TRAIT_INFO, getArchetype, type PersonalityArchetype, type PlaystyleTrait } from "@/engine/personality"
 import type { PlayerSaveData } from "@/engine/save-types"
@@ -7,7 +8,7 @@ export function ArchetypeChip({ archetype, className }: { archetype: Personality
     const info = ARCHETYPE_INFO[archetype]
     return (
         <span
-            title={`${info.label}: ${info.short}\n${info.effects.map(e => `• ${e}`).join("\n")}`}
+            title={`${t("player.personality.chipTitle", { label: info.label, short: info.short })}\n${info.effects.map(e => `• ${e}`).join("\n")}`}
             className={cn("inline-flex items-center rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold leading-none text-ink-1", className)}
         >
             {info.label}
@@ -26,7 +27,7 @@ export function TraitChip({ trait, className }: { trait: PlaystyleTrait; classNa
 }
 
 export function playstyleTraits(player: Pick<PlayerSaveData, "traits">): PlaystyleTrait[] {
-    return (player.traits ?? []).filter((t): t is PlaystyleTrait => (PLAYSTYLE_TRAITS as readonly string[]).includes(t))
+    return (player.traits ?? []).filter((x): x is PlaystyleTrait => (PLAYSTYLE_TRAITS as readonly string[]).includes(x))
 }
 
 /** Archetype + traits in one row (squad table, cards). */
@@ -35,7 +36,7 @@ export function PersonalityChips({ player, className }: { player: Pick<PlayerSav
     return (
         <span className={cn("inline-flex flex-wrap items-center gap-1", className)}>
             <ArchetypeChip archetype={getArchetype(player)} />
-            {traits.map(t => <TraitChip key={t} trait={t} />)}
+            {traits.map(trait => <TraitChip key={trait} trait={trait} />)}
         </span>
     )
 }

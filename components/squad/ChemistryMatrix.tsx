@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 import React, { memo, useMemo } from "react"
 import { motion } from "framer-motion"
@@ -154,17 +155,17 @@ function ChemistryMatrix({ players, synergyMatrix = {}, teamChemistry, className
                         <span className="font-display text-4xl font-bold tabular-nums text-ink-1">
                             {Math.round(teamChemistry ?? links.reduce((acc, l) => acc + l.value, 0) / (links.length || 1))}%
                         </span>
-                        <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Team chemistry</p>
+                        <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("squad.chem.team")}</p>
                     </div>
                 </div>
             </div>
 
             {/* Legend: what a pair line means */}
             <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] font-semibold text-ink-3">
-                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-positive" />Strong pair</span>
-                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-rating-good" />Good</span>
-                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-ink-3" />Neutral</span>
-                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-caution" />Friction</span>
+                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-positive" />{t("squad.chem.strong")}</span>
+                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-rating-good" />{t("squad.chem.good")}</span>
+                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-ink-3" />{t("squad.chem.neutral")}</span>
+                <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded-full bg-caution" />{t("squad.chem.friction")}</span>
             </div>
         </div>
     )

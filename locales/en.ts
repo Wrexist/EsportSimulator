@@ -13,6 +13,9 @@ import { LEAGUE } from "./en/league"
 import { FEED } from "./en/feed"
 import { MATCH } from "./en/match"
 import { SETTINGS } from "./en/settings"
+import { SQUAD } from "./en/squad"
+import { PERSONALITY } from "./en/personality"
+import { PLAYER } from "./en/player"
 
 export const EN = {
     // Navigation: top-bar hubs and their tabs (lib/navigation.ts)
@@ -97,6 +100,9 @@ export const EN = {
     ...MATCH,
     ...FEED,
     ...SETTINGS,
+    ...SQUAD,
+    ...PERSONALITY,
+    ...PLAYER,
 } as const
 
 export type TranslationKey = keyof typeof EN
