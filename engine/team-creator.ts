@@ -6,7 +6,9 @@
 import {
     CustomTeamData,
     TeamCreationResult,
-    DIFFICULTY_SETTINGS
+    DIFFICULTY_SETTINGS,
+    REGION_INFO,
+    CLUB_NAME_MAX
 } from '@/types/team-creator'
 import { TeamSaveData, PlayerSaveData } from '@/engine/save-types'
 import { SeededRNG } from '@/engine/rng'
@@ -31,17 +33,44 @@ function sanitizeTeamSlug(name: string): string {
         .substring(0, 30)
 }
 
+const normIdentity = (s: string | undefined) => (s ?? '').trim().toLocaleLowerCase('en-US')
+
+/** A created club's name or tag clashes with a club already in the world (START-10). */
+export function clubIdentityClash(
+    name: string,
+    tag: string,
+    clubs: ReadonlyArray<{ name: string; shortName?: string }>,
+): { name: boolean; tag: boolean } {
+    const n = normIdentity(name), tg = normIdentity(tag)
+    return {
+        name: !!n && clubs.some(c => normIdentity(c.name) === n),
+        tag: !!tg && clubs.some(c => normIdentity(c.shortName) === tg),
+    }
+}
+
 /**
- * Create a new custom team based on user input
+ * Create a new custom team based on user input. `existingClubs` are the
+ * world's clubs: a created club may not take one of their names or tags.
  */
-export function createCustomTeam(data: CustomTeamData): TeamCreationResult {
+export function createCustomTeam(data: CustomTeamData, existingClubs: ReadonlyArray<{ name: string; shortName?: string }> = []): TeamCreationResult {
     // Validate input
     if (!data.name || data.name.trim().length < 2) {
         return { teamId: '', teamName: '', startingBudget: 0, reputation: 0, success: false, error: 'Team name must be at least 2 characters' }
     }
+    if (data.name.trim().length > CLUB_NAME_MAX) {
+        return { teamId: '', teamName: '', startingBudget: 0, reputation: 0, success: false, error: `Team name must be at most ${CLUB_NAME_MAX} characters` }
+    }
 
     if (!data.shortName || data.shortName.length < 2 || data.shortName.length > 5) {
         return { teamId: '', teamName: '', startingBudget: 0, reputation: 0, success: false, error: 'Team tag must be 2-5 characters' }
+    }
+
+    const clash = clubIdentityClash(data.name, data.shortName, existingClubs)
+    if (clash.name) {
+        return { teamId: '', teamName: '', startingBudget: 0, reputation: 0, success: false, error: 'This team name is already taken' }
+    }
+    if (clash.tag) {
+        return { teamId: '', teamName: '', startingBudget: 0, reputation: 0, success: false, error: 'This team tag is already in use' }
     }
 
     const settings = DIFFICULTY_SETTINGS[data.difficulty]
@@ -59,6 +88,9 @@ export function createCustomTeam(data: CustomTeamData): TeamCreationResult {
         success: true
     }
 }
+
+/** Seed of a created club's emblem: known before the club exists, so its setup preview can draw it. */
+export const createdClubEmblemSeed = (name: string) => `created:${name.trim()}`
 
 /**
  * Generate partial team data for a custom team
@@ -94,6 +126,8 @@ export function generateCustomTeamData(data: CustomTeamData, teamId: string): Pa
         customTeam: true, // Flag for custom team
         customTeamData: {
             difficulty: data.difficulty,
+            // The crest the setup preview drew (START-12): seeded by the name, not the random id.
+            emblemSeed: createdClubEmblemSeed(data.name),
             logoIndex: data.logoIndex,
             primaryColor: data.primaryColor,
             secondaryColor: data.secondaryColor,

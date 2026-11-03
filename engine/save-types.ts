@@ -637,6 +637,8 @@ export interface TeamSaveData {
     customTeam?: boolean // Flag for user-created teams
     customTeamData?: {
         difficulty: string // 'story' | 'normal' | 'hard' | 'impossible'
+        /** Emblem seed (START-12); older created clubs fall back to their id. */
+        emblemSeed?: string
         logoIndex: number
         primaryColor: string
         secondaryColor: string

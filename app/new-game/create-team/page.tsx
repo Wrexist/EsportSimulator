@@ -29,8 +29,13 @@ import {
     TeamRegion,
     DIFFICULTY_SETTINGS,
     REGION_INFO,
-    PRESET_COLORS
+    PRESET_COLORS,
+    CLUB_NAME_MAX
 } from "@/types/team-creator"
+import { snapshotLoader } from "@/data"
+import { clubIdentityClash, createdClubEmblemSeed } from "@/engine/team-creator"
+import { createdClubStartRank } from "@/lib/career-start-preview"
+import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
 import { RosterBuilderModal } from "@/components/onboarding/RosterBuilderModal"
 import { customClubStartingCash, describeClubChallenge } from "@/lib/club-expectations"
 import { ImageUploader } from "@/components/ui/ImageUploader"
@@ -57,28 +62,47 @@ const QUALIFIER_FOR: Record<TeamRegion, "EU" | "NA" | "ASIA"> = {
 
 const fieldLabel = "block text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3"
 
-/** The club's crest preview: the uploaded logo, or the tag on its colour pair. */
+/**
+ * The club's crest preview, drawn by the component and with the emblem seed
+ * the game uses for the created club (START-12): the uploaded logo, or the
+ * club's emblem in its colour pair.
+ */
 function CrestPreview({ team, size }: { team: CustomTeamData; size: number }) {
-    if (team.logoData) {
-        // eslint-disable-next-line @next/next/no-img-element -- user-uploaded logo data URL; next/image adds nothing with images.unoptimized
-        return <img src={team.logoData} alt={team.name || t("ct.logoAlt")} className="rounded-lg object-contain" style={{ width: size, height: size }} />
-    }
+    const name = team.name.trim() || t("ct.logoAlt")
     return (
-        <div
-            className="flex items-center justify-center rounded-lg font-display font-bold text-ink-1"
-            style={{ width: size, height: size, fontSize: size * 0.36, background: `linear-gradient(135deg, ${team.primaryColor} 0%, ${team.secondaryColor} 100%)` }}
-        >
-            {team.shortName.slice(0, 3) || t("ct.tagFallback")}
-        </div>
+        <TeamLogoDisplay
+            size={size}
+            team={{
+                name,
+                shortName: team.shortName,
+                customTeamData: {
+                    emblemSeed: createdClubEmblemSeed(team.name),
+                    logoData: team.logoData,
+                    primaryColor: team.primaryColor,
+                    secondaryColor: team.secondaryColor,
+                    logoIndex: team.logoIndex,
+                },
+            }}
+        />
     )
 }
 
 export default function CreateTeamPage() {
     const router = useRouter()
-    const { initializeCustomTeam, teams } = useGameStore(useShallow(state => ({
+    const { initializeCustomTeam } = useGameStore(useShallow(state => ({
         initializeCustomTeam: state.initializeCustomTeam,
-        teams: state.teams,
     })))
+    // START-10/11: the world's clubs (no career is loaded on this screen), for
+    // the name and tag check and the world rank a new club starts at.
+    const [worldClubs, setWorldClubs] = useState<{ name: string; shortName?: string }[] | null>(null)
+    useEffect(() => {
+        let live = true
+        const ready = snapshotLoader.getSnapshot() ? Promise.resolve() : snapshotLoader.loadSnapshot().then(() => undefined)
+        ready.then(() => { if (live) setWorldClubs([...(snapshotLoader.getSnapshot()?.teams ?? [])]) })
+            .catch(err => debug.error("Create team: world clubs failed", err))
+        return () => { live = false }
+    }, [])
+    const startRank = worldClubs ? createdClubStartRank(worldClubs.length) : null
     const getStoreError = () => useGameStore.getState().error
 
     // Wizard state
@@ -155,18 +179,14 @@ export default function CreateTeamPage() {
                     newErrors.teamName = t("ct.err.teamEmpty")
                 } else if (teamData.name.trim().length < 2) {
                     newErrors.teamName = t("ct.err.teamShort")
-                } else {
-                    // Check if team name is already taken (inline to avoid circular deps)
-                    const normalizedName = teamData.name.trim().toLowerCase()
-                    if (teams.some(tm => tm.name?.toLowerCase() === normalizedName)) {
-                        newErrors.teamName = t("ct.err.teamTaken")
-                    }
+                } else if (clubIdentityClash(teamData.name, "", worldClubs ?? []).name) {
+                    newErrors.teamName = t("ct.err.teamTaken")
                 }
                 if (!teamData.shortName.trim()) {
                     newErrors.shortName = t("ct.err.tagEmpty")
                 } else if (teamData.shortName.length < 2 || teamData.shortName.length > 5) {
                     newErrors.shortName = t("ct.err.tagLength")
-                } else if (teams.some(tm => tm.shortName?.toUpperCase() === teamData.shortName.toUpperCase())) {
+                } else if (clubIdentityClash("", teamData.shortName, worldClubs ?? []).tag) {
                     newErrors.shortName = t("ct.err.tagTaken")
                 }
                 break
@@ -198,8 +218,14 @@ export default function CreateTeamPage() {
                 setShowExitConfirm(true)
                 return
             }
-            router.push("/new-game")
+            leaveToPathChoice()
         }
+    }
+
+    // Back to the path choice this page was opened from, not the club list (START-07).
+    const leaveToPathChoice = () => {
+        saveCareerDraft({ step: "welcome" })
+        router.push("/new-game")
     }
 
     const difficultySettings = DIFFICULTY_SETTINGS[teamData.difficulty]
@@ -236,7 +262,8 @@ export default function CreateTeamPage() {
 
     const handleRosterComplete = () => {
         setShowRosterBuilder(false)
-        router.push("/")
+        // Replace: Back/Escape from Home must not reopen the setup (START-05).
+        router.replace("/")
     }
 
     const renderError = (key: string) => errors[key] ? <p className="text-xs font-medium text-negative">{errors[key]}</p> : null
@@ -253,8 +280,8 @@ export default function CreateTeamPage() {
                                 type="text"
                                 placeholder={t("ng.namePlaceholder")}
                                 value={managerName}
-                                aria-invalid={!!errors.managerName || undefined}
                                 maxLength={32}
+                                aria-invalid={!!errors.managerName || undefined}
                                 onChange={(e) => {
                                     setManagerName(e.target.value)
                                     if (errors.managerName) setErrors({ ...errors, managerName: "" })
@@ -270,14 +297,16 @@ export default function CreateTeamPage() {
                                 type="text"
                                 placeholder={t("ct.teamPlaceholder")}
                                 value={teamData.name}
+                                maxLength={CLUB_NAME_MAX}
                                 aria-invalid={!!errors.teamName || undefined}
-                                maxLength={32}
+                                aria-describedby="ct-team-count"
                                 onChange={(e) => {
-                                    setTeamData({ ...teamData, name: e.target.value })
+                                    setTeamData({ ...teamData, name: e.target.value.slice(0, CLUB_NAME_MAX) })
                                     if (errors.teamName) setErrors({ ...errors, teamName: "" })
                                 }}
                                 className="h-11"
                             />
+                            <p id="ct-team-count" className="text-right text-xs tabular-nums text-ink-3">{teamData.name.length}/{CLUB_NAME_MAX}</p>
                             {renderError("teamName")}
                         </div>
                         <div className="space-y-2">
@@ -399,8 +428,8 @@ export default function CreateTeamPage() {
                 )
 
             case "review": {
-                // Custom clubs enter the world ranking at #150 (initializeCustomTeam).
-                const challenge = describeClubChallenge({ worldRanking: 150, reputation: difficultySettings.startingReputation, starters: 0, budget: startingCash, custom: true })
+                // A created club enters the world ranking last (START-11).
+                const challenge = describeClubChallenge({ worldRanking: startRank ?? 200, reputation: difficultySettings.startingReputation, starters: 0, budget: startingCash, custom: true })
                 return (
                     <div className="space-y-4">
                         <dl className="divide-y divide-line rounded-md border border-line text-sm">
@@ -510,7 +539,7 @@ export default function CreateTeamPage() {
                             <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.manager")}</dt><dd className="font-semibold text-ink-1">{managerName || "—"}</dd></div>
                             <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.step.difficulty")}</dt><dd className="font-semibold text-ink-1">{t(`ct.diff.${teamData.difficulty}`)}</dd></div>
                             <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.startingCash")}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(startingCash)}</dd></div>
-                            <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.worldRank")}</dt><dd className="font-semibold tabular-nums text-ink-1">#150</dd></div>
+                            <div className="flex justify-between py-2"><dt className="text-ink-3">{t("ct.worldRank")}</dt><dd className="font-semibold tabular-nums text-ink-1">{startRank ? `#${startRank}` : "—"}</dd></div>
                         </dl>
                         <p className="mt-3 text-xs text-ink-3">{t("ct.previewNote")}</p>
                     </div>
@@ -527,7 +556,7 @@ export default function CreateTeamPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>{t("ct.leave.keep")}</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => router.push("/new-game")} className="bg-gold text-gold-on hover:bg-gold-hover">
+                        <AlertDialogAction onClick={leaveToPathChoice} className="bg-gold text-gold-on hover:bg-gold-hover">
                             {t("ct.leave.go")}
                         </AlertDialogAction>
                     </AlertDialogFooter>
