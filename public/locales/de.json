@@ -3079,7 +3079,7 @@
  "tr.wp.focus": "Schwerpunkt",
  "tr.wp.gains": "Zuwachs diese Woche",
  "tr.wp.morale": "Moral",
- "tr.wp.potential": "Potenzial {{n}}",
+ "tr.wp.potential": "Potenzial {{n}} (Werte-Obergrenze)",
  "tr.wp.retraining": "Umschulung zu {{role}} · {{done}}/{{total}} Wo.",
  "tr.wp.focusAria": "Trainingsschwerpunkt von {{name}}",
  "tr.wp.skips": "Setzt beim Wochentraining aus",

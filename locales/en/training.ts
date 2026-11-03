@@ -210,7 +210,7 @@ export const TRAINING = {
     "tr.wp.focus": "Focus",
     "tr.wp.gains": "Gains this week",
     "tr.wp.morale": "Morale",
-    "tr.wp.potential": "potential {{n}}",
+    "tr.wp.potential": "potential {{n}} (stat cap)",
     "tr.wp.retraining": "Retraining to {{role}} · {{done}}/{{total}} wks",
     "tr.wp.focusAria": "{{name}} training focus",
     "tr.wp.skips": "Skips weekly training",

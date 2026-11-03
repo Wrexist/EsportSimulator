@@ -3158,7 +3158,7 @@
  "tr.wp.focus": "Enfoque",
  "tr.wp.gains": "Mejoras esta semana",
  "tr.wp.morale": "Moral",
- "tr.wp.potential": "potencial {{n}}",
+ "tr.wp.potential": "potencial {{n}} (tope de atributos)",
  "tr.wp.retraining": "Reconversión a {{role}} · {{done}}/{{total}} sem.",
  "tr.wp.focusAria": "Enfoque de entrenamiento de {{name}}",
  "tr.wp.skips": "No participa en el entrenamiento semanal",

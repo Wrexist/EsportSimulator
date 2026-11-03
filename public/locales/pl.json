@@ -3237,7 +3237,7 @@
  "tr.wp.focus": "Kierunek",
  "tr.wp.gains": "Wzrosty w tym tygodniu",
  "tr.wp.morale": "Morale",
- "tr.wp.potential": "potencjał {{n}}",
+ "tr.wp.potential": "potencjał {{n}} (limit statystyk)",
  "tr.wp.retraining": "Przekwalifikowanie na {{role}} · {{done}}/{{total}} tydz.",
  "tr.wp.focusAria": "Kierunek treningu: {{name}}",
  "tr.wp.skips": "Pomija trening tygodniowy",

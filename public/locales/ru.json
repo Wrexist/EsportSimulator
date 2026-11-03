@@ -3237,7 +3237,7 @@
  "tr.wp.focus": "Упор",
  "tr.wp.gains": "Рост на этой неделе",
  "tr.wp.morale": "Мораль",
- "tr.wp.potential": "потенциал {{n}}",
+ "tr.wp.potential": "потенциал {{n}} (предел характеристик)",
  "tr.wp.retraining": "Переобучение на {{role}} · {{done}}/{{total}} нед.",
  "tr.wp.focusAria": "Упор тренировок: {{name}}",
  "tr.wp.skips": "Пропускает недельные тренировки",

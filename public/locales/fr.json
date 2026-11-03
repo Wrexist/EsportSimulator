@@ -3137,7 +3137,7 @@
  "tr.wp.focus": "Axe",
  "tr.wp.gains": "Gains cette semaine",
  "tr.wp.morale": "Moral",
- "tr.wp.potential": "potentiel {{n}}",
+ "tr.wp.potential": "potentiel {{n}} (plafond des stats)",
  "tr.wp.retraining": "Reconversion en {{role}} · {{done}}/{{total}} sem.",
  "tr.wp.focusAria": "Axe d’entraînement de {{name}}",
  "tr.wp.skips": "Ne participe pas à l’entraînement hebdomadaire",
