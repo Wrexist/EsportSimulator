@@ -88856,8 +88856,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "e767237e87e8db9db5f292ce0e515f4019195d34831b2773d4a5cc62bc300b72",
-      "bytes": 83732,
+      "sha256": "79f6589f84c6503edd1233906e4065a35637e49ed7de875033096ebd6b9a4f75",
+      "bytes": 119244,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88882,13 +88882,18 @@
           "date": "2026-11-03",
           "previousSha256": "2ff650ba94e166fe4e58988c607f80757ae5580eeda7796d7ded89b0cdfd611d",
           "change": "Interface languages, live match feed and result screen analysis: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "e767237e87e8db9db5f292ce0e515f4019195d34831b2773d4a5cc62bc300b72",
+          "change": "Interface languages, squad screen, player page and personality text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "28361dae7b9784cbd1f7b8c8a5764454573d31987303b8ef7a445b6326c20d97",
-      "bytes": 86871,
+      "sha256": "ca1ba02d99cbc239fdfccf81f1d541793343629e15bc2e5f09bf70dd8ad0bb30",
+      "bytes": 124554,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88913,13 +88918,18 @@
           "date": "2026-11-03",
           "previousSha256": "a487ed7cc4a0b4b256a2790abb211456d64c4e53dba8f0d32addfb1a66c148d0",
           "change": "Interface languages, live match feed and result screen analysis: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "28361dae7b9784cbd1f7b8c8a5764454573d31987303b8ef7a445b6326c20d97",
+          "change": "Interface languages, squad screen, player page and personality text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "99732f2488d5bd9f6424ca2338a8ceebf0dee0db010ccf75b5028613254c8d34",
-      "bytes": 88374,
+      "sha256": "ad1212676b8b4742a02742717f93c937d332117069c540068ccdce0c7c532890",
+      "bytes": 126801,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88944,13 +88954,18 @@
           "date": "2026-11-03",
           "previousSha256": "c936cf3aecf0bd8ce3e1e6cf392f000a7afcea85ffcc371aa7ced79b71545429",
           "change": "Interface languages, live match feed and result screen analysis: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "99732f2488d5bd9f6424ca2338a8ceebf0dee0db010ccf75b5028613254c8d34",
+          "change": "Interface languages, squad screen, player page and personality text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "f44ce2858efedb2601a9744375373dcb17e7110bea10e75d73d216eed81c7e31",
-      "bytes": 87592,
+      "sha256": "0668c2b329d60f4949a7f73620df70cbd3440dea54f9f8ac9eb0feba6fceaf1a",
+      "bytes": 126520,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88975,13 +88990,18 @@
           "date": "2026-11-03",
           "previousSha256": "09f4728f4a8af5d575d5bb7a805f33b26cd9286df96a4e5f732bc4ae1246f319",
           "change": "Interface languages, live match feed and result screen analysis: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "f44ce2858efedb2601a9744375373dcb17e7110bea10e75d73d216eed81c7e31",
+          "change": "Interface languages, squad screen, player page and personality text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "0f51e1bbca5afac1776277300a3e6f4faae515fb70847722353db402409f077a",
-      "bytes": 85592,
+      "sha256": "9d2a989c156f6329624093f9d7eb8c5a010de6b5fc9aa4620a031f4c1e7f6444",
+      "bytes": 122671,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89006,13 +89026,18 @@
           "date": "2026-11-03",
           "previousSha256": "cd7ff8d88e27d3b7685b632f4524346d60c38b547dd08efd48ede280c3985364",
           "change": "Interface languages, live match feed and result screen analysis: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "0f51e1bbca5afac1776277300a3e6f4faae515fb70847722353db402409f077a",
+          "change": "Interface languages, squad screen, player page and personality text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "fca6af7c8dd3e03bd24f6dc2e7cd299491e2f017c61f8ab4017acf752b672f56",
-      "bytes": 118767,
+      "sha256": "4692036f3e71ae155ee5032d994c2a93f704c48feb3071cba293de030cf0cc18",
+      "bytes": 171644,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89037,6 +89062,11 @@
           "date": "2026-11-03",
           "previousSha256": "4ab0c1cae8b747afb6ee40e67ea6f73b792d2292b9c1897d649b9fd8c2d87895",
           "change": "Interface languages, live match feed and result screen analysis: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "fca6af7c8dd3e03bd24f6dc2e7cd299491e2f017c61f8ab4017acf752b672f56",
+          "change": "Interface languages, squad screen, player page and personality text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },

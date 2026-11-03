@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 import React, { memo, useMemo } from "react"
 import { PlayerSaveData } from "@/engine/save-types"
 import { cn } from "@/lib/utils"
@@ -138,7 +139,7 @@ const SynergyChartComponent: React.FC<SynergyChartProps> = ({ players, className
                                 className="pointer-events-none select-none uppercase tracking-[0.08em]"
                                 dy="0.3em"
                             >
-                                {l.label}
+                                {t(`squad.synergy.${l.label}`)}
                             </text>
                         ))}
                     </svg>
@@ -146,7 +147,7 @@ const SynergyChartComponent: React.FC<SynergyChartProps> = ({ players, className
             </div>
             {overallScore > 0 && (
                 <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Profile rating</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("squad.synergy.rating")}</span>
                     <span className="font-display text-2xl font-bold tabular-nums text-ink-1">{overallScore}</span>
                 </div>
             )}

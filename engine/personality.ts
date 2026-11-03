@@ -30,6 +30,7 @@ import type {
 } from "./save-types"
 import { AI_SQUAD_TUNING, PERSONALITY_TUNING as T } from "@/lib/balance-tuning"
 import { evaluatePlayer } from "./player-evaluation"
+import { t } from "@/lib/i18n"
 
 export type { PersonalityArchetype, PlayerPersonality, PlayerPromise, PromiseKind }
 
@@ -478,123 +479,79 @@ export function promiseVerdict(promise: PlayerPromise, team: Pick<TeamSaveData, 
     return week >= promise.deadlineWeek ? "BROKEN" : "OPEN"
 }
 
-export const PROMISE_LABEL: Record<PromiseKind, { promise: string; kept: string; broken: string }> = {
-    START: { promise: "You'll start", kept: "Promise kept: started", broken: "Promise broken: benched" },
-    COMPETE: { promise: "We'll compete for titles", kept: "Promise kept: competed for titles", broken: "Promise broken: no title challenge" },
-}
+const PROMISE_KINDS: readonly PromiseKind[] = ["START", "COMPETE"]
+
+/** Promise wording, translated when read (getters run at render time). */
+export const PROMISE_LABEL = Object.fromEntries(PROMISE_KINDS.map(kind => [kind, {
+    get promise() { return t(`promise.${kind}.promise`) },
+    get kept() { return t(`promise.${kind}.kept`) },
+    get broken() { return t(`promise.${kind}.broken`) },
+}])) as Record<PromiseKind, { readonly promise: string; readonly kept: string; readonly broken: string }>
 
 // ---------------------------------------------------------------- UI copy
 
 export interface ArchetypeInfo {
-    label: string
+    readonly label: string
     /** One line: who he is. */
-    short: string
+    readonly short: string
     /** Every effect the engine applies, one line each. */
-    effects: string[]
+    readonly effects: string[]
 }
 
 const pct = (x: number) => `${Math.round(Math.abs(x) * 100)}%`
 const plusPct = (factor: number) => `${factor >= 1 ? "+" : "−"}${pct(factor - 1)}`
 
 /** Lines shared by every archetype (shown once on the player page). */
-export const DRESSING_ROOM_RULES: string[] = [
-    `A regular starter (${T.REGULAR_STARTS} official starts in a row) left out of ${T.BENCH_MATCHES}+ official matches in a row while fit loses ${T.BENCH_MORALE_PER_WEEK} morale a week (× his archetype), down to ${T.BENCH_MORALE_FLOOR}.`,
-    `Results move morale by tournament tier; the captain, when he plays, spares the lineup part of a defeat's morale loss.`,
-]
-
-export const ARCHETYPE_INFO: Record<PersonalityArchetype, ArchetypeInfo> = {
-    PROFESSIONAL: {
-        label: "Professional",
-        short: "Trains hard and keeps his head.",
-        effects: [
-            `Training gains ${plusPct(T.TRAINING_PROFESSIONAL)}.`,
-            `Defeats cost him ${pct(1 - T.RESULT_PROFESSIONAL_LOSS)} less morale.`,
-            `Can mentor a player aged ${T.MENTEE_MAX_AGE} or younger once he is ${T.MENTOR_MIN_AGE}.`,
-        ],
-    },
-    AMBITIOUS: {
-        label: "Ambitious",
-        short: "Wants to play, and to play at the top.",
-        effects: [
-            `Loses morale ${T.BENCH_FACTOR_HIGH}× as fast when benched.`,
-            `Unhappy (−${T.WAGE_MORALE_PER_WEEK} morale a week, down to ${T.WAGE_MORALE_FLOOR}) when paid under ${pct(T.WAGE_FAIRNESS_SHARE)} of a teammate rated ${T.WAGE_FAIRNESS_MIN_GAP}+ lower.`,
-            `Asks ${plusPct(T.WAGE_AMBITIOUS_BELOW)} wages to join a club ${T.AMBITIOUS_GAP}+ tiers below his level.`,
-            `At your club, may hand in a transfer request after ${T.REQUEST_AFTER_WEEKS} weeks below ${T.UNHAPPY_MORALE} morale.`,
-        ],
-    },
-    LOYAL: {
-        label: "Loyal",
-        short: "Puts the club before the money.",
-        effects: [
-            `Asks ${plusPct(T.WAGE_LOYAL)} wages and prefers contracts ${plusPct(T.LENGTH_LOYAL)} longer.`,
-            `Renewal raise is ${pct(T.RENEWAL_RAISE_LOYAL)} of the usual.`,
-            `Loses morale ${T.BENCH_FACTOR_LOW}× as fast when benched. Never asks to leave.`,
-        ],
-    },
-    MERCENARY: {
-        label: "Mercenary",
-        short: "Follows the money.",
-        effects: [
-            `Asks ${plusPct(T.WAGE_MERCENARY)} wages and prefers contracts ${pct(1 - T.LENGTH_MERCENARY)} shorter.`,
-            `Renewal raise is ${T.RENEWAL_RAISE_MERCENARY}× the usual.`,
-            `Unhappy (−${T.WAGE_MORALE_PER_WEEK} morale a week, down to ${T.WAGE_MORALE_FLOOR}) when paid under ${pct(T.WAGE_FAIRNESS_SHARE)} of a teammate rated ${T.WAGE_FAIRNESS_MIN_GAP}+ lower.`,
-            `Rejecting a bid for him costs ${Math.abs(T.MERCENARY_BID_REJECT_MORALE)} morale.`,
-            `At your club, may hand in a transfer request after ${T.REQUEST_AFTER_WEEKS} weeks below ${T.UNHAPPY_MORALE} morale.`,
-        ],
-    },
-    HOTHEAD: {
-        label: "Hothead",
-        short: "Big swings, short fuse.",
-        effects: [
-            `Results swing his morale ${T.RESULT_HOTHEAD}× as much, both ways.`,
-            `Training gains ${plusPct(T.TRAINING_DISTRACTED)}.`,
-        ],
-    },
-    LEADER: {
-        label: "Leader",
-        short: "Lifts the dressing room.",
-        effects: [
-            `As captain, spares the lineup an extra ${pct(T.CAPTAIN_LEADER_BONUS)} of a defeat's morale loss.`,
-            `Can mentor a player aged ${T.MENTEE_MAX_AGE} or younger once he is ${T.MENTOR_MIN_AGE}.`,
-        ],
-    },
-    SHOWMAN: {
-        label: "Showman",
-        short: "Plays for the crowd.",
-        effects: [
-            `Wins lift his morale ${plusPct(T.RESULT_SHOWMAN_WIN)} more.`,
-            `Loses morale ${T.BENCH_FACTOR_HIGH}× as fast when benched.`,
-            `Training gains ${plusPct(T.TRAINING_DISTRACTED)}.`,
-        ],
-    },
-    QUIET: {
-        label: "Quiet",
-        short: "Gets on with it.",
-        effects: [
-            `Results move his morale ${pct(1 - T.RESULT_QUIET)} less, both ways.`,
-            `Loses morale ${T.BENCH_FACTOR_LOW}× as fast when benched.`,
-        ],
-    },
+export function dressingRoomRules(): string[] {
+    return [
+        t("personality.rules.bench", { starts: T.REGULAR_STARTS, matches: T.BENCH_MATCHES, perWeek: T.BENCH_MORALE_PER_WEEK, floor: T.BENCH_MORALE_FLOOR }),
+        t("personality.rules.results"),
+    ]
 }
+
+type Line = readonly [key: string, params?: Record<string, string | number>]
+const MENTOR: Line = ["mentor", { maxAge: T.MENTEE_MAX_AGE, minAge: T.MENTOR_MIN_AGE }]
+const WAGE_UNHAPPY: Line = ["wageUnhappy", { perWeek: T.WAGE_MORALE_PER_WEEK, floor: T.WAGE_MORALE_FLOOR, share: pct(T.WAGE_FAIRNESS_SHARE), gap: T.WAGE_FAIRNESS_MIN_GAP }]
+const REQUEST: Line = ["request", { weeks: T.REQUEST_AFTER_WEEKS, morale: T.UNHAPPY_MORALE }]
+const DISTRACTED: Line = ["training", { gain: plusPct(T.TRAINING_DISTRACTED) }]
+
+/** Every effect the engine applies per archetype, as translation keys under personality.effect.*. */
+const ARCHETYPE_EFFECTS: Record<PersonalityArchetype, Line[]> = {
+    PROFESSIONAL: [["training", { gain: plusPct(T.TRAINING_PROFESSIONAL) }], ["professionalLoss", { pct: pct(1 - T.RESULT_PROFESSIONAL_LOSS) }], MENTOR],
+    AMBITIOUS: [["benchFast", { factor: T.BENCH_FACTOR_HIGH }], WAGE_UNHAPPY, ["ambitiousWage", { wage: plusPct(T.WAGE_AMBITIOUS_BELOW), gap: T.AMBITIOUS_GAP }], REQUEST],
+    LOYAL: [["loyalWage", { wage: plusPct(T.WAGE_LOYAL), length: plusPct(T.LENGTH_LOYAL) }], ["loyalRaise", { pct: pct(T.RENEWAL_RAISE_LOYAL) }], ["loyalBench", { factor: T.BENCH_FACTOR_LOW }]],
+    MERCENARY: [["mercWage", { wage: plusPct(T.WAGE_MERCENARY), length: pct(1 - T.LENGTH_MERCENARY) }], ["mercRaise", { factor: T.RENEWAL_RAISE_MERCENARY }], WAGE_UNHAPPY, ["mercBid", { n: Math.abs(T.MERCENARY_BID_REJECT_MORALE) }], REQUEST],
+    HOTHEAD: [["hothead", { factor: T.RESULT_HOTHEAD }], DISTRACTED],
+    LEADER: [["leaderCaptain", { pct: pct(T.CAPTAIN_LEADER_BONUS) }], MENTOR],
+    SHOWMAN: [["showmanWin", { pct: plusPct(T.RESULT_SHOWMAN_WIN) }], ["benchFast", { factor: T.BENCH_FACTOR_HIGH }], DISTRACTED],
+    QUIET: [["quiet", { pct: pct(1 - T.RESULT_QUIET) }], ["benchFast", { factor: T.BENCH_FACTOR_LOW }]],
+}
+
+/** Label, one-liner and effects per archetype, translated when read. */
+export const ARCHETYPE_INFO = Object.fromEntries(ARCHETYPES.map(a => [a, {
+    get label() { return t(`arch.${a}.label`) },
+    get short() { return t(`arch.${a}.short`) },
+    get effects() { return ARCHETYPE_EFFECTS[a].map(([key, params]) => t(`personality.effect.${key}`, params)) },
+}])) as Record<PersonalityArchetype, ArchetypeInfo>
+
+
 
 /** Duel-rating effects as the script-v1 round engine applies them (round-sim/simulate.ts); 1 point ≈ 3.5 aim. */
-export const TRAIT_INFO: Record<PlaystyleTrait, { label: string; effect: string }> = {
-    AGGRESSIVE: { label: "Aggressive", effect: "+2 duel rating when peeking, −1 when holding; first pick for aggressive CT plays." },
-    PASSIVE: { label: "Passive", effect: "+1 duel rating when holding an angle, −1 when peeking." },
-    CLUTCHER: { label: "Clutcher", effect: "+3 duel rating when he is the last one alive." },
-    TRADE_FRAGGER: { label: "Trade fragger", effect: "+2 duel rating when trading a fallen teammate." },
-}
+export const TRAIT_INFO = Object.fromEntries(PLAYSTYLE_TRAITS.map(trait => [trait, {
+    get label() { return t(`trait.${trait}.label`) },
+    get effect() { return t(`trait.${trait}.effect`) },
+}])) as Record<PlaystyleTrait, { readonly label: string; readonly effect: string }>
 
 /** Contract-demand lines for the negotiation screen (only those that apply). */
 export function contractDemandLines(archetype: PersonalityArchetype, overallRating: number, buyer?: Partial<Pick<TeamSaveData, "leagueTier">> | null): string[] {
-    const info = ARCHETYPE_INFO[archetype].label
-    const included = "Already in the wage range and preferred length above."
+    const label = ARCHETYPE_INFO[archetype].label
+    const included = t("demand.included")
     switch (archetype) {
-        case "LOYAL": return [`${info}: asks ${plusPct(T.WAGE_LOYAL)} wages and wants a ${plusPct(T.LENGTH_LOYAL)} longer deal.`, included]
-        case "MERCENARY": return [`${info}: asks ${plusPct(T.WAGE_MERCENARY)} wages and wants a ${pct(1 - T.LENGTH_MERCENARY)} shorter deal.`, included]
+        case "LOYAL": return [t("demand.loyal", { label, wage: plusPct(T.WAGE_LOYAL), length: plusPct(T.LENGTH_LOYAL) }), included]
+        case "MERCENARY": return [t("demand.mercenary", { label, wage: plusPct(T.WAGE_MERCENARY), length: pct(1 - T.LENGTH_MERCENARY) }), included]
         case "AMBITIOUS": return levelGap(overallRating, buyer) >= T.AMBITIOUS_GAP
-            ? [`${info}: your club is ${T.AMBITIOUS_GAP}+ tiers below his level, so he asks ${plusPct(T.WAGE_AMBITIOUS_BELOW)} wages.`, included]
-            : [`${info}: no premium — your club is close enough to his level.`]
-        default: return [`${info}: his personality does not change his demands.`]
+            ? [t("demand.ambitiousBelow", { label, gap: T.AMBITIOUS_GAP, wage: plusPct(T.WAGE_AMBITIOUS_BELOW) }), included]
+            : [t("demand.ambitiousClose", { label })]
+        default: return [t("demand.none", { label })]
     }
 }

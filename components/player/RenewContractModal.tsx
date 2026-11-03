@@ -1,4 +1,5 @@
 "use client"
+import { t, tn } from "@/lib/i18n"
 
 import React from "react"
 import {
@@ -34,8 +35,8 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
     const raisePct = currentSalary > 0 ? Math.round((newSalary / currentSalary - 1) * 100) : 0
     const archetype = ARCHETYPE_INFO[getArchetype(player)].label
     const usualRaise = Math.round(currentSalary * renewalMultiplier(getArchetype(player), AI_SQUAD_TUNING.RENEWAL_SALARY_MULTIPLIER))
-    const reason = newSalary > usualRaise ? "his level now earns more on the market"
-        : raisePct === 10 ? "" : raisePct < 10 ? "loyal players take less" : "he wants more"
+    const reason = newSalary > usualRaise ? t("renew.reason.market")
+        : raisePct === 10 ? "" : raisePct < 10 ? t("renew.reason.loyal") : t("renew.reason.more")
     const weeksRemaining = Math.max(0, currentEndWeek - currentWeek)
     const newWeeksRemaining = weeksRemaining + 52
 
@@ -51,33 +52,33 @@ export function RenewContractModal({ player, currentSalary, currentEndWeek, curr
             </DialogTrigger>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Renew contract</DialogTitle>
+                    <DialogTitle>{t("renew.title")}</DialogTitle>
                     <DialogDescription className="text-ink-3">
-                        One more year for {player.nickname}, at a {raisePct}% raise ({archetype}{reason ? `: ${reason}` : ""}).
+                        {t(reason ? "renew.bodyReason" : "renew.body", { name: player.nickname, pct: raisePct, archetype, reason })}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-3 py-2">
                     <div className="rounded-lg border border-line bg-raised p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Now</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("renew.now")}</p>
                         <p className="mt-2 font-display text-2xl font-bold tabular-nums text-ink-2">{formatCurrency(currentSalary, "$", false)}</p>
-                        <p className="text-xs text-ink-3">per week · {weeksRemaining} wks left</p>
+                        <p className="text-xs text-ink-3">{tn("renew.perWeek", weeksRemaining)}</p>
                     </div>
                     <div className="flex items-center text-ink-3"><ArrowRight size={18} /></div>
                     <div className="rounded-lg border border-line-strong bg-raised p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">After renewal</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("renew.after")}</p>
                         <p className="mt-2 font-display text-2xl font-bold tabular-nums text-ink-1">{formatCurrency(newSalary, "$", false)}</p>
-                        <p className="text-xs text-ink-3">per week · {newWeeksRemaining} wks left</p>
+                        <p className="text-xs text-ink-3">{tn("renew.perWeek", newWeeksRemaining)}</p>
                     </div>
                 </div>
 
                 <p className="text-sm text-ink-2">
-                    Runs until week {currentEndWeek + 52}. You need 26 weeks of the raise ({formatCurrency((newSalary - currentSalary) * 26, "$", false)}) in the bank; nothing is charged up front.
+                    {t("renew.runs", { week: currentEndWeek + 52, amount: formatCurrency((newSalary - currentSalary) * 26, "$", false) })}
                 </p>
 
                 <DialogFooter className="gap-2 sm:gap-2">
-                    <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={handleConfirm}>Sign renewal</Button>
+                    <Button variant="outline" onClick={() => setOpen(false)}>{t("renew.cancel")}</Button>
+                    <Button onClick={handleConfirm}>{t("renew.sign")}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

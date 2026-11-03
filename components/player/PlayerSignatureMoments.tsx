@@ -1,4 +1,5 @@
 "use client"
+import { intlLocale, t, tn } from "@/lib/i18n"
 
 import { Award, Trophy, Crosshair, Zap, Star, Flame, Crown, Skull } from "lucide-react"
 import type { PlayerSaveData } from "@/engine/save-types"
@@ -25,10 +26,10 @@ function deriveMoments(player: PlayerSaveData): Moment[] {
     if (player.majorWins && player.majorWins > 0) {
         moments.push({
             icon: Trophy,
-            title: player.majorWins === 1 ? "Major Champion" : `${player.majorWins}× Major Champion`,
+            title: tn("moment.major", player.majorWins),
             description: player.majorWins === 1
-                ? "Lifted a Major trophy. The moment that announced their career."
-                : `Multiple Major titles — a name etched into the league's record book.`,
+                ? t("moment.majorFirst")
+                : t("moment.majorMany"),
             tone: "gold",
         })
     }
@@ -37,8 +38,8 @@ function deriveMoments(player: PlayerSaveData): Moment[] {
     if (seasonMvps.length > 0) {
         moments.push({
             icon: Crown,
-            title: seasonMvps.length === 1 ? `Season MVP (S${seasonMvps[0].season})` : `${seasonMvps.length}× Season MVP`,
-            description: "The best season in the world on official maps, weighted by the stage it was played on.",
+            title: seasonMvps.length === 1 ? t("moment.seasonMvpOne", { season: seasonMvps[0].season }) : t("moment.seasonMvpMany", { n: seasonMvps.length }),
+            description: t("moment.seasonMvpBody"),
             tone: "violet",
         })
     }
@@ -46,8 +47,8 @@ function deriveMoments(player: PlayerSaveData): Moment[] {
     if (player.totalMVPs && player.totalMVPs > 0) {
         moments.push({
             icon: Star,
-            title: player.totalMVPs === 1 ? "Match MVP" : `${player.totalMVPs}× Match MVP`,
-            description: `Highest-rated player on the winning side — the floor turned over to them when it mattered.`,
+            title: tn("moment.matchMvp", player.totalMVPs),
+            description: t("moment.matchMvpBody"),
             tone: "violet",
         })
     }
@@ -57,15 +58,15 @@ function deriveMoments(player: PlayerSaveData): Moment[] {
     if (ratedCareer && player.avgRating >= 1.25) {
         moments.push({
             icon: Flame,
-            title: "Elite Form",
-            description: `Career average ${player.avgRating.toFixed(2)} rating over ${player.mapsPlayed} official maps — the kind of consistency you build a roster around.`,
+            title: t("moment.eliteForm"),
+            description: t("moment.eliteFormBody", { rating: player.avgRating.toFixed(2), maps: player.mapsPlayed ?? 0 }),
             tone: "rose",
         })
     } else if (ratedCareer && player.avgRating >= 1.15) {
         moments.push({
             icon: Zap,
-            title: "Consistent Top-Half Player",
-            description: `Career average ${player.avgRating.toFixed(2)} rating over ${player.mapsPlayed} official maps — reliable starter on any tier-1 team.`,
+            title: t("moment.consistent"),
+            description: t("moment.consistentBody", { rating: player.avgRating.toFixed(2), maps: player.mapsPlayed ?? 0 }),
             tone: "blue",
         })
     }
@@ -74,8 +75,8 @@ function deriveMoments(player: PlayerSaveData): Moment[] {
     if (clutchRate >= 0.40) {
         moments.push({
             icon: Crown,
-            title: "Clutch Specialist",
-            description: `${Math.round(clutchRate * 100)}% win rate in 1vX situations. They want the bomb.`,
+            title: t("moment.clutch"),
+            description: t("moment.clutchBody", { pct: Math.round(clutchRate * 100) }),
             tone: "gold",
         })
     }
@@ -83,8 +84,8 @@ function deriveMoments(player: PlayerSaveData): Moment[] {
     if (player.totalHeadshots && player.totalHeadshots > 500) {
         moments.push({
             icon: Crosshair,
-            title: "Headshot Machine",
-            description: `${player.totalHeadshots.toLocaleString()} career headshots — they don't miss when it matters.`,
+            title: t("moment.headshot"),
+            description: t("moment.headshotBody", { n: player.totalHeadshots.toLocaleString(intlLocale()) }),
             tone: "rose",
         })
     }
@@ -92,8 +93,8 @@ function deriveMoments(player: PlayerSaveData): Moment[] {
     if (player.matchesPlayed >= 200) {
         moments.push({
             icon: Skull,
-            title: "Veteran Presence",
-            description: `${player.matchesPlayed} professional matches under their belt. Seen every map, every read, every meta.`,
+            title: t("moment.veteran"),
+            description: t("moment.veteranBody", { n: player.matchesPlayed }),
             tone: "neutral",
         })
     }
@@ -101,8 +102,8 @@ function deriveMoments(player: PlayerSaveData): Moment[] {
     if (player.isLegendary) {
         moments.push({
             icon: Crown,
-            title: "Legend",
-            description: "Inducted into the league's pantheon. A career that defined an era.",
+            title: t("moment.legend"),
+            description: t("moment.legendBody"),
             tone: "gold",
         })
     }
@@ -131,8 +132,8 @@ export function PlayerSignatureMoments({ player }: PlayerSignatureMomentsProps) 
         return (
             <p className="px-4 py-5 text-sm text-ink-3" role="status">
                 {player.matchesPlayed > 0
-                    ? "No milestones yet. Titles, MVP awards and clutch records will appear here."
-                    : "No milestones yet. His story starts with his first official match."}
+                    ? t("moment.noneYet")
+                    : t("moment.noneStart")}
             </p>
         )
     }
@@ -159,7 +160,7 @@ export function PlayerSignatureMoments({ player }: PlayerSignatureMomentsProps) 
                     <Award size={16} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
                     <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-ink-1">{a.description}</p>
-                        <p className="mt-0.5 text-xs text-ink-3">Week {a.week}</p>
+                        <p className="mt-0.5 text-xs text-ink-3">{t("common.week", { n: a.week })}</p>
                     </div>
                 </li>
             ))}

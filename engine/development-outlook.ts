@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 /**
  * Development outlook: what raises and lowers a player's numbers, read from
  * the same formulas the week applies (TrainingProcessor.processTraining,
@@ -102,11 +103,11 @@ export function developmentOutlook(input: {
         const effectsOfStaff = staffDevelopmentEffects(clubStaff)
         const archetype = getArchetype(player)
         const push = (label: string, m: number) => { if (Math.abs(m - 1) > 1e-9) factors.push({ label, multiplier: m }) }
-        push(`Training facility L${trainingLevel}`, 1 + trainingLevel * 0.1)
-        push("Coaching staff", effectsOfStaff.trainingMultiplier)
+        push(t("outlook.factor.facility", { n: trainingLevel }), 1 + trainingLevel * 0.1)
+        push(t("outlook.factor.staff"), effectsOfStaff.trainingMultiplier)
         push(ARCHETYPE_INFO[archetype].label, focus === TrainingFocus.REST ? 1 : trainingFactor(archetype))
-        push("Mentor", mentorTrainingFactor(team, player.id, lookup))
-        push(`Age ${age}`, focus === TrainingFocus.REST ? 1 : trainingAgeFactor(age))
+        push(t("outlook.factor.mentor"), mentorTrainingFactor(team, player.id, lookup))
+        push(t("outlook.factor.age", { age }), focus === TrainingFocus.REST ? 1 : trainingAgeFactor(age))
         multiplier = factors.reduce((m, f) => m * f.multiplier, 1)
         tacticalMultiplier = (1 + tacticalLevel * 0.2) * effectsOfStaff.tacticMultiplier
         breakthrough = team.id === playerTeamId && clubStaff.some(s => s.role === "coach"

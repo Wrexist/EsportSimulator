@@ -1,3 +1,4 @@
+import { tn } from "@/lib/i18n"
 /**
  * Senior roster rules for the managed club: the size cap that blocks
  * signings and promotions, the quorum a release may not break, and what a
@@ -44,6 +45,5 @@ export function departuresToSign(rosterSize: number): number {
 /** The managed club's "squad full" line: why it can't sign, and what to do about it. */
 export function squadFullMessage(rosterSize: number): string {
     const n = departuresToSign(rosterSize)
-    return `Your squad is full: ${rosterSize} senior players, and the limit is ${SENIOR_ROSTER_MAX}. `
-        + `Release or sell ${n === 1 ? "one player" : `${n} players`} to make room (open a player and choose Release, or put him on the transfer list).`
+    return tn("squad.full", n, { size: rosterSize, max: SENIOR_ROSTER_MAX })
 }
