@@ -325,6 +325,7 @@ export const MATCH = {
     "decision.total": "total",
     "decision.noSpend": "No spend",
     "decision.sameAs": "{{a}} buys the same as {{b}}.",
+    "decision.buysLess": "Not enough money for {{a}}: it buys less than {{b}}.",
     "decision.kevlar": "kevlar",
     "decision.kevlarHelmet": "kevlar + helmet",
     "decision.kit": "kit",

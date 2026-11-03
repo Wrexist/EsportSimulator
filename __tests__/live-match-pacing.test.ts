@@ -237,6 +237,29 @@ describe('decision card buy preview', () => {
         if (rec) for (const p of rec.players) expect(auto.preRound.home[p.id].weapon).toBe(p.weapon)
     })
 
+    it('MATCHDAY-12: a dearer call that spends less than a cheaper one says so', () => {
+        const ctx = seriesCtx(MapId.MIRAGE, 11)
+        let state = createLegacySeriesState(ctx)
+        for (let i = 0; i < 4; i++) state = playLegacyRound(ctx, state).state
+        // ~$2,800 a player: a half buy is affordable, a full buy is not.
+        const homeEconomy = Object.fromEntries(Object.entries(state.sim.homeEconomy).map(([id, e]) => [id, { ...e, cash: 2810, weapon: 'usp', hasArmor: false, hasHelmet: false, hasKit: false, utility: [] }]))
+        const preview = previewDecision(ctx, { ...state.sim, homeEconomy } as typeof state.sim)!
+        const ids = preview.options.map(o => o.id)
+        expect(preview.options.find(o => o.id === 'FULL')?.buysLessThan).toBe('SEMIBUY')
+        for (const o of preview.options) {
+            if (!o.buysLessThan) continue
+            const cheaper = preview.options.find(c => c.id === o.buysLessThan)!
+            expect(ids.indexOf(cheaper.id)).toBeLessThan(ids.indexOf(o.id))
+            expect(o.total).toBeLessThan(cheaper.total)
+            expect(o.sameAs).toBeUndefined()
+        }
+        // No call is left that spends less than a cheaper call without the note.
+        preview.options.forEach((o, i) => {
+            if (o.sameAs || o.buysLessThan) return
+            for (const c of preview.options.slice(0, i)) expect(o.total).toBeGreaterThanOrEqual(c.total)
+        })
+    })
+
     it('has no decision on pistol rounds', () => {
         const ctx = seriesCtx(MapId.MIRAGE, 2)
         expect(previewDecision(ctx, createLegacySeriesState(ctx).sim)).toBeNull()

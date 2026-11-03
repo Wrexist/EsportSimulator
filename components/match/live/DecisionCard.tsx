@@ -69,6 +69,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
     // A call that buys exactly what another one buys is a note, not a column (fewer, wider choices).
     const calls = preview.options.filter(o => !o.sameAs)
     const same = preview.options.filter(o => o.sameAs)
+    const short = calls.filter(o => o.buysLessThan)
     const cols = { "--cols": calls.length } as CSSProperties
     return (
         <motion.section
@@ -76,7 +77,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
             transition={{ duration: 0.16, ease: "easeOut" }}
-            className="tactical-decisions @container relative w-full overflow-hidden rounded-lg border border-line-strong bg-panel/[0.97] shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
+            className="tactical-decisions @container relative w-full overflow-hidden rounded-lg border border-line-strong bg-panel shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
             aria-label={t("decision.aria", { n: preview.round })}
         >
             {auto.on && (
@@ -178,7 +179,7 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                     {!folded && preview.options[0]?.players.map((p, row) => (
                         <div key={p.id} className="grid grid-cols-[132px_repeat(var(--cols),minmax(0,1fr))] border-b border-line last:border-b-0 @max-[52rem]:grid-cols-[112px_repeat(var(--cols),minmax(0,1fr))]" style={cols}>
                             <div className="flex h-7 min-w-0 items-center gap-1.5 px-2 text-xs">
-                                <span className="min-w-0 truncate font-semibold text-ink-1">{names[p.id] ?? p.id}</span>
+                                <span className="min-w-0 truncate font-semibold text-ink-1" title={names[p.id] ?? p.id}>{names[p.id] ?? p.id}</span>
                                 <span className="ml-auto shrink-0 tabular-nums text-positive">{money(p.cash)}</span>
                             </div>
                             {calls.map(o => (
@@ -189,9 +190,12 @@ export function DecisionCard({ preview, names, onPick, onEditLoadout, auto, time
                         </div>
                     ))}
                 </div>
-                {same.length > 0 && (
+                {(same.length > 0 || short.length > 0) && (
                     <p className="mt-1.5 text-xs text-ink-3">
-                        {same.map(o => t("decision.sameAs", { a: strategyLabel(o.id), b: strategyLabel(o.sameAs!) })).join(" · ")}
+                        {[
+                            ...same.map(o => t("decision.sameAs", { a: strategyLabel(o.id), b: strategyLabel(o.sameAs!) })),
+                            ...short.map(o => t("decision.buysLess", { a: strategyLabel(o.id), b: strategyLabel(o.buysLessThan!) })),
+                        ].join(" · ")}
                     </p>
                 )}
 

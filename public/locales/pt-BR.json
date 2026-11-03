@@ -781,6 +781,7 @@
  "decision.total": "no total",
  "decision.noSpend": "Sem gasto",
  "decision.sameAs": "{{a}} compra o mesmo que {{b}}.",
+ "decision.buysLess": "Dinheiro insuficiente para {{a}}: compra menos que {{b}}.",
  "decision.kevlar": "colete",
  "decision.kevlarHelmet": "colete + capacete",
  "decision.kit": "kit",

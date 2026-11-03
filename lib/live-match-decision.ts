@@ -41,6 +41,11 @@ export interface BuyPreviewOption {
     total: number
     /** Buys exactly what a cheaper call buys (the button is redundant). */
     sameAs?: ManagerStrategy
+    /**
+     * Not enough money for this call: it spends less than this cheaper call
+     * (e.g. a full buy the team cannot afford falls back to cheaper weapons).
+     */
+    buysLessThan?: ManagerStrategy
 }
 
 export type EconomyStyle = "standard" | "force" | "eco"
@@ -148,6 +153,11 @@ export function previewDecision(ctx: LegacySeriesContext, sim: SimState, customT
     for (let i = 1; i < options.length; i++) {
         const twin = options.slice(0, i).find(o => sameLoadout(o, options[i]))
         if (twin) options[i].sameAs = twin.id
+        // MATCHDAY-12: a dearer call that spends less than a cheaper one is short of money.
+        else {
+            const richer = options.slice(0, i).filter(o => o.total > options[i].total).pop()
+            if (richer) options[i].buysLessThan = richer.id
+        }
     }
 
     const startEcon = cloneEconomy(ownIds, managedHome ? sim.homeEconomy : sim.awayEconomy, ownIsCT)

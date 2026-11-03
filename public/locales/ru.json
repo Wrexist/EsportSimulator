@@ -801,6 +801,7 @@
  "decision.total": "всего",
  "decision.noSpend": "Без трат",
  "decision.sameAs": "{{a}} покупает то же, что {{b}}.",
+ "decision.buysLess": "{{a}} — не хватает денег: выходит дешевле, чем {{b}}.",
  "decision.kevlar": "броня",
  "decision.kevlarHelmet": "броня + шлем",
  "decision.kit": "набор сапёра",
