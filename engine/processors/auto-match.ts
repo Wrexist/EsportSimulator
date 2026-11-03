@@ -304,8 +304,8 @@ export function playAutoMatch(
             recordAppearances(awayTeam, awayPlayers.map(p => p.id), lookupPlayer)
         }
 
-        applyMatchSponsorGoalProgress(save, homeTeam, homeWon, result.homeScore, match.id, eventIdSet, ledgerIdSet)
-        applyMatchSponsorGoalProgress(save, awayTeam, !homeWon, result.awayScore, match.id, eventIdSet, ledgerIdSet)
+        applyMatchSponsorGoalProgress(save, homeTeam, homeWon, result.homeScore, match, eventIdSet, ledgerIdSet)
+        applyMatchSponsorGoalProgress(save, awayTeam, !homeWon, result.awayScore, match, eventIdSet, ledgerIdSet)
         // The settlement only reads the club's own contracts.
         const bonusBook = (teamId: string) => {
             const contracts = ctx.contractsByTeamId?.get(teamId)
