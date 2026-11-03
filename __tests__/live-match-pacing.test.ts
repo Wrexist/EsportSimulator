@@ -208,6 +208,9 @@ describe('round timeline (roster cards)', () => {
         const tally = tallyMatchDamage(maps, 0, 2)
         expect(adrOf(tally, 'H1')).toBe(90)
         expect(adrOf(tallyMatchDamage([{ rounds: [{}] }] as never, 0, 1), 'H1')).toBeUndefined()
+        // MATCHDAY-15: 96.45 per round is recorded as 96.5 and shown as 97 on the result: the same here.
+        const r20 = Array.from({ length: 20 }, (_, i) => ({ damage: { H1: i === 0 ? 1929 : 0 } }))
+        expect(adrOf(tallyMatchDamage([{ rounds: r20 }] as never, 0, 20), 'H1')).toBe(97)
     })
 })
 

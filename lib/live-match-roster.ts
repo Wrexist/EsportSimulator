@@ -146,7 +146,9 @@ export function tallyMatchDamage(maps: readonly MapResult[], mapIndex: number, r
 /** Average damage per round, or undefined before any round with damage data. */
 export function adrOf(tally: DamageTally, id: string): number | undefined {
     if (!tally.hasDamage || tally.rounds <= 0) return undefined
-    return Math.round((tally.damage[id] ?? 0) / tally.rounds)
+    // Same rounding as the result screen: the recorded ADR has one decimal
+    // (match-stats scriptLine), shown rounded (MATCHDAY-15).
+    return Math.round(Math.round((tally.damage[id] ?? 0) / tally.rounds * 10) / 10)
 }
 
 // ─── Round summary (end-of-round beat) ──────────────────────────────────────
