@@ -88,6 +88,9 @@ function LineupTable({ title, team, players }: { title: string; team: { name: st
                 <p className={overline}>{title}</p>
                 <p className="truncate text-xs text-ink-3">{team.name}</p>
             </div>
+            {/* Under 1440 px the meters drop their bars (numbers stay) so both
+                tables fit side by side; scrolling is only a fallback (MATCHDAY-07). */}
+            <div className="overflow-x-auto">
             <table data-slot="table" className="w-full border-collapse text-left">
                 <thead data-slot="table-header">
                     <tr className="border-y border-line">
@@ -112,8 +115,8 @@ function LineupTable({ title, team, players }: { title: string; team: { name: st
                             </td>
                             <td className="px-2"><RoleTag role={p.role} /></td>
                             <td className="px-2 text-center"><RatingChip value={p.ovr} size="sm" /></td>
-                            <td className="px-2"><Meter value={p.morale ?? 50} label={t("common.morale")} trackClassName="w-10" /></td>
-                            <td className="pr-4"><Meter value={playerEnergyPercent(p)} label={t("common.energy")} trackClassName="w-10" /></td>
+                            <td className="px-2"><Meter value={p.morale ?? 50} label={t("common.morale")} trackClassName="hidden w-10 min-[1440px]:block" /></td>
+                            <td className="pr-4"><Meter value={playerEnergyPercent(p)} label={t("common.energy")} trackClassName="hidden w-10 min-[1440px]:block" /></td>
                         </tr>
                     ))}
                     {players.length === 0 && (
@@ -121,6 +124,7 @@ function LineupTable({ title, team, players }: { title: string; team: { name: st
                     )}
                 </tbody>
             </table>
+            </div>
         </div>
     )
 }
