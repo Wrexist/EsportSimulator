@@ -1,4 +1,4 @@
-import { Player, PLAYER_STAT_CONSTRAINTS } from "@/types/player"
+import { Player } from "@/types/player"
 import { calculateProPrestigeScore } from "./prestige-system"
 import { SeededRNG, generateSeed } from "./rng"
 import { CONDITION_TUNING } from "@/lib/balance-tuning"

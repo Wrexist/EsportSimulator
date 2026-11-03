@@ -209,7 +209,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
 
             if (points === 0) return
 
-            let entry = state.circuitPoints.find(cp => cp.teamId === teamId)
+            const entry = state.circuitPoints.find(cp => cp.teamId === teamId)
             if (entry) {
                 entry.points += points
                 entry.results.push({

@@ -247,7 +247,7 @@ export class SteamService {
             this.persistCachedAchievements()
             if (!alreadyLocal) this.onUnlockCallback?.({ ...ACHIEVEMENTS[achievementId], unlocked: true, unlockedAt: new Date() })
             return accepted
-        } catch (error) {
+        } catch {
             if (revision === this.scopeRevision) {
                 this.pendingAchievements.add(achievementId)
                 this.persistCachedAchievements()
@@ -387,7 +387,7 @@ export class SteamService {
             if (this.electronBridge.writeToCloud) {
                 return (await this.electronBridge.writeToCloud(`save_${saveId}.json`, data)) === true
             }
-        } catch (e) {
+        } catch {
             debug.warn("[Steam] Cloud save not available")
         }
         return false
@@ -400,7 +400,7 @@ export class SteamService {
             if (this.electronBridge.readFromCloud) {
                 return await this.electronBridge.readFromCloud(`save_${saveId}.json`)
             }
-        } catch (e) {
+        } catch {
             debug.warn("[Steam] Cloud load not available")
         }
         return null
@@ -412,7 +412,7 @@ export class SteamService {
             if (this.electronBridge.deleteFromCloud) {
                 return (await this.electronBridge.deleteFromCloud(filename)) === true
             }
-        } catch (e) {
+        } catch {
             debug.warn("[Steam] Cloud delete not available")
         }
         return false

@@ -5,7 +5,7 @@ import {
 } from "./save-types"
 import { reconcileTeamRoles } from "./role-reconciler"
 import { setAILineup } from "./ai/lineup"
-import { PlayerRole } from "../types" // Adjust import path if needed
+import {} from "../types" // Adjust import path if needed
 import { SeededRNG, generateSeed } from "./rng"
 import { TrainingManager } from "./training-manager"
 import { applyRosterChangePenalty } from "./chemistry-engine"
@@ -445,7 +445,7 @@ export class AIManager {
         recalculateTeamSynergy(team, save.players)
     }
 
-    static processAITeamLogic(save: GameSave, team: TeamSaveData, rng: SeededRNG) {
+    static processAITeamLogic(save: GameSave, team: TeamSaveData, _rng: SeededRNG) {
         // This overlaps with processWeeklyAI. 
         // We can delegate to manageRoster/manageFinances here or keep them separate.
         // For now, let's call our new logic.

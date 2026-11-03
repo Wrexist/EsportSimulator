@@ -24,19 +24,16 @@ import {
     Match,
     MatchResult,
     MapResult,
-    RoundResult,
     MapVeto,
     PlayerMatchStats,
     MapId,
-    PlayerRole,
     Coach,
     Analyst,
     Psychologist,
-    StaffType,
     MatchEvent,
     CustomTactics,
 } from "@/types"
-import { WeaponMasteryManager, WeaponType, WEAPON_TYPES, getMasteryLevel, MASTERY_LEVELS } from "@/engine/weapon-mastery-system"
+import { WeaponMasteryManager, WeaponType } from "@/engine/weapon-mastery-system"
 import { perfTrace } from "./perf-trace"
 import { MATCH_BALANCE, UTIL_POWER as UTIL_POWER_MAP, UTIL_POWER_DEFAULT as UTIL_POWER_FALLBACK, UTIL_POWER_CAP } from "@/lib/constants"
 import { logger } from "@/lib/logger"
@@ -49,8 +46,6 @@ import { generateMatchStats as generateMatchStatsFn } from "./match/match-stats"
 import {
     determineWinType as determineWinTypeFn,
     generateRoundStats as generateRoundStatsFn,
-    addKillEvent as addKillEventFn,
-    pickWeighted as pickWeightedFn,
     type PlayerSimulationState as RoundPlayerSimulationState,
 } from "./match/round-outcome"
 import { performBuyPhase as performBuyPhaseFn, type BuyStrategy } from "./match/buy-phase"
@@ -392,16 +387,16 @@ export class SimulationEngineV2 {
         roundNum: number,
         homeEconomy: Record<string, PlayerSimulationState>,
         awayEconomy: Record<string, PlayerSimulationState>,
-        homeStrategy: "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL" | "DOUBLE AWP" = "FULL",
-        awayStrategy: "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL" | "DOUBLE AWP" = "FULL",
+        _homeStrategy: "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL" | "DOUBLE AWP" = "FULL",
+        _awayStrategy: "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL" | "DOUBLE AWP" = "FULL",
         isHighPressure: boolean = false,
         homeTeam?: Team,
         awayTeam?: Team,
         currentCTTeamId?: string,
         currentTTeamId?: string,
         customTactics?: CustomTactics,
-        homeMomentumScore: number = 0,
-        awayMomentumScore: number = 0,
+        _homeMomentumScore: number = 0,
+        _awayMomentumScore: number = 0,
         homeStaff?: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
         awayStaff?: { coach?: Coach; analyst?: Analyst; psychologist?: Psychologist },
         mapId?: MapId,
@@ -634,7 +629,7 @@ export class SimulationEngineV2 {
      * Fallback staff resolver — primary callers (game-store, useLiveMatch)
      * supply staff directly, so this only fires in edge/debug paths.
      */
-    private getTeamStaff(team: Team): {
+    private getTeamStaff(_team: Team): {
         coach?: Coach
         analyst?: Analyst
         psychologist?: Psychologist

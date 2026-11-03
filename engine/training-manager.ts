@@ -1,7 +1,7 @@
 import { GameSave, TeamSaveData, PlayerSaveData, RoleTrainingSession } from "./save-types"
 import { Role } from "@/types"
 import { PlayerRole } from "@/types/enums"
-import { buildSaveIndexes, type SaveIndexes } from "@/store/indexes"
+import { buildSaveIndexes } from "@/store/indexes"
 import { COST_CONSTANTS } from "@/lib/constants"
 
 const ROLE_TO_PLAYER_ROLE: Record<Role, PlayerRole> = {

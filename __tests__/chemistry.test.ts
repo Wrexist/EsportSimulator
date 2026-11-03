@@ -5,8 +5,7 @@ import {
     CHEMISTRY_GROWTH_PER_WEEK,
     CHEMISTRY_PENALTY_PER_SWAP,
     MAX_CHEMISTRY_PENALTY,
-    STABILITY_THRESHOLD_WEEKS,
-} from "@/engine/chemistry-engine"
+    } from "@/engine/chemistry-engine"
 
 const makeTeam = (overrides: Record<string, any> = {}) =>
     ({ id: "t1", chemistry: 50, lastRosterChangeWeek: 1, ...overrides } as any)

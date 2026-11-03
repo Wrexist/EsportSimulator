@@ -5,18 +5,16 @@ import {
     TournamentSaveData,
     BracketMatchSaveData,
     TournamentGroupSaveData,
-    MatchSaveData,
     CompletedMatchSaveData,
     PlayerSaveData
 } from "./save-types"
-import { MatchFormat } from "@/types"
 import { LeagueEngine } from "./league-engine"
 import { STAFF_EFFECTS } from "@/types"
 import { QualificationEngine } from "./tournament-qualification"
 import { getTournamentMVP } from "./tournament-stats"
 import { recordOfficialMatch } from "./official-stats"
-import { getSeasonFromWeek, resolveTournamentIdentity } from "./circuit-engine"
-import { buildSaveIndexes, buildBracketIndex, type SaveIndexes } from "@/store/indexes"
+import { resolveTournamentIdentity } from "./circuit-engine"
+import { buildSaveIndexes, buildBracketIndex } from "@/store/indexes"
 import type { TournamentDefinition } from "@/data/tournament-calendar"
 import {
     stableTeamIdNumber,
@@ -456,7 +454,6 @@ export class TournamentManager {
 
         const matchEngine = getMatchEngine()
         const MatchAnalyzer = getMatchAnalyzer()
-        let simulatedCount = 0
 
         // Keep looping until no more matches can be simulated
         // (handles dependency chains where simulating one match enables another)
@@ -534,7 +531,6 @@ export class TournamentManager {
                 // Process progression (assigns winner to next round)
                 this.routeRepairedProgression(save, tournament, bracketMatch, bracketMatch.winnerId, bracketMatch.loserId)
 
-                simulatedCount++
                 madeProgress = true
             }
         }
@@ -887,7 +883,6 @@ export class TournamentManager {
         if (!tournament.playoffBracket) return placements
 
         // 1. Winner & Runner-up (Grand Final)
-        const bracketMap = buildBracketIndex(tournament.playoffBracket)
         const grandFinal = tournament.playoffBracket.find(m => m.stage === "Grand Final")
         if (grandFinal && grandFinal.isCompleted && grandFinal.winnerId && grandFinal.loserId) {
             placements.push({ teamId: grandFinal.winnerId, position: 1 })

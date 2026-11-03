@@ -311,10 +311,11 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
 
     useEffect(() => {
         isMountedRef.current = true
+        const timers = pendingTimers.current
         return () => {
             isMountedRef.current = false
-            pendingTimers.current.forEach(id => clearTimeout(id))
-            pendingTimers.current.clear()
+            timers.forEach(id => clearTimeout(id))
+            timers.clear()
         }
     }, [])
 

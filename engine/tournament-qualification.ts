@@ -3,7 +3,7 @@
 // Handles tournament eligibility, circuit points, and qualification tracking
 // ============================================================================
 
-import { TournamentDefinition, CIRCUIT_POINTS, getTournamentById, formatPrizePool } from "@/data/tournament-calendar"
+import { TournamentDefinition, CIRCUIT_POINTS, getTournamentById } from "@/data/tournament-calendar"
 import { debug } from "@/lib/debug-logger"
 import { intlLocale, t, tn } from "@/lib/i18n"
 import { TeamSaveData, QualificationStatus, CircuitPointsEntry } from "./save-types"

@@ -646,7 +646,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         return get().simulateInstantMatch(matchId)
     },
 
-    simulateInstantMatch: async (matchId: string, opts: { skippedPrep?: boolean } = {}) => {
+    simulateInstantMatch: async (matchId: string, _opts: { skippedPrep?: boolean } = {}) => {
         const state = get()
         // Already recorded (double click, retry): report success so callers
         // can show the result instead of a not-found screen.

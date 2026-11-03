@@ -356,7 +356,7 @@ export function updateStandings(
             const points = pointsTable[p.position] ?? 0
             if (points <= 0) continue
 
-            let entry = save.circuitPoints.find(cp => cp.teamId === p.teamId)
+            const entry = save.circuitPoints.find(cp => cp.teamId === p.teamId)
             if (entry?.results.some(r => r.tournamentId === tournament.id)) continue
             if (entry) {
                 entry.points += points

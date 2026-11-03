@@ -1,4 +1,3 @@
-import { GameMap } from "@/types/game"
 import { t } from "@/lib/i18n"
 import { FEED } from "@/locales/en/feed"
 

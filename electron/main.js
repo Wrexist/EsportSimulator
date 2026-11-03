@@ -198,7 +198,7 @@ const closeHandshake = createCloseHandshake(async () => {
 let closePending = false;
 let store;
 // Test harnesses swap this for a fault-injecting fs; production always uses node:fs.
-let saveFsLayer = fs;
+const saveFsLayer = fs;
 let gameStorageInstance = null;
 let isCreatingWindow = false;
 

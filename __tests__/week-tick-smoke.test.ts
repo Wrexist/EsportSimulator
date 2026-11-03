@@ -23,7 +23,6 @@ import type {
     ContractSaveData,
     StaffSaveData,
 } from "@/engine/save-types"
-import { TrainingFocus } from "@/types"
 import type { AsyncStorage } from "@/engine/storage-adapter"
 
 /* ----- in-memory storage so tests don't touch a real disk ----- */

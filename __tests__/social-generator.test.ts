@@ -6,7 +6,7 @@
 
 import { generateSocialPosts, type SocialFeedInput } from "@/lib/social-generator"
 import type {
-    GameSave, TeamSaveData, PlayerSaveData, StaffSaveData,
+    TeamSaveData, PlayerSaveData, StaffSaveData,
     CompletedMatchSaveData, MatchSaveData,
 } from "@/engine/save-types"
 

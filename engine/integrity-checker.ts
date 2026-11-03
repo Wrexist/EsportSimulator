@@ -1,5 +1,4 @@
 import { GameSave } from "./save-types"
-import { Player, Team } from "@/types"
 
 export interface IntegrityIssue {
     type: "STAT" | "FINANCE" | "ROSTER" | "MATCH" | "DATA"

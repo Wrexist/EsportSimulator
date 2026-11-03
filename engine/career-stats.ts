@@ -121,8 +121,6 @@ export function updateCareerStats(save: GameSave): CareerStats {
   // season's record at 0-0 and leave it without an MVP.
   const sameStint = (s: SeasonSummary) => s.seasonNumber === seasonSummary.seasonNumber && s.teamId === seasonSummary.teamId && s.startWeek === seasonSummary.startWeek
 
-  const playerTeam = save.teams.find(t => t.id === save.playerTeamId)
-
   // Append season summary
   const seasons = [...existing.seasons.filter(s => !sameStint(s)), seasonSummary]
 

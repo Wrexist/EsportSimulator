@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
+import { countryName } from "@/lib/country"
 import Link from "next/link"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
@@ -67,7 +68,7 @@ function LegendsTable({ legends, playerById, activeIds }: { legends: HallOfFameE
                                             <span className="block truncate text-sm font-semibold text-ink-1 group-hover:text-gold">{legend.name}</span>
                                             <span className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
                                                 <CountryFlag country={legend.nationality} size={12} />
-                                                {String(legend.nationality || "").toUpperCase()}
+                                                {countryName(legend.nationality).toUpperCase()}
                                             </span>
                                         </span>
                                     </Link>

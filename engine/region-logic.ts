@@ -44,8 +44,6 @@ export const getTeamFlag = (rosterIds: string[], players: any[]): string => {
     })
 
     // Find majority
-    const total = rosterIds.length
-    const threshold = Math.ceil(total / 2) // Majority needed (>50% usually, or just max?)
     // Usually 3/5 defines the region.
 
     for (const [region, count] of Object.entries(regionCounts)) {

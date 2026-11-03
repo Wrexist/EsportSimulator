@@ -5415,8 +5415,8 @@
     },
     {
       "path": "data/snapshot-loader.ts",
-      "sha256": "48a82c5ed905cd1e5136cf79dd0304b0fddb0cee26a11ae51889085bdb4de709",
-      "bytes": 25349,
+      "sha256": "e389447c0cf0a20ad0a96e724796bfec40ea5f54d5fa2fbecc0713ff7555bfab",
+      "bytes": 25321,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -5457,6 +5457,11 @@
           "date": "2026-11-02",
           "previousSha256": "829dec75ef583b15858e001ca4d1a57dd2c178cc22356cbf31b8a6630b5b2116",
           "change": "Living world (PR #89): starting potential for established pros is capped near their current level (engine/development-rates.ts startingPotential) and starting weapon mastery follows age and role (startingWeaponMastery). Code-only: no names, game text, media references or snapshot data bytes changed."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "48a82c5ed905cd1e5136cf79dd0304b0fddb0cee26a11ae51889085bdb4de709",
+          "change": "Code cleanup: removed an unused import. No content, names, media or remote URLs changed."
         }
       ]
     },

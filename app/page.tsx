@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, type ReactNode } from "react"
+import { eventRegionName } from "@/lib/display-names"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -412,7 +413,7 @@ export default function Page() {
           ? t("home.eyebrowDay", { season, week: weekInSeason, day: currentDay + 1 })
           : t("home.eyebrow", { season, week: weekInSeason })}
         title={t("home.title")}
-        subtitle={playerTeam ? [playerTeam.name, playerTeam.region].filter(Boolean).join(" · ") : undefined}
+        subtitle={playerTeam ? [playerTeam.name, playerTeam.region ? eventRegionName(playerTeam.region) : ""].filter(Boolean).join(" · ") : undefined}
         leading={playerTeam && (
           <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-line bg-panel">
             <TeamLogoDisplay team={playerTeam} size={52} />

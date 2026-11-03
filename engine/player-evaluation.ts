@@ -63,7 +63,6 @@ export function calculateBaseSkill(player: PlayerSaveData): number {
 
 // ===== LAYER 2: ROLE FIT SCORE =====
 
-type PlayerRole = "AWPer" | "Entry" | "IGL" | "Support" | "Lurker" | "Rifler" | "Star" | string
 
 /**
  * Role-specific stat weights

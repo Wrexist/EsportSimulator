@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { emptyProject, parseProject, annotationHistory, type MapMark } from '@/lib/map-annotations'
-import { parseRegistration, annotationSignature, type MapRegistration } from '@/engine/spatial/registration'
+import { parseRegistration, type MapRegistration } from '@/engine/spatial/registration'
 import { polygonProblem, validateAnnotations, annotationCollision } from '@/engine/spatial/annotations'
 import { CollisionScene, withOccupiedBodies } from '@/engine/spatial/geometry'
 import { NavigationMesh, DEFAULT_ROUTE_OPTIONS } from '@/engine/spatial/navigation'

@@ -1,6 +1,6 @@
 import { GameSave, WeekTickState, PlayerSaveData } from "../save-types"
 import { SeededRNG } from "../rng"
-import { EventType, Team, InjuryType } from "@/types"
+import { EventType, InjuryType } from "@/types"
 import { SaveManager } from "../save-manager"
 import { hallOfFameAchievements, hallOfFameEntry, qualifiesForHallOfFame } from "../hall-of-fame-manager"
 import { retirementChance } from "../retirement-chance"

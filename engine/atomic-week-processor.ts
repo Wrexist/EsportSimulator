@@ -21,26 +21,19 @@ import {
     GameSave,
     TeamSaveData,
     WeekTickState,
-    FinanceLedgerEntry,
     GameEventSaveData,
     CompletedMatchSaveData,
     TournamentSaveData,
     StaffSaveData,
-    CURRENT_SAVE_VERSION,
-    repairSave,
-} from "./save-types"
+    } from "./save-types"
 import { SponsorGenerator } from "./economy-manager"
 import { MatchEngine } from "./match-engine"
 import { perfTrace } from "./perf-trace"
-import { AIManager } from "./ai-manager"
 import { processWeeklyChemistryGrowth } from "./chemistry-engine"
 import {
-    Player,
-    Team,
     TrainingFocus,
-    EventType,
-} from "@/types"
-import { PlayerLifecycleManager, applyFormResult, applyMoraleResult, resultSurpriseFactor } from "./player-lifecycle"
+    } from "@/types"
+import { applyFormResult, applyMoraleResult, resultSurpriseFactor } from "./player-lifecycle"
 import { EconomyEngine } from "./economy-engine"
 import { LegendEventsManager } from "./legend-events-manager"
 import { EventsManager } from "./events-manager"
@@ -77,11 +70,10 @@ import { updateStandings as updateStandingsFn } from "./processors/standings-pro
 import { LeagueEngine } from "./league-engine"
 import { applyTierBands, expectedScore, tiersAreBanded } from "./world-ranking"
 import { competitionLabel, rankMovementEntries } from "./ranking-report"
-import { FULL_TOURNAMENT_CALENDAR, TournamentDefinition } from "@/data/tournament-calendar"
+import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
 import { JobOfferGenerator } from "./job-offer-generator"
 import { QualificationEngine, CircuitPointsManager } from "./tournament-qualification"
-import { LEGENDARY_PLAYERS } from "./legendary-players-data"
 import { buildAnnualAwards, shouldTriggerAwards, addProAwardsEvent } from "./pro-awards-engine"
 import { updateReputationAtSeasonEnd } from "./player-evaluation"
 import { honoursFor, recordOfficialMatch, recordTierMove } from "./official-stats"
@@ -90,7 +82,6 @@ import { queueMoment, seasonReviewMoment } from "./moments"
 import { closeStint } from "./manager-timeline"
 import { buildQualificationGraph, isQualificationForTournament } from "./circuit-engine"
 import { ManagerProgression } from "./manager-progression"
-import { StaffGenerator } from "./staff-generator"
 import { isSeasonEnd, getSeasonNumber, updateCareerStats, migrateCareerStats } from "./career-stats"
 import { processWeeklyBoard } from "./board-expectations"
 import { drawDueLeagueSplit, processLeagueWeek } from "./season/regional-league"
@@ -154,9 +145,6 @@ const debugLog = (...args: any[]) => {
 
 // ===== CONSTANTS =====
 
-const FATIGUE_RECOVERY_PER_WEEK = 10
-const INJURY_BASE_CHANCE = 0.01 // 1% base injury chance per week
-const FATIGUE_INJURY_MULTIPLIER = 0.005 // +0.5% per fatigue point over 50 (e.g. fatigue 80 = +15%)
 
 // ===== ATOMIC WEEK PROCESSOR =====
 
@@ -1351,7 +1339,7 @@ export class AtomicWeekProcessor {
     }
 
     // Phase 20: Process tournament-related logic
-    processTournaments(save: GameSave, playerTeamId: string, rng: SeededRNG, idx?: SaveIndexes, eventIdSet?: Set<string>, ledgerIdSet?: Set<string>): void {
+    processTournaments(save: GameSave, playerTeamId: string, rng: SeededRNG, idx?: SaveIndexes, eventIdSet?: Set<string>, _ledgerIdSet?: Set<string>): void {
         const currentWeek = save.currentWeek
         const weekOfSeason = ((currentWeek - 1) % 52) + 1
         const season = Math.floor((currentWeek - 1) / 52) + 1
@@ -1470,9 +1458,6 @@ export class AtomicWeekProcessor {
             // CRITICAL: Deduplicate to prevent same team appearing multiple times
             let participants = [...new Set(qualifiedRegistrations.map(q => q.teamId))]
 
-            // 2. Determine if player team is already in (via registration)
-            const isPlayerRegistered = participants.includes(playerTeamId)
-
             // 3. Fill remaining slots with AI teams based on rank and league tier restrictions
             const remainingSlots = definition.slots - participants.length
             debugLog(`[Tournament] ${definition.name}: Need ${remainingSlots} more teams (have ${participants.length}/${definition.slots})`)
@@ -1563,7 +1548,7 @@ export class AtomicWeekProcessor {
                     targetSize = Math.max(2, targetSize)
 
                     const playerWasIncluded = participants.includes(playerTeamId)
-                    let trimmed = participants.slice(0, targetSize)
+                    const trimmed = participants.slice(0, targetSize)
                     if (playerWasIncluded && !trimmed.includes(playerTeamId)) {
                         trimmed[trimmed.length - 1] = playerTeamId
                     }

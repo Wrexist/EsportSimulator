@@ -284,9 +284,6 @@ export class WeaponMasteryManager {
         const oldXP = currentMastery[drill.weapon]
         const newXP = oldXP + xpGain
 
-        // Check for level up
-        const oldLevel = getMasteryLevel(oldXP)
-        const newLevel = getMasteryLevel(newXP)
         // Return new mastery state (to be applied by the calling component)
         const newMastery = {
             ...currentMastery,

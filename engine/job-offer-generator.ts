@@ -24,15 +24,6 @@ const MAJOR_WIN_BONUS = 0.30       // +30% chance after winning a major
 const TOURNAMENT_WIN_BONUS = 0.15  // +15% chance after any tournament win
 const GOOD_RECORD_BONUS = 0.10     // +10% chance if positive win ratio
 
-const OFFER_REASONS = [
-    "impressed by your recent tournament performance",
-    "looking for a fresh tactical approach",
-    "seeking experienced leadership",
-    "building a new roster and need proven management",
-    "heard great things about your player development",
-    "admire your team's playstyle adaptation",
-]
-
 // ===== JOB OFFER GENERATOR =====
 
 export class JobOfferGenerator {

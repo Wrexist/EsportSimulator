@@ -1,4 +1,4 @@
-import { GameSave, HallOfFameEntry } from "./save-types"
+import { GameSave } from "./save-types"
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
 import { SeededRNG } from "./rng"
 import { runwaySummary } from "./season/club-finances"
