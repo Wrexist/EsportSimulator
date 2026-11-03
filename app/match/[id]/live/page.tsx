@@ -313,10 +313,14 @@ export default function LiveMatchPage() {
     // Live state of the round on screen: HP, deaths (with the killer) and
     // grenades from the round timeline at the playback clock.
     const inFlight = roundLive
-    const timeline = inFlight && roundView && roundView.key === `${gameState.currentMapIndex}:${gameState.round}` ? roundView.timeline : null
+    // The final board keeps the deciding round's end state (survivors, HP), as
+    // the radar under it does, instead of a fresh "5 alive, 100 HP" (MATCHDAY-14).
+    const finalBoard = gameState.status === "FINISHED"
+    const timeline = (inFlight || finalBoard) && roundView && roundView.key === `${gameState.currentMapIndex}:${gameState.round}` ? roundView.timeline : null
+    const sampleTime = finalBoard ? Number.MAX_SAFE_INTEGER : gameState.time
     const rows = (roster: LivePlayerState[], originals: Map<string, { portraitPath?: string }>, isCT: boolean, economy: Record<string, { utility?: string[] }> | undefined): RosterCardRowProps[] =>
         roster.slice(0, 5).map(p => {
-            const s = timeline ? samplePlayer(timeline, p.id, gameState.time) : null
+            const s = timeline ? samplePlayer(timeline, p.id, sampleTime) : null
             const dead = p.isDead || !!s?.dead
             // Between rounds: what survivors carry into the next round.
             const nades = s ? s.nades : roundOver ? (economy?.[p.id]?.utility ?? []) : []
@@ -351,7 +355,7 @@ export default function LiveMatchPage() {
     const aliveCount = (list: RosterCardRowProps[]) => list.filter(p => !p.dead).length
 
     // Multi-kill callout (3rd / 4th / 5th kill of a player this round).
-    const multi = timeline ? [...timeline.multiKills].reverse().find(k => k.t <= gameState.time) : undefined
+    const multi = timeline && inFlight ? [...timeline.multiKills].reverse().find(k => k.t <= gameState.time) : undefined
     const homeIds = new Set(homeRoster.map(p => p.id))
     const callout: MomentCalloutData | null = multi && roundView
         ? { id: `${roundView.key}:${multi.playerId}:${multi.count}`, playerName: names[multi.playerId] ?? t("prep.player"), count: multi.count, side: homeIds.has(multi.playerId) === homeIsCT ? "CT" : "T" }
