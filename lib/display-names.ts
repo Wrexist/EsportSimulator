@@ -49,6 +49,8 @@ export function stageName(stored: string | null | undefined): string {
 
 const FIXED_STAGES: Record<string, string> = {
     "Grand Final": "stage.grandFinal",
+    "Quarter-final": "stage.quarterfinals",
+    "Semi-final": "stage.semifinals",
     "Quarterfinals": "stage.quarterfinals",
     "Semifinals": "stage.semifinals",
     "3rd Place Decider": "stage.thirdPlace",

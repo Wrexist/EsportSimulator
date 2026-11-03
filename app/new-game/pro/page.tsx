@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 /**
  * C10: start a pro career. Name your player, pick a role and a region, then
@@ -29,14 +30,8 @@ import { cn } from "@/lib/utils"
 
 interface SnapshotTeam { id: string; name: string; shortName?: string; region?: string; reputation?: number; logoPath?: string; rosterIds?: string[] }
 
-const REGION_LABEL: Record<string, string> = { EU: "Europe", CIS: "CIS", BR: "Brazil", NA: "North America", ASIA: "Asia", MENA: "Middle East", OCE: "Oceania" }
-const ROLE_HINT: Record<string, string> = {
-    [PlayerRole.RIFLER]: "Takes the most duels. The safest way into a lineup.",
-    [PlayerRole.ENTRY_FRAGGER]: "First in on attack. Aggressive, high impact, high risk.",
-    [PlayerRole.AWPER]: "The sniper. One per team, so the place is harder to win.",
-    [PlayerRole.SUPPORT]: "Utility and trades. Makes the stars look good.",
-    [PlayerRole.IGL]: "Calls the rounds. Ages best, but needs a team that trusts him.",
-}
+const KNOWN_REGIONS = new Set(["EU", "CIS", "BR", "NA", "ASIA", "MENA", "OCE"])
+const regionLabel = (r: string | undefined) => r && KNOWN_REGIONS.has(r) ? t(`pro.region.${r}`) : (r ?? "")
 
 export default function ProCareerSetupPage() {
     const router = useRouter()
@@ -56,17 +51,17 @@ export default function ProCareerSetupPage() {
         fetch("/data/snapshot/teams.json")
             .then(r => { if (!r.ok) throw Error("Game data unavailable"); return r.json() })
             .then((data: SnapshotTeam[]) => setTeams(data))
-            .catch(err => { debug.error("Pro career: teams failed", err); toast.error("Could not load the clubs", { description: "Go back and try again." }) })
+            .catch(err => { debug.error("Pro career: teams failed", err); toast.error(t("pro.err.load"), { description: t("pro.err.loadBody") }) })
     }, [])
 
     /** Amateur clubs (ranked below the semi-pro tier) by region. */
     const amateurs = useMemo(() => {
         const ranked = [...(teams ?? [])].sort((a, b) => (b.reputation ?? 0) - (a.reputation ?? 0))
         const out = new Map<string, SnapshotTeam[]>()
-        ranked.forEach((t, i) => {
-            if (calculateTeamTier(i + 1) !== "AMATEUR" || (t.rosterIds?.length ?? 0) < 5) return
-            const r = t.region ?? "EU"
-            out.set(r, [...(out.get(r) ?? []), t])
+        ranked.forEach((tm, i) => {
+            if (calculateTeamTier(i + 1) !== "AMATEUR" || (tm.rosterIds?.length ?? 0) < 5) return
+            const r = tm.region ?? "EU"
+            out.set(r, [...(out.get(r) ?? []), tm])
         })
         return out
     }, [teams])
@@ -98,7 +93,7 @@ export default function ProCareerSetupPage() {
             router.push("/")
         } catch (err) {
             debug.error("Pro career start failed:", err)
-            toast.error("Could not start the pro career", { description: "Try again." })
+            toast.error(t("pro.err.start"), { description: t("pro.err.startBody") })
             startingRef.current = false
             setBusy(false)
         }
@@ -107,18 +102,18 @@ export default function ProCareerSetupPage() {
     return (
         <div className="mx-auto flex min-h-dvh w-full max-w-[1100px] flex-col gap-5 bg-ink px-8 py-6">
             <ScreenHeader
-                eyebrow="New career · Pro career"
-                title="Start as a pro"
-                subtitle="Play as one 17-year-old. The coach picks the five best each week, the staff run the club, and bigger clubs call when you are good enough for their lineup."
-                aside={<Button asChild variant="ghost" className="gap-2"><Link href="/new-game"><ArrowLeft size={16} /> Back</Link></Button>}
+                eyebrow={t("pro.eyebrow")}
+                title={t("pro.title")}
+                subtitle={t("pro.subtitle")}
+                aside={<Button asChild variant="ghost" className="gap-2"><Link href="/new-game"><ArrowLeft size={16} /> {t("ng.back")}</Link></Button>}
             />
 
             <div className="grid gap-5 md:grid-cols-2">
-                <Panel title="Your player">
-                    <label htmlFor="pro-nick" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Nickname</label>
-                    <Input id="pro-nick" value={nickname} maxLength={24} onChange={e => setNickname(e.target.value)} placeholder="Your in-game name" className="mt-1 h-11" autoFocus />
-                    <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Role</p>
-                    <div className="mt-1 grid gap-1.5" role="radiogroup" aria-label="Role">
+                <Panel title={t("pro.yourPlayer")}>
+                    <label htmlFor="pro-nick" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("pro.nickname")}</label>
+                    <Input id="pro-nick" value={nickname} maxLength={24} onChange={e => setNickname(e.target.value)} placeholder={t("pro.nickPlaceholder")} className="mt-1 h-11" autoFocus />
+                    <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("pro.role")}</p>
+                    <div className="mt-1 grid gap-1.5" role="radiogroup" aria-label={t("pro.role")}>
                         {PRO_ROLES.map(r => (
                             <button key={r.role} type="button" role="radio" aria-checked={role === r.role} onClick={() => setRole(r.role)}
                                 className={cn("flex items-start gap-3 rounded border px-3 py-2 text-left", role === r.role ? "border-gold bg-raised" : "border-line hover:bg-raised")}>
@@ -126,35 +121,35 @@ export default function ProCareerSetupPage() {
                                     {role === r.role && <Check size={11} />}
                                 </span>
                                 <span>
-                                    <span className="block text-sm font-semibold text-ink-1">{r.label}</span>
-                                    <span className="block text-xs text-ink-3">{ROLE_HINT[r.role]}</span>
+                                    <span className="block text-sm font-semibold text-ink-1">{t(`market.role.${r.role}`)}</span>
+                                    <span className="block text-xs text-ink-3">{t(`pro.hint.${r.role}`)}</span>
                                 </span>
                             </button>
                         ))}
                     </div>
                 </Panel>
 
-                <Panel title="Trial offers" actions={<Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setDeal(d => d + 1)} disabled={!teams}><RefreshCw size={13} /> Other clubs</Button>}>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Region</p>
+                <Panel title={t("pro.offers")} actions={<Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setDeal(d => d + 1)} disabled={!teams}><RefreshCw size={13} /> {t("pro.otherClubs")}</Button>}>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("pro.region")}</p>
                     <div className="mt-1 flex flex-wrap gap-1.5">
                         {regions.map(r => (
-                            <Button key={r} size="sm" variant={region === r ? "default" : "outline"} onClick={() => setRegion(r)}>{REGION_LABEL[r] ?? r}</Button>
+                            <Button key={r} size="sm" variant={region === r ? "default" : "outline"} onClick={() => setRegion(r)}>{regionLabel(r)}</Button>
                         ))}
                     </div>
-                    <p className="mt-4 text-sm text-ink-2">Three amateur clubs offer you a two-year deal. You start just behind their starters.</p>
+                    <p className="mt-4 text-sm text-ink-2">{t("pro.offersBody")}</p>
                     {!teams ? (
-                        <p className="mt-3 flex items-center gap-2 text-sm text-ink-3"><Loader2 size={14} className="animate-spin" /> Loading clubs…</p>
+                        <p className="mt-3 flex items-center gap-2 text-sm text-ink-3"><Loader2 size={14} className="animate-spin" /> {t("ng.loadingClubs")}</p>
                     ) : (
-                        <div className="mt-2 grid gap-1.5" role="radiogroup" aria-label="Club">
-                            {offers.map(t => (
-                                <button key={t.id} type="button" role="radio" aria-checked={clubId === t.id} onClick={() => setClubId(t.id)}
-                                    className={cn("flex items-center gap-3 rounded border px-3 py-2 text-left", clubId === t.id ? "border-gold bg-raised" : "border-line hover:bg-raised")}>
-                                    <TeamLogoImage src={t.logoPath} alt="" size={32} team={t as never} />
+                        <div className="mt-2 grid gap-1.5" role="radiogroup" aria-label={t("pro.club")}>
+                            {offers.map(tm => (
+                                <button key={tm.id} type="button" role="radio" aria-checked={clubId === tm.id} onClick={() => setClubId(tm.id)}
+                                    className={cn("flex items-center gap-3 rounded border px-3 py-2 text-left", clubId === tm.id ? "border-gold bg-raised" : "border-line hover:bg-raised")}>
+                                    <TeamLogoImage src={tm.logoPath} alt="" size={32} team={tm as never} />
                                     <span className="min-w-0 flex-1">
-                                        <span className="block truncate text-sm font-semibold text-ink-1">{t.name}</span>
-                                        <span className="block text-xs text-ink-3">{REGION_LABEL[t.region ?? ""] ?? t.region} · Amateur</span>
+                                        <span className="block truncate text-sm font-semibold text-ink-1">{tm.name}</span>
+                                        <span className="block text-xs text-ink-3">{regionLabel(tm.region)} · {t("pro.amateur")}</span>
                                     </span>
-                                    {clubId === t.id && <Check size={16} className="text-gold" />}
+                                    {clubId === tm.id && <Check size={16} className="text-gold" />}
                                 </button>
                             ))}
                         </div>
@@ -163,9 +158,9 @@ export default function ProCareerSetupPage() {
             </div>
 
             <div className="flex items-center justify-end gap-3">
-                {!nameOk && <span className="text-xs text-ink-3">Pick a nickname of two letters or more.</span>}
+                {!nameOk && <span className="text-xs text-ink-3">{t("pro.nickShort")}</span>}
                 <Button onClick={start} disabled={!nameOk || !clubId || busy} className="h-11 px-6">
-                    {busy ? <><Loader2 size={16} className="animate-spin" /> Signing…</> : "Sign and start"}
+                    {busy ? <><Loader2 size={16} className="animate-spin" /> {t("pro.signing")}</> : t("pro.sign")}
                 </Button>
             </div>
         </div>

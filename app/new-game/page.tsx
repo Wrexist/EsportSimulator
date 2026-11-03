@@ -1,4 +1,5 @@
 "use client"
+import { t, tn } from "@/lib/i18n"
 
 import { CAREER_DIFFICULTY, type CareerDifficulty } from "@/lib/balance-tuning"
 import { loadCareerDraft, saveCareerDraft, clearCareerDraft } from '@/lib/new-career-draft'
@@ -66,12 +67,6 @@ interface RankedTeam extends SnapshotTeam {
 
 type TierFilter = "ALL" | TierLevel
 
-const TIER_LABEL: Record<TierLevel, string> = {
-    ELITE: "Elite",
-    PRO: "Pro",
-    SEMI_PRO: "Semi-pro",
-    AMATEUR: "Amateur",
-}
 const TIER_FILTERS: TierFilter[] = ["ALL", "ELITE", "PRO", "SEMI_PRO", "AMATEUR"]
 
 // Evaluate a snapshot player with computed prestigeScore (matches game initialization)
@@ -168,8 +163,8 @@ export default function TeamSelectionPage() {
             } catch (error) {
                 setDataError(true)
                 debug.error("Failed to load snapshot data:", error)
-                toast.error("Failed to load game data", {
-                    description: "Please check your connection and try again."
+                toast.error(t("ng.err.loadData"), {
+                    description: t("ng.err.loadDataBody")
                 })
             }
             setIsDataLoading(false)
@@ -297,11 +292,11 @@ export default function TeamSelectionPage() {
 
     const validateManagerName = () => {
         if (!managerName.trim()) {
-            setManagerNameError("Enter your manager name")
+            setManagerNameError(t("ng.err.nameEmpty"))
             return false
         }
         if (managerName.trim().length < 2) {
-            setManagerNameError("Name must be at least 2 characters")
+            setManagerNameError(t("ng.err.nameShort"))
             return false
         }
         setManagerNameError("")
@@ -343,14 +338,14 @@ export default function TeamSelectionPage() {
         startingRef.current = true
         setIsStarting(true)
         try {
-            await initializeNewGame(managerName.trim() || "My Career", placeholder.id, undefined, { unemployed: true, randomWorld })
+            await initializeNewGame(managerName.trim() || t("ng.defaultSave"), placeholder.id, undefined, { unemployed: true, randomWorld })
             if (useGameStore.getState().error) throw Error(useGameStore.getState().error!)
             clearCareerDraft()
             void recordNewCampaign()
             router.push("/")
         } catch (err) {
             debug.error("Failed to start game:", err)
-            toast.error("Failed to start game", { description: "An error occurred while initializing. Please try again." })
+            toast.error(t("ng.err.start"), { description: t("ng.err.startBody") })
             startingRef.current = false
             setIsStarting(false)
         }
@@ -359,13 +354,13 @@ export default function TeamSelectionPage() {
     const handleStartGame = async () => {
         if (!selectedTeam || isStarting || startingRef.current) return
         if (managerName.trim().length < 2 || isLocked(selectedTeam)) {
-            toast.error('Review your manager name and club eligibility before starting.'); return
+            toast.error(t("ng.err.review")); return
         }
         startingRef.current = true
         setIsStarting(true)
         try {
             // Pass manager name to initializeNewGame (using it as save name for now)
-            await initializeNewGame(managerName.trim() || "My Career", selectedTeam.id, undefined, { randomWorld, difficulty })
+            await initializeNewGame(managerName.trim() || t("ng.defaultSave"), selectedTeam.id, undefined, { randomWorld, difficulty })
             if (useGameStore.getState().error) throw Error(useGameStore.getState().error!)
             clearCareerDraft()
             void recordNewCampaign()
@@ -373,8 +368,8 @@ export default function TeamSelectionPage() {
             router.push("/")
         } catch (err) {
             debug.error("Failed to start game:", err)
-            toast.error("Failed to start game", {
-                description: "An error occurred while initializing. Please try again."
+            toast.error(t("ng.err.start"), {
+                description: t("ng.err.startBody")
             })
             startingRef.current = false
             setIsStarting(false)
@@ -394,9 +389,9 @@ export default function TeamSelectionPage() {
     if (dataError) {
         return (
             <div className="flex min-h-dvh items-center justify-center bg-ink p-8">
-                <Panel className="w-full max-w-md" title="Game data could not load">
-                    <p className="text-sm text-ink-2">Your setup draft is kept. Retry loading the local game data.</p>
-                    <Button className="mt-4" onClick={() => window.location.reload()}>Retry</Button>
+                <Panel className="w-full max-w-md" title={t("ng.dataError.title")}>
+                    <p className="text-sm text-ink-2">{t("ng.dataError.body")}</p>
+                    <Button className="mt-4" onClick={() => window.location.reload()}>{t("ng.retry")}</Button>
                 </Panel>
             </div>
         )
@@ -406,7 +401,7 @@ export default function TeamSelectionPage() {
     if (isDataLoading) {
         return (
             <div className="flex min-h-dvh items-center justify-center gap-3 bg-ink text-sm text-ink-3" role="status">
-                <Loader2 size={16} className="animate-spin" /> Loading clubs…
+                <Loader2 size={16} className="animate-spin" /> {t("ng.loadingClubs")}
             </div>
         )
     }
@@ -418,18 +413,18 @@ export default function TeamSelectionPage() {
                 <KeyArt />
                 <div className="relative z-10 flex min-h-dvh w-full max-w-[560px] flex-col px-16 py-14 animate-in fade-in duration-200">
                     <Link href="/main-menu" className="inline-flex w-fit items-center gap-2 rounded-sm text-sm font-medium text-ink-3 hover:text-ink-1">
-                        <ArrowLeft size={16} /> Main menu
+                        <ArrowLeft size={16} /> {t("ng.mainMenu")}
                     </Link>
 
                     <div className="my-auto w-full max-w-[420px] py-12">
-                        <ScreenHeader eyebrow="Step 1 of 2" title="New career" subtitle="Name your manager, then take over a club, found your own, start as a pro player, or play a short Draft Cup." />
+                        <ScreenHeader eyebrow={t("ng.step1.eyebrow")} title={t("ng.step1.title")} subtitle={t("ng.step1.subtitle")} />
 
                         <div className="mt-8 space-y-2">
-                            <label htmlFor="manager-name" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Manager name</label>
+                            <label htmlFor="manager-name" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ng.managerName")}</label>
                             <Input
                                 id="manager-name"
                                 type="text"
-                                placeholder="Your name"
+                                placeholder={t("ng.namePlaceholder")}
                                 value={managerName}
                                 maxLength={32}
                                 aria-invalid={!!managerNameError || undefined}
@@ -450,58 +445,58 @@ export default function TeamSelectionPage() {
                         <label className="mt-5 flex items-start gap-3 text-sm text-ink-1">
                             <Switch checked={randomWorld} onCheckedChange={setRandomWorld} aria-describedby="random-world-hint" className="mt-0.5" />
                             <span>
-                                <span className="font-semibold">Randomised world</span>
-                                <span id="random-world-hint" className="mt-0.5 block text-xs text-ink-3">New player names and faces, ratings moved a little, and rosters shuffled between clubs of the same tier and region. For existing-team and no-club starts.</span>
+                                <span className="font-semibold">{t("ng.randomWorld")}</span>
+                                <span id="random-world-hint" className="mt-0.5 block text-xs text-ink-3">{t("ng.randomWorldHint")}</span>
                             </span>
                         </label>
 
                         <fieldset className="mt-5">
-                            <legend className="text-sm font-semibold text-ink-1">Difficulty</legend>
-                            <div role="radiogroup" aria-label="Difficulty" className="mt-2 grid grid-cols-3 gap-2">
+                            <legend className="text-sm font-semibold text-ink-1">{t("ng.difficulty")}</legend>
+                            <div role="radiogroup" aria-label={t("ng.difficulty")} className="mt-2 grid grid-cols-3 gap-2">
                                 {(Object.keys(CAREER_DIFFICULTY) as CareerDifficulty[]).map(key => (
                                     <Button key={key} type="button" role="radio" aria-checked={difficulty === key}
                                         variant={difficulty === key ? "default" : "outline"} className="h-10"
                                         onClick={() => setDifficulty(key)}>
-                                        {CAREER_DIFFICULTY[key].label}
+                                        {t(`ng.diff.${key}`)}
                                     </Button>
                                 ))}
                             </div>
-                            <p className="mt-1.5 text-xs text-ink-3">{CAREER_DIFFICULTY[difficulty].hint} For existing-team starts; a club you create has its own setting.</p>
+                            <p className="mt-1.5 text-xs text-ink-3">{t(`ng.diff.${difficulty}.hint`)} {t("ng.diffScope")}</p>
                         </fieldset>
 
                         <div className="mt-8 space-y-2">
-                            <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between px-4 py-3 text-left">
+                            <Button onClick={handleContinueToTeamSelect} className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
                                 <span>
-                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">Choose existing team</span>
-                                    <span className="mt-1 block text-[13px] font-medium">Take over a ranked club and its roster</span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.existing")}</span>
+                                    <span className="mt-1 block text-[13px] font-medium">{t("ng.path.existing.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
-                            <Button onClick={handleCreateOwnTeam} variant="outline" className="h-auto w-full justify-between px-4 py-3 text-left">
+                            <Button onClick={handleCreateOwnTeam} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
                                 <span>
-                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">Create your own team</span>
-                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">Start at the bottom with an empty roster</span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.create")}</span>
+                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.create.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
-                            <Button onClick={handleStartUnemployed} disabled={isStarting || rankedTeams.length === 0} variant="outline" className="h-auto w-full justify-between px-4 py-3 text-left">
+                            <Button onClick={handleStartUnemployed} disabled={isStarting || rankedTeams.length === 0} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
                                 <span>
-                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">Start without a club</span>
-                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">Take a job offer from a lower-tier side and earn your way up</span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.unemployed")}</span>
+                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.unemployed.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
-                            <Button onClick={handleProCareer} variant="outline" className="h-auto w-full justify-between px-4 py-3 text-left">
+                            <Button onClick={handleProCareer} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
                                 <span>
-                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">Pro career</span>
-                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">Play as one 17-year-old and fight for a place in the lineup</span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.pro")}</span>
+                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.pro.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
-                            <Button onClick={handleDraftCup} variant="outline" className="h-auto w-full justify-between px-4 py-3 text-left">
+                            <Button onClick={handleDraftCup} variant="outline" className="h-auto w-full justify-between gap-3 whitespace-normal px-4 py-3 text-left">
                                 <span>
-                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">Draft Cup</span>
-                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">A short run: draft five players, win three knockout matches</span>
+                                    <span className="block font-display text-2xl font-bold uppercase leading-none tracking-[0.02em]">{t("ng.path.draft")}</span>
+                                    <span className="mt-1 block text-[13px] font-medium text-ink-3">{t("ng.path.draft.sub")}</span>
                                 </span>
                                 <ChevronRight />
                             </Button>
@@ -527,18 +522,18 @@ export default function TeamSelectionPage() {
     return (
         <div className="mx-auto flex h-dvh w-full max-w-[1680px] flex-col gap-5 bg-ink px-8 py-6">
             <ScreenHeader
-                eyebrow="New career · Step 2 of 2"
-                title="Choose your club"
+                eyebrow={t("ng.step2.eyebrow")}
+                title={t("ng.step2.title")}
                 subtitle={sandboxMode
-                    ? <>Manager {managerName}. Sandbox is on, so every club is open.</>
-                    : <>Manager {managerName}, level {managerLevel}. Clubs under reputation {TEAM_REP_TIERS.TIER_2_MIN_REP} are open; {TEAM_REP_TIERS.TIER_2_MIN_REP}+ needs level {TIER_THRESHOLDS[ManagerTier.CHALLENGER]}, {TEAM_REP_TIERS.TIER_1_MIN_REP}+ needs level {TIER_THRESHOLDS[ManagerTier.ELITE]}. Levels carry over between careers.</>}
+                    ? t("ng.step2.sandbox", { name: managerName })
+                    : t("ng.step2.levels", { name: managerName, level: managerLevel, rep2: TEAM_REP_TIERS.TIER_2_MIN_REP, rep1: TEAM_REP_TIERS.TIER_1_MIN_REP, lvl2: TIER_THRESHOLDS[ManagerTier.CHALLENGER], lvl1: TIER_THRESHOLDS[ManagerTier.ELITE] })}
                 aside={
                     <>
                         <Button variant="ghost" onClick={() => setCurrentStep("welcome")} className="gap-2">
-                            <ArrowLeft size={16} /> Back
+                            <ArrowLeft size={16} /> {t("ng.back")}
                         </Button>
                         <Button variant="outline" onClick={() => router.push("/main-menu")} className="gap-2">
-                            <X size={16} /> Cancel
+                            <X size={16} /> {t("ng.cancel")}
                         </Button>
                     </>
                 }
@@ -551,18 +546,18 @@ export default function TeamSelectionPage() {
                         <div className="relative mb-2 w-64">
                             <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" size={15} />
                             <Input
-                                placeholder="Search clubs"
-                                aria-label="Search clubs"
+                                placeholder={t("ng.search")}
+                                aria-label={t("ng.search")}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="h-9 pl-9 text-sm"
                             />
                         </div>
                         <Tabs value={selectedTier} onValueChange={(v) => setSelectedTier(v as TierFilter)}>
-                            <TabsList aria-label="Filter by tier" className="border-b-0!">
+                            <TabsList aria-label={t("ng.filterTier")} className="border-b-0!">
                                 {TIER_FILTERS.map(tier => (
                                     <TabsTrigger key={tier} value={tier}>
-                                        {tier === "ALL" ? "All" : TIER_LABEL[tier]}
+                                        {t(`ng.tier.${tier}`)}
                                         <span className="tabular-nums text-ink-3">{tierCounts[tier]}</span>
                                     </TabsTrigger>
                                 ))}
@@ -570,8 +565,8 @@ export default function TeamSelectionPage() {
                         </Tabs>
                         <label className="mb-2.5 ml-auto flex items-center gap-2 text-sm text-ink-2">
                             <Switch checked={sandboxMode} onCheckedChange={setSandboxMode} aria-describedby="sandbox-hint" />
-                            Sandbox
-                            <span id="sandbox-hint" className="sr-only">Opens every club. Match simulation is unchanged.</span>
+                            {t("ng.sandbox")}
+                            <span id="sandbox-hint" className="sr-only">{t("ng.sandboxHint")}</span>
                         </label>
                     </div>
 
@@ -579,13 +574,13 @@ export default function TeamSelectionPage() {
                         <table data-slot="table" className="w-full border-collapse text-left">
                             <thead data-slot="table-header" className="sticky top-0 z-10">
                                 <tr className="border-b border-line">
-                                    <th data-slot="table-head" className="w-16 pl-4 text-right">Rank</th>
-                                    <th data-slot="table-head" className="pl-4">Club</th>
-                                    <th data-slot="table-head" className="px-3">Region</th>
-                                    <th data-slot="table-head" className="px-3">Tier</th>
-                                    <th data-slot="table-head" className="px-3 text-center">OVR</th>
-                                    <th data-slot="table-head" className="px-3 text-right">Budget</th>
-                                    <th data-slot="table-head" className="w-28 pr-4 text-right"><span className="sr-only">Access</span></th>
+                                    <th data-slot="table-head" className="w-16 pl-4 text-right">{t("ng.col.rank")}</th>
+                                    <th data-slot="table-head" className="pl-4">{t("ng.col.club")}</th>
+                                    <th data-slot="table-head" className="px-3">{t("ng.col.region")}</th>
+                                    <th data-slot="table-head" className="px-3">{t("ng.col.tier")}</th>
+                                    <th data-slot="table-head" className="px-3 text-center">{t("common.ovr")}</th>
+                                    <th data-slot="table-head" className="px-3 text-right">{t("ng.col.budget")}</th>
+                                    <th data-slot="table-head" className="w-28 pr-4 text-right"><span className="sr-only">{t("ng.col.access")}</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -615,25 +610,25 @@ export default function TeamSelectionPage() {
                                                 </div>
                                             </td>
                                             <td className="px-3 text-xs font-semibold text-ink-2">{team.region}</td>
-                                            <td className="px-3 text-sm text-ink-2">{TIER_LABEL[team.calculatedTier]}</td>
+                                            <td className="px-3 text-sm text-ink-2">{t(`ng.tier.${team.calculatedTier}`)}</td>
                                             <td className="px-3 text-center"><RatingChip value={stats?.ovr ?? 0} size="sm" /></td>
                                             <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(stats?.budget ?? 0)}</td>
                                             <td className="w-28 pr-4 text-right text-xs text-ink-3">
                                                 {locked && (
-                                                    <span className="inline-flex items-center gap-1"><Lock size={12} /> Level {ManagerProgression.getRequiredLevel(team.reputation)}</span>
+                                                    <span className="inline-flex items-center gap-1"><Lock size={12} /> {t("ng.levelLock", { n: ManagerProgression.getRequiredLevel(team.reputation) })}</span>
                                                 )}
                                             </td>
                                         </tr>
                                     )
                                 })}
                                 {filteredTeams.length === 0 && (
-                                    <tr><td colSpan={7} className="px-4 py-6 text-sm text-ink-3">No clubs match “{searchTerm}”.</td></tr>
+                                    <tr><td colSpan={7} className="px-4 py-6 text-sm text-ink-3">{t("ng.noMatch", { term: searchTerm })}</td></tr>
                                 )}
                             </tbody>
                         </table>
                     </div>
                     <p className="border-t border-line px-4 py-2 text-xs text-ink-3">
-                        {filteredTeams.length} clubs · {draftSaved ? "Setup is saved on this device until you start." : "Setup could not be saved on this device. Keep this page open until you finish."}
+                        {tn("ng.clubs", filteredTeams.length)} · {draftSaved ? t("ng.draftSaved") : t("ng.draftNotSaved")}
                     </p>
                 </Panel>
 
@@ -649,17 +644,17 @@ export default function TeamSelectionPage() {
                                     <div className="min-w-0">
                                         <h2 className="truncate font-display text-[32px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1">{selectedTeam.name}</h2>
                                         <p className="mt-1.5 text-sm text-ink-3">
-                                            {selectedTeam.region} · {TIER_LABEL[selectedTeam.calculatedTier]} · {selectedTeam.shortName}
+                                            {selectedTeam.region} · {t(`ng.tier.${selectedTeam.calculatedTier}`)} · {selectedTeam.shortName}
                                         </p>
                                     </div>
                                 </div>
 
                                 <dl className="grid grid-cols-4 divide-x divide-line border-b border-line">
                                     {[
-                                        { label: "Rank", value: `#${selectedTeam.worldRanking}` },
-                                        { label: "OVR", value: <RatingChip value={selectedStats.ovr} size="md" bare className="min-w-0 px-0 text-2xl" /> },
-                                        { label: "Budget", value: formatCurrency(selectedStats.budget) },
-                                        { label: "Value", value: formatCurrency(selectedStats.value) },
+                                        { label: t("ng.col.rank"), value: `#${selectedTeam.worldRanking}` },
+                                        { label: t("common.ovr"), value: <RatingChip value={selectedStats.ovr} size="md" bare className="min-w-0 px-0 text-2xl" /> },
+                                        { label: t("ng.col.budget"), value: formatCurrency(selectedStats.budget) },
+                                        { label: t("ng.col.value"), value: formatCurrency(selectedStats.value) },
                                     ].map(kpi => (
                                         <div key={kpi.label} className="px-4 py-3">
                                             <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{kpi.label}</dt>
@@ -670,13 +665,13 @@ export default function TeamSelectionPage() {
 
                                 <section aria-labelledby="club-roster-title">
                                     <div className="flex items-center justify-between px-5 pb-2 pt-4">
-                                        <h3 id="club-roster-title" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Roster</h3>
+                                        <h3 id="club-roster-title" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ng.roster")}</h3>
                                         <span className={cn("text-xs tabular-nums", selectedRoster.length < 5 ? "text-caution" : "text-ink-3")}>
-                                            {selectedRoster.length} / 5{selectedRoster.length < 5 ? ` · sign ${5 - selectedRoster.length} before your first match` : ""}
+                                            {selectedRoster.length} / 5{selectedRoster.length < 5 ? ` · ${t("ng.rosterSign", { n: 5 - selectedRoster.length })}` : ""}
                                         </span>
                                     </div>
                                     {randomWorld ? (
-                                        <p className="border-t border-line px-5 py-3 text-sm text-ink-2">Randomised world: this club gets the roster of another club in its tier and region, with new players, when the career starts. Rank, budget and expectations stay with the club.</p>
+                                        <p className="border-t border-line px-5 py-3 text-sm text-ink-2">{t("ng.randomRoster")}</p>
                                     ) : (
                                     <table data-slot="table" className="w-full border-collapse text-left">
                                         <tbody>
@@ -707,14 +702,14 @@ export default function TeamSelectionPage() {
                                 {challenge && (
                                     <section aria-labelledby="club-expectations-title" className="mx-5 my-4 rounded-md border border-line bg-shell p-4">
                                         <div className="flex items-center justify-between gap-3">
-                                            <h3 id="club-expectations-title" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">What to expect</h3>
-                                            <span className="text-xs font-semibold text-ink-2">{challenge.level}</span>
+                                            <h3 id="club-expectations-title" className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ng.expect")}</h3>
+                                            <span className="text-xs font-semibold text-ink-2">{t(`ng.level.${challenge.level}`)}</span>
                                         </div>
-                                        <p className="mt-2 text-sm text-ink-1">Board target: {challenge.boardLabel}, finish the season ranked #{challenge.rankTarget} or better{challenge.trophyTarget > 0 ? ` and win ${challenge.trophyTarget} trophy` : ''}.</p>
+                                        <p className="mt-2 text-sm text-ink-1">{t(challenge.trophyTarget > 0 ? "ng.boardTargetTrophy" : "ng.boardTarget", { goal: t(`ng.goal.${challenge.tier}`), rank: challenge.rankTarget })}</p>
                                         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-ink-2">
                                             {challenge.notes.map(note => <li key={note}>{note}</li>)}
                                         </ul>
-                                        <p className="mt-2 text-xs text-ink-3">Budget is the estimated starting cash. The board sets its exact target from your standing when the first week is processed.</p>
+                                        <p className="mt-2 text-xs text-ink-3">{t("ng.budgetNote")}</p>
                                     </section>
                                 )}
                             </div>
@@ -722,7 +717,7 @@ export default function TeamSelectionPage() {
                             <div className="border-t border-line p-4">
                                 {selectedLocked && (
                                     <p className="mb-3 flex items-center gap-2 text-xs text-ink-3">
-                                        <Lock size={12} /> Needs manager level {ManagerProgression.getRequiredLevel(selectedTeam.reputation)} (you are {managerLevel}). Sandbox opens every club.
+                                        <Lock size={12} /> {t("ng.needsLevel", { need: ManagerProgression.getRequiredLevel(selectedTeam.reputation), level: managerLevel })}
                                     </p>
                                 )}
                                 <Button
@@ -731,12 +726,12 @@ export default function TeamSelectionPage() {
                                     aria-busy={isStarting || undefined}
                                     className="h-12 w-full font-display text-xl font-bold tracking-[0.04em]"
                                 >
-                                    {isStarting ? <><Loader2 className="animate-spin" /> Starting…</> : "START CAREER"}
+                                    {isStarting ? <><Loader2 className="animate-spin" /> {t("ng.starting")}</> : t("ng.startCareer")}
                                 </Button>
                             </div>
                         </>
                     ) : (
-                        <p className="p-5 text-sm text-ink-3">Select a club to see its roster, budget and board expectations.</p>
+                        <p className="p-5 text-sm text-ink-3">{t("ng.selectHint")}</p>
                     )}
                 </Panel>
             </div>

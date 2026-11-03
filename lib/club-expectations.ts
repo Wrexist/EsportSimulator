@@ -1,5 +1,6 @@
 import { deriveExpectationTier, getTierTargets } from '@/engine/board-expectations'
 import type { BoardExpectationTier } from '@/engine/save-types'
+import { t } from '@/lib/i18n'
 
 /**
  * Plain-language summary of what a club asks of a new manager, shown before committing to it (L22).
@@ -27,14 +28,14 @@ export function describeClubChallenge(input: { worldRanking?: number; reputation
     const { tier, targets, rankTarget } = boardStartTargets(input.worldRanking, input.reputation)
     const missing = Math.max(0, 5 - input.starters)
     const notes: string[] = []
-    if (input.custom) notes.push('Your club starts with no players. Sign five in the roster builder or in Transfers; their wages come out of your starting cash every week.')
-    else if (missing > 0) notes.push(`Only ${input.starters} of 5 players. You must sign ${missing} before your first match; the starting cash includes an allowance for that, but wages still come out of it every week.`)
-    if (input.budget < 300_000) notes.push('Small budget: a single expensive signing can leave little cash for wages. Free agents and regular training keep costs down.')
-    if (tier === 'WIN' || tier === 'CONTEND') notes.push('High expectations: a top club is expected to win now, so there is little room for a slow start.')
-    notes.push('The board sets three objectives each season (league finish, world ranking, cash at season end) and its confidence moves every week with results and finances. You get a warning and a final warning before you can be dismissed, and a dismissed manager can take a job at another club.')
+    if (input.custom) notes.push(t('ng.note.custom'))
+    else if (missing > 0) notes.push(t('ng.note.missing', { have: input.starters, missing }))
+    if (input.budget < 300_000) notes.push(t('ng.note.smallBudget'))
+    if (tier === 'WIN' || tier === 'CONTEND') notes.push(t('ng.note.high'))
+    notes.push(t('ng.note.board'))
     notes.push(input.custom
-        ? 'Difficulty sets starting cash, reputation and recurring sponsor/merchandise income. It does not change match simulation.'
-        : 'Match simulation is the same for every club. The challenge comes from squad strength, cash and the board targets.')
+        ? t('ng.note.customDiff')
+        : t('ng.note.sameSim'))
     const level: ClubChallenge['level'] = tier === 'WIN' ? 'Very demanding' : tier === 'CONTEND' ? 'Demanding' : missing > 0 || input.budget < 300_000 ? 'Moderate' : tier === 'COMPETE' ? 'Moderate' : 'Gentle'
     return { tier, boardLabel: targets.label, boardBlurb: targets.blurb, rankTarget, trophyTarget: targets.trophyTarget, level, notes }
 }

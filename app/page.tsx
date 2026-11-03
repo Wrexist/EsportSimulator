@@ -24,7 +24,6 @@ import { Panel } from "@/src/components/ui/Panel"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { Meter } from "@/src/components/ui/Meter"
 import { RatingChip } from "@/src/components/ui/RatingChip"
-import { DRAFT_CUP_DIFFICULTY } from "@/engine/draft-cup"
 import { DraftCupBracket } from "@/components/draft-cup/DraftCupBracket"
 import { ProCareerPanel } from "@/components/pro/ProCareerPanel"
 import { RoleTag } from "@/src/components/ui/RoleTag"
@@ -390,8 +389,8 @@ export default function Page() {
       {draftCup ? (
       <ScreenHeader
         eyebrow={timeMode === "HYBRID_DAILY"
-          ? t("home.cupEyebrowDay", { difficulty: DRAFT_CUP_DIFFICULTY[draftCup.difficulty].label, day: currentDay + 1 })
-          : t("home.cupEyebrow", { difficulty: DRAFT_CUP_DIFFICULTY[draftCup.difficulty].label })}
+          ? t("home.cupEyebrowDay", { difficulty: t(`dc.diff.${draftCup.difficulty}`), day: currentDay + 1 })
+          : t("home.cupEyebrow", { difficulty: t(`dc.diff.${draftCup.difficulty}`) })}
         title={playerTeam?.name ?? "Draft Cup"}
         subtitle={t("home.cupSubtitle")}
         leading={playerTeam && (

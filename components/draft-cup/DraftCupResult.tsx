@@ -1,4 +1,5 @@
 "use client"
+import { t } from "@/lib/i18n"
 
 /**
  * G7: end of a Draft Cup run. Shown on Home (and in place of any screen but
@@ -10,7 +11,8 @@ import Link from "next/link"
 import { useShallow } from "zustand/react/shallow"
 import { Trophy } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
-import { draftCupOutcome, DRAFT_CUP_DIFFICULTY, DRAFT_CUP_FINISH_LABEL, DRAFT_ROLE_LABEL } from "@/engine/draft-cup"
+import { draftCupOutcome } from "@/engine/draft-cup"
+import { stageName } from "@/lib/display-names"
 import { loadDraftCupRuns, type DraftCupRunRecord } from "@/lib/draft-cup-runs"
 import { Button } from "@/components/ui/button"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
@@ -30,8 +32,8 @@ export function DraftCupResult() {
     }, [outcome, settleDraftCup])
 
     if (!draftCup || !outcome) return null
-    const team = teams.find(t => t.id === draftCup.teamId)
-    const nameOf = (id: string) => teams.find(t => t.id === id)?.name ?? id
+    const team = teams.find(tm => tm.id === draftCup.teamId)
+    const nameOf = (id: string) => teams.find(tm => tm.id === id)?.name ?? id
     const path = completedMatches
         .filter(m => m.tournamentId === draftCup.tournamentId && (m.homeTeamId === draftCup.teamId || m.awayTeamId === draftCup.teamId))
         .sort((a, b) => a.week - b.week || (a.day ?? 0) - (b.day ?? 0))
@@ -45,21 +47,21 @@ export function DraftCupResult() {
                         {champion ? <Trophy size={32} aria-hidden="true" /> : <TeamLogoDisplay team={team} size={48} />}
                     </span>
                     <div className="min-w-0 flex-1">
-                        <p className="premium-eyebrow">Draft Cup · {DRAFT_CUP_DIFFICULTY[draftCup.difficulty].label} · {team?.name}</p>
-                        <h1 className="page-title">{DRAFT_CUP_FINISH_LABEL[outcome.finish]}</h1>
+                        <p className="premium-eyebrow">{t("dc.title")} · {t(`dc.diff.${draftCup.difficulty}`)} · {team?.name}</p>
+                        <h1 className="page-title">{t(`dc.finish.${outcome.finish}`)}</h1>
                         <p className="mt-1 text-sm text-ink-3">
-                            {outcome.seriesWon} series won · maps {outcome.mapsWon}–{outcome.mapsLost} · rounds {outcome.roundDiff >= 0 ? "+" : ""}{outcome.roundDiff}
+                            {t("dc.res.summary", { series: outcome.seriesWon, won: outcome.mapsWon, lost: outcome.mapsLost, diff: `${outcome.roundDiff >= 0 ? "+" : ""}${outcome.roundDiff}` })}
                         </p>
                     </div>
                     <div className="text-right">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Run score</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("dc.res.runScore")}</p>
                         <p className="font-display text-5xl font-bold leading-none tabular-nums text-ink-1">{outcome.score}</p>
                     </div>
                 </div>
             </Panel>
 
             <div className="grid gap-4 md:grid-cols-2">
-                <Panel title="Score">
+                <Panel title={t("dc.res.score")}>
                     <ul className="space-y-1.5 text-sm">
                         {outcome.breakdown.map(b => (
                             <li key={b.label} className="flex justify-between gap-3">
@@ -68,12 +70,12 @@ export function DraftCupResult() {
                             </li>
                         ))}
                         <li className="flex justify-between gap-3 border-t border-line pt-1.5 font-semibold">
-                            <span className="text-ink-1">Total</span><span className="tabular-nums text-ink-1">{outcome.score}</span>
+                            <span className="text-ink-1">{t("dc.res.total")}</span><span className="tabular-nums text-ink-1">{outcome.score}</span>
                         </li>
                     </ul>
                 </Panel>
 
-                <Panel title="Your run">
+                <Panel title={t("dc.res.yourRun")}>
                     <ul className="space-y-2 text-sm">
                         {path.map(m => {
                             const home = m.homeTeamId === draftCup.teamId
@@ -85,30 +87,30 @@ export function DraftCupResult() {
                             return (
                                 <li key={m.id} className="flex items-baseline justify-between gap-3">
                                     <span className="min-w-0">
-                                        <span className="text-ink-3">{m.stage?.replace(/ \d+$/, "")}</span>{" "}
-                                        <span className="font-semibold text-ink-1">vs {nameOf(home ? m.awayTeamId : m.homeTeamId)}</span>
+                                        <span className="text-ink-3">{stageName(m.stage?.replace(/ \d+$/, ""))}</span>{" "}
+                                        <span className="font-semibold text-ink-1">{t("common.vsLower")} {nameOf(home ? m.awayTeamId : m.homeTeamId)}</span>
                                     </span>
                                     <span className={cn("shrink-0 tabular-nums", won ? "text-positive" : "text-negative")}>
-                                        {won ? "W" : "L"} {maps.join(", ")}
+                                        {won ? t("common.win.short") : t("common.loss.short")} {maps.join(", ")}
                                     </span>
                                 </li>
                             )
                         })}
                     </ul>
                     <p className="mt-3 border-t border-line pt-2 text-xs text-ink-3">
-                        Drafted: {draftCup.picks.map(p => `${players.find(x => x.id === p.playerId)?.nickname ?? "?"} (${DRAFT_ROLE_LABEL[p.role]})`).join(", ")}.
+                        {t("dc.res.drafted", { list: draftCup.picks.map(p => `${players.find(x => x.id === p.playerId)?.nickname ?? "?"} (${t(`dc.role.${p.role}`)})`).join(", ") })}
                     </p>
                 </Panel>
             </div>
 
             {runs.length > 0 && (
-                <Panel title="Best runs on this device" padded={false}>
+                <Panel title={t("dc.res.best")} padded={false}>
                     <ol>
                         {runs.map((r, i) => (
                             <li key={`${r.saveId}-${r.at}`} className={cn("flex h-10 items-center gap-3 border-b border-line px-4 text-sm last:border-b-0", r.saveId === saveId && "bg-raised")}>
                                 <span className="w-6 text-right tabular-nums text-ink-3">{i + 1}</span>
                                 <span className="min-w-0 flex-1 truncate font-semibold text-ink-1">{r.teamName}</span>
-                                <span className="text-xs text-ink-3">{DRAFT_CUP_DIFFICULTY[r.difficulty]?.label} · {DRAFT_CUP_FINISH_LABEL[r.finish]}</span>
+                                <span className="text-xs text-ink-3">{t(`dc.diff.${r.difficulty}`)} · {t(`dc.finish.${r.finish}`)}</span>
                                 <span className="w-14 text-right font-semibold tabular-nums text-ink-1">{r.score}</span>
                             </li>
                         ))}
@@ -117,9 +119,9 @@ export function DraftCupResult() {
             )}
 
             <div className="flex flex-wrap items-center justify-end gap-2">
-                <p className="mr-auto text-xs text-ink-3">This run stays in Load game, with every match report.</p>
-                <Button asChild variant="outline"><Link href="/main-menu">Main menu</Link></Button>
-                <Button asChild><Link href="/new-game/draft-cup">Draft again</Link></Button>
+                <p className="mr-auto text-xs text-ink-3">{t("dc.res.stays")}</p>
+                <Button asChild variant="outline"><Link href="/main-menu">{t("ng.mainMenu")}</Link></Button>
+                <Button asChild><Link href="/new-game/draft-cup">{t("dc.res.again")}</Link></Button>
             </div>
         </div>
     )
