@@ -148,6 +148,8 @@ const nextRandomInt = (state: RngBackedState, min: number, max: number): number 
 // next; the caller still receives its own save's real result/rejection.
 let saveChain: Promise<void> = Promise.resolve()
 let pendingGameSave: Promise<void> | null = null
+/** A saveGame() link that is queued but has not started yet (coalesces later calls). */
+let queuedGameSave: Promise<void> | null = null
 export async function waitForPendingGameSave(): Promise<void> { await pendingGameSave }
 let careerGeneration = 0
 /** Career already told this session that its save is getting large. */
@@ -1875,10 +1877,24 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         }
         }
 
+        // A save already queued and not yet started covers this call too:
+        // it snapshots the freshest state when its turn comes. Without this,
+        // fire-and-forget saves (each day step, a match, an answered
+        // decision) queued up and ran one full save each inside the next
+        // week tick, before its own (HOME-08: 2–4 full saves per tick).
+        if (queuedGameSave) return queuedGameSave
+
         // Append to the chain synchronously so concurrent callers queue in
         // order. The caller awaits its own link (with the real rejection); the
         // chain itself swallows rejections so a failure can't wedge later saves.
-        const chained = saveChain.then(run, run)
+        const link: { promise: Promise<void> | null } = { promise: null }
+        const start = () => {
+          if (queuedGameSave === link.promise) queuedGameSave = null
+          return run()
+        }
+        const chained = saveChain.then(start, start)
+        link.promise = chained
+        queuedGameSave = chained
         pendingGameSave = chained
         const finished = () => { if (pendingGameSave === chained) pendingGameSave = null }
         void chained.then(finished, finished)
