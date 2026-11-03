@@ -33,6 +33,23 @@ export function openModalCount(): number {
     return modalScopes.length
 }
 
+/**
+ * Another modal layer that is not this one: a Radix Dialog/Sheet/AlertDialog
+ * (portalled `role=dialog`), its focus guards, or another bespoke dialog.
+ * When focus is there, that layer owns the keyboard and this trap must not
+ * pull focus back: two traps refocusing each other recurse until the stack
+ * overflows (CROSSCUT-01: inbox Sheet opened over the Welcome moment).
+ */
+const OTHER_LAYER_SELECTOR = '[role="dialog"],[role="alertdialog"],[data-radix-focus-guard]'
+
+function inOtherLayer(root: HTMLElement, node: EventTarget | null): boolean {
+    const element = node as HTMLElement | null
+    if (!element || typeof element.closest !== 'function' || root.contains(element)) return false
+    const layer = element.closest(OTHER_LAYER_SELECTOR)
+    // An ancestor layer (this dialog rendered inside a Radix one) is not "other".
+    return !!layer && layer !== root && !layer.contains(root)
+}
+
 function isFocusable(element: HTMLElement): boolean {
     return element.tabIndex >= 0
         && !element.matches(':disabled,[aria-disabled="true"]')
@@ -53,7 +70,7 @@ export function attachModalFocus(root: HTMLElement, options: ModalFocusOptions =
     const focus = (element: HTMLElement) => element.focus({ preventScroll: true })
 
     const keydown = (event: KeyboardEvent) => {
-        if (!isTop()) return
+        if (!isTop() || inOtherLayer(root, doc.activeElement)) return
         if (event.key === 'Escape') {
             const onEscape = options.getOnEscape?.()
             // Always swallow Escape while a modal is open so page-level
@@ -68,8 +85,13 @@ export function attachModalFocus(root: HTMLElement, options: ModalFocusOptions =
         const target = focusCycleTarget(elements.length, index, event.shiftKey)
         if (target !== null) { event.preventDefault(); focus(target < 0 ? root : elements[target]) }
     }
+    // Re-entrancy guard: focusing the root synchronously fires focus events
+    // that another trap may answer by moving focus again; never answer back.
+    let refocusing = false
     const focusin = (event: FocusEvent) => {
-        if (isTop() && !root.contains(event.target as Node)) focus(root)
+        if (refocusing || !isTop() || root.contains(event.target as Node) || inOtherLayer(root, event.target)) return
+        refocusing = true
+        try { focus(root) } finally { refocusing = false }
     }
     doc.addEventListener('keydown', keydown, true)
     doc.addEventListener('focusin', focusin)
