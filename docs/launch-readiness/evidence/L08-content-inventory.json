@@ -50,8 +50,8 @@
     },
     {
       "path": "app/academy/page.tsx",
-      "sha256": "8ff4751162ed6b6a9d8d69b3676a8e2c9fcf605b373a629a516ce094a4ba39e6",
-      "bytes": 525,
+      "sha256": "db725dc270e20aec80fd631ae1644528a8602ade10456c1b55557f8f3a42452f",
+      "bytes": 23219,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -59,7 +59,14 @@
       "permission": null,
       "attribution": null,
       "allowedUse": "Development review only; no release clearance established",
-      "releaseDisposition": "hold"
+      "releaseDisposition": "hold",
+      "reviewHistory": [
+        {
+          "date": "2026-11-04",
+          "previousSha256": "8ff4751162ed6b6a9d8d69b3676a8e2c9fcf605b373a629a516ce094a4ba39e6",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "app/animations/layout.tsx",
@@ -115,8 +122,8 @@
     },
     {
       "path": "app/basecamp/page.tsx",
-      "sha256": "c8cb28c7f7ea055c07f9d448ff65d2086f96dc1de4e21df5cba757538908a306",
-      "bytes": 11468,
+      "sha256": "71e6f895bc264694c4e5ad8d1109bf8276687493f6e56140b4e3741b4577968e",
+      "bytes": 14899,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -137,7 +144,14 @@
         "attribution": null,
         "allowedUse": "Development review only; no release clearance established",
         "releaseDisposition": "hold"
-      }
+      },
+      "reviewHistory": [
+        {
+          "date": "2026-11-04",
+          "previousSha256": "c8cb28c7f7ea055c07f9d448ff65d2086f96dc1de4e21df5cba757538908a306",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "app/career/loading.tsx",
@@ -1051,8 +1065,8 @@
     },
     {
       "path": "app/player/[id]/page.tsx",
-      "sha256": "0f44a5a124870c350c0da7b26caecd7155647537bd63c56c9241735347160457",
-      "bytes": 1949,
+      "sha256": "d2463dbf3524575ced207eb9e755ee27c01e91483f253ac7e1478cbbe91c56d9",
+      "bytes": 2429,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1060,7 +1074,14 @@
       "permission": null,
       "attribution": null,
       "allowedUse": "Development review only; no release clearance established",
-      "releaseDisposition": "hold"
+      "releaseDisposition": "hold",
+      "reviewHistory": [
+        {
+          "date": "2026-11-04",
+          "previousSha256": "0f44a5a124870c350c0da7b26caecd7155647537bd63c56c9241735347160457",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "app/rankings/loading.tsx",
@@ -1337,8 +1358,8 @@
     },
     {
       "path": "app/squad/page.tsx",
-      "sha256": "aa820a3b60223443b76304aa0cbae4331587e459f549c299c3d09e910ebf98c5",
-      "bytes": 24792,
+      "sha256": "6a0d962c77d32def59bbfb05351d1018dd8d9c6bc44689b223e4168ecc3edd69",
+      "bytes": 28048,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1359,7 +1380,14 @@
         "attribution": null,
         "allowedUse": "Development review only; no release clearance established",
         "releaseDisposition": "hold"
-      }
+      },
+      "reviewHistory": [
+        {
+          "date": "2026-11-04",
+          "previousSha256": "aa820a3b60223443b76304aa0cbae4331587e459f549c299c3d09e910ebf98c5",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "app/staff/loading.tsx",
@@ -1532,8 +1560,8 @@
     },
     {
       "path": "app/training/page.tsx",
-      "sha256": "d7a583b8ddc2733918fd2e639fbef6177856f79e9d1460c17c5c9c7cef8ed0ba",
-      "bytes": 29783,
+      "sha256": "2fba3db3a9ef85a86f175a24a08be243efffcd063eb61ffa15963ab7a1a3e761",
+      "bytes": 20873,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1554,7 +1582,14 @@
         "attribution": null,
         "allowedUse": "Development review only; no release clearance established",
         "releaseDisposition": "hold"
-      }
+      },
+      "reviewHistory": [
+        {
+          "date": "2026-11-04",
+          "previousSha256": "d7a583b8ddc2733918fd2e639fbef6177856f79e9d1460c17c5c9c7cef8ed0ba",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "app/transfers/loading.tsx",
@@ -2613,8 +2648,8 @@
     },
     {
       "path": "components/player/RecruitmentProfile.tsx",
-      "sha256": "093057bf6bd30d4ee078b8544bb04f4da1f6a5e75633fa0443277e437ab9b7ed",
-      "bytes": 6936,
+      "sha256": "149008b8b0eae8bdc5d101dcf81b1202192111579c1d344a2d2f356cac70f2cc",
+      "bytes": 14040,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2622,7 +2657,14 @@
       "permission": null,
       "attribution": null,
       "allowedUse": "Development review only; no release clearance established",
-      "releaseDisposition": "hold"
+      "releaseDisposition": "hold",
+      "reviewHistory": [
+        {
+          "date": "2026-11-04",
+          "previousSha256": "093057bf6bd30d4ee078b8544bb04f4da1f6a5e75633fa0443277e437ab9b7ed",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "components/player/RenewContractModal.tsx",
@@ -2665,8 +2707,8 @@
     },
     {
       "path": "components/player/player-detail.tsx",
-      "sha256": "7ea98fb54b90bc7905d38bdf714cb8f71fb86f7ab566df9f0ebe0641724eba67",
-      "bytes": 61812,
+      "sha256": "1ffb360cc6d7d4ab47e1f93e9c7c1254467e5d46d80517b226d52bc79ff668bf",
+      "bytes": 38645,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2687,7 +2729,14 @@
         "attribution": null,
         "allowedUse": "Development review only; no release clearance established",
         "releaseDisposition": "hold"
-      }
+      },
+      "reviewHistory": [
+        {
+          "date": "2026-11-04",
+          "previousSha256": "7ea98fb54b90bc7905d38bdf714cb8f71fb86f7ab566df9f0ebe0641724eba67",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "components/schedule/ActivityPickerModal.tsx",
@@ -2912,8 +2961,8 @@
     },
     {
       "path": "components/squad/ChemistryMatrix.tsx",
-      "sha256": "034090b76b01adebfce623b29e4837d041d22d5d24e350923e2a69379b9cd985",
-      "bytes": 11176,
+      "sha256": "16c72ef41183810ff34ddc3217cb59be4b1d89721b8614f97574b22b6b86f14b",
+      "bytes": 9602,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2934,12 +2983,19 @@
         "attribution": null,
         "allowedUse": "Development review only; no release clearance established",
         "releaseDisposition": "hold"
-      }
+      },
+      "reviewHistory": [
+        {
+          "date": "2026-11-04",
+          "previousSha256": "034090b76b01adebfce623b29e4837d041d22d5d24e350923e2a69379b9cd985",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "components/squad/SynergyChart.tsx",
-      "sha256": "89360efb732cd235f419f0cb2292f2ce11632d56898549d1188d65158b7a52f9",
-      "bytes": 7964,
+      "sha256": "ed5b09bf31fb08f789b5e4ac3256b15c878b7c09ee8f3a1dca6e851a36052264",
+      "bytes": 7587,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2947,7 +3003,14 @@
       "permission": null,
       "attribution": null,
       "allowedUse": "Development review only; no release clearance established",
-      "releaseDisposition": "hold"
+      "releaseDisposition": "hold",
+      "reviewHistory": [
+        {
+          "date": "2026-11-04",
+          "previousSha256": "89360efb732cd235f419f0cb2292f2ce11632d56898549d1188d65158b7a52f9",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "components/squad/SystemBonuses.tsx",
@@ -3146,8 +3209,8 @@
     },
     {
       "path": "components/training/WeaponTrainingModal.tsx",
-      "sha256": "b510d5ff712b999eea2aa3912c260c1b08bcd9469fc170cd149dd27e45fb341e",
-      "bytes": 19488,
+      "sha256": "5a624bcba135eedad684cd1504fc3bc2f35ef93df8759ac6895a5ecc6171d158",
+      "bytes": 11914,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3155,7 +3218,14 @@
       "permission": null,
       "attribution": null,
       "allowedUse": "Development review only; no release clearance established",
-      "releaseDisposition": "hold"
+      "releaseDisposition": "hold",
+      "reviewHistory": [
+        {
+          "date": "2026-11-04",
+          "previousSha256": "b510d5ff712b999eea2aa3912c260c1b08bcd9469fc170cd149dd27e45fb341e",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        }
+      ]
     },
     {
       "path": "components/transfer/NegotiationModal.tsx",
@@ -5415,8 +5485,8 @@
     },
     {
       "path": "data/snapshot-loader.ts",
-      "sha256": "e389447c0cf0a20ad0a96e724796bfec40ea5f54d5fa2fbecc0713ff7555bfab",
-      "bytes": 25321,
+      "sha256": "c6b7b6f74b82df3f83e8321d3ac480528ed0b48b6c80bb8069fecdbde9f24607",
+      "bytes": 25535,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -5462,6 +5532,11 @@
           "date": "2026-11-03",
           "previousSha256": "48a82c5ed905cd1e5136cf79dd0304b0fddb0cee26a11ae51889085bdb4de709",
           "change": "Code cleanup: removed an unused import. No content, names, media or remote URLs changed."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "e389447c0cf0a20ad0a96e724796bfec40ea5f54d5fa2fbecc0713ff7555bfab",
+          "change": "Load-time repair for placeholder attributes (audit SQUAD-10). Code only: no names, media, remote URLs or third-party content."
         }
       ]
     },
@@ -88868,8 +88943,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "678eb4a5d353af3919154c8369e4f60a1b6ce4b0bd1992aa12f7e77b2e97d7dd",
-      "bytes": 219480,
+      "sha256": "5f8324365f536c370d78a77212b58676e7b5ee7621a5d2c0a7bb5b27731bbdad",
+      "bytes": 220546,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88949,13 +89024,18 @@
           "date": "2026-11-04",
           "previousSha256": "37c492d4d53132e2ea9e019b29caddebf7f3d254cb7f0b63fd0c673643687c84",
           "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "678eb4a5d353af3919154c8369e4f60a1b6ce4b0bd1992aa12f7e77b2e97d7dd",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "9b97b394166519eada4d9e4dfed81af5e2c1ad3151fbde6293d6c094e4c40dce",
-      "bytes": 228925,
+      "sha256": "a7c0421933d970c9358f34a9c3cb72b1cc4a2ec1d091b549eed46d78247b49e2",
+      "bytes": 229951,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89035,13 +89115,18 @@
           "date": "2026-11-04",
           "previousSha256": "b8ab2318a8325af8779adb2e6901fdb816d11b849936535851f204e8ec8d91b4",
           "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "9b97b394166519eada4d9e4dfed81af5e2c1ad3151fbde6293d6c094e4c40dce",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "82f4200c7637b4a41e70ce42f36b3b28e424bf2cd3dbae91ce5cf5f7a9c16125",
-      "bytes": 233770,
+      "sha256": "332cbcef92c73444fdac86d4e185b8f80cc422aded4e4aea8f6b3d602266df41",
+      "bytes": 234834,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89121,13 +89206,18 @@
           "date": "2026-11-04",
           "previousSha256": "a28ff7d21ebe57328a3d32b24f825c247937c020d1ec5207b51d0de4e5fb035e",
           "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "82f4200c7637b4a41e70ce42f36b3b28e424bf2cd3dbae91ce5cf5f7a9c16125",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "e06a10f5f5b6f94c63983945dd7fca7edea296a16fcbe0cdc47fa557a576d8d8",
-      "bytes": 231340,
+      "sha256": "06b59dff766d38642b578226c6e14649d10e19619f537e96ae4d09e94a4f17fd",
+      "bytes": 232352,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89202,13 +89292,18 @@
           "date": "2026-11-04",
           "previousSha256": "3bef2ec8400e7a00a651824053037a9ad6d1f3fff9b73c69be2daccb436bae6f",
           "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "e06a10f5f5b6f94c63983945dd7fca7edea296a16fcbe0cdc47fa557a576d8d8",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "de54b2047a9fc1db21811d212d865f19711474a3862df006fccabc596854f2d0",
-      "bytes": 225606,
+      "sha256": "96f63cc54e104c6a3ed02cebce7da1b82b5722d08acb762453f66aa6783607d2",
+      "bytes": 226577,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89283,13 +89378,18 @@
           "date": "2026-11-04",
           "previousSha256": "f4fa7901f4b4a7e8a3d489ddfac2f658dea0502b9c950b7ff268d8b2f765f84d",
           "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "de54b2047a9fc1db21811d212d865f19711474a3862df006fccabc596854f2d0",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "02d17a457ca252e9b7f2ab9dda5c5e17f5ab9485c20fbdc67a3087327d6fcddb",
-      "bytes": 313560,
+      "sha256": "c3f7da557990bb5d9f4adbb7c0d9412e7501200545dfe3448211ad95531fe691",
+      "bytes": 315045,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89364,6 +89464,11 @@
           "date": "2026-11-04",
           "previousSha256": "d03ad99b3c6e9cef94c35870d49aad35ae7234065ba4a020889c3f276aa660b8",
           "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "02d17a457ca252e9b7f2ab9dda5c5e17f5ab9485c20fbdc67a3087327d6fcddb",
+          "change": "Squad screen audit fixes (empty-slot and bench texts, confirm dialogs, player not found): more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },

@@ -7,6 +7,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { LoadingState } from "@/components/ui/loading"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Panel } from "@/src/components/ui/Panel"
@@ -143,7 +144,8 @@ export default function BasecampPage() {
             })}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+          {/* SQUAD-05: the notes stack under the table below 2xl, so the Upgrade column fits at 1280. */}
+          <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1fr)_360px]">
             <Panel padded={false} className="overflow-hidden">
               <div className="overflow-x-auto">
                 <table data-slot="table" className="w-full min-w-[980px] border-collapse text-left">
@@ -202,9 +204,18 @@ export default function BasecampPage() {
                             {maxed ? <span className="text-xs text-ink-3">Fully upgraded</span>
                               : affordable ? (
                                 <div className="flex flex-col items-end gap-1">
-                                  <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={() => handleUpgrade(f.type, f.label)}>
-                                    {level === 0 ? "Build" : `Upgrade to ${level + 1}`} · {money(cost)}
-                                  </Button>
+                                  {/* SQUAD-12: a building can't be sold or refunded, so confirm the spend. */}
+                                  <ConfirmDialog
+                                    title={level === 0 ? `Build ${f.label}?` : `Upgrade ${f.label} to level ${level + 1}?`}
+                                    description={`Costs ${money(cost)} now, and upkeep rises from ${money(Math.floor(facilityWeeklyCost(level)))} to ${money(Math.floor(facilityWeeklyCost(level + 1)))} a week. Funds after: ${money(team.budget - cost)}. Buildings can't be sold or refunded.`}
+                                    confirmText={level === 0 ? `Build · ${money(cost)}` : `Upgrade · ${money(cost)}`}
+                                    icon="warning"
+                                    onConfirm={() => handleUpgrade(f.type, f.label)}
+                                  >
+                                    <Button size="sm" variant="outline" className="h-8 px-3 text-xs">
+                                      {level === 0 ? "Build" : `Upgrade to ${level + 1}`} · {money(cost)}
+                                    </Button>
+                                  </ConfirmDialog>
                                   {/* C8: the one-time cost and what it adds every week. */}
                                   <span className="text-[11px] tabular-nums text-ink-3">then +{money(Math.floor(facilityWeeklyCost(level + 1) - facilityWeeklyCost(level)))}/wk upkeep</span>
                                 </div>

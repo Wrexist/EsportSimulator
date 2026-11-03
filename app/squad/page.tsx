@@ -31,14 +31,20 @@ const ChemistryMatrix = dynamic(() => import("@/components/squad/ChemistryMatrix
 import { motion, AnimatePresence } from "framer-motion"
 import { useFocusTrap } from "@/lib/accessibility"
 import { evaluatePlayer } from "@/engine/player-evaluation"
+import { startingFiveOvr } from "@/lib/team-ovr"
+import { potentialOvr } from "@/lib/potential-ovr"
+import { promotionTerms } from "@/app/academy/_components/academy-facts"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
-import { useState, useMemo, useCallback, memo, type KeyboardEvent, type ReactNode } from "react"
+import { useState, useMemo, useCallback, useEffect, memo, type KeyboardEvent, type ReactNode } from "react"
 const SynergyChart = dynamic(() => import("@/components/squad/SynergyChart").then(m => m.SynergyChart), { ssr: false })
 const SystemBonuses = dynamic(() => import("@/components/squad/SystemBonuses").then(m => m.SystemBonuses), { ssr: false })
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
+
+/** The actions column: pinned to the right edge with the panel behind it. */
+const STICKY_ACTIONS = "sticky right-0 z-[1] w-36 bg-panel shadow-[-12px_0_12px_-12px_rgba(0,0,0,0.7)]"
 
 /** Contract weeks left → tone: red inside a month, amber inside a quarter. */
 function contractTone(weeksLeft: number): string {
@@ -58,6 +64,7 @@ type RosterRowProps = {
   isSwapTarget: boolean
   weeksLeft: number
   salary: number
+  retraining?: { weeksCompleted: number; totalWeeks: number }
   swapIdle: boolean
   onOpen: (playerId: string) => void
   onSwapInitiate: (index: number) => void
@@ -68,7 +75,7 @@ type RosterRowProps = {
 
 // Module-level + memoized so a row only re-renders when its own props change.
 const RosterRow = memo(function RosterRow({
-  player, teamId, index, slot, isCaptain, isBench, isSelected, isSwapTarget, weeksLeft, salary, swapIdle,
+  player, teamId, index, slot, isCaptain, isBench, isSelected, isSwapTarget, weeksLeft, salary, retraining, swapIdle,
   onOpen, onSwapInitiate, onSwapExecute, onSwapCancel, onTreatInjury,
 }: RosterRowProps) {
   const apps = player.personality?.apps
@@ -112,6 +119,17 @@ const RosterRow = memo(function RosterRow({
                   {t("squad.row.benched", { n: sittingOut })}
                 </span>
               )}
+              {/* SQUAD-14: listing and retraining show in the roster, as on the profile. */}
+              {player.forSale && (
+                <span className="whitespace-nowrap rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold text-ink-1">
+                  {t("player.listed")}{player.transferListingPrice ? ` · ${formatCurrency(player.transferListingPrice, "$", true)}` : ""}
+                </span>
+              )}
+              {retraining && (
+                <span className="whitespace-nowrap rounded-sm bg-gold/15 px-1.5 py-0.5 text-[11px] font-semibold text-gold">
+                  {t("player.retraining", { done: retraining.weeksCompleted, total: retraining.totalWeeks })}
+                </span>
+              )}
               {player.injury && (
                 <span className="inline-flex items-center gap-1 rounded-sm bg-negative/15 px-1.5 py-0.5 text-[11px] font-semibold text-negative">
                   <Activity size={11} /> {t("squad.row.injured", { weeks: t("common.weeksShort", { count: player.injury.weeksRemaining }) })}
@@ -127,20 +145,21 @@ const RosterRow = memo(function RosterRow({
         </div>
       </td>
       <td className="px-3"><RoleTag role={player.role} /></td>
-      <td className="px-3"><PersonalityChips player={player} /></td>
+      <td className="hidden px-3 2xl:table-cell"><PersonalityChips player={player} /></td>
       <td className="px-3 text-center"><RatingChip value={player.evaluation.overallRating} /></td>
       <td className="px-3 text-center text-sm tabular-nums text-ink-2">{player.age}</td>
       <td className="px-3"><Meter value={player.morale} label={t("common.morale")} /></td>
       <td className="px-3"><Meter value={player.form} label={t("squad.col.form")} /></td>
       <td className="px-3"><Meter value={playerEnergyPercent(player)} label={t("common.energy")} /></td>
-      <td className="px-3"><LoadChip player={player} /></td>
+      <td className="hidden px-3 2xl:table-cell"><LoadChip player={player} /></td>
       <td className={cn("px-3 text-right text-sm tabular-nums", contractTone(weeksLeft))}>
         {weeksLeft >= 52 ? t("squad.row.years", { n: (weeksLeft / 52).toFixed(1) }) : t("common.weeksShort", { count: weeksLeft })}
       </td>
       <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(salary, "$", false)}</td>
-      <td className="w-36 pr-4 text-right" onClick={e => e.stopPropagation()}>
+      {/* SQUAD-01: the actions stay in view when the table scrolls sideways. */}
+      <td className={cn(STICKY_ACTIONS, "pr-4 text-right")} onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-end gap-2">
-          {player.injury && (
+          {player.injury && player.injury.weeksRemaining > 0 && (
             <ConfirmDialog
               title={t("squad.treat.title")}
               description={t("squad.treat.body")}
@@ -170,7 +189,8 @@ function SectionRow({ label, hint }: { label: string; hint?: ReactNode }) {
   return (
     <tr className="border-b border-line bg-shell">
       <td colSpan={13} className="px-4 py-2">
-        <div className="flex items-center justify-between">
+        {/* Label and hint sit together on the left, so a sideways-scrolled table never cuts the hint. */}
+        <div className="sticky left-4 flex w-fit items-center gap-3">
           <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{label}</span>
           {hint}
         </div>
@@ -236,6 +256,19 @@ function SquadPageInner() {
   const openPlayer = useCallback((playerId: string) => router.push(`/player/${playerId}`), [router])
   const handleSwapInitiate = useCallback((index: number) => setSelectedSwapIndex(index), [])
   const handleCancelSwap = useCallback(() => setSelectedSwapIndex(null), [])
+  // SQUAD-20: Esc cancels a pending swap instead of leaving the page. The
+  // document listener runs before the shell's window one, which skips
+  // events that are already handled (defaultPrevented).
+  useEffect(() => {
+    if (selectedSwapIndex === null) return
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== "Escape" || e.defaultPrevented) return
+      e.preventDefault()
+      setSelectedSwapIndex(null)
+    }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [selectedSwapIndex])
   const handleSwapExecute = useCallback((targetIndex: number) => {
     if (selectedSwapIndex === null) return
     swapRosterPositions(playerTeamId!, selectedSwapIndex, targetIndex)
@@ -257,10 +290,14 @@ function SquadPageInner() {
   const activeRoster = roster.slice(0, 5)
   const benchRoster = roster.slice(5)
   const captain = captainId(teamData, id => playerById.get(id))
-  const teamOvr = activeRoster.length > 0 ? Math.round(activeRoster.reduce((sum, p) => sum + p.evaluation.overallRating, 0) / activeRoster.length) : 0
+  const teamOvr = startingFiveOvr(activeRoster.map(p => p.evaluation.overallRating)) ?? 0
   const avgAge = activeRoster.length > 0 ? (activeRoster.reduce((sum, p) => sum + (p.age || 0), 0) / activeRoster.length).toFixed(1) : "—"
   const wageBill = roster.reduce((sum, p) => sum + (contractByPlayerId.get(p.id)?.salaryPerWeek ?? 0), 0)
   const season = Math.ceil(currentWeek / 52)
+  // SQUAD-15: the promotion wage is the market's for this player at this club.
+  const promotingEntry = promotingProspectId ? academyPlayers.find((ap: { id: string }) => ap.id === promotingProspectId) : undefined
+  const promotingPlayer = promotingEntry ? playerById.get(promotingEntry.playerId) : undefined
+  const promoting = promotingPlayer ? { terms: promotionTerms(promotingPlayer, currentWeek, teamData) } : null
 
   const renderRow = (player: any, slot: number, isBench: boolean) => {
     const idx = player.originalIndex
@@ -281,6 +318,7 @@ function SquadPageInner() {
         isSwapTarget={isSwapTarget}
         weeksLeft={contract ? Math.max(0, contract.endWeek - currentWeek) : 0}
         salary={contract?.salaryPerWeek ?? 0}
+        retraining={teamData.activeRoleTraining?.find(r => r.playerId === player.id)}
         swapIdle={selectedSwapIndex === null}
         onOpen={openPlayer}
         onSwapInitiate={handleSwapInitiate}
@@ -316,22 +354,22 @@ function SquadPageInner() {
         <div className="min-w-0 space-y-4">
           <Panel padded={false} className="overflow-hidden">
             <div className="overflow-x-auto">
-              <table data-slot="table" className="w-full min-w-[1120px] border-collapse text-left">
+              <table data-slot="table" className="w-full min-w-[860px] border-collapse text-left 2xl:min-w-[1120px]">
                 <thead data-slot="table-header">
                   <tr className="border-b border-line">
                     <th data-slot="table-head" className="pl-4">#</th>
                     <th data-slot="table-head">{t("squad.col.player")}</th>
                     <th data-slot="table-head" className="px-3">{t("common.role")}</th>
-                    <th data-slot="table-head" className="px-3">{t("squad.col.personality")}</th>
+                    <th data-slot="table-head" className="hidden px-3 2xl:table-cell">{t("squad.col.personality")}</th>
                     <th data-slot="table-head" className="px-3 text-center">{t("common.ovr")}</th>
                     <th data-slot="table-head" className="px-3 text-center">{t("squad.col.age")}</th>
                     <th data-slot="table-head" className="px-3">{t("common.morale")}</th>
                     <th data-slot="table-head" className="px-3">{t("squad.col.form")}</th>
-                    <th data-slot="table-head" className="px-3">{t("common.energy")}</th>
-                    <th data-slot="table-head" className="px-3" title={t("squad.col.loadTitle")}>{t("squad.col.load")}</th>
+                    <th data-slot="table-head" className="px-3" title={t("squad.col.energyTitle")}>{t("common.energy")}</th>
+                    <th data-slot="table-head" className="hidden px-3 2xl:table-cell" title={t("squad.col.loadTitle")}>{t("squad.col.load")}</th>
                     <th data-slot="table-head" className="px-3 text-right">{t("squad.col.contract")}</th>
                     <th data-slot="table-head" className="px-3 text-right">{t("squad.col.wage")}</th>
-                    <th data-slot="table-head" className="pr-4"><span className="sr-only">{t("squad.col.actions")}</span></th>
+                    <th data-slot="table-head" className={cn(STICKY_ACTIONS, "pr-4")}><span className="sr-only">{t("squad.col.actions")}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -342,7 +380,20 @@ function SquadPageInner() {
                       : <span className="text-xs text-ink-3">{activeRoster.length} / 5</span>}
                   />
                   {activeRoster.length > 0
-                    ? activeRoster.map((p, i) => renderRow(p, i + 1, false))
+                    ? [
+                      ...activeRoster.map((p, i) => renderRow(p, i + 1, false)),
+                      // SQUAD-06: a missing starter is shown as an empty slot.
+                      ...Array.from({ length: 5 - activeRoster.length }, (_, i) => (
+                        <tr key={`empty-${i}`} className="h-14 border-b border-line bg-caution/5">
+                          <td className="w-10 pl-4 text-xs font-semibold tabular-nums text-ink-3">{activeRoster.length + i + 1}</td>
+                          <td colSpan={12} className="py-2 pr-3 text-sm text-caution">
+                            <Link href="/transfers" className="inline-flex items-center gap-1.5 font-semibold underline-offset-2 hover:underline">
+                              <Plus size={13} /> {t("squad.emptySlot")}
+                            </Link>
+                          </td>
+                        </tr>
+                      )),
+                    ]
                     : (
                       <tr><td colSpan={13} className="p-6">
                         <EmptyState icon={Users} title={t("squad.noActive")} description={t("squad.noActiveHint")} action={{ label: t("squad.browseTransfers"), href: "/transfers" }} />
@@ -354,7 +405,7 @@ function SquadPageInner() {
                   />
                   {benchRoster.length > 0
                     ? benchRoster.map((p, i) => renderRow(p, i + 6, true))
-                    : <tr><td colSpan={13} className="px-4 py-5 text-sm text-ink-3">{t("squad.benchEmpty")}</td></tr>}
+                    : <tr><td colSpan={13} className="px-4 py-5 text-sm text-ink-3">{t(activeRoster.length < 5 ? "squad.benchEmptyShort" : "squad.benchEmpty")}</td></tr>}
                   {roster.length >= SENIOR_ROSTER_MAX && (
                     <tr><td colSpan={13} role="status" className="border-t border-line px-4 py-3 text-xs text-ink-2">{squadFullMessage(roster.length)}</td></tr>
                   )}
@@ -364,6 +415,47 @@ function SquadPageInner() {
           </Panel>
 
           <SystemBonuses players={activeRoster as any} />
+
+          {/* SQUAD-23: profile and academy sit under the table, so the left
+              column doesn't end ~700px before the sidebar at 1920. */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Panel title={t("squad.panel.profile")}>
+              <SynergyChart players={activeRoster as any} />
+            </Panel>
+
+            <Panel
+              title={t("squad.panel.academy")}
+              actions={<Link href="/academy" className="inline-flex items-center gap-1 text-xs font-semibold text-ink-3 hover:text-gold">{t("squad.academy.manage")} <ArrowUpRight size={12} /></Link>}
+              padded={false}
+            >
+              {academyPlayers && academyPlayers.length > 0 ? (
+                <ul className="divide-y divide-line">
+                  {academyPlayers.map((ap: any) => {
+                    const prospect = playerById.get(ap.playerId)
+                    if (!prospect) return null
+                    const rating = evaluatePlayer(prospect).overallRating
+                    return (
+                      <li key={ap.id} className="flex items-center gap-3 px-4 py-2.5">
+                        <div className="h-8 w-8 shrink-0 overflow-hidden rounded bg-raised">
+                          <PlayerPortrait src={prospect.portraitPath} seed={prospect.id} alt={prospect.nickname} size={32} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-ink-1">{prospect.nickname}</p>
+                          <p className="flex items-center gap-1 text-xs text-ink-3"><Star size={10} className="text-gold" /> {t("squad.academy.potential", { n: potentialOvr(prospect, currentWeek) })}</p>
+                        </div>
+                        <RatingChip value={rating} size="sm" />
+                        {ap.readyForPromotion && (
+                          <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setPromotingProspectId(ap.id)}>{t("squad.academy.promote")}</Button>
+                        )}
+                      </li>
+                    )
+                  })}
+                </ul>
+              ) : (
+                <div className="p-4"><EmptyState title={t("squad.academy.empty")} action={{ label: t("squad.academy.open"), href: "/academy" }} /></div>
+              )}
+            </Panel>
+          </div>
         </div>
 
         <aside className="min-w-0 space-y-4">
@@ -371,43 +463,6 @@ function SquadPageInner() {
 
           <Panel title={t("squad.panel.chemistry")} padded={false} bodyClassName="p-2">
             <ChemistryMatrix players={activeRoster as any} synergyMatrix={teamData.synergyMatrix} teamChemistry={teamData.chemistry} />
-          </Panel>
-
-          <Panel title={t("squad.panel.profile")}>
-            <SynergyChart players={activeRoster as any} />
-          </Panel>
-
-          <Panel
-            title={t("squad.panel.academy")}
-            actions={<Link href="/academy" className="inline-flex items-center gap-1 text-xs font-semibold text-ink-3 hover:text-gold">{t("squad.academy.manage")} <ArrowUpRight size={12} /></Link>}
-            padded={false}
-          >
-            {academyPlayers && academyPlayers.length > 0 ? (
-              <ul className="divide-y divide-line">
-                {academyPlayers.map((ap: any) => {
-                  const prospect = playerById.get(ap.playerId)
-                  if (!prospect) return null
-                  const rating = evaluatePlayer(prospect).overallRating
-                  return (
-                    <li key={ap.id} className="flex items-center gap-3 px-4 py-2.5">
-                      <div className="h-8 w-8 shrink-0 overflow-hidden rounded bg-raised">
-                        <PlayerPortrait src={prospect.portraitPath} seed={prospect.id} alt={prospect.nickname} size={32} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-ink-1">{prospect.nickname}</p>
-                        <p className="flex items-center gap-1 text-xs text-ink-3"><Star size={10} className="text-gold" /> {t("squad.academy.potential", { n: prospect.potential || 80 })}</p>
-                      </div>
-                      <RatingChip value={rating} size="sm" />
-                      {ap.readyForPromotion && (
-                        <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setPromotingProspectId(ap.id)}>{t("squad.academy.promote")}</Button>
-                      )}
-                    </li>
-                  )
-                })}
-              </ul>
-            ) : (
-              <div className="p-4"><EmptyState title={t("squad.academy.empty")} action={{ label: t("squad.academy.open"), href: "/academy" }} /></div>
-            )}
           </Panel>
         </aside>
       </div>
@@ -445,7 +500,7 @@ function SquadPageInner() {
                 </div>
 
                 <dl className="divide-y divide-line rounded-lg border border-line text-sm">
-                  <div className="flex justify-between px-4 py-2.5"><dt className="text-ink-3">{t("squad.promote.salary")}</dt><dd className="font-semibold text-ink-1">{t("squad.promote.salaryValue")}</dd></div>
+                  <div className="flex justify-between px-4 py-2.5"><dt className="text-ink-3">{t("squad.promote.salary")}</dt><dd className="font-semibold text-ink-1">{promoting ? t("squad.promote.salaryValue", { salary: formatCurrency(promoting.terms.salaryPerWeek, "$", false) }) : "—"}</dd></div>
                   <div className="flex justify-between px-4 py-2.5"><dt className="text-ink-3">{t("squad.promote.contract")}</dt><dd className="font-semibold text-ink-1">{t("squad.promote.contractValue")}</dd></div>
                   <div className="flex justify-between px-4 py-2.5"><dt className="text-ink-3">{t("squad.promote.slot")}</dt><dd className="font-semibold text-ink-1">{t("squad.bench")}</dd></div>
                 </dl>
@@ -457,7 +512,8 @@ function SquadPageInner() {
                 <div className="flex gap-3">
                   <Button
                     onClick={() => {
-                      const result = promoteProspect(promotingProspectId, { salaryPerWeek: 2000, lengthWeeks: 104 })
+                      if (!promoting) return
+                      const result = promoteProspect(promotingProspectId, promoting.terms)
                       if (result.success) {
                         addToast({ message: result.message, type: "info" })
                         setPromotingProspectId(null)

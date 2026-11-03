@@ -8,6 +8,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { developmentOutlook } from "@/engine/development-outlook"
+import { potentialOvr } from "@/lib/potential-ovr"
 import { Panel } from "@/src/components/ui/Panel"
 import { cn } from "@/lib/utils"
 
@@ -70,7 +71,7 @@ export function DevelopmentOutlook({ player }: { player: PlayerSaveData }) {
                 </div>
                 <dl className="min-w-0 space-y-2 text-sm">
                     <div>
-                        <dt className="font-semibold text-ink-1">{t("outlook.potential", { n: outlook.potential })}</dt>
+                        <dt className="font-semibold text-ink-1">{t("outlook.potential", { n: potentialOvr(player, currentWeek) })}</dt>
                         <dd className="text-ink-3">{t("outlook.ceiling")}{outlook.atCeiling ? ` ${t("outlook.reached")}` : ""}</dd>
                     </div>
                     <div>
