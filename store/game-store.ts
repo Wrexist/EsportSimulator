@@ -85,6 +85,7 @@ import { applyScheduledActivities } from "@/engine/processors/scheduled-activiti
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
 import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
 import { checkMilestones } from "@/engine/milestone-checker"
+import { claimAchievementToast, claimMilestoneToast } from "@/lib/celebration-toasts"
 import { checkLegacyGoals, LEGACY_INIT_ID } from "@/engine/legacy-goals"
 import { adjustManagerReputation } from "@/engine/manager-timeline"
 import { recalculateAllSynergy } from "@/engine/processors/team-synergy-recalc"
@@ -661,7 +662,11 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
  * pinned an entire extra copy of the loaded save in renderer memory (L27).
  */
 function achievementToast(get: () => { addToast: (toast: { message: string; type: "achievement" }) => void }) {
-  return (achievement: { name: string }) => get().addToast({ message: `Achievement Unlocked: ${achievement.name}`, type: "achievement" })
+  return (achievement: { id: string; name: string }) => {
+    // One toast when a career milestone marks the same thing (HOME-17).
+    if (!claimAchievementToast(achievement.id)) return
+    get().addToast({ message: `Achievement Unlocked: ${achievement.name}`, type: "achievement" })
+  }
 }
 
 /**
@@ -1082,12 +1087,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       initAchievements: () => {
         void steamAchievements.setActiveSave(get().saveId)
-        steamAchievements.initialize((achievement) => {
-          get().addToast({
-            message: `Achievement Unlocked: ${achievement.name}`,
-            type: "achievement"
-          })
-        })
+        steamAchievements.initialize(achievementToast(get))
       },
 
       initializeNewGame: async (saveName, playerTeamId, _snapshotId, options) => {
@@ -2214,7 +2214,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               ])
               const milestones = checkMilestones(msState as unknown as GameSave, firedIds)
               milestones.forEach(ms => {
-                get().addToast({ message: ms.message, type: "achievement" })
+                if (claimMilestoneToast(ms.id)) get().addToast({ message: ms.message, type: "achievement" })
                 set((s) => {
                   s.eventsLog.unshift({
                     id: ms.id,
