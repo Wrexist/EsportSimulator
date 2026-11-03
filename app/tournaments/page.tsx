@@ -281,18 +281,20 @@ export default function TournamentsPage() {
             <tr
                 key={tournament.id}
                 data-slot="table-row"
-                className={cn("group h-14 cursor-pointer border-b border-line outline-none transition-colors focus-visible:bg-hover", isLocked && "opacity-60")}
+                className="group h-14 cursor-pointer border-b border-line outline-none transition-colors focus-visible:bg-hover"
                 {...pressable(() => router.push(`/tournaments/${displayId}`), { label: t("tm.openEvent", { name }) })}
             >
                 <td className="max-w-[280px] py-2 pl-4 pr-3">
                     <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-raised">
+                        {/* Locked events dim only the logo and the name: the status and
+                            reason text stay at full contrast (CROSSCUT-07). */}
+                        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-raised", isLocked && "opacity-50")}>
                             {tournament.logoPath
                                 ? <Image src={tournament.logoPath} alt="" width={36} height={36} className="object-contain" />
                                 : <Image src={trophyArtFor(trophyKindForTournament(tournament.tier)).src} alt="" width={32} height={32} className="h-8 w-8 object-contain" />}
                         </div>
                         <div className="min-w-0">
-                            <p className="truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{name}</p>
+                            <p className={cn("truncate text-[15px] font-semibold group-hover:text-gold", isLocked ? "text-ink-2" : "text-ink-1")}>{name}</p>
                             <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
                                 <CountryFlag country={tournament.region} size={12} />
                                 <span>{eventRegionName(tournament.region)}</span>
