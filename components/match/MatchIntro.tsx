@@ -166,7 +166,8 @@ export function MatchIntro(props: MatchIntroProps) {
                                     key="vs"
                                     initial={reduce ? false : { opacity: 0, scale: 0.6 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 1.3 }}
+                                    // A quick fade with no delay: the first countdown digit must not land on a still-visible VS (MATCHDAY-17).
+                                    exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.12, delay: 0 } }}
                                     transition={{ duration: reduce ? 0 : 0.5, delay: reduce ? 0 : 0.55, ease: EASE }}
                                     className="font-display text-[88px] font-extrabold uppercase leading-none text-gold"
                                 >
