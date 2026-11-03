@@ -397,6 +397,11 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     const coach = (managedHome || managedAway) && ctx.script ? decision.coachCalls ?? [] : []
     const regroupHome = !!decision.regroup && managedHome
     const regroupAway = !!decision.regroup && managedAway
+    const homeRegroupEdge = regroupEdge(sim.homeLossStreak, regroupHome)
+    const awayRegroupEdge = regroupEdge(sim.awayLossStreak, regroupAway)
+    // Recorded (feed line, key round, timeout summary) only when it applied:
+    // without a losing streak a regroup round has no effect (MATCHDAY-05).
+    const regroupApplied = homeRegroupEdge > 0 || awayRegroupEdge > 0
     const ctId = homeIsCT ? home.team.id : away.team.id
     const tId = homeIsCT ? away.team.id : home.team.id
     const r = ctx.engine.simulateRound(
@@ -405,7 +410,7 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
         sim.homeWinStreak, sim.awayWinStreak, sim.homeLossStreak, sim.awayLossStreak,
         roundNum, hEcon, aEcon, homeStrategy, awayStrategy, ctx.isHighPressure, home.team, away.team, ctId, tId, tactics,
         sim.homeMomentumScore, sim.awayMomentumScore, home.staff, away.staff, mapId, ctx.matchStage, home.stressRes, away.stressRes, ctx.playerMap,
-        regroupEdge(sim.homeLossStreak, regroupHome), regroupEdge(sim.awayLossStreak, regroupAway),
+        homeRegroupEdge, awayRegroupEdge,
         ctx.script ? { series: ctx.script, mapIndex, ...(coach.length && ctx.managedTeamId ? { coach: { teamId: ctx.managedTeamId, calls: coach } } : {}) } : undefined,
     )
     const homeWon = r.winner === 'HOME'
@@ -413,8 +418,8 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     const playerEconomy = [...home.players.map(p => ({ p, e: hEcon[p.id] })), ...away.players.map(p => ({ p, e: aEcon[p.id] }))].map(({ p, e }) => ({
         playerId: p.id, spent: (preBuyCash[p.id] || 0) - e.cash, remaining: e.cash, weapon: e.weapon, hasArmor: e.hasArmor, hasHelmet: e.hasHelmet, hasKit: e.hasKit,
     }))
-    const managerCall = (managedHome || managedAway) && (call && !pistol || decision.regroup || coach.length)
-        ? { ...(call && !pistol ? { strategy: call } : {}), ...(decision.regroup ? { regroup: true } : {}), ...(coach.length ? { coachCalls: coach.map(c => ({ ...c })) } : {}) }
+    const managerCall = (managedHome || managedAway) && (call && !pistol || regroupApplied || coach.length)
+        ? { ...(call && !pistol ? { strategy: call } : {}), ...(regroupApplied ? { regroup: true } : {}), ...(coach.length ? { coachCalls: coach.map(c => ({ ...c })) } : {}) }
         : undefined
     const round: RoundResult = {
         roundNumber: roundNum,

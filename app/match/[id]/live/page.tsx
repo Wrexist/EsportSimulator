@@ -32,6 +32,7 @@ import { adrOf, samplePlayer, tallyMatchDamage } from "@/lib/live-match-roster"
 import { previewDecision } from "@/lib/live-match-decision"
 import type { ManagerStrategy } from "@/engine/match/legacy-series"
 import { MatchIntro } from "@/components/match/MatchIntro"
+import { REGROUP_MIN_LOSS_STREAK } from "@/engine/match/manager-controls"
 import { MatchEndBeat } from "@/components/match/MatchEndBeat"
 import { competitionOf } from "@/lib/match-framing"
 import { headToHeadOf, introContextLine } from "@/lib/match-intro"
@@ -240,7 +241,11 @@ export default function LiveMatchPage() {
     const overtimeNote = intermission && (intermission.kind === "overtime" || intermission.kind === "overtime-switch")
         ? intermission.kind === "overtime" ? t("live.overtimeStart") : t("live.overtimeSwitch")
         : simState?.isOvertime ? t("live.overtime") : undefined
+    // A regroup only helps on a losing streak (regroupEdge): without one the
+    // timeout would be spent for nothing, so it waits (the card's hint says why).
+    const ownLossStreak = simState ? (isPlayerHome ? simState.homeLossStreak : simState.awayLossStreak) ?? 0 : 0
     const timeoutDisabled = timeoutsRemaining <= 0 || timeoutActive || !isWaitingForStrategy || gameState.status !== "IN_PROGRESS"
+        || ownLossStreak < REGROUP_MIN_LOSS_STREAK
     const decisionKey = `${gameState.currentMapIndex}-${preview?.round ?? 0}`
     const decisionOverlay = useMemo(() => (preview
         ? (
