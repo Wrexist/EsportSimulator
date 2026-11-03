@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils"
 import { draftCupOutcome } from "@/engine/draft-cup"
 import { demoWeekCapReached } from "@/lib/edition"
 import { t } from "@/lib/i18n"
+import { liveMatchInProgress } from "@/app/match/match-centre"
 
 /**
  * The match a stop notice was last restored for in this page session, so a
@@ -61,6 +62,8 @@ export function AdvanceControl() {
     // (shared predicate with the advance-week guard); an unplayable fixture is
     // forfeited when the week advances, so CONTINUE is shown instead (L27).
     const pendingMatchId = useGameStore(selectPlayableMatchId)
+    // A live match that was left mid-way resumes on the live screen, not its prep.
+    const pendingIsLive = useGameStore(s => !!pendingMatchId && liveMatchInProgress(s, pendingMatchId))
     const hasCareer = !!saveId && !!playerTeamId
     const running = !!continueRun
     const locked = isLoading || !!gameOverReason || runOver || !hasCareer || running
@@ -121,7 +124,7 @@ export function AdvanceControl() {
         control = (
             <Button
                 variant={onThisMatch ? "outline" : "play"}
-                onClick={() => { dismissAdvanceStop(); router.push(`/match/${pendingMatchId}/tactics`) }}
+                onClick={() => { dismissAdvanceStop(); router.push(`/match/${pendingMatchId}/${pendingIsLive ? "live" : "tactics"}`) }}
                 disabled={locked}
                 className="h-10 px-5 shrink-0"
             >
