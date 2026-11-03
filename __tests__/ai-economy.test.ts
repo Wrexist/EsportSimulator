@@ -230,6 +230,30 @@ describe("AI squad decisions respect the budget", () => {
         expect(ends("bench_x")).toBe(15)
     })
 
+    test("a bench player from RENEW_BENCH_MAX_AGE is left to move on; a starter that age is still renewed", () => {
+        const save = world()
+        save.currentWeek = 10
+        const team = save.teams[30]
+        const players = new Map(save.players.map(p => [p.id, p]))
+        // A sixth player (bench) and a starter, both at the bench age limit, both cheap and in budget.
+        const bench = player("bench_old", 20, AI_SQUAD_TUNING.RENEW_BENCH_MAX_AGE)
+        save.players.push(bench); players.set(bench.id, bench); team.rosterIds.push(bench.id)
+        save.contracts.push({ playerId: bench.id, teamId: team.id, salaryPerWeek: 300, startWeek: 1, endWeek: 15, buyout: 0 })
+        const starter = players.get(team.rosterIds[0])!
+        starter.age = AI_SQUAD_TUNING.RENEW_BENCH_MAX_AGE
+        for (const c of save.contracts.filter(c => c.teamId === team.id)) { c.endWeek = 15; c.salaryPerWeek = 300 }
+        withIncome(team, 50_000)
+        team.budget = 5_000_000
+        renewExpiringContracts(team, save, players)
+        const ends = (id: string) => save.contracts.find(c => c.playerId === id && c.teamId === team.id)!.endWeek
+        expect(ends(starter.id)).toBe(15 + AI_SQUAD_TUNING.RENEWAL_EXTENSION_WEEKS)
+        expect(ends(bench.id)).toBe(15)
+        // One year younger, the same bench player is renewed.
+        bench.age = AI_SQUAD_TUNING.RENEW_BENCH_MAX_AGE - 1
+        renewExpiringContracts(team, save, players)
+        expect(ends(bench.id)).toBe(15 + AI_SQUAD_TUNING.RENEWAL_EXTENSION_WEEKS)
+    })
+
     test("an upgrade that only fits like-for-like releases the weakest starter instead of benching him", () => {
         const save = world()
         save.currentWeek = 4

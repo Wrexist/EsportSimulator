@@ -11,6 +11,9 @@ import { TrainingManager } from "./training-manager"
 import { applyRosterChangePenalty } from "./chemistry-engine"
 import { generateProspectBatch } from "./prospect-generator"
 import { aiProspectPotential } from "./development-rates"
+
+/** Weekly chance an AI club with room finds a prospect (was 0.05: too few young players joined, and by season ten the median rostered age was 29). */
+export const AI_YOUTH_SCOUT_CHANCE = 0.12
 import {
     manageStaff as manageStaffFn,
     manageSponsors as manageSponsorsFn,
@@ -337,7 +340,7 @@ export class AIManager {
         if (team.id === save.playerTeamId) return
         // 5% chance per week to discover a youth prospect for AI teams
         // chanceFactor: free-agent pool feedback (FREE_AGENT_TUNING.SCOUTING_FACTOR_MIN).
-        if (rng.next() > 0.05 * chanceFactor) return
+        if (rng.next() > AI_YOUTH_SCOUT_CHANCE * chanceFactor) return
         if (team.rosterIds.length >= 7) return // Already have enough players
 
         try {
