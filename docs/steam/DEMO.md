@@ -25,7 +25,7 @@ ESM_EDITION=demo npm run dev
 
 On Windows PowerShell: `$env:ESM_EDITION="demo"; npm run dev`. The main menu
 shows a "Free demo" tag. To check the end screen quickly, start a career and
-use Continue until week 13.
+use Continue until week 25.
 
 ## Steamworks setup (owner, once)
 
