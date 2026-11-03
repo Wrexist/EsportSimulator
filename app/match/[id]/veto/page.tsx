@@ -29,7 +29,6 @@ import { leagueStageLabel } from "@/components/league/league-view"
 import { rate, recentMapTally, type SideTally } from "@/engine/map-record"
 import { FirstVisitTip, SCREEN_TIPS } from "@/components/ui/FirstVisitTip"
 import { t } from "@/lib/i18n"
-import { Trans } from "@/lib/trans"
 import { stageName } from "@/lib/display-names"
 
 // Map Wallpaper Paths
@@ -415,7 +414,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
 
     // Team OVR of the starting five, as on the prep screen (MATCHDAY-16).
     const getTeamRating = (team: TeamSaveData) => {
-        const five = getActivePlayersByRosterOrder(team, players, playersById) as unknown as Player[]
+        const five = getActivePlayersByRosterOrder(team, players, playersById) as unknown as Parameters<typeof evaluatePlayer>[0][]
         return five.length ? Math.round(five.reduce((sum, p) => sum + evaluatePlayer(p).overallRating, 0) / five.length) : 0
     }
 

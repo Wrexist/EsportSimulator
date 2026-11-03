@@ -246,8 +246,9 @@ export default function TacticalHQPage() {
     // offers only "Resume match" (with where it stands), not a new veto.
     const liveProgress = useGameStore(useShallow(state => {
         if (!liveMatchInProgress(state, params.id as string)) return null
-        const gs = state.activeMatchState?.matchId === params.id ? state.activeMatchState.gameState : undefined
-        const mapId = gs ? state.activeMatchState?.playback?.maps?.[gs.currentMapIndex ?? 0] : undefined
+        const active = state.activeMatchState?.matchId === params.id ? state.activeMatchState : null
+        const gs = active?.gameState
+        const mapId = gs ? active?.playback?.maps?.[gs.currentMapIndex ?? 0] : undefined
         return { mapId: mapId ?? null, homeScore: gs?.homeScore ?? null, awayScore: gs?.awayScore ?? null }
     }))
 
