@@ -258,3 +258,15 @@ describe("processWeeklyLegendEvents — Coach Opportunity affordability", () => 
         expect(message).toMatch(/would (still make|lose)/)
     })
 })
+
+describe("processWeeklyLegendEvents — morale 0 (ENGINE-08)", () => {
+    test("regression: mentorship lifts a morale-0 player by 15 from 0", () => {
+        const seed = findSeedForFirstRoll(v => v < 0.02)
+        const save = makeSave({
+            teams: [makeTeam("player", { rosterIds: ["p1"] })],
+            players: [makePlayer("p1", { availableSkillPoints: 0, morale: 0 })],
+        })
+        LegendEventsManager.processWeeklyLegendEvents(save, "player", new SeededRNG(seed))
+        expect(save.players[0].morale).toBe(15)
+    })
+})

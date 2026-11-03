@@ -76,7 +76,7 @@ export function applyWeeklyActivity(save: GameSave, ctx: WeeklyActivityContext):
             p.fatigue = Math.max(0, Math.min(100, (p.fatigue || 0) + activity.effects.fatigue))
         }
         if (activity.effects.morale) {
-            p.morale = Math.max(0, Math.min(100, (p.morale || 50) + activity.effects.morale))
+            p.morale = Math.max(0, Math.min(100, (p.morale ?? 50) + activity.effects.morale))
         }
         if (activity.effects.xp && activity.effects.xp > 1) {
             const bonus = weeklyActivityXpBonus(activity)
