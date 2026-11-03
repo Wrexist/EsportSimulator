@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 import { RatingChip, type RatingChipSize } from "@/src/components/ui/RatingChip"
 import { RatingRange } from "@/src/components/ui/RatingRange"
 import type { VisibleStats } from "@/engine/scouting-system"
@@ -17,7 +18,7 @@ export function ScoutedRating({ knowledge, size = "md", className }: {
     if (!knowledge || knowledge.scoutingLevel === "NONE") {
         return (
             <span className={cn("inline-flex items-center whitespace-nowrap rounded-sm border border-dashed border-line-strong px-1.5 py-0.5 text-[11px] font-medium text-ink-3", className)}>
-                Scout to reveal
+                {t("report.reveal")}
             </span>
         )
     }
@@ -26,10 +27,3 @@ export function ScoutedRating({ knowledge, size = "md", className }: {
     return <RatingChip value={value} size={size} className={className} />
 }
 
-export const REPORT_LABEL: Record<VisibleStats["scoutingLevel"], string> = {
-    NONE: "Unscouted",
-    BASIC: "Basic report",
-    ADVANCED: "Advanced report",
-    EXPERT: "Expert report",
-    ELITE: "Full report",
-}

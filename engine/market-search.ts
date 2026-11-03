@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 /**
  * Transfer-market filters as data, so a search can be saved and the week can
  * tell the manager when new players match it (G8). The market board and the
@@ -79,17 +80,17 @@ export function describeCriteria(c: MarketCriteria, labels: { role?: (r: string)
     const parts: string[] = []
     if (c.query.trim()) parts.push(`“${c.query.trim()}”`)
     if (c.role !== "ALL") parts.push(labels.role ? labels.role(c.role) : c.role)
-    if (c.status === "listed") parts.push("listed")
-    if (c.status === "free") parts.push("free agents")
-    if (c.status === "scouted") parts.push("scouted")
-    if (c.status === "watchlist") parts.push("watchlist")
-    if (c.age === "young") parts.push("21 or younger")
+    if (c.status === "listed") parts.push(t("search.listed"))
+    if (c.status === "free") parts.push(t("search.free"))
+    if (c.status === "scouted") parts.push(t("search.scouted"))
+    if (c.status === "watchlist") parts.push(t("search.watchlist"))
+    if (c.age === "young") parts.push(t("search.young"))
     if (c.age === "prime") parts.push("22–27")
     if (c.age === "veteran") parts.push("28+")
-    if (c.maxFee > 0) parts.push(`fee ≤ $${c.maxFee >= 1_000_000 ? `${c.maxFee / 1_000_000}M` : `${c.maxFee / 1000}k`}`)
-    if (c.contractMax > 0) parts.push(`≤ ${c.contractMax} wks left`)
+    if (c.maxFee > 0) parts.push(t("search.fee", { fee: `$${c.maxFee >= 1_000_000 ? `${c.maxFee / 1_000_000}M` : `${c.maxFee / 1000}k`}` }))
+    if (c.contractMax > 0) parts.push(t("search.contract", { weeks: c.contractMax }))
     if (c.region !== "ALL") parts.push(c.region)
-    return parts.join(" · ") || "Whole market"
+    return parts.join(" · ") || t("search.whole")
 }
 
 /** Everyone the managed club could approach, as the board lists them; `only` limits it to those players. */

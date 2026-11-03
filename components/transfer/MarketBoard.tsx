@@ -1,4 +1,5 @@
 "use client"
+import { intlLocale, t, tn } from "@/lib/i18n"
 
 import { memo, useEffect, useMemo, useState, type KeyboardEvent } from "react"
 import Link from "next/link"
@@ -43,39 +44,40 @@ const MARQUEE_COUNT = 4
 const MARQUEE_CONTRACT_WEEKS = 26
 const STANDING_ORDER: Record<MarketStanding, number> = { ICON: 0, STAR: 1, WONDERKID: 2 }
 const ROLES = [
-    { value: "ALL", label: "All roles" },
-    { value: "AWPER", label: "AWPer" },
-    { value: "RIFLER", label: "Rifler" },
-    { value: "ENTRY_FRAGGER", label: "Entry" },
-    { value: "SUPPORT", label: "Support" },
-    { value: "IGL", label: "IGL" },
+    { value: "ALL", label: "market.role.ALL" },
+    { value: "AWPER", label: "market.role.AWPER" },
+    { value: "RIFLER", label: "market.role.RIFLER" },
+    { value: "ENTRY_FRAGGER", label: "market.role.ENTRY_FRAGGER" },
+    { value: "SUPPORT", label: "market.role.SUPPORT" },
+    { value: "IGL", label: "market.role.IGL" },
 ] as const
 const STATUSES: { value: StatusFilter; label: string }[] = [
-    { value: "all", label: "All" },
-    { value: "listed", label: "Listed" },
-    { value: "free", label: "Free agents" },
-    { value: "scouted", label: "Scouted" },
-    { value: "watchlist", label: "Watchlist" },
+    { value: "all", label: "market.status.all" },
+    { value: "listed", label: "market.status.listed" },
+    { value: "free", label: "market.status.free" },
+    { value: "scouted", label: "market.status.scouted" },
+    { value: "watchlist", label: "market.status.watchlist" },
 ]
+// Option labels are translation keys, read at render time.
 // Age bands themselves live in AGE_BANDS (engine/market-search.ts), shared with the alerts.
 const AGES = [
-    { value: "all", label: "Any age" },
-    { value: "young", label: "≤ 21" },
-    { value: "prime", label: "22–27" },
-    { value: "veteran", label: "28+" },
+    { value: "all", label: "market.age.all" },
+    { value: "young", label: "market.age.young" },
+    { value: "prime", label: "market.age.prime" },
+    { value: "veteran", label: "market.age.veteran" },
 ] as const
 const FEES = [
-    { value: 0, label: "Any fee" },
-    { value: 100_000, label: "≤ $100k" },
-    { value: 500_000, label: "≤ $500k" },
-    { value: 1_000_000, label: "≤ $1M" },
-    { value: 5_000_000, label: "≤ $5M" },
+    { value: 0, label: "market.fee.0" },
+    { value: 100_000, label: "market.fee.100000" },
+    { value: 500_000, label: "market.fee.500000" },
+    { value: 1_000_000, label: "market.fee.1000000" },
+    { value: 5_000_000, label: "market.fee.5000000" },
 ] as const
 const CONTRACTS = [
-    { value: 0, label: "Any contract" },
-    { value: 13, label: "≤ 13 wks left" },
-    { value: 26, label: "≤ 26 wks left" },
-    { value: 52, label: "≤ 1 year left" },
+    { value: 0, label: "market.contract.0" },
+    { value: 13, label: "market.contract.13" },
+    { value: 26, label: "market.contract.26" },
+    { value: 52, label: "market.contract.52" },
 ] as const
 const PRIMARY_ROLES = ["IGL", "AWPER", "ENTRY_FRAGGER", "SUPPORT", "RIFLER"] as const
 
@@ -100,7 +102,7 @@ function Segmented<T extends string | number>({ options, value, onChange, label 
                         value === o.value ? "bg-raised text-ink-1 shadow-[inset_0_-2px_0_var(--gold)]" : "text-ink-3 hover:text-ink-1",
                     )}
                 >
-                    {o.label}
+                    {t(o.label)}
                 </button>
             ))}
         </div>
@@ -123,7 +125,7 @@ const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, sc
     row: Row; selected: boolean; wage: number; watchlisted: boolean; scouting: boolean; standing?: MarketStanding; onSelect: (id: string) => void
 }) {
     const { player, team, knowledge, value } = row
-    const status = !team ? "Free agent" : player.forSale ? "Listed" : "Contracted"
+    const status = !team ? "free" : player.forSale ? "listed" : "contracted"
     const onKeyDown = (e: KeyboardEvent<HTMLTableRowElement>) => {
         if (e.target !== e.currentTarget) return
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(player.id) }
@@ -133,7 +135,7 @@ const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, sc
             data-slot="table-row"
             data-state={selected ? "selected" : undefined}
             tabIndex={0}
-            aria-label={`${player.nickname}, show deal`}
+            aria-label={t("market.showDeal", { name: player.nickname })}
             onClick={() => onSelect(player.id)}
             onKeyDown={onKeyDown}
             className="group h-12 cursor-pointer border-b border-line outline-none transition-colors focus-visible:bg-hover"
@@ -146,7 +148,7 @@ const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, sc
                     <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
                             <span className={cn("truncate text-sm font-semibold", selected ? "text-gold" : "text-ink-1 group-hover:text-gold")}>{player.nickname}</span>
-                            {watchlisted && <Star size={11} className="shrink-0 fill-current text-ink-3" aria-label="On watchlist" />}
+                            {watchlisted && <Star size={11} className="shrink-0 fill-current text-ink-3" aria-label={t("market.onWatchlist")} />}
                             <StandingBadge standing={standing} size="xs" />
                         </div>
                         <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
@@ -167,10 +169,10 @@ const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, sc
             <td className="px-3"><RoleTag role={player.role} /></td>
             <td className="px-3 text-center text-sm tabular-nums text-ink-2">{player.age}</td>
             <td className="px-3 text-center"><ScoutedRating knowledge={knowledge} size="sm" /></td>
-            <td className="px-3 text-right text-sm tabular-nums text-ink-1">{team ? formatCurrency(value, "$", true) : <span className="text-ink-3">Free</span>}</td>
+            <td className="px-3 text-right text-sm tabular-nums text-ink-1">{team ? formatCurrency(value, "$", true) : <span className="text-ink-3">{t("market.free")}</span>}</td>
             <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(wage, "$", true)}</td>
             <td className="pl-3 pr-4 text-xs text-ink-3">
-                {scouting ? <span className="text-ink-2">Scouting…</span> : <span className={cn(status === "Listed" && "text-ink-2")}>{status}</span>}
+                {scouting ? <span className="text-ink-2">{t("market.scouting")}</span> : <span className={cn(status === "listed" && "text-ink-2")}>{t(`market.row.${status}`)}</span>}
             </td>
         </tr>
     )
@@ -242,10 +244,10 @@ export function MarketBoard({ mode }: { mode: Mode }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isMounted])
 
-    const myTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
+    const myTeam = useMemo(() => teams.find(tm => tm.id === playerTeamId), [teams, playerTeamId])
     const teamByPlayer = useMemo(() => {
         const m = new Map<string, TeamSaveData>()
-        for (const t of teams) for (const id of t.rosterIds) m.set(id, t)
+        for (const tm of teams) for (const id of tm.rosterIds) m.set(id, tm)
         return m
     }, [teams])
     const academyIds = useMemo(() => academyHeldPlayerIds({ teams, academyPlayers, academyPendingProspects }), [teams, academyPlayers, academyPendingProspects])
@@ -332,7 +334,7 @@ export function MarketBoard({ mode }: { mode: Mode }) {
     }, [players, myTeam])
 
     if (!isMounted || !myTeam) {
-        return <LoadingState message="Loading market…" size="lg" className="min-h-[50vh]" />
+        return <LoadingState message={t("market.loading")} size="lg" className="min-h-[50vh]" />
     }
 
     const resetPage = () => setPage(0)
@@ -353,29 +355,29 @@ export function MarketBoard({ mode }: { mode: Mode }) {
     return (
         <div className="mx-auto max-w-[1600px] space-y-5 pb-16">
             <ScreenHeader
-                eyebrow={mode === "scouting" ? "Recruitment · Scouting" : "Recruitment · Transfers"}
-                title={mode === "scouting" ? "Scouting" : "Transfer market"}
+                eyebrow={mode === "scouting" ? t("market.eyebrowScouting") : t("market.eyebrowTransfers")}
+                title={mode === "scouting" ? t("market.titleScouting") : t("market.titleTransfers")}
                 subtitle={mode === "scouting"
-                    ? "Ratings stay hidden until a scout reports. Pick a player, send your scout, then open talks from the panel."
-                    : "Every contracted player can be bought at the right fee. Pick a player to see their terms on the right."}
+                    ? t("market.subtitleScouting")
+                    : t("market.subtitleTransfers")}
                 aside={mode === "scouting" ? (
                     <KpiStrip>
-                        <Kpi label="Scout" value={<span className="text-xl">{scout ? scout.name.split(" ").slice(-1)[0] : "None"}</span>} hint={scout ? undefined : <Link href="/staff" className="underline underline-offset-2 hover:text-ink-1">Hire on Staff</Link>} />
-                        <Kpi label="Mission" value={<span className="text-xl">{missionPlayer ? missionPlayer.nickname : "Idle"}</span>} hint={activeScoutingMission ? `Due week ${activeScoutingMission.completionWeek}` : undefined} />
-                        <Kpi label="Reports" value={reportCount} />
-                        <Kpi label="Watchlist" value={watchlistedPlayerIds.length} />
+                        <Kpi label={t("market.kpi.scout")} value={<span className="text-xl">{scout ? scout.name.split(" ").slice(-1)[0] : t("market.none")}</span>} hint={scout ? undefined : <Link href="/staff" className="underline underline-offset-2 hover:text-ink-1">{t("market.hireOnStaff")}</Link>} />
+                        <Kpi label={t("market.kpi.mission")} value={<span className="text-xl">{missionPlayer ? missionPlayer.nickname : t("market.idle")}</span>} hint={activeScoutingMission ? t("market.dueWeek", { week: activeScoutingMission.completionWeek }) : undefined} />
+                        <Kpi label={t("market.kpi.reports")} value={reportCount} />
+                        <Kpi label={t("market.status.watchlist")} value={watchlistedPlayerIds.length} />
                     </KpiStrip>
                 ) : (
                     <KpiStrip>
-                        <Kpi label="Funds" value={formatCurrency(myTeam.budget, "$", true)} />
-                        <Kpi label="Max fee" value={formatCurrency(sanction.maxFee, "$", true)} hint={sanction.fraction < 1 ? `Board allows ${Math.round(sanction.fraction * 100)}%` : "Board allows all funds"} />
+                        <Kpi label={t("common.funds")} value={formatCurrency(myTeam.budget, "$", true)} />
+                        <Kpi label={t("market.kpi.maxFee")} value={formatCurrency(sanction.maxFee, "$", true)} hint={sanction.fraction < 1 ? t("market.boardAllows", { pct: Math.round(sanction.fraction * 100) }) : t("market.boardAllowsAll")} />
                         <Kpi
-                            label="Squad"
+                            label={t("market.kpi.squad")}
                             value={<span>{myTeam.rosterIds.length}<span className="text-ink-3">/{SENIOR_ROSTER_MAX}</span></span>}
                             valueClassName={myTeam.rosterIds.length >= SENIOR_ROSTER_MAX ? "text-caution" : undefined}
-                            hint={myTeam.rosterIds.length >= SENIOR_ROSTER_MAX ? <Link href="/squad" className="underline underline-offset-2 hover:text-ink-1">Full: release or sell to sign</Link> : undefined}
+                            hint={myTeam.rosterIds.length >= SENIOR_ROSTER_MAX ? <Link href="/squad" className="underline underline-offset-2 hover:text-ink-1">{t("market.squadFull")}</Link> : undefined}
                         />
-                        <Kpi label="Listed" value={market.filter(r => r.team && r.player.forSale).length} />
+                        <Kpi label={t("market.status.listed")} value={market.filter(r => r.team && r.player.forSale).length} />
                     </KpiStrip>
                 )}
             />
@@ -389,72 +391,72 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                             <div className="relative w-56 min-w-[180px]">
                                 <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
                                 <Input
-                                    placeholder="Player or club"
-                                    aria-label="Search players or clubs"
+                                    placeholder={t("market.searchPlaceholder")}
+                                    aria-label={t("market.searchAria")}
                                     value={searchTerm}
                                     onChange={e => { setSearchTerm(e.target.value); resetPage() }}
                                     className="h-8 pl-8 text-sm"
                                 />
                             </div>
-                            <Segmented label="Role" options={ROLES} value={role} onChange={v => { setRole(v); resetPage() }} />
-                            <Segmented label="Status" options={STATUSES} value={status} onChange={v => { setStatus(v); resetPage() }} />
+                            <Segmented label={t("common.role")} options={ROLES} value={role} onChange={v => { setRole(v); resetPage() }} />
+                            <Segmented label={t("market.col.status")} options={STATUSES} value={status} onChange={v => { setStatus(v); resetPage() }} />
                             <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2.5 text-xs" aria-expanded={showFilters} onClick={() => setShowFilters(s => !s)}>
-                                <SlidersHorizontal size={13} /> Filters{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ""}
+                                <SlidersHorizontal size={13} /> {t("market.filters")}{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ""}
                             </Button>
-                            <span className="ml-auto text-xs tabular-nums text-ink-3">{filtered.length.toLocaleString("en-US")} players</span>
+                            <span className="ml-auto text-xs tabular-nums text-ink-3">{tn("market.players", filtered.length, { n: filtered.length.toLocaleString(intlLocale()) })}</span>
                         </div>
                         {showFilters && (
                             <div className="flex flex-wrap items-center gap-2 border-t border-line px-3 py-2.5">
-                                <Segmented label="Age" options={AGES} value={age} onChange={v => { setAge(v); resetPage() }} />
-                                <Segmented label="Fee" options={FEES} value={maxFee} onChange={v => { setMaxFee(v); resetPage() }} />
-                                <Segmented label="Contract" options={CONTRACTS} value={contractMax} onChange={v => { setContractMax(v); resetPage() }} />
+                                <Segmented label={t("market.col.age")} options={AGES} value={age} onChange={v => { setAge(v); resetPage() }} />
+                                <Segmented label={t("market.feeLabel")} options={FEES} value={maxFee} onChange={v => { setMaxFee(v); resetPage() }} />
+                                <Segmented label={t("market.contractLabel")} options={CONTRACTS} value={contractMax} onChange={v => { setContractMax(v); resetPage() }} />
                                 <select
-                                    aria-label="Region"
+                                    aria-label={t("market.region")}
                                     value={region}
                                     onChange={e => { setRegion(e.target.value); resetPage() }}
                                     className="h-8 rounded border border-line bg-shell px-2 text-[12px]! font-semibold text-ink-2"
                                 >
-                                    <option value="ALL">Any region</option>
+                                    <option value="ALL">{t("market.anyRegion")}</option>
                                     {ALL_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
                                 </select>
-                                {activeFilterCount > 0 && <button className="text-xs text-ink-3 underline-offset-2 hover:text-ink-1 hover:underline" onClick={() => { setAge("all"); setMaxFee(0); setContractMax(0); setRegion("ALL"); resetPage() }}>Reset</button>}
+                                {activeFilterCount > 0 && <button className="text-xs text-ink-3 underline-offset-2 hover:text-ink-1 hover:underline" onClick={() => { setAge("all"); setMaxFee(0); setContractMax(0); setRegion("ALL"); resetPage() }}>{t("market.reset")}</button>}
                             </div>
                         )}
                         {missingRoles.length > 0 && (
                             <div className="flex flex-wrap items-center gap-2 border-t border-line px-3 py-2 text-xs text-ink-3">
-                                <span>Your starting five has no</span>
+                                <span>{t("market.missingRoles")}</span>
                                 {missingRoles.map(r => (
                                     <button key={r} onClick={() => { setRole(r); resetPage() }} className="rounded-sm border border-line-strong px-1.5 py-0.5 font-semibold uppercase tracking-[0.06em] text-ink-2 hover:border-gold hover:text-ink-1">
                                         {formatRole(r)}
                                     </button>
                                 ))}
-                                <span>· each missing role costs 4% team strength.</span>
+                                <span>{t("market.missingRolesCost", { pct: 4 })}</span>
                             </div>
                         )}
                         <div className="flex flex-wrap items-center gap-2 border-t border-line px-3 py-2 text-xs">
                             <Bookmark size={13} className="shrink-0 text-ink-3" aria-hidden="true" />
-                            {(savedSearches || []).length === 0 && !naming && <span className="text-ink-3">Save a search to get an inbox alert when new players match it.</span>}
+                            {(savedSearches || []).length === 0 && !naming && <span className="text-ink-3">{t("market.saveHint")}</span>}
                             {(savedSearches || []).map(sv => (
                                 <span key={sv.id} className="inline-flex items-center rounded-sm border border-line-strong">
                                     <button type="button" onClick={() => applyCriteria(sv.criteria)} title={describeCriteria(sv.criteria, { role: formatRole })} className="max-w-[180px] truncate px-2 py-1 font-semibold text-ink-2 hover:text-ink-1">{sv.name}</button>
-                                    <button type="button" onClick={() => toggleMarketSearchAlerts(sv.id)} aria-label={sv.alerts ? `Turn off alerts for ${sv.name}` : `Turn on alerts for ${sv.name}`} aria-pressed={sv.alerts} className={cn("border-l border-line px-1.5 py-1", sv.alerts ? "text-gold" : "text-ink-3 hover:text-ink-1")}>
+                                    <button type="button" onClick={() => toggleMarketSearchAlerts(sv.id)} aria-label={sv.alerts ? t("market.alertsOff", { name: sv.name }) : t("market.alertsOn", { name: sv.name })} aria-pressed={sv.alerts} className={cn("border-l border-line px-1.5 py-1", sv.alerts ? "text-gold" : "text-ink-3 hover:text-ink-1")}>
                                         {sv.alerts ? <Bell size={12} /> : <BellOff size={12} />}
                                     </button>
-                                    <button type="button" onClick={() => deleteMarketSearch(sv.id)} aria-label={`Delete saved search ${sv.name}`} className="border-l border-line px-1.5 py-1 text-ink-3 hover:text-negative"><X size={12} /></button>
+                                    <button type="button" onClick={() => deleteMarketSearch(sv.id)} aria-label={t("market.deleteSearch", { name: sv.name })} className="border-l border-line px-1.5 py-1 text-ink-3 hover:text-negative"><X size={12} /></button>
                                 </span>
                             ))}
                             {naming ? (
                                 <form className="flex items-center gap-1.5" onSubmit={e => {
                                     e.preventDefault()
-                                    if (saveMarketSearch(searchName || describeCriteria(criteria, { role: formatRole }), criteria)) { toast.success("Search saved. New matches will reach your inbox."); setNaming(false); setSearchName("") }
-                                    else toast.error(`Up to ${MAX_SAVED_SEARCHES} saved searches.`)
+                                    if (saveMarketSearch(searchName || describeCriteria(criteria, { role: formatRole }), criteria)) { toast.success(t("market.searchSaved")); setNaming(false); setSearchName("") }
+                                    else toast.error(t("market.searchLimit", { max: MAX_SAVED_SEARCHES }))
                                 }}>
-                                    <Input id="saved-search-name" autoFocus value={searchName} onChange={e => setSearchName(e.target.value)} placeholder={describeCriteria(criteria, { role: formatRole })} aria-label="Saved search name" className="h-7 w-52 text-xs" maxLength={40} />
-                                    <Button type="submit" size="sm" className="h-7 px-2.5 text-xs">Save</Button>
-                                    <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => setNaming(false)}>Cancel</Button>
+                                    <Input id="saved-search-name" autoFocus value={searchName} onChange={e => setSearchName(e.target.value)} placeholder={describeCriteria(criteria, { role: formatRole })} aria-label={t("market.searchName")} className="h-7 w-52 text-xs" maxLength={40} />
+                                    <Button type="submit" size="sm" className="h-7 px-2.5 text-xs">{t("market.save")}</Button>
+                                    <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => setNaming(false)}>{t("market.cancel")}</Button>
                                 </form>
                             ) : isNarrowing(criteria) && (savedSearches || []).length < MAX_SAVED_SEARCHES && (
-                                <button type="button" onClick={() => setNaming(true)} className="ml-auto font-semibold text-ink-2 underline-offset-2 hover:text-ink-1 hover:underline">Save this search</button>
+                                <button type="button" onClick={() => setNaming(true)} className="ml-auto font-semibold text-ink-2 underline-offset-2 hover:text-ink-1 hover:underline">{t("market.saveSearch")}</button>
                             )}
                         </div>
                     </Panel>
@@ -465,14 +467,14 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                             <table data-slot="table" className="w-full min-w-[920px] border-collapse text-left">
                                 <thead data-slot="table-header">
                                     <tr className="border-b border-line">
-                                        <SortHead field="name" label="Player" sort={sort} dir={dir} onSort={onSort} className="pl-4" />
-                                        <th data-slot="table-head" className="px-3">Club</th>
-                                        <th data-slot="table-head" className="px-3">Role</th>
-                                        <SortHead field="age" label="Age" sort={sort} dir={dir} onSort={onSort} className="text-center" />
-                                        <SortHead field="ovr" label="OVR" sort={sort} dir={dir} onSort={onSort} className="text-center" />
-                                        <SortHead field="value" label="Value" sort={sort} dir={dir} onSort={onSort} className="text-right" />
-                                        <th data-slot="table-head" className="px-3 text-right">Wage ask</th>
-                                        <th data-slot="table-head" className="pl-3 pr-4">Status</th>
+                                        <SortHead field="name" label={t("market.col.player")} sort={sort} dir={dir} onSort={onSort} className="pl-4" />
+                                        <th data-slot="table-head" className="px-3">{t("market.col.club")}</th>
+                                        <th data-slot="table-head" className="px-3">{t("common.role")}</th>
+                                        <SortHead field="age" label={t("market.col.age")} sort={sort} dir={dir} onSort={onSort} className="text-center" />
+                                        <SortHead field="ovr" label={t("common.ovr")} sort={sort} dir={dir} onSort={onSort} className="text-center" />
+                                        <SortHead field="value" label={t("market.col.value")} sort={sort} dir={dir} onSort={onSort} className="text-right" />
+                                        <th data-slot="table-head" className="px-3 text-right">{t("market.col.wageAsk")}</th>
+                                        <th data-slot="table-head" className="pl-3 pr-4">{t("market.col.status")}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -490,8 +492,8 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                                     ))}
                                     {pageRows.length === 0 && (
                                         <tr><td colSpan={8} className="px-4 py-10 text-center">
-                                            <p className="text-sm text-ink-3">No players match these filters.</p>
-                                            <Button variant="outline" size="sm" className="mt-3" onClick={clearAll}>Clear filters</Button>
+                                            <p className="text-sm text-ink-3">{t("market.noMatch")}</p>
+                                            <Button variant="outline" size="sm" className="mt-3" onClick={clearAll}>{t("market.clearFilters")}</Button>
                                         </td></tr>
                                     )}
                                 </tbody>
@@ -500,12 +502,12 @@ export function MarketBoard({ mode }: { mode: Mode }) {
                         {filtered.length > PAGE_SIZE && (
                             <div className="flex items-center justify-between border-t border-line px-4 py-2.5">
                                 <span className="text-xs tabular-nums text-ink-3">
-                                    {safePage * PAGE_SIZE + 1}–{Math.min((safePage + 1) * PAGE_SIZE, filtered.length)} of {filtered.length.toLocaleString("en-US")}
+                                    {t("market.pageRange", { from: safePage * PAGE_SIZE + 1, to: Math.min((safePage + 1) * PAGE_SIZE, filtered.length), total: filtered.length.toLocaleString(intlLocale()) })}
                                 </span>
                                 <div className="flex items-center gap-2">
-                                    <Button variant="outline" size="sm" className="h-8 px-2.5" disabled={safePage === 0} onClick={() => setPage(p => Math.max(0, p - 1))} aria-label="Previous page"><ChevronLeft size={14} /></Button>
+                                    <Button variant="outline" size="sm" className="h-8 px-2.5" disabled={safePage === 0} onClick={() => setPage(p => Math.max(0, p - 1))} aria-label={t("market.prevPage")}><ChevronLeft size={14} /></Button>
                                     <span className="text-xs tabular-nums text-ink-2">{safePage + 1} / {totalPages}</span>
-                                    <Button variant="outline" size="sm" className="h-8 px-2.5" disabled={safePage >= totalPages - 1} onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} aria-label="Next page"><ChevronRight size={14} /></Button>
+                                    <Button variant="outline" size="sm" className="h-8 px-2.5" disabled={safePage >= totalPages - 1} onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} aria-label={t("market.nextPage")}><ChevronRight size={14} /></Button>
                                 </div>
                             </div>
                         )}
@@ -514,20 +516,20 @@ export function MarketBoard({ mode }: { mode: Mode }) {
 
                 <aside className="min-w-0 space-y-4 xl:sticky xl:top-4 xl:self-start">
                     {activeId ? <DealPanel key={activeId} playerId={activeId} mode={mode} standing={standings.get(activeId)} /> : (
-                        <Panel><p className="text-sm text-ink-3">Pick a player to see their terms.</p></Panel>
+                        <Panel><p className="text-sm text-ink-3">{t("market.pickPlayer")}</p></Panel>
                     )}
                     {recent.length > 0 && (
-                        <Panel title="Recent moves" padded={false}>
+                        <Panel title={t("market.recentMoves")} padded={false}>
                             <ul className="divide-y divide-line">
-                                {recent.map(t => (
-                                    <li key={t.id} className="flex items-center justify-between gap-3 px-4 py-2 text-xs">
+                                {recent.map(mv => (
+                                    <li key={mv.id} className="flex items-center justify-between gap-3 px-4 py-2 text-xs">
                                         <div className="min-w-0">
-                                            <p className="truncate font-semibold text-ink-1">{t.playerName}</p>
-                                            <p className="truncate text-ink-3">{t.fromTeamName || "Free agent"} → {t.toTeamName || "Released"}</p>
+                                            <p className="truncate font-semibold text-ink-1">{mv.playerName}</p>
+                                            <p className="truncate text-ink-3">{mv.fromTeamName || t("market.row.free")} → {mv.toTeamName || t("market.released")}</p>
                                         </div>
                                         <div className="shrink-0 text-right tabular-nums">
-                                            <p className="text-ink-2">{t.fee > 0 ? formatCurrency(t.fee, "$", true) : "Free"}</p>
-                                            <p className="text-ink-3">Wk {t.week}</p>
+                                            <p className="text-ink-2">{mv.fee > 0 ? formatCurrency(mv.fee, "$", true) : t("market.free")}</p>
+                                            <p className="text-ink-3">{t("common.weekShort", { n: mv.week })}</p>
                                         </div>
                                     </li>
                                 ))}

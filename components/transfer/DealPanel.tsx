@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { intlLocale, t, tn } from "@/lib/i18n"
 
 import Link from "next/link"
 import { useMemo } from "react"
@@ -20,17 +22,14 @@ import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { useNegotiation } from "./useNegotiation"
 import { DealTerms } from "./DealTerms"
-import { ScoutedRating, REPORT_LABEL } from "./ScoutedRating"
+import { ScoutedRating } from "./ScoutedRating"
 import { StandingBadge } from "./StandingBadge"
 import { RIVAL_FEE_MAX_CLUBS, RIVAL_FEE_STEP, type MarketStanding } from "@/engine/transfer-hype"
 
 const SCOUTING_FEE = 3000
 const REPORT_RANKS = ["NONE", "BASIC", "ADVANCED", "EXPERT", "ELITE"] as const
-const ATTRIBUTE_LABELS: [string, string][] = [
-    ["skill", "Skill"], ["rifle", "Rifle"], ["awp", "AWP"], ["pistol", "Pistol"], ["reaction", "Reaction"],
-    ["clutch", "Clutch"], ["grenades", "Utility"], ["tactic", "Tactics"], ["creativity", "Creativity"],
-    ["teamwork", "Teamwork"], ["leader", "Leadership"], ["consistency", "Consistency"],
-]
+/** Attributes a full report confirms; labels are the attr.* keys of the player page. */
+const REPORT_ATTRIBUTES = ["skill", "rifle", "awp", "pistol", "reaction", "clutch", "grenades", "tactic", "creativity", "teamwork", "leader", "consistency"] as const
 
 function Section({ title, aside, children, className }: { title: string; aside?: React.ReactNode; children: React.ReactNode; className?: string }) {
     return (
@@ -95,36 +94,36 @@ export function DealPanel({ playerId, mode, standing }: { playerId: string; mode
     const isOwn = myTeam?.rosterIds.includes(player.id) ?? false
 
     const exact = knowledge.exactStats as Record<string, unknown> | undefined
-    const attributes = exact ? ATTRIBUTE_LABELS.filter(([key]) => typeof exact[key] === "number").map(([key, label]) => ({ label, value: exact[key] as number })) : []
+    const attributes = exact ? REPORT_ATTRIBUTES.filter(key => typeof exact[key] === "number").map(key => ({ label: t(`attr.${key}`), value: exact[key] as number })) : []
     const synergy = knowledge.scoutingLevel === "ELITE" && starters.length > 0 && !isOwn
         ? calculateRosterSynergy(player as never, starters as never)
         : null
 
     const scoutAction = (() => {
-        if (isOwn) return <p className="text-xs text-ink-3">Your player — fully known.</p>
+        if (isOwn) return <p className="text-xs text-ink-3">{t("deal.ownPlayer")}</p>
         if (missionHere && activeScoutingMission) {
             const total = Math.max(1, activeScoutingMission.completionWeek - activeScoutingMission.startWeek)
             const done = Math.max(0, Math.min(total, currentWeek - activeScoutingMission.startWeek))
             return (
                 <div className="space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                        <span className="text-ink-2">Scouting · report due week {activeScoutingMission.completionWeek}</span>
-                        <button className="text-ink-3 underline-offset-2 hover:text-ink-1 hover:underline" onClick={() => cancelScoutingMission()}>Cancel (no refund)</button>
+                        <span className="text-ink-2">{t("deal.scoutingDue", { week: activeScoutingMission.completionWeek })}</span>
+                        <button className="text-ink-3 underline-offset-2 hover:text-ink-1 hover:underline" onClick={() => cancelScoutingMission()}>{t("deal.cancelNoRefund")}</button>
                     </div>
-                    <Meter value={(done / total) * 100} label="Scouting progress" tone="neutral" showValue={false} trackClassName="w-full" />
+                    <Meter value={(done / total) * 100} label={t("deal.scoutingProgress")} tone="neutral" showValue={false} trackClassName="w-full" />
                 </div>
             )
         }
         if (!scout) return (
             <p className="text-xs text-ink-3">
-                No scout on staff. <Link href="/staff" className="text-ink-2 underline underline-offset-2 hover:text-ink-1">Hire one</Link> to reveal ratings.
+                <Trans k="deal.noScout" tags={{ link: s => <Link href="/staff" className="text-ink-2 underline underline-offset-2 hover:text-ink-1">{s}</Link> }} />
             </p>
         )
-        if (activeScoutingMission) return <p className="text-xs text-ink-3">Your scout is on {missionTarget?.nickname ?? "another player"} until week {activeScoutingMission.completionWeek}.</p>
-        if (!canImprove) return <p className="text-xs text-ink-3">Your scout can&apos;t improve this report. A more accurate scout can.</p>
+        if (activeScoutingMission) return <p className="text-xs text-ink-3">{t("deal.scoutBusy", { name: missionTarget?.nickname ?? t("deal.anotherPlayer"), week: activeScoutingMission.completionWeek })}</p>
+        if (!canImprove) return <p className="text-xs text-ink-3">{t("deal.cantImprove")}</p>
         return (
             <Button variant="outline" size="sm" className="h-9 w-full" onClick={() => startScoutingMission(player.id)} disabled={n.budget < SCOUTING_FEE}>
-                Scout for a {REPORT_LABEL[scoutTier!].toLowerCase()} · {formatCurrency(SCOUTING_FEE, "$", false)} · {scoutWeeks} wk{scoutWeeks === 1 ? "" : "s"}
+                {tn("deal.scoutFor", scoutWeeks, { report: t(`report.for.${scoutTier}`), fee: formatCurrency(SCOUTING_FEE, "$", false) })}
             </Button>
         )
     })()
@@ -143,12 +142,12 @@ export function DealPanel({ playerId, mode, standing }: { playerId: string; mode
                                 onClick={() => toggleWatchlistPlayer(player.id)}
                                 className={cn("rounded p-1.5 transition-colors hover:bg-hover", watchlisted ? "text-gold" : "text-ink-3 hover:text-ink-1")}
                                 aria-pressed={watchlisted}
-                                aria-label={watchlisted ? "Remove from watchlist" : "Add to watchlist"}
-                                title={watchlisted ? "On your watchlist" : "Add to watchlist"}
+                                aria-label={watchlisted ? t("deal.unwatch") : t("deal.watch")}
+                                title={watchlisted ? t("deal.onWatchlist") : t("deal.watch")}
                             >
                                 <Star size={16} className={cn(watchlisted && "fill-current")} />
                             </button>
-                            <Link href={`/player/${player.id}`} className="rounded p-1.5 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1" aria-label="Open player profile" title="Open profile">
+                            <Link href={`/player/${player.id}`} className="rounded p-1.5 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1" aria-label={t("deal.openProfileAria")} title={t("deal.openProfile")}>
                                 <ArrowUpRight size={16} />
                             </Link>
                         </div>
@@ -157,27 +156,27 @@ export function DealPanel({ playerId, mode, standing }: { playerId: string; mode
                         <StandingBadge standing={standing} />
                         <CountryFlag country={player.nationality} size={14} />
                         <RoleTag role={player.role} />
-                        <span className="tabular-nums">Age {player.age}</span>
+                        <span className="tabular-nums">{t("deal.age", { age: player.age })}</span>
                     </div>
                     <div className="mt-1.5 flex items-center gap-1.5 text-xs text-ink-2">
                         {club ? (
                             <>
                                 <TeamLogoImage src={(club as { logoPath?: string }).logoPath} alt={club.name} team={club as never} size={16} />
                                 <span className="truncate">{club.name}</span>
-                                {weeksLeft !== null && <span className="text-ink-3">· contract {weeksLeft >= 52 ? `${(weeksLeft / 52).toFixed(1)}y` : `${weeksLeft}w`}</span>}
+                                {weeksLeft !== null && <span className="text-ink-3">{t("deal.contractLeft", { left: weeksLeft >= 52 ? t("deal.yearsShort", { n: (weeksLeft / 52).toLocaleString(intlLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }) : t("common.weeksShort", { count: weeksLeft }) })}</span>}
                             </>
-                        ) : <span className="text-ink-3">Free agent</span>}
+                        ) : <span className="text-ink-3">{t("market.row.free")}</span>}
                     </div>
                 </div>
             </div>
 
-            <Section title="What you know" aside={<span className="text-xs text-ink-3">{REPORT_LABEL[knowledge.scoutingLevel]}</span>}>
+            <Section title={t("deal.whatYouKnow")} aside={<span className="text-xs text-ink-3">{t(`report.${knowledge.scoutingLevel}`)}</span>}>
                 <div className="flex items-center gap-4">
                     <ScoutedRating knowledge={knowledge} size="lg" />
                     <p className="text-xs text-ink-3">
-                        {knowledge.scoutingLevel === "NONE" ? "Public info only. Value and wage are known; the rating isn't."
-                            : knowledge.scoutingLevel === "ELITE" ? "Every attribute confirmed."
-                                : "True rating sits inside the band. Better reports narrow it."}
+                        {knowledge.scoutingLevel === "NONE" ? t("deal.knowNone")
+                            : knowledge.scoutingLevel === "ELITE" ? t("deal.knowElite")
+                                : t("deal.knowBand")}
                     </p>
                 </div>
                 {mode === "scouting" && attributes.length > 0 && (
@@ -191,7 +190,7 @@ export function DealPanel({ playerId, mode, standing }: { playerId: string; mode
                     </dl>
                 )}
                 {mode === "scouting" && synergy !== null && (
-                    <p className="text-xs text-ink-3">Synergy with your starting five: <span className="font-semibold tabular-nums text-ink-1">{synergy}</span></p>
+                    <p className="text-xs text-ink-3"><Trans k="deal.synergy" params={{ n: synergy }} tags={{ b: s => <span className="font-semibold tabular-nums text-ink-1">{s}</span> }} /></p>
                 )}
                 {scoutAction}
             </Section>
@@ -199,7 +198,7 @@ export function DealPanel({ playerId, mode, standing }: { playerId: string; mode
             {!isOwn && <RivalSection n={n} />}
 
             {!isOwn && (
-                <Section title="Deal" aside={<span className="text-xs text-ink-3">{club ? "Fee, then contract" : "Contract only"}</span>}>
+                <Section title={t("deal.title")} aside={<span className="text-xs text-ink-3">{club ? t("deal.feeThenContract") : t("deal.contractOnly")}</span>}>
                     <DealTerms n={n} standing={standing} />
                 </Section>
             )}
@@ -214,13 +213,13 @@ function RivalSection({ n }: { n: ReturnType<typeof useNegotiation> }) {
     const pct = Math.round(n.feePremium * 100)
     return (
         <Section
-            title="The race"
+            title={t("deal.race")}
             aside={rivals.length > 0
-                ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-gold"><Swords size={12} aria-hidden="true" />{rivals.length} club{rivals.length === 1 ? "" : "s"} chasing</span>
-                : <span className="text-xs text-ink-3">No rivals</span>}
+                ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-gold"><Swords size={12} aria-hidden="true" />{tn("deal.chasing", rivals.length)}</span>
+                : <span className="text-xs text-ink-3">{t("deal.noRivals")}</span>}
         >
             {rivals.length === 0 ? (
-                <p className="text-xs text-ink-3">No other club is in for him this week. He is yours to lose.</p>
+                <p className="text-xs text-ink-3">{t("deal.noRivalsBody")}</p>
             ) : (
                 <>
                     <ul className="flex flex-wrap gap-1.5">
@@ -230,13 +229,14 @@ function RivalSection({ n }: { n: ReturnType<typeof useNegotiation> }) {
                                 <span className="max-w-[120px] truncate">{r.name}</span>
                             </li>
                         ))}
-                        {rivals.length > shown.length && <li className="px-1 py-1 text-xs text-ink-3">+{rivals.length - shown.length} more</li>}
+                        {rivals.length > shown.length && <li className="px-1 py-1 text-xs text-ink-3">{t("deal.more", { n: rivals.length - shown.length })}</li>}
                     </ul>
                     <p className="text-xs text-ink-3">
-                        {rivals.length === 1 ? "This club is" : "These clubs are"} in for him this week and would start him.
+                        {tn("deal.rivalsIn", rivals.length)}
+                        {" "}
                         {n.currentTeam
-                            ? ` ${n.currentTeam.name} ask ${pct}% more with them in the race (${Math.round(RIVAL_FEE_STEP * 100)}% per club, up to ${Math.round(RIVAL_FEE_STEP * RIVAL_FEE_MAX_CLUBS * 100)}%).`
-                            : " As a free agent there is no fee to push up."}
+                            ? t("deal.rivalPremium", { club: n.currentTeam.name, pct, step: Math.round(RIVAL_FEE_STEP * 100), max: Math.round(RIVAL_FEE_STEP * RIVAL_FEE_MAX_CLUBS * 100) })
+                            : t("deal.rivalFree")}
                     </p>
                 </>
             )}

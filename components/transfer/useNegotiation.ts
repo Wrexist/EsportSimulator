@@ -1,4 +1,5 @@
 "use client"
+import { intlLocale, t, tn } from "@/lib/i18n"
 
 /**
  * Player-signing negotiation state + rules, shared by the docked deal panel
@@ -72,9 +73,9 @@ const money = (value: number) => formatCurrency(value, "$", false)
 
 export function formatWeeksAsYears(weeks: number): string {
     const years = weeks / 52
-    if (years < 1) return `${weeks} weeks`
-    if (years === Math.floor(years)) return `${years} year${years > 1 ? "s" : ""}`
-    return `${years.toFixed(1)} years`
+    if (years < 1) return tn("deal.weeks", weeks)
+    if (years === Math.floor(years)) return tn("deal.years", years)
+    return t("deal.yearsDecimal", { n: years.toLocaleString(intlLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) })
 }
 
 /** Probability that `ratio` (offer / centre) clears a floor drawn uniformly from `band`, accepted within 3%. */
@@ -254,17 +255,17 @@ export function useNegotiation(playerId: string | null, active = true) {
         const minPrice = Math.round(askingValue * variance)
 
         if (sanitizedBuyoutOffer >= minPrice * 0.97) {
-            setNegotiationLog(prev => [...prev, `${currentTeam?.name ?? "The club"} accepted ${money(sanitizedBuyoutOffer)}.`])
+            setNegotiationLog(prev => [...prev, t("nego.log.feeAccepted", { club: currentTeam?.name ?? t("nego.log.theClub"), fee: money(sanitizedBuyoutOffer) })])
             setStage("CONTRACT")
         } else {
-            setNegotiationLog(prev => [...prev, `${money(sanitizedBuyoutOffer)} rejected. ${currentTeam?.name ?? "The club"} accepts ${money(Math.ceil(minPrice * 0.97))} or more.`])
+            setNegotiationLog(prev => [...prev, t("nego.log.feeRejected", { fee: money(sanitizedBuyoutOffer), club: currentTeam?.name ?? t("nego.log.theClub"), min: money(Math.ceil(minPrice * 0.97)) })])
         }
     }
 
     const submitContract = () => {
         if (!playerSave || !evaluation) return
         if ((currentTeam?.id || null) !== originalOwner.current) {
-            setFailureMessage("This player's club changed during negotiations. Reopen the deal to get current terms.")
+            setFailureMessage(t("nego.clubChanged"))
             return
         }
         const sanitizedDuration = Math.max(12, Math.min(156, Math.floor(durationOffer)))
@@ -272,11 +273,11 @@ export function useNegotiation(playerId: string | null, active = true) {
         const sanitizedBuyoutOffer = Math.max(0, Math.floor(buyoutOffer))
 
         if (sanitizedDuration < durationPref.minWeeks) {
-            setNegotiationLog(prev => [...prev, `Wants a longer contract (at least ${formatWeeksAsYears(durationPref.minWeeks)}).`])
+            setNegotiationLog(prev => [...prev, t("nego.log.longer", { length: formatWeeksAsYears(durationPref.minWeeks) })])
             return
         }
         if (sanitizedDuration > durationPref.maxWeeks) {
-            setNegotiationLog(prev => [...prev, `Won't commit that long (at most ${formatWeeksAsYears(durationPref.maxWeeks)}).`])
+            setNegotiationLog(prev => [...prev, t("nego.log.shorter", { length: formatWeeksAsYears(durationPref.maxWeeks) })])
             return
         }
 
@@ -291,11 +292,11 @@ export function useNegotiation(playerId: string | null, active = true) {
 
         if (sanitizedSalary >= minimumSalary * 0.97) {
             // Terms agreed: the paper contract comes out for the manager to sign.
-            setNegotiationLog(prev => [...prev, "Terms agreed. The contract is ready to sign."])
+            setNegotiationLog(prev => [...prev, t("nego.log.agreed")])
             setPendingDeal({ salary: sanitizedSalary, duration: sanitizedDuration, fee: sanitizedBuyoutOffer, clauses })
             setStage("SIGN")
         } else {
-            setNegotiationLog(prev => [...prev, `${money(sanitizedSalary)}/wk rejected. Accepts ${money(Math.ceil(minimumSalary * 0.97))}/wk or more at this length.`])
+            setNegotiationLog(prev => [...prev, t("nego.log.wageRejected", { wage: money(sanitizedSalary), min: money(Math.ceil(minimumSalary * 0.97)) })])
         }
     }
 
@@ -307,7 +308,7 @@ export function useNegotiation(playerId: string | null, active = true) {
     const signContract = (signature: SigningSignature | null): boolean => {
         if (!playerSave || !pendingDeal || !myTeam) return false
         if ((currentTeam?.id || null) !== originalOwner.current) {
-            setFailureMessage("This player's club changed during negotiations. Reopen the deal to get current terms.")
+            setFailureMessage(t("nego.clubChanged"))
             setStage("FAILED")
             return false
         }
@@ -328,7 +329,7 @@ export function useNegotiation(playerId: string | null, active = true) {
             }
         )
         if (result.success) {
-            setNegotiationLog(prev => [...prev, "Contract signed."])
+            setNegotiationLog(prev => [...prev, t("nego.log.signed")])
             setStage("SUCCESS")
             celebrateSigning({
                 playerId: playerSave.id, fee, salaryPerWeek: salary, contractEndWeek: currentWeek + duration, fromTeamId: currentTeam?.id ?? null,
@@ -337,11 +338,11 @@ export function useNegotiation(playerId: string | null, active = true) {
             })
             return true
         }
-        const reason = result.message || "The deal could not be completed."
-        setNegotiationLog(prev => [...prev, `Transfer rejected: ${reason}`])
+        const reason = result.message || t("nego.couldNotComplete")
+        setNegotiationLog(prev => [...prev, t("nego.log.rejected", { reason })])
         setFailureMessage(reason)
         setStage("FAILED")
-        addToast({ message: `Transfer failed: ${reason}`, type: "error" })
+        addToast({ message: t("nego.failedToast", { reason }), type: "error" })
         return false
     }
 

@@ -371,4 +371,5 @@ export const PLAYER = {
     "mastery.SKILLED": "Skilled",
     "mastery.EXPERT": "Expert",
     "mastery.MASTER": "Master",
+    "attr.consistency": "Consistency",
 } as const

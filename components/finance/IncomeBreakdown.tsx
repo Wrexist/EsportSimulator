@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 import { Meter } from '@/src/components/ui/Meter'
 import { formatCurrency } from '@/lib/utils-extended'
 import { cn } from '@/lib/utils'
@@ -21,7 +22,7 @@ export function MoneyBreakdown({ rows, total, tone }: { rows: BreakdownRow[]; to
                             <span className="block truncate text-sm text-ink-1">{label}</span>
                             {note && <span className="block truncate text-xs text-ink-3">{note}</span>}
                         </dt>
-                        <Meter value={share} label={`${label} as a share of projected ${tone}`} tone="neutral" showValue={false} trackClassName="w-16" />
+                        <Meter value={share} label={t(tone === "income" ? "fin.shareIncome" : "fin.shareExpense", { label })} tone="neutral" showValue={false} trackClassName="w-16" />
                         <dd className={cn('text-right text-sm tabular-nums', tone === 'income' && amount > 0 ? 'text-positive' : 'text-ink-1')}>
                             {formatCurrency(amount, '$', false)}
                         </dd>
@@ -38,9 +39,9 @@ export function IncomeBreakdown({ income }: { income: { sponsors: number; fanbas
             tone="income"
             total={income.total}
             rows={[
-                { label: 'Sponsorship payments', amount: income.sponsors },
-                { label: 'Fan income', amount: income.fanbaseBonus },
-                { label: 'League central payment', amount: income.leagueShare ?? 0 },
+                { label: t("fin.sponsorPayments"), amount: income.sponsors },
+                { label: t("fin.fanIncome"), amount: income.fanbaseBonus },
+                { label: t("fin.in.league"), amount: income.leagueShare ?? 0 },
             ]}
         />
     )
