@@ -82,6 +82,22 @@ export interface TransferContractActions {
 }
 
 /**
+ * SQUAD-23: a player who leaves the managed club stays well known to it: an
+ * Expert report from this week, so his profile doesn't fall back to an
+ * unscouted range a minute after he played for you. A better report is kept.
+ */
+const SCOUT_RANKS = ["BASIC", "ADVANCED", "EXPERT", "ELITE"] as const
+function rememberFormerPlayer(state: StoreState, playerId: string): void {
+    state.scoutedPlayers = state.scoutedPlayers || []
+    const entry = state.scoutedPlayers.find(s => s.playerId === playerId)
+    if (!entry) state.scoutedPlayers.push({ playerId, scoutedWeek: state.currentWeek, scoutLevel: "EXPERT" })
+    else if (SCOUT_RANKS.indexOf(entry.scoutLevel) < SCOUT_RANKS.indexOf("EXPERT")) {
+        entry.scoutLevel = "EXPERT"
+        entry.scoutedWeek = state.currentWeek
+    }
+}
+
+/**
  * Take a player off a club's roster into free agency: contract ended,
  * listing and role training cleared, synergy recomputed, and the standard
  * roster-change chemistry penalty. Shared by the free release path of
@@ -199,6 +215,12 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                     result = { success: false, message: "Player is not on the source team roster" }
                     return
                 }
+                // SQUAD-04: a sale may not break the managed club's starting
+                // five (the same quorum releasePlayer enforces).
+                if (fromTeam.id === state.playerTeamId && fromTeam.rosterIds.length <= SENIOR_ROSTER_MIN) {
+                    result = { success: false, message: `You need at least ${SENIOR_ROSTER_MIN} senior players to field a team. Sign a replacement before you sell.` }
+                    return
+                }
 
                 // Strategic refusal: won't trade to a team we're playing in the next 3 weeks.
                 const matches = state.scheduledMatches.filter(m =>
@@ -278,6 +300,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             if (fromTeam) {
                 fromTeam.rosterIds = fromTeam.rosterIds.filter(id => id !== playerId)
                 fromTeam.budget += normalizedFee
+                if (fromTeam.id === state.playerTeamId) rememberFormerPlayer(state, playerId)
 
                 if (fromTeam.activeRoleTraining) {
                     const hadTraining = fromTeam.activeRoleTraining.some(t => t.playerId === playerId)
@@ -290,6 +313,9 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
 
             // Apply to-team side: add to roster, debit fee.
             toTeam.rosterIds.push(playerId)
+            // SQUAD-02: the manager signed him for the role on his contract;
+            // the weekly role reconciler must not quietly make him a rifler.
+            if (toTeamId === state.playerTeamId && transferPlayerRecord.role) transferPlayerRecord.roleLocked = true
             toTeam.budget -= normalizedFee
 
             // Contract write — drop any existing contracts for this player first
@@ -640,6 +666,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             }
             const chemistryBefore = team.chemistry ?? 50
             releaseToFreeAgency(state, team, playerId)
+            rememberFormerPlayer(state, playerId)
             const chemistryLost = Math.round(chemistryBefore - (team.chemistry ?? 50))
             state.transferHistory = state.transferHistory || []
             state.transferHistory.push({

@@ -6,6 +6,21 @@
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getActivePlayersByRosterOrder } from "./live-match-builders"
 
+/** Players in a starting five. */
+export const STARTING_FIVE = 5
+
+/**
+ * The starting five's average from the OVRs of the players in it. An empty
+ * slot counts as 0 (SQUAD-06): a club one player short can't field a team,
+ * so it must not read stronger than with a weak fifth. Null when nobody
+ * plays.
+ */
+export function startingFiveOvr(ovrs: readonly number[]): number | null {
+    if (ovrs.length === 0) return null
+    const five = ovrs.slice(0, STARTING_FIVE)
+    return Math.round(five.reduce((sum, v) => sum + v, 0) / STARTING_FIVE)
+}
+
 export function teamOvr(
     team: { rosterIds?: string[]; roster?: string[] } | undefined,
     players: Array<{ id: string; isRetired?: boolean }>,
@@ -13,8 +28,7 @@ export function teamOvr(
 ): number | null {
     if (!team) return null
     const five = getActivePlayersByRosterOrder(team, players, playerMap)
-    if (five.length === 0) return null
-    return Math.round(five.reduce((sum, p) => sum + evaluatePlayer(p as unknown as Parameters<typeof evaluatePlayer>[0]).overallRating, 0) / five.length)
+    return startingFiveOvr(five.map(p => evaluatePlayer(p as unknown as Parameters<typeof evaluatePlayer>[0]).overallRating))
 }
 
 /** Team OVR for every team, keyed by id, for lists that show many teams at once. */

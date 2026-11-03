@@ -20,6 +20,7 @@ import { choiceLabel, describeChoice, type ChoiceLike, type EffectChip, type Inb
 import { getArchetype } from "@/engine/personality"
 import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import { CLAUSE_TUNING } from "@/engine/contract-clauses"
+import { SENIOR_ROSTER_MIN } from "@/engine/roster-rules"
 import { useInboxDrawer } from "./inbox-drawer-store"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
@@ -124,12 +125,13 @@ export function ChoiceDecision({ event, budget }: { event: GameEventSaveData; bu
 
 /** An AI club bidding for one of your players (`acceptTransferOffer` / reject). */
 export function TransferOfferDecision({ event, ctx }: { event: GameEventSaveData; ctx: InboxContext }) {
-    const { acceptTransferOffer, resolveEventChoice, player, playsThisWeek } = useGameStore(useShallow(s => {
+    const { acceptTransferOffer, resolveEventChoice, player, playsThisWeek, rosterSize } = useGameStore(useShallow(s => {
         const data = (event.data ?? {}) as AnyData
         return {
             acceptTransferOffer: s.acceptTransferOffer,
             resolveEventChoice: s.resolveEventChoice,
             player: s.players.find(p => p.id === data.playerId),
+            rosterSize: s.teams.find(t => t.id === s.playerTeamId)?.rosterIds.length ?? 0,
             playsThisWeek: s.scheduledMatches.some(m =>
                 m.week === s.currentWeek && !m.result && (m.homeTeamId === s.playerTeamId || m.awayTeamId === s.playerTeamId)),
         }
@@ -139,7 +141,9 @@ export function TransferOfferDecision({ event, ctx }: { event: GameEventSaveData
     const fee = typeof data.offerAmount === "number" ? data.offerAmount : 0
     const acceptBlocked = !player?.forSale
         ? "No longer on the transfer list"
-        : playsThisWeek ? "You play this week — the roster must stay intact" : undefined
+        : playsThisWeek ? "You play this week — the roster must stay intact"
+            // SQUAD-04: the same quorum the store enforces (transferPlayer).
+            : rosterSize <= SENIOR_ROSTER_MIN ? `You need at least ${SENIOR_ROSTER_MIN} senior players to field a team. Sign a replacement first.` : undefined
 
     const sellOnFee = Math.round(fee * (1 - CLAUSE_TUNING.SELL_ON_FEE_CUT))
     const accept = (sellOn = false) => {
