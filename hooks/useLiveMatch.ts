@@ -1112,9 +1112,12 @@ export function useLiveMatch(id: string, options: LiveMatchOptions = {}) {
     // holds (or releases) the auto-tactics countdown on the decision card.
     const waitingRef = useRef(isWaitingForStrategy)
     waitingRef.current = isWaitingForStrategy
+    const autoRef = useRef(isAutoTactics)
+    autoRef.current = isAutoTactics
     const togglePlayback = useCallback(() => {
         if (latestGameStateRef.current.status !== "IN_PROGRESS") return
-        if (waitingRef.current && !roundInFlightRef.current) { setDecisionHold(hold => !hold); return }
+        // Without auto tactics there is no countdown to hold: the card waits for a call.
+        if (waitingRef.current && !roundInFlightRef.current) { if (autoRef.current) setDecisionHold(hold => !hold); return }
         setIsPlaying(playing => !playing)
     }, [])
 
