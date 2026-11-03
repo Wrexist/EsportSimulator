@@ -1124,7 +1124,10 @@ export class TournamentManager {
 
         // ELIMINATION CHECK (Single Elimination)
         // Any loss here = Eliminated (unless it's a 3rd place decider, but even then tournament is over for them)
-        if (loserId) {
+        // A round-robin league ("League Match" fixtures) also lands here, and
+        // a single loss there eliminates no one: the club plays out the
+        // league (HOME-04).
+        if (loserId && tournament.format !== "league") {
             save.tournamentQualifications = QualificationEngine.updateStatus(
                 save.tournamentQualifications,
                 tournament.id,
