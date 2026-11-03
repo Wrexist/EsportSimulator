@@ -113,6 +113,24 @@ function eventCauseLabel(event: GameEventSaveData): string {
     return clean.length > 70 ? `${clean.slice(0, 67)}...` : clean
 }
 
+/**
+ * When the managed club's match falls, for the week-start "Match Day!"
+ * notice. In daily mode the week starts on day 0 and the match is often days
+ * later ("on Sun, Jan 10"), not "today" (HOME-09). Weekly mode plays the
+ * whole week in this tick, so "today" stays. Stored text is English.
+ */
+export function matchDayPhrase(
+    save: Pick<GameSave, "timeMode" | "gameStartDate">,
+    match: { week: number; day?: number },
+): string {
+    if (save.timeMode !== "HYBRID_DAILY" || typeof match.day !== "number" || match.day <= 0) return "today"
+    if (!save.gameStartDate || Number.isNaN(new Date(save.gameStartDate).getTime())) return "this week"
+    // Same date math as lib/game-calendar (gameCalendarDate), without its UI-locale import.
+    const date = new Date(save.gameStartDate)
+    date.setUTCDate(date.getUTCDate() + (match.week - 1) * 7 + match.day)
+    return `on ${date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" })}`
+}
+
 // ===== DEBUG =====
 // Routes through lib/logger so dev/prod gating + history capture (used by
 // the in-game debug panel) work uniformly with the rest of the engine
@@ -373,6 +391,7 @@ export class AtomicWeekProcessor {
                     const tournament = match.tournamentId ? idx.tournamentIndex.get(match.tournamentId) : undefined
 
                     if (opponent && tournament) {
+                        const when = matchDayPhrase(save, match)
                         save.eventsLog.push({
                             id: `upcoming_match_${match.id}_${save.currentWeek}`,
                             type: "TOURNAMENT",
@@ -380,7 +399,7 @@ export class AtomicWeekProcessor {
                             acknowledged: false,
                             data: {
                                 title: "🎮 Match Day!",
-                                message: `Your team faces ${opponent.name} (#${opponent.worldRanking || '?'}) today in ${tournament.name}. ${match.stage || 'Tournament Match'}. Good luck!`,
+                                message: `Your team faces ${opponent.name} (#${opponent.worldRanking || '?'}) ${when} in ${tournament.name}. ${match.stage || 'Tournament Match'}. Good luck!`,
                                 severity: "info",
                                 tournamentId: tournament.id,
                                 matchId: match.id,
