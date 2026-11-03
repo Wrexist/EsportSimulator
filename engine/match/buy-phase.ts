@@ -88,7 +88,7 @@ export function performBuyPhase(
     }
 
     // Pre-allocate AWP slots — prioritize AWPER role, then by cash.
-    let awpsToBuy = strategy === "DOUBLE AWP" ? 2 : (strategy === "FULL" ? 1 : 0)
+    const awpsToBuy = strategy === "DOUBLE AWP" ? 2 : (strategy === "FULL" ? 1 : 0)
     const playerPositionMap = new Map(players.map((p, i) => [p.id, i]))
     const awpRecipients = new Set<string>()
     if (awpsToBuy > 0) {

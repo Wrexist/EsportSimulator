@@ -18,8 +18,6 @@ import {
     validateSaveStructure,
     collectValidationErrors,
     repairSave,
-    hasIncompleteWeekTick,
-    getResumeStep,
     PlayerPreview,
 } from "./save-types"
 import { validateSaveSchema } from "./save-schema"
@@ -560,7 +558,7 @@ export class SaveManager {
             ])
             if (primaryRead.status === "rejected") throw primaryRead.reason
             let localData = primaryRead.value
-            let cloudData: string | null = cloudRead.status === "fulfilled" ? cloudRead.value : null
+            const cloudData: string | null = cloudRead.status === "fulfilled" ? cloudRead.value : null
 
             // If primary not found, try rotating backups (newest first).
             // Kept sequential — almost always a no-op on the happy path.
@@ -896,7 +894,7 @@ export class SaveManager {
             for (const id of await steamService.listCloudSaveIds?.() || []) saveIds.add(id)
             for (const id of saveIds) await steamService.deleteCloudFile(`save_${id}.json`)
             return { success: true }
-        } catch (e) {
+        } catch {
             return { success: false }
         }
     }

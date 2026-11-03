@@ -12,12 +12,10 @@ import {
   GameSave,
   TransferRecord,
   ManagerDetails,
-  SaveManager,
   saveManager,
   TeamSaveData,
   PlayerSaveData,
   ContractSaveData,
-  CURRENT_SAVE_VERSION,
   FacilitySaveData,
   SponsorSaveData,
   TournamentSaveData,
@@ -27,14 +25,12 @@ import {
   GameEventSaveData,
   ActivitySaveData,
   SeededRNG,
-  atomicWeekProcessor,
   STORAGE_KEYS,
   asyncStorage,
   debouncedStorage,
   SaveSlotMetadata,
   HallOfFameEntry,
   AIManager,
-  TrainingManager,
   reconcileAllRoles,
   simulationEngineV2,
   TournamentManager,
@@ -42,46 +38,25 @@ import {
   QualificationStatus,
   CircuitPointsEntry,
   SynergyCalculator,
-  FOUNDING_LEGENDS,
   type SaveErrorCode
 } from "@/engine"
-import { soundManager } from "@/lib/sound-manager"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
 import { seedPreseasonFriendlies } from "@/engine/preseason-friendlies"
-import { ManagerProgression } from "@/engine/manager-progression"
 import { recordCareerProgress } from "@/engine/manager-career-profile"
-import { StaffGenerator } from "@/engine/staff-generator"
-import { WeaponMasteryManager, WeaponType } from "@/engine/weapon-mastery-system"
 import { PreSeasonTransferProcessor } from "@/engine/pre-season-transfers"
 import { snapshotLoader } from "@/data"
-import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import { initialClubBudget } from "@/engine/season/club-finances"
 import { drawDueLeagueSplit } from "@/engine/season/regional-league"
 import { recordOfficialMatch } from "@/engine/official-stats"
 import { ensureBoardState } from "@/engine/board-expectations"
 import { weekProcessorBridge } from "@/engine/worker/week-processor-bridge"
-import { Player, Team, Match, GameEvent, MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
-import { MapId } from "@/types/enums"
-import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
-import { AcademyEngine } from "@/engine/academy-engine"
-import { generateProspect, prospectToPlayerData } from "@/engine/prospect-generator"
+import { Player, Team, MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
+import { steamService as steamAchievements } from "@/engine/steam-service"
 import { deriveTraits, ensurePersonality } from "@/engine/personality"
-import { SCOUTING_COSTS, ACADEMY_LEVELS, DEV_MATCH_CONFIG, isScoutingTierUnlocked, ENERGY_CONFIG, DEVELOPMENT_CONFIG, ACADEMY_DRILLS, SCOUTING_DURATIONS, PENDING_POOL_MAX_SIZE } from "@/engine/academy-constants"
-import { AcademyPlayer, AcademyTrainingFocus, ScoutingTier } from "@/types/academy"
+import { AcademyTrainingFocus, ScoutingTier } from "@/types/academy"
 import { TrainingFocus } from "@/types"
 import { generateSeed } from "@/engine/rng"
-import { SponsorGenerator } from "@/engine/economy-manager"
-import { applyRosterChangePenalty, applyBootcampChemistryBonus } from "@/engine/chemistry-engine"
-import {
-  buildInstanceId,
-  getSeasonFromTournamentId,
-  getSeasonFromWeek,
-  getSeriesIdFromTournamentId,
-  isQualificationForTournament,
-  normalizeQualificationStatus,
-  resolveTournamentIdentity
-} from "@/engine/circuit-engine"
-import { buildEntityIndexes, type EntityIndexes } from "@/store/indexes"
+import { buildEntityIndexes } from "@/store/indexes"
 import { pendingPlayableMatch } from "@/lib/playable-match"
 import { pruneGameState } from "@/store/utils/array-pruning"
 import { perfTrace } from "@/engine/perf-trace"
@@ -111,7 +86,7 @@ import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achi
 import { checkMilestones } from "@/engine/milestone-checker"
 import { checkLegacyGoals, LEGACY_INIT_ID } from "@/engine/legacy-goals"
 import { adjustManagerReputation } from "@/engine/manager-timeline"
-import { recalculateAllSynergy, recalculateTeamSynergy } from "@/engine/processors/team-synergy-recalc"
+import { recalculateAllSynergy } from "@/engine/processors/team-synergy-recalc"
 import { createTrainingSlice } from "@/store/slices/training-slice"
 import { createTeamSettingsSlice } from "@/store/slices/team-settings-slice"
 import { createDelegationSlice } from "@/store/slices/delegation-slice"
@@ -190,18 +165,6 @@ const nextDeterministicId = (
   return suffix
     ? `${prefix}_${state.currentWeek}_${token}_${suffix}`
     : `${prefix}_${state.currentWeek}_${token}`
-}
-
-const ensureDeterministicSeed = (
-  state: RngBackedState,
-  matchLike: { seed?: number }
-): number => {
-  if (Number.isFinite(matchLike.seed) && (matchLike.seed as number) > 0) {
-    return matchLike.seed as number
-  }
-  const seed = nextRandomInt(state, 1, 2147483646)
-  matchLike.seed = seed
-  return seed
 }
 
 const computeFallbackMatchSeed = (matchId: string, week: number, day: number, salt: number): number => {
@@ -374,66 +337,6 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
   if (completedIds.size > 0) {
     state.scheduledMatches = state.scheduledMatches.filter(match => !completedIds.has(match.id))
   }
-}
-
-const MAX_TRANSFER_FEE = 1_000_000_000
-const MAX_PLAYER_SALARY_PER_WEEK = 10_000_000
-const MAX_STAFF_SALARY_PER_WEEK = 2_000_000
-const MAX_SIGNING_BONUS = 50_000_000
-const MAX_CONTRACT_LENGTH_WEEKS = 52 * 10
-const MAX_MAPS_PER_SERIES = 5
-const ALLOWED_MAP_IDS = new Set<string>(Object.values(MapId))
-const MAX_ROUNDS_PER_MAP = 60
-// Series totals: a long BO5 runs 120+ rounds, and a star kills about 0.8 a round.
-const MAX_MATCH_KILLS = 200
-const MAX_MATCH_DEATHS = 200
-const MAX_MATCH_ASSISTS = 150
-const MAX_MATCH_CLUTCHES = 15
-const MAX_MATCH_OPENINGS = 30
-const MAX_MATCH_ADR = 300
-const MAX_MATCH_RATING = 3
-const VOD_REVIEW_COST = 2_500
-const MENTAL_RESET_COST = 5_000
-const VALID_PLAYSTYLES = new Set<TeamSaveData["playstyle"]>(["balanced", "aggressive", "structured", "default"])
-const VALID_ECONOMY_STYLES = new Set<TeamSaveData["economyStyle"]>(["standard", "force", "eco"])
-
-type NumericValidationResult =
-  | { ok: true; value: number }
-  | { ok: false; message: string }
-
-const parseBoundedInt = (
-  value: unknown,
-  label: string,
-  min: number,
-  max: number
-): NumericValidationResult => {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return { ok: false, message: `${label} must be a valid number` }
-  }
-
-  const normalized = Math.floor(value)
-  if (normalized < min || normalized > max) {
-    return { ok: false, message: `${label} must be between ${min.toLocaleString()} and ${max.toLocaleString()}` }
-  }
-
-  return { ok: true, value: normalized }
-}
-
-const parseBoundedNumber = (
-  value: unknown,
-  label: string,
-  min: number,
-  max: number
-): NumericValidationResult => {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return { ok: false, message: `${label} must be a valid number` }
-  }
-
-  if (value < min || value > max) {
-    return { ok: false, message: `${label} must be between ${min.toLocaleString()} and ${max.toLocaleString()}` }
-  }
-
-  return { ok: true, value }
 }
 
 // UI-specific state extensions

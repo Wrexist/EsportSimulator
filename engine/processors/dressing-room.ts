@@ -34,6 +34,7 @@ import {
     promiseVerdict,
     pruneMentorships,
 } from "../personality"
+import { plural } from "@/lib/plural"
 
 export interface DressingRoomResult {
     benched: number
@@ -74,7 +75,7 @@ export function processDressingRoom(save: GameSave, playerTeamId: string | null,
             const loss = T.BENCH_MORALE_PER_WEEK * benchMoraleFactor(getArchetype(p))
             if (drop(p, loss, T.BENCH_MORALE_FLOOR)) {
                 result.benched++
-                benchCauses.set(p.id, { type: "dressing_room", label: `Benched ${apps.benched} matches` })
+                benchCauses.set(p.id, { type: "dressing_room", label: `Benched ${plural(apps.benched, "match", "matches")}` })
             }
         }
     }

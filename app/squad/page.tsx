@@ -1,5 +1,6 @@
 "use client"
 import { t, tn } from "@/lib/i18n"
+import { countryName } from "@/lib/country"
 
 import { LoadChip } from "@/components/squad/LoadChip"
 import { useGameStore } from "@/store/game-store"
@@ -120,7 +121,7 @@ const RosterRow = memo(function RosterRow({
             <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
               <CountryFlag country={player.nationality} size={14} />
               {/* Many generated players carry the nickname as their name; don't repeat it. */}
-              <span className="truncate">{player.name && player.name !== player.nickname ? player.name : String(player.nationality || "").toUpperCase()}</span>
+              <span className="truncate">{player.name && player.name !== player.nickname ? player.name : countryName(player.nationality).toUpperCase()}</span>
             </div>
           </div>
         </div>

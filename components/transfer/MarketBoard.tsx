@@ -1,5 +1,6 @@
 "use client"
 import { intlLocale, t, tn } from "@/lib/i18n"
+import { countryName } from "@/lib/country"
 
 import { memo, useEffect, useMemo, useState, type KeyboardEvent } from "react"
 import Link from "next/link"
@@ -153,7 +154,7 @@ const MarketRow = memo(function MarketRow({ row, selected, wage, watchlisted, sc
                         </div>
                         <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-3">
                             <CountryFlag country={player.nationality} size={12} />
-                            <span className="truncate">{player.name && player.name !== player.nickname ? player.name : String(player.nationality || "").toUpperCase()}</span>
+                            <span className="truncate">{player.name && player.name !== player.nickname ? player.name : countryName(player.nationality).toUpperCase()}</span>
                         </div>
                     </div>
                 </div>

@@ -5,8 +5,55 @@ import { SeededRNG } from "./rng"
 import { STAFF_SALARY_RANGES } from "../lib/constants"
 
 export class StaffGenerator {
+    /** Kept at nine entries: the name roll draws an index in this range, so its size fixes the RNG sequence. */
     private static NAMES = ["Anderson", "Smith", "Zhang", "Popov", "Kovac", "Muller", "Jensen", "Dubois", "Silva"]
     private static NATIONALITIES = ["USA", "UK", "China", "Russia", "Serbia", "Germany", "Denmark", "France", "Brazil"]
+    /** First and last names per nationality; the name roll and the seed pick from these. */
+    private static NAME_POOL: Record<string, { first: string[]; last: string[] }> = {
+        USA: { first: ["Mike", "Chris", "Jordan", "Tyler", "Ryan", "Kyle", "Sam", "Dana", "Alex"], last: ["Anderson", "Miller", "Brooks", "Carter", "Hayes", "Walker", "Reed", "Parker", "Coleman"] },
+        UK: { first: ["James", "Oliver", "Harry", "Tom", "Callum", "Ellie", "Rhys", "Liam", "Jack"], last: ["Smith", "Taylor", "Hughes", "Wright", "Evans", "Clarke", "Turner", "Bennett", "Lloyd"] },
+        China: { first: ["Wei", "Hao", "Jun", "Lei", "Ming", "Yang", "Chen", "Bo", "Tao"], last: ["Zhang", "Wang", "Li", "Liu", "Chen", "Zhao", "Huang", "Zhou", "Wu"] },
+        Russia: { first: ["Dmitry", "Sergey", "Andrey", "Ivan", "Pavel", "Oleg", "Nikita", "Artem", "Yuri"], last: ["Popov", "Volkov", "Smirnov", "Petrov", "Sokolov", "Morozov", "Lebedev", "Orlov", "Kuznetsov"] },
+        Serbia: { first: ["Nikola", "Marko", "Stefan", "Luka", "Milan", "Dusan", "Petar", "Vuk", "Ivan"], last: ["Kovac", "Jovanovic", "Petrovic", "Nikolic", "Markovic", "Djordjevic", "Ilic", "Savic", "Pavlovic"] },
+        Germany: { first: ["Lukas", "Jonas", "Felix", "Tobias", "Jan", "Niklas", "Moritz", "Lena", "Paul"], last: ["Muller", "Schmidt", "Fischer", "Weber", "Wagner", "Becker", "Hoffmann", "Koch", "Richter"] },
+        Denmark: { first: ["Mads", "Rasmus", "Mikkel", "Emil", "Frederik", "Jonas", "Kasper", "Anders", "Søren"], last: ["Jensen", "Nielsen", "Hansen", "Pedersen", "Andersen", "Larsen", "Sørensen", "Rasmussen", "Madsen"] },
+        France: { first: ["Lucas", "Hugo", "Théo", "Mathieu", "Julien", "Kévin", "Nicolas", "Camille", "Antoine"], last: ["Dubois", "Martin", "Bernard", "Moreau", "Laurent", "Girard", "Lefèvre", "Roux", "Fournier"] },
+        Brazil: { first: ["Gabriel", "Lucas", "Rafael", "Bruno", "Felipe", "Thiago", "Gustavo", "Mateus", "Caio"], last: ["Silva", "Santos", "Oliveira", "Souza", "Costa", "Pereira", "Almeida", "Ferreira", "Lima"] },
+    }
+
+    /** A full name for a generated staff member. Psychologists carry their title. */
+    private static staffName(role: string, nationality: string, nameRoll: number, seed: number, variant = 0): string {
+        const pool = this.NAME_POOL[nationality] ?? this.NAME_POOL.UK
+        const mix = (Math.imul((seed >>> 0) ^ 0x9e3779b9, 2654435761) >>> 0)
+        const first = pool.first[(mix + variant) % pool.first.length]
+        const last = pool.last[(nameRoll + Math.floor(variant / pool.first.length)) % pool.last.length]
+        return `${role === "psychologist" ? "Dr. " : ""}${first} ${last}`
+    }
+
+    /**
+     * Gives every generated member of a market a name no one else in it has.
+     * Real staff keep theirs and appear once (a rotation can draw someone already listed).
+     */
+    private static uniqueNames(market: StaffSaveData[]): StaffSaveData[] {
+        const realSeen = new Set<string>()
+        const deduped = market.filter(member => {
+            if (member.id.startsWith("gen_")) return true
+            if (realSeen.has(member.name)) return false
+            realSeen.add(member.name)
+            return true
+        })
+        const used = new Set(realSeen)
+        return deduped.map(member => {
+            if (!member.id.startsWith("gen_") || !used.has(member.name)) { used.add(member.name); return member }
+            const nameRoll = Math.max(0, this.NAMES.indexOf(member.name.split(" ").pop() ?? ""))
+            const seed = Number(member.id.split("_")[2]) || 0
+            for (let variant = 1; variant < 81; variant++) {
+                const name = this.staffName(member.role, member.nationality ?? "UK", nameRoll, seed, variant)
+                if (!used.has(name)) { used.add(name); return { ...member, name } }
+            }
+            return member
+        })
+    }
 
     /**
      * Generate a weekly market of staff
@@ -55,13 +102,13 @@ export class StaffGenerator {
         }
 
         // Final trimming just in case of any overflow logic elsewhere
-        return market.slice(0, count)
+        return this.uniqueNames(market.slice(0, count))
     }
 
     static generateFakeStaff(role: "coach" | "analyst" | "psychologist" | "scout", seed: number, rng?: SeededRNG): StaffSaveData {
         const localRng = rng ?? new SeededRNG(seed >>> 0)
         const rnd = (min: number, max: number) => localRng.int(min, max)
-        const name = `Dr. ${this.NAMES[rnd(0, this.NAMES.length - 1)]}`
+        const nameRoll = rnd(0, this.NAMES.length - 1)
 
         // Rarity Roll
         const roll = localRng.next()
@@ -106,16 +153,21 @@ export class StaffGenerator {
             ?? STAFF_SALARY_RANGES.Standard
         const salary = rnd(salaryRange.min, salaryRange.max)
 
+        const level = rnd(levelMin, levelMax)
+        const yearsRemaining = rnd(1, 3)
+        const nationality = this.NATIONALITIES[rnd(0, this.NATIONALITIES.length - 1)]
+        const name = this.staffName(role, nationality, nameRoll, seed)
+
         return {
             id: `gen_${role}_${seed}_${name.replace(/[^a-zA-Z]/g, '')}_${rarity}`,
             name: name,
             role: role,
-            level: rnd(levelMin, levelMax),
+            level,
             specialization,
             salaryPerWeek: salary,
             teamId: "",
-            yearsRemaining: rnd(1, 3),
-            nationality: this.NATIONALITIES[rnd(0, this.NATIONALITIES.length - 1)],
+            yearsRemaining,
+            nationality,
             description: `Generated ${rarity} ${role} expert.`,
             stats,
             rarity,
@@ -145,6 +197,6 @@ export class StaffGenerator {
         // Generate new batch
         const newBatch = this.generateWeeklyMarket(week, needed, localRng)
 
-        return [...kept, ...newBatch]
+        return this.uniqueNames([...kept, ...newBatch])
     }
 }

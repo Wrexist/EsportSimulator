@@ -200,8 +200,7 @@ export class EconomyEngine {
         const activeLines = Math.min(5, team.activeMerchItems?.length ?? 0)
         const merchLineBonus = 1 + activeLines * 0.04
 
-        // Apply difficulty multipliers for custom teams
-        const fansMultiplier = team.difficultySettings?.fansMultiplier ?? 1.0
+        // Difficulty income multiplier for custom teams (the fans multiplier is applied once, to the starting fanbase)
         const incomeMultiplier = team.difficultySettings?.incomeMultiplier ?? 1.0
 
         return Math.floor(followers * effectiveRate * levelMultiplier * hypeMultiplier * fanZoneMultiplier * merchLineBonus * incomeMultiplier)

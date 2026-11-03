@@ -37,7 +37,7 @@ import { choosePlan, assignRoles, buildTPhases, buildCtPhases } from "./round-sc
 import { runTimeline } from "./round-script-timeline"
 import { assembleSteps, toKeys, clipKeys, roundKeys, smokeClouds, spaceTeammates, throwUtility } from "./round-script-tracks"
 import { navGraphFor } from "./round-script-nav"
-import type { Floor, RoundMap, RoundScript, RoundScriptInput, SampledPlayer, Side, TrackKey } from "./round-script-types"
+import type { RoundMap, RoundScript, RoundScriptInput, SampledPlayer, Side, TrackKey } from "./round-script-types"
 
 export { sampleTrack } from "./round-script-sample"
 export { roundMapFromLayout, type RoundLayoutSource } from "./round-script-layout"

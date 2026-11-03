@@ -24,6 +24,7 @@ export const COMMON = {
     "common.energy": "Energy",
     "common.role": "Role",
     "common.funds": "Funds",
+    "common.skipToContent": "Skip to main content",
     "common.trophies": "Trophies",
     "common.round": "Round",
     "common.noMatchesYet": "No matches yet",

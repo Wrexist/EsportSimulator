@@ -30,7 +30,7 @@ import { validateModReferences } from "@/electron/mod-content"
 import { loadModSnapshot, mergeSnapshot } from "@/engine/mod-loader"
 import { SeededRNG, generateSeed } from "@/engine/rng"
 import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
-import { PlayerRole, PlayerTier, TournamentTier, TournamentFormat, MatchFormat } from "@/types"
+import { PlayerTier, TournamentFormat, MatchFormat } from "@/types"
 
 import { reconcileTeamRoles } from "@/engine/role-reconciler"
 import { applyReputationLift } from "@/engine/player-evaluation"

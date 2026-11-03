@@ -284,7 +284,7 @@ export default function TournamentsPage() {
                 className={cn("group h-14 cursor-pointer border-b border-line outline-none transition-colors focus-visible:bg-hover", isLocked && "opacity-60")}
                 {...pressable(() => router.push(`/tournaments/${displayId}`), { label: t("tm.openEvent", { name }) })}
             >
-                <td className="py-2 pl-4 pr-3">
+                <td className="max-w-[280px] py-2 pl-4 pr-3">
                     <div className="flex min-w-0 items-center gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-raised">
                             {tournament.logoPath
@@ -310,7 +310,7 @@ export default function TournamentsPage() {
                         {status.key === "locked" || status.key === "inviteOnly" ? <Lock size={12} aria-hidden="true" /> : null}
                         {t(`tm.status.${status.key}`)}
                     </span>
-                    {status.detail && <p className="mt-0.5 max-w-[220px] truncate text-xs text-ink-3" title={status.detail}>{status.detail}</p>}
+                    {status.detail && <p className="mt-0.5 line-clamp-2 max-w-[200px] text-xs text-ink-3" title={status.detail}>{status.detail}</p>}
                 </td>
                 <td className="whitespace-nowrap px-3 text-sm tabular-nums text-ink-2">
                     {t("common.weekShort", { n: tournament.startWeek })}

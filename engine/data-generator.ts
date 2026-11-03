@@ -496,7 +496,7 @@ export class DataGenerator {
     return teams
   }
 
-  static generateTournament(teams: Team[], name: string, tier: "s" | "a" | "b" | "c", startDate: Date): Tournament {
+  static generateTournament(teams: Team[], name: string, tier: "s" | "a" | "b" | "c", _startDate: Date): Tournament {
     const prizePools = {
       s: 1000000,
       a: 500000,

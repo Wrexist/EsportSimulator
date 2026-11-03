@@ -2,6 +2,7 @@ import { GameSave, FinanceLedgerEntry } from "../save-types"
 import { EconomyEngine } from "../economy-engine" // You might need to check this path relative to processors
 import { SeededRNG } from "../rng"
 import { EventType } from "@/types"
+import { plural } from "@/lib/plural"
 
 export interface FinanceProcessorResult {
     income: number
@@ -132,9 +133,9 @@ export class FinanceProcessor {
                 if (report.state !== "STABLE" && report.state !== prevState) {
                     const runway = Math.round(report.runwayWeeks);
                     const messages: Record<string, { desc: string; importance: string }> = {
-                        TIGHT: { desc: `Budget is getting tight. You have ${runway} weeks of runway remaining. Consider reducing expenses.`, importance: "MEDIUM" },
-                        RISK: { desc: `Financial warning! Only ${runway} weeks of runway left. Cut costs or find new income sources urgently.`, importance: "HIGH" },
-                        CRISIS: { desc: `CRITICAL: Team finances in crisis! ${runway} weeks until insolvency. Players are losing morale.`, importance: "HIGH" },
+                        TIGHT: { desc: `Budget is getting tight. You have ${plural(runway, "week")} of runway remaining. Consider reducing expenses.`, importance: "MEDIUM" },
+                        RISK: { desc: `Financial warning! Only ${plural(runway, "week")} of runway left. Cut costs or find new income sources urgently.`, importance: "HIGH" },
+                        CRISIS: { desc: `CRITICAL: Team finances in crisis! ${plural(runway, "week")} until insolvency. Players are losing morale.`, importance: "HIGH" },
                         INSOLVENT: { desc: `Team is INSOLVENT. This is week ${team.consecutiveInsolventWeeks ?? 1} of 8 consecutive insolvent settlements before the club disbands. Restore a positive balance by a weekly settlement to reset this counter.`, importance: "HIGH" },
                     }
                     const msg = messages[report.state]

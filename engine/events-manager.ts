@@ -1,5 +1,4 @@
 // Game events and message generation system
-import type { Player, Team, Message, MessageChoice, GameEvent } from "@/types/game"
 import type { GameSave } from "./save-types"
 import type { SeededRNG } from "./rng"
 import { EventType } from "@/types"

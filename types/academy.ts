@@ -3,7 +3,6 @@
  * Phase 1: Core interfaces for the Academy system
  */
 
-import { PlayerRole } from "./enums"
 
 // ===== ACADEMY PLAYER (Prospect) =====
 

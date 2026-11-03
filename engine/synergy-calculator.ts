@@ -1,5 +1,5 @@
 
-import { PlayerSaveData, TeamSaveData } from "./save-types"
+import { PlayerSaveData } from "./save-types"
 
 export class SynergyCalculator {
     /**

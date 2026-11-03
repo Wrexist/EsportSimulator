@@ -197,7 +197,8 @@ const closeHandshake = createCloseHandshake(async () => {
 });
 let closePending = false;
 let store;
-// Test harnesses swap this for a fault-injecting fs; production always uses node:fs.
+// Test harnesses swap this for a fault-injecting fs (so it stays `let`); production always uses node:fs.
+// eslint-disable-next-line prefer-const
 let saveFsLayer = fs;
 let gameStorageInstance = null;
 let isCreatingWindow = false;

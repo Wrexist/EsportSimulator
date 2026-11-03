@@ -1,5 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
+import { countryName } from "@/lib/country"
 import { t, tn } from "@/lib/i18n"
 
 import { useMemo, useState, type ReactNode } from "react"
@@ -201,7 +202,7 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                 <h1 className="truncate font-display text-5xl font-bold uppercase leading-none text-ink-1">{player.nickname}</h1>
                                 <div className="mt-2 flex min-w-0 items-center gap-2 text-sm text-ink-2">
                                     <CountryFlag country={player.nationality} size={16} />
-                                    <span className="truncate">{realName ?? String(player.nationality || "").toUpperCase()}</span>
+                                    <span className="truncate">{realName ?? countryName(player.nationality).toUpperCase()}</span>
                                     <span className="text-ink-3">·</span>
                                     <span className="shrink-0 tabular-nums">{t("player.ageYrs", { age: player.age })}</span>
                                 </div>

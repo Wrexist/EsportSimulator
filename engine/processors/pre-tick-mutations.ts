@@ -21,9 +21,8 @@
 import type { GameSave } from "../save-types"
 import { StaffGenerator } from "../staff-generator"
 import type { SeededRNG } from "../rng"
-import { getStaffPassiveBonuses, isFeatureUnlocked } from "../talent-trees"
+import { isFeatureUnlocked } from "../talent-trees"
 import { processScoutingMissions } from "./scouting-mission-processor"
-import { getSpecializationMultiplier } from "../staff-specialization"
 
 const DEFAULT_XP_TO_NEXT = 1000
 const XP_GROWTH_MULTIPLIER = 1.5

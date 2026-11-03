@@ -6,8 +6,7 @@
 import {
     CustomTeamData,
     TeamCreationResult,
-    DIFFICULTY_SETTINGS,
-    REGION_INFO
+    DIFFICULTY_SETTINGS
 } from '@/types/team-creator'
 import { TeamSaveData, PlayerSaveData } from '@/engine/save-types'
 import { SeededRNG } from '@/engine/rng'

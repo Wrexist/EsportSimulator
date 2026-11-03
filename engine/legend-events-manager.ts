@@ -1,8 +1,9 @@
-import { GameSave, HallOfFameEntry } from "./save-types"
+import { GameSave } from "./save-types"
 import { FOUNDING_LEGENDS } from "./hall-of-fame-data"
 import { SeededRNG } from "./rng"
 import { runwaySummary } from "./season/club-finances"
 import { formatCurrency } from "@/lib/utils-extended"
+import { plural } from "@/lib/plural"
 
 /**
  * Legend Events Manager
@@ -115,7 +116,7 @@ export class LegendEventsManager {
         // Create event with choice
         const cost = netAfter >= 0
             ? `The wage is ${formatCurrency(salary, "$", false)} a week; the club would still make ${formatCurrency(netAfter, "$", false)} a week.`
-            : `The wage is ${formatCurrency(salary, "$", false)} a week; the club would lose ${formatCurrency(-netAfter, "$", false)} a week (cash lasts about ${Math.floor(runwayAfter)} weeks).`
+            : `The wage is ${formatCurrency(salary, "$", false)} a week; the club would lose ${formatCurrency(-netAfter, "$", false)} a week (cash lasts about ${plural(Math.floor(runwayAfter), "week")}).`
         const coachBody = `${legend.name} is considering coming out of retirement as a coach! They're interested in joining your organization. ${cost}`
         save.eventsLog.push({
             id: `legend_coach_opportunity_${save.currentWeek}_${legend.id}`,

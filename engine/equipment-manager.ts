@@ -8,7 +8,7 @@
  * Higher tier equipment = better bonuses but higher weekly cost.
  */
 
-import { TeamSaveData, EquipmentItem, FinanceLedgerEntry } from "./save-types"
+import { TeamSaveData, EquipmentItem } from "./save-types"
 
 // ===== EQUIPMENT TYPES =====
 

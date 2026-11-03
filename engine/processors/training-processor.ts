@@ -1,6 +1,5 @@
-import { TrainingFocus, calculateTrainingGains, calculateTrainingFatigue, EventType } from "@/types"
+import { TrainingFocus, calculateTrainingGains, calculateTrainingFatigue } from "@/types"
 import { GameSave, PlayerSaveData } from "../save-types"
-import { TrainingManager } from "../training-manager"
 import { PlayerLifecycleManager } from "../player-lifecycle"
 import { SeededRNG } from "../rng"
 import { getPlayerPassiveBonuses } from "../talent-trees"

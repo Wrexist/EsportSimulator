@@ -3,29 +3,8 @@
 import Image from "next/image"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-import { getCountryCode, ISO2_ALIASES, FLAGS_WITHOUT_SVG } from "@/lib/asset-utils"
-
-/**
- * Maps common English country names to ISO-2 codes. Used when the caller
- * passes a name (e.g., "Sweden") instead of a code.
- */
-const NAME_TO_ISO2: Record<string, string> = {
-  Sweden: "se", France: "fr", Germany: "de", Russia: "ru", Ukraine: "ua",
-  Poland: "pl", Denmark: "dk", USA: "us", "United States": "us", Brazil: "br",
-  Canada: "ca", China: "cn", Australia: "au", Norway: "no", Finland: "fi",
-  "United Kingdom": "gb", UK: "gb", Turkey: "tr", Kazakhstan: "kz", Spain: "es",
-  Portugal: "pt", Argentina: "ar", Slovakia: "sk", "Czech Republic": "cz",
-  Hungary: "hu", Bulgaria: "bg", Romania: "ro", Serbia: "rs",
-  "Bosnia and Herzegovina": "ba", Croatia: "hr", Montenegro: "me",
-  Macedonia: "mk", "North Macedonia": "mk", Estonia: "ee", Latvia: "lv",
-  Lithuania: "lt", Netherlands: "nl", Belgium: "be", Italy: "it",
-  Switzerland: "ch", Austria: "at", Israel: "il", Jordan: "jo", Mongolia: "mn",
-  "South Africa": "za", "New Zealand": "nz", Kosovo: "xk", Europe: "eu",
-  NA: "us", "North America": "us",
-  // Tournament / club regions (rendered as labelled glyphs below)
-  ASIA: "asia", INTERNATIONAL: "int", WORLD: "int", MENA: "mena", CIS: "cis",
-  OCE: "oce", OCEANIA: "oce",
-}
+import { FLAGS_WITHOUT_SVG } from "@/lib/asset-utils"
+import { resolveCountryCode as resolveCode, countryName } from "@/lib/country"
 
 /**
  * Regional / aggregate codes that have no corresponding country flag SVG
@@ -52,16 +31,6 @@ export interface FlagProps {
   /** Show the country name next to the flag. */
   showName?: boolean
   className?: string
-}
-
-function resolveCode(raw: string): string | null {
-  if (!raw) return null
-  const trimmed = raw.trim()
-  if (trimmed.length === 2 && /^[a-zA-Z]{2}$/.test(trimmed)) {
-    const code = trimmed.toLowerCase()
-    return ISO2_ALIASES[code] ?? code
-  }
-  return NAME_TO_ISO2[trimmed] ?? getCountryCode(trimmed) ?? NAME_TO_ISO2[trimmed.split(" ")[0]] ?? null
 }
 
 function RegionGlyph({ label, size, className }: { label: string; size: number; className?: string }) {
@@ -105,15 +74,15 @@ export function Flag({ code, size = 20, showName = false, className }: FlagProps
   const regionLabel = REGION_LABEL[iso2]
   if (regionLabel || imgError || FLAGS_WITHOUT_SVG.has(iso2)) {
     return (
-      <div className={cn("flex items-center gap-2", className)} title={code}>
+      <div className={cn("flex items-center gap-2", className)} title={countryName(code)}>
         <RegionGlyph label={regionLabel ?? iso2.toUpperCase()} size={safeSize} />
-        {showName && <span className="text-xs font-semibold text-ink-1">{code}</span>}
+        {showName && <span className="text-xs font-semibold text-ink-1">{countryName(code)}</span>}
       </div>
     )
   }
 
   return (
-    <div className={cn("flex items-center gap-2", className)} title={code}>
+    <div className={cn("flex items-center gap-2", className)} title={countryName(code)}>
       <div
         className="relative overflow-hidden rounded-[2px] shadow-xs bg-raised shrink-0"
         style={{ width: safeSize, height: Math.round(safeSize * 0.75) }}
@@ -128,7 +97,7 @@ export function Flag({ code, size = 20, showName = false, className }: FlagProps
           onError={() => setImgError(true)}
         />
       </div>
-      {showName && <span className="text-xs font-semibold text-ink-1">{code}</span>}
+      {showName && <span className="text-xs font-semibold text-ink-1">{countryName(code)}</span>}
     </div>
   )
 }

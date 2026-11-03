@@ -1,5 +1,6 @@
 "use client"
 import { t, tn } from "@/lib/i18n"
+import { eventRegionName } from "@/lib/display-names"
 
 import { CAREER_DIFFICULTY, type CareerDifficulty } from "@/lib/balance-tuning"
 import { loadCareerDraft, saveCareerDraft, clearCareerDraft } from '@/lib/new-career-draft'
@@ -609,7 +610,7 @@ export default function TeamSelectionPage() {
                                                     <span className="text-xs text-ink-3">{team.shortName}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-3 text-xs font-semibold text-ink-2">{team.region}</td>
+                                            <td className="px-3 text-xs font-semibold text-ink-2">{eventRegionName(team.region)}</td>
                                             <td className="px-3 text-sm text-ink-2">{t(`ng.tier.${team.calculatedTier}`)}</td>
                                             <td className="px-3 text-center"><RatingChip value={stats?.ovr ?? 0} size="sm" /></td>
                                             <td className="px-3 text-right text-sm tabular-nums text-ink-2">{formatCurrency(stats?.budget ?? 0)}</td>

@@ -254,7 +254,7 @@ export function getDynamicTournamentName(
     currentWeek: number,
     baseYear: number = 2025
 ): string {
-    const currentSeason = Math.floor((currentWeek - 1) / 52) + 1
+    const currentSeason = Math.max(1, Math.floor((currentWeek - 1) / 52) + 1)
     const gameYear = baseYear + (currentSeason - 1)
     return name.replace(/\b20\d{2}\b/, String(gameYear))
 }

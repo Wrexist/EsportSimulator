@@ -192,7 +192,7 @@ export class MatchAnalyzer {
         winnerName: string,
         factors: ReturnType<typeof MatchAnalyzer.determineKeyFactors>,
         result: MatchResult,
-        roundAnalysis: ReturnType<typeof MatchAnalyzer.analyzeRounds>
+        _roundAnalysis: ReturnType<typeof MatchAnalyzer.analyzeRounds>
     ): string {
         const score = `${Math.max(result.homeScore, result.awayScore)}-${Math.min(result.homeScore, result.awayScore)}`
 

@@ -30,7 +30,6 @@ export interface PreSeasonTransferResult {
 }
 
 /** Number of weeks over which pre-season signings are spread */
-const PRE_SEASON_WEEKS = 5
 
 export class PreSeasonTransferProcessor {
     /**
@@ -52,9 +51,6 @@ export class PreSeasonTransferProcessor {
 
         // Identify teams that need players
         const teamsNeedingPlayers = sortedTeams.filter(t => t.rosterIds.length < 5)
-
-        // Assign each team a signing week (1–5) based on position in reputation ranking
-        const batchSize = Math.max(1, Math.ceil(teamsNeedingPlayers.length / PRE_SEASON_WEEKS))
 
         // Get all rostered player IDs (refreshed before each signing)
         const getRosteredIds = () => new Set(save.teams.flatMap(t => t.rosterIds))
