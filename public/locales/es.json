@@ -986,6 +986,7 @@
  "loadout.copy": "Copiar equipamiento",
  "loadout.paste": "Pegar equipamiento",
  "loadout.remaining": "Presupuesto restante",
+ "loadout.overBudget": "Por encima del presupuesto de esta ronda: quien no tenga dinero para el arma planeada compra el arma estándar de esta compra.",
  "loadout.teamCost": "Coste total del equipo",
  "loadout.equipment": "Equipo",
  "loadout.pistols": "Pistolas",

@@ -986,6 +986,7 @@
  "loadout.copy": "Copier l'équipement",
  "loadout.paste": "Coller l'équipement",
  "loadout.remaining": "Budget restant",
+ "loadout.overBudget": "Au-dessus du budget de ce round : un joueur qui n'a pas assez pour l'arme prévue achète à la place l'arme standard de ce call.",
  "loadout.teamCost": "Coût total de l'équipe",
  "loadout.equipment": "Équipement",
  "loadout.pistols": "Pistolets",

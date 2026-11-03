@@ -1008,6 +1008,7 @@
  "loadout.copy": "Kopiuj wyposażenie",
  "loadout.paste": "Wklej wyposażenie",
  "loadout.remaining": "Pozostały budżet",
+ "loadout.overBudget": "Ponad budżet tej rundy: zawodnik bez pieniędzy na zaplanowaną broń kupuje zamiast niej standardową broń dla tego wyboru.",
  "loadout.teamCost": "Łączny koszt drużyny",
  "loadout.equipment": "Wyposażenie",
  "loadout.pistols": "Pistolety",

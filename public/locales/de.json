@@ -964,6 +964,7 @@
  "loadout.copy": "Loadout kopieren",
  "loadout.paste": "Loadout einfügen",
  "loadout.remaining": "Restbudget",
+ "loadout.overBudget": "Über dem Budget dieser Runde: Wer sich die geplante Waffe nicht leisten kann, kauft stattdessen die Standardwaffe für diesen Call.",
  "loadout.teamCost": "Gesamtkosten des Teams",
  "loadout.equipment": "Ausrüstung",
  "loadout.pistols": "Pistolen",

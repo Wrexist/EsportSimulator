@@ -543,6 +543,7 @@ export const MATCH = {
     "loadout.copy": "Copy loadout",
     "loadout.paste": "Paste loadout",
     "loadout.remaining": "Remaining budget",
+    "loadout.overBudget": "Over this round's budget: a player short of the money for a planned weapon buys the standard weapon for this call instead.",
     "loadout.teamCost": "Total team cost",
     "loadout.equipment": "Equipment",
     "loadout.pistols": "Pistols",
