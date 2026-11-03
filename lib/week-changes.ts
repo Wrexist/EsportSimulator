@@ -150,7 +150,9 @@ export function moneyCause(category: string, description: string): ChangeCause {
             : { type: "facility", label: "Upkeep" }
         case "PRIZE": return /league|division/i.test(description) ? { type: "prize", label: "League prize money" } : { type: "prize", label: "Prize money" }
         case "SPONSOR": return { type: "sponsor", label: "Sponsors" }
-        case "MERCH": return { type: "sponsor", label: "Merchandise" }
+        case "MERCH": return /fan/i.test(description) ? { type: "other", label: "Fans" } : { type: "sponsor", label: "Merchandise" }
+        case "OPERATIONS": return { type: "finance", label: "Club operations" }
+        case "LEAGUE": return { type: "other", label: "League" }
         case "TRANSFER_IN": case "TRANSFER_OUT": return { type: "transfer", label: "Transfers" }
         case "TRAINING": return { type: "training", label: "Training" }
         default: return /board/i.test(description) ? { type: "board", label: "Board" }

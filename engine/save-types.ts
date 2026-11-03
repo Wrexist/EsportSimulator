@@ -1186,7 +1186,7 @@ export interface FinanceLedgerEntry {
     teamId: string
     type: "INCOME" | "EXPENSE"
     // Strict categories for Phase 8
-    category: "WAGES_PLAYER" | "WAGES_STAFF" | "FACILITIES" | "PRIZE" | "SPONSOR" | "TRANSFER_IN" | "TRANSFER_OUT" | "OTHER" | "MERCH" | "TRAINING"
+    category: "WAGES_PLAYER" | "WAGES_STAFF" | "FACILITIES" | "PRIZE" | "SPONSOR" | "TRANSFER_IN" | "TRANSFER_OUT" | "OTHER" | "MERCH" | "TRAINING" | "OPERATIONS" | "LEAGUE"
     amount: number
     description: string
     balance: number // Running balance after this entry

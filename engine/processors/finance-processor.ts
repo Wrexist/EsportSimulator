@@ -182,7 +182,7 @@ export class FinanceProcessor {
                         week: save.currentWeek,
                         teamId: team.id,
                         type: "INCOME",
-                        category: "OTHER", // Mapping Fanbase to OTHER or create MERCH? Let's use OTHER for now or fix types
+                        category: "MERCH", // MARKET-16: fan revenue (merch, streams, tickets), not "Other"
                         amount: report.income.fanbase,
                         description: "Fanbase revenue",
                         balance: team.budget
@@ -199,7 +199,7 @@ export class FinanceProcessor {
                         week: save.currentWeek,
                         teamId: team.id,
                         type: "INCOME",
-                        category: "OTHER",
+                        category: "LEAGUE",
                         amount: report.income.leagueShare,
                         description: division ? `League central payment (${division.name})` : "League central payment",
                         balance: team.budget
@@ -254,7 +254,7 @@ export class FinanceProcessor {
                         week: save.currentWeek,
                         teamId: team.id,
                         type: "EXPENSE",
-                        category: "FACILITIES",
+                        category: "OPERATIONS",
                         amount: report.expenses.operations,
                         description: "Club operations (travel, admin, content)",
                         balance: team.budget,

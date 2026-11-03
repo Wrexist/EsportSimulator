@@ -2318,11 +2318,11 @@
  "terms.titleAria": "Prima por título ganado",
  "terms.perTitle": "/ título",
  "terms.bonusNote": "La prima por partido se paga por cada partido oficial que juegue, y la de título cada vez que ganes un torneo. A cambio rebaja su salario semanal en cerca de la mitad de la prima por partido (hasta el 30 % del salario) y una treintava parte de la prima por título (hasta el 15 %).",
- "paper.padAria": "Panel de firma: firma con el ratón, un lápiz o el dedo",
+ "paper.padAria": "Panel de firma: firma con el ratón, un lápiz o el dedo, o pulsa Intro para firmar automáticamente",
  "paper.term": "Duración",
  "paper.termBody": "Durante {{weeks}} semanas ({{length}}), del {{from}} al {{until}}.",
  "paper.wage": "Salario",
- "paper.wageBody": "El Club paga al Jugador <b>{{wage}}</b> cada semana del contrato.",
+ "paper.wageBody": "El Club paga al Jugador <b>{{wage}}</b> en cada liquidación semanal del contrato.",
  "paper.transfer": "Traspaso",
  "paper.transferBody": "El Club paga <b>{{fee}}</b> a {{club}} por los derechos del Jugador, a abonar en la firma.",
  "paper.freeTransfer": "Fichaje libre",
@@ -6244,5 +6244,9 @@
  "sl.bp.logResults": "La directiva exige mejores resultados.",
  "sl.bp.hangsOn": "{{manager}} sigue en el cargo en {{club}}, confianza de la directiva {{confidence}}/100.",
  "sl.bp.hangsOnNotice": "{{manager}} sigue en el cargo en {{club}}, confianza de la directiva {{confidence}}/100, en la cuerda floja.",
- "sl.bp.hangsOnTitle": "{{manager}} resiste en {{club}}"
+ "sl.bp.hangsOnTitle": "{{manager}} resiste en {{club}}",
+ "paper.preambleNick": "Este acuerdo se firma entre <b>{{club}}</b> («el Club») y <b>«{{nick}}»</b> («el Jugador»), que se incorpora a la plantilla profesional del Club en las siguientes condiciones.",
+ "paper.autoSign": "Firmar automáticamente",
+ "fin.cat.OPERATIONS": "Gastos del club",
+ "fin.cat.LEAGUE": "Liga"
 }

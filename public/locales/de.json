@@ -2254,11 +2254,11 @@
  "terms.titleAria": "Prämie pro gewonnenem Titel",
  "terms.perTitle": "/ Titel",
  "terms.bonusNote": "Die Einsatzprämie gibt es für jedes offizielle Match, das er spielt, die Titelprämie für jedes gewonnene Turnier. Dafür verzichtet er auf etwa die Hälfte der Einsatzprämie (bis zu 30 % des Gehalts) und ein Dreißigstel der Titelprämie (bis zu 15 %) seines Wochengehalts.",
- "paper.padAria": "Unterschriftenfeld: unterschreibe mit Maus, Stift oder Finger",
+ "paper.padAria": "Unterschriftenfeld: unterschreibe mit Maus, Stift oder Finger oder drück Enter, um automatisch zu unterschreiben",
  "paper.term": "Laufzeit",
  "paper.termBody": "Für {{weeks}} Wochen ({{length}}), vom {{from}} bis zum {{until}}.",
  "paper.wage": "Gehalt",
- "paper.wageBody": "Der Verein zahlt dem Spieler in jeder Woche der Laufzeit <b>{{wage}}</b>.",
+ "paper.wageBody": "Der Verein zahlt dem Spieler bei jeder wöchentlichen Abrechnung der Laufzeit <b>{{wage}}</b>.",
  "paper.transfer": "Transfer",
  "paper.transferBody": "Der Verein zahlt bei Unterschrift <b>{{fee}}</b> an {{club}} für die Spielberechtigung des Spielers.",
  "paper.freeTransfer": "Ablösefreier Wechsel",
@@ -6060,5 +6060,9 @@
  "sl.bp.hangsOn": "{{manager}} ist weiter im Amt bei {{club}}, Vorstandsvertrauen {{confidence}}/100.",
  "sl.bp.hangsOnNotice": "{{manager}} ist weiter im Amt bei {{club}}, Vorstandsvertrauen {{confidence}}/100, auf Bewährung.",
  "sl.bp.hangsOnTitle": "{{manager}} hält sich bei {{club}}",
- "why.odds.note": "(Nur Ranglistenpunkte. Die Siegchance in der Matchvorbereitung berücksichtigt auch beide Aufstellungen, Form und Vorbereitung.)"
+ "why.odds.note": "(Nur Ranglistenpunkte. Die Siegchance in der Matchvorbereitung berücksichtigt auch beide Aufstellungen, Form und Vorbereitung.)",
+ "paper.preambleNick": "Diese Vereinbarung wird zwischen <b>{{club}}</b> („der Verein“) und <b>„{{nick}}“</b> („der Spieler“) geschlossen, der dem Profikader des Vereins zu folgenden Bedingungen beitritt.",
+ "paper.autoSign": "Automatisch unterschreiben",
+ "fin.cat.OPERATIONS": "Vereinsbetrieb",
+ "fin.cat.LEAGUE": "Liga"
 }

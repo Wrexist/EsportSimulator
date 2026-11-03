@@ -2304,11 +2304,11 @@
  "terms.titleAria": "Prime par titre gagné",
  "terms.perTitle": "/ titre",
  "terms.bonusNote": "La prime de match est versée pour chaque match officiel qu'il joue, et la prime de titre à chaque tournoi gagné. En échange, il retire de son salaire hebdomadaire environ la moitié de la prime de match (jusqu'à 30 % du salaire) et un trentième de la prime de titre (jusqu'à 15 %).",
- "paper.padAria": "Zone de signature : signe avec la souris, un stylet ou le doigt",
+ "paper.padAria": "Zone de signature : signe avec la souris, un stylet ou le doigt, ou appuie sur Entrée pour signer automatiquement",
  "paper.term": "Durée",
  "paper.termBody": "Pour {{weeks}} semaines ({{length}}), du {{from}} au {{until}}.",
  "paper.wage": "Salaire",
- "paper.wageBody": "Le Club verse au Joueur <b>{{wage}}</b> chaque semaine du contrat.",
+ "paper.wageBody": "Le Club verse au Joueur <b>{{wage}}</b> à chaque règlement hebdomadaire du contrat.",
  "paper.transfer": "Transfert",
  "paper.transferBody": "Le Club verse <b>{{fee}}</b> à {{club}} pour l'enregistrement du Joueur, payable à la signature.",
  "paper.freeTransfer": "Transfert libre",
@@ -6244,5 +6244,9 @@
  "tm.swissStage": "Phase suisse",
  "tm.swissNote": "3 victoires : qualifié · 3 défaites : éliminé",
  "tm.swiss.advanced": "Qualifié",
- "why.odds.note": "(Points de classement uniquement. La chance de victoire de l'écran de préparation compte aussi les deux compositions, la forme et la préparation.)"
+ "why.odds.note": "(Points de classement uniquement. La chance de victoire de l'écran de préparation compte aussi les deux compositions, la forme et la préparation.)",
+ "paper.preambleNick": "Le présent accord est conclu entre <b>{{club}}</b> (« le Club ») et <b>« {{nick}} »</b> (« le Joueur »), qui rejoint l'équipe professionnelle du Club aux conditions suivantes.",
+ "paper.autoSign": "Signer automatiquement",
+ "fin.cat.OPERATIONS": "Fonctionnement",
+ "fin.cat.LEAGUE": "Ligue"
 }
