@@ -1,3 +1,4 @@
+import { intlLocale, t, tn } from "@/lib/i18n"
 /**
  * G7: the Draft Cup, a short career type.
  *
@@ -18,14 +19,6 @@ import type { GameSave } from "./save-types"
 
 export const DRAFT_ROLES = ["IGL", "AWPER", "ENTRY_FRAGGER", "RIFLER", "SUPPORT"] as const
 export type DraftRole = typeof DRAFT_ROLES[number]
-
-export const DRAFT_ROLE_LABEL: Record<DraftRole, string> = {
-    IGL: "In-game leader",
-    AWPER: "AWPer",
-    ENTRY_FRAGGER: "Entry fragger",
-    RIFLER: "Rifler",
-    SUPPORT: "Support",
-}
 
 export type DraftCupDifficulty = "open" | "pro" | "elite"
 export const DRAFT_CUP_DIFFICULTIES: readonly DraftCupDifficulty[] = ["open", "pro", "elite"]
@@ -186,13 +179,6 @@ export function draftComplete(picks: readonly DraftPick[], budget = DRAFT_BUDGET
 
 export type DraftCupFinish = "champion" | "final" | "semi" | "quarter"
 
-export const DRAFT_CUP_FINISH_LABEL: Record<DraftCupFinish, string> = {
-    champion: "Champions",
-    final: "Runners-up",
-    semi: "Semi-finalists",
-    quarter: "Out in the quarter-finals",
-}
-
 export const DRAFT_CUP_SCORE = {
     finish: { champion: 1000, final: 600, semi: 350, quarter: 150 } as Record<DraftCupFinish, number>,
     perMapWon: 40,
@@ -247,13 +233,13 @@ export function draftCupOutcome(save: Pick<GameSave, "tournaments" | "completedM
     const budgetLeft = Math.max(0, cup.budget - draftSpent(cup.picks))
     const mult = DRAFT_CUP_DIFFICULTY[cup.difficulty].scoreMultiplier
     const breakdown = [
-        { label: DRAFT_CUP_FINISH_LABEL[finish], points: DRAFT_CUP_SCORE.finish[finish] },
-        { label: `${mapsWon} map${mapsWon === 1 ? "" : "s"} won`, points: mapsWon * DRAFT_CUP_SCORE.perMapWon },
-        { label: `Round difference ${roundDiff >= 0 ? "+" : ""}${roundDiff}`, points: roundDiff * DRAFT_CUP_SCORE.perRoundDiff },
-        { label: `${budgetLeft} draft point${budgetLeft === 1 ? "" : "s"} unspent`, points: budgetLeft * DRAFT_CUP_SCORE.perBudgetPointLeft },
+        { label: t(`dc.finish.${finish}`), points: DRAFT_CUP_SCORE.finish[finish] },
+        { label: tn("dc.bd.maps", mapsWon), points: mapsWon * DRAFT_CUP_SCORE.perMapWon },
+        { label: t("dc.bd.rounds", { diff: `${roundDiff >= 0 ? "+" : ""}${roundDiff}` }), points: roundDiff * DRAFT_CUP_SCORE.perRoundDiff },
+        { label: tn("dc.bd.unspent", budgetLeft), points: budgetLeft * DRAFT_CUP_SCORE.perBudgetPointLeft },
     ]
     const raw = breakdown.reduce((s, b) => s + b.points, 0)
     const score = Math.max(0, Math.round(raw * mult))
-    if (mult !== 1) breakdown.push({ label: `${DRAFT_CUP_DIFFICULTY[cup.difficulty].label} difficulty ×${mult}`, points: score - raw })
+    if (mult !== 1) breakdown.push({ label: t("dc.bd.difficulty", { difficulty: t(`dc.diff.${cup.difficulty}`), mult: mult.toLocaleString(intlLocale()) }), points: score - raw })
     return { finish, seriesWon, mapsWon, mapsLost, roundDiff, budgetLeft, score, breakdown }
 }

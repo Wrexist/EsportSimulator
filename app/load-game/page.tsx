@@ -1,10 +1,10 @@
 "use client"
 
 import React, { useCallback, useEffect, useState } from "react"
-import { DRAFT_CUP_DIFFICULTY, DRAFT_CUP_FINISH_LABEL, type DraftCupDifficulty, type DraftCupFinish } from "@/engine/draft-cup"
+import { DRAFT_CUP_DIFFICULTIES, type DraftCupDifficulty } from "@/engine/draft-cup"
 import Link from "next/link"
 import { debug } from "@/lib/debug-logger"
-import { intlLocale } from "@/lib/i18n"
+import { intlLocale, t, tn } from "@/lib/i18n"
 import { useGameStore } from "@/store/game-store"
 import { useSettingsStore } from "@/lib/settings-store"
 import { useShallow } from "zustand/react/shallow"
@@ -33,9 +33,9 @@ import { ErrorBoundary } from "@/components/ui/error-boundary"
 
 /** G7: "Draft Cup · Pro · Semi-finalists · 455" (or "in progress"). */
 function draftCupSlotLabel(cup: { difficulty: string; finish?: string; score?: number }): string {
-    const difficulty = DRAFT_CUP_DIFFICULTY[cup.difficulty as DraftCupDifficulty]?.label ?? cup.difficulty
-    const finish = cup.finish ? DRAFT_CUP_FINISH_LABEL[cup.finish as DraftCupFinish] : undefined
-    return ["Draft Cup", difficulty, finish ?? "In progress", cup.score != null ? `${cup.score} pts` : null].filter(Boolean).join(" · ")
+    const difficulty = DRAFT_CUP_DIFFICULTIES.includes(cup.difficulty as DraftCupDifficulty) ? t(`dc.diff.${cup.difficulty}`) : cup.difficulty
+    const finish = cup.finish && ["champion", "final", "semi", "quarter"].includes(cup.finish) ? t(`dc.finish.${cup.finish}`) : undefined
+    return [t("dc.title"), difficulty, finish ?? t("lg.inProgress"), cup.score != null ? t("lg.pts", { n: cup.score }) : null].filter(Boolean).join(" · ")
 }
 
 export default function LoadGamePage() {
@@ -48,7 +48,7 @@ export default function LoadGamePage() {
 
 function seasonWeek(week: number | null | undefined) {
     const w = Math.max(1, week || 1)
-    return `Season ${Math.ceil(w / 52)} · Week ${((w - 1) % 52) + 1}`
+    return t("lg.seasonWeek", { season: Math.ceil(w / 52), week: ((w - 1) % 52) + 1 })
 }
 
 /**
@@ -60,11 +60,11 @@ function RecentTitles({ trophies }: { trophies: SaveSlotMetadata["trophies"] }) 
     if (!trophies?.length) return null
     const recent = trophies.slice(-5)
     return (
-        <span className="flex items-center gap-0.5" title={recent.map(t => t.tournamentName).join(" · ")}>
-            <span className="sr-only">Recent titles: {recent.map(t => t.tournamentName).join(", ")}</span>
-            {recent.map((t, i) => {
-                const art = trophyArtFor(trophyArtKind(t))
-                return <Image key={`${t.tournamentId}-${t.week}-${i}`} src={art.src} alt="" aria-hidden="true" width={28} height={28} className="h-7 w-7 object-contain" />
+        <span className="flex items-center gap-0.5" title={recent.map(tr => tr.tournamentName).join(" · ")}>
+            <span className="sr-only">{t("lg.recentTitles", { list: recent.map(tr => tr.tournamentName).join(", ") })}</span>
+            {recent.map((tr, i) => {
+                const art = trophyArtFor(trophyArtKind(tr))
+                return <Image key={`${tr.tournamentId}-${tr.week}-${i}`} src={art.src} alt="" aria-hidden="true" width={28} height={28} className="h-7 w-7 object-contain" />
             })}
         </span>
     )
@@ -163,13 +163,13 @@ function LoadGamePageInner() {
         const isNewerVersion = code === "NEWER_VERSION"
         const isCorrupted = code === "CORRUPTED" || code === "INTEGRITY_FAILED"
         const isCloudConflict = code === "CLOUD_CONFLICT"
-        const heading = isCloudConflict ? "Choose which copy to load" : isNewerVersion
-            ? "Saved by a newer version"
-            : isCorrupted ? "Save appears corrupted" : "Load failed"
+        const heading = isCloudConflict ? t("lg.err.cloud") : isNewerVersion
+            ? t("lg.err.newer")
+            : isCorrupted ? t("lg.err.corrupt") : t("lg.err.failed")
         const body = isNewerVersion
-            ? "This save was written by a newer build of the game. Update through Steam to continue it, or pick another career."
+            ? t("lg.err.newerBody")
             : isCorrupted
-                ? `${lastLoadError.message} You can leave it untouched or try to recover it from its backup.`
+                ? t("lg.err.corruptBody", { message: lastLoadError.message })
                 : lastLoadError.message
         return (
             <tr className="border-b border-line bg-negative/5">
@@ -191,26 +191,26 @@ function LoadGamePageInner() {
                                             await navigator.clipboard.writeText(`Save: ${slot.saveId}\nError: ${lastLoadError.message}\nApp: ${typeof navigator !== "undefined" ? navigator.userAgent : "unknown"}`)
                                         } catch { /* clipboard may be denied */ }
                                         clearLoadError()
-                                    }}>Copy details</Button>
-                                    <Button size="sm" variant="outline" onClick={clearLoadError}>Skip</Button>
+                                    }}>{t("lg.copyDetails")}</Button>
+                                    <Button size="sm" variant="outline" onClick={clearLoadError}>{t("lg.skip")}</Button>
                                 </>
                             ) : isCloudConflict ? (
                                 <>
-                                    <Button size="sm" variant="outline" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "local")}>Use this PC</Button>
-                                    <Button size="sm" variant="outline" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "cloud")}>Use Steam Cloud</Button>
-                                    <Button size="sm" variant="ghost" onClick={clearLoadError}>Cancel</Button>
+                                    <Button size="sm" variant="outline" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "local")}>{t("lg.usePc")}</Button>
+                                    <Button size="sm" variant="outline" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "cloud")}>{t("lg.useCloud")}</Button>
+                                    <Button size="sm" variant="ghost" onClick={clearLoadError}>{t("ng.cancel")}</Button>
                                 </>
                             ) : isCorrupted ? (
                                 <>
                                     <Button size="sm" variant="outline" disabled={recoveringSlotId === slot.saveId} onClick={() => slot.saveId && handleRecover(slot.saveId)}>
-                                        {recoveringSlotId === slot.saveId ? "Recovering…" : "Recover from backup"}
+                                        {recoveringSlotId === slot.saveId ? t("lg.recovering") : t("lg.recoverBackup")}
                                     </Button>
-                                    <Button size="sm" variant="ghost" onClick={clearLoadError}>Skip</Button>
+                                    <Button size="sm" variant="ghost" onClick={clearLoadError}>{t("lg.skip")}</Button>
                                 </>
                             ) : (
                                 <>
-                                    <Button size="sm" variant="outline" onClick={() => slot.saveId && handleLoad(slot.saveId)}>Retry</Button>
-                                    <Button size="sm" variant="ghost" onClick={clearLoadError}>Dismiss</Button>
+                                    <Button size="sm" variant="outline" onClick={() => slot.saveId && handleLoad(slot.saveId)}>{t("ng.retry")}</Button>
+                                    <Button size="sm" variant="ghost" onClick={clearLoadError}>{t("lg.dismiss")}</Button>
                                 </>
                             )}
                         </div>
@@ -223,36 +223,36 @@ function LoadGamePageInner() {
     return (
         <div className="mx-auto max-w-[1280px] space-y-5 pb-16">
             <ScreenHeader
-                eyebrow="Saves"
-                title="Load game"
-                subtitle={`${isLoading ? "" : `${careers.length} ${careers.length === 1 ? "career" : "careers"} on this device. `}${autoSave ? `Auto-save is on (every ${autoSaveInterval} min).` : "Auto-save is off."} Each save keeps its last three versions as backups.`}
+                eyebrow={t("lg.eyebrow")}
+                title={t("lg.title")}
+                subtitle={`${isLoading ? "" : `${tn("lg.careers", careers.length)} `}${autoSave ? t("lg.autoOn", { n: autoSaveInterval }) : t("lg.autoOff")} ${t("lg.backups")}`}
                 aside={
                     <>
-                        <Button asChild variant="ghost"><Link href="/main-menu">Main menu</Link></Button>
-                        <Button asChild variant="outline"><Link href="/new-game">New career</Link></Button>
+                        <Button asChild variant="ghost"><Link href="/main-menu">{t("ng.mainMenu")}</Link></Button>
+                        <Button asChild variant="outline"><Link href="/new-game">{t("ng.step1.title")}</Link></Button>
                     </>
                 }
             />
 
             <Panel padded={false} className="overflow-hidden">
                 {isLoading ? (
-                    <p className="flex items-center gap-2 px-4 py-6 text-sm text-ink-3" role="status"><Loader2 size={15} className="animate-spin" /> Loading saves…</p>
+                    <p className="flex items-center gap-2 px-4 py-6 text-sm text-ink-3" role="status"><Loader2 size={15} className="animate-spin" /> {t("lg.loadingSaves")}</p>
                 ) : careers.length === 0 ? (
                     <div className="flex items-center justify-between gap-4 px-4 py-5">
-                        <p className="text-sm text-ink-3">No saved careers yet.</p>
-                        <Button asChild variant="outline" size="sm"><Link href="/new-game">Start a career</Link></Button>
+                        <p className="text-sm text-ink-3">{t("lg.none")}</p>
+                        <Button asChild variant="outline" size="sm"><Link href="/new-game">{t("lg.startCareer")}</Link></Button>
                     </div>
                 ) : (
                     <table data-slot="table" className="w-full border-collapse text-left">
                         <thead data-slot="table-header">
                             <tr className="border-b border-line">
-                                <th data-slot="table-head" className="pl-4">Career</th>
-                                <th data-slot="table-head" className="px-3">Progress</th>
-                                <th data-slot="table-head" className="px-3 text-right">Record</th>
-                                <th data-slot="table-head" className="px-3 text-right">Titles</th>
-                                <th data-slot="table-head" className="px-3 text-right">Funds</th>
-                                <th data-slot="table-head" className="px-3">Last saved</th>
-                                <th data-slot="table-head" className="pr-4"><span className="sr-only">Actions</span></th>
+                                <th data-slot="table-head" className="pl-4">{t("lg.col.career")}</th>
+                                <th data-slot="table-head" className="px-3">{t("lg.col.progress")}</th>
+                                <th data-slot="table-head" className="px-3 text-right">{t("lg.col.record")}</th>
+                                <th data-slot="table-head" className="px-3 text-right">{t("lg.col.titles")}</th>
+                                <th data-slot="table-head" className="px-3 text-right">{t("common.funds")}</th>
+                                <th data-slot="table-head" className="px-3">{t("lg.col.lastSaved")}</th>
+                                <th data-slot="table-head" className="pr-4"><span className="sr-only">{t("lg.col.actions")}</span></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -273,11 +273,11 @@ function LoadGamePageInner() {
                                                             : <AlertCircle size={18} className={corrupted ? "text-negative" : "text-ink-3"} />}
                                                     </span>
                                                     <div className="min-w-0">
-                                                        <h3 className="truncate text-[15px] font-semibold text-ink-1">{slot.teamName || slot.saveName || "Unnamed career"}</h3>
+                                                        <h3 className="truncate text-[15px] font-semibold text-ink-1">{slot.teamName || slot.saveName || t("lg.unnamed")}</h3>
                                                         <p className="truncate text-xs text-ink-3">
-                                                            {corrupted ? "Could not be read" : slot.draftCup ? draftCupSlotLabel(slot.draftCup) : slot.saveName || "—"}
-                                                            {isActive && <span className="ml-2 font-semibold text-gold">Loaded</span>}
-                                                            {slot.sandbox && <span className="ml-2 rounded-sm bg-caution/15 px-1.5 py-0.5 text-[11px] font-semibold text-caution" title="Sandbox editor on: no achievements">Sandbox</span>}
+                                                            {corrupted ? t("lg.unreadable") : slot.draftCup ? draftCupSlotLabel(slot.draftCup) : slot.saveName || "—"}
+                                                            {isActive && <span className="ml-2 font-semibold text-gold">{t("lg.loaded")}</span>}
+                                                            {slot.sandbox && <span className="ml-2 rounded-sm bg-caution/15 px-1.5 py-0.5 text-[11px] font-semibold text-caution" title={t("lg.sandboxTip")}>{t("ng.sandbox")}</span>}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -296,17 +296,17 @@ function LoadGamePageInner() {
                                                 <div className="flex items-center justify-end gap-1.5">
                                                     {corrupted ? (
                                                         <Button size="sm" variant="outline" disabled={recoveringSlotId === slot.saveId} onClick={() => slot.saveId && handleRecover(slot.saveId)}>
-                                                            {recoveringSlotId === slot.saveId ? "Recovering…" : "Recover"}
+                                                            {recoveringSlotId === slot.saveId ? t("lg.recovering") : t("lg.recover")}
                                                         </Button>
                                                     ) : (
                                                         <Button size="sm" variant="outline" disabled={!!loadingSlotId} onClick={() => slot.saveId && handleLoad(slot.saveId)} aria-busy={busy || undefined}>
-                                                            {busy ? <><Loader2 size={13} className="animate-spin" /> Loading</> : isActive ? "Reload" : "Load"}
+                                                            {busy ? <><Loader2 size={13} className="animate-spin" /> {t("lg.loading")}</> : isActive ? t("lg.reload") : t("lg.load")}
                                                         </Button>
                                                     )}
                                                     <Button
                                                         size="icon-sm"
                                                         variant="ghost"
-                                                        aria-label={`Delete ${slot.teamName || slot.saveName || "career"}`}
+                                                        aria-label={t("lg.deleteAria", { name: slot.teamName || slot.saveName || t("lg.careerWord") })}
                                                         disabled={isDeleting || !!loadingSlotId}
                                                         onClick={() => slot.saveId && setDeleteTarget(slot.saveId)}
                                                     >
@@ -327,19 +327,19 @@ function LoadGamePageInner() {
             <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete career?</AlertDialogTitle>
+                        <AlertDialogTitle>{t("lg.delete.title")}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            The career and its backups are removed from this device. This cannot be undone.
+                            {t("lg.delete.body")}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel disabled={isDeleting}>{t("ng.cancel")}</AlertDialogCancel>
                         <AlertDialogAction
                             disabled={isDeleting}
                             onClick={() => deleteTarget && handleDelete(deleteTarget)}
                             className="bg-negative text-ink hover:bg-negative/90"
                         >
-                            {isDeleting ? "Deleting…" : "Delete"}
+                            {isDeleting ? t("lg.deleting") : t("lg.delete")}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

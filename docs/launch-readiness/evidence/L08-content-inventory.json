@@ -88856,8 +88856,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "f19c20d510b5c23c068903d15def026458276d8bdbc0252a4d378a1faa8e3960",
-      "bytes": 139618,
+      "sha256": "75050c23b2d62583cae973329a91f1ebfc1dea4e4e99de70bf11b3872ed5b771",
+      "bytes": 157697,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88892,13 +88892,18 @@
           "date": "2026-11-03",
           "previousSha256": "79f6589f84c6503edd1233906e4065a35637e49ed7de875033096ebd6b9a4f75",
           "change": "Interface languages, transfer market, deal panel, contract paper and finances screen: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "f19c20d510b5c23c068903d15def026458276d8bdbc0252a4d378a1faa8e3960",
+          "change": "Interface languages, new career, Draft Cup and load game: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "896b50e1265435c16eec3e0bf458c8900085abe1956911524272d60493166b2a",
-      "bytes": 145608,
+      "sha256": "306b45d0e6788f4c82f5baa40442c4c4e6fbe9228f8c000384a76d31bc80373f",
+      "bytes": 163886,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88933,13 +88938,18 @@
           "date": "2026-11-03",
           "previousSha256": "ca1ba02d99cbc239fdfccf81f1d541793343629e15bc2e5f09bf70dd8ad0bb30",
           "change": "Interface languages, transfer market, deal panel, contract paper and finances screen: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "896b50e1265435c16eec3e0bf458c8900085abe1956911524272d60493166b2a",
+          "change": "Interface languages, new career, Draft Cup and load game: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "4ca6e38c8d2801313d602fa8ceb0551f1909a8f41983201eef7d750caccf9c50",
-      "bytes": 147978,
+      "sha256": "b9cf17c54bb9d9878a200e4e9a85fb5fe54272089809b52018fdc66aeb7d8454",
+      "bytes": 166717,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88974,13 +88984,18 @@
           "date": "2026-11-03",
           "previousSha256": "ad1212676b8b4742a02742717f93c937d332117069c540068ccdce0c7c532890",
           "change": "Interface languages, transfer market, deal panel, contract paper and finances screen: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "4ca6e38c8d2801313d602fa8ceb0551f1909a8f41983201eef7d750caccf9c50",
+          "change": "Interface languages, new career, Draft Cup and load game: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "6c2a17e8bd9c0dcccd0431c4ea76c2cff23ed95cd0721aadc2b87edd7f90e970",
-      "bytes": 148617,
+      "sha256": "2cb14e66549f442ffeaf80e807604d88535aa344f290b4febb70cfd5caa17dd8",
+      "bytes": 166737,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89015,13 +89030,18 @@
           "date": "2026-11-03",
           "previousSha256": "0668c2b329d60f4949a7f73620df70cbd3440dea54f9f8ac9eb0feba6fceaf1a",
           "change": "Interface languages, transfer market, deal panel, contract paper and finances screen: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "6c2a17e8bd9c0dcccd0431c4ea76c2cff23ed95cd0721aadc2b87edd7f90e970",
+          "change": "Interface languages, new career, Draft Cup and load game: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "dd73f540d0a80c5f9b365c6159b17db51ae4e10ea78d5fd050292b1290db34ac",
-      "bytes": 143814,
+      "sha256": "fa258951b3b1a8c3caae95bafe73b13dff384d0bcf9cb05c210492a5edf01fe8",
+      "bytes": 161918,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89056,13 +89076,18 @@
           "date": "2026-11-03",
           "previousSha256": "9d2a989c156f6329624093f9d7eb8c5a010de6b5fc9aa4620a031f4c1e7f6444",
           "change": "Interface languages, transfer market, deal panel, contract paper and finances screen: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "dd73f540d0a80c5f9b365c6159b17db51ae4e10ea78d5fd050292b1290db34ac",
+          "change": "Interface languages, new career, Draft Cup and load game: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "fdee3cc58e906d5d74b5eabad0041f9b35464d6a0dcc3196e33f9184f036e6f7",
-      "bytes": 200718,
+      "sha256": "36f99180d4e771a8872becf668157773fa39ffe3b462177be2112cf78756a565",
+      "bytes": 226369,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89097,6 +89122,11 @@
           "date": "2026-11-03",
           "previousSha256": "4692036f3e71ae155ee5032d994c2a93f704c48feb3071cba293de030cf0cc18",
           "change": "Interface languages, transfer market, deal panel, contract paper and finances screen: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "fdee3cc58e906d5d74b5eabad0041f9b35464d6a0dcc3196e33f9184f036e6f7",
+          "change": "Interface languages, new career, Draft Cup and load game: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
