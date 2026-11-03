@@ -16,6 +16,20 @@ import { makeWorld, playLeagueWeek as playWeek } from "./league-fixtures"
 const leagueOf = (save: GameSave, teamId: string) => save.scheduledMatches.filter(m => m.tournamentId?.startsWith("league_") && (m.homeTeamId === teamId || m.awayTeamId === teamId))
 
 describe("regional league draw", () => {
+    test("every club hosts about half its matches and never more than three rounds running", () => {
+        const save = makeWorld({ EU: 40, CIS: 21, NA: 12, BR: 8, ASIA: 9 })
+        const split = drawDueLeagueSplit(save)!
+        for (const d of split.divisions) {
+            for (const id of d.teamIds) {
+                const venues = d.fixtures.filter(f => f.home === id || f.away === id)
+                    .sort((a, b) => a.round - b.round).map(f => (f.home === id ? "H" : "A")).join("")
+                const homes = [...venues].filter(v => v === "H").length
+                expect(Math.abs(2 * homes - venues.length)).toBeLessThanOrEqual(2)
+                expect(Math.max(...(venues.match(/H+|A+/g) ?? [""]).map(run => run.length))).toBeLessThanOrEqual(4)
+            }
+        }
+    })
+
     test("every club is in exactly one division of its region, about ten per division", () => {
         const save = makeWorld({ EU: 40, CIS: 21, NA: 12, BR: 8, ASIA: 9 })
         const split = drawDueLeagueSplit(save)!

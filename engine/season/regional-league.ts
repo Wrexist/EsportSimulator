@@ -187,7 +187,7 @@ function median(values: number[]): number {
     return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
 }
 
-/** Round robin by the circle method; home/away alternate so each club hosts about half. */
+/** Round robin by the circle method; no club hosts or travels more than three rounds running. */
 function roundRobin(teamIds: string[], rng: SeededRNG, double: boolean): Array<Array<[string, string]>> {
     const teams = rng.shuffle([...teamIds])
     if (teams.length % 2) teams.push(BYE)
@@ -198,7 +198,10 @@ function roundRobin(teamIds: string[], rng: SeededRNG, double: boolean): Array<A
         for (let i = 0; i < n / 2; i++) {
             const a = teams[i], b = teams[n - 1 - i]
             if (a === BYE || b === BYE) continue
-            round.push((r + i) % 2 === 0 ? [a, b] : [b, a])
+            // Berger tables: the fixed club alternates by round, the rest by board.
+            // (Alternating on round + board left some clubs away all split.)
+            const firstHosts = i === 0 ? r % 2 === 0 : i % 2 === 1
+            round.push(firstHosts ? [a, b] : [b, a])
         }
         rounds.push(round)
         teams.splice(1, 0, teams.pop()!)
