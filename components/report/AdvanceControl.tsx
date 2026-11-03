@@ -113,7 +113,7 @@ export function AdvanceControl() {
         control = (
             <div className="flex items-center gap-1.5">
                 {/* Wide screens: secondary actions inline. */}
-                <div className="hidden items-center gap-1.5 2xl:flex">
+                <div className="hidden items-center gap-1.5 @min-[110rem]/topbar:flex">
                     {secondary.map(a => (
                         <Button key={a.id} variant="outline" onClick={a.run} disabled={locked} className="h-10 px-2.5 text-xs font-semibold" title={a.title}>
                             {a.label}
@@ -126,7 +126,7 @@ export function AdvanceControl() {
                     variant="continue"
                     onClick={step(continueToNextDecision)}
                     disabled={locked}
-                    className="h-10 px-4 2xl:px-5"
+                    className="h-10 px-4 @min-[110rem]/topbar:px-5"
                     title={t("advance.continueTitle")}
                 >
                     <span className="flex items-center gap-2">
@@ -146,7 +146,7 @@ export function AdvanceControl() {
     )
 }
 
-/** Next day / Skip week behind one button below the 2xl breakpoint. */
+/** Next day / Skip week behind one button on a narrower top bar (TopBar size container). */
 function SecondaryMenu({ actions, disabled }: { actions: { id: string; label: string; title: string; run: () => void }[]; disabled: boolean }) {
     const [open, setOpen] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
@@ -159,7 +159,7 @@ function SecondaryMenu({ actions, disabled }: { actions: { id: string; label: st
         return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey) }
     }, [open])
     return (
-        <div ref={ref} className="relative 2xl:hidden">
+        <div ref={ref} className="relative @min-[110rem]/topbar:hidden">
             <Button
                 variant="outline"
                 onClick={() => setOpen(o => !o)}

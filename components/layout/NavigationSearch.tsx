@@ -42,8 +42,8 @@ export function NavigationSearch({ compact = false, disabled, pro = false }: { c
                 : "mx-2 mb-2 flex h-9 shrink-0 items-center gap-2 rounded border border-line bg-shell px-3 text-ink-3 transition-colors hover:border-line-strong hover:text-ink-1 disabled:opacity-40"}
         >
             <Search size={15} className="shrink-0" />
-            <span className={compact ? "hidden text-xs 2xl:inline" : "flex-1 text-left text-xs"}>{t("search.open")}</span>
-            <kbd className={compact ? "hidden rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3 2xl:inline" : "rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3"}>Ctrl K</kbd>
+            <span className={compact ? "hidden text-xs @min-[110rem]/topbar:inline" : "flex-1 text-left text-xs"}>{t("search.open")}</span>
+            <kbd className={compact ? "hidden rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3 @min-[110rem]/topbar:inline" : "rounded-sm border border-line px-1 text-[11px] font-medium text-ink-3"}>Ctrl K</kbd>
         </button>
         </DialogTrigger>
             <DialogContent className="overflow-hidden p-0 sm:max-w-lg" showCloseButton={false}>

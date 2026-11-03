@@ -35,6 +35,7 @@ import { hasUnsavedChanges } from "@/lib/unsaved-changes"
 import { waitForPendingGameSave } from "@/store/game-store"
 import { useMomentPending } from "@/components/moments/moment-state"
 import { useLocale, useUiLanguageSync } from "@/lib/use-locale"
+import { isDevToolsEnabled } from "@/lib/runtime-flags"
 
 const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod => mod.ExitConfirmDialog), { ssr: false })
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
@@ -46,7 +47,6 @@ const BugReportButton = dynamic(() => import("../ui/BugReportButton").then(mod =
 const DevTools = dynamic(() => import("../debug/DevTools").then(mod => mod.DevTools), { ssr: false })
 const WeekProcessingOverlay = dynamic(() => import("../ui/WeekProcessingOverlay").then(mod => mod.WeekProcessingOverlay), { ssr: false })
 const KeyboardShortcutsModal = dynamic(() => import("../ui/KeyboardShortcutsModal").then(mod => mod.KeyboardShortcutsModal), { ssr: false })
-const HelpSystem = dynamic(() => import("../ui/help-system").then(mod => mod.HelpSystem), { ssr: false })
 // Mounted globally (was previously only on /desktop) so onboarding fires
 // regardless of which page the player lands on after a new game.
 const TutorialOverlay = dynamic(() => import("../ui/TutorialOverlay").then(mod => mod.TutorialOverlay), { ssr: false })
@@ -270,16 +270,17 @@ export function GameShell({ children }: { children: React.ReactNode }) {
 
     const isNewGame = pathname === "/new-game" || pathname?.startsWith("/new-game/")
     const isMainMenu = pathname === "/main-menu"
-    const hideChrome = isNewGame || isMainMenu || pathname === "/map-editor" || pathname?.startsWith("/map-editor/")
+    // Map Studio draws its own chrome, but only where it exists: with dev tools
+    // off it is a 404, which renders inside the shell like every other
+    // unknown route (CROSSCUT-10).
+    const isMapEditor = isDevToolsEnabled() && (pathname === "/map-editor" || (pathname?.startsWith("/map-editor/") ?? false))
+    const hideChrome = isNewGame || isMainMenu || isMapEditor
     // Match screens (veto, tactics, live, result) own the whole view: the
     // onboarding checklist would sit on top of the result headline.
     const isMatchRoute = pathname?.startsWith("/match/") ?? false
     // The live match is full-screen: no sidebar (all locked mid-match) and no
     // top bar (its "Play match" CTA is wrong while the match is running).
     const isLiveMatch = isLiveMatchPath(pathname)
-    // The result page runs its scoreboard and standouts to the right edge, so
-    // the floating help button would sit on the MVP rating at 1280×720.
-    const isMatchResult = isMatchRoute && (pathname?.endsWith("/result") ?? false)
 
     const viewCareerId = useGameStore(state => state.saveId)
     const mainScrollRef = useRouteScroll(viewCareerId, pathname, !hideChrome)
@@ -425,10 +426,10 @@ export function GameShell({ children }: { children: React.ReactNode }) {
         // opacity/colour loops that `reducedMotion="always"` alone leaves
         // running — jumps straight to its final value via skipAnimations.
         <MotionConfig reducedMotion={reducedMotion ? "always" : "user"} skipAnimations={motionReduced}>
-        <div key={locale} data-route={pathname} data-premium-ui={!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev')} className={`premium-app relative isolate flex h-dvh liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-gold/30 ${theme === "onyx" ? "onyx" : ""}`}>
+        <div key={locale} data-route={pathname} data-premium-ui={!isMapEditor && !pathname?.startsWith('/dev')} className={`premium-app relative isolate flex h-dvh liquid-app-bg text-foreground overflow-hidden font-sans selection:bg-gold/30 ${theme === "onyx" ? "onyx" : ""}`}>
             {/* Static light field behind the floating chrome. */}
             <div className="liquid-aurora" />
-            {!pathname?.startsWith('/map-editor') && !pathname?.startsWith('/dev') && <div aria-hidden="true" className="premium-atmosphere" style={{ backgroundImage: `url("${routeAtmosphere(pathname || '/')}")` }} />}
+            {!isMapEditor && !pathname?.startsWith('/dev') && <div aria-hidden="true" className="premium-atmosphere" style={{ backgroundImage: `url("${routeAtmosphere(pathname || '/')}")` }} />}
 
             {/* Main Layout Area */}
             <div className="flex-1 flex flex-col min-h-0 min-w-0 relative z-10">
@@ -483,8 +484,7 @@ export function GameShell({ children }: { children: React.ReactNode }) {
                 </>
             )}
             {showBugReportButton && !hideChrome && !isLiveMatch && <BugReportButton />}
-            {!hideChrome && !isLiveMatch && !isMatchResult && <HelpSystem />}
-            {!pathname?.startsWith("/map-editor") && <DevTools />}
+            {!isMapEditor && <DevTools />}
             <WeekProcessingOverlay />
             <KeyboardShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
         </div >
