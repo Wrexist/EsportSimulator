@@ -27,7 +27,7 @@ export default function SponsorshipsPage() {
   const router = useRouter()
   const {
     playerTeamId, sponsorOffers, signSponsor, declineSponsorOffer, refreshSponsorOffers,
-    currentWeek, completedMatches, tournaments, _hasHydrated,
+    currentWeek, completedMatches, tournaments, _hasHydrated, isLoading,
   } = useGameStore(useShallow(state => ({
     playerTeamId: state.playerTeamId,
     sponsorOffers: state.sponsorOffers,
@@ -38,13 +38,16 @@ export default function SponsorshipsPage() {
     completedMatches: state.completedMatches,
     tournaments: state.tournaments,
     _hasHydrated: state._hasHydrated,
+    isLoading: state.isLoading,
   })))
   const team = useCurrentTeam()
   const isSessionActive = !!team && !!playerTeamId
 
+  // On a full reload the store is hydrated while loadGame() is still running
+  // (isLoading), so wait for the save to finish loading before bouncing.
   useEffect(() => {
-    if (_hasHydrated && !isSessionActive) router.push("/main-menu")
-  }, [_hasHydrated, isSessionActive, router])
+    if (_hasHydrated && !isLoading && !isSessionActive) router.push("/main-menu")
+  }, [_hasHydrated, isLoading, isSessionActive, router])
 
   useEffect(() => {
     if (_hasHydrated && isSessionActive && sponsorOffers.length === 0) refreshSponsorOffers()
