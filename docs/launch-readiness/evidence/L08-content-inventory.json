@@ -88868,8 +88868,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "c0b38cbc287007ecb64268ba38113e4947f25088ac8e72056da470433443c89c",
-      "bytes": 219313,
+      "sha256": "b56399f2d2b5475e1d6fb2dec91764926af8635a24010e27619a0c81252102f8",
+      "bytes": 219381,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88934,13 +88934,18 @@
           "date": "2026-11-03",
           "previousSha256": "029492e7b73c3fde82fc5c581a5af349747a8a07155fd8b6e367900dfc95de64",
           "change": "Interface languages, schedule: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "c0b38cbc287007ecb64268ba38113e4947f25088ac8e72056da470433443c89c",
+          "change": "Interface languages, spacing and label fixes from the audit: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "e3f708bd7f317b09230a64a6637b6b592af8777c94a35ecfe39dff7a58e9b078",
-      "bytes": 228759,
+      "sha256": "918bfb710b44c2a7e49e3aa910974948e9620eaa032ee2fbf74024a638911388",
+      "bytes": 228820,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89005,13 +89010,18 @@
           "date": "2026-11-03",
           "previousSha256": "57b6a1b4d83025dfbffc9db1b113cafdfe4bd5ce21dd4d3357acfddc55a245e6",
           "change": "Interface languages, schedule: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "e3f708bd7f317b09230a64a6637b6b592af8777c94a35ecfe39dff7a58e9b078",
+          "change": "Interface languages, spacing and label fixes from the audit: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "302b25419a4260b8755b9f7d071cc684b02c89ce9e84f5f53472cb9a2aa35152",
-      "bytes": 233182,
+      "sha256": "0aa201f06408800571d36b7c71edc3e44bdfdf78824b4601cec85e0cd3879edf",
+      "bytes": 233668,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89076,6 +89086,11 @@
           "date": "2026-11-03",
           "previousSha256": "bca96cda75943891235dff6857c3e083ba61cc6d9374e2ddb0a22223a2fdd489",
           "change": "Interface languages, schedule: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "302b25419a4260b8755b9f7d071cc684b02c89ce9e84f5f53472cb9a2aa35152",
+          "change": "Interface languages, spacing and label fixes from the audit: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
