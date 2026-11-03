@@ -20,7 +20,7 @@ import { DISCORD_INVITE_URL, hasCommunityDiscord } from "@/lib/community"
 /** "Season 2 · Week 14" from an absolute career week. */
 function seasonWeekLabel(week: number | null | undefined): string {
     const w = Math.max(1, week || 1)
-    return `Season ${Math.ceil(w / 52)} · Week ${((w - 1) % 52) + 1}`
+    return t("lg.seasonWeek", { season: Math.ceil(w / 52), week: ((w - 1) % 52) + 1 })
 }
 
 type MenuItemProps = {
