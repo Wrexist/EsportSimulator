@@ -12,7 +12,7 @@ import { evaluatePlayer } from "@/engine/player-evaluation"
 import { getDisplayPlayerTier, type TierLevel } from "@/engine/tier-system"
 import { getPrestigeLabel } from "@/engine/prestige-system"
 import { PLAYER_TALENT_TREE } from "@/engine/talent-trees"
-import { getMasteryInfo, WEAPON_DISPLAY, WeaponMasteryManager, type WeaponType } from "@/engine/weapon-mastery-system"
+import { getMasteryInfo, WeaponMasteryManager, type WeaponType } from "@/engine/weapon-mastery-system"
 import { playerEnergyPercent } from "@/lib/player-energy"
 import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { toast } from "@/lib/toast"
@@ -434,10 +434,10 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                         const info = getMasteryInfo(mastery[weapon])
                                         return (
                                             <li key={weapon} className="grid grid-cols-[120px_minmax(0,1fr)_120px] items-center gap-4 px-4 py-2.5">
-                                                <span className="text-sm font-semibold text-ink-1">{WEAPON_DISPLAY[weapon]?.name ?? weapon}</span>
-                                                <Meter value={info.progress} label={t("player.masteryProgress", { weapon })} tone="neutral" showValue={false} trackClassName="w-full" />
+                                                <span className="text-sm font-semibold text-ink-1">{t(`weapon.${weapon}`)}</span>
+                                                <Meter value={info.progress} label={t("player.masteryProgress", { weapon: t(`weapon.${weapon}`) })} tone="neutral" showValue={false} trackClassName="w-full" />
                                                 <span className={cn("text-right text-sm", info.isMaster ? "font-semibold text-gold" : "text-ink-2")}>
-                                                    {info.name} <span className="text-xs tabular-nums text-ink-3">{mastery[weapon]} XP</span>
+                                                    {t(`mastery.${info.level}`)} <span className="text-xs tabular-nums text-ink-3">{mastery[weapon]} XP</span>
                                                 </span>
                                             </li>
                                         )

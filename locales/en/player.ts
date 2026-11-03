@@ -362,4 +362,13 @@ export const PLAYER = {
     "player.loading": "Loading player profile",
     "player.goBack": "Go back",
     "player.back": "Back",
+    "weapon.RIFLE": "Rifle",
+    "weapon.AWP": "AWP",
+    "weapon.PISTOL": "Pistol",
+    "weapon.SMG": "SMG",
+    "mastery.NOVICE": "Novice",
+    "mastery.COMPETENT": "Competent",
+    "mastery.SKILLED": "Skilled",
+    "mastery.EXPERT": "Expert",
+    "mastery.MASTER": "Master",
 } as const
