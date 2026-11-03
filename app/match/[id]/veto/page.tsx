@@ -1,6 +1,9 @@
 "use client"
 
-import { mapComfort, mapComfortLabel } from "@/engine/match/map-comfort"
+import { MAP_COMFORT_STEPS, mapComfort, mapComfortLabel } from "@/engine/match/map-comfort"
+import { evaluatePlayer } from "@/engine/player-evaluation"
+import { getActivePlayersByRosterOrder } from "@/lib/live-match-builders"
+import { RatingChip } from "@/src/components/ui/RatingChip"
 import { useState, useRef, useEffect, useMemo } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useGameStore } from "@/store/game-store"
@@ -80,7 +83,7 @@ function TeamSide({ team, rating, active, isUser, align }: { team: TeamSaveData;
             <div className="min-w-0">
                 <h2 className="truncate font-display text-[32px] font-bold uppercase leading-none text-ink-1">{team.name}</h2>
                 <p className={cn("mt-1.5 flex items-center gap-2 text-xs text-ink-3", align === "right" && "justify-end")}>
-                    <span><Trans k="veto.avgSkill" params={{ value: rating.toFixed(1) }} tags={{ b: v => <span className="font-semibold tabular-nums text-ink-2">{v}</span> }} /></span>
+                    <span className="flex items-center gap-1.5">{t("common.teamOvr")} <RatingChip value={rating} size="sm" bare /></span>
                     {isUser && <span className="rounded-sm border border-line-strong px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-2">{t("veto.you")}</span>}
                 </p>
             </div>
@@ -410,10 +413,10 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
     const currentTurn = vetoSequence[turnIndex] || { team: "home", action: "WAIT" }
     const vetoDone = vetoSequence.length > 0 && vetoHistory.length >= vetoSequence.length
 
-    // Average skill on the 0–10 scale the old header used.
-    const getTeamRating = (teamPlayers: Player[]) => {
-        if (!teamPlayers.length) return 5.0
-        return (teamPlayers.reduce((sum, p) => sum + p.skill, 0) / teamPlayers.length) / 10
+    // Team OVR of the starting five, as on the prep screen (MATCHDAY-16).
+    const getTeamRating = (team: TeamSaveData) => {
+        const five = getActivePlayersByRosterOrder(team, players, playersById) as unknown as Player[]
+        return five.length ? Math.round(five.reduce((sum, p) => sum + evaluatePlayer(p).overallRating, 0) / five.length) : 0
     }
 
     // What a map is actually worth in the match engine (script-v1): the
@@ -458,7 +461,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
             {/* Header: teams + turn */}
             <section className="rounded-[10px] border border-line bg-panel">
                 <div className="flex items-center gap-8 px-8 py-5">
-                    <TeamSide team={homeTeam} isUser={homeTeam.id === playerTeamId} rating={getTeamRating(homePlayersList)} active={!vetoDone && currentTurn.team === "home"} align="left" />
+                    <TeamSide team={homeTeam} isUser={homeTeam.id === playerTeamId} rating={getTeamRating(homeTeam)} active={!vetoDone && currentTurn.team === "home"} align="left" />
                     <div className="flex w-[340px] shrink-0 flex-col items-center text-center">
                         <h1 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("veto.mapVetoFormat", { format: (match.format || "BO3").toUpperCase() })}</h1>
                         <h3
@@ -471,7 +474,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
                             {vetoDone ? t("veto.heading") : isUserTurn ? (currentTurn.action === "SIDE_PICK" ? t("veto.chooseStartSide") : t(currentTurn.action === "BAN" ? "veto.clickBan" : "veto.clickPick")) : t("veto.step", { n: turnIndex + 1, total: vetoSequence.length })}
                         </p>
                     </div>
-                    <TeamSide team={awayTeam} isUser={awayTeam.id === playerTeamId} rating={getTeamRating(awayPlayersList)} active={!vetoDone && currentTurn.team === "away"} align="right" />
+                    <TeamSide team={awayTeam} isUser={awayTeam.id === playerTeamId} rating={getTeamRating(awayTeam)} active={!vetoDone && currentTurn.team === "away"} align="right" />
                 </div>
 
                 {/* Sequence */}
@@ -618,7 +621,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
             </div>
 
             <p className="text-xs text-ink-3">
-                {t("veto.footnote", { home: homeTeam.name, away: awayTeam.name })}
+                {t("veto.footnote", { home: homeTeam.name, away: awayTeam.name, pct: Math.round(MAP_COMFORT_STEPS[0] * 100) })}
             </p>
 
             {/* Side Selection Overlay */}

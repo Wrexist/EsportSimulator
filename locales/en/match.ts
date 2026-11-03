@@ -197,7 +197,7 @@ export const MATCH = {
     "veto.record": "Record",
     "veto.banThis": "Ban this map",
     "veto.pickThis": "Pick this map",
-    "veto.footnote": "The engine adds the map-strength gap to every round (the edge shown). It moves by tenths of a percent from map to map, so the veto barely changes the odds. Records and CT / T round win rates are past results ({{home}} / {{away}}) and don't affect the match.",
+    "veto.footnote": "Read edge and comfort count in every round on this map: a club's best map is worth about +{{pct}}% team strength, its worst about −{{pct}}%. Records and CT / T round win rates are past results ({{home}} / {{away}}) and don't affect the match.",
     "veto.chooseSide": "Choose your side",
     "veto.firstHalf": "You play the first half on this side, then switch.",
     "veto.rateOf": "{{pct}}% of {{n}}",

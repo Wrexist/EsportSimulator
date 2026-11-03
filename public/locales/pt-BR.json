@@ -660,7 +660,7 @@
  "veto.record": "Campanha",
  "veto.banThis": "Banir este mapa",
  "veto.pickThis": "Escolher este mapa",
- "veto.footnote": "O motor soma a diferença de força no mapa a cada round (a vantagem mostrada). Ela varia em décimos de ponto de um mapa para outro, então o veto quase não muda as chances. Campanhas e aproveitamento de rounds CT / TR são resultados passados ({{home}} / {{away}}) e não afetam a partida.",
+ "veto.footnote": "A vantagem de leitura e o conforto contam em cada round neste mapa: o melhor mapa de um clube vale cerca de +{{pct}}% de força do time, o pior cerca de −{{pct}}%. Campanhas e aproveitamento de rounds CT / TR são resultados passados ({{home}} / {{away}}) e não afetam a partida.",
  "veto.chooseSide": "Escolha seu lado",
  "veto.firstHalf": "Você joga o primeiro tempo deste lado e depois troca.",
  "veto.rateOf": "{{pct}}% de {{n}}",

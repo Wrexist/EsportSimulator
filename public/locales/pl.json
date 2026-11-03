@@ -679,7 +679,7 @@
  "veto.record": "Bilans",
  "veto.banThis": "Zbanuj tę mapę",
  "veto.pickThis": "Wybierz tę mapę",
- "veto.footnote": "Silnik dolicza różnicę siły na mapie do każdej rundy (pokazaną przewagę). Między mapami zmienia się ona o dziesiąte części procenta, więc veto prawie nie zmienia szans. Bilanse i odsetki wygranych rund CT / T to wcześniejsze wyniki ({{home}} / {{away}}) i nie wpływają na mecz.",
+ "veto.footnote": "Przewaga w czytaniu gry i komfort liczą się w każdej rundzie na tej mapie: najlepsza mapa klubu daje około +{{pct}}% siły drużyny, najsłabsza około −{{pct}}%. Bilanse i odsetki wygranych rund CT / T to wcześniejsze wyniki ({{home}} / {{away}}) i nie wpływają na mecz.",
  "veto.chooseSide": "Wybierz stronę",
  "veto.firstHalf": "Pierwszą połowę grasz po tej stronie, potem zmiana.",
  "veto.rateOf": "{{pct}}% z {{n}}",

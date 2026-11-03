@@ -641,7 +641,7 @@
  "veto.record": "Bilanz",
  "veto.banThis": "Diese Map bannen",
  "veto.pickThis": "Diese Map wählen",
- "veto.footnote": "Die Engine rechnet den Stärkeunterschied auf der Map in jede Runde ein (der angezeigte Vorteil). Er schwankt von Map zu Map nur um Zehntelprozente, das Veto ändert die Chancen also kaum. Bilanzen und CT-/T-Rundensiegquoten sind vergangene Ergebnisse ({{home}} / {{away}}) und beeinflussen das Match nicht.",
+ "veto.footnote": "Lesevorteil und Komfort zählen in jeder Runde auf dieser Map: Die beste Map eines Vereins bringt etwa +{{pct}} % Teamstärke, die schwächste etwa −{{pct}} %. Bilanzen und CT-/T-Rundensiegquoten sind vergangene Ergebnisse ({{home}} / {{away}}) und beeinflussen das Match nicht.",
  "veto.chooseSide": "Wähle deine Seite",
  "veto.firstHalf": "Du spielst die erste Halbzeit auf dieser Seite und wechselst dann.",
  "veto.rateOf": "{{pct}} % von {{n}}",
