@@ -88868,8 +88868,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "37c492d4d53132e2ea9e019b29caddebf7f3d254cb7f0b63fd0c673643687c84",
-      "bytes": 219434,
+      "sha256": "678eb4a5d353af3919154c8369e4f60a1b6ce4b0bd1992aa12f7e77b2e97d7dd",
+      "bytes": 219480,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -88944,13 +88944,18 @@
           "date": "2026-11-03",
           "previousSha256": "b56399f2d2b5475e1d6fb2dec91764926af8635a24010e27619a0c81252102f8",
           "change": "Interface languages, skip link: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "37c492d4d53132e2ea9e019b29caddebf7f3d254cb7f0b63fd0c673643687c84",
+          "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "b8ab2318a8325af8779adb2e6901fdb816d11b849936535851f204e8ec8d91b4",
-      "bytes": 228878,
+      "sha256": "9b97b394166519eada4d9e4dfed81af5e2c1ad3151fbde6293d6c094e4c40dce",
+      "bytes": 228925,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89025,13 +89030,18 @@
           "date": "2026-11-03",
           "previousSha256": "918bfb710b44c2a7e49e3aa910974948e9620eaa032ee2fbf74024a638911388",
           "change": "Interface languages, skip link: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "b8ab2318a8325af8779adb2e6901fdb816d11b849936535851f204e8ec8d91b4",
+          "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "a28ff7d21ebe57328a3d32b24f825c247937c020d1ec5207b51d0de4e5fb035e",
-      "bytes": 233723,
+      "sha256": "82f4200c7637b4a41e70ce42f36b3b28e424bf2cd3dbae91ce5cf5f7a9c16125",
+      "bytes": 233770,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89106,13 +89116,18 @@
           "date": "2026-11-03",
           "previousSha256": "0aa201f06408800571d36b7c71edc3e44bdfdf78824b4601cec85e0cd3879edf",
           "change": "Interface languages, skip link: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "a28ff7d21ebe57328a3d32b24f825c247937c020d1ec5207b51d0de4e5fb035e",
+          "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "3bef2ec8400e7a00a651824053037a9ad6d1f3fff9b73c69be2daccb436bae6f",
-      "bytes": 231300,
+      "sha256": "e06a10f5f5b6f94c63983945dd7fca7edea296a16fcbe0cdc47fa557a576d8d8",
+      "bytes": 231340,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89182,13 +89197,18 @@
           "date": "2026-11-03",
           "previousSha256": "d61c4e2e65d9f72927458314cb02fe319f0a90e9d4da63c0b1037b3eb6dda0ab",
           "change": "Interface languages, skip link: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "3bef2ec8400e7a00a651824053037a9ad6d1f3fff9b73c69be2daccb436bae6f",
+          "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "f4fa7901f4b4a7e8a3d489ddfac2f658dea0502b9c950b7ff268d8b2f765f84d",
-      "bytes": 225559,
+      "sha256": "de54b2047a9fc1db21811d212d865f19711474a3862df006fccabc596854f2d0",
+      "bytes": 225606,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89258,13 +89278,18 @@
           "date": "2026-11-03",
           "previousSha256": "5772b11bdc0b3123685bd1f6ec13b82300097c77a5087cfe76481ae365e0b316",
           "change": "Interface languages, skip link: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "f4fa7901f4b4a7e8a3d489ddfac2f658dea0502b9c950b7ff268d8b2f765f84d",
+          "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "d03ad99b3c6e9cef94c35870d49aad35ae7234065ba4a020889c3f276aa660b8",
-      "bytes": 313511,
+      "sha256": "02d17a457ca252e9b7f2ab9dda5c5e17f5ab9485c20fbdc67a3087327d6fcddb",
+      "bytes": 313560,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -89334,6 +89359,11 @@
           "date": "2026-11-03",
           "previousSha256": "66af75e2a9210021171f802dcc2604dec8079a065493065e9b2fd37ed6e6dbd8",
           "change": "Interface languages, skip link: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "d03ad99b3c6e9cef94c35870d49aad35ae7234065ba4a020889c3f276aa660b8",
+          "change": "Settings: the Rendering hint now says the Steam overlay needs GPU rendering (audit CROSSCUT-05). Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },

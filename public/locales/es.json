@@ -1352,7 +1352,7 @@
  "settings.resolution": "Resolución",
  "settings.resolutionHint": "Tamaño de la ventana en modo ventana.",
  "settings.rendering": "Renderizado",
- "settings.renderingHint": "Solo en la aplicación de escritorio. Se aplica al reiniciar. Si la ventana se queda en blanco con GPU, vuelve a software.",
+ "settings.renderingHint": "Solo en la aplicación de escritorio. Se aplica al reiniciar. El overlay de Steam (Mayús+Tab) necesita GPU. Si la ventana se queda en blanco con GPU, vuelve a software.",
  "settings.rendering.software": "Software (predeterminado)",
  "settings.rendering.gpu": "GPU",
  "settings.uiScale": "Escala de la interfaz",

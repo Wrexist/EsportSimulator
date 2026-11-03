@@ -1390,7 +1390,7 @@
  "settings.resolution": "Разрешение",
  "settings.resolutionHint": "Размер окна в оконном режиме.",
  "settings.rendering": "Отрисовка",
- "settings.renderingHint": "Только в настольном приложении. Вступает в силу после перезапуска. Если с GPU окно остаётся пустым, верни программную отрисовку.",
+ "settings.renderingHint": "Только в настольном приложении. Вступает в силу после перезапуска. Оверлею Steam (Shift+Tab) нужен GPU. Если с GPU окно остаётся пустым, верни программную отрисовку.",
  "settings.rendering.software": "Программная (по умолчанию)",
  "settings.rendering.gpu": "GPU",
  "settings.uiScale": "Масштаб интерфейса",
