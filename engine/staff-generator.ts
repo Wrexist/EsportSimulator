@@ -48,7 +48,7 @@ export class StaffGenerator {
             const nameRoll = Math.max(0, this.NAMES.indexOf(member.name.split(" ").pop() ?? ""))
             const seed = Number(member.id.split("_")[2]) || 0
             for (let variant = 1; variant < 81; variant++) {
-                const name = this.staffName(member.role, member.nationality, nameRoll, seed, variant)
+                const name = this.staffName(member.role, member.nationality ?? "UK", nameRoll, seed, variant)
                 if (!used.has(name)) { used.add(name); return { ...member, name } }
             }
             return member
