@@ -189,15 +189,20 @@ export class EventProcessor {
             }
         }
 
-        // 6. Sponsor Meetings (Phase 21)
-        if (playerTeam && rng.bool(0.10)) {
+        // 6. Sponsor Meetings (Phase 21). Only clubs with a signed, running
+        // deal get a review (HOME-06: it fired with "0 active deals" because
+        // the base-partner income is paid to every club). Counted the way
+        // EconomyEngine.calculateSponsorIncome pays deals. The roll comes
+        // first so the RNG stream is the same either way.
+        const activeDeals = (playerTeam?.sponsors ?? []).filter(sp => sp.remainingWeeks === undefined || sp.remainingWeeks > 0).length
+        if (playerTeam && rng.bool(0.10) && activeDeals > 0) {
             const eventId = `sponsor_review_${save.currentWeek}`
             if (!transaction.generatedEventIds.includes(eventId)) {
                 save.eventsLog.push({
                     id: eventId,
                     type: EventType.SPONSOR,
                     week: save.currentWeek,
-                    data: { currentSponsors: playerTeam.sponsors?.length || 0 },
+                    data: { currentSponsors: activeDeals },
                     acknowledged: false,
                     choices: [
                         { id: "negotiate", text: "Negotiate Performance Bonus (Rep -5)", effects: { reputation: -5 } },
