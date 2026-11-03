@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -7,6 +8,7 @@ import { Role } from "@/types"
 import { PlayerSaveData } from "@/engine/save-types"
 import { formatRole, formatCurrency } from "@/lib/utils-extended"
 import { RoleTag } from "@/src/components/ui/RoleTag"
+import { statLabel } from "@/components/training/weekly-training"
 
 interface RoleTrainingModalProps {
     player: PlayerSaveData
@@ -18,21 +20,16 @@ interface RoleTrainingModalProps {
     maxTrainingSlots?: number
 }
 
-const ROLES: { id: Role, label: string }[] = [
-    { id: "igl", label: "In-game leader" },
-    { id: "entry", label: "Entry fragger" },
-    { id: "support", label: "Support" },
-    { id: "awper", label: "AWPer" },
-    { id: "rifler", label: "Rifler" },
-]
+/** Retraining targets; the label is t(`tr.role.${id}`). */
+const ROLES: { id: Role }[] = [{ id: "igl" }, { id: "entry" }, { id: "support" }, { id: "awper" }, { id: "rifler" }]
 
-/** Completion boosts from TrainingManager.applyRoleBonuses (scaled up by the coach's development). */
+/** Completion boosts from TrainingManager.applyRoleBonuses (scaled up by the coach's development). Stats are player stat keys. */
 const ROLE_BONUSES: Record<string, { stat: string, amount: number }[]> = {
-    igl: [{ stat: "Tactics", amount: 5 }, { stat: "Leadership", amount: 3 }],
-    entry: [{ stat: "Reaction", amount: 4 }, { stat: "Rifle", amount: 4 }],
-    support: [{ stat: "Utility", amount: 5 }, { stat: "Teamwork", amount: 3 }],
-    awper: [{ stat: "AWP", amount: 6 }],
-    rifler: [{ stat: "Rifle", amount: 4 }, { stat: "Aim", amount: 4 }],
+    igl: [{ stat: "tactic", amount: 5 }, { stat: "leader", amount: 3 }],
+    entry: [{ stat: "reaction", amount: 4 }, { stat: "rifle", amount: 4 }],
+    support: [{ stat: "grenades", amount: 5 }, { stat: "teamwork", amount: 3 }],
+    awper: [{ stat: "awp", amount: 6 }],
+    rifler: [{ stat: "rifle", amount: 4 }, { stat: "skill", amount: 4 }],
 }
 
 const WEEKLY_COST = 5000
@@ -59,25 +56,25 @@ export function RoleTrainingModal({ player, isOpen, onClose, onStartTraining, cu
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle>{hasSecondaryRole ? "Two roles already" : "Retrain role"}</DialogTitle>
+                    <DialogTitle>{hasSecondaryRole ? t("tr.rt.twoRoles") : t("tr.rt.title")}</DialogTitle>
                     <DialogDescription className="text-ink-3">
                         {hasSecondaryRole
-                            ? `${player.nickname} already plays two roles, so no further retraining is possible.`
-                            : `${DURATION} weeks for ${player.nickname}. When it finishes the new role becomes primary and ${formatRole(player.role)} becomes his secondary role.`}
+                            ? t("tr.rt.twoRolesBody", { name: player.nickname })
+                            : t("tr.rt.body", { weeks: DURATION, name: player.nickname, role: formatRole(player.role) })}
                     </DialogDescription>
                 </DialogHeader>
 
                 {!hasSecondaryRole ? (
                     <div className="space-y-4">
                         <label className="block space-y-1.5">
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">New primary role</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("tr.rt.newPrimary")}</span>
                             <Select onValueChange={val => setSelectedRole(val as Role)}>
                                 <SelectTrigger className="h-10 w-full">
-                                    <SelectValue placeholder="Choose a role" />
+                                    <SelectValue placeholder={t("tr.rt.choose")} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {ROLES.filter(r => formatRole(r.id) !== formatRole(player.role)).map(role => (
-                                        <SelectItem key={role.id} value={role.id}>{role.label}</SelectItem>
+                                        <SelectItem key={role.id} value={role.id}>{t(`tr.role.${role.id}`)}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -89,17 +86,17 @@ export function RoleTrainingModal({ player, isOpen, onClose, onStartTraining, cu
                                     <RoleTag role={player.role} />
                                     <ArrowRight size={14} className="text-ink-3" />
                                     <RoleTag role={selectedRole} className="border-gold text-ink-1" />
-                                    <span className="text-xs text-ink-3">new primary</span>
+                                    <span className="text-xs text-ink-3">{t("tr.rt.newPrimaryShort")}</span>
                                 </div>
                                 <dl className="divide-y divide-line rounded-lg border border-line">
-                                    <Line label="Duration" value={`${DURATION} weeks`} />
-                                    <Line label="Cost" value={`${formatCurrency(WEEKLY_COST, "$", false)} / wk · ${formatCurrency(WEEKLY_COST * DURATION, "$", false)} total`} />
-                                    <Line label="Energy" value="−10 per week" />
-                                    <Line label="Drill slots" value={`Holds 1 of ${maxTrainingSlots} each week`} tone={slotsAvailable ? "text-ink-1" : "text-negative"} />
-                                    <Line label="On completion" value={`${(ROLE_BONUSES[selectedRole] || []).map(b => `+${b.amount} ${b.stat}`).join(", ")}, +10 morale`} />
+                                    <Line label={t("tr.rt.duration")} value={t("tr.rt.weeks", { n: DURATION })} />
+                                    <Line label={t("tr.rt.cost")} value={t("tr.rt.costValue", { weekly: formatCurrency(WEEKLY_COST, "$", false), total: formatCurrency(WEEKLY_COST * DURATION, "$", false) })} />
+                                    <Line label={t("tr.rt.energy")} value={t("tr.rt.energyValue")} />
+                                    <Line label={t("tr.rt.slots")} value={t("tr.rt.slotsValue", { n: maxTrainingSlots })} tone={slotsAvailable ? "text-ink-1" : "text-negative"} />
+                                    <Line label={t("tr.rt.completion")} value={[...(ROLE_BONUSES[selectedRole] || []).map(b => `+${b.amount} ${statLabel(b.stat)}`), t("tr.rt.morale")].join(", ")} />
                                 </dl>
                                 <p className="text-xs leading-relaxed text-ink-3">
-                                    Paid weekly; it pauses if the budget runs short or he is injured. He skips team drills and weekly training meanwhile. Stopping early refunds half of what was paid. A coach with high development raises the completion boosts.
+                                    {t("tr.rt.note")}
                                 </p>
                             </>
                         )}
@@ -113,13 +110,13 @@ export function RoleTrainingModal({ player, isOpen, onClose, onStartTraining, cu
                 )}
 
                 <DialogFooter className="gap-2 sm:gap-2">
-                    <Button variant="outline" onClick={onClose}>Close</Button>
+                    <Button variant="outline" onClick={onClose}>{t("tr.close")}</Button>
                     {!hasSecondaryRole && (
                         <Button
                             onClick={() => selectedRole && onStartTraining(selectedRole as Role)}
                             disabled={!selectedRole || !canAfford || !slotsAvailable || tooTired}
                         >
-                            {!slotsAvailable ? "No slots this week" : !canAfford ? "Not enough budget" : tooTired ? "Too exhausted" : "Start retraining"}
+                            {!slotsAvailable ? t("tr.rt.noSlots") : !canAfford ? t("tr.rt.noBudget") : tooTired ? t("tr.rt.tired") : t("tr.rt.start")}
                         </Button>
                     )}
                 </DialogFooter>

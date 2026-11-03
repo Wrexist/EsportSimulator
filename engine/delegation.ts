@@ -39,7 +39,7 @@ export const SCOUT_BUDGET_MISSIONS = 10
 export const DELEGATION_HINT: Record<DelegationArea, string> = {
     drills: "Runs drills on the squad's weakest areas each week and stops before anyone gets tired. Lighter in match weeks.",
     renewals: `Renews starters and regular rotation players aged ${RENEW_MAX_AGE} or under when ${RENEW_WITHIN_WEEKS} weeks or less are left, if the budget allows. Others are left for you.`,
-    scouting: "When the scout is free, sends him to watch the next player on your shortlist.",
+    scouting: "When the scout is free, sends them to watch the next player on your shortlist.",
     veto: "Your coach runs the map veto for you when you open match prep.",
     matches: "Your assistant plays regular league rounds for you with your lineup and tactics, so the calendar keeps moving. Playoffs, cups, tournaments and big games are still yours.",
 }

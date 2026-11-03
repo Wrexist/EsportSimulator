@@ -1,5 +1,5 @@
 "use client"
-import { t } from "@/lib/i18n"
+import { t, tn } from "@/lib/i18n"
 
 import { useMemo, useState } from "react"
 import { useShallow } from "zustand/react/shallow"
@@ -10,10 +10,10 @@ import { Panel } from "@/src/components/ui/Panel"
 import { CT_SETUPS, T_CALL_STRATEGIES, ctSetupLabel, tCallLabel } from "@/engine/match/playbook"
 import { cn } from "@/lib/utils"
 
-const BUY_LABELS: Record<string, string> = { ECO: "Eco", FORCE: "Force", SEMIBUY: "Semi-buy", FULL: "Full buy", "DOUBLE AWP": "Double AWP" }
+const buyLabels = (): Record<string, string> => Object.fromEntries(["ECO", "FORCE", "SEMIBUY", "FULL", "DOUBLE AWP"].map(k => [k, t(`tr.buy.${k}`)]))
 const tPlanLabels = (): Record<string, string> => ({ ...Object.fromEntries(T_CALL_STRATEGIES.map(s => [s, tCallLabel(s)])), eco: t("playbook.t.eco") })
 const ctSetupLabels = (): Record<string, string> => Object.fromEntries(CT_SETUPS.map(s => [s, ctSetupLabel(s)]))
-const STYLE_LABELS: Record<string, string> = { aggressive: "Aggressive", structured: "Structured", balanced: "Balanced", default: "Default" }
+const styleLabels = (): Record<string, string> => Object.fromEntries(["aggressive", "structured", "balanced", "default"].map(k => [k, t(`rk.playstyle.${k}`)]))
 /** Fewer rounds than this and a rate is shown dimmed: too few to read much into. */
 const SMALL_SAMPLE = 8
 
@@ -35,21 +35,21 @@ function Segmented<T extends string>({ value, options, onChange, label }: { valu
     )
 }
 
-function RateBars({ title, cells, labels, unit = "rounds" }: { title: string; cells: Record<string, RateCell>; labels: Record<string, string>; unit?: string }) {
+function RateBars({ title, cells, labels, unit = "rounds" }: { title: string; cells: Record<string, RateCell>; labels: Record<string, string>; unit?: "rounds" | "maps" }) {
     const rows = Object.entries(cells).sort((a, b) => b[1].n - a[1].n)
     return (
         <div className="min-w-0">
             <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{title}</h3>
-            {rows.length === 0 ? <p className="mt-2 text-sm text-ink-3">None yet.</p> : (
+            {rows.length === 0 ? <p className="mt-2 text-sm text-ink-3">{t("md.none")}</p> : (
                 <ul className="mt-2 space-y-1.5">
                     {rows.map(([key, c]) => {
                         const r = rate(c.won, c.n) ?? 0
                         const small = c.n < SMALL_SAMPLE
                         return (
-                            <li key={key} className={cn("text-sm", small && "opacity-60")} title={small ? `Only ${c.n} ${unit}: too few to read much into.` : undefined}>
+                            <li key={key} className={cn("text-sm", small && "opacity-60")} title={small ? tn(unit === "maps" ? "md.fewMaps" : "md.fewRounds", c.n) : undefined}>
                                 <div className="flex items-baseline justify-between gap-2">
                                     <span className="truncate text-ink-2">{labels[key] ?? key}</span>
-                                    <span className="shrink-0 tabular-nums text-ink-1">{r}% <span className="text-xs text-ink-3">of {c.n}</span></span>
+                                    <span className="shrink-0 tabular-nums text-ink-1">{r}% <span className="text-xs text-ink-3">{t("md.of", { n: c.n })}</span></span>
                                 </div>
                                 <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-raised" aria-hidden="true">
                                     <div className={cn("h-full rounded-full", r >= 50 ? "bg-positive" : "bg-negative")} style={{ width: `${r}%` }} />
@@ -93,29 +93,29 @@ export function MapDataPanel() {
     return (
         <div className="space-y-4">
             <Panel
-                title="Map data"
+                title={t("md.title")}
                 actions={
                     <div className="flex flex-wrap items-center gap-2">
-                        <Segmented label="Season" value={season} onChange={v => { setSeason(v); setSelected(null) }}
-                            options={hasPrevious ? [["current", "This season"], ["previous", "Last season"]] : [["current", "This season"]]} />
-                        <Segmented label="Matches" value={scope} onChange={v => { setScope(v); setSelected(null) }} options={[["official", "Official"], ["friendly", "Friendlies"]]} />
+                        <Segmented label={t("md.season")} value={season} onChange={v => { setSeason(v); setSelected(null) }}
+                            options={hasPrevious ? [["current", t("md.thisSeason")], ["previous", t("md.lastSeason")]] : [["current", t("md.thisSeason")]]} />
+                        <Segmented label={t("md.matches")} value={scope} onChange={v => { setScope(v); setSelected(null) }} options={[["official", t("md.official")], ["friendly", t("md.friendlies")]]} />
                     </div>
                 }
                 padded={false}
             >
                 {maps.length === 0 ? (
-                    <p className="px-4 py-5 text-sm text-ink-3">No {scope === "official" ? "official matches" : "friendlies"} played {season === "current" ? "this season" : "last season"} yet. Every map you play adds to these numbers.</p>
+                    <p className="px-4 py-5 text-sm text-ink-3">{t(`md.empty.${scope}.${season}`)}</p>
                 ) : (
                     <div className="overflow-x-auto">
                         <table data-slot="table" className="w-full min-w-[640px] border-collapse text-left">
                             <thead data-slot="table-header">
                                 <tr className="border-b border-line">
-                                    <th data-slot="table-head" className="pl-4">Map</th>
-                                    <th data-slot="table-head" className="px-3 text-right">Maps</th>
-                                    <th data-slot="table-head" className="px-3 text-right">Map win</th>
-                                    <th data-slot="table-head" className="px-3 text-right">CT rounds</th>
-                                    <th data-slot="table-head" className="px-3 text-right">T rounds</th>
-                                    <th data-slot="table-head" className="pr-4 text-right">Pistols</th>
+                                    <th data-slot="table-head" className="pl-4">{t("md.col.map")}</th>
+                                    <th data-slot="table-head" className="px-3 text-right">{t("md.col.maps")}</th>
+                                    <th data-slot="table-head" className="px-3 text-right">{t("md.col.mapWin")}</th>
+                                    <th data-slot="table-head" className="px-3 text-right">{t("md.col.ct")}</th>
+                                    <th data-slot="table-head" className="px-3 text-right">{t("md.col.t")}</th>
+                                    <th data-slot="table-head" className="pr-4 text-right">{t("md.col.pistols")}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -143,16 +143,16 @@ export function MapDataPanel() {
             </Panel>
 
             {maps.length > 0 && (
-                <Panel title={selected ? `${getMapName(selected)} breakdown` : "All maps breakdown"} actions={<span className="text-xs text-ink-3">{selected ? "Click the map again for all maps" : "Click a map to narrow it down"}</span>}>
+                <Panel title={selected ? t("md.breakdown", { map: getMapName(selected) }) : t("md.allBreakdown")} actions={<span className="text-xs text-ink-3">{selected ? t("md.clickAgain") : t("md.clickMap")}</span>}>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                        <RateBars title="By your buy" cells={focus.buys} labels={BUY_LABELS} />
-                        <RateBars title="T side: plan you ran" cells={focus.tPlans} labels={tPlanLabels()} />
-                        <RateBars title="CT side: setup you held" cells={focus.ctSetups} labels={ctSetupLabels()} />
-                        <RateBars title="Your buy calls" cells={focus.calls} labels={BUY_LABELS} />
-                        <RateBars title="Playstyle (maps)" cells={focus.playstyles} labels={STYLE_LABELS} unit="maps" />
+                        <RateBars title={t("md.byBuy")} cells={focus.buys} labels={buyLabels()} />
+                        <RateBars title={t("md.tPlan")} cells={focus.tPlans} labels={tPlanLabels()} />
+                        <RateBars title={t("md.ctSetup")} cells={focus.ctSetups} labels={ctSetupLabels()} />
+                        <RateBars title={t("md.calls")} cells={focus.calls} labels={buyLabels()} />
+                        <RateBars title={t("md.styles")} cells={focus.playstyles} labels={styleLabels()} unit="maps" />
                     </div>
                     <p className="mt-4 text-xs leading-relaxed text-ink-3">
-                        Round win rates from the matches you played. They are history, not odds, and they reset each season. Faded rows have too few rounds to read much into.
+                        {t("md.note")}
                     </p>
                 </Panel>
             )}

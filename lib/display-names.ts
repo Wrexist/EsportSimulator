@@ -39,6 +39,7 @@ export function stageName(stored: string | null | undefined): string {
     if ((m = /^Round of (\d+) Match (\d+)$/.exec(s))) return t("stage.roundOfMatch", { size: Number(m[1]), n: Number(m[2]) })
     if ((m = /^Round of (\d+)$/.exec(s))) return t("stage.roundOf", { size: Number(m[1]) })
     if ((m = /^Round (\d+)$/.exec(s))) return t("stage.roundN", { n: Number(m[1]) })
+    if ((m = /^Group ([A-Z])$/.exec(s))) return t("stage.group", { letter: m[1] })
     if ((m = /^Swiss Round (\d+) \(([^)]+)\)$/.exec(s))) return t("stage.swiss", { n: Number(m[1]), record: m[2] })
     if ((m = /^(Group(?: ([A-Z]))?) (Opening|Upper Semi|Upper Final|Lower Round 1|Lower R2|Lower Semi|Lower Final)$/.exec(s))) {
         const group = m[2] ? t("stage.group", { letter: m[2] }) : t("stage.groupStage")
@@ -53,9 +54,27 @@ const FIXED_STAGES: Record<string, string> = {
     "Semi-final": "stage.semifinals",
     "Quarterfinals": "stage.quarterfinals",
     "Semifinals": "stage.semifinals",
+    "Quarter-Finals": "stage.quarterfinals",
+    "Semi-Finals": "stage.semifinals",
+    "Tournament Match": "tm.match",
     "3rd Place Decider": "stage.thirdPlace",
     "Group Stage": "stage.groupStage",
     "Practice": "stage.practice",
     "Preseason Friendly": "stage.preseasonFriendly",
     "League Match": "stage.leagueMatch",
+}
+
+const EVENT_REGIONS = ["INTERNATIONAL", "EU", "NA", "SA", "ASIA", "CIS", "OCEANIA", "MENA"]
+/** A tournament's region code (EU, NA, INTERNATIONAL, …) as a name. */
+export function eventRegionName(region: string | null | undefined): string {
+    if (!region) return ""
+    return EVENT_REGIONS.includes(region) ? t(`tm.region.${region}`) : region
+}
+
+const EVENT_FORMATS = ["bracket", "double_elim", "swiss", "league"]
+/** A tournament format; `long` gives "Single elimination" instead of "Single elim". */
+export function eventFormatName(format: string | null | undefined, long = false): string {
+    const f = (format || "").toLowerCase()
+    if (!EVENT_FORMATS.includes(f)) return format || t("common.tbd")
+    return t(`tm.format${long ? "Long" : ""}.${f}`)
 }

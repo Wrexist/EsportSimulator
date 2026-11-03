@@ -1,4 +1,5 @@
 "use client"
+import { intlLocale, t } from "@/lib/i18n"
 
 import { memo, useMemo } from "react"
 import { motion } from "framer-motion"
@@ -49,9 +50,9 @@ function TournamentStatsComponent({
         return (
             <div className="flex flex-col items-center justify-center py-20 text-center">
                 <Target size={48} className="text-ink-3 mb-4" />
-                <h3 className="text-lg font-normal text-ink-2 mb-2">No Stats Available Yet</h3>
+                <h3 className="text-lg font-normal text-ink-2 mb-2">{t("tm.stats.none")}</h3>
                 <p className="text-sm text-ink-3 max-w-md">
-                    Statistics will appear once matches have been played in this tournament.
+                    {t("tm.stats.noneBody")}
                 </p>
             </div>
         )
@@ -77,6 +78,8 @@ function TournamentStatsComponent({
 }
 
 export default memo(TournamentStatsComponent)
+
+const dec2 = (n: number) => n.toLocaleString(intlLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 // MVP Banner Component
 function MVPBanner({ mvp }: { mvp: TournamentMVP }) {
@@ -116,7 +119,7 @@ function MVPBanner({ mvp }: { mvp: TournamentMVP }) {
                 {/* Player Info */}
                 <div className="flex-1 min-w-0">
                     <div className="text-xs text-gold font-normal uppercase tracking-widest mb-1">
-                        Tournament MVP
+                        {t("tm.stats.mvp")}
                     </div>
                     <div className="text-2xl font-normal text-ink-1 truncate">
                         {mvp.playerName}
@@ -127,21 +130,21 @@ function MVPBanner({ mvp }: { mvp: TournamentMVP }) {
                 {/* Stats */}
                 <div className="hidden sm:flex items-center gap-6">
                     <div className="text-center">
-                        <div className="text-2xl font-normal text-gold">{mvp.avgRating.toFixed(2)}</div>
-                        <div className="text-xs text-ink-3 uppercase">Rating</div>
+                        <div className="text-2xl font-normal text-gold">{dec2(mvp.avgRating)}</div>
+                        <div className="text-xs text-ink-3 uppercase">{t("sx.col.rating")}</div>
                     </div>
                     <div className="text-center">
                         <div className="text-2xl font-normal text-ink-1">{mvp.totalKills}</div>
-                        <div className="text-xs text-ink-3 uppercase">Kills</div>
+                        <div className="text-xs text-ink-3 uppercase">{t("tm.stats.kills")}</div>
                     </div>
                     <div className="text-center">
                         <div className="text-2xl font-normal text-ink-1">{mvp.mapsPlayed}</div>
-                        <div className="text-xs text-ink-3 uppercase">Maps</div>
+                        <div className="text-xs text-ink-3 uppercase">{t("sx.col.maps")}</div>
                     </div>
                     {mvp.mvpMaps > 0 && (
                         <div className="text-center">
                             <div className="text-2xl font-normal text-ink-1">{mvp.mvpMaps}</div>
-                            <div className="text-xs text-ink-3 uppercase">MVP Maps</div>
+                            <div className="text-xs text-ink-3 uppercase">{t("tm.stats.mvpMaps")}</div>
                         </div>
                     )}
                 </div>
@@ -164,7 +167,7 @@ function TopPlayersTable({ players }: { players: TournamentPlayerStats[] }) {
                 <div className="flex items-center gap-2">
                     <Crosshair size={16} className="text-ink-3" />
                     <h3 className="text-sm font-semibold text-ink-1">
-                        Top players
+                        {t("tm.stats.topPlayers")}
                     </h3>
                 </div>
             </div>
@@ -210,15 +213,15 @@ function TopPlayersTable({ players }: { players: TournamentPlayerStats[] }) {
                                     player.rating >= 1.0 ? "text-ink-1" :
                                         "text-negative"
                             )}>
-                                {player.rating.toFixed(2)}
+                                {dec2(player.rating)}
                             </div>
-                            <div className="text-[11px] text-ink-3 uppercase">Rating</div>
+                            <div className="text-[11px] text-ink-3 uppercase">{t("sx.col.rating")}</div>
                         </div>
 
                         {/* Maps */}
                         <div className="text-right w-16">
                             <div className="text-ink-2">{player.mapsPlayed}</div>
-                            <div className="text-[11px] text-ink-3 uppercase">Maps</div>
+                            <div className="text-[11px] text-ink-3 uppercase">{t("sx.col.maps")}</div>
                         </div>
                     </motion.div>
                 ))}
@@ -226,7 +229,7 @@ function TopPlayersTable({ players }: { players: TournamentPlayerStats[] }) {
 
             {players.length === 0 && (
                 <div className="py-12 text-center text-ink-3">
-                    No player data available
+                    {t("tm.stats.noPlayers")}
                 </div>
             )}
         </motion.div>
@@ -247,7 +250,7 @@ function TopTeamsTable({ teams: topTeams, allTeams }: { teams: TournamentTeamSta
                 <div className="flex items-center gap-2">
                     <Award size={16} className="text-ink-3" />
                     <h3 className="text-sm font-semibold text-ink-1">
-                        Top teams
+                        {t("tm.stats.topTeams")}
                     </h3>
                 </div>
             </div>
@@ -307,15 +310,15 @@ function TopTeamsTable({ teams: topTeams, allTeams }: { teams: TournamentTeamSta
                                         team.avgRating >= 1.0 ? "text-ink-1" :
                                             "text-negative"
                                 )}>
-                                    {team.avgRating.toFixed(2)}
+                                    {dec2(team.avgRating)}
                                 </div>
-                                <div className="text-[11px] text-ink-3 uppercase">Rating</div>
+                                <div className="text-[11px] text-ink-3 uppercase">{t("sx.col.rating")}</div>
                             </div>
 
                             {/* Maps */}
                             <div className="text-right w-16">
                                 <div className="text-ink-2">{team.mapsPlayed}</div>
-                                <div className="text-[11px] text-ink-3 uppercase">Maps</div>
+                                <div className="text-[11px] text-ink-3 uppercase">{t("sx.col.maps")}</div>
                             </div>
                         </motion.div>
                     )
@@ -324,7 +327,7 @@ function TopTeamsTable({ teams: topTeams, allTeams }: { teams: TournamentTeamSta
 
             {topTeams.length === 0 && (
                 <div className="py-12 text-center text-ink-3">
-                    No team data available
+                    {t("tm.stats.noTeams")}
                 </div>
             )}
         </motion.div>

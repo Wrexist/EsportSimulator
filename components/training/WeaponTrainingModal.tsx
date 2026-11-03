@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { t } from "@/lib/i18n"
 
 import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -16,7 +18,6 @@ import { toast } from "@/lib/toast"
 import {
     WEAPON_TYPES,
     WEAPON_DRILLS,
-    WEAPON_DISPLAY,
     getMasteryInfo,
     WeaponType,
     WeaponDrillId,
@@ -63,16 +64,16 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
 
         // Check budget
         if (budget < drill.cost) {
-            toast.error("Insufficient budget", {
-                description: `Need ${formatCurrency(drill.cost, "$", false)} for this drill`
+            toast.error(t("tr.w.noBudget"), {
+                description: t("tr.w.noBudgetBody", { cost: formatCurrency(drill.cost, "$", false) })
             })
             return
         }
 
         // Check energy
         if (playerEnergy < ENERGY_COST) {
-            toast.error("Insufficient energy", {
-                description: `${livePlayer.nickname} needs at least ${ENERGY_COST} energy to train. Current: ${playerEnergy}`
+            toast.error(t("tr.w.noEnergy"), {
+                description: t("tr.w.noEnergyBody", { name: livePlayer.nickname, need: ENERGY_COST, n: playerEnergy })
             })
             return
         }
@@ -96,18 +97,18 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
             try {
                 await saveGame()
             } catch (error) {
-                toast.error("Save Failed", {
-                    description: error instanceof Error ? error.message : "Training progress could not be saved."
+                toast.error(t("tr.w.saveFailed"), {
+                    description: error instanceof Error ? error.message : t("tr.w.saveFailedBody")
                 })
                 setIsTraining(false)
                 return
             }
 
-            toast.success("Training complete", {
-                description: `${result.message} (−${ENERGY_COST} energy)`
+            toast.success(t("tr.w.complete"), {
+                description: t("tr.w.completeBody", { name: livePlayer.nickname, drill: t(`tr.w.drill.${drillKey}`), xp: result.xpGained, weapon: t(`weapon.${drill.weapon}`), energy: ENERGY_COST })
             })
         } else {
-            toast.error("Training failed", {
+            toast.error(t("tr.w.failed"), {
                 description: result.message
             })
         }
@@ -119,7 +120,6 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
         .filter(([, drill]) => drill.weapon === selectedWeapon)
         .map(([key, drill]) => ({ ...drill, drillKey: key as WeaponDrillId }))
 
-    const currentInfo = WEAPON_DISPLAY[selectedWeapon]
     const currentXp = mastery[selectedWeapon]
     const currentMastery = getMasteryInfo(currentXp)
 
@@ -127,14 +127,13 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-2xl p-0">
                 <DialogHeader className="border-b border-line px-6 pb-4 pt-6">
-                    <DialogTitle>Weapon drills</DialogTitle>
-                    <p className="text-sm text-ink-3">{player.nickname} · paid one-off sessions that add mastery XP</p>
+                    <DialogTitle>{t("tr.w.title")}</DialogTitle>
+                    <p className="text-sm text-ink-3">{t("tr.w.sub", { name: player.nickname })}</p>
                 </DialogHeader>
 
                 <div className="max-h-[70vh] space-y-5 overflow-y-auto px-6 py-5">
-                    <div role="tablist" aria-label="Weapon class" className="grid grid-cols-4 gap-2">
+                    <div role="tablist" aria-label={t("tr.w.class")} className="grid grid-cols-4 gap-2">
                         {(Object.keys(WEAPON_TYPES) as WeaponType[]).map(weapon => {
-                            const info = WEAPON_DISPLAY[weapon]
                             const mInfo = getMasteryInfo(mastery[weapon])
                             const isActive = selectedWeapon === weapon
                             return (
@@ -148,8 +147,8 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
                                         isActive ? "border-gold bg-hover" : "border-line bg-raised hover:border-line-strong",
                                     )}
                                 >
-                                    <span className={cn("block text-sm font-semibold", isActive ? "text-ink-1" : "text-ink-2")}>{info.name}</span>
-                                    <span className={cn("mt-0.5 block text-xs", mInfo.isMaster ? "text-gold" : "text-ink-3")}>{mInfo.name}</span>
+                                    <span className={cn("block text-sm font-semibold", isActive ? "text-ink-1" : "text-ink-2")}>{t(`weapon.${weapon}`)}</span>
+                                    <span className={cn("mt-0.5 block text-xs", mInfo.isMaster ? "text-gold" : "text-ink-3")}>{t(`mastery.${mInfo.level}`)}</span>
                                 </button>
                             )
                         })}
@@ -158,23 +157,23 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
                     <div className="rounded-lg border border-line bg-raised p-4">
                         <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
-                                <p className="text-sm font-semibold text-ink-1">{currentInfo.name}</p>
-                                <p className="text-xs text-ink-3">{currentInfo.description}</p>
+                                <p className="text-sm font-semibold text-ink-1">{t(`weapon.${selectedWeapon}`)}</p>
+                                <p className="text-xs text-ink-3">{t(`tr.w.class.${selectedWeapon}`)}</p>
                             </div>
                             <div className="shrink-0 text-right">
                                 <p className="font-display text-2xl font-bold tabular-nums text-ink-1">{currentXp}<span className="ml-1 font-sans text-xs font-normal text-ink-3">XP</span></p>
-                                <p className={cn("text-xs", currentMastery.isMaster ? "text-gold" : "text-ink-2")}>{currentMastery.name}</p>
+                                <p className={cn("text-xs", currentMastery.isMaster ? "text-gold" : "text-ink-2")}>{t(`mastery.${currentMastery.level}`)}</p>
                             </div>
                         </div>
                         <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-hover">
                             <div className="h-full rounded-full bg-ink-2" style={{ width: `${currentMastery.progress}%` }} />
                         </div>
                         <div className="mt-2 flex justify-between text-xs text-ink-3">
-                            <span>{currentMastery.nextLevel ? `Next: ${currentMastery.nextLevel}` : "Mastered"}</span>
-                            <span className="tabular-nums">{currentMastery.nextLevel ? `${currentMastery.xpToNext} XP to go` : ""}</span>
+                            <span>{currentMastery.nextLevel ? t("tr.w.next", { level: t(`mastery.${currentMastery.nextLevel.toUpperCase()}`) }) : t("tr.w.mastered")}</span>
+                            <span className="tabular-nums">{currentMastery.nextLevel ? t("tr.w.toGo", { n: currentMastery.xpToNext }) : ""}</span>
                         </div>
                         <p className="mt-3 border-t border-line pt-3 text-xs text-ink-3">
-                            Current edge with this class: <span className="font-semibold text-ink-1">+{currentMastery.accuracyBonus}% accuracy</span>, <span className="font-semibold text-ink-1">+{currentMastery.damageBonus}% damage</span> in round equipment strength.
+                            <Trans k="tr.w.edge" params={{ acc: currentMastery.accuracyBonus, dmg: currentMastery.damageBonus }} tags={{ b: x => <span className="font-semibold text-ink-1">{x}</span> }} />
                         </p>
                     </div>
 
@@ -187,9 +186,9 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
                                 <li key={drill.drillKey} className="flex items-center gap-4 px-4 py-3">
                                     <div className="min-w-0 flex-1">
                                         <p className="truncate text-sm font-semibold text-ink-1">
-                                            {drill.name} <span className="ml-1 text-xs font-normal capitalize text-ink-3">{drill.difficulty}</span>
+                                            {t(`tr.w.drill.${drill.drillKey}`)} <span className="ml-1 text-xs font-normal text-ink-3">{t(`tr.w.diff.${drill.difficulty}`)}</span>
                                         </p>
-                                        <p className="truncate text-xs text-ink-3">{drill.description}</p>
+                                        <p className="truncate text-xs text-ink-3">{t(`tr.w.drill.${drill.drillKey}.desc`)}</p>
                                     </div>
                                     <div className="shrink-0 text-right">
                                         <p className="text-sm font-semibold tabular-nums text-ink-1">+{drill.xpGain} XP</p>
@@ -201,9 +200,9 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
                                         disabled={!canTrain || isTraining}
                                         onClick={() => handleStartDrill(drill.drillKey)}
                                         className="h-8 w-20 shrink-0 px-3 text-xs"
-                                        title={!canAfford ? "Not enough budget" : !hasEnergy ? `Needs ${ENERGY_COST} energy` : undefined}
+                                        title={!canAfford ? t("tr.rt.noBudget") : !hasEnergy ? t("tr.w.needsEnergy", { n: ENERGY_COST }) : undefined}
                                     >
-                                        {isTraining ? "…" : "Train"}
+                                        {isTraining ? "…" : t("tr.w.train")}
                                     </Button>
                                 </li>
                             )
@@ -213,13 +212,13 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
 
                 <div className="flex items-center justify-between border-t border-line px-6 py-4">
                     <div className="flex gap-6 text-xs text-ink-3">
-                        <span>Budget <span className="font-semibold tabular-nums text-ink-1">{formatCurrency(budget, "$", false)}</span></span>
+                        <span><Trans k="tr.w.budget" params={{ amount: formatCurrency(budget, "$", false) }} tags={{ b: x => <span className="font-semibold tabular-nums text-ink-1">{x}</span> }} /></span>
                         <span>
-                            Energy <span className={cn("font-semibold tabular-nums", playerEnergy >= ENERGY_COST ? "text-ink-1" : "text-caution")}>{playerEnergy}/{livePlayer.maxEnergy ?? 100}</span>
-                            <span className="ml-1">(−{ENERGY_COST} per drill)</span>
+                            {t("tr.w.energy")} <span className={cn("font-semibold tabular-nums", playerEnergy >= ENERGY_COST ? "text-ink-1" : "text-caution")}>{playerEnergy}/{livePlayer.maxEnergy ?? 100}</span>
+                            <span className="ml-1">{t("tr.w.perDrill", { n: ENERGY_COST })}</span>
                         </span>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={onClose}>Close</Button>
+                    <Button variant="ghost" size="sm" onClick={onClose}>{t("tr.close")}</Button>
                 </div>
             </DialogContent>
         </Dialog>

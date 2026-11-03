@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 /**
  * Read-only preview of what the weekly training tick will do to a player.
  *
@@ -18,18 +19,25 @@ import type { PlayerSaveData, StaffSaveData, TeamSaveData } from "@/engine/save-
 export const TEAM_DEFAULT_FOCUS = TrainingFocus.AIM
 export const TEAM_TRAINING_INTENSITY = 5
 
-export const FOCUS_OPTIONS: { value: string; label: string; trains: string }[] = [
-    { value: "BALANCED", label: "Club default (aim)", trains: "Same as Aim" },
-    { value: TrainingFocus.AIM, label: "Aim", trains: "Rifle, AWP, pistol, reaction; aim at half rate" },
-    { value: TrainingFocus.TACTICS, label: "Tactics & utility", trains: "Tactics, utility, creativity; aim at half rate" },
-    { value: TrainingFocus.TEAMPLAY, label: "Teamwork", trains: "Teamwork; tactics at half rate" },
-    { value: TrainingFocus.REST, label: "Rest", trains: "Recovers fatigue, +5 morale" },
+/** Weekly focus choices; the label is t(`tr.focus.${value}`) and the line under it t(`tr.focus.${value}.trains`). */
+export const FOCUS_OPTIONS: { value: string }[] = [
+    { value: "BALANCED" },
+    { value: TrainingFocus.AIM },
+    { value: TrainingFocus.TACTICS },
+    { value: TrainingFocus.TEAMPLAY },
+    { value: TrainingFocus.REST },
 ]
 
-export const STAT_LABEL: Record<string, string> = {
-    skill: "Aim", rifle: "Rifle", awp: "AWP", pistol: "Pistol", reaction: "Reaction", tactic: "Tactics",
-    grenades: "Utility", creativity: "Creativity", teamwork: "Teamwork", leader: "Leadership", clutch: "Clutch",
-    morale: "Morale", stressResistance: "Composure", health: "Health",
+/** Translated label of a weekly focus value (unknown values fall back to the club default). */
+export function focusLabel(value: string | undefined): string {
+    return FOCUS_OPTIONS.some(o => o.value === value) ? t(`tr.focus.${value}`) : t("tr.focus.BALANCED")
+}
+
+const STAT_KEYS = new Set(["skill", "rifle", "awp", "pistol", "reaction", "tactic", "grenades", "creativity", "teamwork", "leader", "clutch", "morale", "stressResistance", "health"])
+
+/** Translated name of a player stat key (tr.stat.*), or the key itself when unknown. */
+export function statLabel(stat: string): string {
+    return STAT_KEYS.has(stat) ? t(`tr.stat.${stat}`) : stat
 }
 
 export function resolveFocus(playerFocus: string | undefined): TrainingFocus {
@@ -90,5 +98,7 @@ const DRILL_STAT_KEY: Record<string, string> = {
 export function drillStatLabel(stat: string): string {
     const key = stat.toLowerCase()
     const mapped = DRILL_STAT_KEY[key] ?? key
-    return STAT_LABEL[mapped] ?? STAT_LABEL[key] ?? stat
+    if (STAT_KEYS.has(mapped)) return statLabel(mapped)
+    const direct = [...STAT_KEYS].find(k => k.toLowerCase() === key)
+    return direct ? statLabel(direct) : stat
 }

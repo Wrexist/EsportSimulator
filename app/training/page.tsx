@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { t, tn } from "@/lib/i18n"
 
 import { LoadChip } from "@/components/squad/LoadChip"
 import React, { useCallback, useMemo, useState } from "react"
@@ -22,7 +24,7 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { Meter } from "@/src/components/ui/Meter"
-import { FOCUS_OPTIONS, drillStatLabel, trainingModifiers } from "@/components/training/weekly-training"
+import { focusLabel as weeklyFocusLabel, drillStatLabel, trainingModifiers } from "@/components/training/weekly-training"
 
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
 const WeaponTrainingModal = dynamic(() => import("@/components/training/WeaponTrainingModal").then(m => m.WeaponTrainingModal), { ssr: false })
@@ -72,7 +74,7 @@ export default function TrainingPage() {
     }, [players, team?.rosterIds])
     const mods = useMemo(() => trainingModifiers(team ?? undefined, staff, currentWeek), [team, staff, currentWeek])
     const roleTraining = useMemo(() => team?.activeRoleTraining || [], [team?.activeRoleTraining])
-    const inRoleTraining = useCallback((id: string) => roleTraining.some(t => t.playerId === id), [roleTraining])
+    const inRoleTraining = useCallback((id: string) => roleTraining.some(rt => rt.playerId === id), [roleTraining])
 
     const slotsUsed = team?.trainingSlotsUsed || 0
     const slotsMax = team?.maxTrainingSlots || 10
@@ -80,33 +82,33 @@ export default function TrainingPage() {
     const drillPlayers = roster.filter(p => !inRoleTraining(p.id))
     const exhausted = drillPlayers.find(p => (p.fatigue || 0) >= EXHAUSTION_THRESHOLD)
     const drill = drills.find(d => d.id === selectedDrill)
-    const drillBlock = !drill ? "Pick a drill"
-        : activeMatchId ? "Finish the active match first"
-            : slotsLeft === 0 ? "No drill slots left this week"
-                : drillPlayers.length === 0 ? "Nobody available — everyone is retraining"
-                    : exhausted && drill.fatigueCost > 0 ? `${exhausted.nickname} is exhausted (fatigue ${Math.round(exhausted.fatigue)}); pick a recovery drill`
+    const drillBlock = !drill ? t("tr.block.pick")
+        : activeMatchId ? t("tr.block.match")
+            : slotsLeft === 0 ? t("tr.block.slots")
+                : drillPlayers.length === 0 ? t("tr.block.nobody")
+                    : exhausted && drill.fatigueCost > 0 ? t("tr.block.exhausted", { name: exhausted.nickname, n: Math.round(exhausted.fatigue) })
                         : null
 
     const runDrill = () => {
         if (!drill || drillBlock) return
         const result = runTeamDrill(drill.id, drill.rewards.map(r => ({ stat: r.stat, amount: r.value })), drill.fatigueCost)
-        if (result.success) toast.success(drill.name, { description: `${drillPlayers.length} players trained. +50 XP each.` })
-        else toast.error("Drill not run", { description: result.message })
+        if (result.success) toast.success(t(`tr.drill.${drill.id}`), { description: tn("tr.trained", drillPlayers.length) })
+        else toast.error(t("tr.notRun"), { description: result.message })
     }
 
     if (!team) {
         // The career store rehydrates after a full navigation.
-        return <div role="status" className="mx-auto max-w-[1600px] py-10 text-sm text-ink-3">Loading squad…</div>
+        return <div role="status" className="mx-auto max-w-[1600px] py-10 text-sm text-ink-3">{t("tr.loadingSquad")}</div>
     }
 
     if (roster.length === 0) {
         return (
             <div className="mx-auto max-w-[1600px] space-y-6">
-                <ScreenHeader eyebrow="Week · Training" title="Training" />
+                <ScreenHeader eyebrow={t("tr.eyebrow")} title={t("tr.title")} />
                 <Panel>
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                        <p className="text-sm text-ink-3">No players to train yet.</p>
-                        <Button variant="outline" size="sm" asChild><Link href="/transfers">Browse transfers</Link></Button>
+                        <p className="text-sm text-ink-3">{t("tr.noPlayers")}</p>
+                        <Button variant="outline" size="sm" asChild><Link href="/transfers">{t("tr.browse")}</Link></Button>
                     </div>
                 </Panel>
             </div>
@@ -118,33 +120,33 @@ export default function TrainingPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={`Week ${((currentWeek - 1) % 52) + 1} · Training`}
-                title="Training"
-                subtitle={<>Drills apply right away and use a slot. Each player&apos;s weekly focus is set in the <Link href="/week#training-focus" className="font-semibold text-ink-1 underline underline-offset-2">week plan</Link>.</>}
+                eyebrow={t("tr.eyebrowWeek", { n: ((currentWeek - 1) % 52) + 1 })}
+                title={t("tr.title")}
+                subtitle={<Trans k="tr.subtitle" tags={{ link: x => <Link href="/week#training-focus" className="font-semibold text-ink-1 underline underline-offset-2">{x}</Link> }} />}
                 aside={
                     <KpiStrip>
-                        <Kpi label="Drill slots left" value={slotsLeft} hint={`of ${slotsMax} this week`} />
-                        <Kpi label="Training bonus" value={`+${gainPct}%`} hint="Coach and training facility" />
-                        <Kpi label="Retraining" value={roleTraining.length} hint={roleTraining.length ? `${formatCurrency(roleTraining.reduce((s, t) => s + (t.weeklyCost || 0), 0), "$", false)} / wk` : "No one"} />
+                        <Kpi label={t("tr.kpi.slots")} value={slotsLeft} hint={t("tr.kpi.slotsOf", { n: slotsMax })} />
+                        <Kpi label={t("tr.kpi.bonus")} value={`+${gainPct}%`} hint={t("tr.kpi.bonusHint")} />
+                        <Kpi label={t("tr.kpi.retraining")} value={roleTraining.length} hint={roleTraining.length ? t("tr.perWeek", { amount: formatCurrency(roleTraining.reduce((s, rt) => s + (rt.weeklyCost || 0), 0), "$", false) }) : t("tr.kpi.noOne")} />
                     </KpiStrip>
                 }
             />
 
             <Panel
-                title="Team drills"
+                title={t("tr.teamDrills")}
                 actions={
                     <div className="flex items-center gap-3">
                         {drillBlock && drill && <span className="hidden text-xs text-caution md:inline">{drillBlock}</span>}
                         <Button size="sm" className="h-8 px-4" onClick={runDrill} disabled={!!drillBlock} title={drillBlock ?? undefined}>
-                            {drill ? `Run ${drill.name}` : "Run drill"}
+                            {drill ? t("tr.run", { name: t(`tr.drill.${drill.id}`) }) : t("tr.runDrill")}
                         </Button>
                     </div>
                 }
             >
                 <p className="mb-3 text-sm text-ink-3">
-                    A drill applies at once to the {drillPlayers.length} players not retraining: listed gains, the fatigue shown and +50 XP. Weapon drills also add mastery XP.
+                    {tn("tr.drillIntro", drillPlayers.length)}
                 </p>
-                <div role="radiogroup" aria-label="Team drills" className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                <div role="radiogroup" aria-label={t("tr.teamDrills")} className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
                     {drills.map(d => {
                         const selected = d.id === selectedDrill
                         return (
@@ -160,9 +162,9 @@ export default function TrainingPage() {
                                 )}
                             >
                                 <span className="flex items-baseline justify-between gap-2">
-                                    <span className="truncate text-sm font-semibold text-ink-1">{d.name}</span>
+                                    <span className="truncate text-sm font-semibold text-ink-1">{t(`tr.drill.${d.id}`)}</span>
                                     <span className={cn("shrink-0 text-xs tabular-nums", d.fatigueCost < 0 ? "text-positive" : "text-ink-3")}>
-                                        {d.fatigueCost > 0 ? `+${d.fatigueCost}` : d.fatigueCost === 0 ? "±0" : `−${Math.abs(d.fatigueCost)}`} fatigue
+                                        {t("tr.fatigue", { n: d.fatigueCost > 0 ? `+${d.fatigueCost}` : d.fatigueCost === 0 ? "±0" : `−${Math.abs(d.fatigueCost)}` })}
                                     </span>
                                 </span>
                                 <span className="mt-1.5 flex flex-wrap gap-1">
@@ -176,30 +178,30 @@ export default function TrainingPage() {
                         )
                     })}
                 </div>
-                {drill && <p className="mt-3 text-sm text-ink-3"><span className="font-semibold text-ink-2">{drill.name}.</span> {drill.description}</p>}
+                {drill && <p className="mt-3 text-sm text-ink-3"><span className="font-semibold text-ink-2">{t(`tr.drill.${drill.id}`)}.</span> {t(`tr.drill.${drill.id}.desc`)}</p>}
             </Panel>
 
             <Panel
-                title="Individual programmes"
-                actions={<Link href="/week#training-focus" className="inline-flex items-center gap-1 text-xs font-semibold text-ink-3 hover:text-ink-1">Weekly focus <ArrowUpRight size={12} /></Link>}
+                title={t("tr.programmes")}
+                actions={<Link href="/week#training-focus" className="inline-flex items-center gap-1 text-xs font-semibold text-ink-3 hover:text-ink-1">{t("tr.weeklyFocus")} <ArrowUpRight size={12} /></Link>}
                 padded={false}
             >
                 <div className="overflow-x-auto">
                     <table data-slot="table" className="w-full min-w-[920px] border-collapse text-left">
                         <thead data-slot="table-header">
                             <tr className="border-b border-line">
-                                <th data-slot="table-head" className="pl-4">Player</th>
-                                <th data-slot="table-head" className="px-3">Role</th>
-                                <th data-slot="table-head" className="px-3" title="Fatigue, workload and this week's injury chance">Load · injury risk</th>
-                                <th data-slot="table-head" className="px-3">This week</th>
-                                <th data-slot="table-head" className="pr-4 text-right"><span className="sr-only">Actions</span></th>
+                                <th data-slot="table-head" className="pl-4">{t("tr.col.player")}</th>
+                                <th data-slot="table-head" className="px-3">{t("tr.col.role")}</th>
+                                <th data-slot="table-head" className="px-3" title={t("tr.col.loadTip")}>{t("tr.col.load")}</th>
+                                <th data-slot="table-head" className="px-3">{t("tr.col.thisWeek")}</th>
+                                <th data-slot="table-head" className="pr-4 text-right"><span className="sr-only">{t("tr.col.actions")}</span></th>
                             </tr>
                         </thead>
                         <tbody>
                             {roster.map(p => {
-                                const retraining = roleTraining.find(t => t.playerId === p.id)
+                                const retraining = roleTraining.find(rt => rt.playerId === p.id)
                                 const fatigue = Math.round(p.fatigue || 0)
-                                const focusLabel = FOCUS_OPTIONS.find(o => o.value === (p.trainingFocus || "BALANCED"))?.label ?? "Club default (aim)"
+                                const focusLabel = weeklyFocusLabel(p.trainingFocus || "BALANCED")
                                 return (
                                     <tr key={p.id} data-slot="table-row" className="h-14 border-b border-line last:border-0">
                                         <td className="py-2 pl-4 pr-3">
@@ -209,36 +211,36 @@ export default function TrainingPage() {
                                                 </span>
                                                 <span className="min-w-0">
                                                     <span className="block truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{p.nickname}</span>
-                                                    <span className="block text-xs text-ink-3">Lvl {p.level || 1} · potential {p.potential}</span>
+                                                    <span className="block text-xs text-ink-3">{t("tr.lvlPotential", { level: p.level || 1, potential: p.potential })}</span>
                                                 </span>
                                             </button>
                                         </td>
                                         <td className="px-3"><RoleTag role={p.role} /></td>
                                         <td className="px-3">
                                             <div className="flex items-center gap-2">
-                                                <Meter value={fatigue} label="Fatigue" tone={fatigueTone(fatigue)} />
+                                                <Meter value={fatigue} label={t("tr.fatigueLabel")} tone={fatigueTone(fatigue)} />
                                                 <LoadChip player={p} />
                                             </div>
                                         </td>
                                         <td className="px-3 text-sm">
                                             {retraining
-                                                ? <span className="text-ink-2">Retraining to {retraining.targetRole.toUpperCase()} · {retraining.weeksCompleted}/{retraining.totalWeeks} wks · {formatCurrency(retraining.weeklyCost || 0, "$", false)}/wk</span>
-                                                : <span className="text-ink-3">Weekly focus: <span className="text-ink-2">{focusLabel}</span></span>}
+                                                ? <span className="text-ink-2">{t("tr.retrainingLine", { role: retraining.targetRole.toUpperCase(), done: retraining.weeksCompleted, total: retraining.totalWeeks, cost: formatCurrency(retraining.weeklyCost || 0, "$", false) })}</span>
+                                                : <span className="text-ink-3"><Trans k="tr.weeklyFocusLine" params={{ focus: focusLabel }} tags={{ b: x => <span className="text-ink-2">{x}</span> }} /></span>}
                                         </td>
                                         <td className="pr-4">
                                             <div className="flex items-center justify-end gap-2">
                                                 <Button size="sm" variant="outline" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => setWeaponTrainingPlayer(p)} disabled={!!p.injury}
-                                                    title={p.injury ? `Injured: ${p.injury.type}` : "Paid weapon drills"}>
-                                                    <Crosshair size={13} /> Weapons
+                                                    title={p.injury ? t("tr.injured", { type: p.injury.type }) : t("tr.paidWeapon")}>
+                                                    <Crosshair size={13} /> {t("tr.weapons")}
                                                 </Button>
                                                 {retraining ? (
-                                                    <Button size="sm" variant="ghost" className="h-8 px-2.5 text-xs" onClick={() => { cancelRoleTraining(p.id); toast.success("Role training cancelled", { description: `${p.nickname} is back in team training. 50% of what was paid is refunded.` }) }}>
-                                                        Stop retraining
+                                                    <Button size="sm" variant="ghost" className="h-8 px-2.5 text-xs" onClick={() => { cancelRoleTraining(p.id); toast.success(t("tr.cancelled"), { description: t("tr.cancelledBody", { name: p.nickname }) }) }}>
+                                                        {t("tr.stop")}
                                                     </Button>
                                                 ) : (
                                                     <Button size="sm" variant="outline" className="h-8 gap-1.5 px-2.5 text-xs" onClick={() => setTrainingPlayer(p)} disabled={!!p.injury || !!p.secondaryRole}
-                                                        title={p.secondaryRole ? "Already plays two roles" : p.injury ? `Injured: ${p.injury.type}` : "8-week role retraining"}>
-                                                        <Repeat2 size={13} /> Retrain
+                                                        title={p.secondaryRole ? t("tr.twoRoles") : p.injury ? t("tr.injured", { type: p.injury.type }) : t("tr.eightWeek")}>
+                                                        <Repeat2 size={13} /> {t("tr.retrain")}
                                                     </Button>
                                                 )}
                                             </div>
@@ -250,29 +252,29 @@ export default function TrainingPage() {
                     </table>
                 </div>
                 <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-ink-3">
-                    Role retraining takes 8 weeks, is paid every week and skips the weekly focus while it runs. Weapon drills are paid per session and add weapon mastery.
+                    {t("tr.programmesNote")}
                 </p>
             </Panel>
 
             <div id="playbook" className="scroll-mt-20"><PlaybookEditor /></div>
 
-            <Panel title="Buy loadouts" actions={<span className="text-xs text-ink-3">Used by the match engine&apos;s buy phase</span>} padded={false}>
+            <Panel title={t("tr.loadouts")} actions={<span className="text-xs text-ink-3">{t("tr.loadoutsNote")}</span>} padded={false}>
                 <table data-slot="table" className="w-full border-collapse text-left">
                     <thead data-slot="table-header">
                         <tr className="border-b border-line">
-                            <th data-slot="table-head" className="pl-4">Buy</th>
-                            <th data-slot="table-head" className="px-3"><span className="text-side-ct">CT</span> side</th>
-                            <th data-slot="table-head" className="pr-4"><span className="text-side-t">T</span> side</th>
+                            <th data-slot="table-head" className="pl-4">{t("tr.col.buy")}</th>
+                            <th data-slot="table-head" className="px-3"><Trans k="tr.ctSide" tags={{ ct: x => <span className="text-side-ct">{x}</span> }} /></th>
+                            <th data-slot="table-head" className="pr-4"><Trans k="tr.tSide" tags={{ t: x => <span className="text-side-t">{x}</span> }} /></th>
                         </tr>
                     </thead>
                     <tbody>
                         {STRATEGIES.map(strat => (
                             <tr key={strat} data-slot="table-row" className="h-12 border-b border-line last:border-0">
-                                <td className="pl-4 text-sm font-semibold text-ink-1">{strat === "SEMIBUY" ? "Semi-buy" : strat === "DOUBLE AWP" ? "Double AWP" : strat.charAt(0) + strat.slice(1).toLowerCase()}</td>
+                                <td className="pl-4 text-sm font-semibold text-ink-1">{t(`tr.buy.${strat}`)}</td>
                                 {(["ct", "t"] as const).map(side => (
                                     <td key={side} className={side === "ct" ? "px-3" : "pr-4"}>
                                         <Button size="sm" variant="outline" className="h-8 px-3 text-xs" onClick={() => setEditing({ strategy: strat, side })}>
-                                            Edit {side.toUpperCase()} loadout
+                                            {t("tr.editLoadout", { side: side.toUpperCase() })}
                                         </Button>
                                     </td>
                                 ))}
@@ -291,9 +293,9 @@ export default function TrainingPage() {
                         const result = startRoleTraining(trainingPlayer.id, role)
                         if (result.success) {
                             setTrainingPlayer(null)
-                            toast.success("Role training started", { description: result.message })
+                            toast.success(t("tr.started"), { description: result.message })
                         } else {
-                            toast.error("Could not start", { description: result.message })
+                            toast.error(t("tr.couldNotStart"), { description: result.message })
                         }
                     }}
                     currentBudget={team.budget || 0}
@@ -317,7 +319,7 @@ export default function TrainingPage() {
                         playerImages={roster.map(p => p.portraitPath || "")}
                         onSave={newConfig => {
                             updateCustomTactic(editing.strategy, editing.side, newConfig)
-                            toast.success("Loadout saved", { description: `${editing.strategy} (${editing.side.toUpperCase()})` })
+                            toast.success(t("tr.loadoutSaved"), { description: `${editing.strategy} (${editing.side.toUpperCase()})` })
                             setEditing(null)
                         }}
                         onClose={() => setEditing(null)}

@@ -1,4 +1,6 @@
 "use client"
+import { stageName } from "@/lib/display-names"
+import { t } from "@/lib/i18n"
 
 import { TeamLogoImage } from "@/components/ui/asset-images"
 import React, { memo, useMemo, useEffect, useRef, useState, useCallback } from "react"
@@ -281,8 +283,8 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
         confettiTriggeredForId.current = grandFinal.id
         const colors = ["#F2B53A", "#F2F4F7", "#3DD68C"]
         fireConfetti({ particleCount: 120, spread: 90, origin: { x: 0.3, y: 0.5 }, colors })
-        const t = setTimeout(() => fireConfetti({ particleCount: 120, spread: 90, origin: { x: 0.7, y: 0.5 }, colors }), 200)
-        return () => clearTimeout(t)
+        const timer = setTimeout(() => fireConfetti({ particleCount: 120, spread: 90, origin: { x: 0.7, y: 0.5 }, colors }), 200)
+        return () => clearTimeout(timer)
     }, [grandFinal, playerWonTournament])
 
     // Check if a match involves the player's team
@@ -291,8 +293,8 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
     }
 
     const teamRow = (team: BracketTeam | undefined, other: BracketTeam | undefined, completed: boolean) => {
-        const name = team?.name || "TBD"
-        const tbd = !team || name === "TBD"
+        const tbd = !team || !team.name || team.name === "TBD"
+        const name = tbd ? t("common.tbd") : team!.name
         const own = !!team && team.id === playerTeamId
         const lost = completed && !team?.isWinner && !!other?.isWinner
         return (
@@ -321,7 +323,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                 <button
                     onClick={() => scrollBy("left")}
                     className="absolute left-2 top-1/2 z-40 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded border border-line-strong bg-raised text-ink-2 transition-colors hover:bg-hover hover:text-ink-1"
-                    aria-label="Scroll left"
+                    aria-label={t("tm.scrollLeft")}
                 >
                     <ChevronLeft size={18} />
                 </button>
@@ -330,7 +332,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                 <button
                     onClick={() => scrollBy("right")}
                     className="absolute right-2 top-1/2 z-40 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded border border-line-strong bg-raised text-ink-2 transition-colors hover:bg-hover hover:text-ink-1"
-                    aria-label="Scroll right"
+                    aria-label={t("tm.scrollRight")}
                 >
                     <ChevronRight size={18} />
                 </button>
@@ -340,8 +342,8 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                 <div className="mx-4 mt-4 flex items-center gap-3 rounded-lg border border-gold/50 bg-gold/[0.06] px-4 py-3">
                     <Trophy className="h-6 w-6 text-gold" aria-hidden="true" />
                     <div>
-                        <p className="font-display text-xl font-bold uppercase leading-none text-gold">Tournament champions</p>
-                        <p className="mt-0.5 text-xs text-ink-2">Your team won the Grand Final.</p>
+                        <p className="font-display text-xl font-bold uppercase leading-none text-gold">{t("tm.champions")}</p>
+                        <p className="mt-0.5 text-xs text-ink-2">{t("tm.championsBody")}</p>
                     </div>
                 </div>
             )}
@@ -366,7 +368,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                             round === "Grand Final" ? "text-gold" : "text-ink-3",
                         )}>
                             {round === "Grand Final" && <Trophy size={12} aria-hidden="true" />}
-                            {round}
+                            {stageName(round)}
                         </h3>
 
                         <div className="relative flex flex-1 flex-col justify-around gap-4">
@@ -378,7 +380,7 @@ function TournamentBracket({ matches, rounds, onMatchClick, playerTeamId }: Tour
                                         {(isUpcomingPlayerMatch || match.status === "live") && (
                                             <p className={cn("mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.06em]", match.status === "live" ? "text-negative" : "text-gold")}>
                                                 {match.status === "live" && <span className="h-1.5 w-1.5 rounded-full bg-negative" aria-hidden="true" />}
-                                                {match.status === "live" ? "Live" : "Your match"}
+                                                {match.status === "live" ? t("tm.status.live") : t("tm.yourMatch")}
                                             </p>
                                         )}
                                         <div

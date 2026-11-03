@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { t, tn } from "@/lib/i18n"
 
 import React, { memo, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -166,20 +168,20 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                 <div className="flex items-center justify-between text-xs text-ink-3 px-2">
                     <div className="flex items-center gap-2">
                         <Users size={12} className="text-ink-1" />
-                        <span className="uppercase tracking-wider font-bold">Invited Teams</span>
+                        <span className="uppercase tracking-wider font-bold">{t("tm.invitedTeams")}</span>
                     </div>
                     <span className="tabular-nums">
-                        {qualifiedTeams.length}/{tournament.slots} slots
-                        {qualifierSlots > 0 && <span className="text-ink-3 ml-1">({qualifierSlots} via qualifier)</span>}
+                        {t("tm.slotsFilled", { n: qualifiedTeams.length, total: tournament.slots })}
+                        {qualifierSlots > 0 && <span className="text-ink-3 ml-1">({t("tm.viaQualifier", { n: qualifierSlots })})</span>}
                     </span>
                 </div>
 
                 <div className="overflow-hidden rounded-xl border border-line bg-shell">
                     <div className="grid grid-cols-[3rem_2fr_1fr_1fr] bg-raised text-[11px] font-bold uppercase tracking-wider text-ink-3 py-3 px-4">
                         <div className="text-center">#</div>
-                        <div className="text-left">Team</div>
-                        <div className="text-center">World Rank</div>
-                        <div className="text-right">Status</div>
+                        <div className="text-left">{t("rk.col.team")}</div>
+                        <div className="text-center">{t("rk.kpi.world")}</div>
+                        <div className="text-right">{t("tm.col.status")}</div>
                     </div>
 
                     <div className="divide-y divide-line">
@@ -211,7 +213,7 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                     </div>
                                     <div className="text-right">
                                         <Badge className="bg-positive/10 text-positive border-0 h-5 px-1.5 text-[11px]">
-                                            Invited
+                                            {t("tm.invited")}
                                         </Badge>
                                     </div>
                                 </motion.div>
@@ -229,12 +231,12 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                     <div className="w-8 h-8 rounded-md bg-raised border border-dashed border-line flex items-center justify-center">
                                         <span className="text-[11px] text-ink-3">?</span>
                                     </div>
-                                    <span className="text-ink-3 italic">TBD</span>
+                                    <span className="text-ink-3 italic">{t("common.tbd")}</span>
                                 </div>
                                 <div className="text-center tabular-nums text-xs text-ink-3">—</div>
                                 <div className="text-right">
                                     <Badge className="bg-gold/[0.06] text-gold border-0 h-5 px-1.5 text-[11px]">
-                                        Qualifier
+                                        {t("tm.qualifierBadge")}
                                     </Badge>
                                 </div>
                             </div>
@@ -249,8 +251,8 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
         return (
             <div className="flex flex-col items-center justify-center py-12 text-ink-3">
                 <Trophy size={48} className="mb-4 opacity-50" />
-                <p>No standings data available yet.</p>
-                <p className="text-xs mt-2">Standings will update as matches are played.</p>
+                <p>{t("tm.noStandings")}</p>
+                <p className="text-xs mt-2">{t("tm.noStandingsBody")}</p>
             </div>
         )
     }
@@ -262,13 +264,13 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                 {tournament.qualifierSlots && (
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-positive" />
-                        <span>Qualifies for <span className="text-ink-1 font-semibold">{tournament.qualifierFor ? "Next Stage" : "Main Event"}</span></span>
+                        <span><Trans k="tm.qualifiesFor" params={{ event: tournament.qualifierFor ? t("tm.nextStageShort") : t("tm.role.MAIN_EVENT") }} tags={{ b: x => <span className="text-ink-1 font-semibold">{x}</span> }} /></span>
                     </div>
                 )}
                 {tournament.prizePool > 0 && (
                     <div className="flex items-center gap-2">
                         <DollarSign size={12} className="text-gold" />
-                        <span>Prize Pool: <span className="text-gold tabular-nums">{formatPrizePool(tournament.prizePool)}</span></span>
+                        <span>{t("tm.col.prizePool")}: <span className="text-gold tabular-nums">{formatPrizePool(tournament.prizePool)}</span></span>
                     </div>
                 )}
             </div>
@@ -277,13 +279,13 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                 {/* Header — mirrors the M / RW / RL / RD / Record / E column set */}
                 <div className="grid grid-cols-[3.5rem_minmax(0,2fr)_repeat(5,minmax(0,0.7fr))_2rem] bg-raised text-[11px] font-bold uppercase tracking-wider text-ink-3 py-3 px-4 gap-2">
                     <div className="text-center">#</div>
-                    <div className="text-left">Team</div>
-                    <div className="text-center" title="Matches Played">M</div>
-                    <div className="text-center" title="Rounds Won">RW</div>
-                    <div className="text-center" title="Rounds Lost">RL</div>
-                    <div className="text-center" title="Round Differential">RD</div>
-                    <div className="text-center" title="Record (Wins-Losses)">Record</div>
-                    <div className="text-center" title="Expand">E</div>
+                    <div className="text-left">{t("rk.col.team")}</div>
+                    <div className="text-center" title={t("tm.col.playedLong")}>{t("tm.col.played")}</div>
+                    <div className="text-center" title={t("tm.col.rwLong")}>{t("tm.col.rw")}</div>
+                    <div className="text-center" title={t("tm.col.rlLong")}>{t("tm.col.rl")}</div>
+                    <div className="text-center" title={t("tm.col.rdLong")}>{t("tm.col.rd")}</div>
+                    <div className="text-center" title={t("tm.col.recordLong")}>{t("tm.col.record")}</div>
+                    <div className="text-center" title={t("sx.col.expand")}><span className="sr-only">{t("sx.col.expand")}</span></div>
                 </div>
 
                 {/* Rows */}
@@ -342,7 +344,7 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                                 {team.team?.name}
                                             </TeamLink>
                                             <span className="text-[11px] text-ink-3">
-                                                {team.points} pts{team.team?.worldRanking ? ` · World #${team.team.worldRanking}` : ""}
+                                                {tn("league.points", team.points)}{team.team?.worldRanking ? ` · ${t("common.worldRank", { rank: team.team.worldRanking })}` : ""}
                                             </span>
                                         </div>
                                     </div>
@@ -388,14 +390,14 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                         >
                                             <div className="px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px]">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-ink-3 uppercase tracking-wider">Streak</span>
+                                                    <span className="text-ink-3 uppercase tracking-wider">{t("tm.streak")}</span>
                                                     {team.streak > 0 ? (
                                                         <Badge className="bg-positive/10 text-positive border-0 h-5 px-1.5 text-[11px]">
-                                                            W{team.streak}
+                                                            {t("common.win.short")}{team.streak}
                                                         </Badge>
                                                     ) : team.streak < 0 ? (
                                                         <Badge className="bg-negative/10 text-negative border-0 h-5 px-1.5 text-[11px]">
-                                                            L{Math.abs(team.streak)}
+                                                            {t("common.loss.short")}{Math.abs(team.streak)}
                                                         </Badge>
                                                     ) : (
                                                         <Minus size={12} className="text-ink-3" />
@@ -403,19 +405,19 @@ function TournamentStandings({ tournament, matches, teams, playerTeamId, qualifi
                                                 </div>
                                                 {isQualified && (
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-ink-3 uppercase tracking-wider">Status</span>
-                                                        <span className="text-positive font-bold uppercase tracking-wider">Qualified</span>
+                                                        <span className="text-ink-3 uppercase tracking-wider">{t("tm.col.status")}</span>
+                                                        <span className="text-positive font-bold uppercase tracking-wider">{t("tm.status.qualified")}</span>
                                                     </div>
                                                 )}
                                                 {prize ? (
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-ink-3 uppercase tracking-wider">Prize</span>
+                                                        <span className="text-ink-3 uppercase tracking-wider">{t("tm.prize")}</span>
                                                         <span className="tabular-nums text-gold">{formatPrizePool(prize)}</span>
                                                     </div>
                                                 ) : null}
                                                 {team.draws > 0 && (
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-ink-3 uppercase tracking-wider">Draws</span>
+                                                        <span className="text-ink-3 uppercase tracking-wider">{t("tm.draws")}</span>
                                                         <span className="tabular-nums text-gold">{team.draws}</span>
                                                     </div>
                                                 )}

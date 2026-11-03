@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n"
 /**
  * Academy facts for the UI, taken from the code that applies them
  * (store/slices/academy-slice.ts, engine/academy-engine.ts,
@@ -19,33 +20,28 @@ export const PROMOTION_TERMS = { salaryPerWeek: 2000, lengthWeeks: 104 }
 
 /** AcademyEngine.evaluatePromotion: progress ≥ 85 and these minimums. */
 export const PROMOTION_PROGRESS = 85
+/** Labels are translation keys (attr.*), read with t() when shown. */
 export const PROMOTION_MINIMUMS = [
-    { key: "skill", label: "Aim", min: 45 },
-    { key: "rifle", label: "Rifle", min: 40 },
-    { key: "teamwork", label: "Teamwork", min: 35 },
+    { key: "skill", label: "attr.skill", min: 45 },
+    { key: "rifle", label: "attr.rifle", min: 40 },
+    { key: "teamwork", label: "attr.teamwork", min: 35 },
 ] as const
 
 /** academy-slice: bench prospects get 25% drill XP; under 15 energy drills give 20% less. */
 export const BENCH_XP_SHARE = 0.25
 export const FATIGUE_THRESHOLD = 15
 
-/** ACADEMY_FOCUS_STATS — focus re-weights a drill's gains toward these stats; it adds no growth. */
-export const FOCUS_OPTIONS: { id: AcademyTrainingFocus; label: string; stats: string }[] = [
-    { id: "BALANCED", label: "Balanced", stats: "Even split" },
-    { id: "MECHANICAL", label: "Mechanical", stats: "Aim, rifle, AWP, pistol" },
-    { id: "TACTICAL", label: "Tactical", stats: "Tactics, utility, creativity, teamwork" },
-    { id: "MENTAL", label: "Mental", stats: "Leadership, clutch, composure" },
-    { id: "PHYSICAL", label: "Physical", stats: "Reaction, endurance, health" },
+/**
+ * ACADEMY_FOCUS_STATS — focus re-weights a drill's gains toward these stats; it adds no growth.
+ * The label is t(`ac.focus.${id}`) and the stats line t(`ac.focus.${id}.stats`).
+ */
+export const FOCUS_OPTIONS: { id: AcademyTrainingFocus }[] = [
+    { id: "BALANCED" }, { id: "MECHANICAL" }, { id: "TACTICAL" }, { id: "MENTAL" }, { id: "PHYSICAL" },
 ]
 
-export const DRILL_STAT_LABEL: Record<string, string> = {
-    skill: "aim", rifle: "rifle", pistol: "pistol", reaction: "reaction", grenades: "utility", tactic: "tactics",
-    teamwork: "teamwork", trading: "trading", creativity: "creativity", clutch: "clutch",
-    stressResistance: "composure", health: "health", endurance: "endurance",
-}
+const DRILL_STATS = new Set(["skill", "rifle", "pistol", "reaction", "grenades", "tactic", "teamwork", "trading", "creativity", "clutch", "stressResistance", "health", "endurance"])
 
-export const SCOUT_TIER_LABEL: Record<"LOCAL" | "REGIONAL" | "INTERNATIONAL", string> = {
-    LOCAL: "Local",
-    REGIONAL: "Regional",
-    INTERNATIONAL: "Global",
+/** Lower-case stat name for drill and gain lines (ac.stat.*), or the raw key when unknown. */
+export function drillStatName(stat: string): string {
+    return DRILL_STATS.has(stat) ? t(`ac.stat.${stat}`) : stat
 }

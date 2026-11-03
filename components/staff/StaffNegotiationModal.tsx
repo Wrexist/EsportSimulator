@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { t } from "@/lib/i18n"
 
 import { useFocusTrap } from "@/lib/accessibility"
 
@@ -16,6 +18,7 @@ import { CheckCircle2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { roleLabel, specializationLabel } from "@/components/staff/staff-effects"
 interface StaffNegotiationModalProps {
     staffId: string
     isOpen: boolean
@@ -129,14 +132,14 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                     setNegotiationLog(prev => [...prev, result.message])
                     return
                 }
-                setNegotiationLog(prev => [...prev, `${staffMember.name} accepted the offer!`])
+                setNegotiationLog(prev => [...prev, t("st.neg.accepted", { name: staffMember.name })])
                 setStage("SUCCESS")
             } else {
                 // Determine signing bonus (2 weeks salary)
                 const signingBonus = Math.min(MAX_STAFF_SIGNING_BONUS, sanitizedSalaryOffer * 2)
                 const result = hireStaff(staffId, { salary: sanitizedSalaryOffer, duration: sanitizedDuration, signingBonus })
                 if (result.success) {
-                    setNegotiationLog(prev => [...prev, `${staffMember.name} accepted the offer!`])
+                    setNegotiationLog(prev => [...prev, t("st.neg.accepted", { name: staffMember.name })])
                     setStage("SUCCESS")
                 } else {
                     setNegotiationLog(prev => [...prev, result.message])
@@ -144,7 +147,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
             }
 
         } else {
-            setNegotiationLog(prev => [...prev, `Offer rejected. ${staffMember.name} expects around ${formatCurrency(Math.round(minAcceptable), "$", false)}/wk.`])
+            setNegotiationLog(prev => [...prev, t("st.neg.rejected", { name: staffMember.name, amount: formatCurrency(Math.round(minAcceptable), "$", false) })])
         }
     }
 
@@ -168,13 +171,13 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                     <h2 id="modal-title-staff-negotiation" className="font-display text-2xl font-bold uppercase leading-tight text-ink-1">{staffMember.name}</h2>
                     <div className="mt-1 flex items-center gap-2 text-sm text-ink-2">
                         {staffMember.nationality && <CountryFlag country={staffMember.nationality} size={14} />}
-                        <span className="capitalize">{staffMember.role}</span>
-                        {staffMember.rarity && <span className="text-ink-3">· {staffMember.rarity}</span>}
+                        <span>{roleLabel(staffMember.role)}</span>
+                        {staffMember.rarity && <span className="text-ink-3">· {t(`st.rarity.${staffMember.rarity}`)}</span>}
                     </div>
                     <dl className="mt-5 divide-y divide-line rounded-lg border border-line bg-panel text-sm">
-                        <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Level</dt><dd className="font-semibold text-ink-1">{staffMember.level}</dd></div>
-                        <div className="flex justify-between gap-3 px-3 py-2"><dt className="text-ink-3">Specialty</dt><dd className="truncate font-semibold text-ink-1">{staffMember.specialization}</dd></div>
-                        <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{isRenewal ? "Current wage" : "Asking"}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(staffMember.salaryPerWeek, "$", false)}/wk</dd></div>
+                        <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.level")}</dt><dd className="font-semibold text-ink-1">{staffMember.level}</dd></div>
+                        <div className="flex justify-between gap-3 px-3 py-2"><dt className="text-ink-3">{t("st.neg.specialty")}</dt><dd className="truncate font-semibold text-ink-1">{specializationLabel(staffMember.specialization)}</dd></div>
+                        <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{isRenewal ? t("st.neg.currentWage") : t("st.neg.asking")}</dt><dd className="font-semibold tabular-nums text-ink-1">{t("st.neg.perWeek", { amount: formatCurrency(staffMember.salaryPerWeek, "$", false) })}</dd></div>
                     </dl>
                 </div>
 
@@ -182,10 +185,10 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                 <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                     <div className="flex items-start justify-between border-b border-line px-6 py-4">
                         <div>
-                            <h3 className="text-base font-semibold text-ink-1">{isRenewal ? "Contract renewal" : "Make an offer"}</h3>
-                            <p className="text-sm text-ink-3">{isRenewal ? "Expect to pay around 15% more to keep them." : "Epic staff want about 5% over the asking wage, Legendary about 10%."}</p>
+                            <h3 className="text-base font-semibold text-ink-1">{isRenewal ? t("st.neg.renewal") : t("st.neg.offer")}</h3>
+                            <p className="text-sm text-ink-3">{isRenewal ? t("st.neg.renewalHint") : t("st.neg.offerHint")}</p>
                         </div>
-                        <button onClick={onClose} className="rounded p-1.5 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1" aria-label="Close dialog">
+                        <button onClick={onClose} className="rounded p-1.5 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1" aria-label={t("st.neg.close")}>
                             <X size={18} />
                         </button>
                     </div>
@@ -194,12 +197,12 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                         {stage === "OFFER" && (
                             <div className="space-y-6">
                                 <label className="block">
-                                    <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Weekly wage</span>
+                                    <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("st.neg.wage")}</span>
                                     <span className="flex items-center gap-2 rounded border border-line bg-shell px-3 focus-within:border-gold">
                                         <span className="text-xl text-ink-3">$</span>
                                         <input
                                             type="number"
-                                            aria-label="Weekly salary offer" value={salaryOffer}
+                                            aria-label={t("st.neg.wageAria")} value={salaryOffer}
                                             onChange={(e) => {
                                                 const val = Number(e.target.value)
                                                 if (!Number.isFinite(val)) {
@@ -213,35 +216,35 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                     </span>
                                     {!isRenewal && (
                                         <span className="mt-2 block text-xs text-ink-3">
-                                            Sign-on fee <span className="font-semibold tabular-nums text-ink-1">{formatCurrency(signingBonus, "$", false)}</span> (two weeks), paid on signing
+                                            <Trans k="st.neg.signOn" params={{ amount: formatCurrency(signingBonus, "$", false) }} tags={{ b: x => <span className="font-semibold tabular-nums text-ink-1">{x}</span> }} />
                                         </span>
                                     )}
                                 </label>
 
                                 <div>
                                     <div className="mb-3 flex items-baseline justify-between">
-                                        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Length</span>
-                                        <span className="text-sm text-ink-2"><span className="font-display text-xl font-bold tabular-nums text-ink-1">{durationOffer}</span> weeks · ends week {currentWeek + durationOffer}</span>
+                                        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("st.neg.length")}</span>
+                                        <span className="text-sm text-ink-2"><Trans k="st.neg.lengthValue" params={{ n: durationOffer, end: currentWeek + durationOffer }} tags={{ b: x => <span className="font-display text-xl font-bold tabular-nums text-ink-1">{x}</span> }} /></span>
                                     </div>
                                     <Slider
-                                        aria-label="Contract duration" aria-valuetext={`${durationOffer} weeks`} value={[durationOffer]}
+                                        aria-label={t("st.neg.durationAria")} aria-valuetext={t("st.neg.weeks", { n: durationOffer })} value={[durationOffer]}
                                         onValueChange={(v) => setDurationOffer(Math.max(MIN_CONTRACT_WEEKS, Math.min(MAX_CONTRACT_WEEKS, Math.floor(v[0] || 52))))}
                                         min={MIN_CONTRACT_WEEKS}
                                         max={MAX_CONTRACT_WEEKS}
                                         step={4}
                                     />
-                                    <p className="mt-2 text-xs text-ink-3">Two years or more lowers their expected wage by about 5%.</p>
+                                    <p className="mt-2 text-xs text-ink-3">{t("st.neg.longHint")}</p>
                                 </div>
 
                                 {/* C8: every cost of the deal on one card. */}
                                 <dl className="divide-y divide-line rounded-lg border border-line text-sm" data-testid="staff-cost-breakdown">
-                                    {!isRenewal && <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Now (sign-on fee)</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(signingBonus, "$", false)}</dd></div>}
-                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Every week</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(salaryOffer, "$", false)}</dd></div>
-                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Total over {durationOffer} weeks</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency((isRenewal ? 0 : signingBonus) + Math.max(0, Math.floor(salaryOffer)) * durationOffer, "$", false)}</dd></div>
+                                    {!isRenewal && <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.now")}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(signingBonus, "$", false)}</dd></div>}
+                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.everyWeek")}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(salaryOffer, "$", false)}</dd></div>
+                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.total", { n: durationOffer })}</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency((isRenewal ? 0 : signingBonus) + Math.max(0, Math.floor(salaryOffer)) * durationOffer, "$", false)}</dd></div>
                                 </dl>
 
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="text-ink-3">Club budget</span>
+                                    <span className="text-ink-3">{t("st.neg.budget")}</span>
                                     <span className={cn("font-semibold tabular-nums", myTeam && myTeam.budget < signingBonus ? "text-negative" : "text-ink-1")}>
                                         {formatCurrency(myTeam?.budget ?? 0, "$", false)}
                                     </span>
@@ -252,7 +255,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                                     disabled={!isRenewal && (myTeam?.budget || 0) < signingBonus}
                                     className="h-11 w-full"
                                 >
-                                    {isRenewal ? "Offer renewal" : "Send offer"}
+                                    {isRenewal ? t("st.neg.offerRenewal") : t("st.neg.send")}
                                 </Button>
 
                                 {negotiationLog.length > 0 && (
@@ -267,14 +270,14 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                             <div className="space-y-5 py-4 text-center">
                                 <CheckCircle2 size={40} className="mx-auto text-positive" />
                                 <div>
-                                    <h2 className="font-display text-3xl font-bold uppercase text-ink-1">{isRenewal ? "Contract renewed" : "Welcome aboard"}</h2>
-                                    <p className="mt-1 text-sm text-ink-3">{staffMember.name} agreed to the terms.</p>
+                                    <h2 className="font-display text-3xl font-bold uppercase text-ink-1">{isRenewal ? t("st.neg.renewed") : t("st.neg.welcome")}</h2>
+                                    <p className="mt-1 text-sm text-ink-3">{t("st.neg.agreed", { name: staffMember.name })}</p>
                                 </div>
                                 <dl className="mx-auto max-w-xs divide-y divide-line rounded-lg border border-line text-sm">
-                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Wage</dt><dd className="font-semibold tabular-nums text-ink-1">{formatCurrency(salaryOffer, "$", false)}/wk</dd></div>
-                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">Length</dt><dd className="font-semibold tabular-nums text-ink-1">{durationOffer} weeks</dd></div>
+                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.wageShort")}</dt><dd className="font-semibold tabular-nums text-ink-1">{t("st.neg.perWeek", { amount: formatCurrency(salaryOffer, "$", false) })}</dd></div>
+                                    <div className="flex justify-between px-3 py-2"><dt className="text-ink-3">{t("st.neg.length")}</dt><dd className="font-semibold tabular-nums text-ink-1">{t("st.neg.weeks", { n: durationOffer })}</dd></div>
                                 </dl>
-                                <Button onClick={onClose} className="h-11 w-full">Done</Button>
+                                <Button onClick={onClose} className="h-11 w-full">{t("st.neg.done")}</Button>
                             </div>
                         )}
                     </div>

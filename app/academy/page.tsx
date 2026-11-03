@@ -1,4 +1,6 @@
 "use client"
+import { Trans } from "@/lib/trans"
+import { intlLocale, t, tn } from "@/lib/i18n"
 
 import { useMemo } from "react"
 import Link from "next/link"
@@ -27,11 +29,15 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { RatingChip } from "@/src/components/ui/RatingChip"
 import { ProspectsTable } from "./_components/ProspectsTable"
 import {
-    BENCH_XP_SHARE, DRILL_STAT_LABEL, POTENTIAL_REVEAL_WEEKS, PROMOTION_PROGRESS, PROMOTION_TERMS, SCOUT_TIER_LABEL,
+    BENCH_XP_SHARE, drillStatName, POTENTIAL_REVEAL_WEEKS, PROMOTION_PROGRESS, PROMOTION_TERMS,
 } from "./_components/academy-facts"
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+/** Day slots Monday to Sunday; the label is t(`ac.day.${i}`). */
+const DAYS = [0, 1, 2, 3, 4, 5, 6]
 const TIERS: ScoutingTier[] = ["LOCAL", "REGIONAL", "INTERNATIONAL"]
+
+/** Two-decimal multiplier in the player's number format. */
+const fmt2 = (n: number) => n.toLocaleString(intlLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 function Fact({ label, value }: { label: string; value: string }) {
     return (
@@ -82,7 +88,7 @@ export default function AcademyPage() {
     [s.academyPlayers, playerById])
 
     if (!team) {
-        return <div role="status" className="mx-auto max-w-[1600px] py-10 text-sm text-ink-3">Loading academy…</div>
+        return <div role="status" className="mx-auto max-w-[1600px] py-10 text-sm text-ink-3">{t("ac.loading")}</div>
     }
 
     const level = team.academyFacility?.level || 0
@@ -102,16 +108,16 @@ export default function AcademyPage() {
     const starterIds = Object.values(s.academyRoster).filter(Boolean) as string[]
     const starters = s.academyPlayers.filter(p => starterIds.includes(p.id))
     const exhaustedStarters = starters.filter(p => (p.energy ?? 100) < ENERGY_CONFIG.exhaustionLimit)
-    const matchBlock = level < DEV_MATCH_CONFIG.minAcademyLevel ? `Needs academy level ${DEV_MATCH_CONFIG.minAcademyLevel}`
-        : starters.length < 5 ? `Needs 5 starters (${starters.length}/5 in "Plays as")`
-            : exhaustedStarters.length ? "A starter is exhausted (under 5 energy)"
-                : team.budget < DEV_MATCH_CONFIG.matchCost ? "Not enough budget" : null
+    const matchBlock = level < DEV_MATCH_CONFIG.minAcademyLevel ? t("ac.block.level", { n: DEV_MATCH_CONFIG.minAcademyLevel })
+        : starters.length < 5 ? t("ac.block.starters", { n: starters.length })
+            : exhaustedStarters.length ? t("ac.block.exhausted")
+                : team.budget < DEV_MATCH_CONFIG.matchCost ? t("ac.block.budget") : null
     const lastMatch = s.academyMatchHistory[0]
     const report = s.academyWeeklyReports?.[0]
 
     const run = (result: { success: boolean; message: string }, ok: string) => {
         if (result.success) toast.success(ok, { description: result.message })
-        else toast.error("Not possible", { description: result.message })
+        else toast.error(t("ac.notPossible"), { description: result.message })
     }
 
     const setLineup = (prospectId: string, role: string | null) => {
@@ -123,15 +129,14 @@ export default function AcademyPage() {
         const build = ACADEMY_LEVELS[1]
         return (
             <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
-                <ScreenHeader eyebrow="Squad · Academy" title="Academy" subtitle="Scout teenagers, develop them through weekly drills and promote the ready ones." />
+                <ScreenHeader eyebrow={t("ac.eyebrow")} title={t("ac.title")} subtitle={t("ac.subtitleNone")} />
                 <Panel>
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <p className="text-sm text-ink-2">
-                            No academy yet. Building costs <span className="font-semibold text-ink-1">{formatCurrency(build.buildCost, "$", false)}</span> and{" "}
-                            <span className="font-semibold text-ink-1">{formatCurrency(build.weeklyCost, "$", false)}/wk</span> plus $700/wk per prospect.
-                            It holds {build.maxProspects} prospects and drills give ×{build.devBonus.toFixed(2)} XP.
+                            <Trans k="ac.buildBody" params={{ cost: formatCurrency(build.buildCost, "$", false), weekly: formatCurrency(build.weeklyCost, "$", false), max: build.maxProspects, bonus: fmt2(build.devBonus) }}
+                                tags={{ b: x => <span className="font-semibold text-ink-1">{x}</span> }} />
                         </p>
-                        <Button onClick={() => run(s.buildAcademy(team.id), "Academy built")} disabled={team.budget < build.buildCost}>Build academy</Button>
+                        <Button onClick={() => run(s.buildAcademy(team.id), t("ac.built"))} disabled={team.budget < build.buildCost}>{t("ac.build")}</Button>
                     </div>
                 </Panel>
             </div>
@@ -141,23 +146,23 @@ export default function AcademyPage() {
     return (
         <div className="mx-auto max-w-[1600px] space-y-6 pb-16">
             <ScreenHeader
-                eyebrow={`Squad · Academy level ${level}`}
-                title="Academy"
-                subtitle={`${info.name}. Drills run at the weekly update; prospects who reach ${PROMOTION_PROGRESS} progress and the minimums can be promoted on ${formatCurrency(PROMOTION_TERMS.salaryPerWeek, "$", false)}/wk.`}
+                eyebrow={t("ac.eyebrowLevel", { n: level })}
+                title={t("ac.title")}
+                subtitle={t("ac.subtitle", { name: t(`ac.level.${level}`), progress: PROMOTION_PROGRESS, salary: formatCurrency(PROMOTION_TERMS.salaryPerWeek, "$", false) })}
                 aside={
                     <KpiStrip>
-                        <Kpi label="Prospects" value={`${s.academyPlayers.length} / ${info.maxProspects}`} />
-                        <Kpi label="Ready" value={ready} hint={ready ? "Can be promoted" : "None yet"} />
-                        <Kpi label="Upkeep / wk" value={formatCurrency(upkeep, "$", false)} />
+                        <Kpi label={t("ac.kpi.prospects")} value={`${s.academyPlayers.length} / ${info.maxProspects}`} />
+                        <Kpi label={t("ac.kpi.ready")} value={ready} hint={ready ? t("ac.kpi.canPromote") : t("ac.kpi.noneYet")} />
+                        <Kpi label={t("ac.kpi.upkeep")} value={formatCurrency(upkeep, "$", false)} />
                     </KpiStrip>
                 }
             />
 
             <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1fr)_360px]">
                 <div className="min-w-0 space-y-4">
-                    <Panel title="Prospects" actions={<span className="text-xs text-ink-3">Starters get full drill XP, the bench {Math.round(BENCH_XP_SHARE * 100)}%</span>} padded={false}>
+                    <Panel title={t("ac.prospects")} actions={<span className="text-xs text-ink-3">{t("ac.benchShare", { pct: Math.round(BENCH_XP_SHARE * 100) })}</span>} padded={false}>
                         {rows.length === 0 ? (
-                            <p className="px-4 py-5 text-sm text-ink-3">No prospects yet. Send a scout to find one.</p>
+                            <p className="px-4 py-5 text-sm text-ink-3">{t("ac.noProspects")}</p>
                         ) : (
                             <ProspectsTable
                                 rows={rows}
@@ -167,33 +172,35 @@ export default function AcademyPage() {
                                 lastWeek={report}
                                 onSetFocus={(id, focus: AcademyTrainingFocus) => s.setProspectTraining(id, focus)}
                                 onSetLineup={setLineup}
-                                onPromote={id => run(s.promoteProspect(id, PROMOTION_TERMS), "Prospect promoted")}
-                                onRelease={id => run(s.releaseProspect(id), "Prospect released")}
+                                onPromote={id => run(s.promoteProspect(id, PROMOTION_TERMS), t("ac.promoted"))}
+                                onRelease={id => run(s.releaseProspect(id), t("ac.released"))}
                             />
                         )}
                     </Panel>
 
                     <Panel
-                        title="Weekly drills"
-                        actions={<span className="text-xs text-ink-3">Starter XP <span className="font-semibold tabular-nums text-ink-1">{Math.round(weeklyXp)}</span> · energy <span className={cn("font-semibold tabular-nums", weeklyEnergy < 0 ? "text-positive" : "text-ink-1")}>{weeklyEnergy > 0 ? `−${weeklyEnergy}` : weeklyEnergy < 0 ? `+${Math.abs(weeklyEnergy)}` : "0"}</span> before recovery</span>}
+                        title={t("ac.drills")}
+                        actions={<span className="text-xs text-ink-3"><Trans k="ac.drillsSummary" params={{ xp: Math.round(weeklyXp), energy: weeklyEnergy > 0 ? `−${weeklyEnergy}` : weeklyEnergy < 0 ? `+${Math.abs(weeklyEnergy)}` : "0" }}
+                            tags={{ b: x => <span className="font-semibold tabular-nums text-ink-1">{x}</span>, e: x => <span className={cn("font-semibold tabular-nums", weeklyEnergy < 0 ? "text-positive" : "text-ink-1")}>{x}</span> }} /></span>}
                     >
                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">
-                            {DAYS.map((day, i) => {
+                            {DAYS.map(i => {
                                 const drill = scheduled[i]
+                                const day = t(`ac.day.${i}`)
                                 return (
-                                    <label key={day} className="block space-y-1.5">
+                                    <label key={i} className="block space-y-1.5">
                                         <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{day}</span>
                                         <Select value={drill?.id ?? "NONE"} onValueChange={val => s.updateAcademySchedule(i, val === "NONE" ? null : val)}>
-                                            <SelectTrigger className="h-9 w-full text-sm" aria-label={`${day} academy drill`}>
-                                                <SelectValue>{drill?.name ?? "Rest"}</SelectValue>
+                                            <SelectTrigger className="h-9 w-full text-sm" aria-label={t("ac.dayDrill", { day })}>
+                                                <SelectValue>{drill ? t(`ac.drill.${drill.id}`) : t("ac.rest")}</SelectValue>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="NONE">Rest</SelectItem>
+                                                <SelectItem value="NONE">{t("ac.rest")}</SelectItem>
                                                 {ACADEMY_DRILLS.map(d => (
                                                     <SelectItem key={d.id} value={d.id} disabled={d.minLevel > level}>
                                                         <span className="flex flex-col">
-                                                            <span>{d.name}{d.minLevel > level ? ` · level ${d.minLevel}` : ""}</span>
-                                                            <span className="text-xs text-ink-3">+{d.xpGain} XP · {d.energyCost > 0 ? `−${d.energyCost}` : `+${Math.abs(d.energyCost)}`} energy · {d.statFocus.map(st => DRILL_STAT_LABEL[st] ?? st).join(", ")}</span>
+                                                            <span>{t(`ac.drill.${d.id}`)}{d.minLevel > level ? t("ac.levelReq", { n: d.minLevel }) : ""}</span>
+                                                            <span className="text-xs text-ink-3">{t("ac.drillLine", { xp: d.xpGain, energy: d.energyCost > 0 ? `−${d.energyCost}` : `+${Math.abs(d.energyCost)}`, stats: d.statFocus.map(drillStatName).join(", ") })}</span>
                                                         </span>
                                                     </SelectItem>
                                                 ))}
@@ -204,40 +211,40 @@ export default function AcademyPage() {
                             })}
                         </div>
                         <p className="mt-3 text-xs text-ink-3">
-                            Prospects only develop through drills: a week of rest days gives no XP. After the drills, starters recover {ENERGY_CONFIG.starterRecovery} energy and the bench {ENERGY_CONFIG.benchRecovery}.
-                            {report ? ` "Last week" in the table is week ${((report.week - 1) % 52) + 1}'s result.` : ""}
+                            {t("ac.drillsNote", { starter: ENERGY_CONFIG.starterRecovery, bench: ENERGY_CONFIG.benchRecovery })}
+                            {report ? t("ac.lastWeekNote", { week: ((report.week - 1) % 52) + 1 }) : ""}
                         </p>
                     </Panel>
                 </div>
 
                 <aside className="min-w-0 space-y-4">
                     <Panel
-                        eyebrow={info.name}
-                        title={`Academy level ${level}`}
+                        eyebrow={t(`ac.level.${level}`)}
+                        title={t("ac.levelTitle", { n: level })}
                         actions={next ? (
                             <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={team.budget < next.buildCost}
-                                onClick={() => run(s.upgradeAcademy(team.id), "Academy upgraded")}>
-                                Upgrade · {formatCurrency(next.buildCost)}
+                                onClick={() => run(s.upgradeAcademy(team.id), t("ac.upgraded"))}>
+                                {t("ac.upgrade", { cost: formatCurrency(next.buildCost) })}
                             </Button>
-                        ) : <span className="text-xs text-ink-3">Max level</span>}
+                        ) : <span className="text-xs text-ink-3">{t("ac.maxLevel")}</span>}
                         padded={false}
                     >
                         <dl className="divide-y divide-line">
-                            <Fact label="Places" value={next ? `${info.maxProspects} → ${next.maxProspects}` : `${info.maxProspects}`} />
-                            <Fact label="Drill XP" value={next ? `×${info.devBonus.toFixed(2)} → ×${next.devBonus.toFixed(2)}` : `×${info.devBonus.toFixed(2)}`} />
-                            <Fact label="Base upkeep" value={next ? `${formatCurrency(info.weeklyCost, "$", false)} → ${formatCurrency(next.weeklyCost, "$", false)}/wk` : `${formatCurrency(info.weeklyCost, "$", false)}/wk`} />
-                            <Fact label="Potential shown after" value={level >= 5 ? "Enrolment" : `${POTENTIAL_REVEAL_WEEKS[level]} wks${next ? ` → ${level + 1 >= 5 ? "enrolment" : `${POTENTIAL_REVEAL_WEEKS[level + 1]} wks`}` : ""}`} />
-                            <Fact label="Drills available" value={`${ACADEMY_DRILLS.filter(d => d.minLevel <= level).length} of ${ACADEMY_DRILLS.length}`} />
-                            <Fact label="Development matches" value={level >= DEV_MATCH_CONFIG.minAcademyLevel ? "Open" : `Level ${DEV_MATCH_CONFIG.minAcademyLevel}`} />
+                            <Fact label={t("ac.fact.places")} value={next ? `${info.maxProspects} → ${next.maxProspects}` : `${info.maxProspects}`} />
+                            <Fact label={t("ac.fact.drillXp")} value={next ? `×${fmt2(info.devBonus)} → ×${fmt2(next.devBonus)}` : `×${fmt2(info.devBonus)}`} />
+                            <Fact label={t("ac.fact.upkeep")} value={next ? `${formatCurrency(info.weeklyCost, "$", false)} → ${t("ac.perWeek", { amount: formatCurrency(next.weeklyCost, "$", false) })}` : t("ac.perWeek", { amount: formatCurrency(info.weeklyCost, "$", false) })} />
+                            <Fact label={t("ac.fact.reveal")} value={level >= 5 ? t("ac.enrolment") : `${t("ac.wks", { n: POTENTIAL_REVEAL_WEEKS[level] })}${next ? ` → ${level + 1 >= 5 ? t("ac.enrolmentLower") : t("ac.wks", { n: POTENTIAL_REVEAL_WEEKS[level + 1] })}` : ""}`} />
+                            <Fact label={t("ac.fact.drills")} value={t("ac.nOfM", { n: ACADEMY_DRILLS.filter(d => d.minLevel <= level).length, m: ACADEMY_DRILLS.length })} />
+                            <Fact label={t("ac.fact.devMatches")} value={level >= DEV_MATCH_CONFIG.minAcademyLevel ? t("ac.open") : t("ac.levelN", { n: DEV_MATCH_CONFIG.minAcademyLevel })} />
                         </dl>
-                        <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">Each prospect also costs $700/wk (stipend and materials).</p>
+                        <p className="border-t border-line px-4 py-2.5 text-xs text-ink-3">{t("ac.stipend")}</p>
                     </Panel>
 
-                    <Panel title="Scout a prospect" actions={<span className="text-xs text-ink-3">Review desk {pending.length}/{PENDING_POOL_MAX_SIZE}</span>} padded={false}>
+                    <Panel title={t("ac.scoutTitle")} actions={<span className="text-xs text-ink-3">{t("ac.reviewDesk", { n: pending.length, max: PENDING_POOL_MAX_SIZE })}</span>} padded={false}>
                         {!scout && (
                             <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-                                <p className="text-sm text-ink-2">Missions need a hired scout.</p>
-                                <Button size="sm" variant="outline" className="h-8 px-3 text-xs" asChild><Link href="/staff">Hire a scout</Link></Button>
+                                <p className="text-sm text-ink-2">{t("ac.needScout")}</p>
+                                <Button size="sm" variant="outline" className="h-8 px-3 text-xs" asChild><Link href="/staff">{t("ac.hireScout")}</Link></Button>
                             </div>
                         )}
                         <ul className="divide-y divide-line">
@@ -245,18 +252,18 @@ export default function AcademyPage() {
                                 const unlocked = isScoutingTierUnlocked(tier, level, s.managerLevel)
                                 const cost = Math.max(0, Math.round(SCOUTING_COSTS[tier] * (1 + scoutDiscount / 100)))
                                 const active = s.academyScoutingMissions.find(m => m.tier === tier)
-                                const block = !unlocked ? `Academy ${SCOUTING_TIER_REQUIREMENTS[tier]} or manager level ${SCOUTING_TIER_MANAGER_REQUIREMENTS[tier]}`
-                                    : !scout ? "Needs a scout" : active ? null : pending.length >= PENDING_POOL_MAX_SIZE ? "Review desk is full"
-                                        : team.budget < cost ? "Not enough budget" : null
+                                const block = !unlocked ? t("ac.tierBlock", { level: SCOUTING_TIER_REQUIREMENTS[tier], manager: SCOUTING_TIER_MANAGER_REQUIREMENTS[tier] })
+                                    : !scout ? t("ac.needsScout") : active ? null : pending.length >= PENDING_POOL_MAX_SIZE ? t("ac.deskFull")
+                                        : team.budget < cost ? t("ac.block.budget") : null
                                 return (
                                     <li key={tier} className="flex items-center gap-3 px-4 py-2.5">
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-semibold text-ink-1">{SCOUT_TIER_LABEL[tier]}</p>
-                                            <p className="text-xs text-ink-3">{active ? `Back in ${active.weeksRemaining} wk${active.weeksRemaining === 1 ? "" : "s"}` : block ?? `${SCOUTING_DURATIONS[tier]} wk${SCOUTING_DURATIONS[tier] > 1 ? "s" : ""} · one prospect`}</p>
+                                            <p className="text-sm font-semibold text-ink-1">{t(`ac.tier.${tier}`)}</p>
+                                            <p className="text-xs text-ink-3">{active ? tn("ac.backIn", active.weeksRemaining) : block ?? tn("ac.mission", SCOUTING_DURATIONS[tier])}</p>
                                         </div>
                                         <Button size="sm" variant="outline" className="h-8 w-24 px-3 text-xs" disabled={!!block || !!active}
-                                            onClick={() => run(s.scoutProspect(tier), "Scout sent")}>
-                                            {active ? "Out" : formatCurrency(cost, "$", false)}
+                                            onClick={() => run(s.scoutProspect(tier), t("ac.scoutSent"))}>
+                                            {active ? t("ac.out") : formatCurrency(cost, "$", false)}
                                         </Button>
                                     </li>
                                 )
@@ -264,20 +271,20 @@ export default function AcademyPage() {
                         </ul>
                         {pending.length > 0 && (
                             <>
-                                <p className="border-t border-line px-4 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Awaiting review</p>
+                                <p className="border-t border-line px-4 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("ac.awaiting")}</p>
                                 <ul className="divide-y divide-line">
                                     {pending.map(p => (
                                         <li key={p.id} className="flex items-center gap-3 px-4 py-2.5">
                                             <span className="h-9 w-9 shrink-0 overflow-hidden rounded bg-raised"><PlayerPortrait src={p.portraitPath} seed={p.id} alt={p.nickname} size={36} /></span>
                                             <div className="min-w-0 flex-1">
                                                 <p className="truncate text-sm font-semibold text-ink-1">{p.nickname}</p>
-                                                <p className="text-xs text-ink-3">{p.age} yrs · {formatRole(p.role)} · potential hidden</p>
+                                                <p className="text-xs text-ink-3">{t("ac.pendingLine", { age: p.age, role: formatRole(p.role) })}</p>
                                             </div>
                                             <RatingChip value={evaluatePlayer(p, undefined, undefined, s.currentWeek).overallRating} size="sm" />
                                             <div className="flex gap-1">
-                                                <Button size="sm" variant="outline" className="h-8 px-2.5 text-xs" disabled={isFull} title={isFull ? "Academy is full" : undefined}
-                                                    onClick={() => run(s.enrollPendingProspect(p.id), "Prospect enrolled")}>Enroll</Button>
-                                                <Button size="sm" variant="ghost" className="h-8 px-2.5 text-xs" onClick={() => s.discardPendingProspect(p.id)}>Pass</Button>
+                                                <Button size="sm" variant="outline" className="h-8 px-2.5 text-xs" disabled={isFull} title={isFull ? t("ac.full") : undefined}
+                                                    onClick={() => run(s.enrollPendingProspect(p.id), t("ac.enrolled"))}>{t("ac.enroll")}</Button>
+                                                <Button size="sm" variant="ghost" className="h-8 px-2.5 text-xs" onClick={() => s.discardPendingProspect(p.id)}>{t("ac.pass")}</Button>
                                             </div>
                                         </li>
                                     ))}
@@ -287,20 +294,20 @@ export default function AcademyPage() {
                     </Panel>
 
                     <Panel
-                        title="Development match"
+                        title={t("ac.devMatch")}
                         actions={
                             <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!!matchBlock} title={matchBlock ?? undefined}
-                                onClick={() => run(s.scheduleDevMatch(), "Match played")}>
-                                Play · {formatCurrency(DEV_MATCH_CONFIG.matchCost, "$", false)}
+                                onClick={() => run(s.scheduleDevMatch(), t("ac.played"))}>
+                                {t("ac.play", { cost: formatCurrency(DEV_MATCH_CONFIG.matchCost, "$", false) })}
                             </Button>
                         }
                     >
-                        <p className="text-sm text-ink-3">{matchBlock ?? `Your five starters play another academy: XP and progress for each, −${ENERGY_CONFIG.matchCost} energy.`}</p>
+                        <p className="text-sm text-ink-3">{matchBlock ?? t("ac.devMatchBody", { energy: ENERGY_CONFIG.matchCost })}</p>
                         {lastMatch && (
                             <p className="mt-2 text-sm">
-                                <span className={cn("font-semibold", lastMatch.won ? "text-positive" : "text-negative")}>{lastMatch.won ? "W" : "L"}</span>
-                                <span className="text-ink-2"> {lastMatch.scoreHome}–{lastMatch.scoreAway} vs {lastMatch.opponentName}</span>
-                                <span className="text-ink-3"> · week {lastMatch.week}</span>
+                                <span className={cn("font-semibold", lastMatch.won ? "text-positive" : "text-negative")}>{lastMatch.won ? t("common.win.short") : t("common.loss.short")}</span>
+                                <span className="text-ink-2"> {t("ac.lastMatch", { home: lastMatch.scoreHome, away: lastMatch.scoreAway, opponent: lastMatch.opponentName })}</span>
+                                <span className="text-ink-3">{t("ac.weekN", { n: lastMatch.week })}</span>
                             </p>
                         )}
                     </Panel>
