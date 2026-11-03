@@ -928,7 +928,7 @@ function PlayerStatsTable({ team, won, stats, playersById, result, mvpId }: {
                         <span className="flex items-center gap-2 normal-case tracking-normal">
                             <TeamLogoImage src={team?.logoPath} alt="" team={team as any} size={18} />
                             <TeamLink id={team?.id} className="font-display text-base font-bold uppercase text-ink-1">{team?.name}</TeamLink>
-                            <span className={cn("text-[11px] font-semibold uppercase tracking-[0.06em]", won ? "text-positive" : "text-ink-3")}>{won ? t("result.won") : t("result.lost")}</span>
+                            <span className={cn("text-[11px] font-semibold uppercase tracking-[0.06em]", won ? "text-positive" : "text-ink-3")}>{won ? t("result.teamWon") : t("result.teamLost")}</span>
                         </span>
                     </th>
                     <th data-slot="table-head" className="px-2 text-right">K</th>

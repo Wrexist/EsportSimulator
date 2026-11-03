@@ -1046,6 +1046,8 @@
  "result.keyRounds": "Rounds-chave",
  "result.won": "Vencido",
  "result.lost": "Perdido",
+ "result.teamWon": "Vitória",
+ "result.teamLost": "Derrota",
  "result.economy": "Economia",
  "result.buysOf": "Compras {{buy}}",
  "result.wonOf": "{{won}}/{{played}} vencidos",

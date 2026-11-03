@@ -1046,6 +1046,8 @@
  "result.keyRounds": "Rondas clave",
  "result.won": "Ganada",
  "result.lost": "Perdida",
+ "result.teamWon": "Victoria",
+ "result.teamLost": "Derrota",
  "result.economy": "Economía",
  "result.buysOf": "Compras {{buy}}",
  "result.wonOf": "{{won}}/{{played}} ganadas",

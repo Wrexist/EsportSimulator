@@ -606,6 +606,8 @@ export const MATCH = {
     "result.keyRounds": "Key rounds",
     "result.won": "Won",
     "result.lost": "Lost",
+    "result.teamWon": "Won",
+    "result.teamLost": "Lost",
     "result.economy": "Economy",
     "result.buysOf": "{{buy}} buys",
     "result.wonOf": "{{won}}/{{played}} won",
