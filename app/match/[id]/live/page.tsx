@@ -518,6 +518,7 @@ export default function LiveMatchPage() {
                             playerIds={ownRoster.map(p => p.id)}
                             playerNames={ownRoster.map(p => p.name)}
                             playerImages={ownRoster.map(p => ownOriginal.get(p.id)?.portraitPath || "")}
+                            playerRoles={ownRoster.map(p => String(ownOriginal.get(p.id)?.role ?? ""))}
                             onSave={(newConfig) => {
                                 updateCustomTactic(editingStrategy, editingSide, newConfig)
                                 setIsEditingLoadout(false)

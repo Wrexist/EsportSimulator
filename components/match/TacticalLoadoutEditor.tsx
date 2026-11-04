@@ -15,6 +15,7 @@ import { useFocusTrap } from "@/lib/accessibility"
 
 import { formatCurrency } from "@/lib/utils-extended"
 import { strategyLabel } from "@/lib/live-match-decision"
+import { loadoutSlots } from "@/engine/match/buy-phase"
 interface TacticalLoadoutEditorProps {
     side: "ct" | "t"
     strategyId: keyof CustomTactics
@@ -24,6 +25,8 @@ interface TacticalLoadoutEditorProps {
     playerIds?: string[]
     playerNames?: string[]
     playerImages?: string[]  // Array of image paths for each player
+    /** Roster roles (same order as the other player arrays): the AWP plan goes to the AWPer, as the buy does. */
+    playerRoles?: string[]
     onSave: (config: TacticalStrategy) => void
     onClose: () => void
 }
@@ -33,10 +36,11 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
     strategyId,
     config,
     teamBudget,
-    playerCash = [],
-    playerNames = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5"],
-    playerImages = [],
-    playerIds = [],
+    playerCash: rosterCash = [],
+    playerNames: rosterNames = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5"],
+    playerImages: rosterImages = [],
+    playerIds: rosterIds = [],
+    playerRoles = [],
     onSave,
     onClose
 }) => {
@@ -54,6 +58,18 @@ export const TacticalLoadoutEditor: React.FC<TacticalLoadoutEditorProps> = ({
             utility: config.utility || []
         }))
     })
+
+    // MATCHDAY-10: show each plan on the player who buys it (engine/match/buy-phase.ts loadoutSlots).
+    // The buy slots the starting five (the first roster entries), so the bench never takes a plan.
+    const slotOf = loadoutSlots(playerRoles.length >= loadouts.length ? playerRoles.slice(0, loadouts.length) : [], loadouts)
+    const rosterIndexOf = (card: number) => {
+        const i = slotOf.indexOf(loadouts[card]?.slotIndex ?? card)
+        return i < 0 ? card : i
+    }
+    const playerNames = loadouts.map((_, c) => rosterNames[rosterIndexOf(c)])
+    const playerImages = loadouts.map((_, c) => rosterImages[rosterIndexOf(c)])
+    const playerIds = loadouts.map((_, c) => rosterIds[rosterIndexOf(c)])
+    const playerCash = loadouts.map((_, c) => rosterCash[rosterIndexOf(c)])
 
     // Custom name state
     const [strategyName, setStrategyName] = useState(config.name || "")

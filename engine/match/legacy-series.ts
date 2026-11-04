@@ -365,6 +365,13 @@ export function normalizeRestoredSim(ctx: LegacySeriesContext, restored: LegacyS
 
 /** Play exactly one round of the series. Pure: the input state is not mutated. */
 export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesState, decision: LegacyRoundDecision = {}): LegacyRoundStep {
+    return playRound(ctx, input, decision, true)
+}
+
+/** No display copy of the bought loadouts (runLegacySeries never reads it). */
+const NO_PRE_ROUND: LegacyRoundStep['preRound'] = Object.freeze({ home: Object.freeze({}), away: Object.freeze({}) }) as LegacyRoundStep['preRound']
+
+function playRound(ctx: LegacySeriesContext, input: LegacySeriesState, decision: LegacyRoundDecision, keepPreRound: boolean): LegacyRoundStep {
     if (input.finished) throw Error('The series is already finished')
     const sim: LegacySimState = { ...input.sim, rulesVersion: LEGACY_SERIES_RULES }
     const { home, away } = ctx
@@ -392,7 +399,7 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     const tactics = decision.customTactics ?? ctx.customTactics
     ctx.engine.performBuyPhase(home.players, hEcon, homeStrategy, homeIsCT, rng, managedLoadout(tactics, home.team.id, ctx.managedTeamId))
     ctx.engine.performBuyPhase(away.players, aEcon, awayStrategy, !homeIsCT, rng, managedLoadout(tactics, away.team.id, ctx.managedTeamId))
-    const preRound = { home: structuredClone(hEcon), away: structuredClone(aEcon) }
+    const preRound = keepPreRound ? { home: structuredClone(hEcon), away: structuredClone(aEcon) } : NO_PRE_ROUND
 
     const coach = (managedHome || managedAway) && ctx.script ? decision.coachCalls ?? [] : []
     const regroupHome = !!decision.regroup && managedHome
@@ -530,7 +537,7 @@ export function runLegacySeries(ctx: LegacySeriesContext, policy?: LegacyDecisio
             if (next) { timeouts = next; timeoutCalled = true }
         }
         const regroup = timeouts.rounds > 0
-        const step = playLegacyRound(ctx, state, { strategy: choice?.strategy, regroup })
+        const step = playRound(ctx, state, { strategy: choice?.strategy, regroup }, false)
         if (timeouts.rounds > 0) timeouts = { ...timeouts, rounds: timeouts.rounds - 1 }
         if (choice?.strategy || timeoutCalled || regroup) decisions.push({ mapIndex: state.sim.currentMapIndex, round: state.sim.currentRound, ...(choice?.strategy ? { strategy: choice.strategy } : {}), ...(timeoutCalled ? { timeoutCalled } : {}), ...(regroup ? { regroup } : {}) })
         state = step.state

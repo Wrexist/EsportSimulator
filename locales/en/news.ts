@@ -302,6 +302,8 @@ export const NEWS = {
     "lv.minRosterSell": "You need at least {{min}} senior players to field a team. Sign a replacement before you sell.",
     "lv.minRoster": "You need at least {{min}} senior players to field a team. Sign a replacement first.",
     "lv.releaseCost": "Releasing {{name}} costs {{amount}} ({{weeks}} at {{wage}}/wk); the club has {{budget}}.",
+    "lv.staffRefreshNoClub": "No club to refresh the staff market for.",
+    "lv.staffRefreshFunds": "Another refresh this week costs {{cost}}; the club has {{funds}}.",
     "lv.valNumber": "{{label}} must be a valid number",
     "lv.valRange": "{{label}} must be between {{min}} and {{max}}",
     "lv.legendFunds": "Can't afford this legend: {{wage}} a week would leave cash for {{weeks}} (at least {{need}} needed).",

@@ -67,6 +67,11 @@ declare global {
                 getSize: () => Promise<{ width: number; height: number } | null>;
                 isFullscreen: () => Promise<boolean>;
             };
+            /** UI scale as page zoom (electron/preload.js, lib/ui-scale.ts). */
+            display?: {
+                getZoomFactor: () => number;
+                setZoomFactor: (factor: number) => void;
+            };
             storage: {
                 getItem: (key: string) => Promise<string | null>;
                 setItem: (key: string, value: string) => Promise<boolean>;

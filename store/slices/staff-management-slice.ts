@@ -16,15 +16,20 @@
  *   - renewStaffContract — extend an existing staff member's contract
  *     with validated bounds.
  *
+ *   - requestStaffMarketRefresh — the manager's Refresh button: free once
+ *     per week (staffMarketRefreshWeek), then about one week of the average
+ *     market wage (engine/staff-economy.ts), booked as WAGES_STAFF.
+ *
  *   - fireStaff — remove a staff member from their team's staffIds
- *     and the global staff array. Posts a news item.
+ *     and the global staff array, paying severance (two weeks' wage or the
+ *     rest of the contract, WAGES_STAFF). Posts a news item.
  *
  * All write paths use parseBoundedInt against MAX_STAFF_SALARY_PER_WEEK /
  * MAX_CONTRACT_LENGTH_WEEKS / MAX_SIGNING_BONUS so the UI can't smuggle
  * malformed numbers through.
  */
 
-import type { SliceCreator } from "@/store/types"
+import type { SliceCreator, StoreState } from "@/store/types"
 import { StaffGenerator } from "@/engine/staff-generator"
 import { SeededRNG, generateSeed } from "@/engine/rng"
 import {
@@ -38,6 +43,7 @@ import {
 
 import { formatCurrency } from "@/lib/utils-extended"
 import { liveText, type TextRef, tRefEn } from "@/lib/i18n"
+import { staffRefreshCost, staffSeverance } from "@/engine/staff-economy"
 const MAX_STAFF_PER_TEAM = 5
 const MAX_PER_ROLE = 1
 const DEFAULT_CONTRACT_WEEKS = 52
@@ -55,6 +61,8 @@ const TERMS: TextRef = { key: "stf.err.terms" }
 
 export interface StaffManagementActions {
     refreshStaffMarket: () => void
+    /** The manager's Refresh: free once per week, then a fee (SQUAD-16). */
+    requestStaffMarketRefresh: () => { success: boolean; message: string; cost: number }
     hireStaff: (
         staffId: string,
         terms?: { salary?: number; duration?: number; signingBonus?: number },
@@ -67,22 +75,58 @@ export interface StaffManagementActions {
     fireStaff: (staffId: string) => void
 }
 
+/** Regenerate the 20-slot market in place (seeded from lastRngSeed). */
+function regenerateMarket(state: Pick<StoreState, "lastRngSeed" | "marketStaff" | "currentWeek">): void {
+    const rng = new SeededRNG(state.lastRngSeed ?? generateSeed())
+    // Staff released by clubs stay listed (ENGINE-03).
+    const released = StaffGenerator.recentlyReleased(state.marketStaff ?? [], state.currentWeek)
+    state.marketStaff = [
+        ...released,
+        ...StaffGenerator.generateWeeklyMarket(
+            state.currentWeek,
+            Math.max(0, MARKET_SLOT_COUNT - released.length),
+            rng,
+        ),
+    ]
+    state.lastRngSeed = rng.getState()
+}
+
 export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = (set, get) => ({
     refreshStaffMarket: () => {
-        set((state) => {
-            const rng = new SeededRNG(state.lastRngSeed ?? generateSeed())
-            // Staff released by clubs stay listed (ENGINE-03).
-            const released = StaffGenerator.recentlyReleased(state.marketStaff ?? [], state.currentWeek)
-            state.marketStaff = [
-                ...released,
-                ...StaffGenerator.generateWeeklyMarket(
-                    state.currentWeek,
-                    Math.max(0, MARKET_SLOT_COUNT - released.length),
-                    rng,
-                ),
-            ]
-            state.lastRngSeed = rng.getState()
+        set((state) => { regenerateMarket(state) })
+    },
+
+    requestStaffMarketRefresh: () => {
+        const state = get()
+        const team = state.teams.find(t => t.id === state.playerTeamId)
+        if (!team) return { success: false, message: liveText({ key: "lv.staffRefreshNoClub" }), cost: 0 }
+        const { free, cost } = staffRefreshCost(state.marketStaff ?? [], state.currentWeek, state.staffMarketRefreshWeek)
+        if (!free && (!Number.isFinite(team.budget) || team.budget < cost)) {
+            return {
+                success: false,
+                message: liveText({ key: "lv.staffRefreshFunds", params: { cost: formatCurrency(cost, "$", false), funds: formatCurrency(Math.max(0, team.budget || 0), "$", false) } }),
+                cost,
+            }
+        }
+        set((draft) => {
+            regenerateMarket(draft)
+            draft.staffMarketRefreshWeek = draft.currentWeek
+            if (free || cost <= 0) return
+            const club = draft.teams.find(t => t.id === draft.playerTeamId)
+            if (!club) return
+            club.budget -= cost
+            draft.financeLedger.push({
+                id: nextDeterministicId(draft, "fin_staff_refresh", String(draft.currentWeek)),
+                week: draft.currentWeek,
+                teamId: club.id,
+                type: "EXPENSE",
+                category: "WAGES_STAFF",
+                amount: cost,
+                description: "Staff market refresh",
+                balance: club.budget,
+            })
         })
+        return { success: true, message: liveText({ key: "st.refreshed" }), cost: free ? 0 : cost }
     },
 
     hireStaff: (staffId, terms) => {
@@ -249,6 +293,13 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
         if (!current.staff.some(s => s.id === staffId && s.teamId === current.playerTeamId)) {
             throw new Error("You can only release your own staff.")
         }
+        // SQUAD-16: severance, checked before anything changes.
+        const member = current.staff.find(s => s.id === staffId)!
+        const club = current.teams.find(t => t.id === current.playerTeamId)
+        const severance = staffSeverance(member, current.currentWeek)
+        if (severance.amount > 0 && (!club || !Number.isFinite(club.budget) || club.budget < severance.amount)) {
+            throw new Error(`Releasing ${member.name} costs ${formatCurrency(severance.amount, "$", false)} in severance; the club has ${formatCurrency(Math.max(0, club?.budget || 0), "$", false)}.`)
+        }
 
         set((state) => {
             const staffIndex = state.staff.findIndex(s => s.id === staffId)
@@ -258,6 +309,19 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             const team = state.teams.find(t => t.id === staffMember.teamId)
             if (team) {
                 team.staffIds = team.staffIds.filter(id => id !== staffId)
+                if (severance.amount > 0) {
+                    team.budget -= severance.amount
+                    state.financeLedger.push({
+                        id: nextDeterministicId(state, "fin_staff_severance", staffId),
+                        week: state.currentWeek,
+                        teamId: team.id,
+                        type: "EXPENSE",
+                        category: "WAGES_STAFF",
+                        amount: severance.amount,
+                        description: `Staff severance: ${staffMember.name}`,
+                        balance: team.budget,
+                    })
+                }
             }
             state.staff.splice(staffIndex, 1)
 

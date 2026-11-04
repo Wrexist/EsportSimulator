@@ -112,6 +112,8 @@ export interface GameSave {
     // Phase 60: Staff Market Dynamics
     marketStaff: StaffSaveData[]
     nextMarketRefreshWeek?: number
+    /** SQUAD-16: week the free staff-market refresh was last used (absent in older saves: free). */
+    staffMarketRefreshWeek?: number
 
     // === FINANCE ===
     financeLedger: FinanceLedgerEntry[]

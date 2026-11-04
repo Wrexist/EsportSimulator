@@ -51,7 +51,7 @@ import type { CoachCallKind } from "../coach-calls"
 import { zonePoint, type MapZones } from "./zones"
 
 // Math is read once: global lookups are slow inside Jest's sandbox.
-const { abs, atan2, cos, exp, floor, log, max, min, PI, round, sin, sqrt } = Math
+const { abs, atan2, ceil, cos, exp, floor, log, max, min, PI, round, sin, sqrt } = Math
 
 /** Seconds per tick. */
 export const DT = 0.25
@@ -80,6 +80,8 @@ interface MapData {
     exposed: Uint8Array
     /** Pro T waiting spots. */
     stages: { node: number; site: SiteId; share: number }[]
+    /** siteSpots: a site's spots by depth from a node (from * 2 + site), pure in the graph. */
+    spotPools: Map<number, number[]>
 }
 
 const mapCache = new WeakMap<RoundMap, MapData>()
@@ -124,7 +126,7 @@ function mapData(map: RoundMap, zones: MapZones): MapData {
         const node = g.stageNodes.get(s.id)
         return node === undefined ? [] : [{ node, site: s.site, share: s.share }]
     })
-    d = { map, g, vis, zoneOf, chains, watch, angles, exposed, stages }
+    d = { map, g, vis, zoneOf, chains, watch, angles, exposed, stages, spotPools: new Map() }
     mapCache.set(map, d)
     return d
 }
@@ -207,7 +209,11 @@ interface Body {
     /** Time the body last stopped. */
     idle: number
     look: XY | null
+    /** Facing (radians); read through faceOf: it is set lazily from (fdy, fdx) when `faceDirty`. */
     face: number
+    fdy: number
+    fdx: number
+    faceDirty: boolean
     queue: Way[]
     waitUntil: number
     busy: "" | "plant" | "defuse"
@@ -220,6 +226,9 @@ interface Body {
     killedAt: number
     /** Bodies this one killed, with the time. */
     victims: [number, number][]
+    /** Staged Ts: the route walked out and the spot to take (opening). Declared up front so every body keeps one shape. */
+    route?: string
+    target?: number
 }
 
 interface Fight {
@@ -256,8 +265,10 @@ interface Ctx {
     fights: Fight[]
     /** Pair key → time before which a sighting is not rolled again. */
     cool: Map<number, number>
-    /** Pair key → in sight last tick. */
-    seen: Set<number>
+    /** Scratch for sightings: the living CTs this tick, their sight node and its position. */
+    sightScratch: { body: Body[]; node: Int32Array; x: Float64Array; y: Float64Array; floor: string[] }
+    /** Earliest time a pair in sight this tick may be rolled again (sightings; see quietUntil). */
+    sightWake: number
     smokes: Cloud[]
     fires: Fire[]
     jobs: { t: number; run: () => void }[]
@@ -311,6 +322,21 @@ function sightNode(b: Body, t: number): number {
 
 const moving = (b: Body) => b.next > 0 && b.next < b.path.length
 
+/** Face along (dx, dy); the angle is only worked out when something reads it (perf: bodies turn at every node). */
+function setFace(b: Body, dy: number, dx: number): void {
+    b.fdy = dy
+    b.fdx = dx
+    b.faceDirty = true
+}
+
+function faceOf(b: Body): number {
+    if (b.faceDirty) {
+        b.face = atan2(b.fdy, b.fdx)
+        b.faceDirty = false
+    }
+    return b.face
+}
+
 function startLeg(C: Ctx, b: Body, t: number, to: number, pace: number): boolean {
     if (to === b.node || to < 0) return false
     const t0 = round(t * 100) / 100
@@ -322,7 +348,7 @@ function startLeg(C: Ctx, b: Body, t: number, to: number, pace: number): boolean
     b.cut = false
     b.rec.push(round(t0 * 100), to, pace)
     const g = C.g
-    b.face = atan2(g.y[path[1]] - g.y[path[0]], g.x[path[1]] - g.x[path[0]])
+    setFace(b, g.y[path[1]] - g.y[path[0]], g.x[path[1]] - g.x[path[0]])
     return true
 }
 
@@ -344,7 +370,7 @@ function advance(C: Ctx, b: Body, t: number): void {
         b.next++
         if (b.next < b.path.length) {
             const nx = b.path[b.next]
-            b.face = atan2(g.y[nx] - g.y[b.node], g.x[nx] - g.x[b.node])
+            setFace(b, g.y[nx] - g.y[b.node], g.x[nx] - g.x[b.node])
             // Fire ahead: hold up until it burns out (a rush runs through and takes it).
             const fire = fireAt(C, nx, arr, !b.a.ct)
             if (fire && !(C.plan.strategy === "rush" || C.plan.ecoRush) && !b.saving) {
@@ -378,7 +404,7 @@ function look(C: Ctx, b: Body, t: number): void {
     if (!b.look || moving(b)) return
     const g = C.g
     const dx = b.look.x - g.x[b.node], dy = b.look.y - g.y[b.node]
-    if (dx * dx + dy * dy > 0.01) b.face = atan2(dy, dx)
+    if (dx * dx + dy * dy > 0.01) setFace(b, dy, dx)
     void t
 }
 
@@ -447,6 +473,18 @@ function startFight(C: Ctx, tb: Body, cb: Body, t: number, d: number): void {
     }
 }
 
+/**
+ * Share of a held angle's edge a player keeps against this foe. The edge is
+ * the first shot at a head that walks into the crosshair; a basic pistol's
+ * first headshot does not kill through a helmet (CS2: Glock / USP-S / P250 /
+ * Tec-9 / Five-SeveN need a second hit), so a pistol holding or posting
+ * against a helmet keeps only SIGHT_PISTOL_HELMET of it. Deagles one-tap
+ * helmets and keep it all.
+ */
+function firstShot(a: Actor, foe: Actor): number {
+    return foe.helmet && (a.wc === "pistol" || a.wc === "pistolB") ? T.SIGHT_PISTOL_HELMET : 1
+}
+
 /** Points one side of a fight brings beyond the duel's own (aim, weapon, armour, HP, numbers). */
 function sidePts(C: Ctx, me: Body, foe: Body, f: Fight, t: number): number {
     const R = C.R
@@ -458,7 +496,7 @@ function sidePts(C: Ctx, me: Body, foe: Body, f: Fight, t: number): number {
     let s = commonPts(R, a) + openingPts(R, a, isMoving) + rangePts(a, f.d)
     const at = bodyXY(C, me, f.t0), them = bodyXY(C, foe, f.t0)
     // Facing them, or hearing them walk in.
-    const aware = angleDiff(me.face, atan2(them.y - at.y, them.x - at.x)) <= T.SIGHT_AWARE || foeMoving && f.d <= T.SIGHT_HEAR
+    const aware = angleDiff(faceOf(me), atan2(them.y - at.y, them.x - at.x)) <= T.SIGHT_AWARE || foeMoving && f.d <= T.SIGHT_HEAR
     // Others shooting at me from other angles.
     let cross = 0
     for (const g of C.fights) if (!g.done && g !== f && (g.t === me || g.c === me)) cross++
@@ -466,7 +504,8 @@ function sidePts(C: Ctx, me: Body, foe: Body, f: Fight, t: number): number {
     else if (a.blindUntil > t) s -= T.BLIND
     else if (!aware) s -= T.SIGHT_BEHIND
     else if (settled) {
-        s += holdPts(R, a, 0)
+        const hold = holdPts(R, a, 0)
+        s += max(0, hold) * firstShot(a, foe.a) + min(0, hold)
         if (isSniperClass(a.wc) && f.d < 4) s -= T.AWP_HOLD
         s -= min(2, cross) * T.CROSSFIRE
     } else s += peekPts(R, a, cross)
@@ -486,7 +525,7 @@ function sidePts(C: Ctx, me: Body, foe: Body, f: Fight, t: number): number {
     if (a.ct && !R.bomb.planted) s += T.SIGHT_CT_DEFEND
     // Post-plant: the Ts sit on angles around the bomb, the CTs have to come to them.
     // Fewer Ts than retakers leave angles open: the CTs clear them one at a time.
-    if (!a.ct && me.task === "post" && foe.task === "retake") s += max(0, T.SIGHT_POST - T.SIGHT_POST_OPEN * max(0, countAlive(R.CT) - countAlive(R.T)))
+    if (!a.ct && me.task === "post" && foe.task === "retake") s += max(0, T.SIGHT_POST - T.SIGHT_POST_OPEN * max(0, countAlive(R.CT) - countAlive(R.T))) * firstShot(a, foe.a)
     // A retake the coach held for comes in together, with its utility (R2 "hold for retake").
     if (a.ct && C.coachHold && me.task === "retake") s += T.SIGHT_COACH_HOLD
     // Team play: mates close by who see the foe too (a crossfire, a ready trade).
@@ -581,20 +620,36 @@ function sightings(C: Ctx, t: number): void {
     const { g, D } = C
     const vis = D.vis
     const R = C.R
-    const seenNow = new Set<number>()
     const spotted = [0, 0]
+    const gx = g.x, gy = g.y, gf = g.floor
+    // The living CTs where they stand for sight, read once: nothing below moves
+    // a body along its leg or kills one, so they hold for the whole tick (perf).
+    const S = C.sightScratch
+    let m = 0
+    for (const cb of C.CTs) {
+        if (!cb.a.alive) continue
+        const n = sightNode(cb, t)
+        S.body[m] = cb; S.node[m] = n; S.x[m] = gx[n]; S.y[m] = gy[n]; S.floor[m] = gf[n]
+        m++
+    }
+    const range = T.SIGHT_RANGE
+    // Pairs certainly beyond SIGHT_RANGE skip the square root (the margin keeps the d > range test exact).
+    const farSq = range * range * (1 + 1e-9)
+    let wake = Infinity
     for (const tb of C.Ts) {
         if (!tb.a.alive) continue
         const tn = sightNode(tb, t)
-        for (const cb of C.CTs) {
-            if (!cb.a.alive) continue
-            const cn = sightNode(cb, t)
-            if (g.floor[tn] !== g.floor[cn]) continue
-            const d = g.dist(tn, cn)
+        const tf = gf[tn], tx = gx[tn], ty = gy[tn]
+        for (let j = 0; j < m; j++) {
+            if (tf !== S.floor[j]) continue
+            const dx = tx - S.x[j], dy = ty - S.y[j]
+            const dd = dx * dx + dy * dy
+            if (dd > farSq) continue
+            const d = sqrt(dd)
+            const cb = S.body[j], cn = S.node[j]
             // A smoke between them hides them, unless they are close enough to hear and spray through it.
-            if (d > T.SIGHT_RANGE || !vis.seesFar(tn, cn) || d > T.SIGHT_SMOKE_NEAR && smoked(C, tn, cn, t)) continue
+            if (d > range || !vis.seesFar(tn, cn) || d > T.SIGHT_SMOKE_NEAR && smoked(C, tn, cn, t)) continue
             const key = pairKey(tb, cb)
-            seenNow.add(key)
             for (let s = 0; s < 2; s++) {
                 // Same floor only: on Nuke the two sites sit almost on top of each other.
                 if (g.floor[tn] !== g.floor[C.siteNode[s]]) continue
@@ -603,7 +658,9 @@ function sightings(C: Ctx, t: number): void {
                 if (dc <= T.SIGHT_SITE_CORE) spotted[s] |= 1 << 12
             }
             if (C.fights.some(f => !f.done && f.t === tb && f.c === cb)) continue
-            if ((C.cool.get(key) ?? -1) > t) continue
+            const cool = C.cool.get(key) ?? -1
+            if (cool > t) { if (cool < wake) wake = cool; continue }
+            wake = t
             let p = engageChance(d)
             if (tb.saving || cb.saving) p *= T.SIGHT_SAVE_ENGAGE
             if (keyedRoll(R, 13, key) < p) startFight(C, tb, cb, t, d)
@@ -614,7 +671,7 @@ function sightings(C: Ctx, t: number): void {
             }
         }
     }
-    C.seen = seenNow
+    C.sightWake = wake
     // Three Ts near a site (or one on it) seen by a CT: the call for that site.
     for (let s = 0; s < 2; s++) {
         const bits = spotted[s]
@@ -711,7 +768,7 @@ function land(C: Ctx, b: Body, kind: UtilityKind, site: SiteId, at: number, spot
     } else if (kind === "flash") {
         for (const x of foes) {
             if (g.floor[sightNode(x, t)] !== p.floor || g.dist(x.node, pn) > T.SIGHT_FLASH_RANGE || !C.D.vis.seesFar(pn, x.node)) continue
-            const facing = angleDiff(x.face, atan2(p.y - g.y[x.node], p.x - g.x[x.node])) <= PI / 2
+            const facing = angleDiff(faceOf(x), atan2(p.y - g.y[x.node], p.x - g.x[x.node])) <= PI / 2
             if (!facing) continue
             if (rnd(R, P.util).next() < T.FLASH_BASE + T.FLASH_PER_GRENADES * b.a.p.grenades + T.SIGHT_FLASH_BONUS) {
                 x.a.blindUntil = max(x.a.blindUntil, t + 1.6 + rnd(R, P.util).next())
@@ -749,8 +806,8 @@ function executeUtility(C: Ctx, hitters: Body[], t: number): void {
     const R = C.R
     const S = R.S.id
     const st = C.plan.strategy
-    const maxSmokes = st === "execute" ? 3 : st === "rush" || st === "eco" ? 0 : 2
-    const maxFlashes = st === "execute" ? 4 : st === "rush" || st === "eco" ? 1 : 2
+    const maxSmokes = T.SIGHT_HIT_SMOKES[st] ?? 2
+    const maxFlashes = T.SIGHT_HIT_FLASHES[st] ?? 2
     const throwers = [...hitters].sort((a, b) => (b.a.job === "support" ? 1 : 0) - (a.a.job === "support" ? 1 : 0) || b.a.p.grenades - a.a.p.grenades)
     const defenders = () => C.CTs.filter(c => c.a.alive && c.a.post === S)
     let smokes = 0
@@ -855,12 +912,24 @@ function retakeUtility(C: Ctx, t: number): void {
 function siteSpots(C: Ctx, site: SiteId, from: number, count: number, taken: number[] = []): number[] {
     const g = C.g
     const c = g.siteNodes[site]
-    const pool = [...new Set([...g.plantNodes[site], ...g.around(c, 7)])].filter(n => g.floor[n] === g.floor[c])
-    pool.sort((a, b) => g.pathDist(from, b) - g.pathDist(from, a) || a - b)
+    // The pool and its order only depend on the map: kept per map (perf).
+    const poolKey = from * 2 + (site === "A" ? 0 : 1)
+    let pool = C.D.spotPools.get(poolKey)
+    if (!pool) {
+        const fresh = [...new Set([...g.plantNodes[site], ...g.around(c, 7)])].filter(n => g.floor[n] === g.floor[c])
+        const depth = new Map(fresh.map(n => [n, g.pathDist(from, n)]))
+        fresh.sort((a, b) => depth.get(b)! - depth.get(a)! || a - b)
+        C.D.spotPools.set(poolKey, fresh)
+        pool = fresh
+    }
     const out: number[] = []
+    const near = (list: readonly number[], n: number, gap: number) => {
+        for (const m of list) if (g.dist(m, n) < gap) return true
+        return false
+    }
     for (const gap of [3, 2, 0]) for (const n of pool) {
         if (out.length >= count) return out
-        if (out.includes(n) || [...taken, ...out].some(m => g.dist(m, n) < gap)) continue
+        if (out.includes(n) || near(taken, n, gap) || near(out, n, gap)) continue
         out.push(n)
     }
     while (out.length < count) out.push(c)
@@ -1156,9 +1225,12 @@ function fake(C: Ctx, t: number): void {
     }
     const bite = max(0.25, min(0.8, 0.55 + (C.plan.read === "right" ? -0.25 : C.plan.read === "wrong" ? 0.15 : 0)))
     if (rnd(R, P.flow).bool(bite)) {
-        const mover = C.CTs.find(b => b.a.alive && b.a.post === "mid") ?? C.CTs.find(b => b.a.alive && b.a.post === R.S.id)
+        // The CTs who bite: mid first, then players off the real site (one always stays there).
+        const site = C.CTs.filter(b => b.a.alive && b.a.post === R.S.id)
+        const movers = [...C.CTs.filter(b => b.a.alive && b.a.post === "mid"), ...site.slice(0, max(0, site.length - 1))].slice(0, T.FAKE_MOVERS)
+        if (!movers.length && site.length) movers.push(site[0])
         const at = t + rnd(R, P.flow).range(1, 3)
-        if (mover) C.jobs.push({ t: at, run: () => rotate(C, mover, O, at) })
+        for (const mover of movers) C.jobs.push({ t: at, run: () => rotate(C, mover, O, at) })
     }
 }
 
@@ -1581,6 +1653,12 @@ function retime(R: Round, plan: PlanState): void {
     plan.execAt = rng.range(lo, hi)
 }
 
+let quietSkip = true
+/** Tests: turn the quiet-tick skip off (every tick is played; results must not change). */
+export function setQuietTickSkip(on: boolean): void {
+    quietSkip = on
+}
+
 /** True when the round can be played on the map (a baked round map for its zones). */
 export function sightMapFor(zones: MapZones): RoundMap | undefined {
     return zones.mapId ? getRoundMap(zones.mapId) : undefined
@@ -1613,12 +1691,13 @@ export function simulateSightRound(input: SimInput, map: RoundMap): SimOutput & 
     const D = mapData(map, input.zones)
     const g = D.g
     const bodies: Body[] = all.map((a, k) => ({
-        a, k, rec: [], node: 0, spawn: 0, path: EMPTY, at: EMPTY, next: 0, cut: false, idle: 0, look: null, face: 0,
+        a, k, rec: [], node: 0, spawn: 0, path: EMPTY, at: EMPTY, next: 0, cut: false, idle: 0, look: null, face: 0, fdy: 0, fdx: 0, faceDirty: false,
         queue: [], waitUntil: 0, busy: "", busyUntil: 0, fights: 0, saving: false, task: "", killedAt: -99, victims: [],
+        route: undefined, target: undefined,
     }))
     const C: Ctx = {
         now: 0, utilThrown: false, R, D, g, plan, bodies, Ts: bodies.filter(b => !b.a.ct), CTs: bodies.filter(b => b.a.ct),
-        lurker: null, fakers: [], aggressor: null, fights: [], cool: new Map(), seen: new Set(), smokes: [], fires: [], jobs: [],
+        lurker: null, fakers: [], aggressor: null, fights: [], cool: new Map(), sightScratch: { body: [], node: new Int32Array(bodies.length), x: new Float64Array(bodies.length), y: new Float64Array(bodies.length), floor: [] }, sightWake: Infinity, smokes: [], fires: [], jobs: [],
         called: {}, execAt: plan.execAt, executed: false, plantNode: g.siteNodes[plan.site], plantStart: 0, planter: null,
         bombNode: -1, bombLog: [], defuser: null, defuseEnd: Infinity, retakeAt: Infinity, retakeStarted: false,
         tSaving: false, ctSaving: false, lastDeath: 0, end: null, siteNode: [g.siteNodes.A, g.siteNodes.B],
@@ -1654,6 +1733,8 @@ export function simulateSightRound(input: SimInput, map: RoundMap): SimOutput & 
     }
 
     const maxT = ROUND_TIME + BOMB_TIME + 5
+    const snap: unknown[] = []
+    let snapAt = -1
     for (let t = DT; t <= maxT && !C.end; t = round((t + DT) * 100) / 100) {
         C.now = t
         for (const b of bodies) if (b.a.alive) advance(C, b, t)
@@ -1668,7 +1749,7 @@ export function simulateSightRound(input: SimInput, map: RoundMap): SimOutput & 
             else C.jobs.splice(job, 1)[0].run()
             if (checkEnd(C, t)) break
         }
-        C.fights = C.fights.filter(f => !f.done)
+        if (C.fights.length) C.fights = C.fights.filter(f => !f.done)
         if (C.end || checkEnd(C, t)) break
         bombTick(C, t)
         defuseTick(C, t)
@@ -1677,6 +1758,14 @@ export function simulateSightRound(input: SimInput, map: RoundMap): SimOutput & 
         if (checkEnd(C, t)) break
         sightings(C, t)
         for (const b of bodies) drive(C, b, t)
+        // Nobody walking and no fight on: the ticks before the next thing that can happen are
+        // no-ops, so go straight to it (same round, fewer ticks; tick times stay multiples of DT).
+        if (quietSkip && quietUntil(C, t) > t + DT) {
+            // Only after a whole tick that changed nothing: the next ticks then see the same round.
+            const same = sameAsLastTick(C, snap) && snapAt === t - DT
+            snapAt = t
+            if (same) t = min(maxT + DT, ceil((quietUntil(C, t) - 1e-7) / DT) * DT) - DT
+        } else snapAt = -1
     }
     const end = C.end ?? { winnerCT: true, winType: "TIME" as const, t: ROUND_TIME }
     // Close the legs still walking.
@@ -1685,6 +1774,55 @@ export function simulateSightRound(input: SimInput, map: RoundMap): SimOutput & 
     const out = finish(R, input, plan, end)
     const moves: RoundMoves = { v: 1, ids: bodies.map(b => b.a.id), legs: bodies.map(b => b.rec), bomb: C.bombLog }
     return { ...out, moves }
+}
+
+/**
+ * Perf: the first time anything in the round can change, when every living
+ * body stands still and no fight is on (else `t`: tick on). Every tick step
+ * above only acts on a body that walks, a fight, a scheduled job, or one of
+ * these clocks: a body's wait / busy time or next waypoint, a sighting's
+ * re-roll, a smoke or fire starting or burning out, the round and bomb
+ * timers, the retake, the defuse, and the last moments to start a defuse.
+ */
+function quietUntil(C: Ctx, t: number): number {
+    if (C.end || C.fights.length) return t
+    let w = C.sightWake
+    for (const b of C.bodies) {
+        if (!b.a.alive) continue
+        if (moving(b)) return t
+        if (b.busyUntil > t && b.busyUntil < w) w = b.busyUntil
+        if (b.queue.length) {
+            const gate = max(b.busyUntil, b.waitUntil)
+            const at = gate > t ? gate : b.queue[0].at
+            if (at < w) w = at
+        }
+    }
+    for (const j of C.jobs) if (j.t < w) w = j.t
+    for (const c of C.smokes) { if (c.t0 > t && c.t0 < w) w = c.t0; if (c.t1 > t && c.t1 < w) w = c.t1 }
+    for (const c of C.fires) { if (c.t0 > t && c.t0 < w) w = c.t0; if (c.t1 > t && c.t1 < w) w = c.t1 }
+    const R = C.R
+    const clocks = R.bomb.planted
+        ? [R.bomb.plantT + BOMB_TIME, C.defuseEnd, C.retakeAt, ...[5, 10].flatMap(d => [R.bomb.plantT + BOMB_TIME - 3 - d, R.bomb.plantT + BOMB_TIME - 0.1 - d])]
+        : [ROUND_TIME, LATEST_PLANT_START]
+    for (const c of clocks) if (c > t && c < w) w = c
+    return w
+}
+
+/** Writes what a tick reads into `snap`; true when nothing differs from the last call. */
+function sameAsLastTick(C: Ctx, snap: unknown[]): boolean {
+    let i = 0, same = snap.length > 0
+    const put = (v: unknown) => { if (snap[i] !== v) { same = false; snap[i] = v } i++ }
+    for (const b of C.bodies) {
+        put(b.a.alive); put(b.a.hp); put(b.node); put(b.next); put(b.path); put(b.cut); put(b.queue); put(b.queue.length); put(b.queue[0])
+        put(b.waitUntil); put(b.busy); put(b.busyUntil); put(b.fights); put(b.saving); put(b.task); put(b.look); put(b.fdy); put(b.fdx); put(b.idle)
+    }
+    const R = C.R
+    put(C.jobs.length); put(C.fights.length); put(C.cool.size); put(R.meetings.size); put(R.events.length); put(R.utility.length)
+    put(C.bombLog.length); put(C.smokes.length); put(C.fires.length); put(C.executed); put(C.utilThrown); put(C.tSaving); put(C.ctSaving)
+    put(C.defuser); put(C.defuseEnd); put(C.planter); put(C.plantNode); put(C.bombNode); put(C.retakeAt); put(C.retakeStarted); put(C.execAt)
+    put(C.called.A); put(C.called.B); put(C.called.plant); put(C.lurker); put(C.aggressor); put(C.fakers.length); put(C.coachHold); put(C.end); put(C.lastDeath)
+    put(R.bomb.carrier); put(R.bomb.planted); put(R.bomb.lost); put(R.bomb.plantT); put(R.bomb.planter)
+    return same
 }
 
 function checkEnd(C: Ctx, t: number): boolean {

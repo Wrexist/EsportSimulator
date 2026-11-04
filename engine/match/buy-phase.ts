@@ -46,6 +46,34 @@ function weaponToLevel(weaponId: string): number {
 export type BuyStrategy = "ECO" | "FORCE" | "SEMIBUY" | "FULL" | "PISTOL" | "DOUBLE AWP"
 
 /**
+ * MATCHDAY-10: the loadout slot each player buys, by roster index. Slots
+ * follow roster order, except the AWP plan: a slot whose planned primary is
+ * the AWP (or, when no slot plans one, the slot hinted AWPER) goes to the
+ * team's AWPer, who swaps slots with the player who had it. Several AWP
+ * slots take the AWPers in roster order. A team without an AWPer keeps the
+ * plain roster order. The loadout editor shows the same mapping.
+ */
+export function loadoutSlots(roles: readonly (string | undefined)[], loadouts?: readonly PlayerLoadout[]): number[] {
+    const slots = roles.map((_, i) => i)
+    if (!loadouts?.length) return slots
+    const inRange = (l: PlayerLoadout) => l.slotIndex >= 0 && l.slotIndex < roles.length
+    let awpSlots = loadouts.filter(l => inRange(l) && l.primaryWeaponId?.toLowerCase() === WEAPONS.AWP.id).map(l => l.slotIndex)
+    if (!awpSlots.length) awpSlots = loadouts.filter(l => inRange(l) && l.roleHint === PlayerRole.AWPER).map(l => l.slotIndex)
+    awpSlots = [...new Set(awpSlots)].sort((a, b) => a - b)
+    const isAwper = (i: number) => roles[i] === PlayerRole.AWPER
+    for (const slot of awpSlots) {
+        const holder = slots.indexOf(slot)
+        if (holder < 0 || isAwper(holder)) continue
+        // The first AWPer not already on an AWP slot takes this one.
+        const awper = roles.findIndex((_, i) => isAwper(i) && !awpSlots.includes(slots[i]))
+        if (awper < 0) break
+        slots[holder] = slots[awper]
+        slots[awper] = slot
+    }
+    return slots
+}
+
+/**
  * Apply the per-team buy phase to every player's economy state.
  * Returns nothing — mutations land directly on the `economy` record.
  *
@@ -89,13 +117,15 @@ export function performBuyPhase(
 
     // Pre-allocate AWP slots — prioritize AWPER role, then by cash.
     const awpsToBuy = strategy === "DOUBLE AWP" ? 2 : (strategy === "FULL" ? 1 : 0)
+    // Each player's loadout slot (MATCHDAY-10: the AWP plan goes to the AWPer).
+    const slotOf = loadoutSlots(players.map(p => p.role), playerLoadouts)
+    const loadoutOf = (idx: number) => playerLoadouts?.find((l) => l.slotIndex === slotOf[idx])
     const playerPositionMap = new Map(players.map((p, i) => [p.id, i]))
     const awpRecipients = new Set<string>()
     if (awpsToBuy > 0) {
         const candidates = [...players]
             .filter(p => {
-                const pIdx = playerPositionMap.get(p.id) ?? -1
-                const loadout = playerLoadouts?.[pIdx] || playerLoadouts?.find((l) => l.slotIndex === pIdx)
+                const loadout = loadoutOf(playerPositionMap.get(p.id) ?? -1)
                 return !loadout && economy[p.id]?.cash >= 4750
             })
             .sort((a, b) => {
@@ -113,7 +143,7 @@ export function performBuyPhase(
         if (!state) return
 
         let effectiveRole = p.role
-        const personalLoadout = playerLoadouts?.find((l) => l.slotIndex === idx)
+        const personalLoadout = loadoutOf(idx)
 
         if (!personalLoadout) {
             if (awpRecipients.has(p.id)) {

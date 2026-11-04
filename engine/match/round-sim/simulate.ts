@@ -845,7 +845,7 @@ export function choosePlan(R: Round, input: SimInput, tSide: SimSide, ctSide: Si
     const counter = counterSign(ctStyle, tStyle)
     const repeats = calls?.t && strategy !== "eco" ? min(T.PLAYBOOK_READ_REPEAT_CAP, calls.t.seen) : 0
     const edge = max(-0.2, min(0.2, T.READ_IGL * ((ctSide.call - tSide.call) / 50) * input.tacticalWeight + T.READ_COUNTER * counter))
-    const predictable = T.PLAYBOOK_READ_PER_REPEAT * repeats
+    const predictable = T.PLAYBOOK_READ_PER_REPEAT * (T.PLAYBOOK_READ_CALL[strategy] ?? 1) * repeats
     let read: PlanState["read"] = "none"
     let callRead = false
     if (fixedSetup === "stack-A" || fixedSetup === "stack-B") {
@@ -919,7 +919,7 @@ export function assignJobs(R: Round, plan: PlanState): { lurker: Actor | null; f
     const fakers: Actor[] = []
     if (plan.strategy === "fake") {
         const pool = ts.filter(a => (a.job === "pack" || a.job === "support") && a !== carrier)
-        for (const a of pool.slice(0, 2)) { a.job = "fake"; fakers.push(a) }
+        for (const a of pool.slice(0, T.FAKERS)) { a.job = "fake"; fakers.push(a) }
     }
 
     // CT posts by setup: 2-1-2, stacks 3-1-1, aggressive = 2-1-2 with a pusher.

@@ -12,6 +12,7 @@
  */
 
 import { MAP_COMFORT_VETO_WEIGHT, mapComfort } from "./map-comfort"
+import { matchRating } from "../match-rating"
 import { MapId } from "@/types"
 import type { Player, MapVeto, Analyst } from "@/types"
 import type { SeededRNG } from "../rng"
@@ -19,12 +20,29 @@ import type { SeededRNG } from "../rng"
 import { ACTIVE_MAP_POOL } from "@/data/map-pool"
 
 /**
- * Compute a 0-100 strength score per map for a roster. Tactical maps
- * (Nuke / Overpass) lean on tactic; aim maps (Sandstone / Mirage) lean on
- * skill; the rest blend both. Returns a defaulted-to-50 map for empty
- * rosters so downstream veto logic never sees missing entries.
+ * Veto strength per map (0-100 scale): the roster's average match rating
+ * (what the engine plays with, engine/match-rating.ts) plus the club's map
+ * comfort, the only per-map difference the engine knows. Tactic, which the
+ * old table weighted per map, is measured to have no effect on results.
+ * Returns a defaulted-to-50 map for empty rosters so downstream veto logic
+ * never sees missing entries.
  */
 export function calculateMapStrengths(players: Player[], teamId?: string): Map<MapId, number> {
+    const strengths = new Map<MapId, number>()
+    // Map identity (map-comfort.ts): a club's best maps rank higher in its veto.
+    const comfort = (map: MapId) => mapComfort(teamId, map) * MAP_COMFORT_VETO_WEIGHT
+    const rating = players.length === 0 ? 50 : players.reduce((sum, p) => sum + matchRating(p), 0) / players.length
+    ACTIVE_MAP_POOL.forEach(map => strengths.set(map, rating + comfort(map)))
+    return strengths
+}
+
+/**
+ * legacy-v2 round odds only (old checkpoints and saves): the old 0-100 table
+ * where tactical maps (Nuke / Overpass) lean on tactic and aim maps
+ * (Sandstone / Mirage) on skill. Kept so a legacy-v2 match plays as it did;
+ * the veto uses calculateMapStrengths.
+ */
+export function legacyMapStrengths(players: Player[], teamId?: string): Map<MapId, number> {
     const strengths = new Map<MapId, number>()
     // Map identity (map-comfort.ts): a club's best maps rank higher in its veto.
     const comfort = (map: MapId) => mapComfort(teamId, map) * MAP_COMFORT_VETO_WEIGHT

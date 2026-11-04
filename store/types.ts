@@ -66,6 +66,8 @@ export interface EntitiesState {
   staff: StaffSaveData[]
   marketStaff: StaffSaveData[]
   nextMarketRefreshWeek?: number
+  /** SQUAD-16: week the free staff-market refresh was last used. */
+  staffMarketRefreshWeek?: number
 }
 
 export interface MatchState {
@@ -220,6 +222,7 @@ export interface EntitiesActions {
   assignMentor: (mentorId: string, menteeId: string) => { success: boolean; message: string }
   endMentorship: (menteeId: string) => void
   refreshStaffMarket: () => void
+  requestStaffMarketRefresh: () => { success: boolean; message: string; cost: number }
   hireStaff: (staffId: string, terms?: { salary: number, duration: number, signingBonus: number }) => { success: boolean; message: string; ref?: import("@/lib/i18n").TextRef }
   renewStaffContract: (staffId: string, salary: number, duration: number) => { success: boolean; message: string; ref?: import("@/lib/i18n").TextRef }
   fireStaff: (staffId: string) => void

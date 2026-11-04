@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webFrame } = require('electron');
 
 // Bridging Electron to the React app
 contextBridge.exposeInMainWorld('electron', {
@@ -41,6 +41,16 @@ contextBridge.exposeInMainWorld('electron', {
             const handler = (_, isFullscreen) => callback(isFullscreen === true);
             ipcRenderer.on('window-fullscreen-changed', handler);
             return () => ipcRenderer.removeListener('window-fullscreen-changed', handler);
+        },
+    },
+    // UI scale as real page zoom (lib/ui-scale.ts). Renderer-local, no IPC; the factor is clamped
+    // to the settings range (80-150%) so the page cannot zoom itself out of reach.
+    display: {
+        getZoomFactor: () => webFrame.getZoomFactor(),
+        setZoomFactor: (factor) => {
+            const value = Number(factor);
+            if (!Number.isFinite(value)) return;
+            webFrame.setZoomFactor(Math.max(0.8, Math.min(1.5, value)));
         },
     },
     app: {

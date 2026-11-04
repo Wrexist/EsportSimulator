@@ -39,6 +39,7 @@ import { MATCH_BALANCE, UTIL_POWER as UTIL_POWER_MAP, UTIL_POWER_DEFAULT as UTIL
 import { logger } from "@/lib/logger"
 import {
     calculateMapStrengths as calculateMapStrengthsFn,
+    legacyMapStrengths,
     selectMapForVeto as selectMapForVetoFn,
     simulateMapVeto as simulateMapVetoFn,
 } from "./match/map-veto"
@@ -205,8 +206,12 @@ export class SimulationEngineV2 {
         if (!activeHomePlayers.length || !activeAwayPlayers.length) throw Error('Both teams need players')
         const hStaff = homeStaff || this.getTeamStaff(homeTeam)
         const aStaff = awayStaff || this.getTeamStaff(awayTeam)
-        const homeMapStrengths = this.calculateMapStrengths(activeHomePlayers, homeTeam.id)
-        const awayMapStrengths = this.calculateMapStrengths(activeAwayPlayers, awayTeam.id)
+        // Veto: match rating + map comfort. Round odds (legacy-v2 only; script-v1
+        // ignores them): the old per-map table, so old checkpoints play as before.
+        const homeVetoStrengths = this.calculateMapStrengths(activeHomePlayers, homeTeam.id)
+        const awayVetoStrengths = this.calculateMapStrengths(activeAwayPlayers, awayTeam.id)
+        const homeMapStrengths = legacyMapStrengths(activeHomePlayers, homeTeam.id)
+        const awayMapStrengths = legacyMapStrengths(activeAwayPlayers, awayTeam.id)
 
         let maps: MapId[]
         if (forcedMaps && forcedMaps.length > 0) {
@@ -216,7 +221,7 @@ export class SimulationEngineV2 {
             maps = resolveCanonicalSeriesMaps({ format: match.format, seed: matchSeed, savedMaps: match.maps })
         } else {
             maps = this.simulateMapVeto(createMatchRNG(deriveSeed(matchSeed, match.id ?? '', 'veto')), homeTeam.id, awayTeam.id, activeHomePlayers, activeAwayPlayers,
-                hStaff.analyst, aStaff.analyst, homeMapStrengths, awayMapStrengths, match.format).maps
+                hStaff.analyst, aStaff.analyst, homeVetoStrengths, awayVetoStrengths, match.format).maps
         }
 
         // mentalPrep belongs to the side that paid (legacy saves: home).
