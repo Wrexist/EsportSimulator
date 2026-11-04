@@ -114,6 +114,51 @@ export function tn(key: string, count: number, params?: Record<string, string | 
 }
 
 /**
+ * A translatable line kept in a save: the key and its values, so the text is
+ * shown in whatever language is active when it is read. `count` picks the
+ * plural form (tn).
+ */
+export interface TextRef {
+    key: string
+    /** Values; a nested TextRef is shown in the same language (a division, a head-to-head line). */
+    params?: Record<string, TextParam>
+    count?: number
+}
+export type TextParam = string | number | TextRef
+
+/** Key of a TextRef that shows `count` as an ordinal in the active language ("3rd", "3.", "3e"). */
+export const ORDINAL_REF = "@ordinal"
+/** Key of a TextRef that joins its params' values as a list ("A, B and C") in the active language. */
+export const LIST_REF = "@list"
+
+export function isTextRef(v: unknown): v is TextRef {
+    return !!v && typeof v === "object" && typeof (v as TextRef).key === "string"
+}
+
+/** A TextRef in the active language. */
+export function tRef(ref: TextRef): string {
+    if (ref.key === ORDINAL_REF) return ordinalLabel(ref.count ?? 0)
+    if (ref.key === LIST_REF) return listJoin(Object.values(ref.params ?? {}).map(v => (isTextRef(v) ? tRef(v) : String(v))))
+    let params: Record<string, string | number> | undefined
+    if (ref.params) {
+        params = {}
+        for (const [k, v] of Object.entries(ref.params)) params[k] = isTextRef(v) ? tRef(v) : v
+    }
+    return ref.count !== undefined ? tn(ref.key, ref.count, params) : t(ref.key, params)
+}
+
+/** A TextRef in English, for the plain-text copy a save keeps next to it (logs, older readers). */
+export function tRefEn(ref: TextRef): string {
+    const was = currentLocale
+    currentLocale = "en"
+    try {
+        return tRef(ref)
+    } finally {
+        currentLocale = was
+    }
+}
+
+/**
  * Register a new locale with translations
  * Call this to add support for a new language
  */

@@ -24,7 +24,7 @@ import { getEventTitle, isPendingDecisionEvent, isTransferRumor } from "@/lib/ev
 import { DIGEST_TYPE, digestItems, type DigestItem } from "@/lib/inbox-digest"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { PERSONALITY_TUNING, STORY_TUNING } from "@/lib/balance-tuning"
-import { intlLocale, t, tn } from "@/lib/i18n"
+import { intlLocale, isTextRef, t, tn, tRef } from "@/lib/i18n"
 
 export type InboxKind = "decision" | "message" | "news"
 export type DecisionKind = "choice" | "job_offer" | "transfer_offer"
@@ -221,7 +221,7 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
             return span ? tn("ib.subj.digestSpan", items.length, { span }) : tn("ib.subj.digest", items.length)
         }
         default: {
-            const title = data.title || getEventTitle(event)
+            const title = isTextRef(data.titleRef) ? tRef(data.titleRef) : data.title || getEventTitle(event)
             return stripEmoji(String(title)).trim() || t("ib.subj.notification")
         }
     }
@@ -321,6 +321,7 @@ function eventBodyText(event: GameEventSaveData, ctx: InboxContext): string {
             }
             return data.message || data.text || data.description || t("ib.body.media")
         default:
+            if (isTextRef(data.messageRef)) return tRef(data.messageRef)
             return data.message || data.content || data.text || data.description || t("ib.body.noDetails")
     }
 }

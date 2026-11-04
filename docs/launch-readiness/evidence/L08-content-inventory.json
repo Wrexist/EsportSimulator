@@ -10760,8 +10760,8 @@
     },
     {
       "path": "lib/i18n.ts",
-      "sha256": "495fa7a5c0422a38740c48bda3cbf123fde42b05c94b67e31148f50ce99774ec",
-      "bytes": 8051,
+      "sha256": "12cebf418d1c6e93e9d4dee1008494666bc85671f9a90145b2912da59c83cf78",
+      "bytes": 9769,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -10793,6 +10793,11 @@
           "date": "2026-11-03",
           "previousSha256": "c106a15a7a82a5d410f0c1da18f433c23cffc3fca2731c7ab6773b213660adcb",
           "change": "Bug report, error screen, moments and Continue stops translated"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "495fa7a5c0422a38740c48bda3cbf123fde42b05c94b67e31148f50ce99774ec",
+          "change": "press conferences"
         }
       ]
     },
@@ -91464,8 +91469,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "06c7f008800a553cb489e8c01461c1fa9b76370095a823147cb1fe219862b484",
-      "bytes": 315019,
+      "sha256": "2111dee293e4789ce6854880e5794f33dbf7ecf55743fcef1ef9d83fe015ec23",
+      "bytes": 322416,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91580,13 +91585,23 @@
           "date": "2026-11-03",
           "previousSha256": "250e4e26de5f661ca84d41c8aa07ef2bf5716df7ae708e8a0a827c4fe2e867f8",
           "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "06c7f008800a553cb489e8c01461c1fa9b76370095a823147cb1fe219862b484",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "8d46c8fab63dc8bcf8bb213834c2e44903c33fa5914e25b8cf31d565ac4626e2",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "ef59041a572d4b8b233f2574cdd014bbcac481e9dc8cc705b94d609152bdd6a5",
-      "bytes": 330496,
+      "sha256": "17af9f39ef08068c57f5a23109c29a5a84a85ddd46103f6d480e1acc1f9c3ee3",
+      "bytes": 338837,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91701,13 +91716,18 @@
           "date": "2026-11-03",
           "previousSha256": "831f2d9e28765a79a5ed0f6de498e92584831f96ccc58307f034e9720f2f9bbe",
           "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "ef59041a572d4b8b233f2574cdd014bbcac481e9dc8cc705b94d609152bdd6a5",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "d9783ef4997c27312ef81a25591b686dd6bb8c540a69d3ac96d47282b754cc1b",
-      "bytes": 337265,
+      "sha256": "4214ce5854aaee966e4953fbc58fe89624c20a278cef3be9c81319e247010361",
+      "bytes": 345609,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91822,13 +91842,18 @@
           "date": "2026-11-03",
           "previousSha256": "8a9794afd9b3b1c45f7dcb660dd244d71c1e51bd019f743801f630bae091c35f",
           "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "d9783ef4997c27312ef81a25591b686dd6bb8c540a69d3ac96d47282b754cc1b",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "c31ff83660bf56d1de59dd17ac22200a5659ec118cd13308a81bfd474d2d8a43",
-      "bytes": 334440,
+      "sha256": "5793b17bc378a6db2a11e99e61c001853571e97134ac222ffbb9e4201a913117",
+      "bytes": 343593,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91938,13 +91963,18 @@
           "date": "2026-11-03",
           "previousSha256": "30b79049907415713a9b9dcbc3aa942c175dbda4284ee892097dfca73c1d9b4b",
           "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "c31ff83660bf56d1de59dd17ac22200a5659ec118cd13308a81bfd474d2d8a43",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "def30e1fead2f1b4d59af579df147090ddb639b995bdaaac02f0d91179c58ed8",
-      "bytes": 326132,
+      "sha256": "9b7cc3ccb1acbff4b87151380ecbc4c8567fd68958327e86545953bad44a7b29",
+      "bytes": 334212,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92054,13 +92084,18 @@
           "date": "2026-11-03",
           "previousSha256": "e080c22fb861d3cd3e5189e2625ce4165c3a12061bcb94dda4df9efe51654162",
           "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "def30e1fead2f1b4d59af579df147090ddb639b995bdaaac02f0d91179c58ed8",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "5bc5994ac7e0b85fad4065d58a66605b001513cd158bd8ef070767ff61cfb162",
-      "bytes": 453641,
+      "sha256": "5eaf97432f1486b035167bc619cd4fe8729cd416257f4aaa1a4032163308d149",
+      "bytes": 465916,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92170,6 +92205,11 @@
           "date": "2026-11-03",
           "previousSha256": "fa8e961f98d78248461478e5af5cbcdf07b51140fa244b352a2b23fbe76f4185",
           "change": "Interface languages, Logo upload, match guard, club page and demo end translated: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "5bc5994ac7e0b85fad4065d58a66605b001513cd158bd8ef070767ff61cfb162",
+          "change": "Interface languages, press conferences: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },

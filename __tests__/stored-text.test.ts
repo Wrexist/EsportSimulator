@@ -5,7 +5,8 @@
  */
 import { readFileSync } from "fs"
 import { join } from "path"
-import { registerLocale, setLocale } from "@/lib/i18n"
+import { LIST_REF, ORDINAL_REF, registerLocale, setLocale, tRef, tRefEn } from "@/lib/i18n"
+import { pressText } from "@/engine/storylines/press-view"
 import { storedText } from "@/lib/stored-text"
 import { weekHeadline, type WeekReport } from "@/lib/week-report"
 import { rivalLine } from "@/engine/transfer-hype"
@@ -69,5 +70,27 @@ describe("moments and Continue stops", () => {
         expect(momentHeadline(m as never)).toBe("Promoted to Europe Division 2")
         setLocale("de")
         expect(momentHeadline(m as never)).not.toContain("Promoted")
+    })
+})
+
+describe("press conferences", () => {
+    const decider = {
+        key: "press.q.decider",
+        params: {
+            team: "Us",
+            detail: { key: "press.detail.promotion", count: 2, params: { pos: { key: ORDINAL_REF, count: 3 }, division: { key: "league.divisionName", params: { region: { key: "region.EUROPE" }, level: 2 } } } },
+        },
+    }
+    test("nested values, ordinals and lists are shown in the active language", () => {
+        expect(tRefEn(decider)).toBe("Us are 3rd in Europe Division 2, 2 rounds left, promotion at stake. How do you handle the pressure?")
+        setLocale("de")
+        expect(tRef(decider)).toBe("Us: 3. Platz in Europa Division 2, noch 2 Spieltage, es geht um den Aufstieg. Wie geht ihr mit dem Druck um?")
+        expect(tRefEn(decider)).toContain("3rd in Europe Division 2")
+        expect(tRef({ key: LIST_REF, params: { 0: "A", 1: "B", 2: { key: "press.aTopSide" } } })).toBe("A, B und ein Spitzenteam")
+    })
+    test("a question saved before translation keys keeps its English text", () => {
+        setLocale("de")
+        expect(pressText({ text: "Old question?" })).toBe("Old question?")
+        expect(pressText({ text: "No comment.", ref: { key: "press.noComment" } })).toBe("Kein Kommentar.")
     })
 })

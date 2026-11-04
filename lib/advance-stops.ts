@@ -22,7 +22,7 @@ import { fixtureBlockReason, pendingPlayableMatch, type PlayableMatchState } fro
 import type { GameEventSaveData } from "@/engine/save-types"
 import { momentHeadline, titleMomentFromCelebration, type Moment } from "@/engine/moments"
 import { inboxHref } from "@/lib/navigation"
-import { t, tn } from "@/lib/i18n"
+import { isTextRef, t, tn, tRef } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 
 export type StopKind =
@@ -86,6 +86,9 @@ function decisionLabel(e: GameEventSaveData): string {
 
 /** The press conference's topic, without the "Press conference:" prefix the stored title carries. */
 function pressTopic(e: GameEventSaveData): string {
+    const ref = (e.data as { titleRef?: unknown } | undefined)?.titleRef
+    const topic = isTextRef(ref) ? ref.params?.topic : undefined
+    if (isTextRef(topic)) return tRef(topic)
     const raw = getEventTitle(e).replace(/^Press conference:\s*/i, "")
     return storedText(raw)
 }

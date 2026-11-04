@@ -32,6 +32,7 @@ import { REPORT } from "./en/report"
 import { HELP } from "./en/help"
 import { SUPPORT } from "./en/support"
 import { MOMENTS } from "./en/moments"
+import { PRESS } from "./en/press"
 
 export const EN = {
     // Navigation: top-bar hubs and their tabs (lib/navigation.ts)
@@ -122,7 +123,7 @@ export const EN = {
     ...MARKET,
     ...NEWGAME,
     ...ACADEMY,
-    ...TRAINING, ...STAFF, ...CLUB, ...TOURNAMENTS, ...SCHEDULE, ...LEGACY, ...SCREENS, ...INBOX, ...STORED, ...REPORT, ...HELP, ...SUPPORT, ...MOMENTS,
+    ...TRAINING, ...STAFF, ...CLUB, ...TOURNAMENTS, ...SCHEDULE, ...LEGACY, ...SCREENS, ...INBOX, ...STORED, ...REPORT, ...HELP, ...SUPPORT, ...MOMENTS, ...PRESS,
 } as const
 
 export type TranslationKey = keyof typeof EN
