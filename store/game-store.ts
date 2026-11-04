@@ -601,8 +601,8 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
 
   // Phase 56: Staff Market Actions
   refreshStaffMarket: () => void
-  hireStaff: (staffId: string, terms?: { salary: number, duration: number, signingBonus: number }) => { success: boolean; message: string }
-  renewStaffContract: (staffId: string, salary: number, duration: number) => { success: boolean; message: string }
+  hireStaff: (staffId: string, terms?: { salary: number, duration: number, signingBonus: number }) => { success: boolean; message: string; ref?: import("@/lib/i18n").TextRef }
+  renewStaffContract: (staffId: string, salary: number, duration: number) => { success: boolean; message: string; ref?: import("@/lib/i18n").TextRef }
   fireStaff: (staffId: string) => void
 
   // Getters / Helpers
