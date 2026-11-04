@@ -21,6 +21,7 @@ import { GameDifficulty } from "@/types/team-creator"
 import { PlayerRole } from "@/types/enums"
 import { useFocusTrap } from "@/lib/accessibility"
 import { formatCurrency } from "@/lib/utils-extended"
+import { t, tn } from "@/lib/i18n"
 
 // Weekly wage limit for the starting roster, by difficulty.
 const WEEKLY_SALARY_CAPS: Record<GameDifficulty, number> = {
@@ -51,7 +52,7 @@ interface PlayerWithTeamInfo extends PlayerSaveData {
 
 type RoleFilter = "ALL" | PlayerRole
 const ROLE_FILTERS: { value: RoleFilter; label: string }[] = [
-    { value: "ALL", label: "All" },
+    { value: "ALL", label: "" },
     { value: PlayerRole.IGL, label: "IGL" },
     { value: PlayerRole.AWPER, label: "AWPer" },
     { value: PlayerRole.ENTRY_FRAGGER, label: "Entry" },
@@ -60,12 +61,7 @@ const ROLE_FILTERS: { value: RoleFilter; label: string }[] = [
 ]
 
 type SortKey = "rating" | "potential" | "salary" | "age"
-const SORTS: { value: SortKey; label: string }[] = [
-    { value: "rating", label: "Rating" },
-    { value: "potential", label: "Potential" },
-    { value: "salary", label: "Wage (low first)" },
-    { value: "age", label: "Age (young first)" },
-]
+const SORTS: SortKey[] = ["rating", "potential", "salary", "age"]
 
 /** Realistic weekly wage for a free agent: skill bands, a potential premium, an age modifier. */
 function autoContract(player: PlayerWithTeamInfo, currentWeek: number) {
@@ -214,11 +210,11 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
         if (!playerTeam) return
         const contract = autoContract(player, currentWeek)
         if (weeklyCommitment + contract.salaryPerWeek > salaryCap) {
-            toast.error("Over the wage limit", { description: "This wage would take the roster past its weekly limit." })
+            toast.error(t("rb.toast.overWage"), { description: t("rb.toast.overWageBody") })
             return
         }
         if (!player.isFreeAgent && contract.transferFee > playerTeam.budget) {
-            toast.error("Not enough funds", { description: `You need ${formatCurrency(contract.transferFee, "$", false)} to buy out this contract.` })
+            toast.error(t("rb.toast.noFunds"), { description: t("rb.toast.noFundsBody", { amount: formatCurrency(contract.transferFee, "$", false) }) })
             return
         }
 
@@ -233,11 +229,13 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
         if (result.success) {
             setSignedPlayers(prev => [...prev, player.id])
             if (contract.transferFee > 0) setFeesPaid(prev => ({ ...prev, [player.id]: contract.transferFee }))
-            toast.success(`Signed ${player.nickname}`, {
-                description: `${formatCurrency(contract.salaryPerWeek, "$", false)} / week for 1 year${contract.transferFee > 0 ? ` · ${formatCurrency(contract.transferFee, "$", false)} buyout` : ""}`,
+            toast.success(t("rb.toast.signed", { name: player.nickname }), {
+                description: contract.transferFee > 0
+                    ? t("rb.toast.signedBodyBuyout", { wage: formatCurrency(contract.salaryPerWeek, "$", false), fee: formatCurrency(contract.transferFee, "$", false) })
+                    : t("rb.toast.signedBody", { wage: formatCurrency(contract.salaryPerWeek, "$", false) }),
             })
         } else {
-            toast.error("Failed to sign player", { description: result.message || "Unknown error" })
+            toast.error(t("rb.toast.failed"), { description: result.message || t("rb.toast.unknown") })
         }
     }
 
@@ -256,8 +254,8 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                 delete next[playerId]
                 return next
             })
-            toast.success(`Released ${player.nickname}`, paid
-                ? { description: `The ${formatCurrency(paid, "$", false)} buyout is not refunded.` }
+            toast.success(t("rb.toast.released", { name: player.nickname }), paid
+                ? { description: t("rb.toast.noRefund", { amount: formatCurrency(paid, "$", false) }) }
                 : undefined)
         }
     }
@@ -291,18 +289,18 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                             <TeamLogoDisplay team={playerTeam} size={44} />
                         </span>
                         <div>
-                            <h2 id="modal-title-roster-builder" className="font-display text-[28px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1">Build your roster</h2>
-                            <p className="mt-1.5 text-sm text-ink-3">Sign five free agents to play matches. You can skip and use Transfers later.</p>
+                            <h2 id="modal-title-roster-builder" className="font-display text-[28px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1">{t("rb.title")}</h2>
+                            <p className="mt-1.5 text-sm text-ink-3">{t("rb.subtitle")}</p>
                         </div>
                     </div>
                     <dl className="flex shrink-0 divide-x divide-line text-right">
                         <div className="pr-5">
-                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Funds</dt>
+                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("rb.funds")}</dt>
                             <dd className="mt-1 font-display text-2xl font-bold leading-none tabular-nums text-ink-1">{formatCurrency(playerTeam.budget)}</dd>
-                            {transferFeesSpent > 0 && <dd className="mt-1 text-xs text-ink-3">{formatCurrency(transferFeesSpent)} on buyouts</dd>}
+                            {transferFeesSpent > 0 && <dd className="mt-1 text-xs text-ink-3">{t("rb.onBuyouts", { amount: formatCurrency(transferFeesSpent) })}</dd>}
                         </div>
                         <div className="pl-5">
-                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Wages / week</dt>
+                            <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("rb.wagesWeek")}</dt>
                             <dd className={cn("mt-1 font-display text-2xl font-bold leading-none tabular-nums", weeklyCommitment >= salaryCap ? "text-caution" : "text-ink-1")}>
                                 {formatCurrency(weeklyCommitment, "$", false)}
                                 <span className="text-base text-ink-3"> / {formatCurrency(salaryCap, "$", false)}</span>
@@ -315,14 +313,14 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                 </header>
 
                 {/* Signed slots + role coverage */}
-                <section aria-label="Your roster" className="shrink-0 border-b border-line px-6 py-4">
+                <section aria-label={t("rb.yourRoster")} className="shrink-0 border-b border-line px-6 py-4">
                     <div className="mb-3 flex items-baseline justify-between gap-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Roster <span className="ml-1 tabular-nums text-ink-2">{signedCount} / {targetCount} needed</span></p>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("rb.roster")} <span className="ml-1 tabular-nums text-ink-2">{t("rb.needed", { n: signedCount, total: targetCount })}</span></p>
                         <p className="text-xs text-ink-3">
-                            Role coverage <span className="font-semibold tabular-nums text-ink-1">{coveredRoles}/5</span>
+                            {t("rb.coverage")} <span className="font-semibold tabular-nums text-ink-1">{coveredRoles}/5</span>
                             {signedCount > 0 && (coveredRoles < 5
-                                ? <span className="text-caution"> · −{(5 - coveredRoles) * 4}% team strength</span>
-                                : <span className="text-positive"> · no penalty</span>)}
+                                ? <span className="text-caution"> · {t("rb.penalty", { pct: (5 - coveredRoles) * 4 })}</span>
+                                : <span className="text-positive"> · {t("rb.noPenalty")}</span>)}
                         </p>
                     </div>
                     <div className="grid grid-cols-5 gap-2">
@@ -340,7 +338,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                                     <button
                                         type="button"
                                         onClick={() => handleUnsign(player.id)}
-                                        aria-label={`Release ${player.nickname}`}
+                                        aria-label={t("rb.release", { name: player.nickname })}
                                         className="shrink-0 rounded-sm p-1 text-ink-3 transition-colors hover:bg-hover hover:text-ink-1"
                                     >
                                         <X size={14} />
@@ -348,7 +346,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                                 </div>
                             ) : (
                                 <div key={`empty-${i}`} className="flex h-[58px] items-center justify-center gap-2 rounded-md border border-dashed border-line-strong text-xs text-ink-3">
-                                    <UserPlus size={14} /> Open slot
+                                    <UserPlus size={14} /> {t("rb.openSlot")}
                                 </div>
                             )
                         })}
@@ -360,26 +358,26 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                     <div className="relative mb-2 w-56">
                         <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
                         <Input
-                            placeholder="Search players"
-                            aria-label="Search players"
+                            placeholder={t("rb.search")}
+                            aria-label={t("rb.search")}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="h-9 pl-9 text-sm"
                         />
                     </div>
                     <Tabs value={roleFilter} onValueChange={(v) => setRoleFilter(v as RoleFilter)}>
-                        <TabsList aria-label="Filter by role" className="border-b-0!">
-                            {ROLE_FILTERS.map(r => <TabsTrigger key={r.value} value={r.value}>{r.label}</TabsTrigger>)}
+                        <TabsList aria-label={t("rb.filterRole")} className="border-b-0!">
+                            {ROLE_FILTERS.map(r => <TabsTrigger key={r.value} value={r.value}>{r.value === "ALL" ? t("rb.role.ALL") : r.label}</TabsTrigger>)}
                         </TabsList>
                     </Tabs>
                     <label className="mb-2 ml-auto flex items-center gap-2 text-xs text-ink-3">
-                        Sort
+                        {t("rb.sort")}
                         <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value as SortKey)}
                             className="h-9 rounded-md border border-line bg-shell px-2 text-sm! text-ink-1 outline-none focus-visible:border-gold"
                         >
-                            {SORTS.map(s => <option key={s.value} value={s.value} className="bg-panel">{s.label}</option>)}
+                            {SORTS.map(s => <option key={s} value={s} className="bg-panel">{t(`rb.sort.${s}`)}</option>)}
                         </select>
                     </label>
                 </div>
@@ -387,17 +385,17 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                 {/* Free agents */}
                 <div className="min-h-0 flex-1 overflow-y-auto">
                     {availablePlayers.length === 0 ? (
-                        <p className="px-6 py-6 text-sm text-ink-3">No free agents match. Clear the filters, or find more players in Transfers later.</p>
+                        <p className="px-6 py-6 text-sm text-ink-3">{t("rb.empty")}</p>
                     ) : (
                         <table data-slot="table" className="w-full border-collapse text-left">
                             <thead data-slot="table-header" className="sticky top-0 z-10">
                                 <tr className="border-b border-line">
-                                    <th data-slot="table-head" className="pl-6">Free agent</th>
-                                    <th data-slot="table-head" className="px-3">Role</th>
-                                    <th data-slot="table-head" className="px-3 text-center">OVR</th>
-                                    <th data-slot="table-head" className="px-3 text-center">Potential</th>
-                                    <th data-slot="table-head" className="px-3 text-right">Wage / wk</th>
-                                    <th data-slot="table-head" className="pr-6"><span className="sr-only">Sign</span></th>
+                                    <th data-slot="table-head" className="pl-6">{t("rb.col.player")}</th>
+                                    <th data-slot="table-head" className="px-3">{t("rb.col.role")}</th>
+                                    <th data-slot="table-head" className="px-3 text-center">{t("common.ovr")}</th>
+                                    <th data-slot="table-head" className="px-3 text-center">{t("rb.col.potential")}</th>
+                                    <th data-slot="table-head" className="px-3 text-right">{t("rb.col.wage")}</th>
+                                    <th data-slot="table-head" className="pr-6"><span className="sr-only">{t("rb.sign")}</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -425,13 +423,13 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                                             <td className="px-3 text-center text-sm tabular-nums text-ink-2">{player.potential || 60}</td>
                                             <td className="px-3 text-right text-sm tabular-nums text-ink-1">
                                                 {formatCurrency(contract.salaryPerWeek, "$", false)}
-                                                {contract.transferFee > 0 && <span className="block text-xs text-ink-3">+{formatCurrency(contract.transferFee)} buyout</span>}
+                                                {contract.transferFee > 0 && <span className="block text-xs text-ink-3">{t("rb.buyout", { amount: formatCurrency(contract.transferFee) })}</span>}
                                             </td>
                                             <td className="w-40 pr-6 text-right">
                                                 {afford === "ok" ? (
-                                                    <Button size="sm" variant="outline" onClick={() => handleSign(player)}>Sign</Button>
+                                                    <Button size="sm" variant="outline" onClick={() => handleSign(player)}>{t("rb.sign")}</Button>
                                                 ) : (
-                                                    <span className="text-xs text-ink-3">{afford === "wage" ? "Over wage limit" : "Not enough funds"}</span>
+                                                    <span className="text-xs text-ink-3">{afford === "wage" ? t("rb.overWage") : t("rb.noFunds")}</span>
                                                 )}
                                             </td>
                                         </tr>
@@ -444,10 +442,10 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
 
                 {/* Footer */}
                 <footer className="flex shrink-0 items-center justify-between gap-4 border-t border-line px-6 py-4">
-                    <Button variant="ghost" onClick={onComplete}>Skip for now</Button>
+                    <Button variant="ghost" onClick={onComplete}>{t("rb.skip")}</Button>
                     <div className="flex items-center gap-3">
-                        {!canComplete && <span className="text-xs text-ink-3">Sign {targetCount - signedCount} more to field a team</span>}
-                        <Button onClick={onComplete} disabled={!canComplete}>Enter headquarters</Button>
+                        {!canComplete && <span className="text-xs text-ink-3">{tn("rb.signMore", targetCount - signedCount)}</span>}
+                        <Button onClick={onComplete} disabled={!canComplete}>{t("rb.enter")}</Button>
                     </div>
                 </footer>
             </div>

@@ -36,6 +36,7 @@ import { waitForPendingGameSave } from "@/store/game-store"
 import { useMomentPending } from "@/components/moments/moment-state"
 import { useLocale, useUiLanguageSync } from "@/lib/use-locale"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
+import { t } from "@/lib/i18n"
 
 const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod => mod.ExitConfirmDialog), { ssr: false })
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
@@ -76,9 +77,9 @@ const routeIn = (pathname: string | null, routes: string[]) =>
 function DraftCupBlocked() {
     return (
         <div className="mx-auto mt-10 max-w-md rounded-lg border border-line bg-panel p-6 text-center">
-            <h1 className="font-display text-2xl font-bold uppercase text-ink-1">Not part of the Draft Cup</h1>
-            <p className="mt-2 text-sm text-ink-2">This run is about the five you drafted. Train them, set the playbook and prepare for the next opponent.</p>
-            <Link href="/" className="mt-4 inline-block text-sm font-semibold text-gold hover:underline">Back to Home</Link>
+            <h1 className="font-display text-2xl font-bold uppercase text-ink-1">{t("shell.dcBlocked")}</h1>
+            <p className="mt-2 text-sm text-ink-2">{t("shell.dcBlockedBody")}</p>
+            <Link href="/" className="mt-4 inline-block text-sm font-semibold text-gold hover:underline">{t("shell.backHome")}</Link>
         </div>
     )
 }
