@@ -1360,6 +1360,8 @@
  "settings.rendering.gpu": "GPU",
  "settings.uiScale": "Escala da interface",
  "settings.uiScaleHint": "Texto e espaçamento em toda a interface.",
+ "settings.uiScaleAuto": "Tamanho automático",
+ "settings.uiScaleAutoHint": "Ajusta a interface ao tamanho da janela. Mover o controle desliga esta opção.",
  "settings.reducedMotion": "Movimento reduzido",
  "settings.reducedMotionHint": "Desliga transições e animações decorativas.",
  "settings.sound": "Som",

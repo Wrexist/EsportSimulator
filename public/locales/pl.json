@@ -1398,6 +1398,8 @@
  "settings.rendering.gpu": "GPU",
  "settings.uiScale": "Skala interfejsu",
  "settings.uiScaleHint": "Tekst i odstępy w całym interfejsie.",
+ "settings.uiScaleAuto": "Rozmiar automatyczny",
+ "settings.uiScaleAutoHint": "Dopasowuje interfejs do rozmiaru okna. Przesunięcie suwaka wyłącza tę opcję.",
  "settings.reducedMotion": "Ograniczony ruch",
  "settings.reducedMotionHint": "Wyłącza przejścia i ozdobne animacje.",
  "settings.sound": "Dźwięk",

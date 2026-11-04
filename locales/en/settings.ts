@@ -38,6 +38,8 @@ export const SETTINGS = {
     "settings.rendering.gpu": "GPU",
     "settings.uiScale": "UI scale",
     "settings.uiScaleHint": "Text and spacing across the whole interface.",
+    "settings.uiScaleAuto": "Automatic size",
+    "settings.uiScaleAutoHint": "Fits the interface to the window size. Moving the slider turns this off.",
     "settings.reducedMotion": "Reduced motion",
     "settings.reducedMotionHint": "Turns off transitions and decorative animation.",
 

@@ -1321,6 +1321,8 @@
  "settings.rendering.gpu": "GPU",
  "settings.uiScale": "Oberflächengröße",
  "settings.uiScaleHint": "Text und Abstände in der gesamten Oberfläche.",
+ "settings.uiScaleAuto": "Automatische Größe",
+ "settings.uiScaleAutoHint": "Passt die Oberfläche an die Fenstergröße an. Wenn du den Regler bewegst, wird das ausgeschaltet.",
  "settings.reducedMotion": "Weniger Bewegung",
  "settings.reducedMotionHint": "Schaltet Übergänge und dekorative Animationen aus.",
  "settings.sound": "Ton",

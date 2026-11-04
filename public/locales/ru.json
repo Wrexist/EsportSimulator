@@ -1398,6 +1398,8 @@
  "settings.rendering.gpu": "GPU",
  "settings.uiScale": "Масштаб интерфейса",
  "settings.uiScaleHint": "Текст и отступы во всём интерфейсе.",
+ "settings.uiScaleAuto": "Автоматический размер",
+ "settings.uiScaleAutoHint": "Подгоняет интерфейс под размер окна. Если сдвинешь ползунок, это отключится.",
  "settings.reducedMotion": "Меньше анимации",
  "settings.reducedMotionHint": "Отключает переходы и декоративную анимацию.",
  "settings.sound": "Звук",
