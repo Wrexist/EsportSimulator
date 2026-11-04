@@ -6681,6 +6681,8 @@
  "lv.rivalReject": "Proposta recusada: \"Enfrentamos vocês na semana {{week}}! Não vamos reforçar um rival antes do jogo.\"",
  "lv.cantAfford": "{{club}} não pode pagar este valor de transferência.",
  "lv.boardCap": "A diretoria não vai aprovar um valor de {{fee}}. Com confiança em {{confidence}}/100, ela limita cada contratação a {{max}} ({{pct}}% do orçamento). Reconquiste a confiança dela.",
+ "lv.weaponMastered": "{{name}} já domina esta classe de arma.",
+ "lv.minRosterSell": "Você precisa de pelo menos {{min}} jogadores no elenco principal para escalar um time. Contrate um substituto antes de vender.",
  "lv.minRoster": "Você precisa de pelo menos {{min}} jogadores no elenco principal para escalar um time. Contrate um substituto primeiro.",
  "lv.releaseCost": "Dispensar {{name}} custa {{amount}} ({{weeks}} a {{wage}} por semana); o clube tem {{budget}}.",
  "lv.legendFunds": "Não dá para pagar esta lenda: {{wage}} por semana deixaria caixa para {{weeks}} (são precisas pelo menos {{need}}).",

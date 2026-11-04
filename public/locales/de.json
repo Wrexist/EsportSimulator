@@ -6483,6 +6483,8 @@
  "lv.rivalReject": "Angebot abgelehnt: „Wir spielen in Woche {{week}} gegen euch! Vor dem Match stärken wir keinen Rivalen.“",
  "lv.cantAfford": "{{club}} kann sich diese Ablöse nicht leisten.",
  "lv.boardCap": "Der Vorstand genehmigt keine Ablöse von {{fee}}. Bei einem Vertrauen von {{confidence}}/100 begrenzt er einzelne Transfers auf {{max}} ({{pct}} % des Budgets). Gewinne sein Vertrauen zurück.",
+ "lv.weaponMastered": "{{name}} beherrscht diese Waffenklasse bereits.",
+ "lv.minRosterSell": "Du brauchst mindestens {{min}} Profis, um ein Team zu stellen. Verpflichte einen Ersatz, bevor du verkaufst.",
  "lv.minRoster": "Du brauchst mindestens {{min}} Profis, um ein Team zu stellen. Verpflichte zuerst einen Ersatz.",
  "lv.releaseCost": "{{name}} freizustellen kostet {{amount}} ({{weeks}} zu je {{wage}}); der Verein hat {{budget}}.",
  "lv.legendFunds": "Diese Legende ist zu teuer: {{wage}} pro Woche ließe nur Geld für {{weeks}} (mindestens {{need}} nötig).",

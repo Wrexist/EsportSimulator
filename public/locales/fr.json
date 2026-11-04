@@ -6681,6 +6681,8 @@
  "lv.rivalReject": "Offre refusée : « On vous affronte en semaine {{week}} ! On ne renforce pas un rival avant le match. »",
  "lv.cantAfford": "{{club}} ne peut pas payer ce montant de transfert.",
  "lv.boardCap": "Le conseil n'approuvera pas un transfert de {{fee}}. Avec une confiance de {{confidence}}/100, il plafonne chaque recrue à {{max}} ({{pct}} % du budget). Regagne sa confiance.",
+ "lv.weaponMastered": "{{name}} maîtrise déjà cette classe d'arme.",
+ "lv.minRosterSell": "Il faut au moins {{min}} joueurs dans l'effectif principal pour aligner une équipe. Recrute un remplaçant avant de vendre.",
  "lv.minRoster": "Il faut au moins {{min}} joueurs dans l'effectif principal pour aligner une équipe. Recrute d'abord un remplaçant.",
  "lv.releaseCost": "Libérer {{name}} coûte {{amount}} ({{weeks}} à {{wage}} par semaine) ; le club a {{budget}}.",
  "lv.legendFunds": "Cette légende est trop chère : {{wage}} par semaine laisserait de la trésorerie pour {{weeks}} (il en faut au moins {{need}}).",

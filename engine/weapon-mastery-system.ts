@@ -278,7 +278,7 @@ export class WeaponMasteryManager {
 
         // SQUAD-08: Master is the last level; more XP buys nothing.
         if (getMasteryLevel(currentMastery[drill.weapon]) === "MASTER") {
-            return { success: false, cost: 0, xpGained: 0, newMastery: {}, message: `${player.nickname} has already mastered this weapon class.` }
+            return { success: false, cost: 0, xpGained: 0, newMastery: {}, message: liveText({ key: "lv.weaponMastered", params: { name: player.nickname } }) }
         }
 
         // Calculate XP gain (bonus for skilled players)

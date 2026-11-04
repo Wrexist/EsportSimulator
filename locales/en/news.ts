@@ -295,6 +295,8 @@ export const NEWS = {
     "lv.rivalReject": "Offer rejected: \"We play you in Week {{week}}! We won't strengthen a rival before the match.\"",
     "lv.cantAfford": "{{club}} cannot afford this transfer fee.",
     "lv.boardCap": "The board won't sanction a {{fee}} fee: with confidence at {{confidence}}/100 they cap single signings at {{max}} ({{pct}}% of the budget). Win their trust back.",
+    "lv.weaponMastered": "{{name}} has already mastered this weapon class.",
+    "lv.minRosterSell": "You need at least {{min}} senior players to field a team. Sign a replacement before you sell.",
     "lv.minRoster": "You need at least {{min}} senior players to field a team. Sign a replacement first.",
     "lv.releaseCost": "Releasing {{name}} costs {{amount}} ({{weeks}} at {{wage}}/wk); the club has {{budget}}.",
     "lv.legendFunds": "Can't afford this legend: {{wage}} a week would leave cash for {{weeks}} (at least {{need}} needed).",

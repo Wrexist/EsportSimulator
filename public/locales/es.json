@@ -6681,6 +6681,8 @@
  "lv.rivalReject": "Oferta rechazada: «¡Jugamos contra vosotros en la semana {{week}}! No vamos a reforzar a un rival antes del partido».",
  "lv.cantAfford": "{{club}} no puede pagar este traspaso.",
  "lv.boardCap": "La directiva no aprobará un traspaso de {{fee}}. Con una confianza de {{confidence}}/100 limita cada fichaje a {{max}} ({{pct}} % del presupuesto). Recupera su confianza.",
+ "lv.weaponMastered": "{{name}} ya domina esta clase de arma.",
+ "lv.minRosterSell": "Necesitas al menos {{min}} jugadores en la plantilla principal para competir. Ficha a un sustituto antes de vender.",
  "lv.minRoster": "Necesitas al menos {{min}} jugadores en la plantilla principal para competir. Ficha antes a un sustituto.",
  "lv.releaseCost": "Liberar a {{name}} cuesta {{amount}} ({{weeks}} a {{wage}} por semana); el club tiene {{budget}}.",
  "lv.legendFunds": "No puedes pagar a esta leyenda: {{wage}} a la semana dejaría caja para {{weeks}} (se necesitan al menos {{need}}).",

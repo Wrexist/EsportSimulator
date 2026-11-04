@@ -6879,6 +6879,8 @@
  "lv.rivalReject": "Oferta odrzucona: „Gramy z wami w tygodniu {{week}}! Nie wzmocnimy rywala przed meczem.”",
  "lv.cantAfford": "{{club}} nie stać na tę kwotę transferu.",
  "lv.boardCap": "Zarząd nie zgodzi się na kwotę {{fee}}. Przy zaufaniu {{confidence}}/100 ogranicza pojedynczy transfer do {{max}} ({{pct}}% budżetu). Odzyskaj jego zaufanie.",
+ "lv.weaponMastered": "{{name}} opanował już tę klasę broni.",
+ "lv.minRosterSell": "Potrzebujesz co najmniej {{min}} zawodników w głównym składzie, by wystawić drużynę. Podpisz zastępcę, zanim sprzedasz.",
  "lv.minRoster": "Potrzebujesz co najmniej {{min}} zawodników w głównym składzie, by wystawić drużynę. Najpierw podpisz zastępcę.",
  "lv.releaseCost": "Zwolnienie zawodnika {{name}} kosztuje {{amount}} ({{weeks}} po {{wage}} tygodniowo); klub ma {{budget}}.",
  "lv.legendFunds": "Nie stać cię na tę legendę: {{wage}} tygodniowo zostawi pieniądze na {{weeks}} (potrzeba co najmniej {{need}}).",

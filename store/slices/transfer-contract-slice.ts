@@ -220,7 +220,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 // SQUAD-04: a sale may not break the managed club's starting
                 // five (the same quorum releasePlayer enforces).
                 if (fromTeam.id === state.playerTeamId && fromTeam.rosterIds.length <= SENIOR_ROSTER_MIN) {
-                    result = { success: false, message: `You need at least ${SENIOR_ROSTER_MIN} senior players to field a team. Sign a replacement before you sell.` }
+                    result = { success: false, message: liveText({ key: "lv.minRosterSell", params: { min: SENIOR_ROSTER_MIN } }) }
                     return
                 }
 
