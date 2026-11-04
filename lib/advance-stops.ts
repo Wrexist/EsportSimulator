@@ -22,6 +22,8 @@ import { fixtureBlockReason, pendingPlayableMatch, type PlayableMatchState } fro
 import type { GameEventSaveData } from "@/engine/save-types"
 import { momentHeadline, titleMomentFromCelebration, type Moment } from "@/engine/moments"
 import { inboxHref } from "@/lib/navigation"
+import { t, tn } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 
 export type StopKind =
     | "moment" | "match" | "game-over" | "forfeit" | "injury" | "event" | "offer"
@@ -71,14 +73,21 @@ export function nextMoment(state: Pick<StopSource, "momentQueue" | "pendingCeleb
 /** A readable name for a decision event; some carry no title (fan and sponsor requests). */
 function decisionLabel(e: GameEventSaveData): string {
     const title = getEventTitle(e)
-    if (title !== "Notification") return title
+    if (title !== "Notification") return storedText(title)
     const data = (e.data ?? {}) as Record<string, unknown>
     const type = String(e.type)
-    if (type === "FAN") return "A fan meetup request"
-    if (type === "SPONSOR") return "A sponsor review"
-    const text = [data.headline, data.description, data.message].find(v => typeof v === "string" && v.trim()) as string | undefined
-    if (text) return text.length > 60 ? `${text.slice(0, 57)}...` : text
-    return "A decision"
+    if (type === "FAN") return t("stop.fanRequest")
+    if (type === "SPONSOR") return t("stop.sponsorReview")
+    const raw = [data.headline, data.description, data.message].find(v => typeof v === "string" && v.trim()) as string | undefined
+    const text = raw ? storedText(raw) : undefined
+    if (text) return text.length > 60 ? `${text.slice(0, 57)}…` : text
+    return t("stop.aDecision")
+}
+
+/** The press conference's topic, without the "Press conference:" prefix the stored title carries. */
+function pressTopic(e: GameEventSaveData): string {
+    const raw = getEventTitle(e).replace(/^Press conference:\s*/i, "")
+    return storedText(raw)
 }
 
 const money = (n: number) => n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `$${Math.round(n / 1000)}k` : `$${n}`
@@ -88,8 +97,8 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
     const out: AdvanceStop[] = []
     const me = state.playerTeamId
     if (!me) return out
-    const teamName = (id: string) => state.teams.find(t => t.id === id)?.name ?? "your opponent"
-    const playerName = (id: string) => state.players.find(p => p.id === id)?.nickname ?? "A player"
+    const teamName = (id: string) => state.teams.find(tm => tm.id === id)?.name ?? t("stop.yourOpponent")
+    const playerName = (id: string) => state.players.find(p => p.id === id)?.nickname ?? t("stop.aPlayer")
 
     const moment = nextMoment(state)
     if (moment) out.push({ key: `moment:${moment.key}`, kind: "moment", reason: momentHeadline(moment), href: "/" })
@@ -98,11 +107,11 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
     const playable = pendingPlayableMatch(state, completed, { respectDay: true })
     if (playable) {
         const opp = playable.homeTeamId === me ? playable.awayTeamId : playable.homeTeamId
-        out.push({ key: `match:${playable.id}`, kind: "match", reason: `Play ${teamName(opp)}${playable.format ? ` (${playable.format})` : ""}`, href: `/match/${playable.id}/tactics`, actionLabel: "Play match" })
+        out.push({ key: `match:${playable.id}`, kind: "match", reason: playable.format ? t("stop.playFormat", { team: teamName(opp), format: String(playable.format).toUpperCase() }) : t("stop.play", { team: teamName(opp) }), href: `/match/${playable.id}/tactics`, actionLabel: t("stop.playMatch") })
     }
 
     // Phase 4.4: a dismissed manager is between clubs; Home lists the job offers.
-    if (state.gameOverReason) out.push({ key: `game-over:${state.gameOverReason}`, kind: "game-over", reason: state.gameOverReason === "SACKED" ? "You were dismissed: review your job offers" : state.gameOverReason === "UNEMPLOYED" ? "Pick your first club from the job offers" : "Your club folded: review your job offers", href: "/" })
+    if (state.gameOverReason) out.push({ key: `game-over:${state.gameOverReason}`, kind: "game-over", reason: state.gameOverReason === "SACKED" ? t("stop.sacked") : state.gameOverReason === "UNEMPLOYED" ? t("stop.unemployed") : t("stop.folded"), href: "/" })
 
     // A due fixture the store will resolve by forfeit (a side can't field five).
     for (const m of state.scheduledMatches) {
@@ -111,15 +120,15 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
         const block = fixtureBlockReason(state, m)
         if (!block) continue
         const opp = m.homeTeamId === me ? m.awayTeamId : m.homeTeamId
-        out.push({ key: `forfeit:${m.id}`, kind: "forfeit", reason: `Your match vs ${teamName(opp)} will be forfeited: ${block.split(".")[0].toLowerCase()}`, href: "/transfers", actionLabel: "Find a player" })
+        out.push({ key: `forfeit:${m.id}`, kind: "forfeit", reason: t("stop.forfeit", { team: teamName(opp), reason: block }), href: "/transfers", actionLabel: t("stop.findPlayer") })
     }
 
-    const team = state.teams.find(t => t.id === me)
+    const team = state.teams.find(tm => tm.id === me)
     const roster = new Set(team?.rosterIds ?? [])
     for (const p of state.players) {
         if (!roster.has(p.id) || !p.injury || p.isRetired) continue
         const weeks = p.injury.weeksRemaining ?? 0
-        out.push({ key: `injury:${p.id}:${p.injury.name ?? ""}`, kind: "injury", reason: `${p.nickname ?? "A player"} is injured (${p.injury.name ?? "injury"}, ${weeks} week${weeks === 1 ? "" : "s"})`, href: `/player/${p.id}`, actionLabel: "View player" })
+        out.push({ key: `injury:${p.id}:${p.injury.name ?? ""}`, kind: "injury", reason: tn("stop.injured", weeks, { name: p.nickname ?? t("stop.aPlayer"), injury: p.injury.name ? storedText(p.injury.name) : t("stop.injury") }), href: `/player/${p.id}`, actionLabel: t("stop.viewPlayer") })
     }
 
     for (const e of state.eventsLog) {
@@ -131,10 +140,10 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
             if (typeof data.deadlineWeek === "number" && data.deadlineWeek < state.currentWeek) continue
             // Phase 5.3: the press conference before a big match (answered on the match screen).
             if (e.id.startsWith("press_") && typeof data.matchId === "string") {
-                out.push({ key: `event:${e.id}`, kind: "event", reason: `Press conference before the match: ${decisionLabel(e).replace(/^Press conference:\s*/, "")}`, href: `/match/${data.matchId}/tactics`, actionLabel: "Face the press" })
+                out.push({ key: `event:${e.id}`, kind: "event", reason: t("stop.press", { topic: pressTopic(e) }), href: `/match/${data.matchId}/tactics`, actionLabel: t("stop.facePress") })
                 continue
             }
-            out.push({ key: `event:${e.id}`, kind: "event", reason: `${decisionLabel(e)} needs an answer`, href: "/", actionLabel: "Decide" })
+            out.push({ key: `event:${e.id}`, kind: "event", reason: t("stop.needsAnswer", { label: decisionLabel(e) }), href: "/", actionLabel: t("stop.decide") })
             continue
         }
         const resolved = (e as unknown as { selectedChoiceId?: string }).selectedChoiceId !== undefined
@@ -144,15 +153,16 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
             // acceptTransferOffer treats currentWeek >= expiresWeek as expired.
             const expires = typeof data.expiresWeek === "number" ? data.expiresWeek : e.week + 2
             if (expires <= state.currentWeek) continue
-            const amount = typeof data.offerAmount === "number" ? ` ${money(data.offerAmount)}` : ""
-            out.push({ key: `offer:${e.id}`, kind: "offer", reason: `${String(data.teamName ?? "A club")} bid${amount} for ${String(data.playerName ?? "your player")}`, href: inboxHref("decisions"), actionLabel: "Review offer" })
+            const club = String(data.teamName ?? t("stop.aClub"))
+            const player = String(data.playerName ?? t("stop.yourPlayer"))
+            out.push({ key: `offer:${e.id}`, kind: "offer", reason: typeof data.offerAmount === "number" ? t("stop.bidAmount", { club, amount: money(data.offerAmount), player }) : t("stop.bid", { club, player }), href: inboxHref("decisions"), actionLabel: t("stop.reviewOffer") })
         } else if (type === "JOB_OFFER") {
             if (typeof data.deadlineWeek === "number" && data.deadlineWeek < state.currentWeek) continue
             const club = data.offeringTeamName ?? data.teamName
             const rank = typeof data.offeringTeamRank === "number" ? ` (#${data.offeringTeamRank})` : ""
-            out.push({ key: `offer:${e.id}`, kind: "offer", reason: `Job offer from ${club ? `${String(club)}${rank}` : "another club"}`, href: inboxHref("decisions"), actionLabel: "Review offer" })
+            out.push({ key: `offer:${e.id}`, kind: "offer", reason: t("stop.jobOffer", { club: club ? `${String(club)}${rank}` : t("stop.anotherClub") }), href: inboxHref("decisions"), actionLabel: t("stop.reviewOffer") })
         } else if (type === "CONTRACT" && data.action === "TRANSFER_OFFER") {
-            out.push({ key: `offer:${e.id}`, kind: "offer", reason: `Transfer offer for ${String(data.playerName ?? playerName(String(data.playerId ?? "")))}`, href: inboxHref("decisions"), actionLabel: "Review offer" })
+            out.push({ key: `offer:${e.id}`, kind: "offer", reason: t("stop.transferOffer", { player: String(data.playerName ?? playerName(String(data.playerId ?? ""))) }), href: inboxHref("decisions"), actionLabel: t("stop.reviewOffer") })
         }
     }
 
@@ -160,7 +170,7 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
         if (c.teamId !== me || !roster.has(c.playerId)) continue
         const left = c.endWeek - state.currentWeek
         if (left <= 0 || left > CONTRACT_STOP_WEEKS) continue
-        out.push({ key: `contract:${c.playerId}:${c.endWeek}`, kind: "contract", reason: `${playerName(c.playerId)}'s contract ends in ${left} week${left === 1 ? "" : "s"}`, href: `/player/${c.playerId}`, actionLabel: "Renew" })
+        out.push({ key: `contract:${c.playerId}:${c.endWeek}`, kind: "contract", reason: tn("stop.contract", left, { name: playerName(c.playerId) }), href: `/player/${c.playerId}`, actionLabel: t("stop.renew") })
     }
 
     let seasonReviewed = false
@@ -168,14 +178,14 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
         if (n.week < state.currentWeek - 1) continue
         if (!n.id.startsWith("board_pulse_") && !n.id.startsWith("board_review_")) continue
         if (n.id.startsWith("board_review_")) seasonReviewed = true
-        out.push({ key: `board:${n.id}`, kind: "board", reason: `Board ${n.id.startsWith("board_review_") ? "season review" : "review"}: ${n.title}`, href: "/", actionLabel: "View objective" })
+        out.push({ key: `board:${n.id}`, kind: "board", reason: t(n.id.startsWith("board_review_") ? "stop.boardSeason" : "stop.board", { title: storedText(n.title) }), href: "/", actionLabel: t("stop.viewObjective") })
     }
 
     // Season end (the tick into week 52 runs promotion/relegation). The board's
     // season review already covers it when present.
     if (!seasonReviewed && state.currentWeek > 0 && state.currentWeek % 52 === 0 && (state.timeMode !== "HYBRID_DAILY" || (state.currentDay ?? 0) === 0)) {
         const season = state.currentWeek / 52
-        out.push({ key: `season:${season}`, kind: "season", reason: `Season ${season} is over`, href: "/", actionLabel: "Season review" })
+        out.push({ key: `season:${season}`, kind: "season", reason: t("stop.seasonOver", { season }), href: "/", actionLabel: t("stop.seasonReview") })
     }
 
     return out.sort((a, b) => PRIORITY.indexOf(a.kind) - PRIORITY.indexOf(b.kind))
@@ -188,10 +198,10 @@ export function stoppedEventIds(keys: readonly string[]): string[] {
 
 /** Several new items of one kind become one stop ("2 decisions need an answer"). */
 const GROUPED: Partial<Record<StopKind, (n: number) => string>> = {
-    event: n => `${n} decisions need an answer`,
-    offer: n => `${n} offers need a response`,
-    injury: n => `${n} players are injured`,
-    contract: n => `${n} contracts end within ${CONTRACT_STOP_WEEKS} weeks`,
+    event: n => tn("stop.grp.event", n),
+    offer: n => tn("stop.grp.offer", n),
+    injury: n => tn("stop.grp.injury", n),
+    contract: n => tn("stop.grp.contract", n, { weeks: CONTRACT_STOP_WEEKS }),
 }
 
 /**

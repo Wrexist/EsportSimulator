@@ -11,6 +11,9 @@ import { formatGameCalendarDate, gameCalendarDate } from "@/lib/game-calendar"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
+import { t, tn } from "@/lib/i18n"
+import { Trans } from "@/lib/trans"
+import { ARCHETYPE_INFO, type PersonalityArchetype } from "@/engine/personality"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { RatingChip } from "@/src/components/ui/RatingChip"
@@ -36,6 +39,8 @@ function nameSize(name: string, big: boolean): string {
 function archetypeOf(player: unknown): string | null {
     const raw = (player as { personality?: { archetype?: unknown } } | null | undefined)?.personality?.archetype
     if (typeof raw !== "string" || !raw.trim()) return null
+    const info = ARCHETYPE_INFO[raw.trim().toUpperCase() as PersonalityArchetype]
+    if (info) return info.label
     const words = raw.trim().replace(/[_-]+/g, " ").toLowerCase()
     return words.charAt(0).toUpperCase() + words.slice(1)
 }
@@ -61,11 +66,11 @@ function useCountUp(target: number, delay: number, duration: number, reduce: boo
 }
 
 function overline(moment: SigningMoment): string {
-    if (moment.big) return "Blockbuster signing"
-    if (moment.standing === "ICON") return "Icon signing"
-    if (moment.standing === "STAR") return "Star signing"
-    if (moment.standing === "WONDERKID") return "Wonderkid signing"
-    return "New signing"
+    if (moment.big) return t("mo.sign.big")
+    if (moment.standing === "ICON") return t("mo.sign.icon")
+    if (moment.standing === "STAR") return t("mo.sign.star")
+    if (moment.standing === "WONDERKID") return t("mo.sign.wonderkid")
+    return t("mo.sign.new")
 }
 
 /**
@@ -89,7 +94,7 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
     }, [celebrated, moment.key, reduce])
 
     const headlineId = `moment-signing-${moment.key}`
-    const name = player?.nickname ?? "New player"
+    const name = player?.nickname ?? t("mo.sign.newPlayer")
     const archetype = archetypeOf(player)
     const endSeason = Math.floor((moment.contractEndWeek - 1) / 52) + 1
     const endDate = gameStartDate ? formatGameCalendarDate(gameCalendarDate(gameStartDate, moment.contractEndWeek), { month: "short", year: "numeric" }) : null
@@ -97,10 +102,10 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
 
     const facts: MomentFact[] = [
         moment.fee > 0
-            ? { label: "Transfer fee", value: money(moment.fee), hint: moment.fromTeamName ? `From ${moment.fromTeamName}` : undefined }
-            : { label: "Transfer fee", value: "Free", hint: moment.fromTeamName ? `From ${moment.fromTeamName}` : "Free agent" },
-        { label: "Wage", value: <>{money(moment.salaryPerWeek)}<span className="ml-1 text-base font-semibold text-ink-3">/wk</span></> },
-        { label: "Contract", value: endDate ?? `Season ${endSeason}`, hint: `${weeks} weeks · ends season ${endSeason}` },
+            ? { label: t("mo.sign.fee"), value: money(moment.fee), hint: moment.fromTeamName ? t("mo.sign.from", { team: moment.fromTeamName }) : undefined }
+            : { label: t("mo.sign.fee"), value: t("mo.sign.free"), hint: moment.fromTeamName ? t("mo.sign.from", { team: moment.fromTeamName }) : t("mo.sign.freeAgent") },
+        { label: t("mo.sign.wage"), value: <>{money(moment.salaryPerWeek)}<span className="ml-1 text-base font-semibold text-ink-3">{t("mo.perWeek")}</span></> },
+        { label: t("mo.sign.contract"), value: endDate ?? t("mo.seasonN", { n: endSeason }), hint: tn("mo.sign.contractHint", weeks, { season: endSeason }) },
     ]
 
     const frame = moment.big ? STANDING_FRAME.ICON : moment.standing ? STANDING_FRAME[moment.standing] : "border-line-strong"
@@ -109,7 +114,7 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
     const gain = moment.squad ? moment.squad.after - moment.squad.before : 0
 
     return (
-        <MomentFrame momentKey={moment.key} labelledBy={headlineId} sound="signing" onDismiss={onDismiss} actionLabel="Welcome aboard">
+        <MomentFrame momentKey={moment.key} labelledBy={headlineId} sound="signing" onDismiss={onDismiss} actionLabel={t("mo.sign.action")}>
             <div className="flex w-full items-center justify-center gap-14 text-left">
                 <motion.div
                     initial={reduce ? false : { opacity: 0, x: -60, rotateY: -12 }}
@@ -152,7 +157,7 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                             celebrated ? "border-gold text-gold" : "border-ink-1 text-ink-1",
                         )}
                     >
-                        Official
+                        {t("mo.sign.official")}
                     </motion.div>
                 </motion.div>
 
@@ -169,7 +174,7 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                     </motion.h2>
                     <motion.div {...reveal(0.5)} className="mt-4 flex flex-wrap items-center gap-3 text-lg text-ink-2">
                         {player?.nationality && <CountryFlag country={player.nationality} size={24} />}
-                        {[player?.name && player.name !== player.nickname ? player.name : null, player?.age != null ? `Age ${player.age}` : null]
+                        {[player?.name && player.name !== player.nickname ? player.name : null, player?.age != null ? t("mo.sign.age", { age: player.age }) : null]
                             .filter(Boolean)
                             .map((part, i) => <span key={i} className={i > 0 ? "text-ink-3" : undefined}>{i > 0 ? `· ${part}` : part}</span>)}
                     </motion.div>
@@ -185,7 +190,7 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                     {rivals.length > 0 && (
                         <motion.p {...reveal(0.7)} className="mt-5 flex items-start gap-2 text-base text-ink-2">
                             <Swords size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-gold" />
-                            <span>Beat <span className="font-semibold text-ink-1">{rivalLine(rivals, moment.rivalCount ?? rivals.length)}</span> to the signature.</span>
+                            <span><Trans k="mo.sign.beatRivals" params={{ rivals: rivalLine(rivals, moment.rivalCount ?? rivals.length) }} tags={{ b: (text) => <span className="font-semibold text-ink-1">{text}</span> }} /></span>
                         </motion.p>
                     )}
                     <MomentRule className="mt-7 max-w-none" delay={0.55} />
@@ -195,17 +200,17 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                     {moment.squad && (
                         <motion.div {...reveal(0.95)} className="mt-4 flex items-center gap-3 text-sm text-ink-3">
                             <TrendingUp size={16} aria-hidden="true" className={gain > 0 ? "text-positive" : "text-ink-3"} />
-                            <span>Best five OVR</span>
+                            <span>{t("mo.sign.bestFive")}</span>
                             <span className="font-display text-xl font-bold tabular-nums text-ink-2">{moment.squad.before}</span>
                             <span aria-hidden="true">→</span>
                             <span className="font-display text-xl font-bold tabular-nums text-ink-1">{moment.squad.after}</span>
                             {gain !== 0 && <span className={cn("font-semibold tabular-nums", gain > 0 ? "text-positive" : "text-negative")}>{gain > 0 ? `+${gain}` : gain}</span>}
-                            {gain === 0 && <span>· squad depth</span>}
+                            {gain === 0 && <span>· {t("mo.sign.depth")}</span>}
                         </motion.div>
                     )}
                     {moment.signature && (
                         <motion.div {...reveal(1.05)} className="mt-5 flex items-end gap-4">
-                            <svg viewBox={`0 0 ${moment.signature.w} ${moment.signature.h}`} className="h-16 w-48 shrink-0" role="img" aria-label="Your signature on the contract">
+                            <svg viewBox={`0 0 ${moment.signature.w} ${moment.signature.h}`} className="h-16 w-48 shrink-0" role="img" aria-label={t("mo.sign.signatureAlt")}>
                                 <motion.path
                                     d={moment.signature.d}
                                     fill="none"
@@ -218,7 +223,7 @@ export function SigningRevealView({ moment, onDismiss }: { moment: SigningMoment
                                     transition={{ duration: reduce ? 0 : 1.2, delay: reduce ? 0 : 1.1, ease: "easeInOut" }}
                                 />
                             </svg>
-                            <p className="pb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-3">Signed by the manager</p>
+                            <p className="pb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-3">{t("mo.sign.signedBy")}</p>
                         </motion.div>
                     )}
                 </div>

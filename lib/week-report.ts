@@ -20,7 +20,7 @@ import {
 import type { StoryArc } from "@/engine/storylines/types"
 import { STORY_KIND_LABEL, leadingBeat } from "@/engine/storylines/view"
 import type { StoryArcKind } from "@/engine/storylines/types"
-import { getLocale, intlLocale, t, tn } from "@/lib/i18n"
+import { getLocale, listJoin, t, tn } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 import { storyKindName } from "@/lib/story-names"
 
@@ -334,9 +334,7 @@ export function weekHeadline(report: Omit<WeekReport, "headline">): string {
     const net = moneyNet(report)
     if (clauses.length < 3 && Math.abs(net) >= 1) clauses.push(t("wr.h.finances", { amount: formatMoney(net, true) }))
 
-    const join = (xs: string[]) => xs.length === 1 ? xs[0]
-        : en ? `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`
-            : new Intl.ListFormat(intlLocale(), { type: "conjunction" }).format(xs)
+    const join = listJoin
     const lowerFirst = (x: string) => x.charAt(0).toLowerCase() + x.slice(1)
     // Phase 5.3: a storyline beat leads ("Slump: …"), then the week's top clause.
     if (report.story) {

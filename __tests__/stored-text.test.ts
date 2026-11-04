@@ -8,6 +8,8 @@ import { join } from "path"
 import { registerLocale, setLocale } from "@/lib/i18n"
 import { storedText } from "@/lib/stored-text"
 import { weekHeadline, type WeekReport } from "@/lib/week-report"
+import { rivalLine } from "@/engine/transfer-hype"
+import { momentHeadline } from "@/engine/moments"
 
 const de = JSON.parse(readFileSync(join(__dirname, "..", "public", "locales", "de.json"), "utf8")) as Record<string, string>
 
@@ -53,5 +55,19 @@ describe("weekHeadline in another language", () => {
     test("German builds the same sentence from the same data", () => {
         setLocale("de")
         expect(weekHeadline(report)).toBe("Sieg gegen Nemesis 2–1 und 2 Plätze hoch auf #14.")
+    })
+})
+
+describe("moments and Continue stops", () => {
+    test("rival lists follow the language's list style", () => {
+        expect(rivalLine(["A", "B", "C"], 5)).toBe("A, B, C and 2 other clubs")
+        setLocale("de")
+        expect(rivalLine(["A", "B", "C"], 5)).toBe("A, B, C und 2 weiteren Vereinen")
+    })
+    test("a stored division name in a moment headline is shown in the active language", () => {
+        const m = { kind: "promotion", key: "k", week: 10, scope: "division", season: 1, fromLabel: "Europe Division 3", toLabel: "Europe Division 2" } as const
+        expect(momentHeadline(m as never)).toBe("Promoted to Europe Division 2")
+        setLocale("de")
+        expect(momentHeadline(m as never)).not.toContain("Promoted")
     })
 })

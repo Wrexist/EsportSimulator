@@ -13,11 +13,14 @@ import { fireConfetti } from "@/lib/confetti-lazy"
 import { useAppReducedMotion } from "@/lib/reduced-motion"
 import { formatCurrency } from "@/lib/utils-extended"
 import { cn } from "@/lib/utils"
+import { intlLocale, t, tn } from "@/lib/i18n"
+import { divisionName, stageName } from "@/lib/display-names"
 import { AnimatedNumber } from "@/components/ui/animated-number"
 import { TierTag } from "@/src/components/ui/TierTag"
 import { colors, tokens } from "@/src/design/tokens"
 import { MomentFacts, MomentFrame, MomentOverline, MomentRule, useReveal, type MomentFact } from "./MomentFrame"
 import { ShareMajorToDiscord } from "./ShareMajorToDiscord"
+import { Trans } from "@/lib/trans"
 
 const EASE = [...tokens.motion.easeOutExpo] as [number, number, number, number]
 // Trophy gold, white and win green: the v2 celebration palette (tokens).
@@ -78,14 +81,14 @@ export function TitleMomentView({ moment, onDismiss }: { moment: TitleMoment; on
     // The prize actually booked for this title, once the week tick has paid it.
     const booked = financeLedger.find(e => e.teamId === playerTeamId && e.type === "INCOME" && e.category === "PRIZE" && e.id.startsWith(`prize_${moment.tournamentId}_`))
     const prize = booked?.amount ?? moment.prize
-    const prizeLabel = booked || !moment.prizeIsPool ? "Prize money" : "Prize pool"
-    const prizeHint = booked || moment.prizeBooked ? "Paid to your club" : moment.prizeIsPool ? "Your share is paid when the week ends" : "Paid when the week ends"
+    const prizeLabel = booked || !moment.prizeIsPool ? t("mo.prizeMoney") : t("mo.prizePool")
+    const prizeHint = booked || moment.prizeBooked ? t("mo.paid") : moment.prizeIsPool ? t("mo.sharePaidWeekEnd") : t("mo.paidWeekEnd")
 
     const facts: MomentFact[] = []
-    if (draftCupScore != null) facts.push({ label: "Run score", value: <AnimatedNumber value={draftCupScore} animateOnMount duration={1400} format={n => String(Math.round(n))} />, hint: "The breakdown comes next" })
+    if (draftCupScore != null) facts.push({ label: t("mo.runScore"), value: <AnimatedNumber value={draftCupScore} animateOnMount duration={1400} format={n => String(Math.round(n))} />, hint: t("mo.breakdownNext") })
     else if (prize > 0) facts.push({ label: prizeLabel, value: <AnimatedNumber value={prize} animateOnMount duration={1400} format={money} />, hint: prizeHint })
-    if (moment.repGain > 0 && draftCupScore == null) facts.push({ label: "Reputation", value: `+${moment.repGain}`, hint: moment.prizeBooked ? "Added" : "Added when the week ends" })
-    if (moment.fanGain && draftCupScore == null) facts.push({ label: "New followers", value: `+${moment.fanGain.toLocaleString("en-US")}` })
+    if (moment.repGain > 0 && draftCupScore == null) facts.push({ label: t("mo.reputation"), value: `+${moment.repGain}`, hint: moment.prizeBooked ? t("mo.added") : t("mo.addedWeekEnd") })
+    if (moment.fanGain && draftCupScore == null) facts.push({ label: t("mo.newFollowers"), value: `+${moment.fanGain.toLocaleString(intlLocale())}` })
 
     const headlineId = `moment-title-${moment.key}`
     // S-tier titles get the full-scale moment; only a Major is called one.
@@ -94,7 +97,7 @@ export function TitleMomentView({ moment, onDismiss }: { moment: TitleMoment; on
         <MomentFrame momentKey={moment.key} labelledBy={headlineId} sound={moment.major ? "titleWinMajor" : "titleWin"} onDismiss={onDismiss}>
             <TrophyArt kind={trophyKindForTournament(moment.tier, { major: isMajor })} size={scale} />
             <motion.div {...reveal(0.35)} className="mt-8 flex items-center gap-3">
-                <MomentOverline>{isMajor ? "Major champions" : "Champions"}</MomentOverline>
+                <MomentOverline>{isMajor ? t("mo.majorChampions") : t("mo.champions")}</MomentOverline>
                 <TierTag tier={moment.tier} />
             </motion.div>
             <motion.h2
@@ -106,9 +109,14 @@ export function TitleMomentView({ moment, onDismiss }: { moment: TitleMoment; on
             </motion.h2>
             {moment.finalOpponentName && moment.finalScore && (
                 <motion.p {...reveal(0.6)} className="mt-4 text-lg text-ink-2">
-                    Beat <span className="font-semibold text-ink-1">{moment.finalOpponentName}</span>{" "}
-                    <span className="font-display text-xl font-bold tabular-nums text-ink-1">{moment.finalScore.replace("-", "–")}</span>
-                    {moment.finalStage ? <> in the {moment.finalStage.toLowerCase()}</> : null}
+                    <Trans
+                        k={moment.finalStage ? "mo.beatIn" : "mo.beat"}
+                        params={{ team: moment.finalOpponentName, score: moment.finalScore.replace("-", "–"), stage: moment.finalStage ? stageName(moment.finalStage) : "" }}
+                        tags={{
+                            team: (text) => <span className="font-semibold text-ink-1">{text}</span>,
+                            score: (text) => <span className="font-display text-xl font-bold tabular-nums text-ink-1">{text}</span>,
+                        }}
+                    />
                 </motion.p>
             )}
             <MomentRule className="mt-8" delay={0.55} />
@@ -139,23 +147,23 @@ export function LeagueTitleMomentView({ moment, onDismiss }: { moment: LeagueTit
     const reveal = useReveal()
     useTitleConfetti(moment.key, "minor")
     const facts: MomentFact[] = [
-        { label: "Record", value: `${moment.wins}–${moment.losses}`, hint: `${moment.points} points` },
+        { label: t("mo.record"), value: `${moment.wins}–${moment.losses}`, hint: tn("league.points", moment.points) },
     ]
-    if (moment.prize > 0) facts.push({ label: "Prize money", value: <AnimatedNumber value={moment.prize} animateOnMount duration={1200} format={money} />, hint: "Paid to your club" })
-    if (moment.repGain > 0) facts.push({ label: "Reputation", value: `+${moment.repGain}` })
+    if (moment.prize > 0) facts.push({ label: t("mo.prizeMoney"), value: <AnimatedNumber value={moment.prize} animateOnMount duration={1200} format={money} />, hint: t("mo.paid") })
+    if (moment.repGain > 0) facts.push({ label: t("mo.reputation"), value: `+${moment.repGain}` })
     const headlineId = `moment-league-${moment.key}`
     return (
         <MomentFrame momentKey={moment.key} labelledBy={headlineId} sound="titleWin" onDismiss={onDismiss}>
             <TrophyArt kind="league" size="minor" />
             <motion.div {...reveal(0.35)} className="mt-8">
-                <MomentOverline>Division champions</MomentOverline>
+                <MomentOverline>{t("mo.divisionChampions")}</MomentOverline>
             </motion.div>
             <motion.h2 {...reveal(0.45, 22)} id={headlineId} className="mt-3 font-display text-[clamp(52px,6.5vw,96px)] font-extrabold uppercase leading-[0.86] text-ink-1">
-                {moment.divisionName}
+                {divisionName(moment.divisionName)}
             </motion.h2>
             <motion.p {...reveal(0.6)} className="mt-4 text-lg text-ink-2">
-                Season {moment.season} · Split {moment.split}
-                {moment.trophy && <> · <span className="font-semibold text-gold">Added to your trophy cabinet</span></>}
+                {t("mo.seasonSplit", { season: moment.season, split: moment.split })}
+                {moment.trophy && <> · <span className="font-semibold text-gold">{t("mo.addedToCabinet")}</span></>}
             </motion.p>
             <MomentRule className="mt-8" delay={0.55} />
             <motion.div {...reveal(0.75)} className="mt-8 w-full max-w-3xl">

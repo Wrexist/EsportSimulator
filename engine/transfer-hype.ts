@@ -21,6 +21,7 @@ import type { PlayerSaveData, TeamSaveData } from "./save-types"
 import { evaluatePlayer } from "./player-evaluation"
 import { deriveSeed, SeededRNG } from "./rng"
 import { SENIOR_ROSTER_MAX } from "./roster-rules"
+import { listJoin, tn } from "@/lib/i18n"
 
 export type MarketStanding = "ICON" | "STAR" | "WONDERKID"
 
@@ -155,7 +156,7 @@ export function rivalLine(names: string[], total: number): string {
     if (names.length === 0) return ""
     const extra = Math.max(0, total - names.length)
     const shown = [...names]
-    if (extra > 0) shown.push(`${extra} other club${extra === 1 ? "" : "s"}`)
+    if (extra > 0) shown.push(tn("mo.otherClubs", extra))
     if (shown.length === 1) return shown[0]
-    return `${shown.slice(0, -1).join(", ")} and ${shown[shown.length - 1]}`
+    return listJoin(shown)
 }

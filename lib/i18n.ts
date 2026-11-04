@@ -45,6 +45,13 @@ export function intlLocale(): string {
     return currentLocale === "en" ? "en-US" : currentLocale
 }
 
+/** "A, B and C" in the active language (English keeps the game's no-serial-comma style). */
+export function listJoin(items: readonly string[]): string {
+    if (items.length <= 1) return items[0] ?? ""
+    if (currentLocale === "en") return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`
+    return new Intl.ListFormat(intlLocale(), { type: "conjunction" }).format(items)
+}
+
 /** "1st", "1.", "1er", "1-е": a position in a table, in the active language. */
 export function ordinalLabel(n: number): string {
     switch (currentLocale) {

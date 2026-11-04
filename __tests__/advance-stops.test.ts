@@ -44,7 +44,7 @@ test("an unplayable fixture warns before it is forfeited", () => {
     save.scheduledMatches = [{ id: "m1", homeTeamId: save.playerTeamId, awayTeamId: "team_ai_1", week: 5, format: "BO1", tournamentId: null, seed: 1 } as never]
     const stops = collectStopSignals(src(save))
     expect(stops.map(s => s.kind)).toEqual(["forfeit"])
-    expect(stops[0].reason).toMatch(/^Your match vs AI Team 1 will be forfeited: your roster has 4 active players/)
+    expect(stops[0].reason).toMatch(/^Match against AI Team 1: Your roster has 4 active players/)
 })
 
 test("an injured player stops with name, injury and time out", () => {
