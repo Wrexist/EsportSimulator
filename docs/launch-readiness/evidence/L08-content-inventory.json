@@ -91529,8 +91529,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "4763f220837a8787ee839a8b0b6e5c7b35fbfc2a3dd5e0d67e81440af42a1237",
-      "bytes": 367983,
+      "sha256": "8ad80750ee7d736531854c70914d95dcf266789cfcbe131c595a7688c4f019c6",
+      "bytes": 369437,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91710,13 +91710,18 @@
           "date": "2026-11-04",
           "previousSha256": "cbc1f1adad0fa8e682034f6442184c6900d4076772c56add7974a50f8745ed81",
           "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "4763f220837a8787ee839a8b0b6e5c7b35fbfc2a3dd5e0d67e81440af42a1237",
+          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "9a518a1e4e39e622139a6502f82f0e68e1cda3a334a3060b866b9d74fbeefe84",
-      "bytes": 386921,
+      "sha256": "69e699646e10cca2fb2ba8a04655dc39f81bcb1efb60fa4e2d7ecef23395b0d2",
+      "bytes": 388334,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91891,13 +91896,18 @@
           "date": "2026-11-04",
           "previousSha256": "314f4ee633f77e8d3ce817e2225e36bc37742d7eb42fdf087755fdc5cdc93713",
           "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "9a518a1e4e39e622139a6502f82f0e68e1cda3a334a3060b866b9d74fbeefe84",
+          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "0132470309f44fc298e033c4e9b9bc2b793ac87bf58bc00cc24356295f52fefa",
-      "bytes": 394381,
+      "sha256": "3ab7cfb3c9e9c4a1b25b77e87a1d86ffc13e04a65190634fd9e5ebcb4c55e8fc",
+      "bytes": 395886,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92072,13 +92082,18 @@
           "date": "2026-11-04",
           "previousSha256": "b93e364848e404dc928118dbd7308c4be3ba9788151f17c26adb6412fa8c4dcd",
           "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "0132470309f44fc298e033c4e9b9bc2b793ac87bf58bc00cc24356295f52fefa",
+          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "f54501d469437dae6648ae8e26917ca75098b8b8cd5db1812fcc35370020961b",
-      "bytes": 392331,
+      "sha256": "aceff65af0c1a8d195213270326abaca9575a2408792bd23662f48111cd3b892",
+      "bytes": 393744,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92248,13 +92263,18 @@
           "date": "2026-11-04",
           "previousSha256": "838bafa898df156919b5002840d553ea2bf0e0bd395546549ecdacb31c4b4d88",
           "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "f54501d469437dae6648ae8e26917ca75098b8b8cd5db1812fcc35370020961b",
+          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "91f907ccf9e44a1dd26ddb6741732c943078a512782541b18ab28a34155c9515",
-      "bytes": 381333,
+      "sha256": "4996fecad568bc14b23b256b25915b4750f14b44a845a1fe98619abf0107161a",
+      "bytes": 382741,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92424,13 +92444,18 @@
           "date": "2026-11-04",
           "previousSha256": "7f326e0b3b5fe27a0cf2668f790c5c846b82e52cb83c0bd9fb9a006fb841c993",
           "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "91f907ccf9e44a1dd26ddb6741732c943078a512782541b18ab28a34155c9515",
+          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "452f05434b5acc6c3d3f1fe26b07fa17a12eaba0a81d9d64f75db14f5cee973a",
-      "bytes": 534499,
+      "sha256": "b7bb3bc3ff83e83999ed026f999ace90e5446845af3d44cc33d3b14f5aeb3e9d",
+      "bytes": 536619,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92600,6 +92625,11 @@
           "date": "2026-11-04",
           "previousSha256": "8cda995b54e5d63f2ce6062ae68b3fd0ac0c271996ad74730d57b1f6286c9b4f",
           "change": "Interface languages, Random club events: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "452f05434b5acc6c3d3f1fe26b07fa17a12eaba0a81d9d64f75db14f5cee973a",
+          "change": "Interface languages, Draft Cup welcome and career decisions: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },

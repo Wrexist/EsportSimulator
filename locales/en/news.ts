@@ -166,6 +166,24 @@ export const NEWS = {
     "rnd.gear.t": "{{brand}} equipment deal",
     "rnd.gear.m": "{{brand}} is offering your team a {{discount}}% discount on new peripherals. Accepting lifts the squad's morale.",
 
+    // Draft Cup welcome (engine/draft-cup-setup.ts)
+    "dcw.t": "{{club}} are in the Draft Cup",
+    "dcw.m": "You drafted {{roster}} for {{spent}} of {{budget}} draft points.\n\nThe cup is eight teams, single elimination: a best-of-three quarter-final this week, a best-of-three semi-final next week and a best-of-five grand final the week after. One loss ends the run.\n\nYour opponents ({{difficulty}}): {{opponents}}.\n\nBetween matches you can train, set the playbook and prepare for the next opponent. The run score counts how far you go, maps won, round difference, the difficulty and draft points left unspent.",
+
+    // Small career decisions (engine/career-decisions.ts)
+    "cdec.support.t": "{{name}} needs support",
+    "cdec.support.m": "{{name}}'s confidence is low. Choose a focused support session or a private conversation.",
+    "cdec.tired.t": "{{name}} is running on empty",
+    "cdec.tired.m": "Heavy fatigue is affecting {{name}}'s readiness. Extra recovery reduces fatigue now; a conversation only helps morale.",
+    "cdec.momentum.t": "{{club}} have momentum",
+    "cdec.momentum.m": "Three straight wins give the squad a chance to build trust.",
+    "cdec.c.support": "Support session",
+    "cdec.c.private": "Private conversation",
+    "cdec.c.recovery": "Recovery session",
+    "cdec.c.checkIn": "Check in",
+    "cdec.c.team": "Team session",
+    "cdec.c.praise": "Praise the captain",
+
     // Legend visits and coaching offers (engine/legend-events-manager.ts)
     "leg.mentor.t": "{{legend}} mentors {{club}}",
     "leg.mentor.m": "{{legend}} visited {{club}} for a mentorship session! {{name}} gained valuable experience.",

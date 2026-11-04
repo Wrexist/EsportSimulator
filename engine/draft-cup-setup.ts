@@ -9,10 +9,12 @@
  */
 
 import { TournamentManager } from "./tournament-manager"
+import { eventText } from "@/lib/news-ref"
+import { LIST_REF } from "@/lib/i18n"
 import { SeededRNG } from "./rng"
 import { SynergyCalculator } from "./synergy-calculator"
 import { DRAFT_CUP_TEAM_PREFIX } from "./world-ranking"
-import { clubStrength, DRAFT_CUP_DIFFICULTY, draftComplete, draftSpent, type DraftCupDifficulty, type DraftCupState, type DraftPick, type DraftRole } from "./draft-cup"
+import { clubStrength, draftComplete, draftSpent, type DraftCupDifficulty, type DraftCupState, type DraftPick, type DraftRole } from "./draft-cup"
 import type { GameSave, TeamSaveData, TournamentSaveData } from "./save-types"
 
 export interface DraftCupSetup {
@@ -202,11 +204,15 @@ export function setupDraftCup(save: GameSave, setup: DraftCupSetup): string {
         week,
         acknowledged: false,
         data: {
-            title: `${team.name} are in the Draft Cup`,
-            message: `You drafted ${roster.map(p => p.nickname).join(", ")} for ${spent} of ${setup.budget} draft points.\n\n` +
-                `The cup is eight teams, single elimination: a best-of-three quarter-final this week, a best-of-three semi-final next week and a best-of-five grand final the week after. One loss ends the run.\n\n` +
-                `Your opponents (${DRAFT_CUP_DIFFICULTY[setup.difficulty].label}): ${opponentNames.join(", ")}.\n\n` +
-                `Between matches you can train, set the playbook and prepare for the next opponent. The run score counts how far you go, maps won, round difference, the difficulty and draft points left unspent.`,
+            ...eventText({ key: "dcw.t", params: { club: team.name } }, {
+                key: "dcw.m",
+                params: {
+                    roster: { key: LIST_REF, params: Object.fromEntries(roster.map((p, i) => [i, p.nickname])) },
+                    spent, budget: setup.budget,
+                    difficulty: { key: `dc.diff.${setup.difficulty}` },
+                    opponents: { key: LIST_REF, params: Object.fromEntries(opponentNames.map((n, i) => [i, n])) },
+                },
+            }),
             severity: "success",
         },
     })
