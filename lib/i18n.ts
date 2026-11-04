@@ -179,6 +179,26 @@ export function tRefEn(ref: TextRef): string {
 }
 
 /**
+ * Short-lived messages (store results, toasts) stay plain English strings so
+ * callers and tests keep working. `liveText` returns that English and
+ * remembers its TextRef, so the screen that shows it can call storedText()
+ * and get the active language. Bounded: only recent messages are needed.
+ */
+const LIVE_TEXT = new Map<string, TextRef>()
+const LIVE_TEXT_MAX = 200
+export function liveText(ref: TextRef): string {
+    const english = tRefEn(ref)
+    LIVE_TEXT.delete(english)
+    LIVE_TEXT.set(english, ref)
+    if (LIVE_TEXT.size > LIVE_TEXT_MAX) LIVE_TEXT.delete(LIVE_TEXT.keys().next().value as string)
+    return english
+}
+/** The TextRef a recent `liveText` message came from, if any. */
+export function liveTextRef(english: string): TextRef | undefined {
+    return LIVE_TEXT.get(english)
+}
+
+/**
  * Register a new locale with translations
  * Call this to add support for a new language
  */

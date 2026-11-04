@@ -18,6 +18,7 @@ import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { soundManager } from "@/lib/sound-manager"
 import { ActiveDealsTable, OffersTable, TierTag, tierLabel, type OfferRowState } from "@/components/sponsorships/SponsorTables"
+import { storedText } from "@/lib/stored-text"
 
 const MAX_SPONSORS = 3
 const RESIGN_COOLDOWN_WEEKS = 16 // engine/processors/sponsor-goals-processor.ts
@@ -101,7 +102,7 @@ export default function SponsorshipsPage() {
     const result = signSponsor(team.id, { ...offer, signedWeek: currentWeek || 1 })
     if (result.success) soundManager.play("money")
     if (result.success) toast.success(t("sp.signed", { name: offer.name }), { description: t("sp.signedBody", { weeks: offer.remainingWeeks, amount: money(offer.weeklyPayout) }) })
-    else toast.error(t("sp.couldNotSign"), { description: result.message })
+    else toast.error(t("sp.couldNotSign"), { description: storedText(result.message) })
   }
   const handleDecline = (offerId: string) => {
     declineSponsorOffer(offerId)

@@ -10,6 +10,7 @@ import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { ScheduleDialog } from "./ScheduleDialog"
+import { storedText } from "@/lib/stored-text"
 
 interface BookMarketingModalProps {
     isOpen: boolean
@@ -88,7 +89,7 @@ export function BookMarketingModal({ isOpen, onClose, week }: BookMarketingModal
             })
             onClose()
         } else {
-            toast.error(result.message)
+            toast.error(storedText(result.message))
         }
     }
 

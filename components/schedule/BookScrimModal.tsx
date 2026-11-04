@@ -15,6 +15,7 @@ import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
 import { ScheduleDialog } from "./ScheduleDialog"
+import { storedText } from "@/lib/stored-text"
 
 interface BookScrimModalProps {
     isOpen: boolean
@@ -96,7 +97,7 @@ export function BookScrimModal({ isOpen, onClose, week, initialDay = 0 }: BookSc
             toast.success(t("sch.scrim.booked", { team: opponent?.name || t("sx.col.opponent") }))
             onClose()
         } else {
-            setError(result.message)
+            setError(storedText(result.message))
         }
     }
 

@@ -14,7 +14,7 @@
  */
 
 import { EN } from "@/locales/en"
-import { getLocale, ordinalLabel, setStoredTextResolver, t, tn } from "@/lib/i18n"
+import { getLocale, liveTextRef, ordinalLabel, setStoredTextResolver, t, tn, tRef } from "@/lib/i18n"
 import { divisionName, stageName } from "@/lib/display-names"
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string]
@@ -155,6 +155,8 @@ function segment(s: string): string {
 export function storedText(s: string | null | undefined): string {
     if (!s) return s ?? ""
     if (getLocale() === "en") return s
+    const live = liveTextRef(s)
+    if (live) return tRef(live)
     return s.split(" · ").map(segment).join(" · ")
 }
 

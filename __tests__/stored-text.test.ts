@@ -5,7 +5,7 @@
  */
 import { readFileSync } from "fs"
 import { join } from "path"
-import { JOIN_REF, LIST_REF, NUMBER_REF, ORDINAL_REF, STORED_REF, registerLocale, setLocale, tRef, tRefEn } from "@/lib/i18n"
+import { JOIN_REF, LIST_REF, NUMBER_REF, ORDINAL_REF, STORED_REF, liveText, registerLocale, setLocale, tRef, tRefEn } from "@/lib/i18n"
 import { pressText } from "@/engine/storylines/press-view"
 import { lineText, newsContent, newsTitle } from "@/lib/news-text"
 import { divisionRef, newsText } from "@/lib/news-ref"
@@ -133,5 +133,13 @@ describe("news feed", () => {
         expect(storedText("Season 3 board review: expectations met")).toBe("Vorstandsbilanz Saison 3: Erwartungen erfüllt")
         expect(storedText("Results: 2 won, 1 lost")).toBe("Ergebnisse: 2 gewonnen, 1 verloren")
         expect(storedText("Finish the season ranked #12 or better")).toBe("Die Saison auf Weltrang #12 oder besser beenden")
+    })
+
+    it("action results and live messages follow the language", () => {
+        expect(liveText({ key: "evn.talent.m", params: { name: "Ace", talent: "Clutch" } })).toBe("Ace unlocked Clutch.")
+        setLocale("de")
+        expect(storedText("Team not found")).toBe(de["svd.msg.noTeamFound"])
+        expect(storedText("Ace unlocked Clutch.")).toBe("Ace hat Clutch freigeschaltet.")
+        expect(storedText("Quarter-final 2")).toBe(tRef({ key: "stage.quarterN", params: { n: 2 } }))
     })
 })
