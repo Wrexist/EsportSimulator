@@ -19,6 +19,7 @@ import { Meter } from "@/src/components/ui/Meter"
 import { cn } from "@/lib/utils"
 import { LEGACY_GOALS } from "@/engine/legacy-goals"
 import { t, tn } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 import { Trans } from "@/lib/trans"
 
 const LEGACY_REP_MIN = Math.min(...LEGACY_GOALS.flatMap(g => g.reputation))
@@ -26,7 +27,7 @@ const LEGACY_REP_MAX = Math.max(...LEGACY_GOALS.flatMap(g => g.reputation))
 
 const endedLabel = (ended: StintEnd) => t(`car.ended.${ended}`)
 const signed = (n: number) => `${n > 0 ? "+" : ""}${n}`
-const weekLabel = (week: number) => `S${Math.ceil(week / 52)} W${((week - 1) % 52) + 1}`
+const weekLabel = (week: number) => t("common.seasonWeekShort", { s: Math.ceil(week / 52), w: ((week - 1) % 52) + 1 })
 
 /** Titles won in a stint: counted as they happen; for a stint tracked late, the club's trophies in the window. */
 export function stintTitles(stint: ManagerStint, team: TeamSaveData | undefined): { titles: number; majors: number } {
@@ -67,7 +68,7 @@ export function ReputationPanel() {
                     {recent.map((c, i) => (
                         <li key={`${c.week}-${i}`} className="flex items-center gap-3 px-3 py-2 text-sm">
                             <span className="w-16 shrink-0 tabular-nums text-ink-3">{weekLabel(c.week)}</span>
-                            <span className="min-w-0 flex-1 truncate text-ink-2" title={c.cause}>{c.cause}</span>
+                            <span className="min-w-0 flex-1 truncate text-ink-2" title={storedText(c.cause)}>{storedText(c.cause)}</span>
                             <span className={cn("shrink-0 font-semibold tabular-nums", c.delta > 0 ? "text-positive" : "text-negative")}>{signed(c.delta)}</span>
                         </li>
                     ))}

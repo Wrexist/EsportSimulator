@@ -13,6 +13,7 @@
  * Extracted from store/game-store.ts. Mutates `save` in place.
  */
 
+import { eventText } from "@/lib/news-ref"
 import type { GameSave } from "../save-types"
 import { FULL_TOURNAMENT_CALENDAR, type TournamentDefinition } from "@/data/tournament-calendar"
 import { REGISTRATION_TUNING } from "@/lib/balance-tuning"
@@ -147,10 +148,9 @@ export function applyAutoRegistration(save: GameSave, ctx: AutoRegistrationConte
                 acknowledged: false,
                 data: {
                     tournamentId: t.id,
-                    title: "Auto-Registration",
-                    message: isOpen
-                        ? `Team automatically entered the open event ${t.name} (open entry, eligible squad).`
-                        : `Team automatically registered for ${t.name} (Eligible via ${tournamentDef.entryType})`,
+                    ...eventText({ key: "evn.autoReg.t" }, isOpen
+                        ? { key: "evn.autoReg.open", params: { event: t.name } }
+                        : { key: "evn.autoReg.m", params: { event: t.name, entry: { key: `tm.entry.${tournamentDef.entryType}` } } }),
                     severity: "success",
                 },
             })

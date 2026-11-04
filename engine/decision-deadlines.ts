@@ -21,6 +21,7 @@
 import type { GameEventSaveData, GameSave } from "./save-types"
 import { applyChoiceEffects, type ChoiceEffects, type ChoiceTarget } from "./event-choice"
 import { isPendingDecisionEvent, isTransferRumor } from "@/lib/event-format"
+import { isTextRef, STORED_REF, type TextRef } from "@/lib/i18n"
 
 export interface DecisionRule {
     /** Dedup and cooldown key, together with the subject. */
@@ -35,6 +36,10 @@ export interface DecisionRule {
     defaultChoiceId: string | null
     /** Completes "If you don't answer by Week N, the club …" ({name} = the player). */
     consequence: string
+    /** The same consequence as a translation key (shown in the active language); `name` is filled in. */
+    consequenceRef?: TextRef
+    /** The player's own decision (pro career): "If you don't answer by Week N, you …". */
+    you?: boolean
     /** Bids and job offers are per club; they never merge. */
     dedupe?: boolean
     /**
@@ -53,7 +58,9 @@ type EventLike = GameEventSaveData
 type AnyData = Record<string, any>
 const dataOf = (e: EventLike): AnyData => (e.data ?? {}) as AnyData
 
-const rule = (r: DecisionRule): DecisionRule => r
+/** Each family states its consequence under `dl.c.<family>` (locales/en/deadlines.ts). */
+const rule = (r: DecisionRule): DecisionRule => ({ consequenceRef: { key: `dl.c.${r.family}` }, ...r })
+const LAPSE: TextRef = { key: "dl.c.lapse" }
 
 /**
  * Known decision families, matched by id prefix (ids are stable across saves).
@@ -69,8 +76,8 @@ const PREFIX_RULES: Array<[prefix: string, rule: DecisionRule]> = [
     ["birthday_", rule({ family: "birthday", label: "Birthday", window: 1, cooldown: 0, defaultChoiceId: "wish", consequence: "sends {name} its best wishes", deferrable: true })],
     ["fatigue_", rule({ family: "burnout", label: "Burnout warning", window: 1, cooldown: 4, defaultChoiceId: "push", consequence: "keeps {name} on the full training load", deferrable: true })],
     // C5 (engine/workload.ts): never held back, since the risk is this week's.
-    ["pro_offer_", rule({ family: "pro_offer", label: "Club offer", window: 2, cooldown: 0, defaultChoiceId: "stay", consequence: "stays at the current club" })],
-    ["pro_retire_", rule({ family: "pro_retire", label: "Retirement", window: 2, cooldown: 0, defaultChoiceId: "play_on", consequence: "plays another season" })],
+    ["pro_offer_", rule({ family: "pro_offer", label: "Club offer", window: 2, cooldown: 0, defaultChoiceId: "stay", consequence: "stay at your current club", you: true })],
+    ["pro_retire_", rule({ family: "pro_retire", label: "Retirement", window: 2, cooldown: 0, defaultChoiceId: "play_on", consequence: "play another season", you: true })],
     ["workload_", rule({ family: "workload", label: "Workload warning", window: 0, cooldown: 3, defaultChoiceId: "play", consequence: "plays {name} at the stated injury risk" })],
     ["knock_", rule({ family: "knock", label: "Minor knock", window: 0, cooldown: 0, defaultChoiceId: "rest", consequence: "rests {name} for the stated weeks" })],
     ["streak_win_", rule({ family: "win_streak", label: "Win streak", window: 1, cooldown: 0, defaultChoiceId: "focus", consequence: "tells the squad to stay focused", deferrable: true })],
@@ -90,7 +97,7 @@ const PREFIX_RULES: Array<[prefix: string, rule: DecisionRule]> = [
  */
 function storyRule(e: EventLike): DecisionRule {
     const data = dataOf(e)
-    const d = (data.storyDefault ?? {}) as { choiceId?: unknown; consequence?: unknown; label?: unknown }
+    const d = (data.storyDefault ?? {}) as { choiceId?: unknown; consequence?: unknown; consequenceRef?: unknown; label?: unknown }
     return {
         family: `story:${String(data.storyArcId ?? e.id)}`,
         label: typeof d.label === "string" ? d.label : typeof data.title === "string" ? data.title : "Storyline decision",
@@ -98,20 +105,21 @@ function storyRule(e: EventLike): DecisionRule {
         cooldown: 0,
         defaultChoiceId: typeof d.choiceId === "string" ? d.choiceId : null,
         consequence: typeof d.consequence === "string" ? d.consequence : "lets it lapse",
+        consequenceRef: isTextRef(d.consequenceRef) ? d.consequenceRef : typeof d.consequence === "string" ? undefined : LAPSE,
     }
 }
 
 /** Situation decisions (engine/career-decisions.ts) keep their two-week window and eight-week spacing. */
 const CAREER_RULES: Record<string, DecisionRule> = {
-    confidence: { family: "squad_decision", label: "Player support", window: 2, cooldown: 0, defaultChoiceId: "talk", consequence: "holds a private conversation with {name}" },
-    recovery: { family: "squad_decision", label: "Player recovery", window: 2, cooldown: 0, defaultChoiceId: "talk", consequence: "settles for a check-in with {name}" },
-    momentum: { family: "squad_decision", label: "Squad momentum", window: 2, cooldown: 0, defaultChoiceId: "praise", consequence: "praises the captain" },
+    confidence: { family: "squad_decision", label: "Player support", window: 2, cooldown: 0, defaultChoiceId: "talk", consequence: "holds a private conversation with {name}", consequenceRef: { key: "dl.c.talk" } },
+    recovery: { family: "squad_decision", label: "Player recovery", window: 2, cooldown: 0, defaultChoiceId: "talk", consequence: "settles for a check-in with {name}", consequenceRef: { key: "dl.c.checkIn" } },
+    momentum: { family: "squad_decision", label: "Squad momentum", window: 2, cooldown: 0, defaultChoiceId: "praise", consequence: "praises the captain", consequenceRef: { key: "dl.c.praise" } },
 }
 
-const JOB_OFFER_RULE: DecisionRule = { family: "job_offer", label: "Job offer", window: 1, cooldown: 0, defaultChoiceId: null, consequence: "lets the offer lapse", dedupe: false }
-const BID_RULE: DecisionRule = { family: "transfer_bid", label: "Transfer bid", window: 1, cooldown: 0, defaultChoiceId: null, consequence: "lets the bid lapse", dedupe: false }
+const JOB_OFFER_RULE: DecisionRule = { family: "job_offer", label: "Job offer", window: 1, cooldown: 0, defaultChoiceId: null, consequence: "lets the offer lapse", consequenceRef: { key: "dl.c.offerLapse" }, dedupe: false }
+const BID_RULE: DecisionRule = { family: "transfer_bid", label: "Transfer bid", window: 1, cooldown: 0, defaultChoiceId: null, consequence: "lets the bid lapse", consequenceRef: { key: "dl.c.bidLapse" }, dedupe: false }
 /** Pre-4.9 contract talks ("Discuss renewal"): no longer created; old ones lapse. */
-const LEGACY_CONTRACT_RULE: DecisionRule = { family: "contract_talk", label: "Contract talk", window: 1, cooldown: 0, defaultChoiceId: null, consequence: "drops the request" }
+const LEGACY_CONTRACT_RULE: DecisionRule = { family: "contract_talk", label: "Contract talk", window: 1, cooldown: 0, defaultChoiceId: null, consequence: "drops the request", consequenceRef: { key: "dl.c.dropRequest" } }
 
 function fallbackRule(e: EventLike): DecisionRule {
     // Unknown decision: two weeks, and the first answer that costs nothing
@@ -121,13 +129,16 @@ function fallbackRule(e: EventLike): DecisionRule {
     const free = choices.find(c => !(typeof c.effects?.money === "number" && c.effects.money < 0))
     const pick = harmless ?? free ?? null
     const title = typeof dataOf(e).title === "string" ? String(dataOf(e).title) : "Decision"
+    const text = pick ? pick.text.replace(/\s*\([^()]*\)\s*$/, "") : ""
+    const pickRef = (pick as { ref?: unknown } | null)?.ref
     return {
         family: `other:${e.type}`,
         label: title,
         window: 2,
         cooldown: 0,
         defaultChoiceId: pick?.id ?? null,
-        consequence: pick ? `goes with “${pick.text.replace(/\s*\([^()]*\)\s*$/, "")}”` : "lets it lapse",
+        consequence: pick ? `goes with “${text}”` : "lets it lapse",
+        consequenceRef: pick ? { key: "dl.c.goesWith", params: { choice: isTextRef(pickRef) ? pickRef : { key: STORED_REF, params: { text } } } } : LAPSE,
     }
 }
 
@@ -187,7 +198,14 @@ function playerName(e: EventLike, save: NameSource): string | null {
 
 /** "If you don't answer by Week 9, the club skips the meetup …". */
 export function unansweredNote(r: DecisionRule, deadline: number, name: string | null): string {
-    return `If you don't answer by Week ${deadline}, the club ${r.consequence.replace("{name}", name ?? "the player")}.`
+    return `If you don't answer by Week ${deadline}, ${r.you ? "you" : "the club"} ${r.consequence.replace("{name}", name ?? "the player")}.`
+}
+
+/** The same note as a translation key, so it shows in the active language. */
+export function unansweredNoteRef(r: DecisionRule, deadline: number, name: string | null): TextRef | undefined {
+    if (!r.consequenceRef) return undefined
+    const consequence: TextRef = { ...r.consequenceRef, params: { ...r.consequenceRef.params, name: name ?? { key: "dl.thePlayer" } } }
+    return { key: r.you ? "dl.noteYou" : "dl.note", params: { week: deadline, consequence } }
 }
 
 /** Report label for an unanswered decision: "Unhappy player (ace)". */
@@ -263,7 +281,7 @@ export function normalizeDecisions(save: DecisionSave, opts: { arrivals?: boolea
                 const kept = dataOf(keep)
                 const preserved = {
                     deadlineWeek: kept.deadlineWeek, defaultChoiceId: kept.defaultChoiceId,
-                    ifUnanswered: kept.ifUnanswered, continueStopped: kept.continueStopped,
+                    ifUnanswered: kept.ifUnanswered, ifUnansweredRef: kept.ifUnansweredRef, continueStopped: kept.continueStopped,
                 }
                 keep.data = { ...data, ...Object.fromEntries(Object.entries(preserved).filter(([, v]) => v !== undefined)), refreshedWeek: e.week }
                 if (e.choices) keep.choices = e.choices
@@ -287,7 +305,11 @@ export function normalizeDecisions(save: DecisionSave, opts: { arrivals?: boolea
             }
             const defaultChoiceId = r.defaultChoiceId && e.choices?.some(c => c.id === r.defaultChoiceId) ? r.defaultChoiceId : null
             data.defaultChoiceId = defaultChoiceId
-            data.ifUnanswered = unansweredNote(defaultChoiceId || !r.defaultChoiceId ? r : { ...r, consequence: "lets it lapse" }, deadline, playerName(e, save))
+            const stated = defaultChoiceId || !r.defaultChoiceId ? r : { ...r, consequence: "lets it lapse", consequenceRef: LAPSE }
+            const name = playerName(e, save)
+            data.ifUnanswered = unansweredNote(stated, deadline, name)
+            const noteRef = unansweredNoteRef(stated, deadline, name)
+            if (noteRef) data.ifUnansweredRef = noteRef
             if (!e.data) e.data = data
             result.assigned++
         }

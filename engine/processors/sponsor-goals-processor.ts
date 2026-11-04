@@ -18,6 +18,7 @@
  * Extracted from atomic-week-processor.ts; signature unchanged.
  */
 
+import { eventText } from "@/lib/news-ref"
 import type { GameSave } from "../save-types"
 import { paySponsorGoalBonus } from "./sponsor-goal-payout"
 
@@ -123,8 +124,7 @@ export function processWeeklySponsorGoals(
                         type: "SPONSOR_OFFER",
                         week: save.currentWeek,
                         data: {
-                            title: "Sponsor Contract Ended",
-                            message: `${sponsor.name} partnership has expired.`,
+                            ...eventText({ key: "evn.sponsorEnded.t" }, { key: "evn.sponsorEnded.m", params: { sponsor: sponsor.name } }),
                         },
                         acknowledged: false,
                     })

@@ -1,6 +1,7 @@
 "use client"
 import { Trans } from "@/lib/trans"
 import { intlLocale, t } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 
 import React, { useEffect, useMemo, useState } from "react"
 import { RefreshCw } from "lucide-react"
@@ -227,7 +228,7 @@ export default function StaffPage() {
                                 {refreshBlock && <span className="text-xs text-ink-3">{refreshBlock}</span>}
                                 {refresh.free ? (
                                     <Button size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs" title={t("st.refreshFreeTip")}
-                                        onClick={() => { try { doRefresh() } catch (err) { toast.error(err instanceof Error ? err.message : String(err)) } }}>
+                                        onClick={() => { try { doRefresh() } catch (err) { toast.error(storedText(err instanceof Error ? err.message : String(err))) } }}>
                                         <RefreshCw size={13} /> {t("st.refresh")}
                                     </Button>
                                 ) : refreshBlock ? (

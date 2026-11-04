@@ -699,6 +699,8 @@ export const MATCH = {
     "playbook.code": "Share code",
     "playbook.badCode": "Not a playbook code",
     "playbook.badCodeBody": "Codes start with PB1 and name at least one map in the pool.",
+    "playbook.imported": "Playbook imported",
+    "playbook.importedBody": "Calls set on {{maps}}.",
     "playbook.title": "Playbook",
     "playbook.applies": "Applies from the next match you start",
     "playbook.tCalls": "T side calls",

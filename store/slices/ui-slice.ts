@@ -1,5 +1,6 @@
 "use client"
 
+import { liveText } from "@/lib/i18n"
 import { WEEKLY_ACTIVITIES } from '@/types/activities'
 import { restoreFirstSession, reviewFirstSession } from '@/lib/first-session'
 import { gameCalendarDate } from "@/lib/game-calendar"
@@ -110,7 +111,7 @@ export const createUISlice: SliceCreator<UIActions> = (set, get) => ({
         // the pick stays open so the manager can choose another or decline.
         const quote = quoteLegendSigning(get(), legendId)
         if (quote && !quote.affordable) {
-            get().addToast({ message: `Can't afford this legend: ${formatCurrency(quote.salary, "$", false)}/week would leave ${quote.runwayWeeks} weeks of cash (need ${LEGEND_MIN_RUNWAY_WEEKS}).`, type: "warning" })
+            get().addToast({ message: liveText({ key: "lv.legendFunds", params: { wage: formatCurrency(quote.salary, "$", false), weeks: { key: "sl.weeks", count: quote.runwayWeeks }, need: LEGEND_MIN_RUNWAY_WEEKS } }), type: "warning" })
             return
         }
         set((state) => {

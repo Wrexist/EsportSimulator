@@ -14,6 +14,7 @@ import { formatCurrency } from "@/lib/utils-extended"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
 import { ScheduleDialog } from "./ScheduleDialog"
 import { MEETING_TYPES, meetingActivityId, meetingEffectLabels, meetingStatus, type MeetingContext, type MeetingType, meetingName, meetingDescription } from "./staff-meetings"
+import { storedText } from "@/lib/stored-text"
 
 interface BookStaffMeetingModalProps {
     isOpen: boolean
@@ -97,7 +98,7 @@ export function BookStaffMeetingModal({ isOpen, onClose, week, initialDay = 0 }:
             toast.success(t("sch.meet.booked", { name: meetingName(meeting) }), { description: t("sch.meet.bookedBody", { day: `${days[day]?.weekday ?? ""} ${days[day]?.date ?? ""}`.trim(), amount: formatCurrency(meeting.cost, "$", false) }) })
             onClose()
         } else {
-            setError(result.message)
+            setError(storedText(result.message))
         }
     }
 

@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { BOOTCAMP_CHEMISTRY_BONUS } from "@/engine/chemistry-engine"
 import { ScheduleDialog } from "./ScheduleDialog"
+import { storedText } from "@/lib/stored-text"
 
 interface BookBootcampModalProps {
     isOpen: boolean
@@ -100,7 +101,7 @@ export function BookBootcampModal({ isOpen, onClose, week }: BookBootcampModalPr
             toast.success(tn("sch.boot.booked", duration, { name: t(`sch.boot.${selectedOption.key}`) }))
             onClose()
         } else {
-            setError(result.message)
+            setError(storedText(result.message))
         }
     }
 

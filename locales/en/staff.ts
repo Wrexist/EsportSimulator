@@ -178,5 +178,20 @@ export const STAFF: Record<string, string> = {
     "talent.player_fit_2": "Iron Lung", "talent.player_fit_2.desc": "−20% training fatigue",
     "talent.player_boss": "Global Elite", "talent.player_boss.desc": "+2 to all stats",
     "talent.player_clutch": "Clutch Minister", "talent.player_clutch.desc": "+10 clutch",
+
+    // Hiring and releasing staff (store/slices/staff-management-slice.ts)
+    "stf.err.notFound": "Staff member not found.",
+    "stf.err.employed": "This staff member is already employed.",
+    "stf.err.terms": "Those contract terms are not valid.",
+    "stf.err.funds": "Not enough money: the sign-on fee is {{amount}}.",
+    "stf.err.full": "Staff roster full: at most {{max}} staff.",
+    "stf.err.role": "You already have someone in the {{role}} role.",
+    "stf.err.inactive": "This staff contract is no longer active. Hire them from the market instead.",
+    "stf.err.reserve": "Not enough cash in reserve for the higher weekly staff wage.",
+    "stf.theClub": "the club",
+    "stf.hiredTitle": "{{name}} hired by {{team}}",
+    "stf.hiredBody": "{{team}} have signed {{name}} to their staff as {{role}}. The contract runs for {{weeks}}.",
+    "stf.leftTitle": "{{name}} leaves {{team}}",
+    "stf.leftBody": "{{name}} is no longer on the staff as {{role}}. The search for a replacement begins.",
 }
 

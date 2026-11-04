@@ -15,6 +15,8 @@
  *   exchange for a lower fee now (settleSellOn, at every transfer with a fee).
  */
 
+import { eventText } from "@/lib/news-ref"
+import { formatCurrency } from "@/lib/utils-extended"
 import type { ContractSaveData, GameSave } from "./save-types"
 
 export type ReleaseClause = "none" | "high" | "low"
@@ -138,8 +140,8 @@ export function settleSellOn(
             week: save.currentWeek,
             acknowledged: false,
             data: {
-                title: `Sell-on paid: ${playerName}`,
-                message: `${seller.name} sold ${playerName} for ${Math.round(fee).toLocaleString("en-US")}. Your ${Math.round(owed.pct * 100)}% sell-on brings in ${amount.toLocaleString("en-US")}.`,
+                ...eventText({ key: "ev.sellOn.t", params: { name: playerName } },
+                    { key: "ev.sellOn.m", params: { club: seller.name, name: playerName, fee: formatCurrency(Math.round(fee), "$", false), pct: Math.round(owed.pct * 100), amount: formatCurrency(amount, "$", false) } }),
                 playerId: outgoing.playerId,
                 severity: "success",
             },

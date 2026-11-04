@@ -14,6 +14,7 @@
  * season; the inbox event carries the awards object and reopens the review.
  */
 
+import { eventText } from "@/lib/news-ref"
 import type { GameSave } from "./save-types"
 import type { AwardWinner, SeasonHonours } from "./records-types"
 import { EventType } from "@/types"
@@ -155,15 +156,14 @@ export function addProAwardsEvent(save: GameSave, awards: AnnualAwards): void {
     if (!awards.top20.length) return
     const ours = awards.top20.filter(p => p.isPlayerTeam)
     const message = ours.length > 0
-        ? `The Pro Top 20 of season ${awards.year} is out: ${ours.length} of your players made the list. Ranked on official maps (at least ${awards.minMaps}), each map weighted by its competition.`
-        : `The Pro Top 20 of season ${awards.year} is out. Ranked on official maps (at least ${awards.minMaps}), each map weighted by its competition.`
+        ? { key: "ev.top20.ours", count: ours.length, params: { year: awards.year, min: awards.minMaps } }
+        : { key: "ev.top20.m", params: { year: awards.year, min: awards.minMaps } }
     save.eventsLog.push({
         id,
         type: EventType.MEDIA,
         week: save.currentWeek,
         data: {
-            title: `Pro Top 20 of season ${awards.year}`,
-            message,
+            ...eventText({ key: "ev.top20.t", params: { year: awards.year } }, message),
             proAwards: awards,
             hasPlayerTeamMember: ours.length > 0,
             playerTeamMembers: ours.map(p => ({ rank: p.rank, nickname: p.nickname, revealDay: p.revealDay })),

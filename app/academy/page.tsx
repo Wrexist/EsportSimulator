@@ -32,6 +32,7 @@ import { ProspectsTable } from "./_components/ProspectsTable"
 import {
     BENCH_XP_SHARE, drillStatName, POTENTIAL_REVEAL_WEEKS, PROMOTION_PROGRESS, promotionTerms,
 } from "./_components/academy-facts"
+import { storedText } from "@/lib/stored-text"
 
 /** Day slots Monday to Sunday; the label is t(`ac.day.${i}`). */
 const DAYS = [0, 1, 2, 3, 4, 5, 6]
@@ -118,8 +119,8 @@ export default function AcademyPage() {
 
     // SQUAD-23: `detail: false` when the store's message only repeats the title.
     const run = (result: { success: boolean; message: string }, ok: string, detail = true) => {
-        if (result.success) toast.success(ok, detail ? { description: result.message } : undefined)
-        else toast.error(t("ac.notPossible"), { description: result.message })
+        if (result.success) toast.success(ok, detail ? { description: storedText(result.message) } : undefined)
+        else toast.error(t("ac.notPossible"), { description: storedText(result.message) })
     }
 
     const setLineup = (prospectId: string, role: string | null) => {

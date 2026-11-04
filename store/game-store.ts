@@ -1,5 +1,6 @@
 "use client"
 
+import { liveText, STORED_REF } from "@/lib/i18n"
 import { applyMapRotation } from "@/engine/season/map-rotation"
 import { newFirstSession, restoreFirstSession, restoreWeeklyPlan } from '@/lib/first-session'
 import { createDefaultTactics } from "@/engine/default-tactics"
@@ -115,6 +116,7 @@ import { foldWeeklyDigest } from "@/lib/inbox-digest"
 import { normalizeDecisions } from "@/engine/decision-deadlines"
 import drillCatalog from "@/data/drills.json"
 import { formatCurrency } from "@/lib/utils-extended"
+import { eventText } from "@/lib/news-ref"
 import { DEFAULT_TEAM_TRAINING } from "@/engine/development-outlook"
 import { chooseLiveCheckpoint, liveCheckpointStore } from "@/lib/live-checkpoint-store"
 import { randomizeWorld } from "@/engine/random-world"
@@ -560,8 +562,8 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
   // Phase 56: Staff Market Actions
   refreshStaffMarket: () => void
   requestStaffMarketRefresh: () => { success: boolean; message: string; cost: number }
-  hireStaff: (staffId: string, terms?: { salary: number, duration: number, signingBonus: number }) => { success: boolean; message: string }
-  renewStaffContract: (staffId: string, salary: number, duration: number) => { success: boolean; message: string }
+  hireStaff: (staffId: string, terms?: { salary: number, duration: number, signingBonus: number }) => { success: boolean; message: string; ref?: import("@/lib/i18n").TextRef }
+  renewStaffContract: (staffId: string, salary: number, duration: number) => { success: boolean; message: string; ref?: import("@/lib/i18n").TextRef }
   fireStaff: (staffId: string) => void
 
   // Getters / Helpers
@@ -678,7 +680,7 @@ function achievementToast(get: () => { addToast: (toast: { message: string; type
   return (achievement: { id: string; name: string }) => {
     // One toast when a career milestone marks the same thing (HOME-17).
     if (!claimAchievementToast(achievement.id)) return
-    get().addToast({ message: `Achievement Unlocked: ${achievement.name}`, type: "achievement" })
+    get().addToast({ message: liveText({ key: "lv.achievement", params: { name: { key: STORED_REF, params: { text: achievement.name } } } }), type: "achievement" })
   }
 }
 
@@ -1223,29 +1225,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             week: 1,
             acknowledged: false,
             data: {
-              title: `Welcome to ${selectedTeam?.name || 'Your New Team'}!`,
-              message: `Congratulations on your appointment as head coach! Here's what you need to know:\n\n` +
-                `🎮 YOUR TEAM\n` +
-                `You're managing ${selectedTeam?.name || 'your team'} with ${teamRoster.length} player${teamRoster.length !== 1 ? 's' : ''} on the roster. ` +
-                `Your current average team rating is ${avgRating}.\n\n` +
-                `📋 FIRST STEPS\n` +
-                `• Review your roster in the Squad page — know your players' strengths\n` +
-                `• Check the Schedule to see upcoming matches\n` +
-                `• Visit Training to start improving your players\n` +
-                `• Keep an eye on your Budget in Finances\n\n` +
-                `🔍 GROW YOUR TEAM\n` +
-                `• Transfers — sign free agents or buy from rival rosters\n` +
-                `• Scouting — research targets before you negotiate\n` +
-                `• Youth Academy — develop the next generation of pros\n` +
-                `• Sponsorships — unlock more deals as your reputation grows\n\n` +
-                `💡 KEY TIPS\n` +
-                `• Player morale affects performance — keep it high!\n` +
-                `• Don't overtrain — exhausted players perform poorly\n` +
-                `• Save money for the transfer window to improve your roster\n` +
-                `• Watch your players' contract expiration dates\n\n` +
-                `🏆 YOUR GOAL\n` +
-                `Build a championship-winning team! Start by competing in local tournaments, climb the rankings, and eventually qualify for a Major.\n\n` +
-                `Click 'Advance Week' when you're ready to begin. Good luck, Coach!`,
+              ...eventText({ key: "wel.t", params: { club: selectedTeam?.name || "your team" } }, {
+                key: "wel.m",
+                params: { club: selectedTeam?.name || "your team", players: { key: "wel.players", count: teamRoster.length }, rating: avgRating },
+              }),
               severity: "success"
             }
           })
@@ -1310,7 +1293,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         } catch (err) {
           const message = err instanceof Error ? err.message : "Initialization failed"
           set({ isLoading: false, error: message })
-          get().addToast({ message: `Could not start new game: ${message}`, type: "error", duration: 8000 })
+          get().addToast({ message: liveText({ key: "lv.err.newGame", params: { message } }), type: "error", duration: 8000 })
         }
       },
 
@@ -1574,22 +1557,10 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             week: 1,
             acknowledged: false,
             data: {
-              title: `Welcome to ${teamData.name}!`,
-              message: `Congratulations on founding your own esports organization!\n\n` +
-                `🎮 YOUR NEW TEAM\n` +
-                `You've created ${teamData.name} [${teamData.shortName}] in the ${teamData.region} region. ` +
-                `Starting budget: ${formatCurrency(totalBudget)} (includes recruitment bonus!).\n\n` +
-                `📋 FIRST STEPS\n` +
-                `• Your roster is EMPTY! Visit Transfers immediately to sign free agents\n` +
-                `• You need at least 5 players to compete in tournaments\n` +
-                `• Budget carefully - every dollar counts!\n\n` +
-                `💡 KEY TIPS\n` +
-                `• Look for undervalued talents with high potential\n` +
-                `• Consider players with good teamwork stats\n` +
-                `• Don't overspend on salaries - leave room for growth\n\n` +
-                `🏆 YOUR GOAL\n` +
-                `Rise from obscurity to become a championship-winning team. The journey starts now!\n\n` +
-                `Good luck, Coach ${managerName}!`,
+              ...eventText({ key: "wel.t", params: { club: teamData.name } }, {
+                key: "wel.custom.m",
+                params: { club: teamData.name, tag: teamData.shortName, region: { key: `ct.region.${teamData.region}` }, budget: formatCurrency(totalBudget), manager: managerName },
+              }),
               severity: "success"
             }
           })
@@ -1637,7 +1608,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           const message = err instanceof Error ? err.message : "Failed to create team"
           logger.error("Failed to create custom team", err)
           set({ isLoading: false, error: message })
-          get().addToast({ message: `Could not create custom team: ${message}`, type: "error", duration: 8000 })
+          get().addToast({ message: liveText({ key: "lv.err.customTeam", params: { message } }), type: "error", duration: 8000 })
         }
       },
 
@@ -1652,8 +1623,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             type: "CAREER_UPDATE",
             week: state.currentWeek,
             data: {
-              title: "New Job Accepted",
-              message: `You are now the manager of ${team.name}.`,
+              ...eventText({ key: "wel.newJob.t" }, { key: "wel.newJob.m", params: { club: team.name } }),
               severity: "success"
             },
             acknowledged: false
@@ -1834,7 +1804,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             if (hoursAway >= 24) {
               const daysAway = Math.floor(hoursAway / 24)
               get().addToast({
-                message: `Welcome back! You've been away for ${daysAway} day${daysAway !== 1 ? "s" : ""}.`,
+                message: liveText({ key: "lv.welcomeBack", count: daysAway }),
                 type: "info",
                 duration: 6000
               })
@@ -1843,7 +1813,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         } catch (err) {
           const message = err instanceof Error ? err.message : "Load failed"
           set({ isLoading: false, error: message })
-          get().addToast({ message: `Could not load save: ${message}`, type: "error", duration: 8000 })
+          get().addToast({ message: liveText({ key: "lv.err.load", params: { message } }), type: "error", duration: 8000 })
           throw new Error(message)
         }
       },
@@ -1866,7 +1836,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             throw new Error(saveResult.error || "Save failed")
           }
           if (saveResult.repairs && saveResult.repairs.length > 0) {
-            get().addToast({ message: `Save auto-repaired: ${saveResult.repairs[0]}`, type: "warning", duration: 8000 })
+            get().addToast({ message: liveText({ key: "lv.err.repaired", params: { detail: saveResult.repairs[0] } }), type: "warning", duration: 8000 })
           }
           if (saveResult.sizeWarning && sizeWarnedSaveId !== state.saveId) {
             sizeWarnedSaveId = state.saveId
@@ -1884,7 +1854,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           // persisted, instead of silently letting the catch propagate up
           // to a caller that may or may not show a toast.
           get().addToast({
-            message: `Save failed: ${message}`,
+            message: liveText({ key: "lv.err.save", params: { message } }),
             type: "error",
             duration: 8000,
           })
@@ -2281,7 +2251,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
                   }
                 })
                 if (retro) get().addToast({ message: "Legacy goals are on your manager profile. The levels your career already holds are marked.", type: "info", duration: 8000 })
-                else hits.forEach(hit => get().addToast({ message: `${hit.message} Reputation +${hit.reputation}.`, type: "achievement" }))
+                else hits.forEach(hit => get().addToast({ message: liveText({ key: "lv.legacyHit", params: { goal: { key: STORED_REF, params: { text: hit.message } }, rep: hit.reputation } }), type: "achievement" }))
               }
             } catch (lgErr) {
               logger.error("[advanceWeek] legacy goal check failed", lgErr)
@@ -2393,7 +2363,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           logger.error("[advanceWeek] Failed", err)
           set({ isLoading: false, error: message, weekProgress: null })
           const display = message.length > 120 ? message.slice(0, 117) + "..." : message
-          get().addToast({ message: `Week failed: ${display}`, type: "warning", duration: 12000 })
+          get().addToast({ message: liveText({ key: "lv.err.week", params: { message: display } }), type: "warning", duration: 12000 })
         }
       },
 
@@ -2537,7 +2507,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               message,
             },
           })
-          get().addToast({ message: `Save recovery failed: ${message}`, type: "error", duration: 8000 })
+          get().addToast({ message: liveText({ key: "lv.err.recovery", params: { message } }), type: "error", duration: 8000 })
           return false
         }
       },

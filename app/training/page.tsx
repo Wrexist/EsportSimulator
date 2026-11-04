@@ -26,6 +26,7 @@ import { Kpi, KpiStrip } from "@/src/components/ui/Kpi"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { Meter } from "@/src/components/ui/Meter"
 import { focusLabel as weeklyFocusLabel, drillStatLabel, trainingModifiers } from "@/components/training/weekly-training"
+import { storedText } from "@/lib/stored-text"
 
 const RoleTrainingModal = dynamic(() => import("@/components/training/RoleTrainingModal").then(m => m.RoleTrainingModal), { ssr: false })
 const WeaponTrainingModal = dynamic(() => import("@/components/training/WeaponTrainingModal").then(m => m.WeaponTrainingModal), { ssr: false })
@@ -94,7 +95,7 @@ export default function TrainingPage() {
         if (!drill || drillBlock) return
         const result = runTeamDrill(drill.id, drill.rewards.map(r => ({ stat: r.stat, amount: r.value })), drill.fatigueCost)
         if (result.success) toast.success(t(`tr.drill.${drill.id}`), { description: tn("tr.trained", drillPlayers.length) })
-        else toast.error(t("tr.notRun"), { description: result.message })
+        else toast.error(t("tr.notRun"), { description: storedText(result.message) })
     }
 
     if (!team) {
@@ -294,9 +295,9 @@ export default function TrainingPage() {
                         const result = startRoleTraining(trainingPlayer.id, role)
                         if (result.success) {
                             setTrainingPlayer(null)
-                            toast.success(t("tr.started"), { description: result.message })
+                            toast.success(t("tr.started"), { description: storedText(result.message) })
                         } else {
-                            toast.error(t("tr.couldNotStart"), { description: result.message })
+                            toast.error(t("tr.couldNotStart"), { description: storedText(result.message) })
                         }
                     }}
                     currentBudget={team.budget || 0}

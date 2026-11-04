@@ -15,6 +15,7 @@ import {
 } from "@/engine/personality"
 import { PERSONALITY_TUNING } from "@/lib/balance-tuning"
 import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
+import { storedText } from "@/lib/stored-text"
 
 const AUTO = "__auto__"
 
@@ -57,8 +58,8 @@ export function DressingRoomPanel({ team }: { team: TeamSaveData }) {
                     <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-3">{t("dressing.captain")}</h3>
                     <Select value={picked} onValueChange={v => {
                         const r = setCaptain(v === AUTO ? null : v)
-                        if (r.success) toast.success(r.message)
-                        else toast.error(r.message)
+                        if (r.success) toast.success(storedText(r.message))
+                        else toast.error(storedText(r.message))
                     }}>
                         <SelectTrigger className="h-8 w-[190px] text-sm" aria-label={t("dressing.captain")}>
                             <SelectValue>{picked === AUTO ? t("dressing.auto", { name: lookup(autoCaptain ?? "")?.nickname ?? "—" }) : lookup(picked)?.nickname}</SelectValue>
@@ -105,7 +106,7 @@ export function DressingRoomPanel({ team }: { team: TeamSaveData }) {
                         </Select>
                         <Button size="sm" className="h-8 px-3 text-xs" disabled={!mentorId || !menteeId} onClick={() => {
                             const r = assignMentor(mentorId, menteeId)
-                            if (!r.success) toast.error(r.message)
+                            if (!r.success) toast.error(storedText(r.message))
                             setMentorId(""); setMenteeId("")
                         }}>{t("dressing.assign")}</Button>
                     </div>

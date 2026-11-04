@@ -25,6 +25,7 @@ import { EconomyEngine } from "./economy-engine"
 import { divisionOfTeam, ordinal, playedInSplit, tablePosition, weekOfSeason } from "./season/regional-league"
 import { adjustManagerReputation, closeStint } from "./manager-timeline"
 import { plural } from "@/lib/plural"
+import { JOIN_REF, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
 
 export type { BoardExpectationTier, BoardState } from "./save-types"
 export type BoardOutcome = "EXCEEDED" | "MET" | "MISSED" | "FAILED"
@@ -467,43 +468,56 @@ function applyConsequences(save: GameSave, board: BoardState, events: string[]):
     if (save.proCareer && save.proCareer.retiredWeek == null) return false
     const team = save.teams.find(t => t.id === save.playerTeamId)
     const name = team?.name ?? "the club"
-    const reasons = (board.history ?? []).filter(m => m.delta < 0).slice(0, 3).map(m => m.cause.toLowerCase()).join("; ")
-    const event = (id: string, title: string, message: string, severity: string) => {
+    const reasons = reasonsRef(board)
+    const c = Math.round(board.confidence)
+    const event = (id: string, titleRef: TextRef, messageRef: TextRef, severity: string) => {
         const eventId = `${id}_${save.currentWeek}_${save.playerTeamId}`
         if (save.eventsLog.some(e => e.id === eventId)) return
-        save.eventsLog.unshift({ id: eventId, type: "CAREER_UPDATE", week: save.currentWeek, acknowledged: false, data: { title, message, severity, teamId: save.playerTeamId, board: true } })
-        save.newsFeed.unshift({ id: `news_${eventId}`, title, content: message, week: save.currentWeek, category: "FINANCE", teamId: save.playerTeamId })
+        const title = tRefEn(titleRef)
+        const message = tRefEn(messageRef)
+        save.eventsLog.unshift({ id: eventId, type: "CAREER_UPDATE", week: save.currentWeek, acknowledged: false, data: { title, titleRef, message, messageRef, severity, teamId: save.playerTeamId, board: true } })
+        save.newsFeed.unshift({ id: `news_${eventId}`, title, titleRef, content: message, contentRef: messageRef, week: save.currentWeek, category: "FINANCE", teamId: save.playerTeamId })
         events.push(eventId)
     }
     const warnings = board.warnings ?? (board.onNotice ? 2 : 0)
     if (warnings > 0 && board.confidence >= BOARD_TUNING.RECOVERED_AT) {
         board.warnings = 0
         board.onNotice = false
-        event("board_reassured", `Board reassured at ${name}`, `Confidence is back to ${Math.round(board.confidence)}/100. The warnings are lifted.`, "success")
+        event("board_reassured", { key: "bd.reassured.t", params: { club: name } }, { key: "bd.reassured.m", params: { c } }, "success")
         return false
     }
     if (tenureWeeks(save) <= BOARD_TUNING.TENURE_GRACE_WEEKS) { board.warnings = warnings; return false }
     if (warnings === 0 && board.confidence < BOARD_TUNING.WARN_BELOW) {
         board.warnings = 1
-        event("board_warning", `Board warning at ${name}`, `Board confidence has fallen to ${Math.round(board.confidence)}/100${reasons ? ` (${reasons})` : ""}. Below ${BOARD_TUNING.NOTICE_BELOW} you will be on notice; at ${BOARD_TUNING.SACK_AT_OR_BELOW} on notice you will be dismissed. Back above ${BOARD_TUNING.RECOVERED_AT} clears the warning.`, "warning")
+        event("board_warning", { key: "bd.warning.t", params: { club: name } },
+            { key: "bd.warning.m", params: { c, reasons, notice: BOARD_TUNING.NOTICE_BELOW, sack: BOARD_TUNING.SACK_AT_OR_BELOW, recovered: BOARD_TUNING.RECOVERED_AT } }, "warning")
         return false
     }
     if (warnings <= 1 && board.confidence < BOARD_TUNING.NOTICE_BELOW) {
         board.warnings = 2
         board.onNotice = true
-        event("board_notice", `Final warning: you are on notice at ${name}`, `Board confidence is ${Math.round(board.confidence)}/100${reasons ? ` (${reasons})` : ""}. If it reaches ${BOARD_TUNING.SACK_AT_OR_BELOW}, the board will dismiss you. Results, the league objective and a healthy balance all count.`, "error")
+        event("board_notice", { key: "bd.notice.t", params: { club: name } }, { key: "bd.notice.m", params: { c, reasons, sack: BOARD_TUNING.SACK_AT_OR_BELOW } }, "error")
         return false
     }
     board.warnings = warnings
     board.onNotice = warnings >= 2
     if (board.onNotice && board.confidence <= BOARD_TUNING.SACK_AT_OR_BELOW) {
-        dismiss(save, board, `Board confidence fell to ${Math.round(board.confidence)}/100 while you were on notice${reasons ? ` (${reasons})` : ""}.`)
+        dismiss(save, board, { key: "bd.sackWhy.notice", params: { c, reasons } })
         return true
     }
     return false
 }
 
-function dismiss(save: GameSave, board: BoardState, why: string): void {
+/** The latest (up to three) causes that cost confidence, as " (a; b; c)" or nothing. */
+function reasonsRef(board: BoardState): TextRef | string {
+    const causes = (board.history ?? []).filter(m => m.delta < 0).slice(0, 3).map(m => m.cause)
+    if (!causes.length) return ""
+    const parts: Record<string, TextRef> = {}
+    causes.forEach((cause, i) => { parts[`c${i}`] = { key: STORED_REF, params: { text: cause } } })
+    return { key: "bd.reasons", params: { list: { key: JOIN_REF, params: { ...parts, sep: "; " } } } }
+}
+
+function dismiss(save: GameSave, board: BoardState, why: TextRef): void {
     const team = save.teams.find(t => t.id === save.playerTeamId)
     save.gameOverReason = "SACKED"
     save.gameOverWeek = save.currentWeek
@@ -511,9 +525,11 @@ function dismiss(save: GameSave, board: BoardState, why: string): void {
     adjustManagerReputation(save, REPUTATION_DELTA.FAILED, `Dismissed by ${team?.name ?? "the club"}`)
     closeStint(save, "sacked")
     const id = `board_sacked_${save.currentWeek}_${save.playerTeamId}`
+    const titleRef: TextRef = { key: "bd.sacked.t", params: { club: team?.name ?? "the club" } }
+    const messageRef: TextRef = { key: "bd.sacked.m", params: { why } }
     if (!save.eventsLog.some(e => e.id === id)) {
         save.eventsLog.unshift({ id, type: "CAREER_UPDATE", week: save.currentWeek, acknowledged: false,
-            data: { title: `Sacked by ${team?.name ?? "the club"}`, message: `${why} Other clubs have been in touch: review their offers to continue your career.`, severity: "error", teamId: save.playerTeamId, board: true } })
+            data: { title: tRefEn(titleRef), titleRef, message: tRefEn(messageRef), messageRef, severity: "error", teamId: save.playerTeamId, board: true } })
     }
 }
 
@@ -582,8 +598,10 @@ export function processMidSeasonReview(save: GameSave, board: BoardState): Board
     board.confidence = clamp(round1(board.confidence + delta), 0, 100)
     const summary = moves.map(m => m.cause).join(". ")
     board.lastReview = { week, kind: "MID_SEASON", delta, confidence: board.confidence, summary }
-    const title = delta >= 0 ? `Mid-season review: board satisfied at ${team.name}` : `Mid-season review: board concerned at ${team.name}`
-    save.newsFeed.unshift({ id: `board_midseason_w${week}_${team.id}`, title, content: `${summary}. Confidence ${delta >= 0 ? "+" : ""}${delta} → ${Math.round(board.confidence)}/100.`, week, category: "FINANCE", teamId: team.id })
+    const titleRef: TextRef = { key: delta >= 0 ? "bd.mid.good" : "bd.mid.bad", params: { club: team.name } }
+    const contentRef: TextRef = { key: "bd.mid.c", params: { causes: causesRef(moves, false), delta: `${delta >= 0 ? "+" : ""}${delta}`, c: Math.round(board.confidence) } }
+    const title = tRefEn(titleRef)
+    save.newsFeed.unshift({ id: `board_midseason_w${week}_${team.id}`, title, titleRef, content: tRefEn(contentRef), contentRef, week, category: "FINANCE", teamId: team.id })
     return { reviewed: true, confidence: board.confidence, confidenceDelta: delta, newsTitle: title, moves }
 }
 
@@ -660,7 +678,7 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
     // Dismissal at the review: on notice going in and the meter at the sack line.
     const sacked = wasOnNotice && board.confidence <= BOARD_TUNING.SACK_AT_OR_BELOW && !(save.proCareer && save.proCareer.retiredWeek == null)
     if (sacked) {
-        dismiss(save, board, `The season review left board confidence at ${Math.round(board.confidence)}/100 after a final warning.`)
+        dismiss(save, board, { key: "bd.sackWhy.review", params: { c: Math.round(board.confidence) } })
     } else {
         // Next season's expectation from current stature (objectives follow at the next draw).
         board.seasonExpectation = deriveExpectationTier(endRank, team?.reputation ?? 50)
@@ -670,12 +688,16 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
     board.lastReviewedSeason = seasonNumber
     board.lastReview = { week, kind: "SEASON", delta, confidence: board.confidence, summary: moves.map(m => m.cause).join(". ") }
 
-    const { title, content } = buildReviewNarrative(team?.name ?? "the club", verdict, board.confidence, sacked, board.onNotice)
-    const newsContent = `${content} ${moves.map(m => `${m.cause} (${m.delta >= 0 ? "+" : ""}${m.delta})`).join(". ")}.`
+    const narrative = buildReviewNarrative(team?.name ?? "the club", verdict, board.confidence, sacked, board.onNotice)
+    const contentRef: TextRef = { key: JOIN_REF, params: { a: narrative.content, b: causesRef(moves, true), sep: " " } }
+    const title = tRefEn(narrative.title)
+    const newsContent = tRefEn(contentRef)
     save.newsFeed.unshift({
         id: `board_review_s${seasonNumber}_${save.playerTeamId}`,
         title,
+        titleRef: narrative.title,
         content: newsContent,
+        contentRef,
         week: save.currentWeek,
         category: "FINANCE",
         teamId: save.playerTeamId,
@@ -698,31 +720,19 @@ export function processSeasonBoardReview(save: GameSave): BoardReviewResult {
 
 function buildReviewNarrative(
     teamName: string, outcome: BoardOutcome, confidence: number, sacked: boolean, onNotice: boolean,
-): { title: string; content: string } {
+): { title: TextRef; content: TextRef } {
     const c = Math.round(confidence)
-    if (sacked) {
-        return {
-            title: `Sacked by ${teamName}`,
-            content: `After a final warning, the board of ${teamName} has terminated your contract. Other clubs have been in touch.`,
-        }
-    }
-    const base: Record<BoardOutcome, { title: string; content: string }> = {
-        EXCEEDED: {
-            title: `Board delighted with ${teamName}`,
-            content: `You blew past the board's targets. Confidence in your leadership is soaring (${c}/100), and they've backed you to push on.`,
-        },
-        MET: {
-            title: `Board satisfied at ${teamName}`,
-            content: `You delivered on the board's expectations. They remain confident in your project (${c}/100).`,
-        },
-        MISSED: {
-            title: `Board concerned at ${teamName}`,
-            content: `The season fell short of the board's targets. Confidence has slipped to ${c}/100${onNotice ? " — you are on notice." : "."}`,
-        },
-        FAILED: {
-            title: `Board furious with ${teamName}`,
-            content: `A season well below expectations. The board's confidence has crashed to ${c}/100${onNotice ? " — you are on notice and must deliver next season." : "."}`,
-        },
-    }
-    return base[outcome]
+    if (sacked) return { title: { key: "bd.sacked.t", params: { club: teamName } }, content: { key: "bd.rev.sacked", params: { club: teamName } } }
+    const notice = onNotice && (outcome === "MISSED" || outcome === "FAILED") ? "Notice" : ""
+    return { title: { key: `bd.rev.${outcome}.t`, params: { club: teamName } }, content: { key: `bd.rev.${outcome}.m${notice}`, params: { c } } }
+}
+
+/** The review's causes with their confidence moves: "A (+3). B (−2)." */
+function causesRef(moves: BoardMove[], withDelta: boolean): TextRef {
+    const parts: Record<string, TextRef | string> = {}
+    moves.forEach((m, i) => {
+        const cause: TextRef = { key: STORED_REF, params: { text: m.cause } }
+        parts[`m${i}`] = withDelta ? { key: "bd.causeDelta", params: { cause, delta: `${m.delta >= 0 ? "+" : ""}${m.delta}` } } : { key: "bd.cause", params: { cause } }
+    })
+    return { key: JOIN_REF, params: { ...parts, sep: " " } }
 }

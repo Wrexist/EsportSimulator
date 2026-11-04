@@ -138,8 +138,8 @@ export default function FinancesPage() {
 
   const handleUpgrade = () => {
     const res = upgradeMerchStore(team.id)
-    if (res.success) toast.success(res.message)
-    else toast.error(res.message)
+    if (res.success) toast.success(storedText(res.message))
+    else toast.error(storedText(res.message))
   }
 
   return (

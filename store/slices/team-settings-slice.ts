@@ -24,6 +24,7 @@
  * through these surfaces).
  */
 
+import { eventText } from "@/lib/news-ref"
 import type { SliceCreator } from "@/store/types"
 import {
     nextDeterministicId,
@@ -193,8 +194,7 @@ export const createTeamSettingsSlice: SliceCreator<TeamSettingsActions> = (set) 
                 acknowledged: true,
                 data: {
                     playerId: player.id,
-                    title: "Medical Specialist Hired",
-                    message: `Expert treatment provided for ${player.nickname}. Recovery expedited by ${INJURY_TREATMENT_WEEKS_OFF} weeks.`,
+                    ...eventText({ key: "evn.medical.t" }, { key: "evn.medical.m", params: { name: player.nickname, weeks: { key: "sl.weeks", count: INJURY_TREATMENT_WEEKS_OFF } } }),
                     severity: "success",
                 },
             })

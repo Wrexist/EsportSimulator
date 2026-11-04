@@ -24,6 +24,9 @@
  * sees AIManager.processAIToAITransfers(...) unchanged.
  */
 
+import { formatCurrency } from "@/lib/utils-extended"
+import { choiceText, eventText } from "@/lib/news-ref"
+import { tRefEn } from "@/lib/i18n"
 import type {
     GameSave,
     TeamSaveData,
@@ -37,12 +40,12 @@ import { aiRoll } from "./rng-helpers"
 import { recruitmentRole, recruitmentSalary } from "../recruitment"
 import { aiClubBudget, aiCommitCheck } from "./club-budget"
 import { AI_ECONOMY_TUNING } from "@/lib/balance-tuning"
-import { formatCurrency } from "@/lib/utils-extended"
 import { evaluatePlayer } from "../player-evaluation"
 import { applyRosterChangePenalty } from "../chemistry-engine"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
 import { releaseTriggerChance, settleSellOn } from "../contract-clauses"
 import { SeededRNG, deriveSeed } from "../rng"
+import { newsText } from "@/lib/news-ref"
 
 const MAX_TRANSFER_OFFERS_PER_TEAM_PER_WEEK = 2
 /** Open bids per listed player. Without it every AI club could bid on the same
@@ -257,12 +260,12 @@ export function processAITransferMarket(
                     offerAmount: offerAmount,
                     expiresWeek: save.currentWeek + 2,
                     salaryPerWeek: recruitmentSalary(player, save.currentWeek, aiTeam),
-                    message: `${aiTeam.name} has submitted a transfer offer for ${player.nickname}.`,
+                    message: tRefEn({ key: "ev.bid.m", params: { club: aiTeam.name, name: player.nickname } }),
                 },
                 acknowledged: false,
                 choices: [
-                    { id: "accept", text: "Accept Offer", effects: {} },
-                    { id: "reject", text: "Reject", effects: {} },
+                    { id: "accept", ...choiceText({ key: "ev.bid.accept" }), effects: {} },
+                    { id: "reject", ...choiceText({ key: "ev.bid.reject" }), effects: {} },
                 ],
             })
             openOffersPerPlayer.set(player.id, (openOffersPerPlayer.get(player.id) ?? 0) + 1)
@@ -399,8 +402,10 @@ export function processAIToAITransfers(
         if (save.newsFeed) {
             save.newsFeed.unshift({
                 id: `news_ai2ai_${save.currentWeek}_${candidate.player.id}`,
-                title: `${candidate.player.nickname} transferred to ${buyer.name}`,
-                content: `${buyer.name} have acquired ${candidate.player.nickname} from ${candidate.team.name} for $${fee.toLocaleString()}.`,
+                ...newsText(
+                    { key: "nw.aiTransfer.t", params: { name: candidate.player.nickname, team: buyer.name } },
+                    { key: "nw.aiTransfer.c", params: { name: candidate.player.nickname, team: buyer.name, from: candidate.team.name, fee: `$${fee.toLocaleString("en-US")}` } },
+                ),
                 category: "TRANSFER",
                 playerId: candidate.player.id,
                 teamId: buyer.id,
@@ -490,8 +495,8 @@ export function processReleaseClauses(save: GameSave, playerTeamId: string): str
             week: save.currentWeek,
             acknowledged: false,
             data: {
-                title: `${buyer.name} paid ${player.nickname}'s release clause`,
-                message: `${buyer.name} paid the ${formatCurrency(fee, "$", false)} release clause in ${player.nickname}'s contract, and he has joined them. The fee is in your budget.`,
+                ...eventText({ key: "ev.release.t", params: { club: buyer.name, name: player.nickname } },
+                    { key: "ev.release.m", params: { club: buyer.name, name: player.nickname, fee: formatCurrency(fee, "$", false) } }),
                 playerId: player.id,
                 teamId: buyer.id,
                 severity: "warning",

@@ -22,6 +22,7 @@ import {
 } from "@/engine/equipment-manager"
 import type { EquipmentItem, TeamSaveData } from "@/engine/save-types"
 import { t } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 
 const ICON: Record<string, typeof Mouse> = { Mouse, Keyboard, Monitor, Headphones, Armchair, Cpu }
 export const GEAR_SLOTS = Object.keys(EQUIPMENT_TYPE_DISPLAY) as EquipmentType[]
@@ -70,9 +71,11 @@ function GearTile({ item, equipped, budget, onBuy }: {
                             </span>
                             {/* SQUAD-12: gear is not refunded, so confirm the spend. */}
                             <ConfirmDialog
-                                title={`Buy ${item.name}?`}
-                                description={`Costs ${money(item.purchaseCost)} now and ${money(item.weeklyCost)}/wk upkeep${equipped ? `; it replaces ${equipped.name}, which is not refunded` : ""}. Funds after: ${money(budget - item.purchaseCost)}.`}
-                                confirmText={`Buy · ${money(item.purchaseCost)}`}
+                                title={t("gear.confirm.title", { name: itemName(item) })}
+                                description={equipped
+                                    ? t("gear.confirm.bodyReplace", { cost: money(item.purchaseCost), upkeep: money(item.weeklyCost), old: itemName(equipped), after: money(budget - item.purchaseCost) })
+                                    : t("gear.confirm.body", { cost: money(item.purchaseCost), upkeep: money(item.weeklyCost), after: money(budget - item.purchaseCost) })}
+                                confirmText={t("gear.confirm.buy", { cost: money(item.purchaseCost) })}
                                 icon="warning"
                                 onConfirm={() => onBuy(item)}
                             >
@@ -109,7 +112,7 @@ export function GearCatalog({ team }: { team: TeamSaveData }) {
     const handleBuy = (item: EquipmentCatalogItem) => {
         const result = purchaseEquipment(item.id)
         if (result.success) toast.success(t("gear.installed", { name: itemName(item) }), { description: t("gear.installedBody", { upkeep: money(item.weeklyCost) }) })
-        else toast.error(t("gear.purchaseFailed"), { description: result.error })
+        else toast.error(t("gear.purchaseFailed"), { description: result.error ? storedText(result.error) : undefined })
     }
 
     return (

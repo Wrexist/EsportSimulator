@@ -9,6 +9,7 @@
  * Extracted from atomic-week-processor.ts. No instance state required.
  */
 
+import { eventText } from "@/lib/news-ref"
 import type { GameSave } from "../save-types"
 import type { SaveIndexes } from "@/store/indexes"
 import { logger } from "@/lib/logger"
@@ -29,7 +30,7 @@ export function processScoutingMissions(save: GameSave, idx?: SaveIndexes): void
     if (!scout || !target) {
         save.eventsLog.push({ id: `scouting_cancelled_${save.currentWeek}_${mission.playerId}`, type: "SCOUTING_COMPLETE",
             week: save.currentWeek, acknowledged: false,
-            data: { title: "Scouting mission cancelled", message: "The scout or player is no longer available. No report was produced; the mission fee is non-refundable.", text: "Scouting mission ended without a report: the assigned scout or player is no longer available. The commissioned mission fee is not refunded." } })
+            data: { ...eventText({ key: "evn.scoutCancel.t" }, { key: "evn.scoutCancel.m" }), text: "Scouting mission ended without a report: the assigned scout or player is no longer available. The commissioned mission fee is not refunded." } })
         save.activeScoutingMission = undefined
         return
     }
@@ -49,8 +50,7 @@ export function processScoutingMissions(save: GameSave, idx?: SaveIndexes): void
             type: "SCOUTING_COMPLETE",
             week: save.currentWeek,
             data: {
-                title: "Scouting report complete",
-                message: `${scoutedPlayer.nickname}: ${scoutLevel.toLowerCase()} report available. Only confirmed attributes are revealed.`,
+                ...eventText({ key: "evn.scoutDone.t" }, { key: scoutLevel === "ELITE" ? "evn.scoutDone.full" : "evn.scoutDone.m", params: { name: scoutedPlayer.nickname, report: { key: `report.${scoutLevel}` } } }),
                 playerId: mission.playerId,
                 text: `Scouting report complete for ${scoutedPlayer.nickname}. ${scoutLevel === "ELITE" ? "Full attributes are available." : `${scoutLevel.toLowerCase()} report available; some attributes remain estimates.`}`,
                 playerName: scoutedPlayer.nickname,

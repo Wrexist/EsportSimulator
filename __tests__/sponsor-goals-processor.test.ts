@@ -133,7 +133,7 @@ describe("processWeeklySponsorGoals — Gain Followers goal", () => {
         const evt = save.eventsLog.find(e => e.type === "SPONSOR_OFFER")
         expect(evt).toBeDefined()
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect((evt as any).data.title).toBe("Sponsor Goal Met")
+        expect((evt as any).data.title).toBe("Sponsor goal met")
     })
 
     test("non-player team gets the payout but NOT an event", () => {
@@ -276,7 +276,7 @@ describe("processWeeklySponsorGoals — idempotency + expiry", () => {
         const evt = save.eventsLog.find(e =>
             e.type === "SPONSOR_OFFER" &&
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (e as any).data?.title === "Sponsor Contract Ended"
+            (e as any).data?.title === "Sponsor contract ended"
         )
         expect(evt).toBeDefined()
     })

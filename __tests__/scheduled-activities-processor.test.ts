@@ -160,7 +160,7 @@ describe("applyScheduledActivities — BOOTCAMP / REST / TRAVEL", () => {
         // → expect a TEAM_UPDATE event AND team.chemistry should have moved.
         expect(save.eventsLog.length).toBe(1)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect((save.eventsLog[0] as any).data.title).toBe("Team Chemistry Improved")
+        expect((save.eventsLog[0] as any).data.title).toBe("Team chemistry improved")
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         expect((save.teams[0] as any).chemistry).toBeGreaterThan(50)
     })

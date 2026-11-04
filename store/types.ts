@@ -223,8 +223,8 @@ export interface EntitiesActions {
   endMentorship: (menteeId: string) => void
   refreshStaffMarket: () => void
   requestStaffMarketRefresh: () => { success: boolean; message: string; cost: number }
-  hireStaff: (staffId: string, terms?: { salary: number, duration: number, signingBonus: number }) => { success: boolean; message: string }
-  renewStaffContract: (staffId: string, salary: number, duration: number) => { success: boolean; message: string }
+  hireStaff: (staffId: string, terms?: { salary: number, duration: number, signingBonus: number }) => { success: boolean; message: string; ref?: import("@/lib/i18n").TextRef }
+  renewStaffContract: (staffId: string, salary: number, duration: number) => { success: boolean; message: string; ref?: import("@/lib/i18n").TextRef }
   fireStaff: (staffId: string) => void
   upgradeFacility: (teamId: string, facilityType: FacilitySaveData["type"]) => { success: boolean; message: string }
   signSponsor: (teamId: string, sponsor: SponsorSaveData) => { success: boolean; message: string }

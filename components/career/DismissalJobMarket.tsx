@@ -16,6 +16,7 @@ import { RatingChip } from "@/src/components/ui/RatingChip"
 import { formatCurrency } from "@/lib/utils-extended"
 import { t, tn } from "@/lib/i18n"
 import { divisionName, eventRegionName } from "@/lib/display-names"
+import { storedText } from "@/lib/stored-text"
 
 /**
  * Between clubs (Phase 4.4, G9): the job market after a dismissal (sacked,
@@ -62,13 +63,13 @@ export function DismissalJobMarket({ blockedRoute = false }: { blockedRoute?: bo
     const take = (offer: GameEventSaveData) => run(() => {
         const result = s.acceptJobOffer(offer.id)
         if (result.success) router.push("/")
-        else setError(result.message)
+        else setError(storedText(result.message))
     })
     const decline = (offer: GameEventSaveData) => run(() => { s.declineJobOffer(offer.id); setConfirming(null) })
     const negotiate = (offer: GameEventSaveData) => run(() => {
         const result = s.negotiateJobOffer(offer.id)
-        if (result.success) setNote(result.message)
-        else setError(result.message)
+        if (result.success) setNote(storedText(result.message))
+        else setError(storedText(result.message))
     })
     const more = () => run(() => {
         const added = s.findMoreJobOffers()

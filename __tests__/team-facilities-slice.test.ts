@@ -232,7 +232,7 @@ describe("signSponsor", () => {
         const slice = createTeamFacilitiesSlice(h.set, h.get)
         const res = slice.signSponsor("player", makeSponsor("AnotherBasic", "BASIC"))
         expect(res.success).toBe(false)
-        expect(res.message).toContain("basic sponsor")
+        expect(res.message).toContain("in this tier (Standard)")
     })
 
     test("refuses PREMIUM sponsor when worldRanking > 30", () => {

@@ -141,6 +141,8 @@ export function setStoredTextResolver(fn: (english: string) => string): void {
 }
 /** Key of a TextRef that joins its params' values (but `sep`) with `sep`: a paragraph built from parts. */
 export const JOIN_REF = "@join"
+/** Key of a TextRef whose `iso` param is a UTC date, shown short with the weekday ("Sun, Jan 4") in the active language. */
+export const DATE_REF = "@date"
 
 export function isTextRef(v: unknown): v is TextRef {
     return !!v && typeof v === "object" && typeof (v as TextRef).key === "string"
@@ -157,6 +159,11 @@ export function tRef(ref: TextRef): string {
     if (ref.key === JOIN_REF) {
         const { sep, ...parts } = ref.params ?? {}
         return Object.values(parts).map(v => (isTextRef(v) ? tRef(v) : String(v))).join(typeof sep === "string" ? sep : " ")
+    }
+    if (ref.key === DATE_REF) {
+        const date = new Date(String(ref.params?.iso ?? ""))
+        if (Number.isNaN(date.getTime())) return ""
+        return date.toLocaleDateString(intlLocale(), { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" })
     }
     if (ref.key === LIST_REF) return listJoin(Object.values(ref.params ?? {}).map(v => (isTextRef(v) ? tRef(v) : String(v))))
     let params: Record<string, string | number> | undefined
@@ -176,6 +183,26 @@ export function tRefEn(ref: TextRef): string {
     } finally {
         currentLocale = was
     }
+}
+
+/**
+ * Short-lived messages (store results, toasts) stay plain English strings so
+ * callers and tests keep working. `liveText` returns that English and
+ * remembers its TextRef, so the screen that shows it can call storedText()
+ * and get the active language. Bounded: only recent messages are needed.
+ */
+const LIVE_TEXT = new Map<string, TextRef>()
+const LIVE_TEXT_MAX = 200
+export function liveText(ref: TextRef): string {
+    const english = tRefEn(ref)
+    LIVE_TEXT.delete(english)
+    LIVE_TEXT.set(english, ref)
+    if (LIVE_TEXT.size > LIVE_TEXT_MAX) LIVE_TEXT.delete(LIVE_TEXT.keys().next().value as string)
+    return english
+}
+/** The TextRef a recent `liveText` message came from, if any. */
+export function liveTextRef(english: string): TextRef | undefined {
+    return LIVE_TEXT.get(english)
 }
 
 /**

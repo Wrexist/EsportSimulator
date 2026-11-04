@@ -145,7 +145,7 @@ describe("applyMatchSponsorGoalProgress", () => {
 
         const events = save.eventsLog.filter(e => e.type === "SPONSOR_OFFER")
         expect(events.length).toBe(1)
-        expect((events[0].data as any).title).toBe("Sponsor Goal Met")
+        expect((events[0].data as any).title).toBe("Sponsor goal met")
 
         // Now reset and try with AI team — no event.
         const ai = makeTeam({ id: "ai_1", sponsors: [makeSponsor({

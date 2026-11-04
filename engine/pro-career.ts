@@ -9,6 +9,7 @@
  * the save continues as a normal manager career at the club you finished at.
  */
 
+import { choiceText, eventText } from "@/lib/news-ref"
 import type { GameSave, PlayerSaveData, TeamSaveData } from "./save-types"
 import { EventType, PlayerRole } from "@/types/enums"
 import { SeededRNG, deriveSeed } from "./rng"
@@ -239,8 +240,8 @@ export function startProCareer(save: GameSave, input: ProStartInput): PlayerSave
         id: `pro_start_${save.saveId}`, type: "CAREER_UPDATE", week: save.currentWeek, acknowledged: false,
         data: {
             teamId: team.id, playerId: player.id,
-            title: `${nickname} signs for ${team.name}`,
-            message: `You are ${nickname}, a ${PRO_TUNING.START_AGE}-year-old ${PRO_ROLES.find(r => r.role === input.role)?.label ?? "player"} on your first pro contract. The coach picks the five best players each week, so earn your place: set your training focus in the week plan and training screens, play your matches, and bigger clubs will call when you are good enough for their lineup. The staff run the club.`,
+            ...eventText({ key: "pcr.start.t", params: { name: nickname, club: team.name } },
+                { key: "pcr.start.m", params: { name: nickname, age: PRO_TUNING.START_AGE, role: { key: `market.role.${input.role}` } } }),
         },
     })
     return player
@@ -289,7 +290,7 @@ export function moveProPlayer(save: GameSave, toTeamId: string): boolean {
     coachLineup(save, to)
     save.eventsLog.unshift({
         id: `pro_moved_${to.id}_${save.currentWeek}`, type: "CAREER_UPDATE", week: save.currentWeek, acknowledged: false,
-        data: { teamId: to.id, playerId: player.id, title: `${player.nickname} joins ${to.name}`, message: `${player.nickname} signs a two-year deal at ${to.name}. New club, new lineup: the coach still picks the best five.` },
+        data: { teamId: to.id, playerId: player.id, ...eventText({ key: "pcr.moved.t", params: { name: player.nickname, club: to.name } }, { key: "pcr.moved.m", params: { name: player.nickname, club: to.name } }) },
     })
     return true
 }
@@ -309,7 +310,7 @@ export function retirePro(save: GameSave): boolean {
     save.proCareer.retiredWeek = save.currentWeek
     save.eventsLog.unshift({
         id: `pro_retired_${save.currentWeek}`, type: EventType.RETIREMENT, week: save.currentWeek, acknowledged: false,
-        data: { playerId: player.id, playerName: player.nickname, teamId: team?.id, title: `${player.nickname} retires`, message: `${player.nickname} hangs up the mouse at ${player.age} after ${save.proCareer.clubs.length} club${save.proCareer.clubs.length === 1 ? "" : "s"}. The board at ${team?.name ?? "the club"} offers you the manager's office: the career carries on with you running the club. Staff still handle the chores you delegated; change that under Staff.` },
+        data: { playerId: player.id, playerName: player.nickname, teamId: team?.id, ...eventText({ key: "pcr.retired.t", params: { name: player.nickname } }, { key: "pcr.retired.m", params: { name: player.nickname, age: player.age, clubs: { key: "pcr.clubs", count: save.proCareer.clubs.length }, club: team?.name ?? "the club" } }) },
     })
     return true
 }
@@ -346,12 +347,12 @@ export function processProWeek(save: GameSave): void {
                 id, type: "CAREER_UPDATE", week: save.currentWeek, acknowledged: false,
                 data: {
                     playerId: player.id, teamId: team.id, offeringTeamId: club.id,
-                    title: `${club.name} want ${player.nickname}`,
-                    message: `${club.name} (world #${club.worldRanking ?? "–"}) offer a two-year deal and a starting place. Their weakest starter is below your level. Join them, or stay at ${team.name}.`,
+                    ...eventText({ key: "pcr.offer.t", params: { club: club.name, name: player.nickname } },
+                        { key: "pcr.offer.m", params: { club: club.name, rank: club.worldRanking ?? "–", current: team.name } }),
                 },
                 choices: [
-                    { id: "accept", text: `Join ${club.name}`, effects: { follows: "Moves you to the new club next match" } },
-                    { id: "stay", text: `Stay at ${team.name}`, effects: {} },
+                    { id: "accept", ...choiceText({ key: "pcr.offer.join", params: { club: club.name } }), effects: { follows: { key: "pcr.offer.follows" } } },
+                    { id: "stay", ...choiceText({ key: "pcr.offer.stay", params: { club: team.name } }), effects: {} },
                 ],
             })
         }
@@ -363,10 +364,10 @@ export function processProWeek(save: GameSave): void {
         if (!save.eventsLog.some(e => e.id === id)) {
             save.eventsLog.unshift({
                 id, type: "CAREER_UPDATE", week: save.currentWeek, acknowledged: false,
-                data: { playerId: player.id, teamId: team.id, title: `${player.nickname} at ${player.age}: one more season?`, message: `The season is over. Retire now and take the manager's office at ${team.name}, or play another season. At ${PRO_TUNING.RETIRE_AT} the decision is made for you.` },
+                data: { playerId: player.id, teamId: team.id, ...eventText({ key: "pcr.retireAsk.t", params: { name: player.nickname, age: player.age } }, { key: "pcr.retireAsk.m", params: { club: team.name, at: PRO_TUNING.RETIRE_AT } }) },
                 choices: [
-                    { id: "play_on", text: "Play another season", effects: {} },
-                    { id: "retire", text: "Retire and manage the club", effects: { follows: "Ends the pro career; the save continues as a manager career" } },
+                    { id: "play_on", ...choiceText({ key: "pcr.retireAsk.play" }), effects: {} },
+                    { id: "retire", ...choiceText({ key: "pcr.retireAsk.retire" }), effects: { follows: { key: "pcr.retireAsk.follows" } } },
                 ],
             })
         }

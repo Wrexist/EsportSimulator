@@ -124,7 +124,7 @@ describe("hireStaff", () => {
         const slice = createStaffManagementSlice(h.set, h.get)
         const res = slice.hireStaff("s1")
         expect(res.success).toBe(false)
-        expect(res.message).toContain("Insufficient funds")
+        expect(res.message).toContain("Not enough money")
     })
 
     test("MAX_STAFF_PER_TEAM=5 cap: refuses the 6th hire", () => {
@@ -154,7 +154,7 @@ describe("hireStaff", () => {
         const slice = createStaffManagementSlice(h.set, h.get)
         const res = slice.hireStaff("new_coach")
         expect(res.success).toBe(false)
-        expect(res.message).toContain("already have a coach")
+        expect(res.message).toContain("already have someone in the Coach role")
     })
 
     test("happy path: debits signingFee + writes WAGES_STAFF ledger row + adds to roster + news", () => {

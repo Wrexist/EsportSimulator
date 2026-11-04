@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
 import { soundManager } from "@/lib/sound-manager"
 import { t } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 import { Trans } from "@/lib/trans"
 import { GearCatalog } from "./_components/GearCatalog"
 import { FACILITY_EDGE_MAX_LEVELS, facilityEdgePct } from "./_components/facility-edge"
@@ -113,8 +114,8 @@ export default function BasecampPage() {
     const label = facilityName(type)
     const result = upgradeFacility(team.id, type)
     if (result.success) soundManager.play("facilityUpgrade")
-    if (result.success) toast.success(t("fac.upgraded", { name: label }), { description: result.message })
-    else toast.error(t("fac.upgradeFailed"), { description: result.message })
+    if (result.success) toast.success(t("fac.upgraded", { name: label }), { description: storedText(result.message) })
+    else toast.error(t("fac.upgradeFailed"), { description: storedText(result.message) })
   }
 
   return (
@@ -222,9 +223,9 @@ export default function BasecampPage() {
                                 <div className="flex flex-col items-end gap-1">
                                   {/* SQUAD-12: a building can't be sold or refunded, so confirm the spend. */}
                                   <ConfirmDialog
-                                    title={level === 0 ? `Build ${facilityName(f.type)}?` : `Upgrade ${facilityName(f.type)} to level ${level + 1}?`}
-                                    description={`Costs ${money(cost)} now, and upkeep rises from ${money(Math.floor(facilityWeeklyCost(level)))} to ${money(Math.floor(facilityWeeklyCost(level + 1)))} a week. Funds after: ${money(team.budget - cost)}. Buildings can't be sold or refunded.`}
-                                    confirmText={level === 0 ? `Build · ${money(cost)}` : `Upgrade · ${money(cost)}`}
+                                    title={level === 0 ? t("fac.confirm.buildTitle", { name: facilityName(f.type) }) : t("fac.confirm.upgradeTitle", { name: facilityName(f.type), level: level + 1 })}
+                                    description={t("fac.confirm.body", { cost: money(cost), from: money(Math.floor(facilityWeeklyCost(level))), to: money(Math.floor(facilityWeeklyCost(level + 1))), after: money(team.budget - cost) })}
+                                    confirmText={t(level === 0 ? "fac.confirm.build" : "fac.confirm.upgrade", { cost: money(cost) })}
                                     icon="warning"
                                     onConfirm={() => handleUpgrade(f.type)}
                                   >

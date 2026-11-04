@@ -199,7 +199,7 @@ describe("processAIWorldLogic — intake event surfacing", () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         expect((youthEvent as any).type).toBe("TRAINING_COMPLETE")
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect((youthEvent as any).data.title).toBe("Youth Intake Complete")
+        expect((youthEvent as any).data.title).toBe("Youth intake complete")
     })
 
     test("non-player team's intake does NOT surface a player-facing event", () => {

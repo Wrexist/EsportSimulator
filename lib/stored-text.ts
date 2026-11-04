@@ -14,7 +14,8 @@
  */
 
 import { EN } from "@/locales/en"
-import { getLocale, ordinalLabel, setStoredTextResolver, t, tn } from "@/lib/i18n"
+import { getLocale, liveTextRef, ordinalLabel, setStoredTextResolver, t, tn, tRef } from "@/lib/i18n"
+import { divisionName, stageName } from "@/lib/display-names"
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string]
 
@@ -40,6 +41,8 @@ const RULES: Rule[] = [
     [/^Recovered from (.+)$/, m => t("svd.p.recovered", { injury: segment(m[1]) })],
     [/^Contract extended to week (\d+)$/, m => t("svd.p.extended", { week: m[1] })],
     [/^Contract now ends week (\d+)$/, m => t("svd.p.endsWeek", { week: m[1] })],
+    [/^If you don't answer by Week (\d+), the club (.+)\.$/, m => t("dl.note", { week: m[1], consequence: segment(m[2]) })],
+    [/^If you don't answer by Week (\d+), you (.+)\.$/, m => t("dl.noteYou", { week: m[1], consequence: segment(m[2]) })],
     [/^Unanswered: (.+)$/, m => t("svd.p.unanswered", { what: segment(m[1]) })],
     [/^Staff answered: (.+)$/, m => t("svd.p.staffAnswered", { what: segment(m[1]) })],
     [/^Drill: (.+)$/, m => t("svd.p.drill", { drill: segment(m[1]) })],
@@ -89,11 +92,34 @@ const RULES: Rule[] = [
     [/^Equipment purchase: (.+)$/, m => t("svd.p.equipment", { item: m[1] })],
     [/^(.+) - (\d+)(?:st|nd|rd|th) Place$/, m => t("svd.p.placement", { tournament: m[1], place: ordinalLabel(Number(m[2])) })],
     [/^(.+) split (\S+) prize: (\d+)(?:st|nd|rd|th) place$/, m => t("svd.p.splitPrize", { division: m[1], split: m[2], place: ordinalLabel(Number(m[3])) })],
+    // Board confidence causes (engine/board-expectations.ts) and objectives
+    [/^Results: (\d+) won, (\d+) lost$/, m => t("svd.p.results", { w: m[1], l: m[2] })],
+    [/^(On track|Behind target|League objective met|League objective missed): (\d+)\w* in (.+) \(target (\d+)\w*\)$/, m => t(`svd.p.league.${LEAGUE_STATE[m[1]]}`, { pos: ordinalLabel(Number(m[2])), division: divisionName(m[3]), target: ordinalLabel(Number(m[4])) })],
+    [/^Finances at risk: (\d+) weeks? of runway$/, m => plural(Number(m[1]), "svd.p.runwayRisk")],
+    [/^Financial crisis: (\d+) weeks? of runway$/, m => plural(Number(m[1]), "svd.p.runwayCrisis")],
+    [/^Trophy ambition (met|missed): (\d+) won \(target (\d+)\)$/, m => t(`svd.p.trophies.${m[1]}`, { won: m[2], target: m[3] })],
+    [/^Budget discipline (on track|missed): (\S+) in the bank \(target (\S+)\)$/, m => t(`svd.p.budget.${m[1] === "missed" ? "missed" : "ok"}`, { amount: m[2], target: m[3] })],
+    [/^Season ranking (met|missed): #(\d+)(?:, (\d+) troph(?:y|ies))? \(target #(\d+)\)$/, m => t(`svd.p.rank.${m[1]}`, { rank: m[2], trophies: m[3] ? plural(Number(m[3]), "svd.p.rankTrophies") : "", target: m[4] })],
+    [/^Season (\d+) board review: expectations (exceeded|met|missed|failed)$/, m => t("svd.p.seasonReview", { season: m[1], verdict: t(`svd.verdict.${m[2]}`) })],
+    [/^Win promotion from (.+) \(top (\d+)\)$/, m => t("brd.obj.promotion", { division: divisionName(m[1]), n: Number(m[2]) })],
+    [/^Avoid relegation from (.+) \((\d+)\w* or better\)$/, m => t("brd.obj.avoid", { division: divisionName(m[1]), position: ordinalLabel(Number(m[2])) })],
+    [/^Finish (\d+)\w* or better in (.+)$/, m => t("brd.obj.finish", { position: ordinalLabel(Number(m[1])), division: divisionName(m[2]) })],
+    [/^Win (.+ Division \d+)$/, m => t("brd.obj.winDivision", { division: divisionName(m[1]) })],
+    [/^Finish the season ranked #(\d+) or better$/, m => t("brd.obj.ranking", { rank: m[1] })],
+    [/^Budget discipline: end the season with at least (\S+) in the bank$/, m => t("brd.obj.finance", { amount: m[1] })],
+    [/^Ambition: lift a trophy this season$/, () => tn("brd.obj.trophies", 1)],
+    [/^Ambition: lift (\d+) trophies this season$/, m => tn("brd.obj.trophies", Number(m[1]))],
+    [/^Dismissed by (.+)$/, m => t("svd.p.dismissedBy", { club: m[1] })],
+    [/^Beat (.+)$/, m => t("svd.p.beatTeam", { opp: m[1] })],
+    [/^Lost to (.+)$/, m => t("svd.p.lostToTeam", { opp: m[1] })],
+    [/^Won (.+)$/, m => t("svd.p.wonEvent", { event: m[1] })],
     // "Unhappy player (ace)": a label with a name in brackets.
     [/^(.+) \(([^()]+)\)$/, m => `${segment(m[1])} (${m[2]})`],
     // "AWP +0.3", "Leader +10%": a label with a signed number.
     [/^(.+?) ([+−-][\d.]+%?)$/, m => `${segment(m[1])} ${m[2]}`],
 ]
+
+const LEAGUE_STATE: Record<string, string> = { "On track": "onTrack", "Behind target": "behind", "League objective met": "met", "League objective missed": "missed" }
 
 /** ": passed by X; Y dropped behind" after "Other clubs' results". */
 function others(rest: string): string {
@@ -122,13 +148,16 @@ function segment(s: string): string {
         const m = text.match(re)
         if (m) return fn(m)
     }
-    return text
+    // Match stages ("Quarter-final 2", "Round of 16") and division names; anything else as stored.
+    return stageName(text)
 }
 
 /** The stored English label in the active language (unchanged in English). */
 export function storedText(s: string | null | undefined): string {
     if (!s) return s ?? ""
     if (getLocale() === "en") return s
+    const live = liveTextRef(s)
+    if (live) return tRef(live)
     return s.split(" · ").map(segment).join(" · ")
 }
 

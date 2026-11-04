@@ -5,7 +5,8 @@ import { SaveManager } from "../save-manager"
 import { LEGEND_RETIREMENT_AGE, hallOfFameAchievements, inductIntoHallOfFame, qualifiesForHallOfFame } from "../hall-of-fame-manager"
 import { retirementChance } from "../retirement-chance"
 import { WORKLOAD_TUNING, injuryRiskPerWeek, needsWorkloadWarning, riskPct } from "../workload"
-import { plural } from "@/lib/plural"
+import { newsText } from "@/lib/news-ref"
+import { LIST_REF, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
 
 export class EventProcessor {
     /**
@@ -40,13 +41,13 @@ export class EventProcessor {
                     playerId: player.id,
                     load: Math.round(player.fatigue),
                     risk,
-                    title: `${player.nickname}'s workload is high`,
-                    message: `${player.nickname} is carrying a heavy load (fatigue ${Math.round(player.fatigue)}). His injury chance this week is ${risk}, and it keeps rising while the load stays this high. Rest him this week (fatigue to ${rested}, out of the starting five if a fit substitute is free), or play him at that risk.`,
+                    ...titled({ key: "ev.workload.t", params: { name: player.nickname } }),
+                    ...messaged({ key: "ev.workload.m", params: { name: player.nickname, fatigue: Math.round(player.fatigue), risk, rested } }),
                 },
                 acknowledged: false,
                 choices: [
-                    { id: "rest", text: "Rest him this week", effects: { rest: { fatigue: WORKLOAD_TUNING.REST_FATIGUE, morale: WORKLOAD_TUNING.REST_MORALE } } },
-                    { id: "play", text: "Play him", effects: { follows: `Injury chance ${risk} this week` } },
+                    { id: "rest", ...choiceText({ key: "ev.workload.rest" }), effects: { rest: { fatigue: WORKLOAD_TUNING.REST_FATIGUE, morale: WORKLOAD_TUNING.REST_MORALE } } },
+                    { id: "play", ...choiceText({ key: "ev.workload.play" }), effects: { follows: { key: "ev.workload.follows", params: { risk } } } },
                 ],
             })
             await saveManager.recordEventGenerated(transaction, eventId)
@@ -94,9 +95,9 @@ export class EventProcessor {
                             },
                             acknowledged: false,
                             choices: [
-                                { id: "talk", text: "One-on-One Talk (Morale +10)", effects: { morale: 10 } },
-                                { id: "bonus", text: "Performance Bonus (Money -5k, Loyalty +5)", effects: { money: -5000, loyalty: 5 } },
-                                { id: "ignore", text: "Ignore", effects: { loyalty: -5, morale: -5 } }
+                                { id: "talk", text: "One-on-One Talk (Morale +10)", ref: { key: "rnd.c.talk" }, effects: { morale: 10 } },
+                                { id: "bonus", text: "Performance Bonus (Money -5k, Loyalty +5)", ref: { key: "rnd.c.bonus" }, effects: { money: -5000, loyalty: 5 } },
+                                { id: "ignore", text: "Ignore", ref: { key: "rnd.c.ignore" }, effects: { loyalty: -5, morale: -5 } }
                             ]
                         })
                         await saveManager.recordEventGenerated(transaction, eventId)
@@ -139,8 +140,8 @@ export class EventProcessor {
                         data: { streak: winStreak, teamId: playerTeamId },
                         acknowledged: false,
                         choices: [
-                            { id: "celebrate", text: "Team Dinner (Money -1k, Rep +2)", effects: { money: -1000, reputation: 2 } },
-                            { id: "focus", text: "Stay Focused (Rep +1)", effects: { reputation: 1 } }
+                            { id: "celebrate", text: "Team Dinner (Money -1k, Rep +2)", ref: { key: "rnd.c.dinner" }, effects: { money: -1000, reputation: 2 } },
+                            { id: "focus", text: "Stay Focused (Rep +1)", ref: { key: "rnd.c.focus" }, effects: { reputation: 1 } }
                         ]
                     })
                     await saveManager.recordEventGenerated(transaction, eventId)
@@ -158,8 +159,8 @@ export class EventProcessor {
                         data: { streak: lossStreak, teamId: playerTeamId },
                         acknowledged: false,
                         choices: [
-                            { id: "crisis", text: "Crisis Meeting (Morale +5, Money -500)", effects: { money: -500, morale: 5 } },
-                            { id: "shakeup", text: "Roster Shakeup Warning (Morale -2)", effects: { morale: -2 } }
+                            { id: "crisis", text: "Crisis Meeting (Morale +5, Money -500)", ref: { key: "rnd.c.crisis" }, effects: { money: -500, morale: 5 } },
+                            { id: "shakeup", text: "Roster Shakeup Warning (Morale -2)", ref: { key: "rnd.c.shakeup" }, effects: { morale: -2 } }
                         ]
                     })
                     await saveManager.recordEventGenerated(transaction, eventId)
@@ -179,9 +180,9 @@ export class EventProcessor {
                     data: { hype: playerTeam.merchHype || 10 },
                     acknowledged: false,
                     choices: [
-                        { id: "fan_meet", text: "Host Fan Meetup (Money -2k, Rep +5)", effects: { money: -2000, reputation: 5 } },
-                        { id: "social_post", text: "Social Media Campaign (Rep +1)", effects: { reputation: 1 } },
-                        { id: "ignore_fans", text: "Focus purely on practice (Morale +2)", effects: { morale: 2 } }
+                        { id: "fan_meet", text: "Host Fan Meetup (Money -2k, Rep +5)", ref: { key: "rnd.c.fanMeet" }, effects: { money: -2000, reputation: 5 } },
+                        { id: "social_post", text: "Social Media Campaign (Rep +1)", ref: { key: "rnd.c.social" }, effects: { reputation: 1 } },
+                        { id: "ignore_fans", text: "Focus purely on practice (Morale +2)", ref: { key: "rnd.c.practice" }, effects: { morale: 2 } }
                     ]
                 })
                 await saveManager.recordEventGenerated(transaction, eventId)
@@ -205,8 +206,8 @@ export class EventProcessor {
                     data: { currentSponsors: activeDeals },
                     acknowledged: false,
                     choices: [
-                        { id: "negotiate", text: "Negotiate Performance Bonus (Rep -5)", effects: { reputation: -5 } },
-                        { id: "status_quo", text: "Standard Progress Report (Rep +2)", effects: { reputation: 2 } }
+                        { id: "negotiate", text: "Negotiate Performance Bonus (Rep -5)", ref: { key: "rnd.c.negotiateBonus" }, effects: { reputation: -5 } },
+                        { id: "status_quo", text: "Standard Progress Report (Rep +2)", ref: { key: "rnd.c.report" }, effects: { reputation: 2 } }
                     ]
                 })
                 await saveManager.recordEventGenerated(transaction, eventId)
@@ -235,8 +236,8 @@ export class EventProcessor {
                         acknowledged: false,
                         data: {
                             playerId: player.id,
-                            title: "Player Recovered",
-                            message: `${player.nickname} has fully recovered from their ${player.injury.name} and is ready to compete.`,
+                            ...titled({ key: "rnd.recovered.t" }),
+                            ...messaged({ key: "rnd.recovered.m", params: { name: player.nickname, injury: storedRef(player.injury.name) } }),
                             severity: "success",
                         },
                     })
@@ -337,12 +338,12 @@ export class EventProcessor {
                             weeksOut,
                             healthLoss,
                             severity,
-                            title: `${player.nickname} has a knock: ${injuryName}`,
-                            message: `${player.nickname} picked up a minor ${injuryName.toLowerCase()}. Rest him and he is out for ${weeksOut} week${weeksOut === 1 ? "" : "s"}. Play him through it and he is back for your next match, loses ${-WORKLOAD_TUNING.KNOCK_FORM} form, and has a ${escalate}% chance it worsens into a moderate injury (2 to 4 weeks out) at next week's check.`,
+                            ...titled({ key: "ev.knock.t", params: { name: player.nickname, injury: storedRef(injuryName) } }),
+                            ...messaged({ key: "ev.knock.m", params: { name: player.nickname, injury: storedRef(injuryName), weeks: { key: "sl.weeks", count: weeksOut }, form: -WORKLOAD_TUNING.KNOCK_FORM, pct: escalate } }),
                         },
                         choices: [
-                            { id: "rest", text: `Rest him (out ${weeksOut} week${weeksOut === 1 ? "" : "s"})`, effects: {} },
-                            { id: "play_through", text: "Play through it", effects: { playThrough: { escalateChance: WORKLOAD_TUNING.KNOCK_ESCALATE, form: WORKLOAD_TUNING.KNOCK_FORM } } },
+                            { id: "rest", ...choiceText({ key: "ev.knock.rest", params: { weeks: { key: "sl.weeks", count: weeksOut } } }), effects: {} },
+                            { id: "play_through", ...choiceText({ key: "ev.knock.play" }), effects: { playThrough: { escalateChance: WORKLOAD_TUNING.KNOCK_ESCALATE, form: WORKLOAD_TUNING.KNOCK_FORM } } },
                         ],
                     })
                 } else if (injuredTeam?.id === save.playerTeamId) save.eventsLog.unshift({
@@ -355,8 +356,8 @@ export class EventProcessor {
                         weeksOut,
                         healthLoss,
                         severity: severity,
-                        title: `Injury Report: ${player.nickname}`,
-                        message: `${player.nickname} has suffered a ${injuryName} (${severity}) and will be out for ${plural(weeksOut, "week")}.`,
+                        ...titled({ key: "ev.injury.t", params: { name: player.nickname } }),
+                        ...messaged({ key: "ev.injury.m", params: { name: player.nickname, injury: storedRef(injuryName), severity: { key: `nw.sev.${severity}` }, weeks: { key: "sl.weeks", count: weeksOut } } }),
                     },
                 })
 
@@ -364,8 +365,10 @@ export class EventProcessor {
                     const playerTeam = injuredTeam
                     save.newsFeed.unshift({
                         id: `news_inj_${save.currentWeek}_${player.id}`,
-                        title: `${player.nickname} sidelined with ${injuryName}`,
-                        content: `Medical staff have confirmed that ${player.nickname} will be out of action for approximately ${plural(weeksOut, "week")} due to a ${severity.toLowerCase()} ${injuryName.toLowerCase()}.`,
+                        ...newsText(
+                            { key: "nw.injury.t", params: { name: player.nickname, injury: { key: STORED_REF, params: { text: injuryName } } } },
+                            { key: "nw.injury.c", params: { name: player.nickname, injury: { key: STORED_REF, params: { text: injuryName } }, severity: { key: `nw.sev.${severity}` }, weeks: { key: "sl.weeks", count: weeksOut } } },
+                        ),
                         category: "INJURY",
                         playerId: player.id,
                         teamId: playerTeam?.id,
@@ -450,9 +453,7 @@ export class EventProcessor {
                     playerName: player.nickname,
                     isLegendary: player.isLegendary,
                     achievements: player.legendaryAchievements,
-                    message: player.isLegendary
-                        ? `${player.nickname} has retired and been inducted into the Hall of Fame!`
-                        : `${player.nickname} has announced their retirement from professional play.`
+                    ...messaged({ key: player.isLegendary ? "ev.retiredHof" : "ev.retired", params: { name: player.nickname } }),
                 },
                 acknowledged: false,
             })
@@ -461,12 +462,15 @@ export class EventProcessor {
             if (save.newsFeed) {
                 save.newsFeed.unshift({
                     id: `news_retirement_${player.id}_${save.currentWeek}`,
-                    title: player.isLegendary
-                        ? `${player.nickname} retires — inducted into Hall of Fame`
-                        : `${player.nickname} announces retirement`,
-                    content: player.isLegendary
-                        ? `After a storied career, ${player.nickname} has retired and been inducted into the Hall of Fame. Achievements: ${(player.legendaryAchievements || []).join(", ")}.`
-                        : `${player.nickname} has announced their retirement from professional esports at age ${player.age}.`,
+                    ...(player.isLegendary
+                        ? newsText(
+                            { key: "nw.retireHof.t", params: { name: player.nickname } },
+                            { key: "nw.retireHof.c", params: { name: player.nickname, achievements: achievementList(player.legendaryAchievements ?? []) } },
+                        )
+                        : newsText(
+                            { key: "nw.retire.t", params: { name: player.nickname } },
+                            { key: "nw.retire.c", params: { name: player.nickname, age: player.age } },
+                        )),
                     category: "RETIREMENT",
                     playerId: player.id,
                     teamId: lastTeamId,
@@ -515,7 +519,7 @@ export class EventProcessor {
                             playerName: player.nickname,
                             isLegendary: true,
                             achievements: player.legendaryAchievements,
-                            message: `${player.nickname} has achieved Legendary status and will continue playing!`
+                            ...messaged({ key: "ev.legend", params: { name: player.nickname } }),
                         },
                         acknowledged: false,
                     })
@@ -523,8 +527,10 @@ export class EventProcessor {
                     if (save.newsFeed) {
                         save.newsFeed.unshift({
                             id: `news_legend_${player.id}_${save.currentWeek}`,
-                            title: `${player.nickname} earns Legendary status`,
-                            content: `At age ${player.age}, ${player.nickname} has been recognized as a Legend of the game. Achievements: ${achievements.join(", ")}. They will keep competing for a few more seasons.`,
+                            ...newsText(
+                                { key: "nw.legend.t", params: { name: player.nickname } },
+                                { key: "nw.legend.c", params: { name: player.nickname, age: player.age, achievements: achievementList(achievements) } },
+                            ),
                             category: "RETIREMENT",
                             playerId: player.id,
                             teamId: legendTeamId,
@@ -615,7 +621,7 @@ export class EventProcessor {
                     playerId: player.id,
                     playerName: player.nickname,
                     isLegendary: false,
-                    message: `${player.nickname} has announced a surprise mid-season retirement at age ${player.age}.`
+                    ...messaged({ key: "nw.midRetire.c", params: { name: player.nickname, age: player.age } }),
                 },
                 acknowledged: false,
             })
@@ -623,8 +629,10 @@ export class EventProcessor {
             if (save.newsFeed) {
                 save.newsFeed.unshift({
                     id: `news_midretire_${player.id}_${save.currentWeek}`,
-                    title: `${player.nickname} retires mid-season`,
-                    content: `In a surprise move, ${player.nickname} has decided to hang up the mouse mid-season at age ${player.age}, citing declining form and motivation.`,
+                    ...newsText(
+                        { key: "nw.midRetire.t", params: { name: player.nickname } },
+                        { key: "nw.midRetire.c", params: { name: player.nickname, age: player.age } },
+                    ),
                     category: "RETIREMENT",
                     playerId: player.id,
                     teamId: lastTeamId,
@@ -638,3 +646,16 @@ export class EventProcessor {
         return { retired, legends }
     }
 }
+
+/** Hall of Fame achievements as a list in the active language (each one a stored English line). */
+function achievementList(items: string[]): TextRef {
+    return { key: LIST_REF, params: Object.fromEntries(items.map((text, i) => [i, { key: STORED_REF, params: { text } }])) }
+}
+
+const storedRef = (text: string): TextRef => ({ key: STORED_REF, params: { text } })
+/** `title` in English plus `titleRef`, which the inbox shows in the active language. */
+const titled = (ref: TextRef): { title: string; titleRef: TextRef } => ({ title: tRefEn(ref), titleRef: ref })
+/** `message` in English plus `messageRef`. */
+const messaged = (ref: TextRef): { message: string; messageRef: TextRef } => ({ message: tRefEn(ref), messageRef: ref })
+/** A choice's English text and its translation key. */
+const choiceText = (ref: TextRef): { text: string; ref: TextRef } => ({ text: tRefEn(ref), ref })

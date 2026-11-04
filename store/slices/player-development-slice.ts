@@ -20,6 +20,8 @@
  *     are clamped to 0-100.
  */
 
+import { STORED_REF } from "@/lib/i18n"
+import { eventText } from "@/lib/news-ref"
 import type { SliceCreator } from "@/store/types"
 import { PLAYER_TALENT_TREE, STAFF_TALENT_TREES } from "@/engine/talent-trees"
 import { nextDeterministicId } from "@/store/utils/helpers"
@@ -101,8 +103,7 @@ export const createPlayerDevelopmentSlice: SliceCreator<PlayerDevelopmentActions
                 type: "TRAINING_COMPLETE",
                 week: state.currentWeek,
                 data: {
-                    title: "Talent Unlocked",
-                    message: `${p.nickname} unlocked '${node.name}'`,
+                    ...eventText({ key: "evn.talent.t" }, { key: "evn.talent.m", params: { name: p.nickname, talent: { key: STORED_REF, params: { text: node.name } } } }),
                     severity: "success",
                 },
                 acknowledged: false,

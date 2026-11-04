@@ -25,6 +25,7 @@
  * actions live in the same slice.
  */
 
+import { liveText } from "@/lib/i18n"
 import { adaptHabits } from "@/engine/match/habits"
 import { autoVetoMaps } from "@/lib/auto-veto"
 import type { SliceCreator } from "@/store/types"
@@ -72,6 +73,7 @@ import {
 
 import { formatCurrency } from "@/lib/utils-extended"
 import { persistCommittedMatch } from "@/lib/live-checkpoint-store"
+import { eventText, newsText } from "@/lib/news-ref"
 const NEWS_FEED_CAP = 50
 
 export interface MatchSimulationActions {
@@ -388,8 +390,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                                         type: "SPONSOR_OFFER",
                                         week: state.currentWeek,
                                         data: {
-                                            title: "Sponsor Goal Met",
-                                            message: `${sponsor.name} sent a bonus of ${formatCurrency(goal.bonusPayout, "$", false)}.`,
+                                            ...eventText({ key: "evn.sponsorGoal.t" }, { key: "evn.sponsorGoal.m", params: { sponsor: sponsor.name, amount: formatCurrency(goal.bonusPayout, "$", false) } }),
                                         },
                                         acknowledged: false,
                                     })
@@ -502,7 +503,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                                     id: nextDeterministicId(state, "evt_max"),
                                     type: "TRAINING_COMPLETE",
                                     week: state.currentWeek,
-                                    data: { title: "Signature Weapon", message: `${player.nickname} mastered ${primaryWeapon}!` },
+                                    data: eventText({ key: "evn.weapon.t" }, { key: "evn.weapon.m", params: { name: player.nickname, weapon: primaryWeapon } }),
                                     acknowledged: false,
                                 })
                             }
@@ -613,8 +614,10 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 : `${result.awayScore}-${result.homeScore}`
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_match"),
-                title: `${winner.name} defeat ${loser.name} ${scoreStr}`,
-                content: `${winner.name} secured a ${scoreStr} victory against ${loser.name}.`,
+                ...newsText(
+                    { key: "nw.match.t", params: { winner: winner.name, loser: loser.name, score: scoreStr } },
+                    { key: "nw.match.c", params: { winner: winner.name, loser: loser.name, score: scoreStr } },
+                ),
                 category: "MATCH",
                 teamId: winner.id,
                 matchId: match.id,
@@ -693,11 +696,11 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         // depleted match with a clear reason - advancing the week forfeits it
         // properly, so this can't softlock.
         if (state.playerTeamId === hTeam.id && hPlayers.length < 5) {
-            get().addToast({ message: `You need 5 active players to play - your roster has ${hPlayers.length}.`, type: "warning" })
+            get().addToast({ message: liveText({ key: "lv.need5", params: { n: hPlayers.length } }), type: "warning" })
             return false
         }
         if (state.playerTeamId === aTeam.id && aPlayers.length < 5) {
-            get().addToast({ message: `You need 5 active players to play - your roster has ${aPlayers.length}.`, type: "warning" })
+            get().addToast({ message: liveText({ key: "lv.need5", params: { n: aPlayers.length } }), type: "warning" })
             return false
         }
         // Either roster understrength (e.g. the opponent got gutted by injuries /
@@ -705,7 +708,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
         // ("No players to pick from"). Advancing the week forfeits it properly.
         if (hPlayers.length < 5 || aPlayers.length < 5) {
             const shorthanded = hPlayers.length < 5 ? hTeam : aTeam
-            get().addToast({ message: `${shorthanded.name} can't field 5 players - advance the week to resolve this match by forfeit.`, type: "warning" })
+            get().addToast({ message: liveText({ key: "lv.forfeit", params: { club: shorthanded.name } }), type: "warning" })
             return false
         }
 

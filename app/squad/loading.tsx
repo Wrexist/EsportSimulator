@@ -1,5 +1,5 @@
 import { PageSkeleton } from "@/components/ui/skeletons"
 
 export default function Loading() {
-    return <PageSkeleton title="Squad" />
+    return <PageSkeleton titleKey="nav.roster" />
 }

@@ -31,6 +31,7 @@ import { getPlayerIndex } from "./player-index"
 import { academyHeldPlayerIds, recruitmentBudget, recruitmentRole, recruitmentSalary } from "../recruitment"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
 import { aiCommitCheck, fillAIRosterToFive } from "./club-budget"
+import { newsText } from "@/lib/news-ref"
 
 const MAX_ROSTER_SIZE = 7
 const CRITICAL_ROLE_BUDGET_THRESHOLD = 150_000
@@ -183,8 +184,7 @@ export function commitFreeAgentSigning(team: TeamSaveData, save: GameSave, targe
             const skill = target.skill ?? 50
             save.newsFeed.unshift({
                 id: newsId,
-                title: `${target.nickname} signs with ${team.name}`,
-                content: `Free agent ${target.nickname} has joined ${team.name}.`,
+                ...newsText({ key: "nw.faSigned.t", params: { name: target.nickname, team: team.name } }, { key: "nw.faSigned.c", params: { name: target.nickname, team: team.name } }),
                 category: "TRANSFER",
                 playerId: target.id,
                 teamId: team.id,

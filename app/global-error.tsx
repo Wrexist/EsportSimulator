@@ -7,6 +7,7 @@
 import { useEffect } from "react"
 import { AlertTriangle, RefreshCw } from "lucide-react"
 import { errorTracker } from "@/lib/error-tracking"
+import { t } from "@/lib/i18n"
 
 export default function GlobalError({
     error,
@@ -63,10 +64,10 @@ export default function GlobalError({
                         <AlertTriangle color="#FF5468" size={24} aria-hidden="true" />
                     </div>
                     <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
-                        The game crashed
+                        {t("gerr.title")}
                     </h1>
                     <p style={{ fontSize: 14, lineHeight: "22px", color: "#AEB6C2", marginBottom: 24 }}>
-                        Something went wrong above the React tree. Your save data on disk is safe — restart the app to recover.
+                        {t("gerr.body")}
                     </p>
                     {process.env.NODE_ENV !== "production" && (
                         <pre
@@ -106,7 +107,7 @@ export default function GlobalError({
                         }}
                     >
                         <RefreshCw size={15} aria-hidden="true" />
-                        Try again
+                        {t("eb.retry")}
                     </button>
                 </div>
             </body>

@@ -1,6 +1,6 @@
 "use client"
 import { Trans } from "@/lib/trans"
-import { t } from "@/lib/i18n"
+import { t, tRef } from "@/lib/i18n"
 
 import { useFocusTrap } from "@/lib/accessibility"
 
@@ -129,7 +129,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
             if (isRenewal) {
                 const result = renewStaffContract(staffId, sanitizedSalaryOffer, sanitizedDuration)
                 if (!result.success) {
-                    setNegotiationLog(prev => [...prev, result.message])
+                    setNegotiationLog(prev => [...prev, result.ref ? tRef(result.ref) : result.message])
                     return
                 }
                 setNegotiationLog(prev => [...prev, t("st.neg.accepted", { name: staffMember.name })])
@@ -142,7 +142,7 @@ export function StaffNegotiationModal({ staffId, isOpen, onClose, isRenewal = fa
                     setNegotiationLog(prev => [...prev, t("st.neg.accepted", { name: staffMember.name })])
                     setStage("SUCCESS")
                 } else {
-                    setNegotiationLog(prev => [...prev, result.message])
+                    setNegotiationLog(prev => [...prev, result.ref ? tRef(result.ref) : result.message])
                 }
             }
 

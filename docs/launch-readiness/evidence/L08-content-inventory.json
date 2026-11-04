@@ -91921,8 +91921,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "6e2192cdf16b490af4c2deab7da130c529f2f5dd0d2a1b5a7fdadbb9e5c79c49",
-      "bytes": 347782,
+      "sha256": "14c8fb2f4884d7c5adee2c2fb1ff47ae3306b18873a6b7c9e7a0ef81907047e9",
+      "bytes": 397237,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92077,13 +92077,18 @@
           "date": "2026-11-04",
           "previousSha256": "a31feb74e034f134068cab2984e483c9bd12dbed9d098fc0c0914bc1c665eaf5",
           "change": "Audit round 2: match balance pass and AWP plan by role"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "6e2192cdf16b490af4c2deab7da130c529f2f5dd0d2a1b5a7fdadbb9e5c79c49",
+          "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "7ea72ef80bdd37aaa1cdf2695eb65e597a6161938fe87656062af269994de76c",
-      "bytes": 365736,
+      "sha256": "2a7d619f99892407ba6484ac1eb9afad50b6bf12125a1f0bb0404c49880aab02",
+      "bytes": 417162,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92233,13 +92238,18 @@
           "date": "2026-11-04",
           "previousSha256": "4d9738024292ce6f51fbc536ac5e824b86ed6ce3fe052588533253c0dfd27ae0",
           "change": "Audit round 2: match balance pass and AWP plan by role"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "7ea72ef80bdd37aaa1cdf2695eb65e597a6161938fe87656062af269994de76c",
+          "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "14c8f3b9a0a77db6cec51797d6b500d9cf2b88283a45aab6ce1cadcfad2c8299",
-      "bytes": 372809,
+      "sha256": "5857b60016939e354b73011561f2248ce824df7d397bcf4cb9efdf2f93ff3668",
+      "bytes": 425396,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92389,13 +92399,18 @@
           "date": "2026-11-04",
           "previousSha256": "fb780265dbb2167e9a4ca0463939c9cde5daf3e18a26ed37509367ca03ada64e",
           "change": "Audit round 2: match balance pass and AWP plan by role"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "14c8f3b9a0a77db6cec51797d6b500d9cf2b88283a45aab6ce1cadcfad2c8299",
+          "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "6350d27aa05be0f846c23ace647142316c8b41a4cf2e6c93fa77f9053d3f78fc",
-      "bytes": 371308,
+      "sha256": "014e8a1073f485705be07e54cd731cded406a9319f19ea3711300dda57ff1b85",
+      "bytes": 423338,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92540,13 +92555,18 @@
           "date": "2026-11-04",
           "previousSha256": "f6f39b028802c96747b74d1031fe71fefc5b92f113418acae789330b42098cf8",
           "change": "Audit round 2: match balance pass and AWP plan by role"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "6350d27aa05be0f846c23ace647142316c8b41a4cf2e6c93fa77f9053d3f78fc",
+          "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "6aa33e99c8493217291c4250160f0ace475418a8f0810e4bef2394353e5db9e5",
-      "bytes": 360474,
+      "sha256": "d1a133a41d63136fd910def070c1ac1be0d2d12258bea1b364be5f6a62873a57",
+      "bytes": 411338,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92691,13 +92711,18 @@
           "date": "2026-11-04",
           "previousSha256": "c2dcaff9dd0d19750162a292694b5c05f8cdc8b2213f4a69d4ed0ac95c4e7805",
           "change": "Audit round 2: match balance pass and AWP plan by role"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "6aa33e99c8493217291c4250160f0ace475418a8f0810e4bef2394353e5db9e5",
+          "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "0ca67388cdd46e8e10d2aa903c4fff54a6dcdb1401d0c9bbf492d65b51877456",
-      "bytes": 504401,
+      "sha256": "6f09405f65b23640ba34df9de9c86c6f4b1bd93021422acdfde66841411de2a8",
+      "bytes": 577675,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92842,6 +92867,11 @@
           "date": "2026-11-04",
           "previousSha256": "9a391e9e6b9c6c8adc20ca59421299b933bca0ada45c3b4485fd9b4fd730058e",
           "change": "Audit round 2: match balance pass and AWP plan by role"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "0ca67388cdd46e8e10d2aa903c4fff54a6dcdb1401d0c9bbf492d65b51877456",
+          "change": "Interface languages, merge main and staff market refresh: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },

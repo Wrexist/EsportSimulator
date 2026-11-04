@@ -5,9 +5,10 @@
  */
 import { readFileSync } from "fs"
 import { join } from "path"
-import { JOIN_REF, LIST_REF, NUMBER_REF, ORDINAL_REF, STORED_REF, registerLocale, setLocale, tRef, tRefEn } from "@/lib/i18n"
+import { JOIN_REF, LIST_REF, NUMBER_REF, ORDINAL_REF, STORED_REF, liveText, registerLocale, setLocale, tRef, tRefEn } from "@/lib/i18n"
 import { pressText } from "@/engine/storylines/press-view"
 import { lineText, newsContent, newsTitle } from "@/lib/news-text"
+import { divisionRef, newsText } from "@/lib/news-ref"
 import { storedText } from "@/lib/stored-text"
 import { weekHeadline, type WeekReport } from "@/lib/week-report"
 import { rivalLine } from "@/engine/transfer-hype"
@@ -105,6 +106,40 @@ describe("storylines", () => {
         expect(newsContent({ content: "Old English." })).toBe("Old English.")
         expect(lineText({ text: "x", ref: { key: JOIN_REF, params: { sep: " ", 0: { key: "sl.bp.log", params: { confidence: 30 } }, 1: { key: "sl.gk.reward", params: { fans: { key: NUMBER_REF, count: 12000 }, board: 5 } } } } }))
             .toBe("Vorstandsvertrauen auf 30/100 gefallen. Der Lauf bringt 12.000 neue Follower, und das Vertrauen des Vorstands steigt um 5.")
-        expect(lineText({ text: "x", ref: { key: "sl.bp.setbacks", params: { causes: { key: LIST_REF, params: { 0: { key: STORED_REF, params: { text: "Lost to THEM" } } } } } } })).toBe("Jüngste Rückschläge: Lost to THEM.")
+        expect(lineText({ text: "x", ref: { key: "sl.bp.setbacks", params: { causes: { key: LIST_REF, params: { 0: { key: STORED_REF, params: { text: "Lost to THEM" } } } } } } })).toBe("Jüngste Rückschläge: Niederlage gegen THEM.")
+    })
+})
+
+describe("news feed", () => {
+    test("engine news keep English text and show the active language", () => {
+        const item = newsText(
+            { key: "nw.league.won", params: { team: "Us", division: divisionRef("Europe Division 2") } },
+            { key: "nw.league.c", params: { team: "Us", pos: { key: ORDINAL_REF, count: 3 }, n: 10, w: 7, l: 2, fate: { key: "nw.league.up", params: { level: 1 } } } },
+        )
+        expect(item.title).toBe("Us win Europe Division 2")
+        expect(item.content).toBe("Us finished 3rd of 10 (7–2). Promoted to Division 1 for the next split.")
+        setLocale("de")
+        expect(newsTitle(item)).toBe("Us gewinnt Europa Division 2")
+        expect(newsContent(item)).toBe("Us beendet den Split als 3. von 10 (7–2). Aufstieg in Division 1 zum nächsten Split.")
+        const injury = newsText({ key: "nw.injury.t", params: { name: "Ace", injury: { key: STORED_REF, params: { text: "Wrist Strain" } } } }, { key: "nw.sev.MINOR" })
+        expect(newsTitle(injury)).toBe(`Ace fällt aus: ${de["svd.inj.wristStrain"]}`)
+    })
+
+    it("board causes and reviews follow the language", () => {
+        setLocale("de")
+        expect(storedText("Behind target: 5th in Europe Division 2 (target 3rd)")).toContain("Hinter dem Ziel")
+        expect(storedText("Finances at risk: 3 weeks of runway")).toBe("Finanzen gefährdet: Reserve für 3 Wochen")
+        expect(storedText("Season ranking met: #12, 2 trophies (target #15)")).toBe("Saisonplatzierung erreicht: #12, 2 Titel (Ziel #15)")
+        expect(storedText("Season 3 board review: expectations met")).toBe("Vorstandsbilanz Saison 3: Erwartungen erfüllt")
+        expect(storedText("Results: 2 won, 1 lost")).toBe("Ergebnisse: 2 gewonnen, 1 verloren")
+        expect(storedText("Finish the season ranked #12 or better")).toBe("Die Saison auf Weltrang #12 oder besser beenden")
+    })
+
+    it("action results and live messages follow the language", () => {
+        expect(liveText({ key: "evn.talent.m", params: { name: "Ace", talent: "Clutch" } })).toBe("Ace unlocked Clutch.")
+        setLocale("de")
+        expect(storedText("Team not found")).toBe(de["svd.msg.noTeamFound"])
+        expect(storedText("Ace unlocked Clutch.")).toBe("Ace hat Clutch freigeschaltet.")
+        expect(storedText("Quarter-final 2")).toBe(tRef({ key: "stage.quarterN", params: { n: 2 } }))
     })
 })

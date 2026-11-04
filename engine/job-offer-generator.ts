@@ -6,6 +6,8 @@
  * reputation, and achievements.
  */
 
+import { choiceText, eventText } from "@/lib/news-ref"
+import { JOIN_REF, STORED_REF, type TextRef } from "@/lib/i18n"
 import { GameSave, TeamSaveData, GameEventSaveData, TournamentSaveData } from "./save-types"
 import { switchClubManagement } from "./club-management"
 import { ensureBoardState } from "./board-expectations"
@@ -142,8 +144,8 @@ export class JobOfferGenerator {
             if (firstJob) { event.data.firstJob = true; event.data.originTeamId = null }
             event.data.deadlineWeek = save.currentWeek + 52
             event.choices = [
-                { id: "ACCEPT", text: `Accept offer from ${team.name}`, effects: firstJob ? {} : { reputation: 5 } },
-                { id: "DECLINE", text: "Decline", effects: {} },
+                { id: "ACCEPT", ...choiceText({ key: "ev.job.accept", params: { club: team.name } }), effects: firstJob ? {} : { reputation: 5 } },
+                { id: "DECLINE", ...choiceText({ key: "ev.job.decline" }), effects: {} },
             ]
             created.push(event)
         }
@@ -315,12 +317,12 @@ export class JobOfferGenerator {
             choices: [
                 {
                     id: "ACCEPT",
-                    text: `Accept offer from ${offeringTeam.name}`,
+                    ...choiceText({ key: "ev.job.accept", params: { club: offeringTeam.name } }),
                     effects: { reputation: 10 }
                 },
                 {
                     id: "DECLINE",
-                    text: "Decline and stay with current team",
+                    ...choiceText({ key: "ev.job.stay" }),
                     effects: { loyalty: 10 }
                 }
             ]
@@ -478,8 +480,17 @@ export class JobOfferGenerator {
         event.acknowledged = true
         event.selectedChoiceId = 'ACCEPT'
         const id = `job_transition_${event.id}`
-        const objectives = (save.boardState?.objectives ?? []).map(o => o.label).join("; ")
-        if (!save.eventsLog.some(e => e.id === id)) save.eventsLog.unshift({ id, week: save.currentWeek, type: 'CAREER_UPDATE', acknowledged: false, data: { teamId: newTeam.id, title: `Welcome to ${newTeam.name}!`, message: `You now manage ${newTeam.name}. Club signing funds: $${signingBonus.toLocaleString()}.${firstJob ? "" : " Your previous club keeps its academy, scouting reports and plans."}${objectives ? ` The board's objectives: ${objectives}.` : ""}` } })
+        const objectives = save.boardState?.objectives ?? []
+        const objectiveList: TextRef = { key: JOIN_REF, params: { ...Object.fromEntries(objectives.map((o, i) => [i, { key: STORED_REF, params: { text: o.label } }])), sep: "; " } }
+        const welcome: TextRef = {
+            key: "wel.job.m",
+            params: {
+                club: newTeam.name, funds: `$${signingBonus.toLocaleString("en-US")}`,
+                kept: firstJob ? "" : { key: "wel.job.kept" },
+                objectives: objectives.length ? { key: "wel.job.objectives", params: { list: objectiveList } } : "",
+            },
+        }
+        if (!save.eventsLog.some(e => e.id === id)) save.eventsLog.unshift({ id, week: save.currentWeek, type: 'CAREER_UPDATE', acknowledged: false, data: { teamId: newTeam.id, ...eventText({ key: "wel.t", params: { club: newTeam.name } }, welcome) } })
         return { success: true, message: t("jo.welcome", { club: newTeam.name }) }
     }
 

@@ -2,6 +2,8 @@
 import type { GameSave } from "./save-types"
 import type { SeededRNG } from "./rng"
 import { EventType } from "@/types"
+import { eventText, newsText } from "@/lib/news-ref"
+import type { TextRef } from "@/lib/i18n"
 
 // Fan milestone thresholds (one-time events)
 const FAN_MILESTONES = [10_000, 50_000, 100_000, 250_000, 500_000, 1_000_000]
@@ -29,7 +31,8 @@ export class EventsManager {
           "the team's rise through the rankings",
           "a controversial recent match and community reaction",
         ]
-        const topic = topics[Math.floor(rng.next() * topics.length)]
+        const topicIndex = Math.floor(rng.next() * topics.length)
+        const topic = topics[topicIndex]
 
         // Name the outlet + journalist and vary the framing so the media layer
         // reads as reporting rather than a placeholder "Pro has requested...".
@@ -42,13 +45,9 @@ export class EventsManager {
           { outlet: "Headshot HQ", journalist: "Nina Alvarez" },
         ]
         const { outlet, journalist } = outlets[Math.floor(rng.next() * outlets.length)]
-        const framings = [
-          `${journalist} from ${outlet} wants to sit down with you about ${topic}.`,
-          `${outlet} has lined up an interview about ${topic}, with ${journalist} hosting.`,
-          `${journalist} of ${outlet} is putting together a feature on ${topic} and wants your take.`,
-          `${outlet}'s ${journalist} reached out for a segment on ${topic}.`,
-        ]
-        const framing = framings[Math.floor(rng.next() * framings.length)]
+        // Four framings (rnd.interview.frame0–3) so the request reads as reporting.
+        const framingIndex = Math.floor(rng.next() * 4)
+        const framing: TextRef = { key: `rnd.interview.frame${framingIndex}`, params: { journalist, outlet, topic: { key: `rnd.interview.topic${topicIndex}` } } }
 
         save.eventsLog.push({
           id: eventId,
@@ -56,16 +55,15 @@ export class EventsManager {
           week,
           acknowledged: false,
           data: {
-            title: `Interview Request: ${outlet}`,
-            message: `${framing} Accepting will boost your reputation but takes preparation time.`,
+            ...eventText({ key: "rnd.interview.t", params: { outlet } }, { key: "rnd.interview.m", params: { framing } }),
             severity: "info",
             outlet,
             journalist,
             topic,
           },
           choices: [
-            { id: "accept", text: "Accept Interview (+Rep, +Morale)", effects: { reputation: 3, morale: 5 } },
-            { id: "decline", text: "Decline Politely", effects: {} },
+            { id: "accept", text: "Accept Interview (+Rep, +Morale)", ref: { key: "rnd.c.acceptInterview" }, effects: { reputation: 3, morale: 5 } },
+            { id: "decline", text: "Decline Politely", ref: { key: "rnd.c.declinePolitely" }, effects: {} },
           ],
         })
         generated++
@@ -88,8 +86,7 @@ export class EventsManager {
             week,
             acknowledged: false,
             data: {
-              title: `Fan Milestone: ${formatted} Followers!`,
-              message: `Your fanbase has grown to ${formatted} followers! This unlocks new sponsorship opportunities and boosts team reputation.`,
+              ...eventText({ key: "rnd.fans.t", params: { count: formatted } }, { key: "rnd.fans.m", params: { count: formatted } }),
               severity: "success",
               followerCount: followers,
             },
@@ -122,8 +119,10 @@ export class EventsManager {
         if (targetPlayer && interestedTeam && save.newsFeed) {
           save.newsFeed.unshift({
             id: newsId,
-            title: `Rumour: ${interestedTeam.name} watching ${targetPlayer.nickname}`,
-            content: `Reports suggest ${interestedTeam.name} is interested in signing ${targetPlayer.nickname}. No formal offer has been made yet.`,
+            ...newsText(
+              { key: "nw.rumour.t", params: { name: targetPlayer.nickname, team: interestedTeam.name } },
+              { key: "nw.rumour.c", params: { name: targetPlayer.nickname, team: interestedTeam.name } },
+            ),
             category: "TRANSFER",
             playerId: targetPid,
             teamId: interestedTeam.id,
@@ -160,15 +159,14 @@ export class EventsManager {
             week,
             acknowledged: false,
             data: {
-              title: `Happy Birthday, ${player.nickname}!`,
-              message: `It's ${player.nickname}'s birthday today! The team celebrated together, boosting morale.`,
+              ...eventText({ key: "rnd.birthday.t", params: { name: player.nickname } }, { key: "rnd.birthday.m", params: { name: player.nickname } }),
               severity: "info",
               playerId: player.id,
             },
             choices: [
-              { id: "party", text: "Throw a Party (-$1k, Morale +10)", effects: { money: -1000, morale: 10 } },
-              { id: "gift", text: "Send a Gift (-$500, Loyalty +5)", effects: { money: -500, loyalty: 5 } },
-              { id: "wish", text: "Send Wishes (Free)", effects: { morale: 2 } },
+              { id: "party", text: "Throw a Party (-$1k, Morale +10)", ref: { key: "rnd.c.party" }, effects: { money: -1000, morale: 10 } },
+              { id: "gift", text: "Send a Gift (-$500, Loyalty +5)", ref: { key: "rnd.c.gift" }, effects: { money: -500, loyalty: 5 } },
+              { id: "wish", text: "Send Wishes (Free)", ref: { key: "rnd.c.wishes" }, effects: { morale: 2 } },
             ],
           })
           generated++
@@ -206,8 +204,7 @@ export class EventsManager {
               week,
               acknowledged: false,
               data: {
-                title: `Rivalry Intensifies: ${rival.name}`,
-                message: `After ${count} encounters (${wins}W-${losses}L), a rivalry is forming with ${rival.name}. The community is buzzing about the next clash!`,
+                ...eventText({ key: "rnd.rivalry.t", params: { club: rival.name } }, { key: "rnd.rivalry.m", params: { club: rival.name, count, w: wins, l: losses } }),
                 severity: "info",
                 rivalTeamId: oppId,
               },
@@ -232,16 +229,15 @@ export class EventsManager {
           week,
           acknowledged: false,
           data: {
-            title: `${brand} Equipment Deal`,
-            message: `${brand} is offering your team a ${discount}% discount on new peripherals. Accepting boosts team morale.`,
+            ...eventText({ key: "rnd.gear.t", params: { brand } }, { key: "rnd.gear.m", params: { brand, discount } }),
             severity: "info",
             brand,
             discount,
           },
           choices: [
-            { id: "accept_deal", text: `Accept Deal (-$3k, Morale +8)`, effects: { money: -3000, morale: 8 } },
-            { id: "negotiate", text: "Counter-Offer (-$1.5k, Morale +4)", effects: { money: -1500, morale: 4 } },
-            { id: "decline_deal", text: "Decline", effects: {} },
+            { id: "accept_deal", text: `Accept Deal (-$3k, Morale +8)`, ref: { key: "rnd.c.acceptDeal" }, effects: { money: -3000, morale: 8 } },
+            { id: "negotiate", text: "Counter-Offer (-$1.5k, Morale +4)", ref: { key: "rnd.c.counter" }, effects: { money: -1500, morale: 4 } },
+            { id: "decline_deal", text: "Decline", ref: { key: "rnd.c.decline" }, effects: {} },
           ],
         })
         generated++

@@ -12,6 +12,8 @@ import { RatingChip } from "@/src/components/ui/RatingChip"
 import { RoleTag } from "@/src/components/ui/RoleTag"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/lib/utils-extended"
+import { intlLocale, t, tn } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 import { fireConfetti } from "@/lib/confetti-lazy"
 import { soundManager } from "@/lib/sound-manager"
 import type { LegendPickData } from "@/engine/save-types"
@@ -124,13 +126,13 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                         className="mb-4 text-center [@media(min-height:800px)]:mb-8"
                     >
                         <p className="flex items-center justify-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-gold">
-                            <Trophy size={14} aria-hidden="true" /> Major champion reward
+                            <Trophy size={14} aria-hidden="true" /> {t("lp.kicker")}
                         </p>
                         <h2 id="modal-title-legend-pick" className="mt-2 font-display text-5xl font-bold uppercase leading-none text-ink-1">
-                            Choose your legend
+                            {t("lp.title")}
                         </h2>
                         <p className="mt-2 text-sm text-ink-3">
-                            {data.tournamentName} — select a legend to join your roster
+                            {t("lp.subtitle", { event: data.tournamentName })}
                         </p>
                     </motion.div>
 
@@ -159,7 +161,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                                 <div className="h-28 w-28 overflow-hidden rounded-md bg-raised">
                                                     <PlayerPortrait src={legend.portraitPath} seed={legend.id} alt={legend.nickname} size={112} variant="hero" />
                                                 </div>
-                                                <RatingChip value={legend.skill} size="lg" className="absolute right-4 top-4" title={`Skill ${legend.skill}`} />
+                                                <RatingChip value={legend.skill} size="lg" className="absolute right-4 top-4" title={t("lp.skill", { n: legend.skill })} />
                                                 <Crown className="absolute left-4 top-4 text-gold" size={18} aria-hidden="true" />
                                             </div>
 
@@ -174,7 +176,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                                 <div className="mb-3 flex items-center gap-2">
                                                     <RoleTag role={legend.role} />
                                                     <span className="rounded-sm border border-line px-1.5 py-0.5 text-[11px] font-semibold text-ink-2">
-                                                        {legend.majorWins || 0}× Major
+                                                        {t("lp.majors", { n: legend.majorWins || 0 })}
                                                     </span>
                                                 </div>
 
@@ -183,7 +185,7 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                                     {(legend.legendaryAchievements || []).slice(0, 3).map((ach: string, j: number) => (
                                                         <li key={j} className="flex items-center gap-2 text-xs text-ink-2">
                                                             <Star size={11} className="shrink-0 text-gold" aria-hidden="true" />
-                                                            <span className="truncate">{ach}</span>
+                                                            <span className="truncate">{storedText(ach)}</span>
                                                         </li>
                                                     ))}
                                                 </ul>
@@ -191,15 +193,15 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                                 {/* Key stats */}
                                                 <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-line pt-3 text-center">
                                                     <div>
-                                                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Matches</dt>
-                                                        <dd className="text-sm font-bold tabular-nums text-ink-1">{(legend.matchesPlayed || 0).toLocaleString()}</dd>
+                                                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("lp.matches")}</dt>
+                                                        <dd className="text-sm font-bold tabular-nums text-ink-1">{(legend.matchesPlayed || 0).toLocaleString(intlLocale())}</dd>
                                                     </div>
                                                     <div>
-                                                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">Rating</dt>
+                                                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("lp.rating")}</dt>
                                                         <dd className="text-sm font-bold tabular-nums text-ink-1">{(legend.avgRating || 0).toFixed(2)}</dd>
                                                     </div>
                                                     <div>
-                                                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">MVPs</dt>
+                                                        <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("lp.mvps")}</dt>
                                                         <dd className="text-sm font-bold tabular-nums text-ink-1">{legend.totalMVPs || 0}</dd>
                                                     </div>
                                                 </dl>
@@ -225,9 +227,9 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                                 <Crown size={40} className="text-gold" aria-hidden="true" />
                             </div>
                             <h2 className="mb-2 font-display text-4xl font-bold uppercase text-ink-1">
-                                {selectedName} joins your team
+                                {t("lp.joins", { name: selectedName })}
                             </h2>
-                            <p className="text-ink-3">A legend returns to the stage.</p>
+                            <p className="text-ink-3">{t("lp.returns")}</p>
                         </motion.div>
                     )}
 
@@ -241,20 +243,20 @@ export function LegendPickModal({ data, onSelect }: LegendPickModalProps) {
                         >
                             {quote && (
                                 <p role="status" className={cn("mb-3 text-sm", quote.affordable ? "text-ink-2" : "text-caution")}>
-                                    Wage {formatCurrency(quote.salary, "$", false)}/week for {LEGEND_CONTRACT_WEEKS / 52} years.{" "}
+                                    {tn("lp.wage", LEGEND_CONTRACT_WEEKS / 52, { wage: formatCurrency(quote.salary, "$", false) })}{" "}
                                     {quote.weeklyNet >= 0
-                                        ? "Your club stays cash-positive."
-                                        : `Cash lasts about ${quote.runwayWeeks} weeks at the new rate.`}
-                                    {!quote.affordable && ` You need at least ${LEGEND_MIN_RUNWAY_WEEKS} weeks of cover to sign.`}
-                                    {quote.overCap && ` Signing him takes your squad to ${quote.rosterAfter}/${SENIOR_ROSTER_MAX}: to sign anyone else, first release or sell ${departuresToSign(quote.rosterAfter) === 1 ? "one player" : `${departuresToSign(quote.rosterAfter)} players`}.`}
+                                        ? t("lp.cashPositive")
+                                        : tn("lp.runway", quote.runwayWeeks)}
+                                    {!quote.affordable && <>{" "}{tn("lp.needCover", LEGEND_MIN_RUNWAY_WEEKS)}</>}
+                                    {quote.overCap && <>{" "}{tn("lp.overCap", departuresToSign(quote.rosterAfter), { size: quote.rosterAfter, max: SENIOR_ROSTER_MAX })}</>}
                                 </p>
                             )}
                             <div className="flex flex-wrap items-center justify-center gap-3">
                                 <Button size="lg" onClick={handleConfirm} disabled={!canSign} className="h-12 min-w-[260px] px-10 text-base">
-                                    {selectedId ? `Sign ${selectedName}` : "Select a legend"}
+                                    {selectedId ? t("lp.sign", { name: selectedName }) : t("lp.select")}
                                 </Button>
                                 <Button size="lg" variant="outline" onClick={clearLegendPick} className="h-12 px-6">
-                                    Decline
+                                    {t("lp.decline")}
                                 </Button>
                             </div>
                         </motion.div>

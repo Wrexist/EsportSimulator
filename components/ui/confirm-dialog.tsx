@@ -15,6 +15,7 @@ import {
 import { AlertTriangle, Trash2, UserX } from 'lucide-react'
 import { toast } from "@/lib/toast"
 import { logger } from "@/lib/logger"
+import { storedText } from "@/lib/stored-text"
 import { t } from "@/lib/i18n"
 
 interface ConfirmDialogProps {
@@ -54,8 +55,8 @@ export function ConfirmDialog({
     description,
     onConfirm,
     destructive = false,
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    confirmText,
+    cancelText,
     icon = 'warning'
 }: ConfirmDialogProps) {
     const [open, setOpen] = useState(false)
@@ -76,7 +77,7 @@ export function ConfirmDialog({
             // the action failed — users would re-click Confirm and trigger a
             // duplicate. Surface the error inline plus a toast, then let
             // them choose to retry or cancel.
-            const message = err instanceof Error ? err.message : t("confirm.failed")
+            const message = err instanceof Error ? storedText(err.message) : t("confirm.failed")
             setError(message)
             toast.error(`${title}: ${message}`)
             logger.error("[ConfirmDialog] onConfirm failed", err)
@@ -123,7 +124,7 @@ export function ConfirmDialog({
                 )}
                 <AlertDialogFooter>
                     <AlertDialogCancel disabled={loading}>
-                        {cancelText}
+                        {cancelText ?? t("common.cancel")}
                     </AlertDialogCancel>
                     <AlertDialogAction
                         onClick={(e) => {
@@ -133,7 +134,7 @@ export function ConfirmDialog({
                         disabled={loading}
                         className={destructive ? 'border-negative bg-negative text-ink hover:bg-negative/90' : ''}
                     >
-                        {loading ? 'Processing...' : confirmText}
+                        {loading ? t("common.processing") : confirmText ?? t("common.confirm")}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

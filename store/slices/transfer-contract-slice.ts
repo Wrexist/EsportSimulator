@@ -31,6 +31,7 @@
  *     clears any roster-slot mapping, creates a basic contract.
  */
 
+import { liveText } from "@/lib/i18n"
 import type { SliceCreator, StoreState } from "@/store/types"
 import type { GameSave, TeamSaveData } from "@/engine/save-types"
 import { fillAIRosterToFive } from "@/engine/ai/club-budget"
@@ -53,6 +54,7 @@ import {
 import { formatCurrency } from "@/lib/utils-extended"
 import { CLAUSE_TUNING, sanitizeClauseFields, settleSellOn, type NewContractTerms } from "@/engine/contract-clauses"
 import { releaseSettlement, SENIOR_ROSTER_MAX, SENIOR_ROSTER_MIN, squadFullMessage } from "@/engine/roster-rules"
+import { newsText } from "@/lib/news-ref"
 const MAX_ROSTER_SIZE = SENIOR_ROSTER_MAX
 const STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS = 3
 const RENEWAL_RUNWAY_WEEKS = 26
@@ -172,7 +174,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 return
             }
             if (transferPlayerRecord.isRetired) {
-                result = { success: false, message: `${transferPlayerRecord.nickname} has retired and cannot be signed` }
+                result = { success: false, message: liveText({ key: "lv.retired", params: { name: transferPlayerRecord.nickname } }) }
                 return
             }
 
@@ -200,7 +202,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             if (!fromTeamId || fromTeamId === "FA") {
                 const currentOwner = state.teams.find(t => t.rosterIds.includes(playerId))
                 if (currentOwner) {
-                    result = { success: false, message: `${currentOwner.name} currently owns this player` }
+                    result = { success: false, message: liveText({ key: "lv.ownedBy", params: { club: currentOwner.name } }) }
                     return
                 }
             } else {
@@ -218,7 +220,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 // SQUAD-04: a sale may not break the managed club's starting
                 // five (the same quorum releasePlayer enforces).
                 if (fromTeam.id === state.playerTeamId && fromTeam.rosterIds.length <= SENIOR_ROSTER_MIN) {
-                    result = { success: false, message: `You need at least ${SENIOR_ROSTER_MIN} senior players to field a team. Sign a replacement before you sell.` }
+                    result = { success: false, message: liveText({ key: "lv.minRosterSell", params: { min: SENIOR_ROSTER_MIN } }) }
                     return
                 }
 
@@ -233,7 +235,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                     const week = matches[0].week
                     result = {
                         success: false,
-                        message: `Offer Rejected: "We play you in Week ${week}! We won't strengthen a rival before the match."`,
+                        message: liveText({ key: "lv.rivalReject", params: { week } }),
                     }
                     return
                 }
@@ -279,7 +281,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
 
             // Destination must be able to afford the fee.
             if (!Number.isFinite(toTeam.budget) || toTeam.budget < normalizedFee) {
-                result = { success: false, message: `${toTeam.name} cannot afford this transfer fee.` }
+                result = { success: false, message: liveText({ key: "lv.cantAfford", params: { club: toTeam.name } }) }
                 return
             }
 
@@ -290,7 +292,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 if (normalizedFee > sanction.maxFee) {
                     result = {
                         success: false,
-                        message: `The board won't sanction a ${formatCurrency(normalizedFee, "$", false)} fee — with confidence at ${state.boardState?.confidence ?? "?"}/100 they cap single signings at ${formatCurrency(sanction.maxFee, "$", false)} (${Math.round(sanction.fraction * 100)}% of budget). Win their trust back.`,
+                        message: liveText({ key: "lv.boardCap", params: { fee: formatCurrency(normalizedFee, "$", false), confidence: state.boardState?.confidence ?? "?", max: formatCurrency(sanction.maxFee, "$", false), pct: Math.round(sanction.fraction * 100) } }),
                     }
                     return
                 }
@@ -388,8 +390,12 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
 
                 state.newsFeed.unshift({
                     id: nextDeterministicId(state, "news_tr", playerId, toTeamId),
-                    title: `${player?.nickname || "Player"} joins ${toTeam.name}`,
-                    content: `${player?.nickname || "Player"} has officially completed a move from ${fromName} to ${toTeam.name}. ${normalizedFee > 0 ? `The deal is estimated to be worth ${formatCurrency(normalizedFee, "$", false)}.` : "The player joins as a free agent."}`,
+                    ...newsText(
+                        { key: "nw.joins.t", params: { name: player?.nickname ?? { key: "dl.thePlayer" }, team: toTeam.name } },
+                        normalizedFee > 0
+                            ? { key: "nw.joins.fee", params: { name: player?.nickname ?? { key: "dl.thePlayer" }, from: fromName, team: toTeam.name, fee: formatCurrency(normalizedFee, "$", false) } }
+                            : { key: "nw.joins.free", params: { name: player?.nickname ?? { key: "dl.thePlayer" }, from: fromName, team: toTeam.name } },
+                    ),
                     category: "TRANSFER",
                     playerId,
                     teamId: toTeamId,
@@ -638,7 +644,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
                 return
             }
             if (team.rosterIds.length <= SENIOR_ROSTER_MIN) {
-                result = { success: false, message: `You need at least ${SENIOR_ROSTER_MIN} senior players to field a team. Sign a replacement first.` }
+                result = { success: false, message: liveText({ key: "lv.minRoster", params: { min: SENIOR_ROSTER_MIN } }) }
                 return
             }
             const contract = state.contracts.find(c => c.playerId === playerId && c.teamId === team.id && c.endWeek > state.currentWeek)
@@ -646,7 +652,7 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
             if (!Number.isFinite(team.budget) || team.budget < cost.amount) {
                 result = {
                     success: false,
-                    message: `Releasing ${player.nickname} costs ${formatCurrency(cost.amount, "$", false)} (${cost.weeksLeft} weeks at ${formatCurrency(cost.wage, "$", false)}/wk); the club has ${formatCurrency(Math.max(0, team.budget || 0), "$", false)}.`,
+                    message: liveText({ key: "lv.releaseCost", params: { name: player.nickname, amount: formatCurrency(cost.amount, "$", false), weeks: { key: "sl.weeks", count: cost.weeksLeft }, wage: formatCurrency(cost.wage, "$", false), budget: formatCurrency(Math.max(0, team.budget || 0), "$", false) } }),
                 }
                 return
             }

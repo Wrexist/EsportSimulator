@@ -1,6 +1,7 @@
 import { Loader2Icon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { t } from '@/lib/i18n'
 
 function Spinner({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
@@ -9,7 +10,7 @@ function Spinner({ className, ...props }: React.ComponentProps<'svg'>) {
     // disable animations.
     <Loader2Icon
       role="status"
-      aria-label="Loading"
+      aria-label={t("common.loading")}
       className={cn('size-4 motion-safe:animate-spin motion-reduce:opacity-60', className)}
       {...props}
     />

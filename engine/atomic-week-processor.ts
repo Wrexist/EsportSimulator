@@ -1,3 +1,5 @@
+import { DATE_REF, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
+import { eventText } from "@/lib/news-ref"
 import { generateCareerDecision } from "./career-decisions"
 import { applyMapRotation, rotateSeasonMapPool } from "./season/map-rotation"
 import { isProActive, processProWeek, handClubDecisionsToStaff } from "./pro-career"
@@ -119,16 +121,24 @@ function eventCauseLabel(event: GameEventSaveData): string {
  * later ("on Sun, Jan 10"), not "today" (HOME-09). Weekly mode plays the
  * whole week in this tick, so "today" stays. Stored text is English.
  */
+export function matchDayWhen(
+    save: Pick<GameSave, "timeMode" | "gameStartDate">,
+    match: { week: number; day?: number },
+): TextRef {
+    if (save.timeMode !== "HYBRID_DAILY" || typeof match.day !== "number" || match.day <= 0) return { key: "evn.when.today" }
+    if (!save.gameStartDate || Number.isNaN(new Date(save.gameStartDate).getTime())) return { key: "evn.when.week" }
+    // Same date math as lib/game-calendar (gameCalendarDate), without its UI-locale import.
+    const date = new Date(save.gameStartDate)
+    date.setUTCDate(date.getUTCDate() + (match.week - 1) * 7 + match.day)
+    return { key: "evn.when.on", params: { date: { key: DATE_REF, params: { iso: date.toISOString() } } } }
+}
+
+/** The English "today" / "this week" / "on Sun, Jan 4" of a match-day notice. */
 export function matchDayPhrase(
     save: Pick<GameSave, "timeMode" | "gameStartDate">,
     match: { week: number; day?: number },
 ): string {
-    if (save.timeMode !== "HYBRID_DAILY" || typeof match.day !== "number" || match.day <= 0) return "today"
-    if (!save.gameStartDate || Number.isNaN(new Date(save.gameStartDate).getTime())) return "this week"
-    // Same date math as lib/game-calendar (gameCalendarDate), without its UI-locale import.
-    const date = new Date(save.gameStartDate)
-    date.setUTCDate(date.getUTCDate() + (match.week - 1) * 7 + match.day)
-    return `on ${date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" })}`
+    return tRefEn(matchDayWhen(save, match))
 }
 
 // ===== DEBUG =====
@@ -391,15 +401,17 @@ export class AtomicWeekProcessor {
                     const tournament = match.tournamentId ? idx.tournamentIndex.get(match.tournamentId) : undefined
 
                     if (opponent && tournament) {
-                        const when = matchDayPhrase(save, match)
+                        const when = matchDayWhen(save, match)
                         save.eventsLog.push({
                             id: `upcoming_match_${match.id}_${save.currentWeek}`,
                             type: "TOURNAMENT",
                             week: save.currentWeek,
                             acknowledged: false,
                             data: {
-                                title: "🎮 Match Day!",
-                                message: `Your team faces ${opponent.name} (#${opponent.worldRanking || '?'}) ${when} in ${tournament.name}. ${match.stage || 'Tournament Match'}. Good luck!`,
+                                ...eventText({ key: "evn.matchDay.t" }, {
+                                    key: opponent.worldRanking ? "evn.matchDay.m" : "evn.matchDay.mNoRank",
+                                    params: { opp: opponent.name, rank: opponent.worldRanking ?? "", when, event: tournament.name, stage: { key: STORED_REF, params: { text: match.stage || "Tournament Match" } } },
+                                }),
                                 severity: "info",
                                 tournamentId: tournament.id,
                                 matchId: match.id,
@@ -649,10 +661,9 @@ export class AtomicWeekProcessor {
                         week: save.currentWeek,
                         acknowledged: false,
                         data: {
-                            title: "Manager Promotion!",
-                            message: slotIncreased
-                                ? `You have reached Manager Level ${newLevel}. Max weekly training slots increased to ${derivedMaxSlots}.`
-                                : `You have reached Manager Level ${newLevel}.`,
+                            ...eventText({ key: "evn.mgrLevel.t" }, slotIncreased
+                                ? { key: "evn.mgrLevel.slots", params: { level: newLevel, slots: derivedMaxSlots } }
+                                : { key: "evn.mgrLevel.m", params: { level: newLevel } }),
                             severity: "success"
                         }
                     })
@@ -1043,8 +1054,7 @@ export class AtomicWeekProcessor {
                         week: save.currentWeek,
                         acknowledged: false,
                         data: {
-                            title: "📧 Tournament Invitation",
-                            message: `Your team's performance has earned an official invitation to **${def.name}**! The event starts in ${def.startWeek - weekOfSeason > 0 ? def.startWeek - weekOfSeason : (52 - weekOfSeason) + def.startWeek} weeks.`,
+                            ...eventText({ key: "evn.invite.t" }, { key: "evn.invite.m", params: { event: def.name, weeks: { key: "sl.weeks", count: def.startWeek - weekOfSeason > 0 ? def.startWeek - weekOfSeason : (52 - weekOfSeason) + def.startWeek } } }),
                             severity: "success",
                             tournamentId: def.id,
                             tier: def.tier
@@ -1222,8 +1232,7 @@ export class AtomicWeekProcessor {
                     week: save.currentWeek,
                     acknowledged: false,
                     data: {
-                        title: "Tournament Started",
-                        message: `${definition.name} has officially begun! Check the Tournament Hub for your opening match.`,
+                        ...eventText({ key: "evn.started.t" }, { key: "evn.started.m", params: { event: definition.name } }),
                         severity: "info",
                         tournamentId: definition.id
                     }

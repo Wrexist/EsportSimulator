@@ -25,6 +25,7 @@ import {
 } from "@/engine/weapon-mastery-system"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { storedText } from "@/lib/stored-text"
 interface WeaponTrainingModalProps {
     isOpen: boolean
     onClose: () => void
@@ -109,7 +110,7 @@ export function WeaponTrainingModal({ isOpen, onClose, player }: WeaponTrainingM
             })
         } else {
             toast.error(t("tr.w.failed"), {
-                description: result.message
+                description: storedText(result.message)
             })
         }
 

@@ -1,5 +1,5 @@
 import { PageSkeleton } from "@/components/ui/skeletons"
 
 export default function Loading() {
-    return <PageSkeleton title="Career" />
+    return <PageSkeleton titleKey="nav.manager" />
 }

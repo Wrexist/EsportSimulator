@@ -3,6 +3,7 @@ import { applyChoiceEffects, type ChoiceTarget } from '@/engine/event-choice'
 import { EventProcessor } from '@/engine/processors/event-processor'
 import { SeededRNG } from '@/engine/rng'
 import type { GameSave, PlayerSaveData, TeamSaveData } from '@/engine/save-types'
+import { tRefEn } from '@/lib/i18n'
 
 const player = (id: string, over: Partial<PlayerSaveData> = {}): PlayerSaveData => ({
     id, nickname: id, fatigue: 0, health: 100, age: 22, morale: 50, form: 50, loyalty: 50, ...over,
@@ -83,7 +84,8 @@ describe('C5: workload and injury risk', () => {
         const n = await EventProcessor.generateWorkloadWarnings(save, tx as never, 't', saveManager as never)
         expect(n).toBe(1)
         expect(save.eventsLog[0].id).toBe('workload_tired_5')
-        expect(save.eventsLog[0].choices?.find(c => c.id === 'play')?.effects.follows).toMatch(/^Injury chance .+% this week$/)
+        const follows = save.eventsLog[0].choices?.find(c => c.id === 'play')?.effects.follows
+        expect(typeof follows === 'string' ? follows : tRefEn(follows!)).toMatch(/^Injury chance .+% this week$/)
         // Resumed week: no duplicate.
         expect(await EventProcessor.generateWorkloadWarnings(save, tx as never, 't', saveManager as never)).toBe(0)
     })

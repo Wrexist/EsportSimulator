@@ -1,5 +1,5 @@
 "use client"
-import { t, tn } from "@/lib/i18n"
+import { listJoin, t, tn } from "@/lib/i18n"
 
 /**
  * G1: the playbook — one call per map, side and buy. "IGL decides" leaves
@@ -102,7 +102,7 @@ export function PlaybookEditor({ maps = ACTIVE_MAP_POOL, className }: PlaybookEd
             return
         }
         setPlaybook(playerTeamId, { ...playbook, ...read })
-        toast.success("Playbook imported", { description: `Calls set on ${Object.keys(read).map(getMapName).join(", ")}.` })
+        toast.success(t("playbook.imported"), { description: t("playbook.importedBody", { maps: listJoin(Object.keys(read).map(getMapName)) }) })
         setCode("")
         setImporting(false)
     }

@@ -12,6 +12,7 @@
  * reach state.teams[i].
  */
 
+import { liveText } from "@/lib/i18n"
 import type { TournamentActions, SliceCreator } from "@/store/types"
 import { FULL_TOURNAMENT_CALENDAR, CIRCUIT_POINTS } from "@/data/tournament-calendar"
 import {
@@ -27,6 +28,7 @@ import { seniorRosterEligibility } from "@/engine/recruitment"
 import { QualificationEngine } from "@/engine/tournament-qualification"
 import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
 import { nextDeterministicId } from "@/store/utils/helpers"
+import { eventText, newsText } from "@/lib/news-ref"
 
 export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get) => ({
     registerForTournament: (tournamentId: string) => {
@@ -78,7 +80,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 const mainTournament = FULL_TOURNAMENT_CALENDAR.find(t => t.id === definition.qualifierFor)
                 return {
                     success: false,
-                    message: `Already qualified for ${mainTournament?.name || "main tournament"}. Cannot enter qualifier.`,
+                    message: liveText(mainTournament?.name ? { key: "lv.qualifiedFor", params: { event: mainTournament.name } } : { key: "lv.qualifiedMain" }),
                 }
             }
 
@@ -95,7 +97,7 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 if (isInSibling) {
                     return {
                         success: false,
-                        message: `Already registered for ${sibling.name || sibling.shortName}. Cannot enter multiple qualifiers for the same tournament.`,
+                        message: liveText({ key: "lv.siblingQualifier", params: { event: sibling.name || sibling.shortName } }),
                     }
                 }
             }
@@ -121,14 +123,13 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 acknowledged: false,
                 data: {
                     tournamentId: instanceId,
-                    title: "Registration Confirmed",
-                    message: `Your team has successfully registered for ${definition.name}. Check your schedule for upcoming qualification matches.`,
+                    ...eventText({ key: "evn.registered.t" }, { key: "evn.registered.m", params: { event: definition.name } }),
                     sender: "Tournament Ops",
                     severity: "success",
                 },
             })
         })
-        return { success: true, message: `Registered for ${definition.name}` }
+        return { success: true, message: liveText({ key: "lv.registered", params: { event: definition.name } }) }
     },
 
     checkTournamentEligibility: (tournamentId: string) => {
@@ -251,8 +252,10 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 const newsId = nextDeterministicId(state, "news_win", tournamentId, teamId)
                 state.newsFeed.unshift({
                     id: newsId,
-                    title: `${team?.name || "Team"} win ${tournamentName}!`,
-                    content: `${team?.name || "Team"} have been crowned champions of ${tournamentName} after a hard-fought battle. This victory marks a significant milestone in their season history.`,
+                    ...newsText(
+                        { key: "nw.cupWin.t", params: { team: team?.name ?? { key: "stf.theClub" }, event: tournamentName } },
+                        { key: "nw.cupWin.c", params: { team: team?.name ?? { key: "stf.theClub" }, event: tournamentName } },
+                    ),
                     category: "TOURNAMENT",
                     teamId: teamId,
                     week: state.currentWeek,

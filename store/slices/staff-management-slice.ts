@@ -42,12 +42,22 @@ import {
 } from "@/store/utils/helpers"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { liveText, type TextRef, tRefEn } from "@/lib/i18n"
 import { staffRefreshCost, staffSeverance } from "@/engine/staff-economy"
 const MAX_STAFF_PER_TEAM = 5
 const MAX_PER_ROLE = 1
 const DEFAULT_CONTRACT_WEEKS = 52
 const MARKET_SLOT_COUNT = 20
 const NEWS_FEED_CAP = 50
+
+/** A hire or renewal result; `ref` shows the message in the active language. */
+export interface StaffResult { success: boolean; message: string; ref?: TextRef }
+
+const failed = (key: string, params?: TextRef["params"]): StaffResult => {
+    const ref: TextRef = { key, ...(params ? { params } : {}) }
+    return { success: false, message: tRefEn(ref), ref }
+}
+const TERMS: TextRef = { key: "stf.err.terms" }
 
 export interface StaffManagementActions {
     refreshStaffMarket: () => void
@@ -56,12 +66,12 @@ export interface StaffManagementActions {
     hireStaff: (
         staffId: string,
         terms?: { salary?: number; duration?: number; signingBonus?: number },
-    ) => { success: boolean; message: string }
+    ) => StaffResult
     renewStaffContract: (
         staffId: string,
         salary: number,
         duration: number,
-    ) => { success: boolean; message: string }
+    ) => StaffResult
     fireStaff: (staffId: string) => void
 }
 
@@ -89,12 +99,12 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
     requestStaffMarketRefresh: () => {
         const state = get()
         const team = state.teams.find(t => t.id === state.playerTeamId)
-        if (!team) return { success: false, message: "No club to refresh the staff market for.", cost: 0 }
+        if (!team) return { success: false, message: liveText({ key: "lv.staffRefreshNoClub" }), cost: 0 }
         const { free, cost } = staffRefreshCost(state.marketStaff ?? [], state.currentWeek, state.staffMarketRefreshWeek)
         if (!free && (!Number.isFinite(team.budget) || team.budget < cost)) {
             return {
                 success: false,
-                message: `Another refresh this week costs ${formatCurrency(cost, "$", false)}; the club has ${formatCurrency(Math.max(0, team.budget || 0), "$", false)}.`,
+                message: liveText({ key: "lv.staffRefreshFunds", params: { cost: formatCurrency(cost, "$", false), funds: formatCurrency(Math.max(0, team.budget || 0), "$", false) } }),
                 cost,
             }
         }
@@ -116,15 +126,15 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
                 balance: club.budget,
             })
         })
-        return { success: true, message: "Market refreshed", cost: free ? 0 : cost }
+        return { success: true, message: liveText({ key: "st.refreshed" }), cost: free ? 0 : cost }
     },
 
     hireStaff: (staffId, terms) => {
-        let result = { success: false, message: "" }
+        let result: StaffResult = { success: false, message: "" }
         set((state) => {
             const staffIndex = state.marketStaff.findIndex(s => s.id === staffId)
             if (staffIndex === -1) {
-                result = { success: false, message: "Staff member not found" }
+                result = failed("stf.err.notFound")
                 return
             }
 
@@ -132,7 +142,7 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team) return
             if (state.staff.some(s => s.id === staffId) || state.teams.some(t => t.staffIds.includes(staffId))) {
-                result = { success: false, message: "This staff member is already employed." }; return
+                result = failed("stf.err.employed"); return
             }
 
             // Negotiated terms or sensible defaults (full salary, 1 year,
@@ -143,17 +153,17 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
 
             const salaryValidation = parseBoundedInt(rawSalary, "Staff salary", 1, MAX_STAFF_SALARY_PER_WEEK)
             if (!salaryValidation.ok) {
-                result = { success: false, message: salaryValidation.message }
+                result = { success: false, message: salaryValidation.message, ref: TERMS }
                 return
             }
             const durationValidation = parseBoundedInt(rawDuration, "Contract duration", 1, MAX_CONTRACT_LENGTH_WEEKS)
             if (!durationValidation.ok) {
-                result = { success: false, message: durationValidation.message }
+                result = { success: false, message: durationValidation.message, ref: TERMS }
                 return
             }
             const signingFeeValidation = parseBoundedInt(rawSigningFee, "Signing bonus", 0, MAX_SIGNING_BONUS)
             if (!signingFeeValidation.ok) {
-                result = { success: false, message: signingFeeValidation.message }
+                result = { success: false, message: signingFeeValidation.message, ref: TERMS }
                 return
             }
 
@@ -162,19 +172,19 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             const signingFee = signingFeeValidation.value
 
             if (!Number.isFinite(team.budget) || team.budget < signingFee) {
-                result = { success: false, message: `Insufficient funds. Need ${formatCurrency(signingFee, "$", false)}` }
+                result = failed("stf.err.funds", { amount: formatCurrency(signingFee, "$", false) })
                 return
             }
 
             // Roster cap + role uniqueness.
             const currentStaff = state.staff.filter(s => s.teamId === team.id)
             if (currentStaff.length >= MAX_STAFF_PER_TEAM) {
-                result = { success: false, message: `Staff roster full (Max ${MAX_STAFF_PER_TEAM})` }
+                result = failed("stf.err.full", { max: MAX_STAFF_PER_TEAM })
                 return
             }
             const roleCount = currentStaff.filter(s => s.role === staffMember.role).length
             if (roleCount >= MAX_PER_ROLE) {
-                result = { success: false, message: `You already have a ${staffMember.role}!` }
+                result = failed("stf.err.role", { role: { key: `staffRole.${staffMember.role}` } })
                 return
             }
 
@@ -205,10 +215,14 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             })
             team.staffIds.push(staffMember.id)
 
+            const hiredTitle: TextRef = { key: "stf.hiredTitle", params: { name: staffMember.name, team: team.name } }
+            const hiredBody: TextRef = { key: "stf.hiredBody", params: { name: staffMember.name, team: team.name, role: { key: `staffRole.${staffMember.role}` }, weeks: { key: "sl.weeks", count: duration } } }
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_hire", staffMember.id),
-                title: `${staffMember.name} hired by ${team.name}`,
-                content: `${team.name} have officially signed ${staffMember.name} to their staff roster as ${staffMember.role}. The contract is expected to run for ${duration} weeks.`,
+                title: tRefEn(hiredTitle),
+                content: tRefEn(hiredBody),
+                titleRef: hiredTitle,
+                contentRef: hiredBody,
                 category: "STAFF",
                 teamId: team.id,
                 week: state.currentWeek,
@@ -219,28 +233,28 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()
 
-            result = { success: true, message: `Hired ${staffMember.name}!` }
+            result = { success: true, message: liveText({ key: "lv.hired", params: { name: staffMember.name } }) }
         })
         return result
     },
 
     renewStaffContract: (staffId, salary, duration) => {
-        let result = { success: false, message: "" }
+        let result: StaffResult = { success: false, message: "" }
         set((state) => {
             const staff = state.staff.find(s => s.id === staffId && s.teamId === state.playerTeamId)
             if (!staff) {
-                result = { success: false, message: "Staff not found" }
+                result = failed("stf.err.notFound")
                 return
             }
 
             const salaryValidation = parseBoundedInt(salary, "Staff salary", 1, MAX_STAFF_SALARY_PER_WEEK)
             if (!salaryValidation.ok) {
-                result = { success: false, message: salaryValidation.message }
+                result = { success: false, message: salaryValidation.message, ref: TERMS }
                 return
             }
             const durationValidation = parseBoundedInt(duration, "Contract duration", 1, MAX_CONTRACT_LENGTH_WEEKS)
             if (!durationValidation.ok) {
-                result = { success: false, message: durationValidation.message }
+                result = { success: false, message: durationValidation.message, ref: TERMS }
                 return
             }
 
@@ -249,12 +263,12 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
 
             const team = state.teams.find(t => t.id === state.playerTeamId)
             if (!team?.staffIds.includes(staffId) || (staff.contractEndWeek !== undefined && staff.contractEndWeek <= state.currentWeek)) {
-                result = { success: false, message: "This staff contract is no longer active. Hire them from the market instead." }
+                result = failed("stf.err.inactive")
                 return
             }
             const reserve = Math.max(0, normalizedSalary - staff.salaryPerWeek) * 26
             if (!Number.isFinite(team.budget) || team.budget < reserve) {
-                result = { success: false, message: "Insufficient cash reserve for the increased weekly staff salary." }
+                result = failed("stf.err.reserve")
                 return
             }
 
@@ -311,10 +325,14 @@ export const createStaffManagementSlice: SliceCreator<StaffManagementActions> = 
             }
             state.staff.splice(staffIndex, 1)
 
+            const leftTitle: TextRef = { key: "stf.leftTitle", params: { name: staffMember.name, team: team?.name ?? { key: "stf.theClub" } } }
+            const leftBody: TextRef = { key: "stf.leftBody", params: { name: staffMember.name, role: { key: `staffRole.${staffMember.role}` } } }
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_fire", staffId),
-                title: `${staffMember.name} leaves ${team?.name || "Organization"}`,
-                content: `The organization has announced that ${staffMember.name} is no longer serving as their ${staffMember.role}. The search for a replacement begins immediately.`,
+                title: tRefEn(leftTitle),
+                content: tRefEn(leftBody),
+                titleRef: leftTitle,
+                contentRef: leftBody,
                 category: "STAFF",
                 teamId: team?.id,
                 week: state.currentWeek,

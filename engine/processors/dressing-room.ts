@@ -24,7 +24,6 @@ import type { CauseResolver, ChangeCause } from "@/lib/week-changes"
 import { evaluatePlayer } from "../player-evaluation"
 import { PERSONALITY_TUNING as T } from "@/lib/balance-tuning"
 import {
-    ARCHETYPE_INFO,
     PROMISE_LABEL,
     benchMoraleFactor,
     caresAboutWages,
@@ -35,6 +34,7 @@ import {
     pruneMentorships,
 } from "../personality"
 import { plural } from "@/lib/plural"
+import { tRefEn, type TextRef } from "@/lib/i18n"
 
 export interface DressingRoomResult {
     benched: number
@@ -142,10 +142,7 @@ export function processDressingRoom(save: GameSave, playerTeamId: string | null,
                 id, type: "MORALE", week, acknowledged: false,
                 data: {
                     playerId: p.id, playerName: p.nickname, teamId: team.id,
-                    title: kept ? `${p.nickname}: promise kept` : `${p.nickname}: promise broken`,
-                    message: kept
-                        ? `You kept your word to ${p.nickname} (“${PROMISE_LABEL[promise.kind].promise}”). Morale +${T.PROMISE_KEPT_MORALE}, loyalty +${T.PROMISE_KEPT_LOYALTY}.`
-                        : `${p.nickname} feels let down: “${PROMISE_LABEL[promise.kind].promise}” did not happen. Morale ${T.PROMISE_BROKEN_MORALE}, loyalty ${T.PROMISE_BROKEN_LOYALTY}.`,
+                    ...promiseOutcomeText(p.nickname, promise.kind, kept),
                 },
             })
         }
@@ -182,12 +179,12 @@ export function processDressingRoom(save: GameSave, playerTeamId: string | null,
 }
 
 /** Why he is unhappy, in his words, and the promise that answers it. */
-function requestReason(p: PlayerSaveData, team: TeamSaveData): { reason: "BENCH" | "MORALE"; text: string } {
+function requestReason(p: PlayerSaveData, team: TeamSaveData): { reason: "BENCH" | "MORALE"; ref: TextRef } {
     const apps = p.personality?.apps
     if (apps && apps.teamId === team.id && apps.regular && apps.benched >= T.BENCH_MATCHES) {
-        return { reason: "BENCH", text: `He has sat out ${apps.benched} official matches in a row and wants to play.` }
+        return { reason: "BENCH", ref: { key: "tr.req.bench", count: apps.benched } }
     }
-    return { reason: "MORALE", text: `His morale has been below ${T.UNHAPPY_MORALE} for weeks and he doubts the project.` }
+    return { reason: "MORALE", ref: { key: "tr.req.morale", params: { n: T.UNHAPPY_MORALE } } }
 }
 
 /**
@@ -195,10 +192,23 @@ function requestReason(p: PlayerSaveData, team: TeamSaveData): { reason: "BENCH"
  * every answer. `cause` replaces the morale/bench reason when another rule
  * raises the request (Phase 5.3: an unrenewed contract standoff).
  */
-export function transferRequestEvent(p: PlayerSaveData, team: TeamSaveData, week: number, cause?: { reason: string; text: string }): GameEventSaveData {
+export function transferRequestEvent(p: PlayerSaveData, team: TeamSaveData, week: number, cause?: { reason: string; ref: TextRef }): GameEventSaveData {
     const archetype = getArchetype(p)
-    const { reason, text } = cause ?? requestReason(p, team)
+    const { reason, ref: why } = cause ?? requestReason(p, team)
     const promise = reason === "BENCH" ? "START" : "COMPETE"
+    const promised: TextRef = { key: `promise.${promise}.promise` }
+    const title: TextRef = { key: "tr.req.t", params: { name: p.nickname } }
+    const message: TextRef = {
+        key: "tr.req.m",
+        params: {
+            name: p.nickname, archetype: { key: `arch.${archetype}.label` }, why, promise: promised,
+            rule: promise === "START"
+                ? { key: "tr.req.ruleStart", params: { limit: T.PROMISE_START_BENCH_LIMIT, weeks: T.PROMISE_START_WEEKS } }
+                : { key: "tr.req.ruleCompete", params: { gain: T.PROMISE_COMPETE_RANK_GAIN, weeks: T.PROMISE_COMPETE_WEEKS } },
+            outcome: { key: "dressing.promiseRules", params: { keptMorale: T.PROMISE_KEPT_MORALE, keptLoyalty: T.PROMISE_KEPT_LOYALTY, brokenMorale: T.PROMISE_BROKEN_MORALE, brokenLoyalty: T.PROMISE_BROKEN_LOYALTY } },
+        },
+    }
+    const choice = (ref: TextRef) => ({ text: tRefEn(ref), ref })
     return {
         id: `transfer_request_${p.id}_${week}`,
         type: "MORALE",
@@ -210,18 +220,25 @@ export function transferRequestEvent(p: PlayerSaveData, team: TeamSaveData, week
             teamId: team.id,
             reason,
             archetype,
-            title: `${p.nickname} asks to leave`,
-            message: `${p.nickname} (${ARCHETYPE_INFO[archetype].label}) has handed in a transfer request. ${text} `
-                + `List him and his morale recovers; refuse and it drops; or give him your word: “${PROMISE_LABEL[promise].promise}”. `
-                + (promise === "START"
-                    ? `A promise to start is broken if he sits out ${T.PROMISE_START_BENCH_LIMIT} official matches in a row within ${T.PROMISE_START_WEEKS} weeks.`
-                    : `A promise to compete is kept by a trophy or a climb of ${T.PROMISE_COMPETE_RANK_GAIN} world-ranking places within ${T.PROMISE_COMPETE_WEEKS} weeks.`)
-                + ` Kept: morale +${T.PROMISE_KEPT_MORALE}, loyalty +${T.PROMISE_KEPT_LOYALTY}. Broken: morale ${T.PROMISE_BROKEN_MORALE}, loyalty ${T.PROMISE_BROKEN_LOYALTY}.`,
+            title: tRefEn(title),
+            titleRef: title,
+            message: tRefEn(message),
+            messageRef: message,
         },
         choices: [
-            { id: "accept", text: "Accept: transfer-list him", effects: { transferList: true, morale: T.REQUEST_ACCEPT_MORALE } },
-            { id: "promise", text: `Promise: “${PROMISE_LABEL[promise].promise}”`, effects: { promise, morale: T.REQUEST_PROMISE_MORALE } },
-            { id: "refuse", text: "Refuse the request", effects: { morale: T.REQUEST_REFUSE_MORALE, loyalty: T.REQUEST_REFUSE_LOYALTY } },
+            { id: "accept", ...choice({ key: "tr.req.accept" }), effects: { transferList: true, morale: T.REQUEST_ACCEPT_MORALE } },
+            { id: "promise", ...choice({ key: "tr.req.promise", params: { promise: promised } }), effects: { promise, morale: T.REQUEST_PROMISE_MORALE } },
+            { id: "refuse", ...choice({ key: "tr.req.refuse" }), effects: { morale: T.REQUEST_REFUSE_MORALE, loyalty: T.REQUEST_REFUSE_LOYALTY } },
         ],
     } as unknown as GameEventSaveData
+}
+
+/** The inbox note when a promise is kept or broken: English text plus refs for the active language. */
+function promiseOutcomeText(name: string, kind: string, kept: boolean) {
+    const promise: TextRef = { key: `promise.${kind}.promise` }
+    const titleRef: TextRef = { key: kept ? "tr.prom.keptT" : "tr.prom.brokenT", params: { name } }
+    const messageRef: TextRef = kept
+        ? { key: "tr.prom.keptM", params: { name, promise, morale: T.PROMISE_KEPT_MORALE, loyalty: T.PROMISE_KEPT_LOYALTY } }
+        : { key: "tr.prom.brokenM", params: { name, promise, morale: T.PROMISE_BROKEN_MORALE, loyalty: T.PROMISE_BROKEN_LOYALTY } }
+    return { title: tRefEn(titleRef), titleRef, message: tRefEn(messageRef), messageRef }
 }

@@ -143,7 +143,7 @@ export const contractStandoff: ArcDefinition = {
         if (choice === "wait" && ctx.week >= num(arc, "requestWeek")) {
             const team = ctx.team(arc.teamId)!
             if (!openTransferRequest(ctx, id)) {
-                const event = transferRequestEvent(p, team, ctx.week, { reason: "CONTRACT", text: `His contract ends in Week ${c.endWeek} and no new deal was offered.` })
+                const event = transferRequestEvent(p, team, ctx.week, { reason: "CONTRACT", ref: { key: "tr.req.contract", params: { week: c.endWeek } } })
                 ctx.save.eventsLog.push(event)
                 ctx.openDecisions++
                 ensurePersonality(p).personality!.lastRequestWeek = ctx.week
