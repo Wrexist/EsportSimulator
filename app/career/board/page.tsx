@@ -27,6 +27,7 @@ import {
     signedDelta,
 } from "@/components/career/board-view"
 import { t, tn } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 
 const T = BOARD_TUNING
 const EXPECTATIONS = new Set(["WIN", "CONTEND", "COMPETE", "SURVIVE"])
@@ -181,7 +182,7 @@ export default function BoardPage() {
                                     {weeks.map(w => w.moves.map((m, i) => (
                                         <tr key={`${w.week}_${i}`} data-slot="table-row" className={cn("h-10 border-line", i === w.moves.length - 1 ? "border-b" : "")}>
                                             <td className="pl-4 align-middle text-sm tabular-nums text-ink-3">{i === 0 ? ((w.week - 1) % 52) + 1 : ""}</td>
-                                            <td className="py-1.5 pr-3 text-sm text-ink-1">{m.cause}</td>
+                                            <td className="py-1.5 pr-3 text-sm text-ink-1">{storedText(m.cause)}</td>
                                             <td className={cn("pr-4 text-right text-sm font-semibold tabular-nums", m.delta > 0 ? "text-positive" : m.delta < 0 ? "text-negative" : "text-ink-3")}>{signedDelta(m.delta)}</td>
                                         </tr>
                                     )))}
@@ -234,7 +235,7 @@ export default function BoardPage() {
                                     <p className={cn("text-sm font-semibold tabular-nums", review.delta >= 0 ? "text-positive" : "text-negative")}>{signedDelta(review.delta)} → {Math.round(review.confidence)}</p>
                                 </div>
                                 <ul className="space-y-1 text-sm text-ink-2">
-                                    {review.summary.split(". ").filter(Boolean).map((line, i) => <li key={i}>{line.replace(/\.$/, "")}.</li>)}
+                                    {review.summary.split(". ").filter(Boolean).map((line, i) => <li key={i}>{storedText(line.replace(/\.$/, ""))}.</li>)}
                                 </ul>
                             </div>
                         ) : (

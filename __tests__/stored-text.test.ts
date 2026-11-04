@@ -106,7 +106,7 @@ describe("storylines", () => {
         expect(newsContent({ content: "Old English." })).toBe("Old English.")
         expect(lineText({ text: "x", ref: { key: JOIN_REF, params: { sep: " ", 0: { key: "sl.bp.log", params: { confidence: 30 } }, 1: { key: "sl.gk.reward", params: { fans: { key: NUMBER_REF, count: 12000 }, board: 5 } } } } }))
             .toBe("Vorstandsvertrauen auf 30/100 gefallen. Der Lauf bringt 12.000 neue Follower, und das Vertrauen des Vorstands steigt um 5.")
-        expect(lineText({ text: "x", ref: { key: "sl.bp.setbacks", params: { causes: { key: LIST_REF, params: { 0: { key: STORED_REF, params: { text: "Lost to THEM" } } } } } } })).toBe("Jüngste Rückschläge: Lost to THEM.")
+        expect(lineText({ text: "x", ref: { key: "sl.bp.setbacks", params: { causes: { key: LIST_REF, params: { 0: { key: STORED_REF, params: { text: "Lost to THEM" } } } } } } })).toBe("Jüngste Rückschläge: Niederlage gegen THEM.")
     })
 })
 
@@ -123,5 +123,14 @@ describe("news feed", () => {
         expect(newsContent(item)).toBe("Us beendet den Split als 3. von 10 (7–2). Aufstieg in Division 1 zum nächsten Split.")
         const injury = newsText({ key: "nw.injury.t", params: { name: "Ace", injury: { key: STORED_REF, params: { text: "Wrist Strain" } } } }, { key: "nw.sev.MINOR" })
         expect(newsTitle(injury)).toBe(`Ace fällt aus: ${de["svd.inj.wristStrain"]}`)
+    })
+
+    it("board causes and reviews follow the language", () => {
+        setLocale("de")
+        expect(storedText("Behind target: 5th in Europe Division 2 (target 3rd)")).toContain("Hinter dem Ziel")
+        expect(storedText("Finances at risk: 3 weeks of runway")).toBe("Finanzen gefährdet: Reserve für 3 Wochen")
+        expect(storedText("Season ranking met: #12, 2 trophies (target #15)")).toBe("Saisonplatzierung erreicht: #12, 2 Titel (Ziel #15)")
+        expect(storedText("Season 3 board review: expectations met")).toBe("Vorstandsbilanz Saison 3: Erwartungen erfüllt")
+        expect(storedText("Results: 2 won, 1 lost")).toBe("Ergebnisse: 2 gewonnen, 1 verloren")
     })
 })

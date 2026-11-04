@@ -19,6 +19,7 @@ import { Meter } from "@/src/components/ui/Meter"
 import { cn } from "@/lib/utils"
 import { LEGACY_GOALS } from "@/engine/legacy-goals"
 import { t, tn } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
 import { Trans } from "@/lib/trans"
 
 const LEGACY_REP_MIN = Math.min(...LEGACY_GOALS.flatMap(g => g.reputation))
@@ -67,7 +68,7 @@ export function ReputationPanel() {
                     {recent.map((c, i) => (
                         <li key={`${c.week}-${i}`} className="flex items-center gap-3 px-3 py-2 text-sm">
                             <span className="w-16 shrink-0 tabular-nums text-ink-3">{weekLabel(c.week)}</span>
-                            <span className="min-w-0 flex-1 truncate text-ink-2" title={c.cause}>{c.cause}</span>
+                            <span className="min-w-0 flex-1 truncate text-ink-2" title={storedText(c.cause)}>{storedText(c.cause)}</span>
                             <span className={cn("shrink-0 font-semibold tabular-nums", c.delta > 0 ? "text-positive" : "text-negative")}>{signed(c.delta)}</span>
                         </li>
                     ))}
