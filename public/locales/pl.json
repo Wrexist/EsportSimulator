@@ -93,6 +93,8 @@
  "nf.back": "Wróć do menu głównego",
  "a11y.statHelp": "Pokaż objaśnienie statystyki",
  "a11y.dismissToast": "Zamknij powiadomienie",
+ "common.seasonShort": "S{{s}}",
+ "common.seasonWeekShort": "S{{s}} T{{w}}",
  "common.confirm": "Potwierdź",
  "common.cancel": "Anuluj",
  "common.processing": "Przetwarzanie…",

@@ -64,7 +64,7 @@ function LegendsTable({ legends, playerById, activeIds }: { legends: HallOfFameE
                         const titles = !c ? undefined
                             : legend.category === "FOUNDING" && !legend.career && c.trophies === 0 ? undefined
                                 : Math.max(c.trophies, c.majors)
-                        const era = legend.category === "INDUCTED" ? `S${legend.eraStart}–${active ? t("hof.now") : `S${legend.eraEnd}`}` : `${legend.eraStart}–${active ? t("hof.now") : legend.eraEnd}`
+                        const era = legend.category === "INDUCTED" ? `${t("common.seasonShort", { s: legend.eraStart })}–${active ? t("hof.now") : t("common.seasonShort", { s: legend.eraEnd })}` : `${legend.eraStart}–${active ? t("hof.now") : legend.eraEnd}`
                         return (
                             <tr key={legend.id} data-slot="table-row" className="h-14 border-b border-line">
                                 <td className="py-2 pl-4 pr-3">

@@ -22,6 +22,8 @@ export const COMMON = {
     "nf.back": "Back to main menu",
     "a11y.statHelp": "Show stat explanation",
     "a11y.dismissToast": "Dismiss notification",
+    "common.seasonShort": "S{{s}}",
+    "common.seasonWeekShort": "S{{s}} W{{w}}",
     "common.confirm": "Confirm",
     "common.cancel": "Cancel",
     "common.processing": "Processing…",

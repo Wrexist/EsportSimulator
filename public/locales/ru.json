@@ -93,6 +93,8 @@
  "nf.back": "Вернуться в главное меню",
  "a11y.statHelp": "Показать пояснение к характеристике",
  "a11y.dismissToast": "Закрыть уведомление",
+ "common.seasonShort": "С{{s}}",
+ "common.seasonWeekShort": "С{{s}} Н{{w}}",
  "common.confirm": "Подтвердить",
  "common.cancel": "Отмена",
  "common.processing": "Выполняется…",

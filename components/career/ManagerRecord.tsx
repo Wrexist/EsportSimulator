@@ -27,7 +27,7 @@ const LEGACY_REP_MAX = Math.max(...LEGACY_GOALS.flatMap(g => g.reputation))
 
 const endedLabel = (ended: StintEnd) => t(`car.ended.${ended}`)
 const signed = (n: number) => `${n > 0 ? "+" : ""}${n}`
-const weekLabel = (week: number) => `S${Math.ceil(week / 52)} W${((week - 1) % 52) + 1}`
+const weekLabel = (week: number) => t("common.seasonWeekShort", { s: Math.ceil(week / 52), w: ((week - 1) % 52) + 1 })
 
 /** Titles won in a stint: counted as they happen; for a stint tracked late, the club's trophies in the window. */
 export function stintTitles(stint: ManagerStint, team: TeamSaveData | undefined): { titles: number; majors: number } {

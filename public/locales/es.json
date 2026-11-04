@@ -90,6 +90,8 @@
  "nf.back": "Volver al menú principal",
  "a11y.statHelp": "Mostrar explicación del dato",
  "a11y.dismissToast": "Cerrar notificación",
+ "common.seasonShort": "T{{s}}",
+ "common.seasonWeekShort": "T{{s}} S{{w}}",
  "common.confirm": "Confirmar",
  "common.cancel": "Cancelar",
  "common.processing": "Procesando…",

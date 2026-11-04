@@ -30,7 +30,7 @@ const TIER_ORDER = ["S_TIER", "A_TIER", "B_TIER", "C_TIER"] as const
 const TIER_KEYS = new Set(["S_TIER", "A_TIER", "B_TIER", "C_TIER", "QUALIFIER"])
 const tierLabel = (tier: string) => TIER_KEYS.has(tier) ? t(`common.tier.${tier}`) : tier
 const displayName = (name: string) => name.replace(/\s+\d{4}$/, "")
-const weekLabel = (week: number) => `S${Math.ceil(week / WEEKS_PER_YEAR)} W${((week - 1) % WEEKS_PER_YEAR) + 1}`
+const weekLabel = (week: number) => t("common.seasonWeekShort", { s: Math.ceil(week / WEEKS_PER_YEAR), w: ((week - 1) % WEEKS_PER_YEAR) + 1 })
 const baseId = (id: string) => id.replace(/_s\d+$/, "")
 
 export default function TrophyRoomPage() {

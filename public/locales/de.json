@@ -87,6 +87,8 @@
  "nf.back": "Zurück zum Hauptmenü",
  "a11y.statHelp": "Erklärung zum Wert anzeigen",
  "a11y.dismissToast": "Benachrichtigung schließen",
+ "common.seasonShort": "S{{s}}",
+ "common.seasonWeekShort": "S{{s}} W{{w}}",
  "common.confirm": "Bestätigen",
  "common.cancel": "Abbrechen",
  "common.processing": "Wird ausgeführt …",
