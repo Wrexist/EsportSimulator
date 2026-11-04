@@ -8,12 +8,13 @@ import { cn } from "@/lib/utils"
 import { inboxBadgeCount } from "./inbox-model"
 import { selectInboxCounts } from "./inbox-store-bindings"
 import { useInboxDrawer } from "./inbox-drawer-store"
+import { t, tn } from "@/lib/i18n"
 
 function describe(decisions: number, unread: number): string {
     const parts: string[] = []
-    if (decisions > 0) parts.push(`${decisions} decision${decisions === 1 ? "" : "s"} waiting`)
-    if (unread > 0) parts.push(`${unread} unread`)
-    return parts.length ? parts.join(", ") : "nothing new"
+    if (decisions > 0) parts.push(tn("ib.decisionsWaiting", decisions))
+    if (unread > 0) parts.push(t("ib.unread", { n: unread }))
+    return parts.length ? parts.join(", ") : t("ib.nothingNew")
 }
 
 /** Top-bar inbox entry: opens the drawer; badge = open decisions + unread messages. */
@@ -29,7 +30,7 @@ export function InboxButton() {
 
     if (mounted && !hasCareer) return null
     const badge = mounted ? inboxBadgeCount({ decisions, unreadMessages, unreadNews }) : 0
-    const label = `Inbox: ${describe(decisions, unreadMessages)}`
+    const label = t("ib.buttonLabel", { summary: describe(decisions, unreadMessages) })
 
     return (
         <button

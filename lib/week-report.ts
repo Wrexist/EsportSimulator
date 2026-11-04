@@ -19,6 +19,10 @@ import {
 } from "./week-changes"
 import type { StoryArc } from "@/engine/storylines/types"
 import { STORY_KIND_LABEL, leadingBeat } from "@/engine/storylines/view"
+import type { StoryArcKind } from "@/engine/storylines/types"
+import { getLocale, intlLocale, t, tn } from "@/lib/i18n"
+import { storedText } from "@/lib/stored-text"
+import { storyKindName } from "@/lib/story-names"
 
 export const WEEK_REPORT_HISTORY = 4
 /** Busy weeks keep the most important entries (club, injuries, contracts, attributes, then the biggest condition swings). */
@@ -296,44 +300,56 @@ export function moneyNet(report: Pick<WeekReport, "changes">): number {
     return report.changes.filter(e => e.kind === "money").reduce((s, e) => s + e.delta, 0)
 }
 
-/** One sentence built from the week's biggest real changes. */
+/** One sentence built from the week's biggest real changes, in the active language. */
 export function weekHeadline(report: Omit<WeekReport, "headline">): string {
+    const en = getLocale() === "en"
     const clauses: string[] = []
     const { matches } = report
     if (matches.length === 1) {
         const m = matches[0]
-        clauses.push(m.forfeit ? `${m.won ? "Won" : "Lost"} by forfeit against ${m.opponentName}` : `${m.won ? "Beat" : "Lost to"} ${m.opponentName} ${m.score}`)
+        clauses.push(m.forfeit
+            ? t(m.won ? "wr.h.forfeitWon" : "wr.h.forfeitLost", { opp: m.opponentName })
+            : t(m.won ? "wr.h.beat" : "wr.h.lostTo", { opp: m.opponentName, score: m.score }))
     } else if (matches.length > 1) {
         const w = matches.filter(m => m.won).length
-        clauses.push(`Won ${w} of ${matches.length} matches`)
+        clauses.push(t("wr.h.wonOf", { w, n: matches.length }))
     }
 
     const [r0, r1] = report.kpis.rank
-    if (r0 != null && r1 != null && r0 !== r1) clauses.push(`${matches.length ? "" : "the club "}${r1 < r0 ? "climbed" : "dropped"} ${Math.abs(r1 - r0)} place${Math.abs(r1 - r0) === 1 ? "" : "s"} to #${r1}`)
+    if (r0 != null && r1 != null && r0 !== r1) {
+        const move = tn(r1 < r0 ? "wr.h.climbed" : "wr.h.dropped", Math.abs(r1 - r0), { rank: r1 })
+        clauses.push(matches.length ? move : t("wr.h.theClub", { clause: move }))
+    }
 
     const injuries = report.changes.filter(e => e.kind === "injury" && e.delta > 0 && !e.label.startsWith("Recovered"))
-    for (const inj of injuries.slice(0, 1)) clauses.push(`${report.names[inj.subjectId] ?? "a player"} injured for ${inj.delta} week${inj.delta === 1 ? "" : "s"}`)
+    for (const inj of injuries.slice(0, 1)) clauses.push(tn("wr.h.injured", inj.delta, { name: report.names[inj.subjectId] ?? t("wr.aPlayer") }))
 
     // Biggest single attribute gain with its cause.
     const growth = report.changes.filter(e => e.kind === "attribute" && e.delta > 0).sort((a, b) => b.delta - a.delta)[0]
-    if (growth && clauses.length < 3) clauses.push(`${report.names[growth.subjectId] ?? "a player"}'s ${growth.label} +${fmtDelta(growth.delta)} from ${growth.cause.label.split(" · ")[0].toLowerCase()}`)
+    if (growth && clauses.length < 3) {
+        const cause = storedText(growth.cause.label.split(" · ")[0])
+        clauses.push(t("wr.h.growth", { name: report.names[growth.subjectId] ?? t("wr.aPlayer"), attr: storedText(growth.label), n: fmtDelta(growth.delta), cause: en ? cause.toLowerCase() : cause }))
+    }
 
     const net = moneyNet(report)
-    if (clauses.length < 3 && Math.abs(net) >= 1) clauses.push(`finances ${formatMoney(net, true)}`)
+    if (clauses.length < 3 && Math.abs(net) >= 1) clauses.push(t("wr.h.finances", { amount: formatMoney(net, true) }))
 
-    const join = (xs: string[]) => xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`
+    const join = (xs: string[]) => xs.length === 1 ? xs[0]
+        : en ? `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`
+            : new Intl.ListFormat(intlLocale(), { type: "conjunction" }).format(xs)
+    const lowerFirst = (x: string) => x.charAt(0).toLowerCase() + x.slice(1)
     // Phase 5.3: a storyline beat leads ("Slump: …"), then the week's top clause.
     if (report.story) {
-        const story = `${report.story.label}: ${report.story.text.replace(/\.$/, "")}`
-        const first = clauses[0] && /^(Beat|Lost|Won) /.test(clauses[0]) ? clauses[0].charAt(0).toLowerCase() + clauses[0].slice(1) : clauses[0]
-        return first ? `${story}; ${first}.` : `${story}.`
+        const story = t("wr.h.story", { label: storyKindName(report.story.kind as StoryArcKind), text: report.story.text.replace(/\.$/, "") })
+        const first = clauses[0] && matches.length > 0 && en ? lowerFirst(clauses[0]) : clauses[0]
+        return first ? t("wr.h.storyAnd", { story, clause: first }) : t("wr.h.storyOnly", { story })
     }
-    if (clauses.length === 0) return "A quiet week: nothing on your club changed."
+    if (clauses.length === 0) return t("wr.h.quiet")
     // Without a match the sentence leads with the week type, so a player's
     // nickname is never re-capitalized as the first word.
-    if (matches.length === 0) return `Training week: ${join(clauses)}.`
+    if (matches.length === 0) return t("wr.h.trainingWeek", { clauses: join(clauses) })
     const sentence = join(clauses)
-    return `${sentence.charAt(0).toUpperCase()}${sentence.slice(1)}.`
+    return t("wr.h.sentence", { sentence: `${sentence.charAt(0).toUpperCase()}${sentence.slice(1)}` })
 }
 
 /** Delta text: one decimal under 10, whole numbers above. */

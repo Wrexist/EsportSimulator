@@ -22,18 +22,15 @@ import { selectInboxContext } from "./inbox-store-bindings"
 import { useInboxDrawer } from "./inbox-drawer-store"
 import { InboxList } from "./InboxList"
 import { InboxReadingPane } from "./InboxReadingPane"
+import { t, tn } from "@/lib/i18n"
 
 // The awards message reopens its season's review at the ceremony.
 const SeasonReviewReplay = dynamic(() => import("@/components/moments/season-review/SeasonReviewReplay").then(m => m.SeasonReviewReplay), { ssr: false })
 
-const TAB_LABEL: Record<InboxTab, string> = { all: "All", decisions: "Decisions", messages: "Messages", news: "News" }
+const tabLabel = (tab: InboxTab) => t(`ib.tab.${tab}`)
 
-const EMPTY: Record<InboxTab, { icon: typeof Inbox; title: string; description: string }> = {
-    all: { icon: Inbox, title: "Inbox empty", description: "Messages from your staff, offers and league news land here as the season moves." },
-    decisions: { icon: ListChecks, title: "Nothing waiting on you", description: "Event choices, transfer bids and job offers that need an answer appear here." },
-    messages: { icon: Inbox, title: "No messages yet", description: "Your staff, board and sponsors write here as the weeks go by." },
-    news: { icon: Newspaper, title: "No news yet", description: "Signings, transfers and headlines from around the scene appear here." },
-}
+const EMPTY_ICON: Record<InboxTab, typeof Inbox> = { all: Inbox, decisions: ListChecks, messages: Inbox, news: Newspaper }
+const emptyFor = (tab: InboxTab) => ({ icon: EMPTY_ICON[tab], title: t(`ib.empty.${tab}`), description: t(`ib.empty.${tab}Body`) })
 
 type NewsFilter = "headlines" | "social"
 
@@ -94,10 +91,10 @@ export function InboxDrawer() {
     }
 
     const summary = !hasCareer
-        ? "No career loaded."
+        ? t("ib.noCareer")
         : [
-            counts.decisions > 0 ? `${counts.decisions} decision${counts.decisions === 1 ? "" : "s"} waiting` : "No decisions waiting",
-            `${counts.unreadMessages} unread`,
+            counts.decisions > 0 ? tn("ib.decisionsWaiting", counts.decisions) : t("ib.noDecisions"),
+            t("ib.unread", { n: counts.unreadMessages }),
         ].join(" · ")
 
     const tabCount: Record<InboxTab, number> = {
@@ -111,7 +108,7 @@ export function InboxDrawer() {
         <div className="grid min-h-0 flex-1 md:grid-cols-[minmax(300px,360px)_minmax(0,1fr)]">
             <div className={cn("flex min-h-0 flex-col border-line md:border-r", showPaneOnNarrow && "max-md:hidden")}>
                 {tab === "news" && (
-                    <div role="group" aria-label="News source" className="flex gap-1 border-b border-line px-4 py-2">
+                    <div role="group" aria-label={t("ib.newsSource")} className="flex gap-1 border-b border-line px-4 py-2">
                         {(["headlines", "social"] as NewsFilter[]).map(f => (
                             <button
                                 key={f}
@@ -119,11 +116,11 @@ export function InboxDrawer() {
                                 aria-pressed={newsFilter === f}
                                 onClick={() => { setNewsFilter(f); select(null); setAnchorIndex(0) }}
                                 className={cn(
-                                    "rounded px-2.5 py-1 text-xs font-semibold capitalize transition-colors",
+                                    "rounded px-2.5 py-1 text-xs font-semibold transition-colors",
                                     newsFilter === f ? "bg-raised text-ink-1" : "text-ink-3 hover:text-ink-1",
                                 )}
                             >
-                                {f}
+                                {t(`ib.news.${f}`)}
                             </button>
                         ))}
                     </div>
@@ -134,8 +131,8 @@ export function InboxDrawer() {
                     currentWeek={ctx.currentWeek}
                     onSelect={onSelect}
                     empty={tab === "news" && newsFilter === "social"
-                        ? { icon: Newspaper, title: "No posts yet", description: "The scene's social chatter shows up here week by week." }
-                        : EMPTY[tab]}
+                        ? { icon: Newspaper, title: t("ib.empty.social"), description: t("ib.empty.socialBody") }
+                        : emptyFor(tab)}
                 />
             </div>
             <div className={cn("min-h-0", !showPaneOnNarrow && "max-md:hidden")}>
@@ -170,7 +167,7 @@ export function InboxDrawer() {
                 >
                     <header className="flex items-start justify-between gap-4 px-6 pt-5 pb-3">
                         <div className="min-w-0">
-                            <SheetTitle className="font-display text-[26px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1">Inbox</SheetTitle>
+                            <SheetTitle className="font-display text-[26px] font-bold uppercase leading-none tracking-[0.01em] text-ink-1">{t("nav.inbox")}</SheetTitle>
                             <SheetDescription className="mt-1.5 text-xs text-ink-3">{summary}</SheetDescription>
                         </div>
                         <Button
@@ -180,28 +177,28 @@ export function InboxDrawer() {
                             disabled={!hasCareer || !anyUnread}
                             className="mr-8 text-xs"
                         >
-                            <CheckCheck size={14} /> Mark all read
+                            <CheckCheck size={14} /> {t("ib.markAllRead")}
                         </Button>
                     </header>
                     <Tabs value={tab} onValueChange={v => { setTab(v as InboxTab); setAnchorIndex(0); setShowPaneOnNarrow(false) }} className="min-h-0 flex-1 gap-0">
                         <TabsList className="w-full px-4">
-                            {INBOX_TABS.map(t => (
-                                <TabsTrigger key={t} value={t} className="gap-2">
-                                    {TAB_LABEL[t]}
-                                    {tabCount[t] > 0 && (
+                            {INBOX_TABS.map(tb => (
+                                <TabsTrigger key={tb} value={tb} className="gap-2">
+                                    {tabLabel(tb)}
+                                    {tabCount[tb] > 0 && (
                                         <span className={cn(
                                             "rounded-sm px-1.5 py-px text-[11px] font-bold tabular-nums",
-                                            t === "decisions" ? "bg-caution/15 text-caution" : "bg-raised text-ink-2",
+                                            tb === "decisions" ? "bg-caution/15 text-caution" : "bg-raised text-ink-2",
                                         )}>
-                                            {tabCount[t]}
+                                            {tabCount[tb]}
                                         </span>
                                     )}
                                 </TabsTrigger>
                             ))}
                         </TabsList>
-                        {INBOX_TABS.map(t => (
-                            <TabsContent key={t} value={t} className="flex min-h-0 flex-col data-[state=inactive]:hidden">
-                                {t === tab && body}
+                        {INBOX_TABS.map(tb => (
+                            <TabsContent key={tb} value={tb} className="flex min-h-0 flex-col data-[state=inactive]:hidden">
+                                {tb === tab && body}
                             </TabsContent>
                         ))}
                     </Tabs>

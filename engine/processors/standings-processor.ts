@@ -391,7 +391,7 @@ export function updateStandings(
             if (ledgerIdSet?.has(id) ?? save.financeLedger.some(e => e.id === id)) continue
             winningTeam.budget -= bonus
             save.financeLedger.push({ id, week: save.currentWeek, teamId: winningTeam.id, type: "EXPENSE", category: "WAGES_PLAYER", amount: bonus,
-                description: `Title contract bonus (${tournament.name}): ${contract.playerId}`, balance: winningTeam.budget })
+                description: `Title contract bonus (${tournament.name}): ${save.players.find(pl => pl.id === contract.playerId)?.nickname ?? contract.playerId}`, balance: winningTeam.budget })
             ledgerIdSet?.add(id)
         }
 
