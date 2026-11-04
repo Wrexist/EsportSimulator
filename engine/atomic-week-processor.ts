@@ -830,17 +830,24 @@ export class AtomicWeekProcessor {
             if (!cm.result.maps?.length) return { type: "match", label: `Forfeit ${won ? "win" : "loss"} vs ${opp}${where}` }
             return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${sideScore(cm.result, cm.homeTeamId === playerTeamId)}${where}` }
         }
+        // Daily calendar: the tick opens the new week on day 0, so it plays
+        // only that day's AI fixtures; the store's day-by-day path
+        // (simulateDueAIMatchesForDay) plays the rest on their own day, with
+        // the same routine (processors/auto-match).
+        const dailyMode = save.timeMode === "HYBRID_DAILY"
         const weekMatches = save.scheduledMatches.filter(m => {
             const isPastWeek = m.week < save.currentWeek
             const isCurrentWeek = m.week === save.currentWeek
             const isPlayerMatch = m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId
             const isAlreadyCompleted = transaction.completedMatchIds.includes(m.id)
+            const isDueOnOpeningDay = !dailyMode || (m.day ?? 6) <= 0
 
             // Auto-simulate if:
-            // 1. It's a past week match (player missed it)
-            // 2. OR it's current week AND NOT a player match
+            // 1. It's a past week match (player missed it, or a daily-mode
+            //    fixture of last week that its day never reached)
+            // 2. OR it's current week AND NOT a player match AND its day has come
             // AND the match ID isn't already processed in this transaction
-            const shouldAutoSimulate = (isPastWeek || (isCurrentWeek && !isPlayerMatch)) && !isAlreadyCompleted
+            const shouldAutoSimulate = (isPastWeek || (isCurrentWeek && !isPlayerMatch && isDueOnOpeningDay)) && !isAlreadyCompleted
 
             return shouldAutoSimulate
         })

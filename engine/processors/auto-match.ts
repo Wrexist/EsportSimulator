@@ -7,7 +7,7 @@
  * the managed club's gear, fatigue/morale/form/XP, Elo, careers and
  * tournament progression.
  */
-import type { GameSave, MatchSaveData, TeamSaveData, CompletedMatchSaveData, StaffSaveData } from "../save-types"
+import type { GameSave, MatchSaveData, TeamSaveData, CompletedMatchSaveData, StaffSaveData, ContractSaveData } from "../save-types"
 import type { SeededRNG } from "../rng"
 import { MatchEngine } from "../match-engine"
 import { debug } from "@/lib/debug-logger"
@@ -36,6 +36,8 @@ export interface AutoMatchContext {
     idx?: SaveIndexes
     /** Staff by club for this pass (falls back to idx, then a scan). */
     staffByTeamId?: Map<string, StaffSaveData[]>
+    /** Contracts by club, when the caller has them (else the whole list is scanned). */
+    contractsByTeamId?: Map<string, ContractSaveData[]>
     eventIdSet?: Set<string>
     ledgerIdSet?: Set<string>
     /** Receives the id of every fixture settled (played or forfeited). */
@@ -304,8 +306,13 @@ export function playAutoMatch(
 
         applyMatchSponsorGoalProgress(save, homeTeam, homeWon, result.homeScore, match.id, eventIdSet, ledgerIdSet)
         applyMatchSponsorGoalProgress(save, awayTeam, !homeWon, result.awayScore, match.id, eventIdSet, ledgerIdSet)
-        settlePlayerContractBonuses(save, match.id, homeTeam.id, homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet, isOfficialMatch(match))
-        settlePlayerContractBonuses(save, match.id, awayTeam.id, !homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet, isOfficialMatch(match))
+        // The settlement only reads the club's own contracts.
+        const bonusBook = (teamId: string) => {
+            const contracts = ctx.contractsByTeamId?.get(teamId)
+            return contracts ? { teams: save.teams, contracts, financeLedger: save.financeLedger, currentWeek: save.currentWeek } : save
+        }
+        settlePlayerContractBonuses(bonusBook(homeTeam.id), match.id, homeTeam.id, homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet, isOfficialMatch(match))
+        settlePlayerContractBonuses(bonusBook(awayTeam.id), match.id, awayTeam.id, !homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet, isOfficialMatch(match))
 
         // Phase 11: Update team rivalries
         updateRivalries(save, completedMatch)

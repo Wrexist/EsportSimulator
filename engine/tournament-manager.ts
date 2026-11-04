@@ -803,8 +803,13 @@ export class TournamentManager {
      * Process match result and move teams forward in the tournament
      */
     static processMatchResult(save: GameSave, tournamentId: string, matchId: string, winnerId: string, loserId: string): void {
-        const idx = buildSaveIndexes(save)
-        const tournament = idx.tournamentIndex.get(tournamentId) ?? save.tournaments.find(t => t.id === tournamentId)
+        // Only the tournament is needed: a full buildSaveIndexes here walked
+        // every player, contract and completed match once per result. The
+        // last row with the id wins, as it did in the index.
+        let tournament: TournamentSaveData | undefined
+        for (let i = save.tournaments.length - 1; i >= 0 && !tournament; i--) {
+            if (save.tournaments[i].id === tournamentId) tournament = save.tournaments[i]
+        }
         if (!tournament || !tournament.playoffBracket) return
 
         const bracketMap = buildBracketIndex(tournament.playoffBracket)
