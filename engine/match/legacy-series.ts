@@ -28,8 +28,7 @@
  *     for display, but no longer moves round odds.
  *   - Halftime (after round 12), overtime entry (12-12) and every overtime
  *     half swap sides, reset economies and clear streaks/momentum. Overtime
- *     sets are MR3 to 16/19/22; after a third tied set the next decided
- *     round wins the map.
+ *     sets are MR3 to 16/19/22/...: a tied set starts another, as in CS2.
  *
  * Opponent information is never exposed to the decision policy beyond the
  * scoreboard (see `LegacyDecisionView`).
@@ -312,9 +311,10 @@ function swapSides(ctx: LegacySeriesContext, sim: LegacySimState, cash: number):
  * normalised exactly once on restore.
  */
 export function applyLegacyTransition(ctx: LegacySeriesContext, sim: LegacySimState): LegacyTransition {
+    // Overtime keeps going in MR3 sets (16, 19, 22, 25, ...) until one is won,
+    // as in CS2; runLegacySeries' round guard bounds the loop.
     const threshold = sim.isOvertime ? overtimeMapWinThreshold(sim.currentOTSet) : 13
-    const suddenDeath = sim.isOvertime && sim.currentOTSet > 3 && sim.homeRounds !== sim.awayRounds
-    if (sim.homeRounds >= threshold || sim.awayRounds >= threshold || suddenDeath) {
+    if (sim.homeRounds >= threshold || sim.awayRounds >= threshold) {
         const homeWon = sim.homeRounds > sim.awayRounds
         const homeSeries = sim.homeSeriesScore + (homeWon ? 1 : 0)
         const awaySeries = sim.awaySeriesScore + (homeWon ? 0 : 1)
