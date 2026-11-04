@@ -1082,8 +1082,8 @@
     },
     {
       "path": "app/match/[id]/live/page.tsx",
-      "sha256": "6f8684ef280ec5cf48130d0fa958ba49ae8734d5d60a8a456baad7dabd45c391",
-      "bytes": 31718,
+      "sha256": "7ef4fd44e5b81c6a1dc34bd091b1ee3c69b7fb2143d8c9e8187c2597544476e6",
+      "bytes": 31822,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1115,6 +1115,11 @@
           "date": "2026-11-04",
           "previousSha256": "79758731a2924121451f328df9b6444d518b1a08e6b2e5d4658f7cc3681360d2",
           "change": "Audit fixes: match engine, start, competitions, home, match day and market"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "6f8684ef280ec5cf48130d0fa958ba49ae8734d5d60a8a456baad7dabd45c391",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
@@ -2131,8 +2136,8 @@
     },
     {
       "path": "app/training/page.tsx",
-      "sha256": "2fba3db3a9ef85a86f175a24a08be243efffcd063eb61ffa15963ab7a1a3e761",
-      "bytes": 20873,
+      "sha256": "26f4f78b5ea3ad973af6d3efc96b18b302a0ad2db21fae60257edf08a12f3873",
+      "bytes": 20949,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2164,6 +2169,11 @@
           "date": "2026-11-04",
           "previousSha256": "decc5a58682f96ad02e8221233307c2f97dfeb5b59a52617273816917e5ae166",
           "change": "Audit fixes: squad, players, training and staff"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "2fba3db3a9ef85a86f175a24a08be243efffcd063eb61ffa15963ab7a1a3e761",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
@@ -3457,8 +3467,8 @@
     },
     {
       "path": "components/match/TacticalLoadoutEditor.tsx",
-      "sha256": "b30e2b71f7510b99c7c19191187fd30cfa20ea1e6a0545d0c7a00e6340214b0a",
-      "bytes": 38839,
+      "sha256": "7abda27fc150799cff65d2f6a778962d0ef7362c6be8accda61d274dfd02931c",
+      "bytes": 39898,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3490,6 +3500,11 @@
           "date": "2026-11-04",
           "previousSha256": "2877ace53493b814486f833969bcf03a04c1b8bc017caa132ac1bcf50d602119",
           "change": "Audit fixes: match engine, start, competitions, home, match day and market"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "b30e2b71f7510b99c7c19191187fd30cfa20ea1e6a0545d0c7a00e6340214b0a",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
@@ -8100,8 +8115,8 @@
     },
     {
       "path": "engine/match-simulation.ts",
-      "sha256": "f39790fcefa87a58fc41de489152bf4b14300856658e9212dedfcdfdb70a9312",
-      "bytes": 27829,
+      "sha256": "24f563936edc50dc371d0da3a6c245ce9fd86eb3f701f6b0f74eb1649bce3b6a",
+      "bytes": 28192,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8128,6 +8143,11 @@
           "date": "2026-11-03",
           "previousSha256": "e1b9e3f30f3f6b3df38012219a0716152dd5a74a693d0e12e5984f7faadcc2c7",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "f39790fcefa87a58fc41de489152bf4b14300856658e9212dedfcdfdb70a9312",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
@@ -8173,8 +8193,8 @@
     },
     {
       "path": "engine/match/buy-phase.ts",
-      "sha256": "49b29389d7d2847238b6a5f583cd48d7ecb744bf350743b57cb9360b07924a8b",
-      "bytes": 8814,
+      "sha256": "772645bc753a5a3338c76a2cf61c71f07099d66f7aa233792a0667fe18bf545d",
+      "bytes": 10467,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8201,6 +8221,11 @@
           "date": "2026-11-03",
           "previousSha256": "4f2b80f53e0f6185089e9edf9acd2801766e382abb09a8b3fca5a85587d407a2",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "49b29389d7d2847238b6a5f583cd48d7ecb744bf350743b57cb9360b07924a8b",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
@@ -8286,8 +8311,8 @@
     },
     {
       "path": "engine/match/map-veto.ts",
-      "sha256": "f2e1a2c7857ffb5a10b9a94721d2c10950c32b9198a33a7b0bb98f3786f398e3",
-      "bytes": 8272,
+      "sha256": "68fa4ae13e21469ed982bc3c43b97659b9c9e17081cbfa368d13063d9c9bdcb0",
+      "bytes": 9242,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8314,6 +8339,11 @@
           "date": "2026-11-03",
           "previousSha256": "35b7db5cd0456062833ef4a23f1041acc8edca13e4f3a6ca1b92b29f415dedca",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "f2e1a2c7857ffb5a10b9a94721d2c10950c32b9198a33a7b0bb98f3786f398e3",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
@@ -91891,8 +91921,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "a31feb74e034f134068cab2984e483c9bd12dbed9d098fc0c0914bc1c665eaf5",
-      "bytes": 347474,
+      "sha256": "6e2192cdf16b490af4c2deab7da130c529f2f5dd0d2a1b5a7fdadbb9e5c79c49",
+      "bytes": 347782,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92042,13 +92072,18 @@
           "date": "2026-11-04",
           "previousSha256": "160e7b09b87aafc33da3d5b35975f7057c66c0d98d0b57d947521cc415f2d583",
           "change": "Audit round 2: staff severance, UI scale, faster week tick"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "a31feb74e034f134068cab2984e483c9bd12dbed9d098fc0c0914bc1c665eaf5",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "4d9738024292ce6f51fbc536ac5e824b86ed6ce3fe052588533253c0dfd27ae0",
-      "bytes": 365455,
+      "sha256": "7ea72ef80bdd37aaa1cdf2695eb65e597a6161938fe87656062af269994de76c",
+      "bytes": 365736,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92193,13 +92228,18 @@
           "date": "2026-11-04",
           "previousSha256": "bfb2fb27c2575f313ec108a175e1a4b5f1ee4c88168b3c0202dc6a5f3b4b115a",
           "change": "Audit round 2: staff severance, UI scale, faster week tick"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "4d9738024292ce6f51fbc536ac5e824b86ed6ce3fe052588533253c0dfd27ae0",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "fb780265dbb2167e9a4ca0463939c9cde5daf3e18a26ed37509367ca03ada64e",
-      "bytes": 372512,
+      "sha256": "14c8f3b9a0a77db6cec51797d6b500d9cf2b88283a45aab6ce1cadcfad2c8299",
+      "bytes": 372809,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92344,13 +92384,18 @@
           "date": "2026-11-04",
           "previousSha256": "67f50a30de8e9b903247bc520759efd24ea1ac14f6c37b0167e1d4091be3a64c",
           "change": "Audit round 2: staff severance, UI scale, faster week tick"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "fb780265dbb2167e9a4ca0463939c9cde5daf3e18a26ed37509367ca03ada64e",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "f6f39b028802c96747b74d1031fe71fefc5b92f113418acae789330b42098cf8",
-      "bytes": 371021,
+      "sha256": "6350d27aa05be0f846c23ace647142316c8b41a4cf2e6c93fa77f9053d3f78fc",
+      "bytes": 371308,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92490,13 +92535,18 @@
           "date": "2026-11-04",
           "previousSha256": "3b2a16a30a4917c9c4b2b006119fb5b4cbdb30f7e7993b6fb856d2a66bdb06f6",
           "change": "Audit round 2: staff severance, UI scale, faster week tick"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "f6f39b028802c96747b74d1031fe71fefc5b92f113418acae789330b42098cf8",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "c2dcaff9dd0d19750162a292694b5c05f8cdc8b2213f4a69d4ed0ac95c4e7805",
-      "bytes": 360214,
+      "sha256": "6aa33e99c8493217291c4250160f0ace475418a8f0810e4bef2394353e5db9e5",
+      "bytes": 360474,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92636,13 +92686,18 @@
           "date": "2026-11-04",
           "previousSha256": "61bcd95b7c96994837774e0ba96451725c6d76b8a668bb86c4b961a0e48c8b83",
           "change": "Audit round 2: staff severance, UI scale, faster week tick"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "c2dcaff9dd0d19750162a292694b5c05f8cdc8b2213f4a69d4ed0ac95c4e7805",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "9a391e9e6b9c6c8adc20ca59421299b933bca0ada45c3b4485fd9b4fd730058e",
-      "bytes": 503975,
+      "sha256": "0ca67388cdd46e8e10d2aa903c4fff54a6dcdb1401d0c9bbf492d65b51877456",
+      "bytes": 504401,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92782,6 +92837,11 @@
           "date": "2026-11-04",
           "previousSha256": "42acabb4b3e9c0e8eb85a785e99a39b8a60039931a92451fb79e67d897b4a540",
           "change": "Audit round 2: staff severance, UI scale, faster week tick"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "9a391e9e6b9c6c8adc20ca59421299b933bca0ada45c3b4485fd9b4fd730058e",
+          "change": "Audit round 2: match balance pass and AWP plan by role"
         }
       ]
     },
