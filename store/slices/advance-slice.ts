@@ -15,6 +15,7 @@
 import { CONTINUE_WEEK_CAP, nextStop, stoppedEventIds, type AdvanceStop, type StopSource } from "@/lib/advance-stops"
 import type { WeekReportsState } from "@/lib/week-report"
 import { demoWeekCapReached } from "@/lib/edition"
+import { tn, t } from "@/lib/i18n"
 
 export interface ContinueRunState {
     startedWeek: number
@@ -115,9 +116,9 @@ export const createAdvanceSlice = (set: SetFn, get: () => Store): AdvanceActions
                 stop = nextStop(s, seen)
                 if (stop) break
                 const run = s.continueRun
-                if (!run || run.cancelRequested) { stop = { key: "cancelled", kind: "cancelled", reason: "Paused" }; break }
+                if (!run || run.cancelRequested) { stop = { key: "cancelled", kind: "cancelled", reason: t("stop.paused") }; break }
                 if (run.weeksDone >= CONTINUE_WEEK_CAP) {
-                    stop = { key: "cap", kind: "cap", reason: `${CONTINUE_WEEK_CAP} weeks passed with nothing needing you` }
+                    stop = { key: "cap", kind: "cap", reason: tn("stop.cap", CONTINUE_WEEK_CAP) }
                     break
                 }
 

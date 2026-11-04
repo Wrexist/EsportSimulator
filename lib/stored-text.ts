@@ -14,7 +14,7 @@
  */
 
 import { EN } from "@/locales/en"
-import { getLocale, ordinalLabel, t, tn } from "@/lib/i18n"
+import { getLocale, ordinalLabel, setStoredTextResolver, t, tn } from "@/lib/i18n"
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string]
 
@@ -130,3 +130,6 @@ export function storedText(s: string | null | undefined): string {
     if (getLocale() === "en") return s
     return s.split(" · ").map(segment).join(" · ")
 }
+
+// Lets a stored-English value nested in a translation key (STORED_REF) show in the active language.
+setStoredTextResolver(storedText)

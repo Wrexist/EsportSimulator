@@ -9,6 +9,8 @@
  *   award   gold medal on a ribbon (season awards)
  */
 
+import { t } from "./i18n"
+
 export type TrophyArtKind = "major" | "S" | "A" | "B" | "C" | "league" | "award"
 export type TrophyMetal = "gold" | "silver" | "bronze" | "pewter"
 
@@ -47,7 +49,7 @@ export function trophyArtFor(kind: TrophyArtKind): TrophyArt {
         width: 512,
         height: 512,
         metal: art.metal,
-        label: art.label,
+        label: t(`trophyArt.${art.file}`),
     }
 }
 

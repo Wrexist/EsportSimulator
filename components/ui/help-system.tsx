@@ -5,260 +5,116 @@ import { WEEKLY_ACTIVITIES, WeeklyActivityType, weeklyActivityXpBonus } from '@/
 import { Button } from '@/components/ui/button'
 import { HelpCircle, ChevronRight } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { LOSS_XP_BASE, WIN_XP_BASE } from '@/engine/processors/match-manager-xp'
+import { t } from '@/lib/i18n'
+import { Trans } from '@/lib/trans'
+
+type Category = 'gameplay' | 'management' | 'tactics' | 'progression' | 'competition'
 
 interface HelpTopic {
     id: string
     title: string
     description: string
     content: React.ReactNode
-    category: 'gameplay' | 'management' | 'tactics' | 'progression' | 'competition'
+    category: Category
 }
 
-export const helpTopics: HelpTopic[] = [
-    {
-        id: 'reading-stats', title: 'Reading player and match stats',
-        description: 'Ratings, roles and match results', category: 'gameplay',
-        content: <div className="space-y-3">
-            <p><strong>OVR</strong> means overall rating: how strong the player is in a match. It is built from the same numbers the match uses, so the side with the higher OVR wins more often. Reputation raises a player's price, not their OVR. Potential describes room for development, not guaranteed improvement.</p>
-            <p><strong>IGL</strong> means in-game leader. An <strong>AWPer</strong> specializes in the sniper rifle; an entry player takes early fights.</p>
-            <p><strong>K / D / A</strong> means kills, deaths and assists. <strong>ADR</strong> is average damage per round; a match rating is a separate performance measure from OVR.</p>
-            <p><strong>BO1 / BO3 / BO5</strong> means best of one, three or five maps. In a multi-map series, the series score counts maps; each map score counts rounds.</p>
-            <p>Cash is available club money. Market value is an estimate, not an agreed fee. A free agent has no transfer fee but still needs a paid contract.</p>
-        </div>,
-    },
-    {
-        id: 'team-chemistry',
-        title: 'Team Chemistry',
-        description: 'How roster compatibility affects performance',
-        category: 'gameplay',
-        content: (
-            <div className="space-y-3">
-                <p>Team chemistry measures how well your players work together.</p>
-                <div className="space-y-2">
-                    <h4 className="font-bold">Calculation:</h4>
-                    <code className="block p-2 bg-shell rounded text-xs">
-                        Review player compatibility, roles and recent roster changes together.
-                    </code>
-                </div>
-                <div className="space-y-2">
-                    <h4 className="font-bold">Effects:</h4>
-                    <ul className="list-disc pl-5 text-sm space-y-1">
-                        <li>Higher chemistry = Better team coordination</li>
-                        <li>Contributes to team strength alongside roles, form and equipment</li>
-                        <li>Improves with time playing together</li>
-                    </ul>
-                </div>
-            </div>
-        )
-    },
-    {
-        id: 'player-development',
-        title: 'Player Development',
-        description: 'How players improve over time',
-        category: 'progression',
-        content: (
-            <div className="space-y-3">
-                <p>Players develop based on age, potential, and training.</p>
-                <div className="space-y-2">
-                    <h4 className="font-bold">Development varies by player</h4>
-                    <ul className="list-disc pl-5 text-sm space-y-1">
-                        <li>Younger players with room to reach their potential can improve faster.</li>
-                        <li>Check training progress and recent form before changing your lineup.</li>
-                        <li>Older players can decline; age alone does not decide current performance.</li>
-                    </ul>
-                </div>
-                <div className="space-y-2">
-                    <h4 className="font-bold">Training Impact:</h4>
-                    <ul className="list-disc pl-5 text-sm space-y-1">
-                        <li>Better facilities = Faster development</li>
-                        <li>Coach quality affects growth rate</li>
-                        <li>Match experience builds skills</li>
-                    </ul>
-                </div>
-            </div>
-        )
-    },
-    {
-        id: 'finances',
-        title: 'Financial Management',
-        description: 'Managing your budget effectively',
-        category: 'management',
-        content: (
-            <div className="space-y-3">
-                <p>Balance income and expenses to maintain healthy finances.</p>
-                <div className="space-y-2">
-                    <h4 className="font-bold">Income Sources:</h4>
-                    <ul className="list-disc pl-5 text-sm space-y-1">
-                        <li>Tournament prize money</li>
-                        <li>Sponsor deals</li>
-                        <li>Transfer fees from selling players</li>
-                    </ul>
-                </div>
-                <div className="space-y-2">
-                    <h4 className="font-bold">Expenses:</h4>
-                    <ul className="list-disc pl-5 text-sm space-y-1">
-                        <li>Player salaries (weekly)</li>
-                        <li>Staff salaries (weekly)</li>
-                        <li>Facility upgrades</li>
-                        <li>Transfer fees</li>
-                    </ul>
-                </div>
-            </div>
-        )
-    },
-    {
-        id: 'match-tactics',
-        title: 'Match Tactics',
-        description: 'Pre-game strategy and loadouts',
-        category: 'tactics',
-        content: (
-            <div className="space-y-3">
-                <p>Choose the right strategy for each round based on economy.</p>
-                <div className="space-y-2">
-                    <h4 className="font-bold">Buy Strategies:</h4>
-                    <ul className="list-disc pl-5 text-sm space-y-1">
-                        <li><strong>Full Buy:</strong> Full rifles, armor, utility</li>
-                        <li><strong>Semi-Buy:</strong> SMGs or cheaper rifles</li>
-                        <li><strong>Force Buy:</strong> Spend limited round cash on the best equipment you can afford</li>
-                        <li><strong>Eco:</strong> Save money for next round</li>
-                    </ul>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                    Round results, kills and objectives determine match cash. Loss bonuses help recovery after consecutive defeats. Club cash pays contracts and preparation.
-                </p>
-            </div>
-        )
-    },
-    {
-        id: 'world-ranking',
-        title: 'World Ranking & Elo',
-        description: 'How your global position is decided',
-        category: 'competition',
-        content: (
-            <div className="space-y-3">
-                <p><strong>World ranking</strong> orders teams by Elo, with tie-breakers when ratings match. <strong>Circuit points</strong> are separate; check the tournament page for entry rules.</p>
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Win and your Elo rises; beating a <em>stronger</em> team raises it more.</li>
-                    <li>Opponent strength matters, but roster condition, preparation and tactics also affect matches.</li>
-                    <li>Ranking moves week to week as every team&apos;s results come in — judge progress over a season, not a single week.</li>
-                </ul>
-            </div>
-        )
-    },
-    {
-        id: 'circuit-points',
-        title: 'Circuit Points & Majors',
-        description: 'Qualifying for the biggest events',
-        category: 'competition',
-        content: (
-            <div className="space-y-3">
-                <p>Placing well at events earns <strong>circuit points</strong> across the season.</p>
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Circuit points contribute to event qualification. Check the tournament page for the available entry route.</li>
-                    <li>Review your current points and qualification status as the season progresses.</li>
-                    <li>Prize money depends on the event and your final placement.</li>
-                </ul>
-            </div>
-        )
-    },
-    {
-        id: 'rmr',
-        title: 'RMR Qualifiers',
-        description: 'The road to a Major',
-        category: 'competition',
-        content: (
-            <div className="space-y-3">
-                <p><strong>RMR</strong> (Regional Major Ranking) events are the qualifiers that decide which teams reach a Major.</p>
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Your region&apos;s top teams compete for a limited number of Major slots.</li>
-                    <li>Finish high enough and you punch your ticket to the Major.</li>
-                    <li>Treat them as high-stakes — prep matters more than in a regular event.</li>
-                </ul>
-            </div>
-        )
-    },
-    {
-        id: 'condition',
-        title: 'Morale, Form & Fatigue',
-        description: 'Keeping players sharp and happy',
-        category: 'gameplay',
-        content: (
-            <div className="space-y-3">
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li><strong>Form</strong> — your recent results trend. Hot form is a small momentum edge.</li>
-                    <li><strong>Morale</strong> — player happiness. Low morale hurts performance and can trigger grievances; wins and good treatment raise it.</li>
-                    <li><strong>Fatigue</strong> — builds from matches and drills. High fatigue raises injury risk and saps performance — manage it with rest and your Weekly Focus.</li>
-                </ul>
-            </div>
-        )
-    },
-    {
-        id: 'board',
-        title: 'Board Confidence',
-        description: 'Understanding expectations and transfer limits',
-        category: 'management',
-        content: (
-            <div className="space-y-3">
-                <p>The board sets a season <strong>expectation</strong> and tracks <strong>confidence</strong> in you.</p>
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Meet or beat expectations and confidence rises (and can pay a capped bonus).</li>
-                    <li>Confidence affects the board limit shown during transfer negotiations.</li>
-                    <li>A bad season puts you <strong>on notice</strong>. Another one with bottomed confidence and you&apos;re sacked — but it&apos;s always telegraphed a season ahead.</li>
-                </ul>
-            </div>
-        )
-    },
-    {
-        id: 'runway',
-        title: 'Financial Runway',
-        description: 'Reading your cash health',
-        category: 'management',
-        content: (
-            <div className="space-y-3">
-                <p><strong>Runway</strong> is how many weeks your cash lasts at your current weekly net.</p>
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>A non-negative weekly net means no current deficit; it does not guarantee future income.</li>
-                    <li>Low runway is an early warning. Reduce recurring costs or secure income; do not rely on uncertain prize money.</li>
-                    <li>Eight consecutive weekly settlements at zero cash or below disband the club. A positive closing balance resets the counter.</li>
-                </ul>
-            </div>
-        )
-    },
-    {
-        id: 'weekly-focus',
-        title: 'Weekly Focus',
-        description: 'Your recurring weekly decision',
-        category: 'gameplay',
-        content: (
-            <div className="space-y-3">
-                <p>Each week you pick a <strong>focus</strong> for the team — a trade-off, not a free bonus:</p>
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li><strong>Training</strong> — the safe default.</li>
-                    <li><strong>Streaming</strong> — earns cash but adds fatigue and dents morale.</li>
-                    <li><strong>Team Bonding</strong> — spends cash for morale and chemistry.</li>
-                    <li><strong>Media Campaign</strong> — spends cash for reputation and fans.</li>
-                    <li><strong>Bootcamp</strong> — +{weeklyActivityXpBonus(WEEKLY_ACTIVITIES[WeeklyActivityType.BOOTCAMP])} XP per roster player, with cash cost, fatigue and morale penalties.</li>
-                </ul>
-                <p className="text-xs text-ink-3">Set it in the week plan (Week → Week plan). It resets after weekly settlement, not after each day.</p>
-            </div>
-        )
-    },
-    {
-        id: 'manager-career',
-        title: 'Manager Career & Unlocks',
-        description: 'Your long-term legacy',
-        category: 'progression',
-        content: (
-            <div className="space-y-3">
-                <p>You earn <strong>XP</strong> every match (win +100, loss +25) and level up as a manager.</p>
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Check the Career page for your level, available clubs and job opportunities.</li>
-                    <li>Your peak level and best results persist <em>across</em> campaigns — see the Career page&apos;s Legacy track.</li>
-                    <li>Climb the tiers: Newcomer → Contender → Dynasty → Era-Defining → G.O.A.T.</li>
-                </ul>
-            </div>
-        )
+const TAGS = {
+    b: (text: string) => <strong>{text}</strong>,
+    i: (text: string) => <em>{text}</em>,
+    kbd: (text: string) => <kbd className="px-1 rounded bg-hover">{text}</kbd>,
+}
+
+/** One paragraph, heading or list item of a topic: a key, or a key with values. */
+type Line = string | [string, Record<string, string | number>]
+type Block = { p: Line } | { h: string } | { ul: Line[] } | { note: Line }
+
+const say = (line: Line) => typeof line === "string" ? <Trans k={line} tags={TAGS} /> : <Trans k={line[0]} params={line[1]} tags={TAGS} />
+
+function TopicBody({ blocks }: { blocks: Block[] }) {
+    return (
+        <div className="space-y-3">
+            {blocks.map((b, i) =>
+                "p" in b ? <p key={i}>{say(b.p)}</p>
+                    : "h" in b ? <h4 key={i} className="font-bold">{t(b.h)}</h4>
+                        : "note" in b ? <p key={i} className="text-xs text-ink-3">{say(b.note)}</p>
+                            : <ul key={i} className="list-disc pl-5 text-sm space-y-1">{b.ul.map((l, j) => <li key={j}>{say(l)}</li>)}</ul>,
+            )}
+        </div>
+    )
+}
+
+/** A topic whose title, description and content are read in the active language when shown. */
+function topic(id: string, key: string, category: Category, blocks: () => Block[]): HelpTopic {
+    return {
+        id, category,
+        get title() { return t(`help.${key}.title`) },
+        get description() { return t(`help.${key}.desc`) },
+        get content() { return <TopicBody blocks={blocks()} /> },
     }
+}
+
+const TIERS = ["newcomer", "contender", "dynasty", "eraDefining", "goat"] as const
+
+export const helpTopics: HelpTopic[] = [
+    topic("reading-stats", "stats", "gameplay", () => [
+        { p: "help.stats.p1" }, { p: "help.stats.p2" }, { p: "help.stats.p3" }, { p: "help.stats.p4" }, { p: "help.stats.p5" },
+    ]),
+    topic("team-chemistry", "chem", "gameplay", () => [
+        { p: "help.chem.p1" },
+        { h: "help.chem.h1" }, { ul: ["help.chem.l1", "help.chem.l2", "help.chem.l3"] },
+        { h: "help.chem.h2" }, { ul: ["help.chem.l4", "help.chem.l5"] },
+    ]),
+    topic("player-development", "dev", "progression", () => [
+        { p: "help.dev.p1" },
+        { h: "help.dev.h1" }, { ul: ["help.dev.l1", "help.dev.l2", "help.dev.l3"] },
+        { h: "help.dev.h2" }, { ul: ["help.dev.l4", "help.dev.l5", "help.dev.l6"] },
+    ]),
+    topic("finances", "fin", "management", () => [
+        { p: "help.fin.p1" },
+        { h: "help.fin.h1" }, { ul: ["help.fin.l1", "help.fin.l2", "help.fin.l3"] },
+        { h: "help.fin.h2" }, { ul: ["help.fin.l4", "help.fin.l5", "help.fin.l6", "help.fin.l7"] },
+    ]),
+    topic("match-tactics", "buy", "tactics", () => [
+        { p: "help.buy.p1" },
+        { h: "help.buy.h1" }, { ul: ["help.buy.l1", "help.buy.l2", "help.buy.l3", "help.buy.l4"] },
+        { note: "help.buy.note" },
+    ]),
+    topic("world-ranking", "rank", "competition", () => [
+        { p: "help.rank.p1" }, { ul: ["help.rank.l1", "help.rank.l2", "help.rank.l3"] },
+    ]),
+    topic("circuit-points", "circuit", "competition", () => [
+        { p: "help.circuit.p1" }, { ul: ["help.circuit.l1", "help.circuit.l2", "help.circuit.l3"] },
+    ]),
+    topic("rmr", "rmr", "competition", () => [
+        { p: "help.rmr.p1" }, { ul: ["help.rmr.l1", "help.rmr.l2", "help.rmr.l3"] },
+    ]),
+    topic("condition", "cond", "gameplay", () => [
+        { ul: ["help.cond.l1", "help.cond.l2", "help.cond.l3"] },
+    ]),
+    topic("board", "board", "management", () => [
+        { p: "help.board.p1" }, { ul: ["help.board.l1", "help.board.l2", "help.board.l3"] },
+    ]),
+    topic("runway", "runway", "management", () => [
+        { p: "help.runway.p1" }, { ul: ["help.runway.l1", "help.runway.l2", "help.runway.l3"] },
+    ]),
+    topic("weekly-focus", "focus", "gameplay", () => [
+        { p: "help.focus.p1" },
+        {
+            ul: [
+                ["help.focus.training", { name: t(`wfocus.${WeeklyActivityType.TRAINING_ONLY}`) }],
+                ["help.focus.streaming", { name: t(`wfocus.${WeeklyActivityType.STREAMING}`) }],
+                ["help.focus.bonding", { name: t(`wfocus.${WeeklyActivityType.TEAM_BONDING}`) }],
+                ["help.focus.media", { name: t(`wfocus.${WeeklyActivityType.MEDIA_CAMPAIGN}`) }],
+                ["help.focus.bootcamp", { name: t(`wfocus.${WeeklyActivityType.BOOTCAMP}`), xp: weeklyActivityXpBonus(WEEKLY_ACTIVITIES[WeeklyActivityType.BOOTCAMP]) }],
+            ],
+        },
+        { note: "help.focus.note" },
+    ]),
+    topic("manager-career", "career", "progression", () => [
+        { p: ["help.career.p1", { win: WIN_XP_BASE, loss: LOSS_XP_BASE }] },
+        { ul: ["help.career.l1", "help.career.l2", ["help.career.l3", { tiers: TIERS.map(k => t(`cl.tier.${k}`)).join(" → ") }]] },
+    ]),
 ]
 
 /**
@@ -283,15 +139,9 @@ export function HelpSystem() {
         try { localStorage.setItem("esim_help_opened", "1") } catch { /* ignore */ }
     }
 
-    const categories = {
-        gameplay: 'Gameplay',
-        competition: 'Competition',
-        management: 'Management',
-        tactics: 'Tactics',
-        progression: 'Progression'
-    }
+    const categories: Category[] = ['gameplay', 'competition', 'management', 'tactics', 'progression']
 
-    const topic = helpTopics.find(t => t.id === selectedTopic)
+    const current = helpTopics.find(h => h.id === selectedTopic)
 
     return (
         <>
@@ -299,8 +149,8 @@ export function HelpSystem() {
                 variant="ghost"
                 size="icon"
                 onClick={openHelp}
-                aria-label="Open help"
-                title="Help & Game Guide"
+                aria-label={t("help.open")}
+                title={t("help.title")}
                 // Rendered in the top bar next to Settings (TopBar.tsx): a
                 // floating corner button covered page content (CROSSCUT-03).
                 className="relative h-9 w-9 shrink-0 rounded text-ink-3 hover:bg-raised hover:text-ink-1"
@@ -323,12 +173,12 @@ export function HelpSystem() {
                                         size="sm"
                                         onClick={() => setSelectedTopic(null)}
                                     >
-                                        ← Back
+                                        ← {t("help.back")}
                                     </Button>
-                                    <span>{topic?.title}</span>
+                                    <span>{current?.title}</span>
                                 </>
                             ) : (
-                                'Help & Documentation'
+                                t("help.title")
                             )}
                         </DialogTitle>
                     </DialogHeader>
@@ -336,31 +186,31 @@ export function HelpSystem() {
                     <div className="overflow-y-auto flex-1">
                         {selectedTopic ? (
                             <div className="p-4">
-                                {topic?.content}
+                                {current?.content}
                             </div>
                         ) : (
                             <div className="space-y-6 p-4">
-                                {Object.entries(categories).map(([key, label]) => {
-                                    const categoryTopics = helpTopics.filter(t => t.category === key)
+                                {categories.map(key => {
+                                    const categoryTopics = helpTopics.filter(h => h.category === key)
 
                                     if (categoryTopics.length === 0) return null
 
                                     return (
                                         <div key={key}>
                                             <h3 className="font-bold text-sm uppercase text-muted-foreground mb-3">
-                                                {label}
+                                                {t(`help.cat.${key}`)}
                                             </h3>
                                             <div className="space-y-2">
-                                                {categoryTopics.map(topic => (
+                                                {categoryTopics.map(item => (
                                                     <button
-                                                        key={topic.id}
-                                                        onClick={() => setSelectedTopic(topic.id)}
+                                                        key={item.id}
+                                                        onClick={() => setSelectedTopic(item.id)}
                                                         className="w-full rounded-lg border border-line bg-panel p-3 text-left hover:bg-raised transition-colors flex items-center justify-between group"
                                                     >
                                                         <div>
-                                                            <div className="font-medium">{topic.title}</div>
+                                                            <div className="font-medium">{item.title}</div>
                                                             <div className="text-xs text-muted-foreground">
-                                                                {topic.description}
+                                                                {item.description}
                                                             </div>
                                                         </div>
                                                         <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -372,11 +222,11 @@ export function HelpSystem() {
                                 })}
 
                                 <div className="mt-8 p-4 rounded-lg bg-raised border border-line">
-                                    <h4 className="font-bold mb-2">Quick Tips</h4>
-                                    <ul className="text-sm space-y-1 text-muted-foreground">
-                                        <li>• Press <kbd className="px-1 rounded bg-hover">?</kbd> anytime for keyboard shortcuts</li>
-                                        <li>• Replay the first-session guide from <span className="text-ink-1 font-medium">Settings → Replay Tutorial Guide</span></li>
-                                        <li>• Auto-save runs on the interval set in Settings (10 minutes by default); the career also saves after each week</li>
+                                    <h4 className="font-bold mb-2">{t("help.tips.title")}</h4>
+                                    <ul className="list-disc pl-5 text-sm space-y-1 text-muted-foreground">
+                                        <li><Trans k="help.tips.shortcuts" tags={TAGS} /></li>
+                                        <li>{t("help.tips.guide")}</li>
+                                        <li>{t("help.tips.autosave")}</li>
                                     </ul>
                                 </div>
                             </div>

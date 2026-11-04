@@ -5,6 +5,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { XIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { t } from "@/lib/i18n"
 
 const Dialog = DialogPrimitive.Root
 
@@ -54,7 +55,7 @@ const DialogContent = React.forwardRef<
           className="absolute top-4 right-4 z-20 rounded-lg p-1 text-ink-2 opacity-80 transition-colors hover:bg-hover hover:text-ink-1 focus:ring-2 focus:ring-gold/25 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
         >
           <XIcon />
-          <span className="sr-only">Close</span>
+          <span className="sr-only">{t("common.close")}</span>
         </DialogPrimitive.Close>
       )}
     </DialogPrimitive.Content>

@@ -16,10 +16,9 @@ import { PERSONALITY_TUNING as P, STORY_TUNING as S } from "@/lib/balance-tuning
 import { canBeMentored, canMentor } from "../../personality"
 import { retirementChance } from "../../retirement-chance"
 import {
-    clubOf, fmtRating, logBeat, nameOf, nextBeat, raiseDecision, resolveArc, rosterPlayers, stillAt, storyNews,
+    clubRef, fmtRating, joined, logBeat, nameOf, nextBeat, raiseDecision, resolveArc, rosterPlayers, said, stillAt, storyNews,
     takeAnswer, waitForDesk, weekOfSeason,
 } from "../common"
-import { plural } from "@/lib/plural"
 
 const num = (arc: StoryArc, key: string) => Number(arc.facts[key] ?? 0)
 const pct = (x: number) => Math.round(x * 100)
@@ -66,10 +65,9 @@ export const lastDance: ArcDefinition = {
     open(ctx, arc) {
         const p = ctx.player(arc.playerIds[0])
         const n = nameOf(p)
-        storyNews(ctx, arc, "b0", `${n} weighs his future`,
-            `${n}, ${num(arc, "age")}, has played ${num(arc, "maps")} official maps for ${clubOf(ctx, arc.teamId)} and has hinted that this season could be his last. `
-            + `As things stand, the season-end check gives him a ${num(arc, "chance")}% chance of retiring.`)
-        logBeat(arc, ctx.week, `${n}, ${num(arc, "age")}, hints at retiring (${num(arc, "chance")}% chance at season end).`)
+        storyNews(ctx, arc, "b0", said("sl.ld.newsTitle", { name: n }),
+            said("sl.ld.newsBody", { name: n, age: num(arc, "age"), club: clubRef(ctx, arc.teamId), chance: num(arc, "chance") }, num(arc, "maps")))
+        logBeat(arc, ctx.week, said("sl.ld.log", { name: n, age: num(arc, "age"), chance: num(arc, "chance") }))
         nextBeat(arc, ctx.week)
     },
 
@@ -78,46 +76,51 @@ export const lastDance: ArcDefinition = {
         const n = nameOf(ctx.player(id))
         const choice = arc.beat >= 2
             ? takeAnswer(ctx, arc, "respect", (ch, byDefault) =>
-                ch === "persuade" ? `You persuade ${n} to give it another go.`
-                    : ch === "mentor" ? `${n} takes ${String(arc.facts.menteeName ?? "a young team-mate")} under his wing.`
-                        : byDefault ? `No answer by the deadline, so the call is ${n}'s.` : `You leave the call to ${n}.`)
+                ch === "persuade" ? said("sl.ld.ans.persuade", { name: n })
+                    : ch === "mentor" ? said("sl.ld.ans.mentor", { name: n, mentee: arc.facts.menteeName !== undefined ? String(arc.facts.menteeName) : { key: "sl.ld.aYoungster" } })
+                        : said(byDefault ? "sl.ld.ans.respectDefault" : "sl.ld.ans.respect", { name: n }))
             : null
         const retiree = ctx.player(id)
         if (retiree?.isRetired) {
             const trophies = retiree.careerTrophies ?? 0
-            const text = `${n} retires at ${retiree.age} after ${retiree.mapsPlayed ?? 0} official maps (career rating ${fmtRating(retiree.avgRating || 0)}${trophies ? `, ${plural(trophies, "trophy", "trophies")}` : ""})${retiree.isLegendary ? " and goes into the Hall of Fame" : ""}.`
-            storyNews(ctx, arc, "end", `Farewell, ${n}`, text)
+            const text = said(retiree.isLegendary ? "sl.ld.retiredHof" : "sl.ld.retired", {
+                name: n, age: retiree.age ?? 0, rating: fmtRating(retiree.avgRating || 0),
+                trophies: trophies ? { key: "sl.ld.trophies", count: trophies } : "",
+            }, retiree.mapsPlayed ?? 0)
+            storyNews(ctx, arc, "end", said("sl.ld.farewell", { name: n }), text)
             return resolveArc(arc, ctx.week, "RETIRED", text)
         }
         const p = stillAt(ctx, id, arc.teamId)
-        if (!p) return resolveArc(arc, ctx.week, "LEFT", `${n} has left ${clubOf(ctx, arc.teamId)}.`)
+        if (!p) return resolveArc(arc, ctx.week, "LEFT", said("sl.left", { name: n, club: clubRef(ctx, arc.teamId) }))
 
         if (arc.beat === 1) {
             const chance = retirementChance(p, ctx.week)
             const from = pct(chance), to = pct(chance * S.PERSUADE_RETIREMENT_FACTOR)
             const mentee = successor(ctx, p, arc.teamId)
             const raised = raiseDecision(ctx, arc, {
-                title: `${n}'s last dance?`,
+                title: said("sl.ld.title", { name: n }),
                 playerId: id,
-                message: `${n} (${p.age}) is thinking about retiring at the end of the season. The season-end check currently gives him a ${from}% chance (it rises with age and falls with skill, form and health).\n\n`
-                    + `• Persuade him: morale +${S.PERSUADE_MORALE}, loyalty +${S.PERSUADE_LOYALTY}, and his retirement chance this season falls from ${from}% to ${to}% (× ${S.PERSUADE_RETIREMENT_FACTOR}).\n`
-                    + (mentee ? `• Plan the succession: he mentors ${nameOf(mentee)} (${mentee.age}); ${nameOf(mentee)}'s training gains +${Math.round((P.MENTOR_TRAINING - 1) * 100)}% while both stay. His retirement chance is unchanged.\n` : "")
-                    + `• Respect his decision: nothing changes.`,
+                message: joined("\n\n",
+                    said("sl.ld.msg", { name: n, age: p.age ?? 0, chance: from }),
+                    joined("\n",
+                        said("sl.ld.optPersuade", { morale: S.PERSUADE_MORALE, loyalty: S.PERSUADE_LOYALTY, from, to, factor: S.PERSUADE_RETIREMENT_FACTOR }),
+                        mentee && said("sl.ld.optMentor", { mentee: nameOf(mentee), age: mentee.age ?? 0, pct: Math.round((P.MENTOR_TRAINING - 1) * 100) }),
+                        said("sl.ld.optRespect"))),
                 choices: [
-                    { id: "persuade", text: "Persuade him to play on", effects: { persuade: { from, to }, morale: S.PERSUADE_MORALE, loyalty: S.PERSUADE_LOYALTY } },
-                    ...(mentee ? [{ id: "mentor", text: `Plan the succession: he mentors ${nameOf(mentee)}`, effects: { mentor: { menteeId: mentee.id, name: nameOf(mentee) } } }] : []),
-                    { id: "respect", text: "Respect his decision", effects: {} },
+                    { id: "persuade", text: said("sl.ld.c.persuade"), effects: { persuade: { from, to }, morale: S.PERSUADE_MORALE, loyalty: S.PERSUADE_LOYALTY } },
+                    ...(mentee ? [{ id: "mentor", text: said("sl.ld.c.mentor", { mentee: nameOf(mentee) }), effects: { mentor: { menteeId: mentee.id, name: nameOf(mentee) } } }] : []),
+                    { id: "respect", text: said("sl.ld.c.respect"), effects: {} },
                 ],
                 defaultChoiceId: "respect",
-                consequence: "leaves the decision to {name}",
-                label: `Last dance (${n})`,
+                consequence: said("sl.ld.cons", { name: "{name}" }),
+                label: said("sl.ld.label", { name: n }),
             })
             if (!raised) {
-                if (!waitForDesk(arc, ctx.week)) resolveArc(arc, ctx.week, "FADED", `${n} keeps his thoughts to himself for now.`)
+                if (!waitForDesk(arc, ctx.week)) resolveArc(arc, ctx.week, "FADED", said("sl.ld.fade", { name: n }))
                 return
             }
             if (mentee) arc.facts.menteeName = nameOf(mentee)
-            logBeat(arc, ctx.week, `${n} asks for time to think.`)
+            logBeat(arc, ctx.week, said("sl.ld.logThink", { name: n }))
             return nextBeat(arc, ctx.week)
         }
 
@@ -125,8 +128,8 @@ export const lastDance: ArcDefinition = {
         if (choice === null) return
         // The retirement check ran earlier this tick in week 52: he is still here.
         if (weekOfSeason(ctx.week) === 52 || ctx.week > arc.startedWeek + 30) {
-            const text = `${n} will play another season at ${clubOf(ctx, arc.teamId)}.`
-            storyNews(ctx, arc, "end", `${n} plays on`, text)
+            const text = said("sl.ld.playsOn", { name: n, club: clubRef(ctx, arc.teamId) })
+            storyNews(ctx, arc, "end", said("sl.ld.playsOnTitle", { name: n }), text)
             resolveArc(arc, ctx.week, "PLAYS_ON", text)
         }
     },

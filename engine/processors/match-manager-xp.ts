@@ -25,8 +25,8 @@ import { getStaffPassiveBonuses } from "../talent-trees"
 import { adjustManagerReputation } from "../manager-timeline"
 
 const ANALYST_XP_TALENT_CAP = 50 // max +50% from stacked analyst talents
-const WIN_XP_BASE = 100
-const LOSS_XP_BASE = 25
+export const WIN_XP_BASE = 100
+export const LOSS_XP_BASE = 25
 export const WIN_REPUTATION_BONUS = 5
 export const LOSS_REPUTATION_PENALTY = 1
 

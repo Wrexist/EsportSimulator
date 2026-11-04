@@ -15,7 +15,8 @@ import type { GameEventSaveData } from "../../save-types"
 import { STORY_TUNING as S } from "@/lib/balance-tuning"
 import { applyChoiceEffects } from "../../event-choice"
 import { sideScore } from "@/lib/week-changes"
-import { clubOf, competitionName, logBeat, nextBeat, resolveArc, storyNews } from "../common"
+import { LIST_REF, NUMBER_REF, type TextParam } from "@/lib/i18n"
+import { clubOf, clubRef, competitionRef, joined, logBeat, nextBeat, resolveArc, said, storyNews } from "../common"
 
 interface Upset { loserId: string; matchId: string; score: string; week: number }
 
@@ -69,25 +70,26 @@ export const giantKiller: ArcDefinition = {
     },
 
     open(ctx, arc) {
-        const club = clubOf(ctx, arc.teamId)
-        const beaten = arc.clubIds.map((id, i) => `${clubOf(ctx, id)} (#${arc.facts[`rank${i}`]}) ${arc.facts[`score${i}`]}`)
-        let content = `${club} (#${arc.facts.rank}) have beaten ${beaten.join(" and ")} in official matches within ${S.GIANT_WINDOW_WEEKS} weeks. Ranks as they stand today.`
+        const club = clubRef(ctx, arc.teamId)
+        const list = (items: TextParam[]): TextParam => ({ key: LIST_REF, params: Object.fromEntries(items.map((x, i) => [i, x])) })
+        const beaten = list(arc.clubIds.map((id, i) => `${clubOf(ctx, id)} (#${arc.facts[`rank${i}`]}) ${arc.facts[`score${i}`]}`))
+        let content = said("sl.gk.newsBody", { club, rank: String(arc.facts.rank), beaten, weeks: { key: "sl.weeks", count: S.GIANT_WINDOW_WEEKS } })
         if (arc.managed) {
             const pseudo = { id: `story_${arc.id}`, type: "STORYLINE", week: ctx.week, acknowledged: true, data: { teamId: arc.teamId } } as unknown as GameEventSaveData
             const label = `Giant-killer run: beat ${arc.clubIds.map(id => clubOf(ctx, id)).join(" and ")}`
             if (applyChoiceEffects(ctx.save, pseudo, { fans: S.GIANT_FANS, board: S.GIANT_BOARD }, { id: () => pseudo.id, description: label })) {
-                content += ` The run brings ${S.GIANT_FANS.toLocaleString("en-US")} new followers, and the board's confidence rises by ${S.GIANT_BOARD}.`
+                content = joined(" ", content, said("sl.gk.reward", { fans: { key: NUMBER_REF, count: S.GIANT_FANS }, board: S.GIANT_BOARD }))
                 ctx.applied.push(label)
             }
         }
-        storyNews(ctx, arc, "b0", `Giant-killers: ${club}`, content)
-        logBeat(arc, ctx.week, `${club} beat ${beaten.join(" and ")}.`)
+        storyNews(ctx, arc, "b0", said("sl.gk.newsTitle", { club }), content)
+        logBeat(arc, ctx.week, said("sl.gk.log", { club, beaten }))
         nextBeat(arc, ctx.week)
     },
 
     advance(ctx, arc) {
         const counted = new Set([arc.facts.match0, arc.facts.match1].map(String))
-        const club = clubOf(ctx, arc.teamId)
+        const club = clubRef(ctx, arc.teamId)
         let next: (typeof ctx.save.completedMatches)[number] | undefined
         for (let i = ctx.save.completedMatches.length - 1; i >= 0; i--) {
             const m = ctx.save.completedMatches[i]
@@ -101,10 +103,10 @@ export const giantKiller: ArcDefinition = {
             return
         }
         const won = next.result.winnerId === arc.teamId
-        const opp = clubOf(ctx, next.homeTeamId === arc.teamId ? next.awayTeamId : next.homeTeamId)
+        const opp = clubRef(ctx, next.homeTeamId === arc.teamId ? next.awayTeamId : next.homeTeamId)
         const score = sideScore(next.result, next.homeTeamId === arc.teamId)
-        const text = won ? `${club}'s run goes on with a ${score} win over ${opp} in ${competitionName(ctx, next)}.` : `${club}'s run ends with a ${score} defeat to ${opp} in ${competitionName(ctx, next)}.`
-        storyNews(ctx, arc, "b1", won ? `${club} keep rolling` : `${club}'s run comes to an end`, text)
+        const text = said(won ? "sl.gk.goesOn" : "sl.gk.ends", { club, score, opp, competition: competitionRef(ctx, next) })
+        storyNews(ctx, arc, "b1", said(won ? "sl.gk.rollingTitle" : "sl.gk.endTitle", { club }), text)
         resolveArc(arc, ctx.week, won ? "CONTINUES" : "ENDED", text)
     },
 }

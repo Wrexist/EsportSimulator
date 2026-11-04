@@ -6,6 +6,7 @@ import { Slider } from "@/components/ui/slider"
 import { Upload, X, ZoomIn, Move } from "lucide-react"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
+import { t } from "@/lib/i18n"
 
 interface ImageUploaderProps {
     value?: string  // Current data URL
@@ -48,15 +49,15 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
         // Validate file type
         const isImage = file.type.startsWith('image/') || SUPPORTED_FORMATS.includes(file.type.toLowerCase())
         if (!isImage) {
-            toast.error('Please select an image file', {
-                description: 'Supported formats: PNG, JPG, GIF, WebP, SVG, BMP, TIFF, ICO'
+            toast.error(t("img.notImage"), {
+                description: t("img.formats")
             })
             return
         }
 
         // Validate file size (max 20MB)
         if (file.size > 20 * 1024 * 1024) {
-            toast.error('Image must be under 20MB')
+            toast.error(t("img.tooBig"))
             return
         }
 
@@ -151,7 +152,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
         const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
         onChange(dataUrl)
         setOriginalImage(null)
-        toast.success('Logo saved!')
+        toast.success(t("img.saved"))
     }
 
     // Clear image
@@ -187,8 +188,8 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                         <Upload className="text-muted-foreground group-hover:text-white transition-colors" size={28} />
                     </div>
                     <div className="text-center">
-                        <p className="text-white font-medium">Upload Custom Logo</p>
-                        <p className="text-xs text-muted-foreground mt-1">PNG or JPG, max 2MB</p>
+                        <p className="text-white font-medium">{t("img.upload")}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{t("img.hint")}</p>
                     </div>
                 </button>
             )}
@@ -200,7 +201,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                         {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded logo data URL */}
                         <img
                             src={value}
-                            alt="Team logo"
+                            alt={t("img.alt")}
                             className="w-full h-full object-contain"
                         />
                     </div>
@@ -213,7 +214,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                             className="gap-2"
                         >
                             <Upload size={14} />
-                            Change
+                            {t("img.change")}
                         </Button>
                         <Button
                             type="button"
@@ -223,7 +224,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                             className="gap-2 text-negative hover:text-negative"
                         >
                             <X size={14} />
-                            Remove
+                            {t("img.remove")}
                         </Button>
                     </div>
                 </div>
@@ -251,7 +252,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                         {/* Drag hint */}
                         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-1 rounded-sm bg-ink/80 text-[11px] text-ink-2">
                             <Move size={10} />
-                            Drag to reposition
+                            {t("img.drag")}
                         </div>
                     </div>
 
@@ -260,13 +261,14 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground flex items-center gap-2">
                                 <ZoomIn size={14} />
-                                Zoom
+                                {t("img.zoom")}
                             </span>
                             <span className="text-white font-mono">{Math.round(scale * 100)}%</span>
                         </div>
                         <Slider
                             value={[scale]}
                             onValueChange={([v]) => setScale(v)}
+                            aria-label={t("img.zoom")}
                             min={0.5}
                             max={3}
                             step={0.1}
@@ -281,7 +283,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                             onClick={handleSave}
                             className="flex-1"
                         >
-                            Use This Logo
+                            {t("img.use")}
                         </Button>
                         <Button
                             type="button"
@@ -289,7 +291,7 @@ export function ImageUploader({ value, onChange, maxSize = 256, className }: Ima
                             onClick={handleClear}
                             className="text-muted-foreground hover:text-white"
                         >
-                            Cancel
+                            {t("img.cancel")}
                         </Button>
                     </div>
                 </div>

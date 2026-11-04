@@ -33,9 +33,9 @@ export function NavigationSearch({ compact = false, disabled, pro = false }: { c
         <DialogTrigger asChild>
         <button
             type="button"
-            aria-label="Search game navigation"
+            aria-label={t("search.aria")}
             aria-keyshortcuts="Control+k Meta+k"
-            title="Search navigation (Ctrl / Command + K)"
+            title={t("search.tooltip")}
             disabled={disabled}
             className={compact
                 ? "flex h-9 shrink-0 items-center gap-2 rounded border border-line bg-shell px-2.5 text-ink-3 transition-colors hover:border-line-strong hover:text-ink-1 disabled:opacity-40"

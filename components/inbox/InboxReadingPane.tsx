@@ -19,6 +19,7 @@ import { PressConferenceDecision, PressConferenceRecord } from "@/components/sto
 import { StoryContext } from "@/components/storylines/StoryContext"
 import { pressDataOf } from "@/engine/storylines/press-view"
 import { intlLocale, t } from "@/lib/i18n"
+import { newsContent } from "@/lib/news-text"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
 type AnyData = Record<string, any>
@@ -137,7 +138,7 @@ export function InboxReadingPane({ item, ctx, onBack, onOpenAwards }: {
         return (
             <article className="flex h-full min-h-0 flex-col">
                 <PaneHeader sender={item.sender} subject={item.subject} meta={weekLabel(item.week, ctx.currentWeek)} onBack={onBack} />
-                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5"><MessageBody text={item.news.content} /></div>
+                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5"><MessageBody text={newsContent(item.news)} /></div>
             </article>
         )
     }

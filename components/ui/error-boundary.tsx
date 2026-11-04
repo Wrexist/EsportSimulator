@@ -5,6 +5,7 @@ import { AlertTriangle, RefreshCw, Home, Clipboard, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { captureComponentError } from '@/lib/error-tracking'
 import { logger } from '@/lib/logger'
+import { t } from '@/lib/i18n'
 
 interface ErrorBoundaryProps {
     children: ReactNode
@@ -94,13 +95,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         <AlertTriangle className="text-negative" size={24} aria-hidden="true" />
                     </div>
                     <h3 className="mb-2 font-display text-2xl font-bold uppercase leading-none text-ink-1">
-                        {this.props.section ? `Error in ${this.props.section}` : 'Something went wrong'}
+                        {t("eb.title")}
                     </h3>
-                    <p className="mb-2 max-w-md text-sm text-ink-2">
-                        {this.state.error?.message || 'An unexpected error occurred. Please try again.'}
-                    </p>
+                    {this.state.error?.message && (
+                        <p className="mb-2 max-w-md break-words font-mono text-xs text-ink-2">
+                            {this.state.error.message}
+                        </p>
+                    )}
                     <p className="mb-6 max-w-md text-xs text-ink-3">
-                        Your game data is safe. You can try again, copy the error details for a bug report, or return to the main menu.
+                        {t("eb.body")}
                     </p>
                     <div className="flex flex-wrap gap-3 justify-center">
                         <Button
@@ -108,7 +111,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                             variant="default"
                         >
                             <RefreshCw size={14} className="mr-2" />
-                            Try Again
+                            {t("eb.retry")}
                         </Button>
                         <Button
                             onClick={this.handleCopyDetails}
@@ -117,12 +120,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                             {this.state.copied ? (
                                 <>
                                     <Check size={14} className="mr-2 text-positive" />
-                                    Copied!
+                                    {t("eb.copied")}
                                 </>
                             ) : (
                                 <>
                                     <Clipboard size={14} className="mr-2" />
-                                    Copy Error Details
+                                    {t("eb.copy")}
                                 </>
                             )}
                         </Button>
@@ -131,7 +134,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                             variant="ghost"
                         >
                             <Home size={14} className="mr-2" />
-                            Return to Main Menu
+                            {t("eb.menu")}
                         </Button>
                     </div>
                 </div>
@@ -146,7 +149,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
  * Inline Error Fallback - For smaller sections
  */
 export function InlineErrorFallback({
-    message = "Failed to load",
+    message,
     onRetry,
 }: {
     message?: string
@@ -155,7 +158,7 @@ export function InlineErrorFallback({
     return (
         <div className="flex items-center gap-3 p-3 bg-negative/5 border border-negative/30 rounded-lg text-sm">
             <AlertTriangle className="shrink-0 text-negative" size={16} aria-hidden="true" />
-            <span className="text-negative">{message}</span>
+            <span className="text-negative">{message ?? t("eb.inline")}</span>
             {onRetry && (
                 <Button
                     onClick={onRetry}
@@ -164,7 +167,7 @@ export function InlineErrorFallback({
                     className="ml-auto text-negative hover:text-negative hover:bg-negative/10 h-7 px-2"
                 >
                     <RefreshCw size={12} className="mr-1" />
-                    Retry
+                    {t("eb.inlineRetry")}
                 </Button>
             )}
         </div>

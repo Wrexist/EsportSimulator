@@ -7,6 +7,7 @@
  */
 
 import type { GameEventSaveData } from "@/engine/save-types"
+import { isTextRef, tRef } from "@/lib/i18n"
 
 /**
  * Human-readable title for an event, by type. Pure — depends only on the
@@ -16,6 +17,8 @@ export function getEventTitle(event: GameEventSaveData): string {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- event data shape varies by type
     const data = (event.data ?? {}) as any
     const type = event.type as string
+    // A title saved as a translation key (press conferences) follows the active language.
+    if (isTextRef(data.titleRef)) return tRef(data.titleRef)
     switch (type) {
         case "CONTRACT": return "Contract Expiry"
         case "MORALE": return "Internal Morale"

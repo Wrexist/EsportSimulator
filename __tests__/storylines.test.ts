@@ -378,7 +378,7 @@ describe("board under pressure", () => {
         }
         processStorylines(save)
         const arc = arcOf(save, "BOARD_PRESSURE")!
-        expect(save.newsFeed[0].content).toContain("Board confidence at US has fallen to 38/100. Recent setbacks: lost to them.")
+        expect(save.newsFeed[0].content).toContain("Board confidence at US has fallen to 38/100. Recent setbacks: Lost to THEM.")
         nextWeek(save); nextWeek(save)
         expect(save.newsFeed[0].content).toContain("The board's message to Alex: finish the season ranked #14 or better. US are ranked #30 against a target of #14")
         save.boardState.confidence = 55

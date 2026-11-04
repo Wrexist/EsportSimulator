@@ -16,27 +16,20 @@
 import type { ArcCandidate, ArcDefinition, StoryContext } from "../common"
 import type { StoryArc } from "../types"
 import { STORY_TUNING as S } from "@/lib/balance-tuning"
-import { ARCHETYPE_INFO, ensurePersonality, getArchetype, renewalSalary } from "../../personality"
+import { ensurePersonality, getArchetype, renewalSalary } from "../../personality"
 import { evaluatePlayer } from "../../player-evaluation"
 import { transferRequestEvent } from "../../processors/dressing-room"
 import {
-    clubOf, departure, highestText, logBeat, nameOf, nextBeat, openTransferRequest, raiseDecision, resolveArc,
-    rosterPlayers, seasonOf, stillAt, storyNews, takeAnswer, usd, waitForDesk,
+    clubRef, departedLine, joined, logBeat, nameOf, nextBeat, openTransferRequest, raiseDecision, rankedRef, resolveArc,
+    rosterPlayers, said, seasonOf, stillAt, storyNews, takeAnswer, usd, waitForDesk, weeksRef,
 } from "../common"
-import { plural } from "@/lib/plural"
 
 const num = (arc: StoryArc, key: string) => Number(arc.facts[key] ?? 0)
 
 function left(ctx: StoryContext, arc: StoryArc, playerId: string): void {
-    const p = ctx.player(playerId)
-    const move = departure(ctx, playerId, arc.startedWeek)
-    const n = nameOf(p)
-    const club = clubOf(ctx, arc.teamId)
-    const text = p?.isRetired ? `${n} has retired.`
-        : move?.toTeamId && move.toTeamId !== arc.teamId
-            ? `${n} has joined ${move.toTeamName ?? clubOf(ctx, move.toTeamId)}${move.fee > 0 ? ` for ${usd(move.fee)}` : " on a free"}.`
-            : `${n} has left ${club}.`
-    storyNews(ctx, arc, "end", `${n} leaves ${club}`, `${text} The standoff over his contract is over.`)
+    const n = nameOf(ctx.player(playerId))
+    const text = departedLine(ctx, arc, playerId, n, { free: true }).line
+    storyNews(ctx, arc, "end", said("sl.cs.leavesTitle", { name: n, club: clubRef(ctx, arc.teamId) }), joined(" ", text, said("sl.cs.standoffOver")))
     resolveArc(arc, ctx.week, "LEFT", text)
 }
 
@@ -69,11 +62,13 @@ export const contractStandoff: ArcDefinition = {
         const p = ctx.player(arc.playerIds[0])
         const n = nameOf(p)
         const weeksLeft = num(arc, "endWeek") - ctx.week
-        const label = ARCHETYPE_INFO[getArchetype(p ?? { id: arc.playerIds[0] })].label
-        storyNews(ctx, arc, "b0", `${n}'s agent goes public`,
-            `${n} has ${plural(weeksLeft, "week")} left on his contract at ${clubOf(ctx, arc.teamId)}, which ends in Week ${num(arc, "endWeek")}, and no new deal on the table. `
-            + `His agent points to his standing: the club's ${highestText(num(arc, "rank"))}-rated player (OVR ${num(arc, "ovr")}) on ${usd(num(arc, "wage"))} a week. Personality: ${label}.`)
-        logBeat(arc, ctx.week, `${n}'s agent goes public with ${plural(weeksLeft, "week")} left on the deal and no new terms.`)
+        const archetype = getArchetype(p ?? { id: arc.playerIds[0] })
+        storyNews(ctx, arc, "b0", said("sl.cs.agentTitle", { name: n }),
+            said("sl.cs.agentBody", {
+                name: n, weeks: weeksRef(weeksLeft), club: clubRef(ctx, arc.teamId), end: num(arc, "endWeek"),
+                rank: rankedRef(num(arc, "rank")), ovr: num(arc, "ovr"), wage: usd(num(arc, "wage")), personality: { key: `arch.${archetype}.label` },
+            }))
+        logBeat(arc, ctx.week, said("sl.cs.agentLog", { name: n, weeks: weeksRef(weeksLeft) }))
         nextBeat(arc, ctx.week)
     },
 
@@ -83,16 +78,16 @@ export const contractStandoff: ArcDefinition = {
         // Beat 2: the talks were answered (or lapsed to their default) before anything else is judged.
         const choice = arc.beat >= 2
             ? takeAnswer(ctx, arc, "wait", (ch, byDefault) =>
-                ch === "offer" ? `You offer ${usd(num(arc, "ask"))} a week.`
-                    : ch === "sell" ? `${n} goes on the transfer list at ${usd(num(arc, "value"))}.`
-                        : byDefault ? "No answer by the deadline, so the club waits." : "The club waits for him to come round.")
+                ch === "offer" ? said("sl.cs.ans.offer", { wage: usd(num(arc, "ask")) })
+                    : ch === "sell" ? said("sl.listedAt", { name: n, value: usd(num(arc, "value")) })
+                        : said(byDefault ? "sl.cs.ans.waitDefault" : "sl.cs.ans.wait"))
             : null
         const p = stillAt(ctx, id, arc.teamId)
         if (!p) return left(ctx, arc, id)
         const c = ctx.contract(id, arc.teamId)
         if (c && c.endWeek > num(arc, "endWeek")) {
-            const text = `${n} has signed a new deal at ${clubOf(ctx, arc.teamId)} worth ${usd(c.salaryPerWeek)} a week, running to Week ${c.endWeek}.`
-            storyNews(ctx, arc, "end", `${n} signs a new deal`, `${text} The standoff is over.`)
+            const text = said("sl.cs.renewed", { name: n, club: clubRef(ctx, arc.teamId), wage: usd(c.salaryPerWeek), end: c.endWeek })
+            storyNews(ctx, arc, "end", said("sl.cs.renewedTitle", { name: n }), joined(" ", text, said("sl.cs.over")))
             return resolveArc(arc, ctx.week, "RENEWED", text)
         }
         if (!c) return left(ctx, arc, id)
@@ -106,27 +101,29 @@ export const contractStandoff: ArcDefinition = {
             const requestWeek = Math.max(ctx.week + S.DECISION_WINDOW + 1, Math.min(c.endWeek - S.STANDOFF_REQUEST_BEFORE_END, ctx.week + S.STANDOFF_PATIENCE_WEEKS))
             const value = Math.round(evaluatePlayer(p, undefined, undefined, ctx.week).transferValue)
             const raised = raiseDecision(ctx, arc, {
-                title: `Contract talks: ${n}`,
+                title: said("sl.cs.title", { name: n }),
                 playerId: id,
-                message: `${n} wants a new deal before his contract ends in Week ${c.endWeek} (${plural(c.endWeek - ctx.week, "week")}). He earns ${usd(wage)} a week; his agent asks ${usd(ask)} (+${raise}%).\n\n`
-                    + `• Offer the deal: ${usd(ask)} a week and ${S.STANDOFF_EXTENSION_WEEKS} more weeks, to Week ${newEnd}; morale +${S.STANDOFF_OFFER_MORALE}, loyalty +${S.STANDOFF_OFFER_LOYALTY}. The club must hold ${usd(runway)}, ${S.STANDOFF_RUNWAY_WEEKS} weeks of the raise.\n`
-                    + `• Wait: nothing changes now. If his deal is still unrenewed in Week ${requestWeek}, he hands in a transfer request.\n`
-                    + `• Sell: he goes on the transfer list at his market value of ${usd(value)}; clubs that can afford him may bid.`,
+                message: joined("\n\n",
+                    said("sl.cs.msg", { name: n, end: c.endWeek, weeks: weeksRef(c.endWeek - ctx.week), wage: usd(wage), ask: usd(ask), raise }),
+                    joined("\n",
+                        said("sl.cs.optOffer", { ask: usd(ask), ext: weeksRef(S.STANDOFF_EXTENSION_WEEKS), end: newEnd, morale: S.STANDOFF_OFFER_MORALE, loyalty: S.STANDOFF_OFFER_LOYALTY, runway: usd(runway), runwayWeeks: weeksRef(S.STANDOFF_RUNWAY_WEEKS) }),
+                        said("sl.cs.optWait", { week: requestWeek }),
+                        said("sl.optSell", { value: usd(value) }))),
                 choices: [
-                    { id: "offer", text: `Offer ${usd(ask)} a week to Week ${newEnd}`, effects: { renew: { salary: ask, weeks: S.STANDOFF_EXTENSION_WEEKS, current: wage }, morale: S.STANDOFF_OFFER_MORALE, loyalty: S.STANDOFF_OFFER_LOYALTY } },
-                    { id: "wait", text: "Wait for him to come round", effects: { follows: `Transfer request in Week ${requestWeek} if still unrenewed` } },
-                    { id: "sell", text: "Put him on the transfer list", effects: { transferList: true } },
+                    { id: "offer", text: said("sl.cs.c.offer", { ask: usd(ask), end: newEnd }), effects: { renew: { salary: ask, weeks: S.STANDOFF_EXTENSION_WEEKS, current: wage }, morale: S.STANDOFF_OFFER_MORALE, loyalty: S.STANDOFF_OFFER_LOYALTY } },
+                    { id: "wait", text: said("sl.cs.c.wait"), effects: { follows: { key: "sl.next.request", params: { week: String(requestWeek) } } } },
+                    { id: "sell", text: said("sl.c.list"), effects: { transferList: true } },
                 ],
                 defaultChoiceId: "wait",
-                consequence: "waits: no offer is made to {name}",
-                label: `Contract talks (${n})`,
+                consequence: said("sl.cs.cons", { name: "{name}" }),
+                label: said("sl.cs.label", { name: n }),
             })
             if (!raised) {
-                if (!waitForDesk(arc, ctx.week)) resolveArc(arc, ctx.week, "FADED", `Talks with ${n}'s agent stall.`)
+                if (!waitForDesk(arc, ctx.week)) resolveArc(arc, ctx.week, "FADED", said("sl.cs.fade", { name: n }))
                 return
             }
             Object.assign(arc.facts, { ask, requestWeek, value })
-            logBeat(arc, ctx.week, `${n}'s agent asks ${usd(ask)} a week (+${raise}%) as talks open.`)
+            logBeat(arc, ctx.week, said("sl.cs.logAsk", { name: n, ask: usd(ask), raise }))
             return nextBeat(arc, ctx.week)
         }
 
@@ -137,8 +134,8 @@ export const contractStandoff: ArcDefinition = {
         if (choice === "offer") return resolveArc(arc, ctx.week, "FADED")
         if (choice === "sell") {
             if (ctx.week >= num(arc, "decidedWeek") + S.LISTED_RESOLVE_WEEKS) {
-                const text = `No club has met the price for ${n} in ${S.LISTED_RESOLVE_WEEKS} weeks; he stays, deal ending in Week ${c.endWeek}.`
-                storyNews(ctx, arc, "end", `No buyer for ${n}`, text)
+                const text = said("sl.cs.unsold", { name: n, weeks: weeksRef(S.LISTED_RESOLVE_WEEKS), end: c.endWeek })
+                storyNews(ctx, arc, "end", said("sl.cs.unsoldTitle", { name: n }), text)
                 resolveArc(arc, ctx.week, "UNSOLD", text)
             }
             return
@@ -153,8 +150,8 @@ export const contractStandoff: ArcDefinition = {
                 const room = (team.dressingRoom ??= {})
                 room.requestWeeks = [...(room.requestWeeks ?? []).filter(w => seasonOf(w) === seasonOf(ctx.week)), ctx.week]
             }
-            const text = `${n} hands in a transfer request, his deal ending in Week ${c.endWeek} with no new terms.`
-            storyNews(ctx, arc, "end", `${n} asks to leave`, `${text} The club must now accept it, refuse it or make him a promise.`)
+            const text = said("sl.cs.request", { name: n, end: c.endWeek })
+            storyNews(ctx, arc, "end", said("sl.cs.requestTitle", { name: n }), joined(" ", text, said("sl.cs.requestTail")))
             resolveArc(arc, ctx.week, "REQUEST", text)
         }
     },

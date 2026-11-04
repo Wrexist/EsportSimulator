@@ -11,6 +11,7 @@ import { arcsForPlayer } from "@/engine/storylines/view"
 import { storyKindName } from "@/lib/story-names"
 import { t, tn } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
+import { lineText } from "@/lib/news-text"
 
 const seasonWeek = (week: number) => t("story.seasonWeek", { s: Math.floor((week - 1) / 52) + 1, w: ((week - 1) % 52) + 1 })
 
@@ -36,7 +37,7 @@ export function PlayerStorylines({ playerId }: { playerId: string }) {
                             {arc.log.map((entry, i) => (
                                 <li key={i} className="flex gap-3 text-[13px] leading-snug">
                                     <span className="w-14 shrink-0 text-xs tabular-nums text-ink-3">{seasonWeek(entry.week)}</span>
-                                    <span className="min-w-0 text-ink-2">{entry.text}</span>
+                                    <span className="min-w-0 text-ink-2">{lineText(entry)}</span>
                                 </li>
                             ))}
                         </ul>

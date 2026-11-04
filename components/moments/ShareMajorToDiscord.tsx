@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { t } from "@/lib/i18n"
 import { IS_DEMO } from "@/lib/edition"
 import { cleanMajorShare, DISCORD_INVITE_URL, DISCORD_MAJOR_CHANNEL, hasCommunityDiscord } from "@/lib/community"
 import type { MajorWinShare, MajorWinShareResult } from "@/types/electron-window"
@@ -42,11 +43,11 @@ export function ShareMajorToDiscord({ share, delay = 0 }: { share: MajorWinShare
 
     const posted = status === "posted"
     const note = posted
-        ? `Posted in ${DISCORD_MAJOR_CHANNEL}.`
-        : status === "limited" ? "You have shared a lot today. Try again later."
-        : status === "failed" ? "Could not post right now. Check your connection and try again."
-        : status === "unavailable" ? "Sharing is not available right now."
-        : `Posts your manager name, club and final to ${DISCORD_MAJOR_CHANNEL} in the community Discord.`
+        ? t("share.posted", { channel: DISCORD_MAJOR_CHANNEL })
+        : status === "limited" ? t("share.limited")
+        : status === "failed" ? t("share.failed")
+        : status === "unavailable" ? t("share.unavailable")
+        : t("share.note", { channel: DISCORD_MAJOR_CHANNEL })
 
     return (
         <motion.div
@@ -58,11 +59,11 @@ export function ShareMajorToDiscord({ share, delay = 0 }: { share: MajorWinShare
             <div className="flex items-center gap-3">
                 {!posted && (
                     <Button variant="outline" onClick={send} disabled={status === "sending"}>
-                        {status === "sending" ? "Posting…" : status === "failed" || status === "unavailable" ? "Try again" : "Announce in Discord"}
+                        {status === "sending" ? t("share.posting") : status === "failed" || status === "unavailable" ? t("share.retry") : t("share.announce")}
                     </Button>
                 )}
                 <Button variant="link" asChild>
-                    <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer">{posted ? "See it in Discord" : "Join the Discord"}</a>
+                    <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer">{posted ? t("share.see") : t("share.join")}</a>
                 </Button>
             </div>
             <p role="status" className="text-xs text-ink-3">{note}</p>
