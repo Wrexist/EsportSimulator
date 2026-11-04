@@ -174,6 +174,16 @@ function pick<T>(array: readonly T[], rng?: SeededRNG): T {
     return array[randomInt(0, array.length - 1, rng)]
 }
 
+/**
+ * A first and last name with a matching nationality, from one region's pool
+ * (any region, uniformly). Used for generated staff (SQUAD-11).
+ */
+export function regionalPersonName(rng: SeededRNG): { firstName: string; lastName: string; nationality: string } {
+    const regions = Object.keys(NAME_POOLS) as RegionKey[]
+    const pool = NAME_POOLS[pick(regions, rng)]
+    return { nationality: pick(pool.nationalities, rng), firstName: pick(pool.first, rng), lastName: pick(pool.last, rng) }
+}
+
 // Generate a realistic Pro FPS nickname
 function generateNickname(firstName: string, rng?: SeededRNG): string {
     const rand = random(rng)

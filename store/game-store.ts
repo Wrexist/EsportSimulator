@@ -41,6 +41,7 @@ import {
   type SaveErrorCode
 } from "@/engine"
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
+import { spreadPlaceholderAttributes } from "@/engine/placeholder-attributes"
 import { seedPreseasonFriendlies } from "@/engine/preseason-friendlies"
 import { recordCareerProgress } from "@/engine/manager-career-profile"
 import { PreSeasonTransferProcessor } from "@/engine/pre-season-transfers"
@@ -1779,6 +1780,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           })
 
           AIManager.initializeTeamData(hydratedSave)
+          // SQUAD-10: older careers still carry the snapshot's placeholder attributes.
+          spreadPlaceholderAttributes(hydratedSave.players)
           reconcileAllRoles(hydratedSave.teams, hydratedSave.players)
           // Older saves hold open requests without a deadline (and stacked
           // repeats): give each its deadline and default, merge repeats (Phase 4.9).

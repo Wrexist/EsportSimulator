@@ -6,13 +6,15 @@ import { useShallow } from "zustand/react/shallow"
 import { PlayerDetail } from "@/components/player/player-detail"
 import { notFound, useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, UserX } from "lucide-react"
+import { EmptyState } from "@/src/components/ui/EmptyState"
 
 export default function PlayerPage() {
     const { id } = useParams()
     const router = useRouter()
-    const { players, _hasHydrated, isLoading } = useGameStore(useShallow(state => ({
+    const { players, _hasHydrated, isLoading, inCareer } = useGameStore(useShallow(state => ({
         players: state.players,
+        inCareer: !!state.playerTeamId,
         _hasHydrated: state._hasHydrated,
         isLoading: state.isLoading,
     })))
@@ -34,6 +36,14 @@ export default function PlayerPage() {
     }
 
     if (!player) {
+        // SQUAD-23: inside a career, offer the way back to the squad, not the main menu.
+        if (inCareer) {
+            return (
+                <div className="mx-auto max-w-[1600px] py-10">
+                    <EmptyState icon={UserX} title={t("player.notFound")} description={t("player.notFoundBody")} action={{ label: t("player.backToSquad"), href: "/squad" }} />
+                </div>
+            )
+        }
         return notFound()
     }
 

@@ -10,6 +10,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
 import { evaluatePlayer } from "@/engine/player-evaluation"
+import { potentialOvr } from "@/lib/potential-ovr"
 import { getDisplayPlayerTier, type TierLevel } from "@/engine/tier-system"
 import { getPrestigeLabel } from "@/engine/prestige-system"
 import { PLAYER_TALENT_TREE } from "@/engine/talent-trees"
@@ -130,7 +131,8 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
 
     const evaluation = evaluatePlayer(player, undefined, undefined, currentWeek)
     const ovr = evaluation.overallRating
-    const potential = player.potential || evaluation.futureValue
+    // SQUAD-03: potential on the OVR scale, so it never reads below OVR.
+    const potential = potentialOvr(player, currentWeek)
     const tierLevel = getDisplayPlayerTier(ovr, viewedTeam?.tier as TierLevel)
     const prestige = getPrestigeLabel(player.prestigeScore || 0)
     const energy = playerEnergyPercent(player)
@@ -229,9 +231,10 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                             {[
                                 { label: t("player.form"), value: player.form },
                                 { label: t("common.morale"), value: player.morale },
-                                { label: t("common.energy"), value: energy },
-                            ].map(m => (
-                                <div key={m.label} className="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-3">
+                                // SQUAD-13: say how Energy differs from workload (fatigue).
+                                { label: t("common.energy"), value: energy, tip: t("squad.col.energyTitle") },
+                            ].map((m: { label: string; value: number; tip?: string }) => (
+                                <div key={m.label} className="grid grid-cols-[64px_minmax(0,1fr)] items-center gap-3" title={m.tip}>
                                     <span className="text-xs text-ink-3">{m.label}</span>
                                     <Meter value={m.value} label={m.label} trackClassName="w-full flex-1" />
                                 </div>
@@ -302,6 +305,8 @@ function OwnedPlayerDetail({ player }: PlayerDetailProps) {
                                 ))}
                                 {canOffer && <Button className="flex-1" onClick={() => setNegotiationOpen(true)}>{t("player.offer")}</Button>}
                                 {isAcademy && <Button variant="outline" asChild className="flex-1"><Link href="/academy">{t("player.openAcademy")}</Link></Button>}
+                                {/* SQUAD-22: the reason Release is blocked, visible without a hover. */}
+                                {isOwnPlayer && releaseBlock && <p className="basis-full text-xs text-ink-3">{t("player.release")}: {releaseBlock}</p>}
                             </div>
                         )}
                     </div>

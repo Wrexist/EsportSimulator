@@ -95,6 +95,29 @@ function pressTopic(e: GameEventSaveData): string {
 
 const money = (n: number) => n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `$${Math.round(n / 1000)}k` : `$${n}`
 
+/**
+ * Fixtures of the managed club this week that the store will resolve by
+ * forfeit (a side can't field five). By default only fixtures already due
+ * (daily mode: today or earlier); `wholeWeek` also counts the rest of the
+ * week, for "Skip week", which plays them all (SQUAD-04).
+ */
+export function forfeitStops(state: StopSource, completed?: ReadonlySet<string>, options?: { wholeWeek?: boolean }): AdvanceStop[] {
+    const me = state.playerTeamId
+    if (!me) return []
+    const done = completed ?? new Set(state.completedMatches.map(m => m.id))
+    const teamName = (id: string) => state.teams.find(tm => tm.id === id)?.name ?? t("stop.yourOpponent")
+    const out: AdvanceStop[] = []
+    for (const m of state.scheduledMatches) {
+        if (m.week !== state.currentWeek || (m.homeTeamId !== me && m.awayTeamId !== me) || done.has(m.id)) continue
+        if (!options?.wholeWeek && state.timeMode === "HYBRID_DAILY" && (m.day ?? 6) > (state.currentDay ?? 6)) continue
+        const block = fixtureBlockReason(state, m)
+        if (!block) continue
+        const opp = m.homeTeamId === me ? m.awayTeamId : m.homeTeamId
+        out.push({ key: `forfeit:${m.id}`, kind: "forfeit", reason: t("stop.forfeit", { team: teamName(opp), reason: block }), href: "/transfers", actionLabel: t("stop.findPlayer") })
+    }
+    return out
+}
+
 /** Every stop signal active in this state, highest priority first. */
 export function collectStopSignals(state: StopSource): AdvanceStop[] {
     const out: AdvanceStop[] = []
@@ -117,14 +140,7 @@ export function collectStopSignals(state: StopSource): AdvanceStop[] {
     if (state.gameOverReason) out.push({ key: `game-over:${state.gameOverReason}`, kind: "game-over", reason: state.gameOverReason === "SACKED" ? t("stop.sacked") : state.gameOverReason === "UNEMPLOYED" ? t("stop.unemployed") : t("stop.folded"), href: "/" })
 
     // A due fixture the store will resolve by forfeit (a side can't field five).
-    for (const m of state.scheduledMatches) {
-        if (m.week !== state.currentWeek || (m.homeTeamId !== me && m.awayTeamId !== me) || completed.has(m.id)) continue
-        if (state.timeMode === "HYBRID_DAILY" && (m.day ?? 6) > (state.currentDay ?? 6)) continue
-        const block = fixtureBlockReason(state, m)
-        if (!block) continue
-        const opp = m.homeTeamId === me ? m.awayTeamId : m.homeTeamId
-        out.push({ key: `forfeit:${m.id}`, kind: "forfeit", reason: t("stop.forfeit", { team: teamName(opp), reason: block }), href: "/transfers", actionLabel: t("stop.findPlayer") })
-    }
+    out.push(...forfeitStops(state, completed))
 
     const team = state.teams.find(tm => tm.id === me)
     const roster = new Set(team?.rosterIds ?? [])

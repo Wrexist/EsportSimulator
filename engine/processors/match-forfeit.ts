@@ -92,7 +92,7 @@ export function processForfeitMatch(args: {
             week: save.currentWeek,
             data: {
                 description: forfeitingTeam.id === playerTeamId
-                    ? `Your team forfeited against ${winningTeam.name} due to too many injured players.`
+                    ? `Your team forfeited against ${winningTeam.name}: only ${availableCount}/5 players were available.`
                     : `${forfeitingTeam.name} forfeited your match — win by default!`,
                 importance: "HIGH",
             },

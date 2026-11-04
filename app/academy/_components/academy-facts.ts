@@ -6,6 +6,8 @@ import { t } from "@/lib/i18n"
  */
 
 import type { AcademyTrainingFocus } from "@/types/academy"
+import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
+import { recruitmentSalary } from "@/engine/recruitment"
 
 export const ACADEMY_ROLES = ["IGL", "Entry", "AWPer", "Support", "Rifler"] as const
 
@@ -15,8 +17,18 @@ export const POTENTIAL_REVEAL_WEEKS: Record<number, number> = { 1: 12, 2: 8, 3: 
 /** academy-slice releaseProspect default fee. */
 export const RELEASE_FEE = 1000
 
-/** Terms the academy promotion uses (squad page and academy share them). */
-export const PROMOTION_TERMS = { salaryPerWeek: 2000, lengthWeeks: 104 }
+/** Length of a promoted prospect's first senior contract. */
+export const PROMOTION_LENGTH_WEEKS = 104
+
+/**
+ * Terms the academy promotion uses (squad page and academy share them).
+ * SQUAD-15: the wage is the one the market would ask for this player at this
+ * club (engine/recruitment.ts recruitmentSalary, as AI clubs promote theirs),
+ * not a flat $2,000/wk that a Division 5 club paying $250 cannot carry.
+ */
+export function promotionTerms(player: PlayerSaveData, currentWeek: number, team?: Pick<TeamSaveData, "reputation"> & Partial<Pick<TeamSaveData, "leagueTier">>): { salaryPerWeek: number; lengthWeeks: number } {
+    return { salaryPerWeek: recruitmentSalary(player, currentWeek, team), lengthWeeks: PROMOTION_LENGTH_WEEKS }
+}
 
 /** AcademyEngine.evaluatePromotion: progress ≥ 85 and these minimums. */
 export const PROMOTION_PROGRESS = 85

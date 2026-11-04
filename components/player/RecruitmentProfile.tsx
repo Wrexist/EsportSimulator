@@ -9,7 +9,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import type { PlayerSaveData } from "@/engine/save-types"
 import { getVisibleStats, formatScoutedRating } from "@/engine/scouting-system"
-import { academyHeldPlayerIds, recruitmentSalary } from "@/engine/recruitment"
+import { academyHeldPlayerIds, employedScout, recruitmentSalary } from "@/engine/recruitment"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { CountryFlag } from "@/components/ui/CountryFlag"
 import { TeamLogoDisplay } from "@/components/ui/TeamLogoDisplay"
@@ -32,7 +32,7 @@ const ATTRIBUTES = [
 /** Recruitment reads only the report's permitted attributes. The squad profile remains separate. */
 export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
     const state = useGameStore(useShallow(s => ({ teams: s.teams, players: s.players, playerTeamId: s.playerTeamId,
-        scoutedPlayers: s.scoutedPlayers, currentWeek: s.currentWeek, contracts: s.contracts,
+        scoutedPlayers: s.scoutedPlayers, currentWeek: s.currentWeek, contracts: s.contracts, staff: s.staff,
         watchlistedPlayerIds: s.watchlistedPlayerIds, activeScoutingMission: s.activeScoutingMission,
         academyPlayers: s.academyPlayers, academyPendingProspects: s.academyPendingProspects,
         startScoutingMission: s.startScoutingMission, cancelScoutingMission: s.cancelScoutingMission,
@@ -43,6 +43,8 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
     const owner = state.teams.find(t => t.rosterIds.includes(player.id))
     const knownIds = [...(ownTeam?.rosterIds || []), ...state.academyPlayers.map(p => p.playerId)]
     const report = getVisibleStats(player, state.scoutedPlayers, knownIds, state.currentWeek)
+    // SQUAD-19: a mission needs a hired scout; say so before the click, as the Academy does.
+    const hasScout = !!employedScout(state.staff, ownTeam, state.currentWeek)
     const compared = state.players.find(p => p.id === comparisonId)
     const other = compared && getVisibleStats(compared, state.scoutedPlayers, knownIds, state.currentWeek)
     const mission = state.activeScoutingMission
@@ -109,12 +111,17 @@ export function RecruitmentProfile({ player }: { player: PlayerSaveData }) {
                         {canNegotiate && <Button className="flex-1" onClick={() => setNegotiating(true)}>{t("recruit.negotiate")}</Button>}
                         <Button variant="outline" className="flex-1" onClick={() => state.toggleWatchlistPlayer(player.id)}>{shortlisted ? t("recruit.unshortlist") : t("recruit.shortlist")}</Button>
                         {!knownIds.includes(player.id) && (
-                            <Button variant="outline" className="flex-1" disabled={!!mission || report.scoutingLevel === "ELITE" || player.isRetired}
+                            <Button variant="outline" className="flex-1" disabled={!hasScout || !!mission || report.scoutingLevel === "ELITE" || player.isRetired}
                                 onClick={() => state.startScoutingMission(player.id)}>
                                 {report.isScouted ? t("recruit.improve") : t("recruit.scout")}
                             </Button>
                         )}
                     </div>
+                    {!hasScout && !knownIds.includes(player.id) && report.scoutingLevel !== "ELITE" && !player.isRetired && (
+                        <p className="text-xs text-ink-3">
+                            {t("ac.needScout")} <Link href="/staff" className="font-semibold text-ink-2 underline-offset-2 hover:text-ink-1 hover:underline">{t("ac.hireScout")}</Link>
+                        </p>
+                    )}
                     {mission?.playerId === player.id && (
                         <div className="flex items-center justify-between gap-4 rounded-lg border border-line bg-raised px-3 py-2.5 text-sm text-ink-2">
                             <p>{tn("recruit.due", Math.max(0, mission.completionWeek - state.currentWeek))}</p>

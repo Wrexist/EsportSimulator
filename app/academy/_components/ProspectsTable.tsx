@@ -3,7 +3,7 @@ import { intlLocale, t, tn } from "@/lib/i18n"
 
 import { useMemo } from "react"
 import Link from "next/link"
-import type { PlayerSaveData } from "@/engine/save-types"
+import type { PlayerSaveData, TeamSaveData } from "@/engine/save-types"
 import type { AcademyPlayer, AcademyTrainingFocus, AcademyWeeklyReport } from "@/types/academy"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { visibleAcademyPotential } from "@/engine/academy-engine"
@@ -18,7 +18,7 @@ import { RoleTag } from "@/src/components/ui/RoleTag"
 import { Meter } from "@/src/components/ui/Meter"
 import {
     ACADEMY_ROLES, BENCH_XP_SHARE, drillStatName, FATIGUE_THRESHOLD, FOCUS_OPTIONS, POTENTIAL_REVEAL_WEEKS, PROMOTION_MINIMUMS,
-    PROMOTION_PROGRESS, PROMOTION_TERMS, RELEASE_FEE,
+    PROMOTION_PROGRESS, promotionTerms, RELEASE_FEE,
 } from "./academy-facts"
 import { formatCurrency } from "@/lib/utils-extended"
 
@@ -29,6 +29,8 @@ interface Row {
 
 interface ProspectsTableProps {
     rows: Row[]
+    /** The managed club: the promotion wage depends on it (SQUAD-15). */
+    team?: TeamSaveData
     academyLevel: number
     currentWeek: number
     academyRoster: Record<string, string | null>
@@ -54,7 +56,7 @@ export function readiness(prospect: AcademyPlayer, player: PlayerSaveData): stri
  * with the two levers that change development (starter slot, focus) and
  * promote / release.
  */
-export function ProspectsTable({ rows, academyLevel, currentWeek, academyRoster, lastWeek, onSetFocus, onSetLineup, onPromote, onRelease }: ProspectsTableProps) {
+export function ProspectsTable({ rows, team, academyLevel, currentWeek, academyRoster, lastWeek, onSetFocus, onSetLineup, onPromote, onRelease }: ProspectsTableProps) {
     const roleOf = useMemo(() => {
         const m = new Map<string, string>()
         for (const [role, id] of Object.entries(academyRoster)) if (id) m.set(id, role)
@@ -159,7 +161,7 @@ export function ProspectsTable({ rows, academyLevel, currentWeek, academyRoster,
                                     <div className="flex items-center justify-end gap-2">
                                         <ConfirmDialog
                                             title={t("ac.promoteTitle", { name: player.nickname })}
-                                            description={t("ac.promoteBody", { salary: formatCurrency(PROMOTION_TERMS.salaryPerWeek, "$", false), weeks: PROMOTION_TERMS.lengthWeeks, total: formatCurrency(PROMOTION_TERMS.salaryPerWeek * PROMOTION_TERMS.lengthWeeks, "$", false) })}
+                                            description={(() => { const terms = promotionTerms(player, currentWeek, team); return t("ac.promoteBody", { salary: formatCurrency(terms.salaryPerWeek, "$", false), weeks: terms.lengthWeeks, total: formatCurrency(terms.salaryPerWeek * terms.lengthWeeks, "$", false) }) })()}
                                             onConfirm={() => onPromote(prospect.id)}
                                             confirmText={t("ac.promote")}
                                             icon="info"

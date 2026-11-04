@@ -12,6 +12,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
 import { useCurrentTeam } from "@/hooks/useCurrentTeam"
 import { DrillManager } from "@/engine/drill-manager"
+import { potentialOvr } from "@/lib/potential-ovr"
 import type { PlayerSaveData } from "@/engine/save-types"
 import type { CustomTactics } from "@/types"
 import { cn } from "@/lib/utils"
@@ -211,7 +212,7 @@ export default function TrainingPage() {
                                                 </span>
                                                 <span className="min-w-0">
                                                     <span className="block truncate text-[15px] font-semibold text-ink-1 group-hover:text-gold">{p.nickname}</span>
-                                                    <span className="block text-xs text-ink-3">{t("tr.lvlPotential", { level: p.level || 1, potential: p.potential })}</span>
+                                                    <span className="block text-xs text-ink-3">{t("tr.lvlPotential", { level: p.level || 1, potential: potentialOvr(p, currentWeek) })}</span>
                                                 </span>
                                             </button>
                                         </td>

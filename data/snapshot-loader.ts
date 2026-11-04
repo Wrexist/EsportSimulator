@@ -35,6 +35,7 @@ import { PlayerTier, TournamentFormat, MatchFormat } from "@/types"
 import { reconcileTeamRoles } from "@/engine/role-reconciler"
 import { applyReputationLift } from "@/engine/player-evaluation"
 import { ensurePersonality, spreadPlaceholderAmicability } from "@/engine/personality"
+import { spreadPlaceholderAttributes } from "@/engine/placeholder-attributes"
 import { startingPotential, startingWeaponMastery } from "@/engine/development-rates"
 
 /**
@@ -349,6 +350,8 @@ export class SnapshotLoader {
         // The snapshot gives every player amicability 70 (a placeholder): derive
         // a spread from the archetype and an id hash, as save v10 does.
         spreadPlaceholderAmicability(save.players)
+        // Leadership, endurance, health and loyalty are placeholders too (SQUAD-10).
+        spreadPlaceholderAttributes(save.players)
 
         return save
     }

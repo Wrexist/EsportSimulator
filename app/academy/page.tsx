@@ -21,6 +21,7 @@ import { formatCurrency, formatRole } from "@/lib/utils-extended"
 import { toast } from "@/lib/toast"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { PlayerPortrait } from "@/components/ui/asset-images"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Panel } from "@/src/components/ui/Panel"
@@ -29,7 +30,7 @@ import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { RatingChip } from "@/src/components/ui/RatingChip"
 import { ProspectsTable } from "./_components/ProspectsTable"
 import {
-    BENCH_XP_SHARE, drillStatName, POTENTIAL_REVEAL_WEEKS, PROMOTION_PROGRESS, PROMOTION_TERMS,
+    BENCH_XP_SHARE, drillStatName, POTENTIAL_REVEAL_WEEKS, PROMOTION_PROGRESS, promotionTerms,
 } from "./_components/academy-facts"
 
 /** Day slots Monday to Sunday; the label is t(`ac.day.${i}`). */
@@ -115,8 +116,9 @@ export default function AcademyPage() {
     const lastMatch = s.academyMatchHistory[0]
     const report = s.academyWeeklyReports?.[0]
 
-    const run = (result: { success: boolean; message: string }, ok: string) => {
-        if (result.success) toast.success(ok, { description: result.message })
+    // SQUAD-23: `detail: false` when the store's message only repeats the title.
+    const run = (result: { success: boolean; message: string }, ok: string, detail = true) => {
+        if (result.success) toast.success(ok, detail ? { description: result.message } : undefined)
         else toast.error(t("ac.notPossible"), { description: result.message })
     }
 
@@ -136,7 +138,16 @@ export default function AcademyPage() {
                             <Trans k="ac.buildBody" params={{ cost: formatCurrency(build.buildCost, "$", false), weekly: formatCurrency(build.weeklyCost, "$", false), max: build.maxProspects, bonus: fmt2(build.devBonus) }}
                                 tags={{ b: x => <span className="font-semibold text-ink-1">{x}</span> }} />
                         </p>
-                        <Button onClick={() => run(s.buildAcademy(team.id), t("ac.built"))} disabled={team.budget < build.buildCost}>{t("ac.build")}</Button>
+                        {/* SQUAD-12: the academy can't be sold or refunded, so confirm the spend. */}
+                        <ConfirmDialog
+                            title={t("ac.confirm.buildTitle")}
+                            description={t("ac.confirm.body", { cost: formatCurrency(build.buildCost, "$", false), upkeep: formatCurrency(calculateWeeklyUpkeep(1, 0), "$", false), after: formatCurrency(team.budget - build.buildCost, "$", false) })}
+                            confirmText={t("ac.build")}
+                            icon="warning"
+                            onConfirm={() => run(s.buildAcademy(team.id), t("ac.built"), false)}
+                        >
+                            <Button disabled={team.budget < build.buildCost}>{t("ac.build")}</Button>
+                        </ConfirmDialog>
                     </div>
                 </Panel>
             </div>
@@ -148,7 +159,7 @@ export default function AcademyPage() {
             <ScreenHeader
                 eyebrow={t("ac.eyebrowLevel", { n: level })}
                 title={t("ac.title")}
-                subtitle={t("ac.subtitle", { name: t(`ac.level.${level}`), progress: PROMOTION_PROGRESS, salary: formatCurrency(PROMOTION_TERMS.salaryPerWeek, "$", false) })}
+                subtitle={t("ac.subtitle", { name: t(`ac.level.${level}`), progress: PROMOTION_PROGRESS })}
                 aside={
                     <KpiStrip>
                         <Kpi label={t("ac.kpi.prospects")} value={`${s.academyPlayers.length} / ${info.maxProspects}`} />
@@ -166,13 +177,17 @@ export default function AcademyPage() {
                         ) : (
                             <ProspectsTable
                                 rows={rows}
+                                team={team}
                                 academyLevel={level}
                                 currentWeek={s.currentWeek}
                                 academyRoster={s.academyRoster}
                                 lastWeek={report}
                                 onSetFocus={(id, focus: AcademyTrainingFocus) => s.setProspectTraining(id, focus)}
                                 onSetLineup={setLineup}
-                                onPromote={id => run(s.promoteProspect(id, PROMOTION_TERMS), t("ac.promoted"))}
+                                onPromote={id => {
+                                    const row = rows.find(r => r.prospect.id === id)
+                                    if (row) run(s.promoteProspect(id, promotionTerms(row.player, s.currentWeek, team)), t("ac.promoted"))
+                                }}
                                 onRelease={id => run(s.releaseProspect(id), t("ac.released"))}
                             />
                         )}
@@ -222,10 +237,17 @@ export default function AcademyPage() {
                         eyebrow={t(`ac.level.${level}`)}
                         title={t("ac.levelTitle", { n: level })}
                         actions={next ? (
-                            <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={team.budget < next.buildCost}
-                                onClick={() => run(s.upgradeAcademy(team.id), t("ac.upgraded"))}>
-                                {t("ac.upgrade", { cost: formatCurrency(next.buildCost) })}
-                            </Button>
+                            <ConfirmDialog
+                                title={t("ac.confirm.upgradeTitle", { n: level + 1 })}
+                                description={t("ac.confirm.body", { cost: formatCurrency(next.buildCost, "$", false), upkeep: formatCurrency(calculateWeeklyUpkeep(level + 1, s.academyPlayers.length), "$", false), after: formatCurrency(team.budget - next.buildCost, "$", false) })}
+                                confirmText={t("ac.upgrade", { cost: formatCurrency(next.buildCost) })}
+                                icon="warning"
+                                onConfirm={() => run(s.upgradeAcademy(team.id), t("ac.upgraded"), false)}
+                            >
+                                <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={team.budget < next.buildCost}>
+                                    {t("ac.upgrade", { cost: formatCurrency(next.buildCost) })}
+                                </Button>
+                            </ConfirmDialog>
                         ) : <span className="text-xs text-ink-3">{t("ac.maxLevel")}</span>}
                         padded={false}
                     >

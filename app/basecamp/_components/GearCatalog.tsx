@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Armchair, Check, Cpu, Headphones, Keyboard, Monitor, Mouse } from "lucide-react"
 import { useGameStore } from "@/store/game-store"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Panel } from "@/src/components/ui/Panel"
 import { Meter } from "@/src/components/ui/Meter"
 import { equipmentArtwork } from "@/lib/ui-assets"
@@ -67,9 +68,18 @@ function GearTile({ item, equipped, budget, onBuy }: {
                             <span className={cn("text-xs tabular-nums", !equipped ? "text-ink-3" : delta > 0 ? "text-positive" : delta < 0 ? "text-caution" : "text-ink-3")}>
                                 {equipped ? `${delta >= 0 ? "+" : "−"}${Math.abs(delta).toFixed(1)}% · ${upkeepDelta >= 0 ? "+" : "−"}${money(Math.abs(upkeepDelta))}/wk` : t("gear.emptySlot")}
                             </span>
-                            <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs" onClick={() => onBuy(item)}>
-                                {equipped ? (delta >= 0 ? t("fac.col.upgrade") : t("gear.swapDown")) : t("gear.buy")}
-                            </Button>
+                            {/* SQUAD-12: gear is not refunded, so confirm the spend. */}
+                            <ConfirmDialog
+                                title={`Buy ${item.name}?`}
+                                description={`Costs ${money(item.purchaseCost)} now and ${money(item.weeklyCost)}/wk upkeep${equipped ? `; it replaces ${equipped.name}, which is not refunded` : ""}. Funds after: ${money(budget - item.purchaseCost)}.`}
+                                confirmText={`Buy · ${money(item.purchaseCost)}`}
+                                icon="warning"
+                                onConfirm={() => onBuy(item)}
+                            >
+                                <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs">
+                                    {equipped ? (delta >= 0 ? t("fac.col.upgrade") : t("gear.swapDown")) : t("gear.buy")}
+                                </Button>
+                            </ConfirmDialog>
                         </div>
                     )}
                 </div>

@@ -73,7 +73,7 @@ describe("squadFit", () => {
     test("unscouted: uses the estimate and hides the captain line without a revealed leader stat", () => {
         const s = setup({ ...stats(90), leader: 99, personality: { archetype: "LEADER" } } as Partial<PlayerSaveData>)
         const hidden = squadFit({ ...s, team: s.team as TeamSaveData, currentWeek: 5, wage: 1000, visible: { rating: s.rating, exact: false } })
-        expect(hidden.some(l => l.text.startsWith("Rated about above"))).toBe(true)
+        expect(hidden.some(l => l.text.startsWith("Likely rated above"))).toBe(true)
         expect(hidden.some(l => l.text.includes("captain"))).toBe(false)
         const shown = squadFit({ ...s, team: s.team as TeamSaveData, currentWeek: 5, wage: 1000, visible: { rating: s.rating, exact: true, leader: 99 } })
         expect(shown.some(l => l.tone === "good" && l.text.includes("better captain"))).toBe(true)

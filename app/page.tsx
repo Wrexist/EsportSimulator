@@ -37,6 +37,7 @@ import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
 import { EconomyEngine } from "@/engine/economy-engine"
 import { evaluatePlayer } from "@/engine/player-evaluation"
+import { startingFiveOvr } from "@/lib/team-ovr"
 import { getBoardSanctionedFee, getTierTargets } from "@/engine/board-expectations"
 import { isLeagueMatchId } from "@/engine/season/regional-league"
 import { boardStartTargets } from "@/lib/club-expectations"
@@ -158,8 +159,7 @@ export default function Page() {
   }, [playerTeam, playersById])
 
   const teamOvr = useMemo(() => {
-    if (starters.length === 0) return 0
-    return Math.round(starters.reduce((s, x) => s + x.ovr, 0) / starters.length)
+    return startingFiveOvr(starters.map(x => x.ovr)) ?? 0
   }, [starters])
 
   const nextMatch = useMemo(() => {
