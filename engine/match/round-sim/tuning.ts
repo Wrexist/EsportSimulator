@@ -242,12 +242,8 @@ export const TUNING = {
     SIGHT_KILL_CLOSE: 0.58,
     SIGHT_KILL_SPREAD: 0.9,
     SIGHT_KILL_SPREAD_CLOSE: 1.2,
-    /**
-     * Points per map-% past a weapon's comfortable range (pistols from 9, SMGs from 11, shotguns from 5).
-     * Pistol 2.2 (was 1): eco vs full buy 15.7% → 13.6% of rounds (300-sample calibration; pro ≈ 6–8%),
-     * every other calibration metric as green as before.
-     */
-    SIGHT_RANGE_PISTOL: 2.2,
+    /** Points per map-% past a weapon's comfortable range (pistols from 9, SMGs from 11, shotguns from 5). */
+    SIGHT_RANGE_PISTOL: 1,
     SIGHT_RANGE_SMG: 0.5,
     SIGHT_RANGE_SHOTGUN: 1.5,
     /** Seconds after a teammate's death in which its killer can be traded (trade points). */
