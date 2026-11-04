@@ -1149,7 +1149,7 @@
  "playbook.ctSetups": "Posiciones del lado CT",
  "playbook.ctSide": "Lado CT",
  "playbook.ctSetupAria": "Posición CT, {{situation}}",
- "playbook.predictable": "Una orden fija es predecible. Cada vez que la misma orden T se repite en un mapa, el otro lado la lee más a menudo: una ejecución (siempre la misma utilidad) antes que nada, luego un rush que ven venir y que se topa con fuegos cruzados preparados, y un default o un split lo último. Un stack que siempre se queda en el mismo sitio acaba recibiendo el ataque en el otro. “Decide el IGL” varía las órdenes por ti, y cualquier orden fija pierde algunas rondas frente a esa variedad.",
+ "playbook.predictable": "Una orden fija es predecible. Cada vez que la misma orden T se repite en un mapa, el otro lado la lee más a menudo: una ejecución (siempre la misma utilidad) antes que nada, luego un rush que ven venir y que se topa con fuegos cruzados preparados, y un default o un split lo último. Un stack que siempre se queda en el mismo sitio acaba recibiendo el ataque en el otro. “Decide el IGL” varía las órdenes por ti, y ninguna orden fija supera esa variedad.",
  "playbook.useEverywhere": "Usar estas órdenes en todos los mapas",
  "playbook.clear": "Vaciar {{map}}",
  "playbook.copyCode": "Copiar código",

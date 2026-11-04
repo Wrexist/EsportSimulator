@@ -1174,7 +1174,7 @@
  "playbook.ctSetups": "Ustawienia po stronie CT",
  "playbook.ctSide": "Strona CT",
  "playbook.ctSetupAria": "Ustawienie CT, {{situation}}",
- "playbook.predictable": "Stały call jest przewidywalny. Za każdym razem, gdy ten sam call T wraca na mapie, druga strona częściej go odczytuje: najszybciej execute (za każdym razem ta sama użytkowa), potem rush, który widzą z daleka i który wpada w przygotowane krzyżowe ognie, najwolniej default albo split. Stack, który zawsze stoi na tym samym bombsite, dostaje atak na drugi. „Decyduje IGL” miesza calle za ciebie, a każdy stały call oddaje tej mieszance kilka rund.",
+ "playbook.predictable": "Stały call jest przewidywalny. Za każdym razem, gdy ten sam call T wraca na mapie, druga strona częściej go odczytuje: najszybciej execute (za każdym razem ta sama użytkowa), potem rush, który widzą z daleka i który wpada w przygotowane krzyżowe ognie, najwolniej default albo split. Stack, który zawsze stoi na tym samym bombsite, dostaje atak na drugi. „Decyduje IGL” miesza calle za ciebie, a żaden stały call nie wypada lepiej niż ta mieszanka.",
  "playbook.useEverywhere": "Użyj tych calli na każdej mapie",
  "playbook.clear": "Wyczyść {{map}}",
  "playbook.copyCode": "Kopiuj kod",

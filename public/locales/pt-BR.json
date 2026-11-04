@@ -1149,7 +1149,7 @@
  "playbook.ctSetups": "Posicionamentos do lado CT",
  "playbook.ctSide": "Lado CT",
  "playbook.ctSetupAria": "Posicionamento CT, {{situation}}",
- "playbook.predictable": "Uma call fixa é previsível. Toda vez que a mesma call TR volta em um mapa, o outro lado a lê com mais frequência: um execute (sempre a mesma utilitária) primeiro, depois um rush que eles veem chegando e que dá de cara com fogo cruzado montado, e um default ou um split por último. Um stack que fica sempre no mesmo bomb leva a entrada no outro. “O IGL decide” varia as calls por você, e qualquer call fixa perde alguns rounds para essa variação.",
+ "playbook.predictable": "Uma call fixa é previsível. Toda vez que a mesma call TR volta em um mapa, o outro lado a lê com mais frequência: um execute (sempre a mesma utilitária) primeiro, depois um rush que eles veem chegando e que dá de cara com fogo cruzado montado, e um default ou um split por último. Um stack que fica sempre no mesmo bomb leva a entrada no outro. “O IGL decide” varia as calls por você, e nenhuma call fixa supera essa variação.",
  "playbook.useEverywhere": "Usar estas calls em todos os mapas",
  "playbook.clear": "Limpar {{map}}",
  "playbook.copyCode": "Copiar código",

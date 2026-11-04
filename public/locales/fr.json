@@ -1149,7 +1149,7 @@
  "playbook.ctSetups": "Placements côté CT",
  "playbook.ctSide": "Côté CT",
  "playbook.ctSetupAria": "Placement CT, {{situation}}",
- "playbook.predictable": "Un appel fixe est prévisible. Chaque fois que le même appel T revient sur une map, l'autre camp le lit plus souvent : une exécution (toujours le même utilitaire) en premier, puis un rush qu'il voit venir et qui tombe dans des feux croisés préparés, un default ou un split en dernier. Un stack qui reste toujours sur le même site se fait attaquer sur l'autre. « L'IGL décide » varie les appels pour toi, et tout appel fixe perd quelques rounds face à ce mélange.",
+ "playbook.predictable": "Un appel fixe est prévisible. Chaque fois que le même appel T revient sur une map, l'autre camp le lit plus souvent : une exécution (toujours le même utilitaire) en premier, puis un rush qu'il voit venir et qui tombe dans des feux croisés préparés, un default ou un split en dernier. Un stack qui reste toujours sur le même site se fait attaquer sur l'autre. « L'IGL décide » varie les appels pour toi, et aucun appel fixe ne fait mieux que ce mélange.",
  "playbook.useEverywhere": "Utiliser ces appels sur toutes les maps",
  "playbook.clear": "Vider {{map}}",
  "playbook.copyCode": "Copier le code de partage",

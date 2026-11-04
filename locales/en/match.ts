@@ -712,7 +712,7 @@ export const MATCH = {
     "playbook.ctSetups": "CT side setups",
     "playbook.ctSide": "CT side",
     "playbook.ctSetupAria": "CT setup, {{situation}}",
-    "playbook.predictable": "A fixed call is predictable. Each time the same T call runs again on a map, the other side reads it more often: an execute (the same utility every time) fastest, then a rush they see coming into set crossfires, a default or a split slowest. A stack that keeps sitting on one site gets hit on the other. \u201cIGL decides\u201d mixes the calls for you, and every fixed call gives up a few rounds to that mix.",
+    "playbook.predictable": "A fixed call is predictable. Each time the same T call runs again on a map, the other side reads it more often: an execute (the same utility every time) fastest, then a rush they see coming into set crossfires, a default or a split slowest. A stack that keeps sitting on one site gets hit on the other. \u201cIGL decides\u201d mixes the calls for you, and no fixed call beats that mix.",
     "playbook.useEverywhere": "Use these calls on every map",
     "playbook.clear": "Clear {{map}}",
     "playbook.copyCode": "Copy share code",

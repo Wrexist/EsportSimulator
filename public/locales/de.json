@@ -1124,7 +1124,7 @@
  "playbook.ctSetups": "CT-Aufstellungen",
  "playbook.ctSide": "CT-Seite",
  "playbook.ctSetupAria": "CT-Aufstellung, {{situation}}",
- "playbook.predictable": "Ein fester Call ist berechenbar. Jedes Mal, wenn derselbe T-Call auf einer Map wieder läuft, liest ihn die andere Seite öfter: einen Execute (jedes Mal dieselbe Utility) am schnellsten, dann einen Rush, den sie kommen sieht und in vorbereitete Kreuzfeuer laufen lässt, einen Default oder einen Split am langsamsten. Ein Stack, der immer auf derselben Seite steht, wird auf der anderen angegriffen. „IGL entscheidet“ mischt die Calls für dich, und jeder feste Call gibt gegen diese Mischung ein paar Runden ab.",
+ "playbook.predictable": "Ein fester Call ist berechenbar. Jedes Mal, wenn derselbe T-Call auf einer Map wieder läuft, liest ihn die andere Seite öfter: einen Execute (jedes Mal dieselbe Utility) am schnellsten, dann einen Rush, den sie kommen sieht und in vorbereitete Kreuzfeuer laufen lässt, einen Default oder einen Split am langsamsten. Ein Stack, der immer auf derselben Seite steht, wird auf der anderen angegriffen. „IGL entscheidet“ mischt die Calls für dich, und kein fester Call schlägt diese Mischung.",
  "playbook.useEverywhere": "Diese Calls auf jeder Map nutzen",
  "playbook.clear": "{{map}} leeren",
  "playbook.copyCode": "Teilcode kopieren",
