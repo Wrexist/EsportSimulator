@@ -318,6 +318,7 @@ export default function TrainingPage() {
                         playerIds={roster.map(p => p.id)}
                         playerNames={roster.map(p => p.nickname)}
                         playerImages={roster.map(p => p.portraitPath || "")}
+                        playerRoles={roster.map(p => String(p.role ?? ""))}
                         onSave={newConfig => {
                             updateCustomTactic(editing.strategy, editing.side, newConfig)
                             toast.success(t("tr.loadoutSaved"), { description: `${editing.strategy} (${editing.side.toUpperCase()})` })
