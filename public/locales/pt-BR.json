@@ -6303,5 +6303,19 @@
  "nw.league.table": "{{division}}: classificação final do split {{split}}",
  "nw.league.c": "O {{team}} terminou em {{pos}} de {{n}} ({{w}}–{{l}}).{{fate}}",
  "nw.league.up": " Sobe para a Divisão {{level}} no próximo split.",
- "nw.league.down": " Cai para a Divisão {{level}} no próximo split."
+ "nw.league.down": " Cai para a Divisão {{level}} no próximo split.",
+ "ev.workload.t": "Carga alta para {{name}}",
+ "ev.workload.m": "{{name}} está com uma carga pesada (fadiga {{fatigue}}). O risco de lesão dele nesta semana é de {{risk}} e continua subindo enquanto a carga ficar tão alta. Dê descanso a ele nesta semana (fadiga para {{rested}}, fora do quinteto titular se houver um reserva em condições) ou deixe-o jogar com esse risco.",
+ "ev.workload.rest": "Descansar nesta semana",
+ "ev.workload.play": "Deixar jogar",
+ "ev.workload.follows": "Risco de lesão de {{risk}} nesta semana",
+ "ev.knock.t": "{{name}} sentiu uma pancada: {{injury}}",
+ "ev.knock.m": "{{name}} tem um incômodo leve ({{injury}}). Se descansar, fica fora por {{weeks}}. Se jogar assim, volta para a sua próxima partida, perde {{form}} de forma e tem {{pct}}% de chance de virar uma lesão moderada (2 a 4 semanas fora) na avaliação da semana que vem.",
+ "ev.knock.rest": "Descansar (fora por {{weeks}})",
+ "ev.knock.play": "Jogar assim mesmo",
+ "ev.injury.t": "Boletim médico: {{name}}",
+ "ev.injury.m": "{{name}} está lesionado ({{injury}}, {{severity}}) e fica fora por {{weeks}}.",
+ "ev.retired": "{{name}} se aposentou do cenário profissional.",
+ "ev.retiredHof": "{{name}} se aposentou e entrou para o Hall da Fama.",
+ "ev.legend": "{{name}} agora é uma lenda e continua jogando."
 }

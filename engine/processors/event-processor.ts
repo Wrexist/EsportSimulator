@@ -5,9 +5,8 @@ import { SaveManager } from "../save-manager"
 import { LEGEND_RETIREMENT_AGE, hallOfFameAchievements, inductIntoHallOfFame, qualifiesForHallOfFame } from "../hall-of-fame-manager"
 import { retirementChance } from "../retirement-chance"
 import { WORKLOAD_TUNING, injuryRiskPerWeek, needsWorkloadWarning, riskPct } from "../workload"
-import { plural } from "@/lib/plural"
 import { newsText } from "@/lib/news-ref"
-import { LIST_REF, STORED_REF, type TextRef } from "@/lib/i18n"
+import { LIST_REF, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
 
 export class EventProcessor {
     /**
@@ -42,13 +41,13 @@ export class EventProcessor {
                     playerId: player.id,
                     load: Math.round(player.fatigue),
                     risk,
-                    title: `${player.nickname}'s workload is high`,
-                    message: `${player.nickname} is carrying a heavy load (fatigue ${Math.round(player.fatigue)}). His injury chance this week is ${risk}, and it keeps rising while the load stays this high. Rest him this week (fatigue to ${rested}, out of the starting five if a fit substitute is free), or play him at that risk.`,
+                    ...titled({ key: "ev.workload.t", params: { name: player.nickname } }),
+                    ...messaged({ key: "ev.workload.m", params: { name: player.nickname, fatigue: Math.round(player.fatigue), risk, rested } }),
                 },
                 acknowledged: false,
                 choices: [
-                    { id: "rest", text: "Rest him this week", effects: { rest: { fatigue: WORKLOAD_TUNING.REST_FATIGUE, morale: WORKLOAD_TUNING.REST_MORALE } } },
-                    { id: "play", text: "Play him", effects: { follows: `Injury chance ${risk} this week` } },
+                    { id: "rest", ...choiceText({ key: "ev.workload.rest" }), effects: { rest: { fatigue: WORKLOAD_TUNING.REST_FATIGUE, morale: WORKLOAD_TUNING.REST_MORALE } } },
+                    { id: "play", ...choiceText({ key: "ev.workload.play" }), effects: { follows: { key: "ev.workload.follows", params: { risk } } } },
                 ],
             })
             await saveManager.recordEventGenerated(transaction, eventId)
@@ -334,12 +333,12 @@ export class EventProcessor {
                             weeksOut,
                             healthLoss,
                             severity,
-                            title: `${player.nickname} has a knock: ${injuryName}`,
-                            message: `${player.nickname} picked up a minor ${injuryName.toLowerCase()}. Rest him and he is out for ${weeksOut} week${weeksOut === 1 ? "" : "s"}. Play him through it and he is back for your next match, loses ${-WORKLOAD_TUNING.KNOCK_FORM} form, and has a ${escalate}% chance it worsens into a moderate injury (2 to 4 weeks out) at next week's check.`,
+                            ...titled({ key: "ev.knock.t", params: { name: player.nickname, injury: storedRef(injuryName) } }),
+                            ...messaged({ key: "ev.knock.m", params: { name: player.nickname, injury: storedRef(injuryName), weeks: { key: "sl.weeks", count: weeksOut }, form: -WORKLOAD_TUNING.KNOCK_FORM, pct: escalate } }),
                         },
                         choices: [
-                            { id: "rest", text: `Rest him (out ${weeksOut} week${weeksOut === 1 ? "" : "s"})`, effects: {} },
-                            { id: "play_through", text: "Play through it", effects: { playThrough: { escalateChance: WORKLOAD_TUNING.KNOCK_ESCALATE, form: WORKLOAD_TUNING.KNOCK_FORM } } },
+                            { id: "rest", ...choiceText({ key: "ev.knock.rest", params: { weeks: { key: "sl.weeks", count: weeksOut } } }), effects: {} },
+                            { id: "play_through", ...choiceText({ key: "ev.knock.play" }), effects: { playThrough: { escalateChance: WORKLOAD_TUNING.KNOCK_ESCALATE, form: WORKLOAD_TUNING.KNOCK_FORM } } },
                         ],
                     })
                 } else if (injuredTeam?.id === save.playerTeamId) save.eventsLog.unshift({
@@ -352,8 +351,8 @@ export class EventProcessor {
                         weeksOut,
                         healthLoss,
                         severity: severity,
-                        title: `Injury Report: ${player.nickname}`,
-                        message: `${player.nickname} has suffered a ${injuryName} (${severity}) and will be out for ${plural(weeksOut, "week")}.`,
+                        ...titled({ key: "ev.injury.t", params: { name: player.nickname } }),
+                        ...messaged({ key: "ev.injury.m", params: { name: player.nickname, injury: storedRef(injuryName), severity: { key: `nw.sev.${severity}` }, weeks: { key: "sl.weeks", count: weeksOut } } }),
                     },
                 })
 
@@ -449,9 +448,7 @@ export class EventProcessor {
                     playerName: player.nickname,
                     isLegendary: player.isLegendary,
                     achievements: player.legendaryAchievements,
-                    message: player.isLegendary
-                        ? `${player.nickname} has retired and been inducted into the Hall of Fame!`
-                        : `${player.nickname} has announced their retirement from professional play.`
+                    ...messaged({ key: player.isLegendary ? "ev.retiredHof" : "ev.retired", params: { name: player.nickname } }),
                 },
                 acknowledged: false,
             })
@@ -517,7 +514,7 @@ export class EventProcessor {
                             playerName: player.nickname,
                             isLegendary: true,
                             achievements: player.legendaryAchievements,
-                            message: `${player.nickname} has achieved Legendary status and will continue playing!`
+                            ...messaged({ key: "ev.legend", params: { name: player.nickname } }),
                         },
                         acknowledged: false,
                     })
@@ -649,3 +646,11 @@ export class EventProcessor {
 function achievementList(items: string[]): TextRef {
     return { key: LIST_REF, params: Object.fromEntries(items.map((text, i) => [i, { key: STORED_REF, params: { text } }])) }
 }
+
+const storedRef = (text: string): TextRef => ({ key: STORED_REF, params: { text } })
+/** `title` in English plus `titleRef`, which the inbox shows in the active language. */
+const titled = (ref: TextRef): { title: string; titleRef: TextRef } => ({ title: tRefEn(ref), titleRef: ref })
+/** `message` in English plus `messageRef`. */
+const messaged = (ref: TextRef): { message: string; messageRef: TextRef } => ({ message: tRefEn(ref), messageRef: ref })
+/** A choice's English text and its translation key. */
+const choiceText = (ref: TextRef): { text: string; ref: TextRef } => ({ text: tRefEn(ref), ref })

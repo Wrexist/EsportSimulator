@@ -6119,5 +6119,19 @@
  "nw.league.table": "{{division}}: Abschlusstabelle Split {{split}}",
  "nw.league.c": "{{team}} beendet den Split als {{pos}} von {{n}} ({{w}}–{{l}}).{{fate}}",
  "nw.league.up": " Aufstieg in Division {{level}} zum nächsten Split.",
- "nw.league.down": " Abstieg in Division {{level}} zum nächsten Split."
+ "nw.league.down": " Abstieg in Division {{level}} zum nächsten Split.",
+ "ev.workload.t": "Hohe Belastung bei {{name}}",
+ "ev.workload.m": "{{name}} trägt eine hohe Belastung (Ermüdung {{fatigue}}). Sein Verletzungsrisiko liegt diese Woche bei {{risk}} und steigt weiter, solange die Belastung so hoch bleibt. Schone ihn diese Woche (Ermüdung auf {{rested}}, raus aus der Startformation, wenn ein fitter Ersatz frei ist) oder lass ihn mit diesem Risiko spielen.",
+ "ev.workload.rest": "Diese Woche schonen",
+ "ev.workload.play": "Spielen lassen",
+ "ev.workload.follows": "Verletzungsrisiko {{risk}} diese Woche",
+ "ev.knock.t": "{{name}} hat einen Schlag abbekommen: {{injury}}",
+ "ev.knock.m": "{{name}} hat eine leichte Blessur ({{injury}}). Schonst du ihn, fällt er {{weeks}} aus. Spielt er durch, ist er zum nächsten Match zurück, verliert {{form}} Form und hat eine Chance von {{pct}}%, dass es bei der Prüfung nächste Woche zu einer mittelschweren Verletzung wird (2 bis 4 Wochen Ausfall).",
+ "ev.knock.rest": "Schonen ({{weeks}} Ausfall)",
+ "ev.knock.play": "Durchspielen",
+ "ev.injury.t": "Verletzungsbericht: {{name}}",
+ "ev.injury.m": "{{name}} ist verletzt ({{injury}}, {{severity}}) und fällt {{weeks}} aus.",
+ "ev.retired": "{{name}} hat seine Profikarriere beendet.",
+ "ev.retiredHof": "{{name}} hat seine Karriere beendet und ist in die Hall of Fame aufgenommen worden.",
+ "ev.legend": "{{name}} ist jetzt eine Legende und spielt weiter."
 }

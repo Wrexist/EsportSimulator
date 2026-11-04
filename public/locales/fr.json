@@ -6303,5 +6303,19 @@
  "nw.league.table": "{{division}} : classement final du split {{split}}",
  "nw.league.c": "{{team}} termine {{pos}} sur {{n}} ({{w}}–{{l}}).{{fate}}",
  "nw.league.up": " Promu en Division {{level}} pour le prochain split.",
- "nw.league.down": " Relégué en Division {{level}} pour le prochain split."
+ "nw.league.down": " Relégué en Division {{level}} pour le prochain split.",
+ "ev.workload.t": "Charge élevée pour {{name}}",
+ "ev.workload.m": "{{name}} supporte une lourde charge (fatigue {{fatigue}}). Son risque de blessure cette semaine est de {{risk}}, et il continue d'augmenter tant que la charge reste aussi élevée. Mets-le au repos cette semaine (fatigue à {{rested}}, hors du cinq de départ si un remplaçant apte est disponible) ou fais-le jouer avec ce risque.",
+ "ev.workload.rest": "Le reposer cette semaine",
+ "ev.workload.play": "Le faire jouer",
+ "ev.workload.follows": "Risque de blessure de {{risk}} cette semaine",
+ "ev.knock.t": "{{name}} a pris un coup : {{injury}}",
+ "ev.knock.m": "{{name}} souffre d'un pépin léger ({{injury}}). Au repos, il est absent pendant {{weeks}}. S'il joue malgré tout, il revient pour ton prochain match, perd {{form}} de forme et a {{pct}} % de risque que cela devienne une blessure modérée (2 à 4 semaines d'absence) lors du bilan de la semaine prochaine.",
+ "ev.knock.rest": "Le reposer (absent {{weeks}})",
+ "ev.knock.play": "Jouer malgré tout",
+ "ev.injury.t": "Bulletin médical : {{name}}",
+ "ev.injury.m": "{{name}} est blessé ({{injury}}, {{severity}}) et sera absent pendant {{weeks}}.",
+ "ev.retired": "{{name}} a mis fin à sa carrière professionnelle.",
+ "ev.retiredHof": "{{name}} a pris sa retraite et est entré au Panthéon.",
+ "ev.legend": "{{name}} est désormais une légende et continue de jouer."
 }

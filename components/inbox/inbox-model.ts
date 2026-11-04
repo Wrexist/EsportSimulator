@@ -195,6 +195,7 @@ export function getEventSender(event: GameEventSaveData, ctx: InboxContext): str
 /** A specific subject line ("ace's contract ends in 3 weeks"), not just the type. */
 export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): string {
     const data = dataOf(event)
+    if (isTextRef(data.titleRef)) return stripEmoji(getEventTitle(event)).trim()
     const who = playerLabel(data, ctx)
     switch (event.type as string) {
         case "CONTRACT":
@@ -267,6 +268,7 @@ export function digestLine(item: DigestItem, ctx: InboxContext): string {
 
 function eventBodyText(event: GameEventSaveData, ctx: InboxContext): string {
     const data = dataOf(event)
+    if (isTextRef(data.messageRef)) return tRef(data.messageRef)
     const who = playerLabel(data, ctx)
     switch (event.type as string) {
         case "CONTRACT":
@@ -326,7 +328,6 @@ function eventBodyText(event: GameEventSaveData, ctx: InboxContext): string {
             }
             return data.message || data.text || data.description || t("ib.body.media")
         default:
-            if (isTextRef(data.messageRef)) return tRef(data.messageRef)
             return data.message || data.content || data.text || data.description || t("ib.body.noDetails")
     }
 }

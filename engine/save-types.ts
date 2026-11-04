@@ -1200,6 +1200,9 @@ export interface EventDataPayload {
     // Common fields
     title?: string
     message?: string
+    /** The same title and message as translation keys (shown in the active language). */
+    titleRef?: import("@/lib/i18n").TextRef
+    messageRef?: import("@/lib/i18n").TextRef
     severity?: string
 
     // Player-related
@@ -1282,6 +1285,8 @@ export interface GameEventSaveData {
     choices?: {
         id: string
         text: string
+        /** The same answer as a translation key. */
+        ref?: import("@/lib/i18n").TextRef
         effects: {
             morale?: number
             reputation?: number
@@ -1291,7 +1296,7 @@ export interface GameEventSaveData {
             rest?: { fatigue: number; morale?: number }
             playThrough?: { escalateChance: number; form?: number }
             /** Label only: what follows this answer (event-choice.ts ChoiceEffects). */
-            follows?: string
+            follows?: string | import("@/lib/i18n").TextRef
         }
     }[]
 }

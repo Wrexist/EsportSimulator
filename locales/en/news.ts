@@ -2,6 +2,7 @@
  * News feed items written by the engine and the store (lib/news-ref.ts):
  * transfers, injuries, retirements, finances, facilities, the academy, the
  * league and match results. ".t" is the headline, ".c" the body.
+ * ev.* are inbox messages (title, message and answers) from the same code.
  */
 export const NEWS = {
     "nw.faSigned.t": "{{name}} signs with {{team}}",
@@ -57,4 +58,20 @@ export const NEWS = {
     "nw.league.c": "{{team}} finished {{pos}} of {{n}} ({{w}}–{{l}}).{{fate}}",
     "nw.league.up": " Promoted to Division {{level}} for the next split.",
     "nw.league.down": " Relegated to Division {{level}} for the next split.",
+
+    // Inbox messages from the medical team and retirements (engine/processors/event-processor.ts)
+    "ev.workload.t": "{{name}}'s workload is high",
+    "ev.workload.m": "{{name}} is carrying a heavy load (fatigue {{fatigue}}). His injury chance this week is {{risk}}, and it keeps rising while the load stays this high. Rest him this week (fatigue to {{rested}}, out of the starting five if a fit substitute is free), or play him at that risk.",
+    "ev.workload.rest": "Rest him this week",
+    "ev.workload.play": "Play him",
+    "ev.workload.follows": "Injury chance {{risk}} this week",
+    "ev.knock.t": "{{name}} has a knock: {{injury}}",
+    "ev.knock.m": "{{name}} picked up a minor knock ({{injury}}). Rest him and he is out for {{weeks}}. Play him through it and he is back for your next match, loses {{form}} form, and has a {{pct}}% chance it worsens into a moderate injury (2 to 4 weeks out) at next week's check.",
+    "ev.knock.rest": "Rest him (out {{weeks}})",
+    "ev.knock.play": "Play through it",
+    "ev.injury.t": "Injury report: {{name}}",
+    "ev.injury.m": "{{name}} is injured ({{injury}}, {{severity}}) and will be out for {{weeks}}.",
+    "ev.retired": "{{name}} has retired from professional play.",
+    "ev.retiredHof": "{{name}} has retired and entered the Hall of Fame.",
+    "ev.legend": "{{name}} is now a Legend and will keep playing.",
 } as const
