@@ -427,7 +427,7 @@ export default function VetoPage({ params: _initialParams }: { params: Promise<{
 
     const tournament = (() => {
         if (!match.tournamentId || leagueStageLabel(match)) return null
-        const baseId = match.tournamentId.split("_s")[0]
+        const baseId = match.tournamentId.replace(/_s\d+$/, "")
         return FULL_TOURNAMENT_CALENDAR.find(t => t.id === match.tournamentId || t.id === baseId) || null
     })()
 

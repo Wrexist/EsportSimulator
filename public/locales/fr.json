@@ -3428,14 +3428,14 @@
  "rk.col.team": "Équipe",
  "rk.col.league": "Ligue",
  "rk.col.last5": "5 derniers",
- "rk.col.division": "Division",
+ "rk.col.division": "Place dans le niveau",
  "rk.title.trophies": "Salle des trophées",
  "rk.title.circuit": "Points du circuit",
  "rk.title.world": "Classement mondial",
  "rk.title.division": "Division {{tier}}",
  "rk.sub.trophies": "Tous les titres remportés par votre organisation.",
  "rk.sub.circuit": "Les points gagnés selon le classement en tournoi décident des invitations aux plus grands événements.",
- "rk.sub.world": "Classé par Elo selon les résultats ; en cas d’égalité, la réputation départage. Encore {{n}} semaines avant la fin de saison : les trois premiers de chaque division inférieure montent, les trois derniers de chaque division supérieure descendent.",
+ "rk.sub.world": "Classé par Elo selon les résultats ; en cas d’égalité, la réputation départage. Encore {{n}} semaines avant la fin de saison : chaque club passe alors au niveau qui correspond à son rang mondial, donc n’importe quel nombre de clubs peut monter ou descendre.",
  "rk.eyebrow": "Saison {{n}} · Compétition",
  "rk.kpi.world": "Rang mondial",
  "rk.kpi.position": "Place en {{tier}}",
@@ -6232,5 +6232,8 @@
  "ng.sandboxCareer": "Ce club est au-dessus de ton niveau : la carrière démarre avec l'éditeur sandbox activé, sans succès, statistiques Steam ni points de classement.",
  "lg.err.noBackup": "Aucune copie de secours à restaurer",
  "lg.delete.titleNamed": "Supprimer {{name}} ?",
- "lg.deleteSave": "Supprimer la sauvegarde"
+ "lg.deleteSave": "Supprimer la sauvegarde",
+ "tm.swissStage": "Phase suisse",
+ "tm.swissNote": "3 victoires : qualifié · 3 défaites : éliminé",
+ "tm.swiss.advanced": "Qualifié"
 }

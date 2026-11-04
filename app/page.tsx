@@ -91,7 +91,7 @@ function scoreFor(match: MatchLike, teamId: string): string {
 
 function tournamentFor(id?: string | null) {
   if (!id) return undefined
-  return FULL_TOURNAMENT_CALENDAR.find(t => t.id === id || t.id === id.split('_s')[0] || id.startsWith(`${t.id}_`))
+  return FULL_TOURNAMENT_CALENDAR.find(t => t.id === id || t.id === id.replace(/_s\d+$/, "") || id.startsWith(`${t.id}_`))
 }
 
 export default function Page() {
@@ -549,7 +549,7 @@ export default function Page() {
                   className="px-4 py-3"
                   label={t("home.netWeek")}
                   value={<span className={(finance?.net ?? 0) < 0 ? "text-negative" : "text-ink-1"}>{formatSignedCurrency(finance?.net ?? 0)}</span>}
-                  hint={finance && finance.net < 0 && Number.isFinite(finance.runwayWeeks) ? tn("home.runway", finance.runwayWeeks) : t("home.projected")}
+                  hint={finance && finance.net < 0 && Number.isFinite(finance.runwayWeeks) ? tn("home.runway", Math.floor(finance.runwayWeeks)) : t("home.projected")}
                 />
               </div>
               <dl className="grid grid-cols-3 divide-x divide-line text-sm">
