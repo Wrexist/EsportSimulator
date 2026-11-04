@@ -502,6 +502,8 @@ export interface NewsFeedItem {
     imageUrl?: string
     teamId?: string
     playerId?: string
+    /** The match this item reports on (so a result is reported once). */
+    matchId?: string
     link?: string
     engagement?: {
         likes: number
@@ -637,6 +639,8 @@ export interface TeamSaveData {
     customTeam?: boolean // Flag for user-created teams
     customTeamData?: {
         difficulty: string // 'story' | 'normal' | 'hard' | 'impossible'
+        /** Emblem seed (START-12); older created clubs fall back to their id. */
+        emblemSeed?: string
         logoIndex: number
         primaryColor: string
         secondaryColor: string
@@ -1182,7 +1186,7 @@ export interface FinanceLedgerEntry {
     teamId: string
     type: "INCOME" | "EXPENSE"
     // Strict categories for Phase 8
-    category: "WAGES_PLAYER" | "WAGES_STAFF" | "FACILITIES" | "PRIZE" | "SPONSOR" | "TRANSFER_IN" | "TRANSFER_OUT" | "OTHER" | "MERCH" | "TRAINING"
+    category: "WAGES_PLAYER" | "WAGES_STAFF" | "FACILITIES" | "PRIZE" | "SPONSOR" | "TRANSFER_IN" | "TRANSFER_OUT" | "OTHER" | "MERCH" | "TRAINING" | "OPERATIONS" | "LEAGUE"
     amount: number
     description: string
     balance: number // Running balance after this entry

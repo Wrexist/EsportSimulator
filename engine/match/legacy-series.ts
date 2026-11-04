@@ -28,8 +28,7 @@
  *     for display, but no longer moves round odds.
  *   - Halftime (after round 12), overtime entry (12-12) and every overtime
  *     half swap sides, reset economies and clear streaks/momentum. Overtime
- *     sets are MR3 to 16/19/22; after a third tied set the next decided
- *     round wins the map.
+ *     sets are MR3 to 16/19/22/...: a tied set starts another, as in CS2.
  *
  * Opponent information is never exposed to the decision policy beyond the
  * scoreboard (see `LegacyDecisionView`).
@@ -55,7 +54,7 @@ import { applyRoundEconomy, getMapsToWinForFormat, resolveHomeStartsCT } from '@
 import type { MatchCounters } from './habits'
 import type { CoachCallRecord } from './coach-calls'
 import { managedLoadout, regroupEdge, restoreTimeoutState, spendTimeout, type TimeoutState } from './manager-controls'
-import { determineMapMVP, determineMVP, generateMatchStats, generateScriptMatchStats } from './match-stats'
+import { determineMapWinnerMVP, determineMVP, generateMatchStats, generateScriptMatchStats } from './match-stats'
 import type { BuyStrategy } from './buy-phase'
 import type { PlayerSimulationState } from './round-outcome'
 import { LEGACY_ENGINE_VERSION, SCRIPT_ENGINE_VERSION, type EngineVersion } from './engine-version'
@@ -312,9 +311,10 @@ function swapSides(ctx: LegacySeriesContext, sim: LegacySimState, cash: number):
  * normalised exactly once on restore.
  */
 export function applyLegacyTransition(ctx: LegacySeriesContext, sim: LegacySimState): LegacyTransition {
+    // Overtime keeps going in MR3 sets (16, 19, 22, 25, ...) until one is won,
+    // as in CS2; runLegacySeries' round guard bounds the loop.
     const threshold = sim.isOvertime ? overtimeMapWinThreshold(sim.currentOTSet) : 13
-    const suddenDeath = sim.isOvertime && sim.currentOTSet > 3 && sim.homeRounds !== sim.awayRounds
-    if (sim.homeRounds >= threshold || sim.awayRounds >= threshold || suddenDeath) {
+    if (sim.homeRounds >= threshold || sim.awayRounds >= threshold) {
         const homeWon = sim.homeRounds > sim.awayRounds
         const homeSeries = sim.homeSeriesScore + (homeWon ? 1 : 0)
         const awaySeries = sim.awaySeriesScore + (homeWon ? 0 : 1)
@@ -397,6 +397,11 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     const coach = (managedHome || managedAway) && ctx.script ? decision.coachCalls ?? [] : []
     const regroupHome = !!decision.regroup && managedHome
     const regroupAway = !!decision.regroup && managedAway
+    const homeRegroupEdge = regroupEdge(sim.homeLossStreak, regroupHome)
+    const awayRegroupEdge = regroupEdge(sim.awayLossStreak, regroupAway)
+    // Recorded (feed line, key round, timeout summary) only when it applied:
+    // without a losing streak a regroup round has no effect (MATCHDAY-05).
+    const regroupApplied = homeRegroupEdge > 0 || awayRegroupEdge > 0
     const ctId = homeIsCT ? home.team.id : away.team.id
     const tId = homeIsCT ? away.team.id : home.team.id
     const r = ctx.engine.simulateRound(
@@ -405,7 +410,7 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
         sim.homeWinStreak, sim.awayWinStreak, sim.homeLossStreak, sim.awayLossStreak,
         roundNum, hEcon, aEcon, homeStrategy, awayStrategy, ctx.isHighPressure, home.team, away.team, ctId, tId, tactics,
         sim.homeMomentumScore, sim.awayMomentumScore, home.staff, away.staff, mapId, ctx.matchStage, home.stressRes, away.stressRes, ctx.playerMap,
-        regroupEdge(sim.homeLossStreak, regroupHome), regroupEdge(sim.awayLossStreak, regroupAway),
+        homeRegroupEdge, awayRegroupEdge,
         ctx.script ? { series: ctx.script, mapIndex, ...(coach.length && ctx.managedTeamId ? { coach: { teamId: ctx.managedTeamId, calls: coach } } : {}) } : undefined,
     )
     const homeWon = r.winner === 'HOME'
@@ -413,8 +418,8 @@ export function playLegacyRound(ctx: LegacySeriesContext, input: LegacySeriesSta
     const playerEconomy = [...home.players.map(p => ({ p, e: hEcon[p.id] })), ...away.players.map(p => ({ p, e: aEcon[p.id] }))].map(({ p, e }) => ({
         playerId: p.id, spent: (preBuyCash[p.id] || 0) - e.cash, remaining: e.cash, weapon: e.weapon, hasArmor: e.hasArmor, hasHelmet: e.hasHelmet, hasKit: e.hasKit,
     }))
-    const managerCall = (managedHome || managedAway) && (call && !pistol || decision.regroup || coach.length)
-        ? { ...(call && !pistol ? { strategy: call } : {}), ...(decision.regroup ? { regroup: true } : {}), ...(coach.length ? { coachCalls: coach.map(c => ({ ...c })) } : {}) }
+    const managerCall = (managedHome || managedAway) && (call && !pistol || regroupApplied || coach.length)
+        ? { ...(call && !pistol ? { strategy: call } : {}), ...(regroupApplied ? { regroup: true } : {}), ...(coach.length ? { coachCalls: coach.map(c => ({ ...c })) } : {}) }
         : undefined
     const round: RoundResult = {
         roundNumber: roundNum,
@@ -535,7 +540,12 @@ export function runLegacySeries(ctx: LegacySeriesContext, policy?: LegacyDecisio
 
 /** Canonical result from a finished (or forfeited mid-way) series state. */
 export function finalizeLegacySeries(ctx: LegacySeriesContext, state: LegacySeriesState, management?: MatchResult['management']): MatchResult {
-    const played = state.maps.filter(m => m.rounds.length > 0).map(m => ({ ...m, mvpPlayerId: determineMapMVP(m.rounds, ctx.home.players, ctx.away.players) }))
+    // Map MVP: best player of the map's winner (script-v1: by that map's rating).
+    const played = state.maps.filter(m => m.rounds.length > 0).map(m => ({
+        ...m,
+        mvpPlayerId: determineMapWinnerMVP(m, ctx.home.players, ctx.away.players,
+            isScript(ctx) ? generateScriptMatchStats(ctx.home.players, ctx.away.players, [m]) : undefined),
+    }))
     const homeScore = state.sim.homeSeriesScore
     const awayScore = state.sim.awaySeriesScore
     const homeWon = homeScore > awayScore

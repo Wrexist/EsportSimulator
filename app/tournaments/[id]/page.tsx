@@ -33,6 +33,9 @@ type DisplayTournament = TournamentDefinition & {
 }
 import { FULL_TOURNAMENT_CALENDAR, getQualifiersFor, getTournamentById, getEntryTypeLabel } from "@/data/tournament-calendar"
 import { QualificationEngine } from "@/engine/tournament-qualification"
+import { TournamentManager } from "@/engine/tournament-manager"
+import { buildInstanceId, getSeasonFromTournamentId, getSeasonFromWeek, isQualificationForTournament } from "@/engine/circuit-engine"
+import { instanceSeason, instancesOfSeries, seasonStartWeek } from "@/lib/tournament-instances"
 import {
     Trophy,
     Calendar,
@@ -82,11 +85,11 @@ function splitRows(split: Record<number, number>): { label: string; pct: number;
 // Format display helper
 // Pure helpers hoisted to module scope so they don't get a new identity on
 // every render and accidentally bust downstream useMemo deps.
-const toSeriesId = (value?: string) => (value || "").replace(/_s\d+$/, "")
-const isQualificationForTournament = (q: any, tournamentId: string) =>
-    toSeriesId(q.seriesId || q.tournamentId) === toSeriesId(tournamentId)
+// Matches belong to one season's instance (`iem_katowice_s2`), never to the
+// whole series: other seasons have their own results.
 const isMatchForTournament = (matchTournamentId: string | null | undefined, tournamentId: string) =>
-    toSeriesId(matchTournamentId || "") === toSeriesId(tournamentId)
+    !!matchTournamentId && matchTournamentId === tournamentId
+const ENTERED_STATUSES = new Set(["QUALIFIED", "REGISTERED", "INVITED"])
 
 const formatDisplayName = (format: string): string => eventFormatName(format, true)
 
@@ -102,8 +105,8 @@ interface PathTimelineNode {
     playerStatus: string | null
 }
 
-const getTimelineNodeStatus = (tournament: TournamentDefinition, currentWeek: number): TimelineNodeStatus => {
-    const startWeek = tournament.startWeek || 1
+const getTimelineNodeStatus = (tournament: TournamentDefinition, currentWeek: number, season: number): TimelineNodeStatus => {
+    const startWeek = seasonStartWeek({ startWeek: tournament.startWeek || 1 }, season)
     const endWeek = startWeek + Math.max(1, tournament.duration || 1) - 1
     if (currentWeek < startWeek) return "UPCOMING"
     if (currentWeek > endWeek) return "COMPLETED"
@@ -196,73 +199,70 @@ export default function TournamentDetailPage() {
         registerForTournament: state.registerForTournament,
     })))
 
-    const tournament = useMemo(() => tournaments.find(t => t.id === id), [tournaments, id])
+    const gameStartDate = useGameStore(state => state.gameStartDate)
+    const rawId = (Array.isArray(id) ? id[0] : id) || ""
 
     const [activeTab, setActiveTab] = useState<"overview" | "groups" | "playoffs" | "schedule" | "history" | "stats">("overview")
     const [selectedSeason, setSelectedSeason] = useState<string | null>(null)
 
-    // Resolve base definition (handle seasonal IDs)
-    const definition = useMemo(() => {
-        const rawId = (Array.isArray(id) ? id[0] : id) || ""
-        // Try exact match first
-        const exact = FULL_TOURNAMENT_CALENDAR.find(t => t.id === rawId)
-        if (exact) return exact
+    // Resolve the calendar definition. Only a trailing season suffix is
+    // stripped (`major_shanghai_s1` → `major_shanghai`,
+    // `esea_premier_s48_s2` → `esea_premier_s48`).
+    const definition = useMemo(() => getTournamentById(rawId), [rawId])
+    // Season named in the URL (none for a bare calendar id).
+    const urlSeason = definition && rawId !== definition.id ? getSeasonFromTournamentId(rawId) : null
+    const currentSeason = getSeasonFromWeek(currentWeek)
 
-        // Try stripped match
-        const baseId = rawId.split('_s')[0]
-        return FULL_TOURNAMENT_CALENDAR.find(t => t.id === baseId)
-    }, [id])
+    // Saved instances of this series only (not its qualifiers), latest first.
+    const seasonalInstances = useMemo(
+        () => (definition ? instancesOfSeries(tournaments, definition.id) : []),
+        [tournaments, definition],
+    )
 
-    // Find all seasonal instances of this tournament
-    const seasonalInstances = useMemo(() => {
-        if (!definition) return []
-        return tournaments
-            .filter(t => t.id.startsWith(definition.id) || t.id.includes(definition.id))
-            .sort((a, b) => {
-                // Parse season number
-                const sA = parseInt(a.id.split('_s')[1] || "1")
-                const sB = parseInt(b.id.split('_s')[1] || "1")
-                return sB - sA // Descending (latest first)
-            })
-    }, [tournaments, definition])
+    // A new URL starts from its own season again.
+    useEffect(() => { setSelectedSeason(null) }, [rawId])
 
     // Compute display tournament purely (no side effects)
     const displayTournament = useMemo((): DisplayTournament | undefined => {
-        // If we explicitly selected a season via dropdown, find that one
+        if (!definition) return undefined
+        // A season that hasn't been created yet: the calendar entry, dated
+        // in that season, so status and registration refer to that event.
+        const upcoming = (season: number): DisplayTournament => ({
+            ...definition,
+            id: buildInstanceId(definition.id, season),
+            instanceId: buildInstanceId(definition.id, season),
+            seriesId: definition.id,
+            seasonNumber: season,
+            startWeek: seasonStartWeek(definition, season),
+        })
+        // A season picked with the season buttons
         if (selectedSeason) {
             const found = seasonalInstances.find(t => t.id === selectedSeason)
             if (found) return { ...definition, ...found } as DisplayTournament
         }
-
-        // Otherwise, try to match URL ID
-        const urlId = (Array.isArray(id) ? id[0] : id) || ""
-        const exactMatch = seasonalInstances.find(t => t.id === urlId)
+        // The exact instance in the URL
+        const exactMatch = seasonalInstances.find(t => t.id === rawId)
         if (exactMatch) return { ...definition, ...exactMatch } as DisplayTournament
-
-        // Fallback: Use latest season available
-        if (seasonalInstances.length > 0) return { ...definition, ...seasonalInstances[0] } as DisplayTournament
-
-        // Final fallback: Just the definition
-        return definition
-    }, [seasonalInstances, definition, id, selectedSeason])
-
-    // Sync selectedSeason state (moved out of useMemo to avoid setState during render)
-    useEffect(() => {
-        if (selectedSeason) return // Already explicitly selected
-        const urlId = (Array.isArray(id) ? id[0] : id) || ""
-        const exactMatch = seasonalInstances.find(t => t.id === urlId)
-        if (exactMatch) {
-            setSelectedSeason(exactMatch.id)
-        } else if (seasonalInstances.length > 0) {
-            setSelectedSeason(seasonalInstances[0].id)
-        }
-    }, [seasonalInstances, id, selectedSeason])
+        // A season in the URL whose event hasn't been created yet
+        if (urlSeason !== null) return upcoming(urlSeason)
+        // Bare calendar id: this season's event, else the latest one played
+        const thisSeason = seasonalInstances.find(t => instanceSeason(t) === currentSeason)
+        if (thisSeason) return { ...definition, ...thisSeason } as DisplayTournament
+        if (seasonalInstances.length === 0 || seasonStartWeek(definition, currentSeason) >= currentWeek) return upcoming(currentSeason)
+        return { ...definition, ...seasonalInstances[0] } as DisplayTournament
+    }, [seasonalInstances, definition, rawId, urlSeason, currentSeason, currentWeek, selectedSeason])
+    const displaySeason = displayTournament ? instanceSeason(displayTournament) : currentSeason
+    // The saved instance on screen (undefined before the event is created).
+    const tournament = useMemo(
+        () => seasonalInstances.find(t => t.id === displayTournament?.id),
+        [seasonalInstances, displayTournament?.id],
+    )
 
     const playerTeam = useMemo(() => teams.find(t => t.id === playerTeamId), [teams, playerTeamId])
     // Index teams by id once — was being scanned 8+ times per render across the
     // podium / playoff / standings sections.
     const teamsById = useMemo(() => new Map(teams.map(t => [t.id, t])), [teams])
-    // toSeriesId / isQualificationForTournament / isMatchForTournament are
+    // isMatchForTournament is
     // hoisted at module scope (top of file) — pure helpers, no closure
     // capture needed, and stable refs across renders so they don't bust
     // the useMemo deps below.
@@ -278,7 +278,7 @@ export default function TournamentDetailPage() {
     const tournamentMatches = useMemo(() => {
         if (!displayTournament?.id) return [] as typeof completedMatches
         return completedMatches.filter(m => isMatchForTournament(m.tournamentId, displayTournament.id))
-        // isMatchForTournament/toSeriesId are pure helpers above; not deps.
+        // isMatchForTournament is a pure helper above; not a dep.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [completedMatches, displayTournament?.id])
     const playerRanking = playerTeam?.worldRanking || 999 // Fallback
@@ -341,19 +341,19 @@ export default function TournamentDetailPage() {
             const playerRow = playerTeamId
                 ? [...tournamentQualifications]
                     .reverse()
-                    .find(q => q.teamId === playerTeamId && isQualificationForTournament(q, entry.id))
+                    .find(q => q.teamId === playerTeamId && isQualificationForTournament(q, buildInstanceId(entry.id, displaySeason), currentWeek))
                 : undefined
 
             return {
                 tournament: entry,
-                status: getTimelineNodeStatus(entry, currentWeek),
+                status: getTimelineNodeStatus(entry, currentWeek, displaySeason),
                 role: getTimelineNodeRole(entry),
                 isCurrent: index === currentIndex,
                 incomingQualifierCount: getQualifiersFor(entry.id).length,
                 playerStatus: playerRow?.status || null,
             }
         })
-    }, [currentWeek, definition, playerTeamId, tournamentQualifications])
+    }, [currentWeek, definition, displaySeason, playerTeamId, tournamentQualifications])
 
     if (!displayTournament) {
         return (
@@ -366,9 +366,13 @@ export default function TournamentDetailPage() {
         )
     }
 
-    // Check registration against the specific displayTournament ID
-    const isRegistered = tournamentQualifications.some(q =>
-        isQualificationForTournament(q, displayTournament.id) && q.teamId === playerTeamId
+    // Registrations for this season's instance (not last season's, not the
+    // qualifiers'). One row per team.
+    const enteredTeamIds = [...new Set(tournamentQualifications
+        .filter(q => ENTERED_STATUSES.has(q.status) && isQualificationForTournament(q, displayTournament.id, currentWeek))
+        .map(q => q.teamId))]
+    const isRegistered = !!playerTeamId && tournamentQualifications.some(q =>
+        q.teamId === playerTeamId && isQualificationForTournament(q, displayTournament.id, currentWeek)
     )
 
     // Check start based on the specific displayTournament
@@ -403,15 +407,16 @@ export default function TournamentDetailPage() {
                 ? { label: t("tm.status.live"), tone: "text-negative", live: true }
                 : { label: t("tm.status.completed"), tone: "text-ink-3" }
 
-    const registeredCount = tournamentQualifications.filter(q => isQualificationForTournament(q, (definition?.id || id) as string)).length
+    const registeredCount = enteredTeamIds.length
     const participantCount = isStarted ? (displayTournament.teamIds?.length || 0) : registeredCount
     const progress = Math.max(0, Math.min(100, ((currentWeek - startWeek) / Math.max(1, endWeek - startWeek)) * 100))
 
     // Tabs depend on the format.
     const format = displayTournament.format
-    const slots = displayTournament.slots || 32
     const tabs: { id: typeof activeTab; label: string }[] = [{ id: "overview", label: t("tm.tab.overview") }]
-    if (format !== "league" && (format === "swiss" || slots === 16 || slots === 24)) tabs.push({ id: "groups", label: t("stage.groupStage") })
+    // Only formats that have a stage before the bracket get the tab: the
+    // Swiss stage of Majors/RMRs, and GSL groups when the event has them.
+    if (format !== "league" && (format === "swiss" || (displayTournament.groups?.length ?? 0) > 0)) tabs.push({ id: "groups", label: format === "swiss" ? t("tm.swissStage") : t("stage.groupStage") })
     if (format !== "league") tabs.push({ id: "playoffs", label: t("tm.tab.bracket") })
     if (format === "league") tabs.push({ id: "groups", label: t("tm.tab.standings") })
     tabs.push({ id: "schedule", label: format === "league" ? t("tm.schedule") : t("tm.tab.allMatches") })
@@ -461,7 +466,7 @@ export default function TournamentDetailPage() {
                         <div className="flex items-center gap-1.5" role="group" aria-label={t("md.season")}>
                             <span className={overline}>{t("md.season")}</span>
                             {seasonalInstances.map(inst => {
-                                const seasonNum = inst.id.split('_s')[1] || "1"
+                                const seasonNum = instanceSeason(inst)
                                 const active = displayTournament.id === inst.id
                                 return (
                                     <button
@@ -498,7 +503,7 @@ export default function TournamentDetailPage() {
                                     {status.label}
                                 </span>
                             </div>
-                            <h1 className="page-title mt-1 truncate">{getDynamicTournamentName(displayTournament.name, currentWeek)}</h1>
+                            <h1 className="page-title mt-1 truncate">{getDynamicTournamentName(displayTournament.name, startWeek, gameStartDate, duration)}</h1>
                         </div>
                         {!isStarted && (
                             isRegistered ? (
@@ -541,7 +546,7 @@ export default function TournamentDetailPage() {
                                 <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm md:grid-cols-4">
                                     <div><dt className={overline}>{t("tm.col.entry")}</dt><dd className="mt-0.5 text-ink-1">{getEntryTypeLabel(displayTournament.entryType)}</dd></div>
                                     <div><dt className={overline}>{t("tm.region")}</dt><dd className="mt-0.5 text-ink-1">{eventRegionName(displayTournament.region)}</dd></div>
-                                    <div><dt className={overline}>{t("tm.col.status")}</dt><dd className="mt-0.5 text-ink-1">{isCompleted ? t("tm.status.completed") : isStarted ? t("tm.inProgress") : t("tm.registrationOpen")}</dd></div>
+                                    <div><dt className={overline}>{t("tm.col.status")}</dt><dd className="mt-0.5 text-ink-1">{isCompleted ? t("tm.status.completed") : isStarted ? t("tm.inProgress") : (isRegistered || eligibility?.canRegister) ? t("tm.registrationOpen") : displayTournament.entryType === "INVITE" ? t("tm.status.inviteOnly") : t("tm.status.locked")}</dd></div>
                                     <div><dt className={overline}>{t("tm.format")}</dt><dd className="mt-0.5 text-ink-1">{formatDisplayName(displayTournament.format)}</dd></div>
                                 </dl>
                             </Panel>
@@ -557,7 +562,7 @@ export default function TournamentDetailPage() {
                                                     <li className={cn("min-w-[200px] rounded-[4px] border p-3", node.isCurrent ? "border-gold bg-gold/[0.04]" : "border-line bg-raised")}>
                                                         <p className={overline}>{getTimelineRoleLabel(node.role)}{node.isCurrent ? ` · ${t("tm.thisEvent")}` : ""}</p>
                                                         <p className="mt-1 text-sm font-semibold text-ink-1">{node.tournament.shortName}</p>
-                                                        <p className="mt-0.5 text-xs tabular-nums text-ink-3">{t("tm.weekRange", { from: weekStart, to: weekEnd })} · <span className={node.status === "LIVE" ? "text-negative" : undefined}>{t(`tm.node.${node.status}`)}</span></p>
+                                                        <p className="mt-0.5 text-xs tabular-nums text-ink-3">{weekStart === weekEnd ? t("common.week", { n: weekStart }) : t("tm.weekRange", { from: weekStart, to: weekEnd })} · <span className={node.status === "LIVE" ? "text-negative" : undefined}>{t(`tm.node.${node.status}`)}</span></p>
                                                         {node.incomingQualifierCount > 1 && <p className="mt-0.5 text-xs text-ink-3">{tn("tm.feeders", node.incomingQualifierCount)}</p>}
                                                         {node.playerStatus && <p className="mt-1 text-xs font-semibold text-positive">{t("tm.you", { status: qualStatusLabel(node.playerStatus) })}</p>}
                                                     </li>
@@ -571,46 +576,16 @@ export default function TournamentDetailPage() {
 
                             {/* Final standings (completed) */}
                             {isCompleted && (() => {
-                                const standings: { team: any, place: number }[] = []
+                                // Places as the engine paid them (prize ledger, circuit
+                                // points): every paid place, not just the top 8.
+                                // Teams knocked out in the same round share a place
+                                // ("5–8"); the prize column still shows what each was paid.
+                                const standings: { team: any, place: number, tiedFrom?: number, tiedThrough?: number }[] = []
                                 if (displayTournament?.format !== "league") {
-                                    const final = tournamentMatches.find(m => m.stage === "Grand Final")
-                                    const semiFinals = tournamentMatches.filter(m => m.stage?.includes("Semi-final"))
-                                    const quarterFinals = tournamentMatches.filter(m => m.stage?.includes("Quarter-final"))
-                                    if (final) {
-                                        const winId = final.result.winnerId || (final.result.homeScore > final.result.awayScore ? final.homeTeamId : final.awayTeamId)
-                                        const loseId = winId === final.homeTeamId ? final.awayTeamId : final.homeTeamId
-                                        const winner = teamsById.get(winId)
-                                        const runnerUp = teamsById.get(loseId)
-                                        if (winner) standings.push({ team: winner, place: 1 })
-                                        if (runnerUp) standings.push({ team: runnerUp, place: 2 })
-                                    }
-                                    // 3rd / 4th — prefer the 3rd-place decider (engine-authoritative);
-                                    // otherwise fall back to semi-final losers.
-                                    const thirdDecider = tournamentMatches.find(m => m.stage === "3rd Place Decider")
-                                    if (thirdDecider?.result) {
-                                        const dWin = thirdDecider.result.winnerId || (thirdDecider.result.homeScore > thirdDecider.result.awayScore ? thirdDecider.homeTeamId : thirdDecider.awayTeamId)
-                                        const dLose = dWin === thirdDecider.homeTeamId ? thirdDecider.awayTeamId : thirdDecider.homeTeamId
-                                        const third = teamsById.get(dWin)
-                                        const fourth = teamsById.get(dLose)
-                                        if (third && !standings.some(s => s.team.id === dWin)) standings.push({ team: third, place: 3 })
-                                        if (fourth && !standings.some(s => s.team.id === dLose)) standings.push({ team: fourth, place: 4 })
-                                    } else {
-                                        let semiPlace = 3
-                                        semiFinals.forEach(m => {
-                                            const loserId = m.result.homeScore > m.result.awayScore ? m.awayTeamId : m.homeTeamId
-                                            if (loserId && !standings.some(s => s.team.id === loserId)) {
-                                                const tm = teamsById.get(loserId)
-                                                if (tm) { standings.push({ team: tm, place: semiPlace }); semiPlace++ }
-                                            }
-                                        })
-                                    }
-                                    let qfPlace = 5
-                                    quarterFinals.forEach(m => {
-                                        const loserId = m.result.homeScore > m.result.awayScore ? m.awayTeamId : m.homeTeamId
-                                        if (loserId && !standings.some(s => s.team.id === loserId)) {
-                                            const tm = teamsById.get(loserId)
-                                            if (tm) { standings.push({ team: tm, place: qfPlace }); qfPlace++ }
-                                        }
+                                    const placements = tournament ? TournamentManager.calculatePlacements({ teams } as any, tournament) : []
+                                    placements.forEach(p => {
+                                        const team = teamsById.get(p.teamId)
+                                        if (team) standings.push({ team, place: p.position, tiedFrom: p.tiedFrom, tiedThrough: p.tiedThrough })
                                     })
                                 } else {
                                     // League: the engine-sorted standings (points → wins → H2H → diff).
@@ -633,12 +608,12 @@ export default function TournamentDetailPage() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {standings.slice(0, 16).map(s => {
+                                                {standings.map(s => {
                                                     const prize = Math.round(prizePool * (split[s.place] ?? 0))
                                                     const own = s.team.id === playerTeamId
                                                     return (
                                                         <tr key={s.team.id} data-slot="table-row" className={cn("h-11 border-b border-line last:border-b-0", own && "bg-gold/[0.05] shadow-[inset_2px_0_0_var(--gold)]")}>
-                                                            <td className="pl-4 font-display text-lg font-bold tabular-nums text-ink-2">{s.place === 1 ? <Trophy size={16} className="text-gold" aria-label={t("tm.champion")} /> : s.place}</td>
+                                                            <td className="pl-4 font-display text-lg font-bold tabular-nums text-ink-2">{s.place === 1 ? <Trophy size={16} className="text-gold" aria-label={t("tm.champion")} /> : s.tiedFrom && s.tiedThrough && s.tiedThrough > s.tiedFrom ? <span className="text-base">{s.tiedFrom}–{s.tiedThrough}</span> : s.place}</td>
                                                             <td>
                                                                 <span className="flex items-center gap-2.5">
                                                                     <TeamLogoImage src={s.team.logoPath} alt="" size={22} />
@@ -664,7 +639,7 @@ export default function TournamentDetailPage() {
                                 {(() => {
                                     const rawParticipants = isStarted
                                         ? (tournament?.teamIds || [])
-                                        : (tournamentQualifications.filter(q => isQualificationForTournament(q, (definition?.id || id) as string)).map(q => q.teamId))
+                                        : enteredTeamIds
                                     const participants = [...new Set(rawParticipants)]
                                         .map(tid => teamsById.get(tid))
                                         .filter(Boolean)
@@ -707,7 +682,7 @@ export default function TournamentDetailPage() {
                                     <ul>
                                         {seasonalInstances.filter(inst => (inst as any).isCompleted).map((inst: any) => {
                                             const winner = teamsById.get(inst.winnerId)
-                                            const seasonNum = inst.id.split('_s')[1]
+                                            const seasonNum = instanceSeason(inst)
                                             return (
                                                 <li key={inst.id}>
                                                     <button
@@ -730,7 +705,62 @@ export default function TournamentDetailPage() {
                 )}
 
                 {activeTab === "groups" && (
-                    displayTournament?.format === "league" ? (
+                    displayTournament?.format === "swiss" ? (
+                        (displayTournament.standings?.length ?? 0) > 0 ? (
+                        <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+                        <Panel title={t("tm.swissStage")} actions={<span className="text-xs text-ink-3">{t("tm.swissNote")}</span>} padded={false}>
+                            {(() => {
+                                // The engine's Swiss table (wins → head-to-head → map/round diff).
+                                const playoffTeams = new Set((displayTournament.playoffBracket ?? [])
+                                    .filter(m => !m.id.includes("swiss"))
+                                    .flatMap(m => [m.homeTeamId, m.awayTeamId]))
+                                return (
+                                    <table data-slot="table" className="w-full border-collapse text-left">
+                                        <thead data-slot="table-header">
+                                            <tr className="border-b border-line">
+                                                <th data-slot="table-head" className="w-14 pl-4">#</th>
+                                                <th data-slot="table-head">{t("rk.col.team")}</th>
+                                                <th data-slot="table-head" className="px-3 text-right">{t("common.win.short")}</th>
+                                                <th data-slot="table-head" className="px-3 text-right">{t("common.loss.short")}</th>
+                                                <th data-slot="table-head" className="px-3 text-right" title={t("tm.col.rdLong")}>{t("tm.col.rd")}</th>
+                                                <th data-slot="table-head" className="pr-4 text-right">{t("tm.col.status")}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {displayTournament.standings!.map((st, idx) => {
+                                                const team = teamsById.get(st.teamId)
+                                                const own = st.teamId === playerTeamId
+                                                const advanced = st.wins >= 3 || playoffTeams.has(st.teamId)
+                                                const out = !advanced && st.losses >= 3
+                                                return (
+                                                    <tr key={st.teamId} data-slot="table-row" className={cn("h-11 border-b border-line last:border-b-0", own && "bg-gold/[0.05] shadow-[inset_2px_0_0_var(--gold)]", out && "text-ink-3")}>
+                                                        <td className="pl-4 text-sm font-semibold tabular-nums text-ink-3">{idx + 1}</td>
+                                                        <td>
+                                                            <span className="flex items-center gap-2.5">
+                                                                <TeamLogoImage src={team?.logoPath} alt="" size={22} />
+                                                                {team ? <TeamLink id={team.id} className={cn("text-sm font-semibold", out ? "text-ink-3" : "text-ink-1")}>{team.name}</TeamLink> : <span className="text-sm text-ink-3">{t("tm.unknownTeam")}</span>}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-3 text-right text-sm tabular-nums text-ink-1">{st.wins}</td>
+                                                        <td className="px-3 text-right text-sm tabular-nums text-ink-2">{st.losses}</td>
+                                                        <td className="px-3 text-right text-sm tabular-nums text-ink-2">{st.roundDiff > 0 ? `+${st.roundDiff}` : st.roundDiff}</td>
+                                                        <td className="pr-4 text-right text-sm">
+                                                            {advanced ? <span className="font-semibold text-positive">{t("tm.swiss.advanced")}</span>
+                                                                : out ? <span className="text-negative">{t("tm.status.eliminated")}</span>
+                                                                    : <span className="text-ink-3">—</span>}
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
+                                        </tbody>
+                                    </table>
+                                )
+                            })()}
+                        </Panel>
+                        {prizeSplitPanel}
+                        </div>
+                        ) : emptyBlock(LayoutGrid, t("tm.noStandings"), t("tm.noStandingsBody"))
+                    ) : displayTournament?.format === "league" ? (
                         <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
                         <Panel title={t("tm.leagueStandings")} actions={<span className="text-xs text-ink-3">{t("tm.leagueStandingsNote")}</span>} padded={false}>
                             {(() => {
@@ -885,17 +915,9 @@ export default function TournamentDetailPage() {
 
                 {activeTab === "schedule" && (
                     isStarted ? (() => {
-                        const isMatchForThis = (m: any) => {
-                            // Handle seasonal IDs and base IDs robustly
-                            const matchTid = m.tournamentId
-                            const defId = definition?.id || ""
-                            const urlId = Array.isArray(id) ? id[0] : id
-                            if (matchTid === displayTournament.id) return true
-                            if (matchTid === defId) return true
-                            if (matchTid === urlId) return true
-                            if (defId && matchTid?.startsWith(defId + "_s")) return true
-                            return false
-                        }
+                        // This season's instance only (other seasons and the
+                        // qualifiers have their own pages).
+                        const isMatchForThis = (m: any) => m.tournamentId === displayTournament.id
                         const allMatches = [
                             ...scheduledMatches.filter(isMatchForThis),
                             ...completedMatches.filter(isMatchForThis) as any

@@ -57,6 +57,12 @@ interface LiveMatchScoreboardProps {
     clock?: ScorebugClock | null
     /** Which team is the player's own (a YOU tag by its name). */
     ownTeam?: "home" | "away"
+    /**
+     * Between rounds (buy decision): the round about to be played. The
+     * scorebug then shows it with "Freeze time" instead of the last round and
+     * its stopped timer (MATCHDAY-08).
+     */
+    nextRound?: number | null
 }
 
 /** Live clock and the round's bomb times for the scorebug timer. */
@@ -218,6 +224,7 @@ function LiveMatchScoreboardImpl({
     homeLossLevel,
     awayLossLevel,
     clock,
+    nextRound,
 }: LiveMatchScoreboardProps) {
     // Display the actual round countdown (1:55 → 0:00). Falls back to the raw
     // game-time tick when no roundTime is provided so existing callers keep
@@ -227,11 +234,13 @@ function LiveMatchScoreboardImpl({
         : typeof roundTime === "number"
             ? Math.max(0, roundTime)
             : Math.max(0, gameState.time))
-    const showTimer = gameState.time >= 0
+    const buyPhase = nextRound != null && nextRound > 0
+    const shownRound = buyPhase ? nextRound : gameState.round
+    const showTimer = gameState.time >= 0 && !buyPhase
     const reduceMotion = useAppReducedMotion()
     const finished = gameState.status === "FINISHED"
     const toWin = mapsToWinForFormat(matchFormat)
-    const phaseId = roundPhaseLabel(gameState.round, homeScore, awayScore)
+    const phaseId = roundPhaseLabel(shownRound, homeScore, awayScore)
     const phase = phaseId ? t(`scoreboard.phase.${phaseId}`) : null
 
     const score = (value: number, leading: boolean) => (
@@ -264,7 +273,7 @@ function LiveMatchScoreboardImpl({
                 </div>
                 <div className="min-w-0 space-y-1.5">
                     <div className="flex min-w-0 items-center gap-2">
-                        <span className="truncate font-display text-[26px] font-bold uppercase leading-none text-ink-1">{homeTeam.name}</span>
+                        <span className="truncate font-display text-[22px] font-bold uppercase leading-none text-ink-1 min-[1440px]:text-[26px]">{homeTeam.name}</span>
                         {!finished && <SidePill ct={homeIsCT} />}
                         {ownTeam === "home" && <YouTag />}
                     </div>
@@ -277,12 +286,13 @@ function LiveMatchScoreboardImpl({
             </div>
 
             {/* CENTRE */}
-            <div className="flex min-w-[460px] flex-col items-center justify-center gap-1.5 border-x border-line bg-shell px-6 py-2">
+            <div className="flex min-w-[400px] flex-col items-center justify-center gap-1.5 border-x border-line bg-shell px-4 py-2 min-[1440px]:min-w-[460px] min-[1440px]:px-6">
                 <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
                     <span className="text-ink-2">{mapName}</span>
                     <span aria-hidden="true">·</span>
-                    <span className={finished ? "text-ink-1" : undefined}>{finished ? t("dock.final") : t("scoreboard.rnd", { n: gameState.round })}</span>
+                    <span className={finished ? "text-ink-1" : undefined}>{finished ? t("dock.final") : t("scoreboard.rnd", { n: shownRound })}</span>
                     {!finished && phase && <><span aria-hidden="true">·</span><span className={phaseId === "matchPoint" ? "text-ink-1" : undefined}>{phase}</span></>}
+                    {!finished && buyPhase && <><span aria-hidden="true">·</span><span>{t("radar.freeze")}</span></>}
                     {showTimer && !finished && (clock
                         ? <LiveTimer clock={clock} paused={!!gameState.isPaused} />
                         : <TimerText seconds={displaySeconds} planted={!!isBombPlanted} paused={!!gameState.isPaused} />)}
@@ -298,7 +308,7 @@ function LiveMatchScoreboardImpl({
                 </div>
                 <div className="min-w-0 space-y-1.5">
                     <div className="flex min-w-0 flex-row-reverse items-center gap-2">
-                        <span className="truncate font-display text-[26px] font-bold uppercase leading-none text-ink-1">{awayTeam.name}</span>
+                        <span className="truncate font-display text-[22px] font-bold uppercase leading-none text-ink-1 min-[1440px]:text-[26px]">{awayTeam.name}</span>
                         {!finished && <SidePill ct={!homeIsCT} />}
                         {ownTeam === "away" && <YouTag />}
                     </div>

@@ -7,7 +7,7 @@ import type { GameEventSaveData, TeamSaveData } from "@/engine/save-types"
 import type { StoreState } from "@/store/types"
 import { createEventsSlice } from "@/store/slices/events-slice"
 import {
-    buildInboxItems, choiceLabel, countInbox, describeChoice, getDecisionKind, getInboxKind,
+    buildInboxItems, choiceLabel, countInbox, describeChoice, getDecisionKind, getEventBody, getEventSubject, getInboxKind, homeDecisions,
     inboxBadgeCount, itemsForTab, parseMessageBody, type InboxContext,
 } from "@/components/inbox/inbox-model"
 import { selectInboxCounts } from "@/components/inbox/inbox-store-bindings"
@@ -116,6 +116,35 @@ function harness(event: GameEventSaveData, budget = 100_000) {
     return { slice, state: () => state }
 }
 
+describe("Home Decisions panel reads the inbox (HOME-05 / HOME-13 / SQUAD-07)", () => {
+    const log = () => [
+        ev("sponsor_review_7", { type: "SPONSOR", data: { teamId: "mine" }, choices: choices({ id: "bonus", text: "Negotiate Performance Bonus (Rep -5)", effects: { reputation: -5 } }) }),
+        ev("streak", { type: "win_streak", data: { streak: 3 }, choices: choices({ id: "dinner", text: "Team Dinner (Money -1k, Rep +2)", effects: { money: -1000, reputation: 2 } }) }),
+        ev("bid_a", { type: "TRANSFER_OFFER", data: { playerId: "p2", teamId: "ai", expiresWeek: 7 } }),
+        // Two more bids for a player who has since been sold: not answerable.
+        ev("bid_gone_1", { type: "TRANSFER_OFFER", data: { playerId: "sold", teamId: "ai2", expiresWeek: 7 } }),
+        ev("bid_gone_2", { type: "TRANSFER_OFFER", data: { playerId: "sold", teamId: "ai3", expiresWeek: 7 } }),
+        ev("job", { type: "JOB_OFFER", data: { deadlineWeek: 6, originTeamId: "mine" } }),
+    ]
+
+    test("choices + offers equal the inbox's decisions waiting; offers for a departed player are not counted", () => {
+        const c = ctx()
+        const { choices: open, offers } = homeDecisions(log(), c)
+        expect(open.map(e => e.id)).toEqual(["sponsor_review_7", "streak"])
+        expect(offers).toBe(2)
+        expect(open.length + offers).toBe(countInbox(log(), c).decisions)
+    })
+
+    test("titles and option labels are the inbox's", () => {
+        const c = ctx()
+        const [sponsor, streak] = homeDecisions(log(), c).choices
+        expect(getEventSubject(sponsor, c)).toBe("Sponsor progress review")
+        expect(getEventSubject(streak, c)).toBe("3-match win streak")
+        expect(choiceLabel(streak.choices![0] as never)).toBe("Team Dinner")
+        expect(choiceLabel(sponsor.choices![0] as never)).toBe("Negotiate Performance Bonus")
+    })
+})
+
 describe("describeChoice matches resolveEventChoice", () => {
     test("player-scoped morale + money: chips equal the applied deltas", () => {
         const event = ev("morale_p1_5", {
@@ -195,6 +224,18 @@ describe("describeChoice matches resolveEventChoice", () => {
 })
 
 describe("copy helpers", () => {
+    test("HOME-11: a title-win event reads as one, not 'Media update'", () => {
+        const c = ctx()
+        const own = ev("trophy_cup_mine", { type: "MEDIA", data: { teamId: "mine", tournamentName: "Kato Open", fanGain: 1200 } })
+        expect(getEventSubject(own, c)).toBe("You won Kato Open")
+        expect(getEventBody(own, c)).toBe("Your team won Kato Open. The title brought 1,200 new followers.")
+        const other = ev("trophy_cup_ai", { type: "MEDIA", data: { teamId: "ai", teamName: "MOERTA", tournamentName: "Kato Open", fanGain: 900 } })
+        expect(getEventSubject(other, c)).toBe("MOERTA win Kato Open")
+        expect(getEventBody(other, c)).toBe("MOERTA won Kato Open.")
+        // Older saves have no teamName.
+        expect(getEventSubject(ev("trophy_x", { type: "MEDIA", data: { teamId: "ai", tournamentName: "Kato Open" } }), c)).toBe("Kato Open has a winner")
+    })
+
     test("choiceLabel drops inline effect notes the chips replace", () => {
         expect(choiceLabel({ id: "a", text: "Throw a Party (-$1k, Morale +10)" })).toBe("Throw a Party")
         expect(choiceLabel({ id: "b", text: "Support session: $500, morale +8, loyalty +2" })).toBe("Support session")

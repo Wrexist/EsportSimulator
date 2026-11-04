@@ -197,6 +197,14 @@ describe("FinanceProcessor.processFinance", () => {
         // The weekly report names both lines with a cause.
         expect(moneyCause(ops!.category, ops!.description).label).toBe("Club operations")
         expect(moneyCause(leagueRow!.category, leagueRow!.description).label).toBe("League")
+        // MARKET-16: each in its own ledger category, not "Facilities" / "Other".
+        expect(ops!.category).toBe("OPERATIONS")
+        expect(leagueRow!.category).toBe("LEAGUE")
+        const fans = save.financeLedger.find(e => e.id.startsWith("inc_fan_"))
+        if (fans) {
+            expect(fans.category).toBe("MERCH")
+            expect(moneyCause(fans.category, fans.description).label).toBe("Fans")
+        }
         // Every movement has a row: rows reconcile with the budget change.
         const net = save.financeLedger.reduce((s, e) => s + (e.type === "INCOME" ? e.amount : -e.amount), 0)
         expect(net).toBeCloseTo(team.budget - before, 6)

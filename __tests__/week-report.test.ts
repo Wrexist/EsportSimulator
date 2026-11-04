@@ -116,6 +116,13 @@ describe("report view", () => {
         expect(moneyLines(report)).toMatchObject({ net: 12_000, income: [{ label: "Prize money", amount: 20_000 }], expenses: [{ label: "Player salaries", amount: -8_000 }] })
         expect(teamRows(report)[0]).toMatchObject({ label: "World rank", change: "#16 → #14", tone: "up" })
     })
+
+    test("HOME-18: no 'Morale (avg) 83 → 83' row when the rounded values match", () => {
+        const morale = (m0: number, m1: number) => teamRows({ ...report, kpis: { ...report.kpis, morale: [m0, m1] as [number, number] } }).find(r => r.label === "Morale (avg)")
+        expect(morale(83.4, 82.9)).toBeUndefined() // |Δ| = 0.5 but both print as 83
+        expect(morale(83.4, 82.4)).toMatchObject({ change: "83 → 82", tone: "down" })
+        expect(morale(60, 62)).toMatchObject({ change: "60 → 62", tone: "up" })
+    })
 })
 
 describe("store weekly report", () => {

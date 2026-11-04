@@ -13,6 +13,16 @@ const ROLE_TO_PLAYER_ROLE: Record<Role, PlayerRole> = {
   entry: PlayerRole.ENTRY_FRAGGER,
 }
 
+/**
+ * Weekly training slots of the managed club: 10 baseline + 1 per 3 manager
+ * levels (→ 16 at the L20 cap). The week tick keeps the club in sync; a new
+ * career starts with the same value (HOME-14: it used to start at 3 and jump
+ * to 10 after the first week).
+ */
+export function managerTrainingSlots(managerLevel: number | undefined): number {
+    return 10 + Math.floor((managerLevel || 1) / 3)
+}
+
 export class TrainingManager {
   static ROLE_TRAINING_COST = COST_CONSTANTS.TRAINING_MISSION_COST
   static ROLE_TRAINING_DURATION = 8

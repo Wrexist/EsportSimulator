@@ -56,11 +56,17 @@ export default function CareerPage() {
     const [switchingTo, setSwitchingTo] = useState<string | null>(null)
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
-    // Every managed match (friendlies included) from the manager's own counters, not the capped match log.
+    // Official matches at every club, from the manager's own counters (the
+    // Clubs table below adds up to the same number). Friendlies are left
+    // out, as on the Trophy room. Saves without club spells fall back to the
+    // all-matches counters.
     const record = useMemo(() => {
-        const wins = managerDetails?.careerWins ?? 0, losses = managerDetails?.careerLosses ?? 0
-        return { wins, losses, played: wins + losses, rate: wins + losses > 0 ? Math.round((wins / (wins + losses)) * 100) : 0 }
-    }, [managerDetails?.careerWins, managerDetails?.careerLosses])
+        const stints = managerDetails?.stints ?? []
+        const official = stints.length > 0
+        const wins = official ? stints.reduce((n, s) => n + s.wins, 0) : managerDetails?.careerWins ?? 0
+        const losses = official ? stints.reduce((n, s) => n + s.losses, 0) : managerDetails?.careerLosses ?? 0
+        return { wins, losses, official, played: wins + losses, rate: wins + losses > 0 ? Math.round((wins / (wins + losses)) * 100) : 0 }
+    }, [managerDetails?.stints, managerDetails?.careerWins, managerDetails?.careerLosses])
 
     // Titles won while in charge, club by club (Phase 5.1 timeline).
     const { titles, majors } = useMemo(() => (managerDetails?.stints ?? []).reduce((sum, stint) => {
@@ -122,7 +128,7 @@ export default function CareerPage() {
                     <KpiStrip>
                         <Kpi label={t("car.kpi.level")} value={level} hint={t("car.kpi.xp", { xp: xp.toLocaleString(intlLocale()), next: xpNext.toLocaleString(intlLocale()) })} />
                         <Kpi label={t("car.kpi.reputation")} value={Math.round(managerDetails?.reputation ?? 0)} hint={t("car.kpi.of100")} />
-                        <Kpi label={t("tro.kpi.record")} value={<span>{record.wins}<span className="text-ink-3">–</span>{record.losses}</span>} hint={t("car.kpi.recordHint", { rate: record.rate })} />
+                        <Kpi label={t("tro.kpi.record")} value={<span>{record.wins}<span className="text-ink-3">–</span>{record.losses}</span>} hint={t(record.official ? "car.kpi.recordHintOfficial" : "car.kpi.recordHint", { rate: record.rate })} />
                         <Kpi label={t("tro.kpi.titles")} value={titles} valueClassName={titles > 0 ? "text-gold" : undefined} hint={majors > 0 ? tn("car.kpi.majors", majors) : undefined} />
                         <Kpi label={t("car.kpi.season")} value={seasons} hint={t("car.kpi.week", { week: currentWeek })} />
                     </KpiStrip>

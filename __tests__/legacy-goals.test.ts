@@ -51,4 +51,10 @@ describe("legacy goals", () => {
         expect(row(v, "loyalty").level).toBe(1)
         expect(row(v, "climb").level).toBe(1)
     })
+
+    test("COMP-17: the first silverware level reads in the singular", () => {
+        const silverware = LEGACY_GOALS.find(g => g.id === "silverware")!
+        expect(silverware.describe(1)).toBe("Win a trophy as a manager")
+        expect(silverware.describe(10)).toBe("Win 10 trophies as a manager")
+    })
 })

@@ -213,8 +213,8 @@
     },
     {
       "path": "app/career/page.tsx",
-      "sha256": "4b5d3b13d901678aff392e219e2b34375393f1365e67cac68f6a398634d9f88d",
-      "bytes": 13822,
+      "sha256": "3d6607b316a23f6c1d2c37ca5dc50d22cb8d487b2877345d16580f2e6fcca8b9",
+      "bytes": 14268,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -241,6 +241,11 @@
           "date": "2026-11-03",
           "previousSha256": "d5a9fd12e4e8d2febd2b28c2a42150c7acd051fa4fedd78ec798b846cd725b32",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "4b5d3b13d901678aff392e219e2b34375393f1365e67cac68f6a398634d9f88d",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -504,8 +509,8 @@
     },
     {
       "path": "app/finances/page.tsx",
-      "sha256": "9ad2be61ed4ea0a90b2b2404ada51165f9abe066646190836f5d111bcb9bea45",
-      "bytes": 22582,
+      "sha256": "2e89cc1e80be8fa2186790cb379def9958dc365cf0cdd3836e79fe86c2c55ad5",
+      "bytes": 22606,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -563,6 +568,11 @@
           "date": "2026-11-03",
           "previousSha256": "911e96c9674d567b46b510cd2382ce2a4f7f401b34fbe521cf2519ac8cfa3af9",
           "change": "weekly report translations"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "9ad2be61ed4ea0a90b2b2404ada51165f9abe066646190836f5d111bcb9bea45",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -810,8 +820,8 @@
     },
     {
       "path": "app/hall-of-fame/page.tsx",
-      "sha256": "43ed81638b7cf74f1374cf83fb98668f362f755acd1d20e714ed49877285737d",
-      "bytes": 10274,
+      "sha256": "93fb85f3deb8b94a7dbc1e4db78e5de564633c96c9b575019e930abd106d37e2",
+      "bytes": 10764,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -825,6 +835,11 @@
           "date": "2026-11-03",
           "previousSha256": "77af7018f23b18908424779b1da88bf4704b86e8639b6b8d6d8baa9b07844234",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "43ed81638b7cf74f1374cf83fb98668f362f755acd1d20e714ed49877285737d",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -883,8 +898,8 @@
     },
     {
       "path": "app/load-game/page.tsx",
-      "sha256": "7be3bb9bfeb21db20e607f3f5582041d49fe13528bcc5c107bdc89c41e3def71",
-      "bytes": 20334,
+      "sha256": "e1081e658c824dd194a58adf970860e03ac0eca9b67957c2519da5d480337c06",
+      "bytes": 21562,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -898,6 +913,11 @@
           "date": "2026-11-03",
           "previousSha256": "a2b64623179f835713a4e475284de91bf231b3ea1416cfe1a66a3e2b0029c920",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "7be3bb9bfeb21db20e607f3f5582041d49fe13528bcc5c107bdc89c41e3def71",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -1062,8 +1082,8 @@
     },
     {
       "path": "app/match/[id]/live/page.tsx",
-      "sha256": "79758731a2924121451f328df9b6444d518b1a08e6b2e5d4658f7cc3681360d2",
-      "bytes": 30428,
+      "sha256": "6f8684ef280ec5cf48130d0fa958ba49ae8734d5d60a8a456baad7dabd45c391",
+      "bytes": 31718,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1090,6 +1110,11 @@
           "date": "2026-11-03",
           "previousSha256": "38dea9400f234eb43dd56f568fc571f3f107932c769c1fb3d74281f239e0a1e5",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "79758731a2924121451f328df9b6444d518b1a08e6b2e5d4658f7cc3681360d2",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -1115,8 +1140,8 @@
     },
     {
       "path": "app/match/[id]/result/page.tsx",
-      "sha256": "3f0d0f6ee773205f3f07cae258b197c702f81df0487504738a1856e9ad1163ce",
-      "bytes": 64200,
+      "sha256": "cabfe2cbb750c31af7a5e2e9cd0ef0334fd62fc9f7086236603c43c0ebcc04d6",
+      "bytes": 64361,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1143,13 +1168,18 @@
           "date": "2026-11-03",
           "previousSha256": "8bb0c3ed8e2a8ec1f0a7ed29de2b25ed84ea99818edd13f64000005b097ab243",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "3f0d0f6ee773205f3f07cae258b197c702f81df0487504738a1856e9ad1163ce",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
     {
       "path": "app/match/[id]/tactics/page.tsx",
-      "sha256": "2e7cd23f20032f1bbd911ee4c9cd07885e617cac7b9d310deaac8cf0d41a2d24",
-      "bytes": 54808,
+      "sha256": "a8367a635cdf54d121ebb7a680873c0ee1737562f3baddf4f139492767b71fab",
+      "bytes": 56547,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1176,13 +1206,18 @@
           "date": "2026-11-03",
           "previousSha256": "b2aed18af755742a314765a8e99076f40ef3a2b8509b00d959590cb2bebf1e7f",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "2e7cd23f20032f1bbd911ee4c9cd07885e617cac7b9d310deaac8cf0d41a2d24",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
     {
       "path": "app/match/[id]/veto/page.tsx",
-      "sha256": "5fba4456a5033bb95ef6a6868f311207f8e920b5820fa4ad0d047479c1cbbbc9",
-      "bytes": 38800,
+      "sha256": "fe1ed56cdca91d0eafb6173c74e233aa26ed27476fcdec7f0734cbfc86b005e2",
+      "bytes": 39384,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1196,6 +1231,11 @@
           "date": "2026-11-03",
           "previousSha256": "79034209a2d411b2ef5f749af77378a4026c52ef34fafd88351969ba2ac955f6",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "5fba4456a5033bb95ef6a6868f311207f8e920b5820fa4ad0d047479c1cbbbc9",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -1221,8 +1261,8 @@
     },
     {
       "path": "app/new-game/create-team/page.tsx",
-      "sha256": "d3759993b324d15cb874935636a99ee8df4a4f4abb053ee6315187b3df9496cb",
-      "bytes": 29240,
+      "sha256": "c9eb7f8dea4c32798f691ad36b6ba0d2372a241af80c41d1fac6494d5437f8bd",
+      "bytes": 30489,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1249,6 +1289,11 @@
           "date": "2026-11-03",
           "previousSha256": "e232379f4418bd0fba66abb7d5115607d4a7e6c322e97aaf6aa8f9075a783f6e",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "d3759993b324d15cb874935636a99ee8df4a4f4abb053ee6315187b3df9496cb",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -1274,8 +1319,8 @@
     },
     {
       "path": "app/new-game/page.tsx",
-      "sha256": "ee8cf50f2866b33445829c948594b0c271bf6f8881274db77995fe963ad7a40f",
-      "bytes": 42589,
+      "sha256": "ae09215d82abee8b53f104a6bc5e73643adc4dfea135530231201649a9bba046",
+      "bytes": 41439,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1302,6 +1347,11 @@
           "date": "2026-11-03",
           "previousSha256": "a105df944c6c93a5bf63d43da528ad298e7072f0823e50f8098605f9dd715b49",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "ee8cf50f2866b33445829c948594b0c271bf6f8881274db77995fe963ad7a40f",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -1327,8 +1377,8 @@
     },
     {
       "path": "app/page.tsx",
-      "sha256": "6cfff24fc938a65e0196d2430ae8b5ed2bccbb25c5b5224e37c2d8823a6ec1db",
-      "bytes": 33504,
+      "sha256": "5054d220363c1042e6a12d57c19f8b726327ea3129c5f1c34441554cb68c4be6",
+      "bytes": 33914,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1360,6 +1410,11 @@
           "date": "2026-11-04",
           "previousSha256": "90bdef05ebef4049a24bce44054f2891c0e8198377e06503c0e62afeace6d003",
           "change": "Audit fixes: squad, players, training and staff"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "6cfff24fc938a65e0196d2430ae8b5ed2bccbb25c5b5224e37c2d8823a6ec1db",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -1410,8 +1465,8 @@
     },
     {
       "path": "app/rankings/page.tsx",
-      "sha256": "f70b777774489218cbeec89ef4ab31bea26ed2d1587084cc2f2a73261b467b81",
-      "bytes": 40712,
+      "sha256": "6df97e669a9bf8119d8b1df64d39b44e459e4577fc012c1fa9903316bff628df",
+      "bytes": 40985,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1438,6 +1493,11 @@
           "date": "2026-11-03",
           "previousSha256": "0a257944c66d67b5eef00e246f7ece6d0c072322472d5d56fd9d20dee05ac437",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "f70b777774489218cbeec89ef4ab31bea26ed2d1587084cc2f2a73261b467b81",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -1463,8 +1523,8 @@
     },
     {
       "path": "app/schedule/page.tsx",
-      "sha256": "4c33c5323c491ffcd292f0a15b89cefcefd3a3f58eb4a06f731de04f9464a54e",
-      "bytes": 28711,
+      "sha256": "bce5e62405b78e772118bd39868675e334a7b6c6a76e84deab5bd8f37fb59fab",
+      "bytes": 28968,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1491,6 +1551,11 @@
           "date": "2026-11-03",
           "previousSha256": "1a1c7ad869610c4052d7e2a0318310ca588f3962165dd35fd13e06956b06d79c",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "4c33c5323c491ffcd292f0a15b89cefcefd3a3f58eb4a06f731de04f9464a54e",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -1660,8 +1725,8 @@
     },
     {
       "path": "app/settings/page.tsx",
-      "sha256": "99fe7fbfa85509e0b1d2a81ba78bb24712912e644cfb99f6458172e0f6522c5c",
-      "bytes": 20739,
+      "sha256": "d4121747ae3cf72321fc7493d03c834bbbe49b148f60dc8a6fa2d2615ffec3ed",
+      "bytes": 19893,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1688,6 +1753,11 @@
           "date": "2026-11-03",
           "previousSha256": "76b98622d918eead748f65343b1b07f1ba265f7a12d6651834ffd24597a9c30b",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "99fe7fbfa85509e0b1d2a81ba78bb24712912e644cfb99f6458172e0f6522c5c",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -1713,8 +1783,8 @@
     },
     {
       "path": "app/sponsorships/page.tsx",
-      "sha256": "f42de1b31c852516c44760c87ff0989bbc3eab0dfe6e73ab587fcf45d4389b61",
-      "bytes": 8796,
+      "sha256": "fd4a4be0d95ec628ffbb3f563f9cdbaa455efd6ddbd76a36a7044644ae96ff40",
+      "bytes": 9016,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1741,6 +1811,11 @@
           "date": "2026-11-03",
           "previousSha256": "a135f0abe8eddff65911e13b9a3621bc1f60741404e40a968e726e6ebe8fbb36",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "f42de1b31c852516c44760c87ff0989bbc3eab0dfe6e73ab587fcf45d4389b61",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -1930,8 +2005,8 @@
     },
     {
       "path": "app/tournaments/[id]/page.tsx",
-      "sha256": "49435436ae2de0b1e9b57932555fab17b2f98e39d35d9103a9c80256889cb255",
-      "bytes": 73028,
+      "sha256": "9610128769c7b61e9dbc940acb73ff413aa7c5c0d37950c6ce3d6a00d5ad7518",
+      "bytes": 76422,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -1958,6 +2033,11 @@
           "date": "2026-11-03",
           "previousSha256": "43a56575bc42751e03f63da86f64c58aa5a93209b0222cb3ea2241cac9fed261",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "49435436ae2de0b1e9b57932555fab17b2f98e39d35d9103a9c80256889cb255",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -1983,8 +2063,8 @@
     },
     {
       "path": "app/tournaments/page.tsx",
-      "sha256": "302183fbf280bceca7bb55d252902638e141414869d0a03144356f6d22ebacb7",
-      "bytes": 24009,
+      "sha256": "eeb2fcac0080c629440ed369f2a93f58263cdb7ab369ef5cf1e00df39c647d2b",
+      "bytes": 24050,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2011,6 +2091,11 @@
           "date": "2026-11-03",
           "previousSha256": "bd6ef345accbd9c6c2e12fc5e7c6fd2ca7726e8e62f3d7e2f6c681ad11f7f0f8",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "302183fbf280bceca7bb55d252902638e141414869d0a03144356f6d22ebacb7",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -2147,8 +2232,8 @@
     },
     {
       "path": "app/trophies/page.tsx",
-      "sha256": "dab18a2179610c9bbf1068b1b75112dd4014aeb9259e4c4d0617ca9851f0ab01",
-      "bytes": 18044,
+      "sha256": "e6444a5d7d72b8fffb8c3caf639ae4e17cf8db41cbae961ec4654ba62260b65d",
+      "bytes": 18679,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2175,6 +2260,11 @@
           "date": "2026-11-03",
           "previousSha256": "8fd88fccff11ba0256bb0f786c044ae5dc2deb65ed6d0141f63de5385c4ca2c7",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "dab18a2179610c9bbf1068b1b75112dd4014aeb9259e4c4d0617ca9851f0ab01",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -2346,8 +2436,8 @@
     },
     {
       "path": "components/dashboard/ActionCenter.tsx",
-      "sha256": "cf4b8677ca71b65b3c88d09070c57aad97adc89e05cde3b4c76889f30b8857d1",
-      "bytes": 11275,
+      "sha256": "04de450853d986f2aa0b101e1ffe49538a6e62eb62370b1d22adaec254ba8921",
+      "bytes": 9369,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2374,6 +2464,11 @@
           "date": "2026-11-03",
           "previousSha256": "f430ffd0d0b9e6f15a68399bef4ac729d47a6c1e102eb683b774d86dc0bbc31f",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "cf4b8677ca71b65b3c88d09070c57aad97adc89e05cde3b4c76889f30b8857d1",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -2738,8 +2833,8 @@
     },
     {
       "path": "components/finance/IncomeBreakdown.tsx",
-      "sha256": "19ffa9581c3f17f36cc19857f71580fd0c4470c66e63a7fac7f379162a6e3674",
-      "bytes": 2185,
+      "sha256": "e535a001611480264cc716e191ff05fb27c67d9efd09aacdc743137149d41cbb",
+      "bytes": 2317,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2753,6 +2848,11 @@
           "date": "2026-11-03",
           "previousSha256": "df55828d2cca062b695aefed6b5bdfe870e45f88172ae27700f604d59e5d0e4a",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "19ffa9581c3f17f36cc19857f71580fd0c4470c66e63a7fac7f379162a6e3674",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -2798,8 +2898,8 @@
     },
     {
       "path": "components/layout/GameShell.tsx",
-      "sha256": "d559bdc774afda254eb3a17a8ad779b3fef41bcf3b0aec2686f50458ee4367b9",
-      "bytes": 26650,
+      "sha256": "d47b95a7ef8e810a4381ef8fbd2bd59d71c0b73b22731542db0c5483bb750873",
+      "bytes": 28559,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2844,6 +2944,11 @@
           "date": "2026-11-03",
           "previousSha256": "fabc1d4132e2cef41021a3dbe3aaec8b5fd52ee26f663d73c735ee766d10c245",
           "change": "Batch 6: roster builder, season review, storylines, sandbox, Workshop import"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "d559bdc774afda254eb3a17a8ad779b3fef41bcf3b0aec2686f50458ee4367b9",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -2912,8 +3017,8 @@
     },
     {
       "path": "components/layout/TopBar.tsx",
-      "sha256": "8a560e190ed0a67d4526ffe7b087754a96e96ebc7cc457c0ead35b2a67b08def",
-      "bytes": 14921,
+      "sha256": "d1c996bf57456fce05cc06247ba3944aadde51e837d334bb19f849c33e7c0147",
+      "bytes": 15057,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -2940,6 +3045,11 @@
           "date": "2026-11-03",
           "previousSha256": "dd4fa7be4de2bb39501b7dd4b567b4aea8ee639b37346eee3478a3017c728d69",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "8a560e190ed0a67d4526ffe7b087754a96e96ebc7cc457c0ead35b2a67b08def",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -3249,8 +3359,8 @@
     },
     {
       "path": "components/match/LiveMatchControlBar.tsx",
-      "sha256": "1ce3a216afb87e72148bb28931dc7789e45befcb4ac650fecd6387cc86086e30",
-      "bytes": 12177,
+      "sha256": "184728356b9306d6c772da857f72e8a2d8aac95739f9ff728d25e2338616b148",
+      "bytes": 12406,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3264,13 +3374,18 @@
           "date": "2026-11-03",
           "previousSha256": "ecfbf8fa162c15b0811e6c7f3afdbdea553b5864fc74c03c31a978870eb42595",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "1ce3a216afb87e72148bb28931dc7789e45befcb4ac650fecd6387cc86086e30",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
     {
       "path": "components/match/LiveMatchScoreboard.tsx",
-      "sha256": "22d74cd1580fb8b3faed1be8eec35992b639753f35a0b9a6df138c9f99d13e30",
-      "bytes": 17050,
+      "sha256": "510f81dbf9195b14140c5d15995bcb0ee60058d48c245c9e420a85d48fdce71d",
+      "bytes": 17637,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3284,6 +3399,11 @@
           "date": "2026-11-03",
           "previousSha256": "1653d2360390fc85199d9acc23847ccd37665ccc847dbee855365d813a5cfbe5",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "22d74cd1580fb8b3faed1be8eec35992b639753f35a0b9a6df138c9f99d13e30",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -3322,8 +3442,8 @@
     },
     {
       "path": "components/match/TacticalLoadoutEditor.tsx",
-      "sha256": "2877ace53493b814486f833969bcf03a04c1b8bc017caa132ac1bcf50d602119",
-      "bytes": 38497,
+      "sha256": "b30e2b71f7510b99c7c19191187fd30cfa20ea1e6a0545d0c7a00e6340214b0a",
+      "bytes": 38839,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3350,13 +3470,18 @@
           "date": "2026-11-03",
           "previousSha256": "46158b16ea29f2ab5ce3b2c6e90f6e82318581b129e8c839d9dfc2e0a9ae3278",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "2877ace53493b814486f833969bcf03a04c1b8bc017caa132ac1bcf50d602119",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
     {
       "path": "components/onboarding/RosterBuilderModal.tsx",
-      "sha256": "44a8bc8c6ba826af9cc9e1f08c986c8880f1c9f5e6647ef621c88b62f0af10fe",
-      "bytes": 25456,
+      "sha256": "216baf9c94c7a5198bcf8e26ec8d7413e429f409f8a2414852557d2086867718",
+      "bytes": 25535,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3375,6 +3500,11 @@
           "date": "2026-11-03",
           "previousSha256": "38af2403a0e6e623ee3a4436fb42c7d110618e5e106cab3bc3b445a10b9428ce",
           "change": "Batch 6: roster builder, season review, storylines, sandbox, Workshop import"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "44a8bc8c6ba826af9cc9e1f08c986c8880f1c9f5e6647ef621c88b62f0af10fe",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -3420,8 +3550,8 @@
     },
     {
       "path": "components/player/RecruitmentProfile.tsx",
-      "sha256": "149008b8b0eae8bdc5d101dcf81b1202192111579c1d344a2d2f356cac70f2cc",
-      "bytes": 14040,
+      "sha256": "2a05faa2315b8d4fa1228539a7a1faad3f8b89f947990e76d79376c9eb21299c",
+      "bytes": 14091,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3440,6 +3570,11 @@
           "date": "2026-11-04",
           "previousSha256": "e5538c5b63563356bbd31b612efd40c4609cfad68194f6461b827b73977a487b",
           "change": "Audit fixes: squad, players, training and staff"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "149008b8b0eae8bdc5d101dcf81b1202192111579c1d344a2d2f356cac70f2cc",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -3729,8 +3864,8 @@
     },
     {
       "path": "components/schedule/TournamentDetailsModal.tsx",
-      "sha256": "e4e3243c65cc718dd6ce9cb8e94426c8dcdc0e7406695d5544b8df71dc5fa9a3",
-      "bytes": 12690,
+      "sha256": "2d18b75aba6776478c7cec3347dce8dbc84fd297b44803be6d3d19f06db26113",
+      "bytes": 12970,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -3744,6 +3879,11 @@
           "date": "2026-11-03",
           "previousSha256": "079d222de966c48a38f021483802b5f80ac29e9aa42d6c8a46196c67c24acffa",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "e4e3243c65cc718dd6ce9cb8e94426c8dcdc0e7406695d5544b8df71dc5fa9a3",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -4519,8 +4659,8 @@
     },
     {
       "path": "components/ui/TeamLogoDisplay.tsx",
-      "sha256": "001a9fd503580d19c55a097d2ecf60154b53b527ae7143b99d654eeea7014c8b",
-      "bytes": 3044,
+      "sha256": "4e68de5bf3714153b8fd772a797199f4fb8bf75688452272a39528f56a103ade",
+      "bytes": 3110,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -4547,6 +4687,11 @@
           "date": "2026-11-03",
           "previousSha256": "f4a1fec1e7a16a9fc509952a86186b043f6e2cf2f3f003f4217bcdfd8b0ad658",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "001a9fd503580d19c55a097d2ecf60154b53b527ae7143b99d654eeea7014c8b",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -6744,8 +6889,8 @@
     },
     {
       "path": "data/snapshot-loader.ts",
-      "sha256": "c6b7b6f74b82df3f83e8321d3ac480528ed0b48b6c80bb8069fecdbde9f24607",
-      "bytes": 25535,
+      "sha256": "78b61bed08a11f7ba3000821c809bc47d55dcd8847f7207574ef750402e5f50d",
+      "bytes": 25680,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -6796,6 +6941,11 @@
           "date": "2026-11-04",
           "previousSha256": "e389447c0cf0a20ad0a96e724796bfec40ea5f54d5fa2fbecc0713ff7555bfab",
           "change": "Audit fixes: squad, players, training and staff"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "c6b7b6f74b82df3f83e8321d3ac480528ed0b48b6c80bb8069fecdbde9f24607",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -6866,8 +7016,8 @@
     },
     {
       "path": "data/tournaments.json",
-      "sha256": "7be42157dd8212af528eb0097371730edac7b7891e62f2646e7d5632d58a5e1c",
-      "bytes": 30232,
+      "sha256": "238caf543af988972a0fbb2f40fb6e59c149af8a727ea1d1674df9c6cd4ef0c8",
+      "bytes": 30088,
       "kind": "database",
       "source": "Project implementation, sanitize-snapshot.ts, refresh-identities.py, portrait migration and identity catalog",
       "evidence": "docs/launch-readiness/evidence/phase5-7-owner-release-statement.json",
@@ -6890,7 +7040,14 @@
         "releaseDisposition": "include",
         "basis": "project implementation and game-data review",
         "reviewBasis": "project implementation and game-data review"
-      }
+      },
+      "reviewHistory": [
+        {
+          "date": "2026-11-04",
+          "previousSha256": "7be42157dd8212af528eb0097371730edac7b7891e62f2646e7d5632d58a5e1c",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
+        }
+      ]
     },
     {
       "path": "engine/academy-constants.ts",
@@ -7099,8 +7256,8 @@
     },
     {
       "path": "engine/ai/transfer-market.ts",
-      "sha256": "35fd8ece740df8238d3bf82078580c0467e40e83731b301009bba480162b8824",
-      "bytes": 23692,
+      "sha256": "9b7866fdc74863ed7b81af94302b4c4056bd56e6fb991c626fbbceb74a5c3800",
+      "bytes": 24627,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7127,13 +7284,18 @@
           "date": "2026-11-03",
           "previousSha256": "d601ba6783fa9477acbfb36502c16755f57a9167b167a850017665854a8b16ad",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "35fd8ece740df8238d3bf82078580c0467e40e83731b301009bba480162b8824",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
     {
       "path": "engine/atomic-week-processor.ts",
-      "sha256": "98c30578ca7575cc856ff795ce7c211d4cecbb386a7ecc3124a1a66d3518d488",
-      "bytes": 87185,
+      "sha256": "3f9840f3b18a523751210ead60bf1d5b4684cc165a72126f6b1ba2edd634d348",
+      "bytes": 68542,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7160,13 +7322,18 @@
           "date": "2026-11-03",
           "previousSha256": "9182288d246cac2a2aac81046a248741575ad228812d5871b99f8d127ecf7665",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "98c30578ca7575cc856ff795ce7c211d4cecbb386a7ecc3124a1a66d3518d488",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
     {
       "path": "engine/board-expectations.ts",
-      "sha256": "e57b1ec05f21ed45ba581d26cb6d5eeb7641255802bf514caf735f1f773bf147",
-      "bytes": 37838,
+      "sha256": "d39426093da284b6c76465e13e5bf5fb327bc50f7a046c0e43ca4d17e7a0d53c",
+      "bytes": 38327,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7193,6 +7360,11 @@
           "date": "2026-11-03",
           "previousSha256": "21f1b2ed2f733ce4890fc2d8c5e894eaec6a84a996ad8ec81043c2dd06528c11",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "e57b1ec05f21ed45ba581d26cb6d5eeb7641255802bf514caf735f1f773bf147",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -7411,8 +7583,8 @@
     },
     {
       "path": "engine/economy-engine.ts",
-      "sha256": "d4452c20b9fde08c6524eceedf11b2e8951ebb964a326c2efa314afb902ddc50",
-      "bytes": 11539,
+      "sha256": "4ca6e9470d4117c1f805a3c307a72fe4a2938ee9033b45ab71d7cfeea76ea7fd",
+      "bytes": 12021,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7439,13 +7611,18 @@
           "date": "2026-11-03",
           "previousSha256": "415568fea8e40e59faf1050c12135356b1b04e56540e622398c7653afc96bdd4",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "d4452c20b9fde08c6524eceedf11b2e8951ebb964a326c2efa314afb902ddc50",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
     {
       "path": "engine/economy-manager.ts",
-      "sha256": "173812dfba28dbb975664d60c17a7b1b6b3eba38e9ba8383fb122858d0a88707",
-      "bytes": 19615,
+      "sha256": "d22df5d2bd7df6979dfcb9f5a559bbde200b81ed0e6bd97fa02fcb1bf14e663a",
+      "bytes": 20344,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7472,6 +7649,11 @@
           "date": "2026-11-03",
           "previousSha256": "e2ac17053c1529f45edf916ad429cf922123e5f52d65b9f93da0223a2fca4bf1",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "173812dfba28dbb975664d60c17a7b1b6b3eba38e9ba8383fb122858d0a88707",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -7840,8 +8022,8 @@
     },
     {
       "path": "engine/match-analyzer.ts",
-      "sha256": "35be967fc78afb4da529e40ade54d54dae47aaf8aa830ce14c3a0ba2826ad561",
-      "bytes": 8586,
+      "sha256": "dbbd616d4293cbeab1b334a7dfdb180fe9b37eeb4f7a0424c7fe4ce6bbe66eca",
+      "bytes": 10467,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7855,13 +8037,18 @@
           "date": "2026-11-03",
           "previousSha256": "76499257ba535c35a4f52f84e90ba729ce4e7427c5033c3538cda00a93a97465",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "35be967fc78afb4da529e40ade54d54dae47aaf8aa830ce14c3a0ba2826ad561",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
     {
       "path": "engine/match-engine.ts",
-      "sha256": "3d19d8eef8d51badc7e760702cfb2fc88a6e0efad07dc31e9d7efb0b33f52a41",
-      "bytes": 8944,
+      "sha256": "9f989bf1111049c60f867e6148304b4bbd3940ad9d00694753a2d61fa32d0f47",
+      "bytes": 9257,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7888,6 +8075,11 @@
           "date": "2026-11-03",
           "previousSha256": "97b225318f1a90e93a4d6ca1d89cc4728dfaac417275ea76082b2daee851bc71",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "3d19d8eef8d51badc7e760702cfb2fc88a6e0efad07dc31e9d7efb0b33f52a41",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -8112,8 +8304,8 @@
     },
     {
       "path": "engine/match/match-stats.ts",
-      "sha256": "11b8fa1a7c95f5ebd0166cd8ea52e344740abd5cc1d77b653c571e422f0e4b7a",
-      "bytes": 12117,
+      "sha256": "666dab566b6785837b8a75258bb138c6b941d3da51a1f09e60c7d9974e42fa43",
+      "bytes": 12969,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8127,6 +8319,11 @@
           "date": "2026-11-03",
           "previousSha256": "a2e585127cd595ee0ea7502dac5c5c70f2e0e45c05464489a7a180ba93d89a2f",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "11b8fa1a7c95f5ebd0166cd8ea52e344740abd5cc1d77b653c571e422f0e4b7a",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -8477,8 +8674,8 @@
     },
     {
       "path": "engine/processors/event-processor.ts",
-      "sha256": "1d3771bfe9b864f037cb7faf1fd01e6c94c7e17a8552db43a1279713b7cfdd21",
-      "bytes": 31726,
+      "sha256": "c2e8e2a8595a12201e4be09f32e525b80bf73dda546b2116efae63c66be32383",
+      "bytes": 32181,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8492,6 +8689,11 @@
           "date": "2026-11-03",
           "previousSha256": "37e96ac66fa5d6bbd45878074a9468c41de3037130b70ac59e6849e1423eab95",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "1d3771bfe9b864f037cb7faf1fd01e6c94c7e17a8552db43a1279713b7cfdd21",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -8517,8 +8719,8 @@
     },
     {
       "path": "engine/processors/finance-processor.ts",
-      "sha256": "653888a38d553889c0f77922809c2bd6967735d77aee4c72c76b636578b6af80",
-      "bytes": 22041,
+      "sha256": "964019eb7e65b691b7d424deadeb4e134589c6187fd9105965496807d22764d0",
+      "bytes": 21213,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8545,6 +8747,11 @@
           "date": "2026-11-03",
           "previousSha256": "c3973c2532a48cd2afa61d3fe5283d75e2533e63d1e5ac7f064970dacf7e2d85",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "653888a38d553889c0f77922809c2bd6967735d77aee4c72c76b636578b6af80",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -8583,8 +8790,8 @@
     },
     {
       "path": "engine/processors/match-forfeit.ts",
-      "sha256": "4035432d8baa32be0c8faa978d6b937be0adf593c7eafdf2b6f269b877fedb63",
-      "bytes": 3939,
+      "sha256": "e95daa42fa2eba7ecd482cb33e201a05b72befde16f9086b8541f2893eb6dff3",
+      "bytes": 4674,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8603,6 +8810,11 @@
           "date": "2026-11-04",
           "previousSha256": "afebd8779fcd626ab5013b95fcfb8c86f12b5f3776bad43385ac091c183da69b",
           "change": "Audit fixes: squad, players, training and staff"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "4035432d8baa32be0c8faa978d6b937be0adf593c7eafdf2b6f269b877fedb63",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -8633,8 +8845,8 @@
     },
     {
       "path": "engine/processors/match-sponsor-goals.ts",
-      "sha256": "e59dfea5b1d6c47ea0bece097624f1951f75aeddd87639153b61d346e6f77b20",
-      "bytes": 2373,
+      "sha256": "fb6b207acb5db8ba5a535edf141ebbc064234711a0d4c62c73c569dc6bfd2f99",
+      "bytes": 2670,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8648,6 +8860,11 @@
           "date": "2026-11-03",
           "previousSha256": "be0cdfc75c6e9b10eb6409cd9fa17ecc737d7c954ca358e798258c3ca9a982cd",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "e59dfea5b1d6c47ea0bece097624f1951f75aeddd87639153b61d346e6f77b20",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -8706,8 +8923,8 @@
     },
     {
       "path": "engine/processors/narrative-news.ts",
-      "sha256": "cb2767ab90cc1fcaff188963218195f4715e6fc7900cc9cf6b39c46f9fc0bd73",
-      "bytes": 16574,
+      "sha256": "c8ed936b616375b7d68915851acc03fed65834824051173429d1359a0d853a1a",
+      "bytes": 17385,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8721,6 +8938,11 @@
           "date": "2026-11-03",
           "previousSha256": "abfcadbd8f835034be52eb6cb2c50c81f54e5e53bf0b780a77c4a7039978af5b",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "cb2767ab90cc1fcaff188963218195f4715e6fc7900cc9cf6b39c46f9fc0bd73",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -8930,8 +9152,8 @@
     },
     {
       "path": "engine/processors/sponsor-goals-processor.ts",
-      "sha256": "975a9af989077f509df4ee9ed0366d762205d334d30223b246f604af3fe8103f",
-      "bytes": 6110,
+      "sha256": "6a3261b6edf16ee21305eba0ecb3028c49692793f87421fd209eae69be00a79c",
+      "bytes": 6467,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8945,13 +9167,18 @@
           "date": "2026-11-03",
           "previousSha256": "6a4708af0b5d326557cc14822937b55b70ce9f7a6e51b3e417fc5530242c0e11",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "975a9af989077f509df4ee9ed0366d762205d334d30223b246f604af3fe8103f",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
     {
       "path": "engine/processors/standings-processor.ts",
-      "sha256": "1b71beb6d34f27389e4db42ff05e6d4662adedbe084414022e248c3e51ae87ce",
-      "bytes": 23246,
+      "sha256": "1c302459e9d35550374fcb6bf5ed921e92f5557a8fb47f27e9ba1069f803c2c4",
+      "bytes": 23419,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8983,6 +9210,11 @@
           "date": "2026-11-03",
           "previousSha256": "9ad509132dca5139a6805b55bca65207e0c1981719a37a77c5cdb5737aae29b8",
           "change": "weekly report translations"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "1b71beb6d34f27389e4db42ff05e6d4662adedbe084414022e248c3e51ae87ce",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -9165,8 +9397,8 @@
     },
     {
       "path": "engine/recruitment.ts",
-      "sha256": "a4b993582b180a544a9eefcab8a482608c43a45edb03d0c597c2ba41f21edaf5",
-      "bytes": 6882,
+      "sha256": "331e36a5e31eb88a562454c4f2b0b581be4898d93c4d2bc41240df37fc1e995d",
+      "bytes": 7623,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -9180,6 +9412,11 @@
           "date": "2026-11-03",
           "previousSha256": "fa94d2f5ee61fe6a95a7dd351585c66a61bf17622bdb21685a123c1db09e4a95",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "a4b993582b180a544a9eefcab8a482608c43a45edb03d0c597c2ba41f21edaf5",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -9376,8 +9613,8 @@
     },
     {
       "path": "engine/save-types.ts",
-      "sha256": "4151e4175b364d9fcce44a4f5ff227b695392c03048c79be97420065155f1f9f",
-      "bytes": 55563,
+      "sha256": "2067cbe9e83300a0eeae1f45451be6f42cb7efbc4dcdf0606494e23227e3771e",
+      "bytes": 55794,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -9409,6 +9646,11 @@
           "date": "2026-11-03",
           "previousSha256": "e4f64cb64b9a0a505fb86d4adc545ffd2eb7061f815d188458d978134ee4dbec",
           "change": "storylines"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "4151e4175b364d9fcce44a4f5ff227b695392c03048c79be97420065155f1f9f",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -9434,8 +9676,8 @@
     },
     {
       "path": "engine/scouting-system.ts",
-      "sha256": "3e181d7218f47113ae74f0a89b9cdecaacd4269a4d202fd63d07081ab3ac7b11",
-      "bytes": 8194,
+      "sha256": "a0c8a5f0acadf1985f22d4dbf67cc4e8e3ea8fb78b70e061c5c74437a7606389",
+      "bytes": 9109,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -9462,6 +9704,11 @@
           "date": "2026-11-03",
           "previousSha256": "40e1e072e9d430f09c6d2340f17f5aad98374437b3f8d533d38df52dc2eca7d3",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "3e181d7218f47113ae74f0a89b9cdecaacd4269a4d202fd63d07081ab3ac7b11",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -9978,8 +10225,8 @@
     },
     {
       "path": "engine/team-creator.ts",
-      "sha256": "581ac3661ac299c2ca5ce8c6ba59ecb797f3367915ff4530fe162012f22316cf",
-      "bytes": 5861,
+      "sha256": "156d79077982ac270d2aa17f84f7cbad745a25009bd48187725ce83ce784a667",
+      "bytes": 7585,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -9993,6 +10240,11 @@
           "date": "2026-11-03",
           "previousSha256": "b2affca8816636a3fe2775e3fc4522d8c257099889bc347fea2933b8378c78a4",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "581ac3661ac299c2ca5ce8c6ba59ecb797f3367915ff4530fe162012f22316cf",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -10018,8 +10270,8 @@
     },
     {
       "path": "engine/tournament-manager.ts",
-      "sha256": "c4c0a31ec4df589c5a24e440897a337c8ee15f5332ba5c7264627c7b080336a0",
-      "bytes": 70682,
+      "sha256": "c3ecdba9912388d1ed44e2f5e8ea2a0e781db56e7f20fd7e379acdef517b38e0",
+      "bytes": 74219,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -10046,6 +10298,11 @@
           "date": "2026-11-03",
           "previousSha256": "d3fca4540fd5f29721570a2d3942b9539ac389158e98515a7bd73c6f7cb92feb",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "c4c0a31ec4df589c5a24e440897a337c8ee15f5332ba5c7264627c7b080336a0",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -10084,8 +10341,8 @@
     },
     {
       "path": "engine/tournament-stats.ts",
-      "sha256": "8b1e8fb78995bca75f428f72678dd27e2425c585eba675ab0b8a64466d5b9bec",
-      "bytes": 10959,
+      "sha256": "6efb54eb51ac1d111e6c5e484763c9daadfc9277ca7d2bc4c001a5d54e20bcd3",
+      "bytes": 10968,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -10099,6 +10356,11 @@
           "date": "2026-11-03",
           "previousSha256": "e0696591de45e086ad6626069b0e41571b5567944a49a19a914f3ec73f2d6bd2",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "8b1e8fb78995bca75f428f72678dd27e2425c585eba675ab0b8a64466d5b9bec",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -10230,8 +10492,8 @@
     },
     {
       "path": "engine/training-manager.ts",
-      "sha256": "0ad5f293773089c5f6ab82ba21912ba5846fce1bf96bfb8f1eccbf1cfdc2dbdb",
-      "bytes": 12893,
+      "sha256": "6a073750811500a3b11e003441618b9220a625864b5058b5647b8ec52d596f79",
+      "bytes": 13302,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -10263,6 +10525,11 @@
           "date": "2026-11-04",
           "previousSha256": "4d8a98d231232db53e66fd2986fe99582a86d5269940aebdea20dcf4b3ab3591",
           "change": "Audit fixes: squad, players, training and staff"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "0ad5f293773089c5f6ab82ba21912ba5846fce1bf96bfb8f1eccbf1cfdc2dbdb",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -10484,8 +10751,8 @@
     },
     {
       "path": "hooks/useLiveMatch.ts",
-      "sha256": "899c5743162cfce27ff4aa90ba5d9f66e2b51005822016cfd292baac9d098e2a",
-      "bytes": 78264,
+      "sha256": "0c0441cf4c6ca5b7c60a9156935fc65abccaf62b889d151d5f56dc58513ca950",
+      "bytes": 79184,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -10512,6 +10779,11 @@
           "date": "2026-11-03",
           "previousSha256": "6c930db1a2867424beeabe3ef1bb55f949f1c526c647a658d753f1fea3a67da6",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "899c5743162cfce27ff4aa90ba5d9f66e2b51005822016cfd292baac9d098e2a",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -10961,8 +11233,8 @@
     },
     {
       "path": "lib/keyboard-shortcuts.ts",
-      "sha256": "e1d7eea4068e164b9230a6720156ad92aee8732c833ebc8fab86fdea04608cc2",
-      "bytes": 3120,
+      "sha256": "fef03a79c5999ba2e18ebd44cd42829ddbb506a345e831f46fc8da8c35d40e37",
+      "bytes": 3214,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -10976,6 +11248,11 @@
           "date": "2026-11-03",
           "previousSha256": "8362cc9307ffcbc084cbb00f0944ef80be1bc6dd6c5f45dd19a3147723afbbe1",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "e1d7eea4068e164b9230a6720156ad92aee8732c833ebc8fab86fdea04608cc2",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -11239,8 +11516,8 @@
     },
     {
       "path": "lib/new-career-draft.ts",
-      "sha256": "0381efee0da15e318de8d41bdaca03b961e5c2aee17e58cdcb7a34c92b55ee56",
-      "bytes": 2193,
+      "sha256": "09d1a112c3b174533b5926994b8ad1812830fc9d3c2365d270d46717c4ba648a",
+      "bytes": 2865,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -11254,6 +11531,11 @@
           "date": "2026-11-03",
           "previousSha256": "8d016a536d024396dc2bfa8b72d22a60ca65e322d9e5053a5fd95ffa2953fd9b",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "0381efee0da15e318de8d41bdaca03b961e5c2aee17e58cdcb7a34c92b55ee56",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -11544,8 +11826,8 @@
     },
     {
       "path": "lib/settings-store.ts",
-      "sha256": "57a50da91e1fbaf42cbf7d701a5940ec2dbef5c2d47682edbdec74a53d55ac3c",
-      "bytes": 16839,
+      "sha256": "40e2d4b2b2e003f9c9bf7fc4ff786a1e0a4e9ab115e5703732a03ca6972fd6ed",
+      "bytes": 16938,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -11572,6 +11854,11 @@
           "date": "2026-11-03",
           "previousSha256": "70f34e48b882fa35300e3d953df5d73ac07b18c37ffd2dbfffa512c53fe276e3",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "57a50da91e1fbaf42cbf7d701a5940ec2dbef5c2d47682edbdec74a53d55ac3c",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -11749,8 +12036,8 @@
     },
     {
       "path": "lib/utils-extended.ts",
-      "sha256": "f68fea77ed0da5c4e861a2c18a4fbdeac3e502a5929f00d7faf235fa39397c4c",
-      "bytes": 7389,
+      "sha256": "ef92c03a2efd0e2edd25ad4a6009536aec1375402bac8eeac894c691c7fbf1bb",
+      "bytes": 8204,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -11777,6 +12064,11 @@
           "date": "2026-11-03",
           "previousSha256": "0839afe6f68e9c0eb84a71c24d57b1709b1163db77ddd3395a31ff91bf587d20",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "f68fea77ed0da5c4e861a2c18a4fbdeac3e502a5929f00d7faf235fa39397c4c",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -91574,8 +91866,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "125c8f2f5e7b9b79ccbd15a38a2b67dfbc401ea8b2c243874033be19812cc9f9",
-      "bytes": 386976,
+      "sha256": "cf643e3bbfb9d5240994fa27536b2ffb123e36a1adf325b5763ece4e51b46ea3",
+      "bytes": 389629,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91714,24 +92006,19 @@
         {
           "date": "2026-11-04",
           "previousSha256": "a73ca3f10f67cf08a2780819f293aca829987ace5c9b5a4854724e139b52d051",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "e9ab3a28a60601e43d0e9e2628b97b6566d636d66b9aff362af7d42745b746a5",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "b6ea414fd3774523d5b886e309d9fec422f2865d82ef64624227fdc461b890f4",
-          "change": "Interface languages, action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "dd96fd237d5286325c9625504a7d9cfba56e7037bd02e3f474fc5e1cc4f0cad8",
+          "change": "Interface languages, match-day dates and merged audit text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "3992c5d5477d70cddfe5fdafade2586aa1265582bfc51b0ccad7462fc01702f3",
-      "bytes": 406478,
+      "sha256": "83f3d0daf45e063e1d8aa843e4bbeb682b2740162d06b4d77385cd11eb40ed42",
+      "bytes": 409140,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91865,24 +92152,19 @@
         {
           "date": "2026-11-04",
           "previousSha256": "7026b1c0546383d3a500e2ebef50099563baa6d798ec648fdc24c294d1bf508d",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "f99fa2d0adcd1a61209d97d287d2f1799dd43b4649d81dd4123bd0e189c17a83",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "9d80f507545ea1d16067b2b1f391ac71879ccb0d1c66c87c98e95bb83b0a34f2",
-          "change": "Interface languages, action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "326122d54c1f79bbe575511ae42346716ddc8b2b2884c1492708022926e9fb2f",
+          "change": "Interface languages, match-day dates and merged audit text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "dba0c7dd674aed03b250378b115d8145ac6cbc4c4b5e92f5f9a93249c8994c77",
-      "bytes": 414435,
+      "sha256": "5307481409d7b3ae808e79a843a61ea08155db5821be4d899c4eb73a62ad853c",
+      "bytes": 417080,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92016,24 +92298,19 @@
         {
           "date": "2026-11-04",
           "previousSha256": "7e37240d9f168a9b8ccd88e3f6a131f71f35a8ac8d079a1f2be3f78bd4bf4eae",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "71f2e4f27bbb06b8ba69881ca3e591824ed059191e324efc667eddf40dcb78b0",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "d0901d0f8c045224acdd863523b569dcd522fb6bcb0fe4dbb0630a1291d2eaf6",
-          "change": "Interface languages, action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "f8b6177dc7cefb920e0cd72b912e1c365832d8a3e9d74931a2de188470d3c908",
+          "change": "Interface languages, match-day dates and merged audit text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "9250f8d2a4437c75c2d5530fada861c09a4339c62887864ad71c436f7b38f81e",
-      "bytes": 412316,
+      "sha256": "d5955c0b2dafce1721818fbe343823d4a2821eb5cc926f67db864274ab0eed8a",
+      "bytes": 414954,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92162,24 +92439,19 @@
         {
           "date": "2026-11-04",
           "previousSha256": "520ac346cfab26bc750b504f0186876ad842d214844ac89949f0ed5c52bc034f",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "fdaf8dbe76f3f5bb883dae426665dbde9cc9f098ac3c1ce106e11bb35e63d64a",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "5772b1afceec736b039132aed258042fe92e5602b0874a98e354ef7571a480ba",
-          "change": "Interface languages, action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "37adf3ca8e288611a11fc40ccdde04989dd3d1c5b15fd934a8004b56d4ffea30",
+          "change": "Interface languages, match-day dates and merged audit text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "20fffe1ce978a776b55545c6e14a80a9c74603ffbeab5e37d2977d403b8a7110",
-      "bytes": 400829,
+      "sha256": "8a9a1b2359f9c94890e3f2952bb75a4d12b0d9fcf5e19a82a87b4e1467d9c9ac",
+      "bytes": 403336,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92308,24 +92580,19 @@
         {
           "date": "2026-11-04",
           "previousSha256": "e8c5d81efcab810389e84d33a626aff761ec6518eb3daaae5eda5a6b824ed0b9",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "de68365decbb9d15b98bcf3cc18928a5476d6114e5029a02c0f1b7dfe59b4d00",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "115ec9c314b721e89dc78880558cb99d4855b52380ee6b8ee1876f7daec52198",
-          "change": "Interface languages, action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "8ae0c9a582a821b2db33cd17a6d2083ecb3df575d0b8ecebf7b33dc04837bbca",
+          "change": "Interface languages, match-day dates and merged audit text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "9fde94c4065d93f97a846cb57029add2569041d8469cd93d24c56ac871b0a1c5",
-      "bytes": 562308,
+      "sha256": "81735c0a368f2cf63b3cd70bf035307dc3f53abd619ecae093161a8f9add03f5",
+      "bytes": 565990,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92454,17 +92721,12 @@
         {
           "date": "2026-11-04",
           "previousSha256": "182b833bdff1897faa08ca35fd0ab1a5d7b928e54686046b8d9343982575efe4",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         },
         {
           "date": "2026-11-04",
-          "previousSha256": "3a21bc36b8837795e9b83ed1d965240ce9b6bb6cc131b3f0f45b659eb1e221fc",
-          "change": "Interface languages, board, career, events, notices, staff report and action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
-        },
-        {
-          "date": "2026-11-04",
-          "previousSha256": "f945d21c5959e996f83d467a607ab9ddca6ccf28125cb6cdf44f0da2968aa513",
-          "change": "Interface languages, action messages: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+          "previousSha256": "82f4d096bb3392fe9378bddd0379eaccbbb93f8c3e9850e08cbb2ccb3690a7c6",
+          "change": "Interface languages, match-day dates and merged audit text: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
@@ -95030,8 +95292,8 @@
     },
     {
       "path": "store/game-store.ts",
-      "sha256": "49b12778ef6efdde7f53da7790bcfe95928ff4bb9d44a40f16eb7e9b65e337a9",
-      "bytes": 125015,
+      "sha256": "4ed68e7dbdda7f8d00918dd3bdf2d76d321a08e2c4ccc9c6859ad0e1e531d4a0",
+      "bytes": 127451,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95063,6 +95325,11 @@
           "date": "2026-11-04",
           "previousSha256": "5213f5a681de49551129327c040ec358bdcfed804a45e848a558c04e83adae96",
           "change": "Audit fixes: squad, players, training and staff"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "49b12778ef6efdde7f53da7790bcfe95928ff4bb9d44a40f16eb7e9b65e337a9",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -95180,8 +95447,8 @@
     },
     {
       "path": "store/slices/events-slice.ts",
-      "sha256": "bfc565329a5a828185b0e5306b7a5ffd0c16c1dfcdc562aae6c3887ecd81fb50",
-      "bytes": 15482,
+      "sha256": "1c045095ee247c6a72458e43f764a0ed2971583587327c02df215299bd79c6cc",
+      "bytes": 16490,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95213,13 +95480,18 @@
           "date": "2026-11-03",
           "previousSha256": "f89921287a18835183bcc72ac217b9ecbe9a06d5483d66b01464c0bbef454719",
           "change": "inbox translations"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "bfc565329a5a828185b0e5306b7a5ffd0c16c1dfcdc562aae6c3887ecd81fb50",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
     {
       "path": "store/slices/match-operations-slice.ts",
-      "sha256": "10b9dae7f574642914cdc41631ccb18ebede2fe985ecf3eb9dbe16bd573af33e",
-      "bytes": 9097,
+      "sha256": "549e51343183806e3ecd9262871d9e563398ad0a177515831566ef03a15857ac",
+      "bytes": 10032,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95246,6 +95518,11 @@
           "date": "2026-11-03",
           "previousSha256": "f192c7b38741241e216874b300346d4751d45efb979e8d0ba457ec8545801967",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "10b9dae7f574642914cdc41631ccb18ebede2fe985ecf3eb9dbe16bd573af33e",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -95271,8 +95548,8 @@
     },
     {
       "path": "store/slices/match-simulation-slice.ts",
-      "sha256": "d897e4f3baa90213f00a34fd442c23b8bc276c741fb488fd1dc7a22e492f20d3",
-      "bytes": 42278,
+      "sha256": "b108a156513e1ba9dca7ee0f9d7bb7b7af292a060d78b9f1dd053f3505fca448",
+      "bytes": 42313,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95304,6 +95581,11 @@
           "date": "2026-11-03",
           "previousSha256": "75989eaf957f75751100eef91f326b55dd1c1f52c793ef1923a8ab767610b2c6",
           "change": "Help and game guide translated"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "d897e4f3baa90213f00a34fd442c23b8bc276c741fb488fd1dc7a22e492f20d3",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -95395,8 +95677,8 @@
     },
     {
       "path": "store/slices/settings-slice.ts",
-      "sha256": "2cf87586c68dc547bed41e9cc2f4aa9598203340bb6d63ce89224170162b3ca5",
-      "bytes": 4532,
+      "sha256": "8c71e1222e6a2d5e2da0e6bdcf201d8359b9ee975f814dca3316185410c4089f",
+      "bytes": 4664,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95423,6 +95705,11 @@
           "date": "2026-11-03",
           "previousSha256": "872014b0df35c87af854d36e7d58646c308add37ad3cfc70618d614bd3f5cc2b",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "2cf87586c68dc547bed41e9cc2f4aa9598203340bb6d63ce89224170162b3ca5",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -95722,8 +96009,8 @@
     },
     {
       "path": "store/types.ts",
-      "sha256": "bb915b2159c6dddc2baeab1d21227374275e6a2afe76a1c595583e0f6289de26",
-      "bytes": 17446,
+      "sha256": "77d7f1f724707c650a82763a2824c008a67d01e0d0f469c1f92993fa1d704d03",
+      "bytes": 17741,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95750,6 +96037,11 @@
           "date": "2026-11-03",
           "previousSha256": "4e0778b199de3f57c656cd28e852b25536fa0e35faea841ba67fd6d690804d04",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "bb915b2159c6dddc2baeab1d21227374275e6a2afe76a1c595583e0f6289de26",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },
@@ -96106,8 +96398,8 @@
     },
     {
       "path": "types/team-creator.ts",
-      "sha256": "36214701e59127f9ce0ab4c1a9bbc09e73471ecb019e844af43079038f2392d3",
-      "bytes": 3908,
+      "sha256": "20c1aecfdcc7ae67b8bff6a1a8c75a679f8c280bd5c947a9b07e1fb5b8c1723d",
+      "bytes": 4042,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -96121,6 +96413,11 @@
           "date": "2026-11-03",
           "previousSha256": "b975ae3646da8f5814dafc8a889c37d46a692381f129b74a6a8ab7133b160fbc",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-04",
+          "previousSha256": "36214701e59127f9ce0ab4c1a9bbc09e73471ecb019e844af43079038f2392d3",
+          "change": "Audit fixes: match engine, start, competitions, home, match day and market"
         }
       ]
     },

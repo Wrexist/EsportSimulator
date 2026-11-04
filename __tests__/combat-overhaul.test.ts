@@ -231,11 +231,32 @@ describe('feed clock', () => {
         const labels = feedClockLabels([...oldest].reverse())
         const at = (i: number) => labels.get(oldest[i])
         expect(at(1)).toEqual({ text: '1:30', bomb: false })
-        expect(at(2)).toEqual({ text: '0:40', bomb: false })
+        // MATCHDAY-04: the plant row reads the round clock at the plant (not 0:40)...
+        expect(at(2)).toEqual({ text: '0:55', bomb: false })
         expect(at(3)).toEqual({ text: '0:30', bomb: true })
-        // The defuse stops the bomb timer: the round clock (stopped at the plant) shows, like the scorebug.
-        expect(at(4)).toEqual({ text: '0:55', bomb: false })
+        // ...and the defuse row the bomb timer where it stopped (not the frozen round clock).
+        expect(at(4)).toEqual({ text: '0:22', bomb: true })
         // A new round has no bomb timer.
         expect(at(7)).toEqual({ text: '1:45', bomb: false })
+    })
+
+    it('MATCHDAY-04: an explosion reads 0:00 and a clutch line after a defuse keeps the bomb timer', () => {
+        const oldest: LogEntry[] = [
+            { type: 'SYSTEM', time: 0, message: 'Freezetime over, round 5 begins.' },
+            { type: 'PLANT', time: 85, message: 'planted' },
+            { type: 'KILL', time: 100, message: 'k' },
+            { type: 'EXPLODE', time: 125, message: 'exploded' },
+            { type: 'SYSTEM', time: 0, message: 'Freezetime over, round 6 begins.' },
+            { type: 'PLANT', time: 50, message: 'planted' },
+            { type: 'DEFUSE', time: 80, message: 'defused' },
+            { type: 'SYSTEM', time: 80, message: 'wins a 1v3 clutch!' },
+        ]
+        const labels = feedClockLabels([...oldest].reverse())
+        const at = (i: number) => labels.get(oldest[i])
+        expect(at(1)).toEqual({ text: '0:30', bomb: false })
+        expect(at(2)).toEqual({ text: '0:25', bomb: true })
+        expect(at(3)).toEqual({ text: '0:00', bomb: true })
+        expect(at(6)).toEqual({ text: '0:10', bomb: true })
+        expect(at(7)).toEqual({ text: '0:10', bomb: true })
     })
 })

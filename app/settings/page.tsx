@@ -165,16 +165,6 @@ export default function SettingsPage() {
     window.location.href = "/main-menu"
   }
 
-  const handleReplayTutorial = () => {
-    // Replay guidance without resetting the career or changing new-game preferences.
-    if (!careerLoaded) return
-    useGameStore.getState().triggerTutorial()
-    toast({
-      title: "Guide restarted",
-      description: "The first-session checklist is back on Home. Your squad, cash and results are unchanged.",
-    })
-  }
-
   // One pass: visible achievements split into unlocked / locked.
   const { unlockedAchievements, lockedAchievements } = useMemo(() => {
     const visible = showHidden ? achievements : achievements.filter(a => !a.hidden || a.unlocked)
@@ -369,14 +359,6 @@ export default function SettingsPage() {
                 <Button asChild variant="outline" size="sm"><Link href="/load-game">Open</Link></Button>
               </SettingRow>
             </div>
-          </Panel>
-          <Panel title="First-session guide" padded={false}>
-            <SettingRow
-              label="Replay the guide"
-              hint={careerLoaded ? "Restarts the five-step checklist for this career. Nothing in the career is reset." : "Load a career to replay its first-session guide."}
-            >
-              <Button variant="outline" size="sm" onClick={handleReplayTutorial} disabled={!careerLoaded}>Replay</Button>
-            </SettingRow>
           </Panel>
           <Panel title="Map Studio" padded={false}>
             <SettingRow label="Map editor" hint="Developer tool for radar and spatial data.">

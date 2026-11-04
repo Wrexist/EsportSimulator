@@ -39,6 +39,18 @@ export function buyerReputationFactor(buyer?: Pick<TeamSaveData, "reputation">):
 }
 
 /**
+ * The managed club's negotiation (components/transfer/useNegotiation): the
+ * weekly wage the player's hidden minimum centres on, before the contract
+ * length and the clauses move it. AI clubs sign at recruitmentSalary.
+ */
+export function negotiationBaseWage(player: PlayerSaveData, currentWeek: number, buyer?: Pick<TeamSaveData, "reputation"> & Partial<Pick<TeamSaveData, "leagueTier">>): number {
+    const evaluation = evaluatePlayer(player, undefined, undefined, currentWeek)
+    let base = evaluation.transferValue / 150
+    if (player.age > 28) base *= 1.1
+    return base * freeAgentWageFactor(player, currentWeek) * buyerReputationFactor(buyer) * archetypeWageFactor(getArchetype(player), evaluation.overallRating, buyer)
+}
+
+/**
  * Opening wage expectation, shared by human and AI negotiations. Decays the
  * longer a free agent stays unsigned, scales with the buyer's reputation
  * when the buyer is known, and with his archetype (Phase 5.2: Loyal asks

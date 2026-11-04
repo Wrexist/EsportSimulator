@@ -420,7 +420,7 @@ export function RosterBuilderModal({ isOpen, onComplete }: RosterBuilderModalPro
                                             </td>
                                             <td className="px-3"><RoleTag role={player.role} /></td>
                                             <td className="px-3 text-center"><RatingChip value={player.ovr} size="sm" /></td>
-                                            <td className="px-3 text-center text-sm tabular-nums text-ink-2">{player.potential || 60}</td>
+                                            <td className="px-3 text-center text-sm tabular-nums text-ink-2">{Math.round(player.skill || 50)} → {Math.round(Math.max(player.potential || 60, player.skill || 50))}</td>
                                             <td className="px-3 text-right text-sm tabular-nums text-ink-1">
                                                 {formatCurrency(contract.salaryPerWeek, "$", false)}
                                                 {contract.transferFee > 0 && <span className="block text-xs text-ink-3">{t("rb.buyout", { amount: formatCurrency(contract.transferFee) })}</span>}

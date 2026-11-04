@@ -6,7 +6,8 @@ import {
     BracketMatchSaveData,
     TournamentGroupSaveData,
     CompletedMatchSaveData,
-    PlayerSaveData
+    PlayerSaveData,
+    TeamSaveData
 } from "./save-types"
 import { LeagueEngine } from "./league-engine"
 import { STAFF_EFFECTS } from "@/types"
@@ -72,6 +73,27 @@ function roundDifferential(result: { maps?: Array<{ homeScore?: number; awayScor
 function getCoachTacticalBonus(save: GameSave, team: { staffIds: string[] }): number {
     const coach = save.staff?.find(s => team.staffIds?.includes(s.id) && s.role === "coach")
     return coach ? STAFF_EFFECTS.COACH.tacticBonus(coach.level) : 0
+}
+
+/**
+ * A final place. Teams knocked out in the same round get consecutive
+ * positions (prize tables are per position) and share a block
+ * `tiedFrom`..`tiedThrough` (QF losers 5-8, Round-of-16 losers 9-16).
+ */
+export type Placement = { teamId: string, position: number, tiedFrom?: number, tiedThrough?: number }
+
+/**
+ * Circuit points for a place. Teams in one shared block get the same points:
+ * the block's average, so the total handed out stays the same. Without this
+ * the bracket slot decided who got 600 and who 400 for the same
+ * quarter-final exit.
+ */
+export function circuitPointsForPlacement(table: Record<number, number>, placement: Placement): number {
+    const first = placement.tiedFrom ?? placement.position
+    const last = Math.max(first, placement.tiedThrough ?? placement.position)
+    let total = 0
+    for (let pos = first; pos <= last; pos++) total += table[pos] ?? 0
+    return Math.round(total / (last - first + 1))
 }
 
 export class TournamentManager {
@@ -468,6 +490,24 @@ export class TournamentManager {
                 // Skip if missing teams
                 if (!bracketMatch.homeTeamId || !bracketMatch.awayTeamId) continue
 
+                // Already decided elsewhere (e.g. a forfeit recorded by the
+                // week processor): never play it a second time. Close the row
+                // with the recorded winner so the bracket matches the results
+                // list and the winner advances.
+                const recorded = idx.completedMatchIndex.get(bracketMatch.id) ?? save.completedMatches.find(m => m.id === bracketMatch.id)
+                if (recorded) {
+                    const recordedWinner = recorded.result?.winnerId
+                        || (recorded.result && recorded.result.homeScore !== recorded.result.awayScore
+                            ? (recorded.result.homeScore > recorded.result.awayScore ? recorded.homeTeamId : recorded.awayTeamId)
+                            : undefined)
+                    const recordedLoser = recordedWinner === bracketMatch.homeTeamId ? bracketMatch.awayTeamId : bracketMatch.homeTeamId
+                    if (recordedWinner && (recordedWinner === bracketMatch.homeTeamId || recordedWinner === bracketMatch.awayTeamId)) {
+                        this.processMatchResult(save, tournament.id, bracketMatch.id, recordedWinner, recordedLoser)
+                        madeProgress = madeProgress || bracketMatch.isCompleted
+                    }
+                    continue
+                }
+
                 // Skip player matches
                 if (bracketMatch.homeTeamId === playerTeamId || bracketMatch.awayTeamId === playerTeamId) continue
 
@@ -484,8 +524,15 @@ export class TournamentManager {
                 const awayTeam = idx.teamIndex.get(bracketMatch.awayTeamId!) ?? save.teams.find(t => t.id === bracketMatch.awayTeamId)
                 if (!homeTeam || !awayTeam) continue
 
-                const homePlayers = homeTeam.rosterIds.map(id => idx.playerIndex.get(id) ?? save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => p !== undefined)
-                const awayPlayers = awayTeam.rosterIds.map(id => idx.playerIndex.get(id) ?? save.players.find(p => p.id === id)).filter((p): p is PlayerSaveData => p !== undefined)
+                // Same lineup rule as the week processor: injured players
+                // don't play. A side without five healthy players is left to
+                // the week processor, which records the forfeit.
+                const healthy = (team: TeamSaveData) => team.rosterIds
+                    .map(id => idx.playerIndex.get(id) ?? save.players.find(p => p.id === id))
+                    .filter((p): p is PlayerSaveData => p !== undefined && !p.injury)
+                    .slice(0, 5)
+                const homePlayers = healthy(homeTeam)
+                const awayPlayers = healthy(awayTeam)
                 if (homePlayers.length < 5 || awayPlayers.length < 5) continue
 
                 // Simulate the match
@@ -566,6 +613,8 @@ export class TournamentManager {
         const concurrentMatches = save.scheduledMatches.filter(m => {
             if (m.tournamentId !== tournamentId || m.week > save.currentWeek) return false
             if (m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId) return false
+            // Already has a result (e.g. a forfeit): never play it twice.
+            if (idx.completedMatchIndex.has(m.id)) return false
 
             // Match by stage name
             if (m.stage && this.normalizeStage(m.stage) === playerStageNormalized) return true
@@ -803,8 +852,13 @@ export class TournamentManager {
      * Process match result and move teams forward in the tournament
      */
     static processMatchResult(save: GameSave, tournamentId: string, matchId: string, winnerId: string, loserId: string): void {
-        const idx = buildSaveIndexes(save)
-        const tournament = idx.tournamentIndex.get(tournamentId) ?? save.tournaments.find(t => t.id === tournamentId)
+        // Only the tournament is needed: a full buildSaveIndexes here walked
+        // every player, contract and completed match once per result. The
+        // last row with the id wins, as it did in the index.
+        let tournament: TournamentSaveData | undefined
+        for (let i = save.tournaments.length - 1; i >= 0 && !tournament; i--) {
+            if (save.tournaments[i].id === tournamentId) tournament = save.tournaments[i]
+        }
         if (!tournament || !tournament.playoffBracket) return
 
         const bracketMap = buildBracketIndex(tournament.playoffBracket)
@@ -861,8 +915,12 @@ export class TournamentManager {
         }
     }
 
-    static calculatePlacements(save: GameSave, tournament: TournamentSaveData): { teamId: string, position: number }[] {
-        const placements: { teamId: string, position: number }[] = []
+    /**
+     * Final places. Teams knocked out in the same round share a block
+     * (`tiedFrom`..`tiedThrough`); see Placement and circuitPointsForPlacement.
+     */
+    static calculatePlacements(save: GameSave, tournament: TournamentSaveData): Placement[] {
+        const placements: Placement[] = []
 
         // Round-robin leagues have no playoff bracket stages (every match is a
         // "League Match"), so final placement is simply the standings order.
@@ -909,11 +967,10 @@ export class TournamentManager {
 
         // 3. Quarter-final losers (5th-8th) — assign unique positions
         const qfs = tournament.playoffBracket.filter(m => m.stage.includes("Quarter-final"))
+        const qfLosers = qfs.filter(m => m.isCompleted && m.loserId).map(m => m.loserId!)
         let qfPosition = 5
-        qfs.forEach(m => {
-            if (m.isCompleted && m.loserId) {
-                placements.push({ teamId: m.loserId, position: qfPosition++ })
-            }
+        qfLosers.forEach(loserId => {
+            placements.push({ teamId: loserId, position: qfPosition++, tiedFrom: 5, tiedThrough: 4 + qfLosers.length })
         })
 
         // 3b. Earlier-round losers for pure single-elim brackets.
@@ -946,7 +1003,9 @@ export class TournamentManager {
                     return d !== 0 ? d : stableTeamIdNumber(a) - stableTeamIdNumber(b)
                 })
                 let pos = size / 2 + 1
-                losers.forEach(teamId => placements.push({ teamId, position: pos++ }))
+                const blockStart = pos
+                const blockEnd = size / 2 + losers.length
+                losers.forEach(teamId => placements.push({ teamId, position: pos++, tiedFrom: blockStart, tiedThrough: blockEnd }))
             }
         }
 
@@ -1065,7 +1124,10 @@ export class TournamentManager {
 
         // ELIMINATION CHECK (Single Elimination)
         // Any loss here = Eliminated (unless it's a 3rd place decider, but even then tournament is over for them)
-        if (loserId) {
+        // A round-robin league ("League Match" fixtures) also lands here, and
+        // a single loss there eliminates no one: the club plays out the
+        // league (HOME-04).
+        if (loserId && tournament.format !== "league") {
             save.tournamentQualifications = QualificationEngine.updateStatus(
                 save.tournamentQualifications,
                 tournament.id,

@@ -620,6 +620,7 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 ),
                 category: "MATCH",
                 teamId: winner.id,
+                matchId: match.id,
                 week: state.currentWeek,
             })
             if (state.newsFeed.length > NEWS_FEED_CAP) state.newsFeed.pop()

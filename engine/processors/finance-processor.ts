@@ -3,7 +3,6 @@ import { EconomyEngine } from "../economy-engine" // You might need to check thi
 import { SeededRNG } from "../rng"
 import { EventType } from "@/types"
 import { plural } from "@/lib/plural"
-import { newsText } from "@/lib/news-ref"
 
 export interface FinanceProcessorResult {
     income: number
@@ -183,7 +182,7 @@ export class FinanceProcessor {
                         week: save.currentWeek,
                         teamId: team.id,
                         type: "INCOME",
-                        category: "OTHER", // Mapping Fanbase to OTHER or create MERCH? Let's use OTHER for now or fix types
+                        category: "MERCH", // MARKET-16: fan revenue (merch, streams, tickets), not "Other"
                         amount: report.income.fanbase,
                         description: "Fanbase revenue",
                         balance: team.budget
@@ -200,7 +199,7 @@ export class FinanceProcessor {
                         week: save.currentWeek,
                         teamId: team.id,
                         type: "INCOME",
-                        category: "OTHER",
+                        category: "LEAGUE",
                         amount: report.income.leagueShare,
                         description: division ? `League central payment (${division.name})` : "League central payment",
                         balance: team.budget
@@ -255,7 +254,7 @@ export class FinanceProcessor {
                         week: save.currentWeek,
                         teamId: team.id,
                         type: "EXPENSE",
-                        category: "FACILITIES",
+                        category: "OPERATIONS",
                         amount: report.expenses.operations,
                         description: "Club operations (travel, admin, content)",
                         balance: team.budget,
@@ -283,28 +282,13 @@ export class FinanceProcessor {
                     entry.balance = runningBalance
                 }
 
-                // Phase 21: News (Finance Summary)
-                if (save.newsFeed) {
-                    const net = report.income.total - report.expenses.total
-                    const isProfit = net >= 0
-                    const newsId = `news_fin_${save.currentWeek}_${team.id}`
-
-                    save.newsFeed.unshift({
-                        id: newsId,
-                        ...newsText(
-                            { key: isProfit ? "nw.profit.t" : "nw.loss.t", params: { team: team.name } },
-                            { key: isProfit ? "nw.profit.c" : "nw.loss.c", params: { team: team.name, amount: `$${Math.abs(net).toLocaleString("en-US")}` } },
-                        ),
-                        category: "FINANCE",
-                        teamId: team.id,
-                        week: save.currentWeek,
-                        engagement: {
-                            likes: rng.int(10, 209) + (isProfit ? 50 : 0),
-                            views: rng.int(500, 2499)
-                        }
-                    })
-                    if (save.newsFeed.length > 50) save.newsFeed.pop()
-                }
+                // The weekly "Positive Earnings / Financial Deficit" news item
+                // was dropped: the week report already shows the money and the
+                // filler made half the feed repeat itself (HOME-10). Its two
+                // engagement draws are kept so the RNG stream (and every
+                // later roll this week) is unchanged.
+                rng.int(10, 209)
+                rng.int(500, 2499)
             }
             team.financeSettlement = { week: save.currentWeek, income: report.income.total, expenses: report.expenses.total }
         })

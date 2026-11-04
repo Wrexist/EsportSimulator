@@ -183,6 +183,12 @@ export interface NewGameOptions {
   /** Career difficulty for the club taken over (lib/balance-tuning.ts CAREER_DIFFICULTY). */
   difficulty?: import("@/lib/balance-tuning").CareerDifficulty
   draftCup?: { world: import("@/engine/save-types").GameSave; setup: DraftCupSetup }
+  /**
+   * The world the club picker previewed (snapshotLoader.createCareerFromSnapshot,
+   * randomised already when randomWorld is set), so the career starts with the
+   * ratings and cash the picker showed (lib/career-start-preview.ts).
+   */
+  world?: import("@/engine/save-types").GameSave
 }
 
 export interface CoreGameActions {

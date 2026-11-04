@@ -66,7 +66,7 @@ export const WEAPONS: Record<string, Weapon> = {
 
   // Shotguns
   NOVA: { id: "nova", name: "Nova", type: WeaponType.SHOTGUN, price: 1050, killReward: 900, power: 35 },
-  XM1014: { id: "xm1014", name: "XM1014", type: WeaponType.SHOTGUN, price: 2000, killReward: 900, power: 50 },
+  XM1014: { id: "xm1014", name: "XM1014", type: WeaponType.SHOTGUN, price: 2000, killReward: 600, power: 50 }, // CS2: $600 (script-v1 killRewardFor agrees)
   MAG7: { id: "mag7", name: "MAG-7", type: WeaponType.SHOTGUN, price: 1300, killReward: 900, power: 45 },
 }
 
@@ -361,11 +361,10 @@ export class SponsorGenerator {
   static generateVariedOffers(team: TeamSaveData, currentWeek: number, rng: SeededRNG, weeklyWageBill?: number): SponsorSaveData[] {
     const reputation = team.reputation || 10
     // SPONSOR_TUNING: one deal's effective income (payout x reputation
-    // factor) stays within a share of the club's wage bill. Omitted wage
-    // bill (legacy callers/tests) means no wage cap.
-    const wageCap = weeklyWageBill === undefined ? Infinity
-      : Math.floor(SPONSOR_TUNING.MAX_SHARE_OF_WAGE_BILL * sponsorWageBase(weeklyWageBill, reputation)
-        / EconomyEngine.sponsorReputationFactor(reputation))
+    // factor) stays within its tier's share of the club's wage bill. Omitted
+    // wage bill (legacy callers/tests) means no wage cap.
+    const capBase = weeklyWageBill === undefined ? Infinity
+      : sponsorWageBase(weeklyWageBill, reputation) / EconomyEngine.sponsorReputationFactor(reputation)
     const teamId = team.id || team.name || "unknown_team"
 
     // Determine offer count and tier distribution based on reputation
@@ -408,6 +407,9 @@ export class SponsorGenerator {
         : reputation > 40 ? SPONSOR_TUNING.BASE_RANGE_REP_40
         : SPONSOR_TUNING.BASE_RANGE_LOW
       let baseWeekly = offerRng.range(low, high)
+      // Where this offer rolled in its band (0..1): spreads the wage cap too,
+      // so capped offers of one tier still differ.
+      const roll = high > low ? (baseWeekly - low) / (high - low) : 0.5
 
       // Tier multiplier
       if (tier === "PREMIUM") baseWeekly *= SPONSOR_TUNING.PREMIUM_MULTIPLIER
@@ -426,7 +428,13 @@ export class SponsorGenerator {
       } else if (category === "LIFESTYLE") {
         brandEffect = { followerGrowthPerWeek: 500, reputationPerWeek: 0.2, moralePerWeek: 0.2 }
       } // TECH stays neutral
-      baseWeekly = Math.min(baseWeekly, wageCap)
+      // MARKET-03: the cap is per tier (and carries the betting premium), so
+      // it no longer flattens every offer to one figure.
+      const spread = 1 - SPONSOR_TUNING.OFFER_CAP_SPREAD + 2 * SPONSOR_TUNING.OFFER_CAP_SPREAD * roll
+      const wageCap = capBase * SPONSOR_TUNING.TIER_SHARE_OF_WAGE_BILL[tier] * spread
+        * (category === "BETTING" ? SPONSOR_TUNING.BETTING_CAP_PREMIUM : 1)
+      const hardCap = capBase * SPONSOR_TUNING.MAX_SHARE_OF_WAGE_BILL
+      if (Number.isFinite(wageCap)) baseWeekly = Math.min(baseWeekly, Math.floor(Math.min(wageCap, hardCap)))
 
       // Contract duration: 12-52 weeks
       let duration: number

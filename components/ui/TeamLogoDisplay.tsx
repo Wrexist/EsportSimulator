@@ -16,6 +16,7 @@ interface TeamLogoDisplayProps {
         logoPath?: string
         branding?: TeamBranding
         customTeamData?: {
+            emblemSeed?: string
             logoData?: string
             primaryColor: string
             secondaryColor: string
@@ -72,7 +73,7 @@ export function TeamLogoDisplay({ team, size = 32, className }: TeamLogoDisplayP
                     accentColor: "#ffffff",
                     logoStyle: "monogram",
                 }}
-                seed={team.id || team.name}
+                seed={team.customTeamData.emblemSeed || team.id || team.name}
                 size={size}
                 className={className}
             />

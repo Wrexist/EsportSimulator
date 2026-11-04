@@ -37,6 +37,8 @@ import { useMomentPending } from "@/components/moments/moment-state"
 import { useLocale, useUiLanguageSync } from "@/lib/use-locale"
 import { isDevToolsEnabled } from "@/lib/runtime-flags"
 import { t } from "@/lib/i18n"
+import { escapeGoesBack, requiresCareer } from "@/lib/career-routes"
+import { windowModeForFullscreen } from "@/lib/window-mode"
 
 const ExitConfirmDialog = dynamic(() => import("./ExitConfirmDialog").then(mod => mod.ExitConfirmDialog), { ssr: false })
 const MatchNavigationGuard = dynamic(() => import("./MatchNavigationGuard").then(mod => mod.MatchNavigationGuard), { ssr: false })
@@ -288,6 +290,29 @@ export function GameShell({ children }: { children: React.ReactNode }) {
 
     // Global Keyboard Shortcuts (consolidated — TopBar no longer registers its own handlers)
     const router = useRouter()
+
+    // CROSSCUT-09: one rule for every career screen opened with no career
+    // (stale deep link, deleted save): back to the main menu once the boot
+    // load has finished, instead of an empty shell or "Team data not found".
+    const storeLoading = useGameStore(state => state.isLoading)
+    useEffect(() => {
+        if (preferencesHydrated && !storeLoading && !inCareer && requiresCareer(pathname)) router.replace("/main-menu")
+    }, [preferencesHydrated, storeLoading, inCareer, pathname, router])
+
+    // START-18: Window mode follows the real window. Electron reports every
+    // fullscreen change (F11, the OS, the settings select); the first read
+    // covers a window restored fullscreen from the last session.
+    useEffect(() => {
+        const w = (window as typeof window & { electron?: { window?: { isFullscreen?: () => Promise<boolean>; onFullscreenChange?: (cb: (fs: boolean) => void) => (() => void) | void } } }).electron?.window
+        if (!w) return
+        const sync = (fs: boolean) => {
+            const mode = windowModeForFullscreen(fs)
+            if (useSettingsStore.getState().windowMode !== mode) useSettingsStore.getState().setWindowMode(mode)
+        }
+        w.isFullscreen?.().then(sync).catch(() => { })
+        const unsubscribe = w.onFullscreenChange?.(sync)
+        return () => { if (typeof unsubscribe === "function") unsubscribe() }
+    }, [])
     useEffect(() => {
         const quickSave = async () => {
             const state = useGameStore.getState()
@@ -308,6 +333,8 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             try {
                 const fs = await w.isFullscreen()
                 await w.setFullscreen(!fs)
+                // Settings shows the mode F11 chose (START-18).
+                useSettingsStore.getState().setWindowMode(windowModeForFullscreen(!fs))
             } catch {
                 // Non-Electron (dev browser) — ignore
             }
@@ -373,6 +400,9 @@ export function GameShell({ children }: { children: React.ReactNode }) {
             }
 
             if (e.key === "Escape") {
+                // Not on Home, the main menu or the new-career screens: "back"
+                // there reopens a finished setup or leaves the game (START-05).
+                if (!escapeGoesBack(window.location.pathname)) return
                 e.preventDefault()
                 soundManager.play("back")
                 router.back()

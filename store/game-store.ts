@@ -5,7 +5,7 @@ import { applyMapRotation } from "@/engine/season/map-rotation"
 import { newFirstSession, restoreFirstSession, restoreWeeklyPlan } from '@/lib/first-session'
 import { createDefaultTactics } from "@/engine/default-tactics"
 import { refreshStockIdentities } from "@/lib/identity-refresh"
-import { enableMapSet } from "immer"
+import { enableMapSet, isDraft, original } from "immer"
 import { create } from "zustand"
 import { immer } from "zustand/middleware/immer"
 import { persist, createJSONStorage } from "zustand/middleware"
@@ -33,9 +33,7 @@ import {
   HallOfFameEntry,
   AIManager,
   reconcileAllRoles,
-  simulationEngineV2,
   TournamentManager,
-  LeagueEngine,
   QualificationStatus,
   CircuitPointsEntry,
   SynergyCalculator,
@@ -44,21 +42,22 @@ import {
 import { JobOfferGenerator } from "@/engine/job-offer-generator"
 import { spreadPlaceholderAttributes } from "@/engine/placeholder-attributes"
 import { seedPreseasonFriendlies } from "@/engine/preseason-friendlies"
+import { managerTrainingSlots } from "@/engine/training-manager"
 import { recordCareerProgress } from "@/engine/manager-career-profile"
 import { PreSeasonTransferProcessor } from "@/engine/pre-season-transfers"
 import { snapshotLoader } from "@/data"
 import { initialClubBudget } from "@/engine/season/club-finances"
 import { drawDueLeagueSplit } from "@/engine/season/regional-league"
-import { recordOfficialMatch } from "@/engine/official-stats"
+import { playAutoMatch } from "@/engine/processors/auto-match"
 import { ensureBoardState } from "@/engine/board-expectations"
 import { weekProcessorBridge } from "@/engine/worker/week-processor-bridge"
-import { Player, Team, MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
+import { MatchResult, EquipmentItem, Role, CustomTactics, TacticalStrategy, ActiveMatchState, WEEKLY_ACTIVITIES } from "@/types"
 import { steamService as steamAchievements } from "@/engine/steam-service"
 import { deriveTraits, ensurePersonality } from "@/engine/personality"
 import { AcademyTrainingFocus, ScoutingTier } from "@/types/academy"
 import { TrainingFocus } from "@/types"
 import { generateSeed } from "@/engine/rng"
-import { buildEntityIndexes } from "@/store/indexes"
+import { buildEntityIndexes, type SaveIndexes } from "@/store/indexes"
 import { pendingPlayableMatch } from "@/lib/playable-match"
 import { pruneGameState } from "@/store/utils/array-pruning"
 import { perfTrace } from "@/engine/perf-trace"
@@ -80,12 +79,14 @@ import { applyPreTickMutations } from "@/engine/processors/pre-tick-mutations"
 import { buildSaveSnapshot } from "@/store/utils/build-save-snapshot"
 import { useSettingsStore } from "@/lib/settings-store"
 import { CAREER_DIFFICULTY } from "@/lib/balance-tuning"
+import { difficultyStartingCash, backfillTeamTags } from "@/lib/career-start-preview"
 import { markCareerSaved, hasUnsavedChanges } from "@/lib/unsaved-changes"
 import { applyWeeklyActivity } from "@/engine/processors/weekly-activity-processor"
 import { applyScheduledActivities } from "@/engine/processors/scheduled-activities-processor"
 import { applyAutoRegistration } from "@/engine/processors/auto-registration-processor"
 import { evaluatePostTickAchievements } from "@/engine/processors/post-tick-achievements"
 import { checkMilestones } from "@/engine/milestone-checker"
+import { claimAchievementToast, claimMilestoneToast } from "@/lib/celebration-toasts"
 import { checkLegacyGoals, LEGACY_INIT_ID } from "@/engine/legacy-goals"
 import { adjustManagerReputation } from "@/engine/manager-timeline"
 import { recalculateAllSynergy } from "@/engine/processors/team-synergy-recalc"
@@ -149,6 +150,8 @@ const nextRandomInt = (state: RngBackedState, min: number, max: number): number 
 // next; the caller still receives its own save's real result/rejection.
 let saveChain: Promise<void> = Promise.resolve()
 let pendingGameSave: Promise<void> | null = null
+/** A saveGame() link that is queued but has not started yet (coalesces later calls). */
+let queuedGameSave: Promise<void> | null = null
 export async function waitForPendingGameSave(): Promise<void> { await pendingGameSave }
 let careerGeneration = 0
 /** Career already told this session that its save is getting large. */
@@ -180,8 +183,41 @@ const computeFallbackMatchSeed = (matchId: string, week: number, day: number, sa
   return Math.max(1, hash >>> 0)
 }
 
+/**
+ * The rows `keep` accepts. Inside an Immer producer the test reads the base
+ * array, so only the kept rows get drafted. Valid while the array is not yet
+ * reordered in this producer (it is read first thing).
+ */
+const draftRows = <T,>(rows: T[], keep?: (row: T) => boolean): T[] => {
+  const base = isDraft(rows) ? (original(rows) as T[] | undefined) ?? rows : rows
+  const aligned = base.length === rows.length
+  const out: T[] = []
+  for (let i = 0; i < base.length; i++) {
+    if (!keep || keep(aligned ? base[i] : rows[i])) out.push(rows[i])
+  }
+  return out
+}
+const byId = <T extends { id: string }>(rows: T[]): Map<string, T> => new Map(rows.map(row => [row.id, row]))
+const groupByTeam = <T extends { teamId?: string | null }>(rows: T[], clubIds: Set<string>): Map<string, T[]> => {
+  const out = new Map<string, T[]>()
+  clubIds.forEach(id => out.set(id, []))
+  for (const row of rows) if (row.teamId) out.get(row.teamId)?.push(row)
+  return out
+}
+
+/**
+ * Daily calendar: plays every AI fixture of the current week whose day has
+ * come (day <= `day`), in day order, through the same routine the week tick
+ * uses for its AI fixtures (engine/processors/auto-match): injured players
+ * skipped, staff talents, morale/fatigue/form/XP, Elo, careers and
+ * tournament progression. The tick itself plays only the opening day's (day 0)
+ * fixtures in this mode, so each fixture is played exactly once, on its day.
+ */
 const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void => {
-  const dueMatches = state.scheduledMatches
+  const playerTeamId = state.playerTeamId
+  if (!playerTeamId) return
+  const save = state as unknown as GameSave
+  const dueNow = () => state.scheduledMatches
     .filter(match =>
       match.week === state.currentWeek &&
       (match.day ?? 6) <= day &&
@@ -190,155 +226,64 @@ const simulateDueAIMatchesForDay = (state: GameStoreState, day: number): void =>
     )
     .sort((a, b) => ((a.day ?? 6) - (b.day ?? 6)) || a.id.localeCompare(b.id))
 
+  let dueMatches = dueNow()
   if (dueMatches.length === 0) return
 
-  const completedIds = new Set<string>()
-  // Build local maps from the live arrays for O(1) lookups in this loop.
-  // We deliberately do NOT use state._teamIndex / _playerIndex / _staffIndex
-  // — those maps are only rebuilt on hydrate / save-load / week-tick, and
-  // any user mutation between ticks (signSponsor, upgradeFacility, etc.)
-  // updates state.teams[i] without updating the Map. Reading through a
-  // stale Map would feed pre-mutation teams to the simulator.
-  const localTeams = new Map(state.teams.map(t => [t.id, t]))
-  const localPlayers = new Map(state.players.map(p => [p.id, p]))
-  const localStaff = new Map(state.staff.map(s => [s.id, s]))
-
-  const findTeam = (id: string) => localTeams.get(id)
-  const findPlayer = (id: string) => localPlayers.get(id)
-
-  const pushForm = (team: TeamSaveData, outcome: "W" | "L" | "D") => {
-    if (!team.recentForm) team.recentForm = []
-    team.recentForm.push(outcome)
-    if (team.recentForm.length > 5) team.recentForm.shift()
+  // Fresh indexes over the live arrays: state._teamIndex / _playerIndex are
+  // only rebuilt on hydrate / save-load / week-tick, so any user mutation
+  // between ticks would leave them pointing at stale rows. Only the rows of
+  // the clubs with an AI fixture this week, picked through the base arrays:
+  // drafting every player, staff row and contract of the world each day costs
+  // more than the settlement itself. A miss falls back to the routine's scan.
+  const clubIds = new Set<string>()
+  for (const match of state.scheduledMatches) {
+    if (match.week !== state.currentWeek || match.homeTeamId === state.playerTeamId || match.awayTeamId === state.playerTeamId) continue
+    clubIds.add(match.homeTeamId)
+    clubIds.add(match.awayTeamId)
   }
-
-  const mapStaff = (staffIds: string[]) => {
-    const rows = staffIds.map(id => localStaff.get(id)).filter(Boolean) as StaffSaveData[]
-    return {
-      coach: rows.find(s => s.role === "coach"),
-      analyst: rows.find(s => s.role === "analyst"),
-      psychologist: rows.find(s => s.role === "psychologist"),
-    }
+  const teamIndex = byId(draftRows(state.teams))
+  const rosterIds = new Set<string>()
+  clubIds.forEach(id => teamIndex.get(id)?.rosterIds.forEach(pid => rosterIds.add(pid)))
+  const ofClubs = (row: { teamId?: string | null }) => !!row.teamId && clubIds.has(row.teamId)
+  const idx: SaveIndexes = {
+    teamIndex,
+    playerIndex: byId(draftRows(state.players, row => rosterIds.has(row.id))),
+    staffByTeamId: groupByTeam(draftRows(state.staff, ofClubs), clubIds),
+    tournamentIndex: byId(draftRows(state.tournaments)),
+    staffIndex: new Map(),
+    contractIndex: new Map(),
+    completedMatchIndex: new Map(),
   }
+  const contractsByTeamId = groupByTeam(draftRows(state.contracts, ofClubs), clubIds)
+  const eventIdSet = new Set(state.eventsLog.map(e => e.id))
+  const ledgerIdSet = new Set(state.financeLedger.map(e => e.id))
+  const settled = new Set<string>()
+  const salt = state.lastRngSeed ?? 1
 
-  for (const match of dueMatches) {
-    const homeTeam = findTeam(match.homeTeamId)
-    const awayTeam = findTeam(match.awayTeamId)
-    if (!homeTeam || !awayTeam) continue
-
-    const homePlayers = homeTeam.rosterIds
-      .map(playerId => findPlayer(playerId))
-      .filter(Boolean)
-      .slice(0, 5) as Player[]
-    const awayPlayers = awayTeam.rosterIds
-      .map(playerId => findPlayer(playerId))
-      .filter(Boolean)
-      .slice(0, 5) as Player[]
-
-    if (homePlayers.length < 5 || awayPlayers.length < 5) continue
-
-    const homeStaff = mapStaff(homeTeam.staffIds)
-    const awayStaff = mapStaff(awayTeam.staffIds)
-
-    const fallbackSeed = computeFallbackMatchSeed(
-      match.id,
-      match.week,
-      match.day ?? 6,
-      state.lastRngSeed ?? 1
-    )
-
-    const runtimeMatch: any = {
-      ...match,
-      seed: (typeof match.seed === "number" && match.seed > 0) ? match.seed : fallbackSeed,
-      bestOf: match.format === "BO5" ? 5 : match.format === "BO3" ? 3 : 1
+  // A result can schedule the next bracket round for today; play it too.
+  for (let pass = 0; pass < 8 && dueMatches.length > 0; pass++) {
+    const removedMatchIds = new Set<string>()
+    for (const match of dueMatches) {
+      const homeTeam = idx.teamIndex.get(match.homeTeamId)
+      const awayTeam = idx.teamIndex.get(match.awayTeamId)
+      if (!homeTeam || !awayTeam) continue
+      // One stream per fixture, from its id and the career seed: the day a
+      // match is played on never shifts the career RNG.
+      const rng = new SeededRNG(computeFallbackMatchSeed(match.id, match.week, match.day ?? 6, salt))
+      playAutoMatch(save, match, homeTeam, awayTeam, {
+        rng,
+        playerTeamId,
+        idx,
+        contractsByTeamId,
+        eventIdSet,
+        ledgerIdSet,
+        removedMatchIds,
+      })
     }
-
-    const result = simulationEngineV2.simulateMatch(
-      runtimeMatch,
-      homeTeam as unknown as Team,
-      awayTeam as unknown as Team,
-      homePlayers,
-      awayPlayers,
-      homeStaff as any,
-      awayStaff as any
-    )
-
-    const completedMatch: CompletedMatchSaveData = {
-      ...match,
-      result
-    }
-    state.completedMatches.push(completedMatch)
-    completedIds.add(match.id)
-    // Careers, season tallies and records (Phase 5.1): same as the week tick's AI path.
-    recordOfficialMatch(state as unknown as GameSave, match, result, { player: findPlayer, team: findTeam })
-
-    // Elo + recent-form update. The atomic week tick's processMatches normally
-    // does this, but these day-simmed AI matches are spliced out of
-    // scheduledMatches below — so the tick never sees them. Without this, AI
-    // Elo never moves in HYBRID_DAILY mode and refreshWorldRankings ranks off
-    // stale Elo, drifting tournament seeding/qualification over a season.
-    // (updateEloAfterMatch is pure math — no RNG — so determinism is unaffected.)
-    const scoreDiff = Math.abs(result.homeScore - result.awayScore)
-    const homeWon = result.homeScore > result.awayScore
-    if (scoreDiff === 0) {
-      pushForm(homeTeam, "D")
-      pushForm(awayTeam, "D")
-    } else {
-      const winnerId = homeWon ? homeTeam.id : awayTeam.id
-      const loserId = homeWon ? awayTeam.id : homeTeam.id
-      pushForm(homeWon ? homeTeam : awayTeam, "W")
-      pushForm(homeWon ? awayTeam : homeTeam, "L")
-
-      const tournamentTier = (match.tournamentId && match.tournamentId !== "SCRIM")
-        ? state.tournaments.find(t => t.id === match.tournamentId)?.tier
-        : undefined
-
-      let homeRounds = 0
-      let awayRounds = 0
-      result.maps.forEach(m => { homeRounds += m.homeScore || 0; awayRounds += m.awayScore || 0 })
-      const roundDiff = homeWon ? (homeRounds - awayRounds) : (awayRounds - homeRounds)
-
-      const eloResult = LeagueEngine.updateEloAfterMatch(
-        state as unknown as GameSave,
-        winnerId,
-        loserId,
-        scoreDiff,
-        tournamentTier,
-        undefined,
-        undefined,
-        roundDiff,
-        { tournamentId: match.tournamentId, stage: match.stage, maps: result.maps.length },
-      )
-      if (eloResult) {
-        completedMatch.eloChange = {
-          home: homeWon ? eloResult.winnerChange : eloResult.loserChange,
-          away: homeWon ? eloResult.loserChange : eloResult.winnerChange,
-        }
-      }
-    }
-
-    if (match.tournamentId && match.tournamentId !== "SCRIM") {
-      const winnerId =
-        result.homeScore > result.awayScore
-          ? match.homeTeamId
-          : result.awayScore > result.homeScore
-            ? match.awayTeamId
-            : null
-      const loserId = winnerId === match.homeTeamId ? match.awayTeamId : match.homeTeamId
-      if (winnerId && loserId) {
-        TournamentManager.processMatchResult(
-          state as unknown as GameSave,
-          match.tournamentId,
-          match.id,
-          winnerId,
-          loserId
-        )
-      }
-    }
-  }
-
-  if (completedIds.size > 0) {
-    state.scheduledMatches = state.scheduledMatches.filter(match => !completedIds.has(match.id))
+    if (removedMatchIds.size === 0) break
+    removedMatchIds.forEach(id => settled.add(id))
+    state.scheduledMatches = state.scheduledMatches.filter(match => !removedMatchIds.has(match.id))
+    dueMatches = dueNow().filter(match => !settled.has(match.id))
   }
 }
 
@@ -373,7 +318,8 @@ export interface GameStoreState extends AdvanceState, MomentsState {
   managerDetails: ManagerDetails
   isLoading: boolean
   error: string | null
-  lastLoadError: { saveId: string; errorCode: SaveErrorCode; message: string } | null
+  /** RECOVERY_FAILED: "Recover" found no backup or cloud copy (START-16). */
+  lastLoadError: { saveId: string; errorCode: SaveErrorCode | "RECOVERY_FAILED"; message: string } | null
   isInitialized: boolean
   _hasHydrated: boolean
 
@@ -457,6 +403,7 @@ export interface GameStoreState extends AdvanceState, MomentsState {
     imageUrl?: string;
     teamId?: string;
     playerId?: string;
+    matchId?: string;
     link?: string;
     engagement?: { likes: number; views: number; };
   }[]
@@ -719,7 +666,11 @@ interface GameStoreActions extends PhysicalPreviewActions, AdvanceActions, Momen
  * pinned an entire extra copy of the loaded save in renderer memory (L27).
  */
 function achievementToast(get: () => { addToast: (toast: { message: string; type: "achievement" }) => void }) {
-  return (achievement: { name: string }) => get().addToast({ message: liveText({ key: "lv.achievement", params: { name: { key: STORED_REF, params: { text: achievement.name } } } }), type: "achievement" })
+  return (achievement: { id: string; name: string }) => {
+    // One toast when a career milestone marks the same thing (HOME-17).
+    if (!claimAchievementToast(achievement.id)) return
+    get().addToast({ message: liveText({ key: "lv.achievement", params: { name: { key: STORED_REF, params: { text: achievement.name } } } }), type: "achievement" })
+  }
 }
 
 /**
@@ -1140,12 +1091,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
 
       initAchievements: () => {
         void steamAchievements.setActiveSave(get().saveId)
-        steamAchievements.initialize((achievement) => {
-          get().addToast({
-            message: liveText({ key: "lv.achievement", params: { name: { key: STORED_REF, params: { text: achievement.name } } } }),
-            type: "achievement"
-          })
-        })
+        steamAchievements.initialize(achievementToast(get))
       },
 
       initializeNewGame: async (saveName, playerTeamId, _snapshotId, options) => {
@@ -1168,12 +1114,21 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           steamAchievements.initialize(achievementToast(get))
 
           // Create new save from snapshot
-          const newSave = draftCup ? { ...draftCup.world, saveName } : snapshotLoader.createCareerFromSnapshot(saveName, playerTeamId, 1)
+          // A world the club picker built and previewed is used as it is (START-01/02).
+          const previewed = !draftCup && options?.world ? options.world : null
+          const newSave = draftCup ? { ...draftCup.world, saveName }
+            : previewed ? { ...previewed, saveName, playerTeamId, managerDetails: { ...previewed.managerDetails, name: saveName } }
+            : snapshotLoader.createCareerFromSnapshot(saveName, playerTeamId, 1)
 
           if (!newSave) {
             throw new Error("Failed to create save from snapshot")
           }
-          if (options?.randomWorld && !draftCup) randomizeWorld(newSave)
+          if (options?.randomWorld && !draftCup && !newSave.randomWorld) randomizeWorld(newSave)
+          if (!draftCup) {
+            // Same weekly training slots the week tick derives from the manager level (HOME-14).
+            const own = newSave.teams.find((t: any) => t.id === playerTeamId)
+            if (own) own.maxTrainingSlots = managerTrainingSlots(newSave.managerDetails?.level)
+          }
 
           await steamAchievements.setActiveSave(newSave.saveId)
           // Initialize Phase 18: The Empire fields for new save
@@ -1234,8 +1189,9 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
           if (selectedTeam && !unemployed && !draftCup && difficulty !== "normal") {
             const d = CAREER_DIFFICULTY[difficulty]
             const started = selectedTeam as { startingBudget?: number }
-            started.startingBudget = Math.round((started.startingBudget ?? selectedTeam.budget) * d.cash)
-            selectedTeam.budget = Math.round(selectedTeam.budget * d.cash)
+            // Same helper as the club picker's budget (lib/career-start-preview.ts).
+            started.startingBudget = difficultyStartingCash(started.startingBudget ?? selectedTeam.budget, difficulty)
+            selectedTeam.budget = difficultyStartingCash(selectedTeam.budget, difficulty)
             selectedTeam.difficultySettings = { incomeMultiplier: d.incomeMultiplier, fansMultiplier: d.fansMultiplier, tournamentPrizeMultiplier: d.tournamentPrizeMultiplier }
           }
           newSave.difficulty = difficulty
@@ -1345,8 +1301,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             await snapshotLoader.loadSnapshot()
           }
 
-          // Create custom team
-          const result = createCustomTeam(teamData)
+          // Create custom team (its name and tag must not be a world club's: START-10)
+          const result = createCustomTeam(teamData, snapshotLoader.getSnapshot()?.teams ?? [])
           if (!result.success) {
             throw new Error(result.error || "Failed to create team")
           }
@@ -1386,7 +1342,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             tier: "AMATEUR",
             staffIds: [],
             trainingSlotsUsed: 0,
-            maxTrainingSlots: 3,
+            maxTrainingSlots: managerTrainingSlots(newSave.managerDetails?.level),
             budget: totalBudget, // Includes recruitment bonus
             leagueTier: "C_TIER",
             startingLeagueTier: "C_TIER", // ZERO_TO_HERO baseline
@@ -1717,6 +1673,12 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             : JSON.parse(JSON.stringify(save))
 
           refreshStockIdentities(hydratedSave)
+          // START-10: careers started before club tags were copied get them
+          // from the snapshot (no save version change: a missing tag is all it fills).
+          if (hydratedSave.teams.some(t => t.shortName === undefined && !t.customTeamData)) {
+            if (!snapshotLoader.getSnapshot()) await snapshotLoader.loadSnapshot().catch(() => undefined)
+            backfillTeamTags(hydratedSave.teams, snapshotLoader.getSnapshot()?.teams ?? [])
+          }
 
           // Augment with new fields if missing (backward compatibility)
           applyPlayerFieldDefaults(hydratedSave.players)
@@ -1885,10 +1847,24 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
         }
         }
 
+        // A save already queued and not yet started covers this call too:
+        // it snapshots the freshest state when its turn comes. Without this,
+        // fire-and-forget saves (each day step, a match, an answered
+        // decision) queued up and ran one full save each inside the next
+        // week tick, before its own (HOME-08: 2–4 full saves per tick).
+        if (queuedGameSave) return queuedGameSave
+
         // Append to the chain synchronously so concurrent callers queue in
         // order. The caller awaits its own link (with the real rejection); the
         // chain itself swallows rejections so a failure can't wedge later saves.
-        const chained = saveChain.then(run, run)
+        const link: { promise: Promise<void> | null } = { promise: null }
+        const start = () => {
+          if (queuedGameSave === link.promise) queuedGameSave = null
+          return run()
+        }
+        const chained = saveChain.then(start, start)
+        link.promise = chained
+        queuedGameSave = chained
         pendingGameSave = chained
         const finished = () => { if (pendingGameSave === chained) pendingGameSave = null }
         void chained.then(finished, finished)
@@ -2224,7 +2200,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
               ])
               const milestones = checkMilestones(msState as unknown as GameSave, firedIds)
               milestones.forEach(ms => {
-                get().addToast({ message: ms.message, type: "achievement" })
+                if (claimMilestoneToast(ms.id)) get().addToast({ message: ms.message, type: "achievement" })
                 set((s) => {
                   s.eventsLog.unshift({
                     id: ms.id,
@@ -2434,7 +2410,30 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       },
 
       deleteSaveInSlot: async (saveId) => {
-        await saveManager.deleteSave(saveId)
+        // START-03: deleting the loaded career also closes it, or the next
+        // save (auto-save, Ctrl+S, advancing) would write it straight back.
+        if (saveId !== get().saveId) {
+          await saveManager.deleteSave(saveId)
+          return
+        }
+        if (get().isLoading) throw new Error("Wait for the current operation before deleting this career.")
+        careerGeneration++
+        weekProcessorBridge.reset?.()
+        set({ isLoading: true })
+        try {
+          await waitForPendingGameSave()
+          const deleted = await saveManager.deleteSave(saveId)
+          if (!deleted.success) throw new Error("The career could not be deleted. It is still open; check storage and retry.")
+          set({
+            saveId: null,
+            saveName: "",
+            isInitialized: false,
+            playerTeamId: null,
+            teams: [],
+            players: [],
+            lastLoadError: null,
+          })
+        } finally { set({ isLoading: false }) }
       },
 
       deleteAllSaves: async () => {
@@ -2466,7 +2465,8 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
             isLoading: false,
             lastLoadError: {
               saveId,
-              errorCode: recovery.errorCode || "UNKNOWN",
+              // Its own code: the Load screen offers Delete, not a Retry that reloads the damaged file.
+              errorCode: "RECOVERY_FAILED",
               message: recovery.error || "Recovery failed",
             },
           })

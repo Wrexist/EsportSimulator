@@ -35,7 +35,7 @@ import { cn } from "@/lib/utils"
 import { formatCurrency, formatSignedCurrency } from "@/lib/utils-extended"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { gameCalendarDate, formatGameCalendarDate } from "@/lib/game-calendar"
-import { EconomyEngine } from "@/engine/economy-engine"
+import { EconomyEngine, weeklyUpkeep } from "@/engine/economy-engine"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { startingFiveOvr } from "@/lib/team-ovr"
 import { getBoardSanctionedFee, getTierTargets } from "@/engine/board-expectations"
@@ -91,7 +91,7 @@ function scoreFor(match: MatchLike, teamId: string): string {
 
 function tournamentFor(id?: string | null) {
   if (!id) return undefined
-  return FULL_TOURNAMENT_CALENDAR.find(t => t.id === id || t.id === id.split('_s')[0] || id.startsWith(`${t.id}_`))
+  return FULL_TOURNAMENT_CALENDAR.find(t => t.id === id || t.id === id.replace(/_s\d+$/, "") || id.startsWith(`${t.id}_`))
 }
 
 export default function Page() {
@@ -494,7 +494,7 @@ export default function Page() {
             {draftCup ? <DraftCupBracket /> : <>
             {/* League position (Phase 4.7) */}
             {playerTeamId && (
-              <LeagueSnapshot league={league} playerTeamId={playerTeamId} teamsById={teamsById} dayById={leagueDayById} gameStartDate={gameStartDate} />
+              <LeagueSnapshot league={league} playerTeamId={playerTeamId} teamsById={teamsById} dayById={leagueDayById} gameStartDate={gameStartDate} completedMatches={completedMatches} />
             )}
 
             {/* Board objectives; the chip opens Club → Board */}
@@ -549,7 +549,7 @@ export default function Page() {
                   className="px-4 py-3"
                   label={t("home.netWeek")}
                   value={<span className={(finance?.net ?? 0) < 0 ? "text-negative" : "text-ink-1"}>{formatSignedCurrency(finance?.net ?? 0)}</span>}
-                  hint={finance && finance.net < 0 && Number.isFinite(finance.runwayWeeks) ? tn("home.runway", finance.runwayWeeks) : t("home.projected")}
+                  hint={finance && finance.net < 0 && Number.isFinite(finance.runwayWeeks) ? tn("home.runway", Math.floor(finance.runwayWeeks)) : t("home.projected")}
                 />
               </div>
               <dl className="grid grid-cols-3 divide-x divide-line text-sm">
@@ -563,7 +563,7 @@ export default function Page() {
                 </div>
                 <div className="px-4 py-2.5">
                   <dt className="text-xs text-ink-3">{t("home.upkeep")}</dt>
-                  <dd className="tabular-nums text-ink-1">{formatCurrency(-((finance?.expenses.facilities ?? 0) + (finance?.expenses.equipment ?? 0) + (finance?.expenses.academy ?? 0)))}</dd>
+                  <dd className="tabular-nums text-ink-1">{formatCurrency(-weeklyUpkeep(finance))}</dd>
                 </div>
               </dl>
             </Panel>}
@@ -595,6 +595,14 @@ export default function Page() {
               )}
             </Panel>
           </div>
+
+          {/* Two columns below 2xl: the rail is far taller than this column,
+              so News sits here instead of leaving the bottom half empty (HOME-19). */}
+          <Panel title={t("home.news")} padded={false} className="hidden xl:block 2xl:hidden">
+            <div className="max-h-[420px] overflow-y-auto">
+              <NewsFeed limit={8} />
+            </div>
+          </Panel>
         </div>
 
         {/* Right rail: decisions first */}
@@ -603,7 +611,7 @@ export default function Page() {
           <ActionCenter />
           <StorylinesPanel />
           <LastWeekPanel />
-          <Panel title={t("home.news")} padded={false}>
+          <Panel title={t("home.news")} padded={false} className="xl:hidden 2xl:block">
             <div className="max-h-[420px] overflow-y-auto">
               <NewsFeed limit={8} />
             </div>

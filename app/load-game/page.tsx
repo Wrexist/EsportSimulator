@@ -79,11 +79,13 @@ const formatDate = (dateStr?: string | null) => {
 
 function LoadGamePageInner() {
     const router = useRouter()
-    const { listSaves, switchSave, deleteSaveInSlot, saveId: currentActiveId, lastLoadError, attemptSaveRecovery, clearLoadError } = useGameStore(useShallow(state => ({
+    const { listSaves, switchSave, deleteSaveInSlot, saveId: currentActiveId, careerLoaded, lastLoadError, attemptSaveRecovery, clearLoadError } = useGameStore(useShallow(state => ({
         listSaves: state.listSaves,
         switchSave: state.switchSave,
         deleteSaveInSlot: state.deleteSaveInSlot,
         saveId: state.saveId,
+        // START-15: a save that failed to load keeps its id but is not loaded.
+        careerLoaded: state.isInitialized && !!state.playerTeamId,
         lastLoadError: state.lastLoadError,
         attemptSaveRecovery: state.attemptSaveRecovery,
         clearLoadError: state.clearLoadError,
@@ -156,6 +158,11 @@ function LoadGamePageInner() {
     }
 
     const careers = slots.filter(s => !s.isEmpty && s.saveId)
+    // START-20: the confirmation names the career it deletes.
+    const deleteSlot = deleteTarget ? careers.find(s => s.saveId === deleteTarget) : undefined
+    const deleteName = deleteSlot
+        ? (deleteSlot.teamName && deleteSlot.saveName && deleteSlot.teamName !== deleteSlot.saveName ? `${deleteSlot.teamName} (${deleteSlot.saveName})` : deleteSlot.teamName || deleteSlot.saveName || t("lg.unnamed"))
+        : ""
 
     const renderError = (slot: SaveSlotMetadata) => {
         if (!lastLoadError || lastLoadError.saveId !== slot.saveId) return null
@@ -163,8 +170,10 @@ function LoadGamePageInner() {
         const isNewerVersion = code === "NEWER_VERSION"
         const isCorrupted = code === "CORRUPTED" || code === "INTEGRITY_FAILED"
         const isCloudConflict = code === "CLOUD_CONFLICT"
+        const recoveryFailed = code === "RECOVERY_FAILED"
         const heading = isCloudConflict ? t("lg.err.cloud") : isNewerVersion
             ? t("lg.err.newer")
+            : recoveryFailed ? t("lg.err.noBackup")
             : isCorrupted ? t("lg.err.corrupt") : t("lg.err.failed")
         const body = isNewerVersion
             ? t("lg.err.newerBody")
@@ -199,6 +208,11 @@ function LoadGamePageInner() {
                                     <Button size="sm" variant="outline" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "local")}>{t("lg.usePc")}</Button>
                                     <Button size="sm" variant="outline" disabled={loadingSlotId === slot.saveId} onClick={() => slot.saveId && handleLoad(slot.saveId, "cloud")}>{t("lg.useCloud")}</Button>
                                     <Button size="sm" variant="ghost" onClick={clearLoadError}>{t("ng.cancel")}</Button>
+                                </>
+                            ) : recoveryFailed ? (
+                                <>
+                                    <Button size="sm" variant="outline" className="text-negative!" disabled={isDeleting} onClick={() => slot.saveId && setDeleteTarget(slot.saveId)}>{t("lg.deleteSave")}</Button>
+                                    <Button size="sm" variant="ghost" onClick={clearLoadError}>{t("lg.dismiss")}</Button>
                                 </>
                             ) : isCorrupted ? (
                                 <>
@@ -257,7 +271,7 @@ function LoadGamePageInner() {
                         </thead>
                         <tbody>
                             {careers.map(slot => {
-                                const isActive = !!currentActiveId && slot.saveId === currentActiveId
+                                const isActive = careerLoaded && !!currentActiveId && slot.saveId === currentActiveId
                                 const corrupted = !!slot.isCorrupted
                                 const busy = loadingSlotId === slot.saveId
                                 return (
@@ -327,7 +341,7 @@ function LoadGamePageInner() {
             <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>{t("lg.delete.title")}</AlertDialogTitle>
+                        <AlertDialogTitle>{deleteName ? t("lg.delete.titleNamed", { name: deleteName }) : t("lg.delete.title")}</AlertDialogTitle>
                         <AlertDialogDescription>
                             {t("lg.delete.body")}
                         </AlertDialogDescription>

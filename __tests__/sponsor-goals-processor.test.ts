@@ -303,3 +303,38 @@ describe("processWeeklySponsorGoals — idempotency + expiry", () => {
         expect((save.teams[0].sponsors![0] as any).remainingWeeks).toBe(4)
     })
 })
+
+// MARKET-05: a sponsor's own follower boost (and any other sponsor's) is not
+// "gained followers" for a "Gain Followers" goal.
+describe("processWeeklySponsorGoals — brand follower boosts don't farm goals", () => {
+    const followerGoal = (target: number) => [{ id: "g1", description: "Gain Followers", current: 0, target, bonusPayout: 2000, isCompleted: false }]
+
+    test("a Lifestyle deal's +500/week never completes its own follower goal", () => {
+        const sponsor = makeSponsor("s1", { goals: followerGoal(1000) })
+        sponsor.brandEffect = { followerGrowthPerWeek: 500 }
+        const save = makeSave({ teams: [makeTeam("player", { followers: 10_000, sponsors: [sponsor], budget: 50_000 })] })
+        for (let week = 10; week < 20; week++) {
+            save.currentWeek = week
+            processWeeklySponsorGoals(save)
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const goal = (save.teams[0].sponsors![0] as any).goals[0]
+        expect(save.teams[0].followers).toBe(15_000) // the boost still lands
+        expect(goal.current).toBe(0)
+        expect(goal.isCompleted).toBe(false)
+        expect(save.teams[0].budget).toBe(50_000)
+    })
+
+    test("another sponsor's boost doesn't count either; organic growth does", () => {
+        const goalSponsor = makeSponsor("s1", { goals: followerGoal(1000) })
+        const energy = makeSponsor("s2")
+        energy.brandEffect = { followerGrowthPerWeek: 300 }
+        const save = makeSave({ teams: [makeTeam("player", { followers: 10_000, sponsors: [goalSponsor, energy] })] })
+        processWeeklySponsorGoals(save) // week 10: checkpoints set after both boosts
+        save.currentWeek = 11
+        save.teams[0].followers = (save.teams[0].followers || 0) + 250 // fans won on the field
+        processWeeklySponsorGoals(save)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((save.teams[0].sponsors![0] as any).goals[0].current).toBe(250)
+    })
+})

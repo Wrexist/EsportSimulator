@@ -129,6 +129,26 @@ function isWireStory(event: GameEventSaveData, ctx: InboxContext): boolean {
     return false
 }
 
+/**
+ * A title win (standings-processor `trophy_*`): stored with only the club and
+ * the event, so it read "Media update / Media update." (HOME-11).
+ */
+function isTrophyEvent(event: GameEventSaveData): boolean {
+    return event.type === "MEDIA" && event.id.startsWith("trophy_") && !!dataOf(event).tournamentName
+}
+function trophySubject(data: AnyData, ctx: InboxContext): string {
+    if (data.teamId && data.teamId === ctx.playerTeamId) return t("ib.subj.youWon", { event: data.tournamentName })
+    return data.teamName ? t("ib.subj.clubWins", { club: data.teamName, event: data.tournamentName }) : t("ib.subj.hasWinner", { event: data.tournamentName })
+}
+function trophyBody(data: AnyData, ctx: InboxContext): string {
+    const fans = num(data.fanGain)
+    if (data.teamId && data.teamId === ctx.playerTeamId) {
+        const won = t("ib.body.youWon", { event: data.tournamentName })
+        return fans ? `${won} ${t("ib.body.titleFans", { n: fans.toLocaleString(intlLocale()) })}` : won
+    }
+    return t("ib.body.clubWon", { club: data.teamName || t("ib.aClub"), event: data.tournamentName })
+}
+
 /** Folded into a weekly round-up: listed inside the digest, not on its own. */
 export function isFolded(event: GameEventSaveData): boolean {
     return !!dataOf(event).digestId
@@ -218,6 +238,7 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
         case "RETIREMENT": return t("ib.subj.retires", { name: who })
         case "MEDIA":
             if (data.proAwards?.year != null) return (typeof data.proAwards.minMaps === "number" ? t("ib.subj.proTop20Season", { n: data.proAwards.year }) : t("ib.subj.proTop20Year", { n: data.proAwards.year }))
+            if (!data.title && isTrophyEvent(event)) return trophySubject(data, ctx)
             return data.title || t("ib.subj.media")
         case DIGEST_TYPE: {
             const items = digestItems(event)
@@ -326,6 +347,7 @@ function eventBodyText(event: GameEventSaveData, ctx: InboxContext): string {
                 const lead = top ? t("ib.body.worldNumberOne", { name: top }) : t("ib.body.ranked")
                 return ours > 0 ? `${lead} ${tn("ib.body.oursTop20", ours)}` : lead
             }
+            if (!data.message && isTrophyEvent(event)) return trophyBody(data, ctx)
             return data.message || data.text || data.description || t("ib.body.media")
         default:
             return data.message || data.content || data.text || data.description || t("ib.body.noDetails")
@@ -565,6 +587,25 @@ export function countInbox(eventsLog: readonly GameEventSaveData[], ctx: InboxCo
         }
     }
     return counts
+}
+
+/**
+ * Home's Decisions panel: the same open decisions the inbox counts, split
+ * into inline-answerable choices and offers (job / transfer bids, answered in
+ * the inbox). Uses getDecisionKind, so a bid for a player who has already
+ * left, an expired or withdrawn offer, or a rumour is not listed (SQUAD-07),
+ * and choices + offers always equal the inbox's decision count (HOME-13).
+ */
+export function homeDecisions(eventsLog: readonly GameEventSaveData[], ctx: InboxContext): { choices: GameEventSaveData[]; offers: number } {
+    const choices: GameEventSaveData[] = []
+    let offers = 0
+    for (const event of eventsLog) {
+        if (isFolded(event)) continue
+        const kind = getDecisionKind(event, ctx)
+        if (kind === "choice") choices.push(event)
+        else if (kind) offers++
+    }
+    return { choices, offers }
 }
 
 /** Top-bar badge: what needs the manager — open decisions plus unread messages. */

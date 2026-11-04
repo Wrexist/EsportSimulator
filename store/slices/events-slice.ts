@@ -35,7 +35,23 @@ const NEWS_FEED_CAP = 50
 // ~7-8 in-game weeks of timeline at ~8 posts/week; bounds multi-season saves.
 const SOCIAL_FEED_CAP = 60
 
-export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
+/** Answered decisions are written to disk this long after the last answer (one write for a burst). */
+export const DECISION_SAVE_DEBOUNCE_MS = 1500
+let decisionSaveTimer: ReturnType<typeof setTimeout> | null = null
+
+export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => {
+    // HOME-07: an answered decision was only persisted by the periodic or
+    // on-close save, so a crash or force-quit brought it back unanswered.
+    const saveSoon = () => {
+        if (decisionSaveTimer) clearTimeout(decisionSaveTimer)
+        decisionSaveTimer = setTimeout(() => {
+            decisionSaveTimer = null
+            const s = get()
+            if (!s.saveId || !s.isInitialized || s.isLoading) return
+            void s.saveGame().catch(() => { /* surfaced by saveGame */ })
+        }, DECISION_SAVE_DEBOUNCE_MS)
+    }
+    return {
     acknowledgeEvent: (eventId) => {
         set((state) => {
             const event = state.eventsLog.find(e => e.id === eventId)
@@ -62,6 +78,7 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
     },
 
     resolveEventChoice: (eventId, choiceId) => {
+        const before = get().eventsLog.find(e => e.id === eventId)?.selectedChoiceId
         set((state) => {
             const event = state.eventsLog.find(e => e.id === eventId)
             if (!event || event.selectedChoiceId || event.data.isWithdrawn || state.gameOverReason) return
@@ -182,6 +199,8 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
                 state.acknowledgedEventIds.push(eventId)
             }
         })
+        const after = get().eventsLog.find(e => e.id === eventId)?.selectedChoiceId
+        if (after !== undefined && after !== before) saveSoon()
     },
 
     // Phase 5.3: every chosen answer applies through the shared effect code
@@ -319,4 +338,5 @@ export const createEventsSlice: SliceCreator<EventsActions> = (set, get) => ({
         })
         return result
     },
-})
+    }
+}

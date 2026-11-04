@@ -40,6 +40,7 @@ export function processWeeklySponsorGoals(
             : 0
 
         const activeSponsors: typeof team.sponsors = []
+        const processedThisWeek: typeof team.sponsors = []
 
         team.sponsors.forEach(sponsor => {
             // Idempotency: rollback/resume paths can re-enter this with the
@@ -100,7 +101,7 @@ export function processWeeklySponsorGoals(
                 }
             }
 
-            sponsor.followerCheckpoint = followers
+            processedThisWeek.push(sponsor)
             sponsor.lastProcessedWeek = save.currentWeek
             sponsor.remainingWeeks = Math.max(0, (sponsor.remainingWeeks || 0) - 1)
 
@@ -132,6 +133,10 @@ export function processWeeklySponsorGoals(
             }
         })
 
+        // MARKET-05: checkpoint after every brand's follower boost, so the
+        // followers a sponsor hands out never count as "gained" toward any
+        // sponsor's "Gain Followers" goal next week.
+        processedThisWeek.forEach(sponsor => { sponsor.followerCheckpoint = team.followers || 0 })
         team.sponsors = activeSponsors
     })
 }

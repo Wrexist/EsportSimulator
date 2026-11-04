@@ -139,6 +139,9 @@ export function distressedListingPrice(player: PlayerSaveData, currentWeek: numb
  * Offers post as TRANSFER_OFFER events with accept/reject choices the
  * player resolves in their inbox.
  */
+/** MARKET-11: an AI club bids only for a player within this many OVR of its weakest starter. */
+const AI_BID_QUALITY_MARGIN = 5
+
 export function processAITransferMarket(
     save: GameSave,
     playerTeamId: string,
@@ -155,6 +158,12 @@ export function processAITransferMarket(
     if (userPlayersForSale.length === 0) return
 
     const aiTeams = save.teams.filter(t => t.id !== playerTeamId)
+    const ovrOf = new Map<string, number>()
+    const ovr = (p: PlayerSaveData) => {
+        let v = ovrOf.get(p.id)
+        if (v === undefined) { v = evaluatePlayer(p, undefined, undefined, save.currentWeek).overallRating; ovrOf.set(p.id, v) }
+        return v
+    }
 
     // Build Set of existing pending transfer-offer keys for O(1) dedup. This
     // must span ALL weeks, not just the current one: an offer the player hasn't
@@ -189,16 +198,22 @@ export function processAITransferMarket(
 
         // Pre-compute the AI team's role coverage once for role-fit weighting.
         const aiRoles = new Set<string>()
+        const rosterOvr: number[] = []
         for (const id of aiTeam.rosterIds) {
             const p = playerIndex.get(id)
             if (p?.role) aiRoles.add(recruitmentRole(p.role))
+            if (p && !p.isRetired) rosterOvr.push(ovr(p))
         }
+        // MARKET-11: the weakest of the club's best five; a club only bids for
+        // a player who could start for it (or will grow into it).
+        const weakestStarter = rosterOvr.length >= 5 ? rosterOvr.sort((a, b) => b - a)[4] : 0
 
         userPlayersForSale.forEach(player => {
             if (offersMade >= MAX_TRANSFER_OFFERS_PER_TEAM_PER_WEEK) return
 
             const existingOffer = existingOfferKeys.has(`${aiTeam.id}_${player.id}`)
             if (existingOffer) return
+            if (Math.max(ovr(player), player.age <= 21 ? (player.potential ?? 0) - 10 : 0) < weakestStarter - AI_BID_QUALITY_MARGIN) return
             if ((openOffersPerPlayer.get(player.id) ?? 0) >= MAX_OPEN_OFFERS_PER_PLAYER) return
 
             // Market value + potential-based multipliers (0-100 scale; see aiMarketValuation).

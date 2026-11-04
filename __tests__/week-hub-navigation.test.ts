@@ -9,7 +9,7 @@ import path from "path"
 import { t } from "@/lib/i18n"
 import { GEAR_HREF, PRO_HIDDEN_HREFS, hubForPath, menuGroups, menuGroupsFor, navHubs, staffMeetingHref } from "@/lib/navigation"
 import { NUMBER_KEY_ROUTES, SHORTCUT_GROUPS } from "@/lib/keyboard-shortcuts"
-import { matchCentreHref, type MatchCentreState } from "@/app/match/match-centre"
+import { liveMatchInProgress, matchCentreHref, type MatchCentreState } from "@/app/match/match-centre"
 
 const redirect = jest.fn((href: string) => { throw new Error(`NEXT_REDIRECT ${href}`) })
 jest.mock("next/navigation", () => ({ redirect: (href: string) => redirect(href) }))
@@ -150,6 +150,16 @@ describe("/match → match centre target", () => {
     })
     test("no career → Home", () => {
         expect(matchCentreHref(base({ playerTeamId: null }))).toBe("/")
+    })
+    // MATCHDAY-01: the prep hub and "Play match" of a started live match offer Resume.
+    test("a started live match is in progress for its own fixture only, until recorded", () => {
+        const scheduled = [fixture("m1", 10, 2), fixture("m2", 10, 4)]
+        expect(liveMatchInProgress({ activeMatchId: "m1", scheduledMatches: scheduled, completedMatches: [] }, "m1")).toBe(true)
+        expect(liveMatchInProgress({ activeMatchId: "m1", scheduledMatches: scheduled, completedMatches: [] }, "m2")).toBe(false)
+        // After a reload only the restored checkpoint may name it.
+        expect(liveMatchInProgress({ activeMatchId: null, activeMatchState: { matchId: "m1" }, scheduledMatches: scheduled, completedMatches: [] }, "m1")).toBe(true)
+        expect(liveMatchInProgress({ activeMatchId: "m1", scheduledMatches: scheduled, completedMatches: [{ id: "m1" }] }, "m1")).toBe(false)
+        expect(liveMatchInProgress({ activeMatchId: null, scheduledMatches: scheduled, completedMatches: [] }, "m1")).toBe(false)
     })
 })
 

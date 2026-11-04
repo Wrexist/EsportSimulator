@@ -24,14 +24,18 @@ import { intlLocale, t, tn } from "@/lib/i18n"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useShallow } from "zustand/react/shallow"
 import { useGameStore } from "@/store/game-store"
-import { buyerReputationFactor, freeAgentWageFactor, recruitmentSalary } from "@/engine/recruitment"
+import { negotiationBaseWage } from "@/engine/recruitment"
 import { evaluatePlayer } from "@/engine/player-evaluation"
 import { SeededRNG } from "@/engine/rng"
 import { getBoardSanctionedFee } from "@/engine/board-expectations"
 import { quotePlayerSigning } from "@/engine/finance-forecast"
-import { archetypeWageFactor, contractDemandLines, contractLengthFactor, getArchetype } from "@/engine/personality"
+import { contractDemandLines, contractLengthFactor, getArchetype } from "@/engine/personality"
 import { formatCurrency } from "@/lib/utils-extended"
 import { clauseFields, NO_CLAUSES, wageWithClauses, type ClauseTerms } from "@/engine/contract-clauses"
+import {
+    ACCEPT_WITHIN, bandChance, clampFeeOffer, durationWageFactor, FEE_BAND, feeOfferBlock, initialFeeOffer,
+    wageChance as wageChanceFor, wageRange as wageRangeFor, wageThreshold,
+} from "./negotiation-rules"
 import { rivalFeePremium, rivalInterest } from "@/engine/transfer-hype"
 import type { SigningSignature } from "@/engine/moments"
 
@@ -48,11 +52,6 @@ export interface PendingDeal {
 export const MAX_NEGOTIATION_SALARY = 10_000_000
 export const MIN_CONTRACT_WEEKS = 12
 export const MAX_CONTRACT_WEEKS = 156
-
-// Hidden-price bands (mirrors the thresholds below).
-const FEE_BAND = [0.9, 1.1] as const
-const WAGE_BAND = [0.9, 1.2] as const
-const ACCEPT_WITHIN = 0.97
 
 const deterministicSeed = (...parts: Array<string | number | undefined | null>): number => {
     const payload = parts
@@ -76,13 +75,6 @@ export function formatWeeksAsYears(weeks: number): string {
     if (years < 1) return tn("deal.weeks", weeks)
     if (years === Math.floor(years)) return tn("deal.years", years)
     return t("deal.yearsDecimal", { n: years.toLocaleString(intlLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) })
-}
-
-/** Probability that `ratio` (offer / centre) clears a floor drawn uniformly from `band`, accepted within 3%. */
-function bandChance(ratio: number, band: readonly [number, number]): number {
-    if (!Number.isFinite(ratio) || ratio <= 0) return 0
-    const effective = ratio / ACCEPT_WITHIN
-    return Math.max(0, Math.min(1, (effective - band[0]) / (band[1] - band[0])))
 }
 
 export function useNegotiation(playerId: string | null, active = true) {
@@ -127,39 +119,6 @@ export function useNegotiation(playerId: string | null, active = true) {
     const costPreview = useMemo(() => myTeam && playerId ? quotePlayerSigning(myTeam, players, contracts, staff, currentWeek, playerId, buyoutOffer, salaryOffer, durationOffer, academyCount) : null,
         [myTeam, players, contracts, staff, currentWeek, playerId, buyoutOffer, salaryOffer, durationOffer, academyCount])
 
-    // Initialization: fresh terms whenever the player, week or save changes.
-    useEffect(() => {
-        if (active && playerId && initializedKey !== sessionKey && playerSave) {
-            const initialTeam = teams.find(t => t.rosterIds.includes(playerId))
-            originalOwner.current = initialTeam?.id || null
-            setBuyoutOfferRaw(0)
-            setDurationOfferRaw(104)
-            setClausesRaw(NO_CLAUSES)
-            setNegotiationLog([])
-            setFailureMessage(null)
-            setPendingDeal(null)
-            dealSubmittedRef.current = false
-
-            if (!initialTeam) {
-                setStage("CONTRACT")
-            } else {
-                setStage("BUYOUT")
-                const contract = contracts.find(c => c.playerId === playerId && c.teamId === initialTeam.id && c.endWeek > currentWeek)
-                // Open at 80% of the price, but never above what the club can pay (the field caps edits there too).
-                const opener = Math.round((contract?.buyout || evaluatePlayer(playerSave, undefined, undefined, currentWeek).transferValue) * 0.8)
-                setBuyoutOfferRaw(Math.max(0, Math.min(opener, Math.floor(budget))))
-            }
-
-            setSalaryOfferRaw(recruitmentSalary(playerSave, currentWeek, myTeam))
-            setInitializedKey(sessionKey)
-        } else if (!active) {
-            setInitializedKey("")
-            setNegotiationLog([])
-            setFailureMessage(null)
-            dealSubmittedRef.current = false
-        }
-    }, [active, initializedKey, sessionKey, playerSave, playerId, teams, contracts, currentWeek, myTeam, budget])
-
     const ready = !!playerSave && initializedKey === sessionKey
     const evaluation = useMemo(() => playerSave ? evaluatePlayer(playerSave, undefined, undefined, currentWeek) : null, [playerSave, currentWeek])
     /** AI clubs in the race for him; each one lifts a selling club's price (free agents: no fee to lift). */
@@ -199,19 +158,12 @@ export function useNegotiation(playerId: string | null, active = true) {
         return { minWeeks, maxWeeks, idealWeeks: Math.max(12, Math.min(156, idealWeeks)) }
     }, [playerSave, evaluation, saveId, currentWeek, playerId, currentTeam?.id, myTeam?.id])
 
-    /** Archetype wage factor for this buyer (Phase 5.2; same rule as recruitmentSalary). */
-    const personalityWage = playerSave && evaluation ? archetypeWageFactor(getArchetype(playerSave), evaluation.overallRating, myTeam) : 1
     const personalityLines = playerSave && evaluation ? contractDemandLines(getArchetype(playerSave), evaluation.overallRating, myTeam) : []
 
+    /** His wage before length and clauses (Phase 5.2 archetype included; engine/recruitment negotiationBaseWage). */
+    const baseWage = useMemo(() => playerSave ? negotiationBaseWage(playerSave, currentWeek, myTeam) : 0, [playerSave, currentWeek, myTeam])
     /** Base weekly wage before the hidden variance and the clauses (same factors as the acceptance rule). */
-    const wageBeforeClauses = (duration: number) => {
-        if (!playerSave || !evaluation) return 0
-        let base = evaluation.transferValue / 150
-        if (playerSave.age > 28) base *= 1.1
-        base *= freeAgentWageFactor(playerSave, currentWeek) * buyerReputationFactor(myTeam) * personalityWage
-        const distFromIdeal = Math.abs(duration - durationPref.idealWeeks) / Math.max(1, durationPref.maxWeeks - durationPref.minWeeks)
-        return base * (0.95 + distFromIdeal * 0.10)
-    }
+    const wageBeforeClauses = (duration: number) => baseWage * durationWageFactor(duration, durationPref)
     const wageCentre = (duration: number) => wageWithClauses(wageBeforeClauses(duration), clauses)
     /** How much less a week he asks for the clauses (at the current length). */
     const clauseSaving = Math.max(0, Math.round(wageBeforeClauses(durationOffer) - wageCentre(durationOffer)))
@@ -221,11 +173,8 @@ export function useNegotiation(playerId: string | null, active = true) {
         titleBonus: Math.max(0, Math.min(MAX_NEGOTIATION_SALARY, Math.floor(next.titleBonus ?? prev.titleBonus) || 0)),
     }))
 
-    const setBuyoutOffer = (val: number) => {
-        if (!Number.isFinite(val)) { setBuyoutOfferRaw(0); return }
-        const budgetCap = Math.max(0, Math.floor(budget))
-        setBuyoutOfferRaw(Math.max(0, Math.min(Math.floor(val), budgetCap)))
-    }
+    // MARKET-02: a fee can't be typed past the board's limit any more than past the funds.
+    const setBuyoutOffer = (val: number) => setBuyoutOfferRaw(clampFeeOffer(val, budget, boardSanction))
     const setSalaryOffer = (val: number) => {
         if (!Number.isFinite(val)) { setSalaryOfferRaw(0); return }
         setSalaryOfferRaw(Math.max(0, Math.min(MAX_NEGOTIATION_SALARY, Math.floor(val))))
@@ -234,16 +183,54 @@ export function useNegotiation(playerId: string | null, active = true) {
 
     const feeChance = askingValue > 0 ? bandChance(buyoutOffer / askingValue, FEE_BAND) : 1
     const durationOk = durationOffer >= durationPref.minWeeks && durationOffer <= durationPref.maxWeeks
-    const centre = wageCentre(durationOffer)
-    const wageChance = !durationOk ? 0 : centre > 0 ? bandChance(salaryOffer / centre, WAGE_BAND) : 1
-    /** Lowest wage with a sure yes at the current length. */
-    const sureWage = Math.ceil(centre * WAGE_BAND[1] * ACCEPT_WITHIN)
+    // MARKET-10: band and odds come from the acceptance rule itself (clause
+    // credits are fixed sums, so scaling the clause-adjusted centre was off).
+    const wageBase = wageBeforeClauses(durationOffer)
     /** Where the player's hidden minimum can sit (effective, after the 3% grace). */
-    const wageRange: [number, number] = [Math.ceil(centre * WAGE_BAND[0] * ACCEPT_WITHIN), sureWage]
+    const wageRange = wageRangeFor(wageBase, clauses)
+    const wageChance = !durationOk ? 0 : wageBase > 0 ? wageChanceFor(salaryOffer, wageBase, clauses) : 1
+    /** Lowest wage with a sure yes at the current length. */
+    const sureWage = wageRange[1]
     /** Where the club's hidden price can sit (effective, after the 3% grace). */
     const feeRange: [number, number] = askingValue > 0
         ? [Math.ceil(askingValue * FEE_BAND[0] * ACCEPT_WITHIN), Math.ceil(askingValue * FEE_BAND[1] * ACCEPT_WITHIN)]
         : [0, 0]
+
+    const openingFee = initialFeeOffer(askingValue, budget, boardSanction)
+    const openingWage = wageRangeFor(wageBeforeClauses(104), NO_CLAUSES)[1]
+
+    // Initialization: fresh terms whenever the player, week or save changes.
+    useEffect(() => {
+        if (active && playerId && initializedKey !== sessionKey && playerSave) {
+            const initialTeam = teams.find(t => t.rosterIds.includes(playerId))
+            originalOwner.current = initialTeam?.id || null
+            setBuyoutOfferRaw(0)
+            setDurationOfferRaw(104)
+            setClausesRaw(NO_CLAUSES)
+            setNegotiationLog([])
+            setFailureMessage(null)
+            setPendingDeal(null)
+            dealSubmittedRef.current = false
+
+            if (!initialTeam) {
+                setStage("CONTRACT")
+            } else {
+                setStage("BUYOUT")
+                // MARKET-17: open at the club's asking value, within funds and the board's limit.
+                setBuyoutOfferRaw(openingFee)
+            }
+
+            // MARKET-08: open at the wage he signs for at this length (the top
+            // of his hidden band), not the AI clubs' recruitmentSalary.
+            setSalaryOfferRaw(openingWage)
+            setInitializedKey(sessionKey)
+        } else if (!active) {
+            setInitializedKey("")
+            setNegotiationLog([])
+            setFailureMessage(null)
+            dealSubmittedRef.current = false
+        }
+    }, [active, initializedKey, sessionKey, playerSave, playerId, teams, openingFee, openingWage])
 
     /** The signing reveal (Phase 5.4a): a full-screen moment with the deal as made. */
     const celebrateSigning = (signing: Parameters<typeof queueSigningMoment>[0]) => {
@@ -252,6 +239,8 @@ export function useNegotiation(playerId: string | null, active = true) {
 
     const submitBuyout = () => {
         if (!evaluation) return
+        // MARKET-02: the store refuses a fee above funds or the board's limit at signing; refuse it here.
+        if (feeOfferBlock(buyoutOffer, budget, boardSanction)) return
         const sanitizedBuyoutOffer = Math.max(0, Math.floor(buyoutOffer))
         const variance = getNegotiationRng("BUYOUT_THRESHOLD").range(0.9, 1.1)
         const minPrice = Math.round(askingValue * variance)
@@ -283,22 +272,16 @@ export function useNegotiation(playerId: string | null, active = true) {
             return
         }
 
-        const baseSalary = evaluation.transferValue / 150
         const variance = getNegotiationRng("CONTRACT_THRESHOLD").range(0.9, 1.2)
-        let minSalary = baseSalary * variance
-        if (playerSave.age > 28) minSalary *= 1.1
-        minSalary *= freeAgentWageFactor(playerSave, currentWeek) * buyerReputationFactor(myTeam) * personalityWage
-        const distFromIdeal = Math.abs(sanitizedDuration - durationPref.idealWeeks) / Math.max(1, durationPref.maxWeeks - durationPref.minWeeks)
-        minSalary *= 0.95 + distFromIdeal * 0.10
-        const minimumSalary = Math.round(wageWithClauses(minSalary, clauses))
+        const minimumSalary = wageThreshold(wageBeforeClauses(sanitizedDuration), variance, clauses)
 
-        if (sanitizedSalary >= minimumSalary * 0.97) {
+        if (sanitizedSalary >= minimumSalary * ACCEPT_WITHIN) {
             // Terms agreed: the paper contract comes out for the manager to sign.
             setNegotiationLog(prev => [...prev, t("nego.log.agreed")])
             setPendingDeal({ salary: sanitizedSalary, duration: sanitizedDuration, fee: sanitizedBuyoutOffer, clauses })
             setStage("SIGN")
         } else {
-            setNegotiationLog(prev => [...prev, t("nego.log.wageRejected", { wage: money(sanitizedSalary), min: money(Math.ceil(minimumSalary * 0.97)) })])
+            setNegotiationLog(prev => [...prev, t("nego.log.wageRejected", { wage: money(sanitizedSalary), min: money(Math.ceil(minimumSalary * ACCEPT_WITHIN)) })])
         }
     }
 

@@ -1,4 +1,4 @@
-import { STORED_REF } from "@/lib/i18n"
+import { DATE_REF, STORED_REF, tRefEn, type TextRef } from "@/lib/i18n"
 import { eventText } from "@/lib/news-ref"
 import { generateCareerDecision } from "./career-decisions"
 import { applyMapRotation, rotateSeasonMapPool } from "./season/map-rotation"
@@ -21,10 +21,8 @@ import { debug } from "@/lib/debug-logger"
 import { SaveManager, saveManager } from "./save-manager"
 import {
     GameSave,
-    TeamSaveData,
     WeekTickState,
     GameEventSaveData,
-    CompletedMatchSaveData,
     TournamentSaveData,
     StaffSaveData,
     } from "./save-types"
@@ -35,14 +33,10 @@ import { processWeeklyChemistryGrowth } from "./chemistry-engine"
 import {
     TrainingFocus,
     } from "@/types"
-import { applyFormResult, applyMoraleResult, resultSurpriseFactor } from "./player-lifecycle"
 import { EconomyEngine } from "./economy-engine"
 import { LegendEventsManager } from "./legend-events-manager"
 import { EventsManager } from "./events-manager"
-import { updateRivalries, getRivalryBetween, derbyMultiplier } from "./history-tracker"
-import { psychologistMoraleDampen } from "./staff-specialization"
-import { MatchAnalyzer } from "./match-analyzer"
-import { TrainingManager } from "./training-manager"
+import { TrainingManager, managerTrainingSlots } from "./training-manager"
 import { TrainingProcessor } from "./processors/training-processor"
 import { AI_SQUAD_TUNING } from "@/lib/balance-tuning"
 import { FinanceProcessor } from "./processors/finance-processor"
@@ -57,20 +51,15 @@ import { processFanbaseGrowth as processFanbaseGrowthFn } from "./processors/fan
 import { processScoutingMissions as processScoutingMissionsFn } from "./processors/scouting-mission-processor"
 import { processMarketAlerts } from "./market-search"
 import { processWeeklySponsorGoals as processWeeklySponsorGoalsFn } from "./processors/sponsor-goals-processor"
-import { applyMatchSponsorGoalProgress as applyMatchSponsorGoalProgressFn } from "./processors/match-sponsor-goals"
 import { resetStaleTournamentState } from "./processors/tournament-state-cleanup"
-import { detectAchievementFlags } from "./processors/match-achievement-flags"
-import { processForfeitMatch } from "./processors/match-forfeit"
-import { processMatchWeaponMastery } from "./processors/match-weapon-mastery"
-import { applyMatchManagerXP } from "./processors/match-manager-xp"
-import { settlePlayerContractBonuses } from "./processors/player-contract-bonuses"
+import { playAutoMatch } from "./processors/auto-match"
 import { generateNarrativeNews as generateNarrativeNewsFn } from "./processors/narrative-news"
 import { processDressingRoom } from "./processors/dressing-room"
-import { assignPersonalities, isOfficialMatch, lineupDefeatShield, playerResultMorale, recordAppearances } from "./personality"
+import { assignPersonalities } from "./personality"
 import { processAIWorldLogic as processAIWorldLogicFn } from "./processors/ai-world-processor"
 import { updateStandings as updateStandingsFn } from "./processors/standings-processor"
 import { LeagueEngine } from "./league-engine"
-import { applyTierBands, expectedScore, tiersAreBanded } from "./world-ranking"
+import { applyTierBands, tiersAreBanded } from "./world-ranking"
 import { competitionLabel, rankMovementEntries } from "./ranking-report"
 import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
 import { TournamentManager } from "./tournament-manager"
@@ -78,7 +67,7 @@ import { JobOfferGenerator } from "./job-offer-generator"
 import { QualificationEngine, CircuitPointsManager } from "./tournament-qualification"
 import { buildAnnualAwards, shouldTriggerAwards, addProAwardsEvent } from "./pro-awards-engine"
 import { updateReputationAtSeasonEnd } from "./player-evaluation"
-import { honoursFor, recordOfficialMatch, recordTierMove } from "./official-stats"
+import { honoursFor, recordTierMove } from "./official-stats"
 import { closeSeason } from "./season-honours"
 import { queueMoment, seasonReviewMoment } from "./moments"
 import { closeStint } from "./manager-timeline"
@@ -124,6 +113,32 @@ function eventCauseLabel(event: GameEventSaveData): string {
     const text = [d.title, d.headline, d.description, d.message].find(v => typeof v === "string" && v.trim()) as string | undefined
     const clean = (text ?? String(event.type)).replace(/[^\p{L}\p{N}\s.,:;'!?()&+\-–—$%#/]/gu, "").trim()
     return clean.length > 70 ? `${clean.slice(0, 67)}...` : clean
+}
+
+/**
+ * When the managed club's match falls, for the week-start "Match Day!"
+ * notice. In daily mode the week starts on day 0 and the match is often days
+ * later ("on Sun, Jan 10"), not "today" (HOME-09). Weekly mode plays the
+ * whole week in this tick, so "today" stays. Stored text is English.
+ */
+export function matchDayWhen(
+    save: Pick<GameSave, "timeMode" | "gameStartDate">,
+    match: { week: number; day?: number },
+): TextRef {
+    if (save.timeMode !== "HYBRID_DAILY" || typeof match.day !== "number" || match.day <= 0) return { key: "evn.when.today" }
+    if (!save.gameStartDate || Number.isNaN(new Date(save.gameStartDate).getTime())) return { key: "evn.when.week" }
+    // Same date math as lib/game-calendar (gameCalendarDate), without its UI-locale import.
+    const date = new Date(save.gameStartDate)
+    date.setUTCDate(date.getUTCDate() + (match.week - 1) * 7 + match.day)
+    return { key: "evn.when.on", params: { date: { key: DATE_REF, params: { iso: date.toISOString() } } } }
+}
+
+/** The English "today" / "this week" / "on Sun, Jan 4" of a match-day notice. */
+export function matchDayPhrase(
+    save: Pick<GameSave, "timeMode" | "gameStartDate">,
+    match: { week: number; day?: number },
+): string {
+    return tRefEn(matchDayWhen(save, match))
 }
 
 // ===== DEBUG =====
@@ -386,6 +401,7 @@ export class AtomicWeekProcessor {
                     const tournament = match.tournamentId ? idx.tournamentIndex.get(match.tournamentId) : undefined
 
                     if (opponent && tournament) {
+                        const when = matchDayWhen(save, match)
                         save.eventsLog.push({
                             id: `upcoming_match_${match.id}_${save.currentWeek}`,
                             type: "TOURNAMENT",
@@ -394,7 +410,7 @@ export class AtomicWeekProcessor {
                             data: {
                                 ...eventText({ key: "evn.matchDay.t" }, {
                                     key: opponent.worldRanking ? "evn.matchDay.m" : "evn.matchDay.mNoRank",
-                                    params: { opp: opponent.name, rank: opponent.worldRanking ?? "", event: tournament.name, stage: { key: STORED_REF, params: { text: match.stage || "Tournament Match" } } },
+                                    params: { opp: opponent.name, rank: opponent.worldRanking ?? "", when, event: tournament.name, stage: { key: STORED_REF, params: { text: match.stage || "Tournament Match" } } },
                                 }),
                                 severity: "info",
                                 tournamentId: tournament.id,
@@ -631,7 +647,7 @@ export class AtomicWeekProcessor {
                 // progress toward potential (drills are potential-capped, G3).
                 // Synced every week so existing saves heal on first tick.
                 const playerTeam = save.teams.find(t => t.id === config.playerTeamId)
-                const derivedMaxSlots = 10 + Math.floor((save.managerDetails.level || 1) / 3)
+                const derivedMaxSlots = managerTrainingSlots(save.managerDetails.level)
                 const oldMaxSlots = playerTeam?.maxTrainingSlots ?? 10
                 const slotIncreased = playerTeam && oldMaxSlots < derivedMaxSlots
                 if (playerTeam && slotIncreased) {
@@ -843,17 +859,24 @@ export class AtomicWeekProcessor {
             if (!cm.result.maps?.length) return { type: "match", label: `Forfeit ${won ? "win" : "loss"} vs ${opp}${where}` }
             return { type: "match", label: `${won ? "Beat" : "Lost to"} ${opp} ${sideScore(cm.result, cm.homeTeamId === playerTeamId)}${where}` }
         }
+        // Daily calendar: the tick opens the new week on day 0, so it plays
+        // only that day's AI fixtures; the store's day-by-day path
+        // (simulateDueAIMatchesForDay) plays the rest on their own day, with
+        // the same routine (processors/auto-match).
+        const dailyMode = save.timeMode === "HYBRID_DAILY"
         const weekMatches = save.scheduledMatches.filter(m => {
             const isPastWeek = m.week < save.currentWeek
             const isCurrentWeek = m.week === save.currentWeek
             const isPlayerMatch = m.homeTeamId === playerTeamId || m.awayTeamId === playerTeamId
             const isAlreadyCompleted = transaction.completedMatchIds.includes(m.id)
+            const isDueOnOpeningDay = !dailyMode || (m.day ?? 6) <= 0
 
             // Auto-simulate if:
-            // 1. It's a past week match (player missed it)
-            // 2. OR it's current week AND NOT a player match
+            // 1. It's a past week match (player missed it, or a daily-mode
+            //    fixture of last week that its day never reached)
+            // 2. OR it's current week AND NOT a player match AND its day has come
             // AND the match ID isn't already processed in this transaction
-            const shouldAutoSimulate = (isPastWeek || (isCurrentWeek && !isPlayerMatch)) && !isAlreadyCompleted
+            const shouldAutoSimulate = (isPastWeek || (isCurrentWeek && !isPlayerMatch && isDueOnOpeningDay)) && !isAlreadyCompleted
 
             return shouldAutoSimulate
         })
@@ -889,379 +912,20 @@ export class AtomicWeekProcessor {
             const tracksManagedClub = !!mark && (match.homeTeamId === playerTeamId || match.awayTeamId === playerTeamId)
             if (tracksManagedClub) mark({ type: "world", label: "Other results" })
             try {
-
-            // Select active 5, skipping injured players and pulling from bench.
-            // Defensive `|| []` against corrupt/legacy saves where rosterIds
-            // could be missing despite the type contract.
-            const selectActivePlayers = (rosterIds: string[] | undefined) => {
-                const available = (rosterIds || [])
-                    .map(id => idx?.playerIndex.get(id) ?? save.players.find(p => p.id === id))
-                    .filter(p => p && !p.injury) as typeof save.players
-                return available.slice(0, 5)
-            }
-
-            const homePlayers = selectActivePlayers(homeTeam.rosterIds)
-            const awayPlayers = selectActivePlayers(awayTeam.rosterIds)
-
-            if (homePlayers.length < 5 || awayPlayers.length < 5) {
-                // Forfeit branch extracted to processors/match-forfeit.ts
-                // (Phase M7). Returns the matchesPlayed delta.
-                const { matchesPlayed: forfeitDelta } = processForfeitMatch({
-                    save, match, homeTeam, awayTeam, homePlayers, awayPlayers,
-                    playerTeamId, removedMatchIds,
+                const outcome = playAutoMatch(save, match, homeTeam, awayTeam, {
+                    rng, playerTeamId, idx, staffByTeamId, eventIdSet, ledgerIdSet, removedMatchIds,
+                    engine: this.matchEngine,
                 })
-                matchesPlayed += forfeitDelta
-                continue
-            }
-
-            try {
-            // Team staff drive the match exactly as on the managed path
-            // (coach/analyst/psychologist levels + talents); the playstyle
-            // counter is applied inside the engine. No extra tactical bonus:
-            // the old analyst-stat + RPS bonus here was scaled x10 by the
-            // engine and double-counted the counter.
-            const homeTeamStaff = staffByTeamId.get(homeTeam.id) ?? []
-            const awayTeamStaff = staffByTeamId.get(awayTeam.id) ?? []
-
-            // Simulate using full engine
-            const result = this.matchEngine.simulateMatch(
-                match,
-                homeTeam,
-                awayTeam,
-                homePlayers,
-                awayPlayers,
-                rng,
-                0,
-                0,
-                homeTeamStaff,
-                awayTeamStaff,
-                playerTeamId,
-            )
-
-            // Weapon-mastery XP aggregation + application extracted to
-            // processors/match-weapon-mastery.ts (Phase M8). The function
-            // walks result.maps[].rounds[].kills[] once, buckets by weapon
-            // type, then calls WeaponMasteryManager.processMatchWeaponXP
-            // for every player with kills.
-            processMatchWeaponMastery(save, result, idx)
-
-            // Manager XP + win/loss + reputation extracted to
-            // processors/match-manager-xp.ts (Phase M9). Analyst
-            // "xp_gain" talent multiplier applied internally.
-            applyMatchManagerXP(save, match, result, playerTeamId)
-
-            // Phase 12: Analyze match
-            const analysis = MatchAnalyzer.analyze(
-                match,
-                result,
-                homeTeam?.name || "Home Team",
-                awayTeam?.name || "Away Team",
-                homePlayers,
-                awayPlayers
-            )
-
-            // Record result.
-            //
-            // Phase O.2 save-size fix: AI-vs-AI matches were averaging
-            // 123 KB each — almost entirely from result.maps[].rounds[]
-            // event detail that the player never sees. At week 52 of a
-            // smoke save, this was ballooning the on-disk save to 18 MB.
-            //
-            // Player-team matches keep full round detail (the result
-            // page reads it for the play-by-play view). AI-vs-AI matches
-            // strip rounds[] — the scoreboard (finalScore, MVP, etc.)
-            // survives intact for stats pages, ranking, and trophy
-            // tracking, which only read summary fields.
-            const isPlayerMatch =
-                match.homeTeamId === playerTeamId ||
-                match.awayTeamId === playerTeamId
-            const resultForSave = isPlayerMatch
-                ? result
-                : {
-                    ...result,
-                    maps: result.maps.map(m => ({ ...m, rounds: [] })),
-                }
-            const completedMatch: CompletedMatchSaveData = {
-                ...match,
-                result: resultForSave,
-                analysis,
-            }
-
-            save.completedMatches.push(completedMatch)
-            removedMatchIds.add(match.id)
-
-            // Phase 5.1: careers, season tallies and records from the full
-            // result (before its rounds were stripped). Friendlies don't count.
-            recordOfficialMatch(save, match, result, {
-                player: id => idx?.playerIndex.get(id) ?? save.players.find(p => p.id === id),
-                team: id => idx?.teamIndex.get(id) ?? save.teams.find(t => t.id === id),
-                tournamentTier: match.tournamentId
-                    ? (idx?.tournamentIndex.get(match.tournamentId) ?? save.tournaments.find(t => t.id === match.tournamentId))?.tier ?? null
-                    : null,
-            })
-
-            // Achievement flag detection extracted to
-            // processors/match-achievement-flags.ts (Phase M6). Returns
-            // comeback + underdog flags written onto the completed match.
-            const { comebackWin, underdogWin } = detectAchievementFlags(result, homeTeam, awayTeam)
-            if (comebackWin) completedMatch._comebackWin = true
-            if (underdogWin) completedMatch._underdogWin = true
-
-            // Update player stats
-            const homeWon = result.homeScore > result.awayScore
-
-            // Resolve tournament tier for fatigue/morale scaling and XP
-            let matchTournamentTier: string | undefined
-            if (match.tournamentId && match.tournamentId !== "SCRIM") {
-                const matchTournament = idx?.tournamentIndex.get(match.tournamentId) ?? save.tournaments.find(t => t.id === match.tournamentId)
-                if (matchTournament) matchTournamentTier = matchTournament.tier
-            }
-
-            // Tournament XP bonus for participating players
-            if (matchTournamentTier) {
-                const tierXpBonus: Record<string, number> = {
-                    "S_TIER": 200, "A_TIER": 150, "B_TIER": 100, "C_TIER": 50
-                }
-                const baseXp = tierXpBonus[matchTournamentTier] ?? 50
-                const winBonus = 100
-                // Level-ups apply world-wide, but only the managed club's
-                // reach the inbox: AI rosters produced ~60 PLAYER_LEVEL_UP
-                // items (each also a toast) in busy tournament weeks.
-                const applyTournamentXP = (players: typeof save.players, won: boolean, teamId: string) => {
-                    players.forEach(p => {
-                        const xpGain = baseXp + (won ? winBonus : 0)
-                        p.xp = (p.xp ?? 0) + xpGain
-
-                        // Level-up check
-                        const threshold = p.xpToNextLevel || 1000
-                        if (p.xp >= threshold) {
-                            p.xp -= threshold
-                            p.level = (p.level || 1) + 1
-                            p.talentPoints = (p.talentPoints || 0) + 1
-                            p.xpToNextLevel = Math.floor(threshold * 1.5)
-                            if (teamId === playerTeamId) save.eventsLog.unshift({
-                                id: `evt_lvl_${save.currentWeek}_${p.id}_t`,
-                                type: "PLAYER_LEVEL_UP",
-                                week: save.currentWeek,
-                                data: { playerName: p.nickname || p.id, newLevel: p.level },
-                                acknowledged: false
-                            })
-                        }
-                    })
-                }
-                applyTournamentXP(homePlayers, homeWon, match.homeTeamId)
-                applyTournamentXP(awayPlayers, !homeWon, match.awayTeamId)
-            }
-
-            // Fatigue scaled by match format (BO1=10, BO3=15, BO5=25)
-            const matchFormat = (match.format || "BO1").toUpperCase()
-            const fatigueCost = matchFormat === "BO5" ? 25 : matchFormat === "BO3" ? 15 : 10
-
-            // Morale scaled by tournament tier
-            const getMoraleChange = (won: boolean): number => {
-                if (!matchTournamentTier) return won ? 5 : -5
-                switch (matchTournamentTier) {
-                    case "S_TIER": return won ? 15 : -3
-                    case "A_TIER": return won ? 10 : -4
-                    case "B_TIER": return won ? 7 : -5
-                    default: return won ? 5 : -5
-                }
-            }
-
-            // Phase 11b: Derby stakes — an established rivalry amplifies the morale
-            // swing of the result, both ways. Read the intensity BEFORE
-            // updateRivalries() increments it below, so it reflects the heat
-            // coming INTO the match. Rivalry is symmetric, so the home view suffices.
-            const derbyStakes = derbyMultiplier(getRivalryBetween(homeTeam, awayTeam.id)?.intensity)
-
-            // Psychologist stressResistance softens the morale hit of a defeat
-            // (per team — each side's own staff). 0 when no psychologist.
-            const homeStaff = idx?.staffByTeamId.get(homeTeam.id) ?? save.staff.filter(s => s.teamId === homeTeam.id)
-            const awayStaff = idx?.staffByTeamId.get(awayTeam.id) ?? save.staff.filter(s => s.teamId === awayTeam.id)
-            const homeMoraleDampen = psychologistMoraleDampen(homeStaff)
-            const awayMoraleDampen = psychologistMoraleDampen(awayStaff)
-            // Phase 5.2: the captain, when he plays, spares his lineup part of
-            // a defeat's morale; each player's archetype scales his swing.
-            const lookupPlayer = (id: string) => idx?.playerIndex.get(id) ?? save.players.find(p => p.id === id)
-            const homeShield = lineupDefeatShield(homeTeam, homePlayers.map(p => p.id), lookupPlayer)
-            const awayShield = lineupDefeatShield(awayTeam, awayPlayers.map(p => p.id), lookupPlayer)
-
-            // C1: the result is judged against the odds (pre-match Elo; the
-            // Elo exchange below runs after this).
-            const homeExpected = expectedScore(homeTeam.elo ?? 1000, awayTeam.elo ?? 1000)
-            if (isPlayerMatch) completedMatch.homeExpected = Math.round(homeExpected * 1000) / 1000
-
-            const updateStats = (players: typeof save.players, won: boolean, moraleLossDampen: number, shield: number, expected: number) => {
-                const surprise = resultSurpriseFactor(expected, won)
-                players.forEach(p => {
-                    const pStat = result.playerStats[p.id]
-                    p.matchesPlayed++
-                    // Kills/deaths/rating totals: recordOfficialMatch (official matches only).
-                    if (pStat) {
-                        p.headshots = (p.headshots || 0) + (pStat.headshots || 0)
-                        p.totalHeadshots = (p.totalHeadshots || 0) + (pStat.headshots || 0)
-                    }
-
-                    p.fatigue = Math.min(100, p.fatigue + fatigueCost)
-
-                    // Phase 55: Energy drain from matches (-15 per match)
-                    p.energy = Math.max(0, (p.energy ?? 100) - 15)
-
-                    let moraleDelta = getMoraleChange(won) * derbyStakes * surprise
-                    if (moraleDelta < 0) moraleDelta *= (1 - moraleLossDampen)
-                    p.morale = applyMoraleResult(p.morale, playerResultMorale(p, moraleDelta, shield))
-                    p.form = applyFormResult(p.form, won, surprise)
-
-                    // Phase 6: Skill Point Progression
-                    // 5% chance on win, 1% on loss to simulate learning
-                    const spChance = won ? 0.05 : 0.01
-                    if (rng.next() < spChance) {
-                        p.availableSkillPoints = (p.availableSkillPoints || 0) + 1
-                        // Optional: Log an event for this? Might be too spammy.
-                    }
-                })
-            }
-
-            updateStats(homePlayers, homeWon, homeMoraleDampen, homeShield, homeExpected)
-            updateStats(awayPlayers, !homeWon, awayMoraleDampen, awayShield, 1 - homeExpected)
-            // Phase 5.2: official appearances (starters / fit players left out).
-            if (isOfficialMatch(match)) {
-                recordAppearances(homeTeam, homePlayers.map(p => p.id), lookupPlayer)
-                recordAppearances(awayTeam, awayPlayers.map(p => p.id), lookupPlayer)
-            }
-
-            this.applyMatchSponsorGoalProgress(save, homeTeam, homeWon, result.homeScore, match.id, eventIdSet, ledgerIdSet)
-            this.applyMatchSponsorGoalProgress(save, awayTeam, !homeWon, result.awayScore, match.id, eventIdSet, ledgerIdSet)
-            settlePlayerContractBonuses(save, match.id, homeTeam.id, homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet, isOfficialMatch(match))
-            settlePlayerContractBonuses(save, match.id, awayTeam.id, !homeWon, Object.keys(result.playerStats ?? {}), result.mvpPlayerId, ledgerIdSet, isOfficialMatch(match))
-
-            // Phase 11: Update team rivalries
-            updateRivalries(save, completedMatch)
-
-            // Phase 19: Update Elo ratings and Recent Form
-            const scoreDiff = Math.abs(result.homeScore - result.awayScore)
-            const isDraw = scoreDiff === 0
-
-            const winnerId = homeWon ? homeTeam.id : awayTeam.id
-            const loserId = homeWon ? awayTeam.id : homeTeam.id
-
-            // Update Recent Form
-            const updateForm = (teamId: string, outcome: "W" | "L" | "D") => {
-                const team = idx?.teamIndex.get(teamId) ?? save.teams.find(t => t.id === teamId)
-                if (team) {
-                    if (!team.recentForm) team.recentForm = []
-                    team.recentForm.push(outcome)
-                    // Keep last 5 matches
-                    if (team.recentForm.length > 5) team.recentForm.shift()
-                }
-            }
-
-            if (isDraw) {
-                updateForm(homeTeam.id, "D")
-                updateForm(awayTeam.id, "D")
-            } else {
-                updateForm(winnerId, "W")
-                updateForm(loserId, "L")
-
-                // Resolve the event tier: it sets the match's rating weight
-                let tournamentTier: string | undefined
-                if (match.tournamentId && match.tournamentId !== "SCRIM") {
-                    const tournament = idx?.tournamentIndex.get(match.tournamentId) ?? save.tournaments.find(t => t.id === match.tournamentId)
-                    if (tournament) tournamentTier = tournament.tier
-                }
-
-                // Phase 4.8: no per-club "calibration" K. It was read from the
-                // completed-match log, which the league compacts to four weeks,
-                // so most clubs stayed on the volatile K forever; new clubs
-                // get a provisional K from their own rated-match counter.
-
-                // Calculate Net Round Differential (Total rounds won by winner - Total rounds won by loser)
-                // result.maps contains round scores. result.homeScore is Map wins.
-                // We need to iterate maps to get round details.
-                let homeRoundsTotal = 0
-                let awayRoundsTotal = 0
-
-                result.maps.forEach(m => {
-                    homeRoundsTotal += m.homeScore || 0
-                    awayRoundsTotal += m.awayScore || 0
-                })
-
-                // If homeWon, diff = home - away. If awayWon, diff = away - home.
-                const roundDiff = homeWon
-                    ? (homeRoundsTotal - awayRoundsTotal)
-                    : (awayRoundsTotal - homeRoundsTotal)
-
-                const eloResult = LeagueEngine.updateEloAfterMatch(
-                    save,
-                    winnerId,
-                    loserId,
-                    scoreDiff,
-                    tournamentTier,
-                    undefined,
-                    undefined,
-                    roundDiff,
-                    { tournamentId: match.tournamentId, stage: match.stage, maps: result.maps.length },
-                )
-
-                // Store ELO change (Phase 19 improvement)
-                const savedMatch = (idx?.completedMatchIndex.get(match.id) as CompletedMatchSaveData | undefined) ?? save.completedMatches.find(m => m.id === match.id)
-                if (savedMatch && eloResult) {
-                    savedMatch.eloChange = {
-                        home: homeWon ? eloResult.winnerChange : eloResult.loserChange,
-                        away: homeWon ? eloResult.loserChange : eloResult.winnerChange
-                    }
-                }
-            }
-
-            // NEW: Tournament Progression
-            if (match.tournamentId && match.tournamentId !== "SCRIM") {
-                TournamentManager.processMatchResult(save, match.tournamentId, match.id, winnerId, loserId)
-            }
-
-            // Phase 48: Talent Point Rewards
-            // MVP of the match gets talent points (scaled by tournament tier)
-            if (result.mvpPlayerId) {
-                const mvpPlayer = idx?.playerIndex.get(result.mvpPlayerId) ?? save.players.find(p => p.id === result.mvpPlayerId)
-                if (mvpPlayer) {
-                    const mvpTalentBonus = matchTournamentTier === "S_TIER" ? 3
-                        : matchTournamentTier === "A_TIER" ? 2
-                            : 1
-                    mvpPlayer.talentPoints = (mvpPlayer.talentPoints || 0) + mvpTalentBonus
-                    mvpPlayer.totalMVPs = (mvpPlayer.totalMVPs || 0) + 1
-                }
-            }
-
-            // Players hitting match milestones (every 10 matches) get 1 talent point
-            ;[...homePlayers, ...awayPlayers].forEach(p => {
-                if (p.matchesPlayed > 0 && p.matchesPlayed % 10 === 0) {
-                    p.talentPoints = (p.talentPoints || 0) + 1
-                }
-            })
-
-            await this.saveManager.recordMatchComplete(transaction, match.id)
-            matchesPlayed++
-            } catch (matchErr) {
-                // A single match throwing must not abort the entire week.
-                debug.error('[atomic-week-processor] match processing failed', matchErr)
-                if (!removedMatchIds.has(match.id)) {
-                    // simulateMatch (or pre-record processing) threw before the
-                    // result was saved — forfeit the match so the week still
-                    // completes instead of aborting every remaining match.
+                if (outcome.recorded) {
                     try {
-                        const { matchesPlayed: forfeitDelta } = processForfeitMatch({
-                            save, match, homeTeam, awayTeam, homePlayers, awayPlayers,
-                            playerTeamId, removedMatchIds,
-                        })
-                        matchesPlayed += forfeitDelta
-                    } catch (forfeitErr) {
-                        debug.error('[atomic-week-processor] forfeit fallback failed; dropping match', forfeitErr)
-                        removedMatchIds.add(match.id)
+                        await this.saveManager.recordMatchComplete(transaction, match.id)
+                        matchesPlayed++
+                    } catch (recordErr) {
+                        debug.error('[atomic-week-processor] recording match completion failed', recordErr)
                     }
+                } else {
+                    matchesPlayed += outcome.matchesPlayed
                 }
-                // If the match WAS already recorded, a post-result step
-                // (Elo, tournament progression) threw — keep the result and
-                // move on rather than re-forfeiting a duplicate.
-            }
             } finally {
                 if (tracksManagedClub) mark?.(matchCause(match.id))
             }
@@ -1305,21 +969,6 @@ export class AtomicWeekProcessor {
      */
     private processFanbaseGrowth(save: GameSave, rng: SeededRNG): void {
         processFanbaseGrowthFn(save, rng)
-    }
-
-    // Per-match sponsor goal progress extracted to
-    // engine/processors/match-sponsor-goals.ts (Phase M2). Facade kept
-    // so processMatches still calls this.applyMatchSponsorGoalProgress.
-    private applyMatchSponsorGoalProgress(
-        save: GameSave,
-        team: TeamSaveData,
-        wonMatch: boolean,
-        mapsWon: number,
-        matchId: string,
-        eventIdSet?: Set<string>,
-        ledgerIdSet?: Set<string>
-    ): void {
-        applyMatchSponsorGoalProgressFn(save, team, wonMatch, mapsWon, matchId, eventIdSet, ledgerIdSet)
     }
 
     /**

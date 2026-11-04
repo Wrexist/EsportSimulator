@@ -13,6 +13,8 @@ import { ChevronRight, ChevronLeft, Plus, Trophy, Plane, Megaphone } from "lucid
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { getDynamicTournamentName } from "@/lib/utils-extended"
+import { recordEventName, seasonStartWeek } from "@/lib/tournament-instances"
+import { getSeasonFromWeek } from "@/engine/circuit-engine"
 import { Panel } from "@/src/components/ui/Panel"
 import { ScreenHeader } from "@/src/components/ui/ScreenHeader"
 import { BookScrimModal } from "@/components/schedule/BookScrimModal"
@@ -26,7 +28,7 @@ import { ScheduleActivityCard } from "@/components/schedule/ScheduleActivityCard
 import { TeamMatchPopup } from "@/components/schedule/TeamMatchPopup"
 import { leagueStageLabel } from "@/components/league/league-view"
 import { activityDescription, activityKind, activityName } from "@/components/schedule/activity-labels"
-import { FULL_TOURNAMENT_CALENDAR } from "@/data/tournament-calendar"
+import { FULL_TOURNAMENT_CALENDAR, getTournamentById } from "@/data/tournament-calendar"
 
 import { WEEKS_PER_YEAR } from "@/lib/constants"
 
@@ -403,7 +405,7 @@ export default function SchedulePage() {
                           className="flex w-full items-center gap-1.5 rounded-sm bg-raised px-2 py-1 text-left text-xs transition-colors hover:bg-hover"
                         >
                           <Trophy size={12} className="shrink-0 text-gold" />
-                          <span className="truncate font-semibold text-ink-1">{getDynamicTournamentName(ev.shortName || ev.name, weekNum)}</span>
+                          <span className="truncate font-semibold text-ink-1">{getDynamicTournamentName(ev.shortName || ev.name, seasonStartWeek(ev, getSeasonFromWeek(weekNum)), gameStartDate, ev.duration)}</span>
                           <span className="ml-auto shrink-0 text-[11px] text-ink-3">{ev.tier === "QUALIFIER" ? t("common.tier.QUALIFIER") : t(`common.tier.${ev.tier}`)}</span>
                         </button>
                       ))}
@@ -470,8 +472,8 @@ export default function SchedulePage() {
                         <div className={cn("space-y-1", isPastDay && !hasItems && "opacity-60")}>
                           {dayMatches.map(match => {
                             const tournamentDef = match.tournamentId
-                              ? FULL_TOURNAMENT_CALENDAR.find(t =>
-                                match.tournamentId === t.id || match.tournamentId?.startsWith(`${t.id}_`)
+                              ? getTournamentById(match.tournamentId) ?? FULL_TOURNAMENT_CALENDAR.find(t =>
+                                match.tournamentId?.startsWith(`${t.id}_`)
                               )
                               : null
                             return (
@@ -481,7 +483,7 @@ export default function SchedulePage() {
                                 teams={teams as any}
                                 playerTeamId={playerTeamId || ""}
                                 isScrim={match.isScrim}
-                                tournamentName={leagueStageLabel(match) ?? (tournamentDef ? getDynamicTournamentName(tournamentDef.shortName || tournamentDef.name, currentWeek) : undefined)}
+                                tournamentName={leagueStageLabel(match) ?? (tournamentDef ? recordEventName(tournamentDef.shortName || tournamentDef.name, match.tournamentId, weekNum, gameStartDate) : undefined)}
                                 isCurrentWeek={isCurrent}
                                 onClick={() => {
                                   if (match.result) router.push(`/match/${match.id}/result`)

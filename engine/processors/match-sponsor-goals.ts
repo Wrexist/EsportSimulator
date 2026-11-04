@@ -11,6 +11,9 @@
  *   - "Win Matches"        — increments by 1 if the team won
  *   - "Win Tournament maps" — increments by mapsWon (counts every map win)
  *
+ * Only official matches count (MARKET-06): a friendly or scrim win is no
+ * "Win Matches" result and no tournament map.
+ *
  * Idempotent: ledger entries + events are keyed on
  * (week, team, sponsor, goal, match) so re-running the same match
  * doesn't double-pay or double-notify.
@@ -18,17 +21,20 @@
 
 import type { GameSave, TeamSaveData } from "../save-types"
 import { paySponsorGoalBonus } from "./sponsor-goal-payout"
+import { isOfficialMatch } from "../personality"
 
 export function applyMatchSponsorGoalProgress(
     save: GameSave,
     team: TeamSaveData,
     wonMatch: boolean,
     mapsWon: number,
-    matchId: string,
+    match: { id: string; tournamentId?: string | null; isScrim?: boolean },
     eventIdSet?: Set<string>,
     ledgerIdSet?: Set<string>,
 ): void {
     if (!team.sponsors || team.sponsors.length === 0) return
+    if (!isOfficialMatch(match)) return
+    const matchId = match.id
 
     team.sponsors.forEach(sponsor => {
         if (!Array.isArray(sponsor.goals)) return

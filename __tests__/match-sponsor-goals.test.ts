@@ -39,6 +39,8 @@ function makeTeam(overrides: Partial<TeamSaveData> = {}): TeamSaveData {
     } as unknown as TeamSaveData
 }
 
+const OFFICIAL = { id: "m1", tournamentId: "league_cis_d4_s1" }
+
 function makeSave(team: TeamSaveData, playerTeamId: string = team.id): GameSave {
     return {
         saveVersion: 6, saveId: "test", saveName: "test",
@@ -60,7 +62,7 @@ describe("applyMatchSponsorGoalProgress", () => {
     test("no sponsors → no-op", () => {
         const team = makeTeam({ sponsors: [] })
         const save = makeSave(team)
-        applyMatchSponsorGoalProgress(save, team, true, 2, "m1")
+        applyMatchSponsorGoalProgress(save, team, true, 2, OFFICIAL)
         expect(save.financeLedger.length).toBe(0)
     })
 
@@ -71,7 +73,7 @@ describe("applyMatchSponsorGoalProgress", () => {
         const team = makeTeam({ sponsors: [sponsor] })
         const save = makeSave(team)
 
-        applyMatchSponsorGoalProgress(save, team, true, 2, "m1")
+        applyMatchSponsorGoalProgress(save, team, true, 2, OFFICIAL)
 
         expect(sponsor.goals![0].current).toBe(1)
         expect(sponsor.goals![0].isCompleted).toBe(false)
@@ -85,7 +87,7 @@ describe("applyMatchSponsorGoalProgress", () => {
         const team = makeTeam({ sponsors: [sponsor] })
         const save = makeSave(team)
 
-        applyMatchSponsorGoalProgress(save, team, false, 1, "m1")
+        applyMatchSponsorGoalProgress(save, team, false, 1, OFFICIAL)
 
         expect(sponsor.goals![0].current).toBe(2) // unchanged
     })
@@ -97,7 +99,7 @@ describe("applyMatchSponsorGoalProgress", () => {
         const team = makeTeam({ sponsors: [sponsor] })
         const save = makeSave(team)
 
-        applyMatchSponsorGoalProgress(save, team, true, 3, "m1")
+        applyMatchSponsorGoalProgress(save, team, true, 3, OFFICIAL)
 
         expect(sponsor.goals![0].current).toBe(8) // 5 + 3
     })
@@ -109,7 +111,7 @@ describe("applyMatchSponsorGoalProgress", () => {
         const team = makeTeam({ sponsors: [sponsor], budget: 100_000 })
         const save = makeSave(team)
 
-        applyMatchSponsorGoalProgress(save, team, true, 1, "m1")
+        applyMatchSponsorGoalProgress(save, team, true, 1, OFFICIAL)
 
         expect(sponsor.goals![0].current).toBe(3)
         expect(sponsor.goals![0].isCompleted).toBe(true)
@@ -126,7 +128,7 @@ describe("applyMatchSponsorGoalProgress", () => {
         const team = makeTeam({ sponsors: [sponsor] })
         const save = makeSave(team)
 
-        applyMatchSponsorGoalProgress(save, team, true, 5, "m1")
+        applyMatchSponsorGoalProgress(save, team, true, 5, OFFICIAL)
 
         // current would be 23, but should cap at 20.
         expect(sponsor.goals![0].current).toBe(20)
@@ -139,7 +141,7 @@ describe("applyMatchSponsorGoalProgress", () => {
         const playerTeam = makeTeam({ id: "player", sponsors: [sponsor] })
         const save = makeSave(playerTeam, "player")
 
-        applyMatchSponsorGoalProgress(save, playerTeam, true, 1, "m1")
+        applyMatchSponsorGoalProgress(save, playerTeam, true, 1, OFFICIAL)
 
         const events = save.eventsLog.filter(e => e.type === "SPONSOR_OFFER")
         expect(events.length).toBe(1)
@@ -150,7 +152,7 @@ describe("applyMatchSponsorGoalProgress", () => {
             goals: [{ id: "g2", description: "Win Matches", current: 2, target: 3, bonusPayout: 5000, isCompleted: false }],
         })] })
         const aiSave = makeSave(ai, "player") // player is someone else
-        applyMatchSponsorGoalProgress(aiSave, ai, true, 1, "m1")
+        applyMatchSponsorGoalProgress(aiSave, ai, true, 1, OFFICIAL)
 
         const aiEvents = aiSave.eventsLog.filter(e => e.type === "SPONSOR_OFFER")
         expect(aiEvents.length).toBe(0)
@@ -163,7 +165,7 @@ describe("applyMatchSponsorGoalProgress", () => {
         const team = makeTeam({ sponsors: [sponsor], budget: 100_000 })
         const save = makeSave(team)
 
-        applyMatchSponsorGoalProgress(save, team, true, 1, "m1")
+        applyMatchSponsorGoalProgress(save, team, true, 1, OFFICIAL)
 
         expect(team.budget).toBe(100_000)
         expect(save.financeLedger.length).toBe(0)
@@ -177,14 +179,14 @@ describe("applyMatchSponsorGoalProgress", () => {
         const save = makeSave(team)
 
         // First call: pays.
-        applyMatchSponsorGoalProgress(save, team, true, 1, "m1")
+        applyMatchSponsorGoalProgress(save, team, true, 1, OFFICIAL)
         expect(team.budget).toBe(105_000)
         expect(save.financeLedger.length).toBe(1)
 
         // Reset isCompleted flag (simulating bad state) and re-run with same matchId.
         sponsor.goals![0].isCompleted = false
         sponsor.goals![0].current = 2
-        applyMatchSponsorGoalProgress(save, team, true, 1, "m1")
+        applyMatchSponsorGoalProgress(save, team, true, 1, OFFICIAL)
 
         // Still only one ledger entry — keyed on matchId.
         expect(save.financeLedger.length).toBe(1)
@@ -192,5 +194,33 @@ describe("applyMatchSponsorGoalProgress", () => {
         expect(sponsor.goals![0].isCompleted).toBe(true)
         // Budget unchanged from first payment (no double-pay).
         expect(team.budget).toBe(105_000)
+    })
+
+    // MARKET-06: friendlies and scrims are no "Win Matches" result and no tournament map.
+    test.each([
+        ["friendly (no tournament)", { id: "f1" }],
+        ["friendly (null tournament)", { id: "f2", tournamentId: null }],
+        ["scrim id", { id: "s1", tournamentId: "SCRIM" }],
+        ["scrim flag", { id: "s2", tournamentId: "league_cis_d4_s1", isScrim: true }],
+    ])("a %s win advances no sponsor goal", (_label, match) => {
+        const sponsor = makeSponsor({
+            goals: [
+                { id: "g1", description: "Win Matches", current: 2, target: 3, bonusPayout: 5000, isCompleted: false },
+                { id: "g2", description: "Win Tournament maps", current: 9, target: 10, bonusPayout: 4000, isCompleted: false },
+            ],
+        })
+        const team = makeTeam({ sponsors: [sponsor] })
+        const save = makeSave(team)
+
+        applyMatchSponsorGoalProgress(save, team, true, 2, match)
+
+        expect(sponsor.goals!.map(g => [g.current, g.isCompleted])).toEqual([[2, false], [9, false]])
+        expect(team.budget).toBe(100_000)
+        expect(save.financeLedger).toHaveLength(0)
+        expect(save.eventsLog).toHaveLength(0)
+
+        // The same win in an official match completes both.
+        applyMatchSponsorGoalProgress(save, team, true, 2, OFFICIAL)
+        expect(sponsor.goals!.every(g => g.isCompleted)).toBe(true)
     })
 })
