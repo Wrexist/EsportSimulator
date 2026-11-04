@@ -6,6 +6,7 @@
  * reputation, and achievements.
  */
 
+import { choiceText } from "@/lib/news-ref"
 import { GameSave, TeamSaveData, GameEventSaveData, TournamentSaveData } from "./save-types"
 import { switchClubManagement } from "./club-management"
 import { ensureBoardState } from "./board-expectations"
@@ -142,8 +143,8 @@ export class JobOfferGenerator {
             if (firstJob) { event.data.firstJob = true; event.data.originTeamId = null }
             event.data.deadlineWeek = save.currentWeek + 52
             event.choices = [
-                { id: "ACCEPT", text: `Accept offer from ${team.name}`, effects: firstJob ? {} : { reputation: 5 } },
-                { id: "DECLINE", text: "Decline", effects: {} },
+                { id: "ACCEPT", ...choiceText({ key: "ev.job.accept", params: { club: team.name } }), effects: firstJob ? {} : { reputation: 5 } },
+                { id: "DECLINE", ...choiceText({ key: "ev.job.decline" }), effects: {} },
             ]
             created.push(event)
         }
@@ -315,12 +316,12 @@ export class JobOfferGenerator {
             choices: [
                 {
                     id: "ACCEPT",
-                    text: `Accept offer from ${offeringTeam.name}`,
+                    ...choiceText({ key: "ev.job.accept", params: { club: offeringTeam.name } }),
                     effects: { reputation: 10 }
                 },
                 {
                     id: "DECLINE",
-                    text: "Decline and stay with current team",
+                    ...choiceText({ key: "ev.job.stay" }),
                     effects: { loyalty: 10 }
                 }
             ]

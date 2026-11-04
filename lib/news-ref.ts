@@ -9,6 +9,16 @@ export function newsText(title: TextRef, content: TextRef): { title: string; con
     return { title: tRefEn(title), content: tRefEn(content), titleRef: title, contentRef: content }
 }
 
+/** An inbox event's title and message: English text plus the keys the inbox shows in the active language. */
+export function eventText(title: TextRef, message: TextRef): { title: string; message: string; titleRef: TextRef; messageRef: TextRef } {
+    return { title: tRefEn(title), message: tRefEn(message), titleRef: title, messageRef: message }
+}
+
+/** An event answer's English text and its translation key. */
+export function choiceText(ref: TextRef): { text: string; ref: TextRef } {
+    return { text: tRefEn(ref), ref }
+}
+
 const REGION_ID: Record<string, string> = { Europe: "EUROPE", CIS: "CIS", Americas: "AMERICAS", "Asia-Pacific": "ASIA_PACIFIC" }
 /** A stored division name ("Europe Division 2") as a translatable value; anything else as stored. */
 export function divisionRef(name: string): TextRef | string {

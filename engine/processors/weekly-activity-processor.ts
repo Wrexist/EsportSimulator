@@ -15,6 +15,8 @@
  * Extracted from store/game-store.ts. Mutates `save` in place.
  */
 
+import { eventText } from "@/lib/news-ref"
+import { formatCurrency } from "@/lib/utils-extended"
 import type { GameSave } from "../save-types"
 import { WEEKLY_ACTIVITIES, type WeeklyActivityType } from "@/types"
 
@@ -47,7 +49,7 @@ export function applyWeeklyActivity(save: GameSave, ctx: WeeklyActivityContext):
         const id = `activity_unaffordable_${save.currentWeek}_${myTeam.id}`
         if (!save.eventsLog.some(e => e.id === id)) save.eventsLog.unshift({
             id, week: save.currentWeek, type: "TEAM_UPDATE", acknowledged: false,
-            data: { title: "Weekly activity cancelled", message: `${activity.name} needs $${activity.cost.toLocaleString()}. No payment was taken and no activity rewards were applied.`, severity: "warning" },
+            data: { ...eventText({ key: "ev.activity.cancelT" }, { key: "ev.activity.cancelM", params: { name: { key: `wfocus.${activity.type}` }, cost: formatCurrency(activity.cost, "$", false) } }), severity: "warning" },
         })
         return
     }
@@ -118,8 +120,7 @@ export function applyWeeklyActivity(save: GameSave, ctx: WeeklyActivityContext):
         week: save.currentWeek,
         acknowledged: false,
         data: {
-            title: `Weekly Focus: ${activity.name}`,
-            message: activity.description,
+            ...eventText({ key: "ev.activity.t", params: { name: { key: `wfocus.${activity.type}` } } }, { key: `wfocus.${activity.type}.desc` }),
             severity: "info",
         },
     })

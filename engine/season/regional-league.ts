@@ -40,8 +40,9 @@ import { LEAGUE_TUNING, leagueCentralPayment } from "@/lib/balance-tuning"
 import { queueMoment } from "../moments"
 import { SeededRNG } from "../rng"
 import { recordTitle } from "../official-stats"
-import { divisionRef, newsText } from "@/lib/news-ref"
-import { ORDINAL_REF } from "@/lib/i18n"
+import { divisionRef, eventText, newsText } from "@/lib/news-ref"
+import { ORDINAL_REF, type TextRef } from "@/lib/i18n"
+import { formatCurrency } from "@/lib/utils-extended"
 
 export const LEAGUE_ID_PREFIX = "league_"
 const BYE = "__bye__"
@@ -304,8 +305,8 @@ function drawSplit(save: GameSave, season: number, cfg: typeof LEAGUE_TUNING.SPL
     const mine = byTeam.get(save.playerTeamId)
     if (mine) {
         const prevDiv = previous?.divisions.find(d => d.teamIds.includes(save.playerTeamId))
-        const moved = prevDiv && prevDiv.region === mine.region && prevDiv.level !== mine.level
-            ? (mine.level < prevDiv.level ? ` Promoted from Division ${prevDiv.level}.` : ` Relegated from Division ${prevDiv.level}.`)
+        const moved: TextRef | string = prevDiv && prevDiv.region === mine.region && prevDiv.level !== mine.level
+            ? { key: mine.level < prevDiv.level ? "ev.draw.promoted" : "ev.draw.relegated", params: { level: prevDiv.level } }
             : ""
         const first = mine.fixtures.filter(f => f.home === save.playerTeamId || f.away === save.playerTeamId).sort((a, b) => a.week - b.week)[0]
         const opp = first ? teamsById.get(first.home === save.playerTeamId ? first.away : first.home)?.name : undefined
@@ -314,8 +315,15 @@ function drawSplit(save: GameSave, season: number, cfg: typeof LEAGUE_TUNING.SPL
             save.eventsLog.unshift({
                 id: eventId, type: "TOURNAMENT", week: save.currentWeek, acknowledged: false,
                 data: {
-                    title: `League draw: ${mine.name}`,
-                    message: `Season ${season}, split ${cfg.split}: ${mine.teamIds.length} clubs, ${mine.format === "DOUBLE" ? "home and away" : "single round robin"}, weeks ${firstWeek}-${lastWeek}.${moved}${first && opp ? ` First fixture: ${opp} in week ${first.week}.` : ""} Top ${LEAGUE_TUNING.PROMOTED} go up, bottom ${LEAGUE_TUNING.RELEGATED} go down.`,
+                    ...eventText({ key: "ev.draw.t", params: { division: divisionRef(mine.name) } }, {
+                        key: "ev.draw.m",
+                        params: {
+                            season, split: cfg.split, clubs: mine.teamIds.length, format: { key: mine.format === "DOUBLE" ? "ev.draw.double" : "ev.draw.single" },
+                            from: firstWeek, to: lastWeek, moved,
+                            first: first && opp ? { key: "ev.draw.first", params: { opp, week: first.week } } : "",
+                            up: LEAGUE_TUNING.PROMOTED, down: LEAGUE_TUNING.RELEGATED,
+                        },
+                    }),
                     severity: "info",
                     teamId: save.playerTeamId,
                     tournamentId: mine.id,
@@ -478,20 +486,20 @@ function completeDivision(save: GameSave, split: LeagueSplit, div: LeagueDivisio
     if (pos < 0) return
     const me = table[pos]
     queueDivisionMoments(save, split, div, playerTeamId, pos, pool)
-    const fate = div.promoted?.includes(playerTeamId) ? ` Promoted to Division ${div.level - 1} for the next split.`
-        : div.relegated?.includes(playerTeamId) ? ` Relegated to Division ${div.level + 1} for the next split.` : ""
+    const fate: TextRef | "" = div.promoted?.includes(playerTeamId) ? { key: "nw.league.up", params: { level: div.level - 1 } }
+        : div.relegated?.includes(playerTeamId) ? { key: "nw.league.down", params: { level: div.level + 1 } } : ""
     const prize = (() => {
         const share = LEAGUE_TUNING.SPLIT_PRIZE_SHARES[pos]
-        return share ? ` Prize money: $${Math.round(pool * share).toLocaleString("en-US")}.` : ""
+        return share ? { key: "ev.final.prize", params: { amount: formatCurrency(Math.round(pool * share), "$", false) } } : ""
     })()
     const eventId = `league_final_${div.id}_${playerTeamId}`
     if (!(eventIdSet?.has(eventId) ?? save.eventsLog.some(e => e.id === eventId))) {
         save.eventsLog.unshift({
             id: eventId, type: "TOURNAMENT", week: save.currentWeek, acknowledged: false,
             data: {
-                title: pos === 0 ? `${div.name} champions!` : `${div.name}: finished ${ordinal(pos + 1)}`,
-                message: `Split ${split.split} is over: ${me.wins}W-${me.losses}L, ${me.points} points, ${ordinal(pos + 1)} of ${table.length}.${prize}${fate}`,
-                severity: pos === 0 || fate.startsWith(" Promoted") ? "success" : fate ? "warning" : "info",
+                ...eventText(pos === 0 ? { key: "ev.final.champions", params: { division: divisionRef(div.name) } } : { key: "ev.final.t", params: { division: divisionRef(div.name), pos: { key: ORDINAL_REF, count: pos + 1 } } },
+                    { key: "ev.final.m", params: { split: split.split, w: me.wins, l: me.losses, points: me.points, pos: { key: ORDINAL_REF, count: pos + 1 }, n: table.length, prize, fate } }),
+                severity: pos === 0 || (fate && fate.key === "nw.league.up") ? "success" : fate ? "warning" : "info",
                 teamId: playerTeamId,
                 tournamentId: div.id,
             },

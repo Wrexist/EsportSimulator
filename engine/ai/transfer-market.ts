@@ -24,6 +24,9 @@
  * sees AIManager.processAIToAITransfers(...) unchanged.
  */
 
+import { formatCurrency } from "@/lib/utils-extended"
+import { choiceText, eventText } from "@/lib/news-ref"
+import { tRefEn } from "@/lib/i18n"
 import type {
     GameSave,
     TeamSaveData,
@@ -242,12 +245,12 @@ export function processAITransferMarket(
                     offerAmount: offerAmount,
                     expiresWeek: save.currentWeek + 2,
                     salaryPerWeek: recruitmentSalary(player, save.currentWeek, aiTeam),
-                    message: `${aiTeam.name} has submitted a transfer offer for ${player.nickname}.`,
+                    message: tRefEn({ key: "ev.bid.m", params: { club: aiTeam.name, name: player.nickname } }),
                 },
                 acknowledged: false,
                 choices: [
-                    { id: "accept", text: "Accept Offer", effects: {} },
-                    { id: "reject", text: "Reject", effects: {} },
+                    { id: "accept", ...choiceText({ key: "ev.bid.accept" }), effects: {} },
+                    { id: "reject", ...choiceText({ key: "ev.bid.reject" }), effects: {} },
                 ],
             })
             openOffersPerPlayer.set(player.id, (openOffersPerPlayer.get(player.id) ?? 0) + 1)
@@ -477,8 +480,8 @@ export function processReleaseClauses(save: GameSave, playerTeamId: string): str
             week: save.currentWeek,
             acknowledged: false,
             data: {
-                title: `${buyer.name} paid ${player.nickname}'s release clause`,
-                message: `${buyer.name} paid the ${fee.toLocaleString("en-US")} release clause in ${player.nickname}'s contract, and he has joined them. The fee is in your budget.`,
+                ...eventText({ key: "ev.release.t", params: { club: buyer.name, name: player.nickname } },
+                    { key: "ev.release.m", params: { club: buyer.name, name: player.nickname, fee: formatCurrency(fee, "$", false) } }),
                 playerId: player.id,
                 teamId: buyer.id,
                 severity: "warning",

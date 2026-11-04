@@ -11,6 +11,8 @@
  * Deterministic: the bench follows the save id and season number. Engine
  * safe: no store, no React.
  */
+import { eventText } from "@/lib/news-ref"
+import { LIST_REF, type TextRef } from "@/lib/i18n"
 import type { MapId } from "@/types"
 import type { GameSave } from "../save-types"
 import { ROTATION_MAP_POOL, getMapName, setActiveMapPool } from "@/data/map-pool"
@@ -64,20 +66,21 @@ export function rotateSeasonMapPool(save: GameSave): MapRotation | null {
     applyMapRotation(save)
     const id = `map_pool_${season}`
     if (!save.eventsLog.some(e => e.id === id)) {
-        const names = (ms: MapId[]) => ms.map(getMapName).join(" and ")
+        const names = (ms: MapId[]): TextRef => ({ key: LIST_REF, params: Object.fromEntries(ms.map((m, i) => [i, getMapName(m)])) })
         save.eventsLog.unshift({
             id,
             type: "TOURNAMENT_UPDATE",
             week: save.currentWeek,
             acknowledged: false,
             data: {
-                title: `Season ${season} map pool: ${names(rotation.benched)} benched`,
-                message: [
-                    `The competitive map pool for season ${season} is ${names(rotation.active)}.`,
-                    `${names(rotation.benched)} ${rotation.benched.length === 1 ? "is" : "are"} out of the pool for the whole season: no league or event match will be played on ${rotation.benched.length === 1 ? "it" : "them"}.`,
-                    rotation.returning.length ? `${names(rotation.returning)} ${rotation.returning.length === 1 ? "is" : "are"} back after a season out.` : "",
-                    "Vetoes ban down from six maps, so check your map records and playbook before the first match.",
-                ].filter(Boolean).join(" "),
+                ...eventText({ key: "ev.maps.t", params: { season, maps: names(rotation.benched) } }, {
+                    key: "ev.maps.m",
+                    params: {
+                        season, active: names(rotation.active),
+                        benched: { key: "ev.maps.benched", count: rotation.benched.length, params: { maps: names(rotation.benched) } },
+                        returning: rotation.returning.length ? { key: "ev.maps.returning", count: rotation.returning.length, params: { maps: names(rotation.returning) } } : "",
+                    },
+                }),
             },
         })
     }
