@@ -55,4 +55,21 @@ export const PERSONALITY = {
     "demand.ambitiousBelow": "{{label}}: your club is {{gap}}+ tiers below his level, so he asks {{wage}} wages.",
     "demand.ambitiousClose": "{{label}}: no premium — your club is close enough to his level.",
     "demand.none": "{{label}}: his personality does not change his demands.",
+
+    // A player's transfer request (engine/processors/dressing-room.ts)
+    "tr.req.t": "{{name}} asks to leave",
+    "tr.req.m": "{{name}} ({{archetype}}) has handed in a transfer request. {{why}} List him and his morale recovers; refuse and it drops; or give him your word: “{{promise}}”. {{rule}} {{outcome}}",
+    "tr.req.bench.one": "He has sat out {{count}} official match and wants to play.",
+    "tr.req.bench.other": "He has sat out {{count}} official matches in a row and wants to play.",
+    "tr.req.morale": "His morale has been below {{n}} for weeks and he doubts the project.",
+    "tr.req.contract": "His contract ends in Week {{week}} and no new deal was offered.",
+    "tr.req.ruleStart": "A promise to start is broken if he sits out {{limit}} official matches in a row within {{weeks}} weeks.",
+    "tr.req.ruleCompete": "A promise to compete is kept by a trophy or a climb of {{gain}} world-ranking places within {{weeks}} weeks.",
+    "tr.req.accept": "Accept: transfer-list him",
+    "tr.req.promise": "Promise: “{{promise}}”",
+    "tr.req.refuse": "Refuse the request",
+    "tr.prom.keptT": "{{name}}: promise kept",
+    "tr.prom.brokenT": "{{name}}: promise broken",
+    "tr.prom.keptM": "You kept your word to {{name}} (“{{promise}}”). Morale +{{morale}}, loyalty +{{loyalty}}.",
+    "tr.prom.brokenM": "{{name}} feels let down: “{{promise}}” did not happen. Morale {{morale}}, loyalty {{loyalty}}.",
 } as const
