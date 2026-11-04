@@ -473,6 +473,18 @@ function startFight(C: Ctx, tb: Body, cb: Body, t: number, d: number): void {
     }
 }
 
+/**
+ * Share of a held angle's edge a player keeps against this foe. The edge is
+ * the first shot at a head that walks into the crosshair; a basic pistol's
+ * first headshot does not kill through a helmet (CS2: Glock / USP-S / P250 /
+ * Tec-9 / Five-SeveN need a second hit), so a pistol holding or posting
+ * against a helmet keeps only SIGHT_PISTOL_HELMET of it. Deagles one-tap
+ * helmets and keep it all.
+ */
+function firstShot(a: Actor, foe: Actor): number {
+    return foe.helmet && (a.wc === "pistol" || a.wc === "pistolB") ? T.SIGHT_PISTOL_HELMET : 1
+}
+
 /** Points one side of a fight brings beyond the duel's own (aim, weapon, armour, HP, numbers). */
 function sidePts(C: Ctx, me: Body, foe: Body, f: Fight, t: number): number {
     const R = C.R
@@ -492,7 +504,8 @@ function sidePts(C: Ctx, me: Body, foe: Body, f: Fight, t: number): number {
     else if (a.blindUntil > t) s -= T.BLIND
     else if (!aware) s -= T.SIGHT_BEHIND
     else if (settled) {
-        s += holdPts(R, a, 0)
+        const hold = holdPts(R, a, 0)
+        s += max(0, hold) * firstShot(a, foe.a) + min(0, hold)
         if (isSniperClass(a.wc) && f.d < 4) s -= T.AWP_HOLD
         s -= min(2, cross) * T.CROSSFIRE
     } else s += peekPts(R, a, cross)
@@ -512,7 +525,7 @@ function sidePts(C: Ctx, me: Body, foe: Body, f: Fight, t: number): number {
     if (a.ct && !R.bomb.planted) s += T.SIGHT_CT_DEFEND
     // Post-plant: the Ts sit on angles around the bomb, the CTs have to come to them.
     // Fewer Ts than retakers leave angles open: the CTs clear them one at a time.
-    if (!a.ct && me.task === "post" && foe.task === "retake") s += max(0, T.SIGHT_POST - T.SIGHT_POST_OPEN * max(0, countAlive(R.CT) - countAlive(R.T)))
+    if (!a.ct && me.task === "post" && foe.task === "retake") s += max(0, T.SIGHT_POST - T.SIGHT_POST_OPEN * max(0, countAlive(R.CT) - countAlive(R.T))) * firstShot(a, foe.a)
     // A retake the coach held for comes in together, with its utility (R2 "hold for retake").
     if (a.ct && C.coachHold && me.task === "retake") s += T.SIGHT_COACH_HOLD
     // Team play: mates close by who see the foe too (a crossfire, a ready trade).
@@ -793,8 +806,8 @@ function executeUtility(C: Ctx, hitters: Body[], t: number): void {
     const R = C.R
     const S = R.S.id
     const st = C.plan.strategy
-    const maxSmokes = st === "execute" ? 3 : st === "rush" || st === "eco" ? 0 : 2
-    const maxFlashes = st === "execute" ? 4 : st === "rush" || st === "eco" ? 1 : 2
+    const maxSmokes = T.SIGHT_HIT_SMOKES[st] ?? 2
+    const maxFlashes = T.SIGHT_HIT_FLASHES[st] ?? 2
     const throwers = [...hitters].sort((a, b) => (b.a.job === "support" ? 1 : 0) - (a.a.job === "support" ? 1 : 0) || b.a.p.grenades - a.a.p.grenades)
     const defenders = () => C.CTs.filter(c => c.a.alive && c.a.post === S)
     let smokes = 0
@@ -1212,9 +1225,12 @@ function fake(C: Ctx, t: number): void {
     }
     const bite = max(0.25, min(0.8, 0.55 + (C.plan.read === "right" ? -0.25 : C.plan.read === "wrong" ? 0.15 : 0)))
     if (rnd(R, P.flow).bool(bite)) {
-        const mover = C.CTs.find(b => b.a.alive && b.a.post === "mid") ?? C.CTs.find(b => b.a.alive && b.a.post === R.S.id)
+        // The CTs who bite: mid first, then players off the real site (one always stays there).
+        const site = C.CTs.filter(b => b.a.alive && b.a.post === R.S.id)
+        const movers = [...C.CTs.filter(b => b.a.alive && b.a.post === "mid"), ...site.slice(0, max(0, site.length - 1))].slice(0, T.FAKE_MOVERS)
+        if (!movers.length && site.length) movers.push(site[0])
         const at = t + rnd(R, P.flow).range(1, 3)
-        if (mover) C.jobs.push({ t: at, run: () => rotate(C, mover, O, at) })
+        for (const mover of movers) C.jobs.push({ t: at, run: () => rotate(C, mover, O, at) })
     }
 }
 
