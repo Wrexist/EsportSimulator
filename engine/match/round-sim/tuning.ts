@@ -152,6 +152,15 @@ export const TUNING = {
     READ_WRONG_BASE: 0.08,
     /** G1 playbook: added chance the CT reads a fixed T call, per earlier use of that call on this map. */
     PLAYBOOK_READ_PER_REPEAT: 0.1,
+    /**
+     * MATCHENGINE-08: how fast each fixed call gets read, times PLAYBOOK_READ_PER_REPEAT. An execute
+     * (the same utility every time) is spotted fastest, then a rush (loud and early); a fake, a default
+     * and a split adapt to what they find and are the hardest to read. Only fixed playbook calls are read
+     * this way (the IGL's own mix is not). Paired against the IGL's mix (managed T full and force buys
+     * fixed on every map, 800 maps per call) the fixed calls now sit between 0 and -4 pp of rounds
+     * (execute 0, rush -1.8, default -2.7, fake -3.5, split -3.7; was execute +1.3 to split -5.9).
+     */
+    PLAYBOOK_READ_CALL: { default: 0.3, execute: 2.5, split: 0.15, fake: 0.4, rush: 1.2 } as Record<string, number>,
     /** Repeats that still add to the read. */
     PLAYBOOK_READ_REPEAT_CAP: 6,
     /** G1 playbook: shift of the T site roll away from a site a fixed CT setup kept stacking (per stack, net of the other site). */
@@ -172,12 +181,20 @@ export const TUNING = {
     SIGHT_CT_DEFEND: 7,
     /** Share of the aim-skill points that counts on the sight engine (1 = the resolver's). */
     SIGHT_SKILL: 0.75,
-    /** Duel points per skill point above the player's team average (the star's swing). */
-    SIGHT_STAR: 0.25,
+    /**
+     * Duel points per skill point above the player's team average (the star's swing). 0.25 -> 0.3
+     * (2026-11, r2 balance): weaker pistol holds cost the star suite's 90 some eco-round kills
+     * (share 26.4% -> 25.7%, at the pass edge, reference about 30%); 0.3 gives 26.6-26.9% and a 1.38x rating.
+     * Even rosters (every other calibration suite) are unaffected.
+     */
+    SIGHT_STAR: 0.3,
     /** Trade points on the sight engine (replaces TRADE; the trading attribute still counts). */
     SIGHT_TRADE: 2,
     /** When the hitters leave their staging spots, by T strategy (s; fake: when the fake shows). */
     SIGHT_EXEC: { default: [66, 96], execute: [46, 72], split: [56, 82], fake: [40, 56], rush: [0, 0], eco: [60, 85] } as Record<string, [number, number]>,
+    /** The hit's grenades by T strategy: smokes and flashes thrown onto the site (executeUtility). An execute threw 4 flashes (MATCHENGINE-08: it was the one fixed call that beat the IGL's mix). */
+    SIGHT_HIT_SMOKES: { default: 2, execute: 3, split: 2, fake: 2, rush: 0, eco: 0 } as Record<string, number>,
+    SIGHT_HIT_FLASHES: { default: 2, execute: 3, split: 2, fake: 2, rush: 1, eco: 1 } as Record<string, number>,
     /** Mid control: seconds after the map's mid time the Ts walk at the mid CT. */
     SIGHT_MID_DELAY: [8, 28] as [number, number],
     /** Spacing of the waypoints a T follows along a route to the staging spot (map-%). */
@@ -206,6 +223,13 @@ export const TUNING = {
     SIGHT_SUPPORT_SKILL: 80,
     /** Weight of a supporter with a pistol when the foe has more than a pistol. */
     SIGHT_SUPPORT_PISTOL: 0.4,
+    /**
+     * Players who show the fake on the other site (with their utility) before joining the real hit late,
+     * and how many CTs rotate to it when they bite (MATCHENGINE-08: two fakers, a lurker and one rotating
+     * CT made the fake the weakest call; it left the real hit with two or three players).
+     */
+    FAKERS: 1,
+    FAKE_MOVERS: 2,
     /** Seconds from the fake to the real execute. */
     SIGHT_FAKE_GAP: [10, 16] as [number, number],
     /** Longest sight line that can start a fight (map-%, ≈ 31 m: the pro p90 kill distance). */
@@ -246,6 +270,8 @@ export const TUNING = {
     SIGHT_RANGE_PISTOL: 1,
     SIGHT_RANGE_SMG: 0.5,
     SIGHT_RANGE_SHOTGUN: 1.5,
+    /** Share of a hold / post-plant edge a basic pistol keeps against a helmet (its first headshot does not kill; see firstShot in sight.ts). */
+    SIGHT_PISTOL_HELMET: 0.5,
     /** Seconds after a teammate's death in which its killer can be traded (trade points). */
     SIGHT_TRADE_WINDOW: 4,
     /** Seconds after a kill in which the killer is exposed. */

@@ -37,8 +37,16 @@ describe('every permitted decision has a measurable, bounded effect over 400 pai
     // loadout-utility sits near its bound (main at 400 seeds: -8.3 pp
     // [-12.7, -3.8]); with map comfort its 400-seed draw moved to -11.5 pp,
     // while 1200 seeds give -8.4 pp [-11.1, -5.8], so it gets 1200 too.
-    const WIDE = new Set(['call-full-buy', 'timeout-on-streak', 'call-force-after-pistol-loss', 'playstyle-countered', 'roles-no-awper', 'loadout-utility'])
-    const reports = SCENARIOS.map(s => runScenario(s, WIDE.has(s.id) ? 1200 : 400))
+    // roles-no-awper is a real but small effect whose 1200-seed CI sat at the
+    // edge: which maps the veto picks moves it (2026-11 MATCHENGINE-10, veto by
+    // map comfort: -0.51 pp [-0.98, -0.03] at 1200), while 3600 independent
+    // seeds (from 40000) give -0.72 pp [-0.99, -0.45]. It gets 2400.
+    // roles-coverage is a large effect (+2.5 pp rounds at 1200 seeds, main and
+    // 2026-11 alike; 2400 independent seeds +2.2 [1.6, 2.9]) whose 400-seed
+    // draw moved to +1.6 [-0.1, 3.2] with the r2 balance, so it gets 1200 too.
+    const WIDE = new Set(['call-full-buy', 'timeout-on-streak', 'call-force-after-pistol-loss', 'playstyle-countered', 'roles-no-awper', 'roles-coverage', 'loadout-utility'])
+    const SEEDS: Record<string, number> = { 'roles-no-awper': 2400 }
+    const reports = SCENARIOS.map(s => runScenario(s, SEEDS[s.id] ?? (WIDE.has(s.id) ? 1200 : 400)))
     test.each(reports.map(r => [r.id, r] as const))('%s', (_id, r) => {
         if (r.id === 'call-save-always') {
             expect(r.verdict).toBe('negative-control')

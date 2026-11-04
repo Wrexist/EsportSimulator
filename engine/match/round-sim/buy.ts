@@ -17,7 +17,7 @@
 import type { CustomTactics, PlayerLoadout, TacticalStrategy } from "@/types"
 import type { SeededRNG } from "../../rng"
 import { WEAPONS } from "../../economy-manager"
-import { performBuyPhase, type BuyStrategy } from "../buy-phase"
+import { loadoutSlots, performBuyPhase, type BuyStrategy } from "../buy-phase"
 import type { PlayerSimulationState } from "../round-outcome"
 import { roleOf, type SimRole } from "./profile"
 
@@ -51,10 +51,17 @@ export function grenadePrice(kind: string, isCT: boolean): number {
 
 const LIMIT: Record<Nade, number> = { flash: 2, smoke: 1, molotov: 1, he: 1 }
 
-function explicitLoadout(customTactics: CustomTactics | undefined, strategy: BuyStrategy, isCT: boolean, slot: number): PlayerLoadout | undefined {
+function loadoutsFor(customTactics: CustomTactics | undefined, strategy: BuyStrategy, isCT: boolean): PlayerLoadout[] | undefined {
     const forStrategy = customTactics ? customTactics[strategy as keyof CustomTactics] : undefined
     const tactic: TacticalStrategy | undefined = forStrategy?.[isCT ? "ct" : "t"]
-    return tactic?.playerLoadouts?.find(l => l.slotIndex === slot)
+    return tactic?.playerLoadouts
+}
+
+/** Each player's explicit loadout, by roster index, slotted as performBuyPhase does (loadoutSlots: the AWP plan goes to the AWPer). */
+function explicitLoadouts(players: { role: string }[], customTactics: CustomTactics | undefined, strategy: BuyStrategy, isCT: boolean): (PlayerLoadout | undefined)[] {
+    const loadouts = loadoutsFor(customTactics, strategy, isCT)
+    const slots = loadoutSlots(players.map(p => p.role), loadouts)
+    return players.map((_, i) => loadouts?.find(l => l.slotIndex === slots[i]))
 }
 
 export function scriptBuyPhase(
@@ -72,10 +79,11 @@ export function scriptBuyPhase(
         keepSavedAwps(players, economy, before, strategy === "DOUBLE AWP" ? 2 : 1)
         dropRifles(players, economy, isCT, customTactics, strategy)
     }
-    players.forEach((p, slot) => {
+    const explicit = explicitLoadouts(players, customTactics, strategy, isCT)
+    players.forEach((p, i) => {
         const state = economy[p.id]
         if (!state) return
-        const loadout = explicitLoadout(customTactics, strategy, isCT, slot)
+        const loadout = explicit[i]
         if (loadout?.utility && loadout.utility.length > 0) return
         const plan = (strategy === "FORCE" ? FORCE_PLAN : PLAN)[roleOf(p.role)]
         const held = state.utility ?? (state.utility = [])
@@ -117,9 +125,10 @@ function keepSavedAwps(players: { id: string }[], economy: Record<string, Player
  */
 function dropRifles(players: { id: string; role: string }[], economy: Record<string, PlayerSimulationState>, isCT: boolean, customTactics: CustomTactics | undefined, strategy: BuyStrategy): void {
     const rifle = isCT ? WEAPONS.M4A4 : WEAPONS.AK47
-    players.forEach((p, slot) => {
+    const explicit = explicitLoadouts(players, customTactics, strategy, isCT)
+    players.forEach((p, i) => {
         const st = economy[p.id]
-        if (!st || explicitLoadout(customTactics, strategy, isCT, slot)) return
+        if (!st || explicit[i]) return
         const w = WEAPONS[st.weapon.toUpperCase()]
         if (w && (w.type === "RIFLE" || w.type === "SNIPER")) return
         const giver = players

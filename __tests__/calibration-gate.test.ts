@@ -23,18 +23,22 @@ const GATE_METRICS = [
 describe(`calibration gate (${DEFAULT_MATCH_ENGINE})`, () => {
     let report: CalibrationReport
     let capReport: CalibrationReport
+    let skillReport: CalibrationReport
     const value = (id: string): number => {
-        const m = [...report.metrics, ...capReport.metrics].find(x => x.id === id)
+        const m = [...skillReport.metrics, ...report.metrics, ...capReport.metrics].find(x => x.id === id)
         if (!m || m.value === null) throw Error(`metric ${id} was not measured`)
         return m.value
     }
 
-    // ~760 BO1 maps: ~2.5 s on legacy-v2; the timeout leaves room for a slower engine.
+    // ~760 BO1 maps plus the cap and skill reruns; the timeout leaves room for a slower engine or a busy machine.
     beforeAll(() => {
         report = runCalibration({ engine: DEFAULT_MATCH_ENGINE, samples: 120, seed: SEED, metrics: GATE_METRICS })
         // The cap is a small effect between two arms; 120 samples leave it about ±5 points of noise, so it gets more.
         capReport = runCalibration({ engine: DEFAULT_MATCH_ENGINE, samples: 360, seed: SEED, metrics: ['nonplayer_cap_*'] })
-    }, 90_000)
+        // The skill curve too: 120 samples play 40 maps per gap (about ±8 points), and the +3 gap's
+        // favourite (55-60% at 600 samples) drew 42.5% there after the 2026-11 r2 balance. 360 give ±5.
+        skillReport = runCalibration({ engine: DEFAULT_MATCH_ENGINE, samples: 360, seed: SEED, metrics: ['fav_win_gap_*', 'fav_curve_max_drop'] })
+    }, 180_000)
 
     test('the default engine is runnable and was measured', () => {
         expect(isMatchEngineRunnable(DEFAULT_MATCH_ENGINE)).toBe(true)
