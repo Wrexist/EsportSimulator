@@ -7,7 +7,6 @@ import {
     CustomTeamData,
     TeamCreationResult,
     DIFFICULTY_SETTINGS,
-    REGION_INFO,
     CLUB_NAME_MAX
 } from '@/types/team-creator'
 import { TeamSaveData, PlayerSaveData } from '@/engine/save-types'
