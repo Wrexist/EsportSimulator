@@ -19,7 +19,6 @@ import { debug } from "@/lib/debug-logger"
 import { SaveManager, saveManager } from "./save-manager"
 import {
     GameSave,
-    TeamSaveData,
     WeekTickState,
     GameEventSaveData,
     TournamentSaveData,
