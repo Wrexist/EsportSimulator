@@ -215,14 +215,16 @@ export function getEventSender(event: GameEventSaveData, ctx: InboxContext): str
 /** A specific subject line ("ace's contract ends in 3 weeks"), not just the type. */
 export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): string {
     const data = dataOf(event)
+    // English titles stored by older code show in the active language where a match exists.
+    const title = typeof data.title === "string" && data.title ? storedText(data.title) : undefined
     if (isTextRef(data.titleRef)) return stripEmoji(getEventTitle(event)).trim()
     const who = playerLabel(data, ctx)
     switch (event.type as string) {
         case "CONTRACT":
-            return num(data.weeksLeft) != null ? tn("ib.subj.contractEnds", data.weeksLeft, { name: who }) : data.title || t("ib.subj.contract", { name: who })
-        case "MORALE": return data.title || t("ib.subj.unhappy", { name: who })
+            return num(data.weeksLeft) != null ? tn("ib.subj.contractEnds", data.weeksLeft, { name: who }) : title || t("ib.subj.contract", { name: who })
+        case "MORALE": return title || t("ib.subj.unhappy", { name: who })
         case "INJURY":
-            if (data.title && (event.id.startsWith("workload_") || event.id.startsWith("knock_"))) return stripEmoji(String(data.title)).trim()
+            if (data.title && (event.id.startsWith("workload_") || event.id.startsWith("knock_"))) return stripEmoji(String(title)).trim()
             if (data.fatigue) return t("ib.subj.burnout", { name: who })
             if (event.id.startsWith("recovery_")) return t("ib.subj.fit", { name: who })
             return num(data.weeksOut) != null ? tn("ib.subj.out", data.weeksOut, { name: who }) : t("ib.subj.injured", { name: who })
@@ -231,15 +233,15 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
         case "TRANSFER_OFFER":
             return num(data.offerAmount) != null ? t("ib.subj.bidAmount", { name: who, amount: formatCurrency(data.offerAmount, "$", false) }) : t("ib.subj.bid", { name: who })
         case "JOB_OFFER": return t("ib.subj.jobOffer", { club: data.offeringTeamName || t("ib.aClub") })
-        case "FAN": return data.title || t("ib.subj.fans")
-        case "SPONSOR": return data.title || t("ib.subj.sponsor")
+        case "FAN": return title || t("ib.subj.fans")
+        case "SPONSOR": return title || t("ib.subj.sponsor")
         case "AI_SIGNING": return t("ib.subj.aiSigning", { club: data.teamName || t("ib.aClub"), name: data.playerName || t("ib.aFreeAgent") })
         case "AI_TRANSFER": return t("ib.subj.aiTransfer", { name: data.playerName || t("ib.aPlayer"), club: data.toTeamName || t("ib.aNewClub") })
         case "RETIREMENT": return t("ib.subj.retires", { name: who })
         case "MEDIA":
             if (data.proAwards?.year != null) return (typeof data.proAwards.minMaps === "number" ? t("ib.subj.proTop20Season", { n: data.proAwards.year }) : t("ib.subj.proTop20Year", { n: data.proAwards.year }))
-            if (!data.title && isTrophyEvent(event)) return trophySubject(data, ctx)
-            return data.title || t("ib.subj.media")
+            if (!title && isTrophyEvent(event)) return trophySubject(data, ctx)
+            return title || t("ib.subj.media")
         case DIGEST_TYPE: {
             const items = digestItems(event)
             const weeks = [...new Set(items.map(i => i.week))].sort((a, b) => a - b)
@@ -247,8 +249,8 @@ export function getEventSubject(event: GameEventSaveData, ctx: InboxContext): st
             return span ? tn("ib.subj.digestSpan", items.length, { span }) : tn("ib.subj.digest", items.length)
         }
         default: {
-            const title = isTextRef(data.titleRef) ? getEventTitle(event) : data.title || getEventTitle(event)
-            return stripEmoji(String(title)).trim() || t("ib.subj.notification")
+            const subject = isTextRef(data.titleRef) ? getEventTitle(event) : title || storedText(getEventTitle(event))
+            return stripEmoji(String(subject)).trim() || t("ib.subj.notification")
         }
     }
 }
