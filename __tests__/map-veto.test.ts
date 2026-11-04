@@ -2,8 +2,8 @@
  * Coverage for engine/match/map-veto.ts.
  *
  * Pins the extracted veto subsystem from Phase I1. Tests cover:
- *  - calculateMapStrengths: skill/tactic weighting per map type, empty
- *    roster fallback
+ *  - calculateMapStrengths: match rating + map comfort (tactic ignored),
+ *    empty roster fallback; legacyMapStrengths: the legacy-v2 skill/tactic table
  *  - selectMapForVeto: deterministic top-pick with analyst-level noise
  *  - simulateMapVeto: full 5-step BO3 ladder produces 3 unique maps
  *    and 5 veto events
@@ -15,6 +15,7 @@
 
 import {
     calculateMapStrengths,
+    legacyMapStrengths,
     selectMapForVeto,
     simulateMapVeto,
 } from "@/engine/match/map-veto"
@@ -47,19 +48,29 @@ describe("calculateMapStrengths", () => {
         }
     })
 
-    test("aim-heavy roster scores higher on Sandstone/Mirage than Overpass", () => {
+    // MATCHENGINE-10: tactic does not move results, so it does not move the veto.
+    test("tactic does not change the veto strengths; match rating does", () => {
+        const low = calculateMapStrengths(Array.from({ length: 5 }, () => makePlayer({ skill: 70, tactic: 30 })))
+        const high = calculateMapStrengths(Array.from({ length: 5 }, () => makePlayer({ skill: 70, tactic: 90 })))
+        expect([...high.values()]).toEqual([...low.values()])
+        expect(new Set(low.values()).size).toBe(1) // no club comfort: every map equal
+        const better = calculateMapStrengths(Array.from({ length: 5 }, () => makePlayer({ skill: 80, tactic: 30 })))
+        expect(better.get(MapId.MIRAGE)!).toBeGreaterThan(low.get(MapId.MIRAGE)!)
+    })
+
+    test("legacy table: aim-heavy roster scores higher on Sandstone/Mirage than Overpass", () => {
         // High skill, low tactic → aim maps favored.
         const players = Array.from({ length: 5 }, () => makePlayer({ skill: 90, tactic: 30 }))
-        const result = calculateMapStrengths(players)
+        const result = legacyMapStrengths(players)
 
         const sandstone = result.get(MapId.SANDSTONE)!
         const overpass = result.get(MapId.OVERPASS)!
         expect(sandstone).toBeGreaterThan(overpass)
     })
 
-    test("tactic-heavy roster scores higher on Overpass than Sandstone/Mirage", () => {
+    test("legacy table: tactic-heavy roster scores higher on Overpass than Sandstone/Mirage", () => {
         const players = Array.from({ length: 5 }, () => makePlayer({ skill: 30, tactic: 90 }))
-        const result = calculateMapStrengths(players)
+        const result = legacyMapStrengths(players)
 
         const sandstone = result.get(MapId.SANDSTONE)!
         const overpass = result.get(MapId.OVERPASS)!
