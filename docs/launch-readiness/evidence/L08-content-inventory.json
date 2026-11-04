@@ -6998,8 +6998,8 @@
     },
     {
       "path": "engine/ai/roster-management.ts",
-      "sha256": "f2161de3fc569c414b9c4ab69228e2c7401a1b14c9389a077ca004a5127aeb5a",
-      "bytes": 14017,
+      "sha256": "96a4d70377ef188003a45d8dc5b9fae0d9b4641f316e9d5bdfdc4cd9639563c6",
+      "bytes": 14092,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7039,13 +7039,18 @@
           "date": "2026-11-03",
           "previousSha256": "9c9af8fac7f934ced05bc60f402b76d7bf0444dbfed74efbd2f33b7bb9346e73",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "f2161de3fc569c414b9c4ab69228e2c7401a1b14c9389a077ca004a5127aeb5a",
+          "change": "news"
         }
       ]
     },
     {
       "path": "engine/ai/transfer-market.ts",
-      "sha256": "35fd8ece740df8238d3bf82078580c0467e40e83731b301009bba480162b8824",
-      "bytes": 23692,
+      "sha256": "5fa20446aeb8335d341cd69a1aa078edbfaee21ebd2ff9d3b48235ff1622eec5",
+      "bytes": 23844,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7072,6 +7077,11 @@
           "date": "2026-11-03",
           "previousSha256": "d601ba6783fa9477acbfb36502c16755f57a9167b167a850017665854a8b16ad",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "35fd8ece740df8238d3bf82078580c0467e40e83731b301009bba480162b8824",
+          "change": "news"
         }
       ]
     },
@@ -7455,8 +7465,8 @@
     },
     {
       "path": "engine/events-manager.ts",
-      "sha256": "44097fa1551aaf267198759ced3bb5c5136ff918c9486f7ada47f9d0862285c9",
-      "bytes": 10618,
+      "sha256": "17872610ec5a6fea4ba3f11ad4716c007d05770f8641e76eb74105fcb98a72ea",
+      "bytes": 10676,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -7470,6 +7480,11 @@
           "date": "2026-11-03",
           "previousSha256": "b2b69d2f7a98c3241d162af7e9548469584575daa05be81255b1a81997239766",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "44097fa1551aaf267198759ced3bb5c5136ff918c9486f7ada47f9d0862285c9",
+          "change": "news"
         }
       ]
     },
@@ -8422,8 +8437,8 @@
     },
     {
       "path": "engine/processors/event-processor.ts",
-      "sha256": "1d3771bfe9b864f037cb7faf1fd01e6c94c7e17a8552db43a1279713b7cfdd21",
-      "bytes": 31726,
+      "sha256": "1752a0f90e38a23d8e549c335884ddd3a4a8818c18a7315e07196c785d0d2b0d",
+      "bytes": 32314,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8437,6 +8452,11 @@
           "date": "2026-11-03",
           "previousSha256": "37e96ac66fa5d6bbd45878074a9468c41de3037130b70ac59e6849e1423eab95",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "1d3771bfe9b864f037cb7faf1fd01e6c94c7e17a8552db43a1279713b7cfdd21",
+          "change": "news"
         }
       ]
     },
@@ -8462,8 +8482,8 @@
     },
     {
       "path": "engine/processors/finance-processor.ts",
-      "sha256": "653888a38d553889c0f77922809c2bd6967735d77aee4c72c76b636578b6af80",
-      "bytes": 22041,
+      "sha256": "f506f0c15c85a1f03a0fbc036125a3898783ff6267f386d2e3369c8e29c74e80",
+      "bytes": 21973,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -8490,6 +8510,11 @@
           "date": "2026-11-03",
           "previousSha256": "c3973c2532a48cd2afa61d3fe5283d75e2533e63d1e5ac7f064970dacf7e2d85",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "653888a38d553889c0f77922809c2bd6967735d77aee4c72c76b636578b6af80",
+          "change": "news"
         }
       ]
     },
@@ -91494,8 +91519,8 @@
     },
     {
       "path": "public/locales/de.json",
-      "sha256": "bf325221b89a5f6386ab905129d3b98b0bc10e687c9a258b92fba1ab6aedd192",
-      "bytes": 345401,
+      "sha256": "035ca6c22f944471f2009273f426ade7eebb36e8985d90809a46b93345d5c163",
+      "bytes": 349710,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91635,13 +91660,18 @@
           "date": "2026-11-03",
           "previousSha256": "7505a35f04e97b88c1251702aa739c7c9e86e254c1a471bae7ed9a8efa15eb7d",
           "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "bf325221b89a5f6386ab905129d3b98b0bc10e687c9a258b92fba1ab6aedd192",
+          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/es.json",
-      "sha256": "59da9db4d189dd2766a51635d39aaa84e990faf4bbaeed5201958604f1889869",
-      "bytes": 363445,
+      "sha256": "e15f3c1da10c887cacdc8d0dcb474932b71414630dda37ef2aa84f34c2cdbc8a",
+      "bytes": 367669,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91776,13 +91806,18 @@
           "date": "2026-11-03",
           "previousSha256": "266249ba79f7e76c1d4b62e14b05c3a76ebec54f11d13dbb6db643cb78156cd7",
           "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "59da9db4d189dd2766a51635d39aaa84e990faf4bbaeed5201958604f1889869",
+          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/fr.json",
-      "sha256": "b14555b08efa910a82c8934cf6bd0ea001ec7255b211efac78e42f47ae6bff91",
-      "bytes": 370481,
+      "sha256": "4e6e429a982f1b5ad541ce66183c4c2c4067d527ad8be80bce6ee36019854359",
+      "bytes": 374832,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -91917,13 +91952,18 @@
           "date": "2026-11-03",
           "previousSha256": "725f436d5786cf39b89d532d69c11af8f9197e0cd92b0275ec80db024bb18333",
           "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "b14555b08efa910a82c8934cf6bd0ea001ec7255b211efac78e42f47ae6bff91",
+          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pl.json",
-      "sha256": "69073f4c87753e1212be7607003d65f4037202178524945a92a2656a6b48967a",
-      "bytes": 369073,
+      "sha256": "9f5b86827399d8aad6559fe9275bda8a410f0282aee58c218710b156bcfede28",
+      "bytes": 373062,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92053,13 +92093,18 @@
           "date": "2026-11-03",
           "previousSha256": "965c0a85d12657238feecf3ba571bf94a76f68832606c1f2466b4882a6dc4159",
           "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "69073f4c87753e1212be7607003d65f4037202178524945a92a2656a6b48967a",
+          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/pt-BR.json",
-      "sha256": "64356f362b36351f408e50b3be5eafea210ff36ea00af409f85c3767b1fb5cd8",
-      "bytes": 358312,
+      "sha256": "e5287c38897dec93888620bbd1079af63c3dc462a7c0c647b1595ad2101e6616",
+      "bytes": 362499,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92189,13 +92234,18 @@
           "date": "2026-11-03",
           "previousSha256": "e5b2e76cacc857b6e74a51420c525dd6fb6125ebeee1192f4c7bb3f2c6805459",
           "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "64356f362b36351f408e50b3be5eafea210ff36ea00af409f85c3767b1fb5cd8",
+          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
     {
       "path": "public/locales/ru.json",
-      "sha256": "31b619b3dd503d1810a067118ac9193070aac7aa241d26f5b980a531bf83da10",
-      "bytes": 501078,
+      "sha256": "1eff2d00fadaf8fde9929cb3ddefdea6dc92079747917babaafb9bbd58782955",
+      "bytes": 506672,
       "kind": "code-and-player-text",
       "source": "Project-authored translation of the game's own English interface text (locales/en.ts); first draft open to player review, terms per locales/GLOSSARY.md.",
       "evidence": "locales/README.md",
@@ -92325,6 +92375,11 @@
           "date": "2026-11-03",
           "previousSha256": "42a03eceb86a0366d6d31e8f715a588de26928e17823cf8e58b33fbd7cf3e5b5",
           "change": "Interface languages, staff: more translated interface text. Text only: no names, media, remote URLs or third-party content."
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "31b619b3dd503d1810a067118ac9193070aac7aa241d26f5b980a531bf83da10",
+          "change": "Interface languages, news: more translated interface text. Text only: no names, media, remote URLs or third-party content."
         }
       ]
     },
@@ -94890,8 +94945,8 @@
     },
     {
       "path": "store/game-store.ts",
-      "sha256": "5213f5a681de49551129327c040ec358bdcfed804a45e848a558c04e83adae96",
-      "bytes": 124789,
+      "sha256": "38bbba300326a3c3f40b7030ff56184f97470a7462e37119ef0427f2c8202371",
+      "bytes": 124861,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -94918,6 +94973,11 @@
           "date": "2026-11-03",
           "previousSha256": "24f3a3e2dd8c863cb579f4c1d80eb4b5d568b3a16d391b194de5c040b7f60803",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "5213f5a681de49551129327c040ec358bdcfed804a45e848a558c04e83adae96",
+          "change": "news"
         }
       ]
     },
@@ -94969,8 +95029,8 @@
     },
     {
       "path": "store/slices/academy-slice.ts",
-      "sha256": "a066728565a75e9d696b48dd05be9a7e86c9def456668408a87e47bfdb814d8c",
-      "bytes": 41364,
+      "sha256": "31ced4d78f8d481841865898fe3e296f4b469e1b2a6be7665a42e6076e1aa2a4",
+      "bytes": 41370,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -94997,6 +95057,11 @@
           "date": "2026-11-03",
           "previousSha256": "80961f206ff6ee55cf743156a1823745a7c5fb22573ca566719c4b02f44a245c",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "a066728565a75e9d696b48dd05be9a7e86c9def456668408a87e47bfdb814d8c",
+          "change": "news"
         }
       ]
     },
@@ -95126,8 +95191,8 @@
     },
     {
       "path": "store/slices/match-simulation-slice.ts",
-      "sha256": "d897e4f3baa90213f00a34fd442c23b8bc276c741fb488fd1dc7a22e492f20d3",
-      "bytes": 42278,
+      "sha256": "17e8ccdc1472d009d918b0ed2cce45322bf6bb933134cf1ba6b45a3df595bdee",
+      "bytes": 42422,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95159,6 +95224,11 @@
           "date": "2026-11-03",
           "previousSha256": "75989eaf957f75751100eef91f326b55dd1c1f52c793ef1923a8ab767610b2c6",
           "change": "Help and game guide translated"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "d897e4f3baa90213f00a34fd442c23b8bc276c741fb488fd1dc7a22e492f20d3",
+          "change": "news"
         }
       ]
     },
@@ -95374,8 +95444,8 @@
     },
     {
       "path": "store/slices/team-facilities-slice.ts",
-      "sha256": "e00b71e750adba87d8775dcad772ee41c9b8b6eebec16c8ec43969189e228d11",
-      "bytes": 22157,
+      "sha256": "d47c9023ac5b04c6752a1e8ca72b46112ae2eaa0d2a815709e5edf60bc48a389",
+      "bytes": 22323,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95402,6 +95472,11 @@
           "date": "2026-11-03",
           "previousSha256": "4f788ba4f84d60501a6cd4430cb6b254ff8d92189d7f3a5ae786490290bcba5a",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "e00b71e750adba87d8775dcad772ee41c9b8b6eebec16c8ec43969189e228d11",
+          "change": "news"
         }
       ]
     },
@@ -95440,8 +95515,8 @@
     },
     {
       "path": "store/slices/tournament-slice.ts",
-      "sha256": "5e1ca2d54d868ca0eb5678e69631ddd53f948e20e795a7f91956868fc905f938",
-      "bytes": 12804,
+      "sha256": "4f60487707e192cd39e216547a153a3485f0a980d6e5e132ad6e99104bb3d5dd",
+      "bytes": 12878,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95468,6 +95543,11 @@
           "date": "2026-11-03",
           "previousSha256": "2c2b4e9eb3f32e538e2c1a2cdd197f252bb8d62bb19a74060d473735c0a0af0a",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "5e1ca2d54d868ca0eb5678e69631ddd53f948e20e795a7f91956868fc905f938",
+          "change": "news"
         }
       ]
     },
@@ -95493,8 +95573,8 @@
     },
     {
       "path": "store/slices/transfer-contract-slice.ts",
-      "sha256": "7eacfaadef3929fd51fe3986e2a89f67b798a3c1b8f72ebb41ec8d40093db95f",
-      "bytes": 36113,
+      "sha256": "b8d904febb6939a4f871b6f446ba67369f3cff8fad062298f19665671e0f16b7",
+      "bytes": 36378,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95521,6 +95601,11 @@
           "date": "2026-11-03",
           "previousSha256": "64f8189a564ddb60542ebabe0dac2f4c75498f11d3b18173711108c040c488fe",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "7eacfaadef3929fd51fe3986e2a89f67b798a3c1b8f72ebb41ec8d40093db95f",
+          "change": "news"
         }
       ]
     },
@@ -95572,8 +95657,8 @@
     },
     {
       "path": "store/types.ts",
-      "sha256": "bb915b2159c6dddc2baeab1d21227374275e6a2afe76a1c595583e0f6289de26",
-      "bytes": 17446,
+      "sha256": "b74068d60acc08564ac780171c10acde6570534247c1e5d45c91cf602d7786a6",
+      "bytes": 17518,
       "kind": "code-and-player-text",
       "source": "Project implementation; embedded text, remote URLs and generated content require review",
       "evidence": null,
@@ -95600,6 +95685,11 @@
           "date": "2026-11-03",
           "previousSha256": "4e0778b199de3f57c656cd28e852b25536fa0e35faea841ba67fd6d690804d04",
           "change": "Merge main"
+        },
+        {
+          "date": "2026-11-03",
+          "previousSha256": "bb915b2159c6dddc2baeab1d21227374275e6a2afe76a1c595583e0f6289de26",
+          "change": "news"
         }
       ]
     },

@@ -6,6 +6,8 @@ import { LEGEND_RETIREMENT_AGE, hallOfFameAchievements, inductIntoHallOfFame, qu
 import { retirementChance } from "../retirement-chance"
 import { WORKLOAD_TUNING, injuryRiskPerWeek, needsWorkloadWarning, riskPct } from "../workload"
 import { plural } from "@/lib/plural"
+import { newsText } from "@/lib/news-ref"
+import { LIST_REF, STORED_REF, type TextRef } from "@/lib/i18n"
 
 export class EventProcessor {
     /**
@@ -359,8 +361,10 @@ export class EventProcessor {
                     const playerTeam = injuredTeam
                     save.newsFeed.unshift({
                         id: `news_inj_${save.currentWeek}_${player.id}`,
-                        title: `${player.nickname} sidelined with ${injuryName}`,
-                        content: `Medical staff have confirmed that ${player.nickname} will be out of action for approximately ${plural(weeksOut, "week")} due to a ${severity.toLowerCase()} ${injuryName.toLowerCase()}.`,
+                        ...newsText(
+                            { key: "nw.injury.t", params: { name: player.nickname, injury: { key: STORED_REF, params: { text: injuryName } } } },
+                            { key: "nw.injury.c", params: { name: player.nickname, injury: { key: STORED_REF, params: { text: injuryName } }, severity: { key: `nw.sev.${severity}` }, weeks: { key: "sl.weeks", count: weeksOut } } },
+                        ),
                         category: "INJURY",
                         playerId: player.id,
                         teamId: playerTeam?.id,
@@ -456,12 +460,15 @@ export class EventProcessor {
             if (save.newsFeed) {
                 save.newsFeed.unshift({
                     id: `news_retirement_${player.id}_${save.currentWeek}`,
-                    title: player.isLegendary
-                        ? `${player.nickname} retires — inducted into Hall of Fame`
-                        : `${player.nickname} announces retirement`,
-                    content: player.isLegendary
-                        ? `After a storied career, ${player.nickname} has retired and been inducted into the Hall of Fame. Achievements: ${(player.legendaryAchievements || []).join(", ")}.`
-                        : `${player.nickname} has announced their retirement from professional esports at age ${player.age}.`,
+                    ...(player.isLegendary
+                        ? newsText(
+                            { key: "nw.retireHof.t", params: { name: player.nickname } },
+                            { key: "nw.retireHof.c", params: { name: player.nickname, achievements: achievementList(player.legendaryAchievements ?? []) } },
+                        )
+                        : newsText(
+                            { key: "nw.retire.t", params: { name: player.nickname } },
+                            { key: "nw.retire.c", params: { name: player.nickname, age: player.age } },
+                        )),
                     category: "RETIREMENT",
                     playerId: player.id,
                     teamId: lastTeamId,
@@ -518,8 +525,10 @@ export class EventProcessor {
                     if (save.newsFeed) {
                         save.newsFeed.unshift({
                             id: `news_legend_${player.id}_${save.currentWeek}`,
-                            title: `${player.nickname} earns Legendary status`,
-                            content: `At age ${player.age}, ${player.nickname} has been recognized as a Legend of the game. Achievements: ${achievements.join(", ")}. They will keep competing for a few more seasons.`,
+                            ...newsText(
+                                { key: "nw.legend.t", params: { name: player.nickname } },
+                                { key: "nw.legend.c", params: { name: player.nickname, age: player.age, achievements: achievementList(achievements) } },
+                            ),
                             category: "RETIREMENT",
                             playerId: player.id,
                             teamId: legendTeamId,
@@ -618,8 +627,10 @@ export class EventProcessor {
             if (save.newsFeed) {
                 save.newsFeed.unshift({
                     id: `news_midretire_${player.id}_${save.currentWeek}`,
-                    title: `${player.nickname} retires mid-season`,
-                    content: `In a surprise move, ${player.nickname} has decided to hang up the mouse mid-season at age ${player.age}, citing declining form and motivation.`,
+                    ...newsText(
+                        { key: "nw.midRetire.t", params: { name: player.nickname } },
+                        { key: "nw.midRetire.c", params: { name: player.nickname, age: player.age } },
+                    ),
                     category: "RETIREMENT",
                     playerId: player.id,
                     teamId: lastTeamId,
@@ -632,4 +643,9 @@ export class EventProcessor {
 
         return { retired, legends }
     }
+}
+
+/** Hall of Fame achievements as a list in the active language (each one a stored English line). */
+function achievementList(items: string[]): TextRef {
+    return { key: LIST_REF, params: Object.fromEntries(items.map((text, i) => [i, { key: STORED_REF, params: { text } }])) }
 }

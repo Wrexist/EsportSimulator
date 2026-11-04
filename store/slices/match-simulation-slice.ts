@@ -72,6 +72,7 @@ import {
 
 import { formatCurrency } from "@/lib/utils-extended"
 import { persistCommittedMatch } from "@/lib/live-checkpoint-store"
+import { newsText } from "@/lib/news-ref"
 const NEWS_FEED_CAP = 50
 
 export interface MatchSimulationActions {
@@ -613,8 +614,10 @@ export const createMatchSimulationSlice: SliceCreator<MatchSimulationActions> = 
                 : `${result.awayScore}-${result.homeScore}`
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_match"),
-                title: `${winner.name} defeat ${loser.name} ${scoreStr}`,
-                content: `${winner.name} secured a ${scoreStr} victory against ${loser.name}.`,
+                ...newsText(
+                    { key: "nw.match.t", params: { winner: winner.name, loser: loser.name, score: scoreStr } },
+                    { key: "nw.match.c", params: { winner: winner.name, loser: loser.name, score: scoreStr } },
+                ),
                 category: "MATCH",
                 teamId: winner.id,
                 week: state.currentWeek,

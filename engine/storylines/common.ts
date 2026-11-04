@@ -351,12 +351,8 @@ export function competitionRef(ctx: StoryContext, match: { tournamentId?: string
     return ctx.save.tournaments.find(t => t.id === match.tournamentId)?.name ?? { key: "sl.theEvent" }
 }
 
-const REGION_ID: Record<string, string> = { Europe: "EUROPE", CIS: "CIS", Americas: "AMERICAS", "Asia-Pacific": "ASIA_PACIFIC" }
-/** A stored division name ("Europe Division 2") as a translatable value; anything else as stored. */
-export function divisionRef(name: string): TextRef | string {
-    const m = /^(Europe|CIS|Americas|Asia-Pacific) Division (\d+)$/.exec(name.trim())
-    return m ? { key: "league.divisionName", params: { region: { key: `region.${REGION_ID[m[1]]}` }, level: Number(m[2]) } } : name
-}
+import { divisionRef } from "@/lib/news-ref"
+export { divisionRef }
 
 /** Season week 1..52. */
 export const weekOfSeason = (week: number): number => ((week - 1) % 52) + 1

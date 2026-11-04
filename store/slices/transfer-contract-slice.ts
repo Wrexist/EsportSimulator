@@ -53,6 +53,7 @@ import {
 import { formatCurrency } from "@/lib/utils-extended"
 import { CLAUSE_TUNING, sanitizeClauseFields, settleSellOn, type NewContractTerms } from "@/engine/contract-clauses"
 import { releaseSettlement, SENIOR_ROSTER_MAX, SENIOR_ROSTER_MIN, squadFullMessage } from "@/engine/roster-rules"
+import { newsText } from "@/lib/news-ref"
 const MAX_ROSTER_SIZE = SENIOR_ROSTER_MAX
 const STRATEGIC_REFUSAL_LOOKAHEAD_WEEKS = 3
 const RENEWAL_RUNWAY_WEEKS = 26
@@ -362,8 +363,12 @@ export const createTransferContractSlice: SliceCreator<TransferContractActions> 
 
                 state.newsFeed.unshift({
                     id: nextDeterministicId(state, "news_tr", playerId, toTeamId),
-                    title: `${player?.nickname || "Player"} joins ${toTeam.name}`,
-                    content: `${player?.nickname || "Player"} has officially completed a move from ${fromName} to ${toTeam.name}. ${normalizedFee > 0 ? `The deal is estimated to be worth ${formatCurrency(normalizedFee, "$", false)}.` : "The player joins as a free agent."}`,
+                    ...newsText(
+                        { key: "nw.joins.t", params: { name: player?.nickname ?? { key: "dl.thePlayer" }, team: toTeam.name } },
+                        normalizedFee > 0
+                            ? { key: "nw.joins.fee", params: { name: player?.nickname ?? { key: "dl.thePlayer" }, from: fromName, team: toTeam.name, fee: formatCurrency(normalizedFee, "$", false) } }
+                            : { key: "nw.joins.free", params: { name: player?.nickname ?? { key: "dl.thePlayer" }, from: fromName, team: toTeam.name } },
+                    ),
                     category: "TRANSFER",
                     playerId,
                     teamId: toTeamId,

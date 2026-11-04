@@ -8,6 +8,7 @@ import { join } from "path"
 import { JOIN_REF, LIST_REF, NUMBER_REF, ORDINAL_REF, STORED_REF, registerLocale, setLocale, tRef, tRefEn } from "@/lib/i18n"
 import { pressText } from "@/engine/storylines/press-view"
 import { lineText, newsContent, newsTitle } from "@/lib/news-text"
+import { divisionRef, newsText } from "@/lib/news-ref"
 import { storedText } from "@/lib/stored-text"
 import { weekHeadline, type WeekReport } from "@/lib/week-report"
 import { rivalLine } from "@/engine/transfer-hype"
@@ -106,5 +107,21 @@ describe("storylines", () => {
         expect(lineText({ text: "x", ref: { key: JOIN_REF, params: { sep: " ", 0: { key: "sl.bp.log", params: { confidence: 30 } }, 1: { key: "sl.gk.reward", params: { fans: { key: NUMBER_REF, count: 12000 }, board: 5 } } } } }))
             .toBe("Vorstandsvertrauen auf 30/100 gefallen. Der Lauf bringt 12.000 neue Follower, und das Vertrauen des Vorstands steigt um 5.")
         expect(lineText({ text: "x", ref: { key: "sl.bp.setbacks", params: { causes: { key: LIST_REF, params: { 0: { key: STORED_REF, params: { text: "Lost to THEM" } } } } } } })).toBe("Jüngste Rückschläge: Lost to THEM.")
+    })
+})
+
+describe("news feed", () => {
+    test("engine news keep English text and show the active language", () => {
+        const item = newsText(
+            { key: "nw.league.won", params: { team: "Us", division: divisionRef("Europe Division 2") } },
+            { key: "nw.league.c", params: { team: "Us", pos: { key: ORDINAL_REF, count: 3 }, n: 10, w: 7, l: 2, fate: { key: "nw.league.up", params: { level: 1 } } } },
+        )
+        expect(item.title).toBe("Us win Europe Division 2")
+        expect(item.content).toBe("Us finished 3rd of 10 (7–2). Promoted to Division 1 for the next split.")
+        setLocale("de")
+        expect(newsTitle(item)).toBe("Us gewinnt Europa Division 2")
+        expect(newsContent(item)).toBe("Us beendet den Split als 3. von 10 (7–2). Aufstieg in Division 1 zum nächsten Split.")
+        const injury = newsText({ key: "nw.injury.t", params: { name: "Ace", injury: { key: STORED_REF, params: { text: "Wrist Strain" } } } }, { key: "nw.sev.MINOR" })
+        expect(newsTitle(injury)).toBe(`Ace fällt aus: ${de["svd.inj.wristStrain"]}`)
     })
 })

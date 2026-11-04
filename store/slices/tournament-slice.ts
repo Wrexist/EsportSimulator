@@ -27,6 +27,7 @@ import { seniorRosterEligibility } from "@/engine/recruitment"
 import { QualificationEngine } from "@/engine/tournament-qualification"
 import { checkAchievements, steamService as steamAchievements } from "@/engine/steam-service"
 import { nextDeterministicId } from "@/store/utils/helpers"
+import { newsText } from "@/lib/news-ref"
 
 export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get) => ({
     registerForTournament: (tournamentId: string) => {
@@ -251,8 +252,10 @@ export const createTournamentSlice: SliceCreator<TournamentActions> = (set, get)
                 const newsId = nextDeterministicId(state, "news_win", tournamentId, teamId)
                 state.newsFeed.unshift({
                     id: newsId,
-                    title: `${team?.name || "Team"} win ${tournamentName}!`,
-                    content: `${team?.name || "Team"} have been crowned champions of ${tournamentName} after a hard-fought battle. This victory marks a significant milestone in their season history.`,
+                    ...newsText(
+                        { key: "nw.cupWin.t", params: { team: team?.name ?? { key: "stf.theClub" }, event: tournamentName } },
+                        { key: "nw.cupWin.c", params: { team: team?.name ?? { key: "stf.theClub" }, event: tournamentName } },
+                    ),
                     category: "TOURNAMENT",
                     teamId: teamId,
                     week: state.currentWeek,

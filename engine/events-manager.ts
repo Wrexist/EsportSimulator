@@ -2,6 +2,7 @@
 import type { GameSave } from "./save-types"
 import type { SeededRNG } from "./rng"
 import { EventType } from "@/types"
+import { newsText } from "@/lib/news-ref"
 
 // Fan milestone thresholds (one-time events)
 const FAN_MILESTONES = [10_000, 50_000, 100_000, 250_000, 500_000, 1_000_000]
@@ -122,8 +123,10 @@ export class EventsManager {
         if (targetPlayer && interestedTeam && save.newsFeed) {
           save.newsFeed.unshift({
             id: newsId,
-            title: `Rumour: ${interestedTeam.name} watching ${targetPlayer.nickname}`,
-            content: `Reports suggest ${interestedTeam.name} is interested in signing ${targetPlayer.nickname}. No formal offer has been made yet.`,
+            ...newsText(
+              { key: "nw.rumour.t", params: { name: targetPlayer.nickname, team: interestedTeam.name } },
+              { key: "nw.rumour.c", params: { name: targetPlayer.nickname, team: interestedTeam.name } },
+            ),
             category: "TRANSFER",
             playerId: targetPid,
             teamId: interestedTeam.id,

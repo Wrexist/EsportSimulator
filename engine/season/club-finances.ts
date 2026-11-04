@@ -22,6 +22,7 @@ import { EconomyEngine } from "../economy-engine"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
 import { aiClubBudget, aiCostControl, ensureAIRosterViability, releaseAIPlayer, signableFreeAgents, swapOverpaidStarter } from "../ai/club-budget"
 import { distressedListingPrice } from "../ai/transfer-market"
+import { newsText } from "@/lib/news-ref"
 
 /** Weekly running costs at the next settlement (the runway denominator). */
 export function weeklyCosts(save: Pick<GameSave, "players" | "contracts" | "staff" | "currentWeek"> & { playerTeamId?: string }, team: TeamSaveData): number {
@@ -134,8 +135,10 @@ export function processAIAdministration(save: GameSave, playerTeamId: string): s
         team.lastAdministrationWeek = save.currentWeek
         save.newsFeed.unshift({
             id: `news_admin_${save.currentWeek}_${team.id}`,
-            title: `${team.name} enter administration`,
-            content: `After ${CLUB_ECONOMY_TUNING.ADMINISTRATION_WEEKS} weeks below zero, ${team.name} have released their bench and staff, closed the academy, cut the wage bill and listed their top earner. New owners have cleared the debt.`,
+            ...newsText(
+                { key: "nw.admin.t", params: { team: team.name } },
+                { key: "nw.admin.c", params: { team: team.name, weeks: { key: "sl.weeks", count: CLUB_ECONOMY_TUNING.ADMINISTRATION_WEEKS } } },
+            ),
             week: save.currentWeek, category: "FINANCE", teamId: team.id,
         })
         affected.push(team.id)

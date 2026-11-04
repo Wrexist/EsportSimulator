@@ -42,6 +42,7 @@ import { applyRosterChangePenalty } from "../chemistry-engine"
 import { recalculateTeamSynergy } from "../processors/team-synergy-recalc"
 import { releaseTriggerChance, settleSellOn } from "../contract-clauses"
 import { SeededRNG, deriveSeed } from "../rng"
+import { newsText } from "@/lib/news-ref"
 
 const MAX_TRANSFER_OFFERS_PER_TEAM_PER_WEEK = 2
 /** Open bids per listed player. Without it every AI club could bid on the same
@@ -383,8 +384,10 @@ export function processAIToAITransfers(
         if (save.newsFeed) {
             save.newsFeed.unshift({
                 id: `news_ai2ai_${save.currentWeek}_${candidate.player.id}`,
-                title: `${candidate.player.nickname} transferred to ${buyer.name}`,
-                content: `${buyer.name} have acquired ${candidate.player.nickname} from ${candidate.team.name} for $${fee.toLocaleString()}.`,
+                ...newsText(
+                    { key: "nw.aiTransfer.t", params: { name: candidate.player.nickname, team: buyer.name } },
+                    { key: "nw.aiTransfer.c", params: { name: candidate.player.nickname, team: buyer.name, from: candidate.team.name, fee: `$${fee.toLocaleString("en-US")}` } },
+                ),
                 category: "TRANSFER",
                 playerId: candidate.player.id,
                 teamId: buyer.id,

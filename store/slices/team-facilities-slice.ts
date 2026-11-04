@@ -36,6 +36,7 @@ import { nextDeterministicId, nextRandomInt, parseBoundedInt, MAX_CONTRACT_LENGT
 import { FACILITY_TYPES } from "@/engine/organization-effects"
 
 import { formatCurrency } from "@/lib/utils-extended"
+import { newsText } from "@/lib/news-ref"
 const MAX_FACILITY_LEVEL = 5
 const FACILITY_BUILD_COST = 10_000
 const FACILITY_UPGRADE_BASE_COST = 25_000
@@ -165,8 +166,10 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
 
                 state.newsFeed.unshift({
                     id: nextDeterministicId(state, "news_fac", facilityType, facility.level),
-                    title: `${team.name} upgrade ${facility.type} Facility`,
-                    content: `${team.name} have officially completed work on their ${facility.type.toLowerCase()} center, now reaching level ${facility.level}. ${facility.description}`,
+                    ...newsText(
+                        { key: "nw.facUp.t", params: { team: team.name, facility: { key: `fac.${facility.type}.name` } } },
+                        { key: "nw.facUp.c", params: { team: team.name, facility: { key: `fac.${facility.type}.name` }, level: facility.level } },
+                    ),
                     category: "FACILITY",
                     teamId: team.id,
                     week: state.currentWeek,
@@ -208,8 +211,10 @@ export const createTeamFacilitiesSlice: SliceCreator<TeamFacilitiesActions> = (s
 
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_fac_new", facilityType),
-                title: `New ${facilityType} Center for ${team.name}`,
-                content: `${team.name} have announced the construction of a new dedicated ${facilityType.toLowerCase()} center to support their operations.`,
+                ...newsText(
+                    { key: "nw.facNew.t", params: { team: team.name, facility: { key: `fac.${facilityType}.name` } } },
+                    { key: "nw.facNew.c", params: { team: team.name, facility: { key: `fac.${facilityType}.name` } } },
+                ),
                 category: "FACILITY",
                 teamId: team.id,
                 week: state.currentWeek,

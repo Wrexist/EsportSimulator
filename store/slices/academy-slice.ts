@@ -74,6 +74,7 @@ import {
 
 import { formatCurrency } from "@/lib/utils-extended"
 import { SENIOR_ROSTER_MAX, squadFullMessage } from "@/engine/roster-rules"
+import { newsText } from "@/lib/news-ref"
 const MAX_ACADEMY_LEVEL = 5
 const MAX_ROSTER_SIZE = SENIOR_ROSTER_MAX
 const ACADEMY_RNG_SALT = 0xACADE
@@ -147,8 +148,10 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_academy", team.id),
-                title: `${team.name} opens Youth Academy`,
-                content: `${team.name} have invested in their future by opening a Youth Academy facility. The organization is now ready to develop the next generation of esports talent.`,
+                ...newsText(
+                    { key: "nw.acOpen.t", params: { team: team.name } },
+                    { key: "nw.acOpen.c", params: { team: team.name } },
+                ),
                 category: "FACILITY",
                 teamId: team.id,
                 week: state.currentWeek,
@@ -200,11 +203,12 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 balance: team.budget,
             })
 
-            const levelInfo = ACADEMY_LEVELS[(currentLevel + 1) as keyof typeof ACADEMY_LEVELS]
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_academy_up", team.id, currentLevel + 1),
-                title: `${team.name} upgrade Academy to ${levelInfo.name}`,
-                content: `${team.name}'s Youth Academy has been upgraded to Level ${currentLevel + 1}. ${levelInfo.description}`,
+                ...newsText(
+                    { key: "nw.acUp.t", params: { team: team.name, level: { key: `ac.level.${currentLevel + 1}` } } },
+                    { key: "nw.acUp.c", params: { team: team.name, level: { key: `ac.level.${currentLevel + 1}` }, n: currentLevel + 1 } },
+                ),
                 category: "FACILITY",
                 teamId: team.id,
                 week: state.currentWeek,
@@ -517,8 +521,10 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
             state.newsFeed.unshift({
                 id: nextDeterministicId(state, "news_promo", player.id),
-                title: `${player.nickname} promoted to ${team.name} main roster`,
-                content: `Rising star ${player.nickname} has graduated from ${team.name}'s Youth Academy and earned a spot on the main roster. The ${player.age}-year-old ${player.nationality} talent has signed a ${Math.round(normalizedLength / 52)}-year contract.`,
+                ...newsText(
+                    { key: "nw.acPromo.t", params: { name: player.nickname, team: team.name } },
+                    { key: "nw.acPromo.c", params: { name: player.nickname, team: team.name, age: player.age, weeks: { key: "sl.weeks", count: normalizedLength } } },
+                ),
                 category: "TRANSFER",
                 teamId: team.id,
                 playerId: player.id,
@@ -763,7 +769,7 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
                 const assigned = employedScout(state.staff.filter(s => s.id === mission.scoutId), team, state.currentWeek)
                 if (!assigned) {
                     mission.weeksRemaining = 0
-                    state.newsFeed.unshift({ id: nextDeterministicId(state, "academy_scout_cancel", mission.id), title: "Academy scouting cancelled", content: "The assigned scout is no longer employed. No prospect report was produced; commissioned costs are not refunded.", category: "STAFF", week: state.currentWeek, teamId: team.id })
+                    state.newsFeed.unshift({ id: nextDeterministicId(state, "academy_scout_cancel", mission.id), ...newsText({ key: "nw.scoutCancel.t" }, { key: "nw.scoutCancel.c" }), category: "STAFF", week: state.currentWeek, teamId: team.id })
                     return
                 }
                 mission.weeksRemaining--
@@ -797,10 +803,15 @@ export const createAcademySlice: SliceCreator<AcademyActions> = (set, get) => ({
 
                 state.newsFeed.unshift({
                     id: nextDeterministicId(state, "news_scout", mission.id),
-                    title: isPoolFull ? `${mission.tier} Scouting Overload` : `${mission.tier} Scouting Complete`,
-                    content: isPoolFull
-                        ? `Your scout found a talent, but your review desk is full (Max ${PENDING_POOL_MAX_SIZE}). The prospect was lost to other teams.`
-                        : `Your scout has found a new talent: ${playerData.nickname} (${playerData.age}y). Review them in the Scouting tab.`,
+                    ...(isPoolFull
+                        ? newsText(
+                            { key: "nw.scoutFull.t", params: { tier: { key: `ac.tier.${mission.tier}` } } },
+                            { key: "nw.scoutFull.c", params: { max: PENDING_POOL_MAX_SIZE } },
+                        )
+                        : newsText(
+                            { key: "nw.scoutDone.t", params: { tier: { key: `ac.tier.${mission.tier}` } } },
+                            { key: "nw.scoutDone.c", params: { name: playerData.nickname, age: playerData.age } },
+                        )),
                     category: "STAFF",
                     week: state.currentWeek,
                     teamId: team.id,

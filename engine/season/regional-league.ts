@@ -40,6 +40,8 @@ import { LEAGUE_TUNING, leagueCentralPayment } from "@/lib/balance-tuning"
 import { queueMoment } from "../moments"
 import { SeededRNG } from "../rng"
 import { recordTitle } from "../official-stats"
+import { divisionRef, newsText } from "@/lib/news-ref"
+import { ORDINAL_REF } from "@/lib/i18n"
 
 export const LEAGUE_ID_PREFIX = "league_"
 const BYE = "__bye__"
@@ -498,8 +500,19 @@ function completeDivision(save: GameSave, split: LeagueSplit, div: LeagueDivisio
     }
     save.newsFeed.unshift({
         id: `news_league_${div.id}_${playerTeamId}`,
-        title: pos === 0 ? `${teamsById.get(playerTeamId)?.name ?? "Your club"} win ${div.name}` : `${div.name} split ${split.split} final table`,
-        content: `${teamsById.get(playerTeamId)?.name ?? "Your club"} finished ${ordinal(pos + 1)} of ${table.length} (${me.wins}W-${me.losses}L).${fate}`,
+        ...newsText(
+            pos === 0
+                ? { key: "nw.league.won", params: { team: teamsById.get(playerTeamId)?.name ?? { key: "stf.theClub" }, division: divisionRef(div.name) } }
+                : { key: "nw.league.table", params: { division: divisionRef(div.name), split: split.split } },
+            {
+                key: "nw.league.c",
+                params: {
+                    team: teamsById.get(playerTeamId)?.name ?? { key: "stf.theClub" }, pos: { key: ORDINAL_REF, count: pos + 1 }, n: table.length, w: me.wins, l: me.losses,
+                    fate: div.promoted?.includes(playerTeamId) ? { key: "nw.league.up", params: { level: div.level - 1 } }
+                        : div.relegated?.includes(playerTeamId) ? { key: "nw.league.down", params: { level: div.level + 1 } } : "",
+                },
+            },
+        ),
         week: save.currentWeek,
         category: "TOURNAMENT",
         teamId: playerTeamId,

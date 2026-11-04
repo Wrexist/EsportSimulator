@@ -35,6 +35,7 @@ import { MOMENTS } from "./en/moments"
 import { PRESS } from "./en/press"
 import { STORYLINES } from "./en/storylines"
 import { DEADLINES } from "./en/deadlines"
+import { NEWS } from "./en/news"
 
 export const EN = {
     // Navigation: top-bar hubs and their tabs (lib/navigation.ts)
@@ -125,7 +126,7 @@ export const EN = {
     ...MARKET,
     ...NEWGAME,
     ...ACADEMY,
-    ...TRAINING, ...STAFF, ...CLUB, ...TOURNAMENTS, ...SCHEDULE, ...LEGACY, ...SCREENS, ...INBOX, ...STORED, ...REPORT, ...HELP, ...SUPPORT, ...MOMENTS, ...PRESS, ...STORYLINES, ...DEADLINES,
+    ...TRAINING, ...STAFF, ...CLUB, ...TOURNAMENTS, ...SCHEDULE, ...LEGACY, ...SCREENS, ...INBOX, ...STORED, ...REPORT, ...HELP, ...SUPPORT, ...MOMENTS, ...PRESS, ...STORYLINES, ...DEADLINES, ...NEWS,
 } as const
 
 export type TranslationKey = keyof typeof EN

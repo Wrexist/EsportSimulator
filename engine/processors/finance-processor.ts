@@ -3,6 +3,7 @@ import { EconomyEngine } from "../economy-engine" // You might need to check thi
 import { SeededRNG } from "../rng"
 import { EventType } from "@/types"
 import { plural } from "@/lib/plural"
+import { newsText } from "@/lib/news-ref"
 
 export interface FinanceProcessorResult {
     income: number
@@ -290,8 +291,10 @@ export class FinanceProcessor {
 
                     save.newsFeed.unshift({
                         id: newsId,
-                        title: isProfit ? `Positive Earnings Reported for ${team.name}` : `${team.name} Reports Financial Deficit`,
-                        content: `${team.name} finished the week with a net ${isProfit ? 'gain' : 'loss'} of $${Math.abs(net).toLocaleString()}. ${isProfit ? 'Management expresses confidence in the current growth trajectory.' : 'Questions are being raised regarding the team\'s current spending levels.'}`,
+                        ...newsText(
+                            { key: isProfit ? "nw.profit.t" : "nw.loss.t", params: { team: team.name } },
+                            { key: isProfit ? "nw.profit.c" : "nw.loss.c", params: { team: team.name, amount: `$${Math.abs(net).toLocaleString("en-US")}` } },
+                        ),
                         category: "FINANCE",
                         teamId: team.id,
                         week: save.currentWeek,
