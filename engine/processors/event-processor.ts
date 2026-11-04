@@ -95,9 +95,9 @@ export class EventProcessor {
                             },
                             acknowledged: false,
                             choices: [
-                                { id: "talk", text: "One-on-One Talk (Morale +10)", effects: { morale: 10 } },
-                                { id: "bonus", text: "Performance Bonus (Money -5k, Loyalty +5)", effects: { money: -5000, loyalty: 5 } },
-                                { id: "ignore", text: "Ignore", effects: { loyalty: -5, morale: -5 } }
+                                { id: "talk", text: "One-on-One Talk (Morale +10)", ref: { key: "rnd.c.talk" }, effects: { morale: 10 } },
+                                { id: "bonus", text: "Performance Bonus (Money -5k, Loyalty +5)", ref: { key: "rnd.c.bonus" }, effects: { money: -5000, loyalty: 5 } },
+                                { id: "ignore", text: "Ignore", ref: { key: "rnd.c.ignore" }, effects: { loyalty: -5, morale: -5 } }
                             ]
                         })
                         await saveManager.recordEventGenerated(transaction, eventId)
@@ -140,8 +140,8 @@ export class EventProcessor {
                         data: { streak: winStreak, teamId: playerTeamId },
                         acknowledged: false,
                         choices: [
-                            { id: "celebrate", text: "Team Dinner (Money -1k, Rep +2)", effects: { money: -1000, reputation: 2 } },
-                            { id: "focus", text: "Stay Focused (Rep +1)", effects: { reputation: 1 } }
+                            { id: "celebrate", text: "Team Dinner (Money -1k, Rep +2)", ref: { key: "rnd.c.dinner" }, effects: { money: -1000, reputation: 2 } },
+                            { id: "focus", text: "Stay Focused (Rep +1)", ref: { key: "rnd.c.focus" }, effects: { reputation: 1 } }
                         ]
                     })
                     await saveManager.recordEventGenerated(transaction, eventId)
@@ -159,8 +159,8 @@ export class EventProcessor {
                         data: { streak: lossStreak, teamId: playerTeamId },
                         acknowledged: false,
                         choices: [
-                            { id: "crisis", text: "Crisis Meeting (Morale +5, Money -500)", effects: { money: -500, morale: 5 } },
-                            { id: "shakeup", text: "Roster Shakeup Warning (Morale -2)", effects: { morale: -2 } }
+                            { id: "crisis", text: "Crisis Meeting (Morale +5, Money -500)", ref: { key: "rnd.c.crisis" }, effects: { money: -500, morale: 5 } },
+                            { id: "shakeup", text: "Roster Shakeup Warning (Morale -2)", ref: { key: "rnd.c.shakeup" }, effects: { morale: -2 } }
                         ]
                     })
                     await saveManager.recordEventGenerated(transaction, eventId)
@@ -180,9 +180,9 @@ export class EventProcessor {
                     data: { hype: playerTeam.merchHype || 10 },
                     acknowledged: false,
                     choices: [
-                        { id: "fan_meet", text: "Host Fan Meetup (Money -2k, Rep +5)", effects: { money: -2000, reputation: 5 } },
-                        { id: "social_post", text: "Social Media Campaign (Rep +1)", effects: { reputation: 1 } },
-                        { id: "ignore_fans", text: "Focus purely on practice (Morale +2)", effects: { morale: 2 } }
+                        { id: "fan_meet", text: "Host Fan Meetup (Money -2k, Rep +5)", ref: { key: "rnd.c.fanMeet" }, effects: { money: -2000, reputation: 5 } },
+                        { id: "social_post", text: "Social Media Campaign (Rep +1)", ref: { key: "rnd.c.social" }, effects: { reputation: 1 } },
+                        { id: "ignore_fans", text: "Focus purely on practice (Morale +2)", ref: { key: "rnd.c.practice" }, effects: { morale: 2 } }
                     ]
                 })
                 await saveManager.recordEventGenerated(transaction, eventId)
@@ -201,8 +201,8 @@ export class EventProcessor {
                     data: { currentSponsors: playerTeam.sponsors?.length || 0 },
                     acknowledged: false,
                     choices: [
-                        { id: "negotiate", text: "Negotiate Performance Bonus (Rep -5)", effects: { reputation: -5 } },
-                        { id: "status_quo", text: "Standard Progress Report (Rep +2)", effects: { reputation: 2 } }
+                        { id: "negotiate", text: "Negotiate Performance Bonus (Rep -5)", ref: { key: "rnd.c.negotiateBonus" }, effects: { reputation: -5 } },
+                        { id: "status_quo", text: "Standard Progress Report (Rep +2)", ref: { key: "rnd.c.report" }, effects: { reputation: 2 } }
                     ]
                 })
                 await saveManager.recordEventGenerated(transaction, eventId)
@@ -231,8 +231,8 @@ export class EventProcessor {
                         acknowledged: false,
                         data: {
                             playerId: player.id,
-                            title: "Player Recovered",
-                            message: `${player.nickname} has fully recovered from their ${player.injury.name} and is ready to compete.`,
+                            ...titled({ key: "rnd.recovered.t" }),
+                            ...messaged({ key: "rnd.recovered.m", params: { name: player.nickname, injury: storedRef(player.injury.name) } }),
                             severity: "success",
                         },
                     })
@@ -616,7 +616,7 @@ export class EventProcessor {
                     playerId: player.id,
                     playerName: player.nickname,
                     isLegendary: false,
-                    message: `${player.nickname} has announced a surprise mid-season retirement at age ${player.age}.`
+                    ...messaged({ key: "nw.midRetire.c", params: { name: player.nickname, age: player.age } }),
                 },
                 acknowledged: false,
             })
