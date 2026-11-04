@@ -15,6 +15,8 @@ import { useFocusTrap } from "@/lib/accessibility"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { WeekReportKpis, WeekReportView } from "./WeekReportView"
+import { reportHeadline } from "./report-model"
+import { t } from "@/lib/i18n"
 
 export function WeekReportModal() {
     const { week, history, stop, close, open, dismissStop } = useGameStore(useShallow(s => ({
@@ -32,7 +34,7 @@ export function WeekReportModal() {
 
     useEffect(() => {
         if (!isOpen) return
-        const t = setTimeout(() => doneRef.current?.focus(), 50)
+        const timer = setTimeout(() => doneRef.current?.focus(), 50)
         // Document bubble phase: focused controls still get their keys, but
         // Space never reaches the shell's advance hotkey (a window listener)
         // while the report is open. Escape closes; Enter/Space close unless a
@@ -46,7 +48,7 @@ export function WeekReportModal() {
             close()
         }
         document.addEventListener("keydown", onKey)
-        return () => { clearTimeout(t); document.removeEventListener("keydown", onKey) }
+        return () => { clearTimeout(timer); document.removeEventListener("keydown", onKey) }
     }, [isOpen, close])
 
     if (!report || !history) return null
@@ -73,17 +75,17 @@ export function WeekReportModal() {
             >
                 <header className="flex items-start justify-between gap-4 px-6 pb-4 pt-5">
                     <div className="min-w-0">
-                        <p className="premium-eyebrow">Season {season} · Week {weekInSeason} report{report.partial ? " · partial week" : ""}</p>
-                        <h2 id="week-report-title" className="font-display text-[26px] font-bold leading-tight text-ink-1">{report.headline}</h2>
+                        <p className="premium-eyebrow">{t("wr.eyebrow", { season, week: weekInSeason })}{report.partial ? ` · ${t("wr.partial")}` : ""}</p>
+                        <h2 id="week-report-title" className="font-display text-[26px] font-bold leading-tight text-ink-1">{reportHeadline(report)}</h2>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
-                        <button type="button" onClick={() => older && open(older.week)} disabled={!older} aria-label="Previous week's report" title={older ? `Week ${older.week}` : undefined} className="flex h-8 w-8 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1 disabled:opacity-30">
+                        <button type="button" onClick={() => older && open(older.week)} disabled={!older} aria-label={t("wr.prev")} title={older ? t("common.week", { n: ((older.week - 1) % 52) + 1 }) : undefined} className="flex h-8 w-8 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1 disabled:opacity-30">
                             <ChevronLeft size={16} />
                         </button>
-                        <button type="button" onClick={() => newer && open(newer.week)} disabled={!newer} aria-label="Next week's report" title={newer ? `Week ${newer.week}` : undefined} className="flex h-8 w-8 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1 disabled:opacity-30">
+                        <button type="button" onClick={() => newer && open(newer.week)} disabled={!newer} aria-label={t("wr.next")} title={newer ? t("common.week", { n: ((newer.week - 1) % 52) + 1 }) : undefined} className="flex h-8 w-8 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1 disabled:opacity-30">
                             <ChevronRight size={16} />
                         </button>
-                        <button type="button" onClick={close} aria-label="Close report" className="ml-1 flex h-8 w-8 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1">
+                        <button type="button" onClick={close} aria-label={t("wr.close")} className="ml-1 flex h-8 w-8 items-center justify-center rounded text-ink-3 hover:bg-raised hover:text-ink-1">
                             <X size={16} />
                         </button>
                     </div>
@@ -99,7 +101,7 @@ export function WeekReportModal() {
                     {showStop && stop ? (
                         <p className="flex min-w-0 items-center gap-2 text-sm" role="status">
                             <span className={cn("shrink-0 text-[11px] font-semibold uppercase tracking-[0.08em]", stop.kind === "match" ? "text-gold" : "text-ink-3")}>
-                                {stop.kind === "match" ? "Match day" : "Stopped"}
+                                {stop.kind === "match" ? t("home.matchDay") : t("advance.stopped")}
                             </span>
                             <span className="truncate font-semibold text-ink-1">{stop.reason}</span>
                             {stop.href && stop.actionLabel && (
@@ -109,10 +111,10 @@ export function WeekReportModal() {
                             )}
                         </p>
                     ) : (
-                        <p className="text-xs text-ink-3">Every number above is a change the game applied this week, with what caused it.</p>
+                        <p className="text-xs text-ink-3">{t("wr.footer")}</p>
                     )}
                     <Button ref={doneRef} onClick={close} className="h-10 px-6">
-                        Continue
+                        {t("advance.continue")}
                     </Button>
                 </footer>
             </div>

@@ -9,7 +9,7 @@
 import { useGameStore } from "@/store/game-store"
 import { Panel } from "@/src/components/ui/Panel"
 import { cn } from "@/lib/utils"
-import { formatMoney, moneyLines, resultsLabel, topPlayerChanges } from "./report-model"
+import { formatMoney, moneyLines, reportHeadline, resultsLabel, topPlayerChanges } from "./report-model"
 import { t } from "@/lib/i18n"
 
 export function LastWeekPanel({ className }: { className?: string }) {
@@ -50,7 +50,7 @@ export function LastWeekPanel({ className }: { className?: string }) {
         >
             <div className="px-4 pb-3 pt-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">{t("common.week", { n: ((report.week - 1) % 52) + 1 })}</p>
-                <p className="mt-1 text-sm font-semibold leading-snug text-ink-1">{report.headline}</p>
+                <p className="mt-1 text-sm font-semibold leading-snug text-ink-1">{reportHeadline(report)}</p>
             </div>
             <dl className="grid grid-cols-4 divide-x divide-line border-y border-line">
                 {stats.map(s => (

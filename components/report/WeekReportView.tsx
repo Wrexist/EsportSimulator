@@ -12,7 +12,8 @@ import { Activity, AlertTriangle, FileWarning, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { WeekReport } from "@/lib/week-report"
 import { FormGuide } from "@/src/components/ui/FixtureBanner"
-import { formatMoney, moneyLines, playerGroups, resultsLabel, teamRows, unansweredRows, type Tone } from "./report-model"
+import { formatMoney, moneyLines, playerGroups, resultsLabel, teamRows, unansweredRows, warningText, type Tone } from "./report-model"
+import { t, tn } from "@/lib/i18n"
 
 const TONE_TEXT: Record<Tone, string> = { up: "text-positive", down: "text-negative", neutral: "text-ink-2" }
 
@@ -44,11 +45,11 @@ export function WeekReportKpis({ report }: { report: WeekReport }) {
     const boardMove = b0 != null && b1 != null ? Math.round(b1 - b0) : 0
     return (
         <div className="grid grid-cols-2 divide-line border-y border-line sm:grid-cols-5 sm:divide-x">
-            <KpiCell label="Money net" value={formatMoney(money.net, true)} tone={money.net > 0 ? "up" : money.net < 0 ? "down" : "neutral"} hint={`Funds ${formatMoney(report.kpis.budget[1])}`} />
-            <KpiCell label="Results" value={resultsLabel(report)} hint={report.matches.length ? `${report.matches.length} match${report.matches.length === 1 ? "" : "es"}` : "Training week"} />
-            <KpiCell label="World rank" value={r1 != null ? `#${r1}` : "—"} tone={rankMove > 0 ? "up" : rankMove < 0 ? "down" : "neutral"} hint={rankMove ? `${rankMove > 0 ? "▲" : "▼"} ${Math.abs(rankMove)} place${Math.abs(rankMove) === 1 ? "" : "s"}` : "No change"} />
-            <KpiCell label="Board" value={b1 != null ? Math.round(b1) : "—"} tone={boardMove > 0 ? "up" : boardMove < 0 ? "down" : "neutral"} hint={boardMove ? `${boardMove > 0 ? "+" : "−"}${Math.abs(boardMove)} confidence` : "Confidence unchanged"} />
-            <KpiCell label="Squad morale" value={m1 != null ? Math.round(m1) : "—"} tone={m0 != null && m1 != null && Math.round(m1) !== Math.round(m0) ? (m1 > m0 ? "up" : "down") : "neutral"} hint={m0 != null && m1 != null ? `Was ${Math.round(m0)}` : undefined} />
+            <KpiCell label={t("wr.kpi.money")} value={formatMoney(money.net, true)} tone={money.net > 0 ? "up" : money.net < 0 ? "down" : "neutral"} hint={t("wr.kpi.funds", { amount: formatMoney(report.kpis.budget[1]) })} />
+            <KpiCell label={t("wr.kpi.results")} value={resultsLabel(report)} hint={report.matches.length ? tn("wr.kpi.matches", report.matches.length) : t("wr.kpi.trainingWeek")} />
+            <KpiCell label={t("svd.worldRank")} value={r1 != null ? `#${r1}` : "—"} tone={rankMove > 0 ? "up" : rankMove < 0 ? "down" : "neutral"} hint={rankMove ? `${rankMove > 0 ? "▲" : "▼"} ${tn("wr.kpi.places", Math.abs(rankMove))}` : t("wr.kpi.noChange")} />
+            <KpiCell label={t("svd.board")} value={b1 != null ? Math.round(b1) : "—"} tone={boardMove > 0 ? "up" : boardMove < 0 ? "down" : "neutral"} hint={boardMove ? t("wr.kpi.confidence", { n: `${boardMove > 0 ? "+" : "−"}${Math.abs(boardMove)}` }) : t("wr.kpi.confidenceSame")} />
+            <KpiCell label={t("wr.kpi.morale")} value={m1 != null ? Math.round(m1) : "—"} tone={m0 != null && m1 != null && Math.round(m1) !== Math.round(m0) ? (m1 > m0 ? "up" : "down") : "neutral"} hint={m0 != null && m1 != null ? t("wr.kpi.was", { n: Math.round(m0) }) : undefined} />
         </div>
     )
 }
@@ -61,10 +62,10 @@ export function WeekReportView({ report }: { report: WeekReport }) {
     return (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
             {/* Player changes */}
-            <section className="min-w-0 rounded-lg border border-line bg-panel" aria-label="Player changes">
-                <SectionTitle aside={<span className="text-xs text-ink-3">Change · cause</span>}>Player changes</SectionTitle>
+            <section className="min-w-0 rounded-lg border border-line bg-panel" aria-label={t("wr.players")}>
+                <SectionTitle aside={<span className="text-xs text-ink-3">{t("wr.changeCause")}</span>}>{t("wr.players")}</SectionTitle>
                 {players.length === 0 ? (
-                    <p className="px-4 py-3 text-sm text-ink-3">No player values changed this week.</p>
+                    <p className="px-4 py-3 text-sm text-ink-3">{t("wr.noPlayerChanges")}</p>
                 ) : (
                     <table className="w-full border-collapse text-left text-[13px]">
                         <tbody>
@@ -95,10 +96,10 @@ export function WeekReportView({ report }: { report: WeekReport }) {
 
             <div className="min-w-0 space-y-4">
                 {/* Matches */}
-                <section className="rounded-lg border border-line bg-panel" aria-label="Matches">
-                    <SectionTitle aside={<span className="text-xs tabular-nums text-ink-3">{resultsLabel(report)}</span>}>Matches</SectionTitle>
+                <section className="rounded-lg border border-line bg-panel" aria-label={t("wr.matches")}>
+                    <SectionTitle aside={<span className="text-xs tabular-nums text-ink-3">{resultsLabel(report)}</span>}>{t("wr.matches")}</SectionTitle>
                     {report.matches.length === 0 ? (
-                        <p className="px-4 py-3 text-sm text-ink-3">No matches this week.</p>
+                        <p className="px-4 py-3 text-sm text-ink-3">{t("wr.noMatches")}</p>
                     ) : (
                         <ul className="divide-y divide-line">
                             {report.matches.map(m => (
@@ -106,7 +107,7 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                                     <Link href={`/match/${m.id}/result`} className="flex h-10 items-center gap-3 px-4 hover:bg-raised">
                                         <FormGuide results={[m.won ? "W" : "L"]} />
                                         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink-1">{m.opponentName}</span>
-                                        <span className="hidden truncate text-xs text-ink-3 sm:inline">{m.forfeit ? "Forfeit" : m.competition}</span>
+                                        <span className="hidden truncate text-xs text-ink-3 sm:inline">{m.forfeit ? t("wr.forfeit") : m.competition === "Scrim" ? t("wr.scrim") : m.competition === "Match" ? t("wr.match") : m.competition}</span>
                                         <span className="w-12 text-right font-display text-lg font-bold tabular-nums text-ink-1">{m.score}</span>
                                     </Link>
                                 </li>
@@ -116,10 +117,10 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                 </section>
 
                 {/* Money by line */}
-                <section className="rounded-lg border border-line bg-panel" aria-label="Money">
-                    <SectionTitle aside={<span className={cn("text-xs font-semibold tabular-nums", money.net < 0 ? "text-negative" : "text-positive")}>{formatMoney(money.net, true)}</span>}>Money</SectionTitle>
+                <section className="rounded-lg border border-line bg-panel" aria-label={t("wr.money")}>
+                    <SectionTitle aside={<span className={cn("text-xs font-semibold tabular-nums", money.net < 0 ? "text-negative" : "text-positive")}>{formatMoney(money.net, true)}</span>}>{t("wr.money")}</SectionTitle>
                     {money.income.length + money.expenses.length === 0 ? (
-                        <p className="px-4 py-3 text-sm text-ink-3">No money moved this week.</p>
+                        <p className="px-4 py-3 text-sm text-ink-3">{t("wr.noMoney")}</p>
                     ) : (
                         <dl className="divide-y divide-line text-[13px]">
                             {[...money.income, ...money.expenses].map(line => (
@@ -136,10 +137,10 @@ export function WeekReportView({ report }: { report: WeekReport }) {
                 </section>
 
                 {/* Team changes */}
-                <section className="rounded-lg border border-line bg-panel" aria-label="Team changes">
-                    <SectionTitle>Team</SectionTitle>
+                <section className="rounded-lg border border-line bg-panel" aria-label={t("wr.team")}>
+                    <SectionTitle>{t("wr.team")}</SectionTitle>
                     {team.length === 0 ? (
-                        <p className="px-4 py-3 text-sm text-ink-3">Ranking, board and chemistry unchanged.</p>
+                        <p className="px-4 py-3 text-sm text-ink-3">{t("wr.noTeam")}</p>
                     ) : (
                         <dl className="divide-y divide-line text-[13px]">
                             {team.map(row => (
@@ -155,8 +156,8 @@ export function WeekReportView({ report }: { report: WeekReport }) {
 
                 {/* Decisions settled by their stated default */}
                 {unanswered.length > 0 && (
-                    <section className="rounded-lg border border-line bg-panel" aria-label="Unanswered decisions">
-                        <SectionTitle aside={<span className="text-xs text-ink-3">Default applied</span>}>Unanswered</SectionTitle>
+                    <section className="rounded-lg border border-line bg-panel" aria-label={t("wr.unansweredAria")}>
+                        <SectionTitle aside={<span className="text-xs text-ink-3">{t("wr.defaultApplied")}</span>}>{t("wr.unanswered")}</SectionTitle>
                         <dl className="divide-y divide-line text-[13px]">
                             {unanswered.map((u, i) => (
                                 <div key={`${u.label}-${i}`} className="flex items-baseline justify-between gap-3 px-4 py-1.5">
@@ -170,15 +171,15 @@ export function WeekReportView({ report }: { report: WeekReport }) {
 
                 {/* Warnings */}
                 {report.warnings.length > 0 && (
-                    <section className="rounded-lg border border-line bg-panel" aria-label="Warnings">
-                        <SectionTitle>Watch</SectionTitle>
+                    <section className="rounded-lg border border-line bg-panel" aria-label={t("wr.warnings")}>
+                        <SectionTitle>{t("wr.watch")}</SectionTitle>
                         <ul className="divide-y divide-line text-[13px]">
                             {report.warnings.map((w, i) => {
                                 const Icon = w.kind === "injury" ? Activity : w.kind === "finance" ? Wallet : w.kind === "contract" ? FileWarning : AlertTriangle
                                 const body = (
                                     <>
                                         <Icon size={14} className={w.kind === "injury" || w.kind === "roster" ? "text-negative" : "text-caution"} />
-                                        <span className="min-w-0 flex-1 text-ink-1">{w.label}</span>
+                                        <span className="min-w-0 flex-1 text-ink-1">{warningText(w.label)}</span>
                                     </>
                                 )
                                 return (
