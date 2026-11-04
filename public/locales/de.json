@@ -1314,7 +1314,7 @@
  "settings.resolution": "Auflösung",
  "settings.resolutionHint": "Fenstergröße im Fenstermodus.",
  "settings.rendering": "Darstellung",
- "settings.renderingHint": "Nur in der Desktop-App. Gilt nach einem Neustart. Bleibt das Fenster mit GPU leer, wechsle zurück zu Software.",
+ "settings.renderingHint": "Nur in der Desktop-App. Gilt nach einem Neustart. Das Steam-Overlay (Umschalt+Tab) braucht GPU. Bleibt das Fenster mit GPU leer, wechsle zurück zu Software.",
  "settings.rendering.software": "Software (Standard)",
  "settings.rendering.gpu": "GPU",
  "settings.uiScale": "Oberflächengröße",

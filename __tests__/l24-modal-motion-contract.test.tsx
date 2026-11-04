@@ -44,6 +44,7 @@ class FakeElement {
     disabled = false
     hidden = false
     isConnected = true
+    role = ''
     constructor(public doc: FakeDocument, public name: string, public tabIndex = -1, public id = '', public focusable = false) {
         doc.register(this)
     }
@@ -56,7 +57,14 @@ class FakeElement {
         return out
     }
     matches() { return this.disabled }
-    closest() { let el: FakeElement | null = this; while (el) { if (el.hidden) return el; el = el.parent } return null }
+    closest(selector = '') {
+        const hit = selector.includes('role=')
+            ? (el: FakeElement) => el.role === 'dialog' || el.role === 'alertdialog'
+            : (el: FakeElement) => el.hidden
+        let el: FakeElement | null = this
+        while (el) { if (hit(el)) return el; el = el.parent }
+        return null
+    }
     getClientRects() { return this.hidden ? [] : [{}] }
     focus() {
         this.doc.activeElement = this
@@ -143,6 +151,63 @@ describe('shared modal focus contract (lib/modal-focus)', () => {
         trigger.isConnected = false
         detach()
         expect(doc.activeElement).toBe(main)
+    })
+
+    // CROSSCUT-01: a Radix Sheet (its own FocusScope trap) opened over a
+    // bespoke modal (the Welcome moment) used to ping-pong focus until
+    // "Maximum call stack size exceeded".
+    function radixLikeSheet(doc: FakeDocument) {
+        const sheet = new FakeElement(doc, 'sheet', -1); sheet.role = 'dialog'
+        const sheetButton = button(doc, 'sheet-close')
+        doc.body.append(sheet.append(sheetButton))
+        // Radix FocusScope: any focus that lands outside the sheet is pulled back in.
+        let active = false
+        const pull = (e: { target: FakeElement }) => { if (active && !sheet.contains(e.target)) sheet.focus() }
+        doc.addEventListener('focusin', pull)
+        return { sheet, sheetButton, open: () => { active = true; sheetButton.focus() }, remove: () => doc.removeEventListener('focusin', pull) }
+    }
+
+    it('does not fight a Radix sheet opened over it (no focus recursion), and leaves its keys alone', () => {
+        const { doc, dialog } = setup()
+        dialog.role = 'dialog'
+        const onEscape = jest.fn()
+        const detach = attachModalFocus(asEl(dialog), { doc: asDoc(doc), getOnEscape: () => onEscape })
+        const radix = radixLikeSheet(doc)
+        expect(() => radix.open()).not.toThrow()
+        expect(radix.sheet.contains(doc.activeElement)).toBe(true)
+        // Escape / Tab belong to the sheet while focus is inside it.
+        const e = doc.keydown('Escape')
+        expect(onEscape).not.toHaveBeenCalled()
+        expect(e.stopPropagation).not.toHaveBeenCalled()
+        expect(doc.keydown('Tab').preventDefault).not.toHaveBeenCalled()
+        radix.remove()
+        detach()
+    })
+
+    it('does not fight a sheet that was already open when the modal attaches', () => {
+        const { doc, dialog } = setup()
+        const radix = radixLikeSheet(doc)
+        radix.open()
+        let detach: () => void = () => {}
+        expect(() => { detach = attachModalFocus(asEl(dialog), { doc: asDoc(doc) }) }).not.toThrow()
+        expect(radix.sheet.contains(doc.activeElement)).toBe(true)
+        radix.remove()
+        detach()
+    })
+
+    it('never answers a competing focus handler recursively, even one that is not a dialog', () => {
+        const { doc, dialog, trigger } = setup()
+        const detach = attachModalFocus(asEl(dialog), { doc: asDoc(doc) })
+        let pulls = 0
+        const rogue = (e: { target: FakeElement }) => { if (e.target !== trigger && pulls++ < 10000) trigger.focus() }
+        doc.addEventListener('focusin', rogue)
+        expect(() => trigger.focus()).not.toThrow()
+        expect(pulls).toBeLessThan(5)
+        doc.removeEventListener('focusin', rogue)
+        // Without the competitor, escaped focus is still pulled back in.
+        trigger.focus()
+        expect(doc.activeElement).toBe(dialog)
+        detach()
     })
 
     it('only the top-most of nested dialogs reacts, and closing it restores focus inside the lower one', () => {

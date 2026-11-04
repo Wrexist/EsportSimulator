@@ -371,6 +371,8 @@ export default function LiveMatchPage() {
             role="main"
             aria-label={t("live.aria", { home: homeTeam?.name ?? "", away: awayTeam?.name ?? "" })}
         >
+            {/* Every screen has an h1; here it is for screen readers only (CROSSCUT-11). */}
+            <h1 className="sr-only">{t("prep.versus", { a: homeTeam?.name ?? "", b: awayTeam?.name ?? "" })}</h1>
             {/* Pre-match derby framing — only renders for HEATED/FIERCE rivalries. */}
             <DerbyBanner homeTeam={homeTeam} awayTeam={awayTeam} />
             <FirstVisitTip tip={SCREEN_TIPS.live} />

@@ -7,8 +7,8 @@ test('preferences apply the same bounded scale to state and the document', () =>
     ;(global as { document?: unknown }).document = doc
     try {
         useSettingsStore.getState().setUiScale(999)
-        expect(useSettingsStore.getState().uiScale).toBe(120)
-        expect(doc.documentElement.style.fontSize).toBe('120%')
+        expect(useSettingsStore.getState().uiScale).toBe(150)
+        expect(doc.documentElement.style.fontSize).toBe('150%')
         useSettingsStore.getState().setUiScale(NaN)
         expect(useSettingsStore.getState().uiScale).toBe(100)
         useSettingsStore.getState().setMasterVolume(NaN)
@@ -48,7 +48,7 @@ test('persisted device data cannot overwrite actions or inject invalid preferenc
             expect(restored.windowMode).toBe(current.windowMode)
             expect(restored.autoSave).toBe(false)
             expect(restored.autoSavePreferenceSet).toBe(true)
-            expect(restored.uiScale).toBe(120)
+            expect(restored.uiScale).toBe(150)
             expect(restored.musicVolume).toBe(0)
             expect(restored.autoSaveInterval).toBe(10)
         })
